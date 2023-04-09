@@ -1635,7 +1635,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> map = Dlg_Imprs->mapdocsaimprimer();
             bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
-            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
+            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
             if (Entete == "") return;
             Entete.replace("{{TITRE1}}"        , "");

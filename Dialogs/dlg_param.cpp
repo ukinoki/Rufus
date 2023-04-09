@@ -295,6 +295,10 @@ dlg_param::dlg_param(QWidget *parent) :
         }
     }//*/
 
+    /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
+    ui->CotationsFrancecheckBox->setChecked(db->parametres()->cotationsfrance());
+    connect (ui->CotationsFrancecheckBox, &QCheckBox::stateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});
+    /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
@@ -310,7 +314,7 @@ dlg_param::dlg_param(QWidget *parent) :
                     from = Villes::DATABASE;
                 ModifBDDVilles(from);
             });
-connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=]{
+        connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=]{
                                                                                        dlg_listevilles *dlg_listvilles = new dlg_listevilles(this);
                                                                                        dlg_listvilles->exec();
                                                                                        delete dlg_listvilles;
@@ -369,6 +373,7 @@ connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=]{
     EnableWidgContent(ui->Instrmtsframe,false);
     EnableWidgContent(ui->Imprimanteframe,false);
     EnableWidgContent(ui->VilleDefautframe,false);
+    ui->CotationsFrancecheckBox         ->setEnabled(false);
     ui->VillesgroupBox                  ->setEnabled(false);
     ui->ModifListVillesupPushButton     ->setEnabled(false);
     ui->GestUserpushButton              ->setEnabled(false);
@@ -917,12 +922,12 @@ void dlg_param::EnableModif(QWidget *obj)
         if (a && ui->RefracteurupComboBox   ->currentIndex()==0)    ui->PortRefracteurupComboBox->setEnabled(false);
         if (a && ui->AutorefupComboBox      ->currentIndex()==0)    ui->PortAutorefupComboBox->setEnabled(false);
         if (a && ui->TonometreupComboBox    ->currentIndex()==0)    ui->PortTonometreupComboBox->setEnabled(false);
-        ui->ParamConnexiontabWidget->setEnabled(a);
+        ui->ParamConnexiontabWidget         ->setEnabled(a);
         EnableWidgContent(ui->Imprimanteframe,a);
         EnableWidgContent(ui->VilleDefautframe,a);
         ui->ModifListVillesupPushButton     ->setEnabled(a);
         ui->VillesgroupBox                  ->setEnabled(a);
-        ui->ImportDocsgroupBox      ->setEnabled(a);
+        ui->ImportDocsgroupBox              ->setEnabled(a);
     }
     else if (obj == ui->LockParamUserupLabel)
     {

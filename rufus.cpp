@@ -340,6 +340,12 @@ void Rufus::ConnectSignals()
     connect (ui->AutresCorresp1upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp2upComboBox);});
     connect (ui->ModifDatepushButton,                               &QPushButton::clicked,                              this,   [=] {ui->ActeDatedateEdit->setEnabled(true); ui->ActeDatedateEdit->setFocus();});
+    connect (ui->ActeDatedateEdit,                                  &QDateTimeEdit::dateChanged,
+            this,
+            [=] (QDate date) {
+                QMap<QString,QVariant>  Age = Utils::CalculAge(currentpatient()->datedenaissance(), date);
+                ui->AgelineEdit             ->setText(Age["toString"].toString());}
+            );
     connect (wdg_modifIdentificationupSmallButton,                  &QPushButton::clicked,                              this,   &Rufus::ChoixMenuContextuelIdentPatient);
     connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelMotsCles);
     connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   &Rufus::ChoixMenuContextuelMotsCles);
@@ -1147,7 +1153,7 @@ void Rufus::AfficheMenu(QMenu *menu)
     {
         actionParametres         ->setVisible(!currentuser()->isNeutre());
     }
-    else if (menu == menuActe)
+    else if (menu == menuActe && menuActe !=Q_NULLPTR)
     {
         bool b = (ui->tabWidget->currentWidget() == ui->tabDossier);
         actionSupprimerActe->setVisible(b);
@@ -3976,6 +3982,8 @@ void Rufus::ModifCotationActe()
     m_autorModifConsult = true;
     ui->Cotationframe->setEnabled(true);
     ui->CCAMlinklabel->setVisible(true);
+    ui->ActeMontantlineEdit->setFocus();
+    ui->ActeMontantlineEdit->selectAll();
 }
 
 void Rufus::ModifierTerrain()
@@ -6157,7 +6165,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn )
     {
-        if (obj == ui->ActeMontantlineEdit)         m_montantActe    = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
+        if (obj == ui->ActeMontantlineEdit)         { m_montantActe    = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2); ui->ActeMontantlineEdit->selectAll(); }
         if (obj == ui->ActeCotationcomboBox)        m_montantActe    = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
         if (obj == ui->ActeDatedateEdit)            m_dateActe       = ui->ActeDatedateEdit->text();
     }
@@ -6440,7 +6448,7 @@ void Rufus::AfficheActe(Acte* acte)
         H = 6.55957;
     }
     else
-        ui->ActeMontantLabel    ->setText(tr("Montant (€)"));
+        ui->ActeMontantLabel    ->setText(tr("Montant") + "(" + QLocale().currencySymbol() + ")");
     double MontantActe = acte->montant()/H;
     ui->ActeMontantlineEdit     ->setText(QLocale().toString(MontantActe,'f',2));
     int idx = ui->ActeCotationcomboBox->findText(acte->cotation());
@@ -7099,15 +7107,16 @@ QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
         html += "<p class=\"p2\">" + tr("NNI") + "\t" + QString::number(pat->NNI()) + "</p>";                   //NNI
     if (pat->profession() != "")
         html += "<p class=\"p3\">" + pat->profession() + "</p>";                                                //Profession
-    if (pat->isald() || pat->iscmu())
-    {
-        html += "<p class=\"p3\"><td width=\"60\">";
-        if (pat->isald())
-            html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                           //ALD
-        if (pat->iscmu())
-            html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b><\font>";                    //CMU
-        html += "</td></p>";
-    }
+    if (db->parametres()->cotationsfrance())
+        if ((pat->isald() || pat->iscmu()))
+        {
+            html += "<p class=\"p3\"><td width=\"60\">";
+            if (pat->isald())
+                html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                           //ALD
+            if (pat->iscmu())
+                html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b><\font>";                    //CMU
+            html += "</td></p>";
+        }
 
     html += "</body></html>";
     return html;
@@ -7576,7 +7585,7 @@ void Rufus::CreerMenu()
     menuEdition->addAction(actionParametres);
     menuEdition->addAction(actionResumeStatut);
 
-    if(menuActe != Q_NULLPTR) {
+    if (menuActe != Q_NULLPTR) {
         menuActe    ->addAction(actionCreerActe);
         menuActe    ->addAction(actionSupprimerActe);
     }
@@ -8024,7 +8033,7 @@ void Rufus::InitWidgets()
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
-    m_val = new upDoubleValidator(0, 10000 , 2, this);
+    m_val = new upDoubleValidator(0, 99999 , 2, this);
     ui->ActeMontantlineEdit->setValidator(m_val);
     ui->PayelineEdit->setValidator(m_val);
     ui->TabaclineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_tabac,this));
@@ -8520,7 +8529,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
-            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription;
+            ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
             if (Entete == "") return;
             Entete.replace("{{TITRE1}}"        , "");

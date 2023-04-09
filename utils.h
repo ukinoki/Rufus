@@ -61,6 +61,12 @@ class Utils : public QObject
     Q_OBJECT
 private:
     static Utils*      instance;
+    static QString cp() {
+        QString mcp = "[0-9]{5}" ;
+        if (QLocale().country() == QLocale::Madagascar)
+            mcp = "[0-9]{3}";
+        return mcp;
+    }
 public:
     enum Day {
                 Aucun       = 0x0,

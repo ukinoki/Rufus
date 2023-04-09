@@ -79,11 +79,20 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
     return false;
 }
 
+QString DataBase::version()
+{
+    bool ok;
+    QString version = "";
+    version = StandardSelectSQL("show variables like 'version'", ok).at(0).at(1).toString();
+    return version;
+}
+
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
+    //qDebug() << m_server << m_port << m_db.hostName() << m_db.port();
     bool useSSL = (m_modeacces == Utils::Distant);
     QString connectSSLoptions = "";
     if (useSSL)
@@ -114,6 +123,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     m_db.setUserName(login + (useSSL ? "SSL" : ""));
     m_db.setPassword(password);
+    //qDebug() << m_db.hostName() << m_db.port() << m_db.userName() << m_db.password();
     Logs::LogSQL("Serveur      - " + m_db.hostName());
     Logs::LogSQL("databaseName - " + m_db.databaseName());
     Logs::LogSQL("Login        - " + m_db.userName());
@@ -570,7 +580,6 @@ void DataBase::setvillesfrance(bool one)
     QString a = (one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VILLES_PARAMSYSTEME " = " + a);
     parametres()->setvillesfrance(one);
-    parametres()->setcotationsfrance(one);
 }
 void DataBase::setcotationsfrance(bool one)
 {

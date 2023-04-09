@@ -843,7 +843,7 @@ QString Procedures::dirSQLExecutable()
 
 /*!
  * \brief Procedures::setDirSQLExecutable
- * La fonction recherche les éxécutables SQL mysql et mysqldump
+ * La fonction recherche les éxécutables SQL: mysql et mysqldump
  * Elle les recherche d'abord dans le package logiciel
  * puis dans Rufus.ini
  * puis dans les standardpaths du système
@@ -853,92 +853,102 @@ QString Procedures::dirSQLExecutable()
 */
 void Procedures::setDirSQLExecutable()
 {
-    QString defaultsqlexecutable = "";
-    QString sqlexecutable ("");
+    QString dirdefaultsqlexecutable = "";
+    QString dirsqlexecutable ("");
     QString executable = "/mysql";
-    bool defaultsql = false;
+    bool isdefaultsql = false;
+/*! 1. On recherche dans le package ligiciel */
 #ifdef Q_OS_MACX
-        QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
-        mysqldir.cdUp();
-        defaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-        defaultsql = QFile(defaultsqlexecutable + executable).exists();
+    QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+    mysqldir.cdUp();
+    dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
+    if (db->version().contains("MariaDB"))
+        dirdefaultsqlexecutable += "/MariaDB";
+    isdefaultsql = QFile(dirdefaultsqlexecutable + executable).exists();
 #endif
 #ifdef Q_OS_WIN
-        executable+= ".exe";
-        QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
-        defaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-        defaultsql = QFile(defaultsqlexecutable + executable).exists();
+    executable+= ".exe";
+    QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+    dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
+    isdefaultsql = QFile(dirdefaultsqlexecutable + executable).exists();
 #endif
-#ifdef Q_OS_LINUX
-        defaultsqlexecutable = "/usr/bin";
-        defaultsql = QFile(defaultsqlexecutable + executable).exists();
-#endif
-    if (defaultsql)
+    if (isdefaultsql)
     {
-        if (defaultsqlexecutable != "")
-            settings()->setValue(Param_SQLExecutable, defaultsqlexecutable);
-        m_dirSQLExecutable = defaultsqlexecutable;
+        if (dirdefaultsqlexecutable != "")
+            settings()->setValue(Param_SQLExecutable, dirdefaultsqlexecutable);
+        m_dirSQLExecutable = dirdefaultsqlexecutable;
         return;
     }
+/*! 2. on recherche dnas les chemisn habituels du système */
     bool a = false;
 #ifdef Q_OS_MACX
-        sqlexecutable = "/usr/local/mysql/bin";
-        if (!QFile(sqlexecutable + executable).exists())
-            sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable).exists());
+    dirsqlexecutable = "/usr/local/mysql/bin";
+    if (!QFile(dirsqlexecutable + "/mysql").exists())
+        dirsqlexecutable = "/usr/local/bin";
+    if (!QFile(dirsqlexecutable + "/mysql").exists())
+        dirsqlexecutable = QStandardPaths::findExecutable("mysql");
+    a = (QFile(dirsqlexecutable + "/mysql").exists());
 #endif
 #ifdef Q_OS_LINUX
-        sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = (QFile(sqlexecutable).exists());
+    dirsqlexecutable = "/usr/bin";
+    if (!QFile(dirsqlexecutable + executable).exists())
+        dirsqlexecutable = QStandardPaths::findExecutable("mysql");
+    a = (QFile(dirsqlexecutable + executable).exists());
 #endif
 #ifdef Q_OS_WIN
-        sqlexecutable = QStandardPaths::findExecutable("mysql");
-        a = QFile(sqlexecutable).exists();
+    dirsqlexecutable = QStandardPaths::findExecutable("mysql");
+    a = QFile(sqlexecutable + executable).exists();
 #endif
-        if (a)
+    if (a)
+    {
+        settings()->setValue(Param_SQLExecutable, dirsqlexecutable);
+        m_dirSQLExecutable = dirsqlexecutable;
+        return;
+    }
+
+/*! 3. On n'a rien trouvé - on teste la valeur enregistrée dans rufus.ini */
+
+    dirsqlexecutable = settings()->value(Param_SQLExecutable).toString();
+    if (QFile(dirsqlexecutable + executable).exists())
+    {
+        m_dirSQLExecutable = dirsqlexecutable;
+        return;
+    }
+
+/*! 4. On n'a rien trouvé - on interroge l'utilisateur */
+
+    UpMessageBox::Information(Q_NULLPTR,
+                              tr("le chemin des programmes mysql et mysqldump (") + dirsqlexecutable + ") n'est pas valide"),
+                              tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
+        while (!a)
+    {
+        QUrl urlexecutable = QUrl();
+        urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                                                          tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
+                                                          (QDir::rootPath()));
+        QString path = urlexecutable.path() + executable;
+        if (urlexecutable == QUrl() || !QFile(path).exists())
         {
-            sqlexecutable = QFileInfo(sqlexecutable).path();
-            settings()->setValue(Param_SQLExecutable, sqlexecutable);
+            if (UpMessageBox::Question(Q_NULLPTR,
+                                       tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
+                                       tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
+                                       UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                                       QStringList() << tr("Annuler") << tr("Reprendre"))
+                != UpSmallButton::STARTBUTTON)
+            {
+                settings()->remove(Param_SQLExecutable);
+                return;
+            }
         }
         else
         {
-            sqlexecutable = settings()->value(Param_SQLExecutable).toString();
-            if (QFile(sqlexecutable + executable).exists())
-                a = true;
+            dirsqlexecutable = urlexecutable.path();
+            a = true;
         }
-        if (!a)
-            UpMessageBox::Information(Q_NULLPTR,
-                                      tr("le chemin des programmes mysql et mysqldump (") + sqlexecutable + ") n'est pas valide"),
-                                      tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
-        while (!a)
-        {
-            QUrl urlexecutable = QUrl();
-            urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                                                              tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
-                                                              (QDir::rootPath()));
-            QString path = urlexecutable.path() + executable;
-            if (urlexecutable == QUrl() || !QFile(path).exists())
-            {
-                if (UpMessageBox::Question(Q_NULLPTR,
-                                           tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
-                                           tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
-                                           UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                                           QStringList() << tr("Annuler") << tr("Reprendre"))
-                        != UpSmallButton::STARTBUTTON)
-                {
-                    settings()->remove(Param_SQLExecutable);
-                    return;
-                }
-            }
-            else
-            {
-                sqlexecutable = urlexecutable.path();
-                a = true;
-            }
-        }
-        if (sqlexecutable != settings()->value(Param_SQLExecutable).toString())
-            settings()->setValue(Param_SQLExecutable, sqlexecutable);
-    m_dirSQLExecutable = sqlexecutable;
+    }
+    if (dirsqlexecutable != settings()->value(Param_SQLExecutable).toString())
+        settings()->setValue(Param_SQLExecutable, dirsqlexecutable);
+    m_dirSQLExecutable = dirsqlexecutable;
 }
 
 /*!
@@ -1475,7 +1485,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             if( user->NumPS() > 0 ) NumSS += " - ";
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
-        Entete.replace("{{NUMSS}}", NumSS);
+        Entete.replace("{{NUMSS}}",  db->parametres()->cotationsfrance()? NumSS : "");
         Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
@@ -3193,15 +3203,15 @@ bool Procedures::Connexion_A_La_Base()
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
 
+    db->initParametresConnexionSQL(server, port);
+    if (!IdentificationUser())
+        return false;
+
     if (dirSQLExecutable() == "")
     {
         Logs::ERROR(tr("Impossible de trouver l'exécutable MySQL"));
         UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base"));
     }
-
-    db->initParametresConnexionSQL(server, port);
-    if (!IdentificationUser())
-        return false;
 
     //initListeUsers();
     CalcLieuExercice();
@@ -3364,7 +3374,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
                                tr("Base de données des villes et codes postaux"),
                                tr("Voulez-vous utiliser la base de données des villes françaises?)"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
-                               QStringList() << "Non" << "Utiliser les codes postaux français")
+                               QStringList() << tr("Non") << tr("Utiliser les codes postaux français"))
             == UpSmallButton::STARTBUTTON)
         from = Villes::DATABASE;
     else
@@ -3378,6 +3388,15 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
         ville = town->nom();
     }
     db->setvillesfrance(from == Villes::DATABASE);
+
+    bool a = (UpMessageBox::Question(Q_NULLPTR,
+                            tr("Cotations françaises"),
+                            tr("Voulez-vous utiliser le système français de cotation des actes médicaux?)"),
+                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                            QStringList() << tr("Non") << tr("Utiliser les cotations françaises"))
+        == UpSmallButton::STARTBUTTON);
+    db->setcotationsfrance(a);
+
     m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
@@ -4433,12 +4452,6 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant)
 {
-    if (dirSQLExecutable() == "")
-    {
-        UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
-        exit(0);
-    }
-
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
@@ -4470,6 +4483,11 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         m_connexionbaseOK = true;
         MDP = Dlg_ParamConnex->ui->MDPlineEdit->text();
         login = Dlg_ParamConnex->ui->LoginlineEdit->text();
+        if (dirSQLExecutable() == "")
+        {
+            UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
+                exit(0);
+        }
         delete Dlg_ParamConnex;
         return true;
     }

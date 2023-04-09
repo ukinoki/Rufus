@@ -990,14 +990,14 @@ void dlg_gestionusers::RegleAffichage()
      */
     DefinitLesVariables();
 
-    ui->RPPSlabel                   ->setVisible(m_responsable);
-    ui->RPPSupLineEdit              ->setVisible(m_responsable);
+    ui->RPPSlabel                   ->setVisible(m_responsable && db->parametres()->cotationsfrance());
+    ui->RPPSupLineEdit              ->setVisible(m_responsable && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(m_soignant);
     ui->CotationupRadioButton       ->setVisible(m_soignantnonremplacant);
     ui->SecteurgroupBox             ->setVisible(m_medecin && m_soignantnonremplacant);
     ui->OPTAMupRadioButton          ->setVisible(m_medecin && m_soignantnonremplacant && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()));
-    ui->NumCOlabel                  ->setVisible(m_medecin);
-    ui->NumCOupLineEdit             ->setVisible(m_medecin);
+    ui->NumCOlabel                  ->setVisible(m_medecin && db->parametres()->cotationsfrance());
+    ui->NumCOupLineEdit             ->setVisible(m_medecin && db->parametres()->cotationsfrance());
     ui->TitreupcomboBox             ->setVisible(m_medecin);
     ui->Titrelabel                  ->setVisible(m_medecin);
     ui->AutreSoignantupLineEdit     ->setVisible(m_autresoignant);
@@ -1191,12 +1191,12 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
 
     bool cotation       = m_userencours->useCCAM();
 
-    ui->RPPSlabel                   ->setVisible(soignant && !assistant);
-    ui->RPPSupLineEdit              ->setVisible(soignant && !assistant);
+    ui->RPPSlabel                   ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
+    ui->RPPSupLineEdit              ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(soignant);
     ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !retrocession);
-    ui->NumCOlabel                  ->setVisible(medecin);
-    ui->NumCOupLineEdit             ->setVisible(medecin);
+    ui->NumCOlabel                  ->setVisible(medecin && db->parametres()->cotationsfrance());
+    ui->NumCOupLineEdit             ->setVisible(medecin && db->parametres()->cotationsfrance());
     ui->SecteurgroupBox             ->setVisible(ophtalmo && !assistant && !retrocession && cotation);
     ui->OPTAMupRadioButton          ->setVisible(ophtalmo && !assistant && !retrocession && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2));
     ui->TitreupcomboBox             ->setVisible(medecin);
@@ -1713,7 +1713,7 @@ bool dlg_gestionusers::VerifFiche()
             return false;
         }
     }
-    if (m_medecin && ui->NumCOupLineEdit->text().isEmpty())
+    if (m_medecin && ui->NumCOupLineEdit->text().isEmpty() && db->parametres()->cotationsfrance())
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié le n° de l'Ordre!"));
         this->ui->NumCOupLineEdit->setFocus();
@@ -1725,7 +1725,7 @@ bool dlg_gestionusers::VerifFiche()
         this->ui->AutreFonctionuplineEdit->setFocus();
         return false;
     }
-    if (m_responsable && ui->RPPSupLineEdit->text().isEmpty())
+    if (m_responsable && ui->RPPSupLineEdit->text().isEmpty() && db->parametres()->cotationsfrance())
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié le RPPS!"));
         this->ui->RPPSupLineEdit->setFocus();

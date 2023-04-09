@@ -112,7 +112,7 @@ public:
     void                    InfosConnexionSQL();                /*! les infos de connexions SQL : host, database, login, mdp */
     int                     idUserConnected() const             { return m_iduserConnected; }
 
-
+    QString                 version();                          /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
 
     /*! les fonctions qui suivent permettent d'éciter les erreurs de date/heure liées au poste utilisé

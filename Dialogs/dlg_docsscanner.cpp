@@ -356,7 +356,7 @@ void dlg_docsscanner::ValideFiche()
 //        qDebug() << "val" << val;
         if (!m_accesdistant)
         {
-            listbinds[CP_ID_DOCSEXTERNES] =     idimpr;
+            listbinds[CP_ID_DOCSEXTERNES] =               idimpr;
             listbinds[CP_IDPAT_DOCSEXTERNES] =            m_iditem;
             listbinds[CP_TYPEDOC_DOCSEXTERNES] =          wdg_typedoccombobx->currentText();
             listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      sstypedoc;
@@ -374,7 +374,7 @@ void dlg_docsscanner::ValideFiche()
                 suffixe = CP_PDF_DOCSEXTERNES;
             else if (suffixe== "jpg" || suffixe == "jpeg")
                 suffixe = CP_JPG_DOCSEXTERNES;
-            listbinds[CP_ID_DOCSEXTERNES] =     idimpr;
+            listbinds[CP_ID_DOCSEXTERNES] =               idimpr;
             listbinds[CP_IDPAT_DOCSEXTERNES] =            m_iditem;
             listbinds[CP_TYPEDOC_DOCSEXTERNES] =          wdg_typedoccombobx->currentText();
             listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      sstypedoc;
@@ -405,7 +405,7 @@ void dlg_docsscanner::ValideFiche()
         lien = "/" + user + "/" + NomFileDoc  + ( m_mode== Echeancier? "" : "-" + QString::number(idimpr)) +"." + suffixe;
         if (!m_accesdistant)
         {
-            listbinds[CP_ID_FACTURES] =        idimpr;
+            listbinds[CP_ID_FACTURES] =               idimpr;
             listbinds[CP_DATEFACTURE_FACTURES] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds[CP_INTITULE_FACTURES] =         sstypedoc;
             listbinds[CP_LIENFICHIER_FACTURES] =      lien;
@@ -415,13 +415,13 @@ void dlg_docsscanner::ValideFiche()
         }
         else
         {
-            listbinds[CP_ID_FACTURES] =        idimpr;
+            listbinds[CP_ID_FACTURES] =               idimpr;
             listbinds[CP_DATEFACTURE_FACTURES] =      wdg_editdate->date().toString("yyyy-MM-dd");
             listbinds[CP_INTITULE_FACTURES] =         sstypedoc;
             listbinds[CP_ECHEANCIER_FACTURES] =       ( m_mode== Echeancier? "1" : QVariant(QMetaType::fromType<QString>()));
             listbinds[CP_IDDEPENSE_FACTURES] =        ( m_mode== Echeancier? QVariant(QMetaType::fromType<QString>()) : QString::number(m_iditem));
-            listbinds[suffixe] =            ba;
-            map_datafacture["lien"] =           "";
+            listbinds[suffixe] =                      ba;
+            map_datafacture["lien"] =                 "";
         }
         b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);
         if(!b)
