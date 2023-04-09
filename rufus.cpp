@@ -341,6 +341,12 @@ void Rufus::ConnectSignals()
     connect (ui->AutresCorresp1upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp1upComboBox);});
     connect (ui->AutresCorresp2upComboBox,                          &QWidget::customContextMenuRequested,               this,   [=] {MenuContextuelCorrespondant(ui->AutresCorresp2upComboBox);});
     connect (ui->ModifDatepushButton,                               &QPushButton::clicked,                              this,   [=] {ui->ActeDatedateEdit->setEnabled(true); ui->ActeDatedateEdit->setFocus();});
+    connect (ui->ActeDatedateEdit,                                  &QDateTimeEdit::dateChanged,
+            this,
+            [=] (QDate date) {
+                QMap<QString,QVariant>  Age = Utils::CalculAge(currentpatient()->datedenaissance(), date);
+                ui->AgelineEdit             ->setText(Age["toString"].toString());}
+            );
     connect (wdg_modifIdentificationupSmallButton,                  &QPushButton::clicked,                              this,   &Rufus::ChoixMenuContextuelIdentPatient);
     connect (ui->MotsClesLabel,                                     &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelMotsCles);
     connect (ui->MotsClesupSmallButton,                             &QPushButton::clicked,                              this,   &Rufus::ChoixMenuContextuelMotsCles);
@@ -3901,6 +3907,8 @@ void Rufus::ModifCotationActe()
     m_autorModifConsult = true;
     ui->Cotationframe->setEnabled(true);
     ui->CCAMlinklabel->setVisible(true);
+    ui->ActeMontantlineEdit->setFocus();
+    ui->ActeMontantlineEdit->selectAll();
 }
 
 void Rufus::ModifierTerrain()
@@ -6056,7 +6064,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn )
     {
-        if (obj == ui->ActeMontantlineEdit)         m_montantActe    = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
+        if (obj == ui->ActeMontantlineEdit)         {m_montantActe    = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2); ui->ActeMontantlineEdit->selectAll();}
         if (obj == ui->ActeCotationcomboBox)        m_montantActe    = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
         if (obj == ui->ActeDatedateEdit)            m_dateActe       = ui->ActeDatedateEdit->text();
     }
@@ -6343,7 +6351,7 @@ void Rufus::AfficheActe(Acte* acte)
         H = 6.55957;
     }
     else
-        ui->ActeMontantLabel    ->setText(tr("Montant (€)"));
+        ui->ActeMontantLabel    ->setText(tr("Montant (") + QLocale().currencySymbol() + ")");
     double MontantActe = acte->montant()/H;
     ui->ActeMontantlineEdit     ->setText(QLocale().toString(MontantActe,'f',2));
     int idx = ui->ActeCotationcomboBox->findText(acte->cotation());
@@ -7903,7 +7911,7 @@ void Rufus::InitWidgets()
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
-    m_val = new upDoubleValidator(0, 10000 , 2, this);
+    m_val = new upDoubleValidator(0, 100000 , 2, this);
     ui->ActeMontantlineEdit->setValidator(m_val);
     ui->PayelineEdit->setValidator(m_val);
     ui->TabaclineEdit->setValidator(new QRegExpValidator(Utils::rgx_tabac,this));

@@ -1295,7 +1295,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             if( user->NumPS() > 0 ) NumSS += " - ";
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
-        Entete.replace("{{NUMSS}}", NumSS);
+        Entete.replace("{{NUMSS}}", db->parametres()->cotationsfrance()? NumSS : "");
         Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);

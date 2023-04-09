@@ -53,6 +53,12 @@ class Utils : public QObject
     Q_OBJECT
 private:
     static Utils*      instance;
+    static QString cp() {
+        QString mcp = "[0-9]{5}" ;
+        if (QLocale().country() == QLocale::Madagascar)
+            mcp = "[0-9]{3}";
+        return mcp;
+    }
 public:
     enum Day {
                 Lundi       = 0x1,
@@ -71,6 +77,7 @@ public:
     enum ModeAcces { Poste = 0x1, ReseauLocal = 0x2, Distant = 0x4};     Q_ENUM(ModeAcces)
     enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum Period {Debut, Fin};
+
 
     static Utils   *I();
 

@@ -47,7 +47,7 @@ QRegExp const Utils::rgx_NNI = QRegExp("[12][0-9]{14}");
 
 QRegExp const Utils::rgx_adresse = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -]*");
 QRegExp const Utils::rgx_intitulecompta = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ0-9°, -/%]*");
-QRegExp const Utils::rgx_CP = QRegExp("[0-9]{5}");
+QRegExp const Utils::rgx_CP = QRegExp(cp());
 QRegExp const Utils::rgx_ville = QRegExp("[éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùûÙçÇ'a-zA-ZŒœ -]*");
 QRegExp const Utils::rgx_telephone = QRegExp("[0-9 ]*");
 
