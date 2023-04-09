@@ -56,7 +56,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     wdg_annuluppushbutton->setIconSize(QSize(30,30));
     wdg_annuluppushbutton->setVisible(true);
 
-    ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgb(200, 210, 210, 50));}");
+    ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
 
     QStandardItemModel *model = new QStandardItemModel(this);
     for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)

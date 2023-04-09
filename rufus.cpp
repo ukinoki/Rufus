@@ -3936,7 +3936,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     ui->TerraintreeWidget->setStyleSheet("QTreeWidget {selection-color: rgb(0,0,0);"
                                          " selection-background-color: rgb(164, 205, 255);"
                                          " background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));"
-                                         " border: 1px solid rgba(150,150,150); border-radius: 10px;}");
+                                         " border: 1px solid rgb(150,150,150); border-radius: 10px;}");
     ui->TerraintreeWidget->setIconSize(QSize(25,25));
     ui->TerraintreeWidget->header()->setVisible(false);
     QTreeWidgetItem *pItem0, *pItem1, *pItem2, *pItem3, *pItem4, *pItem5;
@@ -5105,9 +5105,9 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
 
             UpTextEdit *Msgtxt = new UpTextEdit();
-            Msgtxt->setStyleSheet("border: 1px solid rgba(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
+            Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
             if  (msg->isurgent())
-                Msgtxt->setStyleSheet("border: 2px solid rgba(251, 51, 61);border-radius: 5px; background-color:#FFFFFF;");
+                Msgtxt->setStyleSheet("border: 2px solid rgb(251, 51, 61);border-radius: 5px; background-color:#FFFFFF;");
             Msgtxt->setText(msg->texte());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
@@ -5241,7 +5241,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
 
             UpTextEdit *Msgtxt = new UpTextEdit();
-            Msgtxt->setStyleSheet("border: 1px solid rgba(164, 205, 255);border-radius: 5px; background-color:#FFFFDD;");
+            Msgtxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFDD;");
             Msgtxt->setText(msg->texte());
             QString txt1 = Msgtxt->toHtml();
             Msgtxt->setText(txt1);
@@ -5335,7 +5335,7 @@ void Rufus::MsgResp(int idmsg)
     UpDialog *dlg_msgRepons = new UpDialog(this);
 
     UpTextEdit* rponstxt = new UpTextEdit();
-    rponstxt->setStyleSheet("border: 1px solid rgba(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
+    rponstxt->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px; background-color:#FFFFFF;");
     dlg_msgRepons->dlglayout()->insertWidget(0,rponstxt);
 
     QHBoxLayout *lbllayout  = new QHBoxLayout();
@@ -7009,16 +7009,16 @@ QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
         html += "<p class=\"p2\">" + tr("NNI") + "\t" + QString::number(pat->NNI()) + "</p>";                   //NNI
     if (pat->profession() != "")
         html += "<p class=\"p3\">" + pat->profession() + "</p>";                                                //Profession
-    if (pat->isald() || pat->iscmu())
-    {
-        html += "<p class=\"p3\"><td width=\"60\">";
-        if (pat->isald() && db->parametres()->cotationsfrance())
-            html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                           //ALD
-        if (pat->iscmu() && db->parametres()->cotationsfrance())
-            html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b><\font>";                    //CMU
-        html += "</td></p>";
-    }
-
+    if (db->parametres()->cotationsfrance())
+        if (pat->isald() || pat->iscmu())
+        {
+            html += "<p class=\"p3\"><td width=\"60\">";
+            if (pat->isald())
+                html += "<font size = \"5\"><font color = \"red\"><b>ALD</b></font>";                                           //ALD
+            if (pat->iscmu())
+                html += "</td><td width=\"60\"><font size = \"5\"><font color = \"blue\"><b>CMU</b><\font>";                    //CMU
+            html += "</td></p>";
+        }
     html += "</body></html>";
     return html;
 }
@@ -7480,7 +7480,6 @@ void Rufus::CreerMenu()
     menuEdition->addSeparator();
     menuEdition->addAction(actionParametres);
     menuEdition->addAction(actionResumeStatut);
-
     if (menuActe)
     {
         menuActe    ->addAction(actionCreerActe);
@@ -7915,7 +7914,7 @@ void Rufus::InitWidgets()
     ui->ActeCotationcomboBox->lineEdit()->setFont(ui->ActeMontantlineEdit->font());
     ui->ActeCotationcomboBox->setFont(ui->ActeMontantlineEdit->font());
 
-    m_val = new upDoubleValidator(0, 100000 , 2, this);
+    m_val = new upDoubleValidator(0, 99999 , 2, this);
     ui->ActeMontantlineEdit->setValidator(m_val);
     ui->PayelineEdit->setValidator(m_val);
     ui->TabaclineEdit->setValidator(new QRegExpValidator(Utils::rgx_tabac,this));
