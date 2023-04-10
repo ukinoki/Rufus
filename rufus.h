@@ -276,7 +276,6 @@ private:
 
     UpDialog                *dlg_rechParMotCle, *dlg_listPatients;
 
-    QSystemTrayIcon         *ict_messageIcon;
 
     ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;
     bool                    isPosteImport();
@@ -411,6 +410,8 @@ private:
     QAction         *actionJournalDepenses          = Q_NULLPTR;
     QAction         *actionRemiseCheques            = Q_NULLPTR;
     QAction         *actionQuit                     = Q_NULLPTR;
+    QMenu           *m_trayIconMenu                 = new QMenu();
+    QSystemTrayIcon *ict_messageIcon                = new QSystemTrayIcon(this);
 };
 
 #endif // RUFUS_H

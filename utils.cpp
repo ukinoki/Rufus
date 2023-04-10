@@ -309,7 +309,7 @@ QSize Utils::CalcSize(QString txt, QFont fm)
     int         nlignes         = lmsg.size();
     for (int k=0; k<nlignes; k++)
     {
-        int x   = int(QFontMetrics(fm).width(lmsg.at(k))*correction);
+        int x   = int(QFontMetrics(fm).horizontalAdvance(lmsg.at(k))*correction);
         w       = (x>w? x : w);
         //qDebug() << lmsg.at(k) + " - ligne = " + QString::number(k+1) + " - largeur = " + QString::number(w);
     }
@@ -771,20 +771,28 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
     }
     QString queryStr(file.readAll());
     file.close();
+    QRegularExpression re;
     // On retire tous les commentaires, les tabulations, les espaces ou les retours à la ligne multiples
     //        queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/)",   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(^;\\n)",                   QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("(--.*\\n)",                 QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-    queryStr = queryStr.replace(QRegularExpression("( +)",                      QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
-    queryStr = queryStr.replace(QRegularExpression("((\\t)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), " ");
-    queryStr = queryStr.replace(QRegularExpression("(^ *)",                     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    queryStr = queryStr.replace(QRegularExpression("((\\n)+)",                  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+    re.setPattern("(\\/\\*(.|\\n)*?\\*\\/)");
+    queryStr = queryStr.replace(re, "");
+    re.setPattern("(^;\\n)");
+    queryStr = queryStr.replace(re, "");
+    re.setPattern("(--.*\\n)");
+    queryStr = queryStr.replace(re, "\n");
+    re.setPattern("( +)");
+    queryStr = queryStr.replace(re, " ");
+    re.setPattern("((\\t)+)");
+    queryStr = queryStr.replace(re, " ");
+    re.setPattern("(^ *)");
+    queryStr = queryStr.replace(re, "");
+    re.setPattern("((\\n)+)");
+    queryStr = queryStr.replace(re, "\n");
     //Retire les espaces en début et fin de string
     queryStr = queryStr.trimmed();
 
     QString matched, delimiter, Atraiter;
-    QRegularExpression re("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
+    re.setPattern("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
 
     while (queryStr.size()>0 && queryStr.contains(";"))
     {
@@ -792,27 +800,35 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
         QRegularExpressionMatch match = re.match(queryStr);
         if (match.hasMatch())  // --> c'est une procédure à créer
         {
-            matched     = match.capturedTexts().at(0);
-            Atraiter    = matched.trimmed();
-            //Edit(Atraiter);
-            delimiter   = Atraiter.data()[Atraiter.size()-1];
-            //Edit(delimiter);
-            Atraiter.replace(QRegularExpression("DELIMITER\\s*"),"");
-            Atraiter.replace(delimiter,"");
-            Atraiter = Atraiter.replace(QRegularExpression("(^ *)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-            Atraiter = Atraiter.replace(QRegularExpression("(^(\\n)+)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-            Atraiter = Atraiter.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
-            //Edit(Atraiter);
-            queryStr.replace(0,matched.size(),"");
+                matched     = match.capturedTexts().at(0);
+                Atraiter    = matched.trimmed();
+                //Edit(Atraiter);
+                delimiter   = Atraiter.data()[Atraiter.size()-1];
+                //Edit(delimiter);
+                re.setPatternOptions(QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption);
+                re.setPattern("DELIMITER\\s*");
+                Atraiter.replace(re,"");
+                Atraiter.replace(delimiter,"");
+                re.setPattern("^ *)");
+                Atraiter.replace(re,"");
+                re.setPattern("(^(\\n)+)");
+                Atraiter.replace(re,"");
+                re.setPattern("((\\n)+)");
+                Atraiter.replace(re,"\n");
+
+                //Edit(Atraiter);
+                queryStr.replace(0,matched.size(),"");
         }
         else                    // -- c'est une requête SQL
         {
-            matched = queryStr.split(";\n", QString::SkipEmptyParts).at(0);
-            Atraiter = matched.trimmed()+ ";";
-            queryStr.replace(0,matched.size()+2,"");
-            queryStr = queryStr.replace(QRegularExpression("((\\n)+)",  QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "\n");
+                matched = queryStr.split(";\n", Qt::SkipEmptyParts).at(0);
+                Atraiter = matched.trimmed()+ ";";
+                queryStr.replace(0,matched.size()+2,"");
+                re.setPattern("((\\n)+)");
+                queryStr = queryStr.replace(re, "\n");
         }
-        queryStr = queryStr.replace(QRegularExpression("(^(\\n)*)",     QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
+        re.setPattern("(^(\\n)*)");
+        queryStr = queryStr.replace(re, "");
         listinstruct << Atraiter;
     }
     return listinstruct;
@@ -987,7 +1003,7 @@ void Utils::CalcFontSize(QFont &font)
     {
         font.setPointSize(i);
         QFontMetrics fm(font);
-        int Htaille = fm.width("date de naissance");
+        int Htaille = fm.horizontalAdvance("date de naissance");
         if (Htaille > 108 || fm.height()*1.1 > 20)
         {
             font.setPointSize(i-1);

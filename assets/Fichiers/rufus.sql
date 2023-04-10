@@ -411,9 +411,9 @@ CREATE TABLE `ParametresSysteme` (
   `DimancheBkup` int(1) DEFAULT NULL,
   `HeureBkup` time DEFAULT NULL,
   `DirBkup` varchar(250) DEFAULT NULL,
-  `VillesFrance` int(1) DEFAULT NULL,
-  `CotationsFrance` int(1) DEFAULT NULL,
-  `ComptaFrance` int(1) DEFAULT NULL
+  `VillesFrance` int(1) DEFAULT 1,
+  `CotationsFrance` int(1) DEFAULT 1,
+  `ComptaFrance` int(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

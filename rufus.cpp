@@ -18,11 +18,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "rufus.h"
 #include "ui_rufus.h"
 
+
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-03-2023/1");
+    qApp->setApplicationVersion("08-04-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -3993,7 +3994,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
             pit->setText(0,"");
             pit->setText(1,listhash.at(i));
-            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, listhash.at(i));
         }
     }
@@ -4011,7 +4012,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4029,7 +4030,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4062,7 +4063,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4090,7 +4091,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem5);
             pit->setText(0,"");
             pit->setText(1,hash);
-            if (fm.width(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.horizontalAdvance(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, hash);
         }
     }
@@ -5506,6 +5507,7 @@ void Rufus::ReconstruitListeMessages()
         msg = tr("Vous avez ") + QString::number(m_totalNvxMessages) + tr(" nouveaux messages");
     else if (m_totalNvxMessages>0)
         msg = tr("Vous avez 1 nouveau message");
+
     if (msg!="")
     {
         QSound::play(NOM_ALARME);
@@ -7945,14 +7947,10 @@ void Rufus::InitWidgets()
 
     ui->CreerDDNdateEdit->setDateRange(m_currentdate.addYears(-105),m_currentdate);
 
-    QMenu *trayIconMenu;
-    trayIconMenu = new QMenu();
-
-    QAction *pAction_VoirMessages = trayIconMenu->addAction(tr("Voir les messages"));
+    QAction *pAction_VoirMessages = m_trayIconMenu->addAction(tr("Voir les messages"));
     connect (pAction_VoirMessages, &QAction::triggered, this,    &Rufus::AfficheBAL);
 
-    ict_messageIcon = new QSystemTrayIcon(this);
-    ict_messageIcon->setContextMenu(trayIconMenu);
+    ict_messageIcon->setContextMenu(m_trayIconMenu);
     ict_messageIcon->setIcon(Icons::icPostit());
     connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=] {AfficheBAL();});
 

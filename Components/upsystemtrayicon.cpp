@@ -53,7 +53,8 @@ void UpSystemTrayIcon::showListMessages()
     if (!isVisible())
         show();
     int duree = list_messages.first()["duree"].toInt();
-    QSystemTrayIcon::showMessage(list_messages.first()["titre"].toString(), list_messages.first()["texte"].toString(), list_icons.first(), duree);
+    QSystemTrayIcon tray;
+    tray.showMessage(list_messages.first()["titre"].toString(), list_messages.first()["texte"].toString(), list_icons.first(), duree);
     list_messages.removeAt(0);
     list_icons.removeAt(0);
     QTimer::singleShot(duree, this, &UpSystemTrayIcon::showListMessages);

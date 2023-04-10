@@ -51,7 +51,7 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     int         nlignes         = lmsg.size();
     for (int k=0; k<nlignes; k++)
     {
-        int x   = int(QFontMetrics(qApp->font()).width(lmsg.at(k))*1.1); //le 1.1 est là pour tenir compte des éventuels caractères gras
+        int x   = int(QFontMetrics(qApp->font()).horizontalAdvance(lmsg.at(k))*1.1); //le 1.1 est là pour tenir compte des éventuels caractères gras
         w       = (x>w? x : w);
     }
     Msgtxt              ->setFixedSize(w,int(hauteurligne)*nlignes);
@@ -64,8 +64,8 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     dlg                 ->setLayout(lay);
     dlg                 ->setWindowFlags(Qt::SplashScreen);
 
-    int yy              = qApp->desktop()->availableGeometry().height();
-    int xx              = qApp->desktop()->availableGeometry().width();
+    int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
+    int xx              = QGuiApplication::primaryScreen()->availableGeometry().width();
     dlg                 ->move(xx - w - 45 - (marge*2) - lay->spacing()-15, yy - (int(hauteurligne)*nlignes) - marge*2);
     dlg                 ->show();
 
@@ -109,8 +109,8 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     prioritydlg         ->setLayout(lay);
     prioritydlg         ->setWindowFlags(Qt::SplashScreen);
 
-    int yy              = qApp->desktop()->availableGeometry().height();
-    int xx              = qApp->desktop()->availableGeometry().width();
+    int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
+    int xx              = QGuiApplication::primaryScreen()->availableGeometry().width();
     prioritydlg         ->move(xx/2 - w/2 - marge - lay->spacing()-15, yy/2 - (int(hauteurligne)*nlignes)/2 - marge);
     prioritydlg         ->show();
     if (parent != Q_NULLPTR)
