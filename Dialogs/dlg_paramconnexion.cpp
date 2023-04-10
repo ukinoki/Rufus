@@ -213,9 +213,6 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
                             + error);
         return false;
     }
-    /*! la connection à la base fonctionne -> on vérifie la version de la base */
-    if (avecverifbase)
-        emit verifbase();
 
     if (m_connectavecloginSQL)
     {

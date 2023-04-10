@@ -93,6 +93,15 @@ BEGIN
                 ALTER TABLE `rufus`.`utilisateurs`
                 DROP COLUMN `UserWeb`;
         END IF;
+        SELECT COUNT(*) INTO tot FROM
+            (SELECT idAppareil
+            FROM `rufus`.`AppareilsRefraction`
+            WHERE Marque = 'HUVITZ' AND Modele = 'HTR-1A') as chp;
+            IF tot=0
+            THEN
+                INSERT INTO `rufus`.`AppareilsRefraction` (`Marque`, `Modele`, `Type`, `LAN`, `Implemente`) VALUES ('HUVITZ', 'HTR-1A', 'Autoref', '1', '1');
+            END IF;
+
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 75;
 END|
 

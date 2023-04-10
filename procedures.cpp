@@ -3342,9 +3342,9 @@ bool Procedures::IdentificationUser()
 {
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
-    connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
     if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
+        VerifBaseEtRessources();
         m_parametres = db->parametres();
         enum Villes::TownsFrom from;
         if (m_parametres->villesfrance())
@@ -3449,7 +3449,6 @@ bool Procedures::IdentificationUser()
             break;
         }
     }
-    disconnect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, &Procedures::VerifBaseEtRessources);
     delete dlg_IdentUser;
     return (currentuser() != Q_NULLPTR);
 }
@@ -4286,8 +4285,6 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
-    connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
-
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
         QString Base;
@@ -4322,7 +4319,6 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         }
         return true;
     }
-    disconnect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, &Procedures::VerifBaseEtRessources);
     delete Dlg_ParamConnex;
     return false;
 }
@@ -8909,8 +8905,9 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
                       || nameARK =="NIDEK ARK-510A"
                       || nameARK =="NIDEK HandyRef-K"
                       || nameARK =="NIDEK TONOREF III"
-                      || nameARK =="NIDEK ARK-30");
-    bool autorefhastonopachy = (nameARK =="NIDEK TONOREF III");
+                      || nameARK =="NIDEK ARK-30"
+                      || nameARK == "HUVITZ HTR-1A");
+    bool autorefhastonopachy = (nameARK =="NIDEK TONOREF III" || nameARK == "HUVITZ HTR-1A");
     Datas::I()->mesureautoref   ->cleandatas();
     if (autorefhaskerato)
         Datas::I()->mesurekerato    ->cleandatas();
@@ -10163,6 +10160,61 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                 }
             }
         }
+    }
+    /*! exemple de fichier xml pour un HUVITZ HTR-1A
+     *
+     *
+<datalab>
+        <patient>00004<\patient>
+        <date>2022/04/26<\date>
+        <version>1.00.00c<\version>
+        <ref>
+            <rrs>-0.25<\rrs>
+            <rrc>-0.5<\rrc>
+            <rra>7<\rra>
+            <rrp>68<\rrp>
+            <rls>-0.5<\rls>
+            <rlc>-0.5<\rlc>
+            <rla>165<\rla>
+            <rlp>68<\rlp>
+        <\ref>
+        <ker>
+            <krr1>8.22<\krr1>
+            <krr2>8.12<\krr2>
+            <krax>176<\krax>
+            <klr1>8.2<\klr1>
+            <klr2>8.07<\klr2>
+            <klax>179<\klax>
+        <\ker>
+        <tono>
+            <tr01>16<\tr01>
+            <tr>16<\tr>
+            <tl01>15<\tl01>
+            <tl>15<\tl>
+        <\tono>
+        <pachy>
+            <pr01>541<\pr01>
+            <pr>541.8<\pr>
+             <pl01>561<\pl01>
+             <pl>561.3<\pl>
+        <\pachy>
+        <misc>
+            <C-R01><\C-R01>
+            <C-R-A><\C-R-A>
+            <C-L01><\C-L01>
+            <C-L-A><\C-L-A>
+        <\misc>
+<\datalab>
+*/
+    else if (nameARK == "HUVITZ HTR-1A")
+    {
+        QDomElement xml = docxml.documentElement();
+        for (int i=0; i<xml.childNodes().size(); i++)
+        {
+            QDomElement childnode = xml.childNodes().at(i).toElement();
+        }
+
+
     }
 //    debugMesure(Datas::I()->mesureautoref);
 //    debugMesure(Datas::I()->mesurekerato);

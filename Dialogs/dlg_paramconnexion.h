@@ -59,9 +59,6 @@ private:
     void            Verif();
     bool            VerifFiche();
     bool            TestConnexion(bool avecverifbase);
-
-signals:
-    void                    verifbase();
 };
 
 #endif // DLG_PARAMCONNEXION_H
