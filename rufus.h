@@ -281,7 +281,6 @@ private:
     UpDialog                *dlg_rechParMotCle, *dlg_listPatients;
 
     QDialog                 *dlg_msgRepons = Q_NULLPTR;
-    QSystemTrayIcon         *ict_messageIcon;
 
     ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;
     bool                    isPosteImport();
@@ -417,6 +416,7 @@ private:
     QAction         *actionRemiseCheques            = Q_NULLPTR;
     QAction         *actionApropos                  = Q_NULLPTR;
     QAction         *actionQuit                     = Q_NULLPTR;
-};
+    QMenu           *m_trayIconMenu                 = new QMenu();
+    QSystemTrayIcon *ict_messageIcon                = new QSystemTrayIcon(this);};
 
 #endif // RUFUS_H

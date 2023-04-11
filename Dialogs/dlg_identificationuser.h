@@ -43,9 +43,6 @@ private:
     LoginResult             ControleDonnees();
     LoginResult             m_loginresult = NoConnexion;
     void                    Validation();
-
-signals:
-    void                    verifbase();
 };
 
 #endif // DLG_IDENTIFICATIONUSER_H

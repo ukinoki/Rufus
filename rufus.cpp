@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("22-03-2023/1");
+    qApp->setApplicationVersion("08-04-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -8064,14 +8064,11 @@ void Rufus::InitWidgets()
 
     ui->CreerDDNdateEdit->setDateRange(m_currentdate.addYears(-105),m_currentdate);
 
-    QMenu *trayIconMenu;
-    trayIconMenu = new QMenu();
-
-    QAction *pAction_VoirMessages = trayIconMenu->addAction(tr("Voir les messages"));
+    QAction *pAction_VoirMessages = m_trayIconMenu->addAction(tr("Voir les messages"));
     connect (pAction_VoirMessages, &QAction::triggered, this,    &Rufus::AfficheBAL);
 
     ict_messageIcon = new QSystemTrayIcon(this);
-    ict_messageIcon->setContextMenu(trayIconMenu);
+    ict_messageIcon->setContextMenu(m_trayIconMenu);
     ict_messageIcon->setIcon(Icons::icPostit());
     connect(ict_messageIcon,        &QSystemTrayIcon::messageClicked,   this,   [=] {AfficheBAL();});
 

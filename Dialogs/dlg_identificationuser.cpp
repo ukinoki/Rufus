@@ -149,10 +149,6 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
 
 
     DataBase::QueryResult rep = db->verifExistUser(Login, Password);
-    /*! avant la mise à jour 61, on ne peut pas utiliser calcidUserConnected(Login, Password) parce que le champ UserMDP de la table utilisateurs ne peut pas contenir un SHA de 40 caractères
-     *! la connection à la base fonctionne et l'utilisateur existe -> on vérifie la version de la base */
-    if (rep == DataBase::OK )
-        emit verifbase();
     rep = db->calcidUserConnected(Login, Password);
     if (rep == DataBase::Error)
     {

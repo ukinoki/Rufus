@@ -855,50 +855,47 @@ void Procedures::setDirSQLExecutable()
 {
     QString dirdefaultsqlexecutable = "";
     QString dirsqlexecutable ("");
-    QString executable = "/mysql";
-    bool isdefaultsql = false;
-/*! 1. On recherche dans le package ligiciel */
+
+    m_executable = db->version().contains("MariaDB")? "/mariadb": "/mysql";
+    bool a = false;
+
+/*! 1. On recherche dans le package logiciel */
 #ifdef Q_OS_MACX
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     mysqldir.cdUp();
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    if (db->version().contains("MariaDB"))
-        dirdefaultsqlexecutable += "/MariaDB";
-    isdefaultsql = QFile(dirdefaultsqlexecutable + executable).exists();
+    a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
 #ifdef Q_OS_WIN
     executable+= ".exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    isdefaultsql = QFile(dirdefaultsqlexecutable + executable).exists();
+    a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
-    if (isdefaultsql)
+    if (a)
     {
         if (dirdefaultsqlexecutable != "")
             settings()->setValue(Param_SQLExecutable, dirdefaultsqlexecutable);
         m_dirSQLExecutable = dirdefaultsqlexecutable;
         return;
     }
-/*! 2. on recherche dnas les chemisn habituels du système */
-    bool a = false;
+
+/*! 2. on recherche dans les chemins habituels du système */
 #ifdef Q_OS_MACX
     dirsqlexecutable = "/usr/local/mysql/bin";
     if (!QFile(dirsqlexecutable + "/mysql").exists())
+    {
         dirsqlexecutable = "/usr/local/bin";
-    if (!QFile(dirsqlexecutable + "/mysql").exists())
-        dirsqlexecutable = QStandardPaths::findExecutable("mysql");
+        if (!QFile(dirsqlexecutable + "/mysql").exists())
+            dirsqlexecutable = "/opt/homebrew/opt/mariadb/bin";
+    }
     a = (QFile(dirsqlexecutable + "/mysql").exists());
 #endif
 #ifdef Q_OS_LINUX
     dirsqlexecutable = "/usr/bin";
-    if (!QFile(dirsqlexecutable + executable).exists())
-        dirsqlexecutable = QStandardPaths::findExecutable("mysql");
     a = (QFile(dirsqlexecutable + executable).exists());
 #endif
-#ifdef Q_OS_WIN
-    dirsqlexecutable = QStandardPaths::findExecutable("mysql");
-    a = QFile(sqlexecutable + executable).exists();
-#endif
+
     if (a)
     {
         settings()->setValue(Param_SQLExecutable, dirsqlexecutable);
@@ -909,7 +906,7 @@ void Procedures::setDirSQLExecutable()
 /*! 3. On n'a rien trouvé - on teste la valeur enregistrée dans rufus.ini */
 
     dirsqlexecutable = settings()->value(Param_SQLExecutable).toString();
-    if (QFile(dirsqlexecutable + executable).exists())
+    if (QFile(dirsqlexecutable + m_executable).exists())
     {
         m_dirSQLExecutable = dirsqlexecutable;
         return;
@@ -926,7 +923,7 @@ void Procedures::setDirSQLExecutable()
         urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
                                                           tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
                                                           (QDir::rootPath()));
-        QString path = urlexecutable.path() + executable;
+        QString path = urlexecutable.path() + m_executable;
         if (urlexecutable == QUrl() || !QFile(path).exists())
         {
             if (UpMessageBox::Question(Q_NULLPTR,
@@ -1012,7 +1009,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 {
     int a = 99;
 
-    QString sqlCommand = QDir::toNativeSeparators(dirSQLExecutable()+ "/mysql");
+    QString sqlCommand = QDir::toNativeSeparators(dirSQLExecutable()+ m_executable);
     QString host;
     if( db->ModeAccesDataBase() == Utils::Poste )
         host = "localhost";
@@ -3508,9 +3505,9 @@ bool Procedures::IdentificationUser()
 {
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
-    connect(dlg_IdentUser, &dlg_identificationuser::verifbase, this, [&]{VerifBaseEtRessources(dlg_IdentUser);});
     if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
+        VerifBaseEtRessources();
         m_parametres = db->parametres();        
         enum Villes::TownsFrom from;
         if (m_parametres->villesfrance())
@@ -3615,7 +3612,6 @@ bool Procedures::IdentificationUser()
             break;
         }
     }
-    dlg_IdentUser->disconnect();
     delete dlg_IdentUser;
     return (currentuser() != Q_NULLPTR);
 }
@@ -4455,8 +4451,6 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
-    connect(Dlg_ParamConnex, &dlg_paramconnexion::verifbase, this, [&]{VerifBaseEtRessources(Dlg_ParamConnex);});
-
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
         QString Base;
