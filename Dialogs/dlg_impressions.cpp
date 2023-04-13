@@ -2925,7 +2925,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     QFontMetrics fm             = QFontMetrics(qApp->font());
     int largeurcolonne          = 0;
     const QString lbltxt        = tr("À qui adresser ce courrier?");
-    int largfinal               = fm.horizontalAdvance(lbltxt);
+    int largfinal               = fm.width(lbltxt);
     int hauteurligne            = int(fm.height()*1.1);
 
     label       ->setText(lbltxt);
@@ -2944,8 +2944,8 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
         pitem       ->setEditable(false);
         pitem       ->setCheckable(true);
         pitem       ->setCheckState(Qt::Unchecked);
-        if (fm.horizontalAdvance(pitem->text()) > largeurcolonne)
-            largeurcolonne = fm.horizontalAdvance(pitem->text());
+        if (fm.width(pitem->text()) > largeurcolonne)
+            largeurcolonne = fm.width(pitem->text());
         m_modele     ->appendRow(pitem);
     }
     tblCorresp  ->setModel(m_modele);

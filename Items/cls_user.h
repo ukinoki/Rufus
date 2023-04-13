@@ -72,7 +72,7 @@ private:
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
 
     int m_soignant;
-    qlonglong m_numPS;
+    qlonglong m_numPS= 0;
     int m_noSpecialite;
 
     int m_employeur;

@@ -309,7 +309,7 @@ QSize Utils::CalcSize(QString txt, QFont fm)
     int         nlignes         = lmsg.size();
     for (int k=0; k<nlignes; k++)
     {
-        int x   = int(QFontMetrics(fm).horizontalAdvance(lmsg.at(k))*correction);
+        int x   = int(QFontMetrics(fm).width(lmsg.at(k))*correction);
         w       = (x>w? x : w);
         //qDebug() << lmsg.at(k) + " - ligne = " + QString::number(k+1) + " - largeur = " + QString::number(w);
     }
@@ -821,7 +821,7 @@ QStringList Utils::DecomposeScriptSQL(QString nomficscript)
         }
         else                    // -- c'est une requête SQL
         {
-                matched = queryStr.split(";\n", Qt::SkipEmptyParts).at(0);
+                matched = queryStr.split(";\n").at(0);
                 Atraiter = matched.trimmed()+ ";";
                 queryStr.replace(0,matched.size()+2,"");
                 re.setPattern("((\\n)+)");
@@ -1003,7 +1003,7 @@ void Utils::CalcFontSize(QFont &font)
     {
         font.setPointSize(i);
         QFontMetrics fm(font);
-        int Htaille = fm.horizontalAdvance("date de naissance");
+        int Htaille = fm.width("date de naissance");
         if (Htaille > 108 || fm.height()*1.1 > 20)
         {
             font.setPointSize(i-1);

@@ -415,7 +415,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 1,\n"
                CP_ISMEDECIN_USR " = 1,\n"
                CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n "
-               CP_NUMPS_USR " = '"      + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) +"',\n "
+               CP_NUMPS_USR " = "       + (ui->RPPSupLineEdit->text().toInt()==0? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -484,7 +484,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 2,\n"
                CP_ISMEDECIN_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
-               CP_NUMPS_USR " = '" + Utils::correctquoteSQL(ui->RPPSupLineEdit->text()) +"',\n"
+               CP_NUMPS_USR " = "       + (ui->RPPSupLineEdit->text().toInt()==0? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -553,7 +553,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 3,\n"
                CP_ISMEDECIN_USR " = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
                CP_NUMCO_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
-               CP_NUMPS_USR " = " + (ui->RPPSupLineEdit->text()==""? "null" : "'" + ui->RPPSupLineEdit->text() + "'") + ",\n"
+               CP_NUMPS_USR " = " + (ui->RPPSupLineEdit->text().toInt()==0? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -690,7 +690,7 @@ void dlg_gestionusers::EnregistreUser()
         req += CP_ISOPTAM_USR " = null\n";
     }
     req +=  " where " CP_ID_USR " = " + ui->idUseruplineEdit->text();
-    //Edit(req);
+    //qDebug()<<req;
     db->StandardSQL(req);
     int idlieu=-1;
     db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", TBL_JOINTURESLIEUX);

@@ -45,86 +45,69 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_assocCCAMcotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_assocCCAMcotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_assocCCAMcotationswdgbuttonframe);});
 
-    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMlabel);
-    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCCAMupLineEdit);
+    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
+    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
 
-    QHBoxLayout *Margelay       = new QHBoxLayout();
-    QHBoxLayout *Marge2lay      = new QHBoxLayout();
+    QHBoxLayout *MargeHorsCCAMlay       = new QHBoxLayout();
+    QHBoxLayout *MargeAssocCCAMlay      = new QHBoxLayout();
     QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
     QVBoxLayout *HorsCCAMlay    = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
     int marge   = 10;
-    Cotationslay    ->setSpacing(marge);
+    Cotationslay        ->setSpacing(marge);
     marge = 0;
-    Cotationslay    ->setContentsMargins(marge,marge,marge,marge);
-    Margelay        ->setContentsMargins(marge,marge,marge,marge);
-    Margelay        ->setSpacing(marge);
-    Marge2lay       ->setContentsMargins(marge,marge,marge,marge);
-    Marge2lay       ->setSpacing(marge);
+    Cotationslay        ->setContentsMargins(marge,marge,marge,marge);
+    MargeHorsCCAMlay    ->setContentsMargins(marge,marge,marge,marge);
+    MargeHorsCCAMlay    ->setSpacing(marge);
+    MargeAssocCCAMlay   ->setContentsMargins(marge,marge,marge,marge);
+    MargeAssocCCAMlay   ->setSpacing(marge);
 
-    AssocCCAMlay     ->addWidget(ui->AssocCCAMlabel);
-    AssocCCAMlay     ->addWidget(wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent());
-    AssocCCAMlay     ->setStretch(0,0);
-    AssocCCAMlay     ->setStretch(1,15);
+    AssocCCAMlay        ->addWidget(ui->AssocCCAMlabel);
+    AssocCCAMlay        ->addWidget(wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent());
+    AssocCCAMlay        ->setStretch(0,0);
+    AssocCCAMlay        ->setStretch(1,15);
 
-    Marge2lay       ->addWidget(ui->Marge2Widget);
-    Marge2lay       ->addLayout(AssocCCAMlay);
-    Marge2lay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-    Marge2lay       ->setStretch(0,1);
-    Marge2lay       ->setStretch(1,14);
-    Marge2lay       ->setStretch(2,1);
+    MargeAssocCCAMlay   ->addWidget(ui->Marge2Widget);
+    MargeAssocCCAMlay   ->addLayout(AssocCCAMlay);
+    MargeAssocCCAMlay   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    MargeAssocCCAMlay   ->setStretch(0,1);
+    MargeAssocCCAMlay   ->setStretch(1,14);
+    MargeAssocCCAMlay   ->setStretch(2,1);
 
-    Cotationslay    ->addLayout(Marge2lay);
+    Cotationslay        ->addLayout(MargeAssocCCAMlay);
 
-    HorsCCAMlay     ->addWidget(ui->HorsNomenclaturelabel);
-    HorsCCAMlay     ->addWidget(wdg_HNcotationswdgbuttonframe->widgButtonParent());
-    HorsCCAMlay     ->setStretch(0,15);
+    HorsCCAMlay         ->addWidget(ui->HorsNomenclaturelabel);
+    HorsCCAMlay         ->addWidget(wdg_HNcotationswdgbuttonframe->widgButtonParent());
+    HorsCCAMlay         ->setStretch(0,1);
+    HorsCCAMlay         ->setStretch(1,15);
 
-    Margelay        ->addWidget(ui->MargeWidget);
-    Margelay        ->addLayout(HorsCCAMlay);
-    Margelay        ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-    //ui->AssocCCAMlabel  ->setText(tr("Actes codifiés"));
-    //ui->HorsNomenclaturelabel   ->setText(tr("Actes non codifés"));
+    MargeHorsCCAMlay    ->addWidget(ui->MargeWidget);
+    MargeHorsCCAMlay    ->addLayout(HorsCCAMlay);
+    MargeHorsCCAMlay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    MargeHorsCCAMlay    ->setStretch(0,1);
+    MargeHorsCCAMlay    ->setStretch(1,14);
+    MargeHorsCCAMlay    ->setStretch(2,1);
 
-    Cotationslay    ->addLayout(Margelay);
-    Cotationslay    ->setStretch(0,7);      // Marge2lay - les associations
-    Cotationslay    ->setStretch(1,5);      // Margelay - les actes hors nomenclature
+    Cotationslay    ->addLayout(MargeHorsCCAMlay);
 
-    //if (db->parametres()->cotationsfrance())    {
-        QHBoxLayout *Marge0lay      = new QHBoxLayout();
-        Marge0lay       ->setContentsMargins(marge,marge,marge,marge);
-        Marge0lay       ->setSpacing(marge);
-        QHBoxLayout *EnteteCCAMlay  = new QHBoxLayout();
-        EnteteCCAMlay   ->setContentsMargins(marge,marge,marge,marge);
-        EnteteCCAMlay   ->setSpacing(marge);
-        EnteteCCAMlay   ->addWidget(ui->ActesCCAMlabel);
-        EnteteCCAMlay   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-        EnteteCCAMlay   ->addWidget(ui->OphtaSeulcheckBox);
+    Cotationslay    ->setStretch(0,7);      // MargeAssocCCCAMlay - les associations
+    Cotationslay    ->setStretch(1,5);      // MargeHorsCCAMlay - les actes hors nomenclature
 
-        QVBoxLayout *CCAMlay        = new QVBoxLayout();
-        CCAMlay         ->setContentsMargins(marge,marge,marge,marge);
-        CCAMlay         ->setSpacing(marge);
-        CCAMlay         ->addLayout(EnteteCCAMlay);
-        CCAMlay         ->addWidget(ui->ActesCCAMupTableWidget);
-        CCAMlay         ->setStretch(0,0);
-        CCAMlay         ->setStretch(1,15);
+    if (db->parametres()->cotationsfrance())    {
 
-        Marge0lay       ->addWidget(ui->ShowCCAMlabel);
-        Marge0lay       ->addLayout(CCAMlay);
-        Marge0lay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-        Cotationslay    ->insertLayout(0,Marge0lay);
-        //ui->AssocCCAMlabel  ->setText(tr("Actes codifiés"));
-        //ui->HorsNomenclaturelabel   ->setText(tr("Actes non codifés"));
+        Cotationslay    ->insertWidget(0,ui->CCAMwidget);
         Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
         Cotationslay    ->setStretch(1,7);      // Marge2lay - les associations
         Cotationslay    ->setStretch(2,5);      // Margelay - les actes hors nomenclature
-    //}
+    }
+    else
+    {
+        ui->CCAMwidget->setVisible(false);
+        ui->AssocCCAMlabel          ->setText(tr("Actes codifiés"));
+        ui->HorsNomenclaturelabel   ->setText(tr("Actes non codifés"));
+    }
 
-
-
-
-    ui->Cotationswidget  ->setLayout(Cotationslay);
+    ui->Cotationswidget->setLayout(Cotationslay);
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);
@@ -140,7 +123,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ImmediatBackupupPushButton  ->setIcon(Icons::icBackup());
     ui->ReinitBaseupPushButton      ->setIcon(Icons::icReinit());
     ui->ChoixFontupPushButton       ->setIconSize(QSize(35,35));
-    ui->ChercheCCAMlabel            ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
+    ui->ChercheCotationlabel            ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
     ui->ShowCCAMlabel               ->setPixmap(QPixmap());
     ui->StatutComptaupTextEdit      ->setAttribute( Qt::WA_NoSystemBackground, true );
     ui->StatutComptaupTextEdit      ->setReadOnly(true);
@@ -334,7 +317,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
        QList <QWidget*> ListTab;
-       ListTab << ui->ActesCCAMupTableWidget << ui->AssocCCAMupTableWidget << ui->ChercheCCAMupLineEdit << ui->HorsNomenclatureupTableWidget
+       ListTab << ui->ActesCCAMupTableWidget << ui->AssocCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->HorsNomenclatureupTableWidget
                << ui->ChoixFontupPushButton;
        for (int i = 0; i<ListTab.size()-1 ; i++ )
            ui->UserParamtab->setTabOrder(ListTab.at(i), ListTab.at(i+1));
@@ -355,8 +338,8 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->AssocCCAMupTableWidget          ->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    wdg_assocCCAMcotationswdgbuttonframe                       ->setEnabled(false);
-    wdg_HNcotationswdgbuttonframe                              ->setEnabled(false);
+    wdg_assocCCAMcotationswdgbuttonframe->setEnabled(false);
+    wdg_HNcotationswdgbuttonframe       ->setEnabled(false);
     ui->ActesCCAMlabel                  ->setEnabled(false);
     ui->OphtaSeulcheckBox               ->setEnabled(false);
 
@@ -656,24 +639,28 @@ void dlg_param::EnableSupprAppareilBouton()
 
 void dlg_param::ChercheCodeCCAM(QString txt)
 {
-    QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
-    if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
-        ui->ShowCCAMlabel               ->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pApres 10,10
-    else
-        ui->ShowCCAMlabel               ->setPixmap(QPixmap());
-    if (listitems.size()>0)
-    {
-        QTableWidgetItem *pitem = listitems.at(0);
-        QModelIndex index = ui->ActesCCAMupTableWidget->model()->index(pitem->row(),1);
-        ui->ActesCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-    }
-    listitems = ui->AssocCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
-    if (listitems.size()>0)
-    {
+   QList<QTableWidgetItem*> listitems;
+   if (db->parametres()->cotationsfrance())
+   {
+        listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
+        if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
+            ui->ShowCCAMlabel               ->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pApres 10,10
+        else
+            ui->ShowCCAMlabel               ->setPixmap(QPixmap());
+        if (listitems.size()>0)
+        {
+            QTableWidgetItem *pitem = listitems.at(0);
+            QModelIndex index = ui->ActesCCAMupTableWidget->model()->index(pitem->row(),1);
+            ui->ActesCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
+        }
+   }
+   listitems = ui->AssocCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
+   if (listitems.size()>0)
+   {
         QTableWidgetItem *pitem = listitems.at(0);
         QModelIndex index = ui->AssocCCAMupTableWidget->model()->index(pitem->row(),1);
         ui->AssocCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtTop);
-    }
+   }
 }
 
 void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
@@ -946,8 +933,8 @@ void dlg_param::EnableModif(QWidget *obj)
 
         ui->ChoixFontupPushButton   ->setEnabled(a);
         ui->ModifDataUserpushButton ->setEnabled(a);
-
-        EnableActesCCAM(a);
+        if (db->parametres()->cotationsfrance())
+            EnableActesCCAM(a);
         EnableAssocCCAM(a);
         EnableHorsNomenclature(a);
     }
@@ -2373,7 +2360,8 @@ void dlg_param::AfficheParamUser()
     if (!currentuser()->isSecretaire() && !currentuser()->isAutreFonction())
     {
         ui->Cotationswidget->setVisible(true);
-        Remplir_TableActesCCAM();
+        if (db->parametres()->cotationsfrance())
+            Remplir_TableActesCCAM();
         Remplir_TableAssocCCAM();
         Remplir_TableHorsNomenclature();
 
@@ -2416,7 +2404,7 @@ void dlg_param::ConnectSignals()
     connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
     connect(ui->AssocCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->AssocCCAMupTableWidget, item);});
     connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
-    connect(ui->ChercheCCAMupLineEdit,              &QLineEdit::textEdited,                 this,   &dlg_param::ChercheCodeCCAM);
+    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::ChercheCodeCCAM);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
     connect(ui->OphtaSeulcheckBox,                  &QCheckBox::clicked,                    this,   &dlg_param::FiltreActesOphtaSeulmt);

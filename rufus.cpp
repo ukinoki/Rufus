@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("08-04-2023/1");
+    qApp->setApplicationVersion("13-04-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -3994,7 +3994,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem0);
             pit->setText(0,"");
             pit->setText(1,listhash.at(i));
-            if (fm.horizontalAdvance(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.width(listhash.at(i)) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, listhash.at(i));
         }
     }
@@ -4012,7 +4012,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem1);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4030,7 +4030,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem2);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4063,7 +4063,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem4);
             pit->setText(0,"");
             pit->setText(1,txt);
-            if (fm.horizontalAdvance(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.width(txt) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, txt);
         }
     }
@@ -4091,7 +4091,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
             QTreeWidgetItem *pit = new QTreeWidgetItem(pItem5);
             pit->setText(0,"");
             pit->setText(1,hash);
-            if (fm.horizontalAdvance(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
+            if (fm.width(hash) > (ui->TerraintreeWidget->width() - ui->TerraintreeWidget->columnWidth(0)))
                 pit->setToolTip(1, hash);
         }
     }

@@ -2037,9 +2037,9 @@ QString Procedures::SessionStatus()
             txtstatut += tr("assistant");
     }
 
-    if (soigntnonassistant)
+    if (soigntnonassistant && QString::number(currentuser()->NumPS()) !="")
         txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(currentuser()->NumPS());
-    if (medecin && ! assistant)
+    if (medecin && ! assistant &&  currentuser()->numOrdre() !="")
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
     User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
     if (soignant)
@@ -2093,7 +2093,7 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
         txtstatut += "\n" + tr("Cotation des actes :\t\t") + (cotation? tr("Oui") : tr("Sans"));
-    if (medecin && cotation)
+    if (medecin && cotation && db->parametres()->cotationsfrance())
     {
         QString secteur ("");
         switch (currentuser()->secteurconventionnel()) {
@@ -2119,7 +2119,7 @@ QString Procedures::SessionStatus()
                          + cptabledefaut;
         }
     }
-    if (respliberal)
+    if (respliberal && db->parametres()->comptafrance())
         txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
 }

@@ -51,7 +51,7 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     int         nlignes         = lmsg.size();
     for (int k=0; k<nlignes; k++)
     {
-        int x   = int(QFontMetrics(qApp->font()).horizontalAdvance(lmsg.at(k))*1.1); //le 1.1 est là pour tenir compte des éventuels caractères gras
+        int x   = int(QFontMetrics(qApp->font()).width(lmsg.at(k))*1.1); //le 1.1 est là pour tenir compte des éventuels caractères gras
         w       = (x>w? x : w);
     }
     Msgtxt              ->setFixedSize(w,int(hauteurligne)*nlignes);
