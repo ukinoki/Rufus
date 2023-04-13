@@ -32,18 +32,19 @@ public:
 private:
     DataBase    *db = DataBase::I();
     Mode        m_mode;
+    bool        m_cotationsfrance = db->parametres()->cotationsfrance();
     TypeActe    m_typeacte;
-    QString     m_ciodeacte;
+    QString     m_codeacte;
     QStringList m_listeactes;
-    UpLineEdit  *wdg_codeline;
-    UpLineEdit  *wdg_tarifoptamline;
-    UpLineEdit  *wdg_tarifnooptamline;
-    UpLineEdit  *wdg_tarifpratiqueline;
-    UpLineEdit  *wdg_tipline;
-    QWidget     *wdg_codewidg;
-    QWidget     *wdg_tarifoptamwidg;
-    QWidget     *wdg_tarifnooptamwidg;
-    QWidget     *wdg_tarifpratiquewidg;
+    UpLineEdit  *wdg_codeline = Q_NULLPTR;
+    UpLineEdit  *wdg_tarifoptamline = Q_NULLPTR;
+    UpLineEdit  *wdg_tarifnooptamline = Q_NULLPTR;
+    UpLineEdit  *wdg_tarifpratiqueline = Q_NULLPTR;
+    UpLineEdit  *wdg_tipline = Q_NULLPTR;
+    QWidget     *wdg_codewidg = Q_NULLPTR;
+    QWidget     *wdg_tarifoptamwidg = Q_NULLPTR;
+    QWidget     *wdg_tarifnooptamwidg = Q_NULLPTR;
+    QWidget     *wdg_tarifpratiquewidg = Q_NULLPTR;
     QWidget     *wdg_tipwidg;
 
     bool        VerifFiche();

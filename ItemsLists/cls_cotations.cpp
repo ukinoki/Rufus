@@ -40,7 +40,7 @@ QMap<int, Cotation *> *Cotations::cotations() const
 }
 
 /*!
- * \brief Cotationss::initListeByUser
+ * \brief Cotations::initListeByUser
  * Charge l'ensemble des cotations pour le user
  * et les ajoute à la classe Correspondants
  */
