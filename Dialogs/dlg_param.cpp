@@ -2357,7 +2357,8 @@ void dlg_param::AfficheParamUser()
     if (!currentuser()->isSecretaire() && !currentuser()->isAutreFonction())
     {
         ui->Cotationswidget->setVisible(true);
-        Remplir_TableActesCCAM();
+        if (db->parametres()->cotationsfrance())
+            Remplir_TableActesCCAM();
         Remplir_TableAssocCCAM();
         Remplir_TableHorsNomenclature();
 
