@@ -3238,25 +3238,46 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
     ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->AssocCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (currentuser()->secteurconventionnel() > 1 ? 5 : 4);
-    ui->AssocCCAMupTableWidget->setColumnCount(ncol);
-    ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-    ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
-    ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //OPTAM
-    ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //NonOPTAM
-    ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-    ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
-    ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("OPTAM"));
-    ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("non\nOPTAM"));
-    ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
-    ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-    ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-    ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
-    if (ncol==5)
+    int ncol = 4;
+    if (db->parametres()->cotationsfrance())
     {
-        ui->AssocCCAMupTableWidget->setColumnWidth(4,75);      //Tarif pratiqué
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Tarif\npratiqué"));
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
+        if (currentuser()->secteurconventionnel() > 1)
+            ncol = 5;
+        ui->AssocCCAMupTableWidget->setColumnCount(ncol);
+        ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
+        ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
+        ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //OPTAM
+        ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //NonOPTAM
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("OPTAM"));
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("non\nOPTAM"));
+        ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
+        ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
+        ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
+        ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
+        if (ncol==5)
+        {
+            ui->AssocCCAMupTableWidget->setColumnWidth(4,75);      //Tarif pratiqué
+            ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Tarif\npratiqué"));
+                ui->AssocCCAMupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
+        }
+    }
+    else
+    {
+        ui->AssocCCAMupTableWidget->setColumnCount(4);
+        ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
+        ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
+        ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //montant conventionnle
+        ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //Tarif pratiqué
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("Cotation")));
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(tr("Montant")));
+        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(tr("Pratiqué")));
+            ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
+        ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
+        ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
+        ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
     }
     ui->AssocCCAMupTableWidget->FixLargeurTotale();
     wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent()->setFixedWidth(ui->AssocCCAMupTableWidget->width());
@@ -3302,8 +3323,9 @@ void dlg_param::Remplir_TableAssocCCAM()
         connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
         ui->AssocCCAMupTableWidget->setCellWidget(i,2,lbl1);
 
+        int rang = (db->parametres()->cotationsfrance()?2:3);
         UpLineEdit *lbl2 = new UpLineEdit();
-        lbl2->setText(QLocale().toString(Assoclist.at(i).at(2).toDouble(),'f',2));      // montant nonOPTAM
+        lbl2->setText(QLocale().toString(Assoclist.at(i).at(rang).toDouble(),'f',2));      // montant nonOPTAM
         lbl2->setAlignment(Qt::AlignRight);
         lbl2->setStyleSheet("border: 0px solid rgb(150,150,150)");
         lbl2->setRow(i);
