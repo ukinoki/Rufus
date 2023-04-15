@@ -867,7 +867,7 @@ void Procedures::setDirSQLExecutable()
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
 #ifdef Q_OS_WIN
-    executable+= ".exe";
+    m_executable += ".exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
@@ -10379,14 +10379,93 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 */
     else if (nameARK == "HUVITZ HTR-1A")
     {
-        QDomElement xml = docxml.documentElement();
-        for (int i=0; i<xml.childNodes().size(); i++)
+        QDomElement datalab = docxml.documentElement();
+        QDomElement ref = datalab.firstChildElement("ref");
+        if(!ref.isNull())
         {
-            QDomElement childnode = xml.childNodes().at(i).toElement();
-            //..etc..
+            // Ref droit
+            QDomElement rrs = ref.firstChildElement("rrs"); // Sphere
+            QDomElement rrc = ref.firstChildElement("rrc"); // Cylindre
+            QDomElement rra = ref.firstChildElement("rra"); // Axe
+            QDomElement rrp = ref.firstChildElement("rrp"); // Distance pupillaire (identique pour les deux yeux)
+            if(!rrs.isNull())
+                Datas::I()->mesureautoref->setsphereOD(Utils::roundToNearestPointTwentyFive(rrs.text().toDouble()));
+            if(!rrc.isNull())
+                Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(rrc.text().toDouble()));
+            if(!rra.isNull())
+                Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(rra.text().toInt()));
+            if(!rrp.isNull())
+                Datas::I()->mesureautoref->setecartIP(rrp.text().toDouble());
+            
+            // Ref gauche
+            QDomElement rls = ref.firstChildElement("rls");
+            QDomElement rlc = ref.firstChildElement("rlc");
+            QDomElement rla = ref.firstChildElement("rla");
+            if(!rls.isNull())
+                Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(rls.text().toDouble()));
+            if(!rlc.isNull())
+                Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(rlc.text().toDouble()));
+            if(!rla.isNull())
+                Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(rla.text().toInt()));
         }
+        QDomElement ker = datalab.firstChildElement("ker");
+        if(!ker.isNull())
+        {
+            // Keratometrie droit
+            QDomElement krr1 = ker.firstChildElement("krr1");
+            QDomElement krr2 = ker.firstChildElement("krr2");
+            QDomElement axeKD = ker.firstChildElement("krax");
+            if(!krr1.isNull())
+                Datas::I()->mesurekerato->setK1OD(krr1.text().toDouble());
+            if(!krr2.isNull())
+                Datas::I()->mesurekerato->setK2OD(krr2.text().toDouble());
+            if(!axeKD.isNull())
+                Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(axeKD.text().toInt()));
+            
+            // Keratometrie gauche
+            QDomElement klr1 = ker.firstChildElement("klr1");
+            QDomElement klr2 = ker.firstChildElement("klr2");
+            QDomElement axeKG = ker.firstChildElement("klax");
+            if(!klr1.isNull())
+                Datas::I()->mesurekerato->setK1OG(klr1.text().toDouble());
+            if(!klr2.isNull())
+                Datas::I()->mesurekerato->setK2OG(klr2.text().toDouble());
+            if(!axeKG.isNull())
+                Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(axeKG.text().toInt()));
+        }
+        QDomElement tono = datalab.firstChildElement("tono");
+        if(!tono.isNull())
+        {
+            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
 
+            // Tono droit
+            QDomElement tr = tono.firstChildElement("tr");
+            if(!tr.isNull())
+                Datas::I()->mesuretono->setTOD(tr.text().toInt());
+            
+            // Tono gauche
+            QDomElement tl = tono.firstChildElement("tl");
+            if(!tl.isNull())
+                Datas::I()->mesuretono->setTOG(tl.text().toInt());
+        }
+        QDomElement pachy = datalab.firstChildElement("pachy");
+        if(!pachy.isNull())
+        {
+            Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
 
+            // Pachy droit
+            QDomElement pr = pachy.firstChildElement("pr");
+            if(!pr.isNull())
+                Datas::I()->mesurepachy->setpachyOD(pr.text().toDouble());
+            
+            // Pachy gauche
+            QDomElement pl = pachy.firstChildElement("pl");
+            if(!pl.isNull())
+                Datas::I()->mesurepachy->setpachyOG(pl.text().toDouble());
+        }
+    }
+    else {
+        qDebug() << "Erreur de lecture du fichier XML, Autoref inconnu : " << nameARK;
     }
 
 //    debugMesure(Datas::I()->mesureautoref);
