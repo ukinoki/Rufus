@@ -148,6 +148,14 @@ public:
     static QString                  getExpressionSize(qint64 size);                 //! concertit en Go, To la taille en Mo du qint64 passé en paramètre
     static bool                     mkpath(QString path);
     static void                     cleanfolder(QString path);
+    static void                     setDirPermissions(QString dirpath, QFileDevice::Permissions permissions = QFileDevice::ReadOther | QFileDevice::WriteOther
+                                                                                                 | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
+                                                                                                 | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                                                                                                 | QFileDevice::ReadUser   | QFileDevice::WriteUser);      // attribue recursivement les permissions énumérées par le flag permissions à tous les fichiers du dossier Dir
+    static void                     copyWithPermissions(QFile &file, QString path, QFileDevice::Permissions permissions = QFileDevice::ReadOther | QFileDevice::WriteOther
+                                                                                                 | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
+                                                                                                 | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                                                                                                 | QFileDevice::ReadUser   | QFileDevice::WriteUser);      // copie le fichier file vers la destination path avec les permissions énumérées par le flag permissions
     static double                   mmToInches(double mm);
     static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList(), bool ExclureNomAvecEspace = true);
 

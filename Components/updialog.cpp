@@ -46,7 +46,8 @@ void UpDialog::AjouteLay()
     wdg_buttonslayout   ->setContentsMargins(0,10,0,10);
     wdg_buttonslayout   ->setSpacing(10);
     wdg_buttonswidget   ->setLayout(wdg_buttonslayout);
-    dlglayout()         ->addWidget(wdg_buttonswidget);
+    int n               = dlglayout()->count();
+    dlglayout()         ->insertWidget(n,wdg_buttonswidget);
 }
 
 void UpDialog::addSearchLine()

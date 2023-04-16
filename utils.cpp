@@ -761,6 +761,35 @@ void Utils::cleanfolder(const QString DirPath)
     }
 }
 
+void Utils::setDirPermissions(QString dirpath, QFileDevice::Permissions permissions)
+{
+    QDir dir(dirpath);
+    if (!dir.exists())
+        return;
+    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QFileInfoList list = dir.entryInfoList();
+    for(int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.isDir())
+            setDirPermissions(fileInfo.absoluteFilePath(), permissions);
+        else
+        {
+            QFile file(fileInfo.absoluteFilePath());
+            file.setPermissions(permissions);
+        }
+    }
+
+}
+
+void Utils:: copyWithPermissions(QFile &file, QString path, QFileDevice::Permissions permissions)
+{
+    file.copy(path);
+    QFile CO(path);
+    CO.setPermissions(permissions);
+}
+
+
 double Utils::mmToInches(double mm )  { return mm * 0.039370147; }
 
 QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirdefaut, QStringList listnomsaeliminer, bool ExclureNomAvecEspace)

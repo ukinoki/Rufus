@@ -2069,17 +2069,17 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
     {
         ++k;
         QJsonObject jcotation{};
-        jcotation["id"]                 = k;
-        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();
-        jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
-        jcotation["montantconventionnel"] = ((secteur > 1) && optam? cotlist.at(i).at(2).toDouble() : cotlist.at(i).at(3).toDouble());
-        jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
-        jcotation["montantpratique"]    = (secteur < 2? cotlist.at(i).at(2).toDouble() :cotlist.at(i).at(4).toDouble());
-        jcotation["ccam"]               = (cotlist.at(i).at(5).toInt()==1);
-        jcotation["iduser"]             = usr->id();
-        jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
-        jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
+        jcotation["id"]                     = k;
+        jcotation["idcotation"]             = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"]               = cotlist.at(i).at(1).toString();
+        jcotation["montantconventionnel"]   = ((secteur > 1) && optam? cotlist.at(i).at(2).toDouble() : cotlist.at(i).at(3).toDouble());
+        jcotation["montantoptam"]           = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"]        = cotlist.at(i).at(3).toDouble();
+        jcotation["montantpratique"]        = (secteur < 2? cotlist.at(i).at(2).toDouble() :cotlist.at(i).at(4).toDouble());
+        jcotation["ccam"]                   = (cotlist.at(i).at(5).toInt()==1);
+        jcotation["iduser"]                 = usr->id();
+        jcotation["frequence"]              = cotlist.at(i).at(6).toInt();
+        jcotation["descriptif"]             = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
          if (cotation != Q_NULLPTR)
             cotations << cotation;

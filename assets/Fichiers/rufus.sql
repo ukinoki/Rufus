@@ -423,7 +423,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,75,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,76,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -663,9 +663,9 @@ DROP TABLE IF EXISTS `cotations`;
 CREATE TABLE `cotations` (
   `idcotation` int(11) NOT NULL AUTO_INCREMENT,
   `Typeacte` varchar(15) NOT NULL,
-  `MontantOPTAM` decimal(6,2) DEFAULT NULL,
-  `MontantNonOPTAM` decimal(6,2) DEFAULT NULL,
-  `MontantPratique` decimal(6,2) DEFAULT NULL,
+  `MontantOPTAM` decimal(9,2) DEFAULT NULL,
+  `MontantNonOPTAM` decimal(9,2) DEFAULT NULL,
+  `MontantPratique` decimal(9,2) DEFAULT NULL,
   `CCAM` int(1) DEFAULT NULL COMMENT '1=CCAM\n2=Association\n3=HorsCCAM',
   `idUser` int(11) DEFAULT NULL,
   `Frequence` int(11) DEFAULT NULL,

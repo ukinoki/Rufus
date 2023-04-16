@@ -855,7 +855,6 @@ void Procedures::setDirSQLExecutable()
 {
     QString dirdefaultsqlexecutable = "";
     QString dirsqlexecutable ("");
-
     m_executable = db->version().contains("MariaDB")? "/mariadb": "/mysql";
     bool a = false;
 
@@ -893,7 +892,11 @@ void Procedures::setDirSQLExecutable()
 #endif
 #ifdef Q_OS_LINUX
     dirsqlexecutable = "/usr/bin";
-    a = (QFile(dirsqlexecutable + executable).exists());
+    a = (QFile(dirsqlexecutable + m_executable).exists());
+#endif
+#ifdef Q_OS_WIN
+    dirsqlexecutable = "C:/Program Files/MariaDB 10.11/bin";
+    a = (QFile(dirsqlexecutable + m_executable).exists());
 #endif
 
     if (a)
@@ -2195,9 +2198,9 @@ QString Procedures::SessionStatus()
             txtstatut += tr("assistant");
     }
 
-    if (soigntnonassistant)
+    if (soigntnonassistant && currentuser()->NumPS() > 0)
         txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(currentuser()->NumPS());
-    if (medecin && ! assistant)
+    if (medecin && ! assistant &&  currentuser()->numOrdre() !="")
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
     User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
     if (soignant)
@@ -2251,7 +2254,7 @@ QString Procedures::SessionStatus()
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
         txtstatut += "\n" + tr("Cotation des actes :\t\t") + (cotation? tr("Oui") : tr("Sans"));
-    if (medecin && cotation)
+    if (medecin && cotation && db->parametres()->cotationsfrance())
     {
         QString secteur ("");
         switch (currentuser()->secteurconventionnel()) {
@@ -2277,7 +2280,7 @@ QString Procedures::SessionStatus()
                          + cptabledefaut;
         }
     }
-    if (respliberal)
+    if (respliberal && db->parametres()->comptafrance())
         txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
 }
@@ -2629,29 +2632,29 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp))
             return false;
 
-        QDir dirtorestore(PATH_DIR_RESSOURCES);
-        //qDebug() << dirtorestore.absolutePath();
-        QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.sql");
+        QDir dir(PATH_DIR_RESSOURCES);
+        Utils::setDirPermissions(PATH_DIR_RESSOURCES);
+        QStringList listfichiers = dir.entryList(QStringList() << "*.sql");
         for (int t=0; t<listfichiers.size(); t++)
         {
-            QString nomdocrz  = listfichiers.at(t);
-            QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
-            QFile(CheminFichierResize).remove();
+            QString filename  = listfichiers.at(t);
+            QString filepath = PATH_DIR_RESSOURCES "/" + filename;
+            QFile(filepath).remove();
         }
         QFile rufusViergeFile(QStringLiteral("://rufus.sql"));
-        rufusViergeFile.copy(PATH_DIR_RESSOURCES "/rufus.sql");
+        Utils::copyWithPermissions(rufusViergeFile, PATH_DIR_RESSOURCES "/rufus.sql");
         QFile OphtalmologieViergeFile(QStringLiteral("://Ophtalmologie.sql"));
-        OphtalmologieViergeFile.copy(PATH_DIR_RESSOURCES "/Ophtalmologie.sql");
+        Utils::copyWithPermissions(OphtalmologieViergeFile, PATH_DIR_RESSOURCES "/Ophtalmologie.sql");
         QFile ImagerieViergeFile(QStringLiteral("://Images.sql"));
-        ImagerieViergeFile.copy(PATH_DIR_RESSOURCES "/Images.sql");
+        Utils::copyWithPermissions( ImagerieViergeFile, PATH_DIR_RESSOURCES "/Images.sql");
         QFile ComptaMedicaleViergeFile(QStringLiteral("://ComptaMedicale.sql"));
-        ComptaMedicaleViergeFile.copy(PATH_DIR_RESSOURCES "/ComptaMedicale.sql");
+        Utils::copyWithPermissions(ComptaMedicaleViergeFile, PATH_DIR_RESSOURCES "/ComptaMedicale.sql");
 
         QStringList listnomsfilestorestore;
         QString msg = "";
-        listfichiers = dirtorestore.entryList(QStringList() << "*.sql");
+        listfichiers = dir.entryList(QStringList() << "*.sql");
         for (int j=0; j<listfichiers.size(); j++)
-            listnomsfilestorestore << dirtorestore.absolutePath() + "/" + listfichiers.at(j);
+            listnomsfilestorestore << dir.absolutePath() + "/" + listfichiers.at(j);
         for (int i=0; i<listnomsfilestorestore.size(); i++)
         {
             if (!QFile(listnomsfilestorestore.at(i)).open(QIODevice::ReadOnly)) 
@@ -2670,9 +2673,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             UpMessageBox::Watch(parent, tr("Impossible d'éxécuter la restauration!"), msg);
             for (int t=0; t<listfichiers.size(); t++)
             {
-                QString nomdocrz  = listfichiers.at(t);
-                QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
-                QFile(CheminFichierResize).remove();
+                QString filename  = listfichiers.at(t);
+                QString filepath = PATH_DIR_RESSOURCES "/" + filename;
+                QFile(filepath).remove();
             }
             return false;
         }
@@ -3063,11 +3066,20 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
             QString Nomfic = "://majbase" + QString::number(Version) + ".sql";
             QFile DumpFile(Nomfic);
             int a = 99;
+            QDir dir(PATH_DIR_RESSOURCES);
+            Utils::setDirPermissions(PATH_DIR_RESSOURCES);
+            QStringList listfichiers = dir.entryList(QStringList() << "*.sql");
+            for (int t=0; t<listfichiers.size(); t++)
+            {
+                QString filename  = listfichiers.at(t);
+                QString filepath = PATH_DIR_RESSOURCES "/" + filename;
+                QFile(filepath).remove();
+            }
             if (DumpFile.exists())
             {
                 QString NomDumpFile = PATH_DIR_RESSOURCES "/majbase" + QString::number(Version) + ".sql";
                 QFile::remove(NomDumpFile);
-                DumpFile.copy(NomDumpFile);
+                Utils::copyWithPermissions(DumpFile, NomDumpFile);
                 emit ConnectTimers(false);
                 a = ExecuteScriptSQL(QStringList() << NomDumpFile);
                 QFile::remove(NomDumpFile);
@@ -4310,67 +4322,26 @@ void Procedures::PremierParametrageRessources()
         DirRessrces.removeRecursively();
     Utils::mkpath(PATH_DIR_RESSOURCES);
     QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
-    COACopier.copy(PATH_FILE_CORPSORDO);
-    QFile CO(PATH_FILE_CORPSORDO);
-    CO.open(QIODevice::ReadWrite);
-    CO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(COACopier,PATH_FILE_CORPSORDO);
 
     QFile COALDACopier(QStringLiteral(":/" NOM_FILE_CORPSORDOALD));
-    COALDACopier.copy(PATH_FILE_CORPSORDOALD);
-    QFile COALD(PATH_FILE_CORPSORDOALD);
-    COALD.open(QIODevice::ReadWrite);
-    COALD.setPermissions(QFileDevice::ReadOther     | QFileDevice::WriteOther
-                         | QFileDevice::ReadGroup   | QFileDevice::WriteGroup
-                         | QFileDevice::ReadOwner   | QFileDevice::WriteOwner
-                         | QFileDevice::ReadUser    | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(COALDACopier,PATH_FILE_CORPSORDO);
 
     QFile EOACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDO));
-    EOACopier.copy(PATH_FILE_ENTETEORDO);
-    QFile EO(PATH_FILE_ENTETEORDO);
-    EO.open(QIODevice::ReadWrite);
-    EO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(EOACopier,PATH_FILE_ENTETEORDO);
 
     QFile EOALDACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDOALD));
-    EOALDACopier.copy(PATH_FILE_ENTETEORDOALD);
-    QFile EOALD(PATH_FILE_ENTETEORDOALD);
-    EOALD.open(QIODevice::ReadWrite);
-    EOALD.setPermissions(QFileDevice::ReadOther     | QFileDevice::WriteOther
-                         | QFileDevice::ReadGroup   | QFileDevice::WriteGroup
-                         | QFileDevice::ReadOwner   | QFileDevice::WriteOwner
-                         | QFileDevice::ReadUser    | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(EOALDACopier,PATH_FILE_ENTETEORDOALD);
 
     QFile POLACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGEORDOLUNETTES));
-    POLACopier.copy(PATH_FILE_PIEDPAGEORDOLUNETTES);
-    QFile POL(PATH_FILE_PIEDPAGEORDOLUNETTES);
-    POL.open(QIODevice::ReadWrite);
-    POL.setPermissions(QFileDevice::ReadOther   | QFileDevice::WriteOther
-                       | QFileDevice::ReadGroup | QFileDevice::WriteGroup
-                       | QFileDevice::ReadOwner | QFileDevice::WriteOwner
-                       | QFileDevice::ReadUser  | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(POLACopier,PATH_FILE_PIEDPAGEORDOLUNETTES);
+
 
     QFile POACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGE));
-    POACopier.copy(PATH_FILE_PIEDPAGE);
-    QFile PO(PATH_FILE_PIEDPAGE);
-    PO.open(QIODevice::ReadWrite);
-    PO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(POACopier,PATH_FILE_PIEDPAGE);
 
     QFile PDFACopier(QStringLiteral(":/" NOM_FILE_PDF));
-    PDFACopier.copy(PATH_FILE_PDF);
-    QFile pdf(PATH_FILE_PDF);
-    pdf.open(QIODevice::ReadWrite);
-    pdf.setPermissions(QFileDevice::ReadOther   | QFileDevice::WriteOther
-                       | QFileDevice::ReadGroup | QFileDevice::WriteGroup
-                       | QFileDevice::ReadOwner | QFileDevice::WriteOwner
-                       | QFileDevice::ReadUser  | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(PDFACopier,PATH_FILE_PDF);
     m_settings->setValue(Poste_VersionRessources,VERSION_RESSOURCES);
  }
 
