@@ -20,7 +20,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString CodeActe, QWidget *parent) :
     UpDialog(parent)
 {
-    setWindowModality(Qt::WindowModal);
     m_typeacte      = type;
     m_mode          = mode;
     m_codeacte      = CodeActe;
@@ -29,7 +28,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
 
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
-    wdg_codeline                = new UpLineEdit(this);
+    wdg_codeline                = new UpLineEdit();
     wdg_codeline                ->setFixedWidth(150);
     wdg_codeline                ->setAlignment(Qt::AlignRight);
     wdg_codewidg                = new QWidget();
@@ -48,7 +47,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     connect(wdg_codeline,       &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
     dlglayout()                 ->replaceWidget(widgetbuttons(), wdg_codewidg);
 
-    wdg_tipline                 = new UpLineEdit(this);
+    wdg_tipline                 = new UpLineEdit();
     wdg_tipline                 ->setFixedWidth(300);
     wdg_tipline                 ->setAlignment(Qt::AlignRight);
     wdg_tipwidg                 = new QWidget();
@@ -66,7 +65,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
 
     if (m_typeacte == Association)
     {
-        wdg_tarifoptamline          = new UpLineEdit(this);
+        wdg_tarifoptamline          = new UpLineEdit();
         wdg_tarifoptamline          ->setFixedWidth(100);
         wdg_tarifoptamline          ->setAlignment(Qt::AlignRight);
         wdg_tarifoptamwidg          = new QWidget();
@@ -85,7 +84,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
 
     if (m_cotationsfrance && m_typeacte == Association)
     {
-        wdg_tarifnooptamline            = new UpLineEdit(this);
+        wdg_tarifnooptamline            = new UpLineEdit();
         wdg_tarifnooptamline            ->setFixedWidth(100);
         wdg_tarifnooptamline            ->setAlignment(Qt::AlignRight);
         wdg_tarifnooptamwidg            = new QWidget();
@@ -104,7 +103,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
 
     if ((m_cotationsfrance && m_typeacte==Association && Datas::I()->users->userconnected()->secteurconventionnel()>1) || (!m_cotationsfrance && m_typeacte == Association) || m_typeacte==HorsNomenclature)
     {
-        wdg_tarifpratiqueline           = new UpLineEdit(this);
+        wdg_tarifpratiqueline           = new UpLineEdit();
         wdg_tarifpratiqueline           ->setFixedWidth(100);
         wdg_tarifpratiqueline           ->setAlignment(Qt::AlignRight);
         wdg_tarifpratiquewidg           = new QWidget();

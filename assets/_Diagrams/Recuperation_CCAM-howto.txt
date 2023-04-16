@@ -1,0 +1,61 @@
+1. récupérer les 2 tables r_acte.dbf et r_pu_base.dbf sur le site de la ccam
+2. Les ouvrir avec openOffice en gardant le jeu de caractères DOS/OS2-863/Français canadien
+2. Les enregistrer au format OpenOffice ods pour éviter de nombreux plantages
+3. Les modifier
+	1. pour la table R_ACTE, ne conserver que les champs code_acte et nom_long
+	2. supprimer la première ligne
+	4. pour la table R_PU_BASE, il faut éliminer tous les codes se terminant par 40 (codes anesthésie) et retirer les 2 derniers caractères
+		1. changer le champ pu_base au format Nombre/Anglais(USA)/2 décimales/ 1 zéro non significatif/pas de séparateur de milliers
+		2. changer le champ date au format AAAA-MM-JJ,
+		3. pour la table R_PU_BASE, il faut éliminer tous les codes se terminant par 40 (codes anesthésie) et retirer les 2 derniers caractères
+			en E2, copier la formule =SI(DROITE(A2;2)="10";GAUCHE(A2;7))
+			recopier cette formule dans toute la colonne E
+			recopier la colonne E sur elle-même en collage spécial pour remplacer les formules par le texte
+			supprimer toutes les lignes où la colonne E est vide (faire un tri sur cette colonne puis supprimer les lignes vides qui se seront mises tout au début de la table)
+			supprimer la colonne A
+			décaler la colonne E (devenue D) en A
+			trier la table sur les colonnes A,C,B
+			recréer une première ligne avec les noms codeccam, montant, date
+	6. pour la table R_ACTE
+		trier la table sur la colonnes 1
+		recréer une première ligne avec les noms codeccam et nom
+4. Les enregistrer au format csv,
+	délimiter : (pour la base r_acte il y a des virgules dans les champs)
+5. Pour les importer dans MySQL
+	1. Utiliser MySQLWorkbench
+	2. Clic droit sur le nom rufus, choisir Table Data Import Wizard
+	3. Choisir le fichier à importer
+	4. Choisir un nom de table (RACTE pour R_ACTE et RPUBASE pour R_PU_BASE), cocher create new table, cocher drop table if exists 
+	5. Garder les formats par défaut
+	6. Une fois la table créée, modifier les formats par un alter table: date = date codeccam = varchar(7), nom = varchar(512)
+	Z. Supprimer la table ccam
+	7. Exécuter le requête "create table rufus.ccam as (SELECT distinct codeccam , nom FROM rufus.RACTE);" pour éliminer tous les doublons de RACTE
+	8. Rajouter les champs OPTAM et NonOPTAM, format decimal(7,2)
+	9. Rajouter un champ d'index primaire idcccam, Primary key, autoincrémenté, int pour ccam
+	10. Supprimer la table R_ACTE
+
+6. Calculer et attribuer les montants OPTAM et NonOPTAM
+	1. Compléter les montants dans la base ccam
+	utiliser le script
+
+    		bool ok;
+    		QString req = "select codeccam from rufus.ccam";
+    		QList<QVariantList> listcodes = db->StandardSelectSQL(req, ok);
+    		for (int i=0; i< listcodes.size(); i++)
+    		{
+        		QString code = listcodes.at(i).at(0).toString();
+        		req = 	"select max(date) from rufus.r_pu_base where codeccam = '" + code + "'";
+        		QDate date = db->StandardSelectSQL(req , ok).at(0).at(0).toDate();
+        		req = 	"select max(montant), min(montant) from rufus.r_pu_base"
+              			" where codeccam = '" + code + "' and date = '" + date.toString("yyyy-MM-dd") + "'";
+        		QVariantList opt = db->StandardSelectSQL(req, ok).at(0);
+        		req = 	"update rufus.ccam set"
+              			" OPTAM = " + QString::number(opt.at(0).toDouble(), 'f', 2) + ","
+              			" NonOPTAM = " + QString::number(opt.at(1).toDouble(), 'f', 2) +
+              			" where codeccam = '" + code + "'";
+        		db->StandardSQL(req);
+     		}
+
+	2. corriger les montants des associations dans la table cotations depuis Rufus
+	3. Supprimer la table R_PU_BASE
+
