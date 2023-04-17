@@ -842,8 +842,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define ENCOURSEXAMEN                           tr("En cours de consultation avec ")
 
 // Les fichiers et répertoires divers
-#define NOM_DIR_RUFUS                           "/Documents/Rufus"
-#define NOM_DIR_RUFUSADMIN                      "/Documents/RufusAdmin"
+#define NOM_DIR_RUFUS                           "/Rufus"
+#define NOM_DIR_RUFUSADMIN                      "/RufusAdmin"
 #define NOM_DIR_IMAGERIE                        "/Imagerie"
 #define NOM_DIR_RESSOURCES                      "/Ressources"
 #define NOM_DIR_FACTURES                        "/Factures"
@@ -877,8 +877,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_FILE_XMLFRONTO                      "/LM.xml"
 #define NOM_FILE_TONO                           "/TO.xml"
 
-#define PATH_DIR_RUFUS                          QDir::homePath() + NOM_DIR_RUFUS
-#define PATH_DIR_RUFUSADMIN                     QDir::homePath() + NOM_DIR_RUFUSADMIN
+/*#ifdef Q_OS_MACX
+#define PATH_DIR_RUFUS                          "/Users"  NOM_DIR_RUFUS
+#define PATH_DIR_RUFUSADMIN                     "/Users"  NOM_DIR_RUFUSADMIN
+#endif
+#ifdef Q_OS_LINUX
+#define PATH_DIR_RUFUS                          "/home"  NOM_DIR_RUFUS
+#define PATH_DIR_RUFUSADMIN                     "/home"  NOM_DIR_RUFUSADMIN
+#endif
+*/
+
+#define PATH_DIR_RUFUS                          QDir::homePath() + "/Documents" NOM_DIR_RUFUS
+#define PATH_DIR_RUFUSADMIN                     QDir::homePath() + "/Documents" NOM_DIR_RUFUSADMIN
 #define PATH_DIR_IMAGERIE                       PATH_DIR_RUFUS NOM_DIR_IMAGERIE
 #define PATH_DIR_RESSOURCES                     PATH_DIR_RUFUS NOM_DIR_RESSOURCES
 
