@@ -692,7 +692,8 @@ void dlg_listeiols::resizeiolimage(int size)
     {
         QString nomdocrz  = listfichresize.at(t);
         QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
-        QFile(CheminFichierResize).remove();
+        QFile file(CheminFichierResize);
+        Utils::removeWithoutPermissions(file);
     }
     bool ok;
     QString req = "select " CP_ID_IOLS ", " CP_ARRAYIMG_IOLS " from " TBL_IOLS
@@ -719,7 +720,7 @@ void dlg_listeiols::resizeiolimage(int size)
         if (sz > size)
         {
             resized = true;
-            file_image.remove();
+            Utils::removeWithoutPermissions(file_image);
             QPixmap pixmap;
             pixmap = pixmap.fromImage(img.scaledToWidth(256,Qt::SmoothTransformation));
             tauxcompress = 90;
@@ -745,7 +746,7 @@ void dlg_listeiols::resizeiolimage(int size)
             m_listbinds[CP_ARRAYIMG_IOLS] = ba;
             m_listbinds[CP_TYPIMG_IOLS] = JPG;
             DataBase::I()->UpDateIOL(id, m_listbinds);
-            file_image.remove();
+            Utils::removeWithoutPermissions(file_image);
         }
     }
 }

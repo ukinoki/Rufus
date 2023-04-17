@@ -2054,8 +2054,8 @@ void Rufus::ExporteDocs()
             QFile prov(CheminOKTransfrProv);
             if (prov.open(QIODevice::ReadWrite))
             {
-                prov.copy(CheminOKTransfrDoc);
-                prov.remove();
+                Utils::copyWithPermissions(prov, CheminOKTransfrDoc);
+                Utils::removeWithoutPermissions(prov);
             }
             else
                 return;
@@ -2326,8 +2326,8 @@ void Rufus::ExporteDocs()
             QFile prov(CheminOKTransfrProv);
             if (prov.open(QIODevice::ReadWrite))
             {
-                prov.copy(CheminOKTransfrDoc);
-                prov.remove();
+                Utils::copyWithPermissions(prov, CheminOKTransfrDoc);
+                Utils::removeWithoutPermissions(prov);
             }
             else
                 return;
@@ -4987,7 +4987,8 @@ void Rufus::SupprimerDocsEtFactures()
     for (int i=0; i<ListeDocs.size(); i++)
     {
         QString CheminFichier = NomDirStockageImagerie + ListeDocs.at(i).at(0).toString();
-        if (!QFile(CheminFichier).remove())
+        QFile file(CheminFichier);
+        if (!Utils::removeWithoutPermissions(file))
             UpMessageBox::Watch(this, tr("Fichier introuvable!"), CheminFichier);
         db->StandardSQL("delete from " TBL_DOCSASUPPRIMER " where " CP_FILEPATH_DOCSASUPPR " = '" + Utils::correctquoteSQL(ListeDocs.at(i).at(0).toString()) + "'");
     }
@@ -5014,9 +5015,10 @@ void Rufus::SupprimerDocsEtFactures()
             ShowMessage::I()->SplashMessage(msg, 3000);
             continue;
         }
-        QFile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier).copy(NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
+        QFile facturefile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier);
+        Utils::copyWithPermissions(facturefile, NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
         /*  on l'efface du dossier de factures*/
-        QFile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier).remove();
+        Utils::removeWithoutPermissions(facturefile);
         /* on détruit l'enregistrement dans la table FacturesASupprimer*/
         db->StandardSQL("delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " = '" + Utils::correctquoteSQL(lienfichier) + "'");
     }
@@ -7692,7 +7694,7 @@ void Rufus::ExporteActe(Acte *act)
                 {
                     QString fileorigin = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
                     QFile origin(fileorigin);
-                    origin.copy(nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
+                    Utils::copyWithPermissions(origin, nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
                 }
                 else
                 {

@@ -381,7 +381,7 @@ bool Utils::CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfe
     QString nomfichresize = DirStockProvPath + "/" + filename;
     QFile fileresize(nomfichresize);
     if (fileresize.exists())
-        fileresize.remove();
+        removeWithoutPermissions(fileresize);
     QFile echectrsfer(CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfert.toString("yyyy-MM-dd") + ".txt");
     QPixmap pixmap;
     double w = img.width();
@@ -407,11 +407,11 @@ bool Utils::CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfe
             QTextStream out(&echectrsfer);
             out << CC.fileName() << "\n" ;
             echectrsfer.close();
-            CC.copy(CheminEchecTransfrDir + "/" + filename);
+            copyWithPermissions(CC, CheminEchecTransfrDir + "/" + filename);
         }
         return false;
     }
-    CC.remove();
+    removeWithoutPermissions(CC);
     /* on comprime*/
     int tauxcompress = 90;
     while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
@@ -420,9 +420,9 @@ bool Utils::CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfe
         sz = fileresize.size();
         tauxcompress -= 10;
     }
-    fileresize.copy(pathfile);
+    copyWithPermissions(fileresize, pathfile);
     fileresize.close();
-    fileresize.remove();
+    removeWithoutPermissions(fileresize);
     return true;
 }
 
@@ -782,11 +782,20 @@ void Utils::setDirPermissions(QString dirpath, QFileDevice::Permissions permissi
 
 }
 
-void Utils:: copyWithPermissions(QFile &file, QString path, QFileDevice::Permissions permissions)
+void Utils::copyWithPermissions(QFile &file, QString path, QFileDevice::Permissions permissions)
 {
     file.copy(path);
     QFile CO(path);
     CO.setPermissions(permissions);
+}
+
+bool Utils::removeWithoutPermissions(QFile &file)
+{
+    file.setPermissions(QFileDevice::ReadOther | QFileDevice::WriteOther
+                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
+                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    return file.remove();
 }
 
 

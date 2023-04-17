@@ -313,7 +313,7 @@ void dlg_docsscanner::ValideFiche()
     }
     QString CheminBackup = m_pathdirstockageimagerie + NOM_DIR_ORIGINAUX + ( m_mode==Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
-    qFileOrigin.copy(CheminBackup + "/" + m_nomfichierimageencours);
+    Utils::copyWithPermissions(qFileOrigin, CheminBackup + "/" + m_nomfichierimageencours);
 
     QString CheminOKTransfrDir  = m_pathdirstockageimagerie + ( m_mode == Document? NOM_DIR_IMAGES "/" + datetransfer : NOM_DIR_FACTURES "/" + user) ;
     if (!Utils::mkpath(CheminOKTransfrDir))
@@ -442,18 +442,12 @@ void dlg_docsscanner::ValideFiche()
         if (suffixe == JPG)
         {
             QFile CF(filename);
-            CF.copy(CheminOKTransfrDoc);
+            Utils::copyWithPermissions(CF,CheminOKTransfrDoc);
         }
         else if (suffixe == PDF)
-            qFileOrigin.copy(CheminOKTransfrDoc);
-        QFile CC(CheminOKTransfrDoc);
-        if (CC.open(QIODevice::ReadWrite))
-            CC.setPermissions(QFileDevice::ReadOther
-                              | QFileDevice::ReadGroup
-                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
-    }
-    qFileOrigin.remove();
+            Utils::copyWithPermissions(qFileOrigin, CheminOKTransfrDoc);
+     }
+    Utils::removeWithoutPermissions(qFileOrigin);
     QString msg;
     switch ( m_mode) {
     case Document:      msg = tr("Document ") + sstypedoc +  tr(" enregistré");     break;

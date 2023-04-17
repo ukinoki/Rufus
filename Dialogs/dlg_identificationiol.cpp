@@ -716,7 +716,8 @@ void dlg_identificationIOL::changeImage()
         {
             QString nomdocrz  = listfichresize.at(t);
             QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
-            QFile(CheminFichierResize).remove();
+            QFile file(CheminFichierResize);
+            Utils::removeWithoutPermissions(file);
         }
         if (file_origine.open(QIODevice::ReadOnly))
         {
@@ -726,12 +727,12 @@ void dlg_identificationIOL::changeImage()
             else
                 szorigin = QString::number(sz/1024,'f',1) + "Ko";
             szfinal = szorigin;
-            file_origine.copy(nomfichresize);
+            Utils::copyWithPermissions(file_origine,nomfichresize);
             file_image.setFileName(nomfichresize);
             if ((formatdoc == JPG ||formatdoc == PNG) && sz > sizemaxi)
             {
                 QImage  img(nomfichresize);
-                file_image.remove();
+                Utils::removeWithoutPermissions(file_image);
                 QPixmap pixmap;
                 pixmap = pixmap.fromImage(img);
                 pixmap.save(nomfichresize, "jpeg");
@@ -753,7 +754,7 @@ void dlg_identificationIOL::changeImage()
             }
             file_image.open(QIODevice::ReadOnly);
             ba = file_image.readAll();
-            file_image.remove();
+            Utils::removeWithoutPermissions(file_image);
         }
         m_listbinds[CP_ARRAYIMG_IOLS] = ba;
         QString suffix = QFileInfo(file_origine).suffix().toLower();
@@ -766,7 +767,7 @@ void dlg_identificationIOL::changeImage()
         else
             img = QImage(fileName);
         setimage(img);
-        file_origine.remove();
+        Utils::removeWithoutPermissions(file_origine);
     }
 }
 

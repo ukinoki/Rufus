@@ -2516,9 +2516,9 @@ bool Procedures::ReinitBase()
         {
             QFile FichierBup(PATH_DIR_RUFUS + "/RufusBackup.ini");
             if (FichierBup.exists())
-                FichierBup.remove();
-            FichierIni.copy(PATH_DIR_RUFUS + "/RufusBackup.ini");
-            FichierIni.remove();
+                Utils::removeWithoutPermissions(FichierBup);
+            Utils::copyWithPermissions(FichierIni,PATH_DIR_RUFUS + "/RufusBackup.ini");
+            Utils::removeWithoutPermissions(FichierIni);
         }
         UpMessageBox::Information(Q_NULLPTR, tr("Arrêt du programme!"));
         exit(0);
@@ -2639,7 +2639,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         {
             QString filename  = listfichiers.at(t);
             QString filepath = PATH_DIR_RESSOURCES "/" + filename;
-            QFile(filepath).remove();
+            QFile file(filepath);
+            Utils::removeWithoutPermissions(file);
         }
         QFile rufusViergeFile(QStringLiteral("://rufus.sql"));
         Utils::copyWithPermissions(rufusViergeFile, PATH_DIR_RESSOURCES "/rufus.sql");
@@ -2675,7 +2676,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             {
                 QString filename  = listfichiers.at(t);
                 QString filepath = PATH_DIR_RESSOURCES "/" + filename;
-                QFile(filepath).remove();
+                QFile file(filepath);
+                Utils::removeWithoutPermissions(file);
             }
             return false;
         }
@@ -2700,7 +2702,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     QString nomdocrz  = listfichiers.at(t);
                     QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
-                    QFile(CheminFichierResize).remove();
+                    QFile file(CheminFichierResize);
+                    Utils::removeWithoutPermissions(file);
                 }
                 return false;
             }
@@ -2711,7 +2714,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     QString nomdocrz  = listfichiers.at(t);
                     QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
-                    QFile(CheminFichierResize).remove();
+                    QFile file(CheminFichierResize);
+                    Utils::removeWithoutPermissions(file);
                 }
                 emit ConnectTimers(true);
                 return true;
@@ -2887,9 +2891,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         QString fileini = dirtorestore.absolutePath() + NOM_FILE_INI;
                         QFile FichierIni(PATH_FILE_INI);
                         if (FichierIni.exists())
-                            FichierIni.remove();
+                            Utils::removeWithoutPermissions(FichierIni);
                         QFile rufusini(fileini);
-                        rufusini.copy(PATH_FILE_INI);
+                        Utils::copyWithPermissions(rufusini, PATH_FILE_INI);
                         msg += tr("Fichier de paramétrage Rufus.ini restauré\n");
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichier de paramétrage Rufus.ini restauré"), Icons::icSunglasses(), 3000);
                     }
@@ -2908,7 +2912,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         {
                             QFile ficACopier(DirRssces.absolutePath() + "/" + listnomfic.at(i));
                             QString nomficACopier = QFileInfo(listnomfic.at(i)).fileName();
-                            ficACopier.copy(PATH_DIR_RESSOURCES + "/" + nomficACopier);
+                            Utils::copyWithPermissions(ficACopier, PATH_DIR_RESSOURCES + "/" + nomficACopier);
                         }
                         msg += tr("Fichiers de ressources d'impression restaurés\n");
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers de ressources d'impression restaurés"), Icons::icSunglasses(), 3000);
@@ -3073,7 +3077,8 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
             {
                 QString filename  = listfichiers.at(t);
                 QString filepath = PATH_DIR_RESSOURCES "/" + filename;
-                QFile(filepath).remove();
+                QFile file(filepath);
+                Utils::removeWithoutPermissions(file);
             }
             if (DumpFile.exists())
             {
@@ -4381,10 +4386,10 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         {
             QFile FichierIni(PATH_FILE_INI);
             if (FichierIni.exists())
-                FichierIni.remove();
+                Utils::removeWithoutPermissions(FichierIni);
             QString fileini = dialog.selectedFiles().at(0);
             QFile rufusini(fileini);
-            rufusini.copy(PATH_FILE_INI);
+            Utils::copyWithPermissions(rufusini, PATH_FILE_INI);
             if (m_settings != Q_NULLPTR)
                 delete m_settings;
             m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
@@ -4397,7 +4402,8 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     {
         //reconstruire le fichier rufus.ini
         //1. on demande les paramètres de connexion au serveur - mode d'accès / user / mdp / port / SSL
-        QFile(PATH_FILE_INI).remove();       
+        QFile file(PATH_FILE_INI);
+        Utils::removeWithoutPermissions(file);
         if (m_settings != Q_NULLPTR)
             delete m_settings;
         m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
@@ -4498,7 +4504,7 @@ bool Procedures::VerifRessources(QString Nomfile)
             {
                 QFile ficACopier(dockdir.absolutePath() + "/" + nomfic);
                 QString nomficACopier = QFileInfo(nomfic).fileName();
-                ficACopier.copy(PATH_DIR_RESSOURCES + nomficACopier);
+                Utils::copyWithPermissions(ficACopier, PATH_DIR_RESSOURCES + nomficACopier);
             }
             return true;
         }
@@ -4575,7 +4581,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         if (datafile.open(QIODevice::ReadOnly))
         {
             docxml.setContent(&datafile);
-            datafile.remove();
+            Utils::removeWithoutPermissions(datafile);
         }
 
         if (Datas::I()->actes->currentacte() != Q_NULLPTR)
@@ -4602,8 +4608,11 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
             }
         }
         listfich = QDir(pathdirappareil).entryList(QDir::Files | QDir::NoDotAndDotDot);
-            for(int i = 0; i < listfich.size(); ++i)
-                QFile(pathdirappareil + "/" + listfich.at(i)).remove();
+        for(int i = 0; i < listfich.size(); ++i)
+        {
+            QFile file(pathdirappareil + "/" + listfich.at(i));
+            Utils::removeWithoutPermissions(file);
+        }
     };
     bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
                              * au démarrage du système le signal directorychanged ne marche pas bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
@@ -5773,7 +5782,10 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
             Dir.mkdir(Adress);
         QStringList listfiles = Dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
         for(int i = 0; i < listfiles.size(); ++i)
-            QFile(Adress + "/" + listfiles.at(i)).remove();
+        {
+            QFile file(Adress + "/" + listfiles.at(i));
+            Utils::removeWithoutPermissions(file);
+        }
         QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
         QFile file(filename);
         if (file.open(QIODevice::ReadWrite))
@@ -10367,17 +10379,21 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                 Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(rra.text().toInt()));
             if(!rrp.isNull())
                 Datas::I()->mesureautoref->setecartIP(rrp.text().toDouble());
-            
+
             // Ref gauche
             QDomElement rls = ref.firstChildElement("rls");
             QDomElement rlc = ref.firstChildElement("rlc");
             QDomElement rla = ref.firstChildElement("rla");
+            QDomElement rlp = ref.firstChildElement("rla");
             if(!rls.isNull())
                 Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(rls.text().toDouble()));
             if(!rlc.isNull())
                 Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(rlc.text().toDouble()));
             if(!rla.isNull())
                 Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(rla.text().toInt()));
+            if (!rlp.isNull() && Datas::I()->mesureautoref->ecartIP() == 0)
+                Datas::I()->mesureautoref->setecartIP(rlp.text().toDouble());
+
         }
         QDomElement ker = datalab.firstChildElement("ker");
         if(!ker.isNull())
@@ -10392,7 +10408,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                 Datas::I()->mesurekerato->setK2OD(krr2.text().toDouble());
             if(!axeKD.isNull())
                 Datas::I()->mesurekerato->setaxeKOD(Utils::roundToNearestFive(axeKD.text().toInt()));
-            
+
             // Keratometrie gauche
             QDomElement klr1 = ker.firstChildElement("klr1");
             QDomElement klr2 = ker.firstChildElement("klr2");
@@ -10405,40 +10421,58 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
                 Datas::I()->mesurekerato->setaxeKOG(Utils::roundToNearestFive(axeKG.text().toInt()));
         }
         QDomElement tono = datalab.firstChildElement("tono");
-        if(!tono.isNull())
+        if (!tono.isNull())
         {
-            Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
-
             // Tono droit
             QDomElement tr = tono.firstChildElement("tr");
             if(!tr.isNull())
+            {
                 Datas::I()->mesuretono->setTOD(tr.text().toInt());
-            
+                Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+            }
+
             // Tono gauche
             QDomElement tl = tono.firstChildElement("tl");
             if(!tl.isNull())
+            {
                 Datas::I()->mesuretono->setTOG(tl.text().toInt());
+                Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+            }
+        }
+        QDomElement correctedtono = datalab.firstChildElement("misc");
+        if (!correctedtono.isNull())
+        {
+            // Tono droit
+            QDomElement tr = correctedtono.firstChildElement("C-R-A");
+            if(!tr.isNull())
+                Datas::I()->mesuretono->setTODcorrigee(tr.text().toInt());
+            // Tono gauche
+            QDomElement tl = correctedtono.firstChildElement("C-L-A");
+            if(!tl.isNull())
+                Datas::I()->mesuretono->setTOGcorrigee(tl.text().toInt());
         }
         QDomElement pachy = datalab.firstChildElement("pachy");
         if(!pachy.isNull())
         {
-            Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
-
             // Pachy droit
             QDomElement pr = pachy.firstChildElement("pr");
             if(!pr.isNull())
+            {
                 Datas::I()->mesurepachy->setpachyOD(pr.text().toDouble());
-            
+                Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+            }
             // Pachy gauche
             QDomElement pl = pachy.firstChildElement("pl");
             if(!pl.isNull())
+            {
                 Datas::I()->mesurepachy->setpachyOG(pl.text().toDouble());
+                Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+            }
         }
     }
     else {
         qDebug() << "Erreur de lecture du fichier XML, Autoref inconnu : " << nameARK;
     }
-
 //    debugMesure(Datas::I()->mesureautoref);
 //    debugMesure(Datas::I()->mesurekerato);
 //    if (autorefhastonopachy)

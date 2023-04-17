@@ -570,7 +570,7 @@ void dlg_bilanrecettes::ExportTable()
     QFile   ExportFile(ExportFileName);
     bool exportOK = true;
     QString msg = tr("Nom du fichier d'export") + "\n" + ExportFileName;
-    ExportFile.remove();
+    Utils::removeWithoutPermissions(ExportFile);
     if (ExportFile.open(QIODevice::Append))
     {
         QTextStream out(&ExportFile);

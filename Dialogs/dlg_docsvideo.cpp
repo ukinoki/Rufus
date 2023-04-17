@@ -267,15 +267,9 @@ void dlg_docsvideo::ValideFiche()
         qFile.close ();
     else
     {
-        qFile.copy(CheminVideoDir + "/" + NomFileVideoDoc);
-        QFile CO(CheminVideoDir + "/" + NomFileVideoDoc);
-        CO.open(QIODevice::ReadWrite);
-        CO.setPermissions(QFileDevice::ReadOther
-                          | QFileDevice::ReadGroup
-                          | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                          | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+        Utils::copyWithPermissions(qFile, CheminVideoDir + "/" + NomFileVideoDoc);
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
-            qFile.remove();
+            Utils::removeWithoutPermissions(qFile);
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Video ") + sstypedoc +  tr(" enregistrée"), Icons::icSunglasses(), 1000);
         close();
     }
