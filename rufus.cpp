@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("14-04-2023/1");
+    qApp->setApplicationVersion("19-04-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -6078,7 +6078,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         {
             QString requetemodif;
             objUpText->textCursor().clearSelection();
-            if (objUpText->valeuravant() != objUpText->toHtml())
+            if (objUpText->valeuravant() != objUpText->toHtml() || objUpText->ismodifed())
             {
                 QString Corps = objUpText->toHtml();
                 if (objUpText->table() == TBL_ACTES || objUpText->table() == TBL_MESSAGES)
@@ -6104,6 +6104,8 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
                                 + Utils::correctquoteSQL(Corps) + "' WHERE idMessage = " + QString::number(currentacte()->id());
                         db->StandardSQL(requetemodif, tr("Impossible de mettre à jour le champ ") + objUpText->champ() + "!");
                     }
+                    objUpText->setmodified(false);
+                    objUpText->setvaleuravant(Corps);
                 }
                 else if (objUpText->table() == TBL_RENSEIGNEMENTSMEDICAUXPATIENTS)
                     ItemsList::update(currentpatient(), objUpText->champ(), objUpText->toPlainText());

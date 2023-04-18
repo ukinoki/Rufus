@@ -340,9 +340,9 @@ QString UpTextEdit::table() const
 
 void UpTextEdit::setText(const QString &text)
 {
+    QString txt = text;
     if (text.contains("<!DOCTYPE HTML PUBLIC"))
     {
-        QString txt = text;
 #ifdef Q_OS_LINUX
         if (!text.contains(HTMLCOMMENT_LINUX))
             txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
@@ -351,11 +351,12 @@ void UpTextEdit::setText(const QString &text)
         if (text.contains(HTMLCOMMENT_LINUX))
             txt.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
 #endif
-        txt.replace(QRegExp("font-family:'([a-zA-Z -]*)'"),"font-family:'" + qApp->font().family() + "'");
+        Utils::epureFontFamily(txt);
         QTextEdit::setText(txt);
     }
     else
         QTextEdit::setText(text);
+    m_modified = (txt != text);
 }
 
 /*!

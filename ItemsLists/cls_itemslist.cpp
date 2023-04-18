@@ -64,7 +64,22 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 doc->setidrefraction(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
-            else
+            else if (field == CP_TEXTCORPS_DOCSEXTERNES)
+            {
+                doc->settextecorps(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_TEXTPIED_DOCSEXTERNES)
+            {
+                doc->settextepied(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_TEXTENTETE_DOCSEXTERNES)
+            {
+                doc->settexteentete(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+             else
                 ok = false;
             break;
         }
