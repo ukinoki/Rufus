@@ -32,24 +32,6 @@ Procedures* Procedures::I()
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
-    /*!
-    QRegExp rx("font-family:'([a-zA-Z0-9 ,-]+)");
-    QString txt = "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-                  "<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\np,"
-                  " li { white-space: pre-wrap; }\n</style></head><body style=\" font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0'; font-size:13pt;"
-                  " font-weight:400; font-style:normal;\">\n<p style = \"margin-top:0px; margin-bottom:0px;\">Contrôle</p>\n<p style = \"margin-top:0px;"
-                  " margin-bottom:0px;\">font-family:'Arial,13,-1,5,50,0,0,0,0,0'Difficultés en VP </p></body></html><!MAC>";
-    int pos = 0;
-    while (pos != -1) {
-        pos = rx.indexIn(txt, pos);
-        QStringList list = rx.capturedTexts();
-        qDebug() << list;
-        QString replacmt = list.at(0).split(",").at(0);
-        txt.replace(list.at(0), replacmt);
-        qDebug() << txt;
-        pos += replacmt.length();
-    }
-    //*/
     m_CPpardefaut    = "";
     m_Villepardefaut = "";
 
@@ -1503,108 +1485,99 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
         }
         else
             return;
-        if (afficher)                                       //! si on veut afficher une image et si on est en accès distant, on la charge dans une table SQL
-                                                            //! pour pouvoir véhiculer son contenu dans le tunnel SQL et profiter du cryptage SSL
-                                                            //! sinon, on la lit directement sur le disque réseau
+        //! si on veut afficher une image et si on est en accès distant, on la charge dans une table SQL
+        //! pour pouvoir véhiculer son contenu dans le tunnel SQL et profiter du cryptage SSL
+        //! sinon, on la lit directement sur le disque réseau
+        if (db->ModeAccesDataBase() != Utils::Distant)
         {
-            if (db->ModeAccesDataBase() != Utils::Distant)
+            QString dossierimagerie = "";
+            if (db->ModeAccesDataBase() == Utils::Poste)
+                dossierimagerie = m_parametres->dirimagerieserveur();
+            else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+                dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+            else return;
+            if (isdocument)
             {
-                QString dossierimagerie = "";
-                if (db->ModeAccesDataBase() == Utils::Poste)
-                    dossierimagerie = m_parametres->dirimagerieserveur();
-                else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                    dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
-                else return;
-                if (isdocument)
+                QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+                if (fileimg.open(QIODevice::ReadOnly))
                 {
-                    QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
-                    if (fileimg.open(QIODevice::ReadOnly))
-                    {
-                        ba = fileimg.readAll();
-                        docmt->setimageblob(ba);
-                        docmt->setimageformat(QFileInfo(fileimg).suffix());
-                        return;
-                    }
-                }
-                else if (isfacture)
-                {
-                    QFile fileimg(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + filename);
-                    if (fileimg.open(QIODevice::ReadOnly))
-                    {
-                        ba = fileimg.readAll();
-                        dep->setfactureblob(ba);
-                        dep->setfactureformat(QFileInfo(fileimg).suffix());
-                        return;
-                    }
+                    ba = fileimg.readAll();
+                    docmt->setimageblob(ba);
+                    docmt->setimageformat(QFileInfo(fileimg).suffix());
+                    return;
                 }
             }
-            else     //!> on est en accès distant, on va chercher le QByteArray de l'image  soit à son emplacement sur le serveur, soit dans le champ blob de la table concernée
+            else if (isfacture)
             {
-                //!> on recherche d'abord sur le disque dur du serveur
-                QList<QVariantList> listimpr;
-                listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename) + "') AS content"
-                                                                  , m_ok
-                                                                  , tr("Impossible d'accéder au fichier ") + filename);
-                if (!m_ok)
+                QFile fileimg(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + filename);
+                if (fileimg.open(QIODevice::ReadOnly))
+                {
+                    ba = fileimg.readAll();
+                    dep->setfactureblob(ba);
+                    dep->setfactureformat(QFileInfo(fileimg).suffix());
                     return;
-                if (listimpr.size()==1)
-                {
-                    ba.append(listimpr.at(0).at(0).toByteArray());
-                    if (ba.size()>0)
-                    {
-                        if (isdocument)
-                        {
-                            docmt->setimageblob(ba);
-                            return;
-                        }
-                        else if (isfacture)
-                        {
-                            dep->setfactureblob(ba);
-                            return;
-                        }
-                    }
-                }
-                else //!> on n'a pas trouvé le fichier sur le disuqe dur du serveur, on recherche le QByteArray de l'image dans la table concernée
-                {
-                    if (isdocument)
-                    {
-                        listimpr = db->StandardSelectSQL("select " + filesufx + ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem
-                                                         , m_ok
-                                                         , tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
-                        if (listimpr.size()==0 || !m_ok)
-                            return;
-                        if (docmt->imageformat() == JPG && listimpr.at(0).at(1).toInt() == 1)
-                            ba.append(qUncompress(listimpr.at(0).at(0).toByteArray()));
-                        else
-                            ba.append(listimpr.at(0).at(0).toByteArray());
-                        docmt->setimageblob(ba);
-                    }
-                    else if (isfacture)
-                    {
-                        listimpr = db->StandardSelectSQL("select " + filesufx + "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem
-                                                         , m_ok
-                                                         , tr("Impossible d'accéder à la table ") + TBL_FACTURES);
-                        if (listimpr.size()==0 || !m_ok)
-                            return;
-                        ba.append(listimpr.at(0).at(0).toByteArray());
-                        dep->setfactureblob(ba);
-                        return;
-                    }
                 }
             }
         }
+        else     //!> on est en accès distant, on va chercher le QByteArray de l'image  soit à son emplacement sur le serveur, soit dans le champ blob de la table concernée
+        {
+            //!> on recherche d'abord sur le disque dur du serveur
+            QList<QVariantList> listimpr;
+            listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename) + "') AS content"
+                                             , m_ok
+                                             , tr("Impossible d'accéder au fichier ") + filename);
+                       if (!m_ok)
+                       return;
+            if (listimpr.size()==1)
+            {
+                ba.append(listimpr.at(0).at(0).toByteArray());
+                if (ba.size()>0)
+                {
+                    if (isdocument)
+                    {
+                        docmt->setimageblob(ba);
+                        return;
+                    }
+                    else if (isfacture)
+                    {
+                        dep->setfactureblob(ba);
+                        return;
+                    }
+                }
+            }
+            else //!> on n'a pas trouvé le fichier sur le disque dur du serveur, on recherche le QByteArray de l'image dans la table concernée
+            {
+                if (isdocument)
+                {
+                    listimpr = db->StandardSelectSQL("select " + filesufx + ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem
+                                                    , m_ok
+                                                   , tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
+                    if (listimpr.size()==0 || !m_ok)
+                        return;
+                    if (docmt->imageformat() == JPG && listimpr.at(0).at(1).toInt() == 1)
+                        ba.append(qUncompress(listimpr.at(0).at(0).toByteArray()));
+                    else
+                        ba.append(listimpr.at(0).at(0).toByteArray());
+                    docmt->setimageblob(ba);
+                }
+                else if (isfacture)
+                {
+                    listimpr = db->StandardSelectSQL("select " + filesufx + "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem
+                                                     , m_ok
+                                                     , tr("Impossible d'accéder à la table ") + TBL_FACTURES);
+                    if (listimpr.size()==0 || !m_ok)
+                        return;
+                    ba.append(listimpr.at(0).at(0).toByteArray());
+                    dep->setfactureblob(ba);
+                    return;
+                    }
+                }
+            }        
     }
     else                                                    //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
     {
         QString Entete  = docmt->textentete();
-        bool entetemodifie = false;
-        if (Entete.contains("<td width=\"300\">") || Entete.contains("<td width=\"200\">"))
-        {
-            entetemodifie = true;
-            Entete.replace("<td width=\"300\">","<td width=\"280\">");
-            Entete.replace("<td width=\"200\">","<td width=\"180\">");
-        }
-        if (Utils::epureFontFamily(Entete) || entetemodifie)
+        if (Utils::epureFontFamily(Entete) || Utils::corrigeErreurHtmlEntete(Entete, docmt->isALD()))
             ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
         QString Corps   = docmt->textcorps();
         if (Utils::epureFontFamily(Corps))

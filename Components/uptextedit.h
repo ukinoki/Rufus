@@ -50,7 +50,7 @@ public:
     void        settable(QString tablecorrespondant);
     QString     table() const;
     void        setText(const QString &text);
-    bool        ismodifed() {return m_modified;};
+    bool        ismodified() {return m_modified;};
     void        setmodified(bool modified) { m_modified = modified;};
     QString     appendHtml(QString appendtext,  bool supprimeLesLignesVidesDuMilieu = true, bool rajouteunelignealafin = true);
 

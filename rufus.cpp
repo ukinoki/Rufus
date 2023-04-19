@@ -6078,7 +6078,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         {
             QString requetemodif;
             objUpText->textCursor().clearSelection();
-            if (objUpText->valeuravant() != objUpText->toHtml() || objUpText->ismodifed())
+            if (objUpText->valeuravant() != objUpText->toHtml() || objUpText->ismodified())
             {
                 QString Corps = objUpText->toHtml();
                 if (objUpText->table() == TBL_ACTES || objUpText->table() == TBL_MESSAGES)
