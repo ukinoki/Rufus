@@ -318,6 +318,25 @@ bool Utils::retirelignevidefinhtml(QString &txthtml)
     return ligneretiree;
 }
 
+bool Utils::epureFontFamily(QString &text)
+{
+    QString txt= text;
+    QRegularExpression rx;
+    rx.setPattern("font-family:'([a-zA-Z0-9 ,-]+)");
+    auto it = rx.globalMatch(text);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString txtaremplacer = match.captured(0);
+        if (txtaremplacer != "")
+        {
+            QString replacmt = txtaremplacer.split(",").at(0);
+            text.replace(txtaremplacer, replacmt);
+        }
+    }
+    return (txt != text);
+}
+
+
 /*!
  * \brief Utils::CalcSize(QString txt)
  * calcule la taille en pixels du texte passé en paramètres dans la police passée en paramètre

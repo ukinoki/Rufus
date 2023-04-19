@@ -28,7 +28,7 @@ Procedures* Procedures::I()
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
-    /*!
+     /*!
     QStringList driverslist = QSqlDatabase::drivers();
     for (int i = 0; i<driverslist.size(); ++i)
         qDebug() << driverslist.at(i);
@@ -1487,6 +1487,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
         Entete.replace("{{NUMSS}}",  db->parametres()->cotationsfrance()? NumSS : "");
         Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
+        Utils::epureFontFamily(Entete);
 
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
@@ -1609,7 +1610,7 @@ bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString
     return a;
 }
 
-void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc, bool afficher)
+void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc)
 {
     /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
      *  pour pouvoir les afficher ou les imprimer
@@ -1623,51 +1624,70 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
     */
     if (docmt == Q_NULLPTR )
         return;
-    QString iditem;
-    QString date ("");
-    QString sstitre;
-    QString imgs;
-    QString typedocmt ("");
-    QString soustypedocmt ("");
-    QString objet ("");
+    QByteArray ba = QByteArray();
     QString filename = "";
-
-    iditem = QString::number(docmt->id());
-    date = docmt->datetimeimpression().toString(tr("d-M-yyyy"));
-    typedocmt = docmt->typedoc();
-    soustypedocmt = docmt->soustypedoc();
-    filename = docmt->lienversfichier();
-    QByteArray ba;
-    QString fileformat=PDF;
-    QLabel inflabel;
     switch (typedoc) {
     case Image:
         //!> il s'agit d'un fichier image
-        if (afficher)                                       //! si on veut afficher
-        {
-            sstitre = "<font color='magenta'>" + date + " - " + typedocmt + " - " + soustypedocmt + "</font>";
-            inflabel   .setText(sstitre);
-        }
+        filename = docmt->lienversfichier();
         if (filename != "")
         {
-            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
-            ba=getFileFromServer(fullFilename,docmt->compression(), fileformat);
+            QString fileformat;
+            if (filename.contains("."))
+            {
+                QStringList lst = filename.split(".");
+                fileformat      = lst.at(lst.size()-1);
+            }
+            if (fileformat == PDF || fileformat == JPG)
+                docmt->setimageformat(fileformat);
+            else return;
+            if (db->ModeAccesDataBase() != Utils::Distant)
+            {
+                QString dossierimagerie = "";
+                if (db->ModeAccesDataBase() == Utils::Poste)
+                    dossierimagerie = m_parametres->dirimagerieserveur();
+                else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+                    dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+                else return;
+                QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+                if (fileimg.open(QIODevice::ReadOnly))
+                {
+                    ba = fileimg.readAll();
+                    docmt->setimageblob(ba);
+                    return;
+                }
+            }
+            else
+            {
+                QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
+                ba = getFileFromServer(fullFilename);
+            }
         }
         if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
-        {
-            QString sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + iditem;
-            // PDF=0, JPG=1, COMPRESSION=2
-            ba=getFileFromSQL(sQuery, 0, 1, 2, fileformat, tr("Impossible d'accéder à la table ") + TBL_DOCSEXTERNES);
-        }
+            ba=getFileFromSQL(docmt);
+        if (ba.size())
+            docmt->setimageblob(ba);
         break;
     case Text:
         //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-        inflabel    .setText("");
         QString Entete  = docmt->textentete();
+        bool entetemodifie = false; //! les bidouillages qui suivent servent à corriger des problème dans les td width, apparus après Qt 5.10
+        if (Entete.contains("<td width=\"300\">") || Entete.contains("<td width=\"200\">"))
+        {
+            entetemodifie = true;
+            Entete.replace("<td width=\"300\">","<td width=\"280\">");
+            Entete.replace("<td width=\"200\">","<td width=\"180\">");
+        }
+        if (Utils::epureFontFamily(Entete) || entetemodifie)
+            ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
         QString Corps   = docmt->textcorps();
+        if (Utils::epureFontFamily(Corps))
+            ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, Corps);
         QString Pied    = docmt->textpied();
-        QTextEdit   *Etat_textEdit = new QTextEdit;
-        Etat_textEdit->setHtml(Corps);
+        if (Utils::epureFontFamily(Pied))
+            ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, Pied);
+        QTextEdit   *Etat_textEdit = new UpTextEdit;
+        Etat_textEdit->setText(Corps);
         TextPrinter *TexteAImprimer = new TextPrinter();
         if (docmt->format() == PRESCRIPTIONLUNETTES)
             TexteAImprimer->setFooterSize(TaillePieddePageOrdoLunettes());
@@ -1678,122 +1698,126 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
         TexteAImprimer->setFooterText(Pied);
         TexteAImprimer->setTopMargin(TailleTopMarge());
         ba=TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+        docmt->setimageformat(PDF);
+        docmt->setimageblob(ba);
         break;
     }
-    docmt->setimageformat(fileformat);
-    docmt->setimageblob(ba);
-
 }
 
-void Procedures::CalcImageFacture(Depense *dep, bool afficher)
+void Procedures::CalcImageFacture(Depense *dep)
 {
     if (dep == Q_NULLPTR)
         return;
-    QString iditem;
-    QString date ("");
-    QString sstitre;
-    QString imgs;
-    QString typedocmt ("");
-    QString soustypedocmt ("");
-    QString objet ("");
     QString filename = "";
-
-    iditem = QString::number(dep->idfacture());
-    date = dep->date().toString(tr("d-M-yyyy"));
-    objet = dep->objet();
-    filename = dep->lienfacture();
-    QByteArray ba;
-    QLabel inflabel;
-    if (afficher)                                       //! si on veut afficher
-    {
-        sstitre = "<font color='magenta'>" + date + " - " + objet + "</font>";
-        inflabel   .setText(sstitre);
-    }
-    QString fileformat="";
+    filename            = dep->lienfacture();
+    QByteArray ba       = QByteArray();
     if (filename != "")
     {
-        QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
-        ba=getFileFromServer(fullFilename, 0, fileformat);
+        QString fileformat = "";
+        if (filename.contains("."))
+        {
+            QStringList lst = filename.split(".");
+            fileformat      = lst.at(lst.size()-1);
+        }
+        if (fileformat == PDF || fileformat == JPG)
+            dep->setfactureformat(fileformat);
+        else
+            return;
+        if (db->ModeAccesDataBase() != Utils::Distant)
+        {
+            QString dossierimagerie = "";
+            if (db->ModeAccesDataBase() == Utils::Poste)
+                dossierimagerie = m_parametres->dirimagerieserveur();
+            else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+                dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+            else return;
+            QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+            if (fileimg.open(QIODevice::ReadOnly))
+            {
+                ba = fileimg.readAll();
+                dep->setfactureblob(ba);
+                return;
+            }
+        }
+        else
+        {
+            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
+            ba = getFileFromServer(fullFilename);
+        }
     }
-    if (ba.size()==0)  // le document n'est pas dans echangeimages, on va le chercher dans factures
-    {
-        QString sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + iditem;
-        // PDF=0, JPG=1, COMPRESSION=NO
-        ba=getFileFromSQL(sQuery, 0, 1, -1, fileformat, tr("Impossible d'accéder à la table ") + TBL_FACTURES);
-    }
-    dep->setfactureformat(fileformat);
-    dep->setfactureblob(ba);
+    if (ba.size() ==0)    // le document n'est pas dans le fichier, on va le chercher dans la table factures
+        ba=getFileFromSQL(dep);
+    if (ba.size() >0)
+        dep->setfactureblob(ba);
 }
 
 // Get file content from SQL table
-QByteArray Procedures::getFileFromSQL(QString sQuery, int fieldPDF, int fieldJPG, int fieldCompression, QString &imageformat, QString errMsg)
+QByteArray Procedures::getFileFromSQL(Item *item)
 {
-    QByteArray ba;
+    QByteArray ba = QByteArray();
+    bool isdocument = (dynamic_cast<DocExterne*>(item) != Q_NULLPTR);
+    auto isfacture  = (dynamic_cast<Depense*>(item) != Q_NULLPTR);
+    DocExterne *docmt = Q_NULLPTR;
+    Depense *dep = Q_NULLPTR;
+    if (isdocument)
+        docmt = dynamic_cast<DocExterne*>(item);
+    else if (isfacture)
+        dep = dynamic_cast<Depense*>(item);
+    else
+        return ba;
+    QString iditem;
+    QString sQuery;
+    if (isdocument)
+        sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + QString::number(docmt->id());
+    else if (isfacture)
+        sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + QString::number(dep->idfacture());
+
     QList<QVariantList> listimpr;
-    bool ok;
-    listimpr = db->StandardSelectSQL(sQuery, ok, errMsg);
+    listimpr = db->StandardSelectSQL(sQuery, m_ok,  tr("Impossible d'accéder à la table ") + (isdocument? TBL_DOCSEXTERNES : TBL_FACTURES));
 
-    if( ok )
+    if( m_ok && listimpr.size() >0)
     {
-        if( listimpr.size() > 0 ) // min 1 reg
+        if (isdocument)
         {
-            int maxFields = listimpr.at(0).size();
-            if( maxFields > 0 ) //min 1 field
+            if (listimpr.at(0).at(1).toByteArray().size() >0) //c'est un jpg
             {
-                // get compression switch (if integer)
-                int compression = 0;
-                if( fieldCompression >= 0 && fieldCompression < maxFields){
-                    bool ok;
-                    compression=listimpr.at(0).at(fieldCompression).toInt(&ok);
-                    if( ! ok ) compression = 0;
-                }
-
-                // get JPG content
-                if( fieldJPG >= 0 && fieldJPG < maxFields){
-                    ba=listimpr.at(0).at(fieldJPG).toByteArray();
-                    imageformat = JPG;
-                }
-
-                // get PDF content if JPG failed
-                if( ba.size() == 0 && fieldPDF >= 0 && fieldPDF < maxFields){
-                    ba=listimpr.at(0).at(fieldPDF).toByteArray();
-                    imageformat = PDF;
-                }
-
-                // uncompress if necessary
-                if (compression == 1)
-                    ba.append(qUncompress(listimpr.at(0).at(0).toByteArray()));
+                if (listimpr.at(0).at(2).toInt() == 1)
+                    ba.append(qUncompress(listimpr.at(0).at(1).toByteArray()));
                 else
-                    ba.append(listimpr.at(0).at(0).toByteArray());
+                    ba.append(listimpr.at(0).at(1).toByteArray());
+                docmt->setimageformat(JPG);
+            }
+            else if (listimpr.at(0).at(0).toByteArray().size() >0) //c'est un pdf
+            {
+                ba.append(listimpr.at(0).at(0).toByteArray());
+                docmt->setimageformat(PDF);
+            }
+        }
+        else if (isfacture)
+        {
+            if (listimpr.at(0).at(1).toByteArray().size() >0) //c'est un jpg
+            {
+                ba.append(listimpr.at(0).at(1).toByteArray());
+                dep->setfactureformat(JPG);
+            }
+            else if (listimpr.at(0).at(0).toByteArray().size() >0) //c'est un pdf
+            {
+                ba.append(listimpr.at(0).at(0).toByteArray());
+                dep->setfactureformat(PDF);
             }
         }
     }
-
     return ba;
 }
 
-QByteArray Procedures::getFileFromServer(QString filename, int compression, QString &fileformat)
+QByteArray Procedures::getFileFromServer(QString filename)
 {
-    QByteArray ba;
-    QString filesufx;
-    if (filename.contains("."))
-    {
-        QStringList lst = filename.split(".");
-        filesufx        = lst.at(lst.size()-1);
-    }
-    QString sfx = (filesufx.toLower() == PDF? PDF : JPG);
-    fileformat=sfx;
-
+    QByteArray ba = QByteArray();
     QList<QVariantList> listimpr;
-    bool ok;
     QString req = "SELECT LOAD_FILE('" + filename + "') AS content";
-    listimpr = db->StandardSelectSQL(req,ok, tr("Impossible d'accéder à ") + filename);
-    if(ok) {
-        if (compression == 1)
-            ba.append(qUncompress(listimpr.at(0).at(0).toByteArray()));
-        else
-            ba.append(listimpr.at(0).at(0).toByteArray());
-    }
+    listimpr = db->StandardSelectSQL(req,m_ok, tr("Impossible d'accéder au fichier ") + filename);
+    if(m_ok && listimpr.size() >0)
+        ba.append(listimpr.at(0).at(0).toByteArray());
     return ba;
 }
 

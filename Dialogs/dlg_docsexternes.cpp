@@ -395,7 +395,16 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         else
             typedoc = Procedures::Text;
         if (docmt->imageformat() == QByteArray())
-            proc->CalcImageDocument(docmt, typedoc , true);
+        {
+            proc->CalcImageDocument(docmt, typedoc);
+            if (docmt->format() == IMAGERIE)
+            {
+                QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
+                wdg_inflabel    ->setText(sstitre);
+            }
+            else
+                wdg_inflabel    ->setText("");
+        }
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
         if (docmt->imageformat() == JPG)     // le document est un JPG
         {
@@ -838,7 +847,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
     else
         typedoc = Procedures::Text;
     if (docmt->imageblob() == QByteArray())
-        proc->CalcImageDocument(docmt, typedoc, false);
+        proc->CalcImageDocument(docmt, typedoc);
     if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
     {
         QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());

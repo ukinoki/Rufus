@@ -278,11 +278,11 @@ private:
 
 public:
     void                    ab(int i = 1);
-    void                    CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc, bool afficher);
-    void                    CalcImageFacture(Depense *dep, bool afficher);
+    void                    CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc);
+    void                    CalcImageFacture(Depense *dep);
 
-     QByteArray             getFileFromSQL(QString sQuery, int fieldPDF, int fieldJPG, int fieldCompression, QString &imageformat, QString errMsg);
-    QByteArray              getFileFromServer(QString filename, int compression, QString &fileformat);
+     QByteArray             getFileFromSQL(Item *item);
+    QByteArray              getFileFromServer(QString filename);
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
     void                    EditHtml(QString txt);

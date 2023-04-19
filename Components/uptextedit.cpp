@@ -340,34 +340,27 @@ QString UpTextEdit::table() const
 
 void UpTextEdit::setText(const QString &text)
 {
+    QString txt = text;
     if (text.contains("<!DOCTYPE HTML PUBLIC"))
     {
-        QString txt = text;
-        //! newfont c'est parce que de vielles versions de QT enregistraient la police avec tout un lot d'attributs et Qt6 ne comprend pas
-        QString newfont = "font-family:'" + qApp->font().family() + "';";
-        QRegularExpression re("font-family( *: *'[A-Za-z ]+(,-*[\\d]{1,2})+)' *;");
-        QRegularExpressionMatch const match = re.match(text);
-        if (match.hasMatch()) {
-            QString matcheds = match.captured(0);
-            txt.replace(matcheds, newfont);
-        }
-        //! fin newfont
-        //txt.replace(QRegularExpression::wildcardToRegularExpression("font-family( *: *'[A-Za-z ]*(,-*[\\d]{1,2})*)' *;"),"font-family:'" + qApp->font().family() + "':");
+        //! parce que de vielles versions de QT enregistraient la police avec tout un lot d'attributs et Qt6 ne comprend pas
+        Utils::epureFontFamily(txt);
         if (!text.contains(HTMLCOMMENT))
         {
             QString newsize = "font-size:" + QString::number(qApp->font().pointSize()) + "pt";
-            QRegularExpression rs("font-size( *: *[\\d]{1,2} *)pt");
+            QRegularExpression rs;
+            rs.setPattern("font-size( *: *[\\d]{1,2} *)pt");
             QRegularExpressionMatch const match = rs.match(text);
             if (match.hasMatch()) {
                 QString matcheds = match.captured(0);
                 txt.replace(matcheds, newsize);
             }
-            //txt.replace(QRegularExpression::wildcardToRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(qApp->font().pointSize()) + "pt");
         }
         QTextEdit::setText(txt);
     }
     else
         QTextEdit::setText(text);
+    m_modified = (txt != text);
 }
 
 /*!

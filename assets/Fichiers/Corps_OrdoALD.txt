@@ -3,7 +3,7 @@
 	<meta name="qrichtext" content="1" />
 	<meta charset="utf-8" />
 </head>
-<body style=" font-family:''Comic Sans MS,12,-1,5,50,0,0,0,0,0''; font-size:11pt; font-style:italic;">
+<body style=" font-family:'Comic Sans MS'; font-size:11pt; font-style:italic;">
 	<table width = "510" border = "1" style="clear:both;">
 	<tr><td><div align = "center"><p><span style="font-size:8pt; font-style:normal;text-align:center; color:blue;">Prescriptions relatives au traitement de l'affection de longue durée reconnue (liste ou hors liste)<br />(AFFECTION EXONERANTE)</span></p></div></td></tr>
 	</table>

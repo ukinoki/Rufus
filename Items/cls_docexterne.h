@@ -64,7 +64,7 @@ private:
     QString m_formatdoc;                //!< le format du document quand il s'agit d'un document d'imagerie: jpg, pdf, video...etc...
     QString m_lienversfichier;          //!< le lien vers le fichier d'imagerie
     QByteArray m_blob = QByteArray();   //!< le contenu du fichier image
-    QString m_formatimage;              //!< le format du fichier image
+    QString m_formatimage = "";         //!< le format du fichier image
 
     int m_idrefraction;                 //!> l'id de la refraction concernée quand il s'agit d'une prescription de verres correcteurs
 
@@ -99,8 +99,14 @@ public:
     void setAllLoaded(bool allloaded);
     void setimageblob(QByteArray blob);
     void setimageformat(QString format);
-    void setidrefraction(int id)    {m_idrefraction = id;}
+    void setidrefraction(int id)        {m_idrefraction = id;}
+    void settexteentete(QString txt)    {m_textentete = txt;}
+    void settextecorps(QString txt)     {m_textcorps = txt;}
+    void settextepied(QString txt)      {m_textpied = txt;}
 
     void setsoustype(QString soustype)  { m_soustypedoc = soustype; }
+
+    bool isJPG()    {return m_formatimage == JPG;};
+    bool isPDF()    {return m_formatimage == PDF;};
 };
 #endif // CLS_DOCEXTERNE_H
