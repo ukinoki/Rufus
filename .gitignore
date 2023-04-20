@@ -3,9 +3,7 @@
 *.7z
 .DS_Store
 */.DS_Store
-WindowsInstaller/Output
-WindowsInstaller/Deploy
-WindowsInstaller/Microsoft
+build
 .env
 build/
 bin/
