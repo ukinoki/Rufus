@@ -66,7 +66,7 @@
         * la taille de la page, l'orientation - pas utilisés dans Rufus pour le moment
             * setPageSize(QPageSize size)
             * setOrientation(QPageLayout::Orientation orientation = QPageLayout::Portrait);
-        * l'entête avec setHeaderText(const QString &text) où text est du texte en htaml html
+        * l'entête avec setHeaderText(const QString &text) où text est du texte en html
         * le pied de page avec setFooterText(const QString &text) où text est du texte en html
         * le corps du texte est fourni au moment de lancer l'impression, la conversion en pdf ou la prévisualisation avec
             * print(const QTextDocument *document,  QString ficpdf = QString(), const QString &caption = QString(), bool AvecChoixImprimante = true, bool QueLePdf = false)

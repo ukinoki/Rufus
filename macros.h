@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // Les versions de la base et des ressources
 #define VERSION_BASE                          76  // version de la base de données
-#define VERSION_RESSOURCES                    35  // version des fichiers de ressources
+#define VERSION_RESSOURCES                    36  // version des fichiers de ressources
 
 // Les bases
 #define DB_CCAM                               "CCAM"
@@ -1002,11 +1002,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PLVMT               "P"
 #define CB                  "B"
 
-// ancres et comentaires html
-//#define HTMLCOMMENT_LINUX           "<!LINUX>"
-//#define HTMLCOMMENT_MAC             "<!MAC>"
+// divers, ancres et comemntaires html
 
-// avoid more #ifdef Q_OS_ ...
 #if defined(Q_OS_LINUX)
 #define HTMLCOMMENT                 "<!LINUX>"
 #elif defined(Q_OS_MACX)
@@ -1016,16 +1013,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #else
 #define HTMLCOMMENT                 "<!COMMENT>"
 #endif
-
-#define HTMLANCHOR_BODEBUT          "<BOdebut>"
-#define HTMLANCHOR_BOFIN            "<BOfin>"
-#define HTMLANCHOR_PACHYDEBUT       "pachydebut"
-#define HTMLANCHOR_PACHYFIN         "pachyfin"
-#define HTMLANCHOR_TODEBUT          "TOdebut"
-#define HTMLANCHOR_TOFIN            "TOfin"
-#define HTML_FINPARAGRAPH           "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>"
-#define HTML_RETOURLIGNE            "<p style = \"margin-top:0px; margin-bottom:0px;\">"
-
+#define HTMLANCHOR_BODEBUT              "<BOdebut>"
+#define HTMLANCHOR_BOFIN                "<BOfin>"
+#define HTMLANCHOR_PACHYDEBUT           "pachydebut"
+#define HTMLANCHOR_PACHYFIN             "pachyfin"
+#define HTMLANCHOR_TODEBUT              "TOdebut"
+#define HTMLANCHOR_TOFIN                "TOfin"
+#define HTML_FINPARAGRAPH               "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>"
+#define HTML_RETOURLIGNE                "<p style = \"margin-top:0px; margin-bottom:0px;\">"
+#define HTML_LARGEUR_ENTETE_GAUCHE      "280"
+#define HTML_LARGEUR_ENTETE_DROITE      "180"
+#define HTML_LARGEUR_ENTETE_GAUCHE_ALD  "230"
+#define HTML_LARGEUR_ENTETE_DROITE_ALD  "230"
 
 // valeurs extrêmes de kératométrie
 #define MinK                        5

@@ -66,6 +66,7 @@ Procedures::Procedures(QObject *parent) :
     }
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
+    VerifRessources();
 
     QList<int> lports ={ 3306 , 3307};
     QSet<int> ports =QSet<int>(lports.constBegin(), lports.constEnd());
@@ -1295,7 +1296,7 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
         nomModeleCorpsImpression = PATH_FILE_CORPSORDO;
 
     QFile qFile(nomModeleCorpsImpression);
-    while (!qFile.open( QIODevice::ReadOnly ))
+    if (!qFile.open( QIODevice::ReadOnly ))
         if (!VerifRessources(nomModeleCorpsImpression))
             return QString();
 
@@ -1305,7 +1306,9 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     ba.data()[file_len]=0;
     qFile.close ();
     Corps = ba;
-    text.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
+    QRegularExpression rx;
+    rx.setPattern("font-size( *: *[\\d]{1,2} *)pt");
+    text.replace(rx,"font-size:9pt");
     Corps.replace("{{TEXTE ORDO}}",text);
     Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
     return Corps;
@@ -1406,14 +1409,14 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             }
         }
     }
-    for (int i = 1; i<3; i++)//TODO : ??? pourquoi 3 - reponse: comme ça, pour pas mettre i==2....
+    for (int i = 1; i<3; i++)
     {
         if (i==1)
             nomModeleEntete = PATH_FILE_ENTETEORDO;
         else
             nomModeleEntete = PATH_FILE_ENTETEORDOALD;
         QFile qFileEnTete(nomModeleEntete);
-        while (!qFileEnTete.open( QIODevice::ReadOnly ))
+        if (!qFileEnTete.open( QIODevice::ReadOnly ))
             if (!VerifRessources(nomModeleEntete))
                 return QMap<QString, QString>();
 
@@ -1441,7 +1444,11 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             Entete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
         else
             Entete.replace("{{SPECIALITE}}", user->specialite());
-
+        if (i==1)
+        {
+            Entete.replace("{{LARGEURG}}", HTML_LARGEUR_ENTETE_GAUCHE);
+            Entete.replace("{{LARGEURD}}", HTML_LARGEUR_ENTETE_DROITE);
+        }
         QString adresse ="";
         int nlignesadresse = 0;
         Site *sit = Datas::I()->sites->currentsite();
@@ -1511,7 +1518,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         if (lunettes)
             nomModelePied = PATH_FILE_PIEDPAGEORDOLUNETTES;
         QFile   qFilePied(nomModelePied );
-        while (!qFilePied.open( QIODevice::ReadOnly ))
+        if (!qFilePied.open( QIODevice::ReadOnly ))
             if (!VerifRessources(nomModelePied))
                 return QString();
         long filePied_len = qFilePied.size();
@@ -1663,7 +1670,7 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
                 ba = getFileFromServer(fullFilename);
             }
         }
-        if (ba.size()==0)    // le document n'est pas, on va le chercher dans impressions
+        if (ba.size()==0)    // le document n'est pas enregistré sur le disque, on va le chercher dans la tabimpressions
             ba=getFileFromSQL(docmt);
         if (ba.size())
             docmt->setimageblob(ba);
@@ -1671,14 +1678,7 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
     case Text:
         //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
         QString Entete  = docmt->textentete();
-        bool entetemodifie = false; //! les bidouillages qui suivent servent à corriger des problème dans les td width, apparus après Qt 5.10
-        if (Entete.contains("<td width=\"300\">") || Entete.contains("<td width=\"200\">"))
-        {
-            entetemodifie = true;
-            Entete.replace("<td width=\"300\">","<td width=\"280\">");
-            Entete.replace("<td width=\"200\">","<td width=\"180\">");
-        }
-        if (Utils::epureFontFamily(Entete) || entetemodifie)
+        if (Utils::epureFontFamily(Entete) || Utils::corrigeErreurHtmlEntete(Entete, docmt->isALD()))
             ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
         QString Corps   = docmt->textcorps();
         if (Utils::epureFontFamily(Corps))
@@ -4350,24 +4350,28 @@ void Procedures::PremierParametrageRessources()
     if (DirRessrces.exists())
         DirRessrces.removeRecursively();
     Utils::mkpath(PATH_DIR_RESSOURCES);
+    QFileDevice::Permissions permissions =
+                       (QFileDevice::ReadOther
+                      | QFileDevice::ReadGroup
+                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                      | QFileDevice::ReadUser);
     QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
-    Utils::copyWithPermissions(COACopier,PATH_FILE_CORPSORDO);
+    Utils::copyWithPermissions(COACopier,PATH_FILE_CORPSORDO, permissions);
 
     QFile COALDACopier(QStringLiteral(":/" NOM_FILE_CORPSORDOALD));
-    Utils::copyWithPermissions(COALDACopier,PATH_FILE_CORPSORDO);
+    Utils::copyWithPermissions(COALDACopier,PATH_FILE_CORPSORDOALD, permissions);
 
     QFile EOACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDO));
-    Utils::copyWithPermissions(EOACopier,PATH_FILE_ENTETEORDO);
+    Utils::copyWithPermissions(EOACopier,PATH_FILE_ENTETEORDO, permissions);
 
     QFile EOALDACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDOALD));
-    Utils::copyWithPermissions(EOALDACopier,PATH_FILE_ENTETEORDOALD);
+    Utils::copyWithPermissions(EOALDACopier,PATH_FILE_ENTETEORDOALD, permissions);
 
     QFile POLACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGEORDOLUNETTES));
-    Utils::copyWithPermissions(POLACopier,PATH_FILE_PIEDPAGEORDOLUNETTES);
-
+    Utils::copyWithPermissions(POLACopier,PATH_FILE_PIEDPAGEORDOLUNETTES, permissions);
 
     QFile POACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGE));
-    Utils::copyWithPermissions(POACopier,PATH_FILE_PIEDPAGE);
+    Utils::copyWithPermissions(POACopier,PATH_FILE_PIEDPAGE, permissions);
 
     QFile PDFACopier(QStringLiteral(":/" NOM_FILE_PDF));
     Utils::copyWithPermissions(PDFACopier,PATH_FILE_PDF);
@@ -4496,13 +4500,25 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::VerifRessources(QString Nomfile)
 {
+    bool ok = QDir(PATH_DIR_RESSOURCES).exists()
+        && QFile(PATH_FILE_CORPSORDO).exists()
+        && QFile(PATH_FILE_CORPSORDOALD).exists()
+        && QFile(PATH_FILE_ENTETEORDO).exists()
+        && QFile(PATH_FILE_ENTETEORDOALD).exists()
+        && QFile(PATH_FILE_PIEDPAGE).exists()
+        && QFile(PATH_FILE_PIEDPAGEORDOLUNETTES).exists()
+        && QFile(PATH_FILE_PDF).exists();
+    if (ok)
+        return true;
+
     QMessageBox msgbox;
     UpSmallButton OKBouton(tr("Annuler"));
     UpSmallButton RestaurerBouton(tr("Reconstruire les fichiers à partir d'une sauvegarde"));
     UpSmallButton RemplirBouton(tr("Réinitialiser les fichiers"));
-    msgbox.setText(tr("Il manque un fichier d'impression"));
-    msgbox.setInformativeText(tr("Le fichier ressource d'impression ") + Nomfile + tr(" est absent.\n"
-                              "Voulez vous restaurer les fichiers ressources d'impression?.\n"));
+    msgbox.setText(tr("Il manque des fichiers ressources"));
+    msgbox.setInformativeText(tr("Le dossier des fichiers ressources d'impressions ") + PATH_DIR_RESSOURCES + tr("est corrompu.") + "\n"
+                              + (Nomfile != ""? tr("le fichier ") + Nomfile + tr(" est absent"):"")
+                              + tr("Voulez vous restaurer les fichiers ressources d'impression?") + "\n");
     msgbox.setIcon(QMessageBox::Warning);
     msgbox.addButton(&OKBouton, QMessageBox::RejectRole);
     msgbox.addButton(&RemplirBouton, QMessageBox::AcceptRole);
