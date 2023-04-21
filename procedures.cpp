@@ -855,19 +855,20 @@ void Procedures::setDirSQLExecutable()
     QString dirdefaultsqlexecutable = "";
     QString dirsqlexecutable ("");
     m_executable = db->version().contains("MariaDB")? "/mariadb": "/mysql";
-    m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump": "/mysqldump";
+    m_dumpexecutable = "/mysqldump";
     bool a = false;
 
 /*! 1. On recherche dans le package logiciel */
 #ifdef Q_OS_MACX
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+    m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump": "/mysqldump";
     mysqldir.cdUp();
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
 #ifdef Q_OS_WIN
     m_executable += ".exe";
-    m_dumpexecutable += ".exe";
+    m_dumpexecutable = "mysqldump.exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
@@ -1297,8 +1298,7 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 
     QFile qFile(nomModeleCorpsImpression);
     if (!qFile.open( QIODevice::ReadOnly ))
-        if (!VerifRessources(nomModeleCorpsImpression))
-            return QString();
+        return QString();
 
     qint64 file_len = qFile.size();
     QByteArray ba = qFile.readAll();
@@ -1417,8 +1417,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             nomModeleEntete = PATH_FILE_ENTETEORDOALD;
         QFile qFileEnTete(nomModeleEntete);
         if (!qFileEnTete.open( QIODevice::ReadOnly ))
-            if (!VerifRessources(nomModeleEntete))
-                return QMap<QString, QString>();
+            return QMap<QString, QString>();
 
         long        fileEnTete_len  = qFileEnTete.size();
         QByteArray  baEnTete        = qFileEnTete.readAll();
@@ -1519,8 +1518,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
             nomModelePied = PATH_FILE_PIEDPAGEORDOLUNETTES;
         QFile   qFilePied(nomModelePied );
         if (!qFilePied.open( QIODevice::ReadOnly ))
-            if (!VerifRessources(nomModelePied))
-                return QString();
+            return QString();
         long filePied_len = qFilePied.size();
         QByteArray baPied = qFilePied.readAll();
         baPied.resize(filePied_len + 1);
@@ -10424,7 +10422,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
             QDomElement rls = ref.firstChildElement("rls");
             QDomElement rlc = ref.firstChildElement("rlc");
             QDomElement rla = ref.firstChildElement("rla");
-            QDomElement rlp = ref.firstChildElement("rla");
+            QDomElement rlp = ref.firstChildElement("rlp");
             if(!rls.isNull())
                 Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(rls.text().toDouble()));
             if(!rlc.isNull())
