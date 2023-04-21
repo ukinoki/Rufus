@@ -394,17 +394,15 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             typedoc = Procedures::Image;
         else
             typedoc = Procedures::Text;
-        if (docmt->imageformat() == QByteArray())
-        {
+        if (docmt->imageformat() == "")
             proc->CalcImageDocument(docmt, typedoc);
-            if (docmt->format() == IMAGERIE)
-            {
-                QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
-                wdg_inflabel    ->setText(sstitre);
-            }
-            else
-                wdg_inflabel    ->setText("");
+        if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
+        {
+            QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
+            wdg_inflabel    ->setText(sstitre);
         }
+        else
+            wdg_inflabel    ->setText("");
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
         if (docmt->imageformat() == JPG)     // le document est un JPG
         {

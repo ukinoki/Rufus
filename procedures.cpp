@@ -4353,7 +4353,7 @@ void Procedures::PremierParametrageRessources()
     QFileDevice::Permissions permissions =
                        (QFileDevice::ReadOther
                       | QFileDevice::ReadGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                      | QFileDevice::ReadOwner
                       | QFileDevice::ReadUser);
     QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
     Utils::copyWithPermissions(COACopier,PATH_FILE_CORPSORDO, permissions);
