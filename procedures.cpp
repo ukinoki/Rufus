@@ -751,11 +751,9 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     scriptbackup += "MYSQL_PASSWORD=\"" MDP_SQL "\"";
     //# Commandes MySQL
     scriptbackup += "\n";
-    scriptbackup += "MYSQL=" + QDir::toNativeSeparators(dirSQLExecutable());
-    scriptbackup += m_executable;
+    scriptbackup += "MYSQL=" + QDir::toNativeSeparators(dirSQLExecutable() + m_executable);
     scriptbackup += "\n";
-    scriptbackup += "MYSQLDUMP=" + QDir::toNativeSeparators(dirSQLExecutable());
-    scriptbackup += m_dumpexecutable;
+    scriptbackup += "MYSQLDUMP=" + QDir::toNativeSeparators(dirSQLExecutable() + m_dumpexecutable);
     scriptbackup += "\n";
 
     //# Bases de données MySQL à ignorer
