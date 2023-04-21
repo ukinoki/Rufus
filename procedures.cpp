@@ -752,10 +752,10 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
     //# Commandes MySQL
     scriptbackup += "\n";
     scriptbackup += "MYSQL=" + QDir::toNativeSeparators(dirSQLExecutable());
-    scriptbackup += "/mysql";
+    scriptbackup += m_executable;
     scriptbackup += "\n";
     scriptbackup += "MYSQLDUMP=" + QDir::toNativeSeparators(dirSQLExecutable());
-    scriptbackup += "/mysqldump";
+    scriptbackup += m_dumpexecutable;
     scriptbackup += "\n";
 
     //# Bases de données MySQL à ignorer
@@ -857,6 +857,7 @@ void Procedures::setDirSQLExecutable()
     QString dirdefaultsqlexecutable = "";
     QString dirsqlexecutable ("");
     m_executable = db->version().contains("MariaDB")? "/mariadb": "/mysql";
+    m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump": "/mysqldump";
     bool a = false;
 
 /*! 1. On recherche dans le package logiciel */
@@ -868,6 +869,7 @@ void Procedures::setDirSQLExecutable()
 #endif
 #ifdef Q_OS_WIN
     m_executable += ".exe";
+    m_dumpexecutable += ".exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
@@ -4517,7 +4519,7 @@ bool Procedures::VerifRessources(QString Nomfile)
     UpSmallButton RemplirBouton(tr("Réinitialiser les fichiers"));
     msgbox.setText(tr("Il manque des fichiers ressources"));
     msgbox.setInformativeText(tr("Le dossier des fichiers ressources d'impressions ") + PATH_DIR_RESSOURCES + tr("est corrompu.") + "\n"
-                              + (Nomfile != ""? tr("le fichier ") + Nomfile + tr(" est absent"):"")
+                              + (Nomfile != ""? tr("le fichier ") + Nomfile + tr(" est absent"):"") + "\n"
                               + tr("Voulez vous restaurer les fichiers ressources d'impression?") + "\n");
     msgbox.setIcon(QMessageBox::Warning);
     msgbox.addButton(&OKBouton, QMessageBox::RejectRole);

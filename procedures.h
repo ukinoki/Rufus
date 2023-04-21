@@ -401,6 +401,7 @@ signals:
                                  * Cela évite de lancer 2 fois la sauvegarde */
         TimerController         t_timerbackup;
         QString                 m_executable;
+        QString                 m_dumpexecutable;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
         bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false);
