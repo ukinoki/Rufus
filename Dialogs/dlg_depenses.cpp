@@ -941,7 +941,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
         {
             QMap<QString,QVariant> doc;
             if (m_depenseencours->factureformat() == "" && m_depenseencours->factureblob() == QByteArray())
-                proc->CalcImage(dep, true, true);
+                proc->CalcImage(dep, true);
             doc.insert("ba", m_depenseencours->factureblob());
             doc.insert("type", m_depenseencours->factureformat());
             m_listeimages =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
@@ -990,7 +990,7 @@ void dlg_depenses::ZoomDoc()
     QMap<QString,QVariant> doc;
     doc.insert("ba", m_depenseencours->factureblob());
     doc.insert("type", m_depenseencours->factureformat());
-    proc->CalcImage(m_depenseencours, true, true);
+    proc->CalcImage(m_depenseencours, true);
     proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
@@ -1845,7 +1845,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 ui->FactureupPushButton     ->setVisible(false);
                 ui->EcheancierupPushButton  ->setVisible(false);
                 ui->VisuDocupTableWidget    ->setVisible(true);
-                proc->CalcImage(m_depenseencours, true, true);
+                proc->CalcImage(m_depenseencours, true);
                 QMap<QString,QVariant> doc;
                 doc.insert("ba", m_depenseencours->factureblob());
                 doc.insert("type", m_depenseencours->factureformat());
@@ -1881,7 +1881,7 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
                 ui->FactureupPushButton     ->setVisible(false);
                 ui->EcheancierupPushButton  ->setVisible(false);
                 ui->VisuDocupTableWidget    ->setVisible(true);
-                proc->CalcImage(m_depenseencours, true, true);
+                proc->CalcImage(m_depenseencours, true);
                 QMap<QString,QVariant> doc;
                 doc.insert("ba", m_depenseencours->factureblob());
                 doc.insert("type", m_depenseencours->factureformat());

@@ -311,16 +311,39 @@ bool Utils::epureFontFamily(QString &text)
     return (txt != text);
 }
 
+/*!
+/*! * \brief Utils::corrigeErreurHtmlEntete
+/*! * \param text
+/*! * \param ALD
+/*! * \return
+ *  L'entête de chaque texte émis est constitué de 2 blocs contigus:
+      * un bloc gauche dans lequel sont rassemblés les concernant l'émetteur du document
+         * docteur Bidule
+         * adresse
+         * .etc...
+      * un bloc droit rassemblant
+         * la date
+         * le nom du patient dans les ordonnances
+         * ...etc...
+ * il y a donc 2 tables dont la largeur est dééterminée par les macros
+      * pour les ordonnances ALD
+         * HTML_LARGEUR_ENTETE_GAUCHE_ALD
+         * HTML_LARGEUR_ENTETE_DROITE_ALD
+      * pour les autres documents
+         * HTML_LARGEUR_ENTETE_GAUCHE
+         * HTML_LARGEUR_ENTETE_GAUCHE
+ * Sur d'anciennes versions de Rufus, il y avait des erreurs dans ces largeurs et elles ne s'affichent pas convenablement.
+ * Cette fonction sert à corriger ces erreurs */
 bool Utils::corrigeErreurHtmlEntete(QString &text, bool ALD)
 {
     QString txt = text;
-    QString largeurALDG = "<table border=\"1\" style=\" float: left;\" cellpadding=\"5\"><tr><td width=\"" HTML_LARGEUR_ENTETE_GAUCHE_ALD "\">";
+    QString largeurALDG = "float: left;\" cellpadding=\"5\"><tr><td width=\"" HTML_LARGEUR_ENTETE_GAUCHE_ALD "\">";
     QString largeurALDD = "float: right;\"><tr><td width=\"" HTML_LARGEUR_ENTETE_DROITE "\">";
     QString largeurG = "float: left;\"><tr><td width=\"" HTML_LARGEUR_ENTETE_GAUCHE "\">";
     QString largeurD = "float: right;\"><tr><td width=\"" HTML_LARGEUR_ENTETE_DROITE "\">";
     QRegExp rx;
-    QString patternALDG = "<table border=\"1\" style=\" float: left;\" cellpadding=\"5\">([\\n ]*)<tr><td width=\"([\\d]{3})\">";
-    QString patternALDD = "<table border=\"1\" style=\" float: right;\" cellpadding=\"6\">([\\n ]*)<tr><td width=\"([\\d]{3})\">";
+    QString patternALDG = "float: left;\" cellpadding=\"5\">([\\n ]*)<tr><td width=\"([\\d]{3})\">";
+    QString patternALDD = "float: right;\" cellpadding=\"6\">([\\n ]*)<tr><td width=\"([\\d]{3})\">";
     QString patternG    = "float: left;\">([\\n ]*)<tr><td width=\"([\\d]{3})\">";
     QString patternD    = "float: right;\">([\\n ]*)<tr><td width=\"([\\d]{3})\">";
     rx.setPattern(ALD? patternALDG : patternG);
@@ -330,7 +353,7 @@ bool Utils::corrigeErreurHtmlEntete(QString &text, bool ALD)
     {
         if (list.at(0) !="")
         {
-            patternALDG = "<table border=\"1\" style=\" float: left;\" cellpadding=\"5\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_GAUCHE_ALD "\">";
+            patternALDG = "float: left;\" cellpadding=\"5\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_GAUCHE_ALD "\">";
             patternG    = "float: left;\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_GAUCHE "\">";
             rx.setPattern(ALD? patternALDG : patternG);
             if (rx.indexIn(list.at(0)) == -1)
@@ -344,8 +367,8 @@ bool Utils::corrigeErreurHtmlEntete(QString &text, bool ALD)
     {
         if (list.at(0) !="")
         {
-            patternALDD = "<table border=\"1\" style=\" float: right;\" cellpadding=\"6\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_DROITE_ALD "\">";
-            patternD    = "float: rightt;\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_DROITE "\">";
+            patternALDD = "float: right;\" cellpadding=\"6\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_DROITE_ALD "\">";
+            patternD    = "float: right;\">([\\n ]*)<tr><td width=\"" HTML_LARGEUR_ENTETE_DROITE "\">";
             rx.setPattern(ALD? patternALDG : patternG);
             if (rx.indexIn(list.at(0)) == -1)
                 text.replace(list.at(0), ALD? largeurALDD : largeurD);

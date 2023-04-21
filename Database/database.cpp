@@ -906,6 +906,16 @@ QList<User*> DataBase::loadUsers()
     for (int i=0; i<usrlist.size(); ++i)
     {
         QVariantList usrdata = usrlist.at(i);
+
+        //! > La petite manip qui suit sert à corriger une erreur de programmation des premières versions de Rufus
+        QString policeusr = usrdata.at(18).toString();
+        if (policeusr.contains(","))
+        {
+            policeusr = policeusr.split(",").at(0);
+            QString requpd = "update " TBL_UTILISATEURS " set " CP_POLICEECRAN_USR " = '" + Utils::correctquoteSQL(policeusr) + "' where " CP_ID_USR " = " + usrdata.at(28).toString();
+            StandardSQL(requpd);
+        }
+
         QJsonObject userData{};
         userData[CP_ID_USR]                             = usrdata.at(28).toInt();
         userData[CP_DROITS_USR]                         = usrdata.at(0).isNull() ? "" : usrdata.at(0).toString();
@@ -926,7 +936,7 @@ QList<User*> DataBase::loadUsers()
         userData[CP_PORTABLE_USR]                       = usrdata.at(15).isNull() ? "" : usrdata.at(15).toString();
         userData[CP_MEMO_USR]                           = usrdata.at(16).isNull() ? "" : usrdata.at(16).toString();
         userData[CP_ISDESACTIVE_USR]                    = (usrdata.at(17).toInt() == 1);
-        userData[CP_POLICEECRAN_USR]                    = usrdata.at(18).isNull() ? "" : usrdata.at(18).toString();
+        userData[CP_POLICEECRAN_USR]                    = usrdata.at(18).isNull() ? "" : policeusr;
         userData[CP_POLICEATTRIBUT_USR]                 = usrdata.at(19).isNull() ? "" : usrdata.at(19).toString();
         userData[CP_SECTEUR_USR]                        = usrdata.at(20).toInt();
         userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(21).toInt();
@@ -1225,9 +1235,16 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
 */
 QJsonObject DataBase::loadImpressionData(QVariantList impressionlist)
 {
+    //! > La manip qui suit sert à corriger une erreur de programmation des premières versions de Rufus
+    QString corps = impressionlist.at(1).toString();
+    if (Utils::epureFontFamily(corps))
+    {
+        QString requpd = "update " TBL_IMPRESSIONS " set " CP_TEXTE_IMPRESSIONS " = '" + Utils::correctquoteSQL(corps) + "' where " CP_ID_IMPRESSIONS " = " + impressionlist.at(0).toString();
+        StandardSQL(requpd);
+    }
     QJsonObject data{};
     data[CP_ID_IMPRESSIONS]            = impressionlist.at(0).toInt();
-    data[CP_TEXTE_IMPRESSIONS]         = impressionlist.at(1).toString();
+    data[CP_TEXTE_IMPRESSIONS]         = corps;
     data[CP_RESUME_IMPRESSIONS]        = impressionlist.at(2).toString();
     data[CP_CONCLUSION_IMPRESSIONS]    = impressionlist.at(3).toString();
     data[CP_IDUSER_IMPRESSIONS]        = impressionlist.at(4).toInt();

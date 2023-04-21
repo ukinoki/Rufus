@@ -276,7 +276,7 @@ private:
 
 public:
     void                    ab(int i = 1);
-    void                    CalcImage(Item *item, bool imagerie, bool afficher = true);
+    void                    CalcImage(Item *item, bool imagerie);
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
     void                    EditHtml(QString txt);

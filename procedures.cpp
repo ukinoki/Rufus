@@ -1115,9 +1115,8 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
         nomModeleCorpsImpression = PATH_FILE_CORPSORDO;
 
     QFile qFile(nomModeleCorpsImpression);
-    while (!qFile.open( QIODevice::ReadOnly ))
-        if (!VerifRessources(nomModeleCorpsImpression))
-            return QString();
+    if (!qFile.open( QIODevice::ReadOnly ))
+        return QString();
 
     qint64 file_len = qFile.size();
     QByteArray ba = qFile.readAll();
@@ -1233,9 +1232,8 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         else
             nomModeleEntete = PATH_FILE_ENTETEORDOALD;
         QFile qFileEnTete(nomModeleEntete);
-        while (!qFileEnTete.open( QIODevice::ReadOnly ))
-            if (!VerifRessources(nomModeleEntete))
-                return QMap<QString, QString>();
+        if (!qFileEnTete.open( QIODevice::ReadOnly ))
+            return QMap<QString, QString>();
 
         long        fileEnTete_len  = qFileEnTete.size();
         QByteArray  baEnTete        = qFileEnTete.readAll();
@@ -1261,6 +1259,11 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             Entete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
         else
             Entete.replace("{{SPECIALITE}}", user->specialite());
+        if (i==1)
+        {
+            Entete.replace("{{LARGEURG}}", HTML_LARGEUR_ENTETE_GAUCHE);
+            Entete.replace("{{LARGEURD}}", HTML_LARGEUR_ENTETE_DROITE);
+        }
 
         QString adresse ="";
         int nlignesadresse = 0;
@@ -1307,7 +1310,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
         Entete.replace("{{NUMSS}}", db->parametres()->cotationsfrance()? NumSS : "");
         Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
-
+        Utils::epureFontFamily(Entete);
         (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
     }
     return EnteteMap;
@@ -1330,9 +1333,8 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         if (lunettes)
             nomModelePied = PATH_FILE_PIEDPAGEORDOLUNETTES;
         QFile   qFilePied(nomModelePied );
-        while (!qFilePied.open( QIODevice::ReadOnly ))
-            if (!VerifRessources(nomModelePied))
-                return QString();
+        if (!qFilePied.open( QIODevice::ReadOnly ))
+            return QString();
         long filePied_len = qFilePied.size();
         QByteArray baPied = qFilePied.readAll();
         baPied.resize(filePied_len + 1);
@@ -1429,7 +1431,7 @@ bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString
     return a;
 }
 
-void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
+void Procedures::CalcImage(Item *item, bool imagerie)
 {
     /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
      *  pour pouvoir les afficher ou les imprimer
@@ -1441,9 +1443,6 @@ void Procedures::CalcImage(Item *item, bool imagerie, bool afficher)
      *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
      *      imagerie = true ->  le document est un document d'imagerie stocké sur un fichier. On va le transférer dans la table echangeimages et le transformer en bytearray
 
-   * \param afficher = false -> la fonction est appelée par dlg_docsexternes::ReImprimeDoc(DocExterne *docmt) - on utilise la table echangeimages
-     *      pour imprimer un document texte. Le document texte est recalculé en pdf et le pdf est incorporé dans un bytearray.
-     *      pour imprimer un document d'imagerie stocké dans la table echangeimages - on va extraire le ByteArray directement de la base de la table echangeimages
      * La fonction est aussi appelée par la table dépenses pour afficher les factures
     */
     bool isdocument = (dynamic_cast<DocExterne*>(item) != Q_NULLPTR);
@@ -4127,68 +4126,31 @@ void Procedures::PremierParametrageRessources()
     if (DirRessrces.exists())
         DirRessrces.removeRecursively();
     Utils::mkpath(PATH_DIR_RESSOURCES);
+    QFileDevice::Permissions permissions =
+        (QFileDevice::ReadOther
+         | QFileDevice::ReadGroup
+         | QFileDevice::ReadOwner
+         | QFileDevice::ReadUser);
     QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
-    COACopier.copy(PATH_FILE_CORPSORDO);
-    QFile CO(PATH_FILE_CORPSORDO);
-    CO.open(QIODevice::ReadWrite);
-    CO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(COACopier,PATH_FILE_CORPSORDO, permissions);
 
     QFile COALDACopier(QStringLiteral(":/" NOM_FILE_CORPSORDOALD));
-    COALDACopier.copy(PATH_FILE_CORPSORDOALD);
-    QFile COALD(PATH_FILE_CORPSORDOALD);
-    COALD.open(QIODevice::ReadWrite);
-    COALD.setPermissions(QFileDevice::ReadOther     | QFileDevice::WriteOther
-                         | QFileDevice::ReadGroup   | QFileDevice::WriteGroup
-                         | QFileDevice::ReadOwner   | QFileDevice::WriteOwner
-                         | QFileDevice::ReadUser    | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(COALDACopier,PATH_FILE_CORPSORDOALD, permissions);
 
     QFile EOACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDO));
-    EOACopier.copy(PATH_FILE_ENTETEORDO);
-    QFile EO(PATH_FILE_ENTETEORDO);
-    EO.open(QIODevice::ReadWrite);
-    EO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(EOACopier,PATH_FILE_ENTETEORDO, permissions);
 
     QFile EOALDACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDOALD));
-    EOALDACopier.copy(PATH_FILE_ENTETEORDOALD);
-    QFile EOALD(PATH_FILE_ENTETEORDOALD);
-    EOALD.open(QIODevice::ReadWrite);
-    EOALD.setPermissions(QFileDevice::ReadOther     | QFileDevice::WriteOther
-                         | QFileDevice::ReadGroup   | QFileDevice::WriteGroup
-                         | QFileDevice::ReadOwner   | QFileDevice::WriteOwner
-                         | QFileDevice::ReadUser    | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(EOALDACopier,PATH_FILE_ENTETEORDOALD, permissions);
 
     QFile POLACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGEORDOLUNETTES));
-    POLACopier.copy(PATH_FILE_PIEDPAGEORDOLUNETTES);
-    QFile POL(PATH_FILE_PIEDPAGEORDOLUNETTES);
-    POL.open(QIODevice::ReadWrite);
-    POL.setPermissions(QFileDevice::ReadOther   | QFileDevice::WriteOther
-                       | QFileDevice::ReadGroup | QFileDevice::WriteGroup
-                       | QFileDevice::ReadOwner | QFileDevice::WriteOwner
-                       | QFileDevice::ReadUser  | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(POLACopier,PATH_FILE_PIEDPAGEORDOLUNETTES, permissions);
 
     QFile POACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGE));
-    POACopier.copy(PATH_FILE_PIEDPAGE);
-    QFile PO(PATH_FILE_PIEDPAGE);
-    PO.open(QIODevice::ReadWrite);
-    PO.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
-                      | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                      | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
-                      | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(POACopier,PATH_FILE_PIEDPAGE, permissions);
 
     QFile PDFACopier(QStringLiteral(":/" NOM_FILE_PDF));
-    PDFACopier.copy(PATH_FILE_PDF);
-    QFile pdf(PATH_FILE_PDF);
-    pdf.open(QIODevice::ReadWrite);
-    pdf.setPermissions(QFileDevice::ReadOther   | QFileDevice::WriteOther
-                       | QFileDevice::ReadGroup | QFileDevice::WriteGroup
-                       | QFileDevice::ReadOwner | QFileDevice::WriteOwner
-                       | QFileDevice::ReadUser  | QFileDevice::WriteUser);
+    Utils::copyWithPermissions(PDFACopier,PATH_FILE_PDF);
     m_settings->setValue(Poste_VersionRessources,VERSION_RESSOURCES);
  }
 
@@ -4312,13 +4274,25 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::VerifRessources(QString Nomfile)
 {
+    bool ok = QDir(PATH_DIR_RESSOURCES).exists()
+              && QFile(PATH_FILE_CORPSORDO).exists()
+              && QFile(PATH_FILE_CORPSORDOALD).exists()
+              && QFile(PATH_FILE_ENTETEORDO).exists()
+              && QFile(PATH_FILE_ENTETEORDOALD).exists()
+              && QFile(PATH_FILE_PIEDPAGE).exists()
+              && QFile(PATH_FILE_PIEDPAGEORDOLUNETTES).exists()
+              && QFile(PATH_FILE_PDF).exists();
+    if (ok)
+        return true;
+
     QMessageBox msgbox;
     UpSmallButton OKBouton(tr("Annuler"));
     UpSmallButton RestaurerBouton(tr("Reconstruire les fichiers à partir d'une sauvegarde"));
     UpSmallButton RemplirBouton(tr("Réinitialiser les fichiers"));
-    msgbox.setText(tr("Il manque un fichier d'impression"));
-    msgbox.setInformativeText(tr("Le fichier ressource d'impression ") + Nomfile + tr(" est absent.\n"
-                              "Voulez vous restaurer les fichiers ressources d'impression?.\n"));
+    msgbox.setText(tr("Il manque des fichiers ressources"));
+    msgbox.setInformativeText(tr("Le dossier des fichiers ressources d'impressions ") + PATH_DIR_RESSOURCES + tr("est corrompu.") + "\n"
+                              + (Nomfile != ""? tr("le fichier ") + Nomfile + tr(" est absent"):"") + "\n"
+                              + tr("Voulez vous restaurer les fichiers ressources d'impression?") + "\n");
     msgbox.setIcon(QMessageBox::Warning);
     msgbox.addButton(&OKBouton, QMessageBox::RejectRole);
     msgbox.addButton(&RemplirBouton, QMessageBox::AcceptRole);
@@ -10214,7 +10188,7 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
             QDomElement rls = ref.firstChildElement("rls");
             QDomElement rlc = ref.firstChildElement("rlc");
             QDomElement rla = ref.firstChildElement("rla");
-            QDomElement rlp = ref.firstChildElement("rla");
+            QDomElement rlp = ref.firstChildElement("rlp");
             if(!rls.isNull())
                 Datas::I()->mesureautoref->setsphereOG(Utils::roundToNearestPointTwentyFive(rls.text().toDouble()));
             if(!rlc.isNull())

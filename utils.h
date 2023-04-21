@@ -116,7 +116,7 @@ public:
     static bool retirelignevidefinhtml(QString &txthtml);
     static bool epureFontFamily(QString &text);  /*! >il y eut un temps où on entrait dans les html de Qt la font-family avec tous ses attributs
                                                  * ce qui donnait -> font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0' dans le html
-                                                 * depuis Qt 5.10 cela ne marche plus et il faut enlever tous les attributs psinon Qt s'emmêle les pinceaux dans l'interprétation du html
+                                                 * depuis Qt 5.10 cela ne marche plus et il faut enlever tous les attributs sinon Qt s'emmêle les pinceaux dans l'interprétation du html
                                                  * il faut donc p.e. remplacer font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0' par font-family:'Comic Sans MS'
                                                  * c'est le rôle de cette fonction */
     static bool corrigeErreurHtmlEntete(QString &text, bool ALD= false);

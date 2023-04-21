@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // Les versions de la base et des ressources
 #define VERSION_BASE                          76  // version de la base de données
-#define VERSION_RESSOURCES                    35  // version des fichiers de ressources
+#define VERSION_RESSOURCES                    36  // version des fichiers de ressources
 
 // Les bases
 #define DB_CCAM                               "CCAM"
@@ -1017,8 +1017,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HTMLANCHOR_TOFIN                "TOfin"
 #define HTML_FINPARAGRAPH               "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>"
 #define HTML_RETOURLIGNE                "<p style = \"margin-top:0px; margin-bottom:0px;\">"
-#define HTML_LARGEUR_ENTETE_GAUCHE      "260"
-#define HTML_LARGEUR_ENTETE_DROITE      "200"
+#define HTML_LARGEUR_ENTETE_GAUCHE      "280"
+#define HTML_LARGEUR_ENTETE_DROITE      "180"
 #define HTML_LARGEUR_ENTETE_GAUCHE_ALD  "230"
 #define HTML_LARGEUR_ENTETE_DROITE_ALD  "230"
 
