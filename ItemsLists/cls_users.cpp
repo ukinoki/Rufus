@@ -98,7 +98,7 @@ bool Users::add(User *usr)
             map_liberaux->insert(usr->id(), usr);
         if( usr->isSoignant() && !usr->isRemplacant() )
             map_parents->insert(usr->id(), usr);
-        if( usr->isComptableActes() )
+        if( usr->isComptableActes())
             map_comptablesactes->insert(usr->id(), usr);
         if( usr->isMedecin() )
             map_medecins->insert(usr->id(), usr);

@@ -61,6 +61,7 @@ Procedures::Procedures(QObject *parent) :
             a = VerifIni(msg, msgInfo, true, true, true, true);
         }
     }
+    VerifRessources();
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QSet<int> ports = QSet<int>::fromList(QList<int>() << 3306 << 3307);
     bool k =    (
@@ -382,7 +383,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     CalcTimeBupRestore();
 }
 
-bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp)
+bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp, QWidget *parent)
 {
     auto result = [] (qintptr handle, Procedures *proc)
     {
@@ -407,7 +408,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     if (verifmdp)
     {
         QString mdp("");
-        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp))
+        if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
     }
     ShowMessage::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
@@ -494,7 +495,7 @@ void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool 
         QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + " " + dirdestination;
+        const QString task = "cp -R \"" + QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES) + "\" \"" + dirdestination + "\"";
         const QString msgOK = tr("Fichiers d'imagerie sauvegardés!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller,
@@ -577,115 +578,71 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages
         return;
     if (!QDir(pathdirdestination).exists())
         return;
+
+    QString pathdestfinale = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+    QString executable = QDir::toNativeSeparators(dirSQLExecutable() + "/mysql");
+    QString executabledump = QDir::toNativeSeparators(dirSQLExecutable() + "/mysqldump");
     // élaboration du script de backup
     QString scriptbackup = "#!/bin/bash";
-    //# Configuration de base: datestamp e.g. YYYYMMDD
     scriptbackup += "\n";
-    scriptbackup += "DATE=$(date +\"%Y%m%d-%H%M\")";
-    //# Dossier où sauvegarder les backups (créez le d'abord!)
+    scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdestfinale) + "\"";
+    // Sauvegarde des 4 bases de Rufus
     scriptbackup += "\n";
-    scriptbackup += "BACKUP_DIR=\"" + pathdirdestination + "\"";
-    //# Dossier de  ressources
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_CONSULTS " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_CONSULTS ".sql") + "\"";
     scriptbackup += "\n";
-    scriptbackup += "DIR_RESSOURCES=\"" + PATH_DIR_RESSOURCES + "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_COMPTA ".sql") + "\"";
     scriptbackup += "\n";
-    if (QDir(m_parametres->dirimagerieserveur()).exists())
-    {
-        if (AvecImages)
-        {
-            scriptbackup += "DIR_IMAGES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + "\"";
-            scriptbackup += "\n";
-        }
-        if (AvecFactures)
-        {
-            scriptbackup += "DIR_FACTURES=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + "\"";
-            scriptbackup += "\n";
-        }
-        if (AvecVideos)
-        {
-            scriptbackup += "DIR_VIDEOS=\"" + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + "\"";
-            scriptbackup += "\n";
-        }
-    }
-    //# Rufus.ini
-    scriptbackup += "RUFUSINI=\"" + PATH_FILE_INI "\"";
-    //# Identifiants MySQL
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_IMAGES ".sql") + "\"";
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_USER=\"" LOGIN_SQL "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_OPHTA ".sql") + "\"";
     scriptbackup += "\n";
-    scriptbackup += "MYSQL_PASSWORD=\"" MDP_SQL "\"";
-    //# Commandes MySQL
-    QDir Dir(QCoreApplication::applicationDirPath());
-    Dir.cdUp();
-    scriptbackup += "\n";
-    QString cheminmysql;
-    scriptbackup += "MYSQL=" + dirSQLExecutable();
-    scriptbackup += "/mysql";
-    scriptbackup += "\n";
-    scriptbackup += "MYSQLDUMP=" + dirSQLExecutable();
-    scriptbackup += "/mysqldump";
-    scriptbackup += "\n";
-
-    //# Bases de données MySQL à ignorer
-    scriptbackup += "SKIPDATABASES=\"Database|information_schema|performance_schema|mysql|sys\"";
-    //# Nombre de jours à garder les dossiers (seront effacés après X jours)
-    scriptbackup += "\n";
-    scriptbackup += "RETENTION=14";
-    //# Create a new directory into backup directory location for this date
-    scriptbackup += "\n";
-    scriptbackup += "mkdir -p $BACKUP_DIR/$DATE";
-    //# Retrieve a list of all databases
-    scriptbackup += "\n";
-    scriptbackup += "databases=`$MYSQL -u$MYSQL_USER -p$MYSQL_PASSWORD -e \"SHOW DATABASES;\" | grep -Ev \"($SKIPDATABASES)\"`";
-    scriptbackup += "\n";
-    scriptbackup += "for db in $databases; do";
-    scriptbackup += "\n";
-    scriptbackup += "echo $db";
-    scriptbackup += "\n";
-    scriptbackup += "$MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD --skip-lock-tables --events --databases $db > \"$BACKUP_DIR/$DATE/$db.sql\"";
-    scriptbackup += "\n";
-    scriptbackup += "done";
-    // Sauvegarde la table des utilisateurs
-    scriptbackup += "\n";
-    scriptbackup += "$MYSQLDUMP --force --opt --user=$MYSQL_USER -p$MYSQL_PASSWORD mysql user > \"$BACKUP_DIR/$DATE/user.sql\"";
+    // Sauvegarde de la table des utilisateurs
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathdestfinale + "/user.sql") + "\"";
     // Detruit les anciens fichiers
     scriptbackup += "\n";
-    scriptbackup += "find $BACKUP_DIR/* -mtime +$RETENTION -delete";
+    //# Nombre de jours à garder les dossiers (seront effacés après X jours)
+    scriptbackup += "RETENTION=14";
+    scriptbackup += "\n";
+    scriptbackup += "find " + QDir::toNativeSeparators(pathdirdestination)  + "/* -mtime +$RETENTION -delete";
     // copie les fichiers ressources
     scriptbackup += "\n";
-    scriptbackup += "cp -R $DIR_RESSOURCES $BACKUP_DIR/$DATE/Ressources";
+    scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdestfinale + "/Ressources") + "\"";
+    scriptbackup += "\n";
+    scriptbackup += "cp -R -f \"" + PATH_DIR_RESSOURCES + "\" \"" + QDir::toNativeSeparators(pathdestfinale) + "\"";
     scriptbackup += "\n";
     if (QDir(m_parametres->dirimagerieserveur()).exists())
     {
         //! copie les fichiers image
         if (AvecImages)
         {
-            scriptbackup += "mkdir -p $BACKUP_DIR" NOM_DIR_IMAGES;
+            scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdirdestination + NOM_DIR_IMAGES) + "\"";
             scriptbackup += "\n";
-            scriptbackup += "cp -R -f $DIR_IMAGES $BACKUP_DIR";
+            scriptbackup += "cp -R -f \"" + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + "\" \"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
             scriptbackup += "\n";
         }
         if (AvecFactures)
         {
-            scriptbackup += "mkdir -p $BACKUP_DIR" NOM_DIR_FACTURES;
+            scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdirdestination + NOM_DIR_FACTURES) + "\"";
             scriptbackup += "\n";
-            scriptbackup += "cp -R -f $DIR_FACTURES $BACKUP_DIR";
+            scriptbackup += "cp -R -f \"" + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + "\" \"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
             scriptbackup += "\n";
         }
         //! copie les fichiers video
         if (AvecVideos)
         {
-            scriptbackup += "mkdir -p $BACKUP_DIR" NOM_DIR_VIDEOS;
+            scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdirdestination + NOM_DIR_VIDEOS) + "\"";
             scriptbackup += "\n";
-            scriptbackup += "cp -R -f $DIR_VIDEOS $BACKUP_DIR";
+            scriptbackup += "cp -R -f \"" + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + "\" \"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
             scriptbackup += "\n";
         }
     }
     // copie Rufus.ini
-    scriptbackup +=  "cp $RUFUSINI $BACKUP_DIR/$DATE" NOM_FILE_INI;
+    scriptbackup +=  "cp \"" + PATH_FILE_INI "\" \"" + QDir::toNativeSeparators(pathdestfinale + NOM_FILE_INI) + "\"";
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
     QFile fbackup(PATH_FILE_SCRIPTBACKUP);
+    if (fbackup.exists())
+        Utils::removeWithoutPermissions(fbackup);
     if (fbackup.open(QIODevice::ReadWrite))
     {
         QTextStream out(&fbackup);
@@ -727,7 +684,7 @@ void Procedures::setDirSQLExecutable()
         m_dirSQLExecutable = dirdefaultsqlexecutable;
         return;
     }
-    /*! 2. on recherche dnas les chemisn habituels du système */
+    /*! 2. on recherche dans les chemins habituels du système */
     bool a = false;
 #ifdef Q_OS_MACX
     dirsqlexecutable = "/usr/local/mysql/bin";
@@ -901,7 +858,7 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
  *  \brief ImmediateBackup()
  *  lance une sauvegarde immédiate de la base
  */
-bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte, bool full)
+bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte, bool full, QWidget *parent)
 {
     if (!verifposteconnecte)
         if (AutresPostesConnectes())
@@ -910,11 +867,9 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     if (dirdestination == "")
     {
         QString dirSauv = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                                                            tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base") + "\n" + tr("Le nom de dossier ne doit pas contenir d'espace"),
+                                                            tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base"),
                                                             (QDir(m_parametres->dirbkup()).exists()? m_parametres->dirbkup() : QDir::homePath()));
-        if (dirSauv.contains(" "))
-            UpMessageBox::Watch(Q_NULLPTR, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
-        if (dirSauv == "" || dirSauv.contains(" "))
+        if (dirSauv == "")
             return false;
         dirdestination = dirSauv;
     }
@@ -953,7 +908,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     }
     if (!OKbase && !OKImages && !OKVideos && !OKFactures)
         return false;
-    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures, true);
+    return Backup(dirdestination, OKbase, OKImages, OKVideos, OKFactures, true, parent);
 }
 
 void Procedures::EffaceBDDDataBackup()
@@ -2544,16 +2499,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                   "Ce processus est long et peut durer plusieurs minutes.\n"
                                   "(environ 1' pour 2 Go)\n"));
         QString dir = PATH_DIR_RUFUS;
-        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir));
+        QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir), QStringList(), false);
         if (url == QUrl())
             return false;
         QDir dirtorestore = QDir(url.path());
         QString NomDirtorestore = dirtorestore.absolutePath();
-        if (NomDirtorestore.contains(" "))
-        {
-            UpMessageBox::Watch(parent, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + NomDirtorestore + tr(" contient des espaces!"));
-            return false;
-        }
         QString mdp("");
         if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
@@ -2605,7 +2555,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 UpMessageBox::Watch(parent,tr("Pas de dossier de stockage d'imagerie"),
                                     tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
                                     tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
-                QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
+                QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
                 if (url == QUrl())
                     return false;
                 QDir dirstock = QDir(url.path());
@@ -2711,17 +2661,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QDir DirRssces(QDir(dirtorestore.absolutePath() + PATH_DIR_RESSOURCES));
-                        QDir sauvRssces;
-                        if (!sauvRssces.exists(PATH_DIR_RESSOURCES))
-                            sauvRssces.mkdir(PATH_DIR_RESSOURCES);
-                        QStringList listnomfic = DirRssces.entryList();
-                        for (int i=0; i<listnomfic.size(); i++)
-                        {
-                            QFile ficACopier(DirRssces.absolutePath() + "/" + listnomfic.at(i));
-                            QString nomficACopier = QFileInfo(listnomfic.at(i)).fileName();
-                            ficACopier.copy(PATH_DIR_RESSOURCES + "/" + nomficACopier);
-                        }
+                        PremierParametrageRessources();
+                        UpMessageBox::Watch(parent, tr("Les fichiers ressources d'origine ont été restaurés"),
+                                            tr("Si vous aviez personnalisé ces fichiers") + "\n" +
+                                            tr("il vous faudra les restaurer à partir du dossier") + "\n" +
+                                            dirtorestore.absolutePath() + PATH_DIR_RESSOURCES);
                         msg += tr("Fichiers de ressources d'impression restaurés\n");
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers de ressources d'impression restaurés"), Icons::icSunglasses(), 3000);
                     }
@@ -2747,7 +2691,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QDir dirrestaureimagerie    = QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES);
-                            QString task  = "cp -R " + dirrestaureimagerie.absolutePath() + " " + NomDirStockageImagerie;
+                            QString task  = "cp -R \"" + QDir::toNativeSeparators(dirrestaureimagerie.absolutePath()) + "\" \"" + NomDirStockageImagerie + "\"";
                             QProcess::execute(task);
                             msg += tr("Fichiers d'imagerie restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers d'imagerie restaurés"), Icons::icSunglasses(), 3000);
@@ -2775,7 +2719,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QDir dirrestaurefactures    = QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES);
-                            QString task = "cp -R " + dirrestaurefactures.absolutePath() + " " + NomDirStockageImagerie;
+                            QString task = "cp -R \"" + QDir::toNativeSeparators(dirrestaurefactures.absolutePath()) + "\" \"" + NomDirStockageImagerie + "\"";
                             QProcess::execute(task);
                             msg += tr("Fichiers factures restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers factures restaurés"), Icons::icSunglasses(), 3000);
@@ -2803,7 +2747,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QDir dirrestaurevideo = QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS);
-                            QString task = "cp -R " + dirrestaurevideo.absolutePath() + " " + NomDirStockageImagerie;
+                            QString task = "cp -R \"" + QDir::toNativeSeparators(dirrestaurevideo.absolutePath()) + "\" \"" + NomDirStockageImagerie + "\"";
                             QProcess::execute(task);
                             msg += tr("Fichiers videos restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers videos restaurés"), Icons::icSunglasses(), 3000);
@@ -3148,6 +3092,8 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     currentuser()->setidparent(idusr);
     // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
     req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = 1";
+    db->StandardSQL (req);
+    req = "update " TBL_DOCSEXTERNES " set " CP_IDUSER_DOCSEXTERNES " = " + QString::number(idusr) + ", " CP_IDLIEU_DOCSEXTERNES " = "  + QString::number(idusr) + ", " CP_IDEMETTEUR_DOCSEXTERNES " = "  + QString::number(idusr);
     db->StandardSQL (req);
     req = "update " TBL_DOSSIERSIMPRESSIONS " set " CP_IDUSER_DOSSIERIMPRESSIONS " = " + QString::number(idusr) + ", " CP_PUBLIC_DOSSIERIMPRESSIONS " = 1";
     db->StandardSQL (req);
@@ -3729,7 +3675,10 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
     // il s'agit d'un administratif ou d'une société comptable
     currentuser()->setidsuperviseur(User::ROLE_VIDE);
-    currentuser()->setidcomptable(User::ROLE_VIDE);
+    if (currentuser()->isSocComptable())
+        currentuser()->setidcomptable(currentuser()->id());
+    else
+        currentuser()->setidcomptable(User::ROLE_VIDE);
     currentuser()->setidparent(User::ROLE_VIDE);
     m_usecotation     = true;
     m_aveccomptaprovisoire = true; //FIXME : avecLaComptaProv

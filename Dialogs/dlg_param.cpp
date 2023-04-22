@@ -1094,7 +1094,7 @@ void dlg_param::GestionUsers()
     else
         m_donneesusermodifiees = false;
     delete Dlg_GestUsr;
-    UpMessageBox::Watch(this, tr("Donnes utilisateurs modifiées?"),
+    UpMessageBox::Watch(this, tr("Données utilisateurs modifiées?"),
                               tr("Si vous avez modifié des données d'utilisateurs actuellement connectés,\n"
                                  "chacun de ces utilisateurs doit relancer le programme\n"
                                  "pour pouvoir prendre en compte les modifications apportées!"));
@@ -1219,11 +1219,11 @@ void dlg_param::startImmediateBackup()
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
         dirsauvorigin = PATH_DIR_DOSSIERECHANGE;
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
-                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
+                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin), QStringList(), false);
     if (url == QUrl())
         return;
     if (QDir(url.path()).exists())
-        proc->ImmediateBackup(url.path(), false);
+        proc->ImmediateBackup(url.path(), false, true, this);
 }
 
 void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)

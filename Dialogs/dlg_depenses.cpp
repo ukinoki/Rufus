@@ -27,11 +27,18 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowIcon(Icons::icCreditCard());
     setWindowTitle(tr("Journal des dépenses"));
 
-    ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire() );
+    ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire());
 
     int index = 0;
     bool foundUser = false;
-    int currentIdUser = Datas::I()->users->userconnected()->id(); //Utilisateur connecte
+    int currentIdUser = Datas::I()->users->userconnected()->idcomptable(); //Utilisateur connecte
+    if (map_userscomptables->size() + map_usersliberaux->size() ==0)
+    {
+        m_initok = false;
+        m_msgretour = tr("Aucun utilisateur susceptible d'enregistrer des dépenses n'est référencé dans la base");
+        return;
+    }
+
     foreach (User * user, *map_usersliberaux)
     {
         ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
@@ -43,10 +50,29 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
                 foundUser = true;
         }
     }
-    if(index >= map_usersliberaux->size())
+    foreach (User * user, *map_userscomptables)
+    {
+        ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
+        if( !foundUser )
+        {
+            if(currentIdUser != user->id())
+                ++index;
+            else
+                foundUser = true;
+        }
+    }
+    if(index >= (map_usersliberaux->size() + map_userscomptables->size()))
         ui->UserscomboBox->setCurrentIndex(0);
     else
         ui->UserscomboBox->setCurrentIndex(index);
+
+    if (!foundUser && !Datas::I()->users->userconnected()->isSecretaire())
+    {
+        m_initok = false;
+        m_msgretour = tr("Vous n'avez pas accès à un compte utilisateur susceptible d'enregistrer des dépenses");
+        return;
+    }
+
 
     restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Depenses).toByteArray());
 
@@ -479,18 +505,26 @@ void dlg_depenses::AnnulEnreg()
 bool dlg_depenses::initializeUserSelected()
 {
     int id = ui->UserscomboBox->currentData().toInt();
-    m_userencours = map_usersliberaux->find(id).value();
+    if (map_usersliberaux->find(id) != map_usersliberaux->end())
+        m_userencours = map_usersliberaux->find(id).value();
+    else if (map_userscomptables->find(id) != map_userscomptables->end())
+        m_userencours = map_userscomptables->find(id).value();
+    else
+    {
+        m_msgretour = tr("Aucun utilisateur susceptible d'enregistrer des dépenses n'est référencé dans la base");
+        return false;
+    }
+
     proc->MAJComptesBancaires(m_userencours);
     Datas::I()->depenses->initListeByUser(m_userencours->id());
     if( m_userencours->listecomptesbancaires().size() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible de continuer!"), tr("Pas de compte bancaire enregistré pour ") + m_userencours->login());
+        m_msgretour = tr("Pas de compte bancaire enregistré pour ") + m_userencours->login();
         return false;
     }
     if (m_userencours->idcomptepardefaut() == 0)
     {
-        UpMessageBox::Watch(this,tr("Impossible d'ouvrir le journal des dépenses!"), tr("Pas de compte bancaire enregistré pour ")
-                                     + m_userencours->login());
+        m_msgretour = tr("Pas de compte bancaire enregistré pour ") + m_userencours->login();
         return false;
     }
 
@@ -1441,6 +1475,11 @@ void dlg_depenses::keyPressEvent ( QKeyEvent * event )
 bool dlg_depenses::initOK() const
 {
     return m_initok;
+}
+
+QString dlg_depenses::msgretour() const
+{
+    return m_msgretour;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
