@@ -867,8 +867,8 @@ void Procedures::setDirSQLExecutable()
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
 #ifdef Q_OS_WIN
-    m_executable += ".exe";
-    m_dumpexecutable = "mysqldump.exe";
+    m_executable = "/mysql.exe";
+    m_dumpexecutable = "/mysqldump.exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
@@ -924,15 +924,15 @@ void Procedures::setDirSQLExecutable()
                               tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
         while (!a)
     {
-        QUrl urlexecutable = QUrl();
-        urlexecutable = QFileDialog::getExistingDirectory(Q_NULLPTR,
+
+        QString urlexecutabledir = QFileDialog::getExistingDirectory(Q_NULLPTR,
                                                           tr("Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump"),
                                                           (QDir::rootPath()));
-        QString path = urlexecutable.path() + m_executable;
-        if (urlexecutable == QUrl() || !QFile(path).exists())
+        QString path = urlexecutabledir + m_executable;
+        if (!QFile(path).exists())
         {
             if (UpMessageBox::Question(Q_NULLPTR,
-                                       tr("le chemin choisi (") + urlexecutable.path() + tr(") n'est pas valide"),
+                                       tr("le chemin choisi (") + urlexecutabledir + tr(") n'est pas valide"),
                                        tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
                                        UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                        QStringList() << tr("Annuler") << tr("Reprendre"))
@@ -944,7 +944,7 @@ void Procedures::setDirSQLExecutable()
         }
         else
         {
-            dirsqlexecutable = urlexecutable.path();
+            dirsqlexecutable = urlexecutabledir;
             a = true;
         }
     }

@@ -305,11 +305,41 @@ Function CheckRelease {
     $filter = "Rufus|Rufus.exe"
     $folder = "..\..\.."
     if ( $global:RufusExe.length -gt 0 ) {
-        $folder = [io.path]::GetDirectoryName($RufusExe)
+        $folder = [io.path]::GetDirectoryName($global:RufusExe)
     } 
     $global:RufusExe = OpenFile -folder $folder -filter $filter -title $title -description $description
-    MsgBoxInfo $global:RufusExe
+    ShowEnviron
 }
+
+Function CheckMySQL {
+    $title = "MySQL / MariaDB"
+    $description = "Select mysql.exe"
+    $filter = "MySQL|mysql.exe"
+    $folder = "..\..\.."
+    if ( $global:MysqlExe.length -gt 0 ) {
+        $folder = [io.path]::GetDirectoryName($global:MysqlExe)
+    } 
+    $global:MysqlExe = OpenFile -folder $folder -filter $filter -title $title -description $description
+
+    $description = "Select mysqldump.exe"
+    $filter = "MySQL|mysqldump.exe"
+    $folder = "..\..\.."
+    if ( $global:MysqlDumpExe.length -gt 0 ) {
+        $folder = [io.path]::GetDirectoryName($global:MysqlDumpExe)
+    } 
+    $global:MysqlDumpExe = OpenFile -folder $folder -filter $filter -title $title -description $description
+    
+    $description = "Select mysql driver DLL"
+    $filter = "MariaDB|libmariadb*.dll|MySQL|libmysql*.dll|Other|*.dll"
+    $folder = "..\..\.."
+    if ( $global:MysqlDll.length -gt 0 ) {
+        $folder = [io.path]::GetDirectoryName($global:MysqlDll)
+    } 
+    $global:MysqlDll = OpenFile -folder $folder -filter $filter -title $title -description $description
+    
+    ShowEnviron
+}
+
 
 Function CheckWindeployqt {
     $title = "WindeployQt"
@@ -320,7 +350,7 @@ Function CheckWindeployqt {
         $folder = [io.path]::GetDirectoryName($global:WinDeployQtExe)
     } 
     $global:WinDeployQtExe = OpenFile -folder $folder -filter $filter -title $title -description $description
-    MsgBoxInfo $global:WinDeployQtExe
+    ShowEnviron
 }
 
 Function CheckInnoSetup {
@@ -332,7 +362,7 @@ Function CheckInnoSetup {
         $folder = [io.path]::GetDirectoryName($ISCCExe)
     } 
     $global:ISCCExe = OpenFile -folder $folder -filter $filter -title $title -description $description
-    MsgBoxInfo $global:ISCCExe
+    ShowEnviron
 }
 
 
@@ -347,6 +377,9 @@ function SaveEnviron {
     $lines.Add('$global:RufusExe="' + $global:RufusExe + '"')
     $lines.Add('$global:WinDeployQtExe="' + $global:WinDeployQtExe + '"')
     $lines.Add('$global:ISCCExe="' + $global:ISCCExe + '"')
+    $lines.Add('$global:MysqlExe="' + $global:MysqlExe + '"')
+    $lines.Add('$global:MysqlDumpExe="' + $global:MysqlDumpExe + '"')
+    $lines.Add('$global:MysqlDll="' + $global:MysqlDll + '"')
     foreach( $line in $lines ) {
         Write-Output $line | Out-File -FilePath $EnvironPS1 -Append
     }
@@ -354,29 +387,33 @@ function SaveEnviron {
 }
 
 function ShowEnviron {
-    $crlf="`r`n"
     $lines = ""
-    $lines += '$global:DeployDir="' + $global:DeployDir + '"' + $crlf
-    $lines += '$global:MicrosoftDir="' + $global:MicrosoftDir + '"' + $crlf
-    $lines += '$global:OutputDir="' + $global:OutputDir + '"' + $crlf
-    $lines += '$global:RufusExe="' + $global:RufusExe + '"' + $crlf
-    $lines += '$global:WinDeployQtExe="' + $global:WinDeployQtExe + '"' + $crlf
-    $lines += '$global:ISCCExe="' + $global:ISCCExe + '"' + $crlf
+    $lines += '$global:DeployDir="' + $global:DeployDir + '"' + $global:crlf
+    $lines += '$global:MicrosoftDir="' + $global:MicrosoftDir + '"' + $global:crlf
+    $lines += '$global:OutputDir="' + $global:OutputDir + '"' + $global:crlf
+    $lines += '$global:RufusExe="' + $global:RufusExe + '"' + $global:crlf
+    $lines += '$global:WinDeployQtExe="' + $global:WinDeployQtExe + '"' + $global:crlf
+    $lines += '$global:ISCCExe="' + $global:ISCCExe + '"' + $global:crlf
+    $lines += '$global:MysqlExe="' + $global:MysqlExe + '"' + $global:crlf
+    $lines += '$global:MysqlDumpExe="' + $global:MysqlDumpExe + '"' + $global:crlf
+    $lines += '$global:MysqlDll="' + $global:MysqlDll + '"' + $global:crlf
     MsgBoxInfo $lines
 }
+
+
+  ######   ######## ##    ## ######## ########     ###    ######## ######## 
+ ##    ##  ##       ###   ## ##       ##     ##   ## ##      ##    ##       
+ ##        ##       ####  ## ##       ##     ##  ##   ##     ##    ##       
+ ##   #### ######   ## ## ## ######   ########  ##     ##    ##    ######   
+ ##    ##  ##       ##  #### ##       ##   ##   #########    ##    ##       
+ ##    ##  ##       ##   ### ##       ##    ##  ##     ##    ##    ##       
+  ######   ######## ##    ## ######## ##     ## ##     ##    ##    ######## 
+
 Function GenerateRufusSetup {
     Param($windowTitle = "")
     $info = GetStateWindow $windowTitle
     $info.Refresh()
     try {
-        # Download vc_redist.x64.exe
-        $fileRedist = $global:MicrosoftDir + "\vc_redist.x64.exe"
-        If ( -Not (Test-Path $fileRedist)) {
-            WriteStatusFormInfo $info "$fileRedist doesn't exist. Downloading..."
-            $uri = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
-            $GetResponse = Invoke-WebRequest -Uri $uri -OutFile $fileRedist
-            WriteStatusFormInfo $info "Done"
-        }
         # Copy Rufus.exe
         $RufusDeploy="$global:DeployDir\Rufus.exe"
         WriteStatusFormInfo $info "Copying $RufusExe"
@@ -390,6 +427,48 @@ Function GenerateRufusSetup {
         WriteStatusFormInfo $info "Running $prg $Parms"
         $info.Execute($prg, $Parms)
         WriteStatusFormInfo $info "Done"
+
+        # Check vc_redist.x64.exe (if copied by windeployqt)
+        $fileRedistDeployed = $global:DeployDir + "\vc_redist.x64.exe"
+        $fileRedist = $global:MicrosoftDir + "\vc_redist.x64.exe"
+        If ( Test-Path $fileRedistDeployed) {
+            Move-Item -Path $fileRedistDeployed -Destination $fileRedist
+        }
+        If ( -Not (Test-Path $fileRedist)) {
+            WriteStatusFormInfo $info "$fileRedist doesn't exist. Downloading..."
+            $uri = "https://aka.ms/vs/17/release/vc_redist.x64.exe"
+            $GetResponse = Invoke-WebRequest -Uri $uri -OutFile $fileRedist
+            WriteStatusFormInfo $info "Done"
+        }
+
+        # Copy folders
+        $list=@("assets")
+        foreach( $item in $list) {
+            $folderName= $item
+            If ( Test-Path "$global:ProjectDir\$folderName") {
+                CreateDirectory "$global:DeployDir\$folderName"
+                Copy-Item -Path "$global:ProjectDir\$folderName" -Destination "$global:DeployDir\$folderName" -Recurse -Force
+            }
+        }
+
+        # Copy mysql.dll or mariadb.dll
+        $list=@($global:MysqlDll)
+        foreach( $item in $list) {
+            $fileApp= $item
+            If ( Test-Path "$fileApp") {
+                Copy-Item -Path "$fileApp" -Destination "$global:DeployDir" -Recurse -Force
+            }
+        }
+
+        # Copy mysql.exe and mysqldump.exe
+        CreateDirectory "$global:DeployDir\Applications"
+        $list=@($global:MysqlExe,$global:MysqlDumpExe)
+        foreach( $item in $list) {
+            $fileApp= $item
+            If ( Test-Path "$fileApp") {
+                Copy-Item -Path "$fileApp" -Destination "$global:DeployDir\Applications" -Recurse -Force
+            }
+        }
 
         # Run InnoSetup
         CopyFile -source "RufusVision.iss" -target "$global:BuildDir\RufusVision.iss"
@@ -414,8 +493,12 @@ Function GenerateRufusSetup {
   ######     ##    ##     ## ##     ##    ##       
 
 
+#Set conveniences
+$global:crlf="`r`n"
+
 #Set default variables
 $global:QTDirectory = "C:\qt"
+$global:ProjectDir = "..\.."
 $global:BuildDir = "..\..\build"
 $global:EnvironPS1 = $BuildDir + "\Environ.ps1"
 
@@ -432,6 +515,9 @@ CreateDirectory $global:OutputDir
 $global:RufusExe = ""
 $global:WinDeployQtExe = ""
 $global:ISCCExe = ""
+$global:MysqlExe = ""
+$global:MysqlDumpExe = ""
+$global:MysqlDll = ""
 
 
 If ( Test-Path -Path $EnvironPS1 ) {
@@ -452,15 +538,17 @@ $list = New-Object "System.Collections.Generic.List[MenuShell.MenuOption]"
 
 $opt = New-Object MenuShell.MenuOption("1", "Set Release")
 $list.add($opt)
-$opt = New-Object MenuShell.MenuOption("2", "Set WindeployQt")
+$opt = New-Object MenuShell.MenuOption("2", "MySQL/MariaDB")
 $list.add($opt)
-$opt = New-Object MenuShell.MenuOption("3", "Set Inno Setup")
+$opt = New-Object MenuShell.MenuOption("3", "Set WindeployQt")
 $list.add($opt)
-$opt = New-Object MenuShell.MenuOption("4", "Show Environ")
+$opt = New-Object MenuShell.MenuOption("4", "Set Inno Setup")
 $list.add($opt)
-$opt = New-Object MenuShell.MenuOption("5", "Save Environ")
+$opt = New-Object MenuShell.MenuOption("7", "Show Environ")
 $list.add($opt)
-$opt = New-Object MenuShell.MenuOption("6", "Generate Rufus setup")
+$opt = New-Object MenuShell.MenuOption("8", "Save Environ")
+$list.add($opt)
+$opt = New-Object MenuShell.MenuOption("9", "Generate Rufus setup")
 $list.add($opt)
 
 $title = "Rufus build utility"
@@ -474,11 +562,12 @@ while ( $exit -eq 0 ) {
         try {
             switch ($result) {
                 "1" { CheckRelease }
-                "2" { CheckWindeployqt }
-                "3" { CheckInnoSetup }
-                "4" { ShowEnviron }
-                "5" { SaveEnviron }
-                "6" { GenerateRufusSetup $title }
+                "2" { CheckMySQL }
+                "3" { CheckWindeployqt }
+                "4" { CheckInnoSetup }
+                "7" { ShowEnviron }
+                "8" { SaveEnviron }
+                "9" { GenerateRufusSetup $title }
             }
         }
         catch {
