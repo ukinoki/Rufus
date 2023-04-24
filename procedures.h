@@ -165,10 +165,9 @@ private:
 
 
 /*! --------------------------------------------------------------------------------------------------------
-* identification et definition des datas du user (superviseur, utilisateur qui enregistre la commpta et utilistaion de la compta)
+* identification et definition des datas du user (superviseur, utilisateur qui enregistre la compta et utilisation de la compta)
 * -------------------------------------------------------------------------------------------------------- */
 private:
-    bool                    m_aveccomptaprovisoire;
     bool                    m_usecotation;
     int                     m_idcentre;
     bool                    IdentificationUser();                       /*! la fiche d'identification de l'utilisateur au lancement du programme

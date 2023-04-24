@@ -538,7 +538,7 @@ lieux d'activité</string>
             <x>5</x>
             <y>0</y>
             <width>191</width>
-            <height>160</height>
+            <height>141</height>
            </rect>
           </property>
           <property name="contextMenuPolicy">
@@ -573,7 +573,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>8</x>
-             <y>130</y>
+             <y>110</y>
              <width>160</width>
              <height>22</height>
             </rect>
@@ -610,42 +610,14 @@ lieux d'activité</string>
             <string/>
            </property>
            <property name="text">
-            <string>Pas d'activité libérale</string>
-           </property>
-          </widget>
-          <widget class="UpRadioButton" name="NoComptaupRadioButton">
-           <property name="geometry">
-            <rect>
-             <x>8</x>
-             <y>97</y>
-             <width>160</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>Pas de comptabilité</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
+            <string>Salarié</string>
            </property>
           </widget>
           <widget class="Line" name="line_5">
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>116</y>
+             <y>96</y>
              <width>151</width>
              <height>16</height>
             </rect>
@@ -670,7 +642,7 @@ lieux d'activité</string>
             <enum>Qt::NoContextMenu</enum>
            </property>
            <property name="text">
-            <string>Activité libérale en SEL</string>
+            <string>Membre d'une SEL/SCP</string>
            </property>
           </widget>
          </widget>
@@ -678,7 +650,7 @@ lieux d'activité</string>
           <property name="geometry">
            <rect>
             <x>13</x>
-            <y>165</y>
+            <y>150</y>
             <width>151</width>
             <height>22</height>
            </rect>
@@ -1447,19 +1419,24 @@ inactifs</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
+   <class>UpComboBox</class>
+   <extends>QComboBox</extends>
+   <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpSmallButton</class>
@@ -1470,11 +1447,6 @@ inactifs</string>
    <class>UpLabel</class>
    <extends>QLabel</extends>
    <header>uplabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpComboBox</class>
-   <extends>QComboBox</extends>
-   <header>upcombobox.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>

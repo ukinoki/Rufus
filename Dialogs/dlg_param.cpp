@@ -278,6 +278,10 @@ dlg_param::dlg_param(QWidget *parent) :
             });
         }
     }
+    /*-------------------- GESTION DE LA COMPTABILITÉ-------------------------------------------------------*/
+    ui->ComptagroupBox->setVisible(false);  // pour le moment
+    /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
+
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
     ui->CotationsFrancecheckBox->setChecked(db->parametres()->cotationsfrance());
     connect (ui->CotationsFrancecheckBox, &QCheckBox::stateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});

@@ -1161,7 +1161,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
 {
     ui->UserComboBox->clear();
     //on reconstruit la liste des users comptables qui ont des chèques en attente
-    map_comptables    = Datas::I()->users->comptables();
+    map_comptables    = Datas::I()->users->comptablesSaufActes();
     map_comptablesavecchequesenattente    = new QMap<int, User*>();
 
     QString req = "SELECT distinct " CP_IDUSER_LIGNRECETTES " from " TBL_RECETTES " WHERE " CP_IDREMISECHQ_LIGNRECETTES " IS NULL AND " CP_MODEPAIEMENT_LIGNRECETTES " = 'C'";
@@ -1187,7 +1187,7 @@ void dlg_remisecheques::ReconstruitListeUsers()
         m_initok = false;
         return;
     }
-    int idcomptable = Datas::I()->users->userconnected()->idcomptable();
+    int idcomptable = Datas::I()->users->userconnected()->idcomptableactes();
     m_userencours = Datas::I()->users->getById(idcomptable);
     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
     if (Datas::I()->users->getById(m_userencours->id()) != Q_NULLPTR)

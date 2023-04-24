@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -3221,7 +3221,7 @@ les données</string>
                <x>10</x>
                <y>40</y>
                <width>541</width>
-               <height>281</height>
+               <height>221</height>
               </rect>
              </property>
              <property name="minimumSize">
@@ -3402,6 +3402,79 @@ liste des villes</string>
               </property>
               <property name="text">
                <string>Utiliser les cotations d'actes françaises</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </widget>
+            <widget class="QGroupBox" name="ComptagroupBox">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>289</y>
+               <width>360</width>
+               <height>81</height>
+              </rect>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>360</width>
+               <height>60</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>360</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="title">
+              <string/>
+             </property>
+             <widget class="QCheckBox" name="ComptacheckBox">
+              <property name="geometry">
+               <rect>
+                <x>5</x>
+                <y>10</y>
+                <width>361</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Enregistrer une comptabilité</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+             <widget class="QCheckBox" name="ComptaSimplecheckBox">
+              <property name="geometry">
+               <rect>
+                <x>5</x>
+                <y>30</y>
+                <width>351</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Enregistrer une comptabilité simplifiée</string>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+             </widget>
+             <widget class="QCheckBox" name="NoComptacheckBox">
+              <property name="geometry">
+               <rect>
+                <x>5</x>
+                <y>50</y>
+                <width>351</width>
+                <height>20</height>
+               </rect>
+              </property>
+              <property name="text">
+               <string>Ne pas enregistrer de comptabilité</string>
               </property>
               <property name="autoExclusive">
                <bool>true</bool>

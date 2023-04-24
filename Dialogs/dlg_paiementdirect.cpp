@@ -58,7 +58,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
 
     restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Paiement).toByteArray());
 
-    map_comptables         = Datas::I()->users->comptables();
+    map_comptables         = Datas::I()->users->comptablesActes();
     if( map_comptables->size() == 0 )
     {
         UpMessageBox::Watch(this,tr("Impossible d'ouvrir la fiche de paiement"), tr("L'utilisateur n'est pas valide"));
@@ -138,8 +138,8 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     m_textureGray = QBrush(Qt::gray,Qt::Dense4Pattern);
 
     ui->RecImageLabel->setPixmap( Icons::pxEnregistrer() );
-
-    ui->ComptablescomboBox->setEnabled(Datas::I()->users->getById(currentuser()->idcomptable()) == Q_NULLPTR && map_comptables->size()>1);
+    
+    ui->ComptablescomboBox->setEnabled(Datas::I()->users->getById(currentuser()->idcomptableactes()) == Q_NULLPTR && map_comptables->size()>1);
 
     // On reconstruit le combobox des utilisateurs avec la liste des comptables
     if( map_comptables->size() > 1 )
@@ -160,7 +160,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
             m_useracrediter = Datas::I()->users->getById(act->idComptable());
     }
     else                                            // la fiche a été appelée par le menu et il n'y a pas d'acte prédéterminé à enregistrer
-        m_useracrediter = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+        m_useracrediter = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptableactes()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
 
     if( m_useracrediter == Q_NULLPTR)
     {
@@ -892,7 +892,7 @@ void dlg_paiementdirect::RegleAffichageFiche()
     ui->PasdePaiementlabel          ->setVisible(false);
     ui->Comptablelabel              ->setVisible(m_mode!=Accueil);
     ui->ComptablescomboBox          ->setVisible(m_mode!=Accueil);
-    ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(currentuser()->idcomptable()) == Q_NULLPTR
+    ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(currentuser()->idcomptableactes()) == Q_NULLPTR
                                                  && (m_mode == VoirListeActes || (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0))
                                                  && map_comptables->size()>1);
     ui->SupprimerupPushButton       ->setVisible(false);
@@ -1412,13 +1412,13 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         if (ui->DetailupTableWidget->rowCount() == 0)
         {
             // si la liste des actes n'était pas vide au départ, il est possible que le comptable du user connecte soit différent du comptable des actes de la liste
-            if (currentuser()->idcomptable() > 0 && currentuser()->idcomptable() != m_useracrediter->id())
+            if (currentuser()->idcomptableactes() > 0 && currentuser()->idcomptableactes() != m_useracrediter->id())
             {
                 m_useracrediter = Q_NULLPTR;
                 bool ok = true;
                 RemplitLesTables(ok);
             }
-            m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptable()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptableactes()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
             ui->TireurChequelineEdit->setText("");
         }
         else
@@ -1431,7 +1431,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         ChangeComptable(m_useracrediter);
 
         ui->ComptablescomboBox->setEnabled(currentuser()->isSecretaire() && (m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount()==0));
-        ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(currentuser()->idcomptable()) == Q_NULLPTR
+        ui->ComptablescomboBox          ->setEnabled(Datas::I()->users->getById(currentuser()->idcomptableactes()) == Q_NULLPTR
                                                      && ui->DetailupTableWidget->rowCount()==0
                                                      && map_comptables->size()>1);
         break;

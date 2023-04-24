@@ -25,21 +25,20 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
-    setWindowTitle(tr("Journal des dépenses"));
 
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire());
 
     int index = 0;
     bool foundUser = false;
-    int currentIdUser = Datas::I()->users->userconnected()->idcomptable(); //Utilisateur connecte
-    if (map_userscomptables->size() + map_usersliberaux->size() ==0)
+    int currentIdUser = Datas::I()->users->userconnected()->idcomptableactes(); //Utilisateur connecte
+    if (m_usersdepenses->size() == 0)
     {
         m_initok = false;
         m_msgretour = tr("Aucun utilisateur susceptible d'enregistrer des dépenses n'est référencé dans la base");
         return;
     }
 
-    foreach (User * user, *map_usersliberaux)
+    foreach (User *user, *m_usersdepenses)
     {
         ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
         if( !foundUser )
@@ -50,18 +49,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
                 foundUser = true;
         }
     }
-    foreach (User * user, *map_userscomptables)
-    {
-        ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
-        if( !foundUser )
-        {
-            if(currentIdUser != user->id())
-                ++index;
-            else
-                foundUser = true;
-        }
-    }
-    if(index >= (map_usersliberaux->size() + map_userscomptables->size()))
+    if(index >= (m_usersdepenses->size()))
         ui->UserscomboBox->setCurrentIndex(0);
     else
         ui->UserscomboBox->setCurrentIndex(index);
@@ -505,10 +493,8 @@ void dlg_depenses::AnnulEnreg()
 bool dlg_depenses::initializeUserSelected()
 {
     int id = ui->UserscomboBox->currentData().toInt();
-    if (map_usersliberaux->find(id) != map_usersliberaux->end())
-        m_userencours = map_usersliberaux->find(id).value();
-    else if (map_userscomptables->find(id) != map_userscomptables->end())
-        m_userencours = map_userscomptables->find(id).value();
+    if (m_usersdepenses->find(id) != m_usersdepenses->end())
+        m_userencours = m_usersdepenses->find(id).value();
     else
     {
         m_msgretour = tr("Aucun utilisateur susceptible d'enregistrer des dépenses n'est référencé dans la base");

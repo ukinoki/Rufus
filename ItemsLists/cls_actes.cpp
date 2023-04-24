@@ -162,8 +162,8 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
     if (pat == Q_NULLPTR)
         return Q_NULLPTR;
     Acte *act = Q_NULLPTR;
-    QString rempla = (usr->modeenregistrementhonoraires() == User::Retrocession? "1" : "null");
-    QString comptable = (usr->idcomptable() > 0? QString::number(usr->idcomptable()) : "null");
+    QString rempla = (usr->isRemplacant()? "1" : "null");
+    QString comptable = (usr->idcomptableactes() > 0? QString::number(usr->idcomptableactes()) : "null");
     QString creerrequete =
             "INSERT INTO " TBL_ACTES
             " (" CP_IDPAT_ACTES ", " CP_IDUSER_ACTES ", " CP_DATE_ACTES ", " CP_HEURE_ACTES ", " CP_IDUSERCREATEUR_ACTES ", "
@@ -198,7 +198,7 @@ Acte* Actes::CreationActe(Patient *pat, User* usr, int idcentre, int idlieu)
     act->setdate(dt.date());
     act->setheure(dt.time());
     act->setidcreateur(usr->id());
-    act->setidcomptable(usr->idcomptable());
+    act->setidcomptable(usr->idcomptableactes());
     act->setidparent(usr->idparent());
     act->seteffectueparremplacant(rempla == "1");
     act->setnumcentre(idcentre);

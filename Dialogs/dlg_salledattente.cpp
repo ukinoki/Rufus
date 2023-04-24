@@ -111,7 +111,7 @@ void dlg_salledattente::OKButtonClicked()
         {
             ItemsList::update(m_currentact, CP_IDUSER_ACTES,         Datas::I()->users->userconnected()->idsuperviseur());
             ItemsList::update(m_currentact, CP_IDUSERPARENT_ACTES,   Datas::I()->users->userconnected()->idparent());
-            ItemsList::update(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->idcomptable());
+            ItemsList::update(m_currentact, CP_IDUSERCOMPTABLE_ACTES,Datas::I()->users->userconnected()->idcomptableactes());
         }
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();

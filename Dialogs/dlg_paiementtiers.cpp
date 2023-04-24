@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "utils.h"
 
 /*
- * la fiche est appelée par le choix de menu "Gestion des tierrs payants" dans le menu Comptabilité de Rufus
+ * la fiche est appelée par le choix de menu "Gestion des tiers payants" dans le menu Comptabilité de Rufus
 */
 
 dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
@@ -40,19 +40,19 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     ui->Utilisateurlabel->setFont(font);
 
     restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Paiement).toByteArray());
-
-    map_comptables = Datas::I()->users->comptables(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
+    
+    map_comptables = Datas::I()->users->comptablesActes(); // les colonnes -> iduser, userlogin, soignant, responsableactes, UserEnregHonoraires, idCompteEncaissHonoraires
     if (currentuser()->isLiberal())
         m_useracrediter = currentuser();
     else if ((currentuser()->isSoignantSalarie() || currentuser()->isLiberalSEL()) && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
-        m_useracrediter = Datas::I()->users->getById(currentuser()->idcomptable());
+        m_useracrediter = Datas::I()->users->getById(currentuser()->idcomptableactes());
     else if (currentuser()->isRemplacant())                                // l'utilisateur est un soignant remplacant et responsable
     {
         User *parent = Datas::I()->users->getById(currentuser()->idparent());
         if (parent->isLiberal())
             m_useracrediter = parent;
         else if ((parent->isSoignantSalarie() || parent->isLiberalSEL()) && !currentuser()->isAssistant())// l'utilisateur est un soignant salarie et responsable
-            m_useracrediter = Datas::I()->users->getById(parent->idcomptable());
+            m_useracrediter = Datas::I()->users->getById(parent->idcomptableactes());
     }
     else if(currentuser()->isSecretaire())
         m_useracrediter = Datas::I()->users->getById(map_comptables->firstKey());

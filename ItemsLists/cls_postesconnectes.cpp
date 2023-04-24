@@ -151,7 +151,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
                                " VALUES (NOW()," +
                                QString::number(usr->id()) + "," +
                                QString::number(usr->idsuperviseur()) + "," +
-                               QString::number(usr->idcomptable()) + "," +
+                                  QString::number(usr->idcomptableactes()) + "," +
                                QString::number(usr->idparent()) +",'" +
                                QHostInfo::localHostName().left(60) + "', '" +
                                macadress + "', '" +
@@ -166,7 +166,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
     post->setstringid(macadressid);
     post->setid(usr->id());
     post->setidsuperviseur(usr->idsuperviseur());
-    post->setidcomptable(usr->idcomptable());
+    post->setidcomptable(usr->idcomptableactes());
     post->setidparent(usr->idparent());
     post->setdateheurederniereconnexion(DataBase::I()->ServerDateTime());
     post->setnomposte(QHostInfo::localHostName().left(60));

@@ -93,7 +93,6 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->ComptaLiberalSELupRadioButton,  &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaNoLiberalupRadioButton,   &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaRemplaupRadioButton,      &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
-    connect(ui->NoComptaupRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->OPTAMupRadioButton,             &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ResponsableupRadioButton,       &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ResponsableLes2upRadioButton,   &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
@@ -143,11 +142,9 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
 
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    ui->NoComptaupRadioButton       ->setCheckable(false);
     ui->CotationupRadioButton       ->setChecked(true);
     ui->CotationupRadioButton       ->setEnabled(false);
     ui->CotationupRadioButton       ->setImmediateToolTip(tr("Fonction indisponible\npour le moment"));
-    ui->NoComptaupRadioButton       ->setImmediateToolTip(tr("Fonction indisponible\npour le moment"));
     ui->OKupSmallButton             ->setEnabled(false);
     setConfig(mode);
 }
@@ -175,7 +172,6 @@ void dlg_gestionusers::setConfig(enum UserMode mode)
         ui->ComptaLiberalupRadioButton      ->setChecked(true);
         ui->ComptaRemplaupRadioButton       ->setEnabled(false);
         ui->ComptaNoLiberalupRadioButton    ->setEnabled(false);
-        ui->NoComptaupRadioButton           ->setEnabled(false);
         ui->InactivUsercheckBox             ->setVisible(false);
         ui->Principalframe                  ->setEnabled(true);
         ui->AnnulupSmallButton              ->setVisible(false);
@@ -467,12 +463,6 @@ void dlg_gestionusers::EnregistreUser()
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
-            else if (ui->NoComptaupRadioButton->isChecked())
-                req += CP_DROITS_USR " = '" OPHTANOCOMPTA "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_ENREGHONORAIRES_USR " = 4,\n"
-                       CP_IDEMPLOYEUR_USR " = null,\n"
-                       CP_ISAGA_USR " = null,\n";
         }
         req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
@@ -536,12 +526,6 @@ void dlg_gestionusers::EnregistreUser()
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
-            else if (ui->NoComptaupRadioButton->isChecked())
-                req += CP_DROITS_USR " = '" ORTHONOCOMPTA "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_ENREGHONORAIRES_USR " = 4,\n"
-                       CP_IDEMPLOYEUR_USR " = null,\n"
-                       CP_ISAGA_USR " = null,\n";
         }
         req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
@@ -603,12 +587,6 @@ void dlg_gestionusers::EnregistreUser()
                 req += CP_DROITS_USR " = '" AUTRESOIGNANTREMPLACANT "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 3,\n"
-                       CP_IDEMPLOYEUR_USR " = null,\n"
-                       CP_ISAGA_USR " = null,\n";
-            else if (ui->NoComptaupRadioButton->isChecked())
-                req += CP_DROITS_USR " = '" AUTRESOIGNANTNOCOMPTA "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_ENREGHONORAIRES_USR " = 4,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
         }
@@ -1140,7 +1118,7 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomp
 void dlg_gestionusers::CalcListitemsEmployeurcomboBox(User *usr)
 {
     ui->EmployeurcomboBox->clear();
-    for (auto it = Datas::I()->users->comptables()->begin(); it != Datas::I()->users->comptables()->end(); ++it)
+    for (auto it = Datas::I()->users->comptablesActes()->begin(); it != Datas::I()->users->comptablesActes()->end(); ++it)
     {
         User* usrcpt = it.value();
         if (usrcpt)
@@ -1183,7 +1161,6 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     bool liberalSEL     = m_userencours->isLiberalSEL();
     bool pasliberal     = m_userencours->isSoignantSalarie() || m_userencours->isLiberalSEL();
     bool retrocession   = m_userencours->isRemplacant();
-    bool pasdecompta    = m_userencours->isSansCompta();
 
     bool cotation       = m_userencours->useCCAM();
 
@@ -1246,7 +1223,6 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->ComptaLiberalupRadioButton    ->setChecked(liberal);
     ui->ComptaNoLiberalupRadioButton  ->setChecked(pasliberal);
     ui->ComptaRemplaupRadioButton     ->setChecked(retrocession);
-    ui->NoComptaupRadioButton         ->setChecked(pasdecompta);
 
     ui->AGAupRadioButton              ->setChecked(ophtalmo && m_userencours->isAGA());
 
