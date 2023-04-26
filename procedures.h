@@ -383,7 +383,7 @@ signals:
                                 * n'efface pas le paramètrage de sauvegarde (moment et emplacement) dans la base de données
                                 * suppression de rufus.bup.plist sous Mac et arrêt du timer t_timerbackup sous Linux
                                 */
-        bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full = false);
+        bool                    ImmediateBackup(QString dirdestination = "", bool verifposteconnecte = true, bool full = false, QWidget *parent = Q_NULLPTR);
                                 /*! lance un backup immédiat */
         void                    ParamAutoBackup();
                                 /*! paramètre le moment et l'emplacement de la sauvegarde
@@ -404,7 +404,7 @@ signals:
         QString                 m_dumpexecutable;
         void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
-        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false);
+        bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = Q_NULLPTR);
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()
                                 * et par le timer t_timerbackup pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();

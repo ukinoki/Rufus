@@ -1187,14 +1187,17 @@ void dlg_remisecheques::ReconstruitListeUsers()
         m_initok = false;
         return;
     }
-    m_userencours = Datas::I()->users->userconnected();
-    //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (Datas::I()->users->getById(m_userencours->idcomptable()) != Q_NULLPTR)
+    int idcomptable = Datas::I()->users->userconnected()->idcomptable();
+    m_userencours = Datas::I()->users->getById(idcomptable);
+     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
+    if (Datas::I()->users->getById(m_userencours->id()) != Q_NULLPTR)
     {
         auto itusr = map_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != map_comptablesavecchequesenattente->end())
             ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
     }
+    if (m_userencours != Datas::I()->users->userconnected())
+        proc->MAJComptesBancaires(m_userencours);
     else
     {
         ui->UserComboBox->setCurrentIndex(0);

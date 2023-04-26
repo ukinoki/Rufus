@@ -38,17 +38,19 @@ public:
     Ui::dlg_depenses            *ui;
     bool                        initOK() const;
     enum Mode                   {Lire, Modifier, Enregistrer, TableVide};       Q_ENUM(Mode)
+    QString msgretour() const;
 
 private:
     DataBase                    *db             = DataBase::I();
     Procedures                  *proc           = Procedures::I();
     bool                        m_accesdistant  = (db->ModeAccesDataBase()==Utils::Distant);
     User                        *m_userencours  = Q_NULLPTR;
-    QMap<int, User*>            *map_usersliberaux = Datas::I()->users->liberaux();
+    QMap<int, User*>            *map_usersliberaux      = Datas::I()->users->liberaux();
+    QMap<int, User*>            *map_userscomptables    = Datas::I()->users->comptables();
     bool                        m_initok         = true;
-    QDate                       m_currentdate = db->ServerDate();
+    QString                     m_msgretour = "";
     Depense                     *m_depenseencours;
-
+    QDate                       m_currentdate = db->ServerDate();
     QList<QImage>               m_listeimages;
     QStringList                 m_listemoyensdepaiement;
     Mode                        m_mode;

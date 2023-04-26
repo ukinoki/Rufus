@@ -4201,6 +4201,8 @@ void Rufus::OuvrirJournalDepenses()
         Dlg_Deps->ui->GestionComptesupPushButton->setVisible(actionGestionComptesBancaires->isVisible());
         Dlg_Deps->exec();
     }
+    if (Dlg_Deps->msgretour() != "")
+        UpMessageBox::Watch(this, "", Dlg_Deps->msgretour());
     delete Dlg_Deps;
 }
 
@@ -8240,12 +8242,12 @@ void Rufus::InitEventFilters()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitMenus()
 {
-    bool a = (currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie());
+    bool a = (currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie() || currentuser()->isSocComptable());
     actionPaiementTiers             ->setVisible(a);
     actionPaiementDirect            ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
     actionBilanRecettes             ->setVisible(a);
     actionRecettesSpeciales         ->setVisible(currentuser()->isComptableActes() || currentuser()->isLiberalSEL());
-    actionJournalDepenses           ->setVisible(a);
+    actionJournalDepenses           ->setVisible(a && (Datas::I()->users->comptables()->size() + Datas::I()->users->liberaux()->size() > 0));
     actionGestionComptesBancaires   ->setVisible(currentuser()->isComptableActes());
     actionRemiseCheques             ->setVisible(a);
     menuComptabilite                ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
