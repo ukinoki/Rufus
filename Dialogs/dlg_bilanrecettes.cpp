@@ -188,8 +188,8 @@ void dlg_bilanrecettes::FiltreTable(int idx)
     }
     else if (m_mode==COMPTABLE)
     {
-            QMap<int, User*>::iterator userFind = Datas::I()->users->comptables()->find(idx);
-            if( userFind != Datas::I()->users->comptables()->end() )
+        QMap<int, User*>::iterator userFind = Datas::I()->users->comptablesActes()->find(idx);
+        if( userFind != Datas::I()->users->comptablesActes()->end() )
             {
                 for(int i=0; i<m_recettesmodel->rowCount(); i++)
                 {

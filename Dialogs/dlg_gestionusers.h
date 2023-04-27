@@ -71,7 +71,7 @@ private:
     bool                    m_liberal;
     bool                    m_liberalSEL;
     bool                    m_pasliberal;
-    bool                    m_retrocession;
+    bool                    m_Remplacant;
     bool                    m_cotation;
     bool                    m_soignant;
     bool                    m_responsable;

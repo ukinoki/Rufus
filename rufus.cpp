@@ -932,7 +932,7 @@ void Rufus::ActeGratuit()
 {
     ui->ActeCotationcomboBox->setCurrentIndex(0);
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
-        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
+        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
 }
 
 void Rufus::ActeMontantModifie()
@@ -941,7 +941,7 @@ void Rufus::ActeMontantModifie()
     if (b != m_montantActe)
         ValideActeMontantLineEdit(b, m_montantActe);  // ActeMontantModifie()
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
-        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
+        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
@@ -3740,7 +3740,7 @@ void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
             connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Intervention");});
         }
     }
-    if (currentuser()->isSecretaire() || labelClicked->datas().value("idComptable").toInt() == currentuser()->idcomptable())
+    if (currentuser()->isSecretaire() || labelClicked->datas().value("idComptable").toInt() == currentuser()->idcomptableactes())
     {
         QAction *pAction_EnregistrePaiement = m_menuContextuel->addAction(tr("Enregistrer le paiement"));
         connect (pAction_EnregistrePaiement,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat(idpat, "Payer");});
@@ -4418,7 +4418,7 @@ void Rufus::RetrouveMontantActe()
     else
         ui->ActeMontantlineEdit->setText(MontantActe);
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
-        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptable());
+        ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
 
     /*  else
    {
@@ -8246,9 +8246,9 @@ void Rufus::InitMenus()
     actionPaiementTiers             ->setVisible(a);
     actionPaiementDirect            ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
     actionBilanRecettes             ->setVisible(a);
-    actionRecettesSpeciales         ->setVisible(currentuser()->isComptableActes() || currentuser()->isLiberalSEL());
-    actionJournalDepenses           ->setVisible(a && (Datas::I()->users->comptables()->size() + Datas::I()->users->liberaux()->size() > 0));
-    actionGestionComptesBancaires   ->setVisible(currentuser()->isComptableActes());
+    actionRecettesSpeciales         ->setVisible(currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
+    actionJournalDepenses           ->setVisible(a && (Datas::I()->users->comptablesActes()->size() + Datas::I()->users->liberaux()->size() > 0));
+    actionGestionComptesBancaires   ->setVisible(currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
     actionRemiseCheques             ->setVisible(a);
     menuComptabilite                ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
     actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);

@@ -39,7 +39,7 @@ private:
                                                         //! s'il est responsable de ses SESSIONS =>
                                                             //!< son id s'il est libéral
                                                             //!< l'id de son employeur s'il est salarié
-                                                            //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
+                                                            //!< s'il est remplaçant (Remplacant) on lui demande qui il remplace et le user comptable devient
                                                             //!< . celui qu'il remplace si celui qu'il remplace est libéral
                                                             //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
                                                         //! s'il n'est pas responsable de ses SESSIONS

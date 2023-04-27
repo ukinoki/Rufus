@@ -538,7 +538,7 @@ lieux d'activité</string>
             <x>5</x>
             <y>0</y>
             <width>191</width>
-            <height>160</height>
+            <height>131</height>
            </rect>
           </property>
           <property name="contextMenuPolicy">
@@ -573,7 +573,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>8</x>
-             <y>130</y>
+             <y>97</y>
              <width>160</width>
              <height>22</height>
             </rect>
@@ -613,47 +613,6 @@ lieux d'activité</string>
             <string>Pas d'activité libérale</string>
            </property>
           </widget>
-          <widget class="UpRadioButton" name="NoComptaupRadioButton">
-           <property name="geometry">
-            <rect>
-             <x>8</x>
-             <y>97</y>
-             <width>160</width>
-             <height>22</height>
-            </rect>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::StrongFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
-           </property>
-           <property name="toolTip">
-            <string/>
-           </property>
-           <property name="text">
-            <string>Pas de comptabilité</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-           <property name="checked">
-            <bool>false</bool>
-           </property>
-          </widget>
-          <widget class="Line" name="line_5">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>116</y>
-             <width>151</width>
-             <height>16</height>
-            </rect>
-           </property>
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
           <widget class="UpRadioButton" name="ComptaLiberalSELupRadioButton">
            <property name="geometry">
             <rect>
@@ -678,7 +637,7 @@ lieux d'activité</string>
           <property name="geometry">
            <rect>
             <x>13</x>
-            <y>165</y>
+            <y>140</y>
             <width>151</width>
             <height>22</height>
            </rect>

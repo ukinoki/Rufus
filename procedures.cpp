@@ -1296,10 +1296,10 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     /*
         1 = liberal
         2 = salarie
-        3 = retrocession (remplaçant)
+        3 = Remplacant (remplaçant)
         4 = pas de comptabilite
     */
-    if (user && user->modeenregistrementhonoraires() == User::Retrocession)
+    if (user && user->isRemplacant())
     {
         rplct = true;
         if (user->id() == currentuser()->idsuperviseur())
@@ -2142,8 +2142,7 @@ QString Procedures::SessionStatus()
     bool liberal        = currentuser()->isLiberal();
     bool liberalSEL     = currentuser()->isLiberalSEL();
     bool salarie        = currentuser()->isSoignantSalarie();
-    bool retrocession   = currentuser()->isRemplacant();
-    bool pasdecompta    = currentuser()->isSansCompta();
+    bool remplacant   = currentuser()->isRemplacant();
 
     bool cotation       = currentuser()->useCCAM();
 
@@ -2200,10 +2199,8 @@ QString Procedures::SessionStatus()
             txtsalarie += " - " + tr("Employeur : ") + (employeur? employeur->login() : "null");
             txtstatut += txtsalarie;
         }
-        else if (retrocession)
+        else if (remplacant)
             txtstatut += tr("remplaçant");
-        else if (pasdecompta)
-            txtstatut += tr("sans comptabilité");
     }
     if (respliberal)
     {
@@ -2212,8 +2209,8 @@ QString Procedures::SessionStatus()
         if (cptencaissement)
         {
             txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :\t") + cptencaissement->nomabrege();
-            if (Datas::I()->users->getById(currentuser()->idcomptable()) != Q_NULLPTR)
-                txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptable())->login();
+            if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
+                txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
         }
         txtstatut += txtliberal;
     }
@@ -2230,7 +2227,7 @@ QString Procedures::SessionStatus()
             }
         }
     }
-    else if (retrocession)
+    else if (remplacant)
         txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
     if (soigntnonassistant && cotation)
         txtstatut += "\n" + tr("Cotation des actes :\t\t") + (cotation? tr("Oui") : tr("Sans"));
@@ -3204,7 +3201,7 @@ bool Procedures::Connexion_A_La_Base()
     m_listbinds[CP_IDUSER_SESSIONS]         = currentuser()->id();
     m_listbinds[CP_IDSUPERVISEUR_SESSIONS]  = currentuser()->idsuperviseur();
     m_listbinds[CP_IDPARENT_SESSIONS]       = currentuser()->idparent();
-    m_listbinds[CP_IDCOMPTABLE_SESSIONS]    = currentuser()->idcomptable();
+    m_listbinds[CP_IDCOMPTABLE_SESSIONS]    = currentuser()->idcomptableactes();
     if (Datas::I()->sites->currentsite())
         m_listbinds[CP_IDLIEU_SESSIONS]     = Datas::I()->sites->currentsite()->id();
     m_listbinds[CP_DATEDEBUT_SESSIONS]      = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
@@ -3312,7 +3309,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     }
     MAJComptesBancaires(user);
     user->setidsuperviseur(idusr);
-    user->setidcomptable(idusr);
+    user->setidcomptableactes(idusr);
     user->setidparent(idusr);
     // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
     req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = 1";
@@ -3530,28 +3527,15 @@ bool Procedures::IdentificationUser()
                     correspond au membre permanent de la structure de soins pour qui le user travaille
                     si le User est remplaçant -> le user remplacé, sinon, le usersuperviseur
                 . iduser qui enregistrera la comptabilité des actes (int gidUserComptableProv)
-                    . lui même s'il est responsable et libéral
-                    . son employeur s'il est responsable et salarié
-                    . s'il est remplaçant (retrocession) on lui demande qui il remplace et le comptable devient
+                    . lui même s'il est libéral
+                    . son employeur s'il est salarié ou libéral en  SEL
+                    . s'il est remplaçant (Remplacant) on lui demande qui il remplace et le comptable devient
                         . celui qu'il remplace si celui qu'il remplace est libéral
                         . l'employeur de  celui qu'il remplace si celui qu'il remplace est salarié
                     . -1 s'il n'enregistre pas de compta
                     . -2 sans objet (personnel non soignant)
-                . et s'il cote les actes                            (bool gUseCotationProv)
-                    0 = AvecCompta
-                    1 = SansCompta et sans cotation
-                    2 = Sans compta mais avec cotation
-                    3 = Avec compta mais sans cotation
-           */
-            currentuser()->setTypeCompta(m_aveccomptaprovisoire ?
-                                         (m_usecotation ? User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE : User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE)
-                                           :
-                                         (m_usecotation ? User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE : User::COMPTA_SANS_COTATION_SANS_COMPTABILITE));
 
-            //AFFECT USER:
-            //qDebug() << "superviseur " << currentuser()->getIdUserActeSuperviseur();
-            //qDebug() << "comptable " << currentuser()->getIdUserComptable();
-            //qDebug() << "parent " << currentuser()->getIdUserParent();
+           */
 
             m_idcentre = m_parametres->numcentre();
         }
@@ -3779,8 +3763,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
         if( currentuser()->idsuperviseur() == User::ROLE_NON_RENSEIGNE )
         {
             currentuser()->setidparent(User::ROLE_NON_RENSEIGNE);
-            currentuser()->setidcomptable(User::ROLE_NON_RENSEIGNE);
-            m_aveccomptaprovisoire = true;
+            currentuser()->setidcomptableactes(User::ROLE_NON_RENSEIGNE);
             m_usecotation     = true;
         }
         else
@@ -3871,15 +3854,12 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                     // determination de l'utilisation de la cotation
                     m_usecotation = usrparent->useCCAM();
                     // determination de l'utilisation de la comptabilité
-                     m_aveccomptaprovisoire = !usrparent->isSansCompta();
                     if( usrparent->isLiberal() )
-                        currentuser()->setidcomptable(usrparent->id());
-                    else if( usrparent->isLiberalSEL() )
-                        currentuser()->setidcomptable(usrparent->idemployeur());
-                    else if( usrparent->isSoignantSalarie() )
-                        currentuser()->setidcomptable(usrparent->idemployeur());
+                        currentuser()->setidcomptableactes(usrparent->id());
+                    else if( usrparent->isLiberalSEL() || usrparent->isSoignantSalarie() )
+                        currentuser()->setidcomptableactes(usrparent->idemployeur());
                     else
-                        currentuser()->setidcomptable(User::ROLE_NON_RENSEIGNE);
+                        currentuser()->setidcomptableactes(User::ROLE_NON_RENSEIGNE);
                     currentuser()->setAGA(usrparent->isAGA());
                     currentuser()->setsecteurconventionnel(usrparent->secteurconventionnel());
                     currentuser()->setOPTAM(usrparent->isOPTAM());
@@ -3892,7 +3872,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 }
             }
             else
-                currentuser()->setidcomptable(User::ROLE_VIDE);
+                currentuser()->setidcomptableactes(User::ROLE_VIDE);
         }
         return true;
     }
@@ -3900,12 +3880,11 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     // il s'agit d'un administratif ou d'une société comptable
     currentuser()->setidsuperviseur(User::ROLE_VIDE);
     if (currentuser()->isSocComptable())
-        currentuser()->setidcomptable(currentuser()->id());
+        currentuser()->setidcomptableactes(currentuser()->id());
     else
-        currentuser()->setidcomptable(User::ROLE_VIDE);
+        currentuser()->setidcomptableactes(User::ROLE_VIDE);
     currentuser()->setidparent(User::ROLE_VIDE);
     m_usecotation     = true;
-    m_aveccomptaprovisoire = true; //FIXME : avecLaComptaProv
     return true;
 }
 
@@ -3934,9 +3913,9 @@ void Procedures::MAJComptesBancaires(User *usr)
         return;
     usr->setlistecomptesbancaires(Datas::I()->comptes->initListeComptesByIdUser(usr->id()));
     if (usr->isRemplacant())
-        if (usr->idcomptable() > 0)
+        if (usr->idcomptableactes() > 0)
         {
-            User *cptble = Datas::I()->users->getById(usr->idcomptable());
+            User *cptble = Datas::I()->users->getById(usr->idcomptableactes());
             usr->setidcompteencaissementhonoraires(cptble? cptble->idcompteencaissementhonoraires() : 0);
         }
 }
@@ -6710,12 +6689,12 @@ QString Procedures::currentuserstatus() const
     str += tr("parent") + "\t\t= " + strParent + "\n";
 
     QString strComptable = "";
-    User * usrcptble = Datas::I()->users->getById(usr->idcomptable());
-    if ( usr->idcomptable() == User::ROLE_NON_RENSEIGNE )
+    User * usrcptble = Datas::I()->users->getById(usr->idcomptableactes());
+    if ( usr->idcomptableactes() == User::ROLE_NON_RENSEIGNE )
         strComptable = tr("sans objet");
-    else if ( usr->idcomptable() == User::ROLE_VIDE )
+    else if ( usr->idcomptableactes() == User::ROLE_VIDE )
         strComptable = tr("sans objet");
-    else if ( usr->idcomptable() == User::ROLE_INDETERMINE )
+    else if ( usr->idcomptableactes() == User::ROLE_INDETERMINE )
         strComptable = tr("indéterminé");
     else if (usrcptble)
         strComptable = usrcptble->login();
@@ -6725,17 +6704,6 @@ QString Procedures::currentuserstatus() const
         Compte * cpt = Datas::I()->comptes->getById(usrcptble->idcompteencaissementhonoraires());
         str += tr("cpte banque") + "\t= " + (cpt? cpt->nomabrege() : "null") + "\n";
     }
-
-    QString strCompta = "";
-    if ( usr->typecompta() == User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE )
-        strCompta = "avec cotation et comptabilité";
-    else if( usr->typecompta() == User::COMPTA_SANS_COTATION_SANS_COMPTABILITE )
-        strCompta = "sans cotation ni comptabilité";
-    else if( usr->typecompta() == User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE )
-        strCompta = "avec cotation sans comptabilité";
-    else if( usr->typecompta() == User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE )
-        strCompta = "sans cotation avec comptabilité";
-    str += tr("comptabilité") + "\t= " + strCompta;
 
     return str;
 }

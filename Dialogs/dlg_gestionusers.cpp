@@ -93,7 +93,6 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->ComptaLiberalSELupRadioButton,  &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaNoLiberalupRadioButton,   &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ComptaRemplaupRadioButton,      &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
-    connect(ui->NoComptaupRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->OPTAMupRadioButton,             &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ResponsableupRadioButton,       &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->ResponsableLes2upRadioButton,   &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
@@ -143,11 +142,9 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
 
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    ui->NoComptaupRadioButton       ->setCheckable(false);
     ui->CotationupRadioButton       ->setChecked(true);
     ui->CotationupRadioButton       ->setEnabled(false);
     ui->CotationupRadioButton       ->setImmediateToolTip(tr("Fonction indisponible\npour le moment"));
-    ui->NoComptaupRadioButton       ->setImmediateToolTip(tr("Fonction indisponible\npour le moment"));
     ui->OKupSmallButton             ->setEnabled(false);
     setConfig(mode);
 }
@@ -175,7 +172,6 @@ void dlg_gestionusers::setConfig(enum UserMode mode)
         ui->ComptaLiberalupRadioButton      ->setChecked(true);
         ui->ComptaRemplaupRadioButton       ->setEnabled(false);
         ui->ComptaNoLiberalupRadioButton    ->setEnabled(false);
-        ui->NoComptaupRadioButton           ->setEnabled(false);
         ui->InactivUsercheckBox             ->setVisible(false);
         ui->Principalframe                  ->setEnabled(true);
         ui->AnnulupSmallButton              ->setVisible(false);
@@ -468,12 +464,6 @@ void dlg_gestionusers::EnregistreUser()
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
-            else if (ui->NoComptaupRadioButton->isChecked())
-                req += CP_DROITS_USR " = '" OPHTANOCOMPTA "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_ENREGHONORAIRES_USR " = 4,\n"
-                       CP_IDEMPLOYEUR_USR " = null,\n"
-                       CP_ISAGA_USR " = null,\n";
         }
         req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
@@ -537,12 +527,6 @@ void dlg_gestionusers::EnregistreUser()
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
-            else if (ui->NoComptaupRadioButton->isChecked())
-                req += CP_DROITS_USR " = '" ORTHONOCOMPTA "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_ENREGHONORAIRES_USR " = 4,\n"
-                       CP_IDEMPLOYEUR_USR " = null,\n"
-                       CP_ISAGA_USR " = null,\n";
         }
         req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
     }
@@ -604,12 +588,6 @@ void dlg_gestionusers::EnregistreUser()
                 req += CP_DROITS_USR " = '" AUTRESOIGNANTREMPLACANT "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 3,\n"
-                       CP_IDEMPLOYEUR_USR " = null,\n"
-                       CP_ISAGA_USR " = null,\n";
-            else if (ui->NoComptaupRadioButton->isChecked())
-                req += CP_DROITS_USR " = '" AUTRESOIGNANTNOCOMPTA "', \n"
-                       CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-                       CP_ENREGHONORAIRES_USR " = 4,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
         }
@@ -1144,7 +1122,7 @@ void dlg_gestionusers::CalcListitemsCompteComptacomboBox(User *usr, bool soccomp
 void dlg_gestionusers::CalcListitemsEmployeurcomboBox(User *usr)
 {
     ui->EmployeurcomboBox->clear();
-    for (auto it = Datas::I()->users->comptables()->begin(); it != Datas::I()->users->comptables()->end(); ++it)
+    for (auto it = Datas::I()->users->comptablesActes()->begin(); it != Datas::I()->users->comptablesActes()->end(); ++it)
     {
         User* usrcpt = it.value();
         if (usrcpt)
@@ -1186,19 +1164,18 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     bool liberal        = m_userencours->isLiberal();    
     bool liberalSEL     = m_userencours->isLiberalSEL();
     bool pasliberal     = m_userencours->isSoignantSalarie() || m_userencours->isLiberalSEL();
-    bool retrocession   = m_userencours->isRemplacant();
-    bool pasdecompta    = m_userencours->isSansCompta();
+    bool Remplacant   = m_userencours->isRemplacant();
 
     bool cotation       = m_userencours->useCCAM();
 
     ui->RPPSlabel                   ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->RPPSupLineEdit              ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(soignant);
-    ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !retrocession);
+    ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !Remplacant);
     ui->NumCOlabel                  ->setVisible(medecin && db->parametres()->cotationsfrance());
     ui->NumCOupLineEdit             ->setVisible(medecin && db->parametres()->cotationsfrance());
-    ui->SecteurgroupBox             ->setVisible(ophtalmo && !assistant && !retrocession && cotation);
-    ui->OPTAMupRadioButton          ->setVisible(ophtalmo && !assistant && !retrocession && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2));
+    ui->SecteurgroupBox             ->setVisible(ophtalmo && !assistant && !Remplacant && cotation);
+    ui->OPTAMupRadioButton          ->setVisible(ophtalmo && !assistant && !Remplacant && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2));
     ui->TitreupcomboBox             ->setVisible(medecin);
     ui->Titrelabel                  ->setVisible(medecin);
     ui->AutreSoignantupLineEdit     ->setVisible(autresoignant);
@@ -1249,8 +1226,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
 
     ui->ComptaLiberalupRadioButton    ->setChecked(liberal);
     ui->ComptaNoLiberalupRadioButton  ->setChecked(pasliberal);
-    ui->ComptaRemplaupRadioButton     ->setChecked(retrocession);
-    ui->NoComptaupRadioButton         ->setChecked(pasdecompta);
+    ui->ComptaRemplaupRadioButton     ->setChecked(Remplacant);
 
     ui->AGAupRadioButton              ->setChecked(ophtalmo && m_userencours->isAGA());
 
@@ -1368,7 +1344,7 @@ void   dlg_gestionusers::DefinitLesVariables()
     m_liberal        = ui->ComptaLiberalupRadioButton      ->isChecked();    
     m_liberalSEL     = ui->ComptaLiberalSELupRadioButton   ->isChecked();
     m_pasliberal     = ui->ComptaNoLiberalupRadioButton    ->isChecked();
-    m_retrocession   = ui->ComptaRemplaupRadioButton       ->isChecked();
+    m_Remplacant   = ui->ComptaRemplaupRadioButton       ->isChecked();
 
     m_cotation       = ui->CotationupRadioButton           ->isChecked();
     m_soignant       = (m_ophtalmo || m_orthoptist|| m_autresoignant);
@@ -1376,7 +1352,7 @@ void   dlg_gestionusers::DefinitLesVariables()
     m_respsalarie    = m_responsable && m_pasliberal;
     m_respliberal    = m_responsable && m_liberal;
     m_respliberalSEL = m_responsable && m_liberalSEL;
-    m_soignantnonremplacant = m_responsable && !m_retrocession;
+    m_soignantnonremplacant = m_responsable && !m_Remplacant;
 }
 
 bool dlg_gestionusers::ExisteEmployeur(int iduser)

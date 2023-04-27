@@ -22,11 +22,6 @@ int User::ROLE_NON_RENSEIGNE = -1;
 int User::ROLE_VIDE = -2;
 int User::ROLE_INDETERMINE = -3;
 
-int User::COMPTA_AVEC_COTATION_AVEC_COMPTABILITE = 0; //0
-int User::COMPTA_SANS_COTATION_SANS_COMPTABILITE = 1; //1
-int User::COMPTA_AVEC_COTATION_SANS_COMPTABILITE = 2; //2
-int User::COMPTA_SANS_COTATION_AVEC_COMPTABILITE = 3; //3
-
 User::User(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
@@ -90,7 +85,7 @@ void User::setData(QJsonObject data)
     qDebug() << "isSoignant()" << isSoignant();
     qDebug() << "ismedecin()" << isMedecin();
     qDebug() << "isRemplacant()" << isRemplacant();
-    qDebug() << "modeenregistrementhonoraires() = " + Utils::EnumDescription(QMetaEnum::fromType<ENREGISTREMENTHONORAIRES>(), modeenregistrementhonoraires());*/
+    qDebug() << "statutcomptable() = " + Utils::EnumDescription(QMetaEnum::fromType<ENREGISTREMENTHONORAIRES>(), statutcomptable());*/
 }
 
 /*!
@@ -127,13 +122,13 @@ User::RESPONSABLE User::responsableactes() const           /*! Responsable      
     }
     return PasResponsable;
 }
-User::ENREGISTREMENTHONORAIRES User::modeenregistrementhonoraires() const
+User::STATUT_COMPTABLE User::statutcomptable() const
 {
     switch (m_enregHonoraires) {
     case 0: return NoCompta;
     case 1: return Liberal;
     case 2: return Salarie;
-    case 3: return Retrocession;
+    case 3: return Remplacant;
     case 4: return NoCompta;
     case 5: return LiberalSEL;
     }
@@ -153,8 +148,6 @@ int User::secteurconventionnel() const              { return m_secteur; }
 int User::idcomptepardefaut() const                 { return m_idCompteParDefaut; }
 QString User::mail() const                          { return m_mail; }
 QString User::portable() const                      { return m_portable; }
-int User::typecompta() const                        { return m_typeCompta; }
-
 
 bool User::isOPTAM()                                { return m_OPTAM; }
 bool User::useCCAM()                                { return m_ccam; }
@@ -170,11 +163,10 @@ bool User::isSocComptable()                         { return metier() == Societe
 bool User::isNeutre()                               { return metier() == Neutre; }
 bool User::isComptableActes()                       { return isLiberal() || isSocComptable(); }
 bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
-bool User::isLiberal()                              { return isSoignant() && modeenregistrementhonoraires() == Liberal; }
-bool User::isLiberalSEL()                           { return isSoignant() && modeenregistrementhonoraires() == LiberalSEL; }
-bool User::isSoignantSalarie()                      { return isSoignant() && modeenregistrementhonoraires() == Salarie; }
-bool User::isRemplacant()                           { return isSoignant() && modeenregistrementhonoraires() == Retrocession; }
-bool User::isSansCompta()                           { return modeenregistrementhonoraires() == NoCompta; }
+bool User::isLiberal()                              { return statutcomptable() == Liberal; }
+bool User::isLiberalSEL()                           { return statutcomptable() == LiberalSEL; }
+bool User::isSoignantSalarie()                      { return isSoignant() && statutcomptable() == Salarie; }
+bool User::isRemplacant()                           { return statutcomptable() == Remplacant; }
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
 bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }

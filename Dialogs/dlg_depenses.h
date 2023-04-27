@@ -45,8 +45,7 @@ private:
     Procedures                  *proc           = Procedures::I();
     bool                        m_accesdistant  = (db->ModeAccesDataBase()==Utils::Distant);
     User                        *m_userencours  = Q_NULLPTR;
-    QMap<int, User*>            *map_usersliberaux      = Datas::I()->users->liberaux();
-    QMap<int, User*>            *map_userscomptables    = Datas::I()->users->comptables();
+    QMap<int, User*>            *map_usersdepenses = Datas::I()->users->comptablesSaufActes();
     bool                        m_initok         = true;
     QString                     m_msgretour = "";
     Depense                     *m_depenseencours;

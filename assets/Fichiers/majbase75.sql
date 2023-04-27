@@ -22,7 +22,7 @@ BEGIN
         IF tot=1
         THEN
             ALTER TABLE `rufus`.`utilisateurs`
-            CHANGE COLUMN `UserEnregHonoraires` `UserEnregHonoraires` TINYINT(1) NULL DEFAULT NULL COMMENT '1 = liberal\n2 = salarie\n3 = retrocession\n4 = pas de comptabilite\n5 = liberal en SEL' ;
+            CHANGE COLUMN `UserEnregHonoraires` `UserEnregHonoraires` TINYINT(1) NULL DEFAULT NULL COMMENT '1 = liberal\n2 = salarie\n3 = Remplacant\n4 = pas de comptabilite\n5 = liberal en SEL' ;
         END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
