@@ -68,7 +68,7 @@ void User::setData(QJsonObject data)
     Utils::setDataBool(data, CP_ISAGA_USR, m_AGA);
     Utils::setDataBool(data, CP_ISDESACTIVE_USR, m_desactive);
     Utils::setDataBool(data, CP_ISOPTAM_USR, m_OPTAM);
-    Utils::setDataBool(data, CP_CCAM_USR, m_ccam);
+    Utils::setDataBool(data, CP_COTATION_USR, m_cotationactes);
 
     Utils::setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
     Utils::setDataDate(data, CP_DATECREATIONMDP_USR, m_datecreationMDP);
@@ -150,7 +150,7 @@ QString User::mail() const                          { return m_mail; }
 QString User::portable() const                      { return m_portable; }
 
 bool User::isOPTAM()                                { return m_OPTAM; }
-bool User::useCCAM()                                { return m_ccam; }
+bool User::useCotationActes()                       { return m_cotationactes; }
 
 bool User::isSecretaire()                           { return m_droits == SECRETAIRE; }
 bool User::isAutreFonction()                        { return m_droits == AUTREFONCTION; }

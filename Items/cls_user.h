@@ -148,7 +148,7 @@ private:
     bool m_AGA = false;
     bool m_desactive = false;
     bool m_OPTAM = true;
-    bool m_ccam;
+    bool m_cotationactes = true;
 
     bool m_useCompta;
     int m_responsableActes; //!< 0 : pas responsable
@@ -267,7 +267,7 @@ public:
 
     bool isOPTAM();
     void setOPTAM(bool optam) {m_OPTAM = optam;}
-    bool useCCAM();
+    bool useCotationActes();
 
     bool isSecretaire();
     bool isAutreFonction();

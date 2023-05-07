@@ -1478,11 +1478,18 @@ void Procedures::CalcImage(Item *item, bool imagerie)
         {
             //!> on recherche d'abord sur le disque dur du serveur
             QList<QVariantList> listimpr;
-            listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename) + "') AS content"
-                                             , m_ok
-                                             , tr("Impossible d'accéder au fichier ") + filename);
-                       if (!m_ok)
-                       return;
+            if (isdocument)
+                listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename) + "') AS content"
+                                                 , m_ok
+                                                 , tr("Impossible d'accéder au fichier ") + filename);
+                           if (!m_ok)
+                           return;
+            else if (isfacture)
+                listimpr = db->StandardSelectSQL("SELECT LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename) + "') AS content"
+                                                 , m_ok
+                                                 , tr("Impossible d'accéder au fichier ") + filename);
+                           if (!m_ok)
+                           return;
             if (listimpr.size()==1)
             {
                 ba.append(listimpr.at(0).at(0).toByteArray());
@@ -1932,7 +1939,7 @@ QString Procedures::SessionStatus()
     bool salarie        = currentuser()->isSoignantSalarie();
     bool remplacant     = currentuser()->isRemplacant();
 
-    bool cotation       = currentuser()->useCCAM();
+    bool cotation       = currentuser()->useCotationActes();
 
     bool soignant           = currentuser()->isSoignant();
     bool soigntnonassistant = soignant && !assistant;
@@ -3233,7 +3240,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             CP_SOIGNANTSTATUS_USR " = 1,\n"
             CP_ISMEDECIN_USR " = 1,\n"
             CP_RESPONSABLEACTES_USR " = 1,\n"
-            CP_CCAM_USR " = 1,\n"
+            CP_COTATION_USR " = 1,\n"
             CP_ISAGA_USR " = 1,\n"
             CP_SECTEUR_USR " = 1,\n"
             CP_ISOPTAM_USR " = 1\n"
@@ -3628,7 +3635,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 if ( usrparent )
                 {
                     // determination de l'utilisation de la cotation
-                    m_usecotation = usrparent->useCCAM();
+                    m_usecotation = usrparent->useCotationActes();
                     // determination de l'utilisation de la comptabilité
                     if( usrparent->isLiberal() )
                         currentuser()->setidcomptableactes(usrparent->id());
