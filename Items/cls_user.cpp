@@ -150,7 +150,7 @@ QString User::mail() const                          { return m_mail; }
 QString User::portable() const                      { return m_portable; }
 
 bool User::isOPTAM()                                { return m_OPTAM; }
-bool User::useCotationActes()                       { return m_cotationactes; }
+bool User::useCotationsActes()                       { return m_cotationactes; }
 
 bool User::isSecretaire()                           { return m_droits == SECRETAIRE; }
 bool User::isAutreFonction()                        { return m_droits == AUTREFONCTION; }

@@ -1391,8 +1391,7 @@ void Procedures::CalcImage(Item *item, bool imagerie)
     /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
      *  pour pouvoir les afficher ou les imprimer
 
-   * \param afficher = true -> la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      imagerie = false -> Le document est un document texte (ordo, certificat...etc).
+   * \param imagerie = false -> Le document est un document texte (ordo, certificat...etc).
      *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
      *                          Ces champs vont être utilisés pour l'impression vers un fichier pdf.
      *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
@@ -1939,7 +1938,7 @@ QString Procedures::SessionStatus()
     bool salarie        = currentuser()->isSoignantSalarie();
     bool remplacant     = currentuser()->isRemplacant();
 
-    bool cotation       = currentuser()->useCotationActes();
+    bool cotation       = currentuser()->useCotationsActes();
 
     bool soignant           = currentuser()->isSoignant();
     bool soigntnonassistant = soignant && !assistant;
@@ -3635,7 +3634,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 if ( usrparent )
                 {
                     // determination de l'utilisation de la cotation
-                    m_usecotation = usrparent->useCotationActes();
+                    m_usecotation = usrparent->useCotationsActes();
                     // determination de l'utilisation de la comptabilité
                     if( usrparent->isLiberal() )
                         currentuser()->setidcomptableactes(usrparent->id());

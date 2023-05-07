@@ -267,7 +267,7 @@ public:
 
     bool isOPTAM();
     void setOPTAM(bool optam) {m_OPTAM = optam;}
-    bool useCotationActes();
+    bool useCotationsActes();
 
     bool isSecretaire();
     bool isAutreFonction();
