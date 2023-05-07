@@ -2148,7 +2148,7 @@ QString Procedures::SessionStatus()
     bool salarie        = currentuser()->isSoignantSalarie();
     bool remplacant   = currentuser()->isRemplacant();
 
-    bool cotation       = currentuser()->useCCAM();
+    bool cotation       = currentuser()->useCotationsActes();
 
     bool soignant           = currentuser()->isSoignant();
     bool soigntnonassistant = soignant && !assistant;
@@ -3458,7 +3458,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             CP_SOIGNANTSTATUS_USR " = 1,\n"
             CP_ISMEDECIN_USR " = 1,\n"
             CP_RESPONSABLEACTES_USR " = 1,\n"
-            CP_CCAM_USR " = 1,\n"
+            CP_COTATION_USR " = 1,\n"
             CP_ISAGA_USR " = 1,\n"
             CP_SECTEUR_USR " = 1,\n"
             CP_ISOPTAM_USR " = 1\n"
@@ -3856,7 +3856,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 if ( usrparent )
                 {
                     // determination de l'utilisation de la cotation
-                    m_usecotation = usrparent->useCCAM();
+                    m_usecotation = usrparent->useCotationsActes();
                     // determination de l'utilisation de la comptabilité
                     if( usrparent->isLiberal() )
                         currentuser()->setidcomptableactes(usrparent->id());

@@ -143,7 +143,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     ui->CotationupRadioButton       ->setChecked(true);
-    ui->CotationupRadioButton       ->setEnabled(false);
+    ui->CotationupRadioButton       ->setToggleable(false);
     ui->CotationupRadioButton       ->setImmediateToolTip(tr("Fonction indisponible\npour le moment"));
     ui->OKupSmallButton             ->setEnabled(false);
     setConfig(mode);
@@ -412,7 +412,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 1,\n"
                CP_ISMEDECIN_USR " = 1,\n"
                CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n "
-               CP_NUMPS_USR " = "       + (ui->RPPSupLineEdit->text().toInt()==0? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
+               CP_NUMPS_USR " = "       + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -465,7 +465,7 @@ void dlg_gestionusers::EnregistreUser()
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
         }
-        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
+        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_COTATION_USR " = 1,\n" : CP_COTATION_USR " = null,\n");
     }
     else if (ui->OrthoptistupRadioButton->isChecked())
     {
@@ -475,7 +475,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 2,\n"
                CP_ISMEDECIN_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
-               CP_NUMPS_USR " = " + (ui->RPPSupLineEdit->text().toInt()==0? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
+               CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -528,7 +528,7 @@ void dlg_gestionusers::EnregistreUser()
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
         }
-        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
+        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_COTATION_USR " = 1,\n" : CP_COTATION_USR " = null,\n");
     }
     else if (ui->AutreSoignantupRadioButton->isChecked())
     {
@@ -538,7 +538,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 3,\n"
                CP_ISMEDECIN_USR " = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
                CP_NUMCO_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
-               CP_NUMPS_USR " = " + (ui->RPPSupLineEdit->text().toInt()==0? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
+               CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -591,7 +591,7 @@ void dlg_gestionusers::EnregistreUser()
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
         }
-        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_CCAM_USR " = 1,\n" : CP_CCAM_USR " = null,\n");
+        req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_COTATION_USR " = 1,\n" : CP_COTATION_USR " = null,\n");
     }
     else if (ui->AutreFonctionupRadioButton->isChecked())
         req += CP_FONCTION_USR " = '" + Utils::correctquoteSQL(ui->AutreFonctionuplineEdit->text()) + "',\n"
@@ -602,7 +602,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-               CP_CCAM_USR " = null,\n"
+               CP_COTATION_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
@@ -617,7 +617,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-               CP_CCAM_USR " = null,\n"
+               CP_COTATION_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
@@ -632,7 +632,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
-               CP_CCAM_USR " = null,\n"
+               CP_COTATION_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
@@ -647,27 +647,29 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISAGA_USR " = null,\n"
                CP_RESPONSABLEACTES_USR " = null,\n"
                CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
-               CP_CCAM_USR " = null,\n"
+               CP_COTATION_USR " = null,\n"
                CP_ENREGHONORAIRES_USR " = null,\n"
                CP_IDEMPLOYEUR_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
                CP_NUMPS_USR " = null,\n "
                CP_DROITS_USR " = '" NEUTRE "',\n";
-    if (ui->OPHupRadioButton->isChecked() && !ui->AssistantupRadioButton->isChecked() && !ui->ComptaRemplaupRadioButton->isChecked() && ui->CotationupRadioButton->isChecked())
+    QString secteur = "null";
+    QString Optam   = "null";
+    if ((ui->OPHupRadioButton->isChecked() ||(ui->AutreSoignantupRadioButton->isChecked() && ui->MedecincheckBox->isChecked()))
+        && !ui->AssistantupRadioButton->isChecked() && !ui->ComptaRemplaupRadioButton->isChecked() && ui->CotationupRadioButton->isChecked())
     {
-        QString secteur = "null";
-        if (ui->Secteur1upRadioButton       ->isChecked())      secteur = "1";
-        if (ui->Secteur2upRadioButton       ->isChecked())      secteur = "2";
-        if (ui->Secteur3upRadioButton       ->isChecked())      secteur = "3";
-        req += CP_SECTEUR_USR " = " + secteur + ",\n";
-        QString Optam = ((ui->OPTAMupRadioButton->isChecked() && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()))? "1" : "null");
-        req += CP_ISOPTAM_USR " = " + Optam + "\n";
+        if (db->parametres()->cotationsfrance())
+        {
+            if (ui->Secteur1upRadioButton       ->isChecked())      secteur = "1";
+            else if (ui->Secteur2upRadioButton  ->isChecked())      secteur = "2";
+            else if (ui->Secteur3upRadioButton  ->isChecked())      secteur = "3";
+            if (ui->OPTAMupRadioButton->isChecked() && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()))
+                Optam = "1";
+        }
     }
-    else
-    {
-        req += CP_SECTEUR_USR " = null,\n";
-        req += CP_ISOPTAM_USR " = null\n";
-    }
+    req += CP_SECTEUR_USR " = " + secteur + ",\n";
+    req += CP_ISOPTAM_USR " = " + Optam + "\n";
+
     req +=  " where " CP_ID_USR " = " + ui->idUseruplineEdit->text();
     //Edit(req);
     db->StandardSQL(req);
@@ -972,10 +974,10 @@ void dlg_gestionusers::RegleAffichage()
     ui->RPPSupLineEdit              ->setVisible(m_responsable && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(m_soignant);
     ui->CotationupRadioButton       ->setVisible(m_soignantnonremplacant);
-    ui->SecteurgroupBox             ->setVisible(m_medecin && m_soignantnonremplacant);
-    ui->OPTAMupRadioButton          ->setVisible(m_medecin && m_soignantnonremplacant && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()));
-    ui->NumCOlabel                  ->setVisible(m_medecin && db->parametres()->cotationsfrance());
-    ui->NumCOupLineEdit             ->setVisible(m_medecin && db->parametres()->cotationsfrance());
+    ui->SecteurgroupBox             ->setVisible(m_medecin && m_soignantnonremplacant && db->parametres()->cotationsfrance());
+    ui->OPTAMupRadioButton          ->setVisible(m_medecin && m_soignantnonremplacant && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()) && db->parametres()->cotationsfrance());
+    ui->NumCOlabel                  ->setVisible(m_medecin);
+    ui->NumCOupLineEdit             ->setVisible(m_medecin);
     ui->TitreupcomboBox             ->setVisible(m_medecin);
     ui->Titrelabel                  ->setVisible(m_medecin);
     ui->AutreSoignantupLineEdit     ->setVisible(m_autresoignant);
@@ -1164,18 +1166,18 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     bool liberal        = m_userencours->isLiberal();    
     bool liberalSEL     = m_userencours->isLiberalSEL();
     bool pasliberal     = m_userencours->isSoignantSalarie() || m_userencours->isLiberalSEL();
-    bool Remplacant   = m_userencours->isRemplacant();
+    bool remplacant     = m_userencours->isRemplacant();
 
-    bool cotation       = m_userencours->useCCAM();
+    bool cotation       = m_userencours->useCotationsActes();
 
     ui->RPPSlabel                   ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->RPPSupLineEdit              ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(soignant);
-    ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !Remplacant);
-    ui->NumCOlabel                  ->setVisible(medecin && db->parametres()->cotationsfrance());
-    ui->NumCOupLineEdit             ->setVisible(medecin && db->parametres()->cotationsfrance());
-    ui->SecteurgroupBox             ->setVisible(ophtalmo && !assistant && !Remplacant && cotation);
-    ui->OPTAMupRadioButton          ->setVisible(ophtalmo && !assistant && !Remplacant && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2));
+    ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !remplacant);
+    ui->NumCOlabel                  ->setVisible(medecin);
+    ui->NumCOupLineEdit             ->setVisible(medecin);
+    ui->SecteurgroupBox             ->setVisible(medecin && !assistant && !remplacant && cotation && db->parametres()->cotationsfrance());
+    ui->OPTAMupRadioButton          ->setVisible(medecin && !assistant && !remplacant && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2) && db->parametres()->cotationsfrance());
     ui->TitreupcomboBox             ->setVisible(medecin);
     ui->Titrelabel                  ->setVisible(medecin);
     ui->AutreSoignantupLineEdit     ->setVisible(autresoignant);
@@ -1201,8 +1203,6 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->idUseruplineEdit            ->setText(QString::number(m_userencours->id()));
     ui->LoginuplineEdit             ->setText(m_userencours->login());
     ui->MDPuplineEdit               ->setText(m_userencours->password());
-    if (medecin)
-        ui->TitreupcomboBox         ->setCurrentText(m_userencours->titre());
     ui->NomuplineEdit               ->setText(m_userencours->nom());
     ui->PrenomuplineEdit            ->setText(m_userencours->prenom());
 
@@ -1222,46 +1222,62 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->InactivUsercheckBox         ->setChecked(m_userencours->isDesactive());
 
     ui->CotationupRadioButton         ->setChecked(true);
-    //ui->CotationupRadioButton         ->setChecked(OtherUser.isCotation());
 
     ui->ComptaLiberalupRadioButton    ->setChecked(liberal);
     ui->ComptaNoLiberalupRadioButton  ->setChecked(pasliberal);
-    ui->ComptaRemplaupRadioButton     ->setChecked(Remplacant);
+    ui->ComptaRemplaupRadioButton     ->setChecked(remplacant);
 
     ui->AGAupRadioButton              ->setChecked(ophtalmo && m_userencours->isAGA());
 
     ui->ResponsableupRadioButton      ->setChecked(responsable);
     ui->ResponsableLes2upRadioButton  ->setChecked(responsableles2);
     ui->AssistantupRadioButton        ->setChecked(assistant);
-
+    if (medecin)
+    {
+        ui->Secteur1upRadioButton   ->setChecked(false);
+        ui->Secteur2upRadioButton   ->setChecked(false);
+        ui->Secteur3upRadioButton   ->setChecked(false);
+        if  (db->parametres()->cotationsfrance())
+        {
+            ui->RPPSupLineEdit      ->setText(QString::number(m_userencours->NumPS()));
+            switch (m_userencours->secteurconventionnel()) {
+            case 1:     ui->Secteur1upRadioButton         ->setChecked(true);     break;
+            case 2:     ui->Secteur2upRadioButton         ->setChecked(true);     break;
+            case 3:     ui->Secteur3upRadioButton         ->setChecked(true);     break;
+            default:
+                break;
+            }
+        }
+        else
+            ui->RPPSupLineEdit      ->clear();
+        ui->TitreupcomboBox         ->setCurrentText(m_userencours->titre());
+        ui->OPTAMupRadioButton      ->setChecked(m_userencours->isOPTAM());
+    }
     if (ophtalmo)
     {
         ui->NumCOupLineEdit             ->setText(m_userencours->numOrdre());
-        ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->NumPS()));
         ui->OPHupRadioButton            ->setChecked(true);
         ui->AutreSoignantupLineEdit     ->clear();
         ui->AutreFonctionuplineEdit     ->clear();
-        switch (m_userencours->secteurconventionnel()) {
-        case 1:     ui->Secteur1upRadioButton         ->setChecked(true);     break;
-        case 2:     ui->Secteur2upRadioButton         ->setChecked(true);     break;
-        case 3:     ui->Secteur3upRadioButton         ->setChecked(true);     break;
-        default:
-            break;
-        }
-        ui->OPTAMupRadioButton->setChecked(m_userencours->isOPTAM());
     }
     else if (orthoptist)
     {
         ui->NumCOupLineEdit             ->clear();
-        ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->NumPS()));
-        ui->OrthoptistupRadioButton       ->setChecked(true);
+        if  (db->parametres()->cotationsfrance())
+            ui->RPPSupLineEdit          ->setText(QString::number(m_userencours->NumPS()));
+        else
+            ui->RPPSupLineEdit          ->clear();
+        ui->OrthoptistupRadioButton     ->setChecked(true);
         ui->AutreSoignantupLineEdit     ->clear();
         ui->AutreFonctionuplineEdit     ->clear();
     }
     else if (autresoignant)
     {
         ui->NumCOupLineEdit             ->clear();
-        ui->RPPSupLineEdit              ->clear();
+        if  (db->parametres()->cotationsfrance())
+            ui->RPPSupLineEdit          ->setText(QString::number(m_userencours->NumPS()));
+        else
+            ui->RPPSupLineEdit          ->clear();
         ui->AutreSoignantupRadioButton  ->setChecked(true);
         ui->AutreSoignantupLineEdit     ->setText(m_userencours->fonction());
         ui->MedecincheckBox             ->setChecked(medecin);
@@ -1306,21 +1322,11 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
         ui->ModeExercicegroupBox        ->setVisible(true);
         ui->AGAupRadioButton            ->setVisible(true);
         ui->AGAupRadioButton            ->setChecked(m_userencours->isAGA());
-        ui->SecteurgroupBox             ->setVisible(true);
-        ui->RPPSlabel                   ->setVisible(true);
-        ui->RPPSupLineEdit              ->setVisible(true);
+        ui->SecteurgroupBox             ->setVisible(db->parametres()->cotationsfrance());
+        ui->RPPSlabel                   ->setVisible(db->parametres()->cotationsfrance());
+        ui->RPPSupLineEdit              ->setVisible(db->parametres()->cotationsfrance());
         ui->AutreSoignantupLineEdit     ->setVisible(false);
         ui->AutreFonctionuplineEdit     ->setVisible(false);
-        ui->SecteurgroupBox             ->setVisible(true);
-        if (m_userencours->useCCAM())
-        {
-            switch (m_userencours->secteurconventionnel()) {
-            case 1:     ui->Secteur1upRadioButton       ->setChecked(true); break;
-            case 2:     ui->Secteur2upRadioButton       ->setChecked(true); break;
-            case 3:     ui->Secteur3upRadioButton       ->setChecked(true); break;
-            default:    break;
-            }
-        }
     }
     wdg_buttonframe->wdg_moinsBouton->setEnabled(ui->ListUserstableWidget->findItems(QString::number(idUser),Qt::MatchExactly).at(0)->foreground() != m_color
                                                && ui->ListUserstableWidget->rowCount()>1);
@@ -1707,7 +1713,7 @@ bool dlg_gestionusers::VerifFiche()
         this->ui->RPPSupLineEdit->setFocus();
         return false;
     }
-    if (m_medecin && m_cotation)
+    if (m_medecin && m_cotation && db->parametres()->cotationsfrance())
     {
         QList<QRadioButton*> listb = ui->SecteurgroupBox->findChildren<QRadioButton*>();
         bool a = false;

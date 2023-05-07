@@ -397,7 +397,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ISAGA_USR                                    "UserAGA"
 #define CP_SECTEUR_USR                                  "UserSecteur"
 #define CP_ISOPTAM_USR                                  "OPTAM"
-#define CP_CCAM_USR                                     "UserCCAM"
+#define CP_COTATION_USR                                 "UserCCAM"
 #define CP_SIGNATURE_USR                                "Signature"   //!> pas utilisé
 #define CP_ISORDOSIGNE_USR                              "OrdoSigne"   //!> pas utilisé
 #define CP_DATEDERNIERECONNEXION_USR                    "DateDerniereConnexion"
