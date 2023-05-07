@@ -204,7 +204,6 @@ void Users::initListe()
     for (auto it = map_actifs->constBegin(); it != map_actifs->constEnd(); ++it)
     {
         User *usr = const_cast<User*>(it.value());
-        qDebug()<<usr->login();
         if (usr->login() == NOM_ADMINISTRATEUR)
         {
             m_useradmin = usr;

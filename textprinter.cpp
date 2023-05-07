@@ -9,10 +9,7 @@
 #include "textprinter.h"
 #include <QPdfWriter>
 
-
-
-TextPrinter::TextPrinter(QObject *parent)
-    : QObject(parent), parent_(Q_NULLPTR)
+TextPrinter::TextPrinter(QObject *parent) : QObject(parent), parent_(Q_NULLPTR)
 {
     if (parent)
         parent_ = qobject_cast<QWidget*>(parent);
@@ -43,11 +40,9 @@ void TextPrinter::setTopMargin(double margin)
 
 void TextPrinter::setHeaderSize(double size)
 {
-    // Valeur par defaut = 0mm (pas d'en-tête
+    // Valeur par defaut = 0mm (pas d'en-tête)
     if ((size > 0) && (size <= printer_->paperRect(units_).height() / 4))
         headersize_ = size;
-    else
-        headersize_ = 0;
 }
 void TextPrinter::setHeaderText(const QString &text)
 {
@@ -64,8 +59,6 @@ void TextPrinter::setFooterSize(double size)
     // Valeur par defaut = 0 mm (pas de pied de page)
     if ((size > 0) && (size <= printer_->paperRect(units_).height() / 4))
         footersize_ = size;
-    else
-        footersize_ = 0;
 }
 
 void TextPrinter::setFooterText(const QString &text)
@@ -359,20 +352,20 @@ void TextPrinter::printToDevice(QPagedPaintDevice *device)
     if (!device || !tempdoc_) return;
 
     QPainter painter(device);
-    tempdoc_->setUseDesignMetrics(true);
-    tempdoc_->documentLayout()->setPaintDevice(device);
-    QSizeF sizeCr=adjustedContentRect(&painter).size();
-    tempdoc_->setPageSize(sizeCr);
+    tempdoc_        ->setUseDesignMetrics(true);
+    tempdoc_        ->documentLayout()->setPaintDevice(device);
+    QSizeF sizeCr   = adjustedContentRect(&painter).size();
+    tempdoc_        ->setPageSize(sizeCr);
     // dump existing margin (if any)
-    QTextFrameFormat fmt = tempdoc_->rootFrame()->frameFormat();
-    fmt.setMargin(0);
-    tempdoc_->rootFrame()->setFrameFormat(fmt);
+    QTextFrameFormat fmt =  tempdoc_->rootFrame()->frameFormat();
+    fmt                     .setMargin(0);
+    tempdoc_->rootFrame()   ->setFrameFormat(fmt);
 
     int    firstpage = 1;
     int    lastpage = tempdoc_->pageCount();
 
     // loop through and print pages
-     painter.setRenderHints(QPainter::Antialiasing |
+    painter.setRenderHints(QPainter::Antialiasing |
                            QPainter::TextAntialiasing |
                            QPainter::SmoothPixmapTransform, true);
     int pagenum = firstpage;
@@ -384,6 +377,7 @@ void TextPrinter::printToDevice(QPagedPaintDevice *device)
         pagenum+=1;
         device->newPage();
     }
+    delete tempdoc_;
 }
 
 /*! * \brief TextPrinter::launchprint
@@ -401,7 +395,7 @@ void TextPrinter::launchprint(QPrinter *printer)
     QPainter painter(printer);
     tempdoc_->setUseDesignMetrics(true);
     tempdoc_->documentLayout()->setPaintDevice(printer);
-    QSizeF sizeCr=adjustedContentRect(&painter).size();
+    QSizeF sizeCr = adjustedContentRect(&painter).size();
     tempdoc_->setPageSize(sizeCr);
     // dump existing margin (if any)
     QTextFrameFormat fmt = tempdoc_->rootFrame()->frameFormat();
@@ -452,12 +446,11 @@ void TextPrinter::launchprint(QPrinter *printer)
                 if (printer->printerState() == QPrinter::Aborted || printer->printerState() == QPrinter::Error)
                     return;
                 // print page
-                paintPage(&painter, pagenum, lastpage);
                 if (pc < pagecopies-1) printer->newPage();
+                paintPage(&painter, pagenum, lastpage);
             }
             if (pagenum == lastpage) break;
             pagenum+=delta;
-            printer->newPage();
         }
         if (dc < doccopies-1) printer->newPage();
     }
@@ -508,7 +501,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
             /*! draw line between header and content */
             painter->save();
             painter->translate(0, rect.top() - spacing_ * toinchfactor_ * painter->device()->logicalDpiY());
-            painter->setPen(QPen(Qt::black, headerlinepenwidth_ * onepoint));               // choisit le format du pinceau
+            painter->setPen(QPen(Qt::blue, headerlinepenwidth_ * onepoint));               // choisit le format du pinceau
             painter->drawLine(rect.bottomLeft(),rect.bottomRight());                       // trace une ligne depuis le bas à gauche au bas à droite de l'en-tête
             painter->restore();
         }

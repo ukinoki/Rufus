@@ -1578,8 +1578,7 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
     /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
      *  pour pouvoir les afficher ou les imprimer
 
-   * \param afficher = true -> la fonction est appelée par Slot_AfficheDoc(), on utilise la table impressions
-     *      typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
+   * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
      *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
      *                          Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
      *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
@@ -1626,14 +1625,17 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
                 ba = getFileFromServer(fullFilename);
             }
         }
-        if (ba.size()==0)    // le document n'est pas enregistré sur le disque, on va le chercher dans la tabimpressions
+        if (ba.size()==0)    //! le document n'est pas enregistré sur le disque, on va le chercher dans la table impressions
             ba=getFileFromSQL(docmt);
         if (ba.size())
             docmt->setimageblob(ba);
         break;
+
     case Text:
         //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
         QString Entete  = docmt->textentete();
+
+        //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
         if (Utils::epureFontFamily(Entete) || Utils::corrigeErreurHtmlEntete(Entete, docmt->isALD()))
             ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
         QString Corps   = docmt->textcorps();
@@ -1642,20 +1644,22 @@ void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc 
         QString Pied    = docmt->textpied();
         if (Utils::epureFontFamily(Pied))
             ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, Pied);
+
+        //! émission du pdf
         QTextEdit   *Etat_textEdit = new UpTextEdit;
-        Etat_textEdit->setText(Corps);
+        Etat_textEdit   ->setText(Corps);
         TextPrinter *TexteAImprimer = new TextPrinter();
+        TexteAImprimer  ->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
+        TexteAImprimer  ->setHeaderText(Entete);
         if (docmt->format() == PRESCRIPTIONLUNETTES)
             TexteAImprimer->setFooterSize(TaillePieddePageOrdoLunettes());
         else
             TexteAImprimer->setFooterSize(TaillePieddePage());
-        TexteAImprimer->setHeaderText(Entete);
-        TexteAImprimer->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
-        TexteAImprimer->setFooterText(Pied);
-        TexteAImprimer->setTopMargin(TailleTopMarge());
-        ba=TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
-        docmt->setimageformat(PDF);
-        docmt->setimageblob(ba);
+        TexteAImprimer  ->setFooterText(Pied);
+        TexteAImprimer  ->setTopMargin(TailleTopMarge());
+        ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+        docmt           ->setimageformat(PDF);
+        docmt           ->setimageblob(ba);
         break;
     }
 }
@@ -1697,7 +1701,7 @@ void Procedures::CalcImageFacture(Depense *dep)
         }
         else
         {
-            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
+            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
             ba = getFileFromServer(fullFilename);
         }
     }
