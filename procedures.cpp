@@ -1691,7 +1691,7 @@ void Procedures::CalcImageFacture(Depense *dep)
             else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
                 dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
             else return;
-            QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+            QFile fileimg(dossierimagerie + NOM_DIR_FACTURES + filename);
             if (fileimg.open(QIODevice::ReadOnly))
             {
                 ba = fileimg.readAll();

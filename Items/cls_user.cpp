@@ -61,7 +61,7 @@ void User::setData(QJsonObject data)
     Utils::setDataInt(data, CP_IDSPECIALITE_USR, m_noSpecialite);
     Utils::setDataInt(data, CP_IDCOMPTEPARDEFAUT_USR, m_idCompteParDefaut);
     Utils::setDataInt(data, CP_IDEMPLOYEUR_USR, m_employeur);
-    Utils::setDataInt(data, CP_ISMEDECIN_USR, m_medecin);
+    Utils::setDataBool(data, CP_ISMEDECIN_USR, m_medecin);
     Utils::setDataInt(data, CP_ENREGHONORAIRES_USR, m_enregHonoraires);
     Utils::setDataInt(data, CP_SECTEUR_USR, m_secteur);
 
@@ -122,6 +122,43 @@ User::RESPONSABLE User::responsableactes() const           /*! Responsable      
     }
     return PasResponsable;
 }
+QString User::titre() const                         { return m_titre; }
+int User::numspecialite() const                     { return m_noSpecialite; }
+QString User::specialite() const                    { return m_specialite; }
+qlonglong User::NumPS() const                       { return m_numPS; }
+QString User::numOrdre() const                      { return m_numCO; }
+bool User::isAGA() const                            { return m_AGA; }
+int User::idemployeur() const                       { return m_employeur; }
+
+QString User::fonction() const                      { return m_fonction; }
+int User::secteurconventionnel() const              { return m_secteur; }
+QString User::mail() const                          { return m_mail; }
+QString User::portable() const                      { return m_portable; }
+
+bool User::isOPTAM()                                { return m_OPTAM; }
+bool User::useCotationsActes()                      { return m_cotationactes; }
+
+bool User::isSecretaire()                           { return m_droits == SECRETAIRE; }
+bool User::isAutreFonction()                        { return m_droits == AUTREFONCTION; }
+bool User::isMedecin()                              { return m_medecin; }
+bool User::isOpthalmo()                             { return metier() == Ophtalmo; }
+bool User::isOrthoptist()                           { return metier() == Orthoptiste; }
+bool User::isAutreSoignant()                        { return metier() == AutreSoignant; }
+bool User::isNonSoignant()                          { return metier() == NonSoignant; }
+bool User::isSocComptable()                         { return metier() == SocieteComptable; }
+bool User::isNeutre()                               { return metier() == Neutre; }
+bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
+bool User::isLiberal()                              { return statutcomptable() == Liberal; }
+bool User::isLiberalSEL()                           { return statutcomptable() == LiberalSEL; }
+bool User::isSoignantSalarie()                      { return isSoignant() && statutcomptable() == Salarie; }
+bool User::isRemplacant()                           { return statutcomptable() == Remplacant; }
+bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
+bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
+bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
+bool User::isDesactive()                            { return m_desactive; }
+
+
+bool User::isComptableActes()                       { return isLiberal() || isSocComptable(); }
 User::STATUT_COMPTABLE User::statutcomptable() const
 {
     switch (m_enregHonoraires) {
@@ -134,51 +171,12 @@ User::STATUT_COMPTABLE User::statutcomptable() const
     }
     return NoCompta;
 }
-QString User::titre() const                         { return m_titre; }
-int User::numspecialite() const                     { return m_noSpecialite; }
-QString User::specialite() const                    { return m_specialite; }
-qlonglong User::NumPS() const                       { return m_numPS; }
-QString User::numOrdre() const                      { return m_numCO; }
-bool User::isAGA() const                            { return m_AGA; }
-int User::idemployeur() const                       { return m_employeur; }
-int User::idcompteencaissementhonoraires() const    { return m_idCompteEncaissHonoraires; }
-
-QString User::fonction() const                      { return m_fonction; }
-int User::secteurconventionnel() const              { return m_secteur; }
 int User::idcomptepardefaut() const                 { return m_idCompteParDefaut; }
-QString User::mail() const                          { return m_mail; }
-QString User::portable() const                      { return m_portable; }
-
-bool User::isOPTAM()                                { return m_OPTAM; }
-bool User::useCotationsActes()                      { return m_cotationactes; }
-
-bool User::isSecretaire()                           { return m_droits == SECRETAIRE; }
-bool User::isAutreFonction()                        { return m_droits == AUTREFONCTION; }
-bool User::isMedecin()                              { return m_medecin == 1; }
-bool User::isOpthalmo()                             { return metier() == Ophtalmo; }
-bool User::isOrthoptist()                           { return metier() == Orthoptiste; }
-bool User::isAutreSoignant()                        { return metier() == AutreSoignant; }
-bool User::isNonSoignant()                          { return metier() == NonSoignant; }
-bool User::isSocComptable()                         { return metier() == SocieteComptable; }
-bool User::isNeutre()                               { return metier() == Neutre; }
-bool User::isComptableActes()                       { return isLiberal() || isSocComptable(); }
-bool User::isSoignant()                             { return isOpthalmo() || isOrthoptist() || isAutreSoignant(); }
-bool User::isLiberal()                              { return statutcomptable() == Liberal; }
-bool User::isLiberalSEL()                           { return statutcomptable() == LiberalSEL; }
-bool User::isSoignantSalarie()                      { return isSoignant() && statutcomptable() == Salarie; }
-bool User::isRemplacant()                           { return statutcomptable() == Remplacant; }
-bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
-bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
-bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
-bool User::isDesactive()                            { return m_desactive; }
-
-
-
+int User::idcompteencaissementhonoraires() const    { return m_idCompteEncaissHonoraires; }
 QList<int> User::listecomptesbancaires(bool avecdesactive) const
 {
     return (avecdesactive? m_listidcomptesall : m_listidcomptes);
 }
-
 void User::setlistecomptesbancaires(QMap<int, bool> mapidcomptes)
 {
     if (!m_listidcomptes.isEmpty())
