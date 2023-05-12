@@ -39,6 +39,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPrinter>
 #include <QPrintPreviewDialog>
 #include <QPrintDialog>
+#include <QProgressBar>
+#include <QProgressDialog>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QSettings>

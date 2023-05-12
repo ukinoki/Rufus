@@ -30,13 +30,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaEnum>
 #include <QProcess>
 #include <QJsonObject>
+#include <QProgressBar>
+#include <QProgressDialog>
 #include <QSerialPortInfo>
 #include <QUrl>
 #include <cmath>
 #include <QStandardPaths>
 
-#include "uplineedit.h"
-#include "uplabel.h"
 #include "uptextedit.h"
 #include "upmessagebox.h"
 #include "dlg_message.h"
@@ -157,6 +157,11 @@ public:
     static QString                  getExpressionSize(qint64 size);                 //! concertit en Go, To la taille en Mo du qint64 passé en paramètre
     static bool                     mkpath(QString path);
     static void                     cleanfolder(QString path);
+    static void                     countFilesInDirRecursively(const QString dirpath, int &tot); // compte le nombre de fichiers présents dans un dossier et ses sous-dossiers
+    static void                     copyfolderrecursively(const QString origindirpath, const QString destdirpath, int &n, QProgressDialog *progress = Q_NULLPTR, QFileDevice::Permissions permissions = QFileDevice::ReadOther
+                                                                                                                                     | QFileDevice::ReadGroup
+                                                                                                                                     | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner
+                                                                                                                                     | QFileDevice::ReadUser);
     static void                     setDirPermissions(QString dirpath, QFileDevice::Permissions permissions = QFileDevice::ReadOther | QFileDevice::WriteOther
                                                                                                  | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
                                                                                                  | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
