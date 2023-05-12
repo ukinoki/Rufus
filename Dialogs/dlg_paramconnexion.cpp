@@ -196,7 +196,7 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
     QString Password = ui->MDPlineEdit->text();
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
-    if (m_connectavecloginSQL)
+    if (avecverifbase)
     {
         Login = LOGIN_SQL;
         Password = MDP_SQL;

@@ -312,10 +312,10 @@ bool Utils::epureFontFamily(QString &text)
 }
 
 /*!
-/*! * \brief Utils::corrigeErreurHtmlEntete
-/*! * \param text
-/*! * \param ALD
-/*! * \return
+ * \brief Utils::corrigeErreurHtmlEntete
+ * \param text
+ * \param ALD
+ * \return
  *  L'entête de chaque texte émis est constitué de 2 blocs contigus:
       * un bloc gauche dans lequel sont rassemblés les concernant l'émetteur du document
          * docteur Bidule
@@ -325,7 +325,7 @@ bool Utils::epureFontFamily(QString &text)
          * la date
          * le nom du patient dans les ordonnances
          * ...etc...
- * il y a donc 2 tables dont la largeur est dééterminée par les macros
+ * il y a donc 2 tables dont la largeur est déterminée par les macros
       * pour les ordonnances ALD
          * HTML_LARGEUR_ENTETE_GAUCHE_ALD
          * HTML_LARGEUR_ENTETE_DROITE_ALD
@@ -789,6 +789,59 @@ void Utils::cleanfolder(const QString DirPath)
         QFileInfo fileInfo = list.at(i);
         if (fileInfo.isDir())
             cleanfolder(fileInfo.absoluteFilePath());
+    }
+}
+
+void Utils::countFilesInDirRecursively(const QString dirpath, int &tot)
+{
+    QDir dir(dirpath);
+    if (!dir.exists())
+    return;
+    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QFileInfoList list = dir.entryInfoList();
+    for(int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.isDir())
+            countFilesInDirRecursively(fileInfo.absoluteFilePath(), tot);
+        else
+            tot++;
+    }
+}
+
+void Utils::copyfolderrecursively(const QString origindirpath, const QString destdirpath, int &n, QProgressDialog *progress, QFileDevice::Permissions permissions)
+{
+    cleanfolder(origindirpath);
+    cleanfolder(destdirpath);
+    QDir dir(origindirpath);
+    if (!dir.exists())
+        return;
+    QDir dirdest(destdirpath);
+    if (!dirdest.exists())
+        mkpath(destdirpath);
+    dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QFileInfoList list = dir.entryInfoList();
+    for(int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.isDir())
+            copyfolderrecursively(fileInfo.absoluteFilePath(), destdirpath + "/" + fileInfo.fileName(), n, progress);
+        else
+        {
+            QFile file(fileInfo.absoluteFilePath());
+            if (progress)
+            {
+                n ++;
+                progress->setLabelText(QString::number(n) + "/" + QString::number(progress->maximum()) + " " + QFileInfo(file).fileName());
+                progress->setValue(n);
+            }
+            if (file.open(QIODevice::ReadOnly))
+            {
+                QString filedestpath = destdirpath + "/" + QFileInfo(file).fileName();
+                file.copy(filedestpath);
+                QFile(filedestpath).setPermissions(permissions);
+            }
+        }
     }
 }
 

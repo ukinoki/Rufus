@@ -1399,15 +1399,11 @@ void Procedures::CalcImage(Item *item, bool imagerie)
 
      * La fonction est aussi appelée par la table dépenses pour afficher les factures
     */
-    bool isdocument = (dynamic_cast<DocExterne*>(item) != Q_NULLPTR);
-    bool isfacture  = (dynamic_cast<Depense*>(item) != Q_NULLPTR);
-    DocExterne *docmt = Q_NULLPTR;
-    Depense *dep = Q_NULLPTR;
-    if (isdocument)
-        docmt = dynamic_cast<DocExterne*>(item);
-    else if (isfacture)
-        dep = dynamic_cast<Depense*>(item);
-    else
+    DocExterne *docmt   = dynamic_cast<DocExterne*>(item);
+    Depense *dep        = dynamic_cast<Depense*>(item);
+    bool isdocument     = (docmt != Q_NULLPTR);
+    bool isfacture      = (dep != Q_NULLPTR);
+    if (!isdocument && ! isfacture)
         return;
     QString iditem;
     QString filename = "";
@@ -2535,18 +2531,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 OKRessces = true;
         if (QFile(dirtorestore.absolutePath() + NOM_FILE_INI).exists())
             OKini = true;
-        QDir rootimgvid = dirtorestore;
-        if (rootimgvid.cdUp())
+        QDir rootimg = dirtorestore;
+        if (rootimg.cdUp())
         {
             //qDebug() << rootimgvid.absolutePath() + DIR_IMAGES;
-            if (QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES).exists())
-                if (QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES).entryList(QDir::Dirs).size()>0)
+            if (QDir(rootimg.absolutePath() + NOM_DIR_IMAGES).exists())
+                if (QDir(rootimg.absolutePath() + NOM_DIR_IMAGES).entryList(QDir::Dirs).size()>0)
                     OKImages = true;
-            if (QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS).exists())
-                if (QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
+            if (QDir(rootimg.absolutePath() + NOM_DIR_VIDEOS).exists())
+                if (QDir(rootimg.absolutePath() + NOM_DIR_VIDEOS).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
                     OKVideos = true;
-            if (QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES).exists())
-                if (QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES).entryList(QDir::Dirs | QDir::NoDotAndDotDot).size()>0)
+            if (QDir(rootimg.absolutePath() + NOM_DIR_FACTURES).exists())
+                if (QDir(rootimg.absolutePath() + NOM_DIR_FACTURES).entryList(QDir::Dirs | QDir::NoDotAndDotDot).size()>0)
                     OKFactures = true;
         }
 
@@ -2579,6 +2575,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (result > 0)
         {
             emit ConnectTimers(false);
+            QFileDevice::Permissions permissions = QFileDevice::ReadOther  | QFileDevice::WriteOther
+                                                 | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
+                                                 | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner;
             foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
             {
                 /*! 4a - restauration de la base de données */
@@ -2694,9 +2693,23 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString Msg = (tr("Restauration des fichiers d'imagerie\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-                            QDir dirrestaureimagerie    = QDir(rootimgvid.absolutePath() + NOM_DIR_IMAGES);
-                            QString task  = "cp -R \"" + QDir::toNativeSeparators(dirrestaureimagerie.absolutePath()) + "\" \"" + NomDirStockageImagerie + "\"";
-                            QProcess::execute(task);
+                            QString dirrestaureimagerie    = rootimg.absolutePath() + NOM_DIR_IMAGES;
+                            int t = 0;
+                            Utils::countFilesInDirRecursively(dirrestaureimagerie, t);
+                            QProgressDialog *progdial = new QProgressDialog(parent);
+                            QLabel *label = new QLabel();
+                            label->setAlignment(Qt::AlignLeft);
+                            progdial->setLabel(label);
+                            QProgressBar *bar = new QProgressBar();
+                            progdial->setBar(bar);
+                            progdial->setRange(0,t);
+                            progdial->setCancelButton(Q_NULLPTR);
+                            progdial->show();
+                            progdial->setWindowModality(Qt::WindowModal);
+                            int n = 0;
+                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, progdial, permissions);
+                            progdial->close();
+                            delete progdial;
                             msg += tr("Fichiers d'imagerie restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers d'imagerie restaurés"), Icons::icSunglasses(), 3000);
                         }
@@ -2722,9 +2735,23 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString Msg = (tr("Restauration des factures\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-                            QDir dirrestaurefactures    = QDir(rootimgvid.absolutePath() + NOM_DIR_FACTURES);
-                            QString task = "cp -R \"" + QDir::toNativeSeparators(dirrestaurefactures.absolutePath()) + "\" \"" + NomDirStockageImagerie + "\"";
-                            QProcess::execute(task);
+                            QString dirrestaurefactures    = rootimg.absolutePath() + NOM_DIR_FACTURES;
+                            int t = 0;
+                            Utils::countFilesInDirRecursively(dirrestaurefactures, t);
+                            QProgressDialog *progdial = new QProgressDialog(parent);
+                            QLabel *label = new QLabel();
+                            label->setAlignment(Qt::AlignLeft);
+                            progdial->setLabel(label);
+                            QProgressBar *bar = new QProgressBar();
+                            progdial->setBar(bar);
+                            progdial->setRange(0,t);
+                            progdial->setCancelButton(Q_NULLPTR);
+                            progdial->show();
+                            progdial->setWindowModality(Qt::WindowModal);
+                            int n = 0;
+                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, progdial, permissions);
+                            progdial->close();
+                            delete progdial;
                             msg += tr("Fichiers factures restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers factures restaurés"), Icons::icSunglasses(), 3000);
                         }
@@ -2750,9 +2777,23 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString Msg = (tr("Restauration des fichiers videos\n")
                                            + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-                            QDir dirrestaurevideo = QDir(rootimgvid.absolutePath() + NOM_DIR_VIDEOS);
-                            QString task = "cp -R \"" + QDir::toNativeSeparators(dirrestaurevideo.absolutePath()) + "\" \"" + NomDirStockageImagerie + "\"";
-                            QProcess::execute(task);
+                            QString dirrestaurevideo = rootimg.absolutePath() + NOM_DIR_VIDEOS;
+                            int t = 0;
+                            Utils::countFilesInDirRecursively(dirrestaurevideo, t);
+                            QProgressDialog *progdial = new QProgressDialog(parent);
+                            QLabel *label = new QLabel();
+                            label->setAlignment(Qt::AlignLeft);
+                            progdial->setLabel(label);
+                            QProgressBar *bar = new QProgressBar();
+                            progdial->setBar(bar);
+                            progdial->setRange(0,t);
+                            progdial->setCancelButton(Q_NULLPTR);
+                            progdial->show();
+                            progdial->setWindowModality(Qt::WindowModal);
+                            int n = 0;
+                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, progdial, permissions);
+                            progdial->close();
+                            delete progdial;
                             msg += tr("Fichiers videos restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers videos restaurés"), Icons::icSunglasses(), 3000);
                         }
