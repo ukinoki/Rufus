@@ -866,7 +866,7 @@ void Utils::countFilesInDirRecursively(const QString dirpath, int &tot)
     }
 }
 
-void Utils::copyfolderrecursively(const QString origindirpath, const QString destdirpath, int &n, QProgressDialog *progress, QFileDevice::Permissions permissions)
+void Utils::copyfolderrecursively(const QString origindirpath, const QString destdirpath, int &n, QString firstline, QProgressDialog *progress, QFileDevice::Permissions permissions)
 {
     cleanfolder(origindirpath);
     cleanfolder(destdirpath);
@@ -882,14 +882,18 @@ void Utils::copyfolderrecursively(const QString origindirpath, const QString des
     {
         QFileInfo fileInfo = list.at(i);
         if (fileInfo.isDir())
-            copyfolderrecursively(fileInfo.absoluteFilePath(), destdirpath + "/" + fileInfo.fileName(), n, progress);
+            copyfolderrecursively(fileInfo.absoluteFilePath(), destdirpath + "/" + fileInfo.fileName(), n, firstline, progress);
         else
         {
             QFile file(fileInfo.absoluteFilePath());
             if (progress)
             {
                 n ++;
-                progress->setLabelText(QString::number(n) + "/" + QString::number(progress->maximum()) + " " + QFileInfo(file).fileName());
+                QString text = firstline;
+                if (text != QString())
+                    text += "\n";
+                text += QString::number(n) + "/" + QString::number(progress->maximum()) + " " + QFileInfo(file).fileName();
+                progress->setLabelText(text);
                 progress->setValue(n);
             }
             if (file.open(QIODevice::ReadOnly))

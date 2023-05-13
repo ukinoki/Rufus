@@ -1225,7 +1225,7 @@ void dlg_param::startImmediateBackup()
     if (url == QUrl())
         return;
     if (QDir(url.path()).exists())
-        proc->ImmediateBackup(url.path(), false, true, this);
+        proc->ImmediateBackup(url.path(), false, false, this);
 }
 
 void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)

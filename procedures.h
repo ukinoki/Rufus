@@ -66,6 +66,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlg_identificationuser.h>
 #include <ui_dlg_identificationuser.h>
 #include <dlg_message.h>
+#include "upprogressdialog.h"
 #include <uptextedit.h>
 #include <uptoolbar.h>
 #include <upmessagebox.h>
@@ -414,13 +415,11 @@ signals:
                                 /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
-        void                    DefinitScriptBackup(QString pathdirdestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
+        void                    DefinitScriptBackup(QString pathdirdestination);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         int                     ExecuteScriptSQL(QStringList ListScripts);
                                 /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.) */
-        void                    BackupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
-signals:
-        void                    backupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
+        void                    BackupDossiers(QString dirdestination, bool factures = true, bool images = true, bool videos = true, QWidget *parent = Q_NULLPTR);
 
     /*! fin sauvegardes -------------------------------------------------------------------------------------------------------- */
 
