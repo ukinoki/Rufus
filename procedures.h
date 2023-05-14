@@ -415,11 +415,10 @@ signals:
                                 /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
-        void                    DefinitScriptBackup(QString pathdirdestination);
+        void                    DefinitScriptBackup(QString pathbackupbase);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         int                     ExecuteScriptSQL(QStringList ListScripts);
                                 /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.) */
-        void                    BackupDossiers(QString dirdestination, bool factures = true, bool images = true, bool videos = true, QWidget *parent = Q_NULLPTR);
 
     /*! fin sauvegardes -------------------------------------------------------------------------------------------------------- */
 

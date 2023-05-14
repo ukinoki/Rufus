@@ -396,18 +396,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         ShowMessage::I()->ClosePriorityMessage(handle);
         emit proc->ConnectTimers(true);
     };
-    if (QDir(m_parametres->dirimagerieserveur()).exists())
-    {
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES);
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES);
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS);
-    }
-    else
-    {
-        OKImages = false;
-        OKVideos = false;
-        OKFactures = false;
-    }
 
     QString msgEchec = tr("Incident pendant la sauvegarde");
     qintptr handledlg = 0;
@@ -423,11 +411,16 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     //On vide les champs blob de la table factures et la table EchangeImages
     db->StandardSQL("UPDATE " TBL_FACTURES " SET " CP_JPG_FACTURES " = null, " CP_PDF_FACTURES " = null");
     db->StandardSQL("DELETE FROM " TBL_ECHANGEIMAGES);
+    Utils::mkpath(pathdirdestination);
 
     if (OKBase)
     {
+        QString pathbackupbase = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+        Utils::mkpath(pathbackupbase);
+
+        /*! sauvegarde de la base */
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
-        DefinitScriptBackup(pathdirdestination);
+        DefinitScriptBackup(pathbackupbase);
         QString Msg = (tr("Sauvegarde de la base de données\n")
                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
@@ -445,60 +438,85 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             return true;
         });
         m_ostask.execute(task);
+
+        /*! élimination des anciennes sauvegardes */
+        QDir dir(pathdirdestination);
+        dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        QFileInfoList list = dir.entryInfoList();
+        for(int i = 0; i < list.size(); ++i)
+        {
+            QFileInfo fileInfo = list.at(i);
+            if (fileInfo.fileName().split("-").size()>0)
+            {
+                QString date    = fileInfo.fileName().split("-").at(0);
+                int year        = date.left(4).toInt();
+                int month       = date.mid(4,2).toInt();
+                int day         = date.right(2).toInt();
+                QDate birthtime = QDate(year,month,day);
+                if (birthtime.isValid())
+                    if (birthtime.daysTo(QDateTime::currentDateTime().date()) > 14)
+                    {
+                        if (fileInfo.isDir())
+                            QDir(fileInfo.absoluteFilePath()).removeRecursively();
+                        else if (fileInfo.isFile())
+                            QFile(fileInfo.absoluteFilePath()).remove();
+                    }
+            }
+        }
+
+        /*! sauvegarde de Rufus.ini et des fichiers ressources */
+        QFile file = QFile(PATH_FILE_INI);
+        Utils::copyWithPermissions(file, pathbackupbase + "/" NOM_FILE_INI);
+        int n=0;
+        Utils::copyfolderrecursively(PATH_DIR_RESSOURCES, pathbackupbase + NOM_DIR_RESSOURCES, n);
     }
     if (OKImages || OKVideos || OKFactures)
     {
-        ShowMessage::I()->ClosePriorityMessage(handledlg);
-        QDir dirdest;
-        dirdest.mkdir(pathdirdestination);
-        BackupDossiers(pathdirdestination, OKFactures, OKImages, OKVideos, parent);
+        QString dirNomSource;
+        QString dirNomDest;
+
+        if (OKFactures) {
+            dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES;
+            dirNomDest = pathdirdestination + NOM_DIR_FACTURES;
+            int t = 0;
+            Utils::countFilesInDirRecursively(dirNomSource, t);
+            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
+            progdial->show();
+            int n = 0;
+            Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des factures"), progdial);
+            delete progdial;
+        }
+        if (OKImages) {
+            dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES;
+            dirNomDest = pathdirdestination + NOM_DIR_IMAGES;
+            int t = 0;
+            Utils::countFilesInDirRecursively(dirNomSource, t);
+            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
+            progdial->show();
+            int n = 0;
+            Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des fichiers d'imagerie"), progdial);
+            delete progdial;
+        }
+        if (OKVideos) {
+            dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS;
+            dirNomDest = pathdirdestination + NOM_DIR_VIDEOS;
+            int t = 0;
+            Utils::countFilesInDirRecursively(dirNomSource, t);
+            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
+            progdial->show();
+            int n = 0;
+            Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des videos"), progdial);
+            delete progdial;
+        }
     }
     else
     {
         result(handledlg, this);
         return false;
     }
+    qintptr z = 0;
+    ShowMessage::I()->PriorityMessage(tr("Sauvegarde terminée avec succcés"),z, 5000);
     return true;
-}
-
-void Procedures::BackupDossiers(QString dirdestination, bool factures, bool images, bool videos, QWidget *parent)
-{
-    QString dirNomSource;
-    QString dirNomDest;
-
-    if (factures) {
-        dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES;
-        dirNomDest = dirdestination + NOM_DIR_FACTURES;
-        int t = 0;
-        Utils::countFilesInDirRecursively(dirNomSource, t);
-        UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-        progdial->show();
-        int n = 0;
-        Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Copie des factures"), progdial);
-        delete progdial;
-    }
-    if (images) {
-        dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES;
-        dirNomDest = dirdestination + NOM_DIR_IMAGES;
-        int t = 0;
-        Utils::countFilesInDirRecursively(dirNomSource, t);
-        UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-        progdial->show();
-        int n = 0;
-        Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Copie des fichiers d'imagerie"), progdial);
-        delete progdial;
-    }
-    if (videos) {
-        dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS;
-        dirNomDest = dirdestination + NOM_DIR_VIDEOS;
-        int t = 0;
-        Utils::countFilesInDirRecursively(dirNomSource, t);
-        UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
-        progdial->show();
-        int n = 0;
-        Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Copie des videos"), progdial);
-        delete progdial;
-    }
 }
 
 
@@ -527,164 +545,37 @@ void Procedures::BackupWakeUp()
     }
 }
 
-
+void Procedures::DefinitScriptBackup(QString pathbackupbase)
+{
+    if (!QDir(pathbackupbase).exists())
+        if (!Utils::mkpath(pathbackupbase))
+            return;
+    if (!QDir(pathbackupbase).exists())
+        return;
 #ifdef Q_OS_WIN
-void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
-{
-    if (!Utils::mkpath(pathdirdestination))
-        return;
-    if (!QDir(pathdirdestination).exists())
-        return;
     QString CRLF="\r\n";
-    // élaboration du script de backup
-    QString scriptbackup = "FOR /F \"TOKENS=1,2,3 DELIMS=/ \" %%B IN ('DATE/T') DO SET day=%%D%%C%%B";
-    scriptbackup += CRLF;
-    scriptbackup += "FOR /F \"TOKENS=1,2 DELIMS=: \" %%B IN ('TIME/T') DO SET minute=%%B%%C";
-    //# Configuration de base: datestamp e.g. YYYYMMDD
-    scriptbackup += CRLF;
-    scriptbackup += "set DATE=%day%-%minute%";
-    //# Dossier où sauvegarder les backups (créez le d'abord!)
-    scriptbackup += CRLF;
-    scriptbackup += "set BACKUP_DIR=\"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
-    //# Dossier de  ressources
-    scriptbackup += CRLF;
-    scriptbackup += "set DIR_RESSOURCES=\"" + QDir::toNativeSeparators(PATH_DIR_RESSOURCES) + "\"";
-    scriptbackup += CRLF;
-    if (QDir(m_parametres->dirimagerieserveur()).exists())
-    {
-        if (AvecImages)
-        {
-            scriptbackup += "set DIR_IMAGES=\"" + QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES) + "\"";
-            scriptbackup += CRLF;
-        }
-        if (AvecFactures)
-        {
-            scriptbackup += "set DIR_FACTURES=\"" +  QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES) + "\"";
-            scriptbackup += CRLF;
-        }
-        if (AvecVideos)
-        {
-            scriptbackup += "set DIR_VIDEOS=\"" +  QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS) + "\"";
-            scriptbackup += CRLF;
-        }
-    }
-    //# Rufus.ini
-    scriptbackup += "set RUFUSINI=\"" + QDir::toNativeSeparators(PATH_FILE_INI) + "\"";
-    //# Identifiants MySQL
-    scriptbackup += CRLF;
-    scriptbackup += "set MYSQL_USER=\"" LOGIN_SQL "\"";
-    scriptbackup += CRLF;
-    scriptbackup += "set MYSQL_PASSWORD=\"" MDP_SQL "\"";
-    //# Commandes MySQL
-    scriptbackup += CRLF;
-    QString sqlCommand = QDir::toNativeSeparators(dirSQLExecutable());
-    scriptbackup += "set MYSQL=\"" + sqlCommand + "\\mysql.exe\"";
-    scriptbackup += CRLF;
-    scriptbackup += "set MYSQLDUMP=\"" + sqlCommand +"\\mysqldump.exe\"";
-    scriptbackup += CRLF;
-
-    //# Nombre de jours à garder les dossiers (seront effacés après X jours)
-    scriptbackup += "set RETENTION=14";
-    //# Create a new directory into backup directory location for this date
-    scriptbackup += CRLF;
-    scriptbackup += "mkdir %BACKUP_DIR%/%DATE%";
-    scriptbackup += CRLF;
-    scriptbackup += CRLF;
-    //# Backup the 4 databases
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_CONSULTS " > \"%BACKUP_DIR%/%DATE%\\" DB_CONSULTS ".sql\"";
-    scriptbackup += CRLF;
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_COMPTA " > \"%BACKUP_DIR%/%DATE%\\" DB_COMPTA ".sql\"";
-    scriptbackup += CRLF;
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_OPHTA " > \"%BACKUP_DIR%/%DATE%\\" DB_OPHTA ".sql\"";
-    scriptbackup += CRLF;
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases " DB_IMAGES " > \"%BACKUP_DIR%/%DATE%\\" DB_IMAGES ".sql\"";
-
-    /*!
-    //# Bases de données MySQL à ignorer
-    scriptbackup += "set SKIPDATABASES=\"Database|information_schema|performance_schema|mysql|sys\"";
-    //# Retrieve a list of all databases
-    scriptbackup += CRLF;
-    scriptbackup += "rem set databases=`$MYSQL -u$MYSQL_USER -p$MYSQL_PASSWORD -e \"SHOW DATABASES;\" | grep -Ev \"($SKIPDATABASES)\"`";
-    scriptbackup += CRLF;
-    scriptbackup += "for /f \"tokens=*\" %%g in ('%MYSQL% -u%MYSQL_USER% -p%MYSQL_PASSWORD% -e \"SHOW DATABASES\" --skip-column-names -B') do (";
-    scriptbackup += CRLF;
-    scriptbackup += "echo %%g";
-    scriptbackup += CRLF;
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% --skip-lock-tables --events --databases %%g > \"%BACKUP_DIR%/%DATE%/%%g.sql\"";
-    scriptbackup += CRLF;
-    scriptbackup += ":next";
-    scriptbackup += CRLF;
-    scriptbackup += ")";
-    scriptbackup += CRLF;
-    //*/
-    // Sauvegarde la table des utilisateurs
-    scriptbackup += CRLF;
-    scriptbackup += "%MYSQLDUMP% --force --opt --user=%MYSQL_USER% -p%MYSQL_PASSWORD% mysql user > \"%BACKUP_DIR%/%DATE%\\user.sql\"";
-    // Detruit les anciens fichiers
-    scriptbackup += CRLF;
-    scriptbackup += "rem find %BACKUP_DIR%\\* -mtime +%RETENTION% -delete";
-    scriptbackup += CRLF;
-
-    // copie les fichiers ressources
-    scriptbackup += CRLF;
-    scriptbackup += "mkdir %BACKUP_DIR%/%DATE%\\Ressources";
-    scriptbackup += CRLF;
-    scriptbackup += "xcopy %DIR_RESSOURCES% %BACKUP_DIR%/%DATE%\\Ressources /S";
-    scriptbackup += CRLF;
-    // copie Rufus.ini
-    scriptbackup +=  "copy %RUFUSINI% %BACKUP_DIR%\\%DATE%\\";
-    scriptbackup += CRLF;
-    if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
-        QFile::remove(PATH_FILE_SCRIPTBACKUP);
-    QFile fbackup(PATH_FILE_SCRIPTBACKUP);
-    if (fbackup.open(QIODevice::ReadWrite))
-    {
-        QTextStream out(&fbackup);
-        out << scriptbackup ;
-        fbackup.close();
-    }
-}
+    QString executabledump = QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe");
+    QString scriptbackup;
 #else
-
-void Procedures::DefinitScriptBackup(QString pathdirdestination)
-{
-    if (!Utils::mkpath(pathdirdestination))
-        return;
-    if (!QDir(pathdirdestination).exists())
-        return;
-
-    QString pathdestfinale = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+    QString CRLF="\n";
     QString executabledump = QDir::toNativeSeparators(dirSQLExecutable() + "/mysqldump");
+    QString scriptbackup= "#!/bin/bash";
+    scriptbackup += CRLF;
+#endif
     // élaboration du script de backup
-    QString scriptbackup = "#!/bin/bash";
-    scriptbackup += "\n";
-    scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdestfinale) + "\"";
     // Sauvegarde des 4 bases de Rufus
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_CONSULTS " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_CONSULTS ".sql") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_COMPTA ".sql") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_IMAGES ".sql") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_OPHTA ".sql") + "\"";
-    scriptbackup += "\n";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_CONSULTS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_CONSULTS ".sql") + "\"";
+    scriptbackup += CRLF;
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
+    scriptbackup += CRLF;
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
+    scriptbackup += CRLF;
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
+    scriptbackup += CRLF;
     // Sauvegarde de la table des utilisateurs
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathdestfinale + "/user.sql") + "\"";
-    // Detruit les anciens fichiers
-    scriptbackup += "\n";
-    //# Nombre de jours à garder les dossiers (seront effacés après X jours)
-    scriptbackup += "RETENTION=14";
-    scriptbackup += "\n";
-    scriptbackup += "find " + QDir::toNativeSeparators(pathdirdestination)  + "/* -mtime +$RETENTION -delete";
-    // copie les fichiers ressources
-    scriptbackup += "\n";
-    scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdestfinale + "/Ressources") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += "cp -R -f \"" + PATH_DIR_RESSOURCES + "\" \"" + QDir::toNativeSeparators(pathdestfinale) + "\"";
-    scriptbackup += "\n";
-    // copie Rufus.ini
-    scriptbackup +=  "cp \"" + PATH_FILE_INI "\" \"" + QDir::toNativeSeparators(pathdestfinale + NOM_FILE_INI) + "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
+    scriptbackup += CRLF;
+
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
     QFile fbackup(PATH_FILE_SCRIPTBACKUP);
@@ -697,9 +588,6 @@ void Procedures::DefinitScriptBackup(QString pathdirdestination)
         fbackup.close();
     }
 }
-
-#endif
-
 
 /*!
  * \brief Procedures::sqlExecutable
