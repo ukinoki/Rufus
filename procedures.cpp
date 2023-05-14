@@ -554,7 +554,7 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
         return;
 #ifdef Q_OS_WIN
     QString CRLF="\r\n";
-    QString executabledump = QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe");
+    QString executabledump = "\"" + QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe") + "\"";
     QString scriptbackup;
 #else
     QString CRLF="\n";
