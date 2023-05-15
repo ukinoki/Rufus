@@ -412,42 +412,58 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISMEDECIN_USR " = 1,\n"
                CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n "
                CP_NUMPS_USR " = "       + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
-               CP_RESPONSABLEACTES_USR " = 1,\n";
-        if (ui->ComptaLiberalupRadioButton->isChecked())
+               CP_RESPONSABLEACTES_USR " = ";
+        if (ui->ResponsableupRadioButton->isChecked())
+            req += "1,\n";
+        else if (ui->ResponsableLes2upRadioButton->isChecked())
+            req += "2,\n";
+        else if (ui->AssistantupRadioButton->isChecked())
+            req += "3,\n";
+        if (ui->AssistantupRadioButton->isChecked())
         {
-            req += CP_DROITS_USR " = '" OPHTALIBERAL "', \n"
+            req += CP_DROITS_USR " = '" OPHTAASSISTANT "', \n"
+                   CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
+                   CP_IDEMPLOYEUR_USR " = null,\n"
+                   CP_ENREGHONORAIRES_USR " = null,\n"
+                   CP_ISAGA_USR " = null,\n";
+        }
+        else
+        {
+            if (ui->ComptaLiberalupRadioButton->isChecked())
+            {
+                req += CP_DROITS_USR " = '" OPHTALIBERAL "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 1,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n";
-            if (ui->AGAupRadioButton->isChecked())
-                req += CP_ISAGA_USR " = 1,\n";
-            else
-                req += CP_ISAGA_USR " = null,\n";
-        }
-        else if (ui->ComptaLiberalSELupRadioButton->isChecked())
-        {
-            req += CP_DROITS_USR " = '" OPHTASEL "', \n"
+                if (ui->AGAupRadioButton->isChecked())
+                    req += CP_ISAGA_USR " = 1,\n";
+                else
+                    req += CP_ISAGA_USR " = null,\n";
+            }
+            else if (ui->ComptaLiberalSELupRadioButton->isChecked())
+            {
+                req += CP_DROITS_USR " = '" OPHTASEL "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = " + ui->CompteParDefautcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 5,\n"
                        CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n";
-            if (ui->AGAupRadioButton->isChecked())
-                req += CP_ISAGA_USR " = 1,\n";
-            else
-                req += CP_ISAGA_USR " = null,\n";
-        }
-        else if (ui->ComptaNoLiberalupRadioButton->isChecked())
-            req += CP_DROITS_USR " = '" OPHTASALARIE "', \n"
+                if (ui->AGAupRadioButton->isChecked())
+                    req += CP_ISAGA_USR " = 1,\n";
+                else
+                    req += CP_ISAGA_USR " = null,\n";
+            }
+            else if (ui->ComptaNoLiberalupRadioButton->isChecked())
+                req += CP_DROITS_USR " = '" OPHTASALARIE "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
                        CP_IDEMPLOYEUR_USR " = " + ui->EmployeurcomboBox->currentData().toString() + ",\n"
                        CP_ENREGHONORAIRES_USR " = 2,\n"
                        CP_ISAGA_USR " = null,\n";
-        else if (ui->ComptaRemplaupRadioButton->isChecked())
-            req += CP_DROITS_USR " = '" OPHTAREMPLACANT "', \n"
+            else if (ui->ComptaRemplaupRadioButton->isChecked())
+                req += CP_DROITS_USR " = '" OPHTAREMPLACANT "', \n"
                        CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
                        CP_ENREGHONORAIRES_USR " = 3,\n"
                        CP_IDEMPLOYEUR_USR " = null,\n"
                        CP_ISAGA_USR " = null,\n";
-
+        }
         req += ((ui->CotationupRadioButton->isVisible() && ui->CotationupRadioButton->isChecked())?   CP_COTATION_USR " = 1,\n" : CP_COTATION_USR " = null,\n");
     }
     else if (ui->OrthoptistupRadioButton->isChecked())
@@ -523,13 +539,13 @@ void dlg_gestionusers::EnregistreUser()
                CP_NUMCO_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
                CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
-        if (ui->MedecincheckBox->isChecked() || ui->ResponsableupRadioButton->isChecked())
+        if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
         else if (ui->ResponsableLes2upRadioButton->isChecked())
             req += "2,\n";
         else if (ui->AssistantupRadioButton->isChecked())
             req += "3,\n";
-        if (!ui->MedecincheckBox->isChecked() && ui->AssistantupRadioButton->isChecked())
+        if (ui->AssistantupRadioButton->isChecked())
         {
             req += CP_DROITS_USR " = '" AUTRESOIGNANTASSISTANT "', \n"
                    CP_IDCOMPTEPARDEFAUT_USR " = null,\n"
@@ -785,6 +801,7 @@ void dlg_gestionusers::EnregistreNouvUser()
     ui->ComptagroupBox              ->setEnabled(true);
     setDataCurrentUser(idUser);
     ui->OPHupRadioButton            ->setChecked(true);
+    ui->ResponsableupRadioButton    ->setChecked(true);
     ui->ComptaLiberalupRadioButton  ->setChecked(true);
     ui->CotationupRadioButton       ->setChecked(true);
     ui->Secteur1upRadioButton       ->setChecked(true);
@@ -858,7 +875,7 @@ void dlg_gestionusers::ModifUser()
     ui->ListUserstableWidget        ->setEnabled(false);
     wdg_buttonframe                 ->setEnabled(false);
     ui->Principalframe              ->setEnabled(true);
-    ui->ModeExercicegroupBox        ->setEnabled(m_userencours->isSoignant() && !m_userencours->isMedecin());
+    ui->ModeExercicegroupBox        ->setEnabled(true);
     ui->SecteurgroupBox             ->setEnabled(true);
     ui->OPTAMupRadioButton          ->setEnabled(true);
     ui->OKupSmallButton             ->setEnabled(false);
@@ -954,9 +971,6 @@ void dlg_gestionusers::RegleAffichage()
     ui->RPPSlabel                   ->setVisible(m_responsable && db->parametres()->cotationsfrance());
     ui->RPPSupLineEdit              ->setVisible(m_responsable && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(m_soignant);
-    if (m_medecin)
-        ui->ResponsableupRadioButton->setChecked(true);
-    ui->ModeExercicegroupBox        ->setEnabled(m_soignant && !m_medecin);
     ui->CotationupRadioButton       ->setVisible(m_soignantnonremplacant);
     ui->SecteurgroupBox             ->setVisible(m_medecin && m_soignantnonremplacant && db->parametres()->cotationsfrance());
     ui->OPTAMupRadioButton          ->setVisible(m_medecin && m_soignantnonremplacant && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()) && db->parametres()->cotationsfrance());
@@ -1142,7 +1156,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     bool medecin        = m_userencours->isMedecin();
 
     bool assistant      = m_userencours->isAssistant();
-    bool responsable    = (m_userencours->isResponsable() || m_userencours->isMedecin());
+    bool responsable    = m_userencours->isResponsable();
     bool responsableles2= m_userencours->isResponsableOuAssistant();
 
     bool liberal        = m_userencours->isLiberal();
@@ -1676,7 +1690,7 @@ bool dlg_gestionusers::VerifFiche()
             return false;
         }
     }
-    if (m_medecin && ui->NumCOupLineEdit->text().isEmpty())
+    if (m_medecin && ui->NumCOupLineEdit->text().isEmpty() && db->parametres()->cotationsfrance())
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié le n° de l'Ordre!"));
         this->ui->NumCOupLineEdit->setFocus();

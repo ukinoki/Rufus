@@ -861,10 +861,10 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_SECTEUR_USR]                        = usrdata.at(20).toInt();
     userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(21).toInt();
     userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(22).toInt();
-    userData[CP_COTATION_USR]                       = (usrdata.at(23).toInt() == 1);
+    userData[CP_COTATION_USR]                           = (usrdata.at(23).toInt() == 1);
     userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
     userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
-    userData[CP_ISMEDECIN_USR]                      = (usrdata.at(26).toInt() ==1);
+    userData[CP_ISMEDECIN_USR]                      = usrdata.at(26).toInt();
     userData[CP_ISOPTAM_USR]                        = (usrdata.at(27).toInt() == 1);
     userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
     userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
@@ -885,8 +885,6 @@ QJsonObject DataBase::loadAdminData()
 void DataBase::NettoieTableUsers()
 {
     QString req = "delete from " TBL_UTILISATEURS " where " CP_LOGIN_USR " is null or " CP_NOM_USR " is null";
-    StandardSQL(req);
-    req = "update " TBL_UTILISATEURS " set " CP_RESPONSABLEACTES_USR " = 1 where " CP_ISMEDECIN_USR " = 1";
     StandardSQL(req);
 }
 
@@ -943,10 +941,10 @@ QList<User*> DataBase::loadUsers()
         userData[CP_SECTEUR_USR]                        = usrdata.at(20).toInt();
         userData[CP_SOIGNANTSTATUS_USR]                 = usrdata.at(21).toInt();
         userData[CP_RESPONSABLEACTES_USR]               = usrdata.at(22).toInt();
-        userData[CP_COTATION_USR]                       = (usrdata.at(23).toInt() == 1);
+        userData[CP_COTATION_USR]                           = (usrdata.at(23).toInt() == 1);
         userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
         userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
-        userData[CP_ISMEDECIN_USR]                      = (usrdata.at(26).toInt() == 1);
+        userData[CP_ISMEDECIN_USR]                      = usrdata.at(26).toInt();
         userData[CP_ISOPTAM_USR]                        = (usrdata.at(27).toInt() == 1);
         userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
         userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);

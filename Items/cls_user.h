@@ -26,14 +26,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * l'ensemble des informations concernant
  * une personne utilisant le logiciel
  * ex: Praticien, Secretaire, ...
- */
 
- /*! Il existe 3 sortes d'utilisateurs
+ * IL existe 3 sortes d'utilisateurs
     * les utilisateurs soignants : médecin, orthoptiste, autres
-    * les utilisateurs administratis: secrétaire, société comptable (une société comptable est une société qui va encaisser les honoraires)
-    * autres : utilisateur n'ayant accès ni aux dossiers médicaux, ni à la comptabilité :  sert pour un poste d'imagerie par exemple pour retrouver l'id d'un patient au moment d'entrer son dossier dans l'appareil d'imagerie
+    * les utilisateurs administratis: secrétaire, société comptable (une société comptable est une société qui va encaisser les honoraires  pour les redistribuer ensuite)
+    * autres : utilisateur n'ayant accès ni aux dossiers médicaux, ni à la comptabilité :  sert pour un poste d'imageire par exemple pour retourver l'id d'un patient au moment d'entrer son dossier dans l'appareil d'imagerie
 
-* Sur la plan de la comptabilité, il existe 3 situations distinctes pour chaque utilisateur
+
+ * Sur la plan de la comptabilité, il existe 3 situations distinctes pour chaque utilisateur
     * la comptabilités des actes effectués
     * la comptabilité des recettes spéciales et des dépenses.
     * Pas de comptabilité
@@ -54,6 +54,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
             * le comptable de ses actes devient le comptables actes du libéral qu'il remplace (le libéral qu'il remplacee ou la société comptable qui emploie le libéral qu'il remplace)
             * il n'a ni compatbilité des actes, ni comptabilité des dépenses ou des recettes spéciales
         * un collaborateur a le même statut qu'un libéral
+
 * Sur le plan du personnal soignant,
     * en ce qui concerne la situation vis à vis des actes médicaux
         * l'utilisateur peut être
@@ -66,17 +67,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
     * s'il est remplaçant
         * son parent est le soignant qu'il remplace
         * son statut de responsable ou non est celui du soignant qu'il remplace
-* c'est la fonction Procedures::DefinitRoleUser() qui, à l'ouveture d'une session Rufus va définir, pour l'utilisateur qui vient de ce connecter, son satut en définissant
+    * s'il est collaborateur
+        * il est son propre parent
+
+ * c'est la fonction Procedures::DefinitRoleUser() qui, à l'ouveture d'une session Rufus va définir, pour l'utilisateur qui vient de ce connecter, son satut en définissant
     * le statut médical
         * isSoigant() ou isAutreSoignant()
             * si oui
-                * isMedecin()
-                * isOrthoptiste()
-                * isRemplacant()
-                * sur le plan comptable
-                   * isLiberal()
-                   * ou isLiberalSEL()
-                   * ou isSoignantSalarie()
+                * isLiberal()
+                * ou isLiberalSEL()
+                * ou isRemplaçant()
+                * ou isCollaborateur()
+
                 * idSuperviseur()
                 * idParent()
             * si non
@@ -86,6 +88,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
     * le statut comptable
         * iscomptableactes()
         * iscomptablesnonactes()
+
+
 */
 class User : public Item
 {
@@ -102,7 +106,6 @@ public: //static
     };
     Q_DECLARE_FLAGS(ModeCompta, Compta)
     Q_ENUM(Compta)
-
     enum STATUT_COMPTABLE {Liberal, LiberalSEL, Salarie, Remplacant, NoCompta};                             Q_ENUM(STATUT_COMPTABLE)
     enum METIER {Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier, Neutre};    Q_ENUM(METIER)
     enum RESPONSABLE {Responsable, AlterneResponsablePasResponsable, PasResponsable};                       Q_ENUM(RESPONSABLE)
@@ -133,11 +136,11 @@ private:
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
 
     int m_soignant;
-    qlonglong m_numPS;
+    qlonglong m_numPS= 0;
     int m_noSpecialite;
 
     int m_employeur;
-    bool m_medecin;
+    int m_medecin;
 
     int m_enregHonoraires;
     int m_secteur;
@@ -158,41 +161,39 @@ private:
 
     QList<int> m_listidcomptesall;                  //! tous les id des comptes bancaires de l'utilisateur  y compris ceux qui sont devenus inactifs
     QList<int> m_listidcomptes;                     //! tous les id des comptes bancaires actifs de l'utilisateur
-    int m_idCompteParDefaut = 0;                    //! le compte bancaire personnel utilisé pour la comptabilité personnelle - correspond au champ CP_IDCOMPTEPARDEFAUT_USR de la table Utilisatuers
+    int m_idCompteParDefaut = 0;                    //! le compte bancaire personnel utilisé pour la comptabilité personnelle
     int m_idCompteEncaissHonoraires = 0;            //! le compte bancaire utilisé pour l'enregistrement des recettes (différent du compte personnel en cas d'exercice en société type SEL)
 
 /*!
  * les données susceptibles de varier d'une session à l'autre - ne concernent que l'utilisateur courant
  */
-    /*! ne concernant que les soignants */
 
-    int m_idSuperviseur = ROLE_INDETERMINE;     //!< son id s'il est responsable de ses actes
+    int m_idSuperviseur = ROLE_INDETERMINE;         //!< son id s'il est responsable de ses actes
                                                     //!< l'id du user assisté s'il est assistant
-    int m_idParent = ROLE_INDETERMINE;          //!< son id s'il n'est pas remplaçant
+    int m_idParent = ROLE_INDETERMINE;              //!< son id s'il n'est pas remplaçant
                                                     //!< l'id du user remplacé s'il est remplaçant
-    int m_idComptableActes = ROLE_INDETERMINE;  //!< si le  user est soignant
-                                                    //! s'il est responsable de ses actes =>
-                                                        //!< son id s'il est libéral
-                                                        //!< l'id de son employeur s'il est salarié
-                                                        //!< s'il est remplaçant (Remplacant) on lui demande qui il remplace et le user comptable devient
-                                                        //!< . celui qu'il remplace si celui qu'il remplace est libéral
-                                                        //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
+    int m_idComptableActes = ROLE_INDETERMINE;      //!< si le  user est soignant
+                                                            //! s'il est responsable de ses actes =>
+                                                            //!< son id s'il est libéral
+                                                            //!< l'id de son employeur s'il est salarié
+                                                            //!< s'il est remplaçant (retrocession) on lui demande qui il remplace et le user comptable devient
+                                                                //!< . celui qu'il remplace si celui qu'il remplace est libéral
+                                                                //!< . l'employeur de celui qu'il remplace si celui qu'il remplace est salarié
                                                     //! s'il n'est pas responsable de ses actes
-                                                        //! -2 = ROLE_VIDE - le comptable de l'acte sera enregistré au moment de l'enregistrement de la cotation
-                                                        //! ce sera l'id du user qui enregistrera la cotation
+                                                            //! -2 = ROLE_VIDE - le comptable de l'acte sera enregistré au moment de l'enregistrement de la cotation
+                                                            //! ce sera l'id du user qui enregistrera la cotation
     int m_idComptableNonActes = ROLE_INDETERMINE;   //!< si le  user est soignant
-                                                        //!< son id s'il est libéral ou liberalSEL
-                                                        //!< s'il est remplaçant ou collaborateur
-                                                            //!< ROLE_VIDE
-                                                        //!< si le  user n'est pas soignant
+                                                            //!< son id s'il est libéral ou liberalSEL
+                                                            //!< s'il est remplaçant ou collaborateur
+                                                                //!< ROLE_VIDE
+                                                    //!< si le  user n'est pas soignant
                                                             //!< son id s'il est une sociétécomptable
                                                             //!< sinon ROLE_VIDE
-    RESPONSABLE responsableactes() const;
 
 
-    /*! concernant tout le monde */
     ModeCompta m_modecompta = ComptaLess;
-    STATUT_COMPTABLE statutcomptable() const;  //!< Liberal, LiberalSEL, Salarie, Remplacant, NoCompta
+    STATUT_COMPTABLE statutcomptable() const;  //!< Liberal, Salarie, Remplaçant, Collaborateur, NoCompta
+    RESPONSABLE responsableactes() const;
 
 public:
     explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -216,14 +217,18 @@ public:
     QString nom() const;
     QString prenom() const;
     QString grandnom() const {return (m_prenom !=""? m_prenom + " " : "") + m_nom;};
-    QString mail() const;
-    QString portable() const;
     METIER metier() const;                                          //!< Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
-
+    QString titre() const;
+    int numspecialite() const;
+    QString specialite() const;
+    qlonglong NumPS() const;
+    QString numOrdre() const;
     bool isadmin() const                    { return m_login == NOM_ADMINISTRATEUR; }
     bool isAGA() const;
     void setAGA(bool aga) {m_AGA = aga;}
     int idemployeur() const;
+    int idcompteencaissementhonoraires() const;
+    void setidcompteencaissementhonoraires(int id)  { m_idCompteEncaissHonoraires = id;}
     QString fonction() const;
 
     QFont police() const {
@@ -251,49 +256,42 @@ public:
     bool    affichecommentslunettespublics() const { return m_affichecommentslunettespublics; }
     void    setaffichecommentslunettespublics(bool aff)  { m_affichecommentslunettespublics = aff; }
 
-    /*! ne concernant que les soignants */
-    qlonglong NumPS() const;
-    QString numOrdre() const;
-    QString titre() const;
-    int numspecialite() const;
-    QString specialite() const;
     int secteurconventionnel() const;
     void setsecteurconventionnel(int sectconventionnel) {m_secteur = sectconventionnel;}
+    int idcomptepardefaut() const;
+    QString mail() const;
+    QString portable() const;
+
+    QList<int> listecomptesbancaires(bool avecdesactive = false) const;
+    void       setlistecomptesbancaires(QMap<int, bool> mapidcomptes);
+
     bool isOPTAM();
     void setOPTAM(bool optam) {m_OPTAM = optam;}
     bool useCotationsActes();
-    bool isSoignant();
+
+    bool isSecretaire();
+    bool isAutreFonction();
     bool isMedecin();
     bool isOpthalmo();
     bool isOrthoptist();
     bool isAutreSoignant();
-
-    bool isRemplacant();
-    bool isResponsable();
-    bool isResponsableOuAssistant();
-    bool isAssistant();
-
-    /*! concernant les non soignants */
-    bool isSecretaire();
-    bool isAutreFonction();
     bool isNonSoignant();
     bool isSocComptable();
     bool isNeutre();
-
-    bool isDesactive();
-    void setdesactive(bool logic)                 { m_desactive = logic;
-                                                    m_data[CP_ISDESACTIVE_USR] = logic; }
-
-    /*! concernant tout le monde */
+    bool isSoignant();
     bool isComptableActes();
     bool isLiberal();
     bool isLiberalSEL();
     bool isSoignantSalarie();
-    int idcomptepardefaut() const;
-    int idcompteencaissementhonoraires() const;
-    void setidcompteencaissementhonoraires(int id)  { m_idCompteEncaissHonoraires = id;}
-    QList<int> listecomptesbancaires(bool avecdesactive = false) const;
-    void       setlistecomptesbancaires(QMap<int, bool> mapidcomptes);
+    bool isRemplacant();
+
+    bool isResponsable();
+    bool isResponsableOuAssistant();
+    bool isAssistant();
+
+    bool isDesactive();
+    void setdesactive(bool logic)               { m_desactive = logic;
+                                                  m_data[CP_ISDESACTIVE_USR] = logic; }
 
     ModeCompta setmodecomptable()               {
                                                     if(isLiberal() || isSocComptable() || isLiberalSEL())
@@ -301,7 +299,7 @@ public:
                                                     if(isLiberal() || isSocComptable())
                                                         m_modecompta.setFlag(ComptaMedicalActs);
                                                     return m_modecompta;
-    }
+                                                }
     ModeCompta modecomptable() const            { return m_modecompta;  }
 
     /*!

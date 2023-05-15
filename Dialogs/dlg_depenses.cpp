@@ -298,7 +298,7 @@ void dlg_depenses::PrintTable()
     QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
                     "</style></head>"
                     "<body LANG=\"fr-FR\" DIR=\"LTR\">"
-                    "<table width=\"" + QString::number(int(c*510)) + "\" border=\"1\"  cellspacing=\"0\" cellpadding=\"2\">";
+                    "<table width=\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
     for (int i=0;i< wdg_bigtable->rowCount(); i++)
     {
         if (!wdg_bigtable->isRowHidden(i))
@@ -340,7 +340,7 @@ void dlg_depenses::PrintTable()
 
     proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecPrevisu, AvecNumPage, true,this);
     delete Etat_textEdit;
     Etat_textEdit = Q_NULLPTR;
 

@@ -39,8 +39,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPrinter>
 #include <QPrintPreviewDialog>
 #include <QPrintDialog>
-#include <QProgressBar>
-#include <QProgressDialog>
 #include <QSerialPort>
 #include <QSerialPortInfo>
 #include <QSettings>
@@ -69,6 +67,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptextedit.h"
 #include "uptoolbar.h"
 #include "upmessagebox.h"
+#include "upprogressdialog.h"
 #include "cls_appareilimagerie.h"
 
 #include "database.h"
@@ -234,7 +233,7 @@ public:
     bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
-                                     bool AvecChoixImprimante = true);
+                                     bool AvecChoixImprimante = true, QWidget *parent = Q_NULLPTR);
             /*! b - Création d'un pdf */
     bool                    Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
 
@@ -406,14 +405,10 @@ signals:
                                 /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
-        void                    DefinitScriptBackup(QString pathdirdestination, bool AvecImages= true, bool AvecVideos = true, bool AvecFactures = true);
+        void                    DefinitScriptBackup(QString pathbackupbase);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
         int                     ExecuteSQLScript(QStringList ListScripts);
                                 /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.) */
-        void                    BackupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
-signals:
-        void                    backupDossiers(QString dirdestination, qintptr handledlg, bool factures = true, bool images = true, bool videos = true);
-
     /*! fin sauvegardes -------------------------------------------------------------------------------------------------------- */
 
 

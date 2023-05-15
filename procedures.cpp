@@ -114,7 +114,6 @@ Procedures::Procedures(QObject *parent) :
                   Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
                 - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
-    connect (this, &Procedures::backupDossiers, this, &Procedures::BackupDossiers);
 }
 
 void Procedures::ab(int i)
@@ -388,20 +387,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     auto result = [] (qintptr handle, Procedures *proc)
     {
         ShowMessage::I()->ClosePriorityMessage(handle);
-        proc->ConnectTimers(true);
+        emit proc->ConnectTimers(true);
     };
-    if (QDir(m_parametres->dirimagerieserveur()).exists())
-    {
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES);
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES);
-        Utils::cleanfolder(m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS);
-    }
-    else
-    {
-        OKImages = false;
-        OKVideos = false;
-        OKFactures = false;
-    }
 
     QString msgEchec = tr("Incident pendant la sauvegarde");
     qintptr handledlg = 0;
@@ -417,135 +404,109 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     //On vide les champs blob de la table factures et la table EchangeImages
     db->StandardSQL("UPDATE " TBL_FACTURES " SET " CP_JPG_FACTURES " = null, " CP_PDF_FACTURES " = null");
     db->StandardSQL("DELETE FROM " TBL_ECHANGEIMAGES);
+    Utils::mkpath(pathdirdestination);
 
     if (OKBase)
     {
+        QString pathbackupbase = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
+        Utils::mkpath(pathbackupbase);
+
+        /*! sauvegarde de la base */
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
-        DefinitScriptBackup(pathdirdestination, OKImages, OKVideos, OKFactures);
+        DefinitScriptBackup(pathbackupbase);
         QString Msg = (tr("Sauvegarde de la base de données\n")
-                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
+                          + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
+                       UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
         const QString msgOK = tr("Base de données sauvegardée!");
         m_controller.disconnect(SIGNAL(result(const int &)));
         connect(&m_controller, &Controller::result, this, [=](int a) {
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            if (OKImages)
-                Utils::cleanfolder(pathdirdestination + NOM_DIR_IMAGES);
-            if (OKFactures)
-                Utils::cleanfolder(pathdirdestination + NOM_DIR_FACTURES);
-            if (OKVideos)
-                Utils::cleanfolder(pathdirdestination + NOM_DIR_VIDEOS);
             result(handledlg, this);
             QFile::remove(PATH_FILE_SCRIPTBACKUP);
             return true;
         });
         m_controller.execute(task);
+
+        /*! élimination des anciennes sauvegardes */
+        QDir dir(pathdirdestination);
+        dir.setFilter(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
+        QFileInfoList list = dir.entryInfoList();
+        for(int i = 0; i < list.size(); ++i)
+        {
+            QFileInfo fileInfo = list.at(i);
+            if (fileInfo.fileName().split("-").size()>0)
+            {
+                QString date    = fileInfo.fileName().split("-").at(0);
+                int year        = date.left(4).toInt();
+                int month       = date.mid(4,2).toInt();
+                int day         = date.right(2).toInt();
+                QDate birthtime = QDate(year,month,day);
+                if (birthtime.isValid())
+                    if (birthtime.daysTo(QDateTime::currentDateTime().date()) > 14)
+                    {
+                        if (fileInfo.isDir())
+                            QDir(fileInfo.absoluteFilePath()).removeRecursively();
+                        else if (fileInfo.isFile())
+                            QFile(fileInfo.absoluteFilePath()).remove();
+                    }
+            }
+        }
+
+        /*! sauvegarde de Rufus.ini et des fichiers ressources */
+        QFile file(PATH_FILE_INI);
+        Utils::copyWithPermissions(file, pathbackupbase + "/" NOM_FILE_INI);
+        int n=0;
+        Utils::copyfolderrecursively(PATH_DIR_RESSOURCES, pathbackupbase + NOM_DIR_RESSOURCES, n);
     }
-    else if (OKImages || OKVideos || OKFactures)
+    if (OKImages || OKVideos || OKFactures)
     {
-        QDir dirdest;
-        dirdest.mkdir(pathdirdestination);
-        pathdirdestination += "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
-        emit backupDossiers(pathdirdestination, handledlg, OKFactures, OKImages, OKVideos);
+        QString dirNomSource;
+        QString dirNomDest;
+
+        if (OKFactures) {
+            dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES;
+            dirNomDest = pathdirdestination + NOM_DIR_FACTURES;
+            int t = 0;
+            Utils::countFilesInDirRecursively(dirNomSource, t);
+            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
+            progdial->show();
+            int n = 0;
+            Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des factures"), progdial);
+            delete progdial;
+        }
+        if (OKImages) {
+            dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES;
+            dirNomDest = pathdirdestination + NOM_DIR_IMAGES;
+            int t = 0;
+            Utils::countFilesInDirRecursively(dirNomSource, t);
+            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
+            progdial->show();
+            int n = 0;
+            Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des fichiers d'imagerie"), progdial);
+            delete progdial;
+        }
+        if (OKVideos) {
+            dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS;
+            dirNomDest = pathdirdestination + NOM_DIR_VIDEOS;
+            int t = 0;
+            Utils::countFilesInDirRecursively(dirNomSource, t);
+            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
+            progdial->show();
+            int n = 0;
+            Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des videos"), progdial);
+            delete progdial;
+        }
     }
     else
     {
         result(handledlg, this);
         return false;
     }
-    return true;
+    qintptr z = 0;
+    ShowMessage::I()->PriorityMessage(tr("Sauvegarde terminée avec succcés"),z, 5000);
+                                      return true;
 }
-
-void Procedures::BackupDossiers(QString dirdestination, qintptr handledlg, bool factures, bool images, bool videos)
-{
-    auto result = [] (qintptr handle, Procedures *proc)
-    {
-        ShowMessage::I()->ClosePriorityMessage(handle);
-        proc->ConnectTimers(true);
-    };
-    QString msgEchec = tr("Incident pendant la sauvegarde");
-    if (factures) {
-        QString Msg = (tr("Sauvegarde des factures\n")
-                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + " " + dirdestination;
-        const QString msgOK = tr("Fichiers factures sauvegardés!");
-        m_controller.disconnect(SIGNAL(result(const int &)));
-        connect(&m_controller,
-                &Controller::result,
-                this,
-                [=, &factures](int a) {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            Utils::cleanfolder(dirdestination + NOM_DIR_FACTURES);
-            factures = false;
-            //qDebug() << "factures" << factures << images << videos;
-            if (!images && !videos)
-            {
-                result(handledlg, this);
-                return;
-            }
-            else
-                emit backupDossiers(dirdestination, handledlg, false, images, videos);
-        });
-        m_controller.execute(task);
-        return;
-    }
-    else if (images) {
-        QString Msg = (tr("Sauvegarde des fichiers d'imagerie\n")
-                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R \"" + QDir::toNativeSeparators(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES) + "\" \"" + dirdestination + "\"";
-        const QString msgOK = tr("Fichiers d'imagerie sauvegardés!");
-        m_controller.disconnect(SIGNAL(result(const int &)));
-        connect(&m_controller,
-                &Controller::result,
-                this,
-                [=, &images](int a) {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            Utils::cleanfolder(dirdestination + NOM_DIR_IMAGES);
-            images = false;
-            //qDebug() << "images" << factures << images << videos;
-            if (!factures && !videos)
-            {
-                result(handledlg, this);
-                return;
-            }
-            else
-                emit backupDossiers(dirdestination, handledlg, factures, false, videos);
-        });
-        m_controller.execute(task);
-        return;
-    }
-    else if (videos) {
-        QString Msg = (tr("Sauvegarde des videos\n")
-                       + tr("Ce processus peut durer plusieurs minutes en fonction de la taille des fichiers"));
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
-        const QString task = "cp -R " + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + " " + dirdestination;
-        const QString msgOK = tr("Fichiers videos sauvegardés!");
-        m_controller.disconnect(SIGNAL(result(const int &)));
-        connect(&m_controller,
-                &Controller::result,
-                this,
-                [=, &videos](int a) {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            Utils::cleanfolder(dirdestination + NOM_DIR_VIDEOS);
-            //qDebug() << "videos" << factures << images << videos;
-            videos = false;
-            if (!images && !factures)
-            {
-                result(handledlg, this);
-                return;
-            }
-            else
-                emit backupDossiers(dirdestination, handledlg, factures, images, false);
-        });
-        m_controller.execute(task);
-       return;
-    }
-    result(handledlg, this);
-}
-
 
 void Procedures::BackupWakeUp()
 {
@@ -572,72 +533,31 @@ void Procedures::BackupWakeUp()
     }
 }
 
-void Procedures::DefinitScriptBackup(QString pathdirdestination, bool AvecImages, bool AvecVideos, bool AvecFactures)
+void Procedures::DefinitScriptBackup(QString pathbackupbase)
 {
-    if (!Utils::mkpath(pathdirdestination))
+    if (!QDir(pathbackupbase).exists())
+        if (!Utils::mkpath(pathbackupbase))
+            return;
+    if (!QDir(pathbackupbase).exists())
         return;
-    if (!QDir(pathdirdestination).exists())
-        return;
-
-    QString pathdestfinale = pathdirdestination + "/" + QDateTime::currentDateTime().toString("yyyyMMdd-HHmm");
-    QString executable = QDir::toNativeSeparators(dirSQLExecutable() + "/mysql");
+    QString CRLF="\n";
     QString executabledump = QDir::toNativeSeparators(dirSQLExecutable() + "/mysqldump");
+    QString scriptbackup= "#!/bin/bash";
+    scriptbackup += CRLF;
     // élaboration du script de backup
-    QString scriptbackup = "#!/bin/bash";
-    scriptbackup += "\n";
-    scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdestfinale) + "\"";
     // Sauvegarde des 4 bases de Rufus
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_CONSULTS " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_CONSULTS ".sql") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_COMPTA ".sql") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_IMAGES ".sql") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathdestfinale + "/" DB_OPHTA ".sql") + "\"";
-    scriptbackup += "\n";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_CONSULTS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_CONSULTS ".sql") + "\"";
+    scriptbackup += CRLF;
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
+    scriptbackup += CRLF;
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
+    scriptbackup += CRLF;
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
+    scriptbackup += CRLF;
     // Sauvegarde de la table des utilisateurs
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathdestfinale + "/user.sql") + "\"";
-    // Detruit les anciens fichiers
-    scriptbackup += "\n";
-    //# Nombre de jours à garder les dossiers (seront effacés après X jours)
-    scriptbackup += "RETENTION=14";
-    scriptbackup += "\n";
-    scriptbackup += "find " + QDir::toNativeSeparators(pathdirdestination)  + "/* -mtime +$RETENTION -delete";
-    // copie les fichiers ressources
-    scriptbackup += "\n";
-    scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdestfinale + "/Ressources") + "\"";
-    scriptbackup += "\n";
-    scriptbackup += "cp -R -f \"" + PATH_DIR_RESSOURCES + "\" \"" + QDir::toNativeSeparators(pathdestfinale) + "\"";
-    scriptbackup += "\n";
-    if (QDir(m_parametres->dirimagerieserveur()).exists())
-    {
-        //! copie les fichiers image
-        if (AvecImages)
-        {
-            scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdirdestination + NOM_DIR_IMAGES) + "\"";
-            scriptbackup += "\n";
-            scriptbackup += "cp -R -f \"" + m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + "\" \"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
-            scriptbackup += "\n";
-        }
-        if (AvecFactures)
-        {
-            scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdirdestination + NOM_DIR_FACTURES) + "\"";
-            scriptbackup += "\n";
-            scriptbackup += "cp -R -f \"" + m_parametres->dirimagerieserveur() + NOM_DIR_FACTURES + "\" \"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
-            scriptbackup += "\n";
-        }
-        //! copie les fichiers video
-        if (AvecVideos)
-        {
-            scriptbackup += "mkdir -p \"" + QDir::toNativeSeparators(pathdirdestination + NOM_DIR_VIDEOS) + "\"";
-            scriptbackup += "\n";
-            scriptbackup += "cp -R -f \"" + m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS + "\" \"" + QDir::toNativeSeparators(pathdirdestination) + "\"";
-            scriptbackup += "\n";
-        }
-    }
-    // copie Rufus.ini
-    scriptbackup +=  "cp \"" + PATH_FILE_INI "\" \"" + QDir::toNativeSeparators(pathdestfinale + NOM_FILE_INI) + "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
+    scriptbackup += CRLF;
+
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
     QFile fbackup(PATH_FILE_SCRIPTBACKUP);
@@ -959,79 +879,6 @@ void Procedures::ParamAutoBackup()
                                   * C'est de la bidouille, je sais */
     connect(&t_timerbackup, &TimerController::timeout, this, [=] {BackupWakeUp();});
 
-    /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
-#ifdef Q_OS_MACX
-    DefinitScriptBackup(m_parametres->dirbkup());
-    // elaboration de rufus.bup.plist
-    QString heure   = m_parametres->heurebkup().toString("H");
-    QString minute  = m_parametres->heurebkup().toString("m");
-    QString jourprg = "\t\t<array>\n";
-    QString debutjour =
-        "\t\t\t<dict>\n"
-        "\t\t\t\t<key>Weekday</key>\n"
-        "\t\t\t\t<integer>";
-    QString finjour =
-        "</integer>\n"
-        "\t\t\t\t<key>Hour</key>\n"
-        "\t\t\t\t<integer>"+ heure + "</integer>\n"
-        "\t\t\t\t<key>Minute</key>\n"
-        "\t\t\t\t<integer>" + minute + "</integer>\n"
-        "\t\t\t</dict>\n";
-    if (m_parametres->daysbkup().testFlag(Utils::Lundi))
-        jourprg += debutjour + "1" + finjour;
-    if (m_parametres->daysbkup().testFlag(Utils::Mardi))
-        jourprg += debutjour + "2" + finjour;
-    if (m_parametres->daysbkup().testFlag(Utils::Mercredi))
-        jourprg += debutjour + "3" + finjour;
-    if (m_parametres->daysbkup().testFlag(Utils::Jeudi))
-        jourprg += debutjour + "4" + finjour;
-    if (m_parametres->daysbkup().testFlag(Utils::Vendredi))
-        jourprg += debutjour + "5" + finjour;
-    if (m_parametres->daysbkup().testFlag(Utils::Samedi))
-        jourprg += debutjour + "6" + finjour;
-    if (m_parametres->daysbkup().testFlag(Utils::Dimanche))
-        jourprg += debutjour + "7" + finjour;
-    jourprg += "\t\t</array>\n";
-
-    QString plist = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n"
-                    "<!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">\n"
-                    "<plist version=\"1.0\">\n"
-                        "\t<dict>\n"
-                            "\t\t<key>Label</key>\n"
-                            "\t\t<string>rufus.backup</string>\n"
-                            "\t\t<key>disabled</key>\n"
-                            "\t\t<false/>\n"
-                            "\t\t<key>ProgramArguments</key>\n"
-                            "\t\t<array>\n"
-                                "\t\t\t<string>bash</string>\n"
-                                "\t\t\t<string>" + PATH_FILE_SCRIPTBACUP + "</string>\n"
-                            "\t\t</array>\n"
-                            "\t\t<key>StartCalendarInterval</key>\n"
-                            + jourprg +
-                        "\t</dict>\n"
-                    "</plist>\n";
-    if (QFile::exists(PATH_FILE_SCRIPT_MACOS_PLIST))
-        QFile::remove(PATH_FILE_SCRIPT_MACOS_PLIST);
-    QFile fplist(PATH_FILE_SCRIPT_MACOS_PLIST);
-    if (fplist.open(QIODevice::ReadWrite))
-    {
-        QTextStream out(&fplist);
-        out << plist;
-        fplist.close();
-    }
-
-    // relance du launchd
-    QString unload  = "bash -c \"/bin/launchctl unload \"" + QDir::homePath();
-    unload += SCRIPT_MACOS_PLIST_FILE "\"\"";
-    QString load    = "bash -c \"/bin/launchctl load \""   + QDir::homePath();
-    load += SCRIPT_MACOS_PLIST_FILE "\"\"";
-    QProcess dumpProcess(parent());
-    dumpProcess.start(unload);
-    dumpProcess.waitForFinished();
-    dumpProcess.start(load);
-    dumpProcess.waitForFinished();
-#endif
-*/
 }
 
 void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné parce qu'il continue à fonctionner même en cas de plantage du programme */
@@ -1309,10 +1156,10 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 }
 
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
-                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
+                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante, QWidget* parent)
 {
     //AvecPrevisu = true;
-    TextPrinter *TexteAImprimer = new TextPrinter();
+    TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QString PiedDepart = Pied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
     TexteAImprimer->setHeaderText(EnTete);
@@ -1399,11 +1246,15 @@ void Procedures::CalcImage(Item *item, bool imagerie)
 
      * La fonction est aussi appelée par la table dépenses pour afficher les factures
     */
-    DocExterne *docmt   = dynamic_cast<DocExterne*>(item);
-    Depense *dep        = dynamic_cast<Depense*>(item);
-    bool isdocument     = (docmt != Q_NULLPTR);
-    bool isfacture      = (dep != Q_NULLPTR);
-    if (!isdocument && ! isfacture)
+    bool isdocument = (dynamic_cast<DocExterne*>(item) != Q_NULLPTR);
+    bool isfacture  = (dynamic_cast<Depense*>(item) != Q_NULLPTR);
+    DocExterne *docmt = Q_NULLPTR;
+    Depense *dep = Q_NULLPTR;
+    if (isdocument)
+        docmt = dynamic_cast<DocExterne*>(item);
+    else if (isfacture)
+        dep = dynamic_cast<Depense*>(item);
+    else
         return;
     QString iditem;
     QString filename = "";
@@ -2574,10 +2425,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         int result = dlg_buprestore->exec();
         if (result > 0)
         {
-            emit ConnectTimers(false);
             QFileDevice::Permissions permissions = QFileDevice::ReadOther  | QFileDevice::WriteOther
-                                                 | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
-                                                 | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner;
+                                                   | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
+                                                   | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner;
+            emit ConnectTimers(false);
             foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
             {
                 /*! 4a - restauration de la base de données */
@@ -2666,9 +2517,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     {
                         PremierParametrageRessources();
                         UpMessageBox::Watch(parent, tr("Les fichiers ressources d'origine ont été restaurés"),
-                                            tr("Si vous aviez personnalisé ces fichiers") + "\n" +
-                                            tr("il vous faudra les restaurer à partir du dossier") + "\n" +
-                                            dirtorestore.absolutePath() + PATH_DIR_RESSOURCES);
+                                                    tr("Si vous aviez personnalisé ces fichiers") + "\n" +
+                                                    tr("il vous faudra les restaurer à partir du dossier") + "\n" +
+                                                    dirtorestore.absolutePath() + PATH_DIR_RESSOURCES);
                         msg += tr("Fichiers de ressources d'impression restaurés\n");
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers de ressources d'impression restaurés"), Icons::icSunglasses(), 3000);
                     }
@@ -2691,26 +2542,16 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         else
                         {
                             QString Msg = (tr("Restauration des fichiers d'imagerie\n")
-                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
+                                         + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaureimagerie    = rootimg.absolutePath() + NOM_DIR_IMAGES;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaureimagerie, t);
-                            QProgressDialog *progdial = new QProgressDialog(parent);
-                            QLabel *label = new QLabel();
-                            label->setAlignment(Qt::AlignLeft);
-                            progdial->setLabel(label);
-                            QProgressBar *bar = new QProgressBar();
-                            progdial->setBar(bar);
-                            progdial->setRange(0,t);
-                            progdial->setCancelButton(Q_NULLPTR);
+                            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
-                            progdial->setWindowModality(Qt::WindowModal);
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, progdial, permissions);
-                            progdial->close();
-                            delete progdial;
-                            msg += tr("Fichiers d'imagerie restaurés\n");
+                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, tr("Copie des fichiers d'imagerie"), progdial);
+                            delete progdial;                            msg += tr("Fichiers d'imagerie restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers d'imagerie restaurés"), Icons::icSunglasses(), 3000);
                         }
                     }
@@ -2733,26 +2574,16 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         else
                         {
                             QString Msg = (tr("Restauration des factures\n")
-                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
+                                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaurefactures    = rootimg.absolutePath() + NOM_DIR_FACTURES;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurefactures, t);
-                            QProgressDialog *progdial = new QProgressDialog(parent);
-                            QLabel *label = new QLabel();
-                            label->setAlignment(Qt::AlignLeft);
-                            progdial->setLabel(label);
-                            QProgressBar *bar = new QProgressBar();
-                            progdial->setBar(bar);
-                            progdial->setRange(0,t);
-                            progdial->setCancelButton(Q_NULLPTR);
+                            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
-                            progdial->setWindowModality(Qt::WindowModal);
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, progdial, permissions);
-                            progdial->close();
-                            delete progdial;
-                            msg += tr("Fichiers factures restaurés\n");
+                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, tr("Copie des factures"), progdial);
+                            delete progdial;                            msg += tr("Fichiers factures restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers factures restaurés"), Icons::icSunglasses(), 3000);
                         }
                     }
@@ -2780,19 +2611,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             QString dirrestaurevideo = rootimg.absolutePath() + NOM_DIR_VIDEOS;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurevideo, t);
-                            QProgressDialog *progdial = new QProgressDialog(parent);
-                            QLabel *label = new QLabel();
-                            label->setAlignment(Qt::AlignLeft);
-                            progdial->setLabel(label);
-                            QProgressBar *bar = new QProgressBar();
-                            progdial->setBar(bar);
-                            progdial->setRange(0,t);
-                            progdial->setCancelButton(Q_NULLPTR);
+                            UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
-                            progdial->setWindowModality(Qt::WindowModal);
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, progdial, permissions);
-                            progdial->close();
+                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, tr("Copie des videos"), progdial);
                             delete progdial;
                             msg += tr("Fichiers videos restaurés\n");
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers videos restaurés"), Icons::icSunglasses(), 3000);

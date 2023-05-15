@@ -23,7 +23,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QFileDialog>
 #include <QJsonDocument>
-#include <QProgressDialog>
 #include <QRegExp>
 #include <QHostAddress>
 #include <QNetworkInterface>
@@ -42,10 +41,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "dlg_message.h"
 #include "poppler-qt5.h"
+#include "upprogressdialog.h"
 
 #include <QInputDialog>
 #include <QCoreApplication>
 #include <QEventLoop>
+#include <QProgressDialog>
 #include <QSerialPort>
 #include <QTime>
 
@@ -145,10 +146,14 @@ public:
     static bool                     mkpath(QString path);
     static void                     cleanfolder(QString path);
     static void                     countFilesInDirRecursively(const QString dirpath, int &tot); // compte le nombre de fichiers présents dans un dossier et ses sous-dossiers
-    static void                     copyfolderrecursively(const QString origindirpath, const QString destdirpath, int &n, QProgressDialog *progress = Q_NULLPTR, QFileDevice::Permissions permissions = QFileDevice::ReadOther
-                                                                                                                                     | QFileDevice::ReadGroup
-                                                                                                                                     | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner
-                                                                                                                                     | QFileDevice::ReadUser);
+    static void                     copyfolderrecursively(const QString origindirpath, const QString destdirpath,
+                                      int &n,
+                                      QString firstline = QString(),
+                                      QProgressDialog *progress = Q_NULLPTR,
+                                      QFileDevice::Permissions permissions = QFileDevice::ReadOther
+                                                                             | QFileDevice::ReadGroup
+                                                                             | QFileDevice::ReadOwner  | QFileDevice::WriteOwner | QFileDevice::ExeOwner
+                                                                             | QFileDevice::ReadUser);
     static void                     setDirPermissions(QString dirpath, QFileDevice::Permissions permissions = QFileDevice::ReadOther | QFileDevice::WriteOther
                                                                                           | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
                                                                                           | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
