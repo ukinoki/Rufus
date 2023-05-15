@@ -419,14 +419,19 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
                        UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
         const QString msgOK = tr("Base de données sauvegardée!");
-        m_controller.disconnect(SIGNAL(result(const int &)));
-        connect(&m_controller, &Controller::result, this, [=](int a) {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
-            result(handledlg, this);
-            QFile::remove(PATH_FILE_SCRIPTBACKUP);
-            return true;
-        });
-        m_controller.execute(task);
+        QProcess backupProcess;
+        backupProcess.start(task);
+        backupProcess.waitForFinished(1000000000);
+        int a = 0;
+        result(handledlg, this);
+        if (backupProcess.exitStatus() == QProcess::NormalExit)
+            a = backupProcess.exitCode();
+        if (a != 0)
+        {
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la sauvegarde de la basee"), Icons::icSunglasses(), 3000);
+            return false;
+        }
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Base sauvegardée avec succès"), Icons::icSunglasses(), 3000);
 
         /*! élimination des anciennes sauvegardes */
         QDir dir(pathdirdestination);
@@ -505,7 +510,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     }
     qintptr z = 0;
     ShowMessage::I()->PriorityMessage(tr("Sauvegarde terminée avec succcés"),z, 5000);
-                                      return true;
+    return true;
 }
 
 void Procedures::BackupWakeUp()
@@ -558,8 +563,6 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
     scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
     scriptbackup += CRLF;
 
-    if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
-        QFile::remove(PATH_FILE_SCRIPTBACKUP);
     QFile fbackup(PATH_FILE_SCRIPTBACKUP);
     if (fbackup.exists())
         Utils::removeWithoutPermissions(fbackup);

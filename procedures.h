@@ -54,7 +54,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upcheckbox.h"
 #include "textprinter.h"
 #include "serialthread.h"
-#include "ostask.h"
 #include "dlg_paramconnexion.h"
 #include "ui_dlg_paramconnexion.h"
 #include "dlg_choixdate.h"
@@ -84,7 +83,6 @@ private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     QSettings               *m_settings = Q_NULLPTR;
     ParametresSysteme       *m_parametres;
-    Controller              m_controller;
 
 public:
     static Procedures       *I();
