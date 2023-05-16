@@ -421,14 +421,11 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         const QString msgOK = tr("Base de données sauvegardée!");
         QProcess backupProcess;
         backupProcess.start(task);
-        backupProcess.waitForFinished(1000000000);
-        int a = 0;
+        backupProcess.waitForFinished(2000000000);
         result(handledlg, this);
-        if (backupProcess.exitStatus() == QProcess::NormalExit)
-            a = backupProcess.exitCode();
-        if (a != 0)
+        if (backupProcess.exitStatus() != QProcess::NormalExit)
         {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la sauvegarde de la basee"), Icons::icSunglasses(), 3000);
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la sauvegarde de la base"), Icons::icSunglasses(), 3000);
             return false;
         }
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Base sauvegardée avec succès"), Icons::icSunglasses(), 3000);

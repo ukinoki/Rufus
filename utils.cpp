@@ -703,13 +703,13 @@ bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified
         UpDialog *dlg_askMDP    = new UpDialog(parent);
         dlg_askMDP      ->setWindowModality(Qt::WindowModal);
 
-        UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
+        QLineEdit *ConfirmMDP = new QLineEdit(dlg_askMDP);
         ConfirmMDP      ->setEchoMode(QLineEdit::Password);
         ConfirmMDP      ->setAlignment(Qt::AlignCenter);
         ConfirmMDP      ->setMaxLength(25);
         dlg_askMDP      ->dlglayout()->insertWidget(0,ConfirmMDP);
 
-        UpLabel *labelConfirmMDP = new UpLabel();
+        QLabel *labelConfirmMDP = new QLabel();
         labelConfirmMDP ->setText(Msg);
         labelConfirmMDP ->setAlignment(Qt::AlignCenter);
         dlg_askMDP      ->dlglayout()->insertWidget(0,labelConfirmMDP);
@@ -1356,7 +1356,7 @@ void Utils::AfficheImage(QImage img)
     UpDialog *dlg   = new UpDialog();
     QPixmap pix     = QPixmap();
     pix             = QPixmap::fromImage(img.scaled(QSize(1050-2, 1485-2), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-    UpLabel *lab    = new UpLabel();
+    QLabel *lab    = new QLabel();
     lab             ->resize(pix.width(), pix.height());
     lab             ->setPixmap(pix);
     dlg->dlglayout()->insertWidget(0,lab);
