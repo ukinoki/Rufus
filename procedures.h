@@ -237,7 +237,7 @@ public:
     bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
-                                     bool AvecChoixImprimante = true);
+                                     bool AvecChoixImprimante = true, QWidget *parent= Q_NULLPTR);
             /*! b - Création d'un pdf */
     bool                    Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
 

@@ -398,6 +398,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     };
 
     QString msgEchec = tr("Incident pendant la sauvegarde");
+    QString msg ("");
     qintptr handledlg = 0;
     if (verifmdp)
     {
@@ -429,10 +430,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 #else
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
 #endif
-        const QString msgOK = tr("Base de données sauvegardée!");
+        msg += tr("Base de données sauvegardée!\n");
         m_ostask.disconnect(SIGNAL(result(const int &)));
         connect(&m_ostask, &OsTask::result, this, [=](int a) {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msgOK : msgEchec), Icons::icSunglasses(), 3000);
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msg : msgEchec), Icons::icSunglasses(), 3000);
             result(handledlg, this);
             QFile::remove(PATH_FILE_SCRIPTBACKUP);
             return true;
@@ -467,8 +468,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         /*! sauvegarde de Rufus.ini et des fichiers ressources */
         QFile file = QFile(PATH_FILE_INI);
         Utils::copyWithPermissions(file, pathbackupbase + "/" NOM_FILE_INI);
+        msg += tr("Fichier de paramétrage Rufus.ini sauvegardé\n");
         int n=0;
         Utils::copyfolderrecursively(PATH_DIR_RESSOURCES, pathbackupbase + NOM_DIR_RESSOURCES, n);
+        msg += tr("Fichiers ressources sauvegardés\n");
     }
     if (OKImages || OKVideos || OKFactures)
     {
@@ -485,6 +488,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des factures"), progdial);
             delete progdial;
+            msg += tr("Factures sauvegardées\n");
         }
         if (OKImages) {
             dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES;
@@ -496,6 +500,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des fichiers d'imagerie"), progdial);
             delete progdial;
+            msg += tr("Fichiers imagerie sauvegardés\n");
         }
         if (OKVideos) {
             dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS;
@@ -507,6 +512,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des videos"), progdial);
             delete progdial;
+            msg += tr("Fichiers video sauvegardés");
         }
     }
     else
@@ -515,7 +521,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         return false;
     }
     qintptr z = 0;
-    ShowMessage::I()->PriorityMessage(tr("Sauvegarde terminée avec succcés"),z, 5000);
+    ShowMessage::I()->PriorityMessage(msg,z, 10000);
     return true;
 }
 
@@ -554,7 +560,7 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
         return;
 #ifdef Q_OS_WIN
     QString CRLF="\r\n";
-    QString executabledump = "\"" + QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe") + "\"";
+    QString executabledump = QDir::toNativeSeparators(dirSQLExecutable()+ "/mysqldump.exe");
     QString scriptbackup;
 #else
     QString CRLF="\n";
@@ -621,6 +627,7 @@ void Procedures::setDirSQLExecutable()
     bool a = false;
 
 /*! 1. On recherche dans le package logiciel */
+/*! ne marche pas sous Mac Silicon pour le moment
 #ifdef Q_OS_MACX
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump": "/mysqldump";
@@ -628,6 +635,7 @@ void Procedures::setDirSQLExecutable()
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
+*/
 #ifdef Q_OS_WIN
     m_executable = "/mysql.exe";
     m_dumpexecutable = "/mysqldump.exe";
@@ -811,15 +819,16 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             dumpProcess.setStandardInputFile(path);
             dumpProcess.start(sqlCommand, args);
 #else
+            /*! les commandes start ou startDetached ne fonctionnent pas sous MacOS ou Ubuntu */
+            /*! https://www.qtcentre.org/threads/23460-QProcess-and-mysql-lt-backup-sql
+             *  dumpProcess.setStandardInputFile(path);
+             *  dumpProcess.start(sqlCommand, args);                    NE MARCHE PLUS DEPUIS Qt6 sous MacOS ou Linux */
             QString command = sqlCommand + " < " + path;
             QString bat = "bash -c \"" + command + "\"";
             dumpProcess.startCommand(bat);
 #endif
             dumpProcess.waitForFinished(1000000);
 
-            /*! https://www.qtcentre.org/threads/23460-QProcess-and-mysql-lt-backup-sql
-             *  dumpProcess.setStandardInputFile(path);
-             *  dumpProcess.start(sqlCommand, args);                    NE MARCHE PLUS DEPUIS Qt6 sous MacOS ou Linux */
 
             if (dumpProcess.error() == QProcess::FailedToStart)
             {
@@ -1298,10 +1307,10 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 }
 
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
-                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
+                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante, QWidget *parent)
 {
     //AvecPrevisu = true;
-    TextPrinter *TexteAImprimer = new TextPrinter();
+    TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QString PiedDepart = Pied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
     TexteAImprimer->setHeaderText(EnTete);
@@ -2621,6 +2630,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             break;
                         }
 
+                        qintptr handledlg = 0;
+                        ShowMessage::I()->PriorityMessage(tr("Restauration de la base en cours"),handledlg);
+
                         bool echecfile = true;
                         QStringList filters;
                         filters << "*.sql";
@@ -2652,8 +2664,11 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             int a = ExecuteScriptSQL(listnomsfilestorestore);
                             if (a != 0)
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
+                            else
+                                msg += tr("Base de données Rufus restaurée\n");
                             db->setdirimagerie(NomDirStockageImagerie);
                         }
+                        ShowMessage::I()->ClosePriorityMessage(handledlg);
                     }
                 }
             }
@@ -2705,19 +2720,15 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                         else
                         {
-                            QString Msg = (tr("Restauration des fichiers d'imagerie\n")
-                                         + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaureimagerie    = rootimg.absolutePath() + NOM_DIR_IMAGES;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaureimagerie, t);
                             UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, tr("Copie des fichiers d'imagerie"), progdial);
+                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, tr("Restauration des fichiers d'imagerie"), progdial);
                             delete progdial;
                             msg += tr("Fichiers d'imagerie restaurés\n");
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers d'imagerie restaurés"), Icons::icSunglasses(), 3000);
                         }
                     }
                 }
@@ -2738,19 +2749,15 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                         else
                         {
-                            QString Msg = (tr("Restauration des factures\n")
-                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaurefactures    = rootimg.absolutePath() + NOM_DIR_FACTURES;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurefactures, t);
                             UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, tr("Copie des factures"), progdial);
+                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, tr("Restauration des factures"), progdial);
                             delete progdial;
                             msg += tr("Fichiers factures restaurés\n");
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers factures restaurés"), Icons::icSunglasses(), 3000);
                         }
                     }
                 }
@@ -2771,19 +2778,15 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                         else
                         {
-                            QString Msg = (tr("Restauration des fichiers videos\n")
-                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaurevideo = rootimg.absolutePath() + NOM_DIR_VIDEOS;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurevideo, t);
                             UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, tr("Copie des videos"), progdial);
+                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, tr("Restauration des videos"), progdial);
                             delete progdial;
-                            msg += tr("Fichiers videos restaurés\n");
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers videos restaurés"), Icons::icSunglasses(), 3000);
+                            msg += tr("Fichiers video restaurés\n");
                         }
                     }
                 }
@@ -2791,7 +2794,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
         delete dlg_buprestore;
         //qDebug() << msg;
-        UpMessageBox::Watch(parent,tr("restauration terminée"),msg);
+        UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
         return (result > 0);
     }
