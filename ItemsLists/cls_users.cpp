@@ -94,25 +94,32 @@ bool Users::add(User *usr)
     else
         map_all->insert(usr->id(), usr);
     mapsclean(usr);
-    if (!usr->isDesactive())
+    for (auto it = map_all->cbegin(); it != map_all->cend(); ++it)
     {
-        usr->setmodecomptable();
-        map_actifs->insert(usr->id(), usr);
-        if( usr->isResponsable() || usr->isResponsableOuAssistant())
-            map_superviseurs->insert(usr->id(), usr);
-        if( usr->isLiberal() || usr->isLiberalSEL() )
-            map_liberaux->insert(usr->id(), usr);
-        if( usr->isSoignant() && !usr->isRemplacant() )
-            map_parents->insert(usr->id(), usr);
-        if( usr->modecomptable().testFlag(User::ComptaMedicalActs))
-            map_comptablesactes->insert(usr->id(), usr);
-        if( usr->modecomptable().testFlag(User::ComptaNoMedical))
-            map_comptablessaufactes->insert(usr->id(), usr);
-        if( usr->isMedecin() )
-            map_medecins->insert(usr->id(), usr);
+        User *usr = it.value();
+        if (usr)
+        {
+            if (!usr->isDesactive())
+            {
+                usr->setmodecomptable();
+                map_actifs->insert(usr->id(), usr);
+                if( usr->isResponsable() || usr->isResponsableOuAssistant())
+                    map_superviseurs->insert(usr->id(), usr);
+                if( usr->isLiberal() || usr->isLiberalSEL() )
+                    map_liberaux->insert(usr->id(), usr);
+                if( usr->isSoignant() && !usr->isRemplacant() )
+                    map_parents->insert(usr->id(), usr);
+                if( usr->modecomptable().testFlag(User::ComptaMedicalActs))
+                    map_comptablesactes->insert(usr->id(), usr);
+                if( usr->modecomptable().testFlag(User::ComptaNoMedical))
+                    map_comptablessaufactes->insert(usr->id(), usr);
+                if( usr->isMedecin() )
+                    map_medecins->insert(usr->id(), usr);
+            }
+            else
+                map_inactifs->insert(usr->id(), usr);
+        }
     }
-    else
-        map_inactifs->insert(usr->id(), usr);
     return true;
 }
 
@@ -233,7 +240,7 @@ void Users::CalcCompteEncaissementActes(User *usr)
             usr->setidcompteencaissementhonoraires(usr->idcomptepardefaut());
         else if (usr->isLiberalSEL() || usr->isSoignantSalarie())
         {
-            auto it = map_comptablesactes->find(usr->idemployeur());
+            auto it = map_comptablesactes->constFind(usr->idemployeur());
             if (it != map_comptablesactes->cend())
             {
                 User *usrcpt = it.value();

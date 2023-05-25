@@ -132,7 +132,13 @@ public:
                                                                              * purge les champs jpg et pdf de la table Factures  */
 
 private:
-    User*                   currentuser() { return Datas::I()->users->userconnected(); }
+    User * m_currentuser = Q_NULLPTR;
+    User*                   currentuser()
+    {
+        if (m_currentuser == Q_NULLPTR)
+            m_currentuser = Datas::I()->users->userconnected();
+        return m_currentuser;
+    }
     QString                 m_CPpardefaut, m_Villepardefaut;
 public:
     static QString          CodePostalParDefaut();
