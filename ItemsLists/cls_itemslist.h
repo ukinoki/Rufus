@@ -128,7 +128,7 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
     bool itemadded = false;
     if (item != Q_NULLPTR)
     {
-        auto it = m_map->find(item->id());
+        auto it = m_map->constFind(item->id());
         itemadded = (it == m_map->cend());
         if (!itemadded)
         {

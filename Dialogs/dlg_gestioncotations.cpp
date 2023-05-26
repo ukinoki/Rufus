@@ -298,7 +298,7 @@ bool dlg_gestioncotations::VerifFiche()
     }
     if (!a)
         return false;
-    qDebug() << req;
+    //qDebug() << req;
     db->StandardSQL(req);
     return true;
 }
