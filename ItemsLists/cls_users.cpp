@@ -84,21 +84,13 @@ Users::Users(QObject *parent) : ItemsList(parent)
  * \return false si le paramètre usr est un Q_NULLPTR
  * \return false si l'utilisateur est déjà présent
  */
-bool Users::add(User *user)
+bool Users::addUser(User *user)
 {
     if( user == Q_NULLPTR)
         return false;
     int iduser = user->id();
+    add(map_all,user, Item::Update);
     auto itusr = map_all->constFind(iduser);
-    if( itusr != map_all->constEnd() )
-    {
-        itusr.value()->setData(user->datas());
-        delete user;
-        user = Q_NULLPTR;
-    }
-    else
-        map_all->insert(user->id(), user);
-    itusr = map_all->constFind(iduser);
     User *usr = itusr.value();
     if(usr)
     {
@@ -130,7 +122,7 @@ void Users::addList(QList<User*> listusr)
 {
     foreach (User *usr, listusr)
         if (usr != Q_NULLPTR)
-            add(usr);
+            addUser(usr);
 }
 
 /*!
@@ -150,7 +142,7 @@ User* Users::getById(int id, Item::UPDATE upd)
         if( jsonUser.isEmpty() )
             return Q_NULLPTR;
         result = new User(jsonUser);
-        add(result);
+        addUser(result);
     }
     else
     {
@@ -181,12 +173,12 @@ void Users::reload(User *usr)
         return;
     usr->setData(jsonUser);
     if( map_all->constFind(usr->id()) == map_all->constEnd() )
-        add(usr);
+        addUser(usr);
 }
 
 bool Users::recalcStatut(User *usr)
 {
-    return add(usr);
+    return addUser(usr);
 }
 
 /*!

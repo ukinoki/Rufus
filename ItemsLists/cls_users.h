@@ -37,7 +37,7 @@ private:
     QMap<int, User*> *map_comptablesactes = Q_NULLPTR; //!< map des comptables qui enregistrent des actes médicaux: User->isSocComptable() || User->isLiberal()
     QMap<int, User*> *map_comptablessaufactes = Q_NULLPTR;//!< map des comptables qui enregistrent des recettes dépenses mais pas d'actes médicaux: User->isSocComptable() || User->isLiberal()
     QMap<int, User*> *map_medecins = Q_NULLPTR;        //!< map des medecins : User->isMedecin()
-    bool add(User *usr);
+    bool addUser(User *usr);
     void addList(QList<User*> listusr);
     void mapsclean(User *usr = Q_NULLPTR);
     User* m_useradmin = Q_NULLPTR;

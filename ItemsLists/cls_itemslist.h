@@ -132,12 +132,15 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
         itemadded = (it == m_map->cend());
         if (!itemadded)
         {
-            if (it.value())
+            if (it.value() != Q_NULLPTR)
             {
-                if (upd == Item::Update)
-                    it.value()->setData(item->datas());
                 if (it.value() != item)
+                {
+                    if (upd == Item::Update)
+                        it.value()->setData(item->datas());
                     delete item;
+                    item = Q_NULLPTR;
+                }
             }
             else
                 m_map->insert(item->id(), item);
