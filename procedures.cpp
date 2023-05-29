@@ -387,9 +387,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     auto result = [] (qintptr handle, Procedures *proc)
     {
         ShowMessage::I()->ClosePriorityMessage(handle);
-        QFile fbackup(PATH_FILE_SCRIPTBACKUP);
-        if (fbackup.exists())
-            Utils::removeWithoutPermissions(fbackup);
         emit proc->ConnectTimers(true);
     };
 
@@ -439,7 +436,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             QFileInfo fileInfo = list.at(i);
             if (fileInfo.fileName().split("-").size()>0)
             {
-                const QString date    = fileInfo.fileName().split("-").at(0);
+                QString date    = fileInfo.fileName().split("-").at(0);
                 int year        = date.left(4).toInt();
                 int month       = date.mid(4,2).toInt();
                 int day         = date.right(2).toInt();
@@ -3154,12 +3151,12 @@ bool Procedures::IdentificationUser()
         Datas::I()->users           ->initListe();
         Datas::I()->manufacturers   ->initListe();
         Datas::I()->motscles        ->initListe();
-
+        MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);
 
         Verif_secure_file_priv();
-         if (DefinitRoleUser()) //NOTE : User Role
+        if (DefinitRoleUser()) //NOTE : User Role
         {
             /*! definit les iduser pour lequel le user travaille
                 . iduser superviseur des actes                      (int gidUserSuperViseurProv)
