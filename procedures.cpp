@@ -246,7 +246,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
         Inichk->setText("fichier de paramètrage Rufus.ini");
         Inichk->setEnabled(OKini);
         Inichk->setChecked(OKini);
-        Inichk->setAccessibleDescription("ini");
+        Inichk->setObjectName("ini");
         layini->addWidget(Inichk);
         layini->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
         dlg_buprestore->dlglayout()->insertLayout(0, layini);
@@ -260,7 +260,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
         Rssceschk->setText("fichier ressources d'impression");
         Rssceschk->setEnabled(OKRssces);
         Rssceschk->setChecked(OKRssces);
-        Rssceschk->setAccessibleDescription("ressources");
+        Rssceschk->setObjectName("ressources");
         layRssces->addWidget(Rssceschk);
         layRssces->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
         dlg_buprestore->dlglayout()->insertLayout(0, layRssces);
@@ -284,7 +284,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             Videoschk->setText("Videos");
             Videoschk->setEnabled(OKvideos || op == BackupOp);
             Videoschk->setChecked(OKvideos || op == BackupOp);
-            Videoschk->setAccessibleDescription("videos");
+            Videoschk->setObjectName("videos");
             layVideos->addWidget(Videoschk);
             layVideos->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             UpLabel *lblvolvid = new UpLabel();
@@ -310,7 +310,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             Imgeschk->setText("Images");
             Imgeschk->setEnabled(OKimages || op == BackupOp);
             Imgeschk->setChecked(OKimages || op == BackupOp);
-            Imgeschk->setAccessibleDescription("images");
+            Imgeschk->setObjectName("images");
             layImges->addWidget(Imgeschk);
             layImges->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             UpLabel *lblvolimg = new UpLabel();
@@ -336,7 +336,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             Fctureschk->setText("Factures");
             Fctureschk->setEnabled(OKfactures || op == BackupOp);
             Fctureschk->setChecked(OKfactures || op == BackupOp);
-            Fctureschk->setAccessibleDescription("factures");
+            Fctureschk->setObjectName("factures");
             layFctures->addWidget(Fctureschk);
             layFctures->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
             UpLabel *lblvolfct = new UpLabel();
@@ -355,7 +355,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     UpCheckBox *BDDchk  = new UpCheckBox();
     BDDchk->setText("base de données");
     BDDchk->setChecked(true);
-    BDDchk->setAccessibleDescription("base");
+    BDDchk->setObjectName("base");
     layBDD->addWidget(BDDchk);
     layBDD->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
     UpLabel *lblvolbase = new UpLabel();
@@ -390,7 +390,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         emit proc->ConnectTimers(true);
     };
 
-    QString msgEchec = tr("Incident pendant la sauvegarde");
+   QString msg("");
     qintptr handledlg = 0;
     if (verifmdp)
     {
@@ -398,7 +398,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
     }
-    ShowMessage::I()->PriorityMessage(tr("Sauvegarde en cours"),handledlg);
+    ShowMessage::I()->PriorityMessage(tr("Sauvegarde de la base de données Rufus"),handledlg);
     emit ConnectTimers(false);
 
     //On vide les champs blob de la table factures et la table EchangeImages
@@ -414,21 +414,18 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         /*! sauvegarde de la base */
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
         DefinitScriptBackup(pathbackupbase);
-        QString Msg = (tr("Sauvegarde de la base de données\n")
-                          + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-                       UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
-        const QString msgOK = tr("Base de données sauvegardée!");
         QProcess backupProcess;
-        backupProcess.start(task);
-        backupProcess.waitForFinished(2000000000);
+        backupProcess.start(task, QStringList());
+        backupProcess.waitForFinished(1000000000);
         result(handledlg, this);
         if (backupProcess.exitStatus() != QProcess::NormalExit)
         {
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la sauvegarde de la base"), Icons::icSunglasses(), 3000);
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la sauvegarde de la basee"), Icons::icSunglasses(), 3000);
             return false;
         }
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Base sauvegardée avec succès"), Icons::icSunglasses(), 3000);
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
+        msg += tr("Base de données sauvegardée!\n");
 
         /*! élimination des anciennes sauvegardes */
         QDir dir(pathdirdestination);
@@ -458,8 +455,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         /*! sauvegarde de Rufus.ini et des fichiers ressources */
         QFile file(PATH_FILE_INI);
         Utils::copyWithPermissions(file, pathbackupbase + "/" NOM_FILE_INI);
+        msg += tr("Fichier de paramétrage Rufus.ini sauvegardé\n");
         int n=0;
-        Utils::copyfolderrecursively(PATH_DIR_RESSOURCES, pathbackupbase + NOM_DIR_RESSOURCES, n);
+        Utils::copyfolderrecursively(PATH_DIR_RESSOURCES, pathbackupbase + NOM_DIR_RESSOURCES, n);        
+        msg += tr("Fichiers ressources sauvegardés\n");
     }
     if (OKImages || OKVideos || OKFactures)
     {
@@ -475,7 +474,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             progdial->show();
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des factures"), progdial);
-            delete progdial;
+            delete progdial;            
+            msg += tr("Factures sauvegardées\n");
         }
         if (OKImages) {
             dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES;
@@ -487,6 +487,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des fichiers d'imagerie"), progdial);
             delete progdial;
+            msg += tr("Fichiers imagerie sauvegardés\n");
         }
         if (OKVideos) {
             dirNomSource = m_parametres->dirimagerieserveur() + NOM_DIR_VIDEOS;
@@ -498,6 +499,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             int n = 0;
             Utils::copyfolderrecursively(dirNomSource, dirNomDest, n, tr("Sauvegarde des videos"), progdial);
             delete progdial;
+            msg += tr("Fichiers video sauvegardés");
         }
     }
     else
@@ -506,7 +508,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         return false;
     }
     qintptr z = 0;
-    ShowMessage::I()->PriorityMessage(tr("Sauvegarde terminée avec succcés"),z, 5000);
+    ShowMessage::I()->PriorityMessage(msg,z, 10000);
     return true;
 }
 
@@ -816,13 +818,13 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
         for (int i= 0; i<listchk.size(); i++)
         {
-            if (listchk.at(i)->accessibleDescription() == "base")
+            if (listchk.at(i)->objectName() == "base")
                 OKbase = listchk.at(i)->isChecked();
-            else if (listchk.at(i)->accessibleDescription() == "images")
+            else if (listchk.at(i)->objectName() == "images")
                 OKImages = listchk.at(i)->isChecked();
-            else if (listchk.at(i)->accessibleDescription() == "videos")
+            else if (listchk.at(i)->objectName() == "videos")
                 OKVideos = listchk.at(i)->isChecked();
-            else if (listchk.at(i)->accessibleDescription() == "factures")
+            else if (listchk.at(i)->objectName() == "factures")
                 OKFactures = listchk.at(i)->isChecked();
         }
     }
@@ -989,11 +991,11 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                     idparent   = soignlist.at(0).at(0).toInt();
                 else                                // plusieurs réponses possibles, on va demander qui est le parent de ce remplaçant....
                 {
-                    dlg_askUser                = new UpDialog();
-                    dlg_askUser                ->AjouteLayButtons();
+                    dlg_askUser             = new UpDialog();
+                    dlg_askUser             ->AjouteLayButtons();
                     QGroupBox*boxparent     = new QGroupBox();
-                    dlg_askUser->dlglayout()   ->insertWidget(0,boxparent);
-                    boxparent               ->setAccessibleName("Parent");
+                    dlg_askUser->dlglayout()->insertWidget(0,boxparent);
+                    boxparent               ->setObjectName("Parent");
                     QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + user->login() + "?";
                     boxparent               ->setTitle(lblUsrParent);
 
@@ -1003,9 +1005,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                     QVBoxLayout *vbox       = new QVBoxLayout;
                     for (int i=0; i<soignlist.size(); i++)
                     {
-                        QRadioButton *pradiobutt = new QRadioButton(boxparent);
+                        UpRadioButton *pradiobutt = new UpRadioButton(boxparent);
                         pradiobutt  ->setText(soignlist.at(i).at(1).toString());
-                        pradiobutt  ->setAccessibleName(soignlist.at(i).at(0).toString());
+                        pradiobutt  ->setiD(soignlist.at(i).at(0).toInt());
                         pradiobutt  ->setChecked(i==0);
                         vbox        ->addWidget(pradiobutt);
                     }
@@ -1021,7 +1023,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                     QList<QRadioButton*> listbutt = boxparent->findChildren<QRadioButton*>();
                     for (int j=0; j<listbutt.size(); j++)
                         if (listbutt.at(j)->isChecked())
-                            idparent = listbutt.at(j)->accessibleName().toInt();
+                            idparent = listbutt.at(j)->objectName().toInt();
                     delete dlg_askUser;
                 }
             }
@@ -2165,22 +2167,22 @@ void Procedures::CalcTimeBupRestore()
     QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
     for (int i= 0; i<listchk.size(); i++)
     {
-        if (listchk.at(i)->accessibleDescription() == "base")
+        if (listchk.at(i)->objectName() == "base")
         {
             if (listchk.at(i)->isChecked())
                 volume += m_basesize;
         }
-        if (listchk.at(i)->accessibleDescription() == "images")
+        if (listchk.at(i)->objectName() == "images")
         {
             if (listchk.at(i)->isChecked())
                 volume += m_imagessize;
         }
-        if (listchk.at(i)->accessibleDescription() == "videos")
+        if (listchk.at(i)->objectName() == "videos")
         {
             if (listchk.at(i)->isChecked())
                 volume += m_videossize;
         }
-        if (listchk.at(i)->accessibleDescription() == "factures")
+        if (listchk.at(i)->objectName() == "factures")
         {
             if (listchk.at(i)->isChecked())
                 volume += m_facturessize;
@@ -2432,7 +2434,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
             {
                 /*! 4a - restauration de la base de données */
-                if (chk->accessibleDescription() == "base")
+                if (chk->objectName() == "base")
                 {
                     if (chk->isChecked())
                     {
@@ -2458,6 +2460,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
 
                         bool echecfile = true;
+                        qintptr handledlg = 0;
+                        ShowMessage::I()->PriorityMessage(tr("Restauration de la base en cours"),handledlg);
                         QStringList filters;
                         filters << "*.sql";
                         QStringList listfichiers = dirtorestore.entryList(filters);
@@ -2485,18 +2489,17 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             db->VideDatabases();
 
                             //! Restauration à partir du dossier sélectionné
-                            int a = ExecuteSQLScript(listnomsfilestorestore);
-                            if (a != 0)
-                                UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
+                            ExecuteSQLScript(listnomsfilestorestore);
+                            msg += tr("Base de données Rufus restaurée\n");
                             db->setdirimagerie(NomDirStockageImagerie);
                        }
-                    }
+                       ShowMessage::I()->ClosePriorityMessage(handledlg);                   }
                 }
             }
             foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
             {
                 /*! 4b - restauration du fichier ini */
-                if (chk->accessibleDescription() == "ini")
+                if (chk->objectName() == "ini")
                 {
                     if (chk->isChecked())
                     {
@@ -2511,7 +2514,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     }
                 }
                 /*! 4c - restauration des fichiers ressources */
-                else if (chk->accessibleDescription() == "ressources")
+                else if (chk->objectName() == "ressources")
                 {
                     if (chk->isChecked())
                     {
@@ -2525,7 +2528,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                     }
                 }
                 /*! 4d - restauration des images */
-                else if (chk->accessibleDescription() == "images")
+                else if (chk->objectName() == "images")
                 {
                     if (chk->isChecked())
                     {
@@ -2541,23 +2544,20 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                         else
                         {
-                            QString Msg = (tr("Restauration des fichiers d'imagerie\n")
-                                         + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base d'images"));
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaureimagerie    = rootimg.absolutePath() + NOM_DIR_IMAGES;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaureimagerie, t);
                             UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, tr("Copie des fichiers d'imagerie"), progdial);
-                            delete progdial;                            msg += tr("Fichiers d'imagerie restaurés\n");
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers d'imagerie restaurés"), Icons::icSunglasses(), 3000);
+                            Utils::copyfolderrecursively(dirrestaureimagerie, dirdestinationimg, n, tr("Restauration des fichiers d'imagerie"), progdial);
+                            delete progdial;
+                            msg += tr("Fichiers d'imagerie restaurés\n");
                         }
                     }
                 }
                 /*! 4e - restauration des factures */
-                else if (chk->accessibleDescription() == "factures")
+                else if (chk->objectName() == "factures")
                 {
                     if (chk->isChecked())
                     {
@@ -2573,23 +2573,20 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                         else
                         {
-                            QString Msg = (tr("Restauration des factures\n")
-                                        + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de factures"));
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaurefactures    = rootimg.absolutePath() + NOM_DIR_FACTURES;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurefactures, t);
                             UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, tr("Copie des factures"), progdial);
-                            delete progdial;                            msg += tr("Fichiers factures restaurés\n");
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers factures restaurés"), Icons::icSunglasses(), 3000);
+                            Utils::copyfolderrecursively(dirrestaurefactures, dirdestinationfact, n, tr("Restauration des factures"), progdial);
+                            delete progdial;
+                            msg += tr("Fichiers factures restaurés\n");
                         }
                     }
                 }
                 /*! 4e - restauration des videos */
-                else if (chk->accessibleDescription() == "videos")
+                else if (chk->objectName() == "videos")
                 {
                     if (chk->isChecked())
                     {
@@ -2605,19 +2602,15 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                         else
                         {
-                            QString Msg = (tr("Restauration des fichiers videos\n")
-                                           + tr("Ce processus peut durer plusieurs minutes en fonction de la taille de la base de données"));
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             QString dirrestaurevideo = rootimg.absolutePath() + NOM_DIR_VIDEOS;
                             int t = 0;
                             Utils::countFilesInDirRecursively(dirrestaurevideo, t);
                             UpProgressDialog *progdial = new UpProgressDialog(0,t, parent);
                             progdial->show();
                             int n = 0;
-                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, tr("Copie des videos"), progdial);
+                            Utils::copyfolderrecursively(dirrestaurevideo, dirdestinationvid, n, tr("Restauration des videos"), progdial);
                             delete progdial;
                             msg += tr("Fichiers videos restaurés\n");
-                            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers videos restaurés"), Icons::icSunglasses(), 3000);
                         }
                     }
                 }
@@ -2625,7 +2618,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
         delete dlg_buprestore;
         //qDebug() << msg;
-        UpMessageBox::Watch(parent,tr("restauration terminée"),msg);
+        UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
         return (result > 0);
     }
@@ -2889,7 +2882,7 @@ void Procedures::CalcLieuExercice()
     gAskLieux               ->AjouteLayButtons();
     QGroupBox*boxlieux      = new QGroupBox();
     gAskLieux->dlglayout()  ->insertWidget(0,boxlieux);
-    boxlieux                ->setAccessibleName("Parent");
+    boxlieux                ->setObjectName("Parent");
     boxlieux                ->setTitle(tr("D'où vous connectez-vous?"));
     QFontMetrics fm         = QFontMetrics(qApp->font());
     int hauteurligne        = int(fm.height()*1.6);
@@ -2953,10 +2946,10 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setidUserConnected(idusr);
     Datas::I()->users->initListe();
     Datas::I()->comptes->initListe();
-    MAJComptesBancaires(currentuser());
     currentuser()->setidsuperviseur(idusr);
     currentuser()->setidcomptableactes(idusr);
     currentuser()->setidparent(idusr);
+    MAJComptesBancaires(currentuser());
     // la suite sert à corriger les tables documents remises en exemple qui peuvent avoir été créées à partir d'autres bases Rufus par un iduser différent auquel cas ces documents ne seraient pas modifiables
     req = "update " TBL_IMPRESSIONS " set " CP_IDUSER_IMPRESSIONS " = " + QString::number(idusr) + ", " CP_DOCPUBLIC_IMPRESSIONS " = 1";
     db->StandardSQL (req);
@@ -3257,27 +3250,27 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
     {
         dlg_askUser                 = new UpDialog();
         dlg_askUser                 ->AjouteLayButtons();
-        dlg_askUser                 ->setAccessibleName(QString::number(currentuser()->id()));
+        dlg_askUser                 ->setObjectName(QString::number(currentuser()->id()));
         dlg_askUser                 ->setdata(currentuser());
         QVBoxLayout *boxlay         = new QVBoxLayout;
         dlg_askUser->dlglayout()    ->insertLayout(0,boxlay);
 
         QGroupBox *boxrole      = new QGroupBox(dlg_askUser);
-        boxrole                 ->setAccessibleName("Role");
+        boxrole                 ->setObjectName("Role");
         QString lblRole         = tr("Quel est votre rôle dans cette session?");
         boxrole                 ->setTitle(lblRole);
         boxrole                 ->setVisible(false);
         boxlay                  ->addWidget(boxrole);
 
         QGroupBox *boxsuperv    = new QGroupBox(dlg_askUser);
-        boxsuperv               ->setAccessibleName("Superv");
+        boxsuperv               ->setObjectName("Superv");
         QString lblSuperv       = tr("Qui supervise votre activité pour cette session?");
         boxsuperv               ->setTitle(lblSuperv);
         boxsuperv               ->setVisible(false);
         boxlay                  ->addWidget(boxsuperv);
 
         QGroupBox *boxparent     = new QGroupBox(dlg_askUser);
-        boxparent               ->setAccessibleName("Parent");
+        boxparent               ->setObjectName("Parent");
         QString lblUsrParent    = tr("Qui enregistre les honoraires de vos actes?");
         boxparent               ->setTitle(lblUsrParent);
         boxparent               ->setVisible(false);
@@ -3323,13 +3316,13 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 QVBoxLayout *vbox       = new QVBoxLayout;
                 QRadioButton *pbuttResp = new QRadioButton(boxrole);
                 pbuttResp               ->setText(tr("Responsable de mes actes"));
-                pbuttResp               ->setAccessibleName("buttresp");
+                pbuttResp               ->setObjectName("buttresp");
                 vbox                    ->addWidget(pbuttResp);
                 connect(pbuttResp, &QRadioButton::clicked, this, &Procedures::CalcUserParent);
 
                 QRadioButton *pbuttAss  = new QRadioButton(boxrole);
                 pbuttAss                ->setText(tr("Assistant"));
-                pbuttAss                ->setAccessibleName("buttass");
+                pbuttAss                ->setObjectName("buttass");
                 pbuttAss                ->setChecked(true);      // le user est défini par défaut comme assistant -> on cherche qui supervise les actes
                 vbox                    ->addWidget(pbuttAss);
                 connect(pbuttAss, &QRadioButton::clicked, this, &Procedures::CalcUserSuperviseur);
@@ -3378,23 +3371,23 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             {
                 if( !groupBox->isVisibleTo(dlg_askUser) )
                     continue;
-                if (groupBox->accessibleName() == "Superv" )
+                if (groupBox->objectName() == "Superv" )
                 {
-                    QList<QRadioButton*> listbutt = groupBox->findChildren<QRadioButton*>();
+                    QList<UpRadioButton*> listbutt = groupBox->findChildren<UpRadioButton*>();
                     for (int j=0; j<listbutt.size(); j++)
                         if (listbutt.at(j)->isChecked())
                         {
-                            currentuser()->setidsuperviseur(listbutt.at(j)->accessibleName().toInt());
+                            currentuser()->setidsuperviseur(listbutt.at(j)->iD());
                             break;
                         }
                 }
-                else if (groupBox->accessibleName() == "Parent" )
+                else if (groupBox->objectName() == "Parent" )
                 {
-                    QList<QRadioButton*> listbutt = groupBox->findChildren<QRadioButton*>();
+                    QList<UpRadioButton*> listbutt = groupBox->findChildren<UpRadioButton*>();
                     for (int j=0; j<listbutt.size(); j++)
                         if (listbutt.at(j)->isChecked())
                         {
-                            currentuser()->setidparent(listbutt.at(j)->accessibleName().toInt());
+                            currentuser()->setidparent(listbutt.at(j)->iD());
                             break;
                         }
                 }
@@ -3445,12 +3438,12 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                 // on va demander qui est le soignant parent de ce remplaçant....
                                 dlg_askUser             = new UpDialog();
                                 dlg_askUser             ->AjouteLayButtons();
-                                dlg_askUser             ->setAccessibleName(QString::number(currentuser()->idsuperviseur()));
+                                dlg_askUser             ->setObjectName(QString::number(currentuser()->idsuperviseur()));
                                 dlg_askUser             ->setdata(superviseurusr);
                                 QVBoxLayout *boxlay     = new QVBoxLayout;
                                 dlg_askUser->dlglayout()->insertLayout(0,boxlay);
                                 QGroupBox*boxparent     = new QGroupBox(dlg_askUser);
-                                boxparent               ->setAccessibleName("Parent");
+                                boxparent               ->setObjectName("Parent");
                                 QString lblUsrParent    = tr("Qui enregistre les honoraires pour ") + superviseurusr->login() + "?";
                                 boxparent               ->setTitle(lblUsrParent);
                                 boxparent               ->setVisible(false);
@@ -3468,12 +3461,12 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                 else
                                 {
                                     foreach (QGroupBox *box, dlg_askUser->findChildren<QGroupBox*>())
-                                        if (box->accessibleName() == "Parent")
-                                            foreach (QRadioButton *butt, box->findChildren<QRadioButton*>())
+                                        if (box->objectName() == "Parent")
+                                            foreach (UpRadioButton *butt, box->findChildren<UpRadioButton*>())
                                                 if (butt->isChecked())
                                                 {
-                                                    //gidUserParentProv = butt->accessibleName().toInt();
-                                                    currentuser()->setidparent( butt->accessibleName().toInt() );
+                                                    //gidUserParentProv = butt->objectName().toInt();
+                                                    currentuser()->setidparent( butt->iD() );
                                                     break;
                                                 }
                                     delete dlg_askUser;
@@ -3508,6 +3501,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                     currentuser()->setAGA(usrparent->isAGA());
                     currentuser()->setsecteurconventionnel(usrparent->secteurconventionnel());
                     currentuser()->setOPTAM(usrparent->isOPTAM());
+                    MAJComptesBancaires(usrparent);
                     //qDebug() << "secteur = " << currentuser()->secteurconventionnel() << " - OPTAM = " << currentuser()->isOPTAM();
                 }
                 else
@@ -3584,9 +3578,9 @@ void Procedures::CalcUserSuperviseur()
     QList<QGroupBox*> Listgroupbx   = dlg_askUser->findChildren<QGroupBox*>();
     for (int i=0; i<Listgroupbx.size(); i++)
     {
-        if (Listgroupbx.at(i)->accessibleName() == "Superv")
+        if (Listgroupbx.at(i)->objectName() == "Superv")
             ptbox = Listgroupbx.at(i);
-        else if (Listgroupbx.at(i)->accessibleName() == "Parent")
+        else if (Listgroupbx.at(i)->objectName() == "Parent")
             Listgroupbx.at(i)->setVisible(false);
     }
     if (ptbox)
@@ -3626,9 +3620,9 @@ void Procedures::CalcUserSuperviseur()
         bool isFirst = true;
         foreach (User *us, listUserFound)
         {
-            QRadioButton *pradiobutt = new QRadioButton(ptbox);
+            UpRadioButton *pradiobutt = new UpRadioButton(ptbox);
             pradiobutt->setText(us->login());
-            pradiobutt->setAccessibleName(QString::number(us->id()));
+            pradiobutt->setiD(us->id());
             if( isFirst )
             {
                 isFirst = false;
@@ -3636,9 +3630,9 @@ void Procedures::CalcUserSuperviseur()
             }
             vbox->addWidget(pradiobutt);
         }
-        QRadioButton *pradiobutt = new QRadioButton();
+        UpRadioButton *pradiobutt = new UpRadioButton();
         pradiobutt   ->setText(tr("Tout le monde"));
-        pradiobutt   ->setAccessibleName("-1");
+        pradiobutt   ->setiD(-1);
         vbox         ->addWidget(pradiobutt);
         vbox         ->setContentsMargins(8,0,8,0);
         ptbox        ->setLayout(vbox);
@@ -3668,9 +3662,9 @@ void Procedures::CalcUserParent()
     QGroupBox *ptbox = Q_NULLPTR;
     foreach (QGroupBox * box, dlg_askUser->findChildren<QGroupBox*>())
     {
-        if (box->accessibleName() == "Superv")
+        if (box->objectName() == "Superv")
             box->setVisible(false);
-        else if (box->accessibleName() == "Parent")
+        else if (box->objectName() == "Parent")
             ptbox = box;
     }
     if (ptbox)
@@ -3718,9 +3712,9 @@ void Procedures::CalcUserParent()
             bool isFirst = true;
             foreach (User *us, listUserFound)
             {
-                QRadioButton *pradiobutt = new QRadioButton(ptbox);
+                UpRadioButton *pradiobutt = new UpRadioButton(ptbox);
                 pradiobutt->setText(us->login());
-                pradiobutt->setAccessibleName(QString::number(us->id()));
+                pradiobutt->setiD(us->id());
                 if( isFirst )
                 {
                     isFirst = false;

@@ -1339,13 +1339,14 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 ui->DetailupTableWidget->removeCellWidget(items.at(0)->row(),1);
                 ui->DetailupTableWidget->removeCellWidget(items.at(0)->row(),ui->DetailupTableWidget->columnCount()-2);
                 ui->DetailupTableWidget->removeRow(items.at(0)->row());
-                QStringList ListeActesARemettreEnDetails, ListeMontantsARemettreEnDetails;
+                QStringList ListeActesARemettreEnDetails, ListeMontantsARemettreEnDetails, ListeIdComptables;
                 QStringList ListeDates, ListeNoms, ListeCotations;
                 QStringList ListeMontants, ListeResteDu, ListeDatesTri;
 
                 for (int k = 0; k < ui->DetailupTableWidget->rowCount();k++)
                 {
                     ListeActesARemettreEnDetails    << ui->DetailupTableWidget->item(k,0)->text();
+                    ListeIdComptables               << ui->DetailupTableWidget->item(k,0)->data(Qt::UserRole).toString();
                     ListeDates                      << ui->DetailupTableWidget->item(k,2)->text();
                     ListeNoms                       << ui->DetailupTableWidget->item(k,3)->text();
                     ListeCotations                  << ui->DetailupTableWidget->item(k,4)->text();
@@ -1365,7 +1366,8 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 for (int l = 0; l < NbLignesAVirer ;l++)
                 {
                     UpCheckBox *CheckItem = new UpCheckBox();
-                    pItem1->setText(ListeActesARemettreEnDetails.at(l));//idActe
+                    pItem1->setText(ListeActesARemettreEnDetails.at(l));        //idActe
+                    pItem1->setData(Qt::UserRole, ListeIdComptables.at(l));     //idComptableActes
                     CheckItem->setCheckState(Qt::Checked);
                     CheckItem->setFocusPolicy(Qt::NoFocus);
                     connect(CheckItem,  &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
@@ -1419,6 +1421,11 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 RemplitLesTables(ok);
             }
             m_useracrediter   = (map_comptables->size() == 1? map_comptables->cbegin().value() : Datas::I()->users->getById(currentuser()->idcomptableactes()));     // -2 si le user est une secrétaire et qu'il n'y a pas de comptable
+            if( m_useracrediter == Q_NULLPTR)
+            {
+                if (currentuser()->isSecretaire())
+                    m_useracrediter = map_comptables->cbegin().value();
+            }
             ui->TireurChequelineEdit->setText("");
         }
         else
@@ -2252,9 +2259,9 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
         DefinitArchitectureTable(ui->ListeupTableWidget, ActesDirects);
 
         requete =
-                    "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                        // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu , SUM(" CP_PAYE_LIGNEPAIEMENT ") as Regle, "  // 5, 6, 7, 8, 9
-                    CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                          // 10, 11, 12
+                    "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                                                    // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu , SUM(" CP_PAYE_LIGNEPAIEMENT ") as Regle, "     // 5, 6, 7, 8, 9
+                    CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                                                      // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_LIGNESPAIEMENTS " lig\n"
                     " WHERE "
                     " act." CP_ID_ACTES " IN (SELECT " CP_IDACTE_LIGNEPAIEMENT " from (\n"
@@ -2272,7 +2279,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
 
         requete +=  " UNION \n\n"
                     " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                       // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu , 0 as Regle, "                               // 5, 6, 7, 8, 9
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", '' as " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu , 0 as Regle, "      // 5, 6, 7, 8, 9
                     CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                          // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat"
                     " WHERE "
@@ -2285,9 +2292,9 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
                     " GROUP BY act." CP_ID_ACTES "\n";                        // tous les actes pour lesquels aucun renseignement de paiement n'a été enregistré et qui ne sont pas en salle d'attente
 
         requete +=  " UNION \n\n"
-                    " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                         // 0, 1, 2, 3, 4
-                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu, 0 as Regle, "                   // 5, 6, 7, 8, 9
-                    CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                               // 10, 11, 12
+                    " SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","               // 0, 1, 2, 3, 4
+                    CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_MONTANT_ACTES " as ResteDu, 0 as Regle, "     // 5, 6, 7, 8, 9
+                    CP_DDN_PATIENTS ", " CP_IDUSERCOMPTABLE_ACTES ", " CP_IDUSER_ACTES                                                                  // 10, 11, 12
                     " FROM " TBL_ACTES " act, " TBL_PATIENTS " pat, " TBL_TYPEPAIEMENTACTES " typ\n"
                     " WHERE typ." CP_TYPEPAIEMENT_TYPEPAIEMENTACTES " = 'I'\n"
                     " AND typ." CP_IDACTE_TYPEPAIEMENTACTES " = act." CP_ID_ACTES "\n"
@@ -2305,7 +2312,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,ActesDirects);
-        requete =   "SELECT " CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","                                  // 0, 1, 2, 3, 4
+        requete =   "SELECT " CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ","            // 0, 1, 2, 3, 4
                     CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_MONTANT_ACTES " as CalculPaiement, " CP_IDUSERCOMPTABLE_ACTES ","            // 5, 6, 7, 8, 9
                     CP_IDUSER_ACTES                                                                                                             // 10
                     " FROM \n" TBL_ACTES " act, " TBL_PATIENTS " pat \n"

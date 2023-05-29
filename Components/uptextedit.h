@@ -26,8 +26,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QKeyEvent>
 #include <QApplication>
 #include <QMenu>
-#include "icons.h"
-#include "macros.h"
 #include "utils.h"
 
 class UpTextEdit : public QTextEdit

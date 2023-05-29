@@ -1222,8 +1222,7 @@ void dlg_param::startImmediateBackup()
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
         dirsauvorigin = PATH_DIR_DOSSIERECHANGE;
-    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
-                                                       "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin), QStringList(), false);
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base"), QUrl::fromLocalFile(dirsauvorigin), QStringList(), false);
     if (url == QUrl())
         return;
     if (QDir(url.path()).exists())

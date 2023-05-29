@@ -217,7 +217,7 @@ QString Utils::retirecaracteresaccentues(QString nom)
  */
 bool Utils::convertHTML(QString &text)
 {
-    UpTextEdit textprov;
+    QTextEdit textprov;
     textprov.setText( text );
     text = textprov.toHtml();
     return retirelignevidefinhtml(text);
@@ -231,7 +231,7 @@ bool Utils::convertHTML(QString &text)
  */
 void Utils::convertPlainText(QString &text)
 {
-    UpTextEdit textprov;
+    QTextEdit textprov;
     textprov.setText( text );
     text = textprov.toPlainText();
     text  = trim(text, true, true);
@@ -703,13 +703,13 @@ bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified
         UpDialog *dlg_askMDP    = new UpDialog(parent);
         dlg_askMDP      ->setWindowModality(Qt::WindowModal);
 
-        QLineEdit *ConfirmMDP = new QLineEdit(dlg_askMDP);
+        UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
         ConfirmMDP      ->setEchoMode(QLineEdit::Password);
         ConfirmMDP      ->setAlignment(Qt::AlignCenter);
         ConfirmMDP      ->setMaxLength(25);
         dlg_askMDP      ->dlglayout()->insertWidget(0,ConfirmMDP);
 
-        QLabel *labelConfirmMDP = new QLabel();
+        UpLabel *labelConfirmMDP = new UpLabel();
         labelConfirmMDP ->setText(Msg);
         labelConfirmMDP ->setAlignment(Qt::AlignCenter);
         dlg_askMDP      ->dlglayout()->insertWidget(0,labelConfirmMDP);
@@ -1356,7 +1356,7 @@ void Utils::AfficheImage(QImage img)
     UpDialog *dlg   = new UpDialog();
     QPixmap pix     = QPixmap();
     pix             = QPixmap::fromImage(img.scaled(QSize(1050-2, 1485-2), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-    QLabel *lab    = new QLabel();
+    UpLabel *lab    = new UpLabel();
     lab             ->resize(pix.width(), pix.height());
     lab             ->setPixmap(pix);
     dlg->dlglayout()->insertWidget(0,lab);

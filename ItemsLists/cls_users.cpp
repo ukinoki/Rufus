@@ -84,35 +84,37 @@ Users::Users(QObject *parent) : ItemsList(parent)
  * \return false si le paramètre usr est un Q_NULLPTR
  * \return false si l'utilisateur est déjà présent
  */
-bool Users::add(User *usr)
+bool Users::addUser(User *user)
 {
-    if( usr == Q_NULLPTR)
+    if( user == Q_NULLPTR)
         return false;
-    auto itusr = map_all->constFind(usr->id());
-    if( itusr != map_all->constEnd() )
-        itusr.value()->setData(usr->datas());
-    else
-        map_all->insert(usr->id(), usr);
-    mapsclean(usr);
-    if (!usr->isDesactive())
+    int iduser = user->id();
+    add(map_all, user, Item::Update);
+    auto itusr = map_all->constFind(iduser);
+    User *usr = itusr.value();
+    if (usr)
     {
-        usr->setmodecomptable();
-        map_actifs->insert(usr->id(), usr);
-        if( usr->isResponsable() || usr->isResponsableOuAssistant())
-            map_superviseurs->insert(usr->id(), usr);
-        if( usr->isLiberal() || usr->isLiberalSEL() )
-            map_liberaux->insert(usr->id(), usr);
-        if( usr->isSoignant() && !usr->isRemplacant() )
-            map_parents->insert(usr->id(), usr);
-        if( usr->modecomptable().testFlag(User::ComptaMedicalActs))
-            map_comptablesactes->insert(usr->id(), usr);
-        if( usr->modecomptable().testFlag(User::ComptaNoMedical))
-            map_comptablessaufactes->insert(usr->id(), usr);
-        if( usr->isMedecin() )
-            map_medecins->insert(usr->id(), usr);
+        mapsclean(usr);
+        if (!usr->isDesactive())
+        {
+            usr->setmodecomptable();
+            map_actifs->insert(usr->id(), usr);
+            if( usr->isResponsable() || usr->isResponsableOuAssistant())
+                map_superviseurs->insert(usr->id(), usr);
+            if( usr->isLiberal() || usr->isLiberalSEL() )
+                map_liberaux->insert(usr->id(), usr);
+            if( usr->isSoignant() && !usr->isRemplacant() )
+                map_parents->insert(usr->id(), usr);
+            if( usr->modecomptable().testFlag(User::ComptaMedicalActs))
+                map_comptablesactes->insert(usr->id(), usr);
+            if( usr->modecomptable().testFlag(User::ComptaNoMedical))
+                map_comptablessaufactes->insert(usr->id(), usr);
+            if( usr->isMedecin() )
+                map_medecins->insert(usr->id(), usr);
+        }
+        else
+            map_inactifs->insert(usr->id(), usr);
     }
-    else
-        map_inactifs->insert(usr->id(), usr);
     return true;
 }
 
@@ -120,7 +122,7 @@ void Users::addList(QList<User*> listusr)
 {
     foreach (User *usr, listusr)
         if(usr != Q_NULLPTR)
-            add(usr);
+            addUser(usr);
 }
 
 /*!
@@ -140,7 +142,7 @@ User* Users::getById(int id, Item::UPDATE upd)
         if( jsonUser.isEmpty() )
             return Q_NULLPTR;
         result = new User(jsonUser);
-        add(result);
+        addUser(result);
     }
     else
     {
@@ -171,12 +173,12 @@ void Users::reload(User *usr)
         return;
     usr->setData(jsonUser);
     if( map_all->constFind(usr->id()) == map_all->constEnd() )
-        add(usr);
+        addUser(usr);
 }
 
 bool Users::recalcStatut(User *usr)
 {
-    return add(usr);
+    return addUser(usr);
 }
 
 /*!
@@ -270,15 +272,31 @@ void Users::mapsclean(User *usr)
     }
     else
     {
-        map_actifs          ->remove(usr->id());
-        map_inactifs        ->remove(usr->id());
-        map_superviseurs    ->remove(usr->id());
-        map_liberaux        ->remove(usr->id());
-        map_parents         ->remove(usr->id());
-        map_comptablesactes ->remove(usr->id());
-        map_comptablessaufactes ->remove(usr->id());
-        map_medecins        ->remove(usr->id());
-    }
+        User *user;
+        user = dynamic_cast<User*>(map_actifs->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_inactifs->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_superviseurs->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_liberaux->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_parents->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_comptablesactes->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_comptablessaufactes->take(usr->id()));
+        if (user != usr)
+            delete user;
+        user = dynamic_cast<User*>(map_medecins->take(usr->id()));
+        if (user != usr)
+            delete user;    }
 }
 
 
