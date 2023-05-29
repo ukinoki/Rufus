@@ -236,7 +236,7 @@ void Users::CalcCompteEncaissementActes(User *usr)
         else if (usr->isLiberalSEL() || usr->isSoignantSalarie())
         {
             auto it = map_comptablesactes->find(usr->idemployeur());
-            if (it != map_comptablesactes->cend())
+            if (it != map_comptablesactes->end())
             {
                 User *usrcpt = it.value();
                 if (usrcpt)
