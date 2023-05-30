@@ -416,7 +416,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         DefinitScriptBackup(pathbackupbase);
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
         QProcess backupProcess;
-        backupProcess.start(task, QStringList());
+        backupProcess.start(task);          //! start(task, QStingList()) ne fonctionne pas
         backupProcess.waitForFinished(1000000000);
         result(handledlg, this);
         if (backupProcess.exitStatus() != QProcess::NormalExit)
