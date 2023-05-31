@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-05-2023/1");
+    qApp->setApplicationVersion("31-05-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -4336,11 +4336,16 @@ void Rufus::RetrouveMontantActe()
     QString MontantActe = "0.00";
     QString cotation = ui->ActeCotationcomboBox->currentText();
     ui->EnregistrePaiementpushButton->setEnabled(cotation!="");
-    User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
-    if (superviseur)
-        retrouvecotation(superviseur, cotation, MontantActe);
-    else
+    if (cotation == GRATUIT)
         ui->ActeMontantlineEdit->setText(MontantActe);
+    else
+    {
+        User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
+        if (superviseur)
+            retrouvecotation(superviseur, cotation, MontantActe);
+        else
+            ui->ActeMontantlineEdit->setText(MontantActe);
+    }
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
         ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
 
