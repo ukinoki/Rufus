@@ -106,7 +106,7 @@ void dlg_remisecheques::reject()
 {
     if (ui->ListeChequesupTableWidget->currentColumn() == 4)
     {
-        QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(ui->ListeChequesupTableWidget->currentRow(),4));
+        QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(ui->ListeChequesupTableWidget->currentRow(),4));
         QString b ;
         b.setNum(Line->text().toDouble(),'f',2);
         Line->setText(m_valeuravantchangement);
@@ -221,7 +221,7 @@ void dlg_remisecheques::ImprimepushButton()
         double Total = 0;
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
         {
-            QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
+            QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
             Total = Total + QLocale().toDouble(Line->text());
         }
 
@@ -392,7 +392,7 @@ void dlg_remisecheques::ItemChequeARemettreClicked(int A, int B)
         ui->ChequesEnAttenteupTableWidget->setItem(i,2,pItem1);                                 // Tireur
         pItem2->setText(ui->ListeChequesupTableWidget->item(A,3)->text());
         ui->ChequesEnAttenteupTableWidget->setItem(i,3,pItem2);                                 // Banque
-        QLineEdit* LigneMontant = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(A,4));
+        QLineEdit* LigneMontant = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(A,4));
         LigneMontant2->setText(LigneMontant->text());
         ui->ChequesEnAttenteupTableWidget->setCellWidget(i,4,LigneMontant2);                     // Montant
         pItem3->setText(idRec);
@@ -470,7 +470,7 @@ void dlg_remisecheques::ItemChequeEnAttenteClicked(int A, int B)
         ui->ListeChequesupTableWidget->setItem(i,2,pItem1);                                 // Tireur
         pItem2->setText(ui->ChequesEnAttenteupTableWidget->item(A,3)->text());
         ui->ListeChequesupTableWidget->setItem(i,3,pItem2);                                 // Banque
-        QLineEdit* LigneMontant = static_cast<QLineEdit*>(ui->ChequesEnAttenteupTableWidget->cellWidget(A,4));
+        QLineEdit* LigneMontant = qobject_cast<QLineEdit*>(ui->ChequesEnAttenteupTableWidget->cellWidget(A,4));
         LigneMontant2->setText(LigneMontant->text());
         ui->ListeChequesupTableWidget->setCellWidget(i,4,LigneMontant2);                     // Montant
         pItem3->setText(idRec);
@@ -517,12 +517,12 @@ void dlg_remisecheques::MiseEnFormeMontant(int A, int B, int C, int D)
 {
     if (B == 4)   // on arrive dans la case montant et on met en mémoire le montant qui y figure
     {
-        QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(A,B));
+        QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(A,B));
         m_valeuravantchangement.setNum(Line->text().toDouble(),'f',2);
     }
     if (D == 4)   // on quitte une case montant et on valide le montant qui y figure sinon, on remet l'ancien
     {
-        QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(C,4));
+        QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(C,4));
         QString b ;
         b = QLocale().toString(QLocale().toDouble(Line->text()),'f',2);
         if (b == "" || QLocale().toDouble(b) <= 0)
@@ -652,7 +652,7 @@ void dlg_remisecheques::RecalculeMontant()
     double Total = 0;
     for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
     {
-        QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
+        QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
         Total = Total + QLocale().toDouble(Line->text());
     }
     ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QString::number(Total) + tr(" euros"));
@@ -661,7 +661,7 @@ void dlg_remisecheques::RecalculeMontant()
 void dlg_remisecheques::ToolTip(int A, int B)
 {
     int col = 5;
-    UpTableWidget *tabl = dynamic_cast<UpTableWidget *>(sender());
+    UpTableWidget *tabl = qobject_cast<UpTableWidget *>(sender());
     if (tabl)   {
         QString RecSpec = tabl->item(A,6)->text();
         if (B == 2 || B == 3)
@@ -1040,7 +1040,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         }
         for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
         {
-            QLineEdit* Line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
+            QLineEdit* Line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
             Total = Total + QLocale().toDouble(Line->text());
         }
         ui->TotallineEdit->setText(QString::number(ui->ListeChequesupTableWidget->rowCount()) + tr(" chèques -> ") + QLocale().toString(Total,'f',2) + tr(" euros"));
@@ -1129,7 +1129,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
             gtotalMontRemise += QLocale().toDouble(ui->ListeChequesupTableWidget->item(k,4)->text());
         }
         else if (m_mode == NouvelleRemise) {
-            QLineEdit *line = static_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
+            QLineEdit *line = qobject_cast<QLineEdit*>(ui->ListeChequesupTableWidget->cellWidget(k,4));
             LigneChq.replace("{{MONT REGLT}}", line->text());
             gtotalMontRemise += QLocale().toDouble(line->text());
         }

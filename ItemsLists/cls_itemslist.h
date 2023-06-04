@@ -229,161 +229,161 @@ static bool Supprime(QMap<int, T*> *m_map, T* item)
     bool loop = false;
     while (!loop)
     {
-        if (dynamic_cast<Acte*>(item) != Q_NULLPTR)
+        if (qobject_cast<Acte*>(item) != Q_NULLPTR)
         {
             table = TBL_ACTES;
             idname = CP_ID_ACTES;
             loop = true;
             break;
         }
-        if (dynamic_cast<Banque*>(item)!= Q_NULLPTR)
+        if (qobject_cast<Banque*>(item)!= Q_NULLPTR)
         {
             table = TBL_BANQUES;
             idname = CP_ID_BANQUES;
             loop = true;
             break;
         }
-        if (dynamic_cast<Compte*>(item)!= Q_NULLPTR)
+        if (qobject_cast<Compte*>(item)!= Q_NULLPTR)
         {
             table = TBL_COMPTES;
             idname = CP_ID_COMPTES;
             loop = true;
             break;
         }
-        if (dynamic_cast<Depense*>(item)!= Q_NULLPTR)
+        if (qobject_cast<Depense*>(item)!= Q_NULLPTR)
         {
             table = TBL_DEPENSES;
             idname = CP_ID_DEPENSES;
             loop = true;
             break;
         }
-        if (dynamic_cast<DocExterne*>(item) != Q_NULLPTR)
+        if (qobject_cast<DocExterne*>(item) != Q_NULLPTR)
         {
             table = TBL_DOCSEXTERNES;
             idname = CP_ID_DOCSEXTERNES;
             loop = true;
             break;
         }
-        if (dynamic_cast<PatientEnCours*>(item) != Q_NULLPTR)
+        if (qobject_cast<PatientEnCours*>(item) != Q_NULLPTR)
         {
             table = TBL_SALLEDATTENTE;
             idname = CP_IDPAT_SALDAT;
             loop = true;
             break;
         }
-        if (dynamic_cast<Refraction*>(item) != Q_NULLPTR)
+        if (qobject_cast<Refraction*>(item) != Q_NULLPTR)
         {
             table = TBL_REFRACTIONS;
             idname = CP_ID_REFRACTIONS;
             loop = true;
             break;
         }
-        if (dynamic_cast<Correspondant*>(item) != Q_NULLPTR)
+        if (qobject_cast<Correspondant*>(item) != Q_NULLPTR)
         {
             table = TBL_CORRESPONDANTS;
             idname = CP_ID_CORRESP;
             loop = true;
             break;
         }
-        if (dynamic_cast<LigneCompte*>(item) != Q_NULLPTR)
+        if (qobject_cast<LigneCompte*>(item) != Q_NULLPTR)
         {
             table = TBL_LIGNESCOMPTES;
             idname = CP_ID_LIGNCOMPTES;
             loop = true;
             break;
         }
-        if (dynamic_cast<SessionOperatoire*>(item) != Q_NULLPTR)
+        if (qobject_cast<SessionOperatoire*>(item) != Q_NULLPTR)
         {
             table = TBL_SESSIONSOPERATOIRES;
             idname = CP_ID_SESSIONOPERATOIRE;
             loop = true;
             break;
         }
-        if (dynamic_cast<Intervention*>(item) != Q_NULLPTR)
+        if (qobject_cast<Intervention*>(item) != Q_NULLPTR)
         {
             table = TBL_LIGNESPRGOPERATOIRES;
             idname = CP_ID_LIGNPRGOPERATOIRE;
             loop = true;
             break;
         }
-        if (dynamic_cast<TypeIntervention*>(item) != Q_NULLPTR)
+        if (qobject_cast<TypeIntervention*>(item) != Q_NULLPTR)
         {
             table = TBL_TYPESINTERVENTIONS;
             idname = CP_ID_TYPINTERVENTION;
             loop = true;
             break;
         }
-        if (dynamic_cast<Manufacturer*>(item) != Q_NULLPTR)
+        if (qobject_cast<Manufacturer*>(item) != Q_NULLPTR)
         {
             table = TBL_MANUFACTURERS;
             idname = CP_ID_MANUFACTURER;
             loop = true;
             break;
         }
-        if (dynamic_cast<IOL*>(item) != Q_NULLPTR)
+        if (qobject_cast<IOL*>(item) != Q_NULLPTR)
         {
             table = TBL_IOLS;
             idname = CP_ID_IOLS;
             loop = true;
             break;
         }
-        if (dynamic_cast<Tiers*>(item) != Q_NULLPTR)
+        if (qobject_cast<Tiers*>(item) != Q_NULLPTR)
         {
             table = TBL_TIERS;
             idname = CP_ID_TIERS;
             loop = true;
             break;
         }
-        if (dynamic_cast<Commercial*>(item) != Q_NULLPTR)
+        if (qobject_cast<Commercial*>(item) != Q_NULLPTR)
         {
             table = TBL_COMMERCIALS;
             idname = CP_ID_COM;
             loop = true;
             break;
         }
-        if (dynamic_cast<CommentLunet*>(item) != Q_NULLPTR)
+        if (qobject_cast<CommentLunet*>(item) != Q_NULLPTR)
         {
             table = TBL_COMMENTAIRESLUNETTES;
             idname = CP_ID_COMLUN;
             loop = true;
             break;
         }
-        if (dynamic_cast<MotCle*>(item) != Q_NULLPTR)
+        if (qobject_cast<MotCle*>(item) != Q_NULLPTR)
         {
             table = TBL_MOTSCLES;
             idname = CP_ID_MOTCLE;
             loop = true;
             break;
         }
-        if (dynamic_cast<Site*>(item) != Q_NULLPTR)
+        if (qobject_cast<Site*>(item) != Q_NULLPTR)
         {
             table = TBL_LIEUXEXERCICE;
             idname = CP_ID_SITE;
             loop = true;
             break;
         }
-        if (dynamic_cast<Impression*>(item) != Q_NULLPTR)
+        if (qobject_cast<Impression*>(item) != Q_NULLPTR)
         {
             table = TBL_IMPRESSIONS;
             idname = CP_ID_IMPRESSIONS;
             loop = true;
             break;
         }
-        if (dynamic_cast<DossierImpression*>(item) != Q_NULLPTR)
+        if (qobject_cast<DossierImpression*>(item) != Q_NULLPTR)
         {
             table = TBL_DOSSIERSIMPRESSIONS;
             idname = CP_ID_DOSSIERIMPRESSIONS;
             loop = true;
             break;
         }
-        if (dynamic_cast<Message*>(item) != Q_NULLPTR)
+        if (qobject_cast<Message*>(item) != Q_NULLPTR)
         {
             table = TBL_MESSAGES;
             idname = CP_ID_MSG;
             loop = true;
             break;
         }
-        if (dynamic_cast<Session*>(item) != Q_NULLPTR)
+        if (qobject_cast<Session*>(item) != Q_NULLPTR)
         {
             table = TBL_SESSIONS;
             idname = CP_ID_SESSIONS;

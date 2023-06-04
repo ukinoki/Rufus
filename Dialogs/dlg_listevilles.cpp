@@ -105,7 +105,7 @@ bool dlg_listevilles::ChercheDoublon(QString cp, QString nom)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
-            Ville *ville = dynamic_cast<Ville*>(itm->item());
+            Ville *ville = qobject_cast<Ville*>(itm->item());
             if (ville)
             {
                 if (ville->codepostal().toUpper() == cp.toUpper() && ville->nom().toUpper() == nom.toUpper())
@@ -154,7 +154,7 @@ Ville* dlg_listevilles::getVilleFromIndex(QModelIndex idx)
     int row = m_listCPsproxymodel->mapToSource(m_listnomsproxymodel->mapToSource(idx)).row();
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (itm)
-        return dynamic_cast<Ville*>(itm->item());
+        return qobject_cast<Ville*>(itm->item());
     else
         return Q_NULLPTR;
 }
@@ -170,7 +170,7 @@ Ville* dlg_listevilles::getVilleFromNom(QString nomVille, Qt::MatchFlag flags)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listitm.at(0));
         if (itm)
         {
-            Ville *ville = dynamic_cast<Ville*>(itm->item());
+            Ville *ville = qobject_cast<Ville*>(itm->item());
             return ville;
         }
     }
@@ -297,7 +297,7 @@ void dlg_listevilles::selectcurrentVille(Ville *ville, QAbstractItemView::Scroll
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(sourceindex));
         if (itm)
         {
-            Ville *vill = dynamic_cast<Ville*>(itm->item());
+            Ville *vill = qobject_cast<Ville*>(itm->item());
             if (vill)
                 if (m_currentville == vill)
                 {
@@ -420,7 +420,7 @@ void dlg_listevilles::EnregistreNouvelleVille()
 void dlg_listevilles::actualiserListeVillesEtFocus(Ville *focusVille)
 {
     RemplirTableView();
-    QStringListModel *model = dynamic_cast<QStringListModel *>(m_complListVilles->model());
+    QStringListModel *model = qobject_cast<QStringListModel *>(m_complListVilles->model());
     if (model)
         model->setStringList(Datas::I()->villes->ListeNomsVilles());
     if (focusVille != Q_NULLPTR)

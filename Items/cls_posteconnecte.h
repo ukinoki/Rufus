@@ -30,6 +30,7 @@ class PosteConnecte : public Item
      * un utilisateur peut -être connecté sur plusieurs postes en même temps dans la même session
      * la clé de la table correspond au couple iduser-macadress qui ne peut donc qu'être unique
      */
+    Q_OBJECT
 public:
     explicit PosteConnecte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);

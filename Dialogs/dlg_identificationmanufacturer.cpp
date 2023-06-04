@@ -146,7 +146,7 @@ Commercial* dlg_identificationmanufacturer::getCommercialFromIndex(QModelIndex i
     Commercial *com = Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_commodel->itemFromIndex(idx));
     if(itm)
-        com = dynamic_cast<Commercial*>(itm->item());
+        com = qobject_cast<Commercial*>(itm->item());
     return com;
 }
 
@@ -169,7 +169,7 @@ void    dlg_identificationmanufacturer::OKpushButtonClicked(bool acceptalafin)
         return;
     }
 
-    UpLineEdit* line = dynamic_cast<UpLineEdit*>(focusWidget());
+    UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
     if (line != Q_NULLPTR)
         if (line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit)
             line->setText(Utils::trimcapitilize(line->text()));
@@ -257,7 +257,7 @@ bool dlg_identificationmanufacturer::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::KeyPress && !obj->inherits("QPushButton") )
+    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == Q_NULLPTR )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Return ou Enter - On va au Tab Suivant -----------------------------------------------------------------------------------------------------------------------------
@@ -316,7 +316,7 @@ void dlg_identificationmanufacturer::EnregistreNouveauCommercial()
             if (itm)
                 if (itm->item())
                 {
-                    Commercial *scom = dynamic_cast<Commercial*>(itm->item());
+                    Commercial *scom = qobject_cast<Commercial*>(itm->item());
                     if (scom)
                         if (scom->id() == id)
                         {
@@ -350,7 +350,7 @@ void dlg_identificationmanufacturer::ModifieCommercial(Commercial *com)
             if (itm)
                 if (itm->item())
                 {
-                    Commercial *scom = dynamic_cast<Commercial*>(itm->item());
+                    Commercial *scom = qobject_cast<Commercial*>(itm->item());
                     if (scom)
                     {
                         if (scom->id() == id)

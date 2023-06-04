@@ -135,7 +135,7 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
         QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
     connect(this,   &ShowMessage::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
             if (prioritydlg->parent() != Q_NULLPTR)
-                static_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
+                qobject_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
             prioritydlg->reject();
         }
         });

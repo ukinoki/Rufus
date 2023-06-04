@@ -438,7 +438,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         AfficheDatasIOL(m_currentIOL);
     foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'il est coché/décoché par le programme
     {
-        UpCheckBox *chk = dynamic_cast<UpCheckBox*>(wdg);
+        UpCheckBox *chk = qobject_cast<UpCheckBox*>(wdg);
         if (chk)
             chk->installEventFilter(this);
     }
@@ -457,7 +457,7 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn )
     {
-        UpDoubleSpinBox* objUpdSpin = dynamic_cast<UpDoubleSpinBox*>(obj);
+        UpDoubleSpinBox* objUpdSpin = qobject_cast<UpDoubleSpinBox*>(obj);
         if (objUpdSpin != Q_NULLPTR)   {
             objUpdSpin->setPrefix("");
             objUpdSpin->selectAll();
@@ -473,7 +473,7 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
     if(event->type()==QEvent::MouseButtonPress)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
         {
-            UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+            UpCheckBox *chk = qobject_cast<UpCheckBox*>(obj);
             if (chk)
                 emit chk->uptoggled(!chk->isChecked()); //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
         }
@@ -942,7 +942,7 @@ void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
         if (itm)
         {
-            IOL* iol = dynamic_cast<IOL*>(itm->item());
+            IOL* iol = qobject_cast<IOL*>(itm->item());
             if (iol)
                 m_listeidIOLs << iol->id();
         }

@@ -180,7 +180,7 @@ void dlg_comptes::Archiver()
     QList<int> ListeActesAArchiver;
     for (int i = 0; i < wdg_bigtable->rowCount();i++)
     {
-        QWidget* Wdg = dynamic_cast<QWidget*>(wdg_bigtable->cellWidget(i,6));
+        QWidget* Wdg = qobject_cast<QWidget*>(wdg_bigtable->cellWidget(i,6));
         if (Wdg)
         {
             QList<UpCheckBox *> allCheck = Wdg->findChildren<UpCheckBox *>();
@@ -188,7 +188,7 @@ void dlg_comptes::Archiver()
             {
                 if (allCheck.at(n)->isChecked())
                 {
-                    QLabel *Lbl = dynamic_cast<QLabel*>(wdg_bigtable->cellWidget(i,0));
+                    QLabel *Lbl = qobject_cast<QLabel*>(wdg_bigtable->cellWidget(i,0));
                     if (Lbl)
                         ListeActesAArchiver << Lbl->text().toInt();
                 }
@@ -263,7 +263,7 @@ void dlg_comptes::AnnulConsolidations()
 {
     for (int i = 0; i < wdg_bigtable->rowCount(); i++)
     {
-        QWidget* Wdg = dynamic_cast<QWidget*>(wdg_bigtable->cellWidget(i,6));
+        QWidget* Wdg = qobject_cast<QWidget*>(wdg_bigtable->cellWidget(i,6));
         if (Wdg)
         {
             QList<UpCheckBox *> allCheck = Wdg->findChildren<UpCheckBox *>();
@@ -630,7 +630,7 @@ int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
     int row = -1;
     for (int i=0; i<wdg_bigtable->rowCount(); ++i)
     {
-        UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_bigtable->cellWidget(i,0));
+        UpLabel *lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(i,0));
         if (lbl == Q_NULLPTR)
             continue;
         if (lbl->iD() == lign->id())
@@ -726,7 +726,7 @@ bool dlg_comptes::eventFilter(QObject *obj, QEvent *event)
                 if (RangeeSelectionne.size() > 0)
                 {
                     int ab = RangeeSelectionne.at(0).topRow();
-                    QWidget* Wdg = dynamic_cast<QWidget*>(wdg_bigtable->cellWidget(ab,6));
+                    QWidget* Wdg = qobject_cast<QWidget*>(wdg_bigtable->cellWidget(ab,6));
                     if (Wdg)
                     {
                         QList<UpCheckBox *> allCheck = Wdg->findChildren<UpCheckBox *>();
@@ -834,7 +834,7 @@ void dlg_comptes::RemplitLaTable(int idcompte)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listlign->item(i));
         if (itm != Q_NULLPTR)
         {
-            LigneCompte *lign = dynamic_cast<LigneCompte*>(itm->item());
+            LigneCompte *lign = qobject_cast<LigneCompte*>(itm->item());
             if (lign != Q_NULLPTR)
                 SetLigneCompteToRow(lign, i);
             delete itm;
@@ -847,7 +847,7 @@ void dlg_comptes::RemplitLaTable(int idcompte)
 LigneCompte* dlg_comptes::getLigneCompteFromRow(int row)
 {
     int idcompte = 0;
-    UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
+    UpLabel *lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
     if (lbl == Q_NULLPTR)
         return Q_NULLPTR;
     idcompte = lbl->iD();

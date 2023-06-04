@@ -39,12 +39,12 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     m_mode = mode;
     switch (m_mode) {
     case Modification:
-        m_currentcommercial = static_cast<Commercial*>(itm);
+        m_currentcommercial = qobject_cast<Commercial*>(itm);
         if (m_currentcommercial)
             m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentcommercial->idmanufacturer());
         break;
     case Creation:
-        m_currentmanufacturer= static_cast<Manufacturer*>(itm);
+        m_currentmanufacturer= qobject_cast<Manufacturer*>(itm);
     }
     if (!m_currentcommercial)
         m_mode = Creation;

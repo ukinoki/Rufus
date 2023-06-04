@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Archive : public Item
 {
-
+    Q_OBJECT
 private:
     int m_idcompte;
     int m_iddepense, m_idrecette, m_idrecettespeciale, m_idremisecheque;

@@ -22,9 +22,9 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
 {
     m_mode           = mode;
     if ( m_mode == Document)
-        m_iditem = static_cast<Patient*>(item)->id();
+        m_iditem = qobject_cast<Patient*>(item)->id();
     else
-        m_iditem = static_cast<Depense*>(item)->id();
+        m_iditem = qobject_cast<Depense*>(item)->id();
     QString         NomOnglet;
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
@@ -468,7 +468,7 @@ bool dlg_docsscanner::eventFilter(QObject *obj, QEvent *event)
             wdg_uptable->setColumnWidth(0,wdg_uptable->width()-2);
             for (int i=0; i < wdg_uptable->rowCount(); i++)
             {
-                UpLabel *lbl = static_cast<UpLabel*>(wdg_uptable->cellWidget(i,0));
+                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_uptable->cellWidget(i,0));
                 QPixmap  pix = QPixmap::fromImage(m_listimages.at(i).scaled(wdg_uptable->width()-2,wdg_uptable->height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation));
                 lbl->setPixmap(pix);
                 wdg_uptable->setRowHeight(i,pix.height());

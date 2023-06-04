@@ -1351,14 +1351,14 @@ void dlg_depenses::ModifierDepense()
                 break;
             }
         QString A;
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,1))->setText(QLocale::system().toString(dep->date(),tr("d MMM yyyy") + " "));             // Date - col = 1
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
+        qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,1))->setText(QLocale::system().toString(dep->date(),tr("d MMM yyyy") + " "));             // Date - col = 1
+        qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
 
         if (dep->monnaie() == "F")
             A = QLocale().toString(dep->montant()/6.55957,'f',2);                                                               // Montant en F converti en euros
         else
             A = QLocale().toString(dep->montant(),'f',2);                                                                       // Montant - col = 3
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,3))->setText(A + " ");
+        qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,3))->setText(A + " ");
 
         A = dep->modepaiement();                                                                                                // Mode de paiement - col = 4
         QString B = "";
@@ -1378,9 +1378,9 @@ void dlg_depenses::ModifierDepense()
                     C += " " + QString::number(dep->nocheque());
         }
         A += " " + B + " " + C;
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,4))->setText(" " + A);
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,5))->setText(" " + dep->rubriquefiscale());                                  // Ref fiscale - col = 5
-        static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
+        qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,4))->setText(" " + A);
+        qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,5))->setText(" " + dep->rubriquefiscale());                                  // Ref fiscale - col = 5
+        qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
         A = dep->date().toString("yyyy-MM-dd");
         wdg_bigtable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
     }
@@ -1649,7 +1649,7 @@ void dlg_depenses::RechercheValeur()
             ui->Rubriques2035comboBox->setCurrentIndex(0);
             FiltreTable();
         }
-        QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(box->model());
+        QStandardItemModel *model = qobject_cast<QStandardItemModel*>(box->model());
         if (model != Q_NULLPTR)
         {
             QModelIndex idx = box->model()->index(box->currentIndex(),0);
@@ -1851,9 +1851,9 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             if (dlg_ask->exec() == QDialog::Accepted)
             {
                 int row             = listview->selectionModel()->selectedIndexes().at(0).row();
-                int idfact          = static_cast<QStandardItemModel*>(listview->model())->item(row,0)->text().toInt();
-                QString lienfichier = static_cast<QStandardItemModel*>(listview->model())->item(row,2)->text();
-                QString objet       = static_cast<QStandardItemModel*>(listview->model())->item(row,1)->text();
+                int idfact          = qobject_cast<QStandardItemModel*>(listview->model())->item(row,0)->text().toInt();
+                QString lienfichier = qobject_cast<QStandardItemModel*>(listview->model())->item(row,2)->text();
+                QString objet       = qobject_cast<QStandardItemModel*>(listview->model())->item(row,1)->text();
                 /* on a récupéré un idfacture à utiliser comme échéancier pour cette dépense*/
                 ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
                 m_depenseencours->setlienfacture(lienfichier);

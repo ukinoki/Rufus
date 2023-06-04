@@ -69,22 +69,23 @@ void    dlg_autresmesures::OKButtonClicked()
 // Gestion des évènements
 //-------------------------------------------------------------------------------------
 
-bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event) // A REVOIR
+bool dlg_autresmesures::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::KeyPress)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        // Fleche Gauche - -----------------------------------------
-        if(keyEvent->key()==Qt::Key_Left)
-            if (!obj->inherits("QPushButton")) return QWidget::focusPreviousChild();
-
-        // Fleche Droite - -----------------------------------------
-        if(keyEvent->key()==Qt::Key_Right)
-            if (!obj->inherits("QPushButton")) return QWidget::focusNextChild();
-        // Return - Idem Flèche Droite sauf sur les pshButton ---------------------------
-        if(keyEvent->key()==Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
-            if (!obj->inherits("QPushButton"))
+        if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR)
+        {
+            // Fleche Gauche - -----------------------------------------
+            if(keyEvent->key()==Qt::Key_Left)
+                return QWidget::focusPreviousChild();
+            // Fleche Droite - -----------------------------------------
+            if(keyEvent->key()==Qt::Key_Right)
                 return QWidget::focusNextChild();
+            // Return - Idem Flèche Droite sauf sur les pshButton ---------------------------
+            if(keyEvent->key()==Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
+                return QWidget::focusNextChild();
+        }
     }
     return QWidget::eventFilter(obj, event);
 }

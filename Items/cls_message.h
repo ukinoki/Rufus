@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Message : public Item
 {
+    Q_OBJECT
 public:
     explicit                Message(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void                    setData(QJsonObject data = QJsonObject{});

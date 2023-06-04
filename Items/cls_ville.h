@@ -5,6 +5,7 @@
 
 class Ville : public Item
 {
+    Q_OBJECT
 private:
     //!< m_id l'id de la ville en base
     QString m_codePostal;   //!< le code postal de la ville

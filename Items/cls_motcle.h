@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class MotCle : public Item
 {
-
+    Q_OBJECT
 private:
     QString m_motcle = "";            //!< motclé
 

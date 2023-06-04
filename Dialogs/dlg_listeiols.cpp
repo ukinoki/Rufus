@@ -149,7 +149,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
         if (itm)
         {
-            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
             if (man)
                 wdg_manufacturerscombo->addItem(man->nom(), man->id());
         }
@@ -206,7 +206,7 @@ bool dlg_listeiols::eventFilter(QObject *obj, QEvent *event)
         if (keyEvent->key()==Qt::Key_Space)
             if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
             {
-                UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+                UpCheckBox *chk = qobject_cast<UpCheckBox*>(obj);
                 if (chk)
                 {
                     chk->setChecked(!chk->isChecked());
@@ -218,7 +218,7 @@ bool dlg_listeiols::eventFilter(QObject *obj, QEvent *event)
     if(event->type()==QEvent::MouseButtonPress)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
         {
-            UpCheckBox *chk = dynamic_cast<UpCheckBox*>(obj);
+            UpCheckBox *chk = qobject_cast<UpCheckBox*>(obj);
             if (chk)
             {
                 chk->setChecked(!chk->isChecked());
@@ -385,7 +385,7 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_IOLsmodel->itemFromIndex(idx));
     if (it != Q_NULLPTR)
-        return dynamic_cast<IOL *>(it->item());
+        return qobject_cast<IOL *>(it->item());
     else
         return Q_NULLPTR;
 }
@@ -648,7 +648,7 @@ void dlg_listeiols::ImportListeIOLS()
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
         if (itm)
         {
-            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
             if (man)
                 wdg_manufacturerscombo->addItem(man->nom(), man->id());
         }
@@ -769,7 +769,7 @@ void dlg_listeiols::scrollToIOL(IOL *iol)
                         if (childitm)
                             if (childitm->item())
                             {
-                                IOL *siol = dynamic_cast<IOL*>(childitm->item());
+                                IOL *siol = qobject_cast<IOL*>(childitm->item());
                                 if (siol)
                                 {
                                     if (siol->id() == iol->id())
@@ -873,7 +873,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
         if (itm != Q_NULLPTR)
         {
-            Manufacturer *man = dynamic_cast<Manufacturer*>(itm->item());
+            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
             if (man != Q_NULLPTR)
             {
                 if (idman == 0)                                                                 //! tous les fabricants

@@ -29,6 +29,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class RecetteComptable : public Item
 {
+    Q_OBJECT
 public:
     explicit RecetteComptable(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);

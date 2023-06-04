@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Cotation : public Item
 {
-
+    Q_OBJECT
 private:
     int m_iduser, m_frequence;
     QString m_typeacte, m_descriptif;

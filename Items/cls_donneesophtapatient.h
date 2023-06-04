@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class DonneesOphtaPatient : public Item
 {
+    Q_OBJECT
 public:
     DonneesOphtaPatient();
     void setData(QJsonObject data);

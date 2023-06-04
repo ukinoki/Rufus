@@ -587,7 +587,7 @@ void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
     else if (table == ui->AssocCCAMupTableWidget)
     {
         QString tip = item->text();
-        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(item->row(),2));
+        UpLineEdit * line = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(item->row(),2));
         if (line != Q_NULLPTR)
             if (line->datas().toString() != "")
                 tip += "\n" + line->datas().toString();
@@ -596,7 +596,7 @@ void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
     else if (table == ui->HorsNomenclatureupTableWidget)
     {
         QString tip = item->text();
-        UpLineEdit * line = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(item->row(),2));
+        UpLineEdit * line = qobject_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(item->row(),2));
         if (line != Q_NULLPTR)
             if (line->datas().toString() != "")
                 tip += "\n" + line->datas().toString();
@@ -696,19 +696,19 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
     switch (mode) {
     case Utils::Poste:
         row = ui->MonoDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
-        line    = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
+        line    = qobject_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(row,2));
         if (line!=Q_NULLPTR)
             line->setText(url.path());
         break;
     case Utils::ReseauLocal:
         row = ui->LocalDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
-        line    = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
+        line    = qobject_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(row,2));
         if (line!=Q_NULLPTR)
             line->setText(url.path());
         break;
     case Utils::Distant:
         row = ui->DistantDocupTableWidget->findItems(QString::number(butt->iD()), Qt::MatchExactly).at(0)->row();
-        line    = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
+        line    = qobject_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(row,2));
         if (line!=Q_NULLPTR)
             line->setText(url.path());
         break;
@@ -1046,11 +1046,11 @@ void dlg_param::FiltreActesOphtaSeulmt(bool b)
     bool a = (ui->LockParamUserupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
-        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
+        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
         if (check) check->setEnabled(a);
         if (ui->ActesCCAMupTableWidget->columnCount()==6)
         {
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
+            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
             if (lbl)
                 lbl->setEnabled(a);
         }
@@ -1231,7 +1231,7 @@ void dlg_param::startImmediateBackup()
 void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
 {
     QString req;
-    UpCheckBox* check = dynamic_cast<UpCheckBox*>(widg);
+    UpCheckBox* check = qobject_cast<UpCheckBox*>(widg);
     if (check)
     {
         int row = check->rowTable();
@@ -1246,7 +1246,7 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
             int secteur = currentuser()->secteurconventionnel();
             if (secteur>1)
             {
-                UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(row,5));
+                UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(row,5));
                 if (line)
                     montantpratique = QString::number(QLocale().toDouble(line->text()));
                 else
@@ -1286,13 +1286,13 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
     }
     else
     {
-        UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
+        UpLineEdit *line = qobject_cast<UpLineEdit*>(widg);
         if (line)
         {
             QString montant = QString::number(QLocale().toDouble(txt));
             line->setText(QLocale().toString(montant.toDouble(),'f',2));
             int row = line->Row();
-            UpCheckBox* check1 = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(row,0));
+            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
                 {
@@ -1310,7 +1310,7 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
 {
     bool ok;
     QString req;
-    UpCheckBox* check = dynamic_cast<UpCheckBox*>(widg);
+    UpCheckBox* check = qobject_cast<UpCheckBox*>(widg);
     if (check)
     {
         int row                 = check->rowTable();
@@ -1335,15 +1335,15 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
         {
             int secteur = currentuser()->secteurconventionnel();
             QString montantOPTAM(""), montantNonOPTAM("");
-            UpLineEdit *lineOPTAM = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
+            UpLineEdit *lineOPTAM = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
             if (lineOPTAM != Q_NULLPTR)
                 montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
-            UpLineEdit *lineNonOPTAM = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,3));
+            UpLineEdit *lineNonOPTAM = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,3));
             if (lineNonOPTAM != Q_NULLPTR)
                 montantNonOPTAM    = QString::number(QLocale().toDouble(lineNonOPTAM->text()));
             if (secteur>1)
             {
-                UpLineEdit *lineprat = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,4));
+                UpLineEdit *lineprat = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,4));
                 if (lineprat)
                     montantpratique = QString::number(QLocale().toDouble(lineprat->text()));
                 else
@@ -1382,11 +1382,11 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
     }
     else
     {
-        UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
+        UpLineEdit *line = qobject_cast<UpLineEdit*>(widg);
         if (line)
         {
             int row = line->Row();
-            UpCheckBox* check1 = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(row,0));
+            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
                 {
@@ -1412,7 +1412,7 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
 void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
 {
     QString req;
-    UpCheckBox* check = dynamic_cast<UpCheckBox*>(widg);
+    UpCheckBox* check = qobject_cast<UpCheckBox*>(widg);
     if (check)
     {
         int row                 = check->rowTable();
@@ -1422,7 +1422,7 @@ void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
             req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
         else
         {
-            UpLineEdit *lineprat = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,2));
+            UpLineEdit *lineprat = qobject_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,2));
             if (lineprat)
                 montantpratique = QString::number(QLocale().toDouble(lineprat->text()));
             req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
@@ -1438,11 +1438,11 @@ void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
     }
     else
     {
-        UpLineEdit *line = dynamic_cast<UpLineEdit*>(widg);
+        UpLineEdit *line = qobject_cast<UpLineEdit*>(widg);
         if (line)
         {
             int row = line->Row();
-            UpCheckBox* check1 = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,0));
+            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
                 {
@@ -1497,7 +1497,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
     bool modifboutonsHN     = false;
 
 
-    UpCheckBox* check0      = dynamic_cast<UpCheckBox*>(widg);
+    UpCheckBox* check0      = qobject_cast<UpCheckBox*>(widg);
     if (check0)
     {
         if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
@@ -1545,7 +1545,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
         bool checked = true;
         if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
         {
-            UpCheckBox* check                   = static_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow(),0));
+            UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow(),0));
             checked = check->isChecked();
         }
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
@@ -1574,7 +1574,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
         if (check0)
             if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
             {
-                UpCheckBox* check                   = static_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
+                UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
                 checked = check->isChecked();
             }
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
@@ -2163,7 +2163,7 @@ bool dlg_param::VerifDirStockageImagerie()
         {
             for (int i=0; i<ui->MonoDocupTableWidget->rowCount(); i++)
             {
-                UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(i,2));
+                UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(i,2));
                 if (line !=  Q_NULLPTR)
                     if (line->text() != "")
                     {
@@ -2191,7 +2191,7 @@ bool dlg_param::VerifDirStockageImagerie()
         {
             for (int i=0; i<ui->LocalDocupTableWidget->rowCount(); i++)
             {
-                UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(i,2));
+                UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->LocalDocupTableWidget->cellWidget(i,2));
                 if (line !=  Q_NULLPTR)
                     if (line->text() != "")
                     {
@@ -2219,7 +2219,7 @@ bool dlg_param::VerifDirStockageImagerie()
         {
             for (int i=0; i<ui->DistantDocupTableWidget->rowCount(); i++)
             {
-                UpLineEdit *line = dynamic_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(i,2));
+                UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->DistantDocupTableWidget->cellWidget(i,2));
                 if (line !=  Q_NULLPTR)
                     if (line->text() != "")
                     {
@@ -2288,10 +2288,10 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonRelease)
     {
-        UpLabel *lbl = dynamic_cast<UpLabel *>(obj);
+        UpLabel *lbl = qobject_cast<UpLabel *>(obj);
         if (lbl != Q_NULLPTR)
         {
-            UpLabel* upLabelObj = static_cast<UpLabel*>(obj);
+            UpLabel* upLabelObj = qobject_cast<UpLabel*>(obj);
             emit click(upLabelObj);
         }
         if (obj == ui->FermepushButton)
@@ -2303,14 +2303,14 @@ bool dlg_param::eventFilter(QObject *obj, QEvent *event)
     {
         if (obj == ui->FermepushButton)
         {
-            QPushButton* Button = static_cast<QPushButton*>(obj);
+            QPushButton* Button = qobject_cast<QPushButton*>(obj);
             Button->setIcon(Icons::icFermeAppuye());
         }
     }
     if(event->type() == QEvent::MouseMove)
         if (obj == ui->FermepushButton)
         {
-            QPushButton* Button = static_cast<QPushButton*>(obj);
+            QPushButton* Button = qobject_cast<QPushButton*>(obj);
             QRect rect = QRect(Button->mapToGlobal(QPoint(0,0)),Button->size());
             QPoint pos = mapFromParent(cursor().pos());
             if (rect.contains(pos))
@@ -2461,11 +2461,11 @@ void dlg_param::EnableActesCCAM(bool enable)
     bool autormodif         = enable && (currentuser()->idparent() == currentuser()->id());            // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
     {
-        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
+        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
         if (check) check->setEnabled(autormodif);
         if (ui->ActesCCAMupTableWidget->columnCount()==6)
         {
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
+            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
             if (lbl)
                 lbl->setEnabled(autormodif);
         }
@@ -2477,14 +2477,14 @@ void dlg_param::EnableAssocCCAM(bool enable)
     bool autormodif = enable && currentuser()->idparent() == currentuser()->id();  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
     {
-        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
+        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
         if (check) check->setEnabled(autormodif);
-        UpLineEdit *lbl1 = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
+        UpLineEdit *lbl1 = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
         if (lbl1)
             lbl1->setEnabled(autormodif);
         if (ui->AssocCCAMupTableWidget->columnCount()==5)
         {
-            UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
+            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
             if (lbl)
                 lbl->setEnabled(autormodif);
         }
@@ -2504,9 +2504,9 @@ void dlg_param::EnableHorsNomenclature(bool enable)
     bool autormodif = enable && currentuser()->idparent() == currentuser()->id();  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
     {
-        UpCheckBox *check = dynamic_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
+        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
         if (check) check->setEnabled(autormodif);
-        UpLineEdit *lbl = dynamic_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
+        UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
         if (lbl)
             lbl->setEnabled(autormodif);
     }
@@ -3205,7 +3205,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
             QString codeCCAM = Actesusrlist.at(i).at(0).toString();
             QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(codeCCAM, Qt::MatchExactly);
             if (listitems.size()>0)
-                static_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(listitems.at(0)->row(),0))->setCheckState(Qt::Checked);
+                qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(listitems.at(0)->row(),0))->setCheckState(Qt::Checked);
             if (ncol==6)
             {
                 QDoubleValidator *val = new QDoubleValidator(this);

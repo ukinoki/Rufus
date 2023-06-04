@@ -30,7 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class DocExterne : public Item
 {
-
+    Q_OBJECT
 private:
     int m_iduser;                       //!> l'utilisateur qui est le supervisuer du user crétateur au moment de la création du document
     int m_importance;                   //!> l'importance du document - 0 sans importance , 1 = normal, 2 = important

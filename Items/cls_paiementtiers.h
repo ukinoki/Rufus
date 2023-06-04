@@ -27,6 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class PaiementTiers : public Item
 {
+    Q_OBJECT
 public:
     explicit PaiementTiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);

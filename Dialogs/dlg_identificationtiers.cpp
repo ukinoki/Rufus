@@ -125,7 +125,7 @@ void    dlg_identificationtiers::OKpushButtonClicked()
         return;
     }
 
-    UpLineEdit* line = dynamic_cast<UpLineEdit*>(focusWidget());
+    UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
     if (line != Q_NULLPTR)
         if (line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit)
             line->setText(Utils::trimcapitilize(line->text()));
@@ -209,7 +209,7 @@ bool dlg_identificationtiers::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::KeyPress && !obj->inherits("QPushButton") )
+    if (event->type() == QEvent::KeyPress  && qobject_cast<QPushButton *>(obj) == Q_NULLPTR )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Return ou Enter - On va au Tab Suivant -----------------------------------------------------------------------------------------------------------------------------

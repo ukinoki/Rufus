@@ -547,7 +547,7 @@ void dlg_recettesspeciales::SupprimerRecette()
         {
             for (int i = 0; i< wdg_bigtable->rowCount(); i++)
             {
-                UpLabel *iddeplbl = static_cast<UpLabel *>(wdg_bigtable->cellWidget(i,0));
+                UpLabel *iddeplbl = qobject_cast<UpLabel *>(wdg_bigtable->cellWidget(i,0));
                 if (iddeplbl->text() == QString::number(m_idrecetteencours))
                 {
                     wdg_bigtable->removeRow(i);
@@ -574,7 +574,7 @@ void dlg_recettesspeciales::CalculTotalRecettes()
     {
         for (int k = 0; k < wdg_bigtable->rowCount(); k++)
         {
-            UpLabel* Line = dynamic_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3));
+            UpLabel* Line = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(k,3));
             if (Line)
                 Total += QLocale().toDouble(Line->text());
         }
@@ -612,7 +612,7 @@ void dlg_recettesspeciales::MetAJourFiche()
         ui->RefFiscalecomboBox  ->disconnect();
         ui->PaiementcomboBox    ->disconnect();
 
-        UpLabel* lbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),0));
+        UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),0));
         if (lbl == Q_NULLPTR)
             return;
         m_idrecetteencours = lbl->text().toInt();
@@ -852,7 +852,7 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
             bool trouve = false;
             for (int row=0; row< wdg_bigtable->rowCount(); row++)
             {
-                UpLabel* idReclbl = static_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
+                UpLabel* idReclbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
                 if (idReclbl->text() == QString::number(idRec))
                 {
                     wdg_bigtable->setCurrentCell(row,1);

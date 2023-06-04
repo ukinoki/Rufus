@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class AppareilImagerie : public Item
 {
+    Q_OBJECT
 private:
     QString m_titreexamen;
     QString m_nomappareil;

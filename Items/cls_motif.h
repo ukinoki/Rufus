@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Motif : public Item
 {
-
+    Q_OBJECT
 private:
     int m_duree, m_noordre;
     QString m_motif, m_raccourci, m_couleur;

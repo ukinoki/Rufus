@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Patient : public Item
 {
-
+    Q_OBJECT
 private: //Données du patient
     //!<m_id = Id du patient en base
     QString m_nom = "";                 //!< Nom du patient

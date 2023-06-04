@@ -1523,8 +1523,8 @@ void Procedures::CalcImageFacture(Depense *dep)
 QByteArray Procedures::getFileFromSQL(Item *item)
 {
     QByteArray ba       = QByteArray();
-    DocExterne *docmt   = dynamic_cast<DocExterne*>(item);
-    Depense *dep        = dynamic_cast<Depense*>(item);
+    DocExterne *docmt   = qobject_cast<DocExterne*>(item);
+    Depense *dep        = qobject_cast<Depense*>(item);
     bool isdocument     = (docmt != Q_NULLPTR);
     bool isfacture      = (dep != Q_NULLPTR);
     if (!isdocument && ! isfacture)
@@ -1731,7 +1731,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     int delta = 0;
     for (int i=0; i < wdg_tablewidget->rowCount(); i++)
     {
-        UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
+        UpLabel *lbl = qobject_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
         if (lbl != Q_NULLPTR)
         {
             pix = pix.scaled(wtable- delta, htable - delta, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
@@ -2111,7 +2111,7 @@ bool Procedures::eventFilter(QObject *obj, QEvent *event)
         {
             for (int i=0; i < wdg_tablewidget->rowCount(); i++)
             {
-                UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
+                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
                     QPixmap pix = QPixmap::fromImage(m_listeimages.at(i).scaled(wdg_tablewidget->width(), wdg_tablewidget->height(),
@@ -3507,7 +3507,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
                 vbox                    ->setContentsMargins(8,0,8,0);
                 boxrole                 ->setLayout(vbox);
-                dynamic_cast<QVBoxLayout*>(dlg_askUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
+                qobject_cast<QVBoxLayout*>(dlg_askUser->layout())->setSizeConstraint(QLayout::SetFixedSize);
                 CalcUserSuperviseur();
             }
             else

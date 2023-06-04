@@ -38,7 +38,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     bool loop = false;
     while (!loop)
     {
-        doc = dynamic_cast<DocExterne*>(item);
+        doc = qobject_cast<DocExterne*>(item);
         if (doc)
         {
             table = TBL_DOCSEXTERNES;
@@ -83,7 +83,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        act = dynamic_cast<Acte*>(item);
+        act = qobject_cast<Acte*>(item);
         if (act)
         {
             table = TBL_ACTES;
@@ -145,7 +145,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        patcrs = dynamic_cast<PatientEnCours*>(item);
+        patcrs = qobject_cast<PatientEnCours*>(item);
         if (patcrs)
         {
             table = TBL_SALLEDATTENTE;
@@ -215,7 +215,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        pat = dynamic_cast<Patient*>(item);
+        pat = qobject_cast<Patient*>(item);
         if (pat)
         {
             if (field == CP_NOM_PATIENTS
@@ -428,7 +428,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        post = dynamic_cast<PosteConnecte*>(item);
+        post = qobject_cast<PosteConnecte*>(item);
         if (post)
         {
             table = TBL_USERSCONNECTES;
@@ -493,7 +493,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        bq = dynamic_cast<Banque*>(item);
+        bq = qobject_cast<Banque*>(item);
         if (bq)
         {
             table = TBL_BANQUES;
@@ -513,7 +513,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        dep =  dynamic_cast<Depense*>(item);
+        dep =  qobject_cast<Depense*>(item);
         if (dep)
         {
             table = TBL_DEPENSES;
@@ -584,7 +584,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        usr = dynamic_cast<User*>(item);
+        usr = qobject_cast<User*>(item);
         if (usr)
         {
             table = TBL_UTILISATEURS;
@@ -609,7 +609,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        sessionop = dynamic_cast<SessionOperatoire*>(item);
+        sessionop = qobject_cast<SessionOperatoire*>(item);
         if (sessionop)
         {
             table = TBL_SESSIONSOPERATOIRES;
@@ -644,7 +644,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        sit = dynamic_cast<Site*>(item);
+        sit = qobject_cast<Site*>(item);
         if (sit)
         {
             table = TBL_LIEUXEXERCICE;
@@ -699,7 +699,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        man = dynamic_cast<Manufacturer*>(item);
+        man = qobject_cast<Manufacturer*>(item);
         if (man)
         {
             table = TBL_MANUFACTURERS;
@@ -764,7 +764,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        typinterv = dynamic_cast<TypeIntervention*>(item);
+        typinterv = qobject_cast<TypeIntervention*>(item);
         if (typinterv)
         {
             table = TBL_TYPESINTERVENTIONS;
@@ -789,7 +789,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        iol = dynamic_cast<IOL*>(item);
+        iol = qobject_cast<IOL*>(item);
         if (iol)
         {
             table = TBL_IOLS;
@@ -951,7 +951,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        interv = dynamic_cast<Intervention*>(item);
+        interv = qobject_cast<Intervention*>(item);
         if (interv)
         {
             table = TBL_LIGNESPRGOPERATOIRES;
@@ -1021,7 +1021,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        tiers = dynamic_cast<Tiers*>(item);
+        tiers = qobject_cast<Tiers*>(item);
         if (tiers)
         {
             ok = true;
@@ -1081,7 +1081,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        com = dynamic_cast<Commercial*>(item);
+        com = qobject_cast<Commercial*>(item);
         if (com)
         {
             ok = true;
@@ -1121,7 +1121,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        comment = dynamic_cast<CommentLunet*>(item);
+        comment = qobject_cast<CommentLunet*>(item);
         if (comment)
         {
             ok = true;
@@ -1158,7 +1158,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        motcle = dynamic_cast<MotCle*>(item);
+        motcle = qobject_cast<MotCle*>(item);
         if (motcle)
         {
             ok = true;
@@ -1173,7 +1173,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        impr = dynamic_cast<Impression*>(item);
+        impr = qobject_cast<Impression*>(item);
         if (impr)
         {
             ok = true;
@@ -1227,7 +1227,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        dossier = dynamic_cast<DossierImpression*>(item);
+        dossier = qobject_cast<DossierImpression*>(item);
         if (dossier)
         {
             ok = true;
@@ -1253,7 +1253,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        msg = dynamic_cast<Message*>(item);
+        msg = qobject_cast<Message*>(item);
         if (msg)
         {
             ok = true;
@@ -1311,7 +1311,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        session = dynamic_cast<Session*>(item);
+        session = qobject_cast<Session*>(item);
         if (session)
         {
             table = TBL_SESSIONS;
@@ -1356,7 +1356,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 ok = false;
             break;
         }
-        ville = dynamic_cast<Ville*>(item);
+        ville = qobject_cast<Ville*>(item);
         if (ville)
         {
             table = TBL_AUTRESVILLES;

@@ -89,7 +89,7 @@ Site* dlg_listelieux::getSiteFromIndex(QModelIndex idx)
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return Q_NULLPTR;
-    Site *sit = dynamic_cast<Site *>(upitem->item());
+    Site *sit = qobject_cast<Site *>(upitem->item());
     return sit;
 }
 
@@ -101,7 +101,7 @@ int dlg_listelieux::getRowFromSite(Site *sit)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if(itm)
         {
-            Site* sits = dynamic_cast<Site*>(itm->item());
+            Site* sits = qobject_cast<Site*>(itm->item());
             if (sit->id() == sits->id())
             {
                 row = i;
@@ -214,7 +214,7 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     QVBoxLayout *laylbl = new QVBoxLayout();
     QVBoxLayout *layledit = new QVBoxLayout();
     QHBoxLayout *laycom = new QHBoxLayout();
-    QVBoxLayout *lay = dynamic_cast<QVBoxLayout*>(dlg_lieu->layout());
+    QVBoxLayout *lay = qobject_cast<QVBoxLayout*>(dlg_lieu->layout());
 
     UpLabel *lblnom = new UpLabel(dlg_lieu, tr("Nom de la structure"));
     UpLabel *lbladr1 = new UpLabel(dlg_lieu, tr("Adresse1"));

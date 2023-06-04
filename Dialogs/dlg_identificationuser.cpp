@@ -89,17 +89,17 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         // Fleche Gauche - -----------------------------------------
         if(keyEvent->key()==Qt::Key_Left)
-            if (!obj->inherits("QPushButton")) return QWidget::focusPreviousChild();
+            if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR) return QWidget::focusPreviousChild();
 
         // Fleche Droite - -----------------------------------------
         if(keyEvent->key()==Qt::Key_Right)
-            if (!obj->inherits("QPushButton")) return QWidget::focusNextChild();
+            if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR) return QWidget::focusNextChild();
 
         // Return - Idem Flèche Droite sauf sur les pushButton ---------------------------
         if(keyEvent->key()==Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
         {
             if (obj == ui->MDPlineEdit) Validation();
-            if (!obj->inherits("QPushButton"))
+            if (qobject_cast<QPushButton *>(obj) == Q_NULLPTR)
                 return QWidget::focusNextChild();
         }
     }

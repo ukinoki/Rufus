@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Compte : public Item
 {
-
+    Q_OBJECT
 private:
     int m_idbanque, m_iduser;
     QString m_nomabrege, m_iban, m_intitulecompte;
