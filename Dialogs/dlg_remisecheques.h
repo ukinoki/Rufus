@@ -40,7 +40,6 @@ private:
     Procedures              *proc   = Procedures::I();
     bool                    m_initok = true;
     Mode                    m_mode;
-    QMap<int, User *>       *map_comptables;
     QMap<int, User *>       *map_comptablesavecchequesenattente;
     User                    *m_userencours;
     QString                 m_valeuravantchangement;

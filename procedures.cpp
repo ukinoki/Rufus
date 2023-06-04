@@ -1306,7 +1306,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante, QWidget *parent)
 {
-    //AvecPrevisu = true;
+    AvecPrevisu = true;
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QString PiedDepart = Pied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
@@ -3540,7 +3540,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
         if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE || currentuser()->idparent() == User::ROLE_INDETERMINE )
         {
-            if( dlg_askUser->exec() == QDialog::Accepted)
+            if( dlg_askUser->exec() != QDialog::Accepted)
             {
                 delete dlg_askUser;
                 return false;

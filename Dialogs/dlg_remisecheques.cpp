@@ -834,7 +834,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 {
     m_mode = NouvelleRemise;
     ui->ComptecomboBox  ->setEnabled(m_mode == NouvelleRemise);
-    ui->UserComboBox    ->setEnabled(m_mode == NouvelleRemise);
+    ui->UserComboBox    ->setEnabled(m_mode == NouvelleRemise && ui->UserComboBox->count() > 1);
 
         RegleComptesComboBox();
         ui->ChequesEnAttentelabel           ->setVisible(true);
@@ -1159,14 +1159,32 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
 -----------------------------------------------------------------------------------*/
 void dlg_remisecheques::ReconstruitListeUsers()
 {
+    auto fail = [=]
+    {
+        UpMessageBox::Watch(this, tr("Pas de remise de chèque en attente"));
+            m_initok = false;
+        return;
+    };
+
     ui->UserComboBox->clear();
-    //on reconstruit la liste des users comptables qui ont des chèques en attente
-    map_comptables    = Datas::I()->users->comptablesSaufActes();
+    /*! on ne remplit le combobox qu'avec le comptable de l'utilisateur s'il en a un,
+     *  sinon, s'il s'agit d'une secrétaire,
+        *  on reconstruit la liste des users comptables qui ont des chèques en attente
+        *  on remplit le combobox avec cette liste
+        *  et on se positionne sur le premier de la liste
+     */
+    int idcomptable = 0;
+    if (!Datas::I()->users->userconnected()->isSecretaire())
+        idcomptable = Datas::I()->users->userconnected()->idcomptableactes();
     map_comptablesavecchequesenattente    = new QMap<int, User*>();
 
     QString req = "SELECT distinct " CP_IDUSER_LIGNRECETTES " from " TBL_RECETTES " WHERE " CP_IDREMISECHQ_LIGNRECETTES " IS NULL AND " CP_MODEPAIEMENT_LIGNRECETTES " = 'C'";
+    if (!Datas::I()->users->userconnected()->isSecretaire())
+        req += " and " CP_IDUSER_LIGNRECETTES " = " + QString::number(idcomptable);
     bool ok = true;
     QList<QVariantList> listiduser = db->StandardSelectSQL(req,ok);
+    if (listiduser.size() == 0 || !ok)
+        fail();
     QListIterator<QVariantList> itusr(listiduser);
     while (itusr.hasNext()) {
         QVariantList listitem = itusr.next();
@@ -1180,32 +1198,23 @@ void dlg_remisecheques::ReconstruitListeUsers()
             }
         }
     }
-
-    if (map_comptablesavecchequesenattente->count()<1)
-    {
-        UpMessageBox::Watch(this, tr("Pas de remise de chèque en attente"));
-        m_initok = false;
-        return;
-    }
-    int idcomptable = Datas::I()->users->userconnected()->idcomptableactes();
+    if (Datas::I()->users->userconnected()->isSecretaire())
+        idcomptable = map_comptablesavecchequesenattente->firstKey();
     m_userencours = Datas::I()->users->getById(idcomptable);
-     //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
-    if (Datas::I()->users->getById(m_userencours->id()) != Q_NULLPTR)
+    bool a = false;
+    if (m_userencours != Q_NULLPTR)
     {
         auto itusr = map_comptablesavecchequesenattente->find(m_userencours->id());
         if(itusr != map_comptablesavecchequesenattente->end())
+        {
             ui->UserComboBox->setCurrentIndex(ui->UserComboBox->findData(m_userencours->id()));
+            a = true;
+        }
     }
+    if (!a)
+        fail();
     if (m_userencours != Datas::I()->users->userconnected())
         proc->MAJComptesBancaires(m_userencours);
-    else
-    {
-        ui->UserComboBox->setCurrentIndex(0);
-        int idusr = ui->UserComboBox->currentData().toInt();
-        m_userencours = Datas::I()->users->getById(idusr);
-        if (m_userencours)
-            proc->MAJComptesBancaires(m_userencours);
-    }
 }
 
 void dlg_remisecheques::RegleComptesComboBox(bool ActiveSeult)

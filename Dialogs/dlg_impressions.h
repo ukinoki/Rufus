@@ -46,7 +46,7 @@ public:
     Ui::dlg_impressions                         *ui;
     enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                     Q_ENUM(DATASAIMPRIMER)
     enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS};  Q_ENUM(Mode)
-    User*                                       userentete() const;
+    User*                                       userentete();
     QMap<int, QMap<DATASAIMPRIMER, QString> >   mapdocsaimprimer() const;
 
 private:
@@ -57,7 +57,7 @@ private:
     DossierImpression                           *m_currentdossier = Q_NULLPTR;
     Patient                                     *m_currentpatient;
     Intervention                                *m_currentintervention = Q_NULLPTR;
-    User                                        *m_userentete;
+    User                                        *m_userentete = Q_NULLPTR;
     QList<Correspondant*>                       m_listedestinataires;
     QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
     QDate                                       m_currentdate = db->ServerDate();

@@ -81,7 +81,6 @@ public:
     void            setStageCount(double stage =  0);
     QObject*        data() const { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
-
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

@@ -4412,11 +4412,16 @@ void Rufus::RetrouveMontantActe()
     QString MontantActe = "0.00";
     QString cotation = ui->ActeCotationcomboBox->currentText();
     ui->EnregistrePaiementpushButton->setEnabled(cotation!="");
-    User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
-    if (superviseur)
-        retrouvecotation(superviseur, cotation, MontantActe);
-    else
+    if (cotation == GRATUIT)
         ui->ActeMontantlineEdit->setText(MontantActe);
+    else
+    {
+        User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
+        if (superviseur)
+            retrouvecotation(superviseur, cotation, MontantActe);
+        else
+            ui->ActeMontantlineEdit->setText(MontantActe);
+    }
     if (Datas::I()->users->getById(currentacte()->idComptable()) == Q_NULLPTR)
         ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
 
@@ -8508,7 +8513,10 @@ void    Rufus::ImprimeDocument(Patient *pat)
     {
         User *userEntete = Dlg_Imprs->userentete();
         if (userEntete == Q_NULLPTR)
+        {
+            UpMessageBox::Watch(this, tr("Impossible d'imprimer"),tr("Aucun émetteur n'est précisé pour l'impression"));
             return;
+        }
 
         QString     Entete;
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();

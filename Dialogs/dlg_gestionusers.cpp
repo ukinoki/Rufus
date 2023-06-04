@@ -1698,7 +1698,7 @@ bool dlg_gestionusers::VerifFiche()
         this->ui->RPPSupLineEdit->setFocus();
         return false;
     }
-    if (m_medecin && m_cotation && db->parametres()->cotationsfrance())
+    if (m_medecin && m_cotation && db->parametres()->cotationsfrance() && !ui->ComptaRemplaupRadioButton->isChecked())
     {
         QList<QRadioButton*> listb = ui->SecteurgroupBox->findChildren<QRadioButton*>();
         bool a = false;
