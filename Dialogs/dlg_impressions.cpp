@@ -1391,12 +1391,6 @@ void dlg_impressions::OKpushButtonClicked()
                     lay->addWidget(Combo);
                 }
             }
-            if (listQuestions.size()>0 && !currentuser()->ishisownsupervisor())
-            {
-                QFrame *line = new QFrame();
-                line->setFrameShape(QFrame::HLine);
-                layWidg->addWidget(line);
-            }
             dlg_ask->dlglayout()    ->setContentsMargins(5,5,5,5);
             layWidg                 ->setContentsMargins(0,0,0,0);
             layWidg                 ->setSpacing(0);
@@ -2318,84 +2312,85 @@ DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
 User* dlg_impressions::userentete()
 {
     if (m_userentete != Q_NULLPTR)
-         return m_userentete;
-     if (m_currentintervention == Q_NULLPTR)
-     {
-         if (currentuser()->ishisownsupervisor())
-             m_userentete = currentuser();
-     }
-     else
-     {
-         SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
-         //qDebug() << "idsession = " << session->id() << " - iduser = " << session->iduser();
-         if (session != Q_NULLPTR)
-             m_userentete = Datas::I()->users->getById(session->iduser());
-     }
-     if (m_userentete == Q_NULLPTR)
-     {
-         QList<User*> listUserFound;
-         for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
-         {
-             User *usr = const_cast<User*>(it.value());
-             if( usr->id() == currentuser()->id() )
-                 continue;
-             if( !usr->isSoignant() )
-                 continue;
-             listUserFound << usr;
-         }
+        return m_userentete;
+    if (m_currentintervention == Q_NULLPTR)
+    {
+        if (currentuser()->ishisownsupervisor())
+            m_userentete = currentuser();
+    }
+    else
+    {
+        SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
+        //qDebug() << "idsession = " << session->id() << " - iduser = " << session->iduser();
+        if (session != Q_NULLPTR)
+            m_userentete = Datas::I()->users->getById(session->iduser());
+    }
+    if (m_userentete == Q_NULLPTR)
+    {
+        QList<User*> listUserFound;
+        for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
+        {
+            User *usr = const_cast<User*>(it.value());
+            if( usr->id() == currentuser()->id() )
+                continue;
+            if( !usr->isSoignant() )
+                continue;
+            listUserFound << usr;
+        }
 
-         if( listUserFound.size() == 1 )
-         {
-             m_userentete = listUserFound.first();
-             return m_userentete;
-         }
+        if( listUserFound.size() == 1 )
+        {
+            m_userentete = listUserFound.first();
+            return m_userentete;
+        }
 
-         UpDialog *dlg_askUser       = new UpDialog(this);
-         dlg_askUser                 ->AjouteLayButtons();
-         dlg_askUser                 ->setdata(currentuser());
-         QVBoxLayout *boxlay         = new QVBoxLayout;
-         dlg_askUser->dlglayout()    ->insertLayout(0,boxlay);
+        UpDialog *dlg_askUser       = new UpDialog(this);
+        dlg_askUser                 ->AjouteLayButtons();
+        dlg_askUser                 ->setdata(currentuser());
+        QVBoxLayout *boxlay         = new QVBoxLayout;
+        dlg_askUser->dlglayout()    ->insertLayout(0,boxlay);
 
-         QGroupBox *boxuser      = new QGroupBox(dlg_askUser);
-         QString lblUsrParent    = tr("Quel est l'utilisateur émetteur du document?");
-         boxuser                 ->setTitle(lblUsrParent);
-         boxlay                  ->addWidget(boxuser);
-         QFontMetrics fm         = QFontMetrics(qApp->font());
-         int hauteurligne        = int(fm.height()*1.6);
-         boxuser                 ->setFixedHeight(((listUserFound.size() + 2)*hauteurligne)+5);
-         QVBoxLayout *vbox       = new QVBoxLayout;
-         bool isFirst = true;
-         foreach (User *us, listUserFound)
-         {
-             UpRadioButton *pradiobutt = new UpRadioButton(boxuser);
-             pradiobutt->setText(us->login());
-             pradiobutt->setiD(us->id());
-             if( isFirst )
-             {
-                 isFirst = false;
-                 pradiobutt->setChecked(true);
-             }
-             vbox->addWidget(pradiobutt);
-         }
-         vbox         ->setContentsMargins(8,0,8,0);
-         boxuser      ->setLayout(vbox);
-         dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-         connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
-         if( dlg_askUser->exec() != QDialog::Accepted)
-         {
-             delete dlg_askUser;
-             return Q_NULLPTR;
-         }
-         QList<UpRadioButton*> listbutt = boxuser->findChildren<UpRadioButton*>();
-         for (int j=0; j<listbutt.size(); j++)
-             if (listbutt.at(j)->isChecked())
-             {
-                 m_userentete= Datas::I()->users->getById(listbutt.at(j)->iD());
-                 break;
-             }
-         delete dlg_askUser;
-     }
-     return m_userentete;}
+        QGroupBox *boxuser      = new QGroupBox(dlg_askUser);
+        QString lblUsrParent    = tr("Quel est l'utilisateur émetteur du document?");
+                               boxuser                 ->setTitle(lblUsrParent);
+        boxlay                  ->addWidget(boxuser);
+        QFontMetrics fm         = QFontMetrics(qApp->font());
+        int hauteurligne        = int(fm.height()*1.6);
+        boxuser                 ->setFixedHeight(((listUserFound.size() + 2)*hauteurligne)+5);
+        QVBoxLayout *vbox       = new QVBoxLayout;
+        bool isFirst = true;
+        foreach (User *us, listUserFound)
+        {
+            UpRadioButton *pradiobutt = new UpRadioButton(boxuser);
+            pradiobutt->setText(us->login());
+            pradiobutt->setiD(us->id());
+            if( isFirst )
+            {
+                isFirst = false;
+                pradiobutt->setChecked(true);
+            }
+            vbox->addWidget(pradiobutt);
+        }
+        vbox         ->setContentsMargins(8,0,8,0);
+        boxuser      ->setLayout(vbox);
+        dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+        connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
+        if( dlg_askUser->exec() != QDialog::Accepted)
+        {
+            delete dlg_askUser;
+            return Q_NULLPTR;
+        }
+        QList<UpRadioButton*> listbutt = boxuser->findChildren<UpRadioButton*>();
+        for (int j=0; j<listbutt.size(); j++)
+            if (listbutt.at(j)->isChecked())
+            {
+                m_userentete= Datas::I()->users->getById(listbutt.at(j)->iD());
+                break;
+            }
+        delete dlg_askUser;
+    }
+    return m_userentete;
+}
 
 // ----------------------------------------------------------------------------------
 // Verifie si un dossier peut être rendu public
@@ -2414,7 +2409,7 @@ bool dlg_impressions::hasDocumentPrive(DossierImpression *dossier)
             if (!impr->ispublic())
             {
                 UpMessageBox::Watch(this,tr("Vous ne pouvez pas rendre public ce dossier.\nIl incorpore le document\n- ") +
-                                    impr->resume() + tr(" -\nqui est un document privé!"));
+                                              impr->resume() + tr(" -\nqui est un document privé!"));
                 return true;
             }
         }
