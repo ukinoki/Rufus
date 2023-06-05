@@ -31,7 +31,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class UpDialog : public QDialog
 {
     Q_OBJECT
-
 public:
     explicit UpDialog(QString NomSettings, QString NomPosition, QWidget *parent = Q_NULLPTR);
     explicit UpDialog(QWidget *parent = Q_NULLPTR);
@@ -81,7 +80,6 @@ public:
     void            setStageCount(double stage =  0);
     QObject*        data() const { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
-
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Banque : public Item
 {
-
+    Q_OBJECT
 private:
     int  m_codebanque;
     QString m_idbanqueabrege, m_nombanque;

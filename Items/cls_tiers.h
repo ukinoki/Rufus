@@ -34,7 +34,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Tiers : public Item
 {
-
+    Q_OBJECT
 private:
     QString m_nom = "";
     QString m_adresse1 = "";

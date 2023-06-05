@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Impression : public Item
 {
-
+    Q_OBJECT
 private:
     int m_iduser = 0;
     QString m_texte = "";
@@ -61,6 +61,7 @@ public:
 
 class DossierImpression : public Item
 {
+    Q_OBJECT
 private:
     int m_iduser = 0;                           //! l'id du créateur/propriétaire du dossier
     QString m_textedossier = "";                //! le texte du dossier

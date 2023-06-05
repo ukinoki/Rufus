@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Correspondant : public Item
 {
-
+    Q_OBJECT
 private: //Données du correspondant
     QString m_nom;                  //!< Nom du correspondant
     QString m_prenom;               //!< Prénom du correspondant

@@ -5,6 +5,7 @@
 
 class RendezVous : public Item
 {
+    Q_OBJECT
 private:
     QString m_titreexamen;
     QString m_nomappareil;

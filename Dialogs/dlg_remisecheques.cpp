@@ -834,7 +834,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 {
     m_mode = NouvelleRemise;
     ui->ComptecomboBox  ->setEnabled(m_mode == NouvelleRemise);
-    ui->UserComboBox    ->setEnabled(m_mode == NouvelleRemise);
+    ui->UserComboBox    ->setEnabled(m_mode == NouvelleRemise && ui->UserComboBox->count() > 1);
 
         RegleComptesComboBox();
         ui->ChequesEnAttentelabel           ->setVisible(true);
@@ -1167,7 +1167,12 @@ void dlg_remisecheques::ReconstruitListeUsers()
     };
 
     ui->UserComboBox->clear();
-    //on reconstruit la liste des users comptables qui ont des chèques en attente
+    /*! on ne remplit le combobox qu'avec le comptable de l'utilisateur s'il en a un,
+     *  sinon, s'il s'agit d'une secrétaire,
+        *  on reconstruit la liste des users comptables qui ont des chèques en attente
+        *  on remplit le combobox avec vette liste
+        *  et on se positionne sur le premier de la liste
+     */
     int idcomptable = 0;
     if (!Datas::I()->users->userconnected()->isSecretaire())
         idcomptable = Datas::I()->users->userconnected()->idcomptableactes();
@@ -1196,7 +1201,6 @@ void dlg_remisecheques::ReconstruitListeUsers()
     if (Datas::I()->users->userconnected()->isSecretaire())
         idcomptable = map_comptablesavecchequesenattente->firstKey();
     m_userencours = Datas::I()->users->getById(idcomptable);
-        //on positionne le combobox sur le comptable de l'utilisateur s'il en a un, sinon sur le premier de la liste
     bool a = false;
     if (m_userencours != Q_NULLPTR)
     {

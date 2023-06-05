@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class ParametresSysteme : public Item
 {
-
+    Q_OBJECT
 private:
     QString m_mdpdmin = "";                 //!> le mdp administrateur
     int m_numcentre = 0;                    //!> l'id de l'installation de la base de données - spécifique d'une base Rufus - pas utilisé pour le moment - fixé à 1

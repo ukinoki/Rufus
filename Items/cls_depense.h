@@ -27,8 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Depense : public Item
 {
-
-
+    Q_OBJECT
 public:
     enum AuxArchives {NoLoSo, Oui, Non};    Q_ENUM(AuxArchives)
 private: //Données de la dépense

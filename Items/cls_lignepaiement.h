@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class LignePaiement : public Item
 {
-
+    Q_OBJECT
 private:
     double m_paye;
     QString m_monnaie;

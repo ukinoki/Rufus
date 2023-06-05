@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class LigneCompte : public Item
 {
-
+    Q_OBJECT
 private:
     int m_idcompte = 0;
     int m_iddep = 0;

@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class PatientEnCours : public Item
 {
-
+    Q_OBJECT
 private:
     int m_iduser;                       //!< le user surperviseur pour lequel le patient consulte
     QString m_statut;

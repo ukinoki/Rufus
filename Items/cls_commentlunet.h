@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class CommentLunet : public Item
 {
+    Q_OBJECT
 public:
     explicit                CommentLunet(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void                    setData(QJsonObject data = QJsonObject{});

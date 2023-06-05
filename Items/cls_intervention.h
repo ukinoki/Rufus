@@ -30,7 +30,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Intervention : public Item
 {
-
+    Q_OBJECT
 public:
     enum                    ModeAnesthesie {Locale, LocoRegionale, Generale, NoLoSo};      Q_ENUM(ModeAnesthesie)
     explicit                Intervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -98,7 +98,7 @@ public:
 
 class SessionOperatoire : public Item
 {
-
+    Q_OBJECT
 public:
     explicit SessionOperatoire(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data = QJsonObject{})
@@ -162,7 +162,7 @@ public:
 
 class TypeIntervention : public Item
 {
-
+    Q_OBJECT
 public:
     explicit TypeIntervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data = QJsonObject{});

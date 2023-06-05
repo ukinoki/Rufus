@@ -28,7 +28,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Item : public QObject
 {
     Q_OBJECT
-
 public:
     enum LOADDETAILS    {LoadDetails, NoLoadDetails};       Q_ENUM(LOADDETAILS)
     enum UPDATE         {NoUpdate, Update};                 Q_ENUM(UPDATE)

@@ -1123,20 +1123,13 @@ void dlg_impressions::OKpushButtonClicked()
     int         c = 0;
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
-    QString listusers = "ListUsers";
-    QString listsoignants = "ListSoignants";
-    m_userentete = Q_NULLPTR;
-    if (m_currentintervention == Q_NULLPTR)
+    QString listusersComboBox = "ListUsers";
+    QString listsoignantsComboBox = "ListSoignants";
+    userentete();
+    if (m_userentete == Q_NULLPTR)
     {
-        if (currentuser()->ishisownsupervisor())
-            m_userentete = currentuser();
-    }
-    else
-    {
-        SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
-        //qDebug() << "idsession = " << session->id() << " - iduser = " << session->iduser();
-        if (session != Q_NULLPTR)
-            m_userentete = Datas::I()->users->getById(session->iduser());
+        UpMessageBox::Watch(this, tr("Pas d'émetteur pour ce document"),tr("Aucun émetteur n'est précisé pour l'impression"));
+        return;
     }
     int ndocs = 0;
     switch (m_mode) {
@@ -1179,38 +1172,37 @@ void dlg_impressions::OKpushButtonClicked()
             {
                 if (itm->checkState() == Qt::Checked)
                 {
-                    Impression *doc = getDocumentFromIndex(m_docsmodel->index(i,0));
-                    QString text =  doc->texte();
-                    QString quest = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
-                    quest+= "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
+                    Impression *doc         = getDocumentFromIndex(m_docsmodel->index(i,0));
+                    QString text            =  doc->texte();
+                    QString questpattern    = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
+                    questpattern            += "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
-                        quest+= "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
-                    quest += ")[)][)])";
-                    QRegExp reg;
-                    reg.setPattern(quest);
-                    int count = 0;
-                    int pos = 0;
-                    while (reg.indexIn(text, pos) != -1)
+                        questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
+                    questpattern            += ")[)][)])";
+                    QRegularExpression reg;
+                    reg.setPattern(questpattern);
+
+                    QRegularExpressionMatchIterator i = reg.globalMatch(text);
+                    while (i.hasNext())
                     {
-                        pos = reg.indexIn(text, pos);
-                        ++count;
-                        pos += reg.matchedLength();
-                        int fin = reg.cap(1).indexOf("//");
+                        QRegularExpressionMatch match = i.next();
+                        QString txt = match.captured();
+                        int fin = txt.indexOf("//");
                         int lengthquest = fin-2;
-                        int lengthtype = reg.cap(1).length() - fin;
+                        int lengthtype = txt.length() - fin;
                         bool a = true;
                         if (listQuestions.size()>0)
                             for (int j=0; j<listQuestions.size();j++)
                             {
-                                if (listQuestions.at(j) == reg.cap(1).mid(2,lengthquest))
+                                if (listQuestions.at(j) == txt.mid(2,lengthquest))
                                 {
                                     a = false;
                                     break;
                                 }
                             }
                         if (a){
-                            listQuestions << reg.cap(1).mid(2,lengthquest);
-                            listtypeQuestions << reg.cap(1).mid(fin+2,lengthtype-4);
+                            listQuestions << txt.mid(2,lengthquest);
+                            listtypeQuestions << txt.mid(fin+2,lengthtype-4);
                         }
                     }
                 }
@@ -1261,7 +1253,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(listsoignants);
+                    Combo->setObjectName(listsoignantsComboBox);
                     foreach (User* usr, *Datas::I()->users->actifs())
                         if (usr->isSoignant())
                             Combo->addItem(usr->login(), usr->id());
@@ -1292,7 +1284,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(COTE);
+                    Combo->setObjectName(COTE);
                     QStringList listcote;
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
                     Combo->addItems(listcote);
@@ -1304,7 +1296,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(ANESTHINTERVENTION);
+                    Combo->setObjectName(ANESTHINTERVENTION);
                     Combo->addItem(tr("Locale"), "L");
                     Combo->addItem(tr("LocoRegionale"), "R");
                     Combo->addItem(tr("Générale"), "G");
@@ -1318,7 +1310,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(PROVENANCE);
+                    Combo->setObjectName(PROVENANCE);
                     Combo->addItems(QStringList() << tr("Domicile") << tr("Institution") << tr("Transfert"));
                     lay->addWidget(Combo);
                 }
@@ -1328,7 +1320,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(TYPESEJOUR);
+                    Combo->setObjectName(TYPESEJOUR);
                     Combo->addItems(QStringList() << tr("Ambulatoire") << tr("Hospitalisation") << tr("Urgence"));
                     lay->addWidget(Combo);
                 }
@@ -1338,7 +1330,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setAccessibleDescription(SITE);
+                    Combo->setObjectName(SITE);
                     foreach (Site* sit, *Datas::I()->sites->sites())
                         Combo->addItem(sit->nom(), QString::number(sit->id()) );
                     lay->addWidget(Combo);
@@ -1351,7 +1343,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(110,30);
                     Date->setDate(m_currentdate);
-                    Date->setAccessibleDescription(DATEINTERVENTION);
+                    Date->setObjectName(DATEINTERVENTION);
                     lay->addWidget(Date);
                 }
                 else if (listtypeQuestions.at(m)  == HEUREINTERVENTION)
@@ -1361,7 +1353,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setFixedSize(70,30);
                     Time->setTime(QTime::currentTime());
                     Time->setTimeSpec(Qt::LocalTime);
-                    Time->setAccessibleDescription(HEUREINTERVENTION);
+                    Time->setObjectName(HEUREINTERVENTION);
                     lay->addWidget(Time);
                 }
                 else if (listtypeQuestions.at(m)  == COTEINTERVENTION)
@@ -1373,7 +1365,7 @@ void dlg_impressions::OKpushButtonClicked()
                     QStringList listcote;
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
                     Combo->addItems(listcote);
-                    Combo->setAccessibleDescription(COTEINTERVENTION);
+                    Combo->setObjectName(COTEINTERVENTION);
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == TYPEINTERVENTION)
@@ -1384,7 +1376,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setEditable(false);
                     foreach (TypeIntervention* typ, *Datas::I()->typesinterventions->typeinterventions())
                         Combo->addItem(typ->typeintervention(), QString::number(typ->id()) );
-                    Combo->setAccessibleDescription(TYPEINTERVENTION);
+                    Combo->setObjectName(TYPEINTERVENTION);
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == SITEINTERVENTION)
@@ -1395,7 +1387,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setEditable(false);
                     foreach (Site* sit, *Datas::I()->sites->sites())
                         Combo->addItem(sit->nom(), QString::number(sit->id()) );
-                    Combo->setAccessibleDescription(SITEINTERVENTION);
+                    Combo->setObjectName(SITEINTERVENTION);
                     lay->addWidget(Combo);
                 }
             }
@@ -1405,31 +1397,11 @@ void dlg_impressions::OKpushButtonClicked()
                 line->setFrameShape(QFrame::HLine);
                 layWidg->addWidget(line);
             }
-            if (m_userentete == Q_NULLPTR)
-            {
-                QHBoxLayout *lay = new QHBoxLayout();
-                lay->setContentsMargins(5,0,5,0);
-                layWidg->addLayout(lay);
-                UpLabel *label = new UpLabel();
-                label->setText(tr("Quel entête?"));
-                label->setFixedSize(150,25);
-                lay->addWidget(label);
-                QSpacerItem *spacer = new QSpacerItem(10,10,QSizePolicy::Expanding);
-                lay->addSpacerItem(spacer);
-                UpComboBox *Combo = new UpComboBox();
-                Combo->setContentsMargins(0,0,0,0);
-                Combo->setFixedHeight(34);
-                Combo->setEditable(false);
-                foreach (User* usr, *Datas::I()->users->superviseurs())
-                    Combo->addItem(usr->login(), QString::number(usr->id()));
-                Combo->setAccessibleDescription(listusers);
-                lay->addWidget(Combo);
-            }
-            dlg_ask->dlglayout()   ->setContentsMargins(5,5,5,5);
+            dlg_ask->dlglayout()    ->setContentsMargins(5,5,5,5);
             layWidg                 ->setContentsMargins(0,0,0,0);
             layWidg                 ->setSpacing(0);
-            dlg_ask->dlglayout()   ->setSpacing(5);
-            dlg_ask->dlglayout()   ->insertLayout(0,layWidg);
+            dlg_ask->dlglayout()    ->setSpacing(5);
+            dlg_ask->dlglayout()    ->insertLayout(0,layWidg);
 
             dlg_ask->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -1439,6 +1411,7 @@ void dlg_impressions::OKpushButtonClicked()
             if (dlg_ask->exec() != QDialog::Accepted)
             {
                 delete dlg_ask;
+                dlg_ask = Q_NULLPTR;
                 return;
             }
             else
@@ -1452,7 +1425,7 @@ void dlg_impressions::OKpushButtonClicked()
                         for (int r=0; r<hlay->count(); r++)
                         {
                             QWidget *w = hlay->itemAt(r)->widget();
-                            b = (dynamic_cast<UpLabel*>(w)!=Q_NULLPTR);
+                            b = (qobject_cast<UpLabel*>(w)!=Q_NULLPTR);
                             if (b) break;
                             w = Q_NULLPTR;
                             delete w;
@@ -1474,14 +1447,15 @@ void dlg_impressions::OKpushButtonClicked()
                             QString minidou;
                             for (int p=0; p<listwidg.size(); p++)
                             {
-                                if (listwidg.at(p)->inherits("UpLabel"))
+                                UpLabel *linelabel = qobject_cast<UpLabel*>(listwidg.at(p));
+                                if (linelabel != Q_NULLPTR)
                                 {
-                                    UpLabel *linelabel = static_cast<UpLabel*>(listwidg.at(p));
                                     minidou = "((" + linelabel->text();
+                                    continue;
                                 }
-                                else if (listwidg.at(p)->inherits("UpLineEdit"))
+                                UpLineEdit *linetext = qobject_cast<UpLineEdit*>(listwidg.at(p));
+                                if (linetext != Q_NULLPTR)
                                 {
-                                    UpLineEdit *linetext = static_cast<UpLineEdit*>(listwidg.at(p));
                                     Rempla          << linetext->text();
                                     const QDoubleValidator *val = dynamic_cast<const QDoubleValidator*>(linetext->validator());
                                     if (val)
@@ -1489,29 +1463,32 @@ void dlg_impressions::OKpushButtonClicked()
                                     else
                                         ExpARemplacer   << minidou + "//TEXTE))";
                                     delete val;
+                                    continue;
                                 }
-                                else if (listwidg.at(p)->inherits("QDateEdit"))
+                                QDateEdit *linedate = qobject_cast<QDateEdit*>(listwidg.at(p));
+                                if (linedate != Q_NULLPTR)
                                 {
-                                    QDateEdit *linedate = static_cast<QDateEdit*>(listwidg.at(p));
-                                    Rempla          << linedate->date().toString(tr("d MMMM yyyy"));
-                                    if (linedate->accessibleDescription() == DATEINTERVENTION)
+                                    Rempla          << QLocale::system().toString(linedate->date(),tr("d MMMM yyyy"));
+                                    if (linedate->objectName() == DATEINTERVENTION)
                                         ExpARemplacer   << minidou + "//" + DATEINTERVENTION + "))";
                                     else
                                         ExpARemplacer   << minidou + "//DATE))";
+                                    continue;
                                 }
-                                else if (listwidg.at(p)->inherits("QTimeEdit"))
+                                QTimeEdit *linetime = qobject_cast<QTimeEdit*>(listwidg.at(p));
+                                if (linetime != Q_NULLPTR)
                                 {
-                                    QTimeEdit *linetime = static_cast<QTimeEdit*>(listwidg.at(p));
                                     Rempla          << linetime->time().toString("H'H'mm");
-                                    if (linetime->accessibleDescription() == HEUREINTERVENTION)
+                                    if (linetime->objectName() == HEUREINTERVENTION)
                                         ExpARemplacer   << minidou + "//" + HEUREINTERVENTION + "))";
                                     else
                                         ExpARemplacer   << minidou + "//HEURE))";
+                                    continue;
                                 }
-                                else if (listwidg.at(p)->inherits("UpComboBox"))
+                                UpComboBox *linecombo = qobject_cast<UpComboBox*>(listwidg.at(p));
+                                if (linecombo != Q_NULLPTR)
                                 {
-                                    UpComboBox *linecombo = static_cast<UpComboBox*>(listwidg.at(p));
-                                    if (linecombo->accessibleDescription() == listsoignants)
+                                    if (linecombo->objectName() == listsoignantsComboBox)
                                     {
                                         int idusr = linecombo->currentData().toInt();
                                         User* usr = Datas::I()->users->getById(idusr);
@@ -1519,23 +1496,18 @@ void dlg_impressions::OKpushButtonClicked()
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
                                     }
-                                    if (linecombo->accessibleDescription() == COTEINTERVENTION
-                                            || linecombo->accessibleDescription() == SITEINTERVENTION
-                                            || linecombo->accessibleDescription() == ANESTHINTERVENTION
-                                            || linecombo->accessibleDescription() == TYPEINTERVENTION)
+                                    else if (linecombo->objectName() == COTEINTERVENTION
+                                            || linecombo->objectName() == SITEINTERVENTION
+                                            || linecombo->objectName() == ANESTHINTERVENTION
+                                            || linecombo->objectName() == TYPEINTERVENTION)
                                     {
                                         Rempla          << linecombo->currentText();
-                                        ExpARemplacer   << minidou + "//" + linecombo->accessibleDescription() + "))";
+                                        ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
                                     }
-                                    else if (linecombo->accessibleDescription() != listusers)
+                                    else if (linecombo->objectName() != listusersComboBox)
                                     {
                                         Rempla          << linecombo->currentText();
-                                        ExpARemplacer   << minidou + "//" + linecombo->accessibleDescription() + "))";
-                                    }
-                                    else
-                                    {
-                                        int idusr = linecombo->currentData().toInt();
-                                        m_userentete = Datas::I()->users->getById(idusr);
+                                        ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
                                     }
                                 }
                             }
@@ -1562,7 +1534,7 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     // on effectue les corrections de chacun des documents
                     QMap<DATASAIMPRIMER,QString>  datasdocaimprimer;
-                    Impression *doc = dynamic_cast<Impression*>(itm->item());
+                    Impression *doc = qobject_cast<Impression*>(itm->item());
                     if (!itm)
                         continue;
                     QString textAimprimer = doc->texte();
@@ -2343,10 +2315,87 @@ DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
         return Q_NULLPTR;
 }
 
-User* dlg_impressions::userentete() const
+User* dlg_impressions::userentete()
 {
-    return m_userentete;
-}
+    if (m_userentete != Q_NULLPTR)
+         return m_userentete;
+     if (m_currentintervention == Q_NULLPTR)
+     {
+         if (currentuser()->ishisownsupervisor())
+             m_userentete = currentuser();
+     }
+     else
+     {
+         SessionOperatoire *session = Datas::I()->sessionsoperatoires->getById(m_currentintervention->idsession());
+         //qDebug() << "idsession = " << session->id() << " - iduser = " << session->iduser();
+         if (session != Q_NULLPTR)
+             m_userentete = Datas::I()->users->getById(session->iduser());
+     }
+     if (m_userentete == Q_NULLPTR)
+     {
+         QList<User*> listUserFound;
+         for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
+         {
+             User *usr = const_cast<User*>(it.value());
+             if( usr->id() == currentuser()->id() )
+                 continue;
+             if( !usr->isSoignant() )
+                 continue;
+             listUserFound << usr;
+         }
+
+         if( listUserFound.size() == 1 )
+         {
+             m_userentete = listUserFound.first();
+             return m_userentete;
+         }
+
+         UpDialog *dlg_askUser       = new UpDialog(this);
+         dlg_askUser                 ->AjouteLayButtons();
+         dlg_askUser                 ->setdata(currentuser());
+         QVBoxLayout *boxlay         = new QVBoxLayout;
+         dlg_askUser->dlglayout()    ->insertLayout(0,boxlay);
+
+         QGroupBox *boxuser      = new QGroupBox(dlg_askUser);
+         QString lblUsrParent    = tr("Quel est l'utilisateur émetteur du document?");
+         boxuser                 ->setTitle(lblUsrParent);
+         boxlay                  ->addWidget(boxuser);
+         QFontMetrics fm         = QFontMetrics(qApp->font());
+         int hauteurligne        = int(fm.height()*1.6);
+         boxuser                 ->setFixedHeight(((listUserFound.size() + 2)*hauteurligne)+5);
+         QVBoxLayout *vbox       = new QVBoxLayout;
+         bool isFirst = true;
+         foreach (User *us, listUserFound)
+         {
+             UpRadioButton *pradiobutt = new UpRadioButton(boxuser);
+             pradiobutt->setText(us->login());
+             pradiobutt->setiD(us->id());
+             if( isFirst )
+             {
+                 isFirst = false;
+                 pradiobutt->setChecked(true);
+             }
+             vbox->addWidget(pradiobutt);
+         }
+         vbox         ->setContentsMargins(8,0,8,0);
+         boxuser      ->setLayout(vbox);
+         dlg_askUser->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+         connect(dlg_askUser->OKButton, &QPushButton::clicked, dlg_askUser, &UpDialog::accept);
+         if( dlg_askUser->exec() != QDialog::Accepted)
+         {
+             delete dlg_askUser;
+             return Q_NULLPTR;
+         }
+         QList<UpRadioButton*> listbutt = boxuser->findChildren<UpRadioButton*>();
+         for (int j=0; j<listbutt.size(); j++)
+             if (listbutt.at(j)->isChecked())
+             {
+                 m_userentete= Datas::I()->users->getById(listbutt.at(j)->iD());
+                 break;
+             }
+         delete dlg_askUser;
+     }
+     return m_userentete;}
 
 // ----------------------------------------------------------------------------------
 // Verifie si un dossier peut être rendu public
@@ -2587,7 +2636,8 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     m_listedestinataires.clear();
     m_listtexts.clear();
 
-    User *userEntete = (Datas::I()->users->getById(currentuser()->idsuperviseur()) == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(currentuser()->idsuperviseur()));
+    //User *userEntete = (Datas::I()->users->getById(currentuser()->idsuperviseur()) == Q_NULLPTR? Datas::I()->users->superviseurs()->first() : Datas::I()->users->getById(currentuser()->idsuperviseur()));
+    User *userEntete = userentete();
     if (userEntete == Q_NULLPTR)
         return;
     QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe(), ui->dateImpressiondateEdit->date());
@@ -2920,7 +2970,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     dlg_askcorrespondant                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QTableView  *tblCorresp     = new QTableView(dlg_askcorrespondant);
     QStandardItemModel *m_modele = new QStandardItemModel;
-    QStandardItem *pitem;
+    UpStandardItem *pitem;
     UpLabel     *label          = new UpLabel(dlg_askcorrespondant);
     QFontMetrics fm             = QFontMetrics(qApp->font());
     int largeurcolonne          = 0;
@@ -2939,8 +2989,8 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     tblCorresp  ->setEditTriggers(QAbstractItemView::NoEditTriggers);
     for (int i=0; i<listcor.size(); i++)
     {
-        pitem       = new QStandardItem(listcor.at(i)->prenom() + " " + listcor.at(i)->nom());
-        pitem       ->setAccessibleDescription(QString::number(listcor.at(i)->id()));
+        pitem       = new UpStandardItem(listcor.at(i)->prenom() + " " + listcor.at(i)->nom());
+        pitem       ->setitem(listcor.at(i));
         pitem       ->setEditable(false);
         pitem       ->setCheckable(true);
         pitem       ->setCheckState(Qt::Unchecked);
@@ -2974,12 +3024,16 @@ void dlg_impressions::ListidCor()
 {
     QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(dlg_askcorrespondant->findChildren<QTableView *>().at(0)->model());
     for (int i=0; i< model->rowCount(); i++)
-        if (model->item(i)->checkState() == Qt::Checked)
-        {
-            Correspondant * cor = Datas::I()->correspondants->getById(model->item(i)->accessibleDescription().toInt());
-            if (cor != Q_NULLPTR)
-                m_listedestinataires << cor;
-        }
+    {
+        UpStandardItem *Item = dynamic_cast<UpStandardItem*>(model->item(i));
+        if (Item != Q_NULLPTR)
+            if (Item->checkState() == Qt::Checked)
+            {
+                Correspondant * cor = qobject_cast<Correspondant*>(Item->item());
+                if (cor != Q_NULLPTR)
+                    m_listedestinataires << cor;
+            }
+    }
     if (m_listedestinataires.size() > 0)
         dlg_askcorrespondant->accept();
 }

@@ -599,7 +599,7 @@ void dlg_programmationinterventions::ImprimeSession()
 
     int iduser = currentsession()->iduser();
 
-//    //création de l'entête
+    //création de l'entête
     QString EnTete;
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
@@ -735,7 +735,7 @@ void dlg_programmationinterventions::ImprimeSession()
     textEdit.setHtml(lign);
     proc->Imprime_Etat(&textEdit, EnTete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecPrevisu, AvecNumPage, true, this);
 }
 
 void dlg_programmationinterventions::SupprimeSession()

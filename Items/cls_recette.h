@@ -39,7 +39,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Recette : public Item
 {
-
+    Q_OBJECT
 private:
     //!> m_id = l'id de la recette (pas utilisé dans la bdd)
     int m_idacte;                       //!> l'id de l'acte correspondant si la recette correspond à un acte payé directement
