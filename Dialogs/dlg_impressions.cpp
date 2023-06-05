@@ -1392,12 +1392,6 @@ void dlg_impressions::OKpushButtonClicked()
                     lay->addWidget(Combo);
                 }
             }
-            if (listQuestions.size()>0 && !currentuser()->ishisownsupervisor())
-            {
-                QFrame *line = new QFrame();
-                line->setFrameShape(QFrame::HLine);
-                layWidg->addWidget(line);
-            }
             dlg_ask->dlglayout()    ->setContentsMargins(5,5,5,5);
             layWidg                 ->setContentsMargins(0,0,0,0);
             layWidg                 ->setSpacing(0);
