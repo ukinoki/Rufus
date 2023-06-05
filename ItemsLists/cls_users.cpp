@@ -273,28 +273,28 @@ void Users::mapsclean(User *usr)
     else
     {
         User *user;
-        user = dynamic_cast<User*>(map_actifs->take(usr->id()));
+        user = qobject_cast<User*>(map_actifs->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_inactifs->take(usr->id()));
+        user = qobject_cast<User*>(map_inactifs->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_superviseurs->take(usr->id()));
+        user = qobject_cast<User*>(map_superviseurs->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_liberaux->take(usr->id()));
+        user = qobject_cast<User*>(map_liberaux->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_parents->take(usr->id()));
+        user = qobject_cast<User*>(map_parents->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_comptablesactes->take(usr->id()));
+        user = qobject_cast<User*>(map_comptablesactes->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_comptablessaufactes->take(usr->id()));
+        user = qobject_cast<User*>(map_comptablessaufactes->take(usr->id()));
         if (user != usr)
             delete user;
-        user = dynamic_cast<User*>(map_medecins->take(usr->id()));
+        user = qobject_cast<User*>(map_medecins->take(usr->id()));
         if (user != usr)
             delete user;    }
 }

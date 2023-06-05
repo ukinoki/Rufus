@@ -63,7 +63,7 @@ void UpMessageBox::removeButton(UpSmallButton *button)
 {
     for (int i=0; i<buttonslayout()->count();i++)
     {
-        UpSmallButton *buttonARetirer =  dynamic_cast<UpSmallButton*>(buttonslayout()->itemAt(i)->widget());
+        UpSmallButton *buttonARetirer =  qobject_cast<UpSmallButton*>(buttonslayout()->itemAt(i)->widget());
         if (buttonARetirer!=Q_NULLPTR)
             if (buttonARetirer == button)
             {
@@ -75,11 +75,11 @@ void UpMessageBox::removeButton(UpSmallButton *button)
 
 void UpMessageBox::Repons(QPushButton *button)
 {
-    UpSmallButton *but = dynamic_cast<UpSmallButton*>(button);
+    UpSmallButton *but = qobject_cast<UpSmallButton*>(button);
     if (but != Q_NULLPTR)
         wdg_ReponsSmallButton = but;
     else
-        wdg_ReponsPushButton = static_cast<UpPushButton*>(button);
+        wdg_ReponsPushButton = qobject_cast<UpPushButton*>(button);
     accept();
 }
 
@@ -142,7 +142,7 @@ void UpMessageBox::setInformativeText(QString Text)
     wdg_infolbl     ->setText(Text);
     wdg_infolbl     ->setWordWrap(true);
     int position = 1;
-    if (dynamic_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != Q_NULLPTR)
+    if (qobject_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != Q_NULLPTR)
         position += 1;
     wdg_infolbl     ->setFixedSize(Utils::CalcSize(Text));
     wdg_textlayout      ->insertWidget(position,wdg_infolbl);
@@ -169,7 +169,7 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
-        UpSmallButton *butt =  dynamic_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
         if (butt!=Q_NULLPTR)
             connect(butt, &QPushButton::clicked, msgbox, &UpMessageBox::accept);
     }
@@ -193,7 +193,7 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
 
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
-        UpSmallButton *butt =  dynamic_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
         if (butt!=Q_NULLPTR)
         {
             if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
@@ -225,7 +225,7 @@ UpSmallButton::StyleBouton UpMessageBox::Question(QWidget *parent, QString Text,
     int k = 0;
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
-        UpSmallButton *butt =  dynamic_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
         if (butt!=Q_NULLPTR)
         {
             if (titresboutonslist.size()>k)

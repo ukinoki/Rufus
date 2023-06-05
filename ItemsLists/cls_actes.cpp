@@ -94,7 +94,7 @@ Acte* Actes::getActeFromIndex(QModelIndex idx)
     QModelIndex pindx       = m_heuresortmodel->mapToSource(heureindx);               //  -> m_actesmodel
     UpStandardItem *item = dynamic_cast<UpStandardItem *>(m_actesmodel->itemFromIndex(pindx));
     if (item != Q_NULLPTR)
-        return dynamic_cast<Acte *>(item->item());
+        return qobject_cast<Acte *>(item->item());
     else
         return Q_NULLPTR;
 }

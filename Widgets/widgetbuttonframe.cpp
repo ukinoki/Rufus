@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 WidgetButtonFrame::WidgetButtonFrame(QAbstractItemView *proprio)
 {
     wdg_proprio = proprio;
-    widg_parent = new QWidget(dynamic_cast<QWidget*>(wdg_proprio->parent()));
+    widg_parent = new QWidget(qobject_cast<QWidget*>(wdg_proprio->parent()));
     setStyleSheet("");
     setStyleSheet("border-style: none;");
 }

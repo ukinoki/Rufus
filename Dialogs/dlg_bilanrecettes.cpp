@@ -219,7 +219,7 @@ Recette* dlg_bilanrecettes::getRecetteFromIndex(QModelIndex idx)
 {
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_recettesmodel->itemFromIndex(idx));
     if (upitem != Q_NULLPTR)
-        return dynamic_cast<Recette *>(upitem->item());
+        return qobject_cast<Recette *>(upitem->item());
     else
         return Q_NULLPTR;
 }

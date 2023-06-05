@@ -553,7 +553,7 @@ void dlg_refraction::OKPushButton_Clicked()
     focusNextChild();
     m_flagbugvalidenter = 0;
 
-    UpDoubleSpinBox *dblSpin = dynamic_cast<UpDoubleSpinBox *>(focusWidget());
+    UpDoubleSpinBox *dblSpin = qobject_cast<UpDoubleSpinBox *>(focusWidget());
     if (dblSpin)
     {
         int a = int(dblSpin->value()/dblSpin->singleStep());
@@ -639,28 +639,28 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 {
     if (event->type() == QEvent::FocusIn )
     {
-        UpLineEdit* objUpLine = dynamic_cast<UpLineEdit*>(obj);
+        UpLineEdit* objUpLine = qobject_cast<UpLineEdit*>(obj);
         if (objUpLine != Q_NULLPTR)        {
             objUpLine->selectAll();
             return false;
         }
-        UpDoubleSpinBox* objUpdSpin = dynamic_cast<UpDoubleSpinBox*>(obj);
+        UpDoubleSpinBox* objUpdSpin = qobject_cast<UpDoubleSpinBox*>(obj);
         if (objUpdSpin != Q_NULLPTR)   {
             objUpdSpin->setPrefix("");
             objUpdSpin->selectAll();
             return false;
         }
-        UpComboBox* objUpCombo = dynamic_cast<UpComboBox*>(obj);
+        UpComboBox* objUpCombo = qobject_cast<UpComboBox*>(obj);
         if (objUpCombo != Q_NULLPTR)   {
             objUpCombo->setCurrentIndex(objUpCombo->findText(objUpCombo->currentText()));
             return false;
         }
-        UpSpinBox* objUpSpin = dynamic_cast<UpSpinBox*>(obj);
+        UpSpinBox* objUpSpin = qobject_cast<UpSpinBox*>(obj);
         if (objUpSpin != Q_NULLPTR)   {
             objUpSpin->selectAll();
             return false;
         }
-//        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
+//        UpGroupBox* box = qobject_cast<UpGroupBox*>(obj->parent());
 //        if (box != Q_NULLPTR){
 //            box->setStyleSheet(STYLE_UPGROUBOXACTIVE);
 //            return false;
@@ -669,7 +669,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 
     if (event->type() == QEvent::FocusOut )
     {
-//        UpGroupBox* box = dynamic_cast<UpGroupBox*>(obj->parent());
+//        UpGroupBox* box = qobject_cast<UpGroupBox*>(obj->parent());
 //        if (box!=Q_NULLPTR)
 //            box->setStyleSheet(STYLE_UPGROUBOXINACTIVE);
         if (obj == ui->CylindreOD)          if (ui->CylindreOD->value() == 0.0)   ui->AxeCylindreOD->setValue(0);
@@ -683,13 +683,13 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
     if (event->type() == QEvent::KeyPress )
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
-        QWidget *widg = static_cast<QWidget *>(obj);
+        QWidget *widg = qobject_cast<QWidget *>(obj);
         m_flagbugvalidenter = 0;
         if (keyEvent->key() == Qt::Key_Escape)
         {
             if (obj->inherits("UpLineEdit"))
             {
-                UpLineEdit* objUpLine = static_cast<UpLineEdit*>(obj);
+                UpLineEdit* objUpLine = qobject_cast<UpLineEdit*>(obj);
                 objUpLine->setText(objUpLine->valeuravant());
                 objUpLine = Q_NULLPTR;
             }
@@ -713,7 +713,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (!(obj == ui->DateDateEdit
                   && ui->DateDateEdit->currentSection() != QDateTimeEdit::DaySection))
                 focusPreviousChild();
-            QRadioButton *radio = dynamic_cast<QRadioButton *>(focusWidget());
+            QRadioButton *radio = qobject_cast<QRadioButton *>(focusWidget());
             if (radio != Q_NULLPTR)
                 if (!radio->isChecked())
                 {
@@ -745,7 +745,7 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
             if (!(obj == ui->DateDateEdit
                   && ui->DateDateEdit->currentSection() != QDateTimeEdit::YearSection))
                 focusNextChild();
-            QRadioButton *radio = dynamic_cast<QRadioButton *>(focusWidget());
+            QRadioButton *radio = qobject_cast<QRadioButton *>(focusWidget());
             if (radio != Q_NULLPTR )
                 if (!radio->isChecked())
                 {

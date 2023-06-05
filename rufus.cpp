@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("31-05-2023/1");
+    qApp->setApplicationVersion("05-06-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -1894,20 +1894,20 @@ void Rufus::FiltreSalleDAttente()
     else
         for(int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-            UpLabel *lbl = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+            UpLabel *lbl = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
             ui->SalleDAttenteupTableWidget->setRowHidden(i,lbl->text() != usrlog);
         }
 }
 
 void Rufus::ActiveActeAccueil(int row)
 {
-    UpLabel *lblr = dynamic_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(row,6));
+    UpLabel *lblr = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(row,6));
     if (lblr == Q_NULLPTR)
         return;
     int idparent = lblr->text().toInt();
     for (int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
-        UpLabel *lbl = dynamic_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
+        UpLabel *lbl = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
             if (lbl->text().toInt() != idparent)
                 ui->AccueilupTableWidget->setRangeSelected(QTableWidgetSelectionRange(i,0,i,6),false);
@@ -1919,7 +1919,7 @@ void Rufus::FiltreAccueil(int idx)
     int idsuperviseur        = wdg_accueilTab->tabData(idx).toInt();
     for(int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
-        UpLabel *lbl = dynamic_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
+        UpLabel *lbl = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
             ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idsuperviseur));
     }
@@ -3048,7 +3048,7 @@ void Rufus::RechercheParMotCle()
     connect(dlg_rechParMotCle->CancelButton,    &QPushButton::clicked,  dlg_rechParMotCle, &QDialog::reject);
     connect(dlg_rechParMotCle->searchline(),    &QLineEdit::textEdited, this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     dlg_rechParMotCle->searchline()->setText(txt);
-                                                                                                    QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(tabMC->model());
+                                                                                                    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(tabMC->model());
                                                                                                     if (model)
                                                                                                     for (int i=0; i<model->rowCount();++i)
                                                                                                     {
@@ -3105,7 +3105,7 @@ void Rufus::RechercheParMotCle()
 void Rufus::AfficheDossiersRechercheParMotCle()
 {
     QList<QVariant> listidMc;
-    QStandardItemModel *model = dynamic_cast<QStandardItemModel*>(dlg_rechParMotCle->findChildren<QTableView *>().at(0)->model());
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(dlg_rechParMotCle->findChildren<QTableView *>().at(0)->model());
     if (model==Q_NULLPTR)
         return;
     for (int i=0; i< model->rowCount(); i++)
@@ -3114,7 +3114,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
             UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(model->item(i,0));
             if (pitem)
             {
-                MotCle *mc = dynamic_cast<MotCle*>(pitem->item());
+                MotCle *mc = qobject_cast<MotCle*>(pitem->item());
                 if (mc)
                     listidMc << mc->id();
             }
@@ -3599,7 +3599,7 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 
     if (ui->SalleDAttenteupTableWidget->isAncestorOf(labelClicked))
     {
-        UpLabel *StatutClicked = dynamic_cast<UpLabel *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
+        UpLabel *StatutClicked = qobject_cast<UpLabel *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
         if (StatutClicked != Q_NULLPTR)
         {
             if (StatutClicked->text() == ARRIVE)
@@ -3713,7 +3713,7 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
         int row(-1);
         for (int i=0; i< ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-             rsgnmt = static_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->datas();
+             rsgnmt = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->datas();
              if (rsgnmt["idpat"].toInt()== dossierpatientaouvrir()->id())
              {
                  row = i;
@@ -3725,8 +3725,8 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
 
         QString Message(""), Motif("");
         Message = rsgnmt["message"].toString();
-        Motif = static_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
-        QTime heurerdv = QTime::fromString(static_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
+        Motif = qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
+        QTime heurerdv = QTime::fromString(qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
 
         QMap<QString, QVariant> mapRDV = MotifRDV(Motif, Message, heurerdv);
         if (mapRDV.isEmpty())
@@ -4146,7 +4146,7 @@ void Rufus::OuvrirParametres()
                 CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") values \n";
         for (int i=0; i<Dlg_Param->ui->ActesCCAMupTableWidget->rowCount(); i++)
         {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,0));
+            UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,0));
             if (check != Q_NULLPTR)
                 if (check->isChecked())
                 {
@@ -4157,7 +4157,7 @@ void Rufus::OuvrirParametres()
                     QString mtconv  = (currentuser()->isOPTAM() ? montantOPTAM : montantNonOPTAM);
                     if (Dlg_Param->ui->ActesCCAMupTableWidget->columnCount()==6)
                     {
-                        UpLineEdit *line = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,5));
+                        UpLineEdit *line = qobject_cast<UpLineEdit*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,5));
                         if (line != Q_NULLPTR)
                             montantprat = (line->text()!=""? line->text() : mtconv);
                         else
@@ -4170,25 +4170,25 @@ void Rufus::OuvrirParametres()
         }
         for (int i=0; i<Dlg_Param->ui->AssocCCAMupTableWidget->rowCount(); i++)
         {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,0));
+            UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,0));
             if (check != Q_NULLPTR)
                 if (check->isChecked())
                 {
                     QString codeCCAM, montantOPTAM(""), montantNonOPTAM(""), montantprat(""), tip ("");
                     codeCCAM        = Dlg_Param->ui->AssocCCAMupTableWidget->item(i,1)->text();
-                    UpLineEdit *lineOPTAM = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,2));
+                    UpLineEdit *lineOPTAM = qobject_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,2));
                     if (lineOPTAM != Q_NULLPTR)
                     {
                         montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
                         tip             = lineOPTAM->datas().toString();
                     }
-                    UpLineEdit *lineNonOPTAM = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,3));
+                    UpLineEdit *lineNonOPTAM = qobject_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,3));
                     if (lineNonOPTAM != Q_NULLPTR)
                         montantNonOPTAM    = QString::number(QLocale().toDouble(lineNonOPTAM->text()));
                     QString mtconv  = (currentuser()->isOPTAM() ? montantOPTAM : montantNonOPTAM);
                     if (Dlg_Param->ui->AssocCCAMupTableWidget->columnCount()==5)
                     {
-                        UpLineEdit *line = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,4));
+                        UpLineEdit *line = qobject_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,4));
                         if (line != Q_NULLPTR)
                             montantprat = (line->text()!=""? line->text() : mtconv);
                         else
@@ -4201,13 +4201,13 @@ void Rufus::OuvrirParametres()
         }
         for (int i=0; i<Dlg_Param->ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
-            UpCheckBox *check = dynamic_cast<UpCheckBox*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
+            UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
             if (check != Q_NULLPTR)
                 if (check->isChecked())
                 {
                     QString codeCCAM, mtconv(""), montantconv, tip("");
                     codeCCAM = Dlg_Param->ui->HorsNomenclatureupTableWidget->item(i,1)->text();
-                    UpLineEdit *lineconv = dynamic_cast<UpLineEdit*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
+                    UpLineEdit *lineconv = qobject_cast<UpLineEdit*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
                     if (lineconv != Q_NULLPTR)
                     {
                         mtconv  = lineconv->text();
@@ -4721,13 +4721,13 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     int row         = lab->Row();
     QString color   = "color: black";
     QString colorRDV= "color: black";
-    UpLabel *lab0   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
-    UpLabel *lab1   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,1));
-    UpLabel *lab2   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,2));
-    UpLabel *lab3   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,3));
-    UpLabel *lab4   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
-    UpLabel *lab5   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
-    UpLabel *lab6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
+    UpLabel *lab0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
+    UpLabel *lab1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,1));
+    UpLabel *lab2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,2));
+    UpLabel *lab3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,3));
+    UpLabel *lab4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
+    UpLabel *lab5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
+    UpLabel *lab6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
     PatientEnCours *pat = Q_NULLPTR;
     auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(idpat);
     if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
@@ -4789,17 +4789,17 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     {
         for (int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)  // on remet à la normale ceux qui étaient en surbrillance et on met l'enregistrement en surbrillance
         {
-            UpLabel *labi0   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+            UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
             if (labi0->styleSheet().contains(backgroundsurbrill))       // l'enregistrement est en surbrillance, on le remet à la normale
             {
                 QString Msgi;
-                UpLabel *labi0   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
-                UpLabel *labi1   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
-                UpLabel *labi2   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
-                UpLabel *labi3   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
-                UpLabel *labi4   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
-                UpLabel *labi5   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
-                UpLabel *labi6   = dynamic_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+                UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+                UpLabel *labi1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
+                UpLabel *labi2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
+                UpLabel *labi3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
+                UpLabel *labi4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
+                UpLabel *labi5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
+                UpLabel *labi6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
                 pat = Q_NULLPTR;
                 QMap<QString, QVariant> rsgnmt = labi0->datas();
@@ -6010,7 +6010,7 @@ Patient* Rufus::getPatientFromIndex(QModelIndex idx)
         return Q_NULLPTR;
     if (upitem->item() == Q_NULLPTR)
         return Q_NULLPTR;
-    Patient *pat = dynamic_cast<Patient *>(upitem->item());
+    Patient *pat = qobject_cast<Patient *>(upitem->item());
     return pat;
 }
 
@@ -6080,7 +6080,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
 
     if (event->type() == QEvent::FocusOut )
     {
-        UpTextEdit* objUpText = dynamic_cast<UpTextEdit*>(obj);
+        UpTextEdit* objUpText = qobject_cast<UpTextEdit*>(obj);
         if (objUpText != Q_NULLPTR)
         {
             QString requetemodif;
@@ -6120,7 +6120,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         }
         else
         {
-            UpLineEdit* objUpLine = dynamic_cast<UpLineEdit*>(obj);
+            UpLineEdit* objUpLine = qobject_cast<UpLineEdit*>(obj);
             if (objUpLine != Q_NULLPTR && obj != wdg_MGlineEdit && obj != wdg_autresCorresp1LineEdit && obj != wdg_autresCorresp2LineEdit)
             {
                 if (obj == ui->ActeMontantlineEdit)
@@ -6158,14 +6158,14 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
     if(event->type() == QEvent::MouseButtonPress)
         if (obj == ui->FermepushButton  || obj == ui->LFermepushButton)
         {
-            QPushButton* Button = static_cast<QPushButton*>(obj);
+            QPushButton* Button = qobject_cast<QPushButton*>(obj);
             Button->setIcon(Icons::icFermeAppuye());
         }
 
     if(event->type() == QEvent::MouseMove)
         if (obj == ui->FermepushButton  || obj == ui->LFermepushButton)
         {
-            QPushButton* Button = static_cast<QPushButton*>(obj);
+            QPushButton* Button = qobject_cast<QPushButton*>(obj);
             QRect rect = QRect(Button->pos(),Button->size());
             QPoint pos = mapFromParent(cursor().pos());
             if (rect.contains(pos))
@@ -6178,7 +6178,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
     {
         if (obj == ui->FermepushButton  || obj == ui->LFermepushButton)
         {
-            QPushButton* Button = static_cast<QPushButton*>(obj);
+            QPushButton* Button = qobject_cast<QPushButton*>(obj);
             Button->setIcon(Icons::icFerme());
         }
     }
@@ -6210,7 +6210,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             }
             if (obj->inherits("UpTextEdit"))
             {
-                UpTextEdit* objUpText = static_cast<UpTextEdit*>(obj);
+                UpTextEdit* objUpText = qobject_cast<UpTextEdit*>(obj);
                 if (objUpText->table() == TBL_MESSAGES)
                 {
                     int nlines = objUpText->document()->lineCount()+1;
@@ -6237,7 +6237,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
         if (obj == ui->CreerNomlineEdit || obj == ui->CreerPrenomlineEdit)
         {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-            QLineEdit* Qobj = static_cast<QLineEdit*>(obj);
+            QLineEdit* Qobj = qobject_cast<QLineEdit*>(obj);
             switch (keyEvent->key())
             {
             case Qt::Key_Delete:
@@ -8234,9 +8234,9 @@ void Rufus::MAJCorrespondant(QObject *obj)
 {
     if (currentpatient() == Q_NULLPTR)
         return;
-    UpComboBox* cbox = dynamic_cast<UpComboBox*>(obj);
+    UpComboBox* cbox = qobject_cast<UpComboBox*>(obj);
     if (cbox == Q_NULLPTR) return;
-    UpLineEdit *Upline = dynamic_cast<UpLineEdit*>(cbox->lineEdit());
+    UpLineEdit *Upline = qobject_cast<UpLineEdit*>(cbox->lineEdit());
     if (Upline == Q_NULLPTR) return;
     QString anc = cbox->valeuravant();
     QString nou = Utils::trimcapitilize(cbox->currentText(),true);
@@ -9027,7 +9027,7 @@ void Rufus::Remplir_SalDat()
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_listepatientsencoursmodel->item(i,1));
         if (itm != Q_NULLPTR)
         {
-            PatientEnCours *pat = dynamic_cast<PatientEnCours*>(itm->item());
+            PatientEnCours *pat = qobject_cast<PatientEnCours*>(itm->item());
             if (pat != Q_NULLPTR)
             {
                 //qDebug() << Datas::I()->patients->getById(pat->id())->nom() + " " + Datas::I()->patients->getById(pat->id())->prenom() + " " + pat->statut();

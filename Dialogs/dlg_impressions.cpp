@@ -516,7 +516,7 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
                     UpStandardItem *titm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,1));
                     if (!titm)
                         continue;
-                    Impression *doc = dynamic_cast<Impression*>(titm->item());
+                    Impression *doc = qobject_cast<Impression*>(titm->item());
                     if (!doc)
                         continue;
                     if(itm->ischecked())
@@ -1661,17 +1661,17 @@ bool dlg_impressions::eventFilter(QObject *obj, QEvent *event)
 {
     if(event->type() == QEvent::FocusIn)
     {
-        if (dynamic_cast<UpLineEdit*>(obj))
+        if (qobject_cast<UpLineEdit*>(obj))
         {
-            UpLineEdit *linetext = static_cast<UpLineEdit*>(obj);
+            UpLineEdit *linetext = qobject_cast<UpLineEdit*>(obj);
             linetext->selectAll();
         }
     }
     if(event->type() == QEvent::FocusOut)
     {
-        if (dynamic_cast<UpLineEdit*>(obj))
+        if (qobject_cast<UpLineEdit*>(obj))
         {
-            UpLineEdit *linetext = static_cast<UpLineEdit*>(obj);
+            UpLineEdit *linetext = qobject_cast<UpLineEdit*>(obj);
             const QDoubleValidator *val = dynamic_cast<const QDoubleValidator*>(linetext->validator());
             if (val)
                 linetext->setText(QLocale().toString(QLocale().toDouble(linetext->text()),'f',2));
@@ -1810,7 +1810,7 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(k,0));
         if (itm)
         {
-            Impression *doc = dynamic_cast<Impression*>(itm->item());
+            Impression *doc = qobject_cast<Impression*>(itm->item());
             if (doc)
             {
                 if (listiddocs.contains(doc->id()))
@@ -2292,7 +2292,7 @@ Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
         return Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
     if (itm != Q_NULLPTR)
-        return dynamic_cast<Impression*>(itm->item());
+        return qobject_cast<Impression*>(itm->item());
     else
         return Q_NULLPTR;
 }
@@ -2304,7 +2304,7 @@ DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
         return Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
     if (itm != Q_NULLPTR)
-        return dynamic_cast<DossierImpression*>(itm->item());
+        return qobject_cast<DossierImpression*>(itm->item());
     else
         return Q_NULLPTR;
 }
@@ -2555,7 +2555,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         if (itm)
             if (itm->ischecked())
             {
-                Impression *doc= dynamic_cast<Impression*>(itm->item());
+                Impression *doc= qobject_cast<Impression*>(itm->item());
                 if (doc)
                 {
                     if (publicdossier && !doc->ispublic())
@@ -3017,7 +3017,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
 
 void dlg_impressions::ListidCor()
 {
-    QStandardItemModel *model = dynamic_cast<QStandardItemModel *>(dlg_askcorrespondant->findChildren<QTableView *>().at(0)->model());
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(dlg_askcorrespondant->findChildren<QTableView *>().at(0)->model());
     for (int i=0; i< model->rowCount(); i++)
     {
         UpStandardItem *Item = dynamic_cast<UpStandardItem*>(model->item(i));
@@ -3139,7 +3139,7 @@ void dlg_impressions::Remplir_TableView()
                                                                                                             {
                                                                                                                 bool a = itm->ischecked();
                                                                                                                 int row = itm->row();
-                                                                                                                Impression *doc = dynamic_cast<Impression*>(itm->item());
+                                                                                                                Impression *doc = qobject_cast<Impression*>(itm->item());
                                                                                                                 if(doc)
                                                                                                                     m_docsmodel->item(row,5)->setText((a?"0":"1") + doc->resume());
                                                                                                                 EnableOKPushButton(idx);
@@ -3262,7 +3262,7 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i));
         if (itm)
         {
-            Impression *sdoc = dynamic_cast<Impression*>(itm->item());
+            Impression *sdoc = qobject_cast<Impression*>(itm->item());
             if (sdoc)
                 if (m_currentdocument == sdoc)
                 {
@@ -3289,7 +3289,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
         if (itm)
         {
-            DossierImpression *sdossier = dynamic_cast<DossierImpression*>(itm->item());
+            DossierImpression *sdossier = qobject_cast<DossierImpression*>(itm->item());
             if (sdossier)
                 if (m_currentdossier == sdossier)
                 {
@@ -3529,7 +3529,7 @@ void dlg_impressions::VerifDossiers()
         {
             if (itm->checkState() == Qt::Checked)
             {
-                DossierImpression *dossier = dynamic_cast<DossierImpression*>(itm->item());
+                DossierImpression *dossier = qobject_cast<DossierImpression*>(itm->item());
                 if (dossier)
                 {
                     bool a = false;

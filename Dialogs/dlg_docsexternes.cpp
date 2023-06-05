@@ -499,7 +499,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         {
             for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
             {
-                UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
+                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
                     lbl->setPixmap(m_listpixmp.at(i).scaled(wfinal-2, hfinal-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
@@ -1093,7 +1093,7 @@ void dlg_docsexternes::ZoomDoc()
         {
             for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
             {
-                UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
+                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
                     lbl->setPixmap(m_listpixmp.at(i).scaled(wfinal-2, hfinal-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
@@ -1136,7 +1136,7 @@ void dlg_docsexternes::ZoomDoc()
         {
             for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
             {
-                UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
+                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
                     QPixmap pix = m_listpixmp.at(i).scaled(m_sizeorigin.width() - m_wdelta - 2, m_sizeorigin.height() - m_hdelta - 2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
@@ -1182,7 +1182,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         {
             for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
             {
-                UpLabel *lbl = dynamic_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
+                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
                     lbl->setPixmap(m_listpixmp.at(i).scaled(wdg_scrolltablewidget->width(), wdg_scrolltablewidget->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
@@ -1255,7 +1255,7 @@ void dlg_docsexternes::RemplirTreeView()
     if (wdg_listdocstreewiew->selectionModel())
         wdg_listdocstreewiew->selectionModel()->disconnect();
     QString             idimpraretrouver = "";
-    m_model = dynamic_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
+    m_model = qobject_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
     if (m_model)
     {
         if (m_model->rowCount()>0)

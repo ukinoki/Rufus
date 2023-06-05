@@ -75,7 +75,7 @@ dlg_listevilles::dlg_listevilles(QWidget *parent) :
                                                                                                                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listitm.at(0));
                                                                                                                 if (itm)
                                                                                                                 {
-                                                                                                                    Ville *ville = dynamic_cast<Ville*>(itm->item());
+                                                                                                                    Ville *ville = qobject_cast<Ville*>(itm->item());
                                                                                                                     if (ville)
                                                                                                                         selectcurrentVille(ville, QAbstractItemView::PositionAtCenter);
                                                                                                                 }
@@ -119,7 +119,7 @@ bool dlg_listevilles::ChercheDoublon(QString cp, QString nom)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
-            Ville *ville = dynamic_cast<Ville*>(itm->item());
+            Ville *ville = qobject_cast<Ville*>(itm->item());
             if (ville)
             {
                 if (ville->codepostal().toUpper() == cp.toUpper() && ville->nom().toUpper() == nom.toUpper())
@@ -168,7 +168,7 @@ Ville* dlg_listevilles::getVilleFromIndex(QModelIndex idx)
     int row = m_listCPsproxymodel->mapToSource(m_listnomsproxymodel->mapToSource(idx)).row();
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (itm)
-        return dynamic_cast<Ville*>(itm->item());
+        return qobject_cast<Ville*>(itm->item());
     else
         return Q_NULLPTR;
 }
@@ -293,7 +293,7 @@ void dlg_listevilles::selectcurrentVille(Ville *ville, QAbstractItemView::Scroll
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(sourceindex));
         if (itm)
         {
-            Ville *vill = dynamic_cast<Ville*>(itm->item());
+            Ville *vill = qobject_cast<Ville*>(itm->item());
             if (vill)
                 if (m_currentville == vill)
                 {
@@ -373,7 +373,7 @@ void dlg_listevilles::SupprimmVille(Ville* ville)
             if (listville.size() >0)
                 ville = listville.at(0);
             RemplirTableView();
-            QStringListModel *model = dynamic_cast<QStringListModel*> (m_complListVilles->completionModel());
+            QStringListModel *model = qobject_cast<QStringListModel*> (m_complListVilles->completionModel());
             if (model)
                 model->setStringList(Datas::I()->villes->ListeNomsVilles());
             if (ville != Q_NULLPTR)
@@ -393,7 +393,7 @@ void dlg_listevilles::ModifieVille(Ville *ville)
                                                                             Datas::I()->villes->ReinitMaps();
                                                                             dlg_ask->close();
                                                                             RemplirTableView();
-                                                                            QStringListModel *model = dynamic_cast<QStringListModel*> (m_complListVilles->model());
+                                                                            QStringListModel *model = qobject_cast<QStringListModel*> (m_complListVilles->model());
                                                                             if (model)
                                                                                 model->setStringList(Datas::I()->villes->ListeNomsVilles());
                                                                             selectcurrentVille(ville);
@@ -413,7 +413,7 @@ void dlg_listevilles::EnregistreNouvelleVille()
                                                                         if (ville != Q_NULLPTR)
                                                                         {
                                                                             RemplirTableView();
-                                                                            QStringListModel *model = dynamic_cast<QStringListModel*> (m_complListVilles->model());
+                                                                            QStringListModel *model = qobject_cast<QStringListModel*> (m_complListVilles->model());
                                                                             if (model)
                                                                                 model->setStringList(Datas::I()->villes->ListeNomsVilles());
                                                                             selectcurrentVille(ville);

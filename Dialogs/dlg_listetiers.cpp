@@ -120,7 +120,7 @@ Tiers* dlg_listetiers::getTiersFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
     if (it != Q_NULLPTR)
-        return dynamic_cast<Tiers *>(it->item());
+        return qobject_cast<Tiers *>(it->item());
     else
         return Q_NULLPTR;
 }

@@ -123,7 +123,7 @@ Correspondant* dlg_listecorrespondants::getCorrespondantFromIndex(QModelIndex id
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_correspondantsmodel->itemFromIndex(idx));
     if (it != Q_NULLPTR)
-        return dynamic_cast<Correspondant *>(it->item());
+        return qobject_cast<Correspondant *>(it->item());
     else
         return Q_NULLPTR;
 }
@@ -168,7 +168,7 @@ void dlg_listecorrespondants::scrollToCorresp(Correspondant *cor)
                         if (childitm)
                             if (childitm->item())
                             {
-                                Correspondant *scor = dynamic_cast<Correspondant*>(childitm->item());
+                                Correspondant *scor = qobject_cast<Correspondant*>(childitm->item());
                                 if (scor)
                                 {
                                     if (scor->id() == cor->id())

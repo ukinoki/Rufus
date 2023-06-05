@@ -33,7 +33,7 @@ QWidget* UpLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewIt
 void UpLabelDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
     QString value = index.model()->data(index).toString();
-    UpLabel *Lbl = dynamic_cast<UpLabel*>(editor);
+    UpLabel *Lbl = qobject_cast<UpLabel*>(editor);
     if (Lbl != Q_NULLPTR)
         Lbl->setText(value);
 }
@@ -63,7 +63,7 @@ QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
 void UpLineDelegate::setEditorData(QWidget* editor, const QModelIndex& index) const
 {
     QString value = index.model()->data(index).toString();
-    UpLineEdit *line = static_cast<UpLineEdit*>(editor);
+    UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
     if (line)
         line->setText(value);
 }
@@ -84,13 +84,13 @@ void UpLineDelegate::updateEditorGeometry(QWidget *editor,
 void UpLineDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
                                    const QModelIndex &index) const
 {
-    UpLineEdit *line = static_cast<UpLineEdit*>(editor);
+    UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
     QString txt = line->text();
     model->setData(index, txt, Qt::EditRole | Qt::DisplayRole);
 }
 
 void UpLineDelegate::commitEditor(){
-    UpLineEdit *editor = dynamic_cast<UpLineEdit *>(sender());
+    UpLineEdit *editor = qobject_cast<UpLineEdit *>(sender());
     emit commitData(editor);
 }
 

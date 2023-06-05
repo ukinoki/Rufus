@@ -167,7 +167,7 @@ bool dlg_listecommentaires::ChercheDoublon(QString str, int row)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
             if (itm)
             {
-                CommentLunet *com = dynamic_cast<CommentLunet*>(itm->item());
+                CommentLunet *com = qobject_cast<CommentLunet*>(itm->item());
                 if (com)
                 {
                     if (com->texte().toUpper() == str.toUpper() && i != row)
@@ -315,7 +315,7 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i,0));
             if (itm)
             {
-                CommentLunet *coms = dynamic_cast<CommentLunet*>(itm->item());
+                CommentLunet *coms = qobject_cast<CommentLunet*>(itm->item());
                 if (coms)
                     if (coms == com)
                     {
@@ -474,7 +474,7 @@ CommentLunet* dlg_listecommentaires::getCommentFromIndex(QModelIndex idx)
     int row = idx.row();
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (itm)
-        return dynamic_cast<CommentLunet*>(itm->item());
+        return qobject_cast<CommentLunet*>(itm->item());
     else
         return Q_NULLPTR;
 }
@@ -627,7 +627,7 @@ void dlg_listecommentaires::selectcurrentComment(CommentLunet *com, QAbstractIte
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
-            CommentLunet *coms = dynamic_cast<CommentLunet*>(itm->item());
+            CommentLunet *coms = qobject_cast<CommentLunet*>(itm->item());
             if (coms)
                 if (m_currentcomment == coms)
                 {
@@ -755,7 +755,7 @@ void dlg_listecommentaires::Validation()
             if (itm)
                 if (itm->checkState() == Qt::Checked)
             {
-                CommentLunet *com = dynamic_cast<CommentLunet*>(itm->item());
+                CommentLunet *com = qobject_cast<CommentLunet*>(itm->item());
                 if (com)
                 {
                     m_listcommentaires << com;

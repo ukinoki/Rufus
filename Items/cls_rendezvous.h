@@ -5,7 +5,6 @@
 
 class RendezVous : public Item
 {
-    Q_OBJECT
 private:
     QString m_titreexamen;
     QString m_nomappareil;
@@ -23,14 +22,14 @@ public:
         m_idsuperviseur = idsuperviseur;
         m_urgence = urgence;
     }
-    int m_idpatient = 0;                        //!< le pateint qui fait l'objet dur le message
-    QString m_motif = "";                       //!< le motif du message
+    int m_idpatient = 0;                        //!< le patient qui a rdv
+    QString m_motif = "";                       //!< le motif du rdv
     QDate m_ddnpatient = QDate();               //!< la date de naissance du patient
     QTime m_heurerdv = QTime();                 //!> l'heure du rdv
     QTime m_heurearrivee = QTime();             //!> l'heure d'arrivée
     QString m_message = "";                     //!> message concernant le rdv
     int m_idsuperviseur = 0;                    //!> le soigant avec lequel la patient a rdv
-    bool m_urgence = false;                     //! le rdv est une urgence
+    bool m_urgence = false;                     //!> le rdv est une urgence
 
     int idpatient() const                           { return m_idpatient; }
     void setIdpatient(int idpatient)                { m_idpatient = idpatient; }

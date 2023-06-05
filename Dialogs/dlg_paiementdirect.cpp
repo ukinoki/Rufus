@@ -233,13 +233,13 @@ void dlg_paiementdirect::AfficheActeVerrouille()
     ui->VerrouilleParlabel->setVisible(false);
     for (int i= 0; i != ui->SalleDAttenteupTableWidget->rowCount(); i++)
     {
-        UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
+        UpCheckBox* Check = qobject_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
         if (Check)
             Check->setToggleable(true);
     }
     for (int i= 0; i != ui->ListeupTableWidget->rowCount(); i++)
     {
-        UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
+        UpCheckBox* Check = qobject_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
         if (Check)
             Check->setToggleable(true);
     }
@@ -429,7 +429,7 @@ void dlg_paiementdirect::CalculTotalDetails()
     {
         for (int k = 0; k < ui->DetailupTableWidget->rowCount(); k++)
         {
-            QLineEdit* Line = dynamic_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(k,ui->DetailupTableWidget->columnCount()-2));
+            QLineEdit* Line = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(k,ui->DetailupTableWidget->columnCount()-2));
             if (Line)
                 Total = Total + QLocale().toDouble(Line->text());
             else
@@ -860,7 +860,7 @@ void dlg_paiementdirect::ModifiePaiement()
             items = ui->DetailupTableWidget->findItems(QString::number(m_listidactesamodifier.at(i)),Qt::MatchExactly);
             int ik = items.at(0)->row();
             QString B = QLocale().toString(m_montantactesamodifier.at(i).toDouble(),'f',2);
-            UpLineEdit* Paye = static_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(ik,ui->DetailupTableWidget->columnCount()-2));
+            UpLineEdit* Paye = qobject_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(ik,ui->DetailupTableWidget->columnCount()-2));
             Paye->setText(B);
         }
         m_listidactes.clear();
@@ -969,9 +969,9 @@ void dlg_paiementdirect::RenvoieRangee(bool Coche)
     switch (m_mode) {
     case EnregistrePaiement:
     {
-        UpTableWidget* TableOrigine = dynamic_cast<UpTableWidget*>(focusWidget());
+        UpTableWidget* TableOrigine = qobject_cast<UpTableWidget*>(focusWidget());
         if (!TableOrigine) return;
-        UpCheckBox* Check = dynamic_cast<UpCheckBox*>(sender());
+        UpCheckBox* Check = qobject_cast<UpCheckBox*>(sender());
         if(Check)
         {
             int R = Check->rowTable();
@@ -986,7 +986,7 @@ void dlg_paiementdirect::RenvoieRangee(bool Coche)
     }
     case VoirListeActes:
     {
-        UpTableWidget*           TableOrigine = dynamic_cast<UpTableWidget*>(sender());
+        UpTableWidget*           TableOrigine = qobject_cast<UpTableWidget*>(sender());
         if (!TableOrigine) return;
         QList<QTableWidgetSelectionRange>  RangeeSelectionne = TableOrigine->selectedRanges();
         if (RangeeSelectionne.size() > 0)
@@ -1102,7 +1102,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
         {
             if (obj->parent()->parent() == ui->DetailupTableWidget  && m_mode == EnregistrePaiement)
             {
-                UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
+                UpLineEdit* Line = qobject_cast<UpLineEdit*>(obj);
                 m_valeuravantchangement = Line->text();
                 m_valeurmaxi = ui->DetailupTableWidget->item(Line->Row(),Line->Column()-1)->text();
                 Line->selectAll();
@@ -1115,7 +1115,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
         {
             if (obj->parent()->parent() == ui->DetailupTableWidget  && m_mode == EnregistrePaiement)
             {
-                UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
+                UpLineEdit* Line = qobject_cast<UpLineEdit*>(obj);
                 if (QLocale().toDouble(Line->text()) > QLocale().toDouble(m_valeurmaxi))
                 {
                     QSound::play(NOM_ALARME);
@@ -1142,14 +1142,14 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
             if (mouseEvent->button() == Qt::LeftButton)
             {
                 // permet de bloquer le changement d'état du checkbox s'il est verrouillé par un autre utilisateur
-                UpCheckBox* CheckBox = static_cast<UpCheckBox*>(obj);
+                UpCheckBox* CheckBox = qobject_cast<UpCheckBox*>(obj);
                 if (CheckBox->Toggleable())
                 {
                     if (m_mode == EnregistrePaiement
                         && (CheckBox->parent()->parent() == ui->ListeupTableWidget || CheckBox->parent()->parent() == ui->SalleDAttenteupTableWidget)
                         && !CheckBox->isChecked())
                     {
-                        UpTableWidget *TableAVerifier = static_cast<UpTableWidget*>(CheckBox->parent()->parent());
+                        UpTableWidget *TableAVerifier = qobject_cast<UpTableWidget*>(CheckBox->parent()->parent());
                         if (!VerifVerrouCompta(TableAVerifier,CheckBox->rowTable()))
                             return true;
                     }
@@ -1168,7 +1168,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
         {
             if (obj->inherits("UpLineEdit"))
             {
-                UpLineEdit* Line = static_cast<UpLineEdit*>(obj);
+                UpLineEdit* Line = qobject_cast<UpLineEdit*>(obj);
                 if (obj->parent()->parent() == ui->DetailupTableWidget  && m_mode == EnregistrePaiement)
                 {
                     if (QLocale().toDouble(Line->text()) > QLocale().toDouble(m_valeurmaxi))
@@ -1352,7 +1352,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                     ListeCotations                  << ui->DetailupTableWidget->item(k,4)->text();
                     ListeMontants                   << ui->DetailupTableWidget->item(k,5)->text();
                     ListeResteDu                    << ui->DetailupTableWidget->item(k,6)->text();
-                    UpLineEdit* Line = dynamic_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(k,ui->DetailupTableWidget->columnCount()-2));
+                    UpLineEdit* Line = qobject_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(k,ui->DetailupTableWidget->columnCount()-2));
                     if (Line)
                         ListeMontantsARemettreEnDetails << Line->text();
                     else
@@ -1974,7 +1974,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
-                    QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2009,7 +2009,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
-                    QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2031,7 +2031,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
-                    QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     Paye->setReadOnly(true);
                 }
@@ -2052,7 +2052,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
-                    QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2074,7 +2074,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
-                    QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setText("0,00");
                     Paye->setReadOnly(true);
                     CalculTotalDetails();
@@ -2097,7 +2097,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             {
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
-                    QLineEdit* Paye = static_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
                     Paye->setText("0,00");
                     Paye->setReadOnly(true);
                 }
@@ -2330,7 +2330,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
         {
             for (int i = 0; i < ui->SalleDAttenteupTableWidget->rowCount();i++)
             {
-                UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
+                UpCheckBox* Check = qobject_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
                 if(Check)
                 {
                     if (Check->checkState() == Qt::Checked)
@@ -2343,7 +2343,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
             }
             for (int i = 0; i < ui->ListeupTableWidget->rowCount();i++)
             {
-                UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
+                UpCheckBox* Check = qobject_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
                 if(Check)
                 {
                     if (Check->checkState()==Qt::Checked)
@@ -3011,7 +3011,7 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                     ColonneMontantPaye = 7;
                 else
                     ColonneMontantPaye = 8;
-                UpLineEdit* Line = dynamic_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ColonneMontantPaye));
+                UpLineEdit* Line = qobject_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ColonneMontantPaye));
                 if (Line)
                     PayeAInserer = QString::number(QLocale().toDouble(Line->text()));
                 //UpMessageBox::Watch(this,PayeAInserer);
@@ -3259,7 +3259,7 @@ void dlg_paiementdirect::TrieListe(UpTableWidget *TableATrier )
         int NombreRangees       = TableATrier->rowCount();
         for (int i= 0; i < NombreRangees; i++)
         {
-            UpCheckBox* Check = dynamic_cast<UpCheckBox*>(TableATrier->cellWidget(i,1));
+            UpCheckBox* Check = qobject_cast<UpCheckBox*>(TableATrier->cellWidget(i,1));
             //            QString nom = TableATrier->item(i,3)->text();
             if (Check)
             {
@@ -3269,7 +3269,7 @@ void dlg_paiementdirect::TrieListe(UpTableWidget *TableATrier )
             }
             if (TableATrier == ui->DetailupTableWidget)
             {
-                UpLineEdit* Line = dynamic_cast<UpLineEdit*>(TableATrier->cellWidget(i,ColonneMontantPaye));
+                UpLineEdit* Line = qobject_cast<UpLineEdit*>(TableATrier->cellWidget(i,ColonneMontantPaye));
                 if (Line)
                 {
                     disconnect (Line,   &QLineEdit::textChanged,    this,   &dlg_paiementdirect::CalculTotalDetails);         // même remarque
@@ -3480,13 +3480,13 @@ bool dlg_paiementdirect::VerifVerrouCompta(UpTableWidget *TableAVerifier, int Ra
         if (m_mode == EnregistrePaiement)
             for (int i= 0; i != ui->SalleDAttenteupTableWidget->rowCount(); i++)
             {
-                UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
+                UpCheckBox* Check = qobject_cast<UpCheckBox*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
                 if (Check)
                     Check->setToggleable(false);
             }
         for (int i= 0; i != ui->ListeupTableWidget->rowCount(); i++)
         {
-            UpCheckBox* Check = dynamic_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
+            UpCheckBox* Check = qobject_cast<UpCheckBox*>(ui->ListeupTableWidget->cellWidget(i,1));
             if (Check)
                 Check->setToggleable(false);
         }

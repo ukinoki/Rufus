@@ -191,7 +191,7 @@ bool dlg_actesprecedents::eventFilter(QObject *obj, QEvent *event)
 {
     if (obj == ui->FermepushButton)
     {
-        QPushButton* Button = static_cast<QPushButton*>(obj);
+        QPushButton* Button = qobject_cast<QPushButton*>(obj);
         if(event->type() == QEvent::MouseButtonPress)
             Button->setIcon(Icons::icFermeAppuye());
         if(event->type() == QEvent::MouseButtonRelease)

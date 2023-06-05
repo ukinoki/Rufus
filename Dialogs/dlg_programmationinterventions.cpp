@@ -175,7 +175,7 @@ bool dlg_programmationinterventions::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::FocusIn )
     {
-        UpDoubleSpinBox* objUpdSpin = dynamic_cast<UpDoubleSpinBox*>(obj);
+        UpDoubleSpinBox* objUpdSpin = qobject_cast<UpDoubleSpinBox*>(obj);
         if (objUpdSpin != Q_NULLPTR)   {
             objUpdSpin->setPrefix("");
             objUpdSpin->selectAll();
@@ -308,7 +308,7 @@ void dlg_programmationinterventions::AfficheInterventionsSession(QModelIndex idx
         RemplirTreeInterventions();
         return;
     }
-    setcurrentsession(dynamic_cast<SessionOperatoire*>(upitem->item()));
+    setcurrentsession(qobject_cast<SessionOperatoire*>(upitem->item()));
     wdg_buttonsessionsframe->wdg_moinsBouton->setEnabled(currentsession() != Q_NULLPTR);
     wdg_buttonsessionsframe->wdg_modifBouton->setEnabled(currentsession() != Q_NULLPTR);
     wdg_buttoninterventionframe->wdg_plusBouton->setEnabled(currentsession() != Q_NULLPTR);
@@ -359,7 +359,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
             if (itm != Q_NULLPTR)
             {
-                SessionOperatoire* sess = dynamic_cast<SessionOperatoire*>(itm->item());
+                SessionOperatoire* sess = qobject_cast<SessionOperatoire*>(itm->item());
                 if (sess)
                     if (sess->incident() != "")
                     {
@@ -381,7 +381,7 @@ void dlg_programmationinterventions::RemplirTreeSessions()
                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
                 if (itm)
                 {
-                    SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(itm->item());
+                    SessionOperatoire *session = qobject_cast<SessionOperatoire*>(itm->item());
                     if (session)
                         if (session->id() == currentsession()->id())
                         {
@@ -476,7 +476,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
         for (int i = 0; i < m_sessionsmodel->rowCount(); ++i)
         {
             UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_sessionsmodel->item(i));
-            SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+            SessionOperatoire *session = qobject_cast<SessionOperatoire*>(upitem->item());
             if (session->date() ==  date && session->idlieu() == idsite)
             {
                 UpMessageBox::Watch(this, tr("Cette session existe déjà!"));
@@ -772,7 +772,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
     }
     else
     {
-        SessionOperatoire *session = dynamic_cast<SessionOperatoire*>(upitem->item());
+        SessionOperatoire *session = qobject_cast<SessionOperatoire*>(upitem->item());
         if (session == Q_NULLPTR)
         {
             delete m_ctxtmenusessions;
@@ -817,7 +817,7 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
     UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
-    setcurrentintervention(dynamic_cast<Intervention*>(upitem->item()));
+    setcurrentintervention(qobject_cast<Intervention*>(upitem->item()));
     if (currentintervention() == Q_NULLPTR)
     {
         wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
@@ -1068,7 +1068,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
         return;
     QString mode = "";
     QString incident = "";
-    Intervention * interv = dynamic_cast<Intervention*>(itm);
+    Intervention * interv = qobject_cast<Intervention*>(itm);
     if (interv)
     {
         mode = "intervention";
@@ -1077,7 +1077,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     }
     else
     {
-        SessionOperatoire * session = dynamic_cast<SessionOperatoire*>(itm);
+        SessionOperatoire * session = qobject_cast<SessionOperatoire*>(itm);
         if (session)
         {
             mode = "session";
@@ -1211,7 +1211,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         UpStandardItem *itmitv = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel->item(interventioncombo->currentIndex()));
         if (itmitv)
             if (itmitv->item())
-                typ = dynamic_cast<TypeIntervention*>(itmitv->item());
+                typ = qobject_cast<TypeIntervention*>(itmitv->item());
         dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, this);
         if (dlgtyp->exec() == QDialog::Accepted)
         {
@@ -1482,7 +1482,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         if (upitm == Q_NULLPTR)
             return;
         idsession = upitm->item()->id();
-        SessionOperatoire * session = dynamic_cast<SessionOperatoire*>(upitm->item());
+        SessionOperatoire * session = qobject_cast<SessionOperatoire*>(upitm->item());
         if (session == Q_NULLPTR)
             return;
         int idpat = 0;
@@ -1525,7 +1525,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                     UpStandardItem * itm = dynamic_cast<UpStandardItem*>(upitem->child(0));
                     if (itm->hasitem())
                     {
-                        Intervention *intervention = dynamic_cast<Intervention*>(itm->item());
+                        Intervention *intervention = qobject_cast<Intervention*>(itm->item());
                         if (intervention)
                         {
                             if (intervention->heure() == heure && intervention->idpatient() == idpat)
@@ -1757,7 +1757,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
     }
     else
     {
-        Intervention *interv = dynamic_cast<Intervention*>(upitem->item());
+        Intervention *interv = qobject_cast<Intervention*>(upitem->item());
         if (interv == Q_NULLPTR)
         {
             delete m_ctxtmenuinterventions;
@@ -1825,7 +1825,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
         for (int i = 0; i < m_typeinterventionsmodel->rowCount(); ++i)
         {
             UpStandardItem * upitem = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel->item(i));
-            TypeIntervention *typ = dynamic_cast<TypeIntervention*>(upitem->item());
+            TypeIntervention *typ = qobject_cast<TypeIntervention*>(upitem->item());
             if (typ->typeintervention() == Utils::trimcapitilize(linenom->text()))
             {
                 UpMessageBox::Watch(this, tr("Ce type d'intervention existe déjà!"));
@@ -2068,7 +2068,7 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(0));
             if (itm)
-                m_currentIOL = dynamic_cast<IOL*>(itm->item());
+                m_currentIOL = qobject_cast<IOL*>(itm->item());
         }
         for (int i=0; i< m_IOLsmodel->rowCount(); ++i)
         {
@@ -2173,7 +2173,7 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(0));
             if (itm)
-                m_currentmanufacturer = dynamic_cast<Manufacturer*>(itm->item());
+                m_currentmanufacturer = qobject_cast<Manufacturer*>(itm->item());
         }
         for (int i=0; i< m_manufacturersmodel->rowCount(); ++i)
         {

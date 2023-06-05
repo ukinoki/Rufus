@@ -178,7 +178,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
             // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante -------------
             if (keyEvent->modifiers() == Qt::MetaModifier)
             {
-                UpTextEdit *textnext = dynamic_cast<UpTextEdit*>(nextInFocusChain());
+                UpTextEdit *textnext = qobject_cast<UpTextEdit*>(nextInFocusChain());
                 if (textnext){
                     textnext->setFocus();
                     textnext->moveCursor(QTextCursor::End);
@@ -191,7 +191,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
             if (keyEvent->modifiers() == Qt::ShiftModifier)
             {
                 {
-                    UpTextEdit *textprev = dynamic_cast<UpTextEdit*>(previousInFocusChain());
+                    UpTextEdit *textprev = qobject_cast<UpTextEdit*>(previousInFocusChain());
                     if (textprev)
                     {
                         textprev->setFocus();

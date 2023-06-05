@@ -146,7 +146,7 @@ void dlg_salledattente::OKButtonClicked()
 void dlg_salledattente::EnableOKButton()
 {
     OKButton            ->setEnabled(true);
-    QRadioButton *btu   = dynamic_cast<QRadioButton*>(sender());
+    QRadioButton *btu   = qobject_cast<QRadioButton*>(sender());
     if (btu != Q_NULLPTR)
     {
         ui->MsgtextEdit ->setVisible(btu==ui->RetourAccueilradioButton);

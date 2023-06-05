@@ -263,7 +263,7 @@ void    dlg_identificationpatient::OKpushButtonClicked()
             UpMessageBox::Watch(this,tr("Vous devez spécifier le sexe!"));
             return;
         }
-        UpLineEdit* line = dynamic_cast<UpLineEdit*>(focusWidget());
+        UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
         if (line != Q_NULLPTR)
             if (line == ui->PrenomlineEdit || line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit || line == ui->ProfessionlineEdit)
                 line->setText(Utils::trimcapitilize(line->text()));

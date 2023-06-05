@@ -129,7 +129,7 @@ void dlg_refractionlistemesures::ItemClicked(QModelIndex mod)
                 if (m_model->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
                     m_model->item(i,0)->setCheckState(Qt::Unchecked);
             }
-            m_refselectionne = dynamic_cast<Refraction*>(pitem->item());
+            m_refselectionne = qobject_cast<Refraction*>(pitem->item());
         }
         OKButton->setEnabled(Nombre_Mesure_Selected() > 0);
     }

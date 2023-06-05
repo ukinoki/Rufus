@@ -127,7 +127,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
 
 QVBoxLayout* UpDialog::dlglayout()
 {
-    QVBoxLayout *globallay = dynamic_cast<QVBoxLayout*>(this->layout());
+    QVBoxLayout *globallay = qobject_cast<QVBoxLayout*>(this->layout());
     if (globallay == Q_NULLPTR)
     {
         globallay   = new QVBoxLayout(this);
@@ -175,7 +175,7 @@ void UpDialog::AjouteWidgetLayButtons(QWidget *widg, bool ALaFin)
         wdg_buttonslayout->addWidget(widg);
     else
         wdg_buttonslayout->insertWidget(0,widg);
-    UpSmallButton *but = dynamic_cast<UpSmallButton*>(widg);
+    UpSmallButton *but = qobject_cast<UpSmallButton*>(widg);
     if (but != Q_NULLPTR)
     {
         if (but->ButtonStyle() == UpSmallButton::CANCELBUTTON)
@@ -216,16 +216,16 @@ void UpDialog::TuneSize(bool fix)
     {
         for (int i=0; i<listwidg.size(); i++)
         {
-            if (dynamic_cast<UpSmallButton*>(listwidg.at(i)) == Q_NULLPTR && dynamic_cast<UpPushButton*>(listwidg.at(i)))
+            if (qobject_cast<UpSmallButton*>(listwidg.at(i)) == Q_NULLPTR && qobject_cast<UpPushButton*>(listwidg.at(i)))
             {
                 stages = 0.0;
                 break;
             }
-            if (dynamic_cast<UpPushButton*>(listwidg.at(i)) != Q_NULLPTR)
+            if (qobject_cast<UpPushButton*>(listwidg.at(i)) != Q_NULLPTR)
                 stages = 1;
-            if (dynamic_cast<UpSmallButton*>(listwidg.at(i)) != Q_NULLPTR && stages < 1)
+            if (qobject_cast<UpSmallButton*>(listwidg.at(i)) != Q_NULLPTR && stages < 1)
             {
-                if (dynamic_cast<UpSmallButton*>(listwidg.at(i))->text() =="")
+                if (qobject_cast<UpSmallButton*>(listwidg.at(i))->text() =="")
                     stages = 0.7;
                 else
                     stages = 1;

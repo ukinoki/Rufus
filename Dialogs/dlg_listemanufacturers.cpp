@@ -131,7 +131,7 @@ Manufacturer* dlg_listemanufacturers::getmanufacturerFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
     if (it != Q_NULLPTR)
-        return dynamic_cast<Manufacturer *>(it->item());
+        return qobject_cast<Manufacturer *>(it->item());
     else
         return Q_NULLPTR;
 }

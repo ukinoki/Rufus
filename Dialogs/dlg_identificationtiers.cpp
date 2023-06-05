@@ -125,7 +125,7 @@ void    dlg_identificationtiers::OKpushButtonClicked()
         return;
     }
 
-    UpLineEdit* line = dynamic_cast<UpLineEdit*>(focusWidget());
+    UpLineEdit* line = qobject_cast<UpLineEdit*>(focusWidget());
     if (line != Q_NULLPTR)
         if (line == ui->NomlineEdit || line == ui->Adresse1lineEdit || line == ui->Adresse2lineEdit || line == ui->Adresse3lineEdit)
             line->setText(Utils::trimcapitilize(line->text()));
