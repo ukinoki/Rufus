@@ -8392,6 +8392,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
     if (Dlg_Imprs->exec() == QDialog::Accepted)
     {
         User *userEntete = Dlg_Imprs->userentete();
+        //qDebug() << userEntete->login();
         if (userEntete == Q_NULLPTR)
         {
             UpMessageBox::Watch(this, tr("Impossible d'imprimer"),tr("Aucun émetteur n'est précisé pour l'impression"));

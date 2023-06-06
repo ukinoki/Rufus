@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionTypesInterventions", parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     setWindowModality(Qt::WindowModal);
 
     wdg_tblview = new UpTableView();
