@@ -298,7 +298,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                                                                      "\n" + tr("ne nous permettent plus de maintenir de façon fiable l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
                                                                      "\n" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
                                                                      "\n" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"));
-        return;
     }
 
 }

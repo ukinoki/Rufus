@@ -1059,9 +1059,9 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
          */
 
     /* on remet à null le champ idfacture de la dépense*/
+    int idfacture = dep->idfacture();
     ItemsList::update(dep, CP_IDFACTURE_DEPENSES, QVariant());
 
-    QString req;
     /* on vérifie si l'idfacture est utilisé par d'autres dépenses (cas d'un échéancier)*/
     bool supprimerlafacture = true;
     bool ok = true;
@@ -1078,17 +1078,19 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     if (supprimerlafacture)
     {
         /* on détruit l'enregistrement dans la table factures*/
-        db->SupprRecordFromTable(dep->idfacture(), CP_ID_FACTURES, TBL_FACTURES);
+        db->SupprRecordFromTable(idfacture, CP_ID_FACTURES, TBL_FACTURES);
         /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
          * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
          * se chargera de supprimer les fichiers du disque
          * et d'en faire une copie dans le dossier factures sans lien
          * On vérifie au préalable que cette facture ne vient pas d'être inscrite dans la table */
         if (db->StandardSelectSQL("select " CP_LIENFICHIER_FACTASUPPR " from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " = '" + dep->lienfacture() + "'", ok).size()==0)
-            req = "insert into " TBL_FACTURESASUPPRIMER
+        {
+            QString req = "insert into " TBL_FACTURESASUPPRIMER
                   " (" CP_LIENFICHIER_FACTASUPPR ")"
                   " values ('" + dep->lienfacture() + "')";
-        db->StandardSQL(req);
+            db->StandardSQL(req);
+        }
     }
     /* on remet à zero les idfacture et lienfacture de la dépense*/
     dep->setlienfacture("");
@@ -1891,8 +1893,6 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
 
 void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
 {
-    if (mode == dlg_docsscanner::Document)
-        return;
     dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
     if (Dlg_DocsScan->initOK())
     {

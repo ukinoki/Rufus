@@ -228,6 +228,7 @@ int DataBase::selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, Q
 bool DataBase::SupprRecordFromTable(int id, QString nomChamp, QString nomtable, QString errormsg)
 {
     QString req = "delete from " + nomtable + " where " + nomChamp + " = " + QString::number(id);
+    //qDebug() << req;
     return StandardSQL(req, errormsg);
 }
 
