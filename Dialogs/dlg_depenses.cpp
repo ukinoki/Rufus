@@ -1049,6 +1049,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
          */
 
     /* on remet à null le champ idfacture de la dépense*/
+    int idfacture = dep->idfacture();
     ItemsList::update(dep, CP_IDFACTURE_DEPENSES, QVariant());
 
     QString req;
@@ -1068,7 +1069,7 @@ void dlg_depenses::SupprimeFacture(Depense *dep)
     if (supprimerlafacture)
     {
         /* on détruit l'enregistrement dans la table factures*/
-        db->SupprRecordFromTable(dep->idfacture(), CP_ID_FACTURES, TBL_FACTURES);
+        db->SupprRecordFromTable(idfacture, CP_ID_FACTURES, TBL_FACTURES);
         /* on inscrit le lien vers le fichier dans la table FacturesASupprimer
          * la fonction SupprimeDocsetFactures de Rufus ou RufusAdmin
          * se chargera de supprimer les fichiers du disque
