@@ -26,6 +26,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
     setWindowTitle(tr("Journal des dépenses"));
+    setWindowModality(Qt::WindowModal);
 
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire());
 
@@ -1006,12 +1007,12 @@ void dlg_depenses::ZoomDoc()
     proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
-                    UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
+                    UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK, this);
 }
 
 void dlg_depenses::EffaceFacture()
 {
-    if (UpMessageBox::Question(this,
+    if (UpMessageBox::Question(proc->EditDocumentDialog(),
                            (m_depenseencours->isecheancier()? tr("Suppression d'échéancier") : tr("Suppression de facture")),
                            (m_depenseencours->isecheancier()? tr ("Confirmez la suppression du lien vers ") + "\n" + m_depenseencours->objetecheancier() : tr ("Confirmez la suppression de la facture ") + "\n" +  m_depenseencours->objet()),
                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -1023,7 +1024,7 @@ void dlg_depenses::EffaceFacture()
          * on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier
          */
     /* on ferme la fiche d'édition de la facture*/
-    emit proc->CloseEditDocument();
+    proc->EditDocumentDialog()->accept();
     SupprimeFacture(m_depenseencours);
     /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/
     ui->VisuDocupTableWidget->clear();

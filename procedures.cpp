@@ -1657,30 +1657,29 @@ void Procedures::EditHtml(QString txt)
  * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
  * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintDocument(QMap<QString,QVariant> doc)
  */
-void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button)
+void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button, QWidget *parent)
 {
-    UpDialog    *gAsk           = new UpDialog();
-    wdg_tablewidget             = new UpTableWidget(gAsk);
+    gEditDocumentDialog         = new UpDialog(parent);
+    wdg_tablewidget             = new UpTableWidget(gEditDocumentDialog);
     wdg_inflabel                = new UpLabel(wdg_tablewidget);
     m_listeimages               = wdg_tablewidget->AfficheDoc(doc);
     wdg_tablewidget ->installEventFilter(this);
-    gAsk->setModal(true);
-    gAsk->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    gAsk->setWindowTitle(titre);
-    gAsk->dlglayout()->insertWidget(0,wdg_tablewidget);
+    gEditDocumentDialog->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    gEditDocumentDialog->setWindowTitle(titre);
+    gEditDocumentDialog->setWindowModality(Qt::WindowModal);
+    gEditDocumentDialog->dlglayout()->insertWidget(0,wdg_tablewidget);
     wdg_tablewidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     wdg_tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
-    gAsk->AjouteLayButtons(Button);
-    connect(gAsk->OKButton, &QPushButton::clicked, this, [=] {gAsk->accept();});
-    connect(this, &Procedures::CloseEditDocument, gAsk, [=] {gAsk->accept();});
+    gEditDocumentDialog->AjouteLayButtons(Button);
+    connect(gEditDocumentDialog->OKButton, &QPushButton::clicked, this, [=] {gEditDocumentDialog->accept();});
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
-        gAsk->PrintButton->setdata(doc);
-        connect(gAsk->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), this, [=](QVariant) {PrintDocument(doc);});
+        gEditDocumentDialog->PrintButton->setdata(doc);
+        connect(gEditDocumentDialog->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), this, [=](QVariant) {PrintDocument(doc);});
     }
     if (Button.testFlag(UpDialog::ButtonSuppr))
-        connect(gAsk->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
+        connect(gEditDocumentDialog->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     int x = 0;
@@ -1690,18 +1689,18 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
         x = listscreens.first()->geometry().width();
         y = listscreens.first()->geometry().height();
     }
-    gAsk->setMaximumWidth(x);
-    gAsk->setMaximumHeight(y);
-    int topmarge    = gAsk->dlglayout()->contentsMargins().top();
-    int bottommarge = gAsk->dlglayout()->contentsMargins().bottom();
-    int leftmarge   = gAsk->dlglayout()->contentsMargins().left();
-    int rightmarge  = gAsk->dlglayout()->contentsMargins().right();
-    int spacing     = gAsk->dlglayout()->spacing();
+    gEditDocumentDialog->setMaximumWidth(x);
+    gEditDocumentDialog->setMaximumHeight(y);
+    int topmarge    = gEditDocumentDialog->dlglayout()->contentsMargins().top();
+    int bottommarge = gEditDocumentDialog->dlglayout()->contentsMargins().bottom();
+    int leftmarge   = gEditDocumentDialog->dlglayout()->contentsMargins().left();
+    int rightmarge  = gEditDocumentDialog->dlglayout()->contentsMargins().right();
+    int spacing     = gEditDocumentDialog->dlglayout()->spacing();
     int hdeltaframe = 60;//gAsk->frameGeometry().height() - gAsk->height();
                             // on a un problème avec ce calcul sous mac puisque qt ne connait pas la hauteur du dock
-    int wdeltaframe = gAsk->frameGeometry().width() - gAsk->width();
+    int wdeltaframe = gEditDocumentDialog->frameGeometry().width() - gEditDocumentDialog->width();
 
-    int hdelta = topmarge + bottommarge + spacing + gAsk->widgetbuttons()->height();
+    int hdelta = topmarge + bottommarge + spacing + gEditDocumentDialog->widgetbuttons()->height();
         // la différence totale entre le hauteur de la fiche et la hauteur de la table
     int wdelta = leftmarge + rightmarge + spacing;
         // la différence totale entre la largeur de la fiche et la largeur de la table
@@ -1726,7 +1725,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     {   htable  = int(maxhscroll);   wtable  = int(htable * idealproportion); }
     int w = wtable + wdelta;
     int h = htable + hdelta;
-    gAsk->resize(w, h);
+    gEditDocumentDialog->resize(w, h);
     wdg_tablewidget->resize(wtable, htable);
     int delta = 0;
     for (int i=0; i < wdg_tablewidget->rowCount(); i++)
@@ -1741,8 +1740,8 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
         }
     }
 
-    if (w > (x - gAsk->x()))
-        gAsk->move(x - w, 0);
+    if (w > (x - gEditDocumentDialog->x()))
+        gEditDocumentDialog->move(x - w, 0);
 
     wdg_inflabel    ->setText("<font color='magenta'>" + label + "</font>");
     QFont font = qApp->font();
@@ -1750,8 +1749,9 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     wdg_inflabel->setFont(font);
     wdg_inflabel->setGeometry(10,htable-40,350,25);
 
-    gAsk->exec();
-    delete gAsk;
+    gEditDocumentDialog->exec();
+    delete gEditDocumentDialog;
+    gEditDocumentDialog = Q_NULLPTR;
 }
 
 /*!

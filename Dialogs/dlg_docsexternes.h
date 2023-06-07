@@ -32,6 +32,7 @@ public:
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
+    Mode                    mode() { return m_mode; };
 
 private:
     DataBase                *db             = DataBase::I();

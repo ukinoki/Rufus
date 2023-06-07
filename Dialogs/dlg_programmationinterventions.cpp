@@ -1213,7 +1213,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         if (itmitv)
             if (itmitv->item())
                 typ = qobject_cast<TypeIntervention*>(itmitv->item());
-        dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, this);
+        dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, dlg_intervention);
         if (dlgtyp->exec() == QDialog::Accepted)
         {
             m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-06-2023/1");
+    qApp->setApplicationVersion("07-06-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -7794,7 +7794,8 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     for (int n = 0; n < ListDialogDocs.size(); n++)
     {
         if (n == ListDialogDocs.size()-1)
-            proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
+            if (ListDialogDocs.at(n)->mode() == dlg_docsexternes::Normal)
+                proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
         delete ListDialogDocs.at(n);
     }
@@ -8517,7 +8518,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             UpMessageBox::Watch(this, tr("Impossible d'imprimer"),tr("Aucun émetteur n'est précisé pour l'impression"));
             return;
         }
-
+        qDebug() << userEntete->login() << pat->nomcomplet();
         QString     Entete;
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
         //création de l'entête
