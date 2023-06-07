@@ -284,7 +284,9 @@ public:
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
     void                    EditHtml(QString txt);
-    void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK);
+    void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK, QWidget *parent = Q_NULLPTR);
+    UpDialog*               gEditDocumentDialog = Q_NULLPTR;
+    UpDialog*               EditDocumentDialog() { return gEditDocumentDialog; };
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
@@ -293,7 +295,6 @@ signals:
     void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool connect);
     void                    DelImage();
-    void                    CloseEditDocument();
 
 /*! fin en vrac -------------------------------------------------------------------------------------------------------- */
 

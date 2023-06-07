@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-06-2023/1");
+    qApp->setApplicationVersion("07-06-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -290,6 +290,17 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! 17 - suppression des anciens fichiers de log
     Logs::EpureLogs();
+
+    QString nameARK   = proc->settings()->value(Param_Poste_Autoref).toString();
+    if (nameARK == "HUVITZ HTR-1A")
+    {
+        UpMessageBox::Watch(this, tr("Problème Autoref Huvitz"), tr("Des problémes techniques de collaboration avec la société Essilor") +
+                                                                     "\n" + tr("ne nous permettent plus de maintenir de façon fiable l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
+                                                                     "\n" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
+                                                                     "\n" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"));
+        return;
+    }
+
 }
 
 Rufus::~Rufus()
@@ -7677,7 +7688,8 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
     for (int n = 0; n <  ListDialogDocs.size(); n++)
     {
         if (n == ListDialogDocs.size()-1)
-            proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
+            if (ListDialogDocs.at(n)->mode() == dlg_docsexternes::Normal)
+                proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
         delete ListDialogDocs.at(n);
     }
