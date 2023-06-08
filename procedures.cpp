@@ -56,9 +56,9 @@ Procedures::Procedures(QObject *parent) :
                                 "Si c'est le cas, choisissez l'option \"Premier démarrage de Rufus\"\n\n"
                                 "Si le logiciel fonctionnait déjà sur ce poste et que le fichier a été effacé par erreur:\n"
                                 "1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"\n"
-                                "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction."
-                                " Il vous faudra alors compléter de nouveau"
-                                " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
+                                "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\n"
+                                " Il vous faudra alors compléter de nouveau\n"
+                                " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après\n"
                                 " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
             m_connexionbaseOK = a;
             a = VerifIni(msg, msgInfo, true, true, true, true);
@@ -3934,33 +3934,48 @@ int Procedures::idCentre()
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::PremierDemarrage()
 {
-    QMessageBox     msgbox;
+    /*UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
+    UpSmallButton RecupIniBouton           (tr("Restaurer le fichier d'initialisation\nà partir d'une sauvegarde"));
+        UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nd'initialisation"));
+    UpSmallButton PremierDemarrageBouton   (tr("Premier démarrage\nde Rufus"));
+
+        UpMessageBox *msgbox = new UpMessageBox;
+    msgbox->setText(msg);
+    msgbox->setInformativeText(msgInfo);
+    msgbox->setIcon(UpMessageBox::Warning);
+    if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     UpSmallButton::NOBUTTON);
+    if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
+    if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
+    msgbox->addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+    msgbox->exec();
+    bool reponse = false;*/
+    UpMessageBox *msgbox = new UpMessageBox;
     int         protoc;
     enum protoc {BaseExistante, BaseVierge};
     UpSmallButton    AnnulBouton        (tr("Retour\nau menu d'accueil"));
     UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
     UpSmallButton    BaseExistanteBouton(tr("Base patients existante\nsur le serveur"));
 
-    msgbox.setText(tr("Premier démarrage de Rufus!"));
-    msgbox.setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes.\n\n"
+    msgbox->setText(tr("Premier démarrage de Rufus!"));
+    msgbox->setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes.\n\n"
                               "Cette installation ne peut aboutir si vous n'avez pas de serveur MySQL installé.\n"
                               "Dans ce cas, il vous faut annuler et installer un serveur MySQL sur cet ordinateur ou sur un autre poste du réseau.\n\n"
                               "Commencez par choisir la situation qui décrit le mieux votre installation de Rufus.\n\n"
                               "1. J'installe Rufus sur ce poste et ce poste se connectera à une base patients qui existe dèjà\n"
                               "2. J'installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer\n"));
-    msgbox.setIcon(QMessageBox::Information);
+    msgbox->setIcon(UpMessageBox::Info);
 
-    msgbox.addButton(&AnnulBouton,          QMessageBox::AcceptRole);
-    msgbox.addButton(&BaseExistanteBouton,  QMessageBox::AcceptRole);
-    msgbox.addButton(&BaseViergeBouton,     QMessageBox::AcceptRole);
-    msgbox.exec();
+    msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
+    msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
+    msgbox->addButton(&AnnulBouton,         UpSmallButton::CANCELBUTTON);
+    msgbox->exec();
 
     protoc = BaseExistante;
-    if (msgbox.clickedButton() == &AnnulBouton)
+    if (msgbox->clickedButton() == &AnnulBouton)
         return false;
-    else if (msgbox.clickedButton() == &BaseExistanteBouton)
+    else if (msgbox->clickedButton() == &BaseExistanteBouton)
         protoc = BaseExistante;
-    else if (msgbox.clickedButton() == &BaseViergeBouton)
+    else if (msgbox->clickedButton() == &BaseViergeBouton)
         protoc = BaseVierge;
 
 
@@ -4139,14 +4154,14 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nd'initialisation"));
     UpSmallButton PremierDemarrageBouton   (tr("Premier démarrage\nde Rufus"));
 
-    QMessageBox *msgbox = new QMessageBox;
+    UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
     msgbox->setInformativeText(msgInfo);
-    msgbox->setIcon(QMessageBox::Warning);
-    if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     QMessageBox::AcceptRole);
-    if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           QMessageBox::AcceptRole);
-    if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   QMessageBox::AcceptRole);
-    msgbox->addButton(&AnnulBouton, QMessageBox::AcceptRole);
+    msgbox->setIcon(UpMessageBox::Warning);
+    if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
+    if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     UpSmallButton::NOBUTTON);
+    if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
+    msgbox->addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
     msgbox->exec();
     bool reponse = false;
 
