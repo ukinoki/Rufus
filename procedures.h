@@ -277,6 +277,7 @@ private:
     QList<QImage>           m_listeimages;
     UpDialog                *dlg_askLogin, *dlg_askUser;
     UpTableWidget           *wdg_tablewidget;
+    UpDialog                *gEditDocumentDialog = Q_NULLPTR;
 
 public:
     void                    ab(int i = 1);
@@ -285,7 +286,6 @@ public:
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
     void                    EditHtml(QString txt);
     void                    EditDocument(QMap<QString, QVariant> doc, QString label = "", QString titre = "", UpDialog::Buttons Button=UpDialog::ButtonOK, QWidget *parent = Q_NULLPTR);
-    UpDialog*               gEditDocumentDialog = Q_NULLPTR;
     UpDialog*               EditDocumentDialog() { return gEditDocumentDialog; };
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);

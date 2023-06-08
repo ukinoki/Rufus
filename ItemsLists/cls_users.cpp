@@ -208,7 +208,7 @@ void Users::initListe()
         if (usr->login() == NOM_ADMINISTRATEUR)
         {
             m_useradmin = usr;
-            break;
+            continue;
         }
         CalcCompteEncaissementActes(usr);
     }
