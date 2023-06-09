@@ -25,8 +25,6 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     setWindowTitle(tr("Liste des IOLs"));
     setWindowModality(Qt::WindowModal);
 
-    wdg_manufacturerscombo = new UpComboBox();
-
     wdg_itemstree = new QTreeView(this);
     wdg_itemstree ->setFixedWidth(320);
     wdg_itemstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
