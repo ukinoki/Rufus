@@ -25,8 +25,6 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     setWindowTitle(tr("Liste des IOLS"));
     setWindowModality(Qt::WindowModal);
 
-    wdg_manufacturerscombo = new UpComboBox();
-
     wdg_itemstree = new QTreeView(this);
     wdg_itemstree ->setFixedWidth(320);
     wdg_itemstree ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -367,7 +365,7 @@ void dlg_listeiols::EnregistreNouveauIOL()
     }
     if (Dlg_IdentIOL->exec() == QDialog::Accepted)
     {
-        IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL());
+        IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL(), true);
         m_listemodifiee = true;
         disconnectFiltersSignals();
         wdg_manufacturerscombo->setCurrentIndex(0);
@@ -672,6 +670,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     {
         if (iol)
         {
+            Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL(), true);
             m_listemodifiee = true;
             wdg_manufacturerscombo->disconnect();
             wdg_manufacturerscombo->setCurrentIndex(0);

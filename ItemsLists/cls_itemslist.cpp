@@ -899,7 +899,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_TYPIMG_IOLS)
             {
-                iol->setTypeImage(newvalue.toString());
+                iol->setimageformat(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
             else if (field == CP_MATERIAU_IOLS)
