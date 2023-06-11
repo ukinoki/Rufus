@@ -26,8 +26,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
     setWindowTitle(tr("Journal des dépenses"));
-        setModal(true);
-    //setWindowModality(Qt::WindowModal);
+    setModal(true);
 
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire());
 

@@ -674,7 +674,7 @@ void dlg_identificationIOL::menuChangeImage()
     QMenu m_menuContextuel;
     QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Modifier l'image"));
     connect (pAction_ChangeImage,  &QAction::triggered,    this, &dlg_identificationIOL::changeImage);
-    if (m_currentimage != m_nullimage)
+    if (m_currentIOLimage != m_nullimage)
     {
         QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Supprimer l'image"));
         connect (pAction_ChangeImage,  &QAction::triggered,    this, &dlg_identificationIOL::supprimeImage);
@@ -726,14 +726,15 @@ void dlg_identificationIOL::changeImage()
             szfinal = szorigin;
             file_origine.copy(nomfichresize);
             file_image.setFileName(nomfichresize);
+            QImage  imgresize;
             if ((formatdoc == JPG ||formatdoc == PNG) && sz > sizemaxi)
             {
-                QImage  img(nomfichresize);
+                imgresize.load(nomfichresize);
                 file_image.remove();
                 QPixmap pixmap;
-                pixmap = pixmap.fromImage(img);
+                pixmap = pixmap.fromImage(imgresize);
                 pixmap.save(nomfichresize, "jpeg");
-                pixmap = pixmap.fromImage(img.scaledToWidth(256));
+                pixmap = pixmap.fromImage(imgresize.scaledToWidth(256));
                 int     tauxcompress = 90;
                 while (sz > sizemaxi && tauxcompress > 1)
                 {
@@ -752,19 +753,17 @@ void dlg_identificationIOL::changeImage()
             file_image.open(QIODevice::ReadOnly);
             ba = file_image.readAll();
             file_image.remove();
+            m_listbinds[CP_ARRAYIMG_IOLS] = ba;
+            QString suffix = QFileInfo(file_origine).suffix().toLower();
+            suffix = (suffix == PDF? PDF : JPG);
+            m_listbinds[CP_TYPIMG_IOLS] = suffix;
+            EnableOKpushButton();
+            QImage img = (suffix == PDF? Utils::calcImagefromPdf(ba).at(0) : imgresize);
+            setimage(img);
+            Utils::removeWithoutPermissions(file_origine);
         }
-        m_listbinds[CP_ARRAYIMG_IOLS] = ba;
-        QString suffix = QFileInfo(file_origine).suffix().toLower();
-        suffix = (suffix == PDF? PDF : JPG);
-        m_listbinds[CP_TYPIMG_IOLS] = suffix;
-        EnableOKpushButton();
-        QImage img;
-        if (suffix == PDF)
-            img = Utils::calcImagefromPdf(ba).at(0);
         else
-            img = QImage(fileName);
-        setimage(img);
-        file_origine.remove();
+            UpMessageBox::Watch(this, tr("Impossible d'enregistrer cette image"), tr("Impossible d'ouvrir le fichier ") + fileName);
     }
 }
 
@@ -836,7 +835,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
     bool ok;
     QString requete = "select " CP_ID_IOLS " from " TBL_IOLS
             " where " CP_MODELNAME_IOLS " = '" + wdg_nomiolline->text() + "'";
-    QVariantList ioldata = DataBase::I()->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des correspondants!"));
+    QVariantList ioldata = DataBase::I()->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des implants!"));
     if (!ok)
     {
         reject();
@@ -948,5 +947,5 @@ void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
 void dlg_identificationIOL::setimage(QImage img)
 {
     wdg_imgIOL   ->setPixmap(QPixmap::fromImage(img.scaled(wdg_imgIOL->width(),wdg_imgIOL->height(), Qt::KeepAspectRatio)));
-    m_currentimage = img;
+    m_currentIOLimage = img;
 }

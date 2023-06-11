@@ -65,8 +65,8 @@ private: //Données de l'intervention
     bool m_edof             = false;            //! edof
     bool m_toric            = false;            //! toric
     QString m_type          = "";               //! le type de l'IOL : CP, CA, addon, support irien, refractif ca
-    QImage                  m_nullimage = QImage("://IOL.png");
-    QImage                  m_currentimage = m_nullimage;
+    QImage m_nullimage      = QImage("://IOL.png");
+    QImage m_currentimage   = m_nullimage;
 
 
 public:
@@ -124,7 +124,7 @@ public:
     void setDiaall(double diaall)               { m_diaall = diaall;                m_data[CP_DIAALL_IOLS] = diaall; }
     void setDiaoptique(double diaoptique)       { m_diaoptique = diaoptique;        m_data[CP_DIAOPT_IOLS] = diaoptique; }
     void setArrayImgiol(const QByteArray &imgiol){ m_arrayimgiol = imgiol;          m_data[CP_ARRAYIMG_IOLS] = QLatin1String(imgiol.toBase64()); }
-    void setTypeImage(const QString &typeimage) { m_imageformat = typeimage;        m_data[CP_TYPIMG_IOLS] = typeimage; }
+    void setimageformat(const QString &typeimage) { m_imageformat = typeimage;        m_data[CP_TYPIMG_IOLS] = typeimage; }
     void setMateriau(const QString &materiau)   { m_materiau = materiau;            m_data[CP_MATERIAU_IOLS] = materiau; }
     void setRemarque(const QString &remarque)   { m_remarque = remarque;            m_data[CP_REMARQUE_IOLS] = remarque; }
     void setprecharge(bool &precharge)          { m_precharge = precharge;          m_data[CP_PRECHARGE_IOLS] = precharge; }
@@ -145,7 +145,14 @@ public:
     }
 
     QImage image() const                        { return m_currentimage; }
-    void setimage(QImage img = QImage())        { m_currentimage = (img != m_nullimage? img : m_nullimage); m_data[CP_ARRAYIMG_IOLS] = Utils::jsonValFromImage(m_currentimage); }
+    void setimage(QImage &img)
+    {
+        if (img.isNull())
+            m_nullimage.swap(m_currentimage);
+        else
+            img.swap(m_currentimage);
+        m_data[CP_ARRAYIMG_IOLS] = Utils::jsonValFromImage(m_currentimage);
+    }
     void resetdatas();
     bool isnull() const                         { return m_id == 0; }
 

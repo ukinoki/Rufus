@@ -365,7 +365,7 @@ void dlg_listeiols::EnregistreNouveauIOL()
     }
     if (Dlg_IdentIOL->exec() == QDialog::Accepted)
     {
-        IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL());
+        IOL *iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL(), true);
         m_listemodifiee = true;
         disconnectFiltersSignals();
         wdg_manufacturerscombo->setCurrentIndex(0);
@@ -670,6 +670,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     {
         if (iol)
         {
+            Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL(), true);
             m_listemodifiee = true;
             wdg_manufacturerscombo->disconnect();
             wdg_manufacturerscombo->setCurrentIndex(0);

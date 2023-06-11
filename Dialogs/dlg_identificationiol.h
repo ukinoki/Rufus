@@ -52,7 +52,7 @@ private:
                         m_listbinds;
     bool                m_initok = true;
     QImage              m_nullimage = QImage("://IOL.png");
-    QImage              m_currentimage;
+    QImage              m_currentIOLimage;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
     UpLineEdit          *wdg_Aoptline;
