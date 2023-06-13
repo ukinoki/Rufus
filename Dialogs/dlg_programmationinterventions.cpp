@@ -581,7 +581,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     }
     QTextEdit textEdit;
     textEdit.setHtml(lign);
-    proc->Imprime_Etat(&textEdit, EnTete, Pied,
+    proc->Imprime_Etat(this, &textEdit, EnTete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
 }
@@ -735,9 +735,9 @@ void dlg_programmationinterventions::ImprimeSession()
     }
     QTextEdit textEdit;
     textEdit.setHtml(lign);
-    proc->Imprime_Etat(&textEdit, EnTete, Pied,
+    proc->Imprime_Etat(this, &textEdit, EnTete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage, true, this);
+                       AvecDupli, AvecPrevisu, AvecNumPage);
 }
 
 void dlg_programmationinterventions::SupprimeSession()
@@ -1643,7 +1643,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            m_docimprime                = proc->Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!m_docimprime)
                 break;
             imprimante = proc->nomImprimante();
@@ -2004,7 +2004,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         }
         QTextEdit textEdit;
         textEdit.setHtml(lign);
-        proc->Imprime_Etat(&textEdit, EnTete, Pied,
+        proc->Imprime_Etat(this, &textEdit, EnTete, Pied,
                            proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                            AvecDupli, AvecPrevisu, AvecNumPage);
     }

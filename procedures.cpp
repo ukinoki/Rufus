@@ -1303,8 +1303,8 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
     return Pied;
 }
 
-bool Procedures::Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
-                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante, QWidget *parent)
+bool Procedures::Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QString PiedDepart = Pied;
@@ -1828,7 +1828,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
     return true;
 }
 
-bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QString Entete, QString text, QDate date,
+bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString Entete, QString text, QDate date,
                                                                           bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
     if (pat == Q_NULLPTR || user == Q_NULLPTR)
@@ -1864,7 +1864,7 @@ bool Procedures::Imprimer_Document(Patient *pat, User * user, QString titre, QSt
     }
     int tailleEnTete = TailleEnTete();
     if (ALD) tailleEnTete = TailleEnTeteALD();
-    aa = Imprime_Etat(Etat_textEdit, Entete, Pied,
+    aa = Imprime_Etat(parent, Etat_textEdit, Entete, Pied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(),
                             AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
 

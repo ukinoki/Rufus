@@ -790,7 +790,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool AvecDupli          = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
 
-    aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+    aa = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
                             proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
                             AvecDupli, m_avecprevisu, AvecNumPage);
 
