@@ -1147,7 +1147,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     QTextEdit *textEdit = new QTextEdit;
     textEdit->setHtml(texteordo);
 
-    bool a = proc->Imprime_Etat(textEdit, EnTete, Pied,
+    bool a = proc->Imprime_Etat(this, textEdit, EnTete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete textEdit;

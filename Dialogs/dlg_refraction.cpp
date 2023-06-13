@@ -1512,7 +1512,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 
     QTextEdit *Etat_textEdit = new QTextEdit;
     Etat_textEdit->setHtml(Corps);
-    bool a = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+    bool a = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
                        proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     // stockage de l'ordonnance dans la base de donnees - table impressions

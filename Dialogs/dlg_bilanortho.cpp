@@ -288,7 +288,7 @@ void dlg_bilanortho::ImprimeBOClicked()
                           +"<p><td width=\"40\"></td><td width=\"400\">" + ui->ConclusiontextEdit->toHtml() + "</td></p>");
     textHtml->setText(textHtml->toHtml().replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
 
-    bool aa = proc->Imprime_Etat(textHtml, Entete, Pied,
+    bool aa = proc->Imprime_Etat(this, textHtml, Entete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
 

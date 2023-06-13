@@ -340,9 +340,9 @@ void dlg_depenses::PrintTable()
 
     Etat_textEdit->setHtml(test4);
 
-    proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+    proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage, true,this);
+                       AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
     Etat_textEdit = Q_NULLPTR;
 

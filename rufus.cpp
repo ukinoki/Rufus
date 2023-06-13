@@ -2799,7 +2799,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                              nomdossier);
    }
    else
-       aa = proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+       aa = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
                               proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                               AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
@@ -3377,7 +3377,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     QTextEdit *textEdit = new QTextEdit;
     textEdit->setHtml(texte);
 
-    proc->Imprime_Etat(textEdit, EnTete, Pied,
+    proc->Imprime_Etat(this, textEdit, EnTete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete textEdit;
@@ -8436,7 +8436,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            aa                          = proc->Imprimer_Document(pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            aa                          = proc->Imprimer_Document(this, pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!aa)
                 break;
             imprimante = proc->nomImprimante();

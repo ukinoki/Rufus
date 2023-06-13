@@ -219,7 +219,7 @@ private:
 
 public:
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
-    bool                    Imprimer_Document(Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date,
+    bool                    Imprimer_Document(QWidget * parent, Patient *pat, User *user, QString titre, QString Entete, QString text, QDate date,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
@@ -234,10 +234,10 @@ public:
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
-    bool                    Imprime_Etat(QTextEdit *Etat, QString EnTete, QString Pied,
+    bool                    Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString EnTete, QString Pied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
-                                     bool AvecChoixImprimante = true, QWidget *parent = Q_NULLPTR);
+                                     bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
     bool                    Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
 

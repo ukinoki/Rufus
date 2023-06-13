@@ -393,7 +393,7 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     Etat_textEdit->setHtml(test4);
 
-    proc->Imprime_Etat(Etat_textEdit, Entete, Pied,
+    proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
