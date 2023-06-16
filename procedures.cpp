@@ -1248,16 +1248,17 @@ void Procedures::CalcImage(Item *item, bool imagerie)
 
      * La fonction est aussi appelée par la table dépenses pour afficher les factures
     */
-    bool isdocument = (qobject_cast<DocExterne*>(item) != Q_NULLPTR);
-    bool isfacture  = (qobject_cast<Depense*>(item) != Q_NULLPTR);
-    DocExterne *docmt = Q_NULLPTR;
     Depense *dep = Q_NULLPTR;
-    if (isdocument)
-        docmt = qobject_cast<DocExterne*>(item);
-    else if (isfacture)
+    bool isfacture = false;
+    DocExterne *docmt = qobject_cast<DocExterne*>(item);
+    bool isdocument = (docmt != Q_NULLPTR);
+    if (!isdocument)
+    {
         dep = qobject_cast<Depense*>(item);
-    else
-        return;
+        isfacture  = (dep != Q_NULLPTR);
+        if (!isfacture)
+            return;
+    }
     QString filename = "";
 
     QByteArray ba = QByteArray();
@@ -1687,7 +1688,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     QString     Corps, Pied;
     QTextEdit   *Etat_textEdit = new QTextEdit;
     bool        AvecNumPage = false;
-    bool        aa;
+    bool        success;
 
     Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
@@ -1715,12 +1716,12 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     }
     int tailleEnTete = TailleEnTete();
     if (ALD) tailleEnTete = TailleEnTeteALD();
-    aa = Imprime_Etat(parent, Etat_textEdit, Entete, Pied,
+    success = Imprime_Etat(parent, Etat_textEdit, Entete, Pied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(),
                             AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
 
     // stockage du document dans la base de donnees - table impressions
-    if (aa)
+    if (success)
     {
         Utils::nettoieHTML(Corps);
 
@@ -1750,7 +1751,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
             delete doc;
     }
     delete Etat_textEdit;
-    return aa;
+    return success;
 }
 
 void Procedures::Print(QPrinter *Imprimante, QImage image)

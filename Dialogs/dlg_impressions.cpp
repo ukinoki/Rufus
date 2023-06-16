@@ -1209,7 +1209,7 @@ void dlg_impressions::OKpushButtonClicked()
             }
         }
         // On a établi la liste de questions - on prépare la fiche qui va les poser
-        if (listQuestions.size()>0 || m_userentete == Q_NULLPTR)
+        if (listQuestions.size()>0)
         {
             dlg_ask = new UpDialog(this);
             dlg_ask->setWindowModality(Qt::WindowModal);
@@ -1400,7 +1400,7 @@ void dlg_impressions::OKpushButtonClicked()
             dlg_ask->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
             dlg_ask->setWindowModality(Qt::WindowModal);
-            connect(dlg_ask->OKButton,     &QPushButton::clicked, this,  [=] {VerifCoherencedlg_ask();});
+            connect(dlg_ask->OKButton,     &QPushButton::clicked, this,  &dlg_impressions::VerifCoherencedlg_ask);
 
             if (dlg_ask->exec() != QDialog::Accepted)
             {
@@ -1562,7 +1562,6 @@ void dlg_impressions::OKpushButtonClicked()
         }
         if (map_docsaimprimer.size() > 0)
             accept();
-        break;
     default:
         break;
     }
