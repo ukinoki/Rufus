@@ -44,7 +44,7 @@ public:
     explicit                                    dlg_impressions(Patient *pat, Intervention* intervention = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     ~dlg_impressions();
     Ui::dlg_impressions                         *ui;
-    enum DATASAIMPRIMER                         {Texte, Titre, Prescription, Dupli, Administratif};                     Q_ENUM(DATASAIMPRIMER)
+    enum DATASAIMPRIMER                         {d_Texte, d_Titre, d_Prescription, d_Dupli, d_Administratif};                     Q_ENUM(DATASAIMPRIMER)
     enum Mode                                   {Selection,CreationDOC,ModificationDOC,CreationDOSS,ModificationDOSS};  Q_ENUM(Mode)
     User*                                       userentete();
     QMap<int, QMap<DATASAIMPRIMER, QString> >   mapdocsaimprimer() const;

@@ -8421,11 +8421,11 @@ void    Rufus::ImprimeDocument(Patient *pat)
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
         foreach (mapdoc, listdocs)
         {
-            bool Prescription           = (mapdoc.find(dlg_impressions::Prescription).value() == "1");
-            bool AvecDupli              = (mapdoc.find(dlg_impressions::Dupli).value() == "1");
-            bool Administratif          = (mapdoc.find(dlg_impressions::Administratif).value() == "1");
-            QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
-            QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
+            bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
+            bool AvecDupli              = (mapdoc.find(dlg_impressions::d_Dupli).value() == "1");
+            bool Administratif          = (mapdoc.find(dlg_impressions::d_Administratif).value() == "1");
+            QString Titre               =  mapdoc.find(dlg_impressions::d_Titre).value();
+            QString TxtDocument         =  mapdoc.find(dlg_impressions::d_Texte).value();
             QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();

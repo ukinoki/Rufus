@@ -1514,12 +1514,15 @@ void dlg_impressions::OKpushButtonClicked()
         }
         for (int i =0 ; i < m_docsmodel->rowCount(); i++)
         {
-            /* On alimente 5 QStringList. Chaque iteration correspond à la description d'un document
-             * TitreDocumentAImprimerList       -> le titre qui sera inséré dans la fiche docsexternes et dans la conclusion
-             * prescriptionAImprimerList        -> précise si le document est une prescription - le formatage n'est pas le même
-             * DupliAImprimerList               -> la nécessité ou non d'mprimer un dupli
-             * TextDocumentsAImprimerList       -> le corps du document à imprimer
-             * AdministratifAImprimerList       -> document administratif ou pas
+            /*! On alimente 5 QMap<DATASAIMPRIMER, QString>.
+             *  Chaque élément correspond à la description d'un document
+                * d_Titre              -> le titre qui sera inséré dans la fiche docsexternes et dans la conclusion
+                * d_Prescription       -> précise si le document est une prescription - le formatage n'est pas le même
+                * d_Dupli              -> la nécessité ou non d'mprimer un dupli
+                * d_Texte              -> le corps du document à imprimer
+                * d_Administratif      -> document administratif ou pas
+             * l'en-tête et le pied de page ne sont pas dérterminés ici puisqu'ils vont varier suivant le user émetteur du document
+             * ils sont déterminés par la fiche demandeuse de l'impression - rufus.cpp oudlg_programmationinterventions, en appelant les fonctions correspondantes dans procedures.cpp
             */
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
             if (itm)
@@ -1544,15 +1547,15 @@ void dlg_impressions::OKpushButtonClicked()
                         // on détermine le titre du document à inscrire en conclusion et le statut de prescription (si prescription => impression d'un dupli)
 
                         QString titre = impr->resume();
-                        datasdocaimprimer.insert(Titre, titre);
-                        datasdocaimprimer.insert(Prescription, (impr->isprescription()? "1": ""));
-                        datasdocaimprimer.insert(Administratif, (impr->ismedical()? "": "1"));
-                        datasdocaimprimer.insert(Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
+                        datasdocaimprimer.insert(d_Titre, titre);
+                        datasdocaimprimer.insert(d_Prescription, (impr->isprescription()? "1": ""));
+                        datasdocaimprimer.insert(d_Administratif, (impr->ismedical()? "": "1"));
+                        datasdocaimprimer.insert(d_Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
                         // on visualise le document pour correction s'il est éditable
                         txtdoc                          = (impr->iseditable()? proc->Edit(txtdoc, titre, true, false, this): txtdoc);
                         if (txtdoc != "")               // si le texte du document est vide, on annule l'impression de cette itération
                         {
-                            datasdocaimprimer.insert(Texte, txtdoc);
+                            datasdocaimprimer.insert(d_Texte, txtdoc);
                             map_docsaimprimer.insert(ndocs, datasdocaimprimer);
                             ++ndocs;
                         }
