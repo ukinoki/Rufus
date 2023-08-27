@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("09-06-2023/1");
+    qApp->setApplicationVersion("27-08-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -30,8 +30,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     srand(static_cast<uint>(time(Q_NULLPTR)));
     qApp->setStyleSheet(Styles::StyleAppli());
     RecalcCurrentDateTime();
-    qintptr z = 0;
-    ShowMessage::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
@@ -8511,7 +8509,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             if (currentacte()->isintervention())
                 interv = Datas::I()->interventions->getById(currentacte()->idIntervention());
     dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv, this);
-    bool aa = true;
+    bool success = true;
     if (Dlg_Imprs->exec() == QDialog::Accepted)
     {
         User *userEntete = Dlg_Imprs->userentete();
@@ -8520,7 +8518,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             UpMessageBox::Watch(this, tr("Impossible d'imprimer"),tr("Aucun émetteur n'est précisé pour l'impression"));
             return;
         }
-        qDebug() << userEntete->login() << pat->nomcomplet();
+        //qDebug() << userEntete->login() << pat->nomcomplet();
         QString     Entete;
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
         //création de l'entête
@@ -8533,11 +8531,11 @@ void    Rufus::ImprimeDocument(Patient *pat)
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
         foreach (mapdoc, listdocs)
         {
-            bool Prescription           = (mapdoc.find(dlg_impressions::Prescription).value() == "1");
-            bool AvecDupli              = (mapdoc.find(dlg_impressions::Dupli).value() == "1");
-            bool Administratif          = (mapdoc.find(dlg_impressions::Administratif).value() == "1");
-            QString Titre               =  mapdoc.find(dlg_impressions::Titre).value();
-            QString TxtDocument         =  mapdoc.find(dlg_impressions::Texte).value();
+            bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
+            bool AvecDupli              = (mapdoc.find(dlg_impressions::d_Dupli).value() == "1");
+            bool Administratif          = (mapdoc.find(dlg_impressions::d_Administratif).value() == "1");
+            QString Titre               =  mapdoc.find(dlg_impressions::d_Titre).value();
+            QString TxtDocument         =  mapdoc.find(dlg_impressions::d_Texte).value();
             QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
@@ -8548,16 +8546,16 @@ void    Rufus::ImprimeDocument(Patient *pat)
             Entete.replace("{{TITRE}}"         , "");
             Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            aa                          = proc->Imprimer_Document(this, pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
-            if (!aa)
+            success                          = proc->Imprimer_Document(this, pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            if (!success)
                 break;
             imprimante = proc->nomImprimante();
         }
     }
     delete Dlg_Imprs;
     if (currentpatient() != Q_NULLPTR)
-        if (aa && currentpatient()->id() == pat->id())
-            MAJDocsExternes();              // depuis ImprimeDoculent()
+        if (success && currentpatient()->id() == pat->id())
+            MAJDocsExternes();              // depuis ImprimeDocument()
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10054,7 +10052,7 @@ void Rufus::Pachymetrie()
 {
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
-    dlg_autresmesures *Dlg_AutresMes= new dlg_autresmesures(dlg_autresmesures::PACHY);
+    dlg_autresmesures *Dlg_AutresMes= new dlg_autresmesures(dlg_autresmesures::PACHY, this);
     Dlg_AutresMes->setWindowTitle(tr("Pachymétrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec() == QDialog::Accepted)
@@ -10062,7 +10060,7 @@ void Rufus::Pachymetrie()
         proc->InsertMesure(Procedures::MesurePachy);
         AffichePachymetrie();
     }
-     delete Dlg_AutresMes;
+    delete Dlg_AutresMes;
 }
 
 void Rufus::AffichePachymetrie()
@@ -10101,7 +10099,7 @@ void Rufus::Tonometrie()
 {
     if (ui->tabWidget->currentIndex() != ui->tabWidget->indexOf(ui->tabDossier)) return;
 
-    dlg_autresmesures *Dlg_AutresMes = new dlg_autresmesures(dlg_autresmesures::TONO);
+    dlg_autresmesures *Dlg_AutresMes = new dlg_autresmesures(dlg_autresmesures::TONO, this);
     Dlg_AutresMes->setWindowTitle(tr("Tonométrie - ") + currentpatient()->nom() + " " + currentpatient()->prenom());
 
     if (Dlg_AutresMes->exec() == QDialog::Accepted)

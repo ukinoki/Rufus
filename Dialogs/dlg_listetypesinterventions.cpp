@@ -20,14 +20,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionTypesInterventions", parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowModality(Qt::WindowModal);
     wdg_tblview = new UpTableView();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     wdg_buttonframe->addSearchLine();
 
-    dlglayout()->insertWidget(0,wdg_buttonframe->widgButtonParent());
+    dlglayout()     ->insertWidget(0,wdg_buttonframe->widgButtonParent());
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
     CancelButton    ->disconnect();

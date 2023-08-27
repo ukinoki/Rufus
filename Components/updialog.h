@@ -72,7 +72,7 @@ public:
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
     void            setMode(Mode mode);
-    void            TuneSize(bool fix = true);
+    void            TuneSize(bool fixh = true, bool fixw = true);
     Mode            mode() const;
     QVBoxLayout*    dlglayout();
     QHBoxLayout*    buttonslayout() const;

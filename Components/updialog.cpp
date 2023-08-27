@@ -205,7 +205,7 @@ void UpDialog::setEnregPosition(bool a)
     m_enregistreposition = a;
 }
 
-void UpDialog::TuneSize(bool fix)
+void UpDialog::TuneSize(bool fixh, bool fixw)
 {
     int larg    = 0;
     int haut    = 0;
@@ -244,8 +244,12 @@ void UpDialog::TuneSize(bool fix)
         haut += layout()->itemAt(i)->sizeHint().height();
     }
     haut += (layout()->count()-1) * layout()->spacing();
-    if (fix)
-        setFixedSize(larg,haut);
+    if (fixh && fixw)
+        setFixedSize(larg, haut);
+    else if (fixh && ! fixw)
+        setFixedHeight(haut);
+    else if (fixw && ! fixh)
+        setFixedWidth(larg);
     else
         resize(larg, haut);
 }

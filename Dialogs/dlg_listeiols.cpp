@@ -21,9 +21,8 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/ListeIOLs",parent)
 {
     m_onlyactifs = onlyactifs;
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des IOLS"));
-    setWindowModality(Qt::WindowModal);
 
     wdg_itemstree = new QTreeView(this);
     wdg_itemstree ->setFixedWidth(320);
@@ -136,7 +135,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 
     dlglayout()->insertLayout(0,globallay);
     setFixedWidth(wdg_manufacturerscombo->width() + globallay->spacing() + wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
-    TuneSize();
+    TuneSize(false);
 
     if (!Datas::I()->iols->isfull())
         Datas::I()->iols->initListe();

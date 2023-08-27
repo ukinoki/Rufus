@@ -24,7 +24,7 @@ dlg_listevilles::dlg_listevilles(QWidget *parent) :
 {
     Datas::I()->villes->initListe(Villes::CUSTOM);
     m_mapvilles= Datas::I()->villes->villes();
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
     setWindowModality(Qt::WindowModal);
     wdg_tblview         = new UpTableView();
     wdg_buttonframe     = new WidgetButtonFrame(wdg_tblview);

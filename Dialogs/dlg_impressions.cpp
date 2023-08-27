@@ -878,7 +878,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         tabChamps->setFixedWidth(tabChamps->columnWidth(0)+2);
 
         ListChamps->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-        ListChamps->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
+        ListChamps->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
         ListChamps->dlglayout()->insertWidget(0,tabChamps);
 
         ListChamps->setWindowModality(Qt::WindowModal);
@@ -1545,15 +1545,15 @@ void dlg_impressions::OKpushButtonClicked()
                         // on détermine le titre du document à inscrire en conclusion et le statut de prescription (si prescription => impression d'un dupli)
 
                         QString titre = impr->resume();
-                        datasdocaimprimer.insert(Titre, titre);
-                        datasdocaimprimer.insert(Prescription, (impr->isprescription()? "1": ""));
-                        datasdocaimprimer.insert(Administratif, (impr->ismedical()? "": "1"));
-                        datasdocaimprimer.insert(Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
+                        datasdocaimprimer.insert(d_Titre, titre);
+                        datasdocaimprimer.insert(d_Prescription, (impr->isprescription()? "1": ""));
+                        datasdocaimprimer.insert(d_Administratif, (impr->ismedical()? "": "1"));
+                        datasdocaimprimer.insert(d_Dupli, ((impr->isprescription() && ui->DupliOrdocheckBox->isChecked())? "1": ""));
                         // on visualise le document pour correction s'il est éditable
                         txtdoc                          = (impr->iseditable()? proc->Edit(txtdoc, titre, true, false, this): txtdoc);
                         if (txtdoc != "")               // si le texte du document est vide, on annule l'impression de cette itération
                         {
-                            datasdocaimprimer.insert(Texte, txtdoc);
+                            datasdocaimprimer.insert(d_Texte, txtdoc);
                             map_docsaimprimer.insert(ndocs, datasdocaimprimer);
                             ++ndocs;
                         }

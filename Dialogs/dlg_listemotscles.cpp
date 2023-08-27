@@ -21,7 +21,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionMotsCles", parent)
 {
 
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des mots-clés"));
 
     wdg_tblview = new UpTableView();

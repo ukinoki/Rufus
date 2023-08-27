@@ -21,7 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyledItemDelegate>
 #include "uplabel.h"
 #include "uplineedit.h"
-#include "utils.h"
 
 class UpLabelDelegate : public QStyledItemDelegate
 {
