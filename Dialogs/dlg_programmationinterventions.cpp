@@ -1507,7 +1507,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         {
             listbinds[CP_IDIOL_LIGNPRGOPERATOIRE] = m_currentIOL->id();
             listbinds[CP_PWRIOL_LIGNPRGOPERATOIRE] = wdg_pwrIOLspinbox->value();
-            listbinds[CP_CYLIOL_LIGNPRGOPERATOIRE] = wdg_cylIOLspinbox->value();
+            listbinds[CP_CYLIOL_LIGNPRGOPERATOIRE] = (wdg_cylIOLspinbox->isVisible()? wdg_cylIOLspinbox->value() : QVariant());
         }
         else
         {
@@ -1892,6 +1892,9 @@ void dlg_programmationinterventions::CalcRangeBox(IOL *iol)
                     wdg_cylIOLspinbox->setValue(midvalue);
                 }
             }
+        }
+        else {
+            wdg_cylIOLspinbox->setValue(0.00);
         }
     }
     if (!pwrdefined)
