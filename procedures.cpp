@@ -638,7 +638,7 @@ void Procedures::setDirSQLExecutable()
     m_dumpexecutable = "/mysqldump.exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    a = QFile(dirdefaultsqlexecutable + m_executable).exists();
+    a = (QFile(dirdefaultsqlexecutable + m_executable).exists());
 #endif
     if (a)
     {
@@ -664,8 +664,16 @@ void Procedures::setDirSQLExecutable()
     a = (QFile(dirsqlexecutable + m_executable).exists());
 #endif
 #ifdef Q_OS_WIN
-    dirsqlexecutable = "C:/Program Files/MariaDB 10.11/bin";
-    a = (QFile(dirsqlexecutable + m_executable).exists());
+    QDir programs = QDir("C:/Program Files");
+    if (programs.exists())
+    {
+        QStringList listmariadbdirs = programs.entryList(QStringList() << "MariaDB *", QDir::Dirs);
+        if (listmariadbdirs.size() > 0)
+        {
+            dirsqlexecutable = programs.absolutePath() + "/"  + listmariadbdirs.at(0) + "/bin";
+            a = (QFile(dirsqlexecutable + m_executable).exists());
+        }
+    }
 #endif
 
     if (a)
