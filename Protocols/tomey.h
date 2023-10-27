@@ -47,8 +47,10 @@ private:
 public:
     static Tomey*        I();
 
-    void LectureDonneesRC5000Form(QString Mesure, QString nameARK);
-    void LectureDonneesRC5000(QString Mesure, QString nameARK);
+    void LectureDonneesRC5000Form(QString Mesure, QString name);
+    void LectureDonneesRC5000(QString Mesure, QString name);
+    void LectureDonneesTOP1000(QString Mesure, QString name);
+    void LectureDonneesAL6400(QString Mesure, QString nameLM);
 
 };
 

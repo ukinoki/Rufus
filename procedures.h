@@ -511,6 +511,11 @@ private:
     bool                    ReglePortTonometre();
 
 public:
+    enum TypeTextFile {
+        Xml = 0,
+        Csv = 1
+    };  Q_ENUM(TypeTextFile)
+    Q_DECLARE_FLAGS(TypeTextFiles, TypeTextFile)
     enum TypeMesure {
                 MesureNone        = 0x0,
                 MesureAll         = 0x1,
@@ -605,8 +610,10 @@ private:
     //LE FRONTO ----------------------------------------------------
     void                    LectureDonneesCOMFronto(QString Mesure);                //! lit les données envoyées sur le port série du fronto
     void                    LectureDonneesXMLFronto(QDomDocument docxml);           //! lit les données envoyées sur le fichier échange XML du fronto
+    void                    LectureDonneesCSVFronto(QString filecontents);          //! lit les données envoyées sur le fichier échange CSV du fronto
     void                    ReponsePortSerie_Fronto(const QString &s);
     void                    ReponseXML_Fronto(const QDomDocument &docxml);
+    void                    ReponseCSV_Fronto(QString filecontents);
     //L'AUTOREF ----------------------------------------------------
     void                    LectureDonneesCOMAutoref(QString Mesure);               //! lit les données envoyées sur le port série du fronto
     void                    LectureDonneesXMLAutoref(QDomDocument docxml);          //! lit les données envoyées sur le fichier échange XML de l'autoref
@@ -621,9 +628,11 @@ private:
     void                    RegleRefracteurXML(TypesMesures flag);                  //! règle le refracteur par le réseau
     void                    ReponseXML_Refracteur(const QDomDocument &docxml);
     //LE TONO ----------------------------------------------------
+    void                    ReponseXML_Tono(const QDomDocument &docxml);
     void                    LectureDonneesXMLTono(QDomDocument docxml);             //! lit les données envoyées sur le fichier échange XML du fronto
     void                    ReponsePortSerie_Tono(const QString &s);
-    void                    ReponseXML_Tono(const QDomDocument &docxml);
+
+
 
     QByteArray              RequestToSendNIDEK();
     QByteArray              SendDataNIDEK(QString mesure);

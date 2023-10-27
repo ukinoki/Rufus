@@ -638,7 +638,7 @@ void Procedures::setDirSQLExecutable()
     m_dumpexecutable = "/mysqldump.exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    a = (QFile(dirdefaultsqlexecutable + m_executable).exists());
+    a = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
     if (a)
     {
@@ -664,16 +664,8 @@ void Procedures::setDirSQLExecutable()
     a = (QFile(dirsqlexecutable + m_executable).exists());
 #endif
 #ifdef Q_OS_WIN
-    QDir programs = QDir("C:/Program Files");
-    if (programs.exists())
-    {
-        QStringList listmariadbdirs = programs.entryList(QStringList() << "MariaDB *", QDir::Dirs);
-        if (listmariadbdirs.size() > 0)
-        {
-            dirsqlexecutable = programs.absolutePath() + "/"  + listmariadbdirs.at(0) + "/bin";
-            a = (QFile(dirsqlexecutable + m_executable).exists());
-        }
-    }
+    dirsqlexecutable = "C:/Program Files/MariaDB 10.11/bin";
+    a = (QFile(dirsqlexecutable + m_executable).exists());
 #endif
 
     if (a)
@@ -4372,6 +4364,9 @@ void Procedures::Ouverture_Appareils_Refraction()
     m_hasappareilrefractionconnecte = appareilscom >0 || appareilsreseau >0;
 }
 
+
+
+
 /*! ------------------------------------------------------------------------------------------------------------------------------------------
 GESTION DES FICHIERS ECHANGE XML DES APPAREILS DE REFRACTION ---------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -4390,12 +4385,32 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         }
         const QString nomfichier      = pathdirappareil + "/" + listfich.at(0);
         QFile datafile(nomfichier);
+
         QDomDocument docxml;
-        if (datafile.open(QIODevice::ReadOnly))
+        QString filecontents ="";
+        int filetype = 0;
+
+        // XML file
+        if(nomfichier.endsWith(".xml",Qt::CaseInsensitive))
         {
-            docxml.setContent(&datafile);
-            Utils::removeWithoutPermissions(datafile);
+            filetype=Xml;
+            if (datafile.open(QIODevice::ReadOnly))
+            {
+                docxml.setContent(&datafile);
+                Utils::removeWithoutPermissions(datafile);
+            }
         }
+        // CSV file
+        else if(nomfichier.endsWith(".csv",Qt::CaseInsensitive))
+        {
+            filetype=Csv;
+            if (datafile.open(QIODeviceBase::ReadOnly)) {
+                QTextStream  ts(&datafile);
+                filecontents.append(ts.readAll());
+                Utils::removeWithoutPermissions(datafile);
+            }
+        }
+
 
         if (Datas::I()->actes->currentacte() != Q_NULLPTR)
         {
@@ -4412,7 +4427,17 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
             {
                 switch (appareil)
                 {
-                case Fronto:        Procedures::I()->ReponseXML_Fronto(docxml);     break;
+                case Fronto:
+                    switch (filetype)
+                    {
+                    case Xml:
+                        Procedures::I()->ReponseXML_Fronto(docxml);
+                        break;
+                    case Csv:
+                        Procedures::I()->ReponseCSV_Fronto(filecontents);
+                        break;
+                    }
+                    break;
                 case Autoref:       Procedures::I()->ReponseXML_Autoref(docxml);    break;
                 case Refracteur:    Procedures::I()->ReponseXML_Refracteur(docxml); break;
                 case Tonometre:     Procedures::I()->ReponseXML_Tono(docxml);       break;
@@ -4427,6 +4452,7 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
             Utils::removeWithoutPermissions(file);
         }
     };
+
     bool usetimer = true;  /*! Il semble que la classe QSystemFileWatcher pose quelques problèmes.
                              * au démarrage du système le signal directorychanged ne marche pas bien sur Mac quand le fichier d'échange est sur une machine Linux ou Windows
                              * il faut redémarrer une session Rufus pour que ça se décide à marcher
@@ -4485,7 +4511,10 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
             }
             if (appareils.testFlag(Fronto) && pathdirfronto != "")
             {
-                QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                QStringList formats;
+                formats <<"*.xml";
+                formats <<"*.csv";
+                QStringList listfichxml = QDir(pathdirfronto).entryList(formats, QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
                     lecturefichier(Fronto, pathdirfronto, listfichxml);
             }
@@ -4526,7 +4555,10 @@ bool Procedures::Ouverture_Fichiers_Echange(TypesAppareils appareils)
         if (appareils.testFlag(Fronto) && pathdirfronto != "")
             connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
             {
-                QStringList listfichxml = QDir(pathdirfronto).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
+                QStringList formats;
+                formats <<"*.xml";
+                formats <<"*.csv";
+                QStringList listfichxml = QDir(pathdirfronto).entryList(formats, QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
                 {
                     const QString nomfichierxml      = pathdirfronto + "/" + listfichxml.at(0);
@@ -5414,6 +5446,9 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
 
+            AddOD       = " " + QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
+            AddOG       = " " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
+
             DTRbuff.append(STX);                                            //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*LM"));
             DTRbuff.append(ETB);                                            //ETB -> end of text block
@@ -5461,6 +5496,9 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(SphereOG, Datas::I()->mesureautoref->sphereOG());
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesureautoref->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesureautoref->cylindreOG());
+
+            AddOD       = " " + QString::number(Datas::I()->mesureautoref->addVPOD(),'f',2);
+            AddOG       = " " + QString::number(Datas::I()->mesureautoref->addVPOG(),'f',2);
 
             DTRbuff.append(STX);                                            //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*AR"));
@@ -5510,6 +5548,9 @@ SOH*PC_SND_EEOT                 -> end block
             convertdioptriesTOMEY(SphereOG, Datas::I()->mesurefronto->sphereOG());
             convertdioptriesTOMEY(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
             convertdioptriesTOMEY(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
+
+            AddOD       = " " + QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
+            AddOG       = " " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
 
             DTRbuff.append(STX);                                            //STX -> start of text
             DTRbuff.append(Utils::StringToArray("*SJ"));
@@ -7262,8 +7303,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*VA"))
                 {
                     AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3,11);
-                    AVLOG   = AVL.split("|").at(0);
-                    AVLOD   = AVL.split("|").at(1);
+                    AVLOG   = AVL.split("|").at(1);
+                    AVLOD   = AVL.split("|").at(2);
                     Datas::I()->mesureacuite->setavlOD(AVLOD);
                     Datas::I()->mesureacuite->setavlOG(AVLOG);
                 }
@@ -7323,8 +7364,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 if (SectionRefracteur.contains("*VA"))
                 {
                     AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3,11);
-                    AVLOG   = AVL.split("|").at(0);
-                    AVLOD   = AVL.split("|").at(1);
+                    AVLOG   = AVL.split("|").at(1);
+                    AVLOD   = AVL.split("|").at(2);
                     Datas::I()->mesurefinal->setavlOD(AVLOD);
                     Datas::I()->mesurefinal->setavlOG(AVLOG);
                 }
@@ -8184,6 +8225,7 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     debugMesure(Datas::I()->mesurefinal);
 }
 
+
 void Procedures::LectureDonneesXMLTono(QDomDocument docxml)
 {
      /*! exemple de fichier xml pour un RODENSTOCK TOPASCOPE / TOMEY TOP-1000
@@ -8217,7 +8259,7 @@ void Procedures::LectureDonneesXMLTono(QDomDocument docxml)
     Logs::LogToFile("MesuresPachy.txt", docxml.toByteArray());
 
     QString tono = m_settings->value(Param_Poste_Tono).toString();
-    if (tono=="TOMEY TOP-1000" || tono == "TODENSTOCK Topascope" )
+    if (tono=="TOMEY TOP-1000" || tono == "RODENSTOCK Topascope" )
     {
         QString avgOD = "";
         QString avgOG = "";
@@ -8618,7 +8660,21 @@ bool Procedures::ReglePortFronto()
 //-----------------------------------------------------------------------------------------
 void Procedures::ReponsePortSerie_Tono(const QString &s)
 {
-    if( s.length() >0 || true ) {  // toujours true
+    m_mesureSerie        = s;
+
+    QString tono = m_settings->value(Param_Poste_Tono).toString();
+    if (tono=="TOMEY TOP-1000" || tono == "RODENSTOCK Topascope" )
+    {
+        Datas::I()->mesuretono->cleandatas();
+        Tomey::I()->LectureDonneesTOP1000( m_mesureSerie,  tono);
+        if (Datas::I()->mesuretono->isdataclean())
+            return;
+
+        //! Enregistre la mesures dans la base
+        InsertMesure(MesureTono);
+    }
+    else
+    {
            Utils::EnChantier();
     }
 }
@@ -8665,6 +8721,8 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
     emit NouvMesure(MesureFronto);
 }
+
+
 
 void Procedures::LectureDonneesCOMFronto(QString Mesure)
 {
@@ -9032,6 +9090,28 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
         if (!Datas::I()->mesurepachy->isdataclean())
             emit NouvMesure(MesurePachy);
     }
+}
+
+//! lire les fichiers xml des appareils de refraction
+//! -----------------------------------------------------------------------------------------
+//! Lecture du fichier CSV du fronto
+//! -----------------------------------------------------------------------------------------
+void Procedures::ReponseCSV_Fronto(const QString filecontents)
+{
+    Datas::I()->mesurefronto   ->cleandatas();
+    LectureDonneesCSVFronto(filecontents);
+    if (Datas::I()->mesurefronto->isdataclean())
+        return;
+
+    //! Enregistre la mesures dans la base
+    InsertMesure(MesureFronto);
+
+    //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
+    TypesMesures flag = MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
+    RegleRefracteur(flag);
+
+    //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
+    emit NouvMesure(MesureFronto);
 }
 
 //! lire les fichiers xml des appareils de refraction
@@ -10284,6 +10364,22 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 //        if (!Datas::I()->mesurepachy->isdataclean())
 //            debugMesure(Datas::I()->mesurepachy);
 //    }
+}
+
+
+void Procedures::LectureDonneesCSVFronto(QString filecontents)
+{
+    QString nameLM =m_settings->value(Param_Poste_Fronto).toString();
+    if (nameLM=="TOMEY TL-6100" || nameLM == "RODENSTOCK AL 6600" )
+    {
+        Datas::I()->mesuretono->cleandatas();
+        Tomey::I()->LectureDonneesAL6400( filecontents,  nameLM);
+        if (Datas::I()->mesurefronto->isdataclean())
+            return;
+
+        //! Enregistre la mesures dans la base
+        InsertMesure(MesureFronto);
+    }
 }
 
 void Procedures::LectureDonneesXMLFronto(QDomDocument docxml)

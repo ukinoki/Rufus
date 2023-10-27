@@ -29,17 +29,65 @@ Tomey* Tomey::I()
 
 Tomey::Tomey() {}
 
-QList<QString> getFieldsFromLine(QList<QString> list, int i)
+QList<QString> getFieldsFromLine(QList<QString> list, int i, const char* sep = ",")
 {
     QString line = list.at(i); // Get line
-    QList<QString> fields = line.split(",");
+    QList<QString> fields = line.split(sep);
+    return fields;
+}
+
+QList<QString> getFieldsFromLine(QList<QString> list, int i,  QRegularExpression sep)
+{
+    QString line = list.at(i); // Get line
+    QList<QString> fields = line.split(sep);
     return fields;
 }
 
 
-void Tomey::LectureDonneesRC5000Form(QString Mesure, QString nameARK)
+// "TOMEY TL-6100" "RODENSTOCK AL 6400"
+void Tomey::LectureDonneesAL6400(QString Mesure, QString nameLM)
 {
-    QList<QString> list= Mesure.split("\r\n"); //split in lines
+    QList<QString> list= Mesure.split( "\n"); //split in lines
+
+    int nlines = list.length();
+    for( int i =0; i< nlines; i++ )
+    {
+        QList<QString> fields = getFieldsFromLine(list, i);
+        if ( fields.at(0) == "[POWER_R]")
+        {
+            QString mSphereOD   = fields.at(1);
+            QString mCylOD      = fields.at(2);
+            QString mAxeOD      = fields.at(3);
+            Datas::I()->mesurefronto->setsphereOD(mSphereOD.toDouble());
+            Datas::I()->mesurefronto->setcylindreOD(mCylOD.toDouble());
+            Datas::I()->mesurefronto->setaxecylindreOD(Utils::roundToNearestFive(mAxeOD.toInt()));
+        }
+        else if ( fields.at(0) == "[POWER_L]")
+        {
+            QString mSphereOG   = fields.at(1);
+            QString mCylOG      = fields.at(2);
+            QString mAxeOG      = fields.at(3);
+            Datas::I()->mesurefronto->setsphereOG(mSphereOG.toDouble());
+            Datas::I()->mesurefronto->setcylindreOG(mCylOG.toDouble());
+            Datas::I()->mesurefronto->setaxecylindreOG(Utils::roundToNearestFive(mAxeOG.toInt()));
+        }
+        else if ( fields.at(0) == "[ADD_R]")
+        {
+            QString value   = fields.at(1);
+            Datas::I()->mesurefronto->setaddVPOD(Utils::roundToNearestFive(value.toDouble()));
+        }
+        else if ( fields.at(0) == "[ADD_L]")
+        {
+            QString value   = fields.at(1);
+            Datas::I()->mesurefronto->setaddVPOG(Utils::roundToNearestFive(value.toDouble()));
+        }
+    }
+}
+
+// "TOMEY RC-5000" "RODENSTOCK CX 2000"
+void Tomey::LectureDonneesRC5000Form(QString Mesure, QString name)
+{
+    QList<QString> list= Mesure.split( "\r\n"); //split in lines
 
     QString mode = "";
     int nlines = list.length();
@@ -234,7 +282,8 @@ void Tomey::LectureDonneesRC5000Form(QString Mesure, QString nameARK)
     }
 }
 
-void Tomey::LectureDonneesRC5000(QString Mesure, QString nameARK)
+// "TOMEY RC-5000" "RODENSTOCK CX 2000"
+void Tomey::LectureDonneesRC5000(QString Mesure, QString name)
 {
     int     a(0);
 
@@ -353,5 +402,74 @@ CL 5.0045.00 89 4.0040.00 75 4.50- 0.25
                 Datas::I()->mesurekerato->setdioptriesK2OG(KOG.mid(18,5).toDouble());
             }
         }
+    }
+}
+
+
+
+/*! exemple de sortie COM pour un RODENSTOCK TOPASCOPE / TOMEY TOP-1000
+
+                 Rodenstock
+
+C.IOP    15.0          15.1
+CCT       523           511
+Avg.     13.5          12.7
+---------------------------
+          13            13
+        Right          Left
+---------------------------
+         mmHg          mmHg
+---------------------------
+    2023-07-11 09:38:12
+No.        :  00002300
+TopaScope
+ */
+void Tomey::LectureDonneesTOP1000(QString Mesure, QString name)
+{
+    QList<QString> list= Mesure.split("\n"); //split in lines (End of line = LF only)
+    QString mode = "";
+    int nlines = list.length();
+    QRegularExpression spaces = QRegularExpression(" +");
+    QString avgOD = "";
+    QString avgOG = "";
+    QString cctOD = "";
+    QString cctOG = "";
+    QString ciopOD = "";
+    QString ciopOG = "";
+    for( int i =0; i< nlines; i++ )
+    {
+        QList<QString> fields = getFieldsFromLine(list, i, spaces);
+        if ( fields.at(0) == "C.IOP")
+        {
+            ciopOD=fields.at(1); // Oeil Droit
+            ciopOG=fields.at(2); // Oeil Droit
+        } else if (fields.at(0) == "CCT")
+        {
+            cctOD=fields.at(1); // Oeil Droit
+            cctOG=fields.at(2); // Oeil Droit
+
+        } else if (fields.at(0) == "Avg.")
+        {
+            avgOD=fields.at(1); // Oeil Droit
+            avgOG=fields.at(2); // Oeil Droit
+        }
+    }
+
+    Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+    if (cctOD.toDouble()>0 && cctOG.toDouble()>0)
+    {
+        Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
+        Datas::I()->mesurepachy->setpachyOD(int(cctOD.toDouble()));
+        Datas::I()->mesurepachy->setpachyOG(int(cctOG.toDouble()));
+    }
+    if (avgOD.toDouble()>0 && avgOG.toDouble()>0)
+    {
+        Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
+        Datas::I()->mesuretono->setTOD(int(avgOD.toDouble()));
+        Datas::I()->mesuretono->setTOG(int(avgOG.toDouble()));
+        if (ciopOD.toDouble()>0)
+            Datas::I()->mesuretono->setTODcorrigee(int(ciopOD.toDouble()));
+        if (ciopOG.toDouble()>0)
+            Datas::I()->mesuretono->setTOGcorrigee(int(ciopOG.toDouble()));
     }
 }
