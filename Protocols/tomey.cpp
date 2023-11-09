@@ -74,12 +74,12 @@ void Tomey::LectureDonneesAL6400(QString Mesure, QString nameLM)
         else if ( fields.at(0) == "[ADD_R]")
         {
             QString value   = fields.at(1);
-            Datas::I()->mesurefronto->setaddVPOD(Utils::roundToNearestFive(value.toDouble()));
+            Datas::I()->mesurefronto->setaddVPOD(value.toDouble());
         }
         else if ( fields.at(0) == "[ADD_L]")
         {
             QString value   = fields.at(1);
-            Datas::I()->mesurefronto->setaddVPOG(Utils::roundToNearestFive(value.toDouble()));
+            Datas::I()->mesurefronto->setaddVPOG(value.toDouble());
         }
     }
 }

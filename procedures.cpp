@@ -8670,8 +8670,17 @@ void Procedures::ReponsePortSerie_Tono(const QString &s)
         if (Datas::I()->mesuretono->isdataclean())
             return;
 
-        //! Enregistre la mesures dans la base
-        InsertMesure(MesureTono);
+        //! Enregistre les mesures dans la base
+        if (!Datas::I()->mesuretono->isdataclean())
+            InsertMesure(MesureTono);
+        if (!Datas::I()->mesurepachy->isdataclean())
+            InsertMesure(MesurePachy);
+
+        //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
+        if (!Datas::I()->mesuretono->isdataclean())
+            emit NouvMesure(MesureTono);
+        if (!Datas::I()->mesurepachy->isdataclean())
+            emit NouvMesure(MesurePachy);
     }
     else
     {
@@ -9098,7 +9107,7 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
 //! -----------------------------------------------------------------------------------------
 void Procedures::ReponseCSV_Fronto(const QString filecontents)
 {
-    Datas::I()->mesurefronto   ->cleandatas();
+    Datas::I()->mesurefronto->cleandatas();
     LectureDonneesCSVFronto(filecontents);
     if (Datas::I()->mesurefronto->isdataclean())
         return;
@@ -10369,16 +10378,10 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 
 void Procedures::LectureDonneesCSVFronto(QString filecontents)
 {
-    QString nameLM =m_settings->value(Param_Poste_Fronto).toString();
-    if (nameLM=="TOMEY TL-6100" || nameLM == "RODENSTOCK AL 6600" )
+    QString name =m_settings->value(Param_Poste_Fronto).toString();
+    if (name=="TOMEY TL-6100" || name == "RODENSTOCK AL 6600" )
     {
-        Datas::I()->mesuretono->cleandatas();
-        Tomey::I()->LectureDonneesAL6400( filecontents,  nameLM);
-        if (Datas::I()->mesurefronto->isdataclean())
-            return;
-
-        //! Enregistre la mesures dans la base
-        InsertMesure(MesureFronto);
+        Tomey::I()->LectureDonneesAL6400( filecontents,  name);
     }
 }
 
