@@ -7052,7 +7052,7 @@ SOH*PC_RCV_SEOT                 -> start block
 *CY| -0.25| -0.25|              -> Cylindre | left result | right result|
 *AX|135|135|                    -> Axe | left result | right result|
 *AD| 1.50| 1.50|                -> Addition | left result | right result|
-*VA|0.2|0.4|0.5|                -> ???
+*VA|0.2|0.4|0.5|                -> left result | both | right result|
 *PH|O| 0.50|O| 0.50|            -> Prisme horizontal
 *PV|U| 0.50|D| 0.50|            -> Prisme vertical
 *AR                             -> Autoref
@@ -7302,8 +7302,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 // ACUITE ---------------------------------------------------------------------------
                 if (SectionRefracteur.contains("*VA"))
                 {
-                    AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3,11);
-                    AVLOG   = AVL.split("|").at(1);
+                    AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3);
+                    AVLOG   = AVL.split("|").at(0);
                     AVLOD   = AVL.split("|").at(2);
                     Datas::I()->mesureacuite->setavlOD(AVLOD);
                     Datas::I()->mesureacuite->setavlOG(AVLOG);
@@ -7363,8 +7363,8 @@ SOH*PC_RCV_EEOT                 -> end block
                 // ACUITE ---------------------------------------------------------------------------
                 if (SectionRefracteur.contains("*VA"))
                 {
-                    AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3,11);
-                    AVLOG   = AVL.split("|").at(1);
+                    AVL     = SectionRefracteur.mid(SectionRefracteur.indexOf("VA")+3);
+                    AVLOG   = AVL.split("|").at(0);
                     AVLOD   = AVL.split("|").at(2);
                     Datas::I()->mesurefinal->setavlOD(AVLOD);
                     Datas::I()->mesurefinal->setavlOG(AVLOG);
