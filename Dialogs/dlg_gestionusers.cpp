@@ -65,7 +65,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->AutreFonctionuplineEdit ->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
     ui->MailuplineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_mail,this));
     ui->PortableuplineEdit      ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
-    ui->RPPSupLineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
+    ui->RPPSupLineEdit          ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{12}"),this));
     ui->NumCOupLineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
     QStringList ListTitres;
