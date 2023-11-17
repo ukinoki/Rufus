@@ -171,7 +171,7 @@ bool User::isSoignantSalarie()                      { return isSoignant() && sta
 bool User::isRemplacant()                           { return statutcomptable() == Remplacant; }
 
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
-bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
+bool User::isAlterneResponsableEtAssistant()        { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
 bool User::isDesactive()                            { return m_desactive; }
 

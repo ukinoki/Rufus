@@ -99,7 +99,7 @@ bool Users::addUser(User *user)
         {
             usr->setmodecomptable();
             map_actifs->insert(usr->id(), usr);
-            if( usr->isResponsable() || usr->isResponsableOuAssistant())
+            if( usr->isResponsable() || usr->isAlterneResponsableEtAssistant())
                 map_superviseurs->insert(usr->id(), usr);
             if( usr->isLiberal() || usr->isLiberalSEL() )
                 map_liberaux->insert(usr->id(), usr);

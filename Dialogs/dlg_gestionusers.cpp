@@ -65,7 +65,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->AutreFonctionuplineEdit ->setValidator(new QRegExpValidator(Utils::rgx_rx,this));
     ui->MailuplineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_mail,this));
     ui->PortableuplineEdit      ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
-    ui->RPPSupLineEdit          ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
+    ui->RPPSupLineEdit          ->setValidator(new QRegExpValidator(QRegExp("[0-9]{14}"),this));
     ui->NumCOupLineEdit         ->setValidator(new QRegExpValidator(Utils::rgx_telephone,this));
 
     QStringList ListTitres;
@@ -1157,7 +1157,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
 
     bool assistant      = m_userencours->isAssistant();
     bool responsable    = m_userencours->isResponsable();
-    bool responsableles2= m_userencours->isResponsableOuAssistant();
+    bool responsableles2= m_userencours->isAlterneResponsableEtAssistant();
 
     bool liberal        = m_userencours->isLiberal();
     bool liberalSEL     = m_userencours->isLiberalSEL();
