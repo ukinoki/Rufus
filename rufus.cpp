@@ -6328,9 +6328,10 @@ void Rufus::AfficheActe(Acte* acte)
 
     int nbActes (0);
     int noActe (0);
-    //1. retrouver le créateur de l'acte et le médecin superviseur de l'acte
+    //1. retrouver le créateur de l'acte et le soignant superviseur de l'acte
     QString nomsuperviseur(""), superviseurlogin ("");
     User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
+    ui->ActeCotationcomboBox    ->disconnect();                       //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
     if (usr != Q_NULLPTR)
     {
         nomsuperviseur =  usr->prenom() + " " + usr->nom();
@@ -6361,8 +6362,7 @@ void Rufus::AfficheActe(Acte* acte)
     ui->idActelineEdit          ->setText(QString::number(acte->id()));
     ui->CourrierAFairecheckBox  ->setChecked(acte->courrierAFaire());
 
-    ui->ActeCotationcomboBox    ->disconnect();                       //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
-    ui->ActeCotationcomboBox    ->setCurrentText(acte->cotation());
+     ui->ActeCotationcomboBox    ->setCurrentText(acte->cotation());
     ConnectCotationComboBox();
     // on affiche tous les montants en euros, même ce qui a été payé en francs.
     double H = 1;
@@ -8628,23 +8628,25 @@ void    Rufus::ReconstruitListesCotations(User *usr)
                 break;
             }
         }
-    if (userparent != Q_NULLPTR)
+    if (userparent == Q_NULLPTR)
+        return;
+    auto itcot = Datas::I()->listecotations->constFind(userparent->id());
+    if (itcot != Datas::I()->listecotations->constEnd())
+        cots = itcot.value();
+    else
     {
-        auto itcot = Datas::I()->listecotations->constFind(userparent->id());
-        if (itcot != Datas::I()->listecotations->constEnd())
-            cots = itcot.value();
+        cots = new Cotations();
+        cots->initListeByUser(userparent);
+        if (cots)
+            Datas::I()->listecotations->insert(userparent->id(), cots);
         else
-        {
-            cots = new Cotations();
-            cots->initListeByUser(userparent);
-            if (cots)
-                Datas::I()->listecotations->insert(userparent->id(), cots);
-        }
+            return;
     }
 
     //! le fait de ne pas réinitialiser le combobox permet de garder en item par défaut le dernier item utilisé qui est celui qu'on réutilisera la plupart du temps
-    if (cots == currentlistecotations())
-        return;
+    if (currentlistecotations() != Q_NULLPTR)
+        if (cots->iduser() == currentlistecotations()->iduser())
+            return;
 
     setcurrentlistecotations(cots);
     // il faut d'abord reconstruire la table des cotations
