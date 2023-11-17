@@ -153,7 +153,7 @@ bool User::isLiberalSEL()                           { return statutcomptable() =
 bool User::isSoignantSalarie()                      { return isSoignant() && statutcomptable() == Salarie; }
 bool User::isRemplacant()                           { return statutcomptable() == Remplacant; }
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
-bool User::isResponsableOuAssistant()               { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
+bool User::isAlterneResponsableEtAssistant()        { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
 bool User::isDesactive()                            { return m_desactive; }
 

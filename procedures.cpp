@@ -664,8 +664,16 @@ void Procedures::setDirSQLExecutable()
     a = (QFile(dirsqlexecutable + m_executable).exists());
 #endif
 #ifdef Q_OS_WIN
-    dirsqlexecutable = "C:/Program Files/MariaDB 10.11/bin";
-    a = (QFile(dirsqlexecutable + m_executable).exists());
+    QDir programs = QDir("C:/Program Files");
+    if (programs.exists())
+    {
+        QStringList listmariadbdirs = programs.entryList(QStringList() << "MariaDB *", QDir::Dirs);
+        if (listmariadbdirs.size() > 0)
+        {
+            dirsqlexecutable = programs.absolutePath() + "/"  + listmariadbdirs.at(0) + "/bin";
+            a = (QFile(dirsqlexecutable + m_executable).exists());
+        }
+    }
 #endif
 
     if (a)
@@ -1943,7 +1951,7 @@ QString Procedures::SessionStatus()
 
     bool assistant      = currentuser()->isAssistant();
     bool responsable    = currentuser()->isResponsable();
-    bool responsableles2= currentuser()->isResponsableOuAssistant();
+    bool responsableles2= currentuser()->isAlterneResponsableEtAssistant();
 
     bool liberal        = currentuser()->isLiberal();
     bool liberalSEL     = currentuser()->isLiberalSEL();
@@ -3469,7 +3477,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
 
     // le user alterne entre responsable des actes et assistant suivant la session
         // on lui demande son rôle pour cette session
-        else if( currentuser()->isResponsableOuAssistant() )
+        else if( currentuser()->isAlterneResponsableEtAssistant() )
         {
             bool found = false;
             for (auto it = Datas::I()->users->actifs()->constBegin(); it != Datas::I()->users->actifs()->constEnd(); ++it)
@@ -3477,7 +3485,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 User *usr = const_cast<User*>(it.value());
                 if( usr->id() == currentuser()->id() )
                     continue;
-                if( !usr->isResponsable() && !usr->isResponsableOuAssistant() )
+                if( !usr->isResponsable() && !usr->isAlterneResponsableEtAssistant() )
                     continue;
                 found = true;
                 break;

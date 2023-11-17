@@ -24,7 +24,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     m_currentchirpatient    = pat;
     m_currentchiracte       = act;
 
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Programmer une intervention pour ") + m_currentchirpatient->prenom() + " " + m_currentchirpatient->nom());
 
     wdg_listmedecinscombo           = new QComboBox();

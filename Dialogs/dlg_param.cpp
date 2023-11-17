@@ -2474,7 +2474,9 @@ void dlg_param::EnableActesCCAM(bool enable)
 
 void dlg_param::EnableAssocCCAM(bool enable)
 {
-    bool autormodif = enable && currentuser()->idparent() == currentuser()->id();  // les remplaçants ne peuvent pas modifier les actes
+    bool autormodif = enable
+                      && (currentuser()->isAlterneResponsableEtAssistant() || currentuser()->isResponsable() || currentuser()->isAssistant())
+                      && !currentuser()->isRemplacant();  // les remplaçants ne peuvent pas modifier les actes
     for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
     {
         UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
@@ -3355,7 +3357,8 @@ void dlg_param::Remplir_TableAssocCCAM()
     Assocrequete = "SELECT DISTINCT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
                     CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2"
                    " and " CP_TYPEACTE_COTATIONS " not in "
-                   "(SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + ")";
+                   "(SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + ")"
+                   + " order by " CP_TYPEACTE_COTATIONS;
     QList<QVariantList> Assoc2list = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
         return;

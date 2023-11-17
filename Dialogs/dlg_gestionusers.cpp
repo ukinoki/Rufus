@@ -1146,7 +1146,7 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
 
     bool assistant      = m_userencours->isAssistant();
     bool responsable    = m_userencours->isResponsable() || m_userencours->isMedecin();
-    bool responsableles2= m_userencours->isResponsableOuAssistant();
+    bool responsableles2= m_userencours->isAlterneResponsableEtAssistant();
 
     bool liberal        = m_userencours->isLiberal();    
     bool liberalSEL     = m_userencours->isLiberalSEL();

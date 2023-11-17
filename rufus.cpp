@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("30-10-2023/1");
+    qApp->setApplicationVersion("17-11-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -6413,9 +6413,10 @@ void Rufus::AfficheActe(Acte* acte)
 
     int nbActes (0);
     int noActe (0);
-    //1. retrouver le créateur de l'acte et le médecin superviseur de l'acte
+    //1. retrouver le créateur de l'acte et le soignant superviseur de l'acte
     QString nomsuperviseur(""), superviseurlogin ("");
     User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
+    ui->ActeCotationcomboBox    ->disconnect();                       //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
     if (usr != Q_NULLPTR)
     {
         nomsuperviseur =  usr->prenom() + " " + usr->nom();
@@ -6446,7 +6447,6 @@ void Rufus::AfficheActe(Acte* acte)
     ui->idActelineEdit          ->setText(QString::number(acte->id()));
     ui->CourrierAFairecheckBox  ->setChecked(acte->courrierAFaire());
 
-    ui->ActeCotationcomboBox    ->disconnect();                       //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
     ui->ActeCotationcomboBox    ->setCurrentText(acte->cotation());
     ConnectCotationComboBox();
     // on affiche tous les montants en euros, même ce qui a été payé en francs.
@@ -8739,7 +8739,9 @@ void    Rufus::ReconstruitListesCotations(User *usr)
                 break;
             }
         }
-    if (userparent != Q_NULLPTR)
+    if (userparent ==  Q_NULLPTR)
+        return;
+     if (userparent != Q_NULLPTR)
     {
         auto itcot = Datas::I()->listecotations->constFind(userparent->id());
         if (itcot != Datas::I()->listecotations->constEnd())
@@ -8750,14 +8752,15 @@ void    Rufus::ReconstruitListesCotations(User *usr)
             cots->initListeByUser(userparent);
             if (cots)
                 Datas::I()->listecotations->insert(userparent->id(), cots);
-        }
     }
 
     //! le fait de ne pas réinitialiser le combobox permet de garder en item par défaut le dernier item utilisé qui est celui qu'on réutilisera la plupart du temps
-    if (cots == currentlistecotations())
-        return;
+    if (currentlistecotations() != Q_NULLPTR)
+        if (cots->iduser() == currentlistecotations()->iduser())
+            return;
+    setcurrentlistecotations(cots);        }
 
-    setcurrentlistecotations(cots);
+
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
 

@@ -270,7 +270,7 @@ public:
 
     bool isRemplacant();
     bool isResponsable();
-    bool isResponsableOuAssistant();
+    bool isAlterneResponsableEtAssistant();
     bool isAssistant();
 
     /*! concernant les non soignants */
