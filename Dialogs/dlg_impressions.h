@@ -26,6 +26,28 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upstandarditemmodel.h"
 #include "updelegate.h"
 
+/*! La fiche dlg_impressions détermine la liste des documents à imprimer pour un patient donné et pour chaque document, uniquement le corps du texte
+    *  l'appel de la fiche comporte 2 éléments : le patient concerné et l'intervention concernée si le document est en rapport avec une intervention chirurgicale
+        * Chaque document à imprimer est caractérisé par une QMap<DATASAIMPRIMER, QString>
+            * L'enum DATASAIMPRIMER a 5 valeurs qui caractérisent chaque document
+                * d_Titre              -> le titre qui sera inséré dans la fiche docsexternes et dans la conclusion
+                * d_Prescription       -> précise si le document est une prescription - le formatage n'est pas le même
+                * d_Dupli              -> la nécessité ou non d'mprimer un dupli
+                * d_Texte              -> le corps du document à imprimer
+                * d_Administratif      -> document administratif ou pas
+        * La fiche peut renvoyer plusieurs documents. L'ensemble des documents à imprimer est réuni dans une autre QMap<int, QMap<DATASAIMPRIMER, QString>>
+                * int                           -> le numéro d'orde du document: 1, 2, 3, 4, 5...etc...
+                * QMap<DATASAIMPRIMER, QString> -> le document à imprimer
+
+    * l'en-tête et le pied de page varient suivant l'utilisateur et ne sont pas déterminés par la fiche dlg_impressions
+    * ils sont déterminés par la fiche demandeuse de l'impression - rufus.cpp ou dlg_programmationinterventions, en appelant les fonctions correspondantes dans procedures.cpp
+    * la fiche dlg_impressions ne détermine que le contenu du document
+        *  mais pas l'identification de l'utilisateur qui va figurer dans l'entête du texte,
+        *  ni l'identification du patient quand elle figure dans l'en tête du dcoument (comme c'est le cas pour une ordonnance)
+        *  ni la date du document
+*/
+
+
 namespace Ui {
 class dlg_impressions;
 }
