@@ -46,7 +46,7 @@ private:
     QGraphicsScene          *obj_graphicscene;
     QGraphicsVideoItem      *medobj_videoitem;
     QGraphicsView           *graphview_view;
-    QImage                  img_image;
+    QList<QImage>           m_imagelist;
     QMediaPlayer            *medplay_player;
 
     QTreeView               *wdg_listdocstreewiew;

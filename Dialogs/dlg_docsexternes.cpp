@@ -846,57 +846,40 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         typedoc = Procedures::Text;
     if (docmt->imageblob() == QByteArray())
         proc->CalcImageDocument(docmt, typedoc);
+
+    //
+    // First, we fill img_list with document pages
+    //
     if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
     {
-        QList<QImage> listimg = Utils::calcImagefromPdf(docmt->imageblob());
-        if (listimg.size())
-        {
-            for (int i=0; i<listimg.size();++i)
-            {
-                img_image = listimg.at(i);
-
-                if (i == 0)
-                {
-                    if (m_avecprevisu)
-                    {
-                        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-                        connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
-                        dialog->exec();
-                        delete dialog;
-                    }
-                    else
-                    {
-                        QPrintDialog *dialog = new QPrintDialog(m_printer, this);
-                        if (dialog->exec() == QDialog::Accepted)
-                            Print();
-                        delete dialog;
-                    }
-                }
-                else
-                    Print();
-            }
-        }
+        m_imagelist = Utils::calcImagefromPdf(docmt->imageblob());
     }
     else if (docmt->imageformat() == JPG)     // le document est un jpg
     {
+        m_imagelist = QList<QImage>();
         QPixmap pix;
         pix.loadFromData(docmt->imageblob());
-        img_image= pix.toImage();
+        m_imagelist << pix.toImage();
+    }
+
+    if (m_imagelist.size() > 0)
+    {
         if (m_avecprevisu)
         {
-            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
-            dialog->exec();
-            delete dialog;
+                QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
+                connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
+                dialog->exec();
+                delete dialog;
         }
         else
         {
-            QPrintDialog *dialog = new QPrintDialog(m_printer, this);
-            if (dialog->exec() == QDialog::Accepted)
-                Print();
-            delete dialog;
+                QPrintDialog *dialog = new QPrintDialog(m_printer, this);
+                if (dialog->exec() == QDialog::Accepted)
+                    Print();
+                delete dialog;
         }
     }
+
     return true;
 }
 
@@ -987,8 +970,18 @@ void dlg_docsexternes::Print(QPrinter *Imprimante)
     if (Imprimante == Q_NULLPTR)
         Imprimante = m_printer;
     QPainter PrintingPreView(Imprimante);
-    QPixmap pix = QPixmap::fromImage(img_image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
-    PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
+
+
+    for (int i=0; i<m_imagelist.size();++i)
+    {
+        if( i > 0 ) {
+                Imprimante->newPage();
+        }
+        //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
+        QPageSize pgSize = Imprimante->pageLayout().pageSize();
+        QImage page = m_imagelist.at(i).scaled(pgSize.sizePixels(Imprimante->resolution()), Qt::KeepAspectRatio);
+        PrintingPreView.drawImage(QPoint(0,0),page);
+    }
 }
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)

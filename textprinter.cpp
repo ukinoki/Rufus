@@ -122,7 +122,8 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
         printer_->setOutputFileName(QString());
         // print it
         tempdoc_ = document->clone();
-        launchprint();
+        printToDevice(printer_);
+        //launchprint();
     }
     // enregistre le pdf
     if (ficpdf != "")
@@ -131,7 +132,8 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
         printer_->setOutputFormat(QPrinter::PdfFormat);
         printer_->setOutputFileName(ficpdf);
         tempdoc_ = document->clone();
-        launchprint();
+        printToDevice(printer_);
+        //launchprint();
         printer_->setOutputFormat(QPrinter::NativeFormat);
         printer_->setPrinterName(printerName);                      // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
     }
@@ -161,7 +163,8 @@ void TextPrinter::exportPdf(const QTextDocument *document, const QString &captio
 
     // print it
     tempdoc_ = document->clone();
-    launchprint();
+    printToDevice(printer_);
+    //launchprint();
 
     delete tempdoc_;
     tempdoc_ = Q_NULLPTR;
@@ -190,7 +193,8 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
             printer_->setOutputFormat(QPrinter::PdfFormat);
             printer_->setOutputFileName(ficpdf);
             tempdoc_ = document->clone();
-            launchprint();
+            printToDevice(printer_);
+            //launchprint();
             printer_->setOutputFormat(QPrinter::NativeFormat);
             printer_->setPrinterName(printerName); // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
         }
@@ -343,6 +347,7 @@ QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
         printToDevice(&writer);
 
         bapdf=buf.data();
+        delete tempdoc_;
     }
     return bapdf;
 }
@@ -377,13 +382,14 @@ void TextPrinter::printToDevice(QPagedPaintDevice *device)
         pagenum+=1;
         device->newPage();
     }
-    delete tempdoc_;
 }
+
 
 /*! * \brief TextPrinter::launchprint
  *  Common printing routine. Print tempdoc_ to printer_
  *  Imprime la page à partir du QtextDocument tempdoc_
 */
+
 void TextPrinter::launchprint(QPrinter *printer)
 {
     if (!printer)
@@ -450,12 +456,12 @@ void TextPrinter::launchprint(QPrinter *printer)
                 paintPage(&painter, pagenum, lastpage);
             }
             if (pagenum == lastpage) break;
+            printer->newPage();
             pagenum+=delta;
         }
         if (dc < doccopies-1) printer->newPage();
     }
 }
-
 
 /*!
  * \brief TextPrinter::paintPage
@@ -544,6 +550,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
     QRectF clip(0, (pagenum-1) * rect.height(), rect.width(), rect.height());
     tempdoc_->drawContents(painter, clip);
     painter->restore();
+
 }
 
 
