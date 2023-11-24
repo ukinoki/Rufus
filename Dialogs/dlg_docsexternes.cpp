@@ -866,17 +866,19 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
     {
         if (m_avecprevisu)
         {
-                QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
-                connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=] {Print();});
-                dialog->exec();
-                delete dialog;
+            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
+            dialog->setWindowTitle(docmt->titre());
+            dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this, &dlg_docsexternes::Print);
+            dialog->exec();
+            delete dialog;
         }
         else
         {
-                QPrintDialog *dialog = new QPrintDialog(m_printer, this);
-                if (dialog->exec() == QDialog::Accepted)
-                    Print();
-                delete dialog;
+            QPrintDialog *dialog = new QPrintDialog(m_printer, this);
+            if (dialog->exec() == QDialog::Accepted)
+                Print();
+            delete dialog;
         }
     }
 

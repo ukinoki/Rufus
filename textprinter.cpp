@@ -176,7 +176,7 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
 
     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer_, parent_);
     dialog->setWindowTitle(caption.isEmpty() ? "Print Preview" : caption);
-    dialog->setWindowModality(Qt::WindowModal);
+    dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     connect(dialog, &QPrintPreviewDialog::paintRequested, this, &TextPrinter::launchprint);
 
     // preview it

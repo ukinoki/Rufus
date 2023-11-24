@@ -1785,6 +1785,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
                     if (AvecPrevisu)
                     {
                         QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
+                        dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
                         connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
                         if (dialog->exec() == QDialog::Accepted)
                             delete dialog;
@@ -1821,6 +1822,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
         if (AvecPrevisu)
         {
             QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
+            dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
             connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
             dialog->exec();
             delete dialog;
