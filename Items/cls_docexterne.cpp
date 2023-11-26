@@ -46,7 +46,7 @@ int DocExterne::useremetteur() const                { return m_useremetteur;}
 QString DocExterne::format() const                  { return m_formatdoc;}
 QByteArray DocExterne::imageblob() const            { return m_blob;}
 QString DocExterne::imageformat() const             { return m_formatimage;}
-
+QList<QImage> DocExterne::pagelist() const          { return m_imagelist;}
 int DocExterne::importance() const                  { return m_importance;}
 
 int DocExterne::idrefraction() const                { return m_idrefraction; }
@@ -57,7 +57,6 @@ void DocExterne::setimportance(int imptce)          { m_importance = imptce;
                                                       m_data[CP_IMPORTANCE_DOCSEXTERNES] = imptce; }
 void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;
                                                       m_data[CP_ISALLLOADED] = AllLoaded; }
-void DocExterne::setimageblob(QByteArray blob)      { m_blob = blob; }
 void DocExterne::setimageformat(QString format)     { m_formatimage = format; }
 
 void DocExterne::setData(QJsonObject data)
@@ -92,3 +91,22 @@ void DocExterne::setData(QJsonObject data)
     m_data = data;
 }
 
+
+// Called from Procedures::CalcImageDocument
+void DocExterne::setimageblob(QByteArray blob)
+{
+    m_blob = blob;
+
+    // Render pages to image list
+    m_imagelist.clear();
+
+    if( isPDF() )
+    {
+        m_imagelist = Utils::calcImagefromPdf(m_blob);
+    }
+    else if( isJPG())
+    {
+        QImage image = QImage::fromData(m_blob);
+        m_imagelist << image;
+    }
+}

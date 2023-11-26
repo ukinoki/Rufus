@@ -198,6 +198,7 @@ private:
     QPrinter::Unit          units_;
     //added by Javier
     double                  toinchfactor_;
+    void                    PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist);
 };
 
 #endif // TEXTPRINTER_H

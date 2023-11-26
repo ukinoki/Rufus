@@ -1527,7 +1527,12 @@ void Utils::writeDataToFileDateTime (QByteArray data, QString name, QString path
     }
 
     QDateTime now = QDateTime::currentDateTime();
-    QFile file(path+"/"+now.toString("yyyyMMdd_HHmmss")+name);
+    writeBinaryFile(data, path+"/"+now.toString("yyyyMMdd_HHmmss")+name);
+}
+
+void Utils::writeBinaryFile (QByteArray data, QString fileName)
+{
+    QFile file(fileName);
     if (file.open(QFile::WriteOnly)) {
         file.write(data);
         file.close();

@@ -436,7 +436,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         {
             QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGERIE + docmt->lienversfichier();
             QList<QImage> listimg;// = Utils::calcImagefromPdf(filename);
-            listimg = Utils::calcImagefromPdf(docmt->imageblob());
+            // listimg = Utils::calcImagefromPdf(docmt->imageblob());
+            listimg = docmt->pagelist(); // Il aurait d'être
+
             if (listimg.size())
             {
                 wdg_inflabel->setParent(wdg_scrolltablewidget);
@@ -852,7 +854,8 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
     //
     if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
     {
-        m_imagelist = Utils::calcImagefromPdf(docmt->imageblob());
+        //m_imagelist = Utils::calcImagefromPdf(docmt->imageblob());
+        m_imagelist = docmt->pagelist();
     }
     else if (docmt->imageformat() == JPG)     // le document est un jpg
     {

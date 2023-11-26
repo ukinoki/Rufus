@@ -93,6 +93,9 @@ void TextPrinter::setUnits(const Unit value)
 bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QString &caption, bool AvecChoixImprimante, bool QueLePdf)
 {
     if (!document) return false;
+    // Get PDF document;
+    QByteArray ba = getPDFByteArray(document);
+
     if (!QueLePdf)
     {
         if (QPrinterInfo::availablePrinterNames().size() == 0)
@@ -120,26 +123,39 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
         }
         printer_->setOutputFormat(QPrinter::NativeFormat);
         printer_->setOutputFileName(QString());
-        // print it
-        tempdoc_ = document->clone();
-        printToDevice(printer_);
+
+        // Get imagelist from PDF ByteArray
+        QList<QImage> pagelist = Utils::calcImagefromPdf(ba);
+        PrintPageList(printer_,  pagelist);
         //launchprint();
     }
+
     // enregistre le pdf
     if (ficpdf != "")
     {
-        QString printerName = printer_->printerName();              // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
-        printer_->setOutputFormat(QPrinter::PdfFormat);
-        printer_->setOutputFileName(ficpdf);
-        tempdoc_ = document->clone();
-        printToDevice(printer_);
-        //launchprint();
-        printer_->setOutputFormat(QPrinter::NativeFormat);
-        printer_->setPrinterName(printerName);                      // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
+        Utils::writeBinaryFile(ba, ficpdf);
     }
-    delete tempdoc_;
-    tempdoc_ = Q_NULLPTR;
     return true;
+}
+
+
+void TextPrinter::PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist)
+{
+    if (Imprimante == Q_NULLPTR)
+        return;
+
+    QPainter PrintingPreView(Imprimante);
+
+    for (int i=0; i<pagelist.size();++i)
+    {
+        if( i > 0 ) {
+            Imprimante->newPage();
+        }
+        //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
+        QPageSize pgSize = Imprimante->pageLayout().pageSize();
+        QImage page = pagelist.at(i).scaled(pgSize.sizePixels(Imprimante->resolution()), Qt::KeepAspectRatio);
+        PrintingPreView.drawImage(QPoint(0,0),page);
+    }
 }
 
 void TextPrinter::exportPdf(const QTextDocument *document, const QString &caption, const QString &filename)
@@ -157,50 +173,36 @@ void TextPrinter::exportPdf(const QTextDocument *document, const QString &captio
     if (QFileInfo(exportname).suffix().isEmpty())
         exportname.append(".pdf");
 
-    // setup printer
-    printer_->setOutputFormat(QPrinter::PdfFormat);
-    printer_->setOutputFileName(exportname);
-
-    // print it
-    tempdoc_ = document->clone();
-    printToDevice(printer_);
-    //launchprint();
-
-    delete tempdoc_;
-    tempdoc_ = Q_NULLPTR;
+    QByteArray ba = getPDFByteArray(document);
+    Utils::writeBinaryFile(ba, exportname);
 }
 
 bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const QString &caption)
 {
     if (!document) return false;
 
+    QByteArray ba = getPDFByteArray(document);
+    // Get imagelist from PDF ByteArray
+    QList<QImage> pagelist = Utils::calcImagefromPdf(ba);
+
+
     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer_, parent_);
     dialog->setWindowTitle(caption.isEmpty() ? "Print Preview" : caption);
-    dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    connect(dialog, &QPrintPreviewDialog::paintRequested, this, &TextPrinter::launchprint);
+    dialog->setWindowModality(Qt::WindowModal);
+    connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=](){ PrintPageList(printer_, pagelist); });
+
 
     // preview it
-    tempdoc_ = document->clone();
+
     QString printerName;
     int b = dialog->exec();
     if (b>0)
     {
-        printer_= dialog->printer();
-        printerName = printer_->printerName();
-        // enregistre le pdf
         if (ficpdf != "")
         {
-            printer_->setOutputFormat(QPrinter::PdfFormat);
-            printer_->setOutputFileName(ficpdf);
-            tempdoc_ = document->clone();
-            printToDevice(printer_);
-            //launchprint();
-            printer_->setOutputFormat(QPrinter::NativeFormat);
-            printer_->setPrinterName(printerName); // nécessaire parce que l'impression du pdf réinitialise le nom de l'imprimante
+            Utils::writeBinaryFile(ba, ficpdf);
         }
     }
-    delete tempdoc_;
-    tempdoc_ = Q_NULLPTR;
     delete dialog;
     return (b>0);
 }
