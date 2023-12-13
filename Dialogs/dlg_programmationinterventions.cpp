@@ -479,7 +479,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
             SessionOperatoire *session = qobject_cast<SessionOperatoire*>(upitem->item());
             if (session->date() ==  date && session->idlieu() == idsite)
             {
-                UpMessageBox::Watch(this, tr("Cette session existe déjà!"));
+                UpMessageBox::Watch(dlg_session, tr("Cette session existe déjà!"));
                 return;
             }
         }
