@@ -1776,6 +1776,10 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                       " on dep." CP_IDFACTURE_DEPENSES " = fac." CP_ID_FACTURES
                       " where " CP_ECHEANCIER_FACTURES " = 1"
                       " and " CP_IDUSER_DEPENSES " = " + QString::number(m_userencours->id()) +
+                      " union "
+                      " SELECT distinct fac." CP_ID_FACTURES ", " CP_INTITULE_FACTURES ", " CP_LIENFICHIER_FACTURES " from " TBL_FACTURES " fac"
+                      " where " CP_ECHEANCIER_FACTURES " = 1"
+                      " and not exists (select 1 from " TBL_DEPENSES " dep where fac." CP_ID_FACTURES " = dep." CP_IDFACTURE_DEPENSES ")"
                       " order by " CP_INTITULE_FACTURES;
         //qDebug() << req;
         bool ok = true;

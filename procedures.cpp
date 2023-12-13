@@ -1080,9 +1080,11 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     ba.data()[file_len]=0;
     qFile.close ();
     Corps = ba;
+    qDebug() << text;
     QRegularExpression rx;
     rx.setPattern("font-size( *: *[\\d]{1,2} *)pt");
     text.replace(rx,"font-size:9pt");
+    qDebug() << text;
     Corps.replace("{{TEXTE ORDO}}",text);
     Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
     return Corps;
@@ -1885,6 +1887,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 
         int idpat = 0;
         idpat = pat->id();
+        qDebug() << Corps;
 
         QHash<QString, QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête

@@ -245,9 +245,11 @@ QString Utils::retirecaracteresaccentues(QString nom)
  */
 bool Utils::convertHTML(QString &text)
 {
+    qDebug() << text;
     UpTextEdit textprov;
     textprov.setText( text );
     text = textprov.toHtml();
+    qDebug() << text;
     return retirelignevidefinhtml(text);
 }
 
@@ -283,6 +285,7 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
     reg2.setPattern("<p style=\" margin-top:0px; margin-bottom:0px; "
                               "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                               "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
+    qDebug() << text;
     bool remetunelignealafin = convertHTML(text);
     if (supprimeLesLignesVidesDuMilieu)
         text.remove(reg1);

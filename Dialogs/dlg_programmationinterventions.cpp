@@ -480,7 +480,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
             SessionOperatoire *session = qobject_cast<SessionOperatoire*>(upitem->item());
             if (session->date() ==  date && session->idlieu() == idsite)
             {
-                UpMessageBox::Watch(this, tr("Cette session existe déjà!"));
+                UpMessageBox::Watch(dlg_session, tr("Cette session existe déjà!"));
                 return;
             }
         }
@@ -1531,7 +1531,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                         {
                             if (intervention->heure() == heure && intervention->idpatient() == idpat)
                             {
-                                UpMessageBox::Watch(this, tr("Cette intervention existe déjà!"));
+                                UpMessageBox::Watch(dlg_intervention, tr("Cette intervention existe déjà!"));
                                 return;
                             }
                         }
@@ -1804,7 +1804,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
             TypeIntervention *typ = qobject_cast<TypeIntervention*>(upitem->item());
             if (typ->typeintervention() == Utils::trimcapitilize(linenom->text()))
             {
-                UpMessageBox::Watch(this, tr("Ce type d'intervention existe déjà!"));
+                UpMessageBox::Watch(dlg_typintervention, tr("Ce type d'intervention existe déjà!"));
                 return;
             }
         }
