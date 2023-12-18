@@ -123,7 +123,7 @@ private:
     void                PositionneTreeInterventionsSurIntervention(Intervention* interv);
     void                MenuContextuelInterventionsions();
     void                VerifExistIntervention(bool &ok, QComboBox *box);
-    void                VerifFicheIntervention(bool &ok, QTimeEdit *timeedit, QComboBox *box, Patient *pat);
+
 private slots:
     void                CreerFicheIntervention();
     void                ModifIntervention();

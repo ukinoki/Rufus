@@ -1530,7 +1530,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                         {
                             if (intervention->heure() == heure && intervention->idpatient() == idpat)
                             {
-                                UpMessageBox::Watch(this, tr("Cette intervention existe déjà!"));
+                                UpMessageBox::Watch(dlg_intervention, tr("Cette intervention existe déjà!"));
                                 return;
                             }
                         }
@@ -1721,30 +1721,6 @@ void dlg_programmationinterventions::VerifExistIntervention(bool &ok, QComboBox 
     ok = false;
 };
 
-void dlg_programmationinterventions::VerifFicheIntervention(bool &ok, QTimeEdit *timeedit, QComboBox *box, Patient *pat)
-{
-    ok = true;
-    if (!timeedit->time().isValid())
-    {
-        UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié une heure valide"));
-        ok = false;
-        return;
-    }
-    if (box->currentText() == "" || box->currentIndex() == -1)
-    {
-        UpMessageBox::Watch(this, tr("Vous n'avez pas spécifié le type d'intervention"));
-        ok = false;
-        return;
-    }
-    if (pat != Q_NULLPTR)
-        if (pat->telephone() == "" && pat->portable() == "")
-            if (!Patients::veriftelephone(pat, this))
-            {
-                ok = false;
-                return;
-            }
-};
-
 void dlg_programmationinterventions::MenuContextuelInterventionsions()
 {
     m_ctxtmenuinterventions = new QMenu(this);
@@ -1828,7 +1804,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
             TypeIntervention *typ = qobject_cast<TypeIntervention*>(upitem->item());
             if (typ->typeintervention() == Utils::trimcapitilize(linenom->text()))
             {
-                UpMessageBox::Watch(this, tr("Ce type d'intervention existe déjà!"));
+                UpMessageBox::Watch(dlg_typintervention, tr("Ce type d'intervention existe déjà!"));
                 return;
             }
         }
