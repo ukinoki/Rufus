@@ -1444,7 +1444,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié une heure valide"));
             return;
         }
-        if (interventioncombo->currentText() == "" || interventioncombo->currentIndex() == -1)
+        if (interventioncombo->currentText() == "")
         {
             UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié le type d'intervention"));
             return;
@@ -1592,7 +1592,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         ModifStatutActeCorrespondant(idact);
         dlg_intervention->accept();
     });
-    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(verifencours, interventioncombo); });
+    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(dlg_intervention, verifencours, interventioncombo); });
     connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
                                                                                                     {
                                                                                                         interventioncombo->lineEdit()->disconnect();
@@ -1692,14 +1692,14 @@ void dlg_programmationinterventions::SupprimeIntervention()
     RemplirTreeInterventions();
 }
 
-void dlg_programmationinterventions::VerifExistIntervention(bool &ok, QComboBox *box)
+void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool &ok, QComboBox *box)
 {
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
     QString txt = box->lineEdit()->text();
     if (m_typeinterventionsmodel->findItems(txt).size() ==0 && txt !="")
     {
-        if (UpMessageBox::Question(this, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(dlg, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
             return;
         else
         {
