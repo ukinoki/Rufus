@@ -47,9 +47,13 @@ int main(int argc, char *argv[])
         app.installTranslator(&translator);
     }
 
-    QSplashScreen *splash = new QSplashScreen(Icons::pxSplash());
+    QSplashScreen *splash;
+    if (QDate::currentDate().month() != 12)
+        splash = new QSplashScreen(Icons::pxSplash());
+    else
+        splash = new QSplashScreen(Icons::pxSplashNoel());
     splash->show();
-    Utils::Pause(300);
+    Utils::Pause(3000);
     splash->close();
     delete splash;
 

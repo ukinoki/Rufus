@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-12-2023/1");
+    qApp->setApplicationVersion("21-12-2023/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -256,7 +256,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (db->ModeAccesDataBase() == Utils::Poste)
         proc->ParamAutoBackup();
     /*! la suite sert à décharger le launchagent du programme de backup sous MacOs, plus utilisé depuis Catalina */
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
     if (QFile::exists(PATH_FILE_SCRIPT_MACOS_PLIST))
     {
         QFile::remove(PATH_FILE_SCRIPT_MACOS_PLIST);
@@ -1166,7 +1166,7 @@ void Rufus::AfficheMenu(QMenu *menu)
         {
             menuDocuments       ->addMenu(menuEmettre);
             menuDocuments       ->addAction(actionEnregistrerDocScanner);
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
             if (db->ModeAccesDataBase() != Utils::Distant)
                 menuDocuments   ->addAction(actionEnregistrerVideo);
 #endif
@@ -7577,7 +7577,7 @@ void Rufus::CreerMenu()
     menuDossier->addAction(actionRechercheParMotCle);
     menuDossier->addAction(actionRechercheParID);
 
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
     menuBar()   ->addAction(actionApropos);
     menuBar()   ->addAction(actionQuit);
 #endif

@@ -123,6 +123,7 @@ public:
 
     static QPixmap pxSalleAttente() { return foundPX("pxSalleAttente", "://waiting_room.png"); }
     static QPixmap pxSplash() { return foundPX("pxSplash", "://rufus3.jpg"); }
+    static QPixmap pxSplashNoel() { return foundPX("pxSplashNoel", "://rufus3Noel.jpg"); }
     static QPixmap pxSuicide() { return foundPX("pxSuicide", "://suicide.png"); }
     static QPixmap pxSwitchLeft() { return foundPX("pxSwitchLeft", "://switch-left.png"); }
     static QPixmap pxSwitchRight() { return foundPX("pxSwitchRight", "://switch-right.png"); }

@@ -1445,9 +1445,14 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié une heure valide"));
             return;
         }
-        if (interventioncombo->currentText() == "" || interventioncombo->currentIndex() == -1)
+        if (interventioncombo->currentText() == "")
         {
             UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié le type d'intervention"));
+            return;
+        }
+        if (interventioncombo->currentIndex() == -1)
+        {
+            UpMessageBox::Watch(dlg_intervention, tr("Ce type d'intervention n'est pas référencé"));
             return;
         }
         if (anesthcombo->currentText() == "" || anesthcombo->currentIndex() == -1)
@@ -1593,7 +1598,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         ModifStatutActeCorrespondant(idact);
         dlg_intervention->accept();
     });
-    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(verifencours, interventioncombo); });
+    connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(dlg_intervention, verifencours, interventioncombo); });
     connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
                                                                                                     {
                                                                                                         interventioncombo->lineEdit()->disconnect();
@@ -1693,15 +1698,18 @@ void dlg_programmationinterventions::SupprimeIntervention()
     RemplirTreeInterventions();
 }
 
-void dlg_programmationinterventions::VerifExistIntervention(bool &ok, QComboBox *box)
+void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool &ok, QComboBox *box)
 {
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;
     QString txt = box->lineEdit()->text();
     if (m_typeinterventionsmodel->findItems(txt).size() ==0 && txt !="")
     {
-        if (UpMessageBox::Question(this, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(dlg, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+        {
+            box->lineEdit()->clear();
             return;
+        }
         else
         {
             if (m_currenttypeintervention != Q_NULLPTR)
@@ -1745,7 +1753,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
         QAction *pAction_SupprIntervention = m_ctxtmenuinterventions->addAction(tr("Supprimer cette intervention"));
         connect (pAction_SupprIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeIntervention);
         QAction *pAction_ImprIntervention = m_ctxtmenuinterventions->addAction(tr("Imprimer un document"));
-        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [&] {FicheImpressions(Datas::I()->patients->getById(interv->idpatient()), interv);});
+        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [=] {FicheImpressions(Datas::I()->patients->getById(interv->idpatient()), interv);});
         if (Datas::I()->users->userconnected()->isMedecin())
         {
             QString txt = (interv->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette intervention"));

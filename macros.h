@@ -940,7 +940,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"
 #define POLICEATTRIBUTPARDEFAUT "Regular"
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
 #define CORRECTION_td_width     1
 #endif
 #ifdef Q_OS_LINUX
@@ -1003,7 +1003,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #if defined(Q_OS_LINUX)
 #define HTMLCOMMENT                 "<!LINUX>"
-#elif defined(Q_OS_MACX)
+#elif defined(Q_OS_MACOS)
 #define HTMLCOMMENT                 "<!MAC>"
 #elif defined(Q_OS_WIN)
 #define HTMLCOMMENT                 "<!WIN>"

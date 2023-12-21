@@ -144,11 +144,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
 
     OKButton  ->setEnabled(false);
 
-    bool f = (QLocale().country() == QLocale::France
-                || QLocale().country() == QLocale::FrenchGuiana
-                || QLocale().country() == QLocale::FrenchPolynesia
-                || QLocale().country() == QLocale::FrenchSouthernTerritories);
-    f= db->parametres()->cotationsfrance();
+    bool f = db->parametres()->cotationsfrance();
     ui->CMUcheckBox->setVisible(f);
     ui->ALDcheckBox->setVisible(f);
 }

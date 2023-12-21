@@ -63,7 +63,7 @@ private:
     static Utils*      instance;
     static QString cp() {
         QString mcp = "[0-9]{5}" ;
-        if (QLocale().country() == QLocale::Madagascar)
+        if (QLocale().territory() == QLocale::Madagascar)
             mcp = "[0-9]{3}";
         return mcp;
     }

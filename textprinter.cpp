@@ -17,7 +17,7 @@ TextPrinter::TextPrinter(QObject *parent) : QObject(parent), parent_(Q_NULLPTR)
     printer_->setFullPage(true);
     printer_->setPageOrientation(QPageLayout::Portrait);
 
-    switch (QLocale::system().country()) {
+    switch (QLocale::system().territory()) {
       case QLocale::Canada:
       case QLocale::UnitedStates:
       case QLocale::UnitedStatesMinorOutlyingIslands:

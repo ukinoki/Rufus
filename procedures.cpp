@@ -625,7 +625,7 @@ void Procedures::setDirSQLExecutable()
 
 /*! 1. On recherche dans le package logiciel */
 /*! ne marche pas sous Mac Silicon pour le moment
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump": "/mysqldump";
     mysqldir.cdUp();
@@ -649,7 +649,7 @@ void Procedures::setDirSQLExecutable()
     }
 
 /*! 2. on recherche dans les chemins habituels du système */
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
     dirsqlexecutable = "/usr/local/mysql/bin";
     if (!QFile(dirsqlexecutable + "/mysql").exists())
     {
@@ -927,7 +927,7 @@ void Procedures::EffaceProgrammationBackup()
     t_timerbackup.disconnect(SIGNAL(timeout()));
     t_timerbackup.stop();
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
     QString file = PATH_FILE_SCRIPT_MACOS_PLIST;                          //! file = "/Users/xxxx/Library/LaunchAgents/rufus.bup.plist"
     if (!QFile::exists(file))
         return;
@@ -961,7 +961,7 @@ void Procedures::ParamAutoBackup()
     connect(&t_timerbackup, &TimerController::timeout, this, [=] {BackupWakeUp();});
 
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
-#ifdef Q_OS_MACX
+#ifdef Q_OS_MACOS
     DefinitScriptBackup(m_parametres->dirbkup());
     // elaboration de rufus.bup.plist
     QString heure   = m_parametres->heurebkup().toString("H");
