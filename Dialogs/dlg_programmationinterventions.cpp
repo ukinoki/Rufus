@@ -470,7 +470,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
         sitecombo       ->setCurrentIndex(sitecombo->findData(session->idlieu()));
         incidenttxtedit ->setText(session->incident());
     }
-    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
