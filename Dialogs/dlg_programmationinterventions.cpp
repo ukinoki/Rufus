@@ -469,7 +469,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
         sitecombo       ->setCurrentIndex(sitecombo->findData(session->idlieu()));
         incidenttxtedit ->setText(session->incident());
     }
-    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [&]
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
@@ -1449,6 +1449,11 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié le type d'intervention"));
             return;
         }
+        if (interventioncombo->currentIndex() == -1)
+        {
+            UpMessageBox::Watch(dlg_intervention, tr("Ce type d'intervention n'est pas enregistré"));
+            return;
+        }
         if (anesthcombo->currentText() == "" || anesthcombo->currentIndex() == -1)
         {
             UpMessageBox::Watch(dlg_intervention, tr("Vous n'avez pas spécifié le type d'anesthésie"));
@@ -1692,7 +1697,7 @@ void dlg_programmationinterventions::SupprimeIntervention()
     RemplirTreeInterventions();
 }
 
-void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool &ok, QComboBox *box)
+void dlg_programmationinterventions::VerifExistIntervention(UpDialog* dlg,bool &ok, QComboBox *box)
 {
     if (ok) return; // c'est de la bidouille, je sais... mais pas trouvé autre chose sinon, le editingFinished est émis 2 fois en cas d'appui sur les touches Enter ou Return du combobox
     ok = true;

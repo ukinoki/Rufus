@@ -928,7 +928,7 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     ba.data()[file_len]=0;
     qFile.close ();
     Corps = ba;
-    text.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
+     text.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
     Corps.replace("{{TEXTE ORDO}}",text);
     Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
     return Corps;
@@ -1703,6 +1703,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 
     // creation du corps
     Corps = CalcCorpsImpression(text, ALD);
+    qDebug() << Corps;
     if (Corps == "")
     {
         delete Etat_textEdit;
@@ -1724,6 +1725,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     if (success)
     {
         Utils::nettoieHTML(Corps);
+        qDebug() << Corps;
 
         int idpat = 0;
         idpat = pat->id();
