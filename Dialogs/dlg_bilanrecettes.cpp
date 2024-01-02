@@ -104,12 +104,12 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     m_mode          = SUPERVISEUR;
     wdg_bigtable    = new UpTableView();
 
-    RemplitLaTable();
-    CalcSuperviseursEtComptables();
-    FiltreTable(-1);
     dlglayout()     ->insertLayout(0,wdg_lblbox);
     dlglayout()     ->insertWidget(0,wdg_bigtable);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+    RemplitLaTable();
+    CalcSuperviseursEtComptables();
+    FiltreTable(-1);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
@@ -609,7 +609,7 @@ void dlg_bilanrecettes::NouvPeriode()
 void dlg_bilanrecettes::RemplitLaTable()
 {
     UpStandardItem *pitem0, *pitem1, *pitem2, *pitem3, *pitem4, *pitem5,*pitem6,*pitem7;
-    if (m_recettesmodel == Q_NULLPTR)
+    if (m_recettesmodel != Q_NULLPTR)
         delete m_recettesmodel;
     m_recettesmodel = new QStandardItemModel(this);
     foreach (Recette *rec, *Datas::I()->recettes->recettes())
