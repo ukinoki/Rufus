@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("02-01-2023/1");
+    qApp->setApplicationVersion("05-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2028,7 +2028,7 @@ void Rufus::ExporteDocs()
                     + "-" + listexportjpg.at(i).at(0).toString()  + ".jpg";
             QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc + "." JPG;
             QString CheminOKTransfrProv = CheminOKTransfrDirImg + "/" + NomFileDoc + "prov." JPG;
-            QByteArray ba = listexportjpg.at(i).at(6).toByteArray();
+            QByteArray ba = listexportjpg.at(i).at(4).toByteArray();
             QPixmap pix;
             pix.loadFromData(ba);
             /*
@@ -2060,7 +2060,7 @@ void Rufus::ExporteDocs()
             else
                 return;
             db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_JPG_DOCSEXTERNES " = null,"
-                            CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) +
+                            CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG
                             "' where " CP_ID_DOCSEXTERNES " = " + listexportjpg.at(i).at(0).toString() );
             faits ++;
             int nsec = debut.secsTo(QTime::currentTime());
