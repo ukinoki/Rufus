@@ -634,8 +634,8 @@ void Procedures::setDirSQLExecutable()
 #endif
 */
 #ifdef Q_OS_WIN
-    m_executable = "/mysql.exe";
-    m_dumpexecutable = "/mysqldump.exe";
+    m_executable = db->version().contains("MariaDB")? "/mariadb.exe": "/mysql.exe";
+    m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump.exe": "/mysqldump.exe";
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
     a = QFile(dirdefaultsqlexecutable + m_executable).exists();

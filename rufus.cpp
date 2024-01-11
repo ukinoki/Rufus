@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-01-2024/1");
+    qApp->setApplicationVersion("07-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -288,6 +288,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     //! 17 - suppression des anciens fichiers de log
     Logs::EpureLogs();
+
+    //! 18 - Vérifie si une nouvelle version est disponible
+    VerifLastVersion();
 }
 
 Rufus::~Rufus()
@@ -5813,6 +5816,80 @@ void Rufus::VerifVerrouDossier()
     }
     if (mettreajourlasalledattente)
         Flags::I()->MAJFlagSalleDAttente();
+}
+
+void Rufus::VerifLastVersion()
+{
+    auto comparelastversion = [&] {
+        QString actversion = qApp->applicationVersion().split("/").at(0);
+        QDate dateactversion = QDate::fromString(actversion,"dd-MM-yyyy");
+        QDate datenewversion = QDate::fromString(m_lastversion, "yyyy/MM/dd");
+        if (dateactversion < datenewversion)
+        {
+            QString text = tr("La nouvelle version est datée du ") + QLocale::system().toString(datenewversion, "d MMM yyyy") + "\n"
+                    + tr("Vous utilisez la version du ") + QLocale::system().toString(dateactversion, "d MMM yyyy");
+            if (m_MAJBase)
+                text += "\n" + tr("Cette nouvelle version impose une mise à jour de la base de données");
+            else
+                text += "\n" + tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
+            if (!m_compatibiltywithprec)
+                text += "\n" + tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle versionr");
+            else
+                text += "\n" + tr("Cette mise à jour de la base de données reste compatible avec la précédente version de Rufus");
+            text += "\n" + tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site www.rufusvision.org");
+            UpMessageBox::Watch(this, tr("Une nouvelle version de Rufus est en ligne"), text);
+        }
+        qDebug() << "OS = " << m_os;
+    };
+
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkRequest request;
+    request.setUrl(QUrl("https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"));
+    QNetworkReply *reply = manager->get(request);
+
+    connect(manager, &QNetworkAccessManager::finished,
+            this, [=]
+    {
+        QByteArray data;
+        if(reply->error() == QNetworkReply::NoError)
+        {
+            m_os = QSysInfo::productType();
+            reply->deleteLater();
+            data = reply->readAll();
+            QDomDocument docxml;
+            docxml.setContent(data);
+            QDomElement xml = docxml.documentElement();
+            for (int i=0; i<xml.childNodes().size(); i++)
+            {
+                QDomElement system = xml.childNodes().at(i).toElement();
+                if (m_os != system.tagName())
+                    continue;
+                for (int j=0; j<system.childNodes().size(); j++)
+                {
+                    QDomElement child = system.childNodes().at(j).toElement();
+                    if (child.tagName() == "Date")
+                        m_lastversion = child.text();
+                    else if (child.tagName() == "Base")
+                    {
+                        for (int k=0; k<child.childNodes().size(); k++)
+                        {
+                            QDomElement basechild = child.childNodes().at(k).toElement();
+                            if (basechild.tagName() == "UPDBase")
+                                m_MAJBase = (basechild.text() == "Yes");
+                            else if (basechild.tagName() == "CompatibleWithPrecedent")
+                                m_compatibiltywithprec = (basechild.text() == "Yes");
+                        }
+                    }
+                    else if (child.tagName() == "UPDRessources")
+                        m_MAJRessources = (child.text() == "Yes");
+                    else if (child.tagName() == "Comment")
+                        m_comment = child.text();
+                }
+                i = xml.childNodes().size();
+            }
+        }
+        comparelastversion();
+    });
 }
 
 bool Rufus::isPosteImport()
