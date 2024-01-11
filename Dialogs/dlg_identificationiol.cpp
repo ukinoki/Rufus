@@ -93,7 +93,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     lblIOL                      ->setText(tr("Modèle"));
     wdg_nomiolline              = new UpLineEdit();
     wdg_nomiolline              ->setFixedSize(QSize(250,28));
-    wdg_nomiolline              ->setValidator(new QRegExpValidator(Utils::rgx_cotation));
+    wdg_nomiolline              ->setValidator(new QRegExpValidator(QRegExp("[a-zA-Z0-9.-/ ]*")));
     wdg_nomiolline              ->setMaxLength(40);
     choixIOLLay                 ->addWidget(lblIOL);
     choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
