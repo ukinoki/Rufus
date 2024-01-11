@@ -169,6 +169,15 @@ private:
                                                                        * importe les fichiers d'imagerie quand on utilise le QTimer t_timerfilewatcher */
     void        VerifDossiersImagerie();
     void        VerifImportateur();                             /*! vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
+
+    QString m_os = "";
+    QString m_lastversion ="";
+    QString m_comment ="";
+    bool m_MAJBase = false;
+    bool m_compatibiltywithprec = true;
+    bool m_MAJRessources = false;
+
+    void        VerifLastVersion();                             /*! vérifie que la version en cours du logiciel*/
     void        ImprimeDossier(Patient *pat);
     void        ImprimeListPatients(QVariant var);
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
