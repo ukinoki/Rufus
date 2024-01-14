@@ -1,0 +1,8 @@
+[Desktop Entry]
+[Desktop Entry]
+Type=Application
+Name=Rufus
+Exec=/home/serge/RufusQt5Deploy/usr/bin/RufusApp
+Icon=/usr/share/icons/hicolor/256x256/apps/rufus
+Comment=Logiciel de gestion de cabinet d'Ophtalmologie
+Categories=Office;
