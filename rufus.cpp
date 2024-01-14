@@ -5746,7 +5746,7 @@ void Rufus::VerifLastVersion()
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request;
-    request.setUrl(QUrl("https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"));
+    request.setUrl(QUrl(LIEN_XML_RUFUSLASTVERSION));
     QNetworkReply *reply = manager->get(request);
 
     connect(manager, &QNetworkAccessManager::finished,
