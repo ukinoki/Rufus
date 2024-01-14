@@ -12,12 +12,12 @@ Créer l'arborisation (elle est déjà existante dans le dossier Ubuntu-builb-to
                 └── 256x256 
                     └── apps 
                         └── rufus.png
-Coller dans le sous-dossier /bin le RufusApp qui vient d'être compilé
+Coller dans le sous-dossier /bin le RufusApp qui vient d'être compilé par Qt
 Puis, lancer la commande
 ~/linuxdeployqt(nom de la version installée) chemin-vers-usr/usr/share/applications/rufus.desktop -appimage
 
 
 Puis, pour installer le logiciel sur un poste à partir de l'appairage produite,
 Il faut utiliser le script install-rufus.sh et il suffit de taper, depuis le dossier où se trouve le script,
-install-rufus.sh ~/Downloads/Rufus.AppImage Rufus
+install-rufus.sh dossier_où_se_trouve_l'appimage/Rufus.AppImage Rufus
 
