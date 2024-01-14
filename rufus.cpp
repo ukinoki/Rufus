@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("07-01-2024/1");
+    qApp->setApplicationVersion("08-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -5835,7 +5835,7 @@ void Rufus::VerifLastVersion()
             if (!m_compatibiltywithprec)
                 text += "\n" + tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle versionr");
             else
-                text += "\n" + tr("Cette mise à jour de la base de données reste compatible avec la précédente version de Rufus");
+                text += "\n" + tr("Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus");
             text += "\n" + tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site www.rufusvision.org");
             UpMessageBox::Watch(this, tr("Une nouvelle version de Rufus est en ligne"), text);
         }
@@ -5844,7 +5844,7 @@ void Rufus::VerifLastVersion()
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request;
-    request.setUrl(QUrl("https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"));
+    request.setUrl(QUrl(LIEN_XML_RUFUSLASTVERSION));
     QNetworkReply *reply = manager->get(request);
 
     connect(manager, &QNetworkAccessManager::finished,
@@ -5854,6 +5854,10 @@ void Rufus::VerifLastVersion()
         if(reply->error() == QNetworkReply::NoError)
         {
             m_os = QSysInfo::productType();
+            if (m_os == "osx")
+                m_os = "macos";
+            else if (m_os == "")
+                m_os = "linux";
             reply->deleteLater();
             data = reply->readAll();
             QDomDocument docxml;

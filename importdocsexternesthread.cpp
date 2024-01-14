@@ -237,7 +237,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
                      * 0     - 1              -2- 3    - 4  - 5            - 6           - 7     - 8 - 9       - 10   - 11 - 12           - 13   - 14 - 15        - 16
                     */
 
-        QRegularExpression re("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}Z-"); //! correspond aux sections 2,3,et 4 avant 2019 et 3,4 et 5 après
+        QRegularExpression re;
+        re.setPattern("[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}_[0-9]{2}_[0-9]{2}Z-"); //! correspond aux sections 2,3,et 4 avant 2019 et 3,4 et 5 après
         if (nomfiledoc.contains(re))
         {
             int idxdate;
