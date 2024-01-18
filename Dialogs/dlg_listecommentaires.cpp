@@ -294,14 +294,6 @@ void dlg_listecommentaires::ConfigMode(Mode mode, CommentLunet *com)
         if (com)
             selectcurrentComment(com, QAbstractItemView::PositionAtCenter);
 
-        int nbCheck = 0;
-        for (int i =0 ; i < m_model->rowCount(); i++)
-        {
-            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
-            if (itm)
-                if (itm->checkState() == Qt::Checked)
-                    nbCheck ++;
-        }
         OKButton->setEnabled(true);
     }
 

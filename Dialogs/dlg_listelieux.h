@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "database.h"
 #include "gbl_datas.h"
 #include "upstandarditem.h"
+#include "uptableview.h"
 #include "widgetbuttonframe.h"
 
 /* sert à gérer les lieux d'exercice
@@ -39,7 +40,7 @@ public:
 
 private:
     DataBase                *db;
-    QTableView              *wdg_tblview;
+    UpTableView             *wdg_tblview;
     UpDialog                *dlg_lieu;
     UpLabel                 *wdg_adressuplbl;
     UpPushButton            *wdg_couleurpushbutt;

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("08-01-2024/1");
+    qApp->setApplicationVersion("17-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2670,7 +2670,7 @@ void Rufus::ImprimeDossier(Patient *pat)
 
 void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool queLePdf, QString nomdossier)
 {
-    Patient *pat = Datas::I()->patients->getById(listeactes.at(0)->idPatient());
+    Patient *pat = Datas::I()->patients->getById(listeactes.at(0)->idPatient(), Item::LoadDetails);
     if (pat == Q_NULLPTR)
         return;
     RecalcCurrentDateTime();

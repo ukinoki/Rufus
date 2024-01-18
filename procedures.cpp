@@ -3057,7 +3057,7 @@ void Procedures::CalcLieuExercice()
         return;
     else if (listEtab.size() == 1)
     {
-        Datas::I()->sites->setcurrentsite(Datas::I()->sites->sites()->first());
+        Datas::I()->sites->setcurrentsite(listEtab.first());
         return;
     }
 
