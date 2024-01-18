@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("16-01-2024/1");
+    qApp->setApplicationVersion("18-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -295,6 +295,13 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     VerifLastVersion();
 
     QString nameARK   = proc->settings()->value(Param_Poste_Autoref).toString();
+    if (nameARK == "HUVITZ HTR-1A")
+    {
+        UpMessageBox::Watch(this, tr("Problème Autoref Huvitz"), tr("Des problémes techniques de collaboration avec la société Essilor") +
+                                                                     "\n" + tr("ne nous permettent plus de maintenir de façon fiable l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
+                                                                     "\n" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
+                                                                     "\n" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"));
+    }
 }
 
 Rufus::~Rufus()
