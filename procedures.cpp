@@ -9059,8 +9059,12 @@ QSerialPort* Procedures::PortAutoref()
 //! -----------------------------------------------------------------------------------------
 void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
 {
-
     QString nameARK   = m_settings->value(Param_Poste_Autoref).toString();
+
+    if (nameARK == "HUVITZ HTR-1A")
+        return;
+    if (nameARK == "NIKON Speedy-K")
+        nameARK = "HUVITZ HTR-1A";
 
     bool autorefhaskerato    = (nameARK =="NIDEK ARK-1A"
                       || nameARK =="NIDEK ARK-1"
