@@ -26,6 +26,8 @@ dlg_listelieux::dlg_listelieux(QWidget *parent)
     connect(CloseButton, &QPushButton::clicked, this, &QDialog::reject);
 
     wdg_tblview = new QTableView(this);
+    wdg_tblview->setFixedWidth(240);
+    wdg_tblview->setMouseTracking(true);
     wdg_adressuplbl = new UpLabel();
     wdg_adressuplbl->setFixedWidth(240);
     wdg_couleurpushbutt = new UpPushButton();
@@ -424,7 +426,9 @@ void dlg_listelieux::ReconstruitModel()
         m_model->appendRow(QList<QStandardItem*>() << pitem0);
     }
     m_model->sort(0);
+    QItemSelectionModel *m = wdg_tblview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
     wdg_tblview->setModel(m_model);
+    delete m;;
 
     m_model->setHeaderData(0, Qt::Horizontal, tr("Structure de soins"));
     wdg_tblview->setColumnWidth(0,240);       // NomLieu
@@ -449,5 +453,10 @@ void dlg_listelieux::ReconstruitModel()
     m_idlieuserveur = -1;
     m_idlieuserveur = db->parametres()->idlieupardefaut();
     connect(wdg_tblview->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_listelieux::AfficheDetails);
+    connect(wdg_tblview,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) {
+            Site *sit = getSiteFromIndex(idx);
+            if (sit)
+                QToolTip::showText(cursor().pos(), sit->coordonnees());
+    } );
 }
 
