@@ -177,7 +177,7 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
     delete msgbox;
 }
 
-UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts)
+UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QString link)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
 //    QMovie movie("://forbidden.gif");
@@ -207,6 +207,19 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
     msgbox  ->buttonslayout()   ->setSpacing(50);
     msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
     msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    if (link != "")
+    {
+        msgbox  ->wdg_infolbl             ->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+        msgbox  ->wdg_infolbl             ->setOpenExternalLinks(true);
+        connect (msgbox->wdg_infolbl,
+                &QLabel::linkActivated,
+                msgbox,
+                [=] {
+                    if (msgbox->wdg_infolbl->text() != "")
+                        QDesktopServices::openUrl(QUrl(link));
+                }
+                );
+    }
     UpSmallButton::StyleBouton repons = UpSmallButton::CANCELBUTTON;
     if (msgbox  ->exec() == QDialog::Accepted)
         repons = msgbox->clickedButton()->ButtonStyle();

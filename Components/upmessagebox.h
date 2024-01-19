@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uppushbutton.h"
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
+#include <QDesktopServices>
 #include <QTextEdit>
 #include "macros.h"
 #include "utils.h"
@@ -34,7 +35,7 @@ public:
     explicit        UpMessageBox(QWidget *parent = Q_NULLPTR);
     ~UpMessageBox();
     static void                         Show        (QWidget*, QString Text = "", QString InfoText = "");
-    static UpSmallButton::StyleBouton   Watch(QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK);
+    static UpSmallButton::StyleBouton   Watch(QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK, QString link = "");
     static UpSmallButton::StyleBouton   Question    (QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList titresboutonslist = QStringList());
     static void                         Information (QWidget*, QString Text = "", QString InfoText = "");
     enum                                Icon   {Quest, Info, Warning, Critical, Print}; Q_ENUM(Icon)

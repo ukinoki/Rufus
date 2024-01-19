@@ -2650,13 +2650,11 @@ bool Procedures::VerifBaseEtRessources()
     };
 
     int Version         = VERSION_BASE;
-    bool b;
     m_parametres = db->parametres();
     int Versionencours = m_parametres->versionbase();
-    b = (Versionencours < Version);
 
     bool BupDone = false;
-    if (b)
+    if (Versionencours < Version)
     {
         int nbreMAJ = Version - Versionencours;
         for (int i=1; i< nbreMAJ+1; i++)
@@ -2759,7 +2757,16 @@ bool Procedures::VerifBaseEtRessources()
             }
         }
     }
-    //verification des fichiers ressources
+    else if (Versionencours > Version)
+      {
+          QString text = QObject::tr("Vous utilisez sur ce poste une version de Rufus prévue pour la version") + " " + QString::number(Version) + " " + QObject::tr("de la base de données");
+          text += "<br/>" + QObject::tr("Cette version est incompatible avec la version") + " " + QString::number(Versionencours) + " " + tr("actuellement installée");
+          text += "<br/>" + QObject::tr("Il est fortement conseillé de faire une mise à jour de Rufus");
+          text += "<br/>" + QObject::tr("pour éviter des dysfonctionnements ou une altération de la base actuellement utilisée");
+          text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site") + " <a href=\"https://www.rufusvision.org\">www.rufusvision.org</a>";
+          UpMessageBox::Watch(Q_NULLPTR, tr("Version de Rufus trop ancienne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
+      }
+   //verification des fichiers ressources
     if (m_settings->value(Poste_VersionRessources).toInt() < VERSION_RESSOURCES)
     {
         PremierParametrageRessources();

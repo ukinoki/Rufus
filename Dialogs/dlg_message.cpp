@@ -37,6 +37,7 @@ void ShowMessage::SplashMessage(QString msg, int duree)
 
     UpLabel *imglbl     = new UpLabel(dlg);
     imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
+    imglbl              ->setFixedWidth(45);
 
     UpTextEdit *Msgtxt  = new UpTextEdit(dlg);
     Msgtxt              ->setAttribute( Qt::WA_NoSystemBackground, true );
@@ -58,10 +59,12 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     QHBoxLayout *lay    = new QHBoxLayout(dlg);
     lay                 ->addWidget(imglbl);
     lay                 ->addWidget(Msgtxt);
-    int marge           = 8;
+    int marge           = 16;
     lay                 ->setContentsMargins( marge, marge*2, marge, marge*2);
-    lay                 ->setSizeConstraint(QLayout::SetFixedSize);
     dlg                 ->setLayout(lay);
+    lay                 ->addSpacerItem(new QSpacerItem(marge,0,QSizePolicy::Fixed, QSizePolicy::Fixed));
+    dlg                 ->setFixedHeight((hauteurligne)*nlignes + marge*4);
+    dlg                 ->setFixedWidth(w + imglbl->width() + marge*4);
     dlg                 ->setWindowFlags(Qt::SplashScreen);
 
     int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
@@ -82,7 +85,7 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
 
     UpLabel *imglbl     = new UpLabel(prioritydlg);
     imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
-
+    imglbl              ->setFixedWidth(45);
     UpTextEdit *Msgtxt  = new UpTextEdit(prioritydlg);
     Msgtxt              ->setAttribute( Qt::WA_NoSystemBackground, true );
     Msgtxt              ->setText(msg);
@@ -103,10 +106,12 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     QHBoxLayout *lay    = new QHBoxLayout(prioritydlg);
     lay                 ->addWidget(imglbl);
     lay                 ->addWidget(Msgtxt);
-    int marge           = 8;
+    int marge           = 16;
     lay                 ->setContentsMargins( marge, marge*2, marge, marge*2);
-    lay                 ->setSizeConstraint(QLayout::SetFixedSize);
+    lay                 ->addSpacerItem(new QSpacerItem(marge,0,QSizePolicy::Fixed, QSizePolicy::Fixed));
     prioritydlg         ->setLayout(lay);
+    prioritydlg         ->setFixedHeight((hauteurligne)*nlignes + marge*4);
+    prioritydlg         ->setFixedWidth(w + imglbl->width() + marge*4);
     prioritydlg         ->setWindowFlags(Qt::SplashScreen);
 
     int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();

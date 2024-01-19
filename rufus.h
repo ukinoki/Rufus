@@ -169,10 +169,10 @@ private:
     void        VerifImportateur();                             /*! vérifie que le poste importateur des documents externes est valide et le remplace au besoin*/
 
     QString     m_os = "";
-    QString     m_lastversion ="";
-    QString     m_comment ="";
-    bool        m_MAJBase = false;
-    bool        m_compatibiltywithprec = true;
+    QString     m_UPDLastVersion ="";
+    QString     m_UPDComment ="";
+    bool        m_UPDBase = false;
+    bool        m_UPDCcompatibiltyWithPrec = true;
     bool        m_MAJRessources = false;
     void        VerifLastVersion();                             /*! vérifie la version en cours du logiciel*/
 
