@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("18-01-2024/1");
+    qApp->setApplicationVersion("19-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -90,6 +90,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 5 - lancement du TCP
     m_utiliseTCP = false;
     QString log;
+    qintptr z = 0;
     if (postadmin != Q_NULLPTR)
     {
         log = tr("RufusAdmin présent");
@@ -107,7 +108,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             m_utiliseTCP = TcPConnect->TcpConnectToServer(postadmin->ipadress());
             if (m_utiliseTCP)
             {
-                qintptr z = 0;
                 ShowMessage::I()->PriorityMessage(tr("Connexion TCP OK"), z, 3000);
                 connect(TcPConnect, &TcpSocket::receiveTCPmsg, this, &Rufus::TraiteTCPMessage);  // traitement des messages reçus
                 // envoie le stringid du poste qui vient de se connecter
@@ -292,12 +292,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 18 - Vérifie si une nouvelle version est disponible
     VerifLastVersion();
     QString nameARK   = proc->settings()->value(Param_Poste_Autoref).toString();
+    //nameARK = "HUVITZ HTR-1A";
     if (nameARK == "HUVITZ HTR-1A")
     {
-        UpMessageBox::Watch(this, tr("Problème Autoref Huvitz"), tr("Des problémes techniques de collaboration avec la société Essilor") +
-                                                                     "\n" + tr("ne nous permettent plus de maintenir de façon fiable l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
-                                                                     "\n" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
-                                                                     "\n" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"));
+        ShowMessage::I()->PriorityMessage("<font color=\"red\"><b>" + QObject::tr("Problème Autoref Huvitz") + "</b></font><br/>" +
+                "<br/>" + tr("Des problémes techniques de collaboration avec la société Essilor") +
+                "<br/>" + tr("ne nous permettent plus de maintenir de façon fiable l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
+                "<br/>" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
+                "<br/>" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"),
+                z,8000);
     }
 }
 
@@ -5831,23 +5834,23 @@ void Rufus::VerifLastVersion()
     auto comparelastversion = [&] {
         QString actversion = qApp->applicationVersion().split("/").at(0);
         QDate dateactversion = QDate::fromString(actversion,"dd-MM-yyyy");
-        QDate datenewversion = QDate::fromString(m_lastversion, "yyyy/MM/dd");
+        QDate datenewversion = QDate::fromString(m_MAJlastversion, "yyyy/MM/dd");
         if (dateactversion < datenewversion)
         {
-            QString text = tr("La nouvelle version est datéedu ") + QLocale::system().toString(datenewversion, "d MMM yyyy") + "\n"
-                    + tr("Vous utilisez la version du ") + QLocale::system().toString(dateactversion, "d MMM yyyy");
+            QString text = QObject::tr("La nouvelle version est datée du ") + QLocale::system().toString(datenewversion, "d MMM yyyy") + "<br/>"
+                    + QObject::tr("Vous utilisez la version du ") + QLocale::system().toString(dateactversion, "d MMM yyyy");
             if (m_MAJBase)
             {
-                text += "\n" + tr("Cette nouvelle version impose une mise à jour de la base de données");
-                if (!m_compatibiltywithprec)
-                    text += "\n" + tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle versionr");
+                text += "<br/>" + QObject::tr("Cette nouvelle version impose une mise à jour de la base de données");
+                if (!m_MAJBaseCompatibiltyWithPrec)
+                    text += "<br/>" + QObject::tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle versionr");
                 else
-                    text += "\n" + tr("Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus");
+                    text += "<br/>" + QObject::tr("Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus");
             }
             else
-                text += "\n" + tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
-            text += "\n" + tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site www.rufusvision.org");
-            UpMessageBox::Watch(this, tr("Une nouvelle version de Rufus est en ligne"), text);
+                text += "<br/>" + QObject::tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
+            text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site") + " <a href=\"https://www.rufusvision.org\">www.rufusvision.org</a>";
+            UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
         }
         qDebug() << "OS = " << m_os;
     };
@@ -5882,7 +5885,7 @@ void Rufus::VerifLastVersion()
                 {
                     QDomElement child = system.childNodes().at(j).toElement();
                     if (child.tagName() == "Date")
-                        m_lastversion = child.text();
+                        m_MAJlastversion = child.text();
                     else if (child.tagName() == "Base")
                     {
                         for (int k=0; k<child.childNodes().size(); k++)
@@ -5891,13 +5894,13 @@ void Rufus::VerifLastVersion()
                             if (basechild.tagName() == "UPDBase")
                                 m_MAJBase = (basechild.text() == "Yes");
                             else if (basechild.tagName() == "CompatibleWithPrecedent")
-                                m_compatibiltywithprec = (basechild.text() == "Yes");
+                                m_MAJBaseCompatibiltyWithPrec = (basechild.text() == "Yes");
                         }
                     }
                     else if (child.tagName() == "UPDRessources")
                         m_MAJRessources = (child.text() == "Yes");
                     else if (child.tagName() == "Comment")
-                        m_comment = child.text();
+                        m_MAJcomment = child.text();
                 }
                 i = xml.childNodes().size();
             }
