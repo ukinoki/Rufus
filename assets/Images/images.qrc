@@ -165,7 +165,6 @@
         <file>internet.png</file>
         <file>network.png</file>
         <file>information.png</file>
-        <file>question.png</file>
         <file>reception_icon.png</file>
         <file>waiting_room.png</file>
         <file>AVTest.png</file>
@@ -195,5 +194,8 @@
         <file>icon.ico</file>
         <file>nature.png</file>
         <file>rufus3Noel.jpg</file>
+        <file>giphy-2.gif</file>
+        <file>question.gif</file>
+        <file>question.png</file>
     </qresource>
 </RCC>
