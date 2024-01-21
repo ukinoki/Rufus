@@ -180,15 +180,14 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QString link)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
-//    QMovie movie("://forbidden.gif");
-//    msgbox->lblIcon->setMovie (&movie);
-//    msgbox->lblIcon     ->setFixedSize(80,80);
-//    msgbox->infolayout  ->insertWidget(0,msgbox->lblIcon);
-//    movie.start ();
+    QMovie movie(":/giphy-2.gif");
+    movie.setScaledSize(QSize(80,80));
+    msgbox->wdg_iconlbl     ->setMovie (&movie);
+    msgbox->wdg_infolayout  ->insertWidget(0,msgbox->wdg_iconlbl);
+    movie.start ();
     msgbox  ->setText(Text);
     UpTextEdit text(InfoText.replace("\n","<br>"));
     msgbox  ->setInformativeText(text.toHtml());
-    msgbox  ->setIcon(UpMessageBox::Quest);
     msgbox  ->AjouteLayButtons(Butts);
 
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
@@ -212,14 +211,9 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
         msgbox  ->wdg_infolbl             ->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
         msgbox  ->wdg_infolbl             ->setOpenExternalLinks(true);
         connect (msgbox->wdg_infolbl,
-                &QLabel::linkActivated,
-                msgbox,
-                [=] {
-                    if (msgbox->wdg_infolbl->text() != "")
-                        QDesktopServices::openUrl(QUrl(link));
-                }
-                );
-    }
+                    &QLabel::linkActivated, /*! bug Qt - Impossible to open URL with linkActivated in a QMessageBox - However linkHovered works */                msgbox,
+                    [=] { QDesktopServices::openUrl(QUrl(link)); }
+                );    }
     UpSmallButton::StyleBouton repons = UpSmallButton::CANCELBUTTON;
     if (msgbox  ->exec() == QDialog::Accepted)
         repons = msgbox->clickedButton()->ButtonStyle();
@@ -231,9 +225,14 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
 UpSmallButton::StyleBouton UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList titresboutonslist)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
+    QMovie movie(":/question.gif");
+    movie.setScaledSize(QSize(100,100));
+    movie.setSpeed(400);
+    msgbox->wdg_iconlbl     ->setMovie (&movie);
+    msgbox->wdg_infolayout  ->insertWidget(0,msgbox->wdg_iconlbl);
+    movie.start ();
     msgbox  ->setText(Text);
     msgbox  ->setInformativeText(InfoText);
-    msgbox  ->setIcon(UpMessageBox::Quest);
     msgbox  ->AjouteLayButtons(Butts);
     int k = 0;
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
