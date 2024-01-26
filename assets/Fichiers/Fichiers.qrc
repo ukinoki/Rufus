@@ -34,5 +34,6 @@
         <file>majbase64.sql</file>
         <file>majbase65.sql</file>
         <file>majbase66.sql</file>
+        <file>majbase77.sql</file>
     </qresource>
 </RCC>

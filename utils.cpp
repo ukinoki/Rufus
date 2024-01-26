@@ -220,7 +220,7 @@ bool Utils::convertHTML(QString &text)
     QTextEdit textprov;
     textprov.setText( text );
     text = textprov.toHtml();
-    qDebug() << text;
+    //qDebug() << text;
     return retirelignevidefinhtml(text);
 
 }
@@ -255,9 +255,9 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
     QRegExp reg2 = QRegExp("<p style=\" margin-top:0px; margin-bottom:0px; "
                            "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                            "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
-    qDebug() << text;
+    //qDebug() << text;
     bool remetunelignealafin = convertHTML(text);
-    qDebug() << text;
+    //qDebug() << text;
    if (supprimeLesLignesVidesDuMilieu)
         text.remove(reg1);
     text.replace(reg2,"<p style=\" margin-top:0px; margin-bottom:0px;\">");

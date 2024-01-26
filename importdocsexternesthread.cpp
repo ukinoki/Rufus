@@ -305,6 +305,26 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         Typedoc     = "Imagerie SA";
         SousTypeDoc = "ION";
     }
+    else if (Appareil == "TOPCON TRC-NW400")
+    {
+        //! 20240126_23_R_012.JPG
+        if (nomfiledoc.split("_").size()>2)
+            datestring = nomfiledoc.split("_").at(0);
+        Titredoc    = "RNM TRC-NW400";
+        Typedoc     = "RNM";
+        QString cote = nomfiledoc.split("_").at(2);
+        cote = (cote=="R")? tr("OD") : tr("OG");
+        SousTypeDoc = "TRC-NW400 " + cote;
+    }
+    else if (Appareil == "ESSILOR Retina 550")
+    {
+        //! 37214_0D_20200522_1848188838.01.e.jpg
+        if (nomfiledoc.split("_").size()>2)
+            datestring = nomfiledoc.split("_").at(2);
+        Titredoc    = "RNM - Retina 550";
+        Typedoc     = "RNM";
+        SousTypeDoc = "Retina 550";
+    }
 
     if (!QDate().fromString(datestring,"yyyyMMdd").isValid())
     {
@@ -455,6 +475,17 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         //! 37214_0D_20200522_1848188838.01.e.jpg
         idPatient           = nomfiledoc.split("_").at(0);
     }
+    else if (Appareil == "TOPCON TRC-NW400")
+    {
+        //! 20240126_23_R_012.JPG
+        idPatient           = nomfiledoc.split("_").at(1);
+    }
+    else if (Appareil == "ESSILOR Retina 550")
+    {
+        //! 37214_0D_20200522_1848188838.01.e.jpg
+        idPatient           = nomfiledoc.split("_").at(1);
+    }
+
 
     bool b=true;
     if (idPatient.toInt(&b)<1)
@@ -493,7 +524,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             + SousTypeDoc + "_"
             + datetimecreation
             + "-" + QString::number(idimpr)
-            + "." + QFileInfo(nomfiledoc).suffix();
+            + "." + QFileInfo(nomfiledoc).suffix().toLower();
 
     if (m_acces == Local)
     {

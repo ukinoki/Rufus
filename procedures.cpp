@@ -1295,11 +1295,12 @@ void Procedures::CalcImage(Item *item, bool imagerie)
                 if (isdocument)
                 {
                     QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+                    //qDebug() << QFileInfo(fileimg).absoluteFilePath();
                     if (fileimg.open(QIODevice::ReadOnly))
                     {
                         ba = fileimg.readAll();
                         docmt->setimageblob(ba);
-                        docmt->setimageformat(QFileInfo(fileimg).suffix());
+                        docmt->setimageformat(QFileInfo(fileimg).suffix().toLower());
                         return;
                     }
                 }
@@ -1311,7 +1312,7 @@ void Procedures::CalcImage(Item *item, bool imagerie)
                     {
                         ba = fileimg.readAll();
                         dep->setfactureblob(ba);
-                        dep->setfactureformat(QFileInfo(fileimg).suffix());
+                        dep->setfactureformat(QFileInfo(fileimg).suffix().toLower());
                         return;
                     }
                 }
@@ -9380,6 +9381,14 @@ CL 5.0045.00 89 4.0040.00 75 4.50- 0.25
 
 void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 {
+    Logs::LogToFile("MesuresAutoref.txt", docxml.toByteArray());
+    QString nameARK = m_settings->value(Param_Poste_Autoref).toString();
+    if (nameARK == "HUVITZ HTR-1A")
+        return;
+    if (nameARK == "NIKON Speedy-K")
+        nameARK = "HUVITZ HTR-1A";
+    bool autorefhastonopachy = false;
+
     /*! exemple de fichier xml pour un ARK-1s
      *
      *
@@ -9539,9 +9548,6 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
 </Data>
 
 */
-    Logs::LogToFile("MesuresAutoref.txt", docxml.toByteArray());
-    QString nameARK = m_settings->value(Param_Poste_Autoref).toString();
-    bool autorefhastonopachy = false;
     if (nameARK =="NIDEK ARK-1A"
      || nameARK =="NIDEK ARK-1"
      || nameARK =="NIDEK ARK-1S"
