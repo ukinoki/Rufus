@@ -318,13 +318,17 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
-        //! 37214_0D_20200522_1848188838.01.e.jpg
-        if (nomfiledoc.split("_").size()>2)
-            datestring = nomfiledoc.split("_").at(2);
+        //! ALI BACAR- Noeline -P2077839101-_OD.jpg
+        datestring = QDate::currentDate().toString("yyyyMMdd");
         Titredoc    = "RNM - Retina 550";
         Typedoc     = "RNM";
+        QString cote ("");
+        if (nomfiledoc.split("_").size()>0)
+            cote = nomfiledoc.split("_").at(1);
+        cote = (cote=="OD")? tr("OD") : tr("OG");
         SousTypeDoc = "Retina 550";
-    }
+        if (cote != "")
+            SousTypeDoc += " " + cote;    }
 
     if (!QDate().fromString(datestring,"yyyyMMdd").isValid())
     {
@@ -410,10 +414,10 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         QString jour    = Utils::capitilize(listn.at(2));
         QString mois    = Utils::capitilize(listn.at(3));
         QString annee   = Utils::capitilize(listn.at(4));
-        req             = "select idpat from " TBL_PATIENTS
-                " where patnom like '" + nom + "'"
-                                               " and patprenom like '" + prenom  + "'"
-                                                                                   " and patDDN = '" + annee + "-" + mois + "-" + jour + "'";
+        req             = "select " CP_IDPAT_PATIENTS " from " TBL_PATIENTS
+                        " where " CP_NOM_PATIENTS " like '" + nom + "'"
+                        " and " CP_PRENOM_USR " like '" + prenom  + "'"
+                        " and " CP_DDN_PATIENTS " = '" + annee + "-" + mois + "-" + jour + "'";
         //qDebug() << req;
         QVariantList patlst = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok || patlst.size()==0)
@@ -482,7 +486,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
-        //! 37214_0D_20200522_1848188838.01.e.jpg
+        //! ALI BACAR- Noeline -P2077839101-_OD.jpg
         idPatient           = nomfiledoc.split("_").at(1);
     }
 
@@ -501,7 +505,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         return;
     }
     QString identpat;
-    QVariantList patlst = db->getFirstRecordFromStandardSelectSQL("select patnom, patprenom from " TBL_PATIENTS " where idpat = " + idPatient, m_ok);
+    QVariantList patlst = db->getFirstRecordFromStandardSelectSQL("select " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS " from " TBL_PATIENTS " where " CP_IDPAT_PACHY " = " + idPatient, m_ok);
     if (!m_ok || patlst.size()==0)
     {
         commentechec =  tr("Pas de patient pour cet idPatient") + " -> " + idPatient;

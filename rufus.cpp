@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-01-2024/1");
+    qApp->setApplicationVersion("27-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -428,23 +428,25 @@ void Rufus::ConnectSignals()
 void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 {
     //! si la fiche est déjà ouverte, on quitte
-    if (docs->patient() == currentpatient())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+    if (docs->patient()->id() == currentpatient()->id())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
     {
         QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
         bool founddlg = false;
         if (ListDialogDocs.size()>0)
             for (int i=0; i< ListDialogDocs.size();++i)
             {
-                if (ListDialogDocs.at(i)->currentpatient() == currentpatient())
+                if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
                 {
-                    ListDialogDocs.at(i)->setVisible(true);
-                    founddlg = true;
+                    if (docs->docsexternes()->size()==0)
+                        ListDialogDocs.at(i)->close();
+                    else
+                    {
+                        ListDialogDocs.at(i)->setVisible(true);
+                        founddlg = true;
+                    }
                 }
                 else
-                {
                     ListDialogDocs.at(i)->close();
-                    delete ListDialogDocs.at(i);
-                }
             }
         if (founddlg)
             return;
@@ -3431,34 +3433,41 @@ void Rufus::MenuContextuelListePatients()
     if (pat == Q_NULLPTR)
         return;
     int idpat = pat->id();
+    bool iscurrentpatient =  false;
+    if (currentpatient() != Q_NULLPTR)
+        if (pat->id() == currentpatient()->id())
+            iscurrentpatient = true;
 
     m_menuContextuel = new QMenu(this);
+    if (!iscurrentpatient)
+    {
+        QAction *pAction_MettreEnSalDat = m_menuContextuel->addAction(tr("Inscrire ce patient en salle d'attente"));
+        connect (pAction_MettreEnSalDat,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "SalDat");});
+        QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
+        connect (pAction_ModifierDossier,       &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Modifier");});
 
-    QAction *pAction_MettreEnSalDat = m_menuContextuel->addAction(tr("Inscrire ce patient en salle d'attente"));
-    connect (pAction_MettreEnSalDat,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "SalDat");});
+        QAction *pAction_Copier = m_menuContextuel->addAction(tr("Créer un dossier de la même famille"));
+        connect (pAction_Copier,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Copie");});
 
-    QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
-    connect (pAction_ModifierDossier,       &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Modifier");});
-
-    QAction *pAction_Copier = m_menuContextuel->addAction(tr("Créer un dossier de la même famille"));
-    connect (pAction_Copier,                &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Copie");});
-
-    if( currentuser()->isSoignant() )
+    }
+    if( currentuser()->isSoignant() && !iscurrentpatient)
     {
         QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
         connect (pAction_ReprendreDossier,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Autre Dossier");});
-    }
-    if( (currentuser()->isSoignant() || currentuser()->isSecretaire()) && Datas::I()->users->medecins()->size() > 0 )    {
         QAction *pAction_PrgIntervention = m_menuContextuel->addAction(tr("Programmer une intervention"));
         connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Intervention");});
     }
-    QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-    connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
+    if (!iscurrentpatient)
+    {
+        QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
+        connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
 
-    QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
-    if (db->StandardSelectSQL(req,m_ok).size() > 0){
-        QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
-        connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
+        QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
+        if (db->StandardSelectSQL(req,m_ok).size() > 0)
+        {
+            QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
+            connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
+        }
     }
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
     connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "EnregDocScan");});
@@ -3514,7 +3523,8 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
     else if (choix == "ImprimeAncienDoc") {
         DocsExternes *docs = new DocsExternes;
         docs->initListeByPatient(dossierpatientaouvrir());
-        OuvrirDocsExternes(docs);                                                                   //! depuis menu contextuel ListePatients
+        if (docs->docsexternes()->size() > 0)
+            OuvrirDocsExternes(docs);                                                               //! depuis menu contextuel ListePatients
         ItemsList::clearAll(docs->docsexternes());
         delete docs;
     }
@@ -5971,7 +5981,8 @@ void Rufus::ActualiseDocsExternes()
     if (currentpatient() != Q_NULLPTR)
     {
         docs->initListeByPatient(currentpatient());
-        OuvrirDocsExternes(docs);
+        if (docs->docsexternes()->size() > 0)
+            OuvrirDocsExternes(docs);
     }
 }
 
@@ -6711,7 +6722,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
 
     DocsExternes *docs = Datas::I()->docsexternes;
     docs->initListeByPatient(currentpatient());
-    FermeDlgActesPrecedentsEtDocsExternes();
+    if (docs->docsexternes()->size() > 0)
+        FermeDlgActesPrecedentsEtDocsExternes();
 
     //3 - récupération des actes
 
@@ -7773,7 +7785,6 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
             if (ListDialogDocs.at(n)->mode() == dlg_docsexternes::Normal)
                 proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
-        delete ListDialogDocs.at(n);
     }
     if (currentpatient() != Q_NULLPTR)
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());

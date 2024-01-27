@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
 {
-    map_docsexternes      = new QMap<int, DocExterne*>();
+    map_docsexternes    = new QMap<int, DocExterne*>();
     m_nouveaudocument   = false;
     m_patient           = Q_NULLPTR;
 }
