@@ -2928,7 +2928,7 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
     if (Versionencours > Version)
     {
         QString text = QObject::tr("Vous utilisez sur ce poste une version de Rufus prévue pour la version") + " " + QString::number(Version) + " " + QObject::tr("de la base de données");
-        text += "<br/>" + QObject::tr("Cette version est peut-être incompatible avec la version") + " " + QString::number(Versionencours) + " " + tr("actuellement installée");
+        text += "<br/>" + QObject::tr("Cette version est peut-être incompatible avec la version") + " " + QString::number(Versionencours) + " " + tr("actuellement installée sur ce poste");
         text += "<br/>" + QObject::tr("Il est fortement conseillé de faire une mise à jour de Rufus");
         text += "<br/>" + QObject::tr("pour éviter des dysfonctionnements ou une altération votre base de données Rufus");
         text += "<br/>" + QObject::tr("Vous pouvez télécharger la dernière version sur la page Téléchargements du site") + " <a href=\"https://www.rufusvision.org\">www.rufusvision.org</a>";

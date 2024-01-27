@@ -7896,7 +7896,10 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
 {
     QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     for (int n = 0; n <  ListDialog.size(); n++)
+    {
         ListDialog.at(n)->close();
+        delete ListDialog.at(n);
+    }
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     for (int n = 0; n < ListDialogDocs.size(); n++)
     {
