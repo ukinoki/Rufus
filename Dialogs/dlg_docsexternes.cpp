@@ -21,7 +21,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 {
     m_docsexternes  = Docs;
 
-    setAttribute(Qt::WA_ShowWithoutActivating);
+    setAttribute(Qt::WA_ShowWithoutActivating, true);
+    setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
 
     installEventFilter(this);
@@ -1039,17 +1040,22 @@ void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
         if (docmt->idrefraction() > 0)
             Datas::I()->refractions->SupprimeRefraction(Datas::I()->refractions->getById(docmt->idrefraction()));
         m_docsexternes->SupprimeDocumentExterne(docmt);
-        RemplirTreeView();
-        wdg_listdocstreewiew->expandAll();
-        if (idaafficher != "")
+        if(m_docsexternes->docsexternes()->size() > 0)
         {
-            QModelIndex idx = getIndexFromId(m_model, idaafficher.toInt());
-            if (idx.isValid())
+            RemplirTreeView();
+            wdg_listdocstreewiew->expandAll();
+            if (idaafficher != "")
             {
-                wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-                wdg_listdocstreewiew->setCurrentIndex(idx);
+                QModelIndex idx = getIndexFromId(m_model, idaafficher.toInt());
+                if (idx.isValid())
+                {
+                    wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+                    wdg_listdocstreewiew->setCurrentIndex(idx);
+                }
             }
         }
+        else
+            close();
     }
 }
 
