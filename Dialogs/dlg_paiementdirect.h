@@ -45,6 +45,7 @@ public:
     enum Mode               {Accueil, EnregistrePaiement, VoirListeActes};   Q_ENUM(Mode)
     enum OrdreTri           {Alphabetique, Chronologique};                   Q_ENUM(OrdreTri)
     enum TypeTable          {ActesDirects,ActesTiers,Paiements};             Q_ENUM(TypeTable)                    // définit les 3 types de tables possibles dans la fiche
+    enum ModeTable          {Acts,Payment};                                  Q_ENUM(ModeTable)                    // définit les 2 modes de tables possibles dans la fiche
     enum ResultEnregRecette {Impossible, Annul, OK};                         Q_ENUM(ResultEnregRecette)
 
 private:
@@ -99,14 +100,14 @@ private:
     void                        RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
     void                        RegleComptesComboBox(bool avecLesComptesInactifs = false);
     void                        RemetToutAZero();
-    void                        RemplirTableWidget(QTableWidget *TableARemplir, QString TypeTable, QList<QVariantList> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
+    void                        RemplirTableWidget(QTableWidget *TableARemplir, ModeTable modetable, QList<QVariantList> Tablelist, bool AvecUpcheckBox, Qt::CheckState CheckedOuPas);
     void                        RemplitLesTables(bool &ok);
     void                        ResizePaiementGroupBox();
     void                        RetireVerrouCompta(int ActeADeverrouiller);
     void                        TrieListe(UpTableWidget *TableATrier);
     bool                        VerifCoherencePaiement();
-    bool                        VerifVerrouCompta(UpTableWidget *TableAVerifier, int Rangee);
-    void                        VideDetailsTable(int Rangee);
+    bool                        isActeLocked(int idacte);
+    void                        VideDetailsTable(int lign);
     void                        Annuler();
 
     void                        AfficheActeVerrouille();
@@ -124,7 +125,7 @@ private:
     void                        Majuscule();
     void                        ModifGratuit(QPoint pos);
     void                        ModifiePaiement();
-    void                        RegleAffichageFiche();
+    void                        RegleAffichageFiche(bool filtre = true);
     void                        RegleAffichageTypePaiementframeDepuisBouton();
     void                        RenvoieRangee(bool Coche = true);
     void                        SupprimerPaiement();

@@ -57,7 +57,7 @@ void DocExterne::setimportance(int imptce)          { m_importance = imptce;
                                                       m_data[CP_IMPORTANCE_DOCSEXTERNES] = imptce; }
 void DocExterne::setAllLoaded(bool AllLoaded)       { m_isAllLoaded = AllLoaded;
                                                       m_data[CP_ISALLLOADED] = AllLoaded; }
-void DocExterne::setimageformat(QString format)     { m_formatimage = format; }
+void DocExterne::setimageformat(QString format)     { m_formatimage = format.toLower(); }
 
 void DocExterne::setData(QJsonObject data)
 {

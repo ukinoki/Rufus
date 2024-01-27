@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-01-2024/1");
+    qApp->setApplicationVersion("26-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -7795,7 +7795,7 @@ void Rufus::ExporteActe(Acte *act)
                 {
                     QString fileorigin = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
                     QFile origin(fileorigin);
-                    Utils::copyWithPermissions(origin, nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix());
+                    Utils::copyWithPermissions(origin, nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix().toLower());
                 }
                 else
                 {

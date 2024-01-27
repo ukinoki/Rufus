@@ -626,7 +626,7 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
     if (dialog.exec() == QDialog::Accepted)
     {
         QDir dockdir = dialog.directory();
-        img.copy(dockdir.path() + "/" + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix());
+        img.copy(dockdir.path() + "/" + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix().toLower());
     }
 }
 

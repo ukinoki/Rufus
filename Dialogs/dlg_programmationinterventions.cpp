@@ -603,7 +603,6 @@ void dlg_programmationinterventions::ImprimeSession()
 //    //création de l'entête
     QString EnTete;
     User *userEntete = Datas::I()->users->getById(iduser);
-    qDebug() << userEntete->login();
     if(userEntete == Q_NULLPTR)
         return;
     EnTete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");

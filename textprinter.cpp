@@ -170,7 +170,7 @@ void TextPrinter::exportPdf(const QTextDocument *document, const QString &captio
     else
         exportname = QFileDialog::getSaveFileName(parent_, dialogcaption, filename, "*.pdf");
     if (exportname.isEmpty()) return;
-    if (QFileInfo(exportname).suffix().isEmpty())
+    if (QFileInfo(exportname).suffix().toLower().isEmpty())
         exportname.append(".pdf");
 
     QByteArray ba = getPDFByteArray(document);
