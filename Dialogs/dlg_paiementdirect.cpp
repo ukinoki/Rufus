@@ -142,14 +142,14 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     /*! seuls les administratifs peuvent changer d'user comptable */
     ui->ComptablescomboBox->setEnabled(Datas::I()->users->getById(currentuser()->idcomptableactes()) == Q_NULLPTR && map_comptables->size()>1);
 
-    // On reconstruit le combobox des utilisateurs avec la liste des comptables
+    //! On reconstruit le combobox des utilisateurs avec la liste des comptables
     for (auto it = map_comptables->constBegin(); it != map_comptables->constEnd(); ++it)
     {
         User* usr = const_cast<User*>(it.value());
         ui->ComptablescomboBox->addItem(usr->login(), QString::number(usr->id()) );
     }
-    // on cherche le comptable à créditer
-    if (m_listidactes.size() > 0)                     // il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement dans rufus.cpp
+    //! on cherche le comptable à créditer
+    if (m_listidactes.size() > 0)                     //! il y a un ou pusieurs actes à enregistrer - l'appel a été fait depuis l'accueil ou par le bouton enregistrepaiement dans rufus.cpp
     {
         Acte *act = Datas::I()->actes->getById(m_listidactes.at(0));
         if (act != Q_NULLPTR)
@@ -159,7 +159,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
         m_useracrediter = map_comptables->cbegin().value();
     else
         {
-        if (currentuser()->idcomptableactes() == User::ROLE_INDETERMINE)
+        if (Datas::I()->users->getById(currentuser()->idcomptableactes()) == Q_NULLPTR)
             m_useracrediter = map_comptables->cbegin().value();
         else
             m_useracrediter = Datas::I()->users->getById(currentuser()->idcomptableactes());
@@ -1199,7 +1199,7 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
                     {
                         UpTableWidget *TableAVerifier = qobject_cast<UpTableWidget*>(CheckBox->parent()->parent());
                         if (!isActLocked(TableAVerifier->item(CheckBox->rowTable(),0)->text().toInt()))
-                            return false;
+                            return true;
                     }
                     CheckBox->setChecked(!CheckBox->isChecked());
                     emit CheckBox->uptoggled(CheckBox->isChecked());
