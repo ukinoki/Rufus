@@ -319,12 +319,17 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
-        //! 37214_0D_20200522_1848188838.01.e.jpg
-        if (nomfiledoc.split("_").size()>2)
-            datestring = nomfiledoc.split("_").at(2);
+        //! ALI BACAR- Noeline -P2077839101-_OD.jpg
+            datestring = QDate::currentDate().toString("yyyyMMdd");
         Titredoc    = "RNM - Retina 550";
         Typedoc     = "RNM";
+        QString cote ("");
+        if (nomfiledoc.split("_").size()>0)
+            cote = nomfiledoc.split("_").at(1);
+        cote = (cote=="OD")? tr("OD") : tr("OG");
         SousTypeDoc = "Retina 550";
+        if (cote != "")
+            SousTypeDoc += " " + cote;
     }
 
     if (!QDate().fromString(datestring,"yyyyMMdd").isValid())
@@ -484,7 +489,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
-        //! 37214_0D_20200522_1848188838.01.e.jpg
+        //! ALI BACAR- Noeline -P2077839101-_OD.jpg
         idPatient           = nomfiledoc.split("_").at(1);
     }
 
