@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStackedWidget>
 #include <QSystemTrayIcon>
 #include <QPdfDocument>
+#include <QMovie>
 
 //#include <poppler-qt6.h>
 

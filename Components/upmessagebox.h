@@ -39,24 +39,28 @@ public:
     static UpSmallButton::StyleBouton   Watch(QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK, QString link = "");
     static UpSmallButton::StyleBouton   Question(QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList titresboutonslist = QStringList());
     enum                                Icon   {Quest, Info, Warning, Critical, Print}; Q_ENUM(Icon)
+    enum                                Movie   {QuestionGif, InfoGif, WarningGif}; Q_ENUM(Movie)
     void                                addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton);
     void                                addButton(UpPushButton *button);
     void                                removeButton(UpSmallButton *);
     UpSmallButton*                      clickedButton() const;
     UpPushButton*                       clickedpushbutton() const;
-    void                                setIcon(enum Icon icn);
+    void                                setIcon(enum Icon icn, bool animatedIcon = true);
     void                                setIconPixmap(QPixmap);
     void                                setText(QString);
     void                                setInformativeText(QString);
     void                                setDefaultButton(QPushButton*);
+
 private:
     static UpSmallButton::StyleBouton   ExecMsgBox(UpMessageBox*msgbox);
     UpLabel         *wdg_iconlbl, *wdg_texteditlbl, *wdg_infolbl;
     QHBoxLayout     *wdg_infolayout;
     QVBoxLayout     *wdg_textlayout;
+    QMovie          *m_movie;
     UpSmallButton   *wdg_ReponsSmallButton;
     UpPushButton    *wdg_ReponsPushButton;
     void            Repons(QPushButton *butt);
+    void            setAnimatedIcon(Movie movie);
 };
 
 #endif // UPMESSAGEBOX_H

@@ -7924,6 +7924,7 @@ bool Rufus::FermeDossier(Patient *patient)
     UpMessageBox msgbox(this);
     msgbox.setInformativeText(tr("Garder le dossier en salle d'attente?"));
     msgbox.setText(tr("Fermeture du dossier de ") + patient->nom() + " " + patient->prenom());
+
     msgbox.setIcon(UpMessageBox::Quest);
 
     UpSmallButton SalDatBouton     (tr("Garder le dossier\nen salle d'attente"));
