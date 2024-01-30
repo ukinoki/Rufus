@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-01-2024/1");
+    qApp->setApplicationVersion("31-01-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -425,30 +425,33 @@ void Rufus::ConnectSignals()
 
 void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 {
-    //! si la fiche est déjà ouverte, on quitte
-    if (docs->patient()->id() == currentpatient()->id())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
-    {
-        QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
-        bool founddlg = false;
-        if (ListDialogDocs.size()>0)
-            for (int i=0; i< ListDialogDocs.size();++i)
-            {
-                if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
-                {
-                    if (docs->docsexternes()->size()==0)
-                        ListDialogDocs.at(i)->close();
-                    else
-                    {
-                        ListDialogDocs.at(i)->setVisible(true);
-                        founddlg = true;
-                    }
-                }
-                else
-                    ListDialogDocs.at(i)->close();
-            }
-        if (founddlg)
-            return;
-    }
+    if (docs == Q_NULLPTR)
+         return;
+     //! si la fiche est déjà ouverte, on quitte
+     if (currentpatient() != Q_NULLPTR)
+         if (docs->patient()->id() == currentpatient()->id())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+         {
+             QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+             bool founddlg = false;
+             if (ListDialogDocs.size()>0)
+                 for (int i=0; i< ListDialogDocs.size();++i)
+                 {
+                     if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
+                     {
+                         if (docs->docsexternes()->size()==0)
+                             ListDialogDocs.at(i)->close();
+                         else
+                         {
+                             ListDialogDocs.at(i)->setVisible(true);
+                             founddlg = true;
+                         }
+                     }
+                     else
+                         ListDialogDocs.at(i)->close();
+                 }
+             if (founddlg)
+                 return;
+         }
     if (docs->docsexternes()->size()>0)
     {
         dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP, this);
@@ -2955,7 +2958,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
         return false;
     if (Datas::I()->patientsencours->patientsencours()->constFind(pat->id()) != Datas::I()->patientsencours->patientsencours()->constEnd())
     {
-        UpMessageBox::Watch(this, tr("Patient déjà inscrit en salle d'attente"));
+        UpMessageBox::Information(this, tr("Patient déjà inscrit en salle d'attente"));
         return false;
     }
     else
