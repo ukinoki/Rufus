@@ -93,27 +93,69 @@ UpPushButton* UpMessageBox::clickedpushbutton() const
     return wdg_ReponsPushButton;
 }
 
-void UpMessageBox::setIcon(enum Icon icn)
+void UpMessageBox::setIcon(enum Icon icn, bool animatedIcon)
 {
+    bool resize = true;
     switch (icn) {
     case Warning:
-        wdg_iconlbl     ->setPixmap(QPixmap("://damn-icon.png").scaled(80,80));
+        if (animatedIcon)
+        {
+            setAnimatedIcon(WarningGif);
+            resize = false;
+        }
+        else
+            wdg_iconlbl     ->setPixmap(QPixmap("://damn-icon.png").scaled(80,80));
         break;
     case Quest:
-        wdg_iconlbl     ->setPixmap(QPixmap("://question.png").scaled(80,80));
+        if (animatedIcon)
+        {
+            setAnimatedIcon(QuestionGif);
+            resize = false;
+        }
+        else
+            wdg_iconlbl ->setPixmap(QPixmap("://question.png").scaled(80,80));
         break;
     case Info:
-        wdg_iconlbl     ->setPixmap(QPixmap("://information.png").scaled(80,80));
+        if (animatedIcon)
+        {
+            setAnimatedIcon(InfoGif);
+            resize = false;
+        }
+        else
+            wdg_iconlbl     ->setPixmap(QPixmap("://information.png").scaled(80,80));
         break;
     case Critical:
         wdg_iconlbl     ->setPixmap(QPixmap("://cancel.png").scaled(80,80));
-        break;
-    case Print:
         wdg_iconlbl     ->setPixmap(QPixmap("://11865.png").scaled(80,80));
         break;
+    default:
+        break;
     }
+    if (!resize)
+        return;
     wdg_iconlbl     ->setFixedSize(80,80);
+    wdg_infolayout  ->insertWidget(0,wdg_iconlbl);}
+
+void UpMessageBox::setAnimatedIcon(enum Movie movie)
+{
+    switch (movie) {
+    case WarningGif:
+        m_movie         = new QMovie(":/warning.gif");
+        m_movie         ->setScaledSize(QSize(80,80));
+        break;
+    case InfoGif:
+        m_movie         = new QMovie(":/info.gif");
+        m_movie         ->setScaledSize(QSize(80,80));
+        break;
+    case QuestionGif:
+        m_movie         = new QMovie(":/question.gif");
+        m_movie         ->setScaledSize(QSize(100,100));
+        m_movie         ->setSpeed(400);
+        break;
+    }
+    wdg_iconlbl     ->setMovie(m_movie);
     wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
+    m_movie         ->start();
 }
 
 void UpMessageBox::setIconPixmap(QPixmap pix)
@@ -180,11 +222,7 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QString link)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
-    QMovie movie(":/giphy-2.gif");
-    movie.setScaledSize(QSize(80,80));
-    msgbox->wdg_iconlbl     ->setMovie (&movie);
-    msgbox->wdg_infolayout  ->insertWidget(0,msgbox->wdg_iconlbl);
-    movie.start ();
+    msgbox->setIcon(Warning);
     msgbox  ->setText(Text);
     UpTextEdit text(InfoText.replace("\n","<br>"));
     msgbox  ->setInformativeText(text.toHtml());
@@ -225,12 +263,7 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
 UpSmallButton::StyleBouton UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList titresboutonslist)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
-    QMovie movie(":/question.gif");
-    movie.setScaledSize(QSize(100,100));
-    movie.setSpeed(400);
-    msgbox->wdg_iconlbl     ->setMovie (&movie);
-    msgbox->wdg_infolayout  ->insertWidget(0,msgbox->wdg_iconlbl);
-    movie.start ();
+    msgbox->setIcon(Quest);
     msgbox  ->setText(Text);
     msgbox  ->setInformativeText(InfoText);
     msgbox  ->AjouteLayButtons(Butts);

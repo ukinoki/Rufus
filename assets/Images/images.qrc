@@ -194,7 +194,8 @@
         <file>Notepad.png</file>
         <file>icon.ico</file>
         <file>nature.png</file>
-        <file>giphy-2.gif</file>
         <file>question.gif</file>
+        <file>warning.gif</file>
+        <file>info.gif</file>
     </qresource>
 </RCC>

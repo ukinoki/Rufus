@@ -2879,7 +2879,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
         return false;
     if (Datas::I()->patientsencours->patientsencours()->constFind(pat->id()) != Datas::I()->patientsencours->patientsencours()->constEnd())
     {
-        UpMessageBox::Watch(this, tr("Patient déjà inscrit en salle d'attente"));
+        UpMessageBox::Information(this, tr("Patient déjà inscrit en salle d'attente"));
         return false;
     }
     else

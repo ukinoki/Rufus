@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileSystemWatcher>
 #include <QtGlobal>
 #include <QMainWindow>
+#include <QMovie>
 #include <QMenuBar>
 #include <QNetworkAccessManager>
 #include <QStackedWidget>
