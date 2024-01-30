@@ -75,7 +75,6 @@ dlg_actesprecedents::~dlg_actesprecedents()
 {
     if (!m_iscurrentpatient)
     {
-        delete m_currentpatient;
         ItemsList::clearAll(m_listepaiements->lignespaiements());
         delete m_listepaiements;
     }
