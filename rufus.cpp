@@ -3457,6 +3457,9 @@ void Rufus::MenuContextuelListePatients()
     {
         QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
         connect (pAction_ReprendreDossier,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Autre Dossier");});
+    }
+    if(currentuser()->isSecretaire() || (currentuser()->isSoignant() && !iscurrentpatient))
+    {
         QAction *pAction_PrgIntervention = m_menuContextuel->addAction(tr("Programmer une intervention"));
         connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Intervention");});
     }

@@ -59,6 +59,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     QString SousTypeDoc = Titredoc;
     QString Appareil    = appareil->nomappareil();
     QString CheminFichierImage = NomDirDoc + "/" + nomfiledoc;
+    qDebug() << CheminFichierImage;
     QFile   jnaltrsferfile(m_pathdirOKtransfer + "/0JournalTransferts - " + m_datetransfer + ".txt");
     if (jnaltrsferfile.open(QIODevice::Append))
     {
@@ -318,7 +319,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
-        //! ALI BACAR- Noeline -P2077839101-_OD.jpg
+        //! ALI BACAR Noeline-id-P2077839101-_OD.jpg
         datestring = QDate::currentDate().toString("yyyyMMdd");
         Titredoc    = "RNM - Retina 550";
         Typedoc     = "RNM";
@@ -486,8 +487,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
-        //! ALI BACAR- Noeline -P2077839101-_OD.jpg
-        idPatient           = nomfiledoc.split("_").at(1);
+        //! ALI BACAR Noeline-id-P2077839101-_OD.jpg
+        idPatient           = nomfiledoc.split("-").at(1);
     }
 
 
