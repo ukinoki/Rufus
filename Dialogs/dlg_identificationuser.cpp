@@ -121,7 +121,7 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
     QString error = "";
-    error = db->connectToDataBase(DB_CONSULTS);
+    error = db->connectToDataBase(DB_RUFUS);
 
     if( error.size() )
     {
@@ -137,7 +137,7 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
 
     ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
-    req = "SHOW TABLES FROM " DB_CONSULTS " LIKE '%tilisateurs%'";
+    req = "SHOW TABLES FROM " DB_RUFUS " LIKE '%tilisateurs%'";
     QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
     if (tablist.size()<2)
     {

@@ -26,7 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // Les bases
 #define DB_CCAM                               "CCAM"
-#define DB_CONSULTS                           "rufus"
+#define DB_RUFUS                           "rufus"
 #define DB_COMPTA                             "ComptaMedicale"
 #define DB_OPHTA                              "Ophtalmologie"
 #define DB_IMAGES                             "Images"
@@ -811,7 +811,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define LOGIN_SQL                                   "adminrufus"
 #define MDP_SQL                                     "gaxt78iy"
 
-#define NOM_POSTEIMPORTDOCS                         "posteimportdocs"
+#define MYSQL_PROC_POSTEIMPORTDOCS                  "posteimportdocs"
 
 #define NOM_ADMINISTRATEUR                          "Admin"
 #define MDP_ADMINISTRATEUR                          "bob"

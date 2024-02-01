@@ -18,7 +18,7 @@ public:
     ~OsTask()
     {
         if (!isFinished()) {
-            qDebug() << "Waiting for Controller to finish...";
+            //qDebug() << "Waiting for Controller to finish...";
             waitForFinished(-1);
         }
     }
@@ -31,7 +31,7 @@ public:
     void execute(const QString &script)
     {
         if (!isFinished()) {
-            qDebug() << "Waiting for Controller to finish...";
+            //qDebug() << "Waiting for Controller to finish...";
             waitForFinished(-1);
         }
 

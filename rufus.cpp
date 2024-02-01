@@ -5869,7 +5869,7 @@ void Rufus::VerifLastVersion()
             text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site") + " <a href=\'https://www.rufusvision.org\'>www.rufusvision.org</a>";
             UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
         }
-        qDebug() << "OS = " << m_os;
+        //qDebug() << "OS = " << m_os;
     };
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
