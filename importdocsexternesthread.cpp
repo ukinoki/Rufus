@@ -175,6 +175,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         SousTypeDoc = "Canon " + typeexam + " " + cote;
         if (typeexam == "Disc3D")   typeexam = "Glaucome";
         datetimecreation = datestring + "-" + nomfiledoc.split("_").at(2);
+        QStringList filters;
+        filters << "*.exd";
+        QStringList filesnames;
+        filesnames = QDir(NomDirDoc).entryList(filters, QDir::Files);
+        for (int j=0 ; j < filesnames.size(); j++)
+        {
+            QFile exdfile(NomDirDoc + "/" + filesnames.at(j));
+            Utils::removeWithoutPermissions(exdfile);
+        }
     }
     else if (Appareil == "NIDEK-RNM")
     {

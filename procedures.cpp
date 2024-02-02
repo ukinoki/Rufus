@@ -550,7 +550,7 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
     scriptbackup += CRLF;
     // élaboration du script de backup
     // Sauvegarde des 4 bases de Rufus
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_CONSULTS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_CONSULTS ".sql") + "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
     scriptbackup += CRLF;
     scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
     scriptbackup += CRLF;
@@ -2063,10 +2063,10 @@ void Procedures::setPosteImportDocs(bool a)
     * si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
     * si a = false, on retire le poste en cours et on met NULL à la place. */
 
-    QString req = "USE `" DB_CONSULTS "`;";
+    QString req = "USE `" DB_RUFUS "`;";
     db->StandardSQL(req);
 
-    req = "DROP PROCEDURE IF EXISTS " NOM_POSTEIMPORTDOCS ";";
+    req = "DROP PROCEDURE IF EXISTS " MYSQL_PROC_POSTEIMPORTDOCS ";";
     db->StandardSQL(req);
 
     QString IpAdress("NULL");
@@ -2077,7 +2077,7 @@ void Procedures::setPosteImportDocs(bool a)
         else
             IpAdress = QHostInfo::localHostName();
     }
-    req = "CREATE PROCEDURE " NOM_POSTEIMPORTDOCS "()\n\
+    req = "CREATE PROCEDURE " MYSQL_PROC_POSTEIMPORTDOCS "()\n\
           BEGIN\n\
           SELECT '" + IpAdress + "';\n\
           END ;";
@@ -2085,14 +2085,31 @@ void Procedures::setPosteImportDocs(bool a)
 }
 
 QString Procedures::PosteImportDocs()
-{   QString rep = "";
-    QString req = "SELECT name FROM mysql.proc p WHERE db = '" DB_CONSULTS "' AND name = '" NOM_POSTEIMPORTDOCS "'";
+{
+    QString rep = "";
+    QString req = "";
+    bool isMysql8 = false;
+    if (db->version().split(".").size() > 0)
+        isMysql8 = (db->version().split(".").at(0).toInt() == 8);
+    //qDebug() << "Mysql = " << db->version() << " - Mysql version = " << db->version().split(".").at(0).toInt();
+
+    /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
+    * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
+    * if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
+
+    * si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
+    * si a = false, on retire le poste en cours et on met NULL à la place. */
+
+    if (isMysql8)
+        req = "SELECT ROUTINE_SCHEMA, ROUTINE_NAME FROM information_schema.routines WHERE ROUTINE_SCHEMA = '" DB_RUFUS "' AND ROUTINE_NAME = '" MYSQL_PROC_POSTEIMPORTDOCS "'";
+    else
+        req = "SELECT name FROM mysql.proc p WHERE db = '" DB_RUFUS "' AND name = '" MYSQL_PROC_POSTEIMPORTDOCS "'";
+
     QVariantList imptdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
     if (m_ok && imptdata.size()>0)
     {
-        req = "CALL " DB_CONSULTS "." NOM_POSTEIMPORTDOCS;
+        req = "CALL " DB_RUFUS "." MYSQL_PROC_POSTEIMPORTDOCS;
         QVariantList calldata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-        //qDebug() << "nbre reponses = " + QString::number(calldata.size()) << NOM_POSTEIMPORTDOCS " = " + calldata.at(0).toString();
         if (m_ok && calldata.size()>0)
             rep = calldata.at(0).toString();
     }
@@ -2168,7 +2185,7 @@ qint64 Procedures::CalcBaseSize()
     QString req = "SELECT SUM(SizeMB) from "
                       "(SELECT table_schema, round(sum(data_length+index_length)/1024/1024,4) AS SizeMB FROM information_schema.tables"
                       " where table_schema = '" DB_COMPTA "'"
-                      " or table_schema = '" DB_CONSULTS "'"
+                      " or table_schema = '" DB_RUFUS "'"
                       " or table_schema = '" DB_OPHTA "'"
                       " GROUP BY table_schema)"
                       " as bdd";

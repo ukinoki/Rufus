@@ -202,7 +202,7 @@ bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
         Password = MDP_SQL;
     }
     QString error = "";
-    error = DataBase::I()->connectToDataBase(DB_CONSULTS, Login, Password);
+    error = DataBase::I()->connectToDataBase(DB_RUFUS, Login, Password);
 
     if( error.size() )
     {

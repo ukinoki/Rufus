@@ -35,7 +35,7 @@ void conversionbase::conversionbaseophtalogic()
                   " and schema_name <> 'sys'"
                   " and schema_name <> 'performance_schema'"
                   " and schema_name <> '" DB_CCAM
-                  "' and schema_name <> '" DB_CONSULTS
+                  "' and schema_name <> '" DB_RUFUS
                   "' and schema_name <> '" DB_COMPTA
                   "' and schema_name <> '" DB_OPHTA
                   "' and schema_name <> 'Oplus'";
