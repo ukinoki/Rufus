@@ -126,7 +126,7 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
             break;
         }
     if (canremoveverrouactes)
-        DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(post->id()));
+        DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(post->id()));
     if (post->isadmin()) {
         adminset = true;
         if (m_admin != Q_NULLPTR)

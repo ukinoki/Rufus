@@ -750,7 +750,7 @@ void dlg_paiementdirect::ModifiePaiement()
         }
         requete = "SELECT " CP_IDACTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS
                 " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + QString::number(m_idrecette) +
-                " AND " CP_IDACTE_LIGNEPAIEMENT " IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(currentuser()->id()) + ")";
+                " AND " CP_IDACTE_LIGNEPAIEMENT " IN (SELECT " CP_IDACTE_VERROUCOMPTA " FROM " TBL_VERROUCOMPTAACTES " WHERE " CP_POSEPAR_VERROUCOMPTA " != " + QString::number(currentuser()->id()) + ")";
         QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (m_ok && actdata.size() > 0)
         {
@@ -1979,7 +1979,7 @@ void dlg_paiementdirect::ReconstruitListeBanques()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
 {
-    QString verrourequete = "select idActe from " TBL_VERROUCOMPTAACTES " where idActe = " + QString::number(ActeAVerrouiller);
+    QString verrourequete = "select " CP_IDACTE_VERROUCOMPTA "  from " TBL_VERROUCOMPTAACTES " where " CP_IDACTE_VERROUCOMPTA " = " + QString::number(ActeAVerrouiller);
     //qDebug() << verrourequete;
     QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(verrourequete, m_ok);
     if (!m_ok)
@@ -1987,7 +1987,7 @@ void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
     if (actdata.size() == 0)
     {
         QString VerrouilleEnreg= "INSERT INTO " TBL_VERROUCOMPTAACTES
-                " (idActe,DateTimeVerrou, PosePar)"
+                " (" CP_IDACTE_VERROUCOMPTA ", " CP_DATEVERROU_VERROUCOMPTA ", " CP_POSEPAR_VERROUCOMPTA ")"
                 " VALUES ("  + QString::number(ActeAVerrouiller) +
                 ", NOW() ,"  + QString::number(currentuser()->id()) + ")";
         db->StandardSQL(VerrouilleEnreg);
@@ -3250,7 +3250,7 @@ void dlg_paiementdirect::ModifGratuitChoixMenu(QString Choix)
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::NettoieVerrousCompta()
 {
-    db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(currentuser()->id()) + " or PosePar is null");
+    db->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(currentuser()->id()) + " or PosePar is null");
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

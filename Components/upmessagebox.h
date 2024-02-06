@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
 #include <QDesktopServices>
+#include <QMovie>
 #include <QTextEdit>
 #include "macros.h"
 #include "utils.h"
