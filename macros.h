@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // Les bases
 #define DB_CCAM                               "CCAM"
-#define DB_RUFUS                           "rufus"
+#define DB_RUFUS                              "rufus"
 #define DB_COMPTA                             "ComptaMedicale"
 #define DB_OPHTA                              "Ophtalmologie"
 #define DB_IMAGES                             "Images"

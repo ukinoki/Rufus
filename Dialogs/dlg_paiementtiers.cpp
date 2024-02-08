@@ -822,7 +822,7 @@ void dlg_paiementtiers::ValidePaiement()
         }
         requete = "SELECT " CP_IDACTE_LIGNEPAIEMENT " FROM " TBL_LIGNESPAIEMENTS
                 " WHERE " CP_IDRECETTE_LIGNEPAIEMENT " = " + QString::number(m_idrecette) +
-                " AND " CP_IDACTE_LIGNEPAIEMENT " IN (SELECT idActe FROM " TBL_VERROUCOMPTAACTES " WHERE PosePar != " + QString::number(currentuser()->id()) + ")";
+                " AND " CP_IDACTE_LIGNEPAIEMENT " IN (SELECT " CP_IDACTE_VERROUCOMPTA " FROM " TBL_VERROUCOMPTAACTES " WHERE " CP_POSEPAR_VERROUCOMPTA " != " + QString::number(currentuser()->id()) + ")";
         QList<QVariantList> actlist = db->StandardSelectSQL(requete,m_ok);
         if (actlist.size() > 0)
         {
@@ -2075,8 +2075,8 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
         {
             QString ChercheVerrou = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES " ver, " TBL_UTILISATEURS " uti," TBL_ACTES " act"
                     " WHERE act." CP_ID_ACTES " = "  + QString::number(m_listidactes.at(i)) +
-                    " AND ver.idActe = act." CP_ID_ACTES
-                    " AND PosePar = uti." CP_ID_USR ;
+                    " AND ver." CP_IDACTE_VERROUCOMPTA " = act." CP_ID_ACTES
+                    " AND " CP_POSEPAR_VERROUCOMPTA " = uti." CP_ID_USR ;
             //QVariantList usrdata =
                     db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
          }
@@ -2088,7 +2088,7 @@ void dlg_paiementtiers::NettoieVerrousListeActesAAfficher() //TODO pasfini
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::NettoieVerrousCompta()
 {
-    QString NettoieVerrousComptaActesRequete = "delete from " TBL_VERROUCOMPTAACTES " where PosePar = " + QString::number(currentuser()->id()) + " or PosePar is null";
+    QString NettoieVerrousComptaActesRequete = "delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(currentuser()->id()) + " or " CP_POSEPAR_VERROUCOMPTA " is null";
     db->StandardSQL(NettoieVerrousComptaActesRequete);
 }
 
@@ -2097,13 +2097,13 @@ void dlg_paiementtiers::NettoieVerrousCompta()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementtiers::PoseVerrouCompta(int ActeAVerrouiller)
 {
-    QString req = "select idActe from " TBL_VERROUCOMPTAACTES " where idActe = " + QString::number(ActeAVerrouiller);
+    QString req = "select " CP_IDACTE_VERROUCOMPTA " from " TBL_VERROUCOMPTAACTES " where " CP_IDACTE_VERROUCOMPTA " = " + QString::number(ActeAVerrouiller);
     //UpMessageBox::Watch(this,verrourequete);
     QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(req,m_ok);
     if (m_ok && verroudata.size() == 0)
     {
         QString VerrouilleEnreg= "INSERT INTO " TBL_VERROUCOMPTAACTES
-                " (idActe,DateTimeVerrou, PosePar)"
+                " (" CP_IDACTE_VERROUCOMPTA ", " CP_DATEVERROU_VERROUCOMPTA ", " CP_POSEPAR_VERROUCOMPTA ")"
                 " VALUES ("  + QString::number(ActeAVerrouiller) +
                 ", NOW() ,"  + QString::number(currentuser()->id()) + ")";
         db->StandardSQL(VerrouilleEnreg);
@@ -2116,7 +2116,7 @@ void dlg_paiementtiers::PoseVerrouCompta(int ActeAVerrouiller)
 void dlg_paiementtiers::RetireVerrouCompta(int ActeADeverrouiller)
 {
     QString VerrouilleEnreg= "DELETE FROM " TBL_VERROUCOMPTAACTES
-            " WHERE idActe = " + QString::number(ActeADeverrouiller);
+            " WHERE " CP_IDACTE_VERROUCOMPTA " = " + QString::number(ActeADeverrouiller);
     db->StandardSQL(VerrouilleEnreg);
 }
 
@@ -3021,8 +3021,8 @@ bool dlg_paiementtiers::VerifVerrouCompta(QTableWidget *TableAVerifier, int Rang
     if (t_timerafficheacteverrouilleclignotant->isActive())
         return false;
     QString ChercheVerrou = "SELECT " CP_LOGIN_USR " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
-                     " WHERE idActe = "  + TableAVerifier->item(Rangee,0)->text() +
-                     " AND PosePar = " CP_ID_USR ;
+                     " WHERE " CP_IDACTE_VERROUCOMPTA " = "  + TableAVerifier->item(Rangee,0)->text() +
+                     " AND " CP_POSEPAR_VERROUCOMPTA " = " CP_ID_USR ;
     //UpMessageBox::Watch(this,ChercheVerrou);
     QVariantList usrdata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou,m_ok);
     if (m_ok && usrdata.size() > 0)
