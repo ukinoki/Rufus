@@ -44,12 +44,13 @@ class dlg_actesprecedents : public QDialog
 {
     Q_OBJECT
 public:
-    dlg_actesprecedents(Actes *actes, bool AvantDernier = true, QWidget *parent = Q_NULLPTR);
+    dlg_actesprecedents(Patient *pat, QWidget *parent = Q_NULLPTR);
     ~dlg_actesprecedents();
     int                     idcurrentpatient() const;       //!> renvoie à rufus.cpp le patient concerné
     void                    Actualise();
     void                    ActesPrecsAfficheActe(Acte *acte); // Affiche l'acte défini
     Acte*                   currentacte() const;
+    bool                    initOK() { return m_initOK; }
 
 private:
     Ui::dlg_actesprecedents             *ui;
@@ -69,6 +70,7 @@ private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     void                    ActesPrecsAfficheActe();
     bool                    NavigationConsult(ItemsList::POSITION i);
+    bool                    m_initOK = false;
 };
 
 #endif // DLG_ACTESPRECEDENTS_H
