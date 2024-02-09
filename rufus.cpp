@@ -472,7 +472,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
-    QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
+    QList<dlg_actesprecedents *> ListDialog = findChildren<dlg_actesprecedents *>();
     if (currentacte() != Q_NULLPTR)
         for (int n = 0; n < ListDialog.size(); n++)
             if (ListDialog.at(n)->currentacte() == currentacte())
@@ -3576,23 +3576,18 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
         return;
     if (choix == "Autre Dossier")
     {
-        Actes *acts = new Actes;
-        acts->initListeByPatient(dossierpatientaouvrir());
-        if (acts->actes()->size()  == 0)
+        dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(pat, this);
+        if (!Dlg_ActesPrecs->initOK())
         {
             UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + dossierpatientaouvrir()->prenom() + " " + dossierpatientaouvrir()->nom());
+            delete Dlg_ActesPrecs;
             return;
         }
         else
         {
-            dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(acts, false, this);
-            Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + dossierpatientaouvrir()->nom() + " " + dossierpatientaouvrir()->prenom());
-            Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
             delete Dlg_ActesPrecs;
         }
-        ItemsList::clearAll(acts->actes());
-        delete acts;
     }
     else if (choix == "SalDat")
         InscritEnSalDat(dossierpatientaouvrir());                                                   //! depuis menu contextuel ListePatients
@@ -8605,7 +8600,9 @@ bool Rufus::NavigationConsult(ItemsList::POSITION i)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::OuvrirActesPrecedents()
 {
-    dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes, true, this);
+    if (currentpatient() == Q_NULLPTR)
+        return;
+    dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(currentpatient(), this);
     Dlg_ActesPrecs->show();
 }
 

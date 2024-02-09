@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_actesprecedents.h"
 
 //Uniquement consultative, cette fiche ne permet de modifier aucun élément de la base
-dlg_actesprecedents::dlg_actesprecedents(Actes *actes, bool AvantDernier, QWidget *parent) :
+dlg_actesprecedents::dlg_actesprecedents(Patient *pat, QWidget *parent) :
     QDialog(parent),
 
 ui(new Ui::dlg_actesprecedents)
@@ -27,25 +27,41 @@ ui(new Ui::dlg_actesprecedents)
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::WindowCloseButtonHint | Qt::WindowTitleHint);
     setAttribute(Qt::WA_ShowWithoutActivating);
-    m_actes                 = actes;
-    m_idpatient             = m_actes->actes()->last()->idPatient();
-    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
-        if (m_idpatient == Datas::I()->patients->currentpatient()->id())
-        {
-            m_currentpatient        = Datas::I()->patients->currentpatient();
-            m_iscurrentpatient      = true;
-        }
-    if (m_iscurrentpatient)
-        m_listepaiements    = Datas::I()->lignespaiements;
-    else
+    if (pat == Q_NULLPTR)
+        return;
+    m_idpatient = pat->id();
+    m_iscurrentpatient          = (pat == Datas::I()->patients->currentpatient());
+    if (m_iscurrentpatient)                                                 /*! la fiche a été appelée depuis le dossier d'un patient, cas le plus fréquent,
+                                                                               elle affiche tous les actes sauf le dernier */
     {
-        m_currentpatient = Datas::I()->patients->getById(m_idpatient);
-        m_listepaiements    = new LignesPaiements();
-        m_listepaiements    ->initListeByPatient(m_currentpatient);
+        m_actes                 = Datas::I()->actes;
+        m_currentpatient        = Datas::I()->patients->currentpatient();
+        m_listepaiements        = Datas::I()->lignespaiements;
+        m_avantdernieracte      = true;
+        map_actes               = m_actes->actes();
+        m_initOK                = map_actes->size() > 1;
     }
+    else                                                                    /*! la fiche a été appelée depuis le menu contextuel de la liste des patients
+                                                                                elle affiche tous les actes */
+    {
+        m_actes                     = new Actes;
+        m_actes                     ->initListeByPatient(pat);
+        m_currentpatient            = Datas::I()->patients->getById(m_idpatient);
+        m_listepaiements            = new LignesPaiements();
+        m_listepaiements            ->initListeByPatient(m_currentpatient);
+        m_avantdernieracte          = false;
+        map_actes                   = m_actes->actes();
+        m_initOK                    = map_actes->size() > 0;
+        if (!m_initOK)
+        {
+            ItemsList::clearAll(map_actes);
+            delete m_actes;
+        }
+    }
+    if (!m_initOK) return;
+
     setWindowTitle(tr("Consultations précédentes de ") + m_currentpatient->nom() + " " + m_currentpatient->prenom());
     setWindowIcon(Icons::icLoupe());
-    m_avantdernieracte  = AvantDernier;
 
     QString style = "background-color:qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));"
                     " border: 1px solid rgb(150,150,150); border-radius: 10px;";
@@ -67,7 +83,6 @@ ui(new Ui::dlg_actesprecedents)
 
     ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
-    map_actes = actes->actes();
     Actualise();
 }
 
@@ -77,6 +92,8 @@ dlg_actesprecedents::~dlg_actesprecedents()
     {
         ItemsList::clearAll(m_listepaiements->lignespaiements());
         delete m_listepaiements;
+        ItemsList::clearAll(map_actes);
+        delete m_actes;
     }
     delete ui;
 }
