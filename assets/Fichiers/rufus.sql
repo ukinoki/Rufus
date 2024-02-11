@@ -423,7 +423,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,76,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,77,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
