@@ -1,27 +1,43 @@
 # FROM https://markuspeitl.github.io/my-linux-scripts/install-appimage.html
 
-
 START_DIR=$(pwd)
-APP_IMG_PATH=$1
-echo "Selected AppImage path to install to: "$APP_IMG_PATH
-APP_IMG_NAME=$(basename $1)
-echo "Name of the AppImage: "$APP_IMG_NAME
-NEW_NAME=$2
-echo "New name to be installed as: "$NEW_NAME
+APP_IMG_PATH=~/Rufus.Appimage
+APP_IMG_NAME=basename($APP_IMG_PATH)
+NEW_NAME=Rufus
 
-if [ -z $APP_IMG_PATH ]; then
-    echo "Please pass a path to the appimage as argument! - exiting"
-    exit 1
-fi
-if [ -z $NEW_NAME ]; then
-    echo "Please pass an installation name as argument! - exiting"
-    exit 1
-fi
+
+#Making the tree
+echo "Executing: mkdir -p ~/Deploy/share/icons/hicolor/256x256/apps"
+mkdir -p ~/Deploy/share/icons/hicolor/256x256/apps
+printf "\n"
+echo "Executing: mkdir -p ~/Deploy/share/applications"
+mkdir -p ~/Deploy/share/applications 
+printf "\n"
+echo "Executing: mkdir -p ~/Deploy/usr/bin"
+mkdir -p ~/Deploy/usr/bin 
+printf "\n"
+echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/bin"
+cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/bin
+printf "\n"
+echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps"
+cp ~/Rufus/Ubuntu_build_tools/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps
+printf "\n"
+
+echo "Executing: cp ~/RufusApp ~/Deploy/usr/bin"
+cp ~/RufusApp ~/Deploy/usr/bin
+printf "\n"
+
+echo "Executing ~/linuxdeployqt ~/RufusDeploy/usr/share/applications/rufus.desktop -appimage"
+~/linuxdeployqt ~/RufusDeploy/usr/share/applications/rufus.desktop -appimage
+printf "\n"
+
+echo "Executing: mv ~/Rufusx86-64.appimage Rufus.Appimage"
+mv ~/Rufusx86-64.appimage Rufus.Appimage
 printf "\n"
 
 #Making the appimage executable
 echo "Executing: chmod +x $APP_IMG_PATH"
-chmod +x $APP_IMG_PATH
+chmod +x $APP_IMG_PATRufus.AppimageH
 printf "\n"
 
 #Move it to the temp directory and extract the appimage there
