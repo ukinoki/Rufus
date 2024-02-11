@@ -16,8 +16,12 @@ Coller dans le sous-dossier /bin le RufusApp qui vient d'être compilé par Qt
 Puis, lancer la commande
 ~/linuxdeployqt(nom de la version installée) chemin-vers-usr/usr/share/applications/rufus.desktop -appimage
 
-
-Puis, pour installer le logiciel sur un poste à partir de l'appairage produite,
-Il faut utiliser le script install-rufus.sh et il suffit de taper, depuis le dossier où se trouve le script,
-install-rufus.sh dossier_où_se_trouve_l'appimage/Rufus.AppImage Rufus
+Pour créer une appimage Rufus automatiquement
+	copier le script create-rufus-appimage.sh et le RufusApp dans le dossier utilisateur
+	lancer le script create-rufus-appimage.sh
+	le script va créer l'arborisation de l'appimage, puis l'appimage, puis détruira les fichiers temporaires
+	
+Pour installer Rufus sur un poste à partir de l'appimage produite,
+	copier le script install-rufus.sh et l'appimage dans le dossier utilisateur
+	lancer le script install-rufus.sh
 
