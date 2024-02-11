@@ -2,22 +2,22 @@
 
 START_DIR=$(pwd)
 APP_IMG_PATH=~/Rufus.Appimage
-APP_IMG_NAME=basename($APP_IMG_PATH)
+APP_IMG_NAME=$(basename $APP_IMG_PATH)
 NEW_NAME=Rufus
-
+cd ~
 
 #Making the tree
-echo "Executing: mkdir -p ~/Deploy/share/icons/hicolor/256x256/apps"
-mkdir -p ~/Deploy/share/icons/hicolor/256x256/apps
+echo "Executing: mkdir -p ~/Deploy/usr/share/icons/hicolor/256x256/apps"
+mkdir -p ~/Deploy/usr/share/icons/hicolor/256x256/apps
 printf "\n"
-echo "Executing: mkdir -p ~/Deploy/share/applications"
-mkdir -p ~/Deploy/share/applications 
+echo "Executing: mkdir -p ~/Deploy/usr/share/applications"
+mkdir -p ~/Deploy/usr/share/applications 
 printf "\n"
 echo "Executing: mkdir -p ~/Deploy/usr/bin"
 mkdir -p ~/Deploy/usr/bin 
 printf "\n"
-echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/bin"
-cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/bin
+echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/share/applications"
+cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/share/applications
 printf "\n"
 echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps"
 cp ~/Rufus/Ubuntu_build_tools/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps
@@ -28,16 +28,16 @@ cp ~/RufusApp ~/Deploy/usr/bin
 printf "\n"
 
 echo "Executing ~/linuxdeployqt ~/RufusDeploy/usr/share/applications/rufus.desktop -appimage"
-~/linuxdeployqt ~/RufusDeploy/usr/share/applications/rufus.desktop -appimage
+~/linuxdeployqt ~/Deploy/usr/share/applications/rufus.desktop -appimage
 printf "\n"
 
 echo "Executing: mv ~/Rufusx86-64.appimage Rufus.Appimage"
-mv ~/Rufusx86-64.appimage Rufus.Appimage
+mv Rufusx86-64.appimage Rufus.Appimage
 printf "\n"
 
 #Making the appimage executable
 echo "Executing: chmod +x $APP_IMG_PATH"
-chmod +x $APP_IMG_PATRufus.AppimageH
+chmod +x $APP_IMG_PATH
 printf "\n"
 
 #Move it to the temp directory and extract the appimage there
