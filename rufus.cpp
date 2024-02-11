@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("09-02-2024/1");
+    qApp->setApplicationVersion("11-02-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -474,7 +474,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJActesPrecs()
 {
-    QList<dlg_actesprecedents *> ListDialog = findChildren<dlg_actesprecedents *>();
+    QList<dlg_actesprecedents *> ListDialog = this->findChildren<dlg_actesprecedents *>();
     if (currentacte() != Q_NULLPTR)
         for (int n = 0; n < ListDialog.size(); n++)
             if (ListDialog.at(n)->currentacte() == currentacte())
@@ -3500,18 +3500,23 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
         return;
     if (choix == "Autre Dossier")
     {
-        dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(pat, this);
-        if (!Dlg_ActesPrecs->initOK())
+        Actes *acts = new Actes;
+        acts->initListeByPatient(dossierpatientaouvrir());
+        if (acts->actes()->size()  == 0)
         {
             UpMessageBox::Watch(this, tr("Pas de consultation enregistrée pour ") + dossierpatientaouvrir()->prenom() + " " + dossierpatientaouvrir()->nom());
-            delete Dlg_ActesPrecs;
             return;
         }
         else
         {
+            dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(acts, false, this);
+            Dlg_ActesPrecs  ->setWindowTitle(tr("Consultations précédentes de ") + dossierpatientaouvrir()->nom() + " " + dossierpatientaouvrir()->prenom());
+            Dlg_ActesPrecs  ->setWindowIcon(Icons::icLoupe());
             Dlg_ActesPrecs  ->exec();
             delete Dlg_ActesPrecs;
         }
+        ItemsList::clearAll(acts->actes());
+        delete acts;
     }
     else if (choix == "SalDat")
         InscritEnSalDat(dossierpatientaouvrir());                                                   //! depuis menu contextuel ListePatients
@@ -8477,9 +8482,7 @@ bool Rufus::NavigationConsult(ItemsList::POSITION i)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::OuvrirActesPrecedents()
 {
-    if (currentpatient() == Q_NULLPTR)
-        return;
-    dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(currentpatient(), this);
+    dlg_actesprecedents *Dlg_ActesPrecs = new dlg_actesprecedents(Datas::I()->actes, true, this);
     Dlg_ActesPrecs->show();
 }
 
