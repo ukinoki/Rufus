@@ -1191,7 +1191,7 @@ void dlg_param::NouvAppareil()
     dlg_askappareil = new UpDialog(this);
     dlg_askappareil->setWindowModality(Qt::WindowModal);
     dlg_askappareil->move(QPoint(x()+width()/2,y()+height()/2));
-    dlg_askappareil->setFixedSize(400,90);
+    dlg_askappareil->setFixedSize(400,100);
     dlg_askappareil->setWindowTitle(tr("Choisissez un appareil"));
     QHBoxLayout *lay = new QHBoxLayout;
     UpLabel *label = new UpLabel();
