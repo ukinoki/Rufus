@@ -1193,7 +1193,7 @@ void dlg_param::NouvAppareil()
     dlg_askappareil = new UpDialog(this);
     dlg_askappareil->setWindowModality(Qt::WindowModal);
     dlg_askappareil->move(QPoint(x()+width()/2,y()+height()/2));
-    dlg_askappareil->setFixedWidth(400);
+    dlg_askappareil->setFixedSize(400,100);
     dlg_askappareil->setWindowTitle(tr("Choisissez un appareil"));
     QHBoxLayout *lay = new QHBoxLayout;
     UpLabel *label = new UpLabel();
@@ -1208,7 +1208,6 @@ void dlg_param::NouvAppareil()
     upCombo->showPopup();
     lay->addWidget(upCombo);
     dlg_askappareil->dlglayout()->insertLayout(0,lay);
-    dlg_askappareil->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     dlg_askappareil->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_askappareil->OKButton,    &QPushButton::clicked,    this,   &dlg_param::EnregistreAppareil);
     dlg_askappareil->exec();

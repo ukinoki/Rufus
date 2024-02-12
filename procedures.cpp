@@ -91,9 +91,9 @@ Procedures::Procedures(QObject *parent) :
                        "permettant la connexion à la base de données.\n\n"
                        "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
                        "1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"\n"
-                       "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction."
-                       " Il vous faudra alors compléter de nouveau"
-                       " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après"
+                       "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\n"
+                       " Il vous faudra alors compléter de nouveau\n"
+                       " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après\n"
                        " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
             m_connexionbaseOK = k;
             k = VerifIni(msg, msgInfo, false, true, true, false);
