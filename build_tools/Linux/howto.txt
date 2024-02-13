@@ -1,6 +1,22 @@
 Pour utiliser linuxdeployqt
-Dans un dossier perso genre home/rintintin/test
-Créer l'arborisation
+
+1. linuxdeployqt peut avoir du mal à trouer certaines librairies,
+c'est le cas souvent pour la lib libQt5Core.so.5 qui est un lien dynamique situé dans /usr/lib/x86_64-linux-gnu/ et qui pointe souvent vers une version inférieure à calle imposée par RufusApp
+il faut supprimer le lien dynamique
+	sudo rm -r /usr/lib/x86_64-linux-gnu/libQt5Core.so.5
+puis le recréer et pointer vers la bonne librairie dans le dossier Qt/5.15.2/gcc_64/lib
+	sudo ln -s  /home/serge/Qt/5.15.2/gcc_64/lib/libQt5Core.so.5.15.2 /usr/lib/x86_64-linux-gnu/libQt5Core.so.5
+
+2. il faut rajouter le chemin vers les lib Qt dans le .profile
+	nano ~/.profile
+puis rajouter la ligne suivante, en bas du fichier
+	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:~/Qt/5.15.2/gcc_64/lib
+puis
+	source ~/.profileDans un dossier perso genre home/rintintin/test
+
+
+
+3. Créer l'arborisation
 └── usr
     ├── bin
     │   └── RufusApp
@@ -17,7 +33,7 @@ Puis, lancer la commande
 ~/linuxdeployqt(nom de la version installée) chemin-vers-usr/usr/share/applications/rufus.desktop -appimage
 
 
-Sinon, plus simplement
+ou 4. Sinon, plus simplement
 Pour créer une appimage Rufus automatiquement
 	copier le script create-rufus-appimage.sh et le RufusApp dans le dossier utilisateur
 	lancer le script create-rufus-appimage.sh
