@@ -5,6 +5,9 @@ APP_IMG_PATH=~/Rufus.AppImage
 APP_IMG_NAME=$(basename $APP_IMG_PATH)
 NEW_NAME=Rufus
 
+#Clean up extracted application temporary directory and go back to start dir
+echo "Cleaning up"
+rm -r /tmp/squashfs-root
 cd ~
 
 #Making the appimage executable
@@ -65,7 +68,7 @@ printf "\n"
 
 #Clean up extracted application temporary directory and go back to start dir
 echo "Cleaning up"
-#rm -r /tmp/squashfs-root
+rm -r /tmp/squashfs-root
 cd $START_DIR
 printf "\n"
 echo "Finished installing $APP_IMG_NAME as $NEW_NAME!"

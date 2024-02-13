@@ -1,6 +1,6 @@
 Pour utiliser linuxdeployqt
 Dans un dossier perso genre home/rintintin/test
-Créer l'arborisation (elle est déjà existante dans le dossier Ubuntu-builb-tools et il suffit de la recopier)
+Créer l'arborisation
 └── usr
     ├── bin
     │   └── RufusApp
@@ -16,6 +16,8 @@ Coller dans le sous-dossier /bin le RufusApp qui vient d'être compilé par Qt
 Puis, lancer la commande
 ~/linuxdeployqt(nom de la version installée) chemin-vers-usr/usr/share/applications/rufus.desktop -appimage
 
+
+Sinon, plus simplement
 Pour créer une appimage Rufus automatiquement
 	copier le script create-rufus-appimage.sh et le RufusApp dans le dossier utilisateur
 	lancer le script create-rufus-appimage.sh
