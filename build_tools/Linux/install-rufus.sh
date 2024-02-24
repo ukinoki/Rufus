@@ -1,7 +1,7 @@
 # FROM https://markuspeitl.github.io/my-linux-scripts/install-appimage.html
 
 START_DIR=$(pwd)
-APP_IMG_PATH=~/Rufus.AppImage
+APP_IMG_PATH=~/RufusQt6.AppImage
 APP_IMG_NAME=$(basename $APP_IMG_PATH)
 NEW_NAME=Rufus
 

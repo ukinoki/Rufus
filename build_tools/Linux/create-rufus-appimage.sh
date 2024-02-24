@@ -1,7 +1,7 @@
 # FROM https://markuspeitl.github.io/my-linux-scripts/install-appimage.html
 
 START_DIR=$(pwd)
-APP_IMG_PATH=~/Rufus.AppImage
+APP_IMG_PATH=~/RufusQt6.AppImage
 APP_IMG_NAME=$(basename $APP_IMG_PATH)
 NEW_NAME=Rufus
 
@@ -20,23 +20,23 @@ printf "\n"
 echo "Executing: mkdir -p ~/Deploy/usr/bin"
 mkdir -p ~/Deploy/usr/bin 
 printf "\n"
-echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/share/applications"
-cp ~/Rufus/Ubuntu_build_tools/rufus.desktop ~/Deploy/usr/share/applications
+echo "Executing: cp ~/RufusQt6/build_tools/Linux/rufus.desktop ~/Deploy/usr/share/applications"
+cp ~/RufusQt6/build_tools/Linux/rufus.desktop ~/Deploy/usr/share/applications
 printf "\n"
-echo "Executing: cp ~/Rufus/Ubuntu_build_tools/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps"
-cp ~/Rufus/Ubuntu_build_tools/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps
+echo "Executing: cp ~/RufusQt6/build_tools/Linux/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps"
+cp ~/RufusQt6/build_tools/Linux/rufus.png ~/Deploy/usr/share/icons/hicolor/256x256/apps
 printf "\n"
 
-echo "Executing: cp ~/RufusApp ~/Deploy/usr/bin"
-cp ~/RufusApp ~/Deploy/usr/bin
+echo "Executing: cp ~/RufusQt6App ~/Deploy/usr/bin"
+cp ~/RufusQt6App ~/Deploy/usr/bin
 printf "\n"
 
 echo "Executing ~/linuxdeployqt ~/Deploy/usr/share/applications/rufus.desktop -appimage"
 ~/linuxdeployqt ~/Deploy/usr/share/applications/rufus.desktop -appimage
 printf "\n"
 
-echo "Executing: mv Rufus-x86_64.AppImage Rufus.AppImage"
-mv Rufus-x86_64.AppImage $APP_IMG_NAME
+echo "Executing: mv RufusQt6-x86_64.AppImage Rufus.AppImage"
+mv RufusQt6-x86_64.AppImage $APP_IMG_NAME
 printf "\n"
 
 #Making the appimage executable
