@@ -2133,7 +2133,7 @@ void dlg_param::DossierClesSSL()
         ui->DossierClesSSLupLineEdit->clear();
         proc->settings()->remove(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL);
     }
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup(),false);
     if (url == QUrl())
         return;
     ui->DossierClesSSLupLineEdit->setText(url.path());

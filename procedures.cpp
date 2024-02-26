@@ -692,7 +692,7 @@ void Procedures::setDirSSLKeys()
     if (dirkeys == "")
     {
         dirkeys = "/etc/mysql";
-        urlkeys.setPath(dirkeys);
+        urlkeys.setPath(QDir::toNativeSeparators(dirkeys));
         bool a = urlkeys.isValid();
         if (!a)
             UpMessageBox::Information(Q_NULLPTR,
@@ -747,7 +747,7 @@ int Procedures::ExecuteSQLScript(QStringList ListScripts)
     QString keys = "";
     if (useSSL)
     {
-        QString dirkey = dirSSLKeys();
+        QString dirkey = QDir::toNativeSeparators(dirSSLKeys());
         keys += " --ssl-ca=" + dirkey + "/ca-cert.pem --ssl-cert=" + dirkey + "/client-cert.pem --ssl-key=" + dirkey + "/client-key.pem";
     }
     QString command = sqlCommand + "/mysql -u " + login + " -p" MDP_SQL " -h " + host + " -P " + QString::number(db->port()) + keys;
