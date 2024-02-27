@@ -57,10 +57,15 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
     for (auto itlign = map_lignespaiements->begin() ; itlign != map_lignespaiements->end();)
     {
         LignePaiement *lign = const_cast<LignePaiement*>(itlign.value());
-        if (lign->idacte() == act->id())
+        if(lign)
         {
-            itlign = map_lignespaiements->erase(itlign);
-            delete lign;
+            if (lign->idacte() == act->id())
+            {
+                itlign = map_lignespaiements->erase(itlign);
+                delete lign;
+            }
+            else
+                ++ itlign;
         }
         else
             ++ itlign;

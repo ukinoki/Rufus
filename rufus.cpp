@@ -9837,11 +9837,16 @@ void Rufus::SupprimerActe(Acte *act)
     for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
     {
         Refraction* ref = const_cast<Refraction*>(it.value());
-        if (ref->idacte() == act->id())
+        if (ref)
         {
-            DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-            delete ref;
-            it = Datas::I()->refractions->refractions()->erase(it);
+            if (ref->idacte() == act->id())
+            {
+                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                delete ref;
+                it = Datas::I()->refractions->refractions()->erase(it);
+            }
+            else
+                ++it;
         }
         else
             ++it;

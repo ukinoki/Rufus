@@ -10646,14 +10646,19 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
-            if (ref->idacte() == idActe
-                    && ref->typemesure() == Refraction::Fronto
-                    && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
-                    && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
+            if (ref)
             {
-                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                delete ref;
-                it = Datas::I()->refractions->refractions()->erase(it);
+                if (ref->idacte() == idActe
+                        && ref->typemesure() == Refraction::Fronto
+                        && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
+                        && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
+                {
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    delete ref;
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                }
+                else
+                    ++it;
             }
             else
                 ++it;
@@ -10716,11 +10721,16 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
-            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
+            if (ref)
             {
-                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                delete ref;
-                it = Datas::I()->refractions->refractions()->erase(it);
+                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
+                {
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    delete ref;
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                }
+                else
+                    ++it;
             }
             else
                 ++it;
@@ -10878,11 +10888,16 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
-            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
+            if (ref)
             {
-                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                delete ref;
-                it = Datas::I()->refractions->refractions()->erase(it);
+                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
+                {
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    delete ref;
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                }
+                else
+                    ++it;
             }
             else
                 ++it;
