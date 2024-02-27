@@ -5181,7 +5181,6 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
     QString SphereOD, SphereOG;
     QString CylindreOD, CylindreOG;
     QString SCAOD, SCAOG;
-    QString DataAEnvoyer;
     QByteArray DTRbuff;
     QString nameRF = m_settings->value(Param_Poste_Refracteur).toString();
 
@@ -5615,8 +5614,10 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(ETB);                                            //ETB -> end of text block
             DTRbuff.append(CR);                                                 //CR LF
             DTRbuff.append(LF);                                                 //CR LF
+            /*!
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
+            */
         }
         /*! séquence de fin
             SOH*PC_SND_EEOT
@@ -7706,11 +7707,10 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     QString mAxeOG      = "000";
     QString mAddOD      = "+0.00";
     QString mAddOG      = "+0.00";
-    QString AVLOD(""), AVLOG(""), AVPOD(""), AVPOG("");
+    QString AVLOD(""), AVLOG("");
     QString PD          = "";
     QString PDD(""), PDG("");
 
-    QString mesureOD(""), mesureOG("");
     QString K1OD("null"), K2OD("null"), K1OG("null"), K2OG("null");
     int     AxeKOD(0), AxeKOG(0);
     QString mTOOD(""), mTOOG("");
@@ -10952,20 +10952,25 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         mCylOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->cylindreOG());
         mAxeOG          = QString::number(Datas::I()->mesurefronto->axecylindreOG());
         mAddOG          = Utils::PrefixePlus(Datas::I()->mesurefronto->addVPOG());
-        for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
+        for (auto it = Datas::I()->refractions->refractions()->cbegin(); it != Datas::I()->refractions->refractions()->cend();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
-            if (ref->idacte() == idActe
-                    && ref->typemesure() == Refraction::Fronto
-                    && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
-                    && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
+            if (ref)
             {
-                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                delete ref;
-                it = Datas::I()->refractions->refractions()->erase(it);
+                if (ref->idacte() == idActe
+                        && ref->typemesure() == Refraction::Fronto
+                        && ref->formuleOD() == CalculeFormule(Datas::I()->mesurefronto,"D")
+                        && ref->formuleOG() == CalculeFormule(Datas::I()->mesurefronto,"G"))
+                {
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    delete ref;
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                }
+                else
+                    ++ it;
             }
             else
-                ++it;
+                it = Datas::I()->refractions->refractions()->erase(it);
         }
 
         QHash<QString, QVariant> listbinds;
@@ -11022,18 +11027,23 @@ void Procedures::InsertMesure(TypeMesure typemesure)
 //                //++it;
 //            }
 //        }
-        for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
+        for (auto it = Datas::I()->refractions->refractions()->cbegin(); it != Datas::I()->refractions->refractions()->cend();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
-            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
+            if (ref)
             {
-                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                delete ref;
-                it = Datas::I()->refractions->refractions()->erase(it);
+                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Autoref)
+                {
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    delete ref;
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                }
+                else
+                    ++ it;
             }
             else
-                ++it;
-        }
+                it = Datas::I()->refractions->refractions()->erase(it);
+         }
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
@@ -11184,17 +11194,22 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         PD              = QString::number(Datas::I()->mesureacuite->ecartIP());
         if (PD == "")
             PD = "null";
-        for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
+        for (auto it = Datas::I()->refractions->refractions()->cbegin(); it != Datas::I()->refractions->refractions()->cend();)
         {
             Refraction *ref = const_cast<Refraction*>(it.value());
-            if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
+            if (ref)
             {
-                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-                delete ref;
-                it = Datas::I()->refractions->refractions()->erase(it);
+                if (ref->idacte() == idActe && ref->typemesure() == Refraction::Acuite)
+                {
+                    DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                    delete ref;
+                    it = Datas::I()->refractions->refractions()->erase(it);
+                }
+                else
+                    ++ it;
             }
             else
-                ++it;
+                it = Datas::I()->refractions->refractions()->erase(it);
         }
 
         QHash<QString, QVariant> listbinds;

@@ -97,7 +97,6 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
         if (m_newmap.find(it.key()) == m_newmap.constEnd())
         {
             T* item = const_cast<T*>(it.value());               // T* item = m_oldmap->take(it.key()); ne marche pass
-
             if (item != Q_NULLPTR)
                 delete item;
             it = m_oldmap->erase(it);
@@ -207,8 +206,10 @@ static void remove(QMap<QString, T*> *m_map, const T* item)
         return;
     auto it = m_map->find(item->stringid());
     if (it != m_map->cend())
+    {
+        delete item;
         it = m_map->erase(it);
-    delete item;
+    }
 }
 
 protected:

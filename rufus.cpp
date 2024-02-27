@@ -2865,8 +2865,9 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            "</span>"
            "</div></p>"
            "</body></html>";
-
-   Reponse.replace(QRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(taillefont) + "pt");
+   QRegularExpression reg;
+   reg.setPattern("font-size( *: *[\\d]{1,2} *)pt");
+   Reponse.replace(reg,"font-size:" + QString::number(taillefont) + "pt");
    QString largeurformule = LARGEUR_FORMULE;
    Reponse.replace("<td width=\"" LARGEUR_FORMULE "\">","<td width=\"" + QString::number(largeurformule.toInt() - 40) + "\">");
    Corps.replace("{{TEXTE ORDO}}",Reponse);
@@ -4422,10 +4423,13 @@ void Rufus::RetrouveMontantActe()
             }
             if (Montant != "0.00")
             {
-                if (parent->secteurconventionnel()>1)
+                if (parent)
                 {
-                    ui->BasculerMontantpushButton->setVisible(true);
-                    ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
+                    if (parent->secteurconventionnel()>1)
+                    {
+                        ui->BasculerMontantpushButton->setVisible(true);
+                        ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
+                    }
                 }
                 else
                     ui->BasculerMontantpushButton->setVisible(false);
@@ -4724,6 +4728,10 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     }
     else
     {
+        delete vbox;
+        delete totallayout;
+        delete destlayout;
+        delete msglayout;
         delete dlg_sendMessage;
         return;
     }
@@ -5538,8 +5546,8 @@ void Rufus::MsgModif(int idmsg)
                 for (int i=0; i<destlist.size();i++)
                     listdestinataires << destlist.at(i).at(0).toString();
                 map["listdestinataires"] = listdestinataires;
-
-                SendMessage(map, msg->idpatient(), idmsg);                           //depuis MsgModif
+                if (msg)
+                    SendMessage(map, msg->idpatient(), idmsg);                           //depuis MsgModif
                 i =listtxt.size();
                 AfficheBAL(1);
             }
@@ -5722,7 +5730,6 @@ void Rufus::VerifDocsDossiersEchanges()
         for (int itr=0; itr<proc->listeappareils().size(); itr++)
         {
             AppareilImagerie *appareil = proc->listeappareils().at(itr);
-            QString nomappareil =  appareil->nomappareil();
             QString nomdossier =  appareil->nomdossierechange();  /*! le dossier où sont exportés les documents d'un appareil donné */
             if (nomdossier != "")
                 if (QDir(nomdossier).exists())
@@ -9958,17 +9965,22 @@ void Rufus::SupprimerActe(Acte *act)
     }
 
     // on supprime les éventuelles réfractions liées à cette consultation -----------------------------------------------------------
-    for (auto it = Datas::I()->refractions->refractions()->begin(); it != Datas::I()->refractions->refractions()->end();)
+    for (auto it = Datas::I()->refractions->refractions()->cbegin(); it != Datas::I()->refractions->refractions()->cend();)
     {
         Refraction* ref = const_cast<Refraction*>(it.value());
-        if (ref->idacte() == act->id())
+        if (ref)
         {
-            DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
-            delete ref;
-            it = Datas::I()->refractions->refractions()->erase(it);
+            if (ref->idacte() == act->id())
+            {
+                DataBase::I()->SupprRecordFromTable(ref->id(), CP_ID_REFRACTIONS, TBL_REFRACTIONS);
+                delete ref;
+                it = Datas::I()->refractions->refractions()->erase(it);
+            }
+            else
+                ++ it;
         }
         else
-            ++it;
+            it = Datas::I()->refractions->refractions()->erase(it);
     }
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------
