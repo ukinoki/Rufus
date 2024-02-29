@@ -4930,7 +4930,6 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
     QString SphereOD, SphereOG;
     QString CylindreOD, CylindreOG;
     QString SCAOD, SCAOG;
-    QString DataAEnvoyer;
     QByteArray DTRbuff;
     QString nameRF    = m_settings->value(Param_Poste_Refracteur).toString();
     auto initvariables = [&] ()
@@ -7414,7 +7413,7 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     QString mAxeOG      = "000";
     QString mAddOD      = "+0.00";
     QString mAddOG      = "+0.00";
-    QString AVLOD(""), AVLOG(""), AVPOD(""), AVPOG("");
+    QString AVLOD(""), AVLOG("");
     QString PD          = "";
     QString PDD(""), PDG("");
 
@@ -10661,7 +10660,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     ++it;
             }
             else
-                ++it;
+                it = Datas::I()->refractions->refractions()->erase(it);
         }
 
         QHash<QString, QVariant> listbinds;
@@ -10733,8 +10732,8 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     ++it;
             }
             else
-                ++it;
-        }
+                it = Datas::I()->refractions->refractions()->erase(it);
+         }
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDPAT_REFRACTIONS]                 = idPatient;
@@ -10900,7 +10899,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     ++it;
             }
             else
-                ++it;
+                it = Datas::I()->refractions->refractions()->erase(it);
         }
 
         QHash<QString, QVariant> listbinds;

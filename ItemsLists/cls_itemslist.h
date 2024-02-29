@@ -196,7 +196,7 @@ static void remove(QMap<int, T*> *m_map, const T* item)
         return;
     auto it = m_map->find(item->id());
     if (it != m_map->end())
-        delete m_map->take(it.key());
+        m_map->erase(it);
     if (item != Q_NULLPTR)
         delete item;
 }
@@ -208,7 +208,8 @@ static void remove(QMap<QString, T*> *m_map, const T* item)
     auto it = m_map->find(item->stringid());
     if (it != m_map->end())
         it = m_map->erase(it);
-    delete item;
+    if (item != Q_NULLPTR)
+        delete item;
 }
 
 protected:

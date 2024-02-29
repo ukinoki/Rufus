@@ -85,7 +85,8 @@ void Archives::clearAll()
 {
     for( auto it = m_archives->begin(); it != m_archives->end(); )
     {
-        delete it.value();
+        if (it.value())
+            delete it.value();
         it = m_archives->erase(it);
     }
 }

@@ -2624,8 +2624,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                              "</style>"
                              "</head><body>";
 
-    UpTextEdit textprov;
-
     QString Age;
     QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
     Age = AgeTotal["toString"].toString();
@@ -4344,10 +4342,15 @@ void Rufus::RetrouveMontantActe()
             }
             if (Montant != "0.00")
             {
-                if (parent->secteurconventionnel()>1)
+                if (parent != Q_NULLPTR)
                 {
-                    ui->BasculerMontantpushButton->setVisible(true);
-                    ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
+                    if (parent->secteurconventionnel()>1)
+                    {
+                        ui->BasculerMontantpushButton->setVisible(true);
+                        ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
+                    }
+                    else
+                        ui->BasculerMontantpushButton->setVisible(false);
                 }
                 else
                     ui->BasculerMontantpushButton->setVisible(false);
@@ -4648,6 +4651,10 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg)
     }
     else
     {
+        delete vbox;
+        delete totallayout;
+        delete destlayout;
+        delete msglayout;
         delete dlg_sendMessage;
         return;
     }
@@ -5436,8 +5443,8 @@ void Rufus::MsgModif(int idmsg)
                 for (int i=0; i<destlist.size();i++)
                     listdestinataires << destlist.at(i).at(0).toString();
                 map["listdestinataires"] = listdestinataires;
-
-                SendMessage(map, msg->idpatient(), idmsg);                           // depuis MsgModif
+                if (msg)
+                    SendMessage(map, msg->idpatient(), idmsg);                           // depuis MsgModif
                 i =listtxt.size();
                 AfficheBAL(1);
             }
@@ -5621,7 +5628,6 @@ void Rufus::VerifDocsDossiersEchanges()
         for (int itr=0; itr<proc->listeappareils().size(); itr++)
         {
             AppareilImagerie *appareil = proc->listeappareils().at(itr);
-            QString nomappareil =  appareil->nomappareil();
             QString nomdossier =  appareil->nomdossierechange();  /*! le dossier où sont exportés les documents d'un appareil donné */
             if (nomdossier != "")
                 if (QDir(nomdossier).exists())
@@ -9849,7 +9855,7 @@ void Rufus::SupprimerActe(Acte *act)
                 ++it;
         }
         else
-            ++it;
+            it = Datas::I()->refractions->refractions()->erase(it);
     }
 
     // on supprime les éventuels bilans orthoptiques liés à cette consultation -----------------------------------------------------------

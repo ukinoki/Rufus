@@ -68,7 +68,7 @@ void LignesPaiements::SupprimeActeLignesPaiements(Acte* act)
                 ++ itlign;
         }
         else
-            ++ itlign;
+            itlign = map_lignespaiements->erase(itlign);
     }
 }
 
