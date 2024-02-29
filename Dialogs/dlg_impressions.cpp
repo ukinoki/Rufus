@@ -69,7 +69,6 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
     connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
     connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
-    connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
     connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
     connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_impressions::dblClicktextEdit);
     connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
@@ -568,7 +567,10 @@ void dlg_impressions::FiltreListe()
 
 void dlg_impressions::MenuContextuelTexteDocument()
 {
-    QMenu menucontextuel;
+    if (m_menucontextuel_textdoc == Q_NULLPTR)
+        m_menucontextuel_textdoc= new QMenu(this);
+    else
+        m_menucontextuel_textdoc->clear();
     QAction *pAction_InsertChamp;
     QAction *pAction_ModifPolice;
     QAction *pAction_Fontbold;
@@ -596,8 +598,8 @@ void dlg_impressions::MenuContextuelTexteDocument()
     QAction *pAction_InsInterroSejour;
     QAction *pAction_InsInterroSite;
     QAction *pAction_InsInterroText;
-    pAction_InsertChamp                 = menucontextuel.addAction   (Icons::icAjouter(),    tr("Insérer un champ"));
-    QMenu *interro                      = menucontextuel.addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
+    pAction_InsertChamp                 = m_menucontextuel_textdoc->addAction   (Icons::icAjouter(),    tr("Insérer un champ"));
+    QMenu *interro                      = m_menucontextuel_textdoc->addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
     pAction_InsInterroDate              = interro->addAction            (Icons::icDate(),       tr("Date"));
     pAction_InsInterroHeure             = interro->addAction            (Icons::icClock(),      tr("Heure"));
     pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Côté"));
@@ -614,29 +616,29 @@ void dlg_impressions::MenuContextuelTexteDocument()
     pAction_InsInterroTypeIntervention  = interro->addAction            (Icons::icMedoc(),      TITRETYPEINTERVENTION);
     pAction_InsInterroSiteIntervention  = interro->addAction            (Icons::icClinic(),     TITRESITEINTERVENTION);
 
-    menucontextuel.addSeparator();
+    m_menucontextuel_textdoc->addSeparator();
     if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-        pAction_ModifPolice     = menucontextuel.addAction(Icons::icFont(),           tr("Modifier la police"));
-        pAction_Fontbold        = menucontextuel.addAction(Icons::icFontbold(),       tr("Gras"));
-        pAction_Fontitalic      = menucontextuel.addAction(Icons::icFontitalic(),     tr("Italique"));
-        pAction_Fontunderline   = menucontextuel.addAction(Icons::icFontunderline(),  tr("Souligné"));
-        pAction_Fontnormal      = menucontextuel.addAction(Icons::icFontnormal(),     tr("Normal"));
+        pAction_ModifPolice     = m_menucontextuel_textdoc->addAction(Icons::icFont(),           tr("Modifier la police"));
+        pAction_Fontbold        = m_menucontextuel_textdoc->addAction(Icons::icFontbold(),       tr("Gras"));
+        pAction_Fontitalic      = m_menucontextuel_textdoc->addAction(Icons::icFontitalic(),     tr("Italique"));
+        pAction_Fontunderline   = m_menucontextuel_textdoc->addAction(Icons::icFontunderline(),  tr("Souligné"));
+        pAction_Fontnormal      = m_menucontextuel_textdoc->addAction(Icons::icFontnormal(),     tr("Normal"));
 
         connect (pAction_ModifPolice,       &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Police");});
         connect (pAction_Fontbold,          &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Gras");});
         connect (pAction_Fontitalic,        &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Italique");});
         connect (pAction_Fontunderline,     &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Souligne");});
         connect (pAction_Fontnormal,        &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Normal");});
-        menucontextuel.addSeparator();
+        m_menucontextuel_textdoc->addSeparator();
     }
-    pAction_Blockleft       = menucontextuel.addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
-    pAction_Blockright      = menucontextuel.addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
-    pAction_Blockcentr      = menucontextuel.addAction(Icons::icBlockCenter(),        tr("Centré"));
-    pAction_Blockjust       = menucontextuel.addAction(Icons::icBlockJustify(),       tr("Justifié"));
-    menucontextuel.addSeparator();
+    pAction_Blockleft       = m_menucontextuel_textdoc->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
+    pAction_Blockright      = m_menucontextuel_textdoc->addAction(Icons::icBlockRight(),         tr("Aligné à droite"));
+    pAction_Blockcentr      = m_menucontextuel_textdoc->addAction(Icons::icBlockCenter(),        tr("Centré"));
+    pAction_Blockjust       = m_menucontextuel_textdoc->addAction(Icons::icBlockJustify(),       tr("Justifié"));
+    m_menucontextuel_textdoc->addSeparator();
     if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
-        pAction_Copier          = menucontextuel.addAction(Icons::icCopy(),   tr("Copier"));
-        pAction_Cut             = menucontextuel.addAction(Icons::icCut(),    tr("Couper"));
+        pAction_Copier          = m_menucontextuel_textdoc->addAction(Icons::icCopy(),   tr("Copier"));
+        pAction_Cut             = m_menucontextuel_textdoc->addAction(Icons::icCut(),    tr("Couper"));
         connect (pAction_Copier,            &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Copier");});
         connect (pAction_Cut,               &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Couper");});
     }
@@ -645,7 +647,7 @@ void dlg_impressions::MenuContextuelTexteDocument()
             || qApp->clipboard()->mimeData()->hasImage()
             || qApp->clipboard()->mimeData()->hasHtml())
     {
-        QAction *pAction_Coller = menucontextuel.addAction(Icons::icPaste(),  tr("Coller"));
+        QAction *pAction_Coller = m_menucontextuel_textdoc->addAction(Icons::icPaste(),  tr("Coller"));
         connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelTexteDocument("Coller");});
     }
 
@@ -671,7 +673,7 @@ void dlg_impressions::MenuContextuelTexteDocument()
     connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(ANESTHINTERVENTION);});
 
     // ouvrir le menu
-    menucontextuel.exec(cursor().pos());
+    m_menucontextuel_textdoc->exec(cursor().pos(), pAction_InsertChamp);
 }
 
 void dlg_impressions::MenuContextuelDocuments()
@@ -748,6 +750,10 @@ void dlg_impressions::MenuContextuelDocuments()
 
 void dlg_impressions::MenuContextuelDossiers()
 {
+    if (m_menucontextuel_dossier == Q_NULLPTR)
+        m_menucontextuel_dossier= new QMenu(this);
+    else
+        m_menucontextuel_dossier->clear();
     QModelIndex idx   = ui->DossiersupTableView->indexAt(ui->DossiersupTableView->viewport()->mapFromGlobal(cursor().pos()));
     m_currentdossier = getDossierFromIndex(idx);
     if (!m_currentdossier)
@@ -758,14 +764,14 @@ void dlg_impressions::MenuContextuelDossiers()
     QAction *pAction_CreerDossier;
     QAction *pAction_PublicDossier;
 
-    pAction_CreerDossier            = menucontextuel.addAction(Icons::icCreer(), tr("Créer un dossier")) ;
-    pAction_ModifDossier            = menucontextuel.addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
-    pAction_SupprDossier            = menucontextuel.addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
-    menucontextuel.addSeparator();
+    pAction_CreerDossier            = m_menucontextuel_dossier->addAction(Icons::icCreer(), tr("Créer un dossier")) ;
+    pAction_ModifDossier            = m_menucontextuel_dossier->addAction(Icons::icEditer(), tr("Modifier ce dossier")) ;
+    pAction_SupprDossier            = m_menucontextuel_dossier->addAction(Icons::icPoubelle(), tr("Supprimer ce dossier")) ;
+    m_menucontextuel_dossier->addSeparator();
     if (!m_currentdossier->ispublic())
-        pAction_PublicDossier       = menucontextuel.addAction(Icons::icBlackCheck(), tr("Public")) ;
+        pAction_PublicDossier       = m_menucontextuel_dossier->addAction(Icons::icBlackCheck(), tr("Public")) ;
     else
-        pAction_PublicDossier       = menucontextuel.addAction(tr("Privé")) ;
+        pAction_PublicDossier       = m_menucontextuel_dossier->addAction(tr("Privé")) ;
 
     connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Modifier");});
     connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Supprimer");});
@@ -773,7 +779,7 @@ void dlg_impressions::MenuContextuelDossiers()
     connect (pAction_PublicDossier, &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Public");});
 
     // ouvrir le menu
-    menucontextuel.exec(cursor().pos());
+    m_menucontextuel_dossier->exec(cursor().pos());
 }
 
 void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
@@ -1882,6 +1888,7 @@ void dlg_impressions::ConfigMode(Mode mode)
     ui->DossiersupTableView             ->setEnabled(m_mode == Selection);
     ui->OKupPushButton                  ->setEnabled(false);
     ui->textFrame                       ->setVisible(m_mode != CreationDOSS && m_mode!= ModificationDOSS && m_mode != Selection);
+    disconnect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
 
     if (m_mode != Selection) {
         t_timerefface->disconnect();
@@ -1977,6 +1984,7 @@ void dlg_impressions::ConfigMode(Mode mode)
 
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
+        connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
         if (!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist())
         {
             ui->PrescriptioncheckBox->setChecked(false);
