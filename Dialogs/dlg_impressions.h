@@ -105,6 +105,8 @@ private:
     QString                     m_textdocdelegate = "";
     QString                     m_textdossierdelegate = "";
     QMenu                       *m_menucontextuel_doc = Q_NULLPTR;
+    QMenu                       *m_menucontextuel_textdoc = Q_NULLPTR;
+    QMenu                       *m_menucontextuel_dossier = Q_NULLPTR;
 
     bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);
