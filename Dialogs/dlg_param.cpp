@@ -1210,6 +1210,7 @@ void dlg_param::NouvAppareil()
     connect(dlg_askappareil->OKButton,    &QPushButton::clicked,    this,   &dlg_param::EnregistreAppareil);
     dlg_askappareil->exec();
     delete dlg_askappareil;
+    dlg_askappareil = Q_NULLPTR;
 }
 
 void dlg_param::startImmediateBackup()

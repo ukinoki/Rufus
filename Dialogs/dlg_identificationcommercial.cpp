@@ -52,7 +52,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
         m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentcommercial->idmanufacturer());
 
     //! FABRICANT
-    if (m_manufacturersmodel == Q_NULLPTR)
+    if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())

@@ -294,7 +294,6 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
 
         menuContextuel->exec(cursor().pos());
         delete menuContextuel;
-        menuContextuel = Q_NULLPTR;
     }
 }
 

@@ -777,6 +777,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
         if (session == Q_NULLPTR)
         {
             delete m_ctxtmenusessions;
+            m_ctxtmenusessions = Q_NULLPTR;
             return;
         }
         QAction *pAction_ModifSession = m_ctxtmenusessions->addAction(tr("Modifier la session"));
@@ -793,6 +794,7 @@ void dlg_programmationinterventions::MenuContextuelSessions()
     // ouvrir le menu
     m_ctxtmenusessions->exec(cursor().pos());
     delete m_ctxtmenusessions;
+    m_ctxtmenusessions = Q_NULLPTR;
 }
 
 
@@ -832,7 +834,7 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
 void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* intervention)
 {
     disconnect(wdg_interventionstreeView->selectionModel(), &QItemSelectionModel::currentChanged, this, &dlg_programmationinterventions::ChoixIntervention);
-    if (m_interventionsmodel == Q_NULLPTR)
+    if (m_interventionsmodel != Q_NULLPTR)
         delete m_interventionsmodel;
     m_interventionsmodel = new QStandardItemModel(this);
     wdg_lblinterventions-> setText(QString::number(Datas::I()->interventions->interventions()->size()) + " " + (Datas::I()->interventions->interventions()->size()>1? tr("interventions") : tr("intervention")));
@@ -1745,6 +1747,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
         if (interv == Q_NULLPTR)
         {
             delete m_ctxtmenuinterventions;
+            m_ctxtmenuinterventions = Q_NULLPTR;
             return;
         }
         QAction *pAction_ModifIntervention = m_ctxtmenuinterventions->addAction(tr("Modifier cette intervention"));
@@ -1763,6 +1766,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
     // ouvrir le menu
     m_ctxtmenuinterventions->exec(cursor().pos());
     delete m_ctxtmenuinterventions;
+    m_ctxtmenuinterventions = Q_NULLPTR;
 }
 
 
@@ -2122,7 +2126,7 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
     m_manufacturercompleterlist.clear();
     wdg_manufacturercombo->disconnect();
     wdg_manufacturercombo->clear();
-    if (m_manufacturersmodel == Q_NULLPTR)
+    if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     QList<int> listidmanufacturer;

@@ -54,7 +54,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
 
     //! FABRICANT
-    if (m_manufacturersmodel == Q_NULLPTR)
+    if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())

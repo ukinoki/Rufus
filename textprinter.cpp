@@ -350,6 +350,7 @@ QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 
         bapdf=buf.data();
         delete tempdoc_;
+        tempdoc_ = Q_NULLPTR;
     }
     return bapdf;
 }

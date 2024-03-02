@@ -26,6 +26,7 @@ LignesComptes::~LignesComptes()
 {
     clearAll(map_lignes);
     delete map_lignes;
+    map_lignes = Q_NULLPTR;
 }
 
 QMap<int, LigneCompte*>* LignesComptes::lignescomptes() const

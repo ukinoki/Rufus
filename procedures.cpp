@@ -1181,6 +1181,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
                         if (listbutt.at(j)->isChecked())
                             idparent = listbutt.at(j)->iD();
                     delete dlg_askUser;
+                    dlg_askUser = Q_NULLPTR;
                 }
             }
         }
@@ -2820,6 +2821,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             }
         }
         delete dlg_buprestore;
+        dlg_buprestore = Q_NULLPTR;
         //qDebug() << msg;
         UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
@@ -3580,6 +3582,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
             if( dlg_askUser->exec() != QDialog::Accepted)
             {
                 delete dlg_askUser;
+                dlg_askUser = Q_NULLPTR;
                 return false;
             }
             foreach (QGroupBox *groupBox, dlg_askUser->findChildren<QGroupBox*>())
@@ -3608,6 +3611,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                 }
             }
             delete dlg_askUser;
+            dlg_askUser = Q_NULLPTR;
         }
         if( currentuser()->idsuperviseur() == User::ROLE_INDETERMINE )
         {
@@ -3671,6 +3675,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                 if (dlg_askUser->exec() != QDialog::Accepted)
                                 {
                                     delete dlg_askUser;
+                                    dlg_askUser = Q_NULLPTR;
                                     return false;
                                 }
                                 else
@@ -3686,6 +3691,7 @@ bool Procedures::DefinitRoleUser() //NOTE : User Role Function
                                                 }
                                         }
                                     delete dlg_askUser;
+                                    dlg_askUser = Q_NULLPTR;
                                 }
                             }
                         }

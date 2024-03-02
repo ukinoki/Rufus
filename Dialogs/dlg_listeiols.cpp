@@ -819,7 +819,7 @@ void dlg_listeiols::SupprIOL(IOL *iol)
 
 void dlg_listeiols::ReconstruitListeManufacturers()
 {
-    if (m_manufacturersmodel == Q_NULLPTR)
+    if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
 
@@ -859,7 +859,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     ReconstruitListeManufacturers();
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_IOLsmodel == Q_NULLPTR)
+    if (m_IOLsmodel != Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
 

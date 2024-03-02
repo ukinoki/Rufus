@@ -46,7 +46,6 @@ private:
     bool                            m_ok;
     int                             m_flagcorrespondants;
     Mode                            m_mode;
-    QMenu                           *m_menucontextuel;
     QTimer                          *t_timer;
     UpSmallButton                   *widg_vitalebutton;
     VilleCPWidget                   *wdg_villeCP;

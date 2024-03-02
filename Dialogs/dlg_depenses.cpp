@@ -343,8 +343,6 @@ void dlg_depenses::PrintTable()
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
-    Etat_textEdit = Q_NULLPTR;
-
 }
 
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)

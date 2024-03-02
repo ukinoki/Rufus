@@ -1428,7 +1428,6 @@ void dlg_impressions::OKpushButtonClicked()
                             QWidget *w = hlay->itemAt(r)->widget();
                             b = (qobject_cast<UpLabel*>(w)!=Q_NULLPTR);
                             if (b) break;
-                            w = Q_NULLPTR;
                             delete w;
                         }
                         if (b)
@@ -3063,7 +3062,7 @@ void dlg_impressions::Remplir_TableView()
                                                                             m_textdocdelegate = line->text();
                                                                          });
     ui->DocsupTableView->setItemDelegateForColumn(1,linedoc);
-    if (m_docsmodel == Q_NULLPTR)
+    if (m_docsmodel != Q_NULLPTR)
         delete m_docsmodel;
     m_docsmodel = new UpStandardItemModel(this);
 
@@ -3174,7 +3173,7 @@ void dlg_impressions::Remplir_TableView()
                                                                          m_textdossierdelegate = line->text();
                                                                       });
     ui->DossiersupTableView->setItemDelegateForColumn(1,line);
-    if (m_dossiersmodel == Q_NULLPTR)
+    if (m_dossiersmodel != Q_NULLPTR)
         delete m_dossiersmodel;
     m_dossiersmodel = new UpStandardItemModel(this);
 

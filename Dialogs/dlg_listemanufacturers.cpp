@@ -215,7 +215,7 @@ void dlg_listemanufacturers::ReconstruitTreeViewManufacturers(QString filtre)
 {
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_model == Q_NULLPTR)
+    if (m_model != Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel(this);
 
