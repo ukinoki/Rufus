@@ -202,7 +202,7 @@ void dlg_refractionlistemesures::RemplirTableView()
         SupprButton->setEnabled(false);
 
     UpStandardItem       *pitem0, *pitem1, *pitem2, *pitem3;
-    if (m_model == Q_NULLPTR)
+    if (m_model != Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel(this);
 

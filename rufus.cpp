@@ -2976,6 +2976,8 @@ void Rufus::MajusculeCreerPrenom()
 
 void Rufus::MenuContextuelIdentPatient()
 {
+    if (m_menuContextuel != Q_NULLPTR)
+        delete m_menuContextuel;
     m_menuContextuel = new QMenu(this);
     QAction *pAction_IdentPatient = m_menuContextuel->addAction("Modifier les données patients") ;
     connect (pAction_IdentPatient, &QAction::triggered, this, &Rufus::ChoixMenuContextuelIdentPatient);
@@ -2993,6 +2995,8 @@ void Rufus::ChoixMenuContextuelIdentPatient()
 
 void Rufus::MenuContextuelMotsCles()
 {
+    if (m_menuContextuel != Q_NULLPTR)
+        delete m_menuContextuel;
     m_menuContextuel = new QMenu(this);
 
     QAction *pAction_ModifMotCle = m_menuContextuel->addAction(tr("Modifier les mots clés"));
@@ -3277,6 +3281,8 @@ void Rufus::AfficheCourriersAFaire()
         QPoint tbpos    = tabCourriers->mapFromGlobal(cursor().pos());
         QModelIndex idx = tabCourriers->indexAt(tbpos);
         QString patient = modele->item(modele->itemFromIndex(idx)->row(),0)->text();
+        if (m_menuContextuel != Q_NULLPTR)
+            delete m_menuContextuel;
         m_menuContextuel = new QMenu(this);
         QAction *pAction_OuvrirDossier = m_menuContextuel->addAction("Ouvrir le dossier " + patient) ;
         connect (pAction_OuvrirDossier, &QAction::triggered, this, [=]
@@ -3405,6 +3411,8 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
     int idpat = UpText->iD();
     if( currentuser()->isSoignant() )
     {
+        if (m_menuContextuel != Q_NULLPTR)
+            delete m_menuContextuel;
         m_menuContextuel = new QMenu(this);
         {
             QAction *pAction_ReprendreDossier = m_menuContextuel->addAction(tr("Visualiser le dossier"));
@@ -3417,6 +3425,8 @@ void Rufus::MenuContextuelBureaux(UpTextEdit *UpText)
     }
     else if( currentuser()->isSecretaire() )
     {
+        if (m_menuContextuel != Q_NULLPTR)
+            delete m_menuContextuel;
         m_menuContextuel = new QMenu(this);
         {
             QAction *pAction_ModifierDossier = m_menuContextuel->addAction(tr("Modifier les données de ce patient"));
@@ -3439,6 +3449,8 @@ void Rufus::MenuContextuelListePatients()
         if (pat->id() == currentpatient()->id())
             iscurrentpatient = true;
 
+    if (m_menuContextuel != Q_NULLPTR)
+        delete m_menuContextuel;
     m_menuContextuel = new QMenu(this);
     if (!iscurrentpatient)
     {
@@ -3545,6 +3557,8 @@ void Rufus::MenuContextuelMedecin()
 {
     if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()) != -1)
     {
+        if (m_menuContextuel != Q_NULLPTR)
+            delete m_menuContextuel;
         m_menuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = m_menuContextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
         connect (pAction_IdentPatient,      &QAction::triggered,    this,    &Rufus::ChoixMenuContextuelMedecin);
@@ -3575,6 +3589,8 @@ void Rufus::MenuContextuelCorrespondant(UpComboBox *box)
         if (box == ui->AutresCorresp1upComboBox) choix = "Modifier1";
         else if (box == ui->AutresCorresp2upComboBox) choix = "Modifier2";
         else return;
+        if (m_menuContextuel != Q_NULLPTR)
+            delete m_menuContextuel;
         m_menuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = m_menuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
         connect (pAction_IdentPatient,      &QAction::triggered,    this,   [=] {ChoixMenuContextuelCorrespondant(choix);});
@@ -3618,6 +3634,8 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
     idpat = rsgnmt["idpat"].toInt();
     int row = labelClicked->Row();
 
+    if (m_menuContextuel != Q_NULLPTR)
+        delete m_menuContextuel;
     m_menuContextuel = new QMenu(this);
 
     if (ui->SalleDAttenteupTableWidget->isAncestorOf(labelClicked))
@@ -3674,6 +3692,8 @@ void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
     if (a == false) return;
 
 
+    if (m_menuContextuel != Q_NULLPTR)
+        delete m_menuContextuel;
     m_menuContextuel = new QMenu(this);
 
     if (listRange.size() == 1 && listRange.at(0).rowCount()== 1)
@@ -9167,7 +9187,7 @@ void Rufus::Remplir_SalDat()
     }
     TableAMettreAJour   ->setRowCount(listpatsaldat.size());
 
-    if (m_listesuperviseursmodel == Q_NULLPTR)
+    if (m_listesuperviseursmodel != Q_NULLPTR)
         delete m_listesuperviseursmodel;
     m_listesuperviseursmodel = new QStandardItemModel(this);
 
@@ -9488,7 +9508,7 @@ void Rufus::Remplir_SalDat()
             listpatvus << pat;
     }
     TableAMettreAJour   ->setRowCount(listpatvus.size());
-    if (m_listesuperviseursaccueilmodel == Q_NULLPTR)
+    if (m_listesuperviseursaccueilmodel != Q_NULLPTR)
         delete m_listesuperviseursaccueilmodel;
     m_listesuperviseursaccueilmodel = new QStandardItemModel(this);
     QStandardItem       *oitem0, *oitem1;
@@ -10271,6 +10291,7 @@ void Rufus::LireLaCPS()
     m_pyxi = new pyxinterf(this);
     QString nomFicPraticienPar = m_pyxi->Lecture_CPS();
     delete m_pyxi;
+    m_pyxi = Q_NULLPTR;
 
     // Récup des infos du médecin dans le fichier ../Pyxvital/Interf/Praticien.par
     QSettings settingPraticienPar (nomFicPraticienPar, QSettings::IniFormat);
@@ -10313,6 +10334,7 @@ void Rufus::LireLaCV()
     m_pyxi = new pyxinterf(this);
     QString nomFicPatientPar = m_pyxi->Lecture_CV();
     delete m_pyxi;
+    m_pyxi = Q_NULLPTR;
     if (nomFicPatientPar.length() ==0)
         { // pas de CV lue...
         return;
@@ -10369,6 +10391,7 @@ void Rufus::SaisieFSE()
     m_pyxi = new pyxinterf(this);
     QString nomFicFacturePar = m_pyxi->Saisie_FSE();
     delete m_pyxi;
+    m_pyxi = Q_NULLPTR;
     if (nomFicFacturePar.length() ==0)
         { // pas de facture saisie ...
         return;

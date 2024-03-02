@@ -451,7 +451,7 @@ void dlg_identificationmanufacturer::reconstruitCommercialsModel()
     Datas::I()->commercials->initListebyidManufacturer(m_currentmanufacturer->id());
     QItemSelectionModel *m = ui->commercialsupTableView->selectionModel();
     delete m;
-    if (m_commodel == Q_NULLPTR)
+    if (m_commodel != Q_NULLPTR)
         delete m_commodel;
     m_commodel = new QStandardItemModel(this);
     for (auto it = Datas::I()->commercials->commercials()->constBegin(); it != Datas::I()->commercials->commercials()->constEnd(); ++it)

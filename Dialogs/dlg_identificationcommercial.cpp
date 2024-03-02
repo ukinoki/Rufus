@@ -52,7 +52,7 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     setWindowModality(Qt::WindowModal);
 
     //! FABRICANT
-    if (m_manufacturersmodel == Q_NULLPTR)
+    if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
     m_manufacturersmodel = new QStandardItemModel(this);
     foreach (Manufacturer *man, *Datas::I()->manufacturers->manufacturers())

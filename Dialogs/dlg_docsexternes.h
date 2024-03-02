@@ -81,7 +81,7 @@ private:
     void                    ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
     void                    AfficheDoc(QModelIndex idx);
-    void                    BasculeTriListe(int);
+    void                    BasculeTriListe(enum ModeTri mode);
 
     QString                 CalcTitre(DocExterne *docmt);
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);

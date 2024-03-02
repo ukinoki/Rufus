@@ -344,8 +344,6 @@ void dlg_depenses::PrintTable()
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
-    Etat_textEdit = Q_NULLPTR;
-
 }
 
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
@@ -1791,7 +1789,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                       " where " CP_ECHEANCIER_FACTURES " = 1"
                       " and not exists (select 1 from " TBL_DEPENSES " dep where fac." CP_ID_FACTURES " = dep." CP_IDFACTURE_DEPENSES ")"
                       " order by " CP_INTITULE_FACTURES;
-        qDebug() << req;
+        //qDebug() << req;
         bool ok = true;
         QList<QVariantList> ListeEch = db->StandardSelectSQL(req, ok);
         if (ListeEch.size()>0)

@@ -405,7 +405,7 @@ void dlg_listemotscles::RemplirTableView()
         for (int i=0; i<listidMC.size(); i++)
             m_listidmotsclesdepart << listidMC.at(i);
     }
-    if (m_model == Q_NULLPTR)
+    if (m_model != Q_NULLPTR)
         delete m_model;
     m_model = new UpStandardItemModel(this);
 

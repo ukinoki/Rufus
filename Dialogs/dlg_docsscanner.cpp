@@ -394,7 +394,6 @@ void dlg_docsscanner::ValideFiche()
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         b = (doc != Q_NULLPTR);
         delete doc;
-        doc = Q_NULLPTR;
     }
     else                        // c'est une facture ou un échéancier
     {

@@ -399,7 +399,6 @@ void dlg_bilanrecettes::ImprimeEtat()
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     delete Etat_textEdit;
-    Etat_textEdit = Q_NULLPTR;
 }
 
 void dlg_bilanrecettes::CalcSuperviseursEtComptables()

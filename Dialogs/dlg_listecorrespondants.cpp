@@ -242,7 +242,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
         Datas::I()->correspondants->initListe(true);
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_correspondantsmodel == Q_NULLPTR)
+    if (m_correspondantsmodel != Q_NULLPTR)
         delete m_correspondantsmodel;
     m_correspondantsmodel = new QStandardItemModel(this);
 

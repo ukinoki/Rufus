@@ -389,13 +389,13 @@ void dlg_identificationpatient::MenuContextuelMedecin()
 {
     if (ui->MGupComboBox->findText(ui->MGupComboBox->currentText()) != -1)
     {
-        m_menucontextuel = new QMenu(this);
-        QAction *pAction_IdentPatient = m_menucontextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
+        QMenu *menucontextuel = new QMenu(this);
+        QAction *pAction_IdentPatient = menucontextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
         connect (pAction_IdentPatient,      &QAction::triggered, this,    [=] {ModifCorrespondant();});
 
         // ouvrir le menu
-        m_menucontextuel->exec(cursor().pos());
-        delete m_menucontextuel;
+        menucontextuel->exec(cursor().pos());
+        delete menucontextuel;
     }
 }
 

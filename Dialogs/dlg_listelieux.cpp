@@ -134,6 +134,7 @@ void dlg_listelieux::CreerLieu()
     ModifLieuxDialog(Nouv);
     dlg_lieu->exec();
     delete  dlg_lieu;
+    dlg_lieu = Q_NULLPTR;
 }
 
 void dlg_listelieux::enregNouvLieu()
@@ -336,6 +337,7 @@ void dlg_listelieux::ModifLieu()
     wdg_faxlineedit    ->setText(sit->fax());
     dlg_lieu->exec();
     delete  dlg_lieu;
+    dlg_lieu = Q_NULLPTR;
 }
 
 void dlg_listelieux::enregModifLieu()
@@ -411,8 +413,6 @@ bool dlg_listelieux::ValidationFiche()
 
 void dlg_listelieux::ReconstruitModel()
 {
-    if (m_model == Q_NULLPTR)
-        delete m_model;
     wdg_tblview->selectionModel()->disconnect();
     if (m_model)
         delete m_model;

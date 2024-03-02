@@ -205,7 +205,7 @@ void dlg_listetiers::ReconstruitTreeViewtiers(bool reconstruirelaliste, QString 
         Datas::I()->tierspayants->initListe();
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
-    if (m_model == Q_NULLPTR)
+    if (m_model != Q_NULLPTR)
         delete m_model;
     m_model = new QStandardItemModel(this);
 

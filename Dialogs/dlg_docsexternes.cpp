@@ -111,7 +111,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_wdeltaframe       = 0;
     m_avecprevisu = proc  ->ApercuAvantImpression();
 
-    connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch());});
+    connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch()==0?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_alldocsupcheckbox);});
     connect (wdg_onlyimportantsdocsupcheckbox,  &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
@@ -537,7 +537,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         wdg_inflabel    ->setGeometry(10,graphview_view->height() -40, 500, 25);
 }
 
-void dlg_docsexternes::BasculeTriListe(int a)
+void dlg_docsexternes::BasculeTriListe(enum ModeTri mode)
 {
     QString             idimpraretrouver = "";
     wdg_listdocstreewiew    ->disconnect();
@@ -547,17 +547,15 @@ void dlg_docsexternes::BasculeTriListe(int a)
         if (!m_model->itemFromIndex(actifidx)->hasChildren())
             idimpraretrouver = m_model->itemFromIndex(actifidx)->data().toMap().value("id").toString();
     }
-    if (m_model == Q_NULLPTR)
-        delete m_model;
-    if (a == 0)
-    {
-        m_modetri = parDate;
+
+    m_modetri = mode;
+    switch (m_modetri) {
+    case parDate:
         m_model  = m_tripardatemodel;
-    }
-    else if (a == 1)
-    {
-        m_modetri = parType;
-        m_model = m_tripartypemodel;
+        break;
+    case parType:
+        m_model  = m_tripartypemodel;
+        break;
     }
 
     QItemSelectionModel *m = wdg_listdocstreewiew->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
@@ -1273,13 +1271,10 @@ void dlg_docsexternes::RemplirTreeView()
             }
     }
 
-    if (m_model == Q_NULLPTR)
-        delete m_model;
-    m_model = new QStandardItemModel(this);
-    if (m_tripardatemodel == Q_NULLPTR)
+    if (m_tripardatemodel != Q_NULLPTR)
         delete m_tripardatemodel;
     m_tripardatemodel = new QStandardItemModel(this);
-    if (m_tripartypemodel == Q_NULLPTR)
+    if (m_tripartypemodel != Q_NULLPTR)
         delete m_tripartypemodel;
     m_tripartypemodel = new QStandardItemModel(this);
 

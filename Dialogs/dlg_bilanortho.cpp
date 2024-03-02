@@ -312,10 +312,8 @@ void dlg_bilanortho::ImprimeBOClicked()
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if(doc != Q_NULLPTR)
             delete doc;
-        doc = Q_NULLPTR;
     }
     delete textHtml;
-    textHtml = Q_NULLPTR;
  }
 
 void    dlg_bilanortho::AfficheCombobox(int i, QWidget *widg)
