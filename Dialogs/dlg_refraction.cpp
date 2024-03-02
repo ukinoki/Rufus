@@ -569,8 +569,8 @@ void dlg_refraction::OKPushButton_Clicked()
                 return;
             }
     }
-    dblSpin = Q_NULLPTR;
     delete dblSpin;
+    dblSpin = Q_NULLPTR;
 
     if (!ControleCoherence())        return;
 

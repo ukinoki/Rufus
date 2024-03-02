@@ -314,7 +314,7 @@ void dlg_bilanortho::ImprimeBOClicked()
             delete doc;
     }
     delete textHtml;
-}
+ }
 
 void    dlg_bilanortho::AfficheCombobox(int i, QWidget *widg)
 {

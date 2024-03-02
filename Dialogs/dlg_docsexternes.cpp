@@ -1480,7 +1480,8 @@ void dlg_docsexternes::RemplirTreeView()
 //    qDebug() << "rowCount() = " << gmodeleTriParDate->rowCount();
 //    qDebug() << "dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->text();
 //    qDebug() << "rowCount() du dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->rowCount()-1;
-     if (m_modetri == parDate)
+
+    if (m_modetri == parDate)
         m_model = m_tripardatemodel;
     else
         m_model = m_tripartypemodel;

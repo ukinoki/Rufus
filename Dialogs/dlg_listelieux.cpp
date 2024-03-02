@@ -346,7 +346,7 @@ void dlg_listelieux::ModifLieu()
     wdg_faxlineedit    ->setText(sit->fax());
     dlg_lieu->exec();
     delete  dlg_lieu;
-    dlg_lieu == Q_NULLPTR;
+    dlg_lieu = Q_NULLPTR;
 }
 
 void dlg_listelieux::enregModifLieu()

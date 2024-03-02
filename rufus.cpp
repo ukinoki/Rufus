@@ -3077,7 +3077,6 @@ void Rufus::MenuContextuelMotsCles()
     if (m_menuContextuel != Q_NULLPTR)
         delete m_menuContextuel;
     m_menuContextuel = new QMenu(this);
-
     QAction *pAction_ModifMotCle = m_menuContextuel->addAction(tr("Modifier les mots clés"));
     connect (pAction_ModifMotCle, &QAction::triggered, this, &Rufus::ChoixMenuContextuelMotsCles);
 
@@ -3668,6 +3667,8 @@ void Rufus::MenuContextuelCorrespondant(UpComboBox *box)
         if (box == ui->AutresCorresp1upComboBox) choix = "Modifier1";
         else if (box == ui->AutresCorresp2upComboBox) choix = "Modifier2";
         else return;
+        if (m_menuContextuel != Q_NULLPTR)
+            delete m_menuContextuel;
         m_menuContextuel = new QMenu(this);
         QAction *pAction_IdentPatient = m_menuContextuel->addAction(tr("Modifier les coordonnées de ce correspondant"));
         connect (pAction_IdentPatient,      &QAction::triggered,    this,   [=] {ChoixMenuContextuelCorrespondant(choix);});
@@ -5092,7 +5093,6 @@ void Rufus::AfficheBAL(int idx)
         if (dlg_msgBAL->isVisible())
             dlg_msgBAL->close();
         delete dlg_msgBAL;
-        dlg_msgBAL = Q_NULLPTR;
     }
     dlg_msgBAL = new QDialog(this);
     int x = 0;
@@ -7598,7 +7598,6 @@ void Rufus::CreerDossier()
         else
             if (!InscritEnSalDat(pat))
                 RecaleTableView(pat);
-        delete pat;
     }
 }
 
@@ -10416,7 +10415,6 @@ void Rufus::LireLaCPS()
     m_pyxi = new pyxinterf(this);
     QString nomFicPraticienPar = m_pyxi->Lecture_CPS();
     delete m_pyxi;
-    m_pyxi = Q_NULLPTR;
 
     // Récup des infos du médecin dans le fichier ../Pyxvital/Interf/Praticien.par
     QSettings settingPraticienPar (nomFicPraticienPar, QSettings::IniFormat);
@@ -10459,7 +10457,6 @@ void Rufus::LireLaCV()
     m_pyxi = new pyxinterf(this);
     QString nomFicPatientPar = m_pyxi->Lecture_CV();
     delete m_pyxi;
-    m_pyxi = Q_NULLPTR;
     if (nomFicPatientPar.length() ==0)
         { // pas de CV lue...
         return;
@@ -10516,7 +10513,6 @@ void Rufus::SaisieFSE()
     m_pyxi = new pyxinterf(this);
     QString nomFicFacturePar = m_pyxi->Saisie_FSE();
     delete m_pyxi;
-    m_pyxi = Q_NULLPTR;
     if (nomFicFacturePar.length() ==0)
         { // pas de facture saisie ...
         return;
