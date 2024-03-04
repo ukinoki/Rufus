@@ -1461,7 +1461,6 @@ void dlg_impressions::OKpushButtonClicked()
                                         ExpARemplacer   << minidou + "//MONTANT))";
                                     else
                                         ExpARemplacer   << minidou + "//TEXTE))";
-                                    delete val;
                                     continue;
                                 }
                                 QDateEdit *linedate = qobject_cast<QDateEdit*>(listwidg.at(p));
@@ -2477,7 +2476,8 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
     if (m_mode == CreationDOC)
     {
-        delete m_currentdocument;
+        if (m_currentdocument)
+            delete m_currentdocument;
         m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
     }
     else if (m_mode == ModificationDOC)
@@ -2599,7 +2599,8 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     }
     else if (m_mode == CreationDOSS)
     {
-        delete m_currentdossier;
+        if (m_currentdossier)
+            delete m_currentdossier;
         m_currentdossier = Datas::I()->metadocuments->CreationDossierImpression(m_dossierlistbinds);
         SetDossierToRow(m_currentdossier, row);
     }

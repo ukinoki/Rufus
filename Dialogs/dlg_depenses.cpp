@@ -1794,7 +1794,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         QList<QVariantList> ListeEch = db->StandardSelectSQL(req, ok);
         if (ListeEch.size()>0)
         {
-            UpDialog *dlg_ask                         = new UpDialog(this);
+            UpDialog *dlg_ask               = new UpDialog(this);
             QListView   *listview           = new QListView(dlg_ask);
             listview->setMinimumWidth(200);
             listview->setMinimumHeight(150);
