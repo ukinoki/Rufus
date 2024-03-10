@@ -1428,7 +1428,6 @@ void dlg_impressions::OKpushButtonClicked()
                             QWidget *w = hlay->itemAt(r)->widget();
                             b = (qobject_cast<UpLabel*>(w)!=Q_NULLPTR);
                             if (b) break;
-                            delete w;
                         }
                         if (b)
                         {
@@ -1462,7 +1461,6 @@ void dlg_impressions::OKpushButtonClicked()
                                         ExpARemplacer   << minidou + "//MONTANT))";
                                     else
                                         ExpARemplacer   << minidou + "//TEXTE))";
-                                    delete val;
                                     continue;
                                 }
                                 QDateEdit *linedate = qobject_cast<QDateEdit*>(listwidg.at(p));
