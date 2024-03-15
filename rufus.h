@@ -261,8 +261,8 @@ private:
     bool                    m_isTotalMessagesAffiche;
     QDate                   m_datepardefaut;
     QDateTime               m_datederniermessageuser;
-    UpDialog                *dlg_ask;
-    QMenu                   *m_menuContextuel;
+    UpDialog                *dlg_ask                = Q_NULLPTR;
+    QMenu                   *m_menuContextuel       = Q_NULLPTR;
     QString                 m_montantActe;
     QString                 m_dateActe;
 

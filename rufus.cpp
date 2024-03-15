@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-02-2024/1");
+    qApp->setApplicationVersion("15-03-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2478,7 +2478,25 @@ void Rufus::ImprimeDossier(Patient *pat)
 {
     if(pat == Q_NULLPTR)
         return;
-    QMap<int, Acte*> *listeactes = m_listeactes->actes();
+    Actes *acts = Q_NULLPTR;
+    QMap<int, Acte*> *listeactes;
+    if (currentpatient() != Q_NULLPTR)
+    {
+        if (pat->id() == currentpatient()->id())
+            listeactes = m_listeactes->actes();
+        else
+        {
+            acts = new Actes();
+            acts->initListeByPatient(pat, Item::Update);
+            listeactes = acts->actes();
+        }
+    }
+    else
+    {
+        acts = new Actes();
+        acts->initListeByPatient(pat, Item::Update);
+        listeactes = acts->actes();
+    }
     if (listeactes->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Pas d'actes enregistré pour ce patient!"));
@@ -2600,10 +2618,16 @@ void Rufus::ImprimeDossier(Patient *pat)
         }
         delete dlg_ask;
         dlg_ask = Q_NULLPTR;
+
         if (listeactesaimprimer.size() > 0)
         {
             bool toutledossier = (listeactes->size() == listeactesaimprimer.size());
             ImprimeListActes(listeactesaimprimer, toutledossier);
+            if (acts != Q_NULLPTR)
+            {
+                ItemsList::clearAll(listeactes);
+                delete acts;
+            }
             MAJDocsExternes();              // ImprimeDossier()
         }
     }
@@ -3476,15 +3500,21 @@ void Rufus::MenuContextuelListePatients()
     if (!iscurrentpatient)
     {
         QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
-        connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
+        connect (pAction_EmettreDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
 
         QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
         if (db->StandardSelectSQL(req,m_ok).size() > 0)
         {
             QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
-            connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
+            connect (pAction_ImprimeDoc,    &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
         }
     }
+    if(currentuser()->isSecretaire() || currentuser()->isSoignant())
+    {
+            QAction *pAction_ImprimDoss = m_menuContextuel->addAction(tr("Imprimer le dossier du patient"));
+            connect (pAction_ImprimDoss,    &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimDoss");});
+    }
+
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
     connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "EnregDocScan");});
 
@@ -3541,6 +3571,8 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
     }
     else if (choix == "EnregDocScan")
         EnregistreDocScanner(dossierpatientaouvrir());                                              //! depuis menu contextuel ListePatients
+    else if (choix == "ImprimDoss")
+        ImprimeDossier(dossierpatientaouvrir());                                                    //! depuis menu contextuel ListePatients
     else if (choix == "EnregVideo")
         EnregistreVideo(dossierpatientaouvrir());                                                   //! depuis menu contextuel ListePatients
     else if (choix == "Intervention")
@@ -7839,7 +7871,7 @@ bool Rufus::FermeDossier(Patient *patient)
     msgbox.addButton(&SalDatBouton, UpSmallButton::STARTBUTTON);
     msgbox.addButton(&CloseBouton,  UpSmallButton::CLOSEBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le rtire de la liste despatients en cours
+    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le retirer de la liste des patients en cours
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(patient->id()));
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
@@ -7872,9 +7904,10 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        Datas::I()->patients->setcurrentpatient(Q_NULLPTR);
-        Datas::I()->actes->setcurrentacte(Q_NULLPTR);
-   }
+        Datas::I()->patients        ->setcurrentpatient(Q_NULLPTR);
+        Datas::I()->actes           ->setcurrentacte(Q_NULLPTR);
+        Datas::I()->docsexternes    ->reset();
+    }
     Flags::I()->MAJFlagSalleDAttente();
     return a;
 }
