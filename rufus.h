@@ -177,7 +177,7 @@ private:
     bool        m_MAJRessources = false;
     void        VerifLastVersion();                             /*! vérifie la version en cours du logiciel*/
 
-    void        ImprimeDossier(Patient *pat);
+    void        ImprimeDossier(Patient *pat, bool quelepdf = false);
     void        ImprimeListPatients(QVariant var);
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
