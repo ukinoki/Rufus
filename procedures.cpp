@@ -1232,7 +1232,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         {
             QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
             if (listsites.size()>0)
-                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
+                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adresse
             else {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
                 return EnteteMap;

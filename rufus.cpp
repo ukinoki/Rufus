@@ -2550,24 +2550,22 @@ void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
     }
 }
 
-void Rufus::ImprimeDossier(Patient *pat)
+void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
 {
     if(pat == Q_NULLPTR)
         return;
     Actes *acts = Q_NULLPTR;
     QMap<int, Acte*> *listeactes;
+    bool a = false;
     if (currentpatient() != Q_NULLPTR)
     {
         if (pat->id() == currentpatient()->id())
-            listeactes = m_listeactes->actes();
-        else
         {
-            acts = new Actes();
-            acts->initListeByPatient(pat, Item::Update);
-            listeactes = acts->actes();
+            listeactes = m_listeactes->actes();
+            a = true;
         }
     }
-    else
+    if (!a)
     {
         acts = new Actes();
         acts->initListeByPatient(pat, Item::Update);
@@ -2696,7 +2694,7 @@ void Rufus::ImprimeDossier(Patient *pat)
         if (listeactesaimprimer.size() > 0)
         {
             bool toutledossier = (listeactes->size() == listeactesaimprimer.size());
-            ImprimeListActes(listeactesaimprimer, toutledossier);
+            ImprimeListActes(listeactesaimprimer, toutledossier, quelepdf);
             if (acts != Q_NULLPTR)
             {
                 ItemsList::clearAll(listeactes);
@@ -2855,8 +2853,72 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
    if (!userEntete)
    {
-       UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
-       return;
+       QList<User*> listusers;
+       foreach (User* usr, *Datas::I()->users->actifs())
+           if (usr->isSoignant())
+               listusers << usr;
+       if (listusers.size()>1)
+       {
+           UpDialog *dlg_askcorrespondant   = new UpDialog(this);
+           dlg_askcorrespondant             ->setWindowModality(Qt::WindowModal);
+
+           dlg_askcorrespondant             ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+           UpLabel     *label               = new UpLabel(dlg_askcorrespondant);
+           QFontMetrics fm                  = QFontMetrics(qApp->font());
+           int largeurcolonne               = 0;
+           const QString lbltxt             = tr("Quel soignant pour l'entête?");
+           int largfinal                    = fm.horizontalAdvance(lbltxt);
+           int hauteurligne                 = int(fm.height()*1.1);
+
+           label       ->setText(lbltxt);
+           label       ->setAlignment(Qt::AlignCenter);
+
+           UpComboBox *Combo = new UpComboBox();
+           Combo->setContentsMargins(0,0,0,0);
+           Combo->setFixedHeight(34);
+           Combo->setEditable(false);
+           foreach (User* usr, listusers)
+                Combo->addItem(usr->login(), usr->id());
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,Combo);
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
+
+           for (int i=0; i<Combo->count(); i++)
+           {
+               if (fm.horizontalAdvance(Combo->itemText(i)) > largeurcolonne)
+                   largeurcolonne = fm.horizontalAdvance(Combo->itemText(i));
+           }
+           if ((largeurcolonne + 40 + 2) > largfinal)
+               largfinal = largeurcolonne + 40 + 2;
+           label       ->setFixedWidth(largfinal);
+           label       ->setFixedHeight(hauteurligne + 2);
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,Combo);
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
+
+           dlg_askcorrespondant->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+
+           connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [&]
+           {
+               for (int i=0; i< Combo->count(); i++)
+               {
+                   int idusr = Combo->currentData().toInt();
+                   userEntete = Datas::I()->users->getById(idusr);
+               }
+               if (userEntete)
+                   dlg_askcorrespondant->accept();
+           });
+
+           if (dlg_askcorrespondant->exec() != QDialog::Accepted)
+               return;
+           delete dlg_askcorrespondant;
+           dlg_askcorrespondant = Q_NULLPTR;
+       }
+       else if (listusers.size()==1)
+           userEntete = listusers.at(0);
+       else
+       {
+           UpMessageBox::Watch(this,tr("Pas de soignant retrouvé pour la liste d'actes"));
+           return;
+       }
    }
 
    Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
@@ -3588,8 +3650,8 @@ void Rufus::MenuContextuelListePatients()
     }
     if(currentuser()->isSecretaire() || currentuser()->isSoignant())
     {
-            QAction *pAction_ImprimDoss = m_menuContextuel->addAction(tr("Imprimer le dossier du patient"));
-            connect (pAction_ImprimDoss,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimDoss");});
+            QAction *pAction_ImprimDoss = m_menuContextuel->addAction(tr("Exporter le dossier du patient"));
+            connect (pAction_ImprimDoss,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ExportDoss");});
     }
 
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
@@ -3648,8 +3710,8 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
     }
     else if (choix == "EnregDocScan")
         EnregistreDocScanner(dossierpatientaouvrir());                                              //! depuis menu contextuel ListePatients
-    else if (choix == "ImprimDoss")
-        ImprimeDossier(dossierpatientaouvrir());                                                    //! depuis menu contextuel ListePatients
+    else if (choix == "ExportDoss")
+        ImprimeDossier(dossierpatientaouvrir(), true);                                              //! depuis menu contextuel ListePatients
     else if (choix == "EnregVideo")
         EnregistreVideo(dossierpatientaouvrir());                                                   //! depuis menu contextuel ListePatients
     else if (choix == "Intervention")
