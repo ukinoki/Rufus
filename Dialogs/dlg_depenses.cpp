@@ -1785,7 +1785,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         if (ListeEch.size()>0)
         {
             UpDialog *dlg_ask               = new UpDialog(this);
-            QListView   *listview           = new QListView(dlg_ask);
+            QListView *listview             = new QListView(dlg_ask);
             listview->setMinimumWidth(200);
             listview->setMinimumHeight(150);
             UpSmallButton *creerecheancier  = new UpSmallButton();
