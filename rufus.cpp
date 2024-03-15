@@ -2793,7 +2793,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            QFontMetrics fm                  = QFontMetrics(qApp->font());
            int largeurcolonne               = 0;
            const QString lbltxt             = tr("Quel soignant pour l'entête?");
-           int largfinal                    = fm.horizontalAdvance(lbltxt);
+           int largfinal                    = fm.width(lbltxt);
            int hauteurligne                 = int(fm.height()*1.1);
 
            label       ->setText(lbltxt);
@@ -2810,8 +2810,8 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
 
            for (int i=0; i<Combo->count(); i++)
            {
-               if (fm.horizontalAdvance(Combo->itemText(i)) > largeurcolonne)
-                   largeurcolonne = fm.horizontalAdvance(Combo->itemText(i));
+               if (fm.width(Combo->itemText(i)) > largeurcolonne)
+                   largeurcolonne = fm.width(Combo->itemText(i));
            }
            if ((largeurcolonne + 40 + 2) > largfinal)
                largfinal = largeurcolonne + 40 + 2;
