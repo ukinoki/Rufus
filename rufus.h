@@ -179,7 +179,7 @@ private:
     bool m_MAJRessources = false;
 
     void        VerifLastVersion();                             /*! vérifie que la version en cours du logiciel*/
-    void        ImprimeDossier(Patient *pat);
+    void        ImprimeDossier(Patient *pat, bool quelepdf = false);
     void        ImprimeListPatients(QVariant var);
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();       // CZ001
@@ -215,7 +215,7 @@ private:
     void        setcurrentlistecotations(Cotations* cot)    { m_currencotation = cot; };
 
     // gestion des patients vus dans la journée
-    QTimer      *gTimerPatientsVus;
+    QTimer      *gTimerPatientsVus       = Q_NULLPTR;
     void        AffichePatientsVusWidget();
     void        MAJPatientsVus();
     void        MasquePatientsVusWidget();
@@ -256,7 +256,7 @@ private:
 
 private:
 
-    MesureRefraction        *shortref_acuite       = Q_NULLPTR;
+    MesureRefraction        *shortref_acuite                = Q_NULLPTR;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};
@@ -265,8 +265,8 @@ private:
     bool                    m_isTotalMessagesAffiche;
     QDate                   m_datepardefaut;
     QDateTime               m_datederniermessageuser;
-    UpDialog                *dlg_ask;
-    QMenu                   *m_menuContextuel;
+    UpDialog                *dlg_ask                        = Q_NULLPTR;
+    QMenu                   *m_menuContextuel               = Q_NULLPTR;
     QString                 m_montantActe;
     QString                 m_dateActe;
 

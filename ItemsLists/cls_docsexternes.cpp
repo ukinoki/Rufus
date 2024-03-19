@@ -29,6 +29,13 @@ QMap<int, DocExterne *> *DocsExternes::docsexternes()
     return map_docsexternes;
 }
 
+void DocsExternes::reset()
+{
+    ItemsList::clearAll(map_docsexternes);
+    m_nouveaudocument   = false;
+    m_patient           = Q_NULLPTR;
+}
+
 /*!
  * \brief docsexternes::getById
  * \param id l'idimpr du Document recherché

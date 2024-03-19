@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("26-02-2024/1");
+    qApp->setApplicationVersion("15-03-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2550,11 +2550,27 @@ void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
     }
 }
 
-void Rufus::ImprimeDossier(Patient *pat)
+void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
 {
     if(pat == Q_NULLPTR)
         return;
-    QMap<int, Acte*> *listeactes = m_listeactes->actes();
+    Actes *acts = Q_NULLPTR;
+    QMap<int, Acte*> *listeactes;
+    bool a = false;
+    if (currentpatient() != Q_NULLPTR)
+    {
+        if (pat->id() == currentpatient()->id())
+        {
+            listeactes = m_listeactes->actes();
+            a = true;
+        }
+    }
+    if (!a)
+    {
+        acts = new Actes();
+        acts->initListeByPatient(pat, Item::Update);
+        listeactes = acts->actes();
+    }
     if (listeactes->size() == 0)
     {
         UpMessageBox::Watch(this,tr("Pas d'actes enregistré pour ce patient!"));
@@ -2678,7 +2694,12 @@ void Rufus::ImprimeDossier(Patient *pat)
         if (listeactesaimprimer.size() > 0)
         {
             bool toutledossier = (listeactes->size() == listeactesaimprimer.size());
-            ImprimeListActes(listeactesaimprimer, toutledossier);
+            ImprimeListActes(listeactesaimprimer, toutledossier, quelepdf);
+            if (acts != Q_NULLPTR)
+            {
+                ItemsList::clearAll(listeactes);
+                delete acts;
+            }
             MAJDocsExternes();              // ImprimeDossier()
         }
     }
@@ -2832,8 +2853,72 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
    if (!userEntete)
    {
-       UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
-       return;
+       QList<User*> listusers;
+       foreach (User* usr, *Datas::I()->users->actifs())
+           if (usr->isSoignant())
+               listusers << usr;
+       if (listusers.size()>1)
+       {
+           UpDialog *dlg_askcorrespondant   = new UpDialog(this);
+           dlg_askcorrespondant             ->setWindowModality(Qt::WindowModal);
+
+           dlg_askcorrespondant             ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+           UpLabel     *label               = new UpLabel(dlg_askcorrespondant);
+           QFontMetrics fm                  = QFontMetrics(qApp->font());
+           int largeurcolonne               = 0;
+           const QString lbltxt             = tr("Quel soignant pour l'entête?");
+           int largfinal                    = fm.horizontalAdvance(lbltxt);
+           int hauteurligne                 = int(fm.height()*1.1);
+
+           label       ->setText(lbltxt);
+           label       ->setAlignment(Qt::AlignCenter);
+
+           UpComboBox *Combo = new UpComboBox();
+           Combo->setContentsMargins(0,0,0,0);
+           Combo->setFixedHeight(34);
+           Combo->setEditable(false);
+           foreach (User* usr, listusers)
+                Combo->addItem(usr->login(), usr->id());
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,Combo);
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
+
+           for (int i=0; i<Combo->count(); i++)
+           {
+               if (fm.horizontalAdvance(Combo->itemText(i)) > largeurcolonne)
+                   largeurcolonne = fm.horizontalAdvance(Combo->itemText(i));
+           }
+           if ((largeurcolonne + 40 + 2) > largfinal)
+               largfinal = largeurcolonne + 40 + 2;
+           label       ->setFixedWidth(largfinal);
+           label       ->setFixedHeight(hauteurligne + 2);
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,Combo);
+           dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
+
+           dlg_askcorrespondant->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+
+           connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [&]
+           {
+               for (int i=0; i< Combo->count(); i++)
+               {
+                   int idusr = Combo->currentData().toInt();
+                   userEntete = Datas::I()->users->getById(idusr);
+               }
+               if (userEntete)
+                   dlg_askcorrespondant->accept();
+           });
+
+           if (dlg_askcorrespondant->exec() != QDialog::Accepted)
+               return;
+           delete dlg_askcorrespondant;
+           dlg_askcorrespondant = Q_NULLPTR;
+       }
+       else if (listusers.size()==1)
+           userEntete = listusers.at(0);
+       else
+       {
+           UpMessageBox::Watch(this,tr("Pas de soignant retrouvé pour la liste d'actes"));
+           return;
+       }
    }
 
    Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
@@ -3563,6 +3648,12 @@ void Rufus::MenuContextuelListePatients()
             connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
         }
     }
+    if(currentuser()->isSecretaire() || currentuser()->isSoignant())
+    {
+            QAction *pAction_ImprimDoss = m_menuContextuel->addAction(tr("Exporter le dossier du patient"));
+            connect (pAction_ImprimDoss,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ExportDoss");});
+    }
+
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
     connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "EnregDocScan");});
 
@@ -3619,6 +3710,8 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
     }
     else if (choix == "EnregDocScan")
         EnregistreDocScanner(dossierpatientaouvrir());                                              //! depuis menu contextuel ListePatients
+    else if (choix == "ExportDoss")
+        ImprimeDossier(dossierpatientaouvrir(), true);                                              //! depuis menu contextuel ListePatients
     else if (choix == "EnregVideo")
         EnregistreVideo(dossierpatientaouvrir());                                                   //! depuis menu contextuel ListePatients
     else if (choix == "Intervention")
@@ -7960,7 +8053,7 @@ bool Rufus::FermeDossier(Patient *patient)
     msgbox.addButton(&SalDatBouton, UpSmallButton::STARTBUTTON);
     msgbox.addButton(&CloseBouton,  UpSmallButton::CLOSEBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le rtire de la liste despatients en cours
+    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le retirer de la liste des patients en cours
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(patient->id()));
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
@@ -7993,9 +8086,10 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        Datas::I()->patients->setcurrentpatient(Q_NULLPTR);
-        Datas::I()->actes->setcurrentacte(Q_NULLPTR);
-   }
+        Datas::I()->patients    ->setcurrentpatient(Q_NULLPTR);
+        Datas::I()->actes       ->setcurrentacte(Q_NULLPTR);
+        Datas::I()->docsexternes->reset();
+    }
     Flags::I()->MAJFlagSalleDAttente();
     return a;
 }

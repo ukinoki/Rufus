@@ -1428,6 +1428,7 @@ void dlg_impressions::OKpushButtonClicked()
                             QWidget *w = hlay->itemAt(r)->widget();
                             b = (qobject_cast<UpLabel*>(w)!=Q_NULLPTR);
                             if (b) break;
+                            delete w;
                         }
                         if (b)
                         {
@@ -2477,10 +2478,7 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     m_docslistbinds[CP_EDITABLE_IMPRESSIONS]        = (ui->DocEditcheckBox->isChecked()?            "1" : QVariant());
     m_docslistbinds[CP_MEDICAL_IMPRESSIONS]         = (ui->DocAdministratifcheckBox->isChecked()?    QVariant() : "1");
     if (m_mode == CreationDOC)
-    {
-        delete m_currentdocument;
         m_currentdocument = Datas::I()->impressions->CreationImpression(m_docslistbinds);
-    }
     else if (m_mode == ModificationDOC)
     {
         DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
@@ -2600,7 +2598,6 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
     }
     else if (m_mode == CreationDOSS)
     {
-        delete m_currentdossier;
         m_currentdossier = Datas::I()->metadocuments->CreationDossierImpression(m_dossierlistbinds);
         SetDossierToRow(m_currentdossier, row);
     }
