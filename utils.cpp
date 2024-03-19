@@ -1083,17 +1083,9 @@ void Utils::CalcDateTimeValueSQL(QVariant &newvalue)
  * formule : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
  *
  */
-QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance)
+QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QDate datedujour, QString Sexe)
 {
-    return Utils::CalculAge(datedenaissance, "", QDate::currentDate());
-}
-QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QDate datedujour)
-{
-    return Utils::CalculAge(datedenaissance, "", datedujour);
-}
-QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour)
-{
-    QMap<QString,QVariant>  Age;
+    QMap<QString,QVariant>  Age = {{"annee",""},{"mois",""},{"toString",""},{"iconee",""},{"formule_politesse",""}};
     int         AnneeNaiss, MoisNaiss, JourNaiss;
     int         AnneeCurrent, MoisCurrent, JourCurrent;
     int         AgeAnnee, AgeMois;
@@ -1155,7 +1147,7 @@ QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QString Sexe, QDa
         if (Sexe == "F")                formule = "madame";
         if (Sexe == "M")                formule = "monsieur";
     }
-    Age["formule"] = formule;
+    Age["formule_politesse"] = formule;
 
     return Age;
 }

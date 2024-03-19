@@ -2645,9 +2645,9 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
     User *userEntete = userentete();
     if (userEntete == Q_NULLPTR)
         return;
-    QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), m_currentpatient->sexe(), ui->dateImpressiondateEdit->date());
+    QMap<QString,QVariant>  AgeTotal    = Utils::CalculAge(m_currentpatient->datedenaissance(), ui->dateImpressiondateEdit->date(), m_currentpatient->sexe());
     QString age                         = AgeTotal["toString"].toString();
-    QString formule                     = AgeTotal["formule"].toString();
+    QString formule                     = AgeTotal["formule_politesse"].toString();
 
     texte.replace("{{" + DATEDOC + "}}"         , m_currentdate.toString(tr("d MMMM yyyy")));
     texte.replace("{{" + NOMPAT + "}},"         , m_currentpatient->nom() + ",");

@@ -29,9 +29,13 @@ ui(new Ui::dlg_actesprecedents)
     setAttribute(Qt::WA_ShowWithoutActivating);
 
     if (pat == Q_NULLPTR)
+    {
+        m_initOK = false;
         return;
+    }
     m_idpatient = pat->id();
-    m_iscurrentpatient          = (pat == Datas::I()->patients->currentpatient());
+    if (Datas::I()->patients->currentpatient() != Q_NULLPTR)
+        m_iscurrentpatient          = (pat == Datas::I()->patients->currentpatient());
     if (m_iscurrentpatient)                                                 /*! la fiche a été appelée depuis le dossier d'un patient, cas le plus fréquent,
                                                                                elle affiche tous les actes sauf le dernier */
     {

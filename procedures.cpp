@@ -1681,30 +1681,35 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
     return true;
 }
 
-bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString Entete, QString text, QDate date,
+bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString text, QDate date,
                                                                           bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
     if (pat == Q_NULLPTR || user == Q_NULLPTR)
         return false;
-    QString     Corps, Pied;
-    QTextEdit   *Etat_textEdit = new QTextEdit;
+    QString     Corps, Pied, Entete;
     bool        AvecNumPage = false;
     bool        success;
 
+    //création de l'entête
+    QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user);
+    if (EnteteMap.value("Norm") == "")
+        return false;
+    Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+    if (Entete == "") return false;
+    Entete.replace("{{TITRE1}}"        , "");
+    Entete.replace("{{TITRE}}"         , "");
+    Entete.replace("{{DDN}}"           , "");
     Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
     Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
 
     //création du pied
     Pied = CalcPiedImpression(user, false, ALD);
     if (Pied == "")
-    {
-        delete Etat_textEdit;
         return false;
-    }
 
     // creation du corps
+    QTextEdit   *Etat_textEdit = new QTextEdit;
     Corps = CalcCorpsImpression(text, ALD);
-    qDebug() << Corps;
     if (Corps == "")
     {
         delete Etat_textEdit;
