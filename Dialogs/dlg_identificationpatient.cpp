@@ -509,7 +509,8 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->PrenomlineEdit->setEnabled(false);
         ui->DDNdateEdit->setEnabled(false);
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
-        QString textcreateur (tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")));
+        QString textcreateur (tr("Créé le ") + (m_currentpatient->datecreationdossier().isValid()?
+                                                   m_currentpatient->datecreationdossier().toString("d-M-yyyy"):"???"));
         if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
             textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
         ui->Createurlabel->setText(textcreateur);
@@ -539,7 +540,8 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->MradioButton->setChecked(m_currentpatient->sexe() == "M");
         ui->FradioButton->setChecked(m_currentpatient->sexe() == "F");
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
-        QString textcreateur (tr("Créé le ") + m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")));
+        QString textcreateur (tr("Créé le ") + (m_currentpatient->datecreationdossier().isValid()?
+                                                   m_currentpatient->datecreationdossier().toString("d-M-yyyy"):"???"));
         if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
             textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
         ui->Createurlabel->setText(textcreateur);

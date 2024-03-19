@@ -1142,22 +1142,18 @@ void Utils::CalcDateTimeValueSQL(QVariant &newvalue)
  *  \return un object contenant :
  * toString : une chaine de caractères ( ex: 2 ans 3 mois )
  * annee : l'age brut de la personne
- * mois :
+ * mois : le nombre de mois dans l'année
  * icone : l'icone à utiliser [man women, girl, boy, kid, baby]
- * formule : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
+ * formule_politesse : une valeur parmi [l'enfant, la jeune, le jeune, madame, monsieur]
  *
  */
-QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance)
+QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QDate datedujour, QString Sexe)
 {
-    return Utils::CalculAge(datedenaissance, "", QDate::currentDate());
-}
-QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QDate datedujour)
-{
-    return Utils::CalculAge(datedenaissance, "", datedujour);
-}
-QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QString Sexe, QDate datedujour)
-{
-    QMap<QString,QVariant>  Age;
+    QMap<QString,QVariant>  Age = {{"annee", ""}, {"mois", ""}, {"toString", ""}, {"icone",""}, {"formule_politesse",""}};
+
+    if (!datedenaissance.isValid())
+        return Age;
+
     int         AnneeNaiss, MoisNaiss, JourNaiss;
     int         AnneeCurrent, MoisCurrent, JourCurrent;
     int         AgeAnnee, AgeMois;
@@ -1219,7 +1215,7 @@ QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QString Sexe, QDa
         if (Sexe == "F")                formule = "madame";
         if (Sexe == "M")                formule = "monsieur";
     }
-    Age["formule"] = formule;
+    Age["formule_politesse"] = formule;
 
     return Age;
 }

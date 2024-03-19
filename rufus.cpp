@@ -2702,7 +2702,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
     UpTextEdit textprov;
 
     QString Age;
-    QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
+    QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), m_currentdate, pat->sexe());
     Age = AgeTotal["toString"].toString();
     Reponse += "<p><font color = \"" COULEUR_TITRES "\"><b>" + pat->nom() + " " + pat->prenom() + "</font> - " + Age + "</b> (" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")</p>";                   //DDN
     if (pat->adresse1() != "")
@@ -6782,7 +6782,8 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         return;
 
     RecalcCurrentDateTime();
-    ui->DateCreationDossierlineEdit->setText(currentpatient()->datecreationdossier().toString(tr("d-M-yyyy")));
+    ui->DateCreationDossierlineEdit->setText(currentpatient()->datecreationdossier().isValid()?
+                                                 currentpatient()->datecreationdossier().toString("d-M-yyyy") : "???");
     ui->idPatientlineEdit->setText(QString::number(currentpatient()->id()));
     if (!ui->tabDossier->isVisible())
     {
@@ -7207,7 +7208,7 @@ QString Rufus::CalcHtmlIdentificationPatient(Patient *pat)
         return QString();
     QString html, img, Age;
     QMap<QString,QVariant>  AgeTotal;
-    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
+    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), m_currentdate, pat->sexe());
     img             = AgeTotal["icone"].toString(); //TODO : User icone
     Age             = AgeTotal["toString"].toString();
 
@@ -7273,7 +7274,7 @@ QIcon Rufus::CalcIconPatient(Patient *pat)
         return QIcon();
     QString img;
     QMap<QString,QVariant>  AgeTotal;
-    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), pat->sexe(), m_currentdate);
+    AgeTotal        = Utils::CalculAge(pat->datedenaissance(), m_currentdate, pat->sexe());
     img             = AgeTotal["icone"].toString(); //TODO : User icone
     return Icons::getIconAge(img);
 }
@@ -8655,11 +8656,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             return;
         }
         //qDebug() << userEntete->login() << pat->nomcomplet();
-        QString     Entete;
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
-        //création de l'entête
-        QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(DateDoc, userEntete);
-        if (EnteteMap.value("Norm") == "") return;
 
         bool ALD;
         QString imprimante = "";
@@ -8676,13 +8673,10 @@ void    Rufus::ImprimeDocument(Patient *pat)
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
-            Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
-            if (Entete == "") return;
-            Entete.replace("{{TITRE1}}"        , "");
-            Entete.replace("{{TITRE}}"         , "");
-            Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            success                     = proc->Imprimer_Document(this, pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
+                                                                  TxtDocument, DateDoc, Prescription, ALD,
+                                                                  AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!success)
                 break;
             imprimante = proc->nomImprimante();

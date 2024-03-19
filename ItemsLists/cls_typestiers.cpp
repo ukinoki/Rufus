@@ -45,6 +45,7 @@ void TypesTiers::addList(QList<TypeTiers*> listTypesTiers)
             add( trs );
 }
 
+/*!
 void TypesTiers::remove(TypeTiers* typetiers)
 {
     if (typetiers == Q_NULLPTR)
@@ -59,7 +60,7 @@ void TypesTiers::clearAll()
         remove(m_typestiers->at(0));
     m_typestiers->clear();
 }
-
+/*
 /*!
  * \brief TypesTiers::initListe
  * Charge l'ensemble des types de tiers payants
@@ -67,7 +68,8 @@ void TypesTiers::clearAll()
  */
 void TypesTiers::initListe()
 {
-    clearAll();
+    qDeleteAll(*m_typestiers);
+    m_typestiers->clear();
     addList(DataBase::I()->loadTypesTiers());
 }
 

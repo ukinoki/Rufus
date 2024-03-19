@@ -1622,11 +1622,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
         if (userEntete == Q_NULLPTR)
             return;
 
-        QString     Entete;
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
-        //création de l'entête
-        QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(DateDoc, userEntete);
-        if (EnteteMap.value("Norm") == "") return;
 
         bool ALD;
         QString imprimante = "";
@@ -1643,13 +1639,8 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             bool AvecPrevisu            = proc->ApercuAvantImpression();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
-            Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
-            if (Entete == "") return;
-            Entete.replace("{{TITRE1}}"        , "");
-            Entete.replace("{{TITRE}}"         , "");
-            Entete.replace("{{DDN}}"           , "");
             proc                        ->setNomImprimante(imprimante);
-            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, Entete, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
             if (!m_docimprime)
                 break;
             imprimante = proc->nomImprimante();
