@@ -255,22 +255,22 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString nom = Datas::I()->patients->currentpatient()->nom().toUpper();
     QString prenom = Datas::I()->patients->currentpatient()->prenom().toUpper();
 
-    QString Entete, Pied;
+    QString textentete, textpied;
     QDate l_currentdate = db->ServerDate();
 
     //création de l'entête
-    Entete = proc->CalcEnteteImpression(l_currentdate, userEntete).value("Norm");
-    if (Entete == "") return;
-    Entete.replace("{{TITRE1}}"            , "");
-    Entete.replace("{{TITRE}}"             , "<font color = \"" COULEUR_TITRES "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
-    Entete.replace("{{PRENOM PATIENT}}"    , prenom);
-    Entete.replace("{{NOM PATIENT}}"       , nom);
-    Entete.replace("{{DDN}}"               , "");
-    Entete.replace("{{DATE}}"              , Datas::I()->sites->currentsite()->ville() + ", le " + QLocale::system().toString(l_currentdate,tr("d MMMM yyyy")));
+    textentete = proc->CalcEnteteImpression(l_currentdate, userEntete).value("Norm");
+    if (textentete == "") return;
+    textentete.replace("{{TITRE1}}"            , "");
+    textentete.replace("{{TITRE}}"             , "<font color = \"" COULEUR_TITRES "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");
+    textentete.replace("{{PRENOM PATIENT}}"    , prenom);
+    textentete.replace("{{NOM PATIENT}}"       , nom);
+    textentete.replace("{{DDN}}"               , "");
+    textentete.replace("{{DATE}}"              , Datas::I()->sites->currentsite()->ville() + ", le " + QLocale::system().toString(l_currentdate,tr("d MMMM yyyy")));
 
     // création du pied
-    Pied = proc->CalcPiedImpression(userEntete);
-    if (Pied == "") return;
+    textpied = proc->CalcPiedImpression(userEntete);
+    if (textpied == "") return;
 
     // creation du corps du bilan
     QTextEdit *textHtml;
@@ -288,7 +288,8 @@ void dlg_bilanortho::ImprimeBOClicked()
                           +"<p><td width=\"40\"></td><td width=\"400\">" + ui->ConclusiontextEdit->toHtml() + "</td></p>");
     textHtml->setText(textHtml->toHtml().replace(QRegularExpression::wildcardToRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
 
-    bool aa = proc->Imprime_Etat(this, textHtml, Entete, Pied,
+    QString textcorps = textHtml->toHtml();
+    bool aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
 
@@ -301,9 +302,9 @@ void dlg_bilanortho::ImprimeBOClicked()
         listbinds[CP_TYPEDOC_DOCSEXTERNES] =          "Orthoptie";
         listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      "Bilan";
         listbinds[CP_TITRE_DOCSEXTERNES] =            "Bilan orthoptique";
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textHtml->toHtml();
-        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied.replace("{{DUPLI}}","");
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       textentete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textcorps;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         textpied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES] =             m_currentact->date().toString("yyyy-MM-dd");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "0";

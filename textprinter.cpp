@@ -331,6 +331,12 @@ QRectF TextPrinter::footerRect(QPaintDevice *device)
     return rect;
 }
 
+/*!
+/*! * \brief TextPrinter::getPDFByteArray
+/*! * \param document
+/*! * \return
+/*! */
+
 QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 {
     QByteArray bapdf;

@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsVideoItem>
 #include <QGraphicsView>
 #include "playercontrols.h"
+#include "textprinter.h"
 
 class dlg_docsexternes : public UpDialog
 {
@@ -32,7 +33,7 @@ public:
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
-    Mode                    mode() { return m_mode; };
+    enum typeDoc            {Text, Image};                                      Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
 
 private:
     DataBase                *db             = DataBase::I();
@@ -84,6 +85,7 @@ private:
     void                    BasculeTriListe(dlg_docsexternes::ModeTri mode);
 
     QString                 CalcTitre(DocExterne *docmt);
+    void                    CalcImageDocument(DocExterne *docmt, const typeDoc typedoc);
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
     void                    EnregistreImage(DocExterne* docmt);
     void                    EnregistreVideo();

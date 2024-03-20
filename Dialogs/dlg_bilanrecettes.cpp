@@ -241,7 +241,7 @@ Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
 
 void dlg_bilanrecettes::ImprimeEtat()
 {
-    QString            Entete, Pied;
+    QString            textentete, textpied;
     bool AvecDupli   = false;
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
@@ -259,30 +259,29 @@ void dlg_bilanrecettes::ImprimeEtat()
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value("Norm");
-    if (Entete == "") return;
+    textentete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value("Norm");
+    if (textentete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
     if (m_mode == SUPERVISEUR)
-        Entete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt())->login(): tr("Bilan global")));
+        textentete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt())->login(): tr("Bilan global")));
     else
-        Entete.replace("{{PRENOM PATIENT}}"    , "");
-    Entete.replace("{{NOM PATIENT}}"       , "");
-    Entete.replace("{{TITRE1}}"            , windowTitle());
-    Entete.replace("{{TITRE}}"             , "");
-    Entete.replace("{{DDN}}"               , (m_mode == SUPERVISEUR? wdg_totalmontantlbl->text() : ""));
+        textentete.replace("{{PRENOM PATIENT}}"    , "");
+    textentete.replace("{{NOM PATIENT}}"       , "");
+    textentete.replace("{{TITRE1}}"            , windowTitle());
+    textentete.replace("{{TITRE}}"             , "");
+    textentete.replace("{{DDN}}"               , (m_mode == SUPERVISEUR? wdg_totalmontantlbl->text() : ""));
 
     // création du pied
-    Pied = proc->CalcPiedImpression(userEntete);
-    if (Pied == "") return;
+    textpied = proc->CalcPiedImpression(userEntete);
+    if (textpied == "") return;
 
     // creation du corps de la remise
     QString couleur = "<font color = \"" COULEUR_TITRES "\">";
     double c = CORRECTION_td_width;
-    QTextEdit *Etat_textEdit = new QTextEdit;
-    QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
+    QString textcorps = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
                     "</style></head>"
                     "<body LANG=\"fr-FR\" DIR=\"LTR\">"
                     "<table width=\"" + QString::number(int(c*510)) + "\" border=\"1\"  cellspacing=\"0\" cellpadding=\"2\">";
@@ -297,7 +296,7 @@ void dlg_bilanrecettes::ImprimeEtat()
                 if (rec != Q_NULLPTR)
                     if (rec->cotationacte() != "")
                     {
-                        test4 += "<tr>"
+                        textcorps += "<tr>"
                                  "<td width=\"" + QString::number(int(c*30))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></td>"                      //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">" + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></font></td>"                         //! date
                                  "<td width=\"" + QString::number(int(c*160)) + "\"><span style=\"font-size:8pt\">" + rec->payeur() + "</span></td>"                                                        //! nom prenom
@@ -309,13 +308,13 @@ void dlg_bilanrecettes::ImprimeEtat()
             }
             else if (m_mode == COMPTABLE)
             {
-                test4 += "<tr>";
+                textcorps += "<tr>";
                 Recette* rec = getRecetteFromRow(i);
                 if (rec != Q_NULLPTR)
                 {
                     if (rec->isapportpraticien())                                      //! ----   c'est un apport praticien
                     {
-                        test4 +=    "<td width=\"" + QString::number(int(c*25))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">"
+                        textcorps +=    "<td width=\"" + QString::number(int(c*25))  + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QString::number(row) + "</div></span></font></td>"                                                     //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\">" + couleur + "<span style=\"font-size:8pt\">"
                                 + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></font></td>"                                         //! date
@@ -330,40 +329,40 @@ void dlg_bilanrecettes::ImprimeEtat()
                     }
                     else if (rec->montant()==0.0 && !rec->isapportpraticien())          //! ----   c'est un tiers payant
                     {
-                        test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                        textcorps += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QString::number(row) + "</span></td>"                                                                 //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">"
                                 + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></td>"                                               //! date
                                 "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">"
                                 + rec->payeur() + "</span></td>"                                                                        //! nom prenom ou libelle si recette speciale
                                 "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">-</span></td>";                       //! vide (on est obligé de mettre un "-" parce que sinon la hauteur de ligne est fausse)
-                        test4 += "<td width=\"" + QString::number(int(c*50))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                        textcorps += "<td width=\"" + QString::number(int(c*50))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QLocale().toString(rec->encaissement(), 'f', 2) + "</div></span></td>";                               //! montant
-                        test4 += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">"
+                        textcorps += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">"
                                 + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                            //! mode de paiement
 
                     }
                     else                                                                                        //! ----   c'est une recette
                     {
-                        test4 += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                        textcorps += "<td width=\"" + QString::number(int(c*25))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QString::number(row) + "</span></td>"                                                                 //! no ligne
                                 "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">"
                                 + QLocale::system().toString(rec->date(),tr("d MMM yyyy")) + "</span></td>"                                               //! date
                                 "<td width=\"" + QString::number(int(c*180)) + "\"><span style=\"font-size:8pt\">"
                                 + rec->payeur() + "</span></td>";                                                                       //! nom prenom ou libelle si recette speciale
                         if (rec->isautrerecette())
-                                test4 += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">"
+                                textcorps += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">"
                                 + tr("divers et autres recettes") + "</span></td>";
                         else
-                            test4 += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">"
+                            textcorps += "<td width=\"" + QString::number(int(c*115)) + "\"><span style=\"font-size:8pt\">"
                                 + rec->cotationacte() + "</span></td>";
                         if (rec->isautrerecette())
-                            test4 += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                            textcorps += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                     + QLocale().toString(rec->encaissementautrerecette(), 'f', 2) + "</div></span></td>";
                         else
-                            test4 += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
+                            textcorps += "<td width=\"" + QString::number(int(c*50)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">"
                                     + QLocale().toString(rec->encaissement(), 'f', 2) + "</div></span></td>";
-                        test4 += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">"
+                        textcorps += "<td width=\"" + QString::number(int(c*75))  + "\"><span style=\"font-size:8pt\">"
                                 + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                            //! mode de paiement
                     }
                     row++;
@@ -371,32 +370,29 @@ void dlg_bilanrecettes::ImprimeEtat()
             }
         }
     }
-    test4 += "</table>";
+    textcorps += "</table>";
     if (m_mode==COMPTABLE)
     {
-        test4 +=    "<table width  =\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
-        test4 +=    "<tr>"
+        textcorps +=    "<table width  =\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
+        textcorps +=    "<tr>"
                     "<tr><td width =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\">" + tr("Total apports praticien") + "</span></font></td>"
                                                                                                                                                              "<td width     =\"" + QString::number(int(c*125)) + "\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(m_totalapport,'f',2) + "</div></span></font></font></td>";
-        test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total recettes") + "</span></td>"
+        textcorps +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total recettes") + "</span></td>"
                     "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(m_totalrecu,'f',2) + "</div></span></td>"
                     "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(m_totalrecuespeces,'f',2) + ", Banque = " + QString::number(m_totalrecubanque,'f',2) + ")</span></td>";
-        test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total autres recettes") + "</span></td>"
+        textcorps +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\">" + tr("Total autres recettes") + "</span></td>"
                     "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(m_totalautresrecettes,'f',2) + "</div></span></td>"
                     "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt\">(Espèces = " + QString::number(m_totalautresrecettesespeces,'f',2) + ", Banque = " + QString::number(m_totalautresrecettesbanque,'f',2) + ")</span></td>";
-        test4 +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt;font-weight:bold\">" + tr("Total général recettes") + "</span></td>"
+        textcorps +=    "<tr><td width =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt;font-weight:bold\">" + tr("Total général recettes") + "</span></td>"
                     "<td width     =\"" + QString::number(int(c*125)) + "\"><span style=\"font-size:8pt;font-weight:bold\"><div align=\"right\">" + QString::number(m_grandtotalbanqu + m_grandtotalespeces,'f',2) + "</div></span></td>"
                     "<td width     =\"" + QString::number(int(c*255)) + "\"><span style=\"font-size:8pt;font-weight:bold\">(Espèces = " + QString::number(m_grandtotalespeces,'f',2) + ", Banque = " + QString::number(m_grandtotalbanqu,'f',2) + ")</span></td>";
-        test4 += "</table>";
+        textcorps += "</table>";
     }
-    test4 += "</body></html>";
+    textcorps += "</body></html>";
 
-    Etat_textEdit->setHtml(test4);
-
-    proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
+    proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
-    delete Etat_textEdit;
 }
 
 void dlg_bilanrecettes::CalcSuperviseursEtComptables()

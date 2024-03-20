@@ -215,7 +215,7 @@ private:
     void        setcurrentlistecotations(Cotations* cot)    { m_currencotation = cot; };
 
     // gestion des patients vus dans la journée
-    QTimer      *gTimerPatientsVus       = Q_NULLPTR;
+    QTimer      *gTimerPatientsVus;
     void        AffichePatientsVusWidget();
     void        MAJPatientsVus();
     void        MasquePatientsVusWidget();
@@ -256,7 +256,7 @@ private:
 
 private:
 
-    MesureRefraction        *shortref_acuite                = Q_NULLPTR;
+    MesureRefraction        *shortref_acuite       = Q_NULLPTR;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};

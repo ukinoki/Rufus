@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-03-2024/1");
+    qApp->setApplicationVersion("26-02-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2556,16 +2556,18 @@ void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
         return;
     Actes *acts = Q_NULLPTR;
     QMap<int, Acte*> *listeactes;
-    bool a = false;
     if (currentpatient() != Q_NULLPTR)
     {
         if (pat->id() == currentpatient()->id())
-        {
             listeactes = m_listeactes->actes();
-            a = true;
+        else
+        {
+            acts = new Actes();
+            acts->initListeByPatient(pat, Item::Update);
+            listeactes = acts->actes();
         }
     }
-    if (!a)
+    else
     {
         acts = new Actes();
         acts->initListeByPatient(pat, Item::Update);
@@ -2844,7 +2846,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    }
 
    //Impression du dossier
-   QString  Corps, Entete, Pied;
+   QString  textcorps, textentete, textpied;
    bool     AvecPrevisu = true;
    bool     AvecDupli   = false;
    bool     AvecNumPage = true;
@@ -2878,7 +2880,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            Combo->setFixedHeight(34);
            Combo->setEditable(false);
            foreach (User* usr, listusers)
-                Combo->addItem(usr->login(), usr->id());
+               Combo->addItem(usr->login(), usr->id());
            dlg_askcorrespondant->dlglayout()   ->insertWidget(0,Combo);
            dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
 
@@ -2920,10 +2922,9 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            return;
        }
    }
-
-   Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
-   if (Entete == "") return;
-   Entete.replace("{{TITRE1}}"             , "");
+   textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+   if (textentete == "") return;
+   textentete.replace("{{TITRE1}}"             , "");
    QString comment;
    if (toutledossier)
        comment = tr("COMPTE RENDU DE DOSSIER");
@@ -2931,18 +2932,18 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        comment = tr("Actes du") + " " + datedebut + tr("au") + " " + datefin;
    else
        comment = tr("Acte du") + " " + datedebut;
-   Entete.replace("{{TITRE}}"              , "<font color = \"" COULEUR_TITRES "\">" + comment + "</font>");
-   Entete.replace("{{PRENOM PATIENT}}"     , pat->prenom());
-   Entete.replace("{{NOM PATIENT}}"        , pat->nom().toUpper());
-   Entete.replace("{{DDN}}"                , "(" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")");
+   textentete.replace("{{TITRE}}"              , "<font color = \"" COULEUR_TITRES "\">" + comment + "</font>");
+   textentete.replace("{{PRENOM PATIENT}}"     , pat->prenom());
+   textentete.replace("{{NOM PATIENT}}"        , pat->nom().toUpper());
+   textentete.replace("{{DDN}}"                , "(" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")");
 
 
    // création du pied
-   Pied = proc->CalcPiedImpression(userEntete);
-   if (Pied == "") return;
+   textpied = proc->CalcPiedImpression(userEntete);
+   if (textpied == "") return;
 
    // creation du corps de l'impression
-   Corps = "<html>"
+   textcorps = "<html>"
            "<body LANG=\"fr-FR\" DIR=\"LTR\">"
            "<p><div align=\"justify\">"
            "<span style=\"font-size:9pt\">"
@@ -2955,21 +2956,19 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    Reponse.replace(reg,"font-size:" + QString::number(taillefont) + "pt");
    QString largeurformule = LARGEUR_FORMULE;
    Reponse.replace("<td width=\"" LARGEUR_FORMULE "\">","<td width=\"" + QString::number(largeurformule.toInt() - 40) + "\">");
-   Corps.replace("{{TEXTE ORDO}}",Reponse);
+   textcorps.replace("{{TEXTE ORDO}}",Reponse);
 
-   QTextEdit *Etat_textEdit = new QTextEdit;
-   Etat_textEdit->setHtml(Corps);
    bool aa = false;
    if (queLePdf)
    {
-       aa = proc->Cree_pdf(Etat_textEdit, Entete, Pied,
+       aa = proc->Cree_pdf(textcorps, textentete, textpied,
                              (listeactes.size() > 1?
                                   tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
                                   tr("Acte")  + " - " + pat->nom() + " " + pat->prenom() + " - " + QLocale::system().toString(listeactes.at(0)->date(),"d MMM yyyy")) + ".pdf",
                              nomdossier);
    }
    else
-       aa = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
+       aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                               proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                               AvecDupli, AvecPrevisu, AvecNumPage);
    if (aa)
@@ -2981,9 +2980,9 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = COURRIER;
        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
        listbinds[CP_TITRE_DOCSEXTERNES]         = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
-       listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
-       listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
-       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied;
+       listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = textentete;
+       listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = textcorps;
+       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = textpied;
        listbinds[CP_DATE_DOCSEXTERNES]          = m_currentdate.toString("yyyy-MM-dd") + " " + m_currenttime.toString("HH:mm:ss");
        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
@@ -2993,7 +2992,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
        ui->OuvreDocsExternespushButton->setEnabled(true);
    }
-   delete Etat_textEdit;
 }
 
 void Rufus::DropPatient(QByteArray data)
@@ -3514,21 +3512,21 @@ void Rufus::ImprimeListPatients(QVariant var)
     QDate   date = QDate::currentDate();
 
     //création de l'entête
-    QString EnTete;
+    QString textentete;
     User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
     if (userEntete == Q_NULLPTR)
         return;
-    EnTete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
-    if (EnTete == "") return;
-    EnTete.replace("{{TITRE1}}"            , "");
-    EnTete.replace("{{PRENOM PATIENT}}"    , "");
-    EnTete.replace("{{NOM PATIENT}}"       , "");
-    EnTete.replace("{{TITRE}}"             , titre);
-    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + QString::number(gtotalNbreDossiers)
+    textentete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
+    if (textentete == "") return;
+    textentete.replace("{{TITRE1}}"            , "");
+    textentete.replace("{{PRENOM PATIENT}}"    , "");
+    textentete.replace("{{NOM PATIENT}}"       , "");
+    textentete.replace("{{TITRE}}"             , titre);
+    textentete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + QString::number(gtotalNbreDossiers)
                    + " " + (gtotalNbreDossiers>1? tr("dossiers") : tr("dosssier")) + "</font>");
     // création du pied
-    QString Pied = proc->CalcPiedImpression(userEntete);
-    if (Pied == "") return;
+    QString textpied = proc->CalcPiedImpression(userEntete);
+    if (textpied == "") return;
 
     // creation du corps
     QString ligne = "<table width=\"490\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">"
@@ -3539,7 +3537,7 @@ void Rufus::ImprimeListPatients(QVariant var)
                     "</tr>"
                     "</table>";
 
-    QString texte, lignepat;
+    QString textecorps, lignepat;
     for (int k = 0; k < patlist.size(); k++)
     {
         // Remplacement des variables par les valeurs lues.
@@ -3547,15 +3545,12 @@ void Rufus::ImprimeListPatients(QVariant var)
         lignepat.replace("{{NOM PATIENT}}", patlist.at(k).at(1).toString() + " " + patlist.at(k).at(2).toString());
         lignepat.replace("{{DDN}}", QLocale::system().toString(patlist.at(k).at(3).toDate(),tr("dd-MMM-yyyy")));
         lignepat.replace("{{MOTIF}}", patlist.at(k).at(4).toString());
-        texte += lignepat;
+        textecorps += lignepat;
      }
-    QTextEdit *textEdit = new QTextEdit;
-    textEdit->setHtml(texte);
 
-    proc->Imprime_Etat(this, textEdit, EnTete, Pied,
+    proc->Imprime_Etat(this, textecorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
-    delete textEdit;
 }
 
 void Rufus::MasquePatientsVusWidget()
@@ -3648,12 +3643,11 @@ void Rufus::MenuContextuelListePatients()
             connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
         }
     }
-    if(currentuser()->isSecretaire() || currentuser()->isSoignant())
+    if (currentuser()->isSecretaire() || currentuser()->isSoignant())
     {
-            QAction *pAction_ImprimDoss = m_menuContextuel->addAction(tr("Exporter le dossier du patient"));
-            connect (pAction_ImprimDoss,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ExportDoss");});
+        QAction *pAction_ImprimDoss = m_menuContextuel->addAction(tr("Exporter le dossier du patient"));
+        connect (pAction_ImprimDoss,    &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ExportDoss");});
     }
-
     QAction *pAction_EnregDoc = m_menuContextuel->addAction(tr("Enregistrer un document scanné"));
     connect (pAction_EnregDoc,              &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "EnregDocScan");});
 
@@ -8053,7 +8047,7 @@ bool Rufus::FermeDossier(Patient *patient)
     msgbox.addButton(&SalDatBouton, UpSmallButton::STARTBUTTON);
     msgbox.addButton(&CloseBouton,  UpSmallButton::CLOSEBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le retirer de la liste des patients en cours
+    if (msgbox.clickedButton() == &CloseBouton)                                                        // Fermer le dossier et le rtire de la liste despatients en cours
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(patient->id()));
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
@@ -8086,9 +8080,9 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        Datas::I()->patients    ->setcurrentpatient(Q_NULLPTR);
-        Datas::I()->actes       ->setcurrentacte(Q_NULLPTR);
-        Datas::I()->docsexternes->reset();
+        Datas::I()->patients->setcurrentpatient(Q_NULLPTR);
+        Datas::I()->actes->setcurrentacte(Q_NULLPTR);        
+        Datas::I()->docsexternes    ->reset();
     }
     Flags::I()->MAJFlagSalleDAttente();
     return a;

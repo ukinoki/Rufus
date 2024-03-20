@@ -1232,7 +1232,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         {
             QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
             if (listsites.size()>0)
-                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adresse
+                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
             else {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
                 return EnteteMap;
@@ -1314,22 +1314,24 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
     return Pied;
 }
 
-bool Procedures::Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
-    QString PiedDepart = Pied;
+    QTextEdit *Etat = new QTextEdit;
+    Etat->setHtml(textcorps);
+    QString PiedDepart = textpied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
-    TexteAImprimer->setHeaderText(EnTete);
+    TexteAImprimer->setHeaderText(textentete);
 
     if (TailleEnTete > 0)
         TexteAImprimer->setHeaderSize(TailleEnTete);
     else
         TexteAImprimer->setHeaderSize(25);
-    Pied.replace("{{DUPLI}}","");
+    textpied.replace("{{DUPLI}}","");
     if (!AvecNumPage)
-        Pied.replace("&page;","");
-    TexteAImprimer->setFooterText(Pied);
+        textpied.replace("&page;","");
+    TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
@@ -1346,21 +1348,24 @@ bool Procedures::Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString EnTete, 
         if (AvecDupli)
         {
             QString dupli = "<p align=\"center\"><span style=\"font-family:Arial Black;font-size:24pt;font-style:normal;font-weight:bold;color:#cccccc;\">DUPLICATA</span></p>";
-            Pied = PiedDepart.replace("{{DUPLI}}",dupli);
+            textpied = PiedDepart.replace("{{DUPLI}}",dupli);
             if (!AvecNumPage)
-                Pied.replace("&page;","");
-            TexteAImprimer->setFooterText(Pied);
+                textpied.replace("&page;","");
+            TexteAImprimer->setFooterText(textpied);
             TexteAImprimer->setFooterSize(TexteAImprimer->footerSize() + 20);
             TexteAImprimer->print(Etat->document(),"","",false);
         }
     m_nomImprimante = TexteAImprimer->getPrinterName();
     delete TexteAImprimer;
+    delete Etat;
     return a;
 }
 
-bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier)
+bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpied, QString nomfichier, QString nomdossier)
 {
     bool a = false;
+    QTextEdit *Etat = new QTextEdit;
+    Etat->setHtml(textcorps);
     if (nomdossier == "")
         nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
     QDir DirDest(nomdossier);
@@ -1370,12 +1375,12 @@ bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString
     QString nomficpdf = nomdossier + "/" + nomfichier;
 
     TextPrinter *TexteAImprimer = new TextPrinter();
-    Pied.replace("{{DUPLI}}","");
+    textpied.replace("{{DUPLI}}","");
 
     TexteAImprimer->setFooterSize(TaillePieddePage());
-    TexteAImprimer->setHeaderText(EnTete);
+    TexteAImprimer->setHeaderText(textentete);
     TexteAImprimer->setHeaderSize(TailleEnTete());
-    TexteAImprimer->setFooterText(Pied);
+    TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
 
 
@@ -1388,145 +1393,8 @@ bool Procedures::Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString
         a = true;
     filepdf.close ();
     delete TexteAImprimer;
+    delete Etat;
     return a;
-}
-
-void Procedures::CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc)
-{
-    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
-     *  pour pouvoir les afficher ou les imprimer
-
-   * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
-     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
-     *                          Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
-     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
-     *      typedoc = Image ->  le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
-    */
-    if (docmt == Q_NULLPTR )
-        return;
-    QByteArray ba = QByteArray();
-    QString filename = "";
-    switch (typedoc) {
-    case Image:
-        //!> il s'agit d'un fichier image
-        filename = docmt->lienversfichier();
-        if (filename != "")
-        {
-            QString fileformat;
-            if (filename.contains("."))
-            {
-                QStringList lst = filename.split(".");
-                fileformat      = lst.at(lst.size()-1);
-            }
-            if (fileformat == PDF || fileformat == JPG)
-                docmt->setimageformat(fileformat);
-            else return;
-            if (db->ModeAccesDataBase() != Utils::Distant)
-            {
-                QString dossierimagerie = "";
-                if (db->ModeAccesDataBase() == Utils::Poste)
-                    dossierimagerie = m_parametres->dirimagerieserveur();
-                else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                    dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
-                else return;
-                QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
-                if (fileimg.open(QIODevice::ReadOnly))
-                {
-                    ba = fileimg.readAll();
-                    docmt->setimageblob(ba);
-                    return;
-                }
-            }
-            else
-            {
-                QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
-                ba = getFileFromServer(fullFilename);
-            }
-        }
-        if (ba.size()==0)    //! le document n'est pas enregistré sur le disque, on va le chercher dans la table impressions
-            ba=getFileFromSQL(docmt);
-        if (ba.size())
-            docmt->setimageblob(ba);
-        break;
-
-    case Text:
-        //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-        QString Entete  = docmt->textentete();
-
-        //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
-        if (Utils::epureFontFamily(Entete) || Utils::corrigeErreurHtmlEntete(Entete, docmt->isALD()))
-            ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
-        QString Corps   = docmt->textcorps();
-        if (Utils::epureFontFamily(Corps))
-            ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, Corps);
-        QString Pied    = docmt->textpied();
-        if (Utils::epureFontFamily(Pied))
-            ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, Pied);
-
-        //! émission du pdf
-        QTextEdit   *Etat_textEdit = new UpTextEdit;
-        Etat_textEdit   ->setText(Corps);
-        TextPrinter *TexteAImprimer = new TextPrinter();
-        TexteAImprimer  ->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
-        TexteAImprimer  ->setHeaderText(Entete);
-        if (docmt->format() == PRESCRIPTIONLUNETTES)
-            TexteAImprimer->setFooterSize(TaillePieddePageOrdoLunettes());
-        else
-            TexteAImprimer->setFooterSize(TaillePieddePage());
-        TexteAImprimer  ->setFooterText(Pied);
-        TexteAImprimer  ->setTopMargin(TailleTopMarge());
-        ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
-        docmt           ->setimageformat(PDF);
-        docmt           ->setimageblob(ba);
-        break;
-    }
-}
-
-void Procedures::CalcImageFacture(Depense *dep)
-{
-    if (dep == Q_NULLPTR)
-        return;
-    QString filename = "";
-    filename            = dep->lienfacture();
-    QByteArray ba       = QByteArray();
-    if (filename != "")
-    {
-        QString fileformat = "";
-        if (filename.contains("."))
-        {
-            QStringList lst = filename.split(".");
-            fileformat      = lst.at(lst.size()-1);
-        }
-        if (fileformat == PDF || fileformat == JPG)
-            dep->setfactureformat(fileformat);
-        else
-            return;
-        if (db->ModeAccesDataBase() != Utils::Distant)
-        {
-            QString dossierimagerie = "";
-            if (db->ModeAccesDataBase() == Utils::Poste)
-                dossierimagerie = m_parametres->dirimagerieserveur();
-            else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                dossierimagerie = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
-            else return;
-            QFile fileimg(dossierimagerie + NOM_DIR_FACTURES + filename);
-            if (fileimg.open(QIODevice::ReadOnly))
-            {
-                ba = fileimg.readAll();
-                dep->setfactureblob(ba);
-                return;
-            }
-        }
-        else
-        {
-            QString fullFilename = Utils::correctquoteSQL(m_parametres->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
-            ba = getFileFromServer(fullFilename);
-        }
-    }
-    if (ba.size() ==0)    // le document n'est pas dans le fichier, on va le chercher dans la table factures
-        ba=getFileFromSQL(dep);
-    if (ba.size() >0)
-        dep->setfactureblob(ba);
 }
 
 // Get file content from SQL table
@@ -1841,12 +1709,12 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
     return true;
 }
 
-bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString text, QDate date,
+bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
                                     bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
     if (pat == Q_NULLPTR || user == Q_NULLPTR)
         return false;
-    QString     Corps, Pied, Entete;
+    QString     textcorps, textpied, textentete;
     bool        AvecNumPage = false;
     bool        aa;
 
@@ -1854,43 +1722,41 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user);
     if (EnteteMap.value("Norm") == "")
         return false;
-    Entete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
-    if (Entete == "") return false;
-    Entete.replace("{{TITRE1}}"        , "");
-    Entete.replace("{{TITRE}}"         , "");
-    Entete.replace("{{DDN}}"           , "");
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
+    textentete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+    if (textentete == "") return false;
+    textentete.replace("{{TITRE1}}"        , "");
+    textentete.replace("{{TITRE}}"         , "");
+    textentete.replace("{{DDN}}"           , "");
+    textentete.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
+    textentete.replace("{{NOM PATIENT}}"   , (Prescription? pat->nom().toUpper() : ""));
 
     //création du pied
-    Pied = CalcPiedImpression(user, false, ALD);
-    if (Pied == "")
+    textpied = CalcPiedImpression(user, false, ALD);
+    if (textpied == "")
         return false;
 
     // creation du corps
-    QTextEdit   *Etat_textEdit = new QTextEdit;
-    Corps = CalcCorpsImpression(text, ALD);
-    if (Corps == "")
-    {
-        delete Etat_textEdit;
+    textcorps = CalcCorpsImpression(textorigine, ALD);
+    if (textcorps == "")
         return false;
-    }
-    Etat_textEdit->setHtml(Corps);
+    QTextEdit   *Etat_textEdit = new QTextEdit;
+    Etat_textEdit->setHtml(textcorps);
     if (Etat_textEdit->toPlainText() == "")
     {
         delete Etat_textEdit;
         return false;
     }
+    delete Etat_textEdit;
     int tailleEnTete = TailleEnTete();
     if (ALD) tailleEnTete = TailleEnTeteALD();
-    aa = Imprime_Etat(parent, Etat_textEdit, Entete, Pied,
+    aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(),
                             AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        Utils::nettoieHTML(Corps);
+        Utils::nettoieHTML(textcorps);
 
         int idpat = 0;
         idpat = pat->id();
@@ -1903,10 +1769,10 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         listbinds[CP_TYPEDOC_DOCSEXTERNES]       = (Prescription? "Prescription" : "Courrier");
         listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = titre;
         listbinds[CP_TITRE_DOCSEXTERNES]         = titre;
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
-        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = text;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied.replace("{{DUPLI}}","");
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = textentete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = textcorps;
+        listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = textorigine;
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = textpied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES]          = date.toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = Datas::I()->users->userconnected()->id();
         listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1": QVariant(QString()));
@@ -1918,7 +1784,6 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         if(doc != Q_NULLPTR)
             delete doc;
     }
-    delete Etat_textEdit;
     return aa;
 }
 

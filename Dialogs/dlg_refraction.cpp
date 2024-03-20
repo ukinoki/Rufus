@@ -1479,7 +1479,7 @@ int     dlg_refraction::idrefraction() const
 -----------------------------------------------------------------------------------------------------------------*/
 bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 {
-    QString Corps, Entete, Pied;
+    QString textcorps, textentete, textpied;
     bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = false;
@@ -1494,25 +1494,23 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     }
     if (userEntete == Q_NULLPTR)
         return false;
-    Entete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
-    if (Entete == "") return false;
-    Entete.replace("{{TITRE1}}"            , "");
-    Entete.replace("{{TITRE}}"             , "");
-    Entete.replace("{{PRENOM PATIENT}}"    , Datas::I()->patients->currentpatient()->prenom());
-    Entete.replace("{{NOM PATIENT}}"       , Datas::I()->patients->currentpatient()->nom().toUpper());
-    Entete.replace("{{DDN}}"               , "");
+    textentete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
+    if (textentete == "") return false;
+    textentete.replace("{{TITRE1}}"            , "");
+    textentete.replace("{{TITRE}}"             , "");
+    textentete.replace("{{PRENOM PATIENT}}"    , Datas::I()->patients->currentpatient()->prenom());
+    textentete.replace("{{NOM PATIENT}}"       , Datas::I()->patients->currentpatient()->nom().toUpper());
+    textentete.replace("{{DDN}}"               , "");
 
     // création du pied
-    Pied = proc->CalcPiedImpression(userEntete, true);
-    if (Pied == "") return false;
+    textpied = proc->CalcPiedImpression(userEntete, true);
+    if (textpied == "") return false;
 
     // creation du corps de l'ordonnance
-    Corps = proc->CalcCorpsImpression(ui->ResumePrescriptionTextEdit->toHtml());
-    if (Corps == "") return false;
+    textcorps = proc->CalcCorpsImpression(ui->ResumePrescriptionTextEdit->toHtml());
+    if (textcorps == "") return false;
 
-    QTextEdit *Etat_textEdit = new QTextEdit;
-    Etat_textEdit->setHtml(Corps);
-    bool a = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
+    bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     // stockage de l'ordonnance dans la base de donnees - table impressions
@@ -1524,10 +1522,10 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_TYPEDOC_DOCSEXTERNES] =          PRESCRIPTION;
         listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES] =      CORRECTION;
         listbinds[CP_TITRE_DOCSEXTERNES] =            "Prescription correction";
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       Entete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        Corps;
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       textentete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textcorps;
         listbinds[CP_TEXTORIGINE_DOCSEXTERNES] =      ui->ResumePrescriptionTextEdit->toPlainText();
-        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         Pied.replace("{{DUPLI}}","");
+        listbinds[CP_TEXTPIED_DOCSEXTERNES] =         textpied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
         listbinds[CP_ALD_DOCSEXTERNES] =              QVariant(QMetaType::fromType<QString>());
@@ -1539,7 +1537,6 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         if (doc != Q_NULLPTR)
             delete doc;
     }
-    delete Etat_textEdit;
     userEntete = Q_NULLPTR;
     return a;
 }

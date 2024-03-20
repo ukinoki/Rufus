@@ -1089,23 +1089,23 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     }
 
     //création de l'entête
-    QString EnTete;
+    QString textentete;
     if (iduser == -1) return false;
     User *userEntete = Datas::I()->users->getById(iduser);
     if(!userEntete)
         return false;
-    EnTete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
-    if (EnTete == "") return false;
+    textentete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
+    if (textentete == "") return false;
 
-    EnTete.replace("{{TITRE1}}"            , (Datas::I()->banques->getById(cpt->idBanque()) != Q_NULLPTR? Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper() : ""));
-    EnTete.replace("{{PRENOM PATIENT}}"    , "");
-    EnTete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
-    EnTete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
-    EnTete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
+    textentete.replace("{{TITRE1}}"            , (Datas::I()->banques->getById(cpt->idBanque()) != Q_NULLPTR? Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper() : ""));
+    textentete.replace("{{PRENOM PATIENT}}"    , "");
+    textentete.replace("{{NOM PATIENT}}"       , cpt->intitulecompte());
+    textentete.replace("{{TITRE}}"             , "Compte " + cpt->iban());
+    textentete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">Remise de chèques n° " + QString::number(idRemise) + "</font>");
 
     // création du pied
-    QString Pied = proc->CalcPiedImpression(userEntete);
-    if (Pied == "") return false;
+    QString textpied = proc->CalcPiedImpression(userEntete);
+    if (textpied == "") return false;
 
     // creation du corps
     double c = CORRECTION_td_width;
@@ -1117,7 +1117,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
           "</tr>"
           "</table>";
 
-    QString texteordo;
+    QString textecorps;
     for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
     {
         // Remplacement des variables par les valeurs lues.
@@ -1133,24 +1133,21 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
             LigneChq.replace("{{MONT REGLT}}", line->text());
             gtotalMontRemise += QLocale().toDouble(line->text());
         }
-        texteordo += LigneChq;
+        textecorps += LigneChq;
         gtotalNbrePieces ++;
     }
-    texteordo += "<table width=\"" + QString::number(int(c*490)) + "\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">"
+    textecorps += "<table width=\"" + QString::number(int(c*490)) + "\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">"
             "<tr>"
               "<td width=\"" + QString::number(int(c*490)) + "\" ><div align=\"right\"><span style=\"font-size:10pt;font-weight:bold\">{{TOTAL REMISE}}</span></div></td>"
             "</tr>"
             "</table>";
     QString totalchq = QString::number(gtotalNbrePieces) + " chèque";
     if (gtotalNbrePieces>1) totalchq += "s";
-    texteordo.replace("{{TOTAL REMISE}}", tr("TOTAL - ") + totalchq + tr(" en euros - ") + QString::number(gtotalMontRemise,'f',2));
-    QTextEdit *textEdit = new QTextEdit;
-    textEdit->setHtml(texteordo);
+    textecorps.replace("{{TOTAL REMISE}}", tr("TOTAL - ") + totalchq + tr(" en euros - ") + QString::number(gtotalMontRemise,'f',2));
 
-    bool a = proc->Imprime_Etat(this, textEdit, EnTete, Pied,
+    bool a = proc->Imprime_Etat(this, textecorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
-    delete textEdit;
     return a;
 }
 

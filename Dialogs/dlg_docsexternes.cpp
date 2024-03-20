@@ -231,6 +231,97 @@ QString dlg_docsexternes::CalcTitre(DocExterne* docmt)
     return a;
 }
 
+void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedoc)
+{
+    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
+     *  pour pouvoir les afficher ou les imprimer
+
+   * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
+     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+     *                          Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
+     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
+     *      typedoc = Image ->  le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
+    */
+    if (docmt == Q_NULLPTR )
+        return;
+    QByteArray ba = QByteArray();
+    QString filename = "";
+    switch (typedoc) {
+    case Image:
+        //!> il s'agit d'un fichier image
+        filename = docmt->lienversfichier();
+        if (filename != "")
+        {
+            QString fileformat;
+            if (filename.contains("."))
+            {
+                QStringList lst = filename.split(".");
+                fileformat      = lst.at(lst.size()-1);
+            }
+            if (fileformat == PDF || fileformat == JPG)
+                docmt->setimageformat(fileformat);
+            else return;
+            if (db->ModeAccesDataBase() != Utils::Distant)
+            {
+                QString dossierimagerie = "";
+                if (db->ModeAccesDataBase() == Utils::Poste)
+                    dossierimagerie = db->parametres()->dirimagerieserveur();
+                else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+                    dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+                else return;
+                QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+                if (fileimg.open(QIODevice::ReadOnly))
+                {
+                    ba = fileimg.readAll();
+                    docmt->setimageblob(ba);
+                    return;
+                }
+            }
+            else
+            {
+                QString fullFilename = Utils::correctquoteSQL(db->parametres()->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
+                ba = proc->getFileFromServer(fullFilename);
+            }
+        }
+        if (ba.size()==0)    //! le document n'est pas enregistré sur le disque, on va le chercher dans la table impressions
+            ba = proc->getFileFromSQL(docmt);
+        if (ba.size())
+            docmt->setimageblob(ba);
+        break;
+
+    case Text:
+        //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
+        QString Entete  = docmt->textentete();
+
+        //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
+        if (Utils::epureFontFamily(Entete) || Utils::corrigeErreurHtmlEntete(Entete, docmt->isALD()))
+            ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
+        QString Corps   = docmt->textcorps();
+        if (Utils::epureFontFamily(Corps))
+            ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, Corps);
+        QString Pied    = docmt->textpied();
+        if (Utils::epureFontFamily(Pied))
+            ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, Pied);
+
+        //! émission du pdf
+        QTextEdit   *Etat_textEdit = new UpTextEdit;
+        Etat_textEdit   ->setText(Corps);
+        TextPrinter *TexteAImprimer = new TextPrinter();
+        TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
+        TexteAImprimer  ->setHeaderText(Entete);
+        if (docmt->format() == PRESCRIPTIONLUNETTES)
+            TexteAImprimer->setFooterSize(proc->TaillePieddePageOrdoLunettes());
+        else
+            TexteAImprimer->setFooterSize(proc->TaillePieddePage());
+        TexteAImprimer  ->setFooterText(Pied);
+        TexteAImprimer  ->setTopMargin(proc->TailleTopMarge());
+        ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+        docmt           ->setimageformat(PDF);
+        docmt           ->setimageblob(ba);
+        break;
+    }
+}
+
 void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance imptce)
 {
     auto modifieitem = [] (QStandardItem *item, DocExterne *docmt, int imp, QFont fontitem)
@@ -390,13 +481,13 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     }
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {
-        Procedures::typeDoc typedoc;
+        typeDoc typedoc;
         if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
-            typedoc = Procedures::Image;
+            typedoc = Image;
         else
-            typedoc = Procedures::Text;
+            typedoc = Text;
         if (docmt->imageformat() == "")
-            proc->CalcImageDocument(docmt, typedoc);
+            CalcImageDocument(docmt, typedoc);
         if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
         {
             QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
@@ -435,7 +526,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGERIE + docmt->lienversfichier();
             QList<QImage> listimg;// = Utils::calcImagefromPdf(filename);
             // listimg = Utils::calcImagefromPdf(docmt->imageblob());
             listimg = docmt->pagelist(); // Il aurait d'être
@@ -743,7 +833,7 @@ void dlg_docsexternes::ImprimeDoc()
 bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin)
 {
     // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
-    QString     Corps, Entete, Pied, txt;
+    QString     textcorps, textentete, textpied, txt;
     QTextEdit   *Etat_textEdit  = new QTextEdit;
     bool        AvecNumPage     = false;
     bool        aa;
@@ -759,26 +849,26 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
 
     //création de l'entête
     QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(m_currentdate, currentuser());
-    Entete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
-    if (Entete == "")
+    textentete = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+    if (textentete == "")
     {
         delete Etat_textEdit;
         return false;
     }
-    Entete.replace("{{TITRE1}}"        , "");
-    Entete.replace("{{TITRE}}"         , "");
-    Entete.replace("{{DDN}}"           , "");
-    Entete.replace("{{PRENOM PATIENT}}", (Prescription? m_docsexternes->patient()->prenom()        : ""));
-    Entete.replace("{{NOM PATIENT}}"   , (Prescription? m_docsexternes->patient()->nom().toUpper() : ""));
+    textentete.replace("{{TITRE1}}"        , "");
+    textentete.replace("{{TITRE}}"         , "");
+    textentete.replace("{{DDN}}"           , "");
+    textentete.replace("{{PRENOM PATIENT}}", (Prescription? m_docsexternes->patient()->prenom()        : ""));
+    textentete.replace("{{NOM PATIENT}}"   , (Prescription? m_docsexternes->patient()->nom().toUpper() : ""));
 
     //création du pied
-    Pied = proc->CalcPiedImpression(currentuser(), docmt->format() == PRESCRIPTIONLUNETTES, ALD);
+    textpied = proc->CalcPiedImpression(currentuser(), docmt->format() == PRESCRIPTIONLUNETTES, ALD);
 
     // creation du corps de l'ordonnance
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
     txt                     = (modifiable?                              proc->Edit(txtautiliser)        : txtautiliser);
-    Corps                   = (docmt->typedoc() == PRESCRIPTION?        proc->CalcCorpsImpression(txt,ALD)  : proc->CalcCorpsImpression(txt));
-    Etat_textEdit           ->setHtml(Corps);
+    textcorps                   = (docmt->typedoc() == PRESCRIPTION?        proc->CalcCorpsImpression(txt,ALD)  : proc->CalcCorpsImpression(txt));
+    Etat_textEdit           ->setHtml(textcorps);
     if (Etat_textEdit->toPlainText() == "" || txt == "")
     {
         if (Etat_textEdit->toPlainText() == "")
@@ -786,18 +876,19 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         delete Etat_textEdit;
         return false;
     }
+    delete Etat_textEdit;
     int TailleEnTete        = (ALD?                                     proc->TailleEnTeteALD()         : proc->TailleEnTete());
     bool AvecDupli          = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
 
-    aa = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
+    aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                             proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
                             AvecDupli, m_avecprevisu, AvecNumPage);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        Utils::nettoieHTML(Corps);
+        Utils::nettoieHTML(textcorps);
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES]        = currentuser()->id();
@@ -805,10 +896,10 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_TYPEDOC_DOCSEXTERNES]       = docmt->typedoc();
         listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = docmt->soustypedoc();
         listbinds[CP_TITRE_DOCSEXTERNES]         = docmt->titre();
-        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
-        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
+        listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = textentete;
+        listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = textcorps;
         listbinds[CP_TEXTORIGINE_DOCSEXTERNES]   = txt;
-        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied.replace("{{DUPLI}}","");
+        listbinds[CP_TEXTPIED_DOCSEXTERNES]      = textpied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES]          = db->ServerDateTime().toString("yyyy-MM-dd HH:mm:ss");
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = docmt->format();
         listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
@@ -833,19 +924,18 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
             AfficheDoc(idx);
         }
     }
-    delete Etat_textEdit;
     return true;
 }
 
 bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 {
-    Procedures::typeDoc typedoc;
+    typeDoc typedoc;
     if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
-        typedoc = Procedures::Image;
+        typedoc = Image;
     else
-        typedoc = Procedures::Text;
+        typedoc = Text;
     if (docmt->imageblob() == QByteArray())
-        proc->CalcImageDocument(docmt, typedoc);
+        CalcImageDocument(docmt, typedoc);
 
     //
     // First, we fill img_list with document pages

@@ -195,8 +195,8 @@ static void remove(QMap<int, T*> *m_map, const T* item)
         return;
     auto it = m_map->find(item->id());
     if (it != m_map->cend())
-        delete m_map->take(it.key());
-    item = Q_NULLPTR;
+        m_map->erase(it);
+    delete item;
 }
 template <typename T>
 static void remove(QMap<QString, T*> *m_map, const T* item)
@@ -205,8 +205,8 @@ static void remove(QMap<QString, T*> *m_map, const T* item)
         return;
     auto it = m_map->find(item->stringid());
     if (it != m_map->cend())
-        delete m_map->take(it.key());
-    item = Q_NULLPTR;
+        m_map->erase(it);
+    delete item;
 }
 
 protected:

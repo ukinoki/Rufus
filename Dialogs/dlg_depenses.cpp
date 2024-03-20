@@ -262,7 +262,7 @@ void dlg_depenses::ExportTable()
 
 void dlg_depenses::PrintTable()
 {
-    QString            Entete, Pied;
+    QString            textentete, textpied;
     bool AvecDupli   = false;
     bool AvecPrevisu = true;
     bool AvecNumPage = false;
@@ -277,26 +277,25 @@ void dlg_depenses::PrintTable()
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
-    if (Entete == "") return;
+    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+    if (textentete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
-        Entete.replace("{{PRENOM PATIENT}}"    , ui->TotallineEdit->text());
-    Entete.replace("{{NOM PATIENT}}"       , "");
-    Entete.replace("{{TITRE1}}"            , windowTitle());
-    Entete.replace("{{TITRE}}"             , "");
-    Entete.replace("{{DDN}}"               , "");
+        textentete.replace("{{PRENOM PATIENT}}"    , ui->TotallineEdit->text());
+    textentete.replace("{{NOM PATIENT}}"       , "");
+    textentete.replace("{{TITRE1}}"            , windowTitle());
+    textentete.replace("{{TITRE}}"             , "");
+    textentete.replace("{{DDN}}"               , "");
 
     // création du pied
-    Pied = proc->CalcPiedImpression(userEntete);
-    if (Pied == "") return;
+    textpied = proc->CalcPiedImpression(userEntete);
+    if (textpied == "") return;
 
     // creation du corps
     double c = CORRECTION_td_width;
-    QTextEdit *Etat_textEdit = new QTextEdit;
-    QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
+    QString textcorps = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
                     "</style></head>"
                     "<body LANG=\"fr-FR\" DIR=\"LTR\">"
                     "<table width=\"" + QString::number(int(c*510)) + "\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\">";
@@ -307,7 +306,7 @@ void dlg_depenses::PrintTable()
             Depense *dep = getDepenseFromRow(i);
             if (dep->rubriquefiscale() != "Amortissements")
             {
-                test4 += "<tr>"
+                textcorps += "<tr>"
                          "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale::system().toString(dep->date(),tr("d MMM yy")) + "</div></span></font></td>"   //! date
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
@@ -324,7 +323,7 @@ void dlg_depenses::PrintTable()
             Depense *dep = getDepenseFromRow(i);
             if (dep->rubriquefiscale() == "Amortissements")
             {
-                test4 += "<tr>"
+                textcorps += "<tr>"
                          "<td width=\"" + QString::number(int(c*45))  + "\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale::system().toString(dep->date(),tr("d MMM yy")) + "</div></span></font></td>"   //! date
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
                          "<td width=\"" + QString::number(int(c*150)) + "\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
@@ -334,15 +333,13 @@ void dlg_depenses::PrintTable()
              }
         }
     }
-    test4 += "</table>";
-    test4 += "</body></html>";
+    textcorps += "</table>";
+    textcorps += "</body></html>";
 
-    Etat_textEdit->setHtml(test4);
 
-    proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
+    proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
-    delete Etat_textEdit;
 }
 
 void dlg_depenses::RegleComptesComboBox(bool ActiveSeult)
@@ -484,6 +481,53 @@ void dlg_depenses::AnnulEnreg()
     RegleAffichageFiche(Lire);
     MetAJourFiche();
     connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+}
+
+void dlg_depenses::CalcImageFacture(Depense *dep)
+{
+    if (dep == Q_NULLPTR)
+        return;
+    QString filename = "";
+    filename            = dep->lienfacture();
+    QByteArray ba       = QByteArray();
+    if (filename != "")
+    {
+        QString fileformat = "";
+        if (filename.contains("."))
+        {
+            QStringList lst = filename.split(".");
+            fileformat      = lst.at(lst.size()-1);
+        }
+        if (fileformat == PDF || fileformat == JPG)
+            dep->setfactureformat(fileformat);
+        else
+            return;
+        if (db->ModeAccesDataBase() != Utils::Distant)
+        {
+            QString dossierimagerie = "";
+            if (db->ModeAccesDataBase() == Utils::Poste)
+                dossierimagerie = db->parametres()->dirimagerieserveur();
+            else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+                dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+            else return;
+            QFile fileimg(dossierimagerie + NOM_DIR_FACTURES + filename);
+            if (fileimg.open(QIODevice::ReadOnly))
+            {
+                ba = fileimg.readAll();
+                dep->setfactureblob(ba);
+                return;
+            }
+        }
+        else
+        {
+            QString fullFilename = Utils::correctquoteSQL(db->parametres()->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
+            ba = proc->getFileFromServer(fullFilename);
+        }
+    }
+    if (ba.size() ==0)    // le document n'est pas dans le fichier, on va le chercher dans la table factures
+        ba = proc->getFileFromSQL(dep);
+    if (ba.size() >0)
+        dep->setfactureblob(ba);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -952,7 +996,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
         {
             QMap<QString,QVariant> doc;
             if (m_depenseencours->factureformat() == "" && m_depenseencours->factureblob() == QByteArray())
-                proc->CalcImageFacture(dep);
+                CalcImageFacture(dep);
             doc.insert("ba", m_depenseencours->factureblob());
             doc.insert("type", m_depenseencours->factureformat());
             m_listeimages =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
@@ -1001,7 +1045,7 @@ void dlg_depenses::ZoomDoc()
     QMap<QString,QVariant> doc;
     doc.insert("ba", m_depenseencours->factureblob());
     doc.insert("type", m_depenseencours->factureformat());
-    proc->CalcImageFacture(m_depenseencours);
+    CalcImageFacture(m_depenseencours);
     proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
@@ -1785,7 +1829,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         if (ListeEch.size()>0)
         {
             UpDialog *dlg_ask               = new UpDialog(this);
-            QListView *listview             = new QListView(dlg_ask);
+            QListView   *listview           = new QListView(dlg_ask);
             listview->setMinimumWidth(200);
             listview->setMinimumHeight(150);
             UpSmallButton *creerecheancier  = new UpSmallButton();
@@ -1866,7 +1910,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 ui->FactureupPushButton     ->setVisible(false);
                 ui->EcheancierupPushButton  ->setVisible(false);
                 ui->VisuDocupTableWidget    ->setVisible(true);
-                proc->CalcImageFacture(m_depenseencours);
+                CalcImageFacture(m_depenseencours);
                 QMap<QString,QVariant> doc;
                 doc.insert("ba", m_depenseencours->factureblob());
                 doc.insert("type", m_depenseencours->factureformat());
@@ -1895,13 +1939,13 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
             if (idfact>-1)
             {
                 ItemsList::update(m_depenseencours, CP_IDFACTURE_DEPENSES, idfact);
-                m_depenseencours->setlienfacture(map["lien"].toString());
-                m_depenseencours->setecheancier(map["echeancier"].toBool());
-                m_depenseencours->setobjetecheancier(map["objetecheancier"].toString());
+                m_depenseencours->setlienfacture(map.value("lien").toString());
+                m_depenseencours->setecheancier(map.value("echeancier").toBool());
+                m_depenseencours->setobjetecheancier(map.value("objetecheancier").toString());
                 ui->FactureupPushButton     ->setVisible(false);
                 ui->EcheancierupPushButton  ->setVisible(false);
                 ui->VisuDocupTableWidget    ->setVisible(true);
-                proc->CalcImageFacture(m_depenseencours);
+                CalcImageFacture(m_depenseencours);
                 QMap<QString,QVariant> doc;
                 doc.insert("ba", m_depenseencours->factureblob());
                 doc.insert("type", m_depenseencours->factureformat());

@@ -225,7 +225,7 @@ private:
 
 public:
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
-    bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString text, QDate date,
+    bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
@@ -240,12 +240,12 @@ public:
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
-    bool                    Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString EnTete, QString Pied,
+    bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
                                      bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
-    bool                    Cree_pdf(QTextEdit *Etat, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
+    bool                    Cree_pdf(QString textcorps, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
 
   /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h --------------------------*/
     bool                    PrintDocument(QMap<QString, QVariant> doc);
@@ -286,10 +286,8 @@ private:
 
 public:
     void                    ab(int i = 1);
-    void                    CalcImageDocument(DocExterne *docmt, const Procedures::typeDoc typedoc);
-    void                    CalcImageFacture(Depense *dep);
 
-     QByteArray             getFileFromSQL(Item *item);
+    QByteArray              getFileFromSQL(Item *item);
     QByteArray              getFileFromServer(QString filename);
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);

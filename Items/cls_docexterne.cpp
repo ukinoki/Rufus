@@ -92,7 +92,7 @@ void DocExterne::setData(QJsonObject data)
 }
 
 
-// Called from Procedures::CalcImageDocument
+// Called from dlg_docsexternes::CalcImageDocument
 void DocExterne::setimageblob(QByteArray blob)
 {
     m_blob = blob;

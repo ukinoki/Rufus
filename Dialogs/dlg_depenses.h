@@ -65,6 +65,7 @@ private:
     void                        keyPressEvent ( QKeyEvent * event );
     void                        AfficheDetailsDepenses();                   //! Affiche la ventilation des dépenses en fonction des modes de paiement: espèces, banque1, banque2...etc...
     void                        AfficheFacture(Depense *dep = Q_NULLPTR);
+    void                        CalcImageFacture(Depense *dep);
     void                        CalculTotalDepenses();
     void                        CopieDepense();
     void                        DefinitArchitectureBigTable();

@@ -35,14 +35,10 @@ private:
     QList<TypeTiers *> *m_typestiers; //!< la liste des types de tiers payants
     bool add(TypeTiers *Tiers);
     void addList(QList<TypeTiers*> listTierss);
-    //void remove(TypeTiers* Tiers);
 
 public:
     explicit TypesTiers(QObject *parent = Q_NULLPTR);
-
     QList<TypeTiers *> *typestiers() const;
-
-    //void clearAll();
     void initListe();
 };
 
