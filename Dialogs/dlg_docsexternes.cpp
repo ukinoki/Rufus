@@ -291,29 +291,29 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
 
     case Text:
         //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-        QString Entete  = docmt->textentete();
+        QString textentete  = docmt->textentete();
 
         //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
-        if (Utils::epureFontFamily(Entete) || Utils::corrigeErreurHtmlEntete(Entete, docmt->isALD()))
-            ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, Entete);
-        QString Corps   = docmt->textcorps();
-        if (Utils::epureFontFamily(Corps))
-            ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, Corps);
-        QString Pied    = docmt->textpied();
-        if (Utils::epureFontFamily(Pied))
-            ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, Pied);
+        if (Utils::epureFontFamily(textentete) || Utils::corrigeErreurHtmlEntete(textentete, docmt->isALD()))
+            ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, textentete);
+        QString textcorps   = docmt->textcorps();
+        if (Utils::epureFontFamily(textcorps))
+            ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, textcorps);
+        QString textpied    = docmt->textpied();
+        if (Utils::epureFontFamily(textpied))
+            ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, textpied);
 
         //! émission du pdf
         QTextEdit   *Etat_textEdit = new UpTextEdit;
-        Etat_textEdit   ->setText(Corps);
+        Etat_textEdit   ->setText(textcorps);
         TextPrinter *TexteAImprimer = new TextPrinter();
         TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
-        TexteAImprimer  ->setHeaderText(Entete);
+        TexteAImprimer  ->setHeaderText(textentete);
         if (docmt->format() == PRESCRIPTIONLUNETTES)
             TexteAImprimer->setFooterSize(proc->TaillePieddePageOrdoLunettes());
         else
             TexteAImprimer->setFooterSize(proc->TaillePieddePage());
-        TexteAImprimer  ->setFooterText(Pied);
+        TexteAImprimer  ->setFooterText(textpied);
         TexteAImprimer  ->setTopMargin(proc->TailleTopMarge());
         ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
         docmt           ->setimageformat(PDF);
@@ -867,7 +867,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     // creation du corps de l'ordonnance
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
     txt                     = (modifiable?                              proc->Edit(txtautiliser)        : txtautiliser);
-    textcorps                   = (docmt->typedoc() == PRESCRIPTION?        proc->CalcCorpsImpression(txt,ALD)  : proc->CalcCorpsImpression(txt));
+    textcorps               = (docmt->typedoc() == PRESCRIPTION?        proc->CalcCorpsImpression(txt,ALD)  : proc->CalcCorpsImpression(txt));
     Etat_textEdit           ->setHtml(textcorps);
     if (Etat_textEdit->toPlainText() == "" || txt == "")
     {
@@ -888,7 +888,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        Utils::nettoieHTML(textcorps);
+        Utils::nettoieHTML(textcorps, 9);
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES]        = currentuser()->id();
@@ -941,10 +941,7 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
     // First, we fill img_list with document pages
     //
     if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
-    {
-        //m_imagelist = Utils::calcImagefromPdf(docmt->imageblob());
         m_imagelist = docmt->pagelist();
-    }
     else if (docmt->imageformat() == JPG)     // le document est un jpg
     {
         m_imagelist = QList<QImage>();

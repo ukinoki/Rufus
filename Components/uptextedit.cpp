@@ -377,7 +377,7 @@ QString UpTextEdit::appendHtml(QString appendtext, bool supprimeLesLignesVidesDu
     texte += appendtext;
     if (rajouteunelignealafin)
         texte += HTML_FINPARAGRAPH;
-    Utils::nettoieHTML(texte, supprimeLesLignesVidesDuMilieu);
+    Utils::nettoieHTML(texte, 0, supprimeLesLignesVidesDuMilieu);
     setHtml(texte);
     return texte;
 }

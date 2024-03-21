@@ -120,7 +120,7 @@ public:
     //! html
     static bool convertHTML(QString &text);
     static void convertPlainText(QString &text);
-    static void nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu = false);
+    static void nettoieHTML(QString &text, int fontsize = 0, bool supprimeLesLignesVidesDuMilieu = false);
     static bool retirelignevidefinhtml(QString &txthtml);
     static bool epureFontFamily(QString &text);  /*! >il y eut un temps où on entrait dans les html de Qt la font-family avec tous ses attributs
                                                  * ce qui donnait -> font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0' dans le html
@@ -183,7 +183,6 @@ public:
 
     //! SQL
     static QString                  correctquoteSQL(QString text);
-    static QStringList              DecomposeScriptSQL(QString nomficscript);       //! plus utilisé - imparfait - on passe par les QProcess pour éxécuter un script SQL - voir Procedures:: DefinitScriptRestore(QStringList ListNomFiles);
     static QString                  ConvertitModePaiement(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
     static void                     CalcBlobValueSQL(QVariant &newvalue);           // convertit un Qvariant en valeur blob SQL équivalente
     static void                     CalcStringValueSQL(QVariant &newvalue);         // convertit un Qvariant en valeur string SQL équivalente

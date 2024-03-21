@@ -34,6 +34,7 @@ public:
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
     enum typeDoc            {Text, Image};                                      Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
+    Mode                    mode()   {return m_mode;}
 
 private:
     DataBase                *db             = DataBase::I();

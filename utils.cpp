@@ -245,11 +245,9 @@ QString Utils::retirecaracteresaccentues(QString nom)
  */
 bool Utils::convertHTML(QString &text)
 {
-    //qDebug() << text;
     UpTextEdit textprov;
     textprov.setText( text );
     text = textprov.toHtml();
-    //qDebug() << text;
     return retirelignevidefinhtml(text);
 }
 
@@ -273,19 +271,17 @@ void Utils::convertPlainText(QString &text)
  * \param supprimeLesLignesVidesDuMilieu - comme son nom l'indique
  *  placer les marqueurs Linux ou Mac
  */
-void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
+void Utils::nettoieHTML(QString &text, int fontsize, bool supprimeLesLignesVidesDuMilieu)
 {
     QRegularExpression reg1;
     reg1.setPattern("<p style=\"-qt-paragraph-type:empty; "
                               "margin-top:[0-9]{1,2}px; margin-bottom:[0-9]{1,2}px; "
                               "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                               "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\"><br /></p>");
-    //reg1 = QRegExp("<p style=\"-qt-paragraph-type:empty;([\\.]*)<br /></p>");
     QRegularExpression reg2;
     reg2.setPattern("<p style=\" margin-top:0px; margin-bottom:0px; "
                               "margin-left:[0-9]{1,2}px; margin-right:[0-9]{1,2}px; "
                               "-qt-block-indent:0; text-indent:[0-9]{1,2}px;\">");
-    //qDebug() << text;
     bool remetunelignealafin = convertHTML(text);
     if (supprimeLesLignesVidesDuMilieu)
         text.remove(reg1);
@@ -295,6 +291,12 @@ void Utils::nettoieHTML(QString &text, bool supprimeLesLignesVidesDuMilieu)
     if (remetunelignealafin)
         text.append(HTML_FINPARAGRAPH);
     text.append(HTMLCOMMENT);
+    if (fontsize>0)
+    {
+        QRegularExpression rx;
+        rx.setPattern("font-size( *: *[\\d]{1,2} *)pt");
+        text.replace(rx,"font-size:" + QString::number(fontsize) + "pt");
+    }
 }
 
 /*!
@@ -985,102 +987,6 @@ QString Utils::PrefixePlus(double Dioptr)                          // convertit 
 //    if  (Dioptr == 0.0)
 //        return "0" + QString(QLocale().decimalPoint()) + "00";
     return (Dioptr > 0.0 ? "+" : "") + QLocale().toString(Dioptr,'f',2);
-}
-
-/*! ++++ PLUS UTILISE - trop sensible aux choix de jeu de caractère et marche mal avec les blobs
- * \brief Utils::DecomposeScriptSQL(QString nomficscript)
- * Cette fonction va décomposer un script SQL en une suite d'instructions SQL utilisables par Qt
- * \param l'emplacement du fichier à traiter
- * \return une QStringList avec la liste des instructions
- * +++ ne marche pas toujours mais suffisant pour un script de sauvegarde de BDD généré par mysqldump
- *  QStringList listinstruct = DecomposeScriptSQL(QDir::homePath() + "/Documents/Rufus/Ressources/dump.sql");
-    bool e = true;
-        foreach(const QString &s, listinstruct)
-        if (!db->StandardSQL(s))
-        {
-            e = false;
-            break;
-        }
-        a = (e? 0:99);
-        if (a==0)
-        {
-            ...
-        }
- */
-QStringList Utils::DecomposeScriptSQL(QString nomficscript)
-{
-    QStringList listinstruct;
-    QFile file(nomficscript);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        listinstruct << "";
-        return QStringList();
-    }
-    QString queryStr(file.readAll());
-    file.close();
-    QRegularExpression re;
-    // On retire tous les commentaires, les tabulations, les espaces ou les retours à la ligne multiples
-    //        queryStr = queryStr.replace(QRegularExpression("(\\/\\*(.|\\n)*?\\*\\/|^--.*\\n|\\t|\\n)", QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption), "");
-    re.setPattern("(\\/\\*(.|\\n)*?\\*\\/)");
-    queryStr = queryStr.replace(re, "");
-    re.setPattern("(^;\\n)");
-    queryStr = queryStr.replace(re, "");
-    re.setPattern("(--.*\\n)");
-    queryStr = queryStr.replace(re, "\n");
-    re.setPattern("( +)");
-    queryStr = queryStr.replace(re, " ");
-    re.setPattern("((\\t)+)");
-    queryStr = queryStr.replace(re, " ");
-    re.setPattern("(^ *)");
-    queryStr = queryStr.replace(re, "");
-    re.setPattern("((\\n)+)");
-    queryStr = queryStr.replace(re, "\n");
-    //Retire les espaces en début et fin de string
-    queryStr = queryStr.trimmed();
-
-    QString matched, delimiter, Atraiter;
-    re.setPattern("^(\\s|\\n)*DELIMITER\\s*(.|\\n)*END\\s*.\\n"); //isole les créations de procédure SQL dans le script
-
-    while (queryStr.size()>0 && queryStr.contains(";"))
-    {
-        //Edit(queryStr);
-        QRegularExpressionMatch match = re.match(queryStr);
-        if (match.hasMatch())  // --> c'est une procédure à créer
-        {
-            matched     = match.capturedTexts().at(0);
-            Atraiter    = matched.trimmed();
-            //Edit(Atraiter);
-            delimiter   = Atraiter.data()[Atraiter.size()-1];
-            //Edit(delimiter);
-            re.setPatternOptions(QRegularExpression::CaseInsensitiveOption|QRegularExpression::MultilineOption);
-            re.setPattern("DELIMITER\\s*");
-            Atraiter.replace(re,"");
-            Atraiter.replace(delimiter,"");
-            re.setPattern("^ *)");
-            Atraiter.replace(re,"");
-            re.setPattern("(^(\\n)+)");
-            Atraiter.replace(re,"");
-            re.setPattern("((\\n)+)");
-            Atraiter.replace(re,"\n");
-
-            //Edit(Atraiter);
-            queryStr.replace(0,matched.size(),"");
-        }
-        else                    // -- c'est une requête SQL
-        {
-            matched = queryStr.split(";\n", Qt::SkipEmptyParts).at(0);
-            Atraiter = matched.trimmed()+ ";";
-            queryStr.replace(0,matched.size()+2,"");
-            re.setPattern("((\\n)+)");
-            queryStr = queryStr.replace(re, "\n");
-        }
-        re.setPattern("(^(\\n)*)");
-        queryStr = queryStr.replace(re, "");
-        listinstruct << Atraiter;
-    }
-    return listinstruct;
-
-    /* POUR CREER DES PROCEDURES AVEC Qt - cf fichier créer des procédures mysql avec QSt dans /assets/diagrams */
 }
 
 QString Utils::ConvertitModePaiement(QString mode)

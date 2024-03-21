@@ -1062,32 +1062,25 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 -----------------------------------------------------------------------------------*/
 QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 {
-    QString Corps;
-    QString nomModeleCorpsImpression;
+    QString textcorps;
+    QString nomModeleCorpsImpression = (ALD? PATH_FILE_CORPSORDOALD : PATH_FILE_CORPSORDO);
     Utils::convertHTML(text);
-    if (ALD)
-        nomModeleCorpsImpression = PATH_FILE_CORPSORDOALD;
-    else
-        nomModeleCorpsImpression = PATH_FILE_CORPSORDO;
 
     QFile qFile(nomModeleCorpsImpression);
     if (!qFile.open( QIODevice::ReadOnly ))
         return QString();
 
-    qint64 file_len = qFile.size();
     QByteArray ba = qFile.readAll();
-    ba.resize(file_len+1);
-    ba.data()[file_len]=0;
     qFile.close ();
-    Corps = ba;
-    //qDebug() << text;
+    textcorps = ba;
+
     QRegularExpression rx;
     rx.setPattern("font-size( *: *[\\d]{1,2} *)pt");
     text.replace(rx,"font-size:9pt");
-    //qDebug() << text;
-    Corps.replace("{{TEXTE ORDO}}",text);
-    Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
-    return Corps;
+
+    textcorps.replace("{{TEXTE ORDO}}",text);
+    textcorps.replace("{{TEXTE ORDO HORS ALD}}", "");
+    return textcorps;
 }
 
 /*---------------------------------------------------------------------------------
@@ -1100,7 +1093,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         return EnteteMap;
     EnteteMap["Norm"]   = "";
     EnteteMap["ALD"]    = "";
-    QString Entete;
+    QString textentete;
     QString nomModeleEntete;
     int idparent = -1;
     bool rplct = false;
@@ -1188,42 +1181,36 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     }
     for (int i = 1; i<3; i++)
     {
-        if (i==1)
-            nomModeleEntete = PATH_FILE_ENTETEORDO;
-        else
-            nomModeleEntete = PATH_FILE_ENTETEORDOALD;
+        nomModeleEntete = (i==1?PATH_FILE_ENTETEORDO : PATH_FILE_ENTETEORDOALD);
         QFile qFileEnTete(nomModeleEntete);
         if (!qFileEnTete.open( QIODevice::ReadOnly ))
             return QMap<QString, QString>();
 
-        long        fileEnTete_len  = qFileEnTete.size();
         QByteArray  baEnTete        = qFileEnTete.readAll();
-        baEnTete.resize(fileEnTete_len + 1);
-        baEnTete.data()[fileEnTete_len] = 0;
         qFileEnTete.close ();
-        Entete = baEnTete;
-        Entete.replace("{{POLICE}}", qApp->font().family());
+        textentete = baEnTete;
+        textentete.replace("{{POLICE}}", qApp->font().family());
 
         if (rplct)
         {
             User *userRemp = Datas::I()->users->getById(idparent);
             if(userRemp)
-                Entete.replace("{{TITREUSER}}", "<s>" + userRemp->titre() + " " + userRemp->prenom() + " " + userRemp->nom() + "</s> "
+                textentete.replace("{{TITREUSER}}", "<s>" + userRemp->titre() + " " + userRemp->prenom() + " " + userRemp->nom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
                                                 + (user->titre().size()? user->titre() + " " : "") + user->prenom() + " " + user->nom())
                                                 + "</font>";
         }
         else
-            Entete.replace("{{TITREUSER}}", (user->titre() != ""? user->titre() + " " : "") + user->prenom() + " " + user->nom());
+            textentete.replace("{{TITREUSER}}", (user->titre() != ""? user->titre() + " " : "") + user->prenom() + " " + user->nom());
 
         if(user->numspecialite() != 0)
-            Entete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
+            textentete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
         else
-            Entete.replace("{{SPECIALITE}}", user->specialite());
+            textentete.replace("{{SPECIALITE}}", user->specialite());
         if (i==1)
         {
-            Entete.replace("{{LARGEURG}}", HTML_LARGEUR_ENTETE_GAUCHE);
-            Entete.replace("{{LARGEURD}}", HTML_LARGEUR_ENTETE_DROITE);
+            textentete.replace("{{LARGEURG}}", HTML_LARGEUR_ENTETE_GAUCHE);
+            textentete.replace("{{LARGEURD}}", HTML_LARGEUR_ENTETE_DROITE);
         }
         QString adresse ="";
         int nlignesadresse = 0;
@@ -1253,13 +1240,13 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             else
                 adresse += sit->adresse1() + sit->adresse2();
         }
-        Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", sit->codepostal() + " " + sit->ville().toUpper());
-        Entete.replace("{{TEL}}", "Tél. " + sit->telephone());
+        textentete.replace("{{ADRESSE}}", adresse);
+        textentete.replace("{{CPVILLE}}", sit->codepostal() + " " + sit->ville().toUpper());
+        textentete.replace("{{TEL}}", "Tél. " + sit->telephone());
         if (nlignesadresse==2)
-            Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
+            textentete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
         else
-            Entete.replace("{{LIGNESARAJOUTER}}", "");
+            textentete.replace("{{LIGNESARAJOUTER}}", "");
 
         QString NumSS = "";
         if( user->numOrdre().size() )
@@ -1268,11 +1255,11 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             if( user->NumPS() > 0 ) NumSS += " - ";
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
-        Entete.replace("{{NUMSS}}",  db->parametres()->cotationsfrance()? NumSS : "");
-        Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
-        Utils::epureFontFamily(Entete);
+        textentete.replace("{{NUMSS}}",  db->parametres()->cotationsfrance()? NumSS : "");
+        textentete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
+        Utils::epureFontFamily(textentete);
 
-        (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
+        (i==1? EnteteMap["Norm"] = textentete : EnteteMap["ALD"] = textentete);
     }
     return EnteteMap;
 }
@@ -1282,26 +1269,21 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
 -----------------------------------------------------------------------------------*/
 QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 {
-    QString Pied;
+    QString textpied;
     if (ALD)
-        Pied =  "<html>"
+        textpied =  "<html>"
                  "{{DUPLI}}"
                  "<p align = \"center\"; style = \"margin-top:0px; margin-bottom:0px;\"><span style=\"font-size:6pt\">{{AGA}}</span></p>"
                  "</html>";
       else
     {
-        QString nomModelePied = PATH_FILE_PIEDPAGE;
-        if (lunettes)
-            nomModelePied = PATH_FILE_PIEDPAGEORDOLUNETTES;
+        QString nomModelePied = (lunettes? PATH_FILE_PIEDPAGEORDOLUNETTES : PATH_FILE_PIEDPAGE);
         QFile   qFilePied(nomModelePied );
         if (!qFilePied.open( QIODevice::ReadOnly ))
             return QString();
-        long filePied_len = qFilePied.size();
         QByteArray baPied = qFilePied.readAll();
-        baPied.resize(filePied_len + 1);
-        baPied.data()[filePied_len] = 0;
         qFilePied.close ();
-        Pied = baPied;
+        textpied = baPied;
     }
     bool isaga = false;
     if (user)
@@ -1310,13 +1292,35 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         if (parent)
             isaga = parent->isAGA();
     }
-    Pied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
-    return Pied;
+    textpied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
+    return textpied;
 }
 
-bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
+                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
+ /*
+    //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
+    Utils::epureFontFamily(textentete);
+    Utils::corrigeErreurHtmlEntete(textentete);
+    Utils::epureFontFamily(textcorps);
+    Utils::epureFontFamily(textpied);
+
+    //! émission du pdf
+    QTextEdit   *Etat_textEdit = new UpTextEdit;
+    Etat_textEdit   ->setText(textcorps);
+    TextPrinter *TexteAImprimer = new TextPrinter(parent);
+    TexteAImprimer  ->setHeaderSize(TailleEnTete);
+    TexteAImprimer  ->setHeaderText(textentete);
+    TexteAImprimer  ->setFooterSize(TaillePieddePage);
+    TexteAImprimer  ->setFooterText(textpied);
+    TexteAImprimer  ->setTopMargin(TailleTopMarge);
+    ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+    docmt           ->setimageformat(PDF);
+    docmt           ->setimageblob(ba);
+    break;*/
+
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
     Etat->setHtml(textcorps);
@@ -1756,11 +1760,10 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     // stockage du document dans la base de donnees - table impressions
     if (aa)
     {
-        Utils::nettoieHTML(textcorps);
+        Utils::nettoieHTML(textcorps, 9);
 
         int idpat = 0;
         idpat = pat->id();
-        //qDebug() << Corps;
 
         QHash<QString, QVariant> listbinds;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête

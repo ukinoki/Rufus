@@ -8080,8 +8080,8 @@ bool Rufus::FermeDossier(Patient *patient)
     }
     else a = false;                                                                                 // Annuler et revenir au dossier
     if (a) {
-        Datas::I()->patients->setcurrentpatient(Q_NULLPTR);
-        Datas::I()->actes->setcurrentacte(Q_NULLPTR);        
+        Datas::I()->patients        ->setcurrentpatient(Q_NULLPTR);
+        Datas::I()->actes           ->setcurrentacte(Q_NULLPTR);
         Datas::I()->docsexternes    ->reset();
     }
     Flags::I()->MAJFlagSalleDAttente();

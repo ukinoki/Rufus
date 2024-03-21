@@ -1479,11 +1479,11 @@ int     dlg_refraction::idrefraction() const
 -----------------------------------------------------------------------------------------------------------------*/
 bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 {
-    QString textcorps, textentete, textpied;
+    QString textcorps, textentete, textpied, textorigine;
     bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = false;
-
+    textorigine = ui->ResumePrescriptionTextEdit->toPlainText();
     //création de l'entête
     User *userEntete = Q_NULLPTR;
     User *userconnected = Datas::I()->users->userconnected();
@@ -1507,7 +1507,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     if (textpied == "") return false;
 
     // creation du corps de l'ordonnance
-    textcorps = proc->CalcCorpsImpression(ui->ResumePrescriptionTextEdit->toHtml());
+    textcorps = proc->CalcCorpsImpression(textorigine);
     if (textcorps == "") return false;
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
@@ -1524,7 +1524,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_TITRE_DOCSEXTERNES] =            "Prescription correction";
         listbinds[CP_TEXTENTETE_DOCSEXTERNES] =       textentete;
         listbinds[CP_TEXTCORPS_DOCSEXTERNES] =        textcorps;
-        listbinds[CP_TEXTORIGINE_DOCSEXTERNES] =      ui->ResumePrescriptionTextEdit->toPlainText();
+        listbinds[CP_TEXTORIGINE_DOCSEXTERNES] =      textorigine;
         listbinds[CP_TEXTPIED_DOCSEXTERNES] =         textpied.replace("{{DUPLI}}","");
         listbinds[CP_DATE_DOCSEXTERNES] =             ui->DateDateEdit->date().toString("yyyy-MM-dd") + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
