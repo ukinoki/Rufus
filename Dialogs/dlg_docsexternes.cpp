@@ -309,15 +309,14 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
         TextPrinter *TexteAImprimer = new TextPrinter();
         TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
         TexteAImprimer  ->setHeaderText(textentete);
-        if (docmt->format() == PRESCRIPTIONLUNETTES)
-            TexteAImprimer->setFooterSize(proc->TaillePieddePageOrdoLunettes());
-        else
-            TexteAImprimer->setFooterSize(proc->TaillePieddePage());
+        TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? proc->TaillePieddePageOrdoLunettes() : proc->TaillePieddePage());
         TexteAImprimer  ->setFooterText(textpied);
         TexteAImprimer  ->setTopMargin(proc->TailleTopMarge());
         ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
         docmt           ->setimageformat(PDF);
         docmt           ->setimageblob(ba);
+        delete Etat_textEdit;
+        delete TexteAImprimer;
         break;
     }
 }

@@ -1019,8 +1019,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HTMLANCHOR_TOFIN                "TOfin"
 #define HTML_FINPARAGRAPH               "<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px;\"></p>"
 #define HTML_RETOURLIGNE                "<p style = \"margin-top:0px; margin-bottom:0px;\">"
-#define HTML_LARGEUR_ENTETE_GAUCHE      "220"
-#define HTML_LARGEUR_ENTETE_DROITE      "180"
+#define HTML_LARGEUR_ENTETE_GAUCHE      "49%"
+#define HTML_LARGEUR_ENTETE_DROITE      "49%"
 #define HTML_LARGEUR_ENTETE_GAUCHE_ALD  "230"
 #define HTML_LARGEUR_ENTETE_DROITE_ALD  "230"
 

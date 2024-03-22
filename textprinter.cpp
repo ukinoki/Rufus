@@ -127,7 +127,6 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
         // Get imagelist from PDF ByteArray
         QList<QImage> pagelist = Utils::calcImagefromPdf(ba);
         PrintPageList(printer_,  pagelist);
-        //launchprint();
     }
 
     // enregistre le pdf
@@ -193,8 +192,6 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
 
 
     // preview it
-
-    QString printerName;
     int b = dialog->exec();
     if (b>0)
     {
@@ -393,89 +390,10 @@ void TextPrinter::printToDevice(QPagedPaintDevice *device)
     }
 }
 
-
-/*! * \brief TextPrinter::launchprint
- *  Common printing routine. Print tempdoc_ to printer_
- *  Imprime la page à partir du QtextDocument tempdoc_
-*/
-
-void TextPrinter::launchprint(QPrinter *printer)
-{
-    if (!printer)
-        printer = printer_;
-    if (!printer || !tempdoc_) return;
-    if (duplex_ == QPrinter::DuplexLongSide)
-        printer->setDuplex(duplex_);
-
-    QPainter painter(printer);
-    tempdoc_->setUseDesignMetrics(true);
-    tempdoc_->documentLayout()->setPaintDevice(printer);
-    QSizeF sizeCr = adjustedContentRect(&painter).size();
-    tempdoc_->setPageSize(sizeCr);
-    // dump existing margin (if any)
-    QTextFrameFormat fmt = tempdoc_->rootFrame()->frameFormat();
-    fmt.setMargin(0);
-    tempdoc_->rootFrame()->setFrameFormat(fmt);
-
-    // to iterate through pages we have to worry about
-    // copies, collation, page range, and print order
-
-    // get num copies
-    int doccopies;
-    int pagecopies;
-    if (printer->collateCopies()) {
-        doccopies = 1;
-        pagecopies = printer->copyCount();
-    } else {
-        doccopies = printer->copyCount();
-        pagecopies = 1;
-    }
-
-    // get page range
-    int firstpage = printer->fromPage();
-    int lastpage = printer->toPage();
-    if (firstpage == 0 && lastpage == 0) { // all pages
-        firstpage = 1;
-        lastpage = tempdoc_->pageCount();
-    }
-
-    // print order
-    int delta = 1;
-    if (printer->pageOrder() == QPrinter::LastPageFirst) {
-        int tmp = firstpage;
-        firstpage = lastpage;
-        lastpage = tmp;
-        delta=-1;
-    }
-
-    // loop through and print pages
-    painter.setRenderHints(QPainter::Antialiasing |
-                           QPainter::TextAntialiasing |
-                           QPainter::SmoothPixmapTransform, true);
-    for (int dc=0; dc<doccopies; dc++) {
-        int pagenum = firstpage;
-        while(true)
-        {
-            for (int pc=0; pc<pagecopies; pc++)
-            {
-                if (printer->printerState() == QPrinter::Aborted || printer->printerState() == QPrinter::Error)
-                    return;
-                // print page
-                if (pc < pagecopies-1) printer->newPage();
-                paintPage(&painter, pagenum, lastpage);
-            }
-            if (pagenum == lastpage) break;
-            printer->newPage();
-            pagenum+=delta;
-        }
-        if (dc < doccopies-1) printer->newPage();
-    }
-}
-
 /*!
  * \brief TextPrinter::paintPage
  * paint an individual page of the document to the painter (QPdfWriter or QPrinter)
- * dessine la page avec le Qpainter passé en paramètre (QPdfWriter ou QPrinter)
+ * dessine la page avec le QPainter passé en paramètre (QPdfWriter ou QPrinter)
  * \param QPainter painter -> QPdfWriter or QPrinter
  * \param int pagenum -> current page number
  * \param int nbpages -> total number of pages

@@ -150,7 +150,6 @@ private:
     QRectF                  paperRectDPI(QPaintDevice *device);                                                 // return paper rect in DPI resolution of the device
 
 
-    void                    launchprint(QPrinter *printer = Q_NULLPTR);                                         // common print routine
     void                    paintPage(QPainter *painter, int pagenum, int nbpages);                             // paint specific page
     //added by Javier
     void                    QRectF2device(QRectF *rect, QPaintDevice *device);                                  // adjusts rect to device resolution ???

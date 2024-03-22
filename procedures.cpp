@@ -1181,7 +1181,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     }
     for (int i = 1; i<3; i++)
     {
-        nomModeleEntete = (i==1?PATH_FILE_ENTETEORDO : PATH_FILE_ENTETEORDOALD);
+        nomModeleEntete = (i==1? PATH_FILE_ENTETEORDO : PATH_FILE_ENTETEORDOALD);
         QFile qFileEnTete(nomModeleEntete);
         if (!qFileEnTete.open( QIODevice::ReadOnly ))
             return QMap<QString, QString>();
@@ -1300,27 +1300,6 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
                               int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
- /*
-    //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
-    Utils::epureFontFamily(textentete);
-    Utils::corrigeErreurHtmlEntete(textentete);
-    Utils::epureFontFamily(textcorps);
-    Utils::epureFontFamily(textpied);
-
-    //! émission du pdf
-    QTextEdit   *Etat_textEdit = new UpTextEdit;
-    Etat_textEdit   ->setText(textcorps);
-    TextPrinter *TexteAImprimer = new TextPrinter(parent);
-    TexteAImprimer  ->setHeaderSize(TailleEnTete);
-    TexteAImprimer  ->setHeaderText(textentete);
-    TexteAImprimer  ->setFooterSize(TaillePieddePage);
-    TexteAImprimer  ->setFooterText(textpied);
-    TexteAImprimer  ->setTopMargin(TailleTopMarge);
-    ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
-    docmt           ->setimageformat(PDF);
-    docmt           ->setimageblob(ba);
-    break;*/
-
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
     Etat->setHtml(textcorps);
@@ -1337,6 +1316,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
+    //QByteArray ba = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
     bool a = false;
@@ -1750,9 +1730,9 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         delete Etat_textEdit;
         return false;
     }
-    delete Etat_textEdit;
     int tailleEnTete = TailleEnTete();
     if (ALD) tailleEnTete = TailleEnTeteALD();
+
     aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(),
                             AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);

@@ -99,6 +99,7 @@ public:
     void setdate(QDateTime date);
     void setimportance(int imptce);
     void setAllLoaded(bool allloaded);
+    void setALD(bool ald)               {m_ald = ald;}
     void setimageblob(QByteArray blob);
     void setimageformat(QString format);
     void setidrefraction(int id)        {m_idrefraction = id;}
