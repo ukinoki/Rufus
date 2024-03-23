@@ -1346,6 +1346,16 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
     return a;
 }
 
+/*!
+ * \brief Procedures::Cree_pdf
+ * \abstract Create pdf file from document
+ * \param QString textcorps
+ * \param QString textentete
+ * \param QString textpied
+ * \param QString nomfichier = nom du fichier
+ * \param QString nomdossier = dossier où est enregistré le fichier
+ * \return
+ */
 bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpied, QString nomfichier, QString nomdossier)
 {
     bool a = false;
