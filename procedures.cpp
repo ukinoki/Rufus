@@ -42,6 +42,7 @@ Procedures::Procedures(QObject *parent) :
     m_applicationfont = QFont(POLICEPARDEFAUT);
     Utils::CalcFontSize(m_applicationfont);
     qApp->setFont(m_applicationfont);
+    //qDebug() << "qApp->font().pointSize()" << qApp->font().pointSize();
 
     m_connexionbaseOK           = false;
     if (!FichierIni.exists())
@@ -1510,13 +1511,14 @@ void Procedures::EditHtml(QString txt)
 
 /*!
  * \brief Procedures::EditDocument
- * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pouvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
- * argument QMap<QString,QVariant> doc contient 2 éléments
-    . doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
-    . doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();
- * argument label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
- * argument titre le titre de la fiche
- * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
+ * \abstract affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pouvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
+ * \param doc QMap<QString,QVariant>contient 2 éléments
+    . \arg doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
+    . \arg doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();
+ * \param label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
+ * \param titre le titre de la fiche
+ * \param Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
+ * \param parent
  * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintDocument(QMap<QString,QVariant> doc)
  */
 void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button, QWidget *parent)

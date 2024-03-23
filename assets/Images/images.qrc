@@ -198,5 +198,6 @@
         <file>question.png</file>
         <file>warning.gif</file>
         <file>info.gif</file>
+        <file>pdf.png</file>
     </qresource>
 </RCC>

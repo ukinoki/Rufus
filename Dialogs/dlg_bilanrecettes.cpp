@@ -87,6 +87,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     int l = 20;
     wdg_choixperiodebouton  ->setIconSize(QSize(l,l));
     wdg_exportbouton        ->setIconSize(QSize(l,l));
+
     AjouteWidgetLayButtons(wdg_exportbouton,false);
     AjouteWidgetLayButtons(wdg_choixperiodebouton, false);
     setStageCount(1);
@@ -100,7 +101,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     else
         Titre = tr("Bilan des recettes pour la période du ") + QLocale::system().toString(m_debut,tr("d MMMM yyyy")) + tr(" au ") + QLocale::system().toString(m_fin,tr("d MMMM yyyy"));
     setWindowTitle(Titre);
-    AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
+    AjouteLayButtons( UpDialog::ButtonPdf | UpDialog::ButtonPrint | UpDialog::ButtonClose );
     m_mode          = SUPERVISEUR;
     wdg_bigtable    = new UpTableView();
 
@@ -112,6 +113,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     FiltreTable(-1);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
+    connect(PdfButton,                  &QPushButton::clicked,                                  this, [=] {ImprimeEtat(true);});
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
@@ -182,7 +184,8 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 }
             }
         }
-        PrintButton->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
+        PrintButton ->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
+        PdfButton   ->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
         wdg_bigtable->setColumnHidden(6,true);    // divers et autres recettes
         wdg_bigtable->setColumnHidden(7,true);    // apport pratcien
     }
@@ -205,7 +208,8 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                     }
                 }
             }
-        PrintButton->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
+        PrintButton ->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
+        PdfButton   ->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
         wdg_bigtable->setColumnHidden(6,false);    // divers et autres recettes
         wdg_bigtable->setColumnHidden(7,false);    // apport pratcien
     }
@@ -239,12 +243,9 @@ Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
     return getRecetteFromIndex(idx);
 }
 
-void dlg_bilanrecettes::ImprimeEtat()
+void dlg_bilanrecettes::ImprimeEtat(bool pdf)
 {
     QString            textentete, textpied;
-    bool AvecDupli   = false;
-    bool AvecPrevisu = true;
-    bool AvecNumPage = false;
 
     User *userEntete = Q_NULLPTR;
 
@@ -278,7 +279,7 @@ void dlg_bilanrecettes::ImprimeEtat()
     textpied = proc->CalcPiedImpression(userEntete);
     if (textpied == "") return;
 
-    // creation du corps de la remise
+    // creation du corps
     QString couleur = "<font color = \"" COULEUR_TITRES "\">";
     double c = CORRECTION_td_width;
     QString textcorps = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
@@ -390,9 +391,22 @@ void dlg_bilanrecettes::ImprimeEtat()
     }
     textcorps += "</body></html>";
 
-    proc->Imprime_Etat(this, textcorps, textentete, textpied,
+    if (pdf)
+    {
+        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + userEntete->nom() + " " + userEntete->prenom();
+        proc->Cree_pdf(textcorps, textentete, textpied,
+                            userEntete->prenom() + " " + userEntete->prenom() + " - " + windowTitle() + ".pdf",
+                            nomdossier);
+    }
+    else
+    {
+        bool AvecDupli   = false;
+        bool AvecPrevisu = true;
+        bool AvecNumPage = false;
+        proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
+    }
 }
 
 void dlg_bilanrecettes::CalcSuperviseursEtComptables()

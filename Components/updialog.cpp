@@ -68,6 +68,12 @@ void UpDialog::AjouteLayButtons(Buttons Button)
 {
     // le Button Cancel est toujours le plus à gauche
     // Close le plus à droite et OK juste avant Close
+    if (Button.testFlag(ButtonPdf))
+    {
+        PdfButton         = new UpSmallButton();
+        PdfButton         ->setUpButtonStyle(UpSmallButton::PDFBUTTON);
+        wdg_buttonslayout ->addWidget(PdfButton);
+    }
     if (Button.testFlag(ButtonRecord))
     {
         RecordButton        = new UpSmallButton();

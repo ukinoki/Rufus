@@ -74,7 +74,7 @@ private:
     Recette*                    getRecetteFromRow(int row);
     Recette*                    getRecetteFromIndex(QModelIndex idx);
     Recette*                    getRecetteFromSelectionInTable();
-    void                        ImprimeEtat();
+    void                        ImprimeEtat(bool pdf = false);
     void                        NouvPeriode();
     void                        RemplitLaTable();
 };

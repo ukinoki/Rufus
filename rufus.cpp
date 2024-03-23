@@ -2722,8 +2722,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                              "</style>"
                              "</head><body>";
 
-    UpTextEdit textprov;
-
     QString Age;
     QMap<QString,QVariant>  AgeTotal = Utils::CalculAge(pat->datedenaissance(), m_currentdate, pat->sexe());
     Age = AgeTotal["toString"].toString();
@@ -2847,10 +2845,6 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
 
    //Impression du dossier
    QString  textcorps, textentete, textpied;
-   bool     AvecPrevisu = true;
-   bool     AvecDupli   = false;
-   bool     AvecNumPage = true;
-
    //création de l'entête
    User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
    if (!userEntete)
@@ -2968,9 +2962,14 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
                              nomdossier);
    }
    else
+   {
+       bool     AvecPrevisu = false;
+       bool     AvecDupli   = false;
+       bool     AvecNumPage = true;
        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                               proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                               AvecDupli, AvecPrevisu, AvecNumPage);
+   }
    if (aa)
    {
        QHash<QString, QVariant> listbinds;
@@ -5996,7 +5995,7 @@ void Rufus::VerifLastVersion()
             m_os = QSysInfo::productType();
             if (m_os == "osx")
                 m_os = "macos";
-            else if (m_os == "")
+            else if (m_os == "" || m_os == "ubuntu")
                 m_os = "linux";
             reply->deleteLater();
             data = reply->readAll();
