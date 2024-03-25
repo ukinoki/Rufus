@@ -1276,7 +1276,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
                  "{{DUPLI}}"
                  "<p align = \"center\"; style = \"margin-top:0px; margin-bottom:0px;\"><span style=\"font-size:6pt\">{{AGA}}</span></p>"
                  "</html>";
-      else
+    else
     {
         QString nomModelePied = (lunettes? PATH_FILE_PIEDPAGEORDOLUNETTES : PATH_FILE_PIEDPAGE);
         QFile   qFilePied(nomModelePied );

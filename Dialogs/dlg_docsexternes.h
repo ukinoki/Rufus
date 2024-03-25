@@ -102,7 +102,7 @@ private:
     void                    ModifierItem(QModelIndex idx);
     void                    Print(QPrinter* = Q_NULLPTR);
 
-    bool                    ReImprimeDoc(DocExterne *docmt);
+    void                    ReImprimeDoc(DocExterne *docmt);
     void                    RemplirTreeView();
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
     void                    ZoomDoc();

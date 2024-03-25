@@ -926,7 +926,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     return true;
 }
 
-bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
+void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 {
     typeDoc typedoc;
     if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
@@ -968,8 +968,9 @@ bool dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
             delete dialog;
         }
     }
-
-    return true;
+    if (Datas::I()->patients->currentpatient()!=Q_NULLPTR)
+        if (currentpatient()->id() != Datas::I()->patients->currentpatient()->id())
+            close();
 }
 
 void dlg_docsexternes::ModifierDate(QModelIndex idx)

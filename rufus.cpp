@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-03-2024/1");
+    qApp->setApplicationVersion("25-03-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2556,17 +2556,8 @@ void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
         return;
     Actes *acts = Q_NULLPTR;
     QMap<int, Acte*> *listeactes;
-    if (currentpatient() != Q_NULLPTR)
-    {
-        if (pat->id() == currentpatient()->id())
-            listeactes = m_listeactes->actes();
-        else
-        {
-            acts = new Actes();
-            acts->initListeByPatient(pat, Item::Update);
-            listeactes = acts->actes();
-        }
-    }
+    if (currentpatient() != Q_NULLPTR && pat == currentpatient())
+        listeactes = m_listeactes->actes();
     else
     {
         acts = new Actes();
@@ -2586,36 +2577,36 @@ void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
             debutbox    ->setCurrentIndex(debutbox  ->findData(acte->id()));
             finbox      ->setCurrentIndex(finbox    ->findData(acte->id()));
         };
-        auto recalclistitems    = [] (UpComboBox *box, QMap<int, Acte*> *listeactes, QDate date, bool verslehaut)
+        auto recalclistitems    = [&] (UpComboBox *box, int actid, UpComboBox *finbox)
         {
-            QDate dateencours = QDate::fromString(box->currentText(),"dd-MMM-yyyy");
+            int idacteencours = box->currentData().toInt();
             box->clear();
             for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
             {
                 Acte* act = const_cast<Acte*>(it.value());
                 QString dateacte = QLocale::system().toString(act->date(),"dd-MMM-yyyy");
-                if (verslehaut)
+                if (box == finbox)
                 {
-                    if (act->date() >= date)
+                    if (act->id() >= actid)
                         box->addItem(dateacte, act->id());
                 }
                 else
                 {
-                    if (act->date() <= date)
+                    if (act->id() <= actid)
                         box->addItem(dateacte, act->id());
                 }
             }
-            if (verslehaut)
+            if (box == finbox)
             {
-                if (dateencours >= date && box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy"))>-1)
-                    box->setCurrentIndex(box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy")));
+                if (idacteencours >= actid && box->findData(idacteencours)>-1)
+                    box->setCurrentIndex(box->findData(idacteencours));
                 else
                     box->setCurrentIndex(box->count()-1);
             }
             else
             {
-                if (dateencours <= date && box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy"))>-1)
-                    box->setCurrentIndex(box->findText(QLocale::system().toString(dateencours,"dd-MMM-yyyy")));
+                if (idacteencours <= actid && box->findData(idacteencours)>-1)
+                    box->setCurrentIndex(box->findData(idacteencours));
                 else
                     box->setCurrentIndex(0);
             }
@@ -2674,14 +2665,12 @@ void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
         connect(Dossierbutton,      &QPushButton::clicked,  dlg_ask,    [=] {recalcallitems (combodebut, combofin, listeactes);});
         connect(combodebut,         QOverload<int>::of(&QComboBox::activated),
                                                             dlg_ask,    [=] {recalclistitems(combofin,
-                                                                                               listeactes,
-                                                                                               QDate::fromString(combodebut->currentText(),"dd-MMM-yyyy"),
-                                                                                               true);});
+                                                                                             combodebut->currentData().toInt(),
+                                                                                             combofin);});
         connect(combofin,       QOverload<int>::of(&QComboBox::activated),
                                                             dlg_ask,    [=] {recalclistitems(combodebut,
-                                                                                               listeactes,
-                                                                                               QDate::fromString(combofin->currentText(),"dd-MMM-yyyy"),
-                                                                                               false);});
+                                                                                             combofin->currentData().toInt(),
+                                                                                             combofin);});
         QList<Acte*> listeactesaimprimer = QList<Acte*>();
         if (dlg_ask->exec() == QDialog::Accepted)
             for (auto it = listeactes->constBegin(); it != listeactes->constEnd(); ++it)
@@ -2697,12 +2686,12 @@ void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
         {
             bool toutledossier = (listeactes->size() == listeactesaimprimer.size());
             ImprimeListActes(listeactesaimprimer, toutledossier, quelepdf);
-            if (acts != Q_NULLPTR)
-            {
-                ItemsList::clearAll(listeactes);
-                delete acts;
-            }
             MAJDocsExternes();              // ImprimeDossier()
+        }
+        if (acts != Q_NULLPTR)
+        {
+            ItemsList::clearAll(acts->actes());
+            delete acts;
         }
     }
 }
@@ -2845,7 +2834,8 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
 
    //Impression du dossier
    QString  textcorps, textentete, textpied;
-   //création de l'entête
+
+   //!------------------------------------------------------------------------------------------ création de l'entête
    User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
    if (!userEntete)
    {
@@ -2932,11 +2922,12 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    textentete.replace("{{DDN}}"                , "(" + QLocale::system().toString(pat->datedenaissance(),tr("d MMM yyyy")) + ")");
 
 
-   // création du pied
+   //!-------------------------------------------------------------------------------------- création du pied
    textpied = proc->CalcPiedImpression(userEntete);
+   textpied.replace("{{DUPLI}}","");
    if (textpied == "") return;
 
-   // creation du corps de l'impression
+   //!--------------------------------------------------------------------------------------- creation du corps de l'impression
    textcorps = "<html>"
            "<body LANG=\"fr-FR\" DIR=\"LTR\">"
            "<p><div align=\"justify\">"
