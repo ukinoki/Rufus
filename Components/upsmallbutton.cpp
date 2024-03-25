@@ -74,6 +74,7 @@ void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
     case RECORDBUTTON:          setIcon( Icons::icSauvegarder() );  break;
     case STARTBUTTON:           setIcon( Icons::icOK() );           break;
     case SUPPRBUTTON:           setIcon( Icons::icPoubelle() );     break;
+    case PDFBUTTON:             setIcon( Icons::icPdf() );          break;
     default:                                                        break;
     }
     m_style = Style;

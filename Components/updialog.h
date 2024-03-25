@@ -31,6 +31,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class UpDialog : public QDialog
 {
     Q_OBJECT
+
 public:
     explicit UpDialog(QString NomSettings, QString NomPosition, QWidget *parent = Q_NULLPTR);
     explicit UpDialog(QWidget *parent = Q_NULLPTR);
@@ -43,7 +44,8 @@ public:
                 ButtonClose             = 0x10,
                 ButtonEdit              = 0x20,
                 ButtonRecord            = 0x40,
-                ButtonOups              = 0x80
+                ButtonOups              = 0x80,
+                ButtonPdf               = 0x100
                 };
     Q_DECLARE_FLAGS(Buttons, Button)
     Q_ENUM(Button)
@@ -65,13 +67,13 @@ private:
     UpLineEdit      *wdg_chercheuplineedit;
 
 public:
-    UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton;
+    UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton;
     void            setEnregPosition(bool);
     void            addSearchLine();
     void            AjouteLayButtons(Buttons Button=ButtonOK);
     void            AjouteWidgetLayButtons(QWidget *widg, bool ALaFin = true);
     void            setMode(Mode mode);
-    void            TuneSize(bool fix = true);
+    void            TuneSize(bool fixh = true, bool fixw = true);
     Mode            mode() const;
     QVBoxLayout*    dlglayout();
     QHBoxLayout*    buttonslayout() const;

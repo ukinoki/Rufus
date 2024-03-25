@@ -234,7 +234,7 @@ public:
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
-    bool                    Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString EnTete, QString Pied,
+    bool                    Imprime_Etat(QWidget *parent, QTextEdit *Etat, QString textente, QString textpied,
                                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                                      bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
                                      bool AvecChoixImprimante = true);

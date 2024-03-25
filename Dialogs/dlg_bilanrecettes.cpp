@@ -100,7 +100,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     else
         Titre = tr("Bilan des recettes pour la période du ") + m_debut.toString(tr("d MMMM yyyy")) + tr(" au ") + m_fin.toString(tr("d MMMM yyyy"));
     setWindowTitle(Titre);
-    AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonClose);
+    AjouteLayButtons(UpDialog::ButtonPdf | UpDialog::ButtonPrint | UpDialog::ButtonClose);
     m_mode          = SUPERVISEUR;
     wdg_bigtable    = new UpTableView();
 
@@ -114,6 +114,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
 
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
+    connect(PdfButton,                  &QPushButton::clicked,                                  this, [=] {ImprimeEtat(true);});
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
@@ -184,7 +185,8 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 }
             }
         }
-        PrintButton->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
+        PrintButton ->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
+        PdfButton   ->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
         wdg_bigtable->setColumnHidden(6,true);    // divers et autres recettes
         wdg_bigtable->setColumnHidden(7,true);    // apport pratcien
     }
@@ -207,7 +209,8 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                     }
                 }
             }
-        PrintButton->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
+        PrintButton ->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
+        PdfButton   ->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
         wdg_bigtable->setColumnHidden(6,false);    // divers et autres recettes
         wdg_bigtable->setColumnHidden(7,false);    // apport pratcien
     }
@@ -241,12 +244,9 @@ Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
     return getRecetteFromIndex(idx);
 }
 
-void dlg_bilanrecettes::ImprimeEtat()
+void dlg_bilanrecettes::ImprimeEtat(bool pdf)
 {
-    QString            Entete, Pied;
-    bool AvecDupli   = false;
-    bool AvecPrevisu = true;
-    bool AvecNumPage = false;
+    QString            textentete, textpied;
 
     User *userEntete = Q_NULLPTR;
 
@@ -261,33 +261,33 @@ void dlg_bilanrecettes::ImprimeEtat()
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    Entete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value("Norm");
-    if (Entete == "") return;
+    textentete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value("Norm");
+    if (textentete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???
     // REP : parce qu'on utilise le même entête que pour les ordonnances et qu'on va substituer les champs patient dans cet entête.
     // on pourrait faire un truc plus élégant (un entête spécifique pour cet état p.e.) mais je n'ai pas eu le temps de tout faire.
     if (m_mode == SUPERVISEUR)
-        Entete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt())->login(): tr("Bilan global")));
+        textentete.replace("{{PRENOM PATIENT}}"    , (wdg_supervcombobox->currentData().toInt()>0? Datas::I()->users->getById(wdg_supervcombobox->currentData().toInt())->login(): tr("Bilan global")));
     else
-        Entete.replace("{{PRENOM PATIENT}}"    , "");
-    Entete.replace("{{NOM PATIENT}}"       , "");
-    Entete.replace("{{TITRE1}}"            , windowTitle());
-    Entete.replace("{{TITRE}}"             , "");
-    Entete.replace("{{DDN}}"               , (m_mode == SUPERVISEUR? wdg_totalmontantlbl->text() : ""));
+        textentete.replace("{{PRENOM PATIENT}}"    , "");
+    textentete.replace("{{NOM PATIENT}}"       , "");
+    textentete.replace("{{TITRE1}}"            , windowTitle());
+    textentete.replace("{{TITRE}}"             , "");
+    textentete.replace("{{DDN}}"               , (m_mode == SUPERVISEUR? wdg_totalmontantlbl->text() : ""));
 
     // création du pied
-    Pied = proc->CalcPiedImpression(userEntete);
-    if (Pied == "") return;
+    textpied = proc->CalcPiedImpression(userEntete);
+    if (textpied == "") return;
 
-    // creation du corps de la remise
+    // creation du corps
     QString couleur = "<font color = \"" COULEUR_TITRES "\">";
     double c = CORRECTION_td_width;
     QTextEdit *Etat_textEdit = new QTextEdit;
     QString test4 = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
                     "</style></head>"
                     "<body LANG=\"fr-FR\" DIR=\"LTR\">"
-                    "<table width=\"" + QString::number(int(c*510)) + "\" border=\"1\"  cellspacing=\"0\" cellpadding=\"2\">";
+                    "<table width=\"100%\" border=\"0.3\"  cellspacing=\"0\" cellpadding=\"2\">";
     int row = 1;
     for (int i = 0; i < m_recettesmodel->rowCount();i++)
     {
@@ -300,11 +300,11 @@ void dlg_bilanrecettes::ImprimeEtat()
                     if (rec->cotationacte() != "")
                     {
                         test4 += "<tr>"
-                                 "<td width=\"" + QString::number(int(c*30))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></td>"                      //! no ligne
-                                "<td width=\"" + QString::number(int(c*60))  + "\"><span style=\"font-size:8pt\">" + rec->date().toString(tr("d MMM yyyy")) + "</span></font></td>"                         //! date
-                                 "<td width=\"" + QString::number(int(c*160)) + "\"><span style=\"font-size:8pt\">" + rec->payeur() + "</span></td>"                                                        //! nom prenom
-                                 "<td width=\"" + QString::number(int(c*140)) + "\"><span style=\"font-size:8pt\">" + rec->cotationacte() + "</span></td>"                                                  //! cotation
-                                 "<td width=\"" + QString::number(int(c*95))  + "\"><span style=\"font-size:8pt\"><div align=\"right\">" + QLocale().toString(rec->montant(),'f',2) + "</div></span></td>"  //! montant
+                                 "<td width=\"6%\"><span style=\"font-size:8pt\"><div align=\"right\">" + QString::number(row) + "</div></span></td>"                      //! no ligne
+                                 "<td width=\"14%\"><span style=\"font-size:8pt\">" + rec->date().toString(tr("d MMM yyyy")) + "</span></font></td>"                         //! date
+                                 "<td width=\"45%\"><span style=\"font-size:8pt\">" + rec->payeur() + "</span></td>"                                                        //! nom prenom
+                                 "<td width=\"23%\"><span style=\"font-size:8pt\">" + rec->cotationacte() + "</span></td>"                                                  //! cotation
+                                 "<td width=\"12%\"><span style=\"font-size:8pt\"><div align=\"right\">" + QLocale().toString(rec->montant(),'f',2) + "</div></span></td>"  //! montant
                                  "</tr>";
                         row++;
                     }
@@ -395,9 +395,22 @@ void dlg_bilanrecettes::ImprimeEtat()
 
     Etat_textEdit->setHtml(test4);
 
-    proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+    if (pdf)
+    {
+        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + userEntete->nom() + " " + userEntete->prenom();
+        proc->Cree_pdf(Etat_textEdit, textentete, textpied,
+                       userEntete->prenom() + " " + userEntete->prenom() + " - " + windowTitle() + ".pdf",
+                       nomdossier);
+    }
+    else
+    {
+        bool AvecDupli   = false;
+        bool AvecPrevisu = true;
+        bool AvecNumPage = false;
+        proc->Imprime_Etat(this, Etat_textEdit, textentete, textpied,
+                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                           AvecDupli, AvecPrevisu, AvecNumPage);
+    }
     delete Etat_textEdit;
 }
 

@@ -588,15 +588,13 @@ void Procedures::setDirSQLExecutable()
 {
     QString dirdefaultsqlexecutable = "";
     QString dirsqlexecutable ("");
-    QString executable = "/mysql";
+    QString executable = (db->version().contains("MariaDB")? "/mariadb" : "/mysql");
     bool isdefaultsql = false;
 /*! 1. On recherche dans le package logiciel */
 #ifdef Q_OS_MACX
     QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
     mysqldir.cdUp();
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    if (db->version().contains("MariaDB"))
-        dirdefaultsqlexecutable += "/MariaDB";
     isdefaultsql = QFile(dirdefaultsqlexecutable + executable).exists();
 #endif
     if (isdefaultsql)
@@ -910,7 +908,7 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 -----------------------------------------------------------------------------------*/
 QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 {
-    QString Corps;
+    QString textcorps;
     QString nomModeleCorpsImpression;
     Utils::convertHTML(text);
     if (ALD)
@@ -927,11 +925,11 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
     ba.resize(file_len+1);
     ba.data()[file_len]=0;
     qFile.close ();
-    Corps = ba;
+    textcorps = ba;
      text.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt");
-    Corps.replace("{{TEXTE ORDO}}",text);
-    Corps.replace("{{TEXTE ORDO HORS ALD}}", "");
-    return Corps;
+    textcorps.replace("{{TEXTE ORDO}}",text);
+    textcorps.replace("{{TEXTE ORDO HORS ALD}}", "");
+    return textcorps;
 }
 
 /*---------------------------------------------------------------------------------
@@ -944,7 +942,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         return EnteteMap;
     EnteteMap["Norm"]   = "";
     EnteteMap["ALD"]    = "";
-    QString Entete;
+    QString textentete;
     QString nomModeleEntete;
     int idparent = -1;
     bool rplct = false;
@@ -1029,7 +1027,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             }
         }
     }
-    for (int i = 1; i<3; i++)//TODO : ??? pourquoi 3 - reponse: comme ça, pour pas mettre i==2....
+    for (int i = 1; i<3; i++)
     {
         if (i==1)
             nomModeleEntete = PATH_FILE_ENTETEORDO;
@@ -1044,29 +1042,29 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         baEnTete.resize(fileEnTete_len + 1);
         baEnTete.data()[fileEnTete_len] = 0;
         qFileEnTete.close ();
-        Entete = baEnTete;
-        Entete.replace("{{POLICE}}", qApp->font().family());
+        textentete = baEnTete;
+        textentete.replace("{{POLICE}}", qApp->font().family());
 
         if (rplct)
         {
             User *userRemp = Datas::I()->users->getById(idparent);
             if(userRemp)
-                Entete.replace("{{TITREUSER}}", "<s>" + userRemp->titre() + " " + userRemp->prenom() + " " + userRemp->nom() + "</s> "
+                textentete.replace("{{TITREUSER}}", "<s>" + userRemp->titre() + " " + userRemp->prenom() + " " + userRemp->nom() + "</s> "
                                                 "<font color=\"darkblue\">" + tr ("remplacé par") + " "
                                                 + (user->titre().size()? user->titre() + " " : "") + user->prenom() + " " + user->nom())
                                                 + "</font>";
         }
         else
-            Entete.replace("{{TITREUSER}}", (user->titre() != ""? user->titre() + " " : "") + user->prenom() + " " + user->nom());
+            textentete.replace("{{TITREUSER}}", (user->titre() != ""? user->titre() + " " : "") + user->prenom() + " " + user->nom());
 
         if(user->numspecialite() != 0)
-            Entete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
+            textentete.replace("{{SPECIALITE}}", QString::number(user->numspecialite()) + " " + user->specialite());
         else
-            Entete.replace("{{SPECIALITE}}", user->specialite());
+            textentete.replace("{{SPECIALITE}}", user->specialite());
         if (i==1)
         {
-            Entete.replace("{{LARGEURG}}", HTML_LARGEUR_ENTETE_GAUCHE);
-            Entete.replace("{{LARGEURD}}", HTML_LARGEUR_ENTETE_DROITE);
+            textentete.replace("{{LARGEURG}}", HTML_LARGEUR_ENTETE_GAUCHE);
+            textentete.replace("{{LARGEURD}}", HTML_LARGEUR_ENTETE_DROITE);
         }
 
         QString adresse ="";
@@ -1097,13 +1095,13 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             else
                 adresse += sit->adresse1() + sit->adresse2();
         }
-        Entete.replace("{{ADRESSE}}", adresse);
-        Entete.replace("{{CPVILLE}}", sit->codepostal() + " " + sit->ville().toUpper());
-        Entete.replace("{{TEL}}", "Tél. " + sit->telephone());
+        textentete.replace("{{ADRESSE}}", adresse);
+        textentete.replace("{{CPVILLE}}", sit->codepostal() + " " + sit->ville().toUpper());
+        textentete.replace("{{TEL}}", "Tél. " + sit->telephone());
         if (nlignesadresse==2)
-            Entete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
+            textentete.replace("{{LIGNESARAJOUTER}}", "<span style=\"font-size:5pt;\"> <br /></span>");
         else
-            Entete.replace("{{LIGNESARAJOUTER}}", "");
+            textentete.replace("{{LIGNESARAJOUTER}}", "");
 
         QString NumSS = "";
         if( user->numOrdre().size() )
@@ -1112,10 +1110,10 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             if( user->NumPS() > 0 ) NumSS += " - ";
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
-        Entete.replace("{{NUMSS}}", db->parametres()->cotationsfrance()? NumSS : "");
-        Entete.replace("{{DATE}}", sit->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
-        Utils::epureFontFamily(Entete);
-        (i==1? EnteteMap["Norm"] = Entete : EnteteMap["ALD"] = Entete);
+        textentete.replace("{{NUMSS}}", db->parametres()->cotationsfrance()? NumSS : "");
+        textentete.replace("{{DATE}}", sit->ville()  + tr(", le ") + date.toString(tr("d MMMM yyyy")));
+        Utils::epureFontFamily(textentete);
+        (i==1? EnteteMap["Norm"] = textentete : EnteteMap["ALD"] = textentete);
     }
     return EnteteMap;
 }
@@ -1125,9 +1123,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
 -----------------------------------------------------------------------------------*/
 QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 {
-    QString Pied;
+    QString textpied;
     if (ALD)
-        Pied =  "<html>"
+        textpied =  "<html>"
                 "{{DUPLI}}"
                 "<p align = \"center\"; style = \"margin-top:0px; margin-bottom:0px;\"><span style=\"font-size:6pt\">{{AGA}}</span></p>"
                 "</html>";
@@ -1144,7 +1142,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         baPied.resize(filePied_len + 1);
         baPied.data()[filePied_len] = 0;
         qFilePied.close ();
-        Pied = baPied;
+        textpied = baPied;
     }
     bool isaga = false;
     if (user)
@@ -1153,27 +1151,27 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
         if (parent)
             isaga = parent->isAGA();
     }
-    Pied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
-    return Pied;
+    textpied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
+    return textpied;
 }
 
-bool Procedures::Imprime_Etat(QWidget* parent, QTextEdit *Etat, QString EnTete, QString Pied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+bool Procedures::Imprime_Etat(QWidget* parent, QTextEdit *Etat, QString textente, QString textpied, int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
 {
     //AvecPrevisu = true;
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
-    QString PiedDepart = Pied;
+    QString PiedDepart = textpied;
     TexteAImprimer->setFooterSize(TaillePieddePage);
-    TexteAImprimer->setHeaderText(EnTete);
+    TexteAImprimer->setHeaderText(textente);
 
     if (TailleEnTete > 0)
         TexteAImprimer->setHeaderSize(TailleEnTete);
     else
         TexteAImprimer->setHeaderSize(25);
-    Pied.replace("{{DUPLI}}","");
+    textpied.replace("{{DUPLI}}","");
     if (!AvecNumPage)
-        Pied.replace("&page;","");
-    TexteAImprimer->setFooterText(Pied);
+        textpied.replace("&page;","");
+    TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
@@ -1190,10 +1188,10 @@ bool Procedures::Imprime_Etat(QWidget* parent, QTextEdit *Etat, QString EnTete, 
         if (AvecDupli)
         {
             QString dupli = "<p align=\"center\"><span style=\"font-family:Arial Black;font-size:24pt;font-style:normal;font-weight:bold;color:#cccccc;\">DUPLICATA</span></p>";
-            Pied = PiedDepart.replace("{{DUPLI}}",dupli);
+            textpied = PiedDepart.replace("{{DUPLI}}",dupli);
             if (!AvecNumPage)
-                Pied.replace("&page;","");
-            TexteAImprimer->setFooterText(Pied);
+                textpied.replace("&page;","");
+            TexteAImprimer->setFooterText(textpied);
             TexteAImprimer->setFooterSize(TexteAImprimer->footerSize() + 20);
             TexteAImprimer->print(Etat->document(),"","",false);
         }
@@ -1500,14 +1498,14 @@ void Procedures::EditHtml(QString txt)
 
 /*!
  * \brief Procedures::EditDocument
- * affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pouvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
- * argument QMap<QString,QVariant> doc contient 2 éléments
-    . doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
-    . doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();
- * argument label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
- * argument titre le titre de la fiche
- * argument Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
- * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintDocument(QMap<QString,QVariant> doc)
+ * \abstract affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pouvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
+ * \param doc QMap<QString,QVariant>contient 2 éléments
+    . \arg doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
+    . \arg doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();
+ * \param label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
+ * \param titre le titre de la fiche
+ * \param Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
+ * \param parent
  */
 void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button, QWidget *parent)
 {

@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("15-03-2024/1");
+    qApp->setApplicationVersion("22-03-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2767,10 +2767,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    }
 
    //Impression du dossier
-   QString  Corps, Entete, Pied;
-   bool     AvecPrevisu = true;
-   bool     AvecDupli   = false;
-   bool     AvecNumPage = true;
+   QString  textcorps, textentete, textpied;
 
    //création de l'entête
    User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
@@ -2844,9 +2841,9 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        }
    }
 
-   Entete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
-   if (Entete == "") return;
-   Entete.replace("{{TITRE1}}"             , "");
+   textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+   if (textentete == "") return;
+   textentete.replace("{{TITRE1}}"             , "");
    QString comment;
    if (toutledossier)
        comment = tr("COMPTE RENDU DE DOSSIER");
@@ -2854,18 +2851,18 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        comment = tr("Actes du") + " " + datedebut + tr("au") + " " + datefin;
    else
        comment = tr("Acte du") + " " + datedebut;
-   Entete.replace("{{TITRE}}"              , "<font color = \"" COULEUR_TITRES "\">" + comment + "</font>");
-   Entete.replace("{{PRENOM PATIENT}}"     , pat->prenom());
-   Entete.replace("{{NOM PATIENT}}"        , pat->nom().toUpper());
-   Entete.replace("{{DDN}}"                , "(" + pat->datedenaissance().toString(tr("d MMM yyyy")) + ")");
+   textentete.replace("{{TITRE}}"              , "<font color = \"" COULEUR_TITRES "\">" + comment + "</font>");
+   textentete.replace("{{PRENOM PATIENT}}"     , pat->prenom());
+   textentete.replace("{{NOM PATIENT}}"        , pat->nom().toUpper());
+   textentete.replace("{{DDN}}"                , "(" + pat->datedenaissance().toString(tr("d MMM yyyy")) + ")");
 
 
    // création du pied
-   Pied = proc->CalcPiedImpression(userEntete);
-   if (Pied == "") return;
+   textpied = proc->CalcPiedImpression(userEntete);
+   if (textpied == "") return;
 
    // creation du corps de l'impression
-   Corps = "<html>"
+   textcorps = "<html>"
            "<body LANG=\"fr-FR\" DIR=\"LTR\">"
            "<p><div align=\"justify\">"
            "<span style=\"font-size:9pt\">"
@@ -2877,23 +2874,28 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    Reponse.replace(QRegExp("font-size( *: *[\\d]{1,2} *)pt"),"font-size:" + QString::number(taillefont) + "pt");
    QString largeurformule = LARGEUR_FORMULE;
    Reponse.replace("<td width=\"" LARGEUR_FORMULE "\">","<td width=\"" + QString::number(largeurformule.toInt() - 40) + "\">");
-   Corps.replace("{{TEXTE ORDO}}",Reponse);
+   textcorps.replace("{{TEXTE ORDO}}",Reponse);
 
    QTextEdit *Etat_textEdit = new QTextEdit;
-   Etat_textEdit->setHtml(Corps);
+   Etat_textEdit->setHtml(textcorps);
    bool aa = false;
    if (queLePdf)
    {
-       aa = proc->Cree_pdf(Etat_textEdit, Entete, Pied,
+       aa = proc->Cree_pdf(Etat_textEdit, textentete, textpied,
                              (listeactes.size() > 1?
                                   tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
                                   tr("Acte")  + " - " + pat->nom() + " " + pat->prenom() + " - " + listeactes.at(0)->date().toString("d MMM yyyy")) + ".pdf",
                              nomdossier);
    }
    else
-       aa = proc->Imprime_Etat(this, Etat_textEdit, Entete, Pied,
+   {
+       bool     AvecPrevisu = true;
+       bool     AvecDupli   = false;
+       bool     AvecNumPage = true;
+       aa = proc->Imprime_Etat(this, Etat_textEdit, textentete, textpied,
                               proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                              AvecDupli, AvecPrevisu, AvecNumPage);
+                              AvecDupli, AvecPrevisu , AvecNumPage);
+   }
    if (aa)
    {
        QHash<QString, QVariant> listbinds;
@@ -2902,9 +2904,9 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        listbinds[CP_TYPEDOC_DOCSEXTERNES]       = COURRIER;
        listbinds[CP_SOUSTYPEDOC_DOCSEXTERNES]   = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
        listbinds[CP_TITRE_DOCSEXTERNES]         = (queLePdf? tr("Export") : tr("Impression")) + " " + (toutledossier? tr("dossier"): tr("actes"));
-       listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = Entete;
-       listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = Corps;
-       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = Pied.replace("{{DUPLI}}","");
+       listbinds[CP_TEXTENTETE_DOCSEXTERNES]    = textentete;
+       listbinds[CP_TEXTCORPS_DOCSEXTERNES]     = textcorps;
+       listbinds[CP_TEXTPIED_DOCSEXTERNES]      = textpied.replace("{{DUPLI}}","");
        listbinds[CP_DATE_DOCSEXTERNES]          = m_currentdate.toString("yyyy-MM-dd") + " " + m_currenttime.toString("HH:mm:ss");
        listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
        listbinds[CP_EMISORRECU_DOCSEXTERNES]    = "0";
@@ -5898,7 +5900,7 @@ void Rufus::VerifLastVersion()
             m_os = QSysInfo::productType();
             if (m_os == "osx")
                 m_os  = "macos";
-            else if (m_os == "" )
+            else if (m_os == "" || m_os == "ubuntu")
                 m_os = "linux";
             reply->deleteLater();
             data = reply->readAll();
