@@ -1483,7 +1483,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = false;
-    textorigine = ui->ResumePrescriptionTextEdit->toPlainText();
+    textorigine = ui->ResumePrescriptionTextEdit->toHtml();
     //création de l'entête
     User *userEntete = Q_NULLPTR;
     User *userconnected = Datas::I()->users->userconnected();

@@ -8029,9 +8029,9 @@ bool Rufus::FermeDossier(Patient *patient)
 
     msgbox.setIcon(UpMessageBox::Quest);
 
-    UpSmallButton SalDatBouton     (tr("Garder le dossier\nen salle d'attente"));
-    UpSmallButton AnnulBouton  (tr("Annuler"));
-    UpSmallButton CloseBouton     (tr("Fermer\nle dossier"));
+    UpSmallButton SalDatBouton      (tr("Garder le dossier\nen salle d'attente"));
+    UpSmallButton AnnulBouton       (tr("Annuler"));
+    UpSmallButton CloseBouton       (tr("Fermer\nle dossier"));
 
     msgbox.addButton(&AnnulBouton,  UpSmallButton::CANCELBUTTON);
     msgbox.addButton(&SalDatBouton, UpSmallButton::STARTBUTTON);
@@ -8064,6 +8064,7 @@ bool Rufus::FermeDossier(Patient *patient)
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
             ItemsList::update(pat, CP_MOTIF_SALDAT, Motif);
             ItemsList::update(pat, CP_MESSAGE_SALDAT, Message);
+            ItemsList::update(pat, CP_HEURERDV_SALDAT, mapRDV[RDV_HEURE]);
         }
         else
             a = InscritEnSalDat(patient);

@@ -109,7 +109,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_wdelta            = 0;
     m_hdeltaframe       = 0;
     m_wdeltaframe       = 0;
-    m_avecprevisu = true;//proc  ->ApercuAvantImpression();
+    m_avecprevisu       = proc->ApercuAvantImpression();
 
     connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch()==0?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});

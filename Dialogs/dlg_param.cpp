@@ -3850,10 +3850,8 @@ bool dlg_param::Valide_Modifications()
         proc->settings()->setValue(Imprimante_TailleEnTeteALD,ui->EnteteALDspinBox->value());
         proc->settings()->setValue(Imprimante_TaillePieddePage,ui->PiedDePagespinBox->value());
         proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes,ui->PiedDePageOrdoLunettesspinBox->value());
-        QString OK = (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO");
-        proc->settings()->setValue(Imprimante_ApercuAvantImpression, OK);
-        OK = (ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO");
-        proc->settings()->setValue(Imprimante_OrdoAvecDupli,OK);
+        proc->settings()->setValue(Imprimante_ApercuAvantImpression, (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO"));
+        proc->settings()->setValue(Imprimante_OrdoAvecDupli,(ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO"));
         if (ui->PrioritaireImportDocscheckBox->isChecked())
             proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"YES");
         else if (ui->NonImportDocscheckBox->isChecked())
