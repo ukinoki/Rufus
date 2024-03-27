@@ -968,9 +968,8 @@ void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
             delete dialog;
         }
     }
-    if (Datas::I()->patients->currentpatient()!=Q_NULLPTR)
-        if (currentpatient()->id() != Datas::I()->patients->currentpatient()->id())
-            close();
+    if (currentpatient() != Datas::I()->patients->currentpatient())
+        close();
 }
 
 void dlg_docsexternes::ModifierDate(QModelIndex idx)

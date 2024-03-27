@@ -428,30 +428,37 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
     if (docs == Q_NULLPTR)
          return;
      //! si la fiche est déjà ouverte, on quitte
-     if (currentpatient() != Q_NULLPTR)
-         if (docs->patient()->id() == currentpatient()->id())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
-         {
-             QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
-             bool founddlg = false;
-             if (ListDialogDocs.size()>0)
-                 for (int i=0; i< ListDialogDocs.size();++i)
-                 {
-                     if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
-                     {
-                         if (docs->docsexternes()->size()==0)
-                             ListDialogDocs.at(i)->close();
-                         else
-                         {
-                             ListDialogDocs.at(i)->setVisible(true);
-                             founddlg = true;
-                         }
-                     }
-                     else
-                         ListDialogDocs.at(i)->close();
-                 }
-             if (founddlg)
-                 return;
-         }
+    QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+    bool founddlg = false;
+    if (ListDialogDocs.size()>0)
+        for (int i=0; i< ListDialogDocs.size();++i)
+        {
+            if (currentpatient() != Q_NULLPTR)
+            {
+                if (docs->patient()->id() == currentpatient()->id())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+                {
+                    {
+                        if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
+                        {
+                            if (docs->docsexternes()->size()==0)
+                                ListDialogDocs.at(i)->close();
+                            else
+                            {
+                                ListDialogDocs.at(i)->setVisible(true);
+                                founddlg = true;
+                            }
+                        }
+                        else
+                            ListDialogDocs.at(i)->close();
+                    }
+                    if (founddlg)
+                        return;
+                }
+            }
+            else
+                if (!ListDialogDocs.at(i)->isModal())
+                    ListDialogDocs.at(i)->close();
+        }
     if (docs->docsexternes()->size()>0)
     {
         dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP, this);
@@ -490,7 +497,7 @@ void Rufus::MAJDocsExternes()
         for (int i=0; i< ListDialogDocs.size();++i)
             if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
             {
-                proc->UpdDocsExternes();
+                emit proc->UpdDocsExternes();
                 break;
             }
     }
