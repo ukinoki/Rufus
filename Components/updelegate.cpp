@@ -20,7 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 QWidget* UpLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex &index) const
 {
-    if (index.data().canConvert(QMetaType::QString))
+    if (QMetaType::canConvert(QMetaType(QMetaType::QVariant), QMetaType(QMetaType::QString)))
+    //if (index.data().canConvert(QMetaType::QString))
     {
         UpLabel *editor = new UpLabel(parent);
         editor->setRow(index.row());

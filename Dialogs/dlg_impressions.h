@@ -135,6 +135,7 @@ private:
     void                        EnableLines();
     void                        EnableOKPushButton(QModelIndex idx = QModelIndex());
     void                        FiltreListe();
+    void                        FixDocUptableViewColumnWidth();                            //!> After setStyleSheet, ColumnWith are reinitialised and need to be redefined (???)
     Impression*                 getDocumentFromIndex(QModelIndex idx);
     DossierImpression*          getDossierFromIndex(QModelIndex idx);
     bool                        hasDocumentPrive(DossierImpression *dossier);              //!> vérifie si un dossier incorpore des documents privés

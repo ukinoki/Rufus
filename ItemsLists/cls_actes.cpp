@@ -130,18 +130,14 @@ QMap<int, Acte*>::const_iterator Actes::getAt(int idx)
     return actes()->constFind(actes()->keys().at(idx) );
 }
 
-QMap<int, Acte *> *Actes::listCourriersByUser(int iduser)
+QList<int> Actes::listCourriersByUser(int iduser)
 {
-    QMap<int, Acte *> *listactes = new QMap<int, Acte *>;
+    QList<int> listactes;
     QString req = "select " CP_ID_ACTES " from " TBL_ACTES " where " CP_COURRIERAFAIRE_ACTES " = 'T' and " CP_IDUSER_ACTES " = " + QString::number(iduser);
     QList<QVariantList> acts  = DataBase::I()->StandardSelectSQL(req, m_ok);
     if (m_ok)
         for (int i=0; i<acts.size(); i++)
-        {
-            Acte *act = getById(acts.at(i).at(0).toInt());
-            if (act)
-                listactes->insert(act->id(), act);
-        }
+            listactes << acts.at(i).at(0).toInt();
     return listactes;
 }
 

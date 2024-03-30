@@ -329,10 +329,10 @@ QRectF TextPrinter::footerRect(QPaintDevice *device)
 }
 
 /*!
-/*! * \brief TextPrinter::getPDFByteArray
-/*! * \param document
-/*! * \return
-/*! */
+    * \brief TextPrinter::getPDFByteArray
+    * \param document
+    * \return
+*/
 
 QByteArray TextPrinter::getPDFByteArray(const QTextDocument *document)
 {

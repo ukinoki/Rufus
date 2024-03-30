@@ -398,7 +398,10 @@ void dlg_listemotscles::RemplirTableView()
     connect(line,   &UpLineDelegate::textEdited, this, [&] {OKButton->setEnabled(true);});
     connect(line,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
                                                                         UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
-                                                                        m_textdelegate = line->text();
+                                                                        if (line)
+                                                                            m_textdelegate = line->text();
+                                                                        else
+                                                                            m_textdelegate = "";
                                                                       });
     wdg_tblview->setItemDelegateForColumn(1,line);
     m_listidmotsclesdepart.clear();

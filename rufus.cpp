@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("25-03-2024/1");
+    qApp->setApplicationVersion("30-03-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -30,6 +30,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     srand(static_cast<uint>(time(Q_NULLPTR)));
     qApp->setStyleSheet(Styles::StyleAppli());
     RecalcCurrentDateTime();
+    QToolTip::setPalette(QPalette(Qt::yellow));
+
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
@@ -455,8 +457,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                         return;
                 }
             }
-            else
-                if (!ListDialogDocs.at(i)->isModal())
+            else if (!ListDialogDocs.at(i)->isModal())
                     ListDialogDocs.at(i)->close();
         }
     if (docs->docsexternes()->size()>0)
@@ -1160,11 +1161,9 @@ void Rufus::AfficheMenu(QMenu *menu)
     if (currentuser()->isSoignant())
     {
         bool c = false;
-        QMap<int, Acte *> *listcourriers = Datas::I()->actes->listCourriersByUser(currentuser()->id());
-        c = (listcourriers->size()>0);
+        QList<int> listcourriers = Datas::I()->actes->listCourriersByUser(currentuser()->id());
+        c = (listcourriers.size()>0);
         actionRechercheCourrier     ->setEnabled(a && c);
-        ItemsList::clearAll(listcourriers);
-        delete listcourriers;
     }
 
     if (menu == menuDossier)
@@ -8305,7 +8304,6 @@ void Rufus::InitWidgets()
 
     dlg_msgRepons = new QDialog();
     dlg_msgBAL = new QDialog();
-
 
     ui->CCAMlinklabel->setText("<a href=\"" LIEN_CCAM "\">CCAM...</a>");
 

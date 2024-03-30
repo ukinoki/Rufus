@@ -27,7 +27,8 @@ public:
 template <typename K, typename T>
 static void clearAll(QMap<K, T*> *m_map)
 {
-    qDeleteAll(*m_map);
+    if (m_map->size() > 0)
+        qDeleteAll(*m_map);
     m_map->clear();
 }
 

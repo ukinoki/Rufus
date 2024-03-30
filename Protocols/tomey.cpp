@@ -85,7 +85,7 @@ void Tomey::LectureDonneesAL6400(QString Mesure, QString nameLM)
 }
 
 // "TOMEY RC-5000" "RODENSTOCK CX 2000"
-void Tomey::LectureDonneesRC5000Form(QString Mesure, QString name)
+void Tomey::LectureDonneesRC5000Form(QString Mesure)
 {
     QList<QString> list= Mesure.split( "\r\n"); //split in lines
 

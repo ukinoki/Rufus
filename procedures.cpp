@@ -1735,13 +1735,10 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     textcorps = CalcCorpsImpression(textorigine, ALD);
     if (textcorps == "")
         return false;
-    QTextEdit   *Etat_textEdit = new QTextEdit;
-    Etat_textEdit->setHtml(textcorps);
-    if (Etat_textEdit->toPlainText() == "")
-    {
-        delete Etat_textEdit;
+    QTextEdit   Etat_textEdit;
+    Etat_textEdit.setHtml(textcorps);
+    if (Etat_textEdit.toPlainText() == "")
         return false;
-    }
     int tailleEnTete = TailleEnTete();
     if (ALD) tailleEnTete = TailleEnTeteALD();
 
@@ -9564,7 +9561,7 @@ PL04.7N
 
     else if (nameARK == "TOMEY RC-5000" || nameARK == "RODENSTOCK CX 2000")
     {
-        Tomey::I()->LectureDonneesRC5000Form( Mesure,  nameARK);
+        Tomey::I()->LectureDonneesRC5000Form( Mesure);
     }
     //qDebug() << "od" << mSphereOD << mCylOD << mAxeOD << "og" << mSphereOG << mCylOG << mAxeOG << "PD = " + PD;
 }

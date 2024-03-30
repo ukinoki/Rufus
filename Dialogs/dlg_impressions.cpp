@@ -566,6 +566,18 @@ void dlg_impressions::FiltreListe()
     }
 }
 
+void dlg_impressions::FixDocUptableViewColumnWidth()
+{
+    ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
+    ui->DocsupTableView->setColumnWidth(1,289);       // Resume
+    ui->DocsupTableView->setColumnWidth(2,30);        // Public   - affiche un check si document public
+    ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
+    ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
+    ui->DocsupTableView->setColumnWidth(5,0);         // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
+    ui->DocsupTableView->setColumnHidden(5,true);
+    ui->DocsupTableView->FixLargeurTotale();
+}
+
 void dlg_impressions::MenuContextuelTexteDocument()
 {
     if (m_menucontextuel_textdoc == Q_NULLPTR)
@@ -1912,6 +1924,7 @@ void dlg_impressions::ConfigMode(Mode mode)
         ui->DocPubliccheckBox           ->setImmediateToolTip("");
         ui->DocsupTableView             ->setEnabled(true);
         ui->DocsupTableView             ->setStyleSheet("");
+        FixDocUptableViewColumnWidth();
         wdg_dossiersbuttonframe         ->setEnabled(true);
         ui->DossiersupTableView         ->setEnabled(true);
         ui->DocEditcheckBox             ->setChecked(false);
@@ -1961,6 +1974,7 @@ void dlg_impressions::ConfigMode(Mode mode)
 
         ui->DocsupTableView->setEnabled(true);
         ui->DocsupTableView->setStyleSheet("");
+        FixDocUptableViewColumnWidth();
         wdg_docsbuttonframe->setEnabled(false);
         ui->DossiersupTableView->setEnabled(true);
         wdg_dossiersbuttonframe->setEnabled(false);
@@ -2044,6 +2058,7 @@ void dlg_impressions::ConfigMode(Mode mode)
 
         ui->DocsupTableView->setEnabled(true);
         ui->DocsupTableView->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
+        FixDocUptableViewColumnWidth();
         ui->DossiersupTableView->setEnabled(true);
         ui->Expliclabel->setText(tr("DOSSIERS - MODIFICATION"));
 
@@ -2171,6 +2186,7 @@ void dlg_impressions::ConfigMode(Mode mode)
         wdg_docsbuttonframe->setEnabled(false);
         ui->DocsupTableView->setEnabled(true);
         ui->DocsupTableView->setStyleSheet("UpTableWidget {border: 2px solid rgb(251, 51, 61);}");
+        FixDocUptableViewColumnWidth();
         ui->DossiersupTableView->setEnabled(true);
         wdg_dossiersbuttonframe->setEnabled(false);
         ui->Expliclabel->setText(tr("DOSSIER - CREATION - Cochez les cases correspondants au dossier que vous voulez créer"));
@@ -3105,14 +3121,7 @@ void dlg_impressions::Remplir_TableView()
         QItemSelectionModel *m = ui->DocsupTableView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
         ui->DocsupTableView->setModel(m_docsmodel);
         delete m;
-        ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
-        ui->DocsupTableView->setColumnWidth(1,289);       // Resume
-        ui->DocsupTableView->setColumnWidth(2,30);        // Public   - affiche un check si document public
-        ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
-        ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
-        ui->DocsupTableView->setColumnWidth(5,0);         // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
-        ui->DocsupTableView->setColumnHidden(5,true);
-        ui->DocsupTableView->FixLargeurTotale();
+        FixDocUptableViewColumnWidth();
         wdg_docsbuttonframe->widgButtonParent()->setFixedWidth(ui->DocsupTableView->width());
         ui->DocsupTableView->setGridStyle(Qt::DotLine);
 

@@ -1108,16 +1108,16 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     if (textpied == "") return false;
 
     // creation du corps
-    double c = CORRECTION_td_width;
-    QString lignecheque = "<table width=\"" + QString::number(int(c*490)) + "\" border=\"1\" cellspacing=\"0\" cellpadding=\"5\">"
+    QString textcorps = "<html><head><style type=\"text/css\">p.p1 {font:70px; margin: 0px 0px 10px 100px;}"
+                        "</style></head>"
+                        "<body LANG=\"fr-FR\" DIR=\"LTR\">"
+                        "<table width=\"50%\" border=\"0\"  cellspacing=\"0\" cellpadding=\"2\" align=\"center\">";
+    QString lignecheque =
             "<tr>"
-              "<td width=\"" + QString::number(int(c*200)) + "\" ><span style=\"font-size:9pt;\">{{NOM PATIENT}}</span></td>"
-              "<td width=\"" + QString::number(int(c*180)) + "\" ><span style=\"font-size:9pt;\">{{NOM BANQUE}}</span></td>"
-              "<td width=\"" + QString::number(int(c*110)) + "\" ><div align=\"right\"><span style=\"font-size:9pt;\">{{MONT REGLT}}</span></div></td>"
-          "</tr>"
-          "</table>";
-
-    QString textecorps;
+              "<td width=\"50%\"><span style=\"font-size:9pt\">{{NOM PATIENT}}</span></td>"
+              "<td width=\"30%\"><span style=\"font-size:9pt\">{{NOM BANQUE}}</span></td>"
+              "<td width=\"20%\"><div align=\"right\"><span style=\"font-size:9pt\">{{MONT REGLT}}</span></div></td>"
+            "</tr>";
     for (int k = 0; k < ui->ListeChequesupTableWidget->rowCount(); k++)
     {
         // Remplacement des variables par les valeurs lues.
@@ -1133,19 +1133,21 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
             LigneChq.replace("{{MONT REGLT}}", line->text());
             gtotalMontRemise += QLocale().toDouble(line->text());
         }
-        textecorps += LigneChq;
+        textcorps += LigneChq;
         gtotalNbrePieces ++;
     }
-    textecorps += "<table width=\"" + QString::number(int(c*490)) + "\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\">"
+    textcorps += "</table>";
+    textcorps += "<table width=\"50%\" border=\"0\" cellspacing=\"0\" cellpadding=\"5\" align=\"center\">"
             "<tr>"
-              "<td width=\"" + QString::number(int(c*490)) + "\" ><div align=\"right\"><span style=\"font-size:10pt;font-weight:bold\">{{TOTAL REMISE}}</span></div></td>"
+              "<td width=\"100%\" ><div align=\"right\"><span style=\"font-size:10pt;font-weight:bold\">{{TOTAL REMISE}}</span></div></td>"
             "</tr>"
             "</table>";
     QString totalchq = QString::number(gtotalNbrePieces) + " chèque";
     if (gtotalNbrePieces>1) totalchq += "s";
-    textecorps.replace("{{TOTAL REMISE}}", tr("TOTAL - ") + totalchq + tr(" en euros - ") + QString::number(gtotalMontRemise,'f',2));
+    textcorps.replace("{{TOTAL REMISE}}", tr("TOTAL - ") + totalchq + tr(" en euros - ") + QString::number(gtotalMontRemise,'f',2));
+    textcorps += "</body></html>";
 
-    bool a = proc->Imprime_Etat(this, textecorps, textentete, textpied,
+    bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
     return a;
