@@ -63,6 +63,7 @@ linux-g++ {
 }
 
 SOURCES += main.cpp\
+    ressources.cpp \
     rufus.cpp \
     procedures.cpp \
     pyxinterf.cpp \
@@ -78,6 +79,7 @@ HEADERS += rufus.h \
     ostask.h \
     procedures.h \
     pyxinterf.h \
+    ressources.h \
     textprinter.h \
     conversionbase.h \
     serialthread.h \

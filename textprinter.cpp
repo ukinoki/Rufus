@@ -90,13 +90,13 @@ void TextPrinter::setUnits(const Unit value)
     }
 }
 
-bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QString &caption, bool AvecChoixImprimante, bool QueLePdf)
+bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QString &caption, bool AvecChoixImprimante)
 {
     if (!document) return false;
     // Get PDF document;
     QByteArray ba = getPDFByteArray(document);
 
-    if (!QueLePdf)
+    if (ficpdf == "")
     {
         if (QPrinterInfo::availablePrinterNames().size() == 0)
         {
@@ -130,7 +130,7 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
     }
 
     // enregistre le pdf
-    if (ficpdf != "")
+    else
     {
         Utils::writeBinaryFile(ba, ficpdf);
     }
@@ -176,7 +176,7 @@ void TextPrinter::exportPdf(const QTextDocument *document, const QString &captio
     Utils::writeBinaryFile(ba, exportname);
 }
 
-bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const QString &caption)
+bool TextPrinter::preview(const QTextDocument *document, const QString &caption)
 {
     if (!document) return false;
 
@@ -190,16 +190,7 @@ bool TextPrinter::preview(const QTextDocument *document, QString ficpdf, const Q
     dialog->setWindowModality(Qt::WindowModal);
     connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=](){ PrintPageList(printer_, pagelist); });
 
-
-    // preview it
     int b = dialog->exec();
-    if (b>0)
-    {
-        if (ficpdf != "")
-        {
-            Utils::writeBinaryFile(ba, ficpdf);
-        }
-    }
     delete dialog;
     return (b>0);
 }

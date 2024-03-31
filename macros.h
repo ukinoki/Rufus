@@ -21,7 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 // Les versions de la base et des ressources
 #define VERSION_BASE                          77  // version de la base de données
-#define VERSION_RESSOURCES                    36  // version des fichiers de ressources
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 
 // Les bases
@@ -870,13 +869,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
     #define NOM_FILE_SCRIPTBACKUP               "/RufusScriptBackup.sh"
 #endif
 #define NOM_FILE_SCRIPT_MACOS_PLIST             "/rufus.bup.plist"
-#define NOM_FILE_ENTETEORDO                     "/Entete_Ordonnance.txt"
-#define NOM_FILE_CORPSORDO                      "/Corps_Ordonnance.txt"
-#define NOM_FILE_ENTETEORDOALD                  "/Entete_OrdoALD.txt"
-#define NOM_FILE_CORPSORDOALD                   "/Corps_OrdoALD.txt"
-#define NOM_FILE_PIEDPAGE                       "/Pied_Ordonnance.txt"
-#define NOM_FILE_PIEDPAGEORDOLUNETTES           "/Pied_Ordonnance_Lunettes.txt"
-#define NOM_FILE_PDF                            "/pdf.pdf"
 #define NOM_FILE_XMLAUTOREF                     "/AR.xml"
 #define NOM_FILE_XMLFRONTO                      "/LM.xml"
 #define NOM_FILE_TONO                           "/TO.xml"
@@ -907,65 +899,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_DIR_REFRACTEUR_TONOIN              PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO
 #define PATH_DIR_REFRACTEUR_OUT                 PATH_DIR_REFRACTEUR NOM_DIR_REFRACTEUROUT
 
-#define PATH_FILE_ENTETEORDO                    PATH_DIR_RESSOURCES NOM_FILE_ENTETEORDO
-#define PATH_FILE_CORPSORDO                     PATH_DIR_RESSOURCES NOM_FILE_CORPSORDO
-#define PATH_FILE_ENTETEORDOALD                 PATH_DIR_RESSOURCES NOM_FILE_ENTETEORDOALD
-#define PATH_FILE_CORPSORDOALD                  PATH_DIR_RESSOURCES NOM_FILE_CORPSORDOALD
-#define PATH_FILE_PIEDPAGE                      PATH_DIR_RESSOURCES NOM_FILE_PIEDPAGE
-#define PATH_FILE_PIEDPAGEORDOLUNETTES          PATH_DIR_RESSOURCES NOM_FILE_PIEDPAGEORDOLUNETTES
-#define PATH_FILE_PDF                           PATH_DIR_RESSOURCES NOM_FILE_PDF
 #define PATH_FILE_INI                           PATH_DIR_RUFUS NOM_FILE_INI
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP
 #define PATH_FILE_SCRIPT_MACOS_PLIST            "/Library/LaunchAgents" NOM_FILE_SCRIPT_MACOS_PLIST
 #define PATH_FILE_XMLAUTOREF                    PATH_DIR_AUTOREF NOM_FILE_XMLAUTOREF
 #define PATH_FILE_XMLFRONTO                     PATH_DIR_FRONTO NOM_FILE_XMLFRONTO
 
-/*QString  HeadOrdo =
-"<html>"
-    "<head>"
-    "<meta name=\"qrichtext\" content=\"1\">"
-    "<style type=\"text/css\">"
-        "p {margin-top:0px; margin-bottom:0px;margin-left: 0px; font-size:9pt},li { white-space: pre-wrap; }"
-"</style>"
-"</head>"
-"<body style=\"font-family:{{POLICE}}; font-size:9pt; font-style:italic;\">"
-    "<table style=\"float:left;\">"
-        "<tr>"
-            "<td width=\"{{LARGEURG}}\">"
-                "<p>"
-                    "<span style=\"font-size:10pt; font-weight:600;\">"
-                        "{{TITREUSER}}<br />"
-                    "</span>"
-                    "<span style=\"font-size:8pt;\">"
-                        "{{SPECIALITE}}<br />"
-                        "{{ADRESSE}}<br />"
-                        "{{CPVILLE}}<br />{{TEL}}<br />"
-                        "</span>"
-                    "<span style=\"font-size:5pt;\">"
-                        "{{NUMSS}}"
-                    "</span>"
-                "</p>"
-            "</td>"
-        "</tr>"
-    "</table>"
-    "<table style=\"float:right;\">"
-        "<tr>"
-            "<td width=\"{{LARGEURD}}\">"
-                "<p align=\"right\">"
-                    "<span style=\"font-size:10pt;\">"
-                        "<!--date-->{{DATE}}<!--date--><br /><br />"
-                        "{{TITRE1}}<br />"
-                        "{{TITRE}}<br />"
-                        "{{PRENOM PATIENT}} {{NOM PATIENT}}<br />"
-                        "{{DDN}}"
-                    "</span>"
-                "</p>"
-            "</td>"
-        "</tr>"
-    "</table>"
-"</body>"
-"</html>";
-*/
+
 // Variables mysql
 #define MAX_ALLOWED_PACKET                      "16"
 
@@ -1067,8 +1007,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HTML_RETOURLIGNE                "<p style = \"margin-top:0px; margin-bottom:0px;\">"
 #define HTML_LARGEUR_ENTETE_GAUCHE      "49%"
 #define HTML_LARGEUR_ENTETE_DROITE      "49%"
-#define HTML_LARGEUR_ENTETE_GAUCHE_ALD  "230"
-#define HTML_LARGEUR_ENTETE_DROITE_ALD  "230"
+#define HTML_LARGEUR_ENTETE_GAUCHE_ALD  "49%"
+#define HTML_LARGEUR_ENTETE_DROITE_ALD  "49%"
 
 // valeurs extrêmes de kératométrie
 #define MinK                        5
@@ -1215,7 +1155,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Ville_Defaut                                    "Param_Poste/VilleParDefaut"
 #define CodePostal_Defaut                               "Param_Poste/CodePostalParDefaut"
 
-#define Poste_VersionRessources                         "Param_Poste/VersionRessources"
 #define Position_Fiche                                  "PositionsFiches/Position"
 #define Nom_fiche_ActesPrecedents                       "ActesPrec"
 #define Nom_fiche_AutreDossier                          "AutreDossier"

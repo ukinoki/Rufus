@@ -67,8 +67,6 @@ Procedures::Procedures(QObject *parent) :
     }
     m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
 
-    VerifRessources();
-
     QList<int> lports ={ 3306 , 3307};
     QSet<int> ports =QSet<int>(lports.constBegin(), lports.constEnd());
     bool k =    (
@@ -211,7 +209,7 @@ bool Procedures::AutresPostesConnectes(bool msg)
  *  \param OKfactures :         les factures sont sauvegardées
  *
  */
-void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini, bool OKRssces, bool OKimages, bool OKvideos, bool OKfactures)
+void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini, bool OKimages, bool OKvideos, bool OKfactures)
 {
     if (!QDir(pathdestination).exists())
         Utils::mkpath(pathdestination);
@@ -259,19 +257,6 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
         layini->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
         dlg_buprestore->dlglayout()->insertLayout(0, layini);
 
-        QHBoxLayout *layRssces = new QHBoxLayout;
-        UpLabel *labelrssces = new UpLabel();
-        labelrssces->setVisible(false);
-        labelrssces->setFixedSize(labelsize, labelsize);
-        layRssces->addWidget(labelrssces);
-        UpCheckBox *Rssceschk  = new UpCheckBox();
-        Rssceschk->setText("fichier ressources d'impression");
-        Rssceschk->setEnabled(OKRssces);
-        Rssceschk->setChecked(OKRssces);
-        Rssceschk->setObjectName("ressources");
-        layRssces->addWidget(Rssceschk);
-        layRssces->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
-        dlg_buprestore->dlglayout()->insertLayout(0, layRssces);
         QDir rootimgvid = QDir(pathorigin);
         if (rootimgvid.cdUp())
             pathorigin = rootimgvid.absolutePath();
@@ -467,9 +452,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         QFile file = QFile(PATH_FILE_INI);
         Utils::copyWithPermissions(file, pathbackupbase + "/" NOM_FILE_INI);
         msg += tr("Fichier de paramétrage Rufus.ini sauvegardé\n");
-        int n=0;
-        Utils::copyfolderrecursively(PATH_DIR_RESSOURCES, pathbackupbase + NOM_DIR_RESSOURCES, n);
-        msg += tr("Fichiers ressources sauvegardés\n");
     }
     if (OKImages || OKVideos || OKFactures)
     {
@@ -1055,7 +1037,7 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 }
 
 //--------------------------------------------------------------------------------------------------------
-// fin sauvegardes
+//! fin sauvegardes
 //--------------------------------------------------------------------------------------------------------
 
 /*---------------------------------------------------------------------------------
@@ -1063,17 +1045,7 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 -----------------------------------------------------------------------------------*/
 QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 {
-    QString textcorps;
-    QString nomModeleCorpsImpression = (ALD? PATH_FILE_CORPSORDOALD : PATH_FILE_CORPSORDO);
-    Utils::convertHTML(text);
-
-    QFile qFile(nomModeleCorpsImpression);
-    if (!qFile.open( QIODevice::ReadOnly ))
-        return QString();
-
-    QByteArray ba = qFile.readAll();
-    qFile.close ();
-    textcorps = ba;
+    QString textcorps = (ALD? Ressources::I()->BodyOrdoALD() : Ressources::I()->BodyOrdo());
 
     QRegularExpression rx;
     rx.setPattern("font-size( *: *[\\d]{1,2} *)pt");
@@ -1095,7 +1067,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     EnteteMap["Norm"]   = "";
     EnteteMap["ALD"]    = "";
     QString textentete;
-    QString nomModeleEntete;
+
     int idparent = -1;
     bool rplct = false;
     /*
@@ -1182,6 +1154,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     }
     for (int i = 1; i<3; i++)
     {
+        /*!
         nomModeleEntete = (i==1? PATH_FILE_ENTETEORDO : PATH_FILE_ENTETEORDOALD);
         QFile qFileEnTete(nomModeleEntete);
         if (!qFileEnTete.open( QIODevice::ReadOnly ))
@@ -1190,6 +1163,10 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         QByteArray  baEnTete        = qFileEnTete.readAll();
         qFileEnTete.close ();
         textentete = baEnTete;
+        */
+
+        textentete =  (i==1? Ressources::I()->HeaderOrdo() : Ressources::I()->HeaderOrdoALD());
+
         textentete.replace("{{POLICE}}", qApp->font().family());
 
         if (rplct)
@@ -1272,20 +1249,9 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 {
     QString textpied;
     if (ALD)
-        textpied =  "<html>"
-                 "{{DUPLI}}"
-                 "<p align = \"center\"; style = \"margin-top:0px; margin-bottom:0px;\"><span style=\"font-size:6pt\">{{AGA}}</span></p>"
-                 "</html>";
+        textpied =  Ressources::I()->FooterOrdo();
     else
-    {
-        QString nomModelePied = (lunettes? PATH_FILE_PIEDPAGEORDOLUNETTES : PATH_FILE_PIEDPAGE);
-        QFile   qFilePied(nomModelePied );
-        if (!qFilePied.open( QIODevice::ReadOnly ))
-            return QString();
-        QByteArray baPied = qFilePied.readAll();
-        qFilePied.close ();
-        textpied = baPied;
-    }
+        textpied = (lunettes? Ressources::I()->FooterOrdoLunettes() : Ressources::I()->FooterOrdo());
     bool isaga = false;
     if (user)
     {
@@ -1322,12 +1288,12 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
     bool a = false;
     if (AvecPrevisu)
-        a = TexteAImprimer->preview(Etat->document(), PATH_FILE_PDF, "");
+        a = TexteAImprimer->preview(Etat->document());
     else
     {
         if (!AvecChoixImprimante)
             TexteAImprimer->setPrinterName(m_nomImprimante);
-        a = TexteAImprimer->print(Etat->document(), PATH_FILE_PDF, "", AvecChoixImprimante);
+        a = TexteAImprimer->print(Etat->document(), "", "", AvecChoixImprimante);
     }
     if (a)
         if (AvecDupli)
@@ -1379,7 +1345,7 @@ bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpie
     TexteAImprimer->setTopMargin(TailleTopMarge());
 
 
-    TexteAImprimer->print(Etat->document(), nomficpdf, "", false, true);
+    TexteAImprimer->print(Etat->document(), nomficpdf);
     // le paramètre true de la fonction print() génère la création du fichier pdf nomficpdf et pas son impression
     QFile filepdf(nomficpdf);
     if (!filepdf.open( QIODevice::ReadOnly ))
@@ -2311,6 +2277,8 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             return false;
 
         QDir dir(PATH_DIR_RESSOURCES);
+        if (!dir.exists())
+            Utils::mkpath(PATH_DIR_RESSOURCES);
         Utils::setDirPermissions(PATH_DIR_RESSOURCES);
         QStringList listfichiers = dir.entryList(QStringList() << "*.sql");
         for (int t=0; t<listfichiers.size(); t++)
@@ -2350,13 +2318,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (msg != "")
         {
             UpMessageBox::Watch(parent, tr("Impossible d'éxécuter la restauration!"), msg);
-            for (int t=0; t<listfichiers.size(); t++)
-            {
-                QString filename  = listfichiers.at(t);
-                QString filepath = PATH_DIR_RESSOURCES "/" + filename;
-                QFile file(filepath);
-                Utils::removeWithoutPermissions(file);
-            }
+            dir.removeRecursively();
             return false;
         }
         if (!echecfile)
@@ -2376,29 +2338,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (a != 0)
             {
                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
-                for (int t=0; t<listfichiers.size(); t++)
-                {
-                    QString nomdocrz  = listfichiers.at(t);
-                    QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
-                    QFile file(CheminFichierResize);
-                    Utils::removeWithoutPermissions(file);
-                }
+                dir.removeRecursively();
                 return false;
             }
             else
             {
                 UpMessageBox::Information(Q_NULLPTR, tr("Base vierge créée"),tr("La création de la base vierge a réussi."));
-                for (int t=0; t<listfichiers.size(); t++)
-                {
-                    QString nomdocrz  = listfichiers.at(t);
-                    QString CheminFichierResize = PATH_DIR_RESSOURCES "/" + nomdocrz;
-                    QFile file(CheminFichierResize);
-                    Utils::removeWithoutPermissions(file);
-                }
+                dir.removeRecursively();
                 emit ConnectTimers(true);
                 return true;
             }
         }
+        dir.removeRecursively();
         return false;
     }
     else
@@ -2433,7 +2384,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             * du dossier d'imagerie --------------------------------------------------------------------------------------------------------------------------------
             * des videos -------------------------------------------------------------------------------------------------------------------------------------------
         * -------------------------------------------------------------------------------------------------------------------------------------------------------*/
-        bool OKRessces  = false;
         bool OKini      = false;
         bool OKImages   = false;
         bool OKFactures = false;
@@ -2442,9 +2392,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString msg;
 
         /*! 2 - détermination des éléments pouvant être restaurés */
-        if (QDir(dirtorestore.absolutePath() + NOM_DIR_RESSOURCES).exists())
-            if (QDir(dirtorestore.absolutePath() + NOM_DIR_RESSOURCES).entryList(QDir::Files | QDir::NoDotAndDotDot).size()>0)
-                OKRessces = true;
         if (QFile(dirtorestore.absolutePath() + NOM_FILE_INI).exists())
             OKini = true;
         QDir rootimg = dirtorestore;
@@ -2485,7 +2432,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 4 - choix des éléments à restaurer */
-        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKRessces, OKImages, OKVideos, OKFactures);
+        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKImages, OKVideos, OKFactures);
         int result = dlg_buprestore->exec();
         if (result > 0)
         {
@@ -2580,21 +2527,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichier de paramétrage Rufus.ini restauré"), Icons::icSunglasses(), 3000);
                     }
                 }
-                /*! 4c - restauration des fichiers ressources */
-                else if (chk->objectName() == "ressources")
-                {
-                    if (chk->isChecked())
-                    {
-                        PremierParametrageRessources();
-                        UpMessageBox::Watch(parent, tr("Les fichiers ressources d'origine ont été restaurés"),
-                                                    tr("Si vous aviez personnalisé ces fichiers") + "\n" +
-                                                    tr("il vous faudra les restaurer à partir du dossier") + "\n" +
-                                                    dirtorestore.absolutePath() + PATH_DIR_RESSOURCES);
-                        msg += tr("Fichiers de ressources d'impression restaurés\n");
-                        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Fichiers de ressources d'impression restaurés"), Icons::icSunglasses(), 3000);
-                    }
-                }
-                /*! 4d - restauration des images */
+                /*! 4c - restauration des images */
                 else if (chk->objectName() == "images")
                 {
                     if (chk->isChecked())
@@ -2623,7 +2556,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                         }
                     }
                 }
-                /*! 4e - restauration des factures */
+                /*! 4d - restauration des factures */
                 else if (chk->objectName() == "factures")
                 {
                     if (chk->isChecked())
@@ -2692,7 +2625,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     }
 }
 
-bool Procedures::VerifBaseEtRessources(QWidget* parent)
+bool Procedures::VerifVersionBase(QWidget* parent)
 {
     auto erreur = [] (QWidget *parent)
     {
@@ -2701,7 +2634,7 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
     };
 
     int Version         = VERSION_BASE;
-     m_parametres = db->parametres();
+    m_parametres = db->parametres();
     int Versionencours = m_parametres->versionbase();
 
     bool BupDone = false;
@@ -2749,6 +2682,8 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
             QFile DumpFile(Nomfic);
             int a = 99;
             QDir dir(PATH_DIR_RESSOURCES);
+            if (!dir.exists())
+                Utils::mkpath(PATH_DIR_RESSOURCES);
             Utils::setDirPermissions(PATH_DIR_RESSOURCES);
             QStringList listfichiers = dir.entryList(QStringList() << "*.sql");
             for (int t=0; t<listfichiers.size(); t++)
@@ -2807,6 +2742,9 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
                 }
             }
         }
+        QDir dir(PATH_DIR_RESSOURCES);
+        if (dir.exists())
+            dir.removeRecursively();
     }
     if (Versionencours > Version)
     {
@@ -2816,14 +2754,6 @@ bool Procedures::VerifBaseEtRessources(QWidget* parent)
         text += "<br/>" + QObject::tr("pour éviter des dysfonctionnements ou une altération votre base de données Rufus");
         text += "<br/>" + QObject::tr("Vous pouvez télécharger la dernière version sur la page Téléchargements du site") + " <a href=\"https://www.rufusvision.org\">www.rufusvision.org</a>";
         UpMessageBox::Watch(parent, tr("Version de Rufus trop ancienne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
-    }
-    //verification des fichiers ressources
-    if (m_settings->value(Poste_VersionRessources).toInt() < VERSION_RESSOURCES)
-    {
-        PremierParametrageRessources();
-        m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
-        m_settings->setValue(Poste_VersionRessources, VERSION_RESSOURCES);
-        ShowMessage::I()->SplashMessage(tr("Mise à jour des fichiers ressources vers la version ") + "<font color=\"red\"><b>" + QString::number(VERSION_RESSOURCES) + "</b></font>", 5000);
     }
     return true;
 }
@@ -3103,7 +3033,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     m_connexionbaseOK = true;
     // On paramètre l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
-    PremierParametrageRessources();
     return true;
 }
 
@@ -3213,7 +3142,7 @@ bool Procedures::IdentificationUser()
     dlg_IdentUser   ->setFont(m_applicationfont);
     if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
-        VerifBaseEtRessources();
+        VerifVersionBase();
         m_parametres = db->parametres();        
         enum Villes::TownsFrom from;
         if (m_parametres->villesfrance())
@@ -3292,7 +3221,6 @@ bool Procedures::IdentificationUser()
             }
             else if (msgbox.clickedButton() == &BaseViergeBouton)
             {
-                Utils::mkpath(PATH_DIR_RESSOURCES);
                 if (!RestaureBase(true, true))
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
@@ -3911,7 +3839,6 @@ bool Procedures::PremierDemarrage()
                                   /Resources
       */
 
-    Utils::mkpath(PATH_DIR_RESSOURCES);
     Utils::mkpath(PATH_DIR_IMAGES);
     Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
     Utils::mkpath(PATH_DIR_DOSSIERECHANGE);
@@ -3940,7 +3867,6 @@ bool Procedures::PremierDemarrage()
         if (VerifParamConnexion(login, MDP, true))
         {
             PremierParametrageMateriel(false);
-            PremierParametrageRessources();
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
                                        "le login ") + currentuser()->login() + tr(" est reconnu") + ".\n" +
@@ -4004,51 +3930,13 @@ void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
     m_settings->setValue(Param_Poste_PortFronto,"-");
     m_settings->setValue(Param_Poste_PortTono,"-");
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NO");
-    m_settings->setValue(Poste_VersionRessources, VERSION_RESSOURCES);
+
     Utils::mkpath(PATH_DIR_IMAGERIE);
     QString NomDirImg = (modifdirimagerie? PATH_DIR_IMAGERIE : db->parametres()->dirimagerieserveur());
     m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, NomDirImg);
     if (modifdirimagerie)
         db->setdirimagerie(NomDirImg);
 }
-
-/*-----------------------------------------------------------------------------------------------------------------
--- Création des fichiers ressources ---------------------------------
------------------------------------------------------------------------------------------------------------------*/
-void Procedures::PremierParametrageRessources()
-{
-    Utils::mkpath(PATH_DIR_RUFUS);
-    QDir DirRessrces(PATH_DIR_RESSOURCES);
-    if (DirRessrces.exists())
-        DirRessrces.removeRecursively();
-    Utils::mkpath(PATH_DIR_RESSOURCES);
-    QFileDevice::Permissions permissions =
-                       (QFileDevice::ReadOther
-                      | QFileDevice::ReadGroup
-                      | QFileDevice::ReadOwner
-                      | QFileDevice::ReadUser);
-    QFile COACopier(QStringLiteral(":/" NOM_FILE_CORPSORDO));
-    Utils::copyWithPermissions(COACopier,PATH_FILE_CORPSORDO, permissions);
-
-    QFile COALDACopier(QStringLiteral(":/" NOM_FILE_CORPSORDOALD));
-    Utils::copyWithPermissions(COALDACopier,PATH_FILE_CORPSORDOALD, permissions);
-
-    QFile EOACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDO));
-    Utils::copyWithPermissions(EOACopier,PATH_FILE_ENTETEORDO, permissions);
-
-    QFile EOALDACopier(QStringLiteral(":/" NOM_FILE_ENTETEORDOALD));
-    Utils::copyWithPermissions(EOALDACopier,PATH_FILE_ENTETEORDOALD, permissions);
-
-    QFile POLACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGEORDOLUNETTES));
-    Utils::copyWithPermissions(POLACopier,PATH_FILE_PIEDPAGEORDOLUNETTES, permissions);
-
-    QFile POACopier(QStringLiteral(":/" NOM_FILE_PIEDPAGE));
-    Utils::copyWithPermissions(POACopier,PATH_FILE_PIEDPAGE, permissions);
-
-    QFile PDFACopier(QStringLiteral(":/" NOM_FILE_PDF));
-    Utils::copyWithPermissions(PDFACopier,PATH_FILE_PDF);
-    m_settings->setValue(Poste_VersionRessources,VERSION_RESSOURCES);
- }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Vérifie la présence et la cohérence du fchier d'initialisation et le reconstruit au besoin ----------------------------------------
@@ -4093,8 +3981,6 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
             if (m_settings != Q_NULLPTR)
                 delete m_settings;
             m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-            if (QMessageBox::question(Q_NULLPTR,"", tr("Restaurer aussi les fichiers modèles d'impression?")) == QMessageBox::Yes)
-                PremierParametrageRessources();
             reponse = true;
         }
     }
@@ -4110,7 +3996,6 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         QString login(""), MDP ("");
         if (VerifParamConnexion(login, MDP, true))
         {
-            PremierParametrageMateriel(false);
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
             exit(0);
         }
@@ -4166,65 +4051,6 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
     delete Dlg_ParamConnex;
     return false;
 }
-
-/*---------------------------------------------------------------------------------------------------------------------
-    -- VÉRIFICATION DES Fichiers ressources ---------------------------------------------------------------------------
-    -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifRessources(QString Nomfile)
-{
-    bool ok = QDir(PATH_DIR_RESSOURCES).exists()
-        && QFile(PATH_FILE_CORPSORDO).exists()
-        && QFile(PATH_FILE_CORPSORDOALD).exists()
-        && QFile(PATH_FILE_ENTETEORDO).exists()
-        && QFile(PATH_FILE_ENTETEORDOALD).exists()
-        && QFile(PATH_FILE_PIEDPAGE).exists()
-        && QFile(PATH_FILE_PIEDPAGEORDOLUNETTES).exists()
-        && QFile(PATH_FILE_PDF).exists();
-    if (ok)
-        return true;
-
-    QMessageBox msgbox;
-    UpSmallButton OKBouton(tr("Annuler"));
-    UpSmallButton RestaurerBouton(tr("Reconstruire les fichiers à partir d'une sauvegarde"));
-    UpSmallButton RemplirBouton(tr("Réinitialiser les fichiers"));
-    msgbox.setText(tr("Il manque des fichiers ressources"));
-    msgbox.setInformativeText(tr("Le dossier des fichiers ressources d'impressions ") + PATH_DIR_RESSOURCES + tr("est corrompu.") + "\n"
-                              + (Nomfile != ""? tr("le fichier ") + Nomfile + tr(" est absent"):"") + "\n"
-                              + tr("Voulez vous restaurer les fichiers ressources d'impression?") + "\n");
-    msgbox.setIcon(QMessageBox::Warning);
-    msgbox.addButton(&OKBouton, QMessageBox::RejectRole);
-    msgbox.addButton(&RemplirBouton, QMessageBox::AcceptRole);
-    msgbox.addButton(&RestaurerBouton, QMessageBox::AcceptRole);
-    msgbox.exec();
-    if (msgbox.clickedButton()==&OKBouton)
-        return false;
-    else if (msgbox.clickedButton()==&RemplirBouton)
-        PremierParametrageRessources();
-    else if (msgbox.clickedButton()==&RestaurerBouton)
-    {
-        QFileDialog dialog(Q_NULLPTR, tr("Choisir le dossier de ressources d'impression à restaurer"), QDir::homePath() + "/dumpsRufus","SQL files (dump*.sql)");
-        dialog.setViewMode(QFileDialog::List);
-        dialog.setFileMode(QFileDialog::Directory);
-        dialog.setWindowModality(Qt::WindowModal);
-        if (dialog.exec() == QDialog::Accepted)
-        {
-            QDir dockdir = dialog.directory();
-            QDir DirRssces;
-            if (!DirRssces.exists(PATH_DIR_RESSOURCES))
-                DirRssces.mkdir(PATH_DIR_RESSOURCES);
-            foreach (const QString &nomfic, dockdir.entryList())
-            {
-                QFile ficACopier(dockdir.absolutePath() + "/" + nomfic);
-                QString nomficACopier = QFileInfo(nomfic).fileName();
-                Utils::copyWithPermissions(ficACopier, PATH_DIR_RESSOURCES + nomficACopier);
-            }
-            return true;
-        }
-        else return false;
-    }
-    return true;
-}
-
 
 void Procedures::Ouverture_Appareils_Refraction()
 {

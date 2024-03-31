@@ -37,9 +37,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Tomey : public QObject
 {
     Q_OBJECT
-public:
-
-
 private:
     Tomey();
     static Tomey *instance;

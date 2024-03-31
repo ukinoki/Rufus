@@ -74,6 +74,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <database.h>
 #include <gbl_datas.h>
+#include "ressources.h"
 #include <timerthread.h>
 #include <tomey.h>
 #include <icons.h>
@@ -111,7 +112,7 @@ private:
     QString                 m_dirSQLExecutable = "";                                    //! le chemin vers les éxécutables mysql et mysqldump
     QString                 m_dirSSLkeys = "";                                          //! le chemin vers le dossier des clés SSL
     void                    ReconstruitListeModesAcces();
-    bool                    VerifBaseEtRessources(QWidget *widg = Q_NULLPTR);
+    bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
     bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
@@ -122,7 +123,6 @@ private:
                                                 QString &MDP,                           //! le mdp du user dnas la table utilisateurs
                                                 bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
                                                 bool OKAccesDistant = true);            //! true =  le choix accès distant est validé ou non
-    bool                    VerifRessources(QString Nomfile = "");
     bool                    Verif_secure_file_priv();
 public:
     void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
@@ -168,7 +168,6 @@ private:
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    PremierDemarrage();
     void                    PremierParametrageMateriel(bool modifdirimagerie = true);
-    void                    PremierParametrageRessources();
 
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
 
@@ -409,7 +408,7 @@ signals:
         TimerController         t_timerbackup;
         QString                 m_executable;
         QString                 m_dumpexecutable;
-        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKRessces = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
+        void                    AskBupRestore(BkupRestore op, QString pathorigin, QString pathdestination, bool OKini = true, bool OKimages = true, bool OKvideos = true, bool OKfactures = true);
                                 /*! fiche utilisée par ImmediateBackup ou DefinitScriptRestore() pour choisir ce qu'on va sauvegarder ou restaurer */
         bool                    Backup(QString pathdirdestination, bool OKBase = true, bool OKImages = true, bool OKVideos = true, bool OKFactures = true, bool verifmdp = false, QWidget *parent = Q_NULLPTR);
                                 /*! utilisée par ImmediateBackup() pour sauvegarder la base et/ou les fichiers d'imagerie suivant le choix fait dans AskBackupRestore()

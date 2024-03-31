@@ -1,12 +1,6 @@
 <RCC>
     <qresource prefix="/">
-        <file>Corps_OrdoALD.txt</file>
-        <file>Corps_Ordonnance.txt</file>
-        <file>Entete_OrdoALD.txt</file>
-        <file>Entete_Ordonnance.txt</file>
         <file>pdf.pdf</file>
-        <file>Pied_Ordonnance_Lunettes.txt</file>
-        <file>Pied_Ordonnance.txt</file>
         <file>ComptaMedicale.sql</file>
         <file>Images.sql</file>
         <file>Ophtalmologie.sql</file>

@@ -1,4 +1,0 @@
-<html>
-    	{{DUPLI}}
-      	<p align="center"; style = "margin-top:0px; margin-bottom:0px;"><span style="font-size:6pt">{{AGA}}</span></p>
-</html>
