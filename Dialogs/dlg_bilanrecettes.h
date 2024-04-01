@@ -66,10 +66,10 @@ private:
     UpRadioButton               *wdg_superviseurradiobouton;
 
     void                        CalcBilan(QWidget *parent = Q_NULLPTR);
-    void                        CalcSuperviseursEtComptables(); //Etablit la liste des superviseurs et des comptables pour la période du bilan
+    void                        CalcSuperviseursEtComptables();             //! Etablit la liste des superviseurs et des comptables pour la période du bilan
     void                        CalculeTotal();
     void                        ChangeMode(enum Mode);
-    void                        ExportTable();
+    void                        ExportTable();                              //! exporte la table des recettes au format CSV
     void                        FiltreTable(int idx);
     Recette*                    getRecetteFromRow(int row);
     Recette*                    getRecetteFromIndex(QModelIndex idx);

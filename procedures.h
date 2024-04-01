@@ -245,6 +245,8 @@ public:
                                      bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
     bool                    Cree_pdf(QString textcorps, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
+            /*! c - Choice: print or pdf */
+    bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
 
   /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h --------------------------*/
     bool                    PrintDocument(QMap<QString, QVariant> doc);

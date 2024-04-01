@@ -1312,6 +1312,36 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
     return a;
 }
 
+//----------------------------------------------------------------------------------------------------------------
+//!    -- Choice printing : pdf or print ------------------------------------------------------------------------
+//  --------------------------------------------------------------------------------------------------------------
+
+bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &ok)
+{
+    UpMessageBox *msgbox            = new UpMessageBox(parent);
+    msgbox                          ->setText(tr("Imprimer ou créer un pdf?"));
+    msgbox                          ->setIcon(UpMessageBox::Quest);
+    UpPushButton *wdg_annulbouton   = new UpPushButton(tr("Annuler"));
+    UpPushButton *wdg_printbouton   = new UpPushButton(tr("Imprimer"));
+    UpPushButton *wdg_pdfbouton     = new UpPushButton(tr("Créer un pdf"));
+    wdg_annulbouton                 ->setIcon(Icons::icAnnuler());
+    wdg_printbouton                 ->setIcon(Icons::icImprimer());
+    wdg_pdfbouton                   ->setIcon(Icons::icPdf());
+
+    wdg_annulbouton                 ->setData(UpPushButton::ANNULBUTTON);
+
+    msgbox                          ->addButton(wdg_pdfbouton);
+    msgbox                          ->addButton(wdg_printbouton);
+    msgbox                          ->addButton(wdg_annulbouton);
+
+    bool initok = (msgbox->exec() == QDialog::Accepted && msgbox->clickedpushbutton() != wdg_annulbouton);
+    if (initok)
+        ok = (msgbox->clickedpushbutton() == wdg_pdfbouton);
+    delete msgbox;
+    return initok;
+}
+
+
 /*!
  * \brief Procedures::Cree_pdf
  * \abstract Create pdf file from document
@@ -1329,9 +1359,6 @@ bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpie
     Etat->setHtml(textcorps);
     if (nomdossier == "")
         nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-    QDir DirDest(nomdossier);
-    if (DirDest.exists())
-        DirDest.rmdir(nomdossier);
     Utils::mkpath(nomdossier);
     QString nomficpdf = nomdossier + "/" + nomfichier;
 

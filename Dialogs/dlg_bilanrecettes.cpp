@@ -101,7 +101,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     else
         Titre = tr("Bilan des actes pour la période du ") + QLocale::system().toString(m_debut,tr("d MMMM yyyy")) + tr(" au ") + QLocale::system().toString(m_fin,tr("d MMMM yyyy"));
     setWindowTitle(Titre);
-    AjouteLayButtons( UpDialog::ButtonPdf | UpDialog::ButtonPrint | UpDialog::ButtonClose );
+    AjouteLayButtons( UpDialog::ButtonPrint | UpDialog::ButtonClose );
     m_mode          = SUPERVISEUR;
     wdg_bigtable    = new UpTableView();
 
@@ -112,8 +112,11 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     CalcSuperviseursEtComptables();
     FiltreTable(-1);
     connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {close();});
-    connect(PrintButton,                &QPushButton::clicked,                                  this, [=] {ImprimeEtat();});
-    connect(PdfButton,                  &QPushButton::clicked,                                  this, [=] {ImprimeEtat(true);});
+    connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
+                                                                                                            bool ok;
+                                                                                                            if (proc->QuestionPdfOrPrint(this, ok))
+                                                                                                                ImprimeEtat(ok);
+                                                                                                          });
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
@@ -185,7 +188,6 @@ void dlg_bilanrecettes::FiltreTable(int idx)
             }
         }
         PrintButton ->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
-        PdfButton   ->setEnabled(wdg_supervcombobox->currentData().toInt()>-1  && wdg_bigtable->rowNoHiddenCount()>0);
         wdg_bigtable->setColumnHidden(6,true);    // divers et autres recettes
         wdg_bigtable->setColumnHidden(7,true);    // apport pratcien
     }
@@ -209,7 +211,6 @@ void dlg_bilanrecettes::FiltreTable(int idx)
                 }
             }
         PrintButton ->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
-        PdfButton   ->setEnabled(wdg_bigtable->rowNoHiddenCount()>0);
         wdg_bigtable->setColumnHidden(6,false);    // divers et autres recettes
         wdg_bigtable->setColumnHidden(7,false);    // apport pratcien
     }
@@ -383,9 +384,11 @@ void dlg_bilanrecettes::ImprimeEtat(bool pdf)
     if (pdf)
     {
         QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + userEntete->nom() + " " + userEntete->prenom();
-        proc->Cree_pdf(textcorps, textentete, textpied,
+        bool a = proc->Cree_pdf(textcorps, textentete, textpied,
                             userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf",
                             nomdossier);
+        QString pdfpath = tr ("fichier") + " " + QDir::toNativeSeparators(nomdossier + "/" +userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf");
+        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistret le ") + pdfpath);
     }
     else
     {

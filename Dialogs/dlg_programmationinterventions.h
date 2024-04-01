@@ -141,9 +141,9 @@ private:
     void                ReconstruitListeIOLs(int idmanufacturer, int idiol = 0);                                        //! recalcule la liste des IOLs pour un fabricant
 
 /*! les impressions */
-    void                ImprimeSession();                                                                               //! imprime le programme pératoire
-    void                ImprimeRapportIncident();                                                                       //! imprime le rapport des incidents d'une session
-    void                ImprimeListeIOLsSession();                                                                      //! imprime la liste des IOLS nécessaires pour une session, classés par fabricant
+    void                ImprimeSession(bool pdf = false);                                                               //! imprime le programme pératoire
+    void                ImprimeRapportIncident(bool pdf = false);                                                       //! imprime le rapport des incidents d'une session
+    void                ImprimeListeIOLsSession(bool pdf = false);                                                      //! imprime la liste des IOLS nécessaires pour une session, classés par fabricant
     void                FicheImpressions(Patient *pat, Intervention *interv);                                           //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     bool                m_docimprime = false;
 

@@ -112,14 +112,25 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
 
     connect(wdg_manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeManufacturers);
     connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeIOLs);
-    connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeRapportIncident);
-    connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   &dlg_programmationinterventions::ImprimeListeIOLsSession);
-
+    connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   [&] {
+                                                                                bool ok;
+                                                                                if (proc->QuestionPdfOrPrint(this, ok))
+                                                                                    ImprimeRapportIncident(ok);
+                                                                            });
+    connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   [&] {
+                                                                                bool ok;
+                                                                                if (proc->QuestionPdfOrPrint(this, ok))
+                                                                                    ImprimeListeIOLsSession(ok);
+                                                                            });
     wdg_IOLbutt->setEnabled(Datas::I()->users->userconnected()->isMedecin());
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
-    connect(PrintButton,  &QPushButton::clicked,    this, &dlg_programmationinterventions::ImprimeSession);
+    connect(PrintButton,  &QPushButton::clicked,    this, [&] {
+                                                                bool ok;
+                                                                if (proc->QuestionPdfOrPrint(this, ok))
+                                                                    ImprimeSession(ok);
+                                                               });
 
     dlglayout()->setStretch(0,1);
     dlglayout()->setStretch(1,15);
@@ -508,14 +519,10 @@ void dlg_programmationinterventions::ModifSession()
     FicheSession(currentsession());
 }
 
-void dlg_programmationinterventions::ImprimeRapportIncident()
+void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
 {
     if (currentsession() == Q_NULLPTR)
         return;
-    bool AvecDupli   = false;
-    bool AvecPrevisu = proc->ApercuAvantImpression();
-    bool AvecNumPage = true;
-
     //--------------------------------------------------------------------
     // Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
@@ -542,19 +549,18 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
     if (textpied == "") return;
 
     // creation du corps
-    double c = CORRECTION_td_width;
 
     QString textcorps = "";
     QString cor = sit->nom() + "<br>" + sit->coordonnees().replace("\n", "<br>");
-    textcorps =  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
-    textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
+    textcorps =  HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
+    textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b></b></span></td>";
     textcorps += "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("RAPPORTS D'INCIDENTS SUR LA SESSION CHIRURGICALE DU") + " " + QLocale::system().toString(currentsession()->date(),"dddd dd MMMM yyyy") + "</b></span></font>" ;
-    textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
+    textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b></b></span></td>";
     if (currentsession()->incident() != "")
     {
         textcorps += "<p align=\"left\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + "</b></span></font>" ;
-        textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*500)) + "\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
-        textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
+        textcorps += HTML_RETOURLIGNE "<td width=\"10%\"></td><td width=\"90%\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
+        textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b></b></span></td>";
     }
     bool incidents = false;
     foreach (Intervention* interv, *Datas::I()->interventions->interventions())
@@ -573,32 +579,47 @@ void dlg_programmationinterventions::ImprimeRapportIncident()
                 TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
                 if (typ)
                     entete += " - " + typ->typeintervention();
-                textcorps +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"><td width=\"" + QString::number(int(c*400)) + "\"><span style=\"font-size:8pt;\"><b>" + entete + "</b></span></td>" ;
+                textcorps +=  HTML_RETOURLIGNE "<td width=\"10%\"><td width=\"80%\"><span style=\"font-size:8pt;\"><b>" + entete + "</b></span></td>" ;
                 QString inc = interv->incident();
-                textcorps +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"" + QString::number(int(c*400)) + "\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
+                textcorps +=  HTML_RETOURLIGNE "<td width=\"20%\"></td><td width=\"80%\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
             }
         }
     }
-    proc->Imprime_Etat(this, textcorps, textentete, textpied,
+    if (pdf)
+    {
+        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
+                             tr("Rapport d'incidents - session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy");
+        QString title = userEntete->prenom() + " " + userEntete->nom()
+                        + " - " + tr("Rapport d'incidents - session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy") + ".pdf";
+        bool a = proc->Cree_pdf(textcorps, textentete, textpied,
+                                title,
+                                nomdossier);
+        QString pdfpath = QDir::toNativeSeparators(nomdossier + "/" + title);
+        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistrer le fichier ") + pdfpath);
+    }
+    else
+    {
+        bool AvecDupli   = false;
+        bool AvecPrevisu = proc->ApercuAvantImpression();
+        bool AvecNumPage = true;
+        proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
+    }
 }
 
-void dlg_programmationinterventions::ImprimeSession()
+void dlg_programmationinterventions::ImprimeSession(bool pdf)
 {
     if (currentsession() == Q_NULLPTR)
         return;
-    bool AvecDupli   = false;
-    bool AvecPrevisu = proc->ApercuAvantImpression();
-    bool AvecNumPage = true;
 
     //--------------------------------------------------------------------
-    // Préparation de l'état "session" dans un QplainTextEdit
+    //! Préparation de l'état "session" dans un QplainTextEdit
     //--------------------------------------------------------------------
 
     int iduser = currentsession()->iduser();
 
-//    //création de l'entête
+    //! création de l'entête
     QString textentete;
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
@@ -613,20 +634,18 @@ void dlg_programmationinterventions::ImprimeSession()
     textentete.replace("{{TITRE}}"             , "<b>" + wdg_lblinterventions->text() +"</b>");
     textentete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + QLocale::system().toString(currentsession()->date(),"dddd dd MMMM yyyy") + "</font>");
 
-    // création du pied
+    //! création du pied
     QString textpied = proc->CalcPiedImpression(userEntete);
     if (textpied == "") return;
 
-    // creation du corps
-    double c = CORRECTION_td_width;
-
+    //! creation du corps
     QString textcorps = "";
     if (currentsession()->incident() != "")
     {
         QString incident = (currentsession()->incident() ==""? " : " + tr("NEANT") : "");
-        textcorps +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + incident + "</b></span></font></td>" ;
+        textcorps +=  HTML_RETOURLIGNE "<td width=\"40%\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + tr("INCIDENTS GÉNÉRAUX SUR LA SESSION") + incident + "</b></span></font></td>" ;
         if (currentsession()->incident() != "")
-            textcorps +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*200)) + "\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
+            textcorps +=  HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"50%\"><span style=\"font-size:8pt;\">" + currentsession()->incident() + "</span></td>" ;
         textcorps += HTML_RETOURLIGNE;
     }
     for (int i=0; i< m_interventionsmodel->rowCount(); ++i)
@@ -636,7 +655,7 @@ void dlg_programmationinterventions::ImprimeSession()
         {
              if (itm->hasChildren())
             {
-                textcorps +=  HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*200)) + "\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + itm->text() + "</b></span></font></td>" ;
+                textcorps +=  HTML_RETOURLIGNE "<td width=\"40%\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + itm->text() + "</b></span></font></td>" ;
                 QTime time = QTime::fromString(itm->text(),"- HH:mm -");
                 foreach (Intervention* interv, *Datas::I()->interventions->interventions())
                 {
@@ -647,7 +666,7 @@ void dlg_programmationinterventions::ImprimeSession()
                         {
                             QString nompatient = "";
                             nompatient  = pat->nom().toUpper() + " " + pat->prenom();
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"350\"><font color = darkgreen><span style=\"font-size:8pt;\"><b>" + nompatient + "</b></span></font></td>" ;
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"70%\"><font color = darkgreen><span style=\"font-size:8pt;\"><b>" + nompatient + "</b></span></font></td>" ;
                         }
                         TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
                         if (typ)                                                                                                                    //! type d'intervention et anesthésie
@@ -669,7 +688,7 @@ void dlg_programmationinterventions::ImprimeSession()
                                 if (interv->anesthesie() == Intervention::Generale)
                                     color = "red";
                             }
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = " + color + "><span style=\"font-size:8pt;\">" + typinterv + "</span></font></td>" ;                        }
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"70%\"><font color = " + color + "><span style=\"font-size:8pt;\">" + typinterv + "</span></font></td>" ;                        }
                         if (pat != Q_NULLPTR)
                         {
                             QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), db->ServerDate());
@@ -689,7 +708,7 @@ void dlg_programmationinterventions::ImprimeSession()
                                     tel += pat->portable();
                                 sexeddntel += "- " + tel;
                             }
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"350\"><font color = gray><span style=\"font-size:8pt;\">" + sexeddntel + "</span></font></td>" ;
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"70%\"><font color = gray><span style=\"font-size:8pt;\">" + sexeddntel + "</span></font></td>" ;
                         }
                         if (interv->idIOL()>0)                                                                                                      //! IOL
                         {
@@ -713,26 +732,44 @@ void dlg_programmationinterventions::ImprimeSession()
                                 ioltxt += " Cyl. " + cyliol;
                             }
                             ioltxt = tr("Implant") + " : " + ioltxt;
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"50%\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
                         }
                         if (interv->observation() != "")                                                                                            //! observation
                         {
                             QString obs = tr("Remarque") + " : " + interv->observation();
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><font color = gray><span style=\"font-size:8pt;\">" + obs + "</span></font></td>" ;
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"50%\"><font color = gray><span style=\"font-size:8pt;\">" + obs + "</span></font></td>" ;
                         }
                         if (interv->incident() != "")                                                                                               //! incident
                         {
                             QString inc = tr("Incident") + " : " + interv->incident();
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*60)) + "\"></td><td width=\"250\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"50%\"><font color = gray><span style=\"font-size:8pt;\"><b>" + inc + "</b></span></font></td>" ;
                         }
                     }
                 }
             }
         }
     }
-    proc->Imprime_Etat(this, textcorps, textentete, textpied,
+    if (pdf)
+    {
+        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
+                             tr("Session opératoire") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy");
+        QString title = userEntete->prenom() + " " + userEntete->nom()
+                        + " - " + tr("Programme du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy") + ".pdf";
+        bool a = proc->Cree_pdf(textcorps, textentete, textpied,
+                                title,
+                                nomdossier);
+        QString pdfpath = QDir::toNativeSeparators(nomdossier + "/" + title);
+        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistrer le fichier ") + pdfpath);
+    }
+    else
+    {
+        bool AvecDupli   = false;
+        bool AvecPrevisu = proc->ApercuAvantImpression();
+        bool AvecNumPage = true;
+        proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                        AvecDupli, AvecPrevisu, AvecNumPage);
+    }
 }
 
 void dlg_programmationinterventions::SupprimeSession()
@@ -1891,16 +1928,13 @@ void dlg_programmationinterventions::FicheListeIOLs()
     delete Dlg_ListIOLs;
 }
 
-void dlg_programmationinterventions::ImprimeListeIOLsSession()
+void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
 {
     if (Datas::I()->interventions->interventions()->size() == 0)
         return;
     QList<Manufacturer*> listmanufacturers;
     QList<Manufacturer*> listdistributeurs;
-    double c = CORRECTION_td_width;
-    bool AvecDupli   = false;
-    bool AvecPrevisu = proc->ApercuAvantImpression();
-    bool AvecNumPage = true;
+
     foreach (Intervention *interv, *Datas::I()->interventions->interventions())
     {
         if (interv->idIOL() >0)
@@ -1935,12 +1969,12 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
     foreach (Manufacturer *man, listdistributeurs)
     {
         //--------------------------------------------------------------------
-        // Préparation de l'état "liste des implants pour un fabricant" dans un QplainTextEdit
+        //! Préparation de l'état "liste des implants pour un fabricant" dans un QplainTextEdit
         //--------------------------------------------------------------------
 
         int iduser = currentsession()->iduser();
 
-        //création de l'entête
+        //! création de l'entête
         QString textentete;
         User *userEntete = Datas::I()->users->getById(iduser);
         if(userEntete == Q_NULLPTR)
@@ -1954,11 +1988,11 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
         textentete.replace("{{TITRE}}"             , "");
         textentete.replace("{{DDN}}"               , "");
 
-        // création du pied
+        //! création du pied
         QString textpied = proc->CalcPiedImpression(userEntete);
         if (textpied == "") return;
 
-        // creation du corps
+        //! creation du corps
         QString textcorps =  "<p align=\"center\"><font color = " COULEUR_TITRES "><span style=\"font-size:10pt;\"><b>" + tr("COMMANDE D'IMPLANTS INTRAOCULAIRES") + "</b></span></font>" ;
         Site *site = Datas::I()->sites->getById(currentsession()->idlieu());
         QString sitadresse = "";
@@ -1967,11 +2001,11 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
 
         QString date = tr("Programme opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dddd dd MMMM yyyy");
         QString cor = man->coordonnees().replace("\n", "<br>");
-        textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
-        textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
+        textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b>" + cor + "</b></span></td>" ;
+        textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b></b></span></td>";
         textcorps += "<p align=\"left\"><font color = " COULEUR_TITRES "><span style=\"font-size:8pt;\"><b>" + sitadresse + "</b></span></td>" ;
-        textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b>" + date + "</b></span></td>" ;
-        textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\"><b></b></span></td>";
+        textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b>" + date + "</b></span></td>" ;
+        textcorps += HTML_RETOURLIGNE "<td width=\"60%\"><span style=\"font-size:8pt;\"><b></b></span></td>";
         foreach (Intervention *interv, *Datas::I()->interventions->interventions())
         {
             if (interv->idIOL() >0)
@@ -1997,15 +2031,33 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession()
                                     cyliol = "+" + cyliol;
                                 ioltxt += " Cyl. " + cyliol;
                             }
-                            textcorps += HTML_RETOURLIGNE "<td width=\"" + QString::number(int(c*30)) + "\"></td><td width=\"" + QString::number(int(c*300)) + "\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
+                            textcorps += HTML_RETOURLIGNE "<td width=\"12%\"></td><td width=\"60%\"><span style=\"font-size:8pt;\">" + ioltxt + "</span></td>" ;
                         }
                     }
                 }
             }
         }
-        proc->Imprime_Etat(this, textcorps, textentete, textpied,
+        if (pdf)
+        {
+            QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
+                                 tr("Commande d'implants") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy");
+            QString title = userEntete->prenom() + " " + userEntete->nom() + " - " + man->nom()
+                            + " - " + tr("Programme du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy") + ".pdf";
+            bool a = proc->Cree_pdf(textcorps, textentete, textpied,
+                                    title,
+                                    nomdossier);
+            QString pdfpath = QDir::toNativeSeparators(nomdossier + "/" + title);
+            UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistrer le fichier ") + pdfpath);
+        }
+        else
+        {
+            bool AvecDupli   = false;
+            bool AvecPrevisu = proc->ApercuAvantImpression();
+            bool AvecNumPage = true;
+            proc->Imprime_Etat(this, textcorps, textentete, textpied,
                            proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
                            AvecDupli, AvecPrevisu, AvecNumPage);
+        }
     }
 }
 
