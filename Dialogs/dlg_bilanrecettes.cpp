@@ -115,7 +115,7 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
                                                                                                             bool ok;
                                                                                                             if (proc->QuestionPdfOrPrint(this, ok))
-                                                                                                                ImprimeEtat(ok);
+                                                                                                                PrintReport(ok);
                                                                                                           });
     connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
     connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
@@ -244,7 +244,7 @@ Recette* dlg_bilanrecettes::getRecetteFromSelectionInTable()
     return getRecetteFromIndex(idx);
 }
 
-void dlg_bilanrecettes::ImprimeEtat(bool pdf)
+void dlg_bilanrecettes::PrintReport(bool pdf)
 {
     QString            textentete, textpied;
 
@@ -383,12 +383,15 @@ void dlg_bilanrecettes::ImprimeEtat(bool pdf)
 
     if (pdf)
     {
-        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + userEntete->nom() + " " + userEntete->prenom();
+        QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");
+        QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
+        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                              tr ("sauvegardé sur le bureau dans le dossier Comptabilité");
         bool a = proc->Cree_pdf(textcorps, textentete, textpied,
-                            userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf",
-                            nomdossier);
-        QString pdfpath = tr ("fichier") + " " + QDir::toNativeSeparators(nomdossier + "/" +userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf");
-        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistret le ") + pdfpath);
+                            filename,
+                            dirname);
+        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")),
+                                   a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
     else
     {

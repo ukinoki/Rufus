@@ -342,16 +342,17 @@ void dlg_depenses::PrintTable(bool pdf)
 
     if (pdf)
     {
-        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + userEntete->login();
-        QString filename = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
-        proc->Cree_pdf(textcorps, textentete, textpied,
-                       filename,
-                       nomdossier);
-        QFile file = QFile(nomdossier + "/" + filename);
-        if (file.exists())
-            UpMessageBox::Information(this, tr("Bilan dépenses exporté"),
-                                        tr ("Le bilan des dépenses a été exporté dans le fichier ") +
-                                          QDir::toNativeSeparators(nomdossier + "/" + filename));
+        QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");
+        QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
+        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                              tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
+        proc                ->Cree_pdf(textcorps, textentete, textpied,
+                                filename,
+                                dirname);
+        QFile file          = QFile(dirname + "/" + filename);
+        bool a              = file.exists();
+        UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                            a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
     else
     {

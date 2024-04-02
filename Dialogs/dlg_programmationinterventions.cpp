@@ -587,15 +587,20 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
     }
     if (pdf)
     {
-        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
-                             tr("Rapport d'incidents - session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy");
-        QString title = userEntete->prenom() + " " + userEntete->nom()
-                        + " - " + tr("Rapport d'incidents - session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy") + ".pdf";
-        bool a = proc->Cree_pdf(textcorps, textentete, textpied,
-                                title,
-                                nomdossier);
-        QString pdfpath = QDir::toNativeSeparators(nomdossier + "/" + title);
-        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistrer le fichier ") + pdfpath);
+        QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
+                              tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
+        QString filename    = userEntete->prenom() + " " + userEntete->nom()
+                              + " - " + tr("Rapport d'incidents - session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy") + ".pdf";
+        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                              tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
+                              tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
+        proc                ->Cree_pdf(textcorps, textentete, textpied,
+                                filename,
+                                dirname);
+        QFile file          = QFile(dirname + "/" + filename);
+        bool a              = file.exists();
+        UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                                  a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
     else
     {
@@ -751,15 +756,20 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
     }
     if (pdf)
     {
-        QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
-                             tr("Session opératoire") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy");
-        QString title = userEntete->prenom() + " " + userEntete->nom()
-                        + " - " + tr("Programme du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy") + ".pdf";
-        bool a = proc->Cree_pdf(textcorps, textentete, textpied,
-                                title,
-                                nomdossier);
-        QString pdfpath = QDir::toNativeSeparators(nomdossier + "/" + title);
-        UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistrer le fichier ") + pdfpath);
+        QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
+                              tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
+        QString filename    = userEntete->prenom() + " " + userEntete->nom()
+                              + " - " + tr("Programme opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy") + ".pdf";
+        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                              tr ("sauvegardé sur le bureau dans le dossier ") + "\n " +
+                              tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
+        proc                ->Cree_pdf(textcorps, textentete, textpied,
+                                filename,
+                                dirname);
+        QFile file          = QFile(dirname + "/" + filename);
+        bool a              = file.exists();
+        UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                                  a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
     }
     else
     {
@@ -2039,15 +2049,22 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
         }
         if (pdf)
         {
-            QString nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
-                                 tr("Commande d'implants") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy");
-            QString title = userEntete->prenom() + " " + userEntete->nom() + " - " + man->nom()
-                            + " - " + tr("Programme du") + " " + QLocale::system().toString(currentsession()->date(),"dd MM yyyy") + ".pdf";
-            bool a = proc->Cree_pdf(textcorps, textentete, textpied,
-                                    title,
-                                    nomdossier);
-            QString pdfpath = QDir::toNativeSeparators(nomdossier + "/" + title);
-            UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")), a? pdfpath : tr ("Impossible d'enregistrer le fichier ") + pdfpath);
+            QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
+                                  tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
+            QString filename    = userEntete->prenom() + " " + userEntete->nom()
+                                  + " - " + tr("Commende d'implants")
+                                  + " - " + man->nom()
+                                  + " - " + tr("session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy") + ".pdf";
+            QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                                  tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
+                                  tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
+            proc                ->Cree_pdf(textcorps, textentete, textpied,
+                                    filename,
+                                    dirname);
+            QFile file          = QFile(dirname + "/" + filename);
+            bool a              = file.exists();
+            UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                                      a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
         }
         else
         {

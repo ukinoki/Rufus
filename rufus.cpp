@@ -2952,11 +2952,18 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool aa = false;
    if (queLePdf)
    {
-       aa = proc->Cree_pdf(textcorps, textentete, textpied,
-                             (listeactes.size() > 1?
-                                  tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf":
-                                  tr("Acte")  + " - " + pat->nom() + " " + pat->prenom() + " - " + QLocale::system().toString(listeactes.at(0)->date(),"d MMM yyyy")) + ".pdf",
-                             nomdossier);
+       QString dirname     = nomdossier;
+       QString filename    = tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf";
+       QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                             tr ("sauvegardé dans le dossier") + " " + QDir::toNativeSeparators(dirname) ;
+       proc                ->Cree_pdf(textcorps, textentete, textpied,
+                               filename,
+                               dirname);
+       QFile file          = QFile(dirname + "/" + filename);
+       qDebug() << dirname + "/" + filename << QFileInfo(file).absolutePath();
+       bool a              = file.exists();
+       UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                           a? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
    }
    else
    {
