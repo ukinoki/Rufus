@@ -2952,15 +2952,15 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    bool aa = false;
    if (queLePdf)
    {
-       QString dirname     = nomdossier;
+       QString dirname     = ( nomdossier == ""? QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0) : nomdossier);
+       QString dossier     = ( dirname == QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0)? tr("sur le bureau"): tr("dans le dossier ") + QDir::toNativeSeparators(nomdossier));
        QString filename    = tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf";
        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
-                             tr ("sauvegardé dans le dossier") + " " + QDir::toNativeSeparators(dirname) ;
+                             tr ("sauvegardé ") + dossier;
        proc                ->Cree_pdf(textcorps, textentete, textpied,
                                filename,
                                dirname);
        QFile file          = QFile(dirname + "/" + filename);
-       qDebug() << dirname + "/" + filename << QFileInfo(file).absolutePath();
        bool a              = file.exists();
        UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
                            a? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
