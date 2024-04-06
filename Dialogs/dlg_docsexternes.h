@@ -35,13 +35,14 @@ public:
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
     enum typeDoc            {Text, Image};                                      Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
     Mode                    mode()   {return m_mode;}
+    DocsExternes*           docsexternes() { return m_docsexternes;}
 
 private:
     DataBase                *db             = DataBase::I();
     Procedures              *proc           = Procedures::I();
     QFont                   m_font          = QApplication::font();
-    User*                   currentuser() { return Datas::I()->users->userconnected(); }
-    QDate                   m_currentdate = db->ServerDate();
+    User*                   currentuser()   { return Datas::I()->users->userconnected(); }
+    QDate                   m_currentdate   = db->ServerDate();
 
     DocsExternes            *m_docsexternes;
 
@@ -62,9 +63,9 @@ private:
     QRectF                  m_rect;
     QList<QPixmap>          m_listpixmp;
     QPrinter                *m_printer;
-    QStandardItemModel      *m_model = Q_NULLPTR;
-    QStandardItemModel      *m_tripardatemodel = Q_NULLPTR;
-    QStandardItemModel      *m_tripartypemodel = Q_NULLPTR;
+    QStandardItemModel      *m_model            = Q_NULLPTR;
+    QStandardItemModel      *m_tripardatemodel  = Q_NULLPTR;
+    QStandardItemModel      *m_tripartypemodel  = Q_NULLPTR;
     QPoint                  m_positionorigin;
     QSize                   m_sizeorigin;
 

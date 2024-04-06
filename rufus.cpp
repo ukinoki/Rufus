@@ -150,28 +150,28 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     gTimerPatientsVus   ->setSingleShot(true);           // il est singleshot et n'est démarré que quand on affiche la liste des patients vus
     gTimerPatientsVus   ->setInterval(20000);
     // Lancement des timers de gestion des documents
-    t_timerVerifImportateurDocs      ->start(60000);
+    t_timerVerifImportateurDocs         ->start(60000);
     // Lancement du timer de vérification des verrous - +++ à lancer après le timer gTimerVerifImportateurDocs puisqu'il l'utilise
-    t_timerVerifVerrou               ->start(60000);// "toutes les 60 secondes"
+    t_timerVerifVerrou                  ->start(60000);// "toutes les 60 secondes"
 
 
     if (db->ModeAccesDataBase() == Utils::Distant)
     {
-        t_timerSalDat                ->start(10000);
-        t_timerCorrespondants        ->start(60000);
-        t_timerActualiseDocsExternes ->start(60000);// "toutes les 60 secondes"
-        t_timerVerifMessages         ->start(60000);// "toutes les 60 secondes"
+        t_timerSalDat                   ->start(10000);
+        t_timerCorrespondants           ->start(60000);
+        t_timerActualiseDocsExternes    ->start(60000); // "toutes les 60 secondes"
+        t_timerVerifMessages            ->start(60000); // "toutes les 60 secondes"
     }
     else
     {
-        t_timerExportDocs            ->start(10000);// "toutes les 10 secondes"
-        t_timerActualiseDocsExternes ->start(10000); // "toutes les 5 secondes"
-        t_timerSupprDocs             ->start(60000);// "toutes les 60 secondes"
-        t_timerVerifMessages         ->start(10000);// "toutes les 10 secondes"
+        t_timerExportDocs               ->start(10000); // "toutes les 10 secondes"
+        t_timerSupprDocs                ->start(60000); // "toutes les 60 secondes"
+        t_timerVerifMessages            ->start(10000); // "toutes les 10 secondes"
+        t_timerActualiseDocsExternes    ->start(5000);  // "toutes les 5 secondes"
         if (!m_utiliseTCP)
         {
-            t_timerSalDat        ->start(1000);
-            t_timerCorrespondants->start(30000);
+            t_timerSalDat               ->start(1000);
+            t_timerCorrespondants       ->start(30000);
         }
     }
 
@@ -191,10 +191,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         if (db->ModeAccesDataBase() != Utils::Distant)
             connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
         VerifImportateur();
-        connect (t_timerActualiseDocsExternes,  &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
     }
-    connect (t_timerPosteConnecte,           &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
-    connect (gTimerPatientsVus,              &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
+    connect (t_timerPosteConnecte,              &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
+    connect (gTimerPatientsVus,                 &QTimer::timeout,   this,   &Rufus::MasquePatientsVusWidget);
+    connect (t_timerActualiseDocsExternes,      &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
 
     //! 7 - Nettoyage des erreurs éventuelles de la salle d'attente
     Datas::I()->patientsencours->initListeAll();
@@ -428,7 +428,9 @@ void Rufus::ConnectSignals()
 void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 {
     if (docs == Q_NULLPTR)
-         return;
+        return;
+    if (docs->docsexternes()->size() == 0)
+        return;
      //! si la fiche est déjà ouverte, on quitte
     QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
     bool founddlg = false;
@@ -437,7 +439,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
         {
             if (currentpatient() != Q_NULLPTR)
             {
-                if (docs->patient()->id() == currentpatient()->id())  // -> depuis gTimerVerifGestDocs, AfficheDossier() ou ui->OuvreDocsExternespushButton
+                if (docs->patient()->id() == currentpatient()->id())
                 {
                     {
                         if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
@@ -1484,28 +1486,29 @@ void Rufus::ConnectTimers(bool a)
     {
         if (db->ModeAccesDataBase() == Utils::Distant)
         {
-            t_timerSalDat                ->start(10000);
-            t_timerCorrespondants        ->start(60000);
-            t_timerActualiseDocsExternes ->start(60000);
-            t_timerVerifMessages         ->start(60000);
+            t_timerSalDat               ->start(10000);
+            t_timerCorrespondants       ->start(60000);
+            t_timerActualiseDocsExternes->start(60000);
+            t_timerVerifMessages        ->start(60000);
         }
         else
         {
             if (!m_utiliseTCP)
             {
-                t_timerSalDat            ->start(1000);
-                t_timerCorrespondants    ->start(30000);
+                t_timerSalDat           ->start(1000);
+                t_timerCorrespondants   ->start(30000);
             }
-            t_timerVerifImportateurDocs  ->start(60000);
-            t_timerExportDocs            ->start(10000);
-            t_timerActualiseDocsExternes ->start(10000);
-            t_timerVerifMessages         ->start(10000);
-            t_timerSupprDocs             ->start(60000);
+            t_timerVerifImportateurDocs ->start(60000);
+            t_timerExportDocs           ->start(10000);
+            t_timerActualiseDocsExternes->start(5000);
+            t_timerVerifMessages        ->start(10000);
+            t_timerSupprDocs            ->start(60000);
         }
-        t_timerPosteConnecte  ->start(10000);
-        t_timerVerifVerrou   ->start(60000);
+        t_timerPosteConnecte            ->start(10000);
+        t_timerVerifVerrou              ->start(60000);
 
         connect (t_timerPosteConnecte,              &QTimer::timeout,   this,   &Rufus::MAJPosteConnecte);
+        connect (t_timerActualiseDocsExternes,      &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         if (!m_utiliseTCP)
         {
             connect (t_timerSalDat,                 &QTimer::timeout,   this,   &Rufus::VerifSalleDAttente);
@@ -1515,7 +1518,6 @@ void Rufus::ConnectTimers(bool a)
             connect (t_timerVerifImportateurDocs,   &QTimer::timeout,   this,   &Rufus::VerifImportateur);
             if (db->ModeAccesDataBase() != Utils::Distant)
                 connect(t_timerSupprDocs,           &QTimer::timeout,   this,   &Rufus::SupprimerDocsEtFactures);
-            connect (t_timerActualiseDocsExternes,  &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
         }
 
     }
@@ -2954,16 +2956,15 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    {
        QString dirname     = ( nomdossier == ""? QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0) : nomdossier);
        QString dossier     = ( dirname == QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at(0)? tr("sur le bureau"): tr("dans le dossier ") + QDir::toNativeSeparators(nomdossier));
-       QString filename    = tr("Actes") + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf";
+       QString filename    = (listeactes.size()>1? tr("Actes") : tr("Acte")) + " - " + pat->nom() + " " + pat->prenom() + " - " + tr("du ") + datedebut + tr(" au ") + datefin + ".pdf";
        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                              tr ("sauvegardé ") + dossier;
        proc                ->Cree_pdf(textcorps, textentete, textpied,
-                               filename,
-                               dirname);
+                               filename, dirname);
        QFile file          = QFile(dirname + "/" + filename);
-       bool a              = file.exists();
-       UpMessageBox::Watch(this, a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
-                           a? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+       aa                  = file.exists();
+       UpMessageBox::Watch(this, aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                           aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
    }
    else
    {
@@ -3639,9 +3640,8 @@ void Rufus::MenuContextuelListePatients()
     {
         QAction *pAction_EmettreDoc = m_menuContextuel->addAction(tr("Emettre un document"));
         connect (pAction_EmettreDoc,            &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "Document");});
-
-        QString req = "Select " CP_ID_DOCSEXTERNES " from " TBL_DOCSEXTERNES " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
-        if (db->StandardSelectSQL(req,m_ok).size() > 0){
+        if (DataBase::I()->countRecords(TBL_DOCSEXTERNES, CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id())) >0)
+        {
             QAction *pAction_ImprimeDoc = m_menuContextuel->addAction(tr("Réimprimer un document"));
             connect (pAction_ImprimeDoc,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelListePatients(idpat, "ImprimeAncienDoc");});
         }
@@ -3700,8 +3700,7 @@ void Rufus::ChoixMenuContextuelListePatients(int idpat, QString choix)
     else if (choix == "ImprimeAncienDoc") {
         DocsExternes *docs = new DocsExternes;
         docs->initListeByPatient(dossierpatientaouvrir());
-        if (docs->docsexternes()->size() > 0)
-            OuvrirDocsExternes(docs);                                                                //! depuis menu contextuel ListePatients
+        OuvrirDocsExternes(docs);                                                                //! depuis menu contextuel ListePatients
         ItemsList::clearAll(docs->docsexternes());
         delete docs;
     }
@@ -6193,17 +6192,23 @@ void Rufus::VerifDossiersImagerie()
     }
 }
 
+/*!
+    * \brief Rufus::ActualiseDocsExternes
+    * \abstract vérifier l'apparition de nouveaux documents si la fiche dlg_docsexternes est fermée et l'ouvrir si c'est le cas
+*/
 void Rufus::ActualiseDocsExternes()
 {
-    /* Cette fonction sert à actualiser l'affichage des documents externes en cas de changement*/
     if (ui->tabWidget->indexOf(ui->tabDossier)<1)
         return;
-    DocsExternes *docs = Datas::I()->docsexternes;
     if (currentpatient() != Q_NULLPTR)
     {
-        docs->initListeByPatient(currentpatient());
-        if (docs->docsexternes()->size() > 0)
-            OuvrirDocsExternes(docs);
+        QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+        if (ListDialogDocs.size()>0)
+            for (int i=0; i< ListDialogDocs.size();++i)
+                if (ListDialogDocs.at(i)->currentpatient() == currentpatient())
+                    return;
+        Datas::I()->docsexternes->initListeByPatient(currentpatient());
+        OuvrirDocsExternes();
     }
 }
 
@@ -6938,8 +6943,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     ui->TtOphtextEdit->setText(currentpatient()->traitementoph());
     OKModifierTerrain(currentpatient(), false);
 
-    DocsExternes *docs = Datas::I()->docsexternes;
-    docs->initListeByPatient(currentpatient());
+    Datas::I()->docsexternes->initListeByPatient(currentpatient());
     FermeDlgActesPrecedentsEtDocsExternes();
 
     //3 - récupération des actes
@@ -6957,8 +6961,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     }
     else
     {
-        if (docs->docsexternes()->size() > 0)
-            OuvrirDocsExternes(docs);               //! depuis AfficheDossier
+        OuvrirDocsExternes();                   //! depuis AfficheDossier
         if (idacte > 0)
             AfficheActe(m_listeactes->getById(idacte));
         else
@@ -7083,7 +7086,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
     if (Titre != "")
         AutorDepart = false;
 
-    /*! 2. On ne cherche pas à quitter le dossier mais seulement à se déplacer dans les consultations du dossier */
+    /* 2. On ne cherche pas à quitter le dossier mais seulement à se déplacer dans les consultations du dossier */
     if (!ChgtDossier)
     {
         if (AutorDepart)    return true;
@@ -7102,7 +7105,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
     }
     else
     {
-        /*! 3 On veut quitter le dossier;
+        /* 3 On veut quitter le dossier;
         * On vérifie si on peut quitter le dossier et la cohérence avec TypePaimentsActes */
         if (AutorDepart)
         {
@@ -8082,7 +8085,7 @@ bool Rufus::FermeDossier(Patient *patient)
         else
             a = InscritEnSalDat(patient);
     }
-    else a = false;                                                                                 // Annuler et revenir au dossier
+    else a = false;            // Annuler et revenir au dossier
     if (a) {
         Datas::I()->patients        ->setcurrentpatient(Q_NULLPTR);
         Datas::I()->actes           ->setcurrentacte(Q_NULLPTR);
@@ -8879,13 +8882,10 @@ void Rufus::ProgrammationIntervention(Patient *pat, Acte *act)
 -----------------------------------------------------------------------------------------------------------------*/
 void    Rufus::RecopierDossier(Patient *patient)
 {
-    if (patient != Q_NULLPTR)
+    Patient* pat = patient;
+    if (pat != Q_NULLPTR)
     {
-        //if (!patient->isalloaded())
         Datas::I()->patients->loadAll(patient, Item::Update);
-        FermeDlgActesPrecedentsEtDocsExternes();
-        IdentificationPatient(dlg_identificationpatient::Copie, patient);
-        return;
     }
     else
     {
@@ -8900,9 +8900,9 @@ void    Rufus::RecopierDossier(Patient *patient)
             return;
         }
         Datas::I()->patients->loadAll(pat, Item::Update);
-        FermeDlgActesPrecedentsEtDocsExternes();
-        IdentificationPatient(dlg_identificationpatient::Copie, pat);
     }
+    FermeDlgActesPrecedentsEtDocsExternes();
+    IdentificationPatient(dlg_identificationpatient::Copie, patient);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10256,7 +10256,6 @@ void Rufus::SupprimerDossier(Patient *pat)
 
     //!. Fermeture de l'onglet dossier
     ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
-    FermeDlgActesPrecedentsEtDocsExternes();
 
     //!. Suppression du dossier, reconstruction de la liste et du treeView
     Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
@@ -10676,7 +10675,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
     else if (msg.contains(TCPMSG_MsgBAL))
     {
-        /* le message a le format suivant nombredemessages + TCPMSG_MsgBAL) */
+        /*! message -> nombredemessages + TCPMSG_MsgBAL) */
         msg.remove(TCPMSG_MsgBAL);
         m_totalNvxMessages = msg.toInt();
         msg = "";
@@ -10695,7 +10694,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
     else if (msg.contains(TCPMSG_MAJDocsExternes))
     {
-        /* le message a le format suivant idpatient + TCPMSG_MAJDocsExternes) */
+        /*! message -> idpatient + TCPMSG_MAJDocsExternes) */
         //qDebug() << msg;
         msg.remove(TCPMSG_MAJDocsExternes);
         if (currentuser()->isSoignant() && currentpatient() != Q_NULLPTR)
@@ -10704,7 +10703,7 @@ void Rufus::TraiteTCPMessage(QString msg)
     }
     else if (msg.contains(TCPMSG_MAJPatient))
     {
-        /*! le message a le format suivant id du patient à mettre à jour + TCPMSG_MAJPatient) */
+        /*! message -> idpatient + TCPMSG_MAJPatient) */
         msg.remove(TCPMSG_MAJPatient);
         auto it = Datas::I()->patients->patientstable()->find(msg.toInt());
         if (it != Datas::I()->patients->patientstable()->end())

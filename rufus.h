@@ -349,7 +349,7 @@ private:
                         MotifRDV(QString Motif = "", QString ShowMessage = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
-    void                OuvrirDocsExternes(DocsExternes *docs);
+    void                OuvrirDocsExternes(DocsExternes *docs = Datas::I()->docsexternes);
     void                ImprimeDocument(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier

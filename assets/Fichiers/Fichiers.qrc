@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>pdf.pdf</file>
         <file>ComptaMedicale.sql</file>
         <file>Images.sql</file>
         <file>Ophtalmologie.sql</file>

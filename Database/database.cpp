@@ -69,6 +69,26 @@ void DataBase::InfosConnexionSQL()
            "\n" + tr("password    ") + "\n ->\t" + m_db.password() +
            "\n" + tr("port        ") + "\n ->\t" + QString::number(m_db.port()));
 }
+
+qint64 DataBase::countRecords(QString table, QString where)
+{
+    qint64 count = 0;
+    bool ok = false;
+    QString req = "Select count(*) from " + table;
+    if (where != "")
+        req += " where " + where;
+    QList<QVariantList> result = StandardSelectSQL(req,ok);
+    if (ok)
+        if (result.size() >0)
+        {
+            QVariantList row = result.at(0);
+            if (row.size() >0)
+                count = qint64(row.at(0).toULongLong());
+        }
+    qDebug() << req << count;
+    return count;
+}
+
 bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
     if (erreur.type() != QSqlError::NoError)
@@ -1165,9 +1185,6 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
                   CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES " from " TBL_DOCSEXTERNES
                   " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
-//#ifdef Q_OS_LINUX
-//    req += " and " CP_FORMATDOC_DOCSEXTERNES " <> '" VIDEO "'";
-//#endif
 
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
     if(!ok || doclist.size()==0)
@@ -2497,20 +2514,16 @@ Patient* DataBase::loadPatientById(int idPat, Patient *pat, Item::LOADDETAILS de
 qint64 DataBase::countPatientsAll(QString nom, QString prenom)
 {
     QString clausewhere ("");
-    if (Utils::correctquoteSQL(nom).length() > 0 || Utils::correctquoteSQL(prenom).length() > 0)
-        clausewhere += " WHERE ";
     if (Utils::correctquoteSQL(nom).length() > 0)
-        clausewhere += "PatNom like '" + Utils::correctquoteSQL(nom) + "%'";
+        clausewhere += CP_NOM_PATIENTS " like '" + Utils::correctquoteSQL(nom) + "%'";
     if (Utils::correctquoteSQL(prenom).length() > 0)
     {
-        if (clausewhere != " WHERE ")
-            clausewhere += " AND PatPrenom like '" + Utils::correctquoteSQL(prenom) + "%'";
+        if (clausewhere != "")
+            clausewhere += " AND " CP_PRENOM_PATIENTS " like '" + Utils::correctquoteSQL(prenom) + "%'";
         else
-            clausewhere += "PatPrenom like '" + Utils::correctquoteSQL(prenom) + "%'";
+            clausewhere += CP_PRENOM_PATIENTS " like '" + Utils::correctquoteSQL(prenom) + "%'";
     }
-    QString req = "SELECT COUNT(idPat) FROM " TBL_PATIENTS + clausewhere;
-    QVariantList patlist = getFirstRecordFromStandardSelectSQL(req,ok);
-    return qint64(patlist.at(0).toULongLong());
+    return countRecords(TBL_PATIENTS, clausewhere);
 }
 
 QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
@@ -2623,14 +2636,18 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 */
 QString DataBase::getMDPAdmin()
 {
-    QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select mdpadmin from " TBL_PARAMSYSTEME,ok);
+    QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select " CP_MDPADMIN_PARAMSYSTEME " from " TBL_PARAMSYSTEME,ok);
     if( !ok || mdpdata.size()==0 )
-        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
+        StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
     else if (mdpdata.at(0) == "")
-        StandardSQL("update " TBL_PARAMSYSTEME " set mdpadmin = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
+        StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
     return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : Utils::calcSHA1(MDP_ADMINISTRATEUR));
 }
 
+void DataBase::updateSHA1MdpAdmin(QString mdp)
+{
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" + Utils::calcSHA1(mdp) + "'");
+}
 
 /*
  * Actes

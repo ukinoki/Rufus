@@ -1562,17 +1562,11 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
     {
         pitem0 = new QTableWidgetItem;
         pitem1 = new QTableWidgetItem;
-        QList<QVariantList> actlst = db->StandardSelectSQL("select count(" CP_ID_ACTES ") from " TBL_ACTES
-                                                           " where " CP_IDUSER_ACTES " = " + QString::number(usr->id()) +
-                                                           " or " CP_IDUSERCREATEUR_ACTES " = " + QString::number(usr->id()), m_ok);
-        if (actlst.size()>0)
+        int nbactes = db->countRecords(TBL_ACTES, CP_IDUSER_ACTES " = " + QString::number(usr->id()) + " or " CP_IDUSERCREATEUR_ACTES " = " + QString::number(usr->id()));
+        if (nbactes>0)
         {
-            int nbactes = actlst.at(0).at(0).toInt();
-            if (nbactes>0)
-            {
-                pitem0->setForeground(m_color);
-                pitem1->setForeground(m_color);
-            }
+            pitem0->setForeground(m_color);
+            pitem1->setForeground(m_color);
         }
         pitem0->setText(QString::number(usr->id()));
         pitem1->setText(usr->login());
