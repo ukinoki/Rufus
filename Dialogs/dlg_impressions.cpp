@@ -859,7 +859,14 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
     }
     else if (choix  == "Inserer")   {
         UpDialog        *ListChamps     = new UpDialog(this);
-        UpTableWidget   *tabChamps      = new UpTableWidget();
+        UpTableView     *tabChamps      = new UpTableView();
+        ListChamps->dlglayout()->insertWidget(0,tabChamps);
+
+        //! avec certains compilateurs, il faut figer les datas de la fiche avant de la remplir sinon les QAbstractItemView peuvent bugger dans les largeurs de colonne...
+        ListChamps->setWindowFlags(Qt::Dialog);
+        ListChamps->setWindowModality(Qt::WindowModal);
+        //!
+
         QFontMetrics    fm(qApp->font());
 
         tabChamps->verticalHeader()->setVisible(false);
@@ -867,39 +874,27 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         tabChamps->setFocusPolicy(Qt::NoFocus);
         tabChamps->setSelectionMode(QAbstractItemView::SingleSelection);
         tabChamps->setSelectionBehavior(QAbstractItemView::SelectRows);
-        tabChamps->setColumnCount(2);
         tabChamps->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
         tabChamps->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
         tabChamps->setFixedHeight(int(fm.height()*1.1*9));
         tabChamps->setGridStyle(Qt::DotLine);
         tabChamps->setEditTriggers(QAbstractItemView::NoEditTriggers);
-        QTableWidgetItem        *pitem0, *pitem1;
-        int                     i = 0;
+        QStandardItemModel *m_model = new QStandardItemModel(this);
         for(auto it = map_champs.cbegin(); it!=map_champs.cend(); ++it)
         {
-            tabChamps   ->insertRow(i);
-            pitem0       = new QTableWidgetItem;
-            pitem0       ->setText(map_champs[it.key()]);
-            tabChamps   ->setItem(i,0,pitem0);
-            pitem1       = new QTableWidgetItem;
-            pitem1      ->setText(it.key());
-            tabChamps   ->setItem(i,1,pitem1);
-            tabChamps   ->setRowHeight(i,int(fm.height()*1.1));
-            i++;
+            UpStandardItem *pitem0  = new UpStandardItem(map_champs[it.key()]);
+            pitem0                  ->setData(it.key());
+            m_model                 ->appendRow(QList<QStandardItem*>() << pitem0);
         }
-        tabChamps->sortItems(0);
+        m_model->sort(0);
+        tabChamps->setModel(m_model);
+
         tabChamps->resizeColumnsToContents();
         tabChamps->setColumnWidth(0,tabChamps->columnWidth(0)+30);
         if (tabChamps->columnWidth(0) < 250)
-            tabChamps->setColumnWidth(0,250);
-        tabChamps->setColumnWidth(1,0); // si on met setcolumnhidden, ça ne rentre pas dans les selecteditems()
-        tabChamps->setFixedWidth(tabChamps->columnWidth(0)+2);
+            tabChamps->setFixedWidth(tabChamps->columnWidth(0)+2);
 
         ListChamps->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-        ListChamps->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint |Qt::WindowCloseButtonHint);
-        ListChamps->dlglayout()->insertWidget(0,tabChamps);
-
-        ListChamps->setWindowModality(Qt::WindowModal);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
 
         connect(ListChamps->OKButton,   &QPushButton::clicked, ListChamps,         [=] {ListChamps->accept();});
@@ -908,9 +903,9 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
         if (ListChamps->exec() == QDialog::Accepted)   {
-            if (tabChamps->selectedItems().size()>0)
+            if (tabChamps->selectionModel()->selectedIndexes().size()>0)
             {
-                QString champ = tabChamps->selectedItems().at(1)->text();
+                QString champ = tabChamps->selectionModel()->selectedIndexes().at(0).data().toString();
                 ui->upTextEdit->textCursor().insertText("{{" + champ + "}}");
             }
         }
