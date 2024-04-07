@@ -174,6 +174,10 @@ public:
                                                                                                  | QFileDevice::ReadGroup  | QFileDevice::WriteGroup
                                                                                                  | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                                                                                  | QFileDevice::ReadUser   | QFileDevice::WriteUser);      // copie le fichier file vers la destination path avec les permissions énumérées par le flag permissions
+    static void                     setPermissions(QFile &file, QFileDevice::Permissions permissions = QFileDevice::ReadOther | QFileDevice::WriteOther
+                                                                                                 | QFileDevice::ReadGroup | QFileDevice::WriteGroup
+                                                                                                 | QFileDevice::ExeOwner  | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                                                                                                 | QFileDevice::ExeUser   | QFileDevice::ReadUser   | QFileDevice::WriteUser);      // définit les permissions énumérées par le flag permissions
     static bool                     removeWithoutPermissions(QFile &file);      // efface le fichier file vers la destination path même s'il est enlecture seule
     static double                   mmToInches(double mm);
     static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList(), bool ExclureNomAvecEspace = true);

@@ -85,7 +85,6 @@ qint64 DataBase::countRecords(QString table, QString where)
             if (row.size() >0)
                 count = qint64(row.at(0).toULongLong());
         }
-    qDebug() << req << count;
     return count;
 }
 

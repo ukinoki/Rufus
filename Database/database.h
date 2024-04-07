@@ -138,7 +138,7 @@ public:
     void                    unlocktables();                                                             //!> comme son nom l'indique
 
     //     REQUETES ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    qint64                    countRecords(QString table, QString where = "");
+    qint64                  countRecords(QString table, QString where = "");
     bool                    erreurRequete(QSqlError type, QString requete, QString ErrorMessage = "");
                                                                 //!> comme son nom l'indique
     int                     selectMaxFromTable(QString nomchamp, QString nomtable, bool &ok, QString errormsg="");

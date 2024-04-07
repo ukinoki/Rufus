@@ -888,7 +888,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
             i++;
         }
         tabChamps->sortItems(0);
-        tabChamps->resizeColumnToContents(0);
+        tabChamps->resizeColumnsToContents();
         tabChamps->setColumnWidth(0,tabChamps->columnWidth(0)+30);
         if (tabChamps->columnWidth(0) < 250)
             tabChamps->setColumnWidth(0,250);
@@ -1998,7 +1998,6 @@ void dlg_impressions::ConfigMode(Mode mode)
 
         ui->upTextEdit->setFocusPolicy(Qt::WheelFocus);
         ui->upTextEdit->setStyleSheet("border: 2px solid rgb(251, 51, 61);");
-        connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
         if (!Datas::I()->users->userconnected()->isMedecin() && !Datas::I()->users->userconnected()->isOrthoptist())
         {
             ui->PrescriptioncheckBox->setChecked(false);
@@ -2018,7 +2017,7 @@ void dlg_impressions::ConfigMode(Mode mode)
             ui->DocsupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
             ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(row,1));
          }
-        //qDebug() << m_currentdocument->resume();
+        connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
     }
 
     else if (mode == ModificationDOSS)
@@ -2152,6 +2151,7 @@ void dlg_impressions::ConfigMode(Mode mode)
         ui->DocsupTableView->scrollTo(m_docsmodel->index(0,1), QAbstractItemView::EnsureVisible);
         ui->DocsupTableView->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
         ui->DocsupTableView->openPersistentEditor(m_docsmodel->index(0,1));
+        connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
     }
 
     else if (mode == CreationDOSS)

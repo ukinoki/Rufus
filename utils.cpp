@@ -758,66 +758,66 @@ QString Utils::calcSHA1(QString mdp)
   * \return
   */
  bool Utils::VerifMDP(QString MDP, QString Msg, QString &mdpval, bool mdpverified, QWidget *parent)
- {
-     if (mdpverified)
-         return true;
-     if (parent != Q_NULLPTR)
-     {
-         UpDialog *dlg_askMDP    = new UpDialog(parent);
-         dlg_askMDP      ->setWindowModality(Qt::WindowModal);
+{
+    if (mdpverified)
+        return true;
+    if (parent != Q_NULLPTR)
+    {
+        UpDialog *dlg_askMDP    = new UpDialog(parent);
+        dlg_askMDP      ->setWindowModality(Qt::WindowModal);
 
-         UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
-         ConfirmMDP      ->setEchoMode(QLineEdit::Password);
-         ConfirmMDP      ->setAlignment(Qt::AlignCenter);
-         ConfirmMDP      ->setMaxLength(25);
-         dlg_askMDP      ->dlglayout()->insertWidget(0,ConfirmMDP);
+        UpLineEdit *ConfirmMDP = new UpLineEdit(dlg_askMDP);
+        ConfirmMDP      ->setEchoMode(QLineEdit::Password);
+        ConfirmMDP      ->setAlignment(Qt::AlignCenter);
+        ConfirmMDP      ->setMaxLength(25);
+        dlg_askMDP      ->dlglayout()->insertWidget(0,ConfirmMDP);
 
-         UpLabel *labelConfirmMDP = new UpLabel();
-         labelConfirmMDP ->setText(Msg);
-         labelConfirmMDP ->setAlignment(Qt::AlignCenter);
-         dlg_askMDP      ->dlglayout()->insertWidget(0,labelConfirmMDP);
+        UpLabel *labelConfirmMDP = new UpLabel();
+        labelConfirmMDP ->setText(Msg);
+        labelConfirmMDP ->setAlignment(Qt::AlignCenter);
+        dlg_askMDP      ->dlglayout()->insertWidget(0,labelConfirmMDP);
 
-         dlg_askMDP      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-         connect(dlg_askMDP->OKButton,    &QPushButton::clicked, dlg_askMDP, [=] {
-             if (calcSHA1(ConfirmMDP->text()) == MDP)
-                 dlg_askMDP->accept();
-             else if (ConfirmMDP->text() == MDP)
-                 dlg_askMDP->accept();
-             else
-                 UpMessageBox::Watch(dlg_askMDP, QObject::tr("Mot de passe invalide!"));
-         });
-         connect(ConfirmMDP, &UpLineEdit::returnPressed, dlg_askMDP->OKButton, &QPushButton::click);
-         dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-         dlg_askMDP->dlglayout()->setSpacing(8);
-         mdpval = ConfirmMDP->text();
-         mdpverified = (dlg_askMDP->exec() == QDialog::Accepted);
-          return mdpverified;
-     }
-     else
-     {
-         QInputDialog quest(parent);
-         quest.setCancelButtonText("Annuler");
-         quest.setLabelText(Msg);
-         quest.setInputMode(QInputDialog::TextInput);
-         quest.setTextEchoMode(QLineEdit::Password);
-         QList<QLineEdit*> list = quest.findChildren<QLineEdit*>();
-         for (int i=0;i<list.size();i++)
-             list.at(0)->setAlignment(Qt::AlignCenter);
-         QList<QLabel*> listlab = quest.findChildren<QLabel*>();
-         for (int i=0;i<listlab.size();i++)
-             listlab.at(0)->setAlignment(Qt::AlignCenter);
-         quest.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
-         if (quest.exec() == QDialog::Accepted)
-         {
-             if (calcSHA1(quest.textValue()) == MDP)
-                 return true;
-             else if (quest.textValue() == MDP)
-                 return true;
-             else
-                 UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
-         }
-         return false;
-     }
+        dlg_askMDP      ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+        connect(dlg_askMDP->OKButton,    &QPushButton::clicked, dlg_askMDP, [=] {
+            if (calcSHA1(ConfirmMDP->text()) == MDP)
+                dlg_askMDP->accept();
+            else if (ConfirmMDP->text() == MDP)
+                dlg_askMDP->accept();
+            else
+                UpMessageBox::Watch(dlg_askMDP, QObject::tr("Mot de passe invalide!"));
+        });
+        connect(ConfirmMDP, &UpLineEdit::returnPressed, dlg_askMDP->OKButton, &QPushButton::click);
+        dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+        dlg_askMDP->dlglayout()->setSpacing(8);
+        mdpval = ConfirmMDP->text();
+        mdpverified = (dlg_askMDP->exec() == QDialog::Accepted);
+        return mdpverified;
+    }
+    else
+    {
+        QInputDialog quest(parent);
+        quest.setCancelButtonText("Annuler");
+        quest.setLabelText(Msg);
+        quest.setInputMode(QInputDialog::TextInput);
+        quest.setTextEchoMode(QLineEdit::Password);
+        QList<QLineEdit*> list = quest.findChildren<QLineEdit*>();
+        for (int i=0;i<list.size();i++)
+            list.at(0)->setAlignment(Qt::AlignCenter);
+        QList<QLabel*> listlab = quest.findChildren<QLabel*>();
+        for (int i=0;i<listlab.size();i++)
+            listlab.at(0)->setAlignment(Qt::AlignCenter);
+        quest.setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+        if (quest.exec() == QDialog::Accepted)
+        {
+            if (calcSHA1(quest.textValue()) == MDP)
+                return true;
+            else if (quest.textValue() == MDP)
+                return true;
+            else
+                UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
+        }
+        return false;
+    }
 }
 
 /*---------------------------------------------------------------------------------------------------------------------
@@ -938,6 +938,11 @@ void Utils::copyWithPermissions(QFile &file, QString path, QFileDevice::Permissi
     file.copy(path);
     QFile CO(path);
     CO.setPermissions(permissions);
+}
+
+void Utils::setPermissions(QFile &file, QFileDevice::Permissions permissions)
+{
+    file.setPermissions(permissions);
 }
 
 bool Utils::removeWithoutPermissions(QFile &file)
