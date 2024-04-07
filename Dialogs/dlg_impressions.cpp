@@ -150,6 +150,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     map_champs[REFRACT]         = tr("Refraction du patient'");
     map_champs[KERATO]          = tr("Keratométrie du patient");
     map_champs[CORPAT]          = tr("Correspondant du patient");
+    map_champs[ADRCORPAT]       = tr("Adresse du correspondant du patient");
     map_champs[POLITESSECOR]    = tr("formule de politesse correspondant");
     map_champs[PRENOMCOR]       = tr("Prénom du correspondant");
     map_champs[NOMCOR]          = tr("Nom du correspondant");
@@ -568,14 +569,15 @@ void dlg_impressions::FiltreListe()
 
 void dlg_impressions::FixDocUptableViewColumnWidth()
 {
-    ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
-    ui->DocsupTableView->setColumnWidth(1,289);       // Resume
-    ui->DocsupTableView->setColumnWidth(2,30);        // Public   - affiche un check si document public
-    ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
-    ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
-    ui->DocsupTableView->setColumnWidth(5,0);         // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
+    ui->DocsupTableView->setColumnWidth(0,int(30*m_larg));      // checkbox
+    ui->DocsupTableView->setColumnWidth(1,int(289*m_larg));     // Resume
+    ui->DocsupTableView->setColumnWidth(2,int(30*m_larg));      // Public   - affiche un check si document public
+    ui->DocsupTableView->setColumnWidth(3,int(30*m_larg));      // Editable - affiche un check si document editable
+    ui->DocsupTableView->setColumnWidth(4,int(30*m_larg));      // Medical  - affiche un check si document medical
+    ui->DocsupTableView->setColumnWidth(5,0);                   // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
     ui->DocsupTableView->setColumnHidden(5,true);
     ui->DocsupTableView->FixLargeurTotale();
+    ui->DocsupTableView->setFixedWidth(ui->DocsupTableView->width() + int(30*m_larg));
 }
 
 void dlg_impressions::MenuContextuelTexteDocument()
@@ -598,6 +600,7 @@ void dlg_impressions::MenuContextuelTexteDocument()
     QAction *pAction_Cut;
     QAction *pAction_InsInterroDate;
     QAction *pAction_InsInterroCote;
+    QAction *pAction_InsInterroYesNo;
     QAction *pAction_InsInterroHeure;
     QAction *pAction_InsInterroMontant;
     QAction *pAction_InsInterroMedecin;
@@ -616,6 +619,7 @@ void dlg_impressions::MenuContextuelTexteDocument()
     pAction_InsInterroDate              = interro->addAction            (Icons::icDate(),       tr("Date"));
     pAction_InsInterroHeure             = interro->addAction            (Icons::icClock(),      tr("Heure"));
     pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Côté"));
+    pAction_InsInterroYesNo             = interro->addAction            (Icons::icOK(),         tr("Oui/Non"));
     pAction_InsInterroMontant           = interro->addAction            (Icons::icEuro(),       tr("Montant"));
     pAction_InsInterroMedecin           = interro->addAction            (Icons::icStetho(),     tr("Soignant"));
     pAction_InsInterroProvenance        = interro->addAction            (Icons::icFamily(),     tr("Provenance"));
@@ -667,6 +671,7 @@ void dlg_impressions::MenuContextuelTexteDocument()
     connect (pAction_InsertChamp,                   &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Inserer");});
     connect (pAction_InsInterroDate,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Date");});
     connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTE);});
+    connect (pAction_InsInterroYesNo,               &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(YESNO);});
     connect (pAction_InsInterroHeure,               &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Heure");});
     connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Montant");});
     connect (pAction_InsInterroMedecin,             &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Soignant");});
@@ -905,8 +910,13 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         if (ListChamps->exec() == QDialog::Accepted)   {
             if (tabChamps->selectionModel()->selectedIndexes().size()>0)
             {
-                QString champ = tabChamps->selectionModel()->selectedIndexes().at(0).data().toString();
-                ui->upTextEdit->textCursor().insertText("{{" + champ + "}}");
+                QModelIndex idx  = tabChamps->selectionModel()->selectedIndexes().at(0);
+                UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
+                if (upitem != Q_NULLPTR)
+                {
+                    QString champ = upitem->data().toString();
+                    ui->upTextEdit->textCursor().insertText("{{" + champ + "}}");
+                }
             }
         }
         delete ListChamps;
@@ -997,6 +1007,17 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         {
             QString txt = "((" + question + "//";
             txt += COTE;
+            txt += "))";
+            ui->upTextEdit->textCursor().insertHtml(txt);
+        }
+    }
+    else if (choix == YESNO)
+    {
+        QString question = AskDialog("Oui ou non");
+        if (question != "")
+        {
+            QString txt = "((" + question + "//";
+            txt += YESNO;
             txt += "))";
             ui->upTextEdit->textCursor().insertHtml(txt);
         }
@@ -1189,7 +1210,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Impression *doc         = getDocumentFromIndex(m_docsmodel->index(i,0));
                     QString text            =  doc->texte();
                     QString questpattern    = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
-                    questpattern            += "|" + COTE + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
+                    questpattern            += "|" + COTE + "|" + YESNO + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
                         questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
                     questpattern            += ")[)][)])";
@@ -1302,6 +1323,18 @@ void dlg_impressions::OKpushButtonClicked()
                     QStringList listcote;
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
                     Combo->addItems(listcote);
+                    lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == YESNO)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setObjectName(YESNO);
+                    QStringList listouinon;
+                    listouinon << tr("Oui") << tr("Non");
+                    Combo->addItems(listouinon);
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m) == ANESTHINTERVENTION)
@@ -2909,10 +2942,11 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
                 form2 = tr("Madame, Monsieur");
 
             form += listcor.at(0)->prenom() + " " + listcor.at(0)->nom();
-            texte.replace("{{" + CORPAT + "}}"         ,form);
-            texte.replace("{{" + POLITESSECOR + "}}"   ,form2);
-            texte.replace("{{" + NOMCOR + "}}}"        ,listcor.at(0)->nom());
-            texte.replace("{{" + PRENOMCOR + "}}"      ,listcor.at(0)->prenom());
+            texte.replace("{{" + CORPAT + "}}"          ,form);
+            texte.replace("{{" + POLITESSECOR + "}}"    ,form2);
+            texte.replace("{{" + NOMCOR + "}}}"         ,listcor.at(0)->nom());
+            texte.replace("{{" + PRENOMCOR + "}}"       ,listcor.at(0)->prenom());
+            texte.replace("{{" + ADRCORPAT + "}}"       ,listcor.at(0)->adresseComplete());
         }
         else if (!pourVisu)
         {
@@ -2967,6 +3001,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
                     txtdef.replace("{{" + POLITESSECOR + "}}"   , form2);
                     txtdef.replace("{{" + NOMCOR + "}}}"        , cor->nom());
                     txtdef.replace("{{" + PRENOMCOR + "}}"      , cor->prenom());
+                    txtdef.replace("{{" + ADRCORPAT + "}}"      , cor->adresseComplete());
                     m_listtexts << txtdef;
                 }
             }
@@ -3205,9 +3240,9 @@ void dlg_impressions::Remplir_TableView()
         QItemSelectionModel *m = ui->DossiersupTableView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
         ui->DossiersupTableView->setModel(m_dossiersmodel);
         delete m;
-        ui->DossiersupTableView->setColumnWidth(0,30);        // checkbox
+        ui->DossiersupTableView->setColumnWidth(0,int(30*m_larg));        // checkbox
         ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
-        ui->DossiersupTableView->setColumnWidth(2,30);        // Public
+        ui->DossiersupTableView->setColumnWidth(2,int(30*m_larg));        // Public
         ui->DossiersupTableView->FixLargeurTotale();
         wdg_dossiersbuttonframe->widgButtonParent()->setFixedWidth(ui->DossiersupTableView->width());
         ui->DossiersupTableView->setGridStyle(Qt::NoPen);
@@ -3365,13 +3400,13 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
     if(!resizecolumn)
         return;
 
-    //! la suite est obligatoire poiur contourner un bug d'affichage sous MacOS
-    ui->DocsupTableView->setColumnWidth(0,30);        // checkbox
-    ui->DocsupTableView->setColumnWidth(1,289);       // Resume
-    ui->DocsupTableView->setColumnWidth(2,30);        // Public   - affiche un check si document public
-    ui->DocsupTableView->setColumnWidth(3,30);        // Editable - affiche un check si document editable
-    ui->DocsupTableView->setColumnWidth(4,30);        // Medical  - affiche un check si document medical
-    ui->DocsupTableView->setColumnWidth(5,0);         // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
+    //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
+    ui->DocsupTableView->setColumnWidth(0,int(30*m_larg));      // checkbox
+    ui->DocsupTableView->setColumnWidth(1,int(289*m_larg));     // Resume
+    ui->DocsupTableView->setColumnWidth(2,int(30*m_larg));      // Public   - affiche un check si document public
+    ui->DocsupTableView->setColumnWidth(3,int(30*m_larg));      // Editable - affiche un check si document editable
+    ui->DocsupTableView->setColumnWidth(4,int(30*m_larg));      // Medical  - affiche un check si document medical
+    ui->DocsupTableView->setColumnWidth(5,0);                   // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
 }
 
 void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool resizecolumn)
@@ -3406,9 +3441,9 @@ void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool r
         return;
 
     //! la suite est obligatoire poiur contourner un bug d'affichage
-    ui->DossiersupTableView->setColumnWidth(0,30);        // checkbox
+    ui->DossiersupTableView->setColumnWidth(0,int(30*m_larg));        // checkbox
     ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
-    ui->DossiersupTableView->setColumnWidth(2,30);        // Public
+    ui->DossiersupTableView->setColumnWidth(2,int(30*m_larg));        // Public
 }
 
 // ----------------------------------------------------------------------------------

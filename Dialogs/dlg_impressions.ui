@@ -383,6 +383,12 @@ la sélection</string>
     <property name="selectionMode">
      <enum>QAbstractItemView::SingleSelection</enum>
     </property>
+    <property name="cornerButtonEnabled">
+     <bool>false</bool>
+    </property>
+    <attribute name="horizontalHeaderMinimumSectionSize">
+     <number>10</number>
+    </attribute>
    </widget>
   </widget>
   <widget class="UpCheckBox" name="DocsPublicscheckBox">

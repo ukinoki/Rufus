@@ -92,6 +92,11 @@ private:
                                                 -> la variable correspond à la liste des textes */
     QGraphicsOpacityEffect      *m_opacityeffect;
     QTimer                      *t_timerefface;
+#ifdef Q_OS_WINDOWS
+    double m_larg = 0.7;
+# else
+    double m_larg = 1;
+# endif
 
     UpDialog                    *dlg_ask;
     UpDialog                    *dlg_askdialog;
@@ -179,6 +184,7 @@ private:
     QString KERATO              = tr(STR_KERATO);
     QString POLITESSECOR        = tr(STR_POLITESSECOR);
     QString CORPAT              = tr(STR_CORPAT);
+    QString ADRCORPAT           = tr(STR_ADR_CORPAT);
     QString PRENOMCOR           = tr(STR_PRENOMCOR);
     QString NOMCOR              = tr(STR_NOMCOR);
     QString PRENOMUSER          = tr(STR_PRENOMUSER);
@@ -189,6 +195,7 @@ private:
     QString PROVENANCE          = tr(STR_PROVENANCE);
     QString TYPESEJOUR          = tr(STR_TYPESEJOUR);
     QString COTE                = tr(STR_COTE);
+    QString YESNO               = tr(STR_YESNO);
     QString SITE                = tr(STR_SITE);
     QString DATEINTERVENTION    = tr(STR_DATEINTERVENTION);
     QString HEUREINTERVENTION   = tr(STR_HEUREINTERVENTION);
