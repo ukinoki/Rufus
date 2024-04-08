@@ -87,6 +87,12 @@ public:
     enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum Period {Debut, Fin};
 
+#ifdef Q_OS_WINDOWS
+    double m_larg = 0.7;
+# else
+    double m_larg = 1;
+# endif
+
     static Utils   *I();
 
     static QRegularExpression const rgx_rx;

@@ -209,6 +209,7 @@ public:
     static QIcon icErase() { return foundIC("icErase", "://eraser.png"); }
     static QIcon icEuro() { return foundIC("icEuro", "://euro.ico", QSize(40,40)); }
     static QIcon icEuroCount() { return foundIC("icEuroCount", "://EuroCount.png", QSize(40,40)); }
+    static QIcon icEye() { return foundIC("icEye", "://eye-color-icon.png", QSize(40,40)); }
 
     static QIcon icFactory(QSize size = QSize(20,20)) { return foundIC("icFactory", "://factory.png", size); }
     static QIcon icFamily() { return foundIC("icFamily", "://family.png", QSize(30,30)); }

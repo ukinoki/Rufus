@@ -199,5 +199,6 @@
         <file>warning.gif</file>
         <file>info.gif</file>
         <file>pdf.png</file>
+        <file>eye-color-icon.png</file>
     </qresource>
 </RCC>

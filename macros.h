@@ -1070,7 +1070,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define STR_PROVENANCE          "PROVENANCE"
 #define STR_TYPESEJOUR          "SEJOUR"
-#define STR_COTE                "COTE"
+#define STR_SIDE                "COTEBRUT"
+#define STR_EYE                 "COTE"
 #define STR_YESNO               "YESNO"
 #define STR_SITE                "SITE"
 #define STR_ANESTHINTERVENTION  "ANESTHINTERVENTION"

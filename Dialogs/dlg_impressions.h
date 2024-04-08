@@ -84,6 +84,7 @@ private:
     QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
     QDate                                       m_currentdate = db->ServerDate();
     Mode                        m_mode;
+    const double                m_larg                      = Utils::I()->m_larg;
     double                      m_opacity;
     QMap<QString,QString>       map_champs;
     QStringList                 m_listid;
@@ -92,11 +93,6 @@ private:
                                                 -> la variable correspond à la liste des textes */
     QGraphicsOpacityEffect      *m_opacityeffect;
     QTimer                      *t_timerefface;
-#ifdef Q_OS_WINDOWS
-    double m_larg = 0.7;
-# else
-    double m_larg = 1;
-# endif
 
     UpDialog                    *dlg_ask;
     UpDialog                    *dlg_askdialog;
@@ -104,14 +100,14 @@ private:
     WidgetButtonFrame           *wdg_docsbuttonframe, *wdg_dossiersbuttonframe;
 
     QHash<QString, QVariant>    m_dossierlistbinds;
-    UpStandardItemModel         *m_dossiersmodel = Q_NULLPTR;
+    UpStandardItemModel         *m_dossiersmodel            = Q_NULLPTR;
     QHash<QString, QVariant>    m_docslistbinds;
-    UpStandardItemModel         *m_docsmodel = Q_NULLPTR;
-    QString                     m_textdocdelegate = "";
-    QString                     m_textdossierdelegate = "";
-    QMenu                       *m_menucontextuel_doc = Q_NULLPTR;
-    QMenu                       *m_menucontextuel_textdoc = Q_NULLPTR;
-    QMenu                       *m_menucontextuel_dossier = Q_NULLPTR;
+    UpStandardItemModel         *m_docsmodel                = Q_NULLPTR;
+    QString                     m_textdocdelegate           = "";
+    QString                     m_textdossierdelegate       = "";
+    QMenu                       *m_menucontextuel_doc       = Q_NULLPTR;
+    QMenu                       *m_menucontextuel_textdoc   = Q_NULLPTR;
+    QMenu                       *m_menucontextuel_dossier   = Q_NULLPTR;
 
     bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);
@@ -150,7 +146,7 @@ private:
     void                        MenuContextuelDocuments();
     void                        MenuContextuelDossiers();
     void                        MenuContextuelTexteDocument();
-    void                        MetAJour(QString texte, bool pourVisu = true);
+    void                        MetAJour(QString texte, bool pourVisu = true, bool onlyforfirstcorresondant = false);
     void                        OrdoAvecDupli(bool);
     bool                        RecopieDocument(Impression *doc);
     void                        Remplir_TableView();
@@ -194,7 +190,8 @@ private:
     QString ANESTHINTERVENTION  = tr(STR_ANESTHINTERVENTION);
     QString PROVENANCE          = tr(STR_PROVENANCE);
     QString TYPESEJOUR          = tr(STR_TYPESEJOUR);
-    QString COTE                = tr(STR_COTE);
+    QString COTEOEIL            = tr(STR_EYE);
+    QString COTEBRUT            = tr(STR_SIDE);
     QString YESNO               = tr(STR_YESNO);
     QString SITE                = tr(STR_SITE);
     QString DATEINTERVENTION    = tr(STR_DATEINTERVENTION);

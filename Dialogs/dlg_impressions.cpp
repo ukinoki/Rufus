@@ -600,6 +600,7 @@ void dlg_impressions::MenuContextuelTexteDocument()
     QAction *pAction_Cut;
     QAction *pAction_InsInterroDate;
     QAction *pAction_InsInterroCote;
+    QAction *pAction_InsInterroEye;
     QAction *pAction_InsInterroYesNo;
     QAction *pAction_InsInterroHeure;
     QAction *pAction_InsInterroMontant;
@@ -618,7 +619,8 @@ void dlg_impressions::MenuContextuelTexteDocument()
     QMenu *interro                      = m_menucontextuel_textdoc->addMenu     (Icons::icAjouter(),    tr("Insérer une interrogation"));
     pAction_InsInterroDate              = interro->addAction            (Icons::icDate(),       tr("Date"));
     pAction_InsInterroHeure             = interro->addAction            (Icons::icClock(),      tr("Heure"));
-    pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Côté"));
+    pAction_InsInterroCote              = interro->addAction            (Icons::icSide(),       tr("Droit/Gauche"));
+    pAction_InsInterroEye               = interro->addAction            (Icons::icEye(),        tr("Oeil droit/Oeil gauche"));
     pAction_InsInterroYesNo             = interro->addAction            (Icons::icOK(),         tr("Oui/Non"));
     pAction_InsInterroMontant           = interro->addAction            (Icons::icEuro(),       tr("Montant"));
     pAction_InsInterroMedecin           = interro->addAction            (Icons::icStetho(),     tr("Soignant"));
@@ -670,7 +672,8 @@ void dlg_impressions::MenuContextuelTexteDocument()
 
     connect (pAction_InsertChamp,                   &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Inserer");});
     connect (pAction_InsInterroDate,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Date");});
-    connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTE);});
+    connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTEOEIL);});
+    connect (pAction_InsInterroEye,                 &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTEBRUT);});
     connect (pAction_InsInterroYesNo,               &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(YESNO);});
     connect (pAction_InsInterroHeure,               &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Heure");});
     connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Montant");});
@@ -884,6 +887,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         tabChamps->setFixedHeight(int(fm.height()*1.1*9));
         tabChamps->setGridStyle(Qt::DotLine);
         tabChamps->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        tabChamps->setMouseTracking(true);
         QStandardItemModel *m_model = new QStandardItemModel(this);
         for(auto it = map_champs.cbegin(); it!=map_champs.cend(); ++it)
         {
@@ -901,11 +905,20 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
 
         ListChamps->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
-
-        connect(ListChamps->OKButton,   &QPushButton::clicked, ListChamps,         [=] {ListChamps->accept();});
         ListChamps->setFixedWidth(tabChamps->width() + ListChamps->dlglayout()->contentsMargins().left()*2);
-        connect(tabChamps,              &QTableWidget::doubleClicked, ListChamps,  [=] {ListChamps->accept();});
         ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+        connect(ListChamps->OKButton,   &QPushButton::clicked,          ListChamps,     [=] {ListChamps->accept();});
+        connect(tabChamps,              &QTableWidget::doubleClicked,   ListChamps,     [=] {ListChamps->accept();});
+        connect(tabChamps,              &QAbstractItemView::entered,    ListChamps,     [=] (QModelIndex idx) {
+            UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
+            if (upitem != Q_NULLPTR)
+            {
+                QString champ = upitem->data().toString();
+                MetAJour("{{" + champ + "}}", false, true);
+                QToolTip::showText(cursor().pos(), m_listtexts.at(0));
+            }
+        } );
 
         if (ListChamps->exec() == QDialog::Accepted)   {
             if (tabChamps->selectionModel()->selectedIndexes().size()>0)
@@ -1000,13 +1013,24 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         if (question != "")
             ui->upTextEdit->textCursor().insertHtml("((" + question + "//HEURE))");
     }
-    else if (choix == COTE)
+    else if (choix == COTEOEIL)
+    {
+        QString question = AskDialog("Choix d'un oeil");
+        if (question != "")
+        {
+            QString txt = "((" + question + "//";
+            txt += COTEOEIL;
+            txt += "))";
+            ui->upTextEdit->textCursor().insertHtml(txt);
+        }
+    }
+    else if (choix == COTEBRUT)
     {
         QString question = AskDialog("Choix d'un côté");
         if (question != "")
         {
             QString txt = "((" + question + "//";
-            txt += COTE;
+            txt += COTEBRUT;
             txt += "))";
             ui->upTextEdit->textCursor().insertHtml(txt);
         }
@@ -1210,7 +1234,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Impression *doc         = getDocumentFromIndex(m_docsmodel->index(i,0));
                     QString text            =  doc->texte();
                     QString questpattern    = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
-                    questpattern            += "|" + COTE + "|" + YESNO + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
+                    questpattern            += "|" + COTEOEIL + "|" + COTEBRUT + "|" + YESNO + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
                         questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
                     questpattern            += ")[)][)])";
@@ -1313,15 +1337,27 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setTimeSpec(Qt::LocalTime);
                     lay->addWidget(Time);
                 }
-                else if (listtypeQuestions.at(m)  == COTE)
+                else if (listtypeQuestions.at(m)  == COTEOEIL)
                 {
                     UpComboBox *Combo = new UpComboBox();
                     Combo->setContentsMargins(0,0,0,0);
                     Combo->setFixedHeight(34);
                     Combo->setEditable(false);
-                    Combo->setObjectName(COTE);
+                    Combo->setObjectName(COTEOEIL);
                     QStringList listcote;
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
+                    Combo->addItems(listcote);
+                    lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == COTEBRUT)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setObjectName(COTEBRUT);
+                    QStringList listcote;
+                    listcote << tr("Droit") << tr("Gauche") << tr("Les deux");
                     Combo->addItems(listcote);
                     lay->addWidget(Combo);
                 }
@@ -2680,7 +2716,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
 // ----------------------------------------------------------------------------------
 // Met à jour les champs du texte à afficher
 // ----------------------------------------------------------------------------------
-void dlg_impressions::MetAJour(QString texte, bool pourVisu)
+void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstcorresondant)
 {
     m_listedestinataires.clear();
     m_listtexts.clear();
@@ -2909,7 +2945,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
             listcor << spe3;
         if (listcor.size()==0)
             texte.replace(reg, NOCOR);
-        else if (listcor.size()==1)
+        else if (listcor.size()==1 || onlyforfirstcorresondant)
         {
             QString form = "", form2 = "";
             if (listcor.at(0)->sexe() == "F")
@@ -2951,8 +2987,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
                 QString adress = listcor.at(0)->adresseComplete();
                 Utils::convertHTML(adress);
                 texte.replace("{{" + ADRCORPAT + "}}"   ,adress);
-            }
-        }
+            }        }
         else if (!pourVisu)
         {
             texte.replace("{{" + CORPAT + "}}"         ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
@@ -3011,7 +3046,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
                     {
                         QString adress = cor->adresseComplete();
                         Utils::convertHTML(adress);
-                        texte.replace("{{" + ADRCORPAT + "}}"   ,adress);
+                        txtdef.replace("{{" + ADRCORPAT + "}}"  , adress);
                     }
                     m_listtexts << txtdef;
                 }
