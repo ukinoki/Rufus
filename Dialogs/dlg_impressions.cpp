@@ -2946,7 +2946,12 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
             texte.replace("{{" + POLITESSECOR + "}}"    ,form2);
             texte.replace("{{" + NOMCOR + "}}}"         ,listcor.at(0)->nom());
             texte.replace("{{" + PRENOMCOR + "}}"       ,listcor.at(0)->prenom());
-            texte.replace("{{" + ADRCORPAT + "}}"       ,listcor.at(0)->adresseComplete());
+            if (texte.contains(ADRCORPAT))
+            {
+                QString adress = listcor.at(0)->adresseComplete();
+                Utils::convertHTML(adress);
+                texte.replace("{{" + ADRCORPAT + "}}"   ,adress);
+            }
         }
         else if (!pourVisu)
         {
@@ -2954,6 +2959,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
             texte.replace("{{" + POLITESSECOR + "}}"   ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
             texte.replace("{{" + NOMCOR + "}}}"        ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
             texte.replace("{{" + PRENOMCOR + "}}"      ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
+            texte.replace("{{" + ADRCORPAT + "}}"      ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
         }
         else
         {
@@ -3001,7 +3007,12 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu)
                     txtdef.replace("{{" + POLITESSECOR + "}}"   , form2);
                     txtdef.replace("{{" + NOMCOR + "}}}"        , cor->nom());
                     txtdef.replace("{{" + PRENOMCOR + "}}"      , cor->prenom());
-                    txtdef.replace("{{" + ADRCORPAT + "}}"      , cor->adresseComplete());
+                    if (txtdef.contains(ADRCORPAT))
+                    {
+                        QString adress = cor->adresseComplete();
+                        Utils::convertHTML(adress);
+                        texte.replace("{{" + ADRCORPAT + "}}"   ,adress);
+                    }
                     m_listtexts << txtdef;
                 }
             }
