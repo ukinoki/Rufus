@@ -167,6 +167,7 @@ private:
     QString NOMPAT              = tr(STR_NOMPAT);
     QString DATEDOC             = tr(STR_DATEDOC);
     QString DDNPAT              = tr(STR_DDNPAT);
+    QString NNIPAT              = tr(STR_NNIPAT);
     QString TITREPAT            = tr(STR_TITREPAT);
     QString AGEPAT              = tr(STR_AGEPAT);
     QString PRENOMPAT           = tr(STR_PRENOMPAT);

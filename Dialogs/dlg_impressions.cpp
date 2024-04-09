@@ -137,6 +137,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
     map_champs[TITRUSER]        = tr("Titre, nom et prénom de l'utilisateur");
     map_champs[NOMPAT]          = tr("Nom du patient");
+    map_champs[NNIPAT]          = tr("NNI du patient");
     map_champs[DATEDOC]         = tr("Date du jour");
     map_champs[DDNPAT]          = tr("Date de naissance");
     map_champs[TITREPAT]        = tr("Titre du patient");
@@ -2741,6 +2742,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
     else
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->prenom() + " " + userEntete->nom());
     texte.replace("{{" + DDNPAT + "}}"          , QLocale::system().toString(m_currentpatient->datedenaissance(),(tr("d MMMM yyyy"))));
+    texte.replace("{{" + NNIPAT + "}}"          , QString::number(m_currentpatient->NNI()));
     texte.replace("{{" + TITREPAT + "}} "       , formule + " ");
     texte.replace("{{" + TITREPAT + "}}"        , formule);
     texte.replace("{{" + AGEPAT + "}}"          , age);

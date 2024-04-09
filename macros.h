@@ -1048,6 +1048,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define STR_NOMPAT              "NOM PATIENT"
 #define STR_DATEDOC             "DATE"
 #define STR_DDNPAT              "DDN"
+#define STR_NNIPAT              "DOB"
 #define STR_TITREPAT            "TITRE PATIENT"
 #define STR_AGEPAT              "AGE PATIENT"
 #define STR_PRENOMPAT           "PRENOM PATIENT"
