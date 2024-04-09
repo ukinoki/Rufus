@@ -2742,7 +2742,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
     else
         texte.replace("{{" + TITRUSER + "}}"    , userEntete->prenom() + " " + userEntete->nom());
     texte.replace("{{" + DDNPAT + "}}"          , QLocale::system().toString(m_currentpatient->datedenaissance(),(tr("d MMMM yyyy"))));
-    texte.replace("{{" + NNIPAT + "}}"          , QString::number(m_currentpatient->NNI()));
+    texte.replace("{{" + NNIPAT + "}}"          , (m_currentpatient->NNI()==0? "" : QString::number(m_currentpatient->NNI())));
     texte.replace("{{" + TITREPAT + "}} "       , formule + " ");
     texte.replace("{{" + TITREPAT + "}}"        , formule);
     texte.replace("{{" + AGEPAT + "}}"          , age);

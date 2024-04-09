@@ -383,4 +383,48 @@ bool Patients::veriftelephone(Patient *pat, QWidget *parent)
     lineport->setFocus();
     dlg_telephone->exec();
     return retour;
-};
+}
+
+bool Patients::verifNNI(Patient *pat, QWidget *parent)
+{
+    bool retour = false;
+    UpDialog            *dlg_NNI = new UpDialog(parent);
+    dlg_NNI->setAttribute(Qt::WA_DeleteOnClose);
+    dlg_NNI->setWindowModality(Qt::WindowModal);
+    dlg_NNI->setWindowTitle(tr("No de téléphone"));
+
+    UpLabel* lbl    = new UpLabel;
+    lbl             ->setText(pat->nom() + " " + pat->prenom() + "\n" + tr("n'a pas de NNI enregistré") + "\n" + tr("Entrez un NNI"));
+    lbl             ->setAlignment(Qt::AlignCenter);
+
+    QHBoxLayout *NNILay    = new QHBoxLayout();
+    UpLabel* lblNNI = new UpLabel;
+    lblNNI          ->setText(tr("NNI"));
+    QLineEdit *lineNNI = new QLineEdit();
+    lineNNI         ->setFixedSize(QSize(120,24));
+    lineNNI         ->setValidator(new QRegularExpressionValidator(Utils::rgx_NNI));
+    NNILay          ->addWidget(lblNNI);
+    NNILay          ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    NNILay          ->addWidget(lineNNI);
+    NNILay          ->setSpacing(5);
+    NNILay          ->setContentsMargins(0,0,0,0);
+
+    dlg_NNI->dlglayout()  ->insertLayout(0, NNILay);
+    dlg_NNI->dlglayout()  ->insertWidget(0, lbl);
+    dlg_NNI->dlglayout()  ->setSpacing(5);
+    dlg_NNI->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg_NNI->OKButton, &QPushButton::clicked, dlg_NNI, [&]
+            {
+                qint64 nni        = lineNNI->text().toULongLong();
+                if  (nni == 0)
+                    return;
+                else
+                    ItemsList::update(pat, CP_NNI_DSP, nni);
+                dlg_NNI->close();
+                retour = true;
+            });
+    lineNNI->setFocus();
+    dlg_NNI->exec();
+    return retour;
+}
+;

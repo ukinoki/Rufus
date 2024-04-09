@@ -74,6 +74,7 @@ public:
     void initListeIdInterventions(Patient * pat);                                          /*! calcule la liste des interventions d'un patient */
 
     static bool veriftelephone(Patient * pat, QWidget *parent = Q_NULLPTR);                /*! vérfie si le patient a au moins un no de tel enregistré */
+    static bool verifNNI(Patient * pat, QWidget *parent = Q_NULLPTR);                      /*! vérfie si le patient a au moins un NNI enregistré */
 
 private:
     /*! > il y a 3 listes de patients:

@@ -1518,6 +1518,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
             }
         }
         if (pat != Q_NULLPTR)
+        {
             if (pat->telephone() == "" && pat->portable() == "")
             {
                 if (!Patients::veriftelephone(pat, dlg_intervention))
@@ -1525,6 +1526,14 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                 else
                     emit updateHtml(pat);
             }
+            if (pat->NNI() == 0)
+            {
+                if (!Patients::verifNNI(pat, dlg_intervention))
+                    return;
+                else
+                    emit updateHtml(pat);
+            }
+        }
         QTime heure = timeedit->time();
         QStandardItem *itm = m_sessionsmodel->itemFromIndex(sessioncombo->model()->index(sessioncombo->currentIndex(),0));
         UpStandardItem *upitm = dynamic_cast<UpStandardItem*>(itm);
