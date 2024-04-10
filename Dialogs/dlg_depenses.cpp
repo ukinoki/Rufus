@@ -102,9 +102,6 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->PrintupSmallButton  ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
     ui->PrintupSmallButton  ->setShortcut(QKeySequence("Meta+P"));
 
-    ui->PdfupSmallButton  ->setText("");
-    ui->PdfupSmallButton  ->setUpButtonStyle(UpSmallButton::PDFBUTTON);
-
     wdg_boxbuttlayout = new QHBoxLayout();
     wdg_boxbuttlayout->addWidget(wdg_annuluppushbutton);
     wdg_boxbuttlayout->addSpacerItem(new QSpacerItem(0,0));
@@ -165,8 +162,11 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->ChercheMontantupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::RechercheValeur);
-    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   &dlg_depenses::PrintTable);
-    connect (ui->PdfupSmallButton,              &QPushButton::clicked,          this,   [=] {PrintTable(true);});
+    connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   [&] {
+                                                                                                bool ok;
+                                                                                                if (proc->QuestionPdfOrPrint(this, ok))
+                                                                                                PrintReport(ok);
+                                                                                            });
     connect (ui->MontantlineEdit,               &QLineEdit::editingFinished,    this,   &dlg_depenses::ConvertitDoubleMontant);
     connect (ui->PaiementcomboBox,              QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::ChoixPaiement);
@@ -186,7 +186,6 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     wdg_bigtable            ->setFocus();
     ui->ExportupPushButton  ->setEnabled(wdg_bigtable->rowCount()>0);
     ui->PrintupSmallButton  ->setEnabled(wdg_bigtable->rowCount()>0);
-    ui->PdfupSmallButton    ->setEnabled(wdg_bigtable->rowCount()>0);
     setFixedWidth(wdg_bigtable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
 
     //ui->Facturewidget->setVisible(false);
@@ -265,7 +264,7 @@ void dlg_depenses::ExportTable()
     UpMessageBox::Watch(this, (exportOK? tr("Exportation réussie") : tr("Echec exportation")), (exportOK? msg : tr("Les données n'ont pas pu être exportées")));
 }
 
-void dlg_depenses::PrintTable(bool pdf)
+void dlg_depenses::PrintReport(bool pdf)
 {
     QString            textentete, textpied;
     bool AvecDupli   = false;
@@ -343,7 +342,10 @@ void dlg_depenses::PrintTable(bool pdf)
     if (pdf)
     {
         QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + tr("Comptabilité");
-        QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
+        QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + " "
+                              + ui->AnneecomboBox->currentText()
+                              + (ui->Rubriques2035comboBox->currentIndex() == 0? "" : " - " + ui->Rubriques2035comboBox->currentText())
+                              + ".pdf";
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
         proc                ->Cree_pdf(textcorps, textentete, textpied,
@@ -425,7 +427,6 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
     ui->ChercheMontantupPushButton  ->setEnabled(m_mode == Lire);
     ui->ExportupPushButton          ->setEnabled(m_mode == Lire);
     ui->PrintupSmallButton          ->setEnabled(m_mode==Lire);
-    ui->PdfupSmallButton            ->setEnabled(m_mode==Lire);
     ui->UserscomboBox               ->setEnabled(Datas::I()->users->userconnected()->isSecretaire() && m_mode==Lire);
 
 
@@ -843,7 +844,6 @@ void dlg_depenses::CopieDepense()
     ui->ChercheMontantupPushButton  ->setEnabled(false);
     ui->ExportupPushButton          ->setEnabled(false);
     ui->PrintupSmallButton          ->setEnabled(false);
-    ui->PdfupSmallButton            ->setEnabled(false);
     wdg_bigtable                    ->disconnect();
     ui->DateDepdateEdit             ->setDate(m_currentdate);
     wdg_enreguppushbutton           ->setText("Enregistrer");
@@ -1046,7 +1046,6 @@ void dlg_depenses::CalculTotalDepenses()
     ui->TotallineEdit       ->setText(AnneeRubrique2035 + " " + ui->AnneecomboBox->currentText() + " -> " + TotalRemise);
     ui->ExportupPushButton  ->setEnabled(wdg_bigtable->rowCount()>0);
     ui->PrintupSmallButton  ->setEnabled(wdg_bigtable->rowCount()>0);
-    ui->PdfupSmallButton    ->setEnabled(wdg_bigtable->rowCount()>0);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

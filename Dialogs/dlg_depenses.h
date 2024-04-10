@@ -73,7 +73,7 @@ private:
     void                        EnregistreFacture(QString typedoc);
     void                        EnregistreDocScanne(dlg_docsscanner::Mode);
     void                        ExportTable();
-    void                        PrintTable(bool pdf = false);
+    void                        PrintReport(bool pdf = false);
     void                        FiltreTable();
     Depense*                    getDepenseFromRow(int row);
     bool                        initializeUserSelected();

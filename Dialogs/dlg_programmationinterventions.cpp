@@ -1526,7 +1526,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
                 else
                     emit updateHtml(pat);
             }
-            if (pat->NNI() == 0)
+            if (pat->NNI() == 0 && db->parametres()->cotationsfrance())
             {
                 if (!Patients::verifNNI(pat, dlg_intervention))
                     return;
