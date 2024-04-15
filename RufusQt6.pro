@@ -18,8 +18,8 @@ QT       += sql core gui network printsupport xml serialport multimedia multimed
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-OSX     { TARGET = /Applications/RufusQt6 }
-LINUX   { TARGET = $(HOME)/RufusQt6App }
+OSX     { TARGET = /Applications/Rufus }
+LINUX   { TARGET = $(HOME)/RufusApp }
 win32   { TARGET = Rufus }
 win32 {
 RC_ICONS = assets/Images/icon.ico
