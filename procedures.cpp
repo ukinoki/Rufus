@@ -2419,12 +2419,13 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         QString msg;
 
         /*! 2 - détermination des éléments pouvant être restaurés */
+        //qDebug() << dirtorestore.absolutePath() + NOM_FILE_INI;
         if (QFile(dirtorestore.absolutePath() + NOM_FILE_INI).exists())
             OKini = true;
         QDir rootimg = dirtorestore;
         if (rootimg.cdUp())
         {
-            //qDebug() << rootimgvid.absolutePath() + DIR_IMAGES;
+            //qDebug() << rootimg.absolutePath() + NOM_DIR_IMAGES;
             if (QDir(rootimg.absolutePath() + NOM_DIR_IMAGES).exists())
                 if (QDir(rootimg.absolutePath() + NOM_DIR_IMAGES).entryList(QDir::Dirs).size()>0)
                     OKImages = true;

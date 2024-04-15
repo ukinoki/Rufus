@@ -1307,7 +1307,6 @@ void dlg_paiementdirect::ReconstruitListeTiers()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche)
 {
-    UpTableWidget           *TableOrigine = TableSource;
     QFontMetrics            fm(qApp->font());
     QString                 requete;
     bool                    ok;
@@ -1330,20 +1329,20 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             ui->DetailupTableWidget->insertRow(i);
             UpCheckBox *CheckItem = new UpCheckBox();
 
-            pItem1->setText(TableOrigine->item(Rangee,0)->text());  //idActe
-            pItem1->setData(Qt::UserRole,TableOrigine->item(Rangee,0)->data(Qt::UserRole));//UserComptable
+            pItem1->setText(TableSource->item(Rangee,0)->text());                           // idActe
+            pItem1->setData(Qt::UserRole,TableSource->item(Rangee,0)->data(Qt::UserRole));  // UserComptable
             CheckItem->setCheckState(Qt::Checked);
             CheckItem->setFocusPolicy(Qt::NoFocus);
             connect(CheckItem,  &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
             CheckItem->installEventFilter(this);
-            pItem2->setText(TableOrigine->item(Rangee,2)->text());  //Date
-            pItem3->setText(TableOrigine->item(Rangee,3)->text());  //Nom Prenom
-            pItem3->setData(Qt::UserRole,TableOrigine->item(Rangee,3)->data(Qt::UserRole));//Nom
-            pItem4->setText(TableOrigine->item(Rangee,4)->text());  //Cotation
-            pItem5->setText(TableOrigine->item(Rangee,5)->text());  //Montant
-            QString ResteDu = QLocale().toString(QLocale().toDouble(TableOrigine->item(Rangee,7)->text()),'f',2);
-            pItem6->setText(ResteDu);                               //Reste dû
-            pItem7->setText(TableOrigine->item(Rangee,8)->text());  //Classementpardate
+            pItem2->setText(TableSource->item(Rangee,2)->text());                           // Date
+            pItem3->setText(TableSource->item(Rangee,3)->text());                           // Nom Prenom
+            pItem3->setData(Qt::UserRole,TableSource->item(Rangee,3)->data(Qt::UserRole));  // Superviseur, Comptable, DDN, Nom
+            pItem4->setText(TableSource->item(Rangee,4)->text());                           // Cotation
+            pItem5->setText(TableSource->item(Rangee,5)->text());                           // Montant
+            QString ResteDu = QLocale().toString(QLocale().toDouble(TableSource->item(Rangee,7)->text()),'f',2);
+            pItem6->setText(ResteDu);                                                       // Reste dû
+            pItem7->setText(TableSource->item(Rangee,8)->text());                           // Classementpardate
 
             UpLineEdit *LigneMontant = new UpLineEdit();
             LigneMontant->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1372,14 +1371,14 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
 
             ui->DetailupTableWidget->setRowHeight(i,int(fm.height()*1.1));
 
-            PoseVerrouCompta(TableOrigine->item(Rangee,0)->text().toInt());
+            PoseVerrouCompta(TableSource->item(Rangee,0)->text().toInt());
          }
         else
         {
-            RetireVerrouCompta(TableOrigine->item(Rangee,0)->text().toInt());
+            RetireVerrouCompta(TableSource->item(Rangee,0)->text().toInt());
 
             QList<QTableWidgetItem*> items;
-            items = ui->DetailupTableWidget->findItems(TableOrigine->item(Rangee,0)->text(),Qt::MatchExactly);
+            items = ui->DetailupTableWidget->findItems(TableSource->item(Rangee,0)->text(),Qt::MatchExactly);
             if (!items.isEmpty())
             {
                 /* les lignes suivantes sont utiles pour contourner un bug de Qt
@@ -1394,15 +1393,17 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 ui->DetailupTableWidget->removeCellWidget(items.at(0)->row(),ui->DetailupTableWidget->columnCount()-2);
                 ui->DetailupTableWidget->removeRow(items.at(0)->row());
                 QStringList ListeActesARemettreEnDetails, ListeMontantsARemettreEnDetails, ListeIdComptables;
-                QStringList ListeDates, ListeNoms, ListeCotations;
+                QStringList ListeDates, ListeNomsPrenoms, ListeCotations;
                 QStringList ListeMontants, ListeResteDu, ListeDatesTri;
+                QVariantList    DatasList;
 
                 for (int k = 0; k < ui->DetailupTableWidget->rowCount();k++)
                 {
                     ListeActesARemettreEnDetails    << ui->DetailupTableWidget->item(k,0)->text();
                     ListeIdComptables               << ui->DetailupTableWidget->item(k,0)->data(Qt::UserRole).toString();
                     ListeDates                      << ui->DetailupTableWidget->item(k,2)->text();
-                    ListeNoms                       << ui->DetailupTableWidget->item(k,3)->text();
+                    ListeNomsPrenoms                << ui->DetailupTableWidget->item(k,3)->text();
+                    DatasList                       <<  ui->DetailupTableWidget->item(k,3)->data(Qt::UserRole);
                     ListeCotations                  << ui->DetailupTableWidget->item(k,4)->text();
                     ListeMontants                   << ui->DetailupTableWidget->item(k,5)->text();
                     ListeResteDu                    << ui->DetailupTableWidget->item(k,6)->text();
@@ -1426,12 +1427,13 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                     CheckItem->setFocusPolicy(Qt::NoFocus);
                     connect(CheckItem,  &UpCheckBox::uptoggled, this,  &dlg_paiementdirect::RenvoieRangee);
                     CheckItem->installEventFilter(this);
-                    pItem2->setText(ListeDates.at(l));          //Date
-                    pItem3->setText(ListeNoms.at(l));           //Nom Prenom
-                    pItem4->setText(ListeCotations.at(l));      //Cotation
-                    pItem5->setText(ListeMontants.at(l));       //Montant
-                    pItem6->setText(ListeResteDu.at(l));        //ResteDu
-                    pItem7->setText(ListeDatesTri.at(l));       //Classementpardate
+                    pItem2->setText(ListeDates.at(l));              //Date
+                    pItem3->setText(ListeNomsPrenoms.at(l));        //Nom Prenom
+                    pItem3->setData(Qt::UserRole, DatasList.at(l)); // Superviseur, Comptable, DDN, Nom
+                    pItem4->setText(ListeCotations.at(l));          //Cotation
+                    pItem5->setText(ListeMontants.at(l));           //Montant
+                    pItem6->setText(ListeResteDu.at(l));            //ResteDu
+                    pItem7->setText(ListeDatesTri.at(l));           //Classementpardate
 
                     pItem5->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
                     pItem6->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
@@ -1480,13 +1482,15 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 if (currentuser()->isSecretaire())
                     m_useracrediter = map_comptables->cbegin().value();
             }
-            ui->TireurChequelineEdit->setText("");
+            ClearCheqData();
         }
         else
         {
             m_useracrediter = Datas::I()->users->getById(ui->DetailupTableWidget->item(0,0)->data(Qt::UserRole).toInt());
             if (ui->ChequeradioButton->isChecked() && ui->TireurChequelineEdit->text() == "")
+            {
                 ui->TireurChequelineEdit->setText(ui->DetailupTableWidget->item(0,3)->data(Qt::UserRole).toStringList().at(3));
+            }
         }
 
         ChangeComptable(m_useracrediter);
@@ -1501,10 +1505,10 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
     {
         ui->DetailupTableWidget->clearContents();
         ui->DetailupTableWidget->setRowCount(0);
-        if (TableOrigine == ui->ListeupTableWidget)
+        if (TableSource == ui->ListeupTableWidget)
         {
             // Remplir la table SalDat avec les Paiements correspondants à l'acte mis en surbrillance dans la table liste
-            QString TextidActe   = TableOrigine->item(Rangee,0)->text();
+            QString TextidActe   = TableSource->item(Rangee,0)->text();
             requete =     "SELECT "
                             "rec." CP_ID_LIGNRECETTES ","
                             CP_DATE_LIGNRECETTES ", "
@@ -1569,16 +1573,16 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 else
                 {
                     Rangee = 0;
-                    TableOrigine = ui->SalleDAttenteupTableWidget;
+                    TableSource = ui->SalleDAttenteupTableWidget;
                     disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
-                    TableOrigine->selectRow(0);
+                    TableSource->selectRow(0);
                     connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
                 }
             }
          }
         // la table d'origine est SalleDAttentetetableWidget ou (c'est ListeupTableWidget et il n'y a qu'un seul enregistrement dans SalleDAttenteupTableWidget)
         // on détermine si le paiement cliqué est un tiers payant ou un paiement direct
-        QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
+        QString TextidRecette   = TableSource->item(Rangee,0)->text();
         requete =   "SELECT " CP_TIERSPAYANT_LIGNRECETTES " FROM " TBL_RECETTES " WHERE " CP_ID_LIGNRECETTES " = " + TextidRecette;
         QVariantList tiersdata = db->getFirstRecordFromStandardSelectSQL(requete, ok);
         if (!ok)
@@ -1606,7 +1610,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 allRButtons.at(n)->setChecked(false);
                 allRButtons.at(n)->setAutoExclusive(true);
             }
-            QString TextidRecette   = TableOrigine->item(Rangee,0)->text();
+            QString TextidRecette   = TableSource->item(Rangee,0)->text();
 
             requete =   "SELECT act." CP_ID_ACTES ", " CP_DATE_ACTES ", " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_COTATION_ACTES ", "
                         CP_MONTANT_ACTES ", " CP_MONNAIE_ACTES ", " CP_PAYE_LIGNEPAIEMENT ", " CP_TYPEPAIEMENT_TYPEPAIEMENTACTES ", " CP_TIERS_TYPEPAIEMENTACTES ", "
@@ -2034,6 +2038,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     CalculTotalDetails();
                 }
             }
+            //ClearCheqData();
         }
         else if (Emetteur == ui->ChequeradioButton)
         {
@@ -2090,6 +2095,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     Paye->setReadOnly(true);
                 }
             }
+            //ClearCheqData();
         }
         else if (Emetteur == ui->EspecesradioButton)
         {
@@ -2112,6 +2118,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     CalculTotalDetails();
                 }
             }
+            //ClearCheqData();
         }
         else if (Emetteur == ui->GratuitradioButton)
         {
@@ -2134,6 +2141,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     CalculTotalDetails();
                 }
             }
+            //ClearCheqData();
         }
         else if (Emetteur == ui->ImpayeradioButton)
         {
@@ -2156,6 +2164,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                     Paye->setReadOnly(true);
                 }
             }
+            //ClearCheqData();
         }
         else if (Emetteur == ui->VirementradioButton)
         {
@@ -2170,6 +2179,7 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
             ui->Commissionwidget    ->setVisible(m_mode!= EnregistrePaiement);
         }
         ui->OKupPushButton->setEnabled(true);
+        //ClearCheqData();
     }
     else  // aucun RadioButton n'est coché, c'est le programme qui a appelé la méthode
                         // (changement de mode ou affichage des données d'un paiement déjà enregistré)
@@ -2528,7 +2538,7 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, ModeTab
                 TableARemplir->setItem(i,col,pItem2);
                 col++;
 
-                A = Tablelist.at(i).at(2).toString() + " " + Tablelist.at(i).at(3).toString();          // Nom Prenom
+                A = Tablelist.at(i).at(2).toString() + " " + Tablelist.at(i).at(3).toString();       // Nom Prenom
                 pItem3 = new QTableWidgetItem() ;
                 pItem3->setText(A);
                 if (TableARemplir == ui->ListeupTableWidget)
@@ -2539,11 +2549,17 @@ void dlg_paiementdirect::RemplirTableWidget(QTableWidget *TableARemplir, ModeTab
                     if (Datas::I()->users->getById(Tablelist.at(i).at(11).toInt()) != Q_NULLPTR)
                         comptable = Datas::I()->users->getById(Tablelist.at(i).at(11).toInt())->login();
                     pItem3->setData(Qt::UserRole, QStringList()
-                    << tr("superviseur -> ") + superviseur
-                    << tr("comptable -> ") + comptable
-                    << tr("DDN ") + Tablelist.at(i).at(10).toDate().toString(tr("dd-MM-yyyy"))
-                    << Tablelist.at(i).at(2).toString());                                             // Nom
+                                    << tr("superviseur -> ") + superviseur
+                                    << tr("comptable -> ") + comptable
+                                    << tr("DDN ") + Tablelist.at(i).at(10).toDate().toString(tr("dd-MM-yyyy"))
+                                    << Tablelist.at(i).at(2).toString());                                 // Superviseur, Comptable, DDN, Nom
                 }
+                else
+                    pItem3->setData(Qt::UserRole, QStringList()
+                                    << ""
+                                    << ""
+                                    << ""
+                                    << Tablelist.at(i).at(2).toString());                                 // Superviseur, Comptable, DDN, Nom
                 TableARemplir->setItem(i,col,pItem3);
                 col++;
 
@@ -2817,8 +2833,6 @@ void dlg_paiementdirect::VideDetailsTable(int lign)
 
     // on récupère l'idActe de l'item concerné
     QString ActeAVirer = ui->DetailupTableWidget->item(lign,0)->text();
-    //UpMessageBox::Watch(this,ui->DetailupTableWidget->item(Rangee,3)->text()+"\n"+ActeAVirer);
-    //on décoche les items correspondants dans ui->ListeupTableWidget et ui->SalleDAttenteupTableWidget
     if (m_mode == EnregistrePaiement)
     {
         QList<QTableWidgetItem*> items;
@@ -2872,9 +2886,18 @@ void dlg_paiementdirect::VideDetailsTable(int lign)
     TrieListe(ui->DetailupTableWidget);
     CalculTotalDetails();
     RegleAffichageTypePaiementframe();
+    if (ui->DetailupTableWidget->rowCount() == 0)
+        ClearCheqData();
 }
 
-/*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+void dlg_paiementdirect::ClearCheqData()
+{
+    ui->TireurChequelineEdit    ->clear();
+    ui->BanqueChequecomboBox    ->clearEditText();
+    ui->EnAttentecheckBox       ->setChecked(false);
+}
+
+/*! -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Retire un verrou sur un acte ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::RetireVerrouCompta(int ActeADeverrouiller)

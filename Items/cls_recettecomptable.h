@@ -62,7 +62,7 @@ public:
     QString modepaiement()              { return m_modepaiement; }
     QString tireurcheque()              { return m_nomtireurchq; }
     int compteid()                      { return m_idcompte; }
-    QString banquecheaque()             { return m_nombanque; }
+    QString banquecheque()             { return m_nombanque; }
     bool istierspayant()                { return m_tierspayant; }
     QString payeur()                    { return m_nompayeur; }
     double commission()                 { return m_commission; }

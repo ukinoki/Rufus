@@ -88,6 +88,7 @@ private:
     void                        closeEvent(QCloseEvent *event);
     bool                        eventFilter(QObject *obj, QEvent *event)  ;
     void                        ChangeComptable(User *comptable, bool depuislecombo = false);
+    void                        ClearCheqData();
     void                        CompleteDetailsTable(UpTableWidget *TableSource, int Rangee, bool Coche = true);
     void                        DefinitArchitectureTable(UpTableWidget *TableARemplir, TypeTable typetable);
     ResultEnregRecette          EnregistreRecette();
