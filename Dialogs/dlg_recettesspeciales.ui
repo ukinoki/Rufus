@@ -264,7 +264,7 @@
          <number>5</number>
         </property>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -317,7 +317,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -347,7 +347,17 @@
             <number>0</number>
            </property>
            <item>
-            <widget class="QDateEdit" name="DateRecdateEdit"/>
+            <widget class="QDateEdit" name="DateRecdateEdit">
+             <property name="minimumSize">
+              <size>
+               <width>120</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="calendarPopup">
+              <bool>true</bool>
+             </property>
+            </widget>
            </item>
            <item>
             <spacer name="horizontalSpacer_6">
@@ -366,7 +376,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -419,7 +429,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -478,7 +488,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -531,7 +541,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -590,7 +600,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -643,7 +653,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -702,7 +712,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="" native="true">
+         <widget class="QWidget" name="widget" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>

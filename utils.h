@@ -37,7 +37,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <QStandardPaths>
 
-#include "uptextedit.h"
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
@@ -87,13 +86,9 @@ public:
     enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum Period {Debut, Fin};
 
-#ifdef Q_OS_WINDOWS
-    double m_larg = 0.7;
-# else
-    double m_larg = 1;
-# endif
-
     static Utils   *I();
+
+    static int correctedwidth(int width);
 
     static QRegularExpression const rgx_rx;
     static QRegularExpression const rgx_AlphaNumeric;
@@ -127,6 +122,7 @@ public:
     static bool convertHTML(QString &text);
     static void convertPlainText(QString &text);
     static void nettoieHTML(QString &text, int fontsize = 0, bool supprimeLesLignesVidesDuMilieu = false);
+    static void nettoieHtmlOldQt(QString &text, bool converttohtml = true);
     static bool retirelignevidefinhtml(QString &txthtml);
     static bool epureFontFamily(QString &text);  /*! >il y eut un temps où on entrait dans les html de Qt la font-family avec tous ses attributs
                                                  * ce qui donnait -> font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0' dans le html

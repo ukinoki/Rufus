@@ -35,13 +35,32 @@ void ShowMessage::SplashMessage(QString msg, int duree)
     dlg                 ->setAttribute(Qt::WA_DeleteOnClose);
     dlg                 ->setSizeGripEnabled(false);
 
-    UpLabel *imglbl     = new UpLabel(dlg);
+    QLabel *imglbl     = new QLabel(dlg);
     imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
     imglbl              ->setFixedWidth(45);
 
-    UpTextEdit *Msgtxt  = new UpTextEdit(dlg);
+    QTextEdit *Msgtxt  = new QTextEdit(dlg);
     Msgtxt              ->setAttribute( Qt::WA_NoSystemBackground, true );
-    Msgtxt              ->setText(msg);
+    QString txt = msg;
+    if (msg.contains("<!DOCTYPE HTML PUBLIC"))
+    {
+        //! parce que de vielles versions de QT enregistraient la police avec tout un lot d'attributs et Qt6 ne comprend pas
+        epureFontFamily(txt);
+        if (!msg.contains(HTMLCOMMENT))
+        {
+            QString newsize = "font-size:" + QString::number(qApp->font().pointSize()) + "pt";
+            QRegularExpression rs;
+            rs.setPattern("font-size( *: *[\\d]{1,2} *)pt");
+            QRegularExpressionMatch const match = rs.match(msg);
+            if (match.hasMatch()) {
+                QString matcheds = match.captured(0);
+                txt.replace(matcheds, newsize);
+            }
+        }
+        Msgtxt->setText(txt);
+    }
+    else
+        Msgtxt          ->setText(msg);
     Msgtxt              ->setReadOnly(true);
     Msgtxt              ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     Msgtxt              ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -96,13 +115,32 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     prioritydlg         ->setAttribute(Qt::WA_DeleteOnClose);
     prioritydlg         ->setSizeGripEnabled(false);
 
-    UpLabel *imglbl     = new UpLabel(prioritydlg);
+    QLabel *imglbl     = new QLabel(prioritydlg);
     imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
     imglbl              ->setFixedWidth(45);
 
-    UpTextEdit *Msgtxt  = new UpTextEdit(prioritydlg);
+    QTextEdit *Msgtxt  = new QTextEdit(prioritydlg);
     Msgtxt              ->setAttribute( Qt::WA_NoSystemBackground, true );
-    Msgtxt              ->setText(msg);
+    QString txt = msg;
+    if (msg.contains("<!DOCTYPE HTML PUBLIC"))
+    {
+        //! parce que de vielles versions de QT enregistraient la police avec tout un lot d'attributs et Qt6 ne comprend pas
+        epureFontFamily(txt);
+        if (!msg.contains(HTMLCOMMENT))
+        {
+            QString newsize = "font-size:" + QString::number(qApp->font().pointSize()) + "pt";
+            QRegularExpression rs;
+            rs.setPattern("font-size( *: *[\\d]{1,2} *)pt");
+            QRegularExpressionMatch const match = rs.match(msg);
+            if (match.hasMatch()) {
+                QString matcheds = match.captured(0);
+                txt.replace(matcheds, newsize);
+            }
+        }
+        Msgtxt->setText(txt);
+    }
+    else
+        Msgtxt              ->setText(msg);
     Msgtxt              ->setReadOnly(true);
     Msgtxt              ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     Msgtxt              ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -149,3 +187,22 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
         QTimer::singleShot(duree, prioritydlg, &QDialog::close);
 
 }
+
+bool ShowMessage::epureFontFamily(QString &text)
+{
+    QString txt= text;
+    QRegularExpression rx;
+    rx.setPattern("font-family:'([a-zA-Z0-9 ,-]+)");
+    auto it = rx.globalMatch(text);
+    while (it.hasNext()) {
+        QRegularExpressionMatch match = it.next();
+        QString txtaremplacer = match.captured(0);
+        if (txtaremplacer != "")
+        {
+            QString replacmt = txtaremplacer.split(",").at(0);
+            text.replace(txtaremplacer, replacmt);
+        }
+    }
+    return (txt != text);
+}
+

@@ -17,10 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uptableview.h"
 
-UpTableView::UpTableView(QWidget *parent) : QTableView(parent)
-{
-
-}
+UpTableView::UpTableView(QWidget *parent) : QTableView(parent) {}
 
 void UpTableView::FixLargeurTotale()
 {
@@ -28,7 +25,11 @@ void UpTableView::FixLargeurTotale()
     for (int i=0; i < model()->columnCount(); i++)
         if (!isColumnHidden(i))
             larg += columnWidth(i);
+#ifdef Q_OS_WINDOWS
+    setFixedWidth(larg + Utils::I()->correctedwidth(20));
+#elif
     setFixedWidth(larg+2);
+#endif
 }
 
 int UpTableView::rowNoHiddenCount() const

@@ -34,9 +34,9 @@
   <widget class="QDateEdit" name="DepuisdateEdit">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>150</x>
      <y>30</y>
-     <width>110</width>
+     <width>120</width>
      <height>24</height>
     </rect>
    </property>
@@ -47,9 +47,9 @@
   <widget class="QDateEdit" name="JusquAdateEdit">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>150</x>
      <y>80</y>
-     <width>110</width>
+     <width>120</width>
      <height>24</height>
     </rect>
    </property>
@@ -62,7 +62,7 @@
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>131</width>
+     <width>121</width>
      <height>151</height>
     </rect>
    </property>

@@ -24,6 +24,16 @@ Utils* Utils::I()
         instance = new Utils();
     return instance;
 }
+int Utils::correctedwidth(int width)
+{
+#ifdef Q_OS_WINDOWS
+    double m_larg = 0.8;
+# else
+    double m_larg = 1;
+# endif
+    return int(width * m_larg);
+}
+
 
 
 /*
@@ -245,11 +255,36 @@ QString Utils::retirecaracteresaccentues(QString nom)
  */
 bool Utils::convertHTML(QString &text)
 {
-    UpTextEdit textprov;
-    textprov.setText( text );
-    text = textprov.toHtml();
+    nettoieHtmlOldQt(text);
     return retirelignevidefinhtml(text);
 }
+
+void Utils::nettoieHtmlOldQt(QString &text, bool converttohtml)
+{
+    if (text.contains("<!DOCTYPE HTML PUBLIC"))
+    {
+        //! parce que de vielles versions de QT enregistraient la police avec tout un lot d'attributs et Qt6 ne comprend pas
+        epureFontFamily(text);
+        if (!text.contains(HTMLCOMMENT))
+        {
+            QString newsize = "font-size:" + QString::number(qApp->font().pointSize()) + "pt";
+            QRegularExpression rs;
+            rs.setPattern("font-size( *: *[\\d]{1,2} *)pt");
+            QRegularExpressionMatch const match = rs.match(text);
+            if (match.hasMatch()) {
+                QString matcheds = match.captured(0);
+                text.replace(matcheds, newsize);
+            }
+        }
+    }
+    QTextEdit textprov;
+    textprov.setText(text);
+    if (converttohtml)
+        text = textprov.toHtml();
+    else
+        text = textprov.toPlainText();
+}
+
 
 /*!
  *  \brief convertPlainText
@@ -259,17 +294,15 @@ bool Utils::convertHTML(QString &text)
  */
 void Utils::convertPlainText(QString &text)
 {
-    UpTextEdit textprov;
-    textprov.setText( text );
-    text = textprov.toPlainText();
-    text  = trim(text, true, true);
+    nettoieHtmlOldQt(text, false);
+    text = trim(text, true, true);
 }
 
 /*!
- *  \brief nettoieHTML
- *  nettoyer tous les trucs inutiles dans un html généré par QT
+ * \brief nettoieHTML
+ *      nettoyer tous les trucs inutiles dans un html généré par QT
+ *      placer les marqueurs Linux ou Mac
  * \param supprimeLesLignesVidesDuMilieu - comme son nom l'indique
- *  placer les marqueurs Linux ou Mac
  */
 void Utils::nettoieHTML(QString &text, int fontsize, bool supprimeLesLignesVidesDuMilieu)
 {

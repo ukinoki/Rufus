@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upstandarditem.h"
 #include "uptableview.h"
 #include "widgetbuttonframe.h"
+#include "upsystemtrayicon.h"
 
 /* sert à gérer les lieux d'exercice
  * IDENTIQUE POUR RUFUS ET RUFUSADMIN*/

@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextEdit>
 #include "macros.h"
 #include "utils.h"
+#include "uptextedit.h"
 
 class UpMessageBox : public UpDialog
 {

@@ -176,7 +176,7 @@
    <widget class="UpPushButton" name="ModifierDDNupPushButton">
     <property name="geometry">
      <rect>
-      <x>290</x>
+      <x>310</x>
       <y>66</y>
       <width>115</width>
       <height>27</height>
@@ -586,12 +586,15 @@
      <rect>
       <x>170</x>
       <y>68</y>
-      <width>111</width>
+      <width>120</width>
       <height>24</height>
      </rect>
     </property>
     <property name="focusPolicy">
      <enum>Qt::StrongFocus</enum>
+    </property>
+    <property name="calendarPopup">
+     <bool>true</bool>
     </property>
    </widget>
    <widget class="QLabel" name="Medecinlabel">

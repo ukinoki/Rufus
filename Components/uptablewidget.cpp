@@ -131,10 +131,15 @@ int UpTableWidget::FixLargeurTotale()
         if (!isColumnHidden(i))
         {
             larg += columnWidth(i);
-            //qDebug() << columnWidth(i) << larg;
+            //qDebug() << i << columnWidth(i) << larg;
         }
+#ifdef Q_OS_WINDOWS
+    setFixedWidth(larg + Utils::I()->correctedwidth(20));
+#elif
     setFixedWidth(larg+2);
-    return larg+2;
+#endif
+    //qDebug() << width();
+    return width();
 }
 
 int UpTableWidget::rowNoHiddenCount() const

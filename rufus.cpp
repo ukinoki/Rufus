@@ -4859,6 +4859,8 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     checktask       ->setObjectName("TaskupCheckBox");
     checkurg        ->setObjectName("UrgeupCheckBox");
     limitdate       ->setFixedHeight(26);
+    limitdate       ->setFixedWidth(120);
+    limitdate       ->setCalendarPopup(true);
     limitdate       ->setEnabled(false);
     limitdate       ->setDate(QDate::currentDate());
     if (idMsg>-1)

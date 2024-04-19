@@ -20,16 +20,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include <QThread>
-#include "uplabel.h"
 #include <QHBoxLayout>
 
 #include <QSystemTrayIcon>
 #include <QTimer>
 #include <QDebug>
 #include <QDialog>
+#include <QLabel>
+#include <QRegularExpression>
 #include <QScreen>
-#include "uptextedit.h"
-#include "upsystemtrayicon.h"
+#include <QTextEdit>
+#include <QTime>
+#include "icons.h"
+#include "macros.h"
+//#include "uplabel.h"
 
 /* Cette classe sert à afficher un message dans une fenêtre popo-up, sans bouton, sans bandeau de titre
 Les paramètres sont :
@@ -47,6 +51,7 @@ private:
     static ShowMessage *instance;
     ShowMessage();
     void            LogMessage(QString msg);
+    bool            epureFontFamily(QString &text);     //! copied from utils.h to avoid circular reference
 
 public:
     static ShowMessage* I();

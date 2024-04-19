@@ -84,7 +84,7 @@ private:
     QMap<int, QMap<DATASAIMPRIMER, QString> >   map_docsaimprimer;
     QDate                                       m_currentdate = db->ServerDate();
     Mode                        m_mode;
-    const double                m_larg                      = Utils::I()->m_larg;
+    int                         larg(int width) {return Utils::I()->correctedwidth(width);}
     double                      m_opacity;
     QMap<QString,QString>       map_champs;
     QStringList                 m_listid;

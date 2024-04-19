@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define UPTABLEVIEW_H
 
 #include <QTableView>
+#include "utils.h"
 
 class UpTableView : public QTableView
 {

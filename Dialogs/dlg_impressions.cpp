@@ -570,15 +570,14 @@ void dlg_impressions::FiltreListe()
 
 void dlg_impressions::FixDocUptableViewColumnWidth()
 {
-    ui->DocsupTableView->setColumnWidth(0,int(30*m_larg));      // checkbox
-    ui->DocsupTableView->setColumnWidth(1,int(289*m_larg));     // Resume
-    ui->DocsupTableView->setColumnWidth(2,int(30*m_larg));      // Public   - affiche un check si document public
-    ui->DocsupTableView->setColumnWidth(3,int(30*m_larg));      // Editable - affiche un check si document editable
-    ui->DocsupTableView->setColumnWidth(4,int(30*m_larg));      // Medical  - affiche un check si document medical
-    ui->DocsupTableView->setColumnWidth(5,0);                   // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
+    ui->DocsupTableView->setColumnWidth(0,larg(30));      // checkbox
+    ui->DocsupTableView->setColumnWidth(1,larg(289));     // Resume
+    ui->DocsupTableView->setColumnWidth(2,larg(30));      // Public   - affiche un check si document public
+    ui->DocsupTableView->setColumnWidth(3,larg(30));      // Editable - affiche un check si document editable
+    ui->DocsupTableView->setColumnWidth(4,larg(30));      // Medical  - affiche un check si document medical
+    ui->DocsupTableView->setColumnWidth(5,0);             // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
     ui->DocsupTableView->setColumnHidden(5,true);
     ui->DocsupTableView->FixLargeurTotale();
-    ui->DocsupTableView->setFixedWidth(ui->DocsupTableView->width() + int(30*m_larg));
 }
 
 void dlg_impressions::MenuContextuelTexteDocument()
@@ -1325,7 +1324,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Date->setCalendarPopup(false); //si on met ce paramètre à true et qu'on utilise le calendarpopup,
                                                    //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
                     Date->setContentsMargins(0,0,0,0);
-                    Date->setFixedSize(110,30);
+                    Date->setFixedSize(120,30);
                     Date->setDate(m_currentdate);
                     lay->addWidget(Date);
                 }
@@ -1425,7 +1424,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Date->setCalendarPopup(false); //si on met ce paramètre à true et qu'on utilise le calendarpopup,
                                                    //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
                     Date->setContentsMargins(0,0,0,0);
-                    Date->setFixedSize(110,30);
+                    Date->setFixedSize(120,30);
                     Date->setDate(m_currentdate);
                     Date->setObjectName(DATEINTERVENTION);
                     lay->addWidget(Date);
@@ -3288,9 +3287,9 @@ void dlg_impressions::Remplir_TableView()
         QItemSelectionModel *m = ui->DossiersupTableView->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
         ui->DossiersupTableView->setModel(m_dossiersmodel);
         delete m;
-        ui->DossiersupTableView->setColumnWidth(0,int(30*m_larg));        // checkbox
+        ui->DossiersupTableView->setColumnWidth(0,larg(30));        // checkbox
         ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
-        ui->DossiersupTableView->setColumnWidth(2,int(30*m_larg));        // Public
+        ui->DossiersupTableView->setColumnWidth(2,larg(30));        // Public
         ui->DossiersupTableView->FixLargeurTotale();
         wdg_dossiersbuttonframe->widgButtonParent()->setFixedWidth(ui->DossiersupTableView->width());
         ui->DossiersupTableView->setGridStyle(Qt::NoPen);
@@ -3449,12 +3448,12 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
         return;
 
     //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
-    ui->DocsupTableView->setColumnWidth(0,int(30*m_larg));      // checkbox
-    ui->DocsupTableView->setColumnWidth(1,int(289*m_larg));     // Resume
-    ui->DocsupTableView->setColumnWidth(2,int(30*m_larg));      // Public   - affiche un check si document public
-    ui->DocsupTableView->setColumnWidth(3,int(30*m_larg));      // Editable - affiche un check si document editable
-    ui->DocsupTableView->setColumnWidth(4,int(30*m_larg));      // Medical  - affiche un check si document medical
-    ui->DocsupTableView->setColumnWidth(5,0);                   // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
+    ui->DocsupTableView->setColumnWidth(0,larg(30));      // checkbox
+    ui->DocsupTableView->setColumnWidth(1,larg(289));     // Resume
+    ui->DocsupTableView->setColumnWidth(2,larg(30));      // Public   - affiche un check si document public
+    ui->DocsupTableView->setColumnWidth(3,larg(30));      // Editable - affiche un check si document editable
+    ui->DocsupTableView->setColumnWidth(4,larg(30));      // Medical  - affiche un check si document medical
+    ui->DocsupTableView->setColumnWidth(5,0);             // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
 }
 
 void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool resizecolumn)
@@ -3489,9 +3488,9 @@ void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool r
         return;
 
     //! la suite est obligatoire poiur contourner un bug d'affichage
-    ui->DossiersupTableView->setColumnWidth(0,int(30*m_larg));        // checkbox
-    ui->DossiersupTableView->setColumnWidth(1,259);       // Resume
-    ui->DossiersupTableView->setColumnWidth(2,int(30*m_larg));        // Public
+    ui->DossiersupTableView->setColumnWidth(0,larg(30));        // checkbox
+    ui->DossiersupTableView->setColumnWidth(1,259);             // Resume
+    ui->DossiersupTableView->setColumnWidth(2,larg(30));        // Public
 }
 
 // ----------------------------------------------------------------------------------

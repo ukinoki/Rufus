@@ -210,9 +210,12 @@
     <rect>
      <x>840</x>
      <y>318</y>
-     <width>100</width>
+     <width>120</width>
      <height>24</height>
     </rect>
+   </property>
+   <property name="calendarPopup">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QCheckBox" name="ALDcheckBox">
@@ -411,14 +414,14 @@ et documents publics</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpTextEdit</class>
    <extends>QTextEdit</extends>
    <header>uptextedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>UpTableView</class>

@@ -542,7 +542,7 @@ pour</string>
                <widget class="QDateEdit" name="dateEdit">
                 <property name="minimumSize">
                  <size>
-                  <width>0</width>
+                  <width>120</width>
                   <height>20</height>
                  </size>
                 </property>
@@ -562,6 +562,9 @@ pour</string>
                   <month>1</month>
                   <day>1</day>
                  </date>
+                </property>
+                <property name="calendarPopup">
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>
@@ -1867,6 +1870,11 @@ un paiement</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
@@ -1875,11 +1883,6 @@ un paiement</string>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
   </customwidget>
  </customwidgets>
  <resources>

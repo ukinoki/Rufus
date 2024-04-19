@@ -21,12 +21,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QClipboard>
 #include <QFontDialog>
 #include <QMimeData>
-#include <QTextEdit>
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QApplication>
 #include <QMenu>
 #include "icons.h"
+#include "uptextedit.h"
 #include "macros.h"
 #include "utils.h"
 

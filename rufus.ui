@@ -458,12 +458,12 @@ patients - F5</string>
               </property>
               <property name="dateTime">
                <datetime>
-                <hour>0</hour>
+                <hour>23</hour>
                 <minute>0</minute>
                 <second>0</second>
-                <year>2000</year>
-                <month>1</month>
-                <day>1</day>
+                <year>1999</year>
+                <month>12</month>
+                <day>31</day>
                </datetime>
               </property>
               <property name="minimumDate">
@@ -1257,7 +1257,7 @@ d'attente </string>
                   <x>0</x>
                   <y>0</y>
                   <width>698</width>
-                  <height>99</height>
+                  <height>101</height>
                  </rect>
                 </property>
                </widget>
@@ -1502,18 +1502,6 @@ aujourd'hui</string>
                </item>
                <item>
                 <widget class="UpTableWidget" name="AccueilupTableWidget">
-                 <property name="minimumSize">
-                  <size>
-                   <width>700</width>
-                   <height>0</height>
-                  </size>
-                 </property>
-                 <property name="maximumSize">
-                  <size>
-                   <width>16777215</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
                  <property name="focusPolicy">
                   <enum>Qt::ClickFocus</enum>
                  </property>
@@ -1525,6 +1513,9 @@ aujourd'hui</string>
                  </property>
                  <property name="horizontalScrollBarPolicy">
                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                 </property>
+                 <property name="sizeAdjustPolicy">
+                  <enum>QAbstractScrollArea::AdjustToContents</enum>
                  </property>
                  <property name="alternatingRowColors">
                   <bool>true</bool>
@@ -2556,7 +2547,7 @@ background-color:rgb(255, 255, 255)</string>
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
                  <property name="tabStopDistance">
-                  <number>40</number>
+                  <double>40.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -2578,7 +2569,7 @@ background-color:rgb(255, 255, 255)</string>
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
                  <property name="tabStopDistance">
-                  <number>40</number>
+                  <double>40.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -2614,7 +2605,7 @@ background-color:rgb(255, 255, 255)</string>
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
                  <property name="tabStopDistance">
-                  <number>40</number>
+                  <double>40.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -2636,7 +2627,7 @@ background-color:rgb(255, 255, 255)</string>
                   <enum>Qt::ScrollBarAlwaysOff</enum>
                  </property>
                  <property name="tabStopDistance">
-                  <number>40</number>
+                  <double>40.000000000000000</double>
                  </property>
                 </widget>
                </item>
@@ -3142,7 +3133,7 @@ correspondants</string>
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
          <property name="tabStopDistance">
-          <number>40</number>
+          <double>40.000000000000000</double>
          </property>
         </widget>
         <widget class="QLabel" name="label_8">
@@ -4499,7 +4490,7 @@ color : gray;
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
          <property name="tabStopDistance">
-          <number>40</number>
+          <double>40.000000000000000</double>
          </property>
         </widget>
         <widget class="Line" name="line_7">
@@ -4552,7 +4543,7 @@ color : gray;
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
          <property name="tabStopDistance">
-          <number>40</number>
+          <double>40.000000000000000</double>
          </property>
         </widget>
         <widget class="QLabel" name="label_6">
@@ -4618,7 +4609,7 @@ color : gray;
           <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
          <property name="tabStopDistance">
-          <number>40</number>
+          <double>40.000000000000000</double>
          </property>
         </widget>
         <widget class="Line" name="line_10">
@@ -4677,7 +4668,7 @@ color : gray;
      <x>0</x>
      <y>0</y>
      <width>1339</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>

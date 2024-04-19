@@ -1444,6 +1444,7 @@ QByteArray Procedures::getFileFromServer(QString filename)
     QByteArray ba = QByteArray();
     QList<QVariantList> listimpr;
     QString req = "SELECT LOAD_FILE('" + filename + "') AS content";
+    //qDebug() << req;
     listimpr = db->StandardSelectSQL(req,m_ok, tr("Impossible d'accéder au fichier ") + filename);
     if(m_ok && listimpr.size() >0)
         ba.append(listimpr.at(0).at(0).toByteArray());
