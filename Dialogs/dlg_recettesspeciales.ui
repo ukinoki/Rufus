@@ -264,7 +264,7 @@
          <number>5</number>
         </property>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget0" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -317,7 +317,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_1" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -376,7 +376,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_2" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -429,7 +429,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_3" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -488,7 +488,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_4" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -541,7 +541,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_5" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -600,7 +600,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_6" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -653,7 +653,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_7" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -712,7 +712,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget" native="true">
+         <widget class="QWidget" name="widget_8" native="true">
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -1123,7 +1123,7 @@
               <string>Modifier</string>
              </property>
              <property name="icon">
-              <iconset resource="../assets/Images/images.qrc">
+              <iconset>
                <normaloff>:/wrench-screwdriver.png</normaloff>:/wrench-screwdriver.png</iconset>
              </property>
              <property name="iconSize">
@@ -1201,7 +1201,7 @@
          <string>Retour</string>
         </property>
         <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
+         <iconset>
           <normaloff>:/start.png</normaloff>:/start.png</iconset>
         </property>
         <property name="iconSize">
@@ -1243,7 +1243,7 @@
 Recette</string>
         </property>
         <property name="icon">
-         <iconset resource="../assets/Images/images.qrc">
+         <iconset>
           <normaloff>:/Cash_Register.png</normaloff>:/Cash_Register.png</iconset>
         </property>
         <property name="iconSize">
@@ -1302,8 +1302,6 @@ Recette</string>
   <tabstop>NouvelleRecetteupPushButton</tabstop>
   <tabstop>OKupPushButton</tabstop>
  </tabstops>
- <resources>
-  <include location="../assets/Images/images.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>
