@@ -27,7 +27,7 @@ void UpTableView::FixLargeurTotale()
             larg += columnWidth(i);
 #ifdef Q_OS_WINDOWS
     setFixedWidth(larg + Utils::I()->correctedwidth(20));
-#elif
+#else
     setFixedWidth(larg+2);
 #endif
 }

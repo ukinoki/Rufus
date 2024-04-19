@@ -135,7 +135,7 @@ int UpTableWidget::FixLargeurTotale()
         }
 #ifdef Q_OS_WINDOWS
     setFixedWidth(larg + Utils::I()->correctedwidth(20));
-#elif
+#else
     setFixedWidth(larg+2);
 #endif
     //qDebug() << width();
