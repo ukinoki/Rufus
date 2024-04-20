@@ -34,9 +34,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTime>
 #include "icons.h"
 #include "macros.h"
-//#include "uplabel.h"
 
-/* Cette classe sert à afficher un message dans une fenêtre popo-up, sans bouton, sans bandeau de titre
+/* Cette classe sert à afficher un message dans une fenêtre pop-up, sans bouton, sans bandeau de titre
 Les paramètres sont :
 QString mess    = le contenu du message - on peut mettre du html
 int pause       = la durée d'affichage du message en ms (1000 par défaut)

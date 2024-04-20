@@ -600,28 +600,27 @@ QString Procedures::dirSQLExecutable()
 */
 void Procedures::setDirSQLExecutable()
 {
-    QString dirdefaultsqlexecutable = "";
+    QString dirdefaultsqlexecutable ("");
     QString dirsqlexecutable ("");
-    m_executable = db->version().contains("MariaDB")? "/mariadb": "/mysql";
-    m_dumpexecutable = "/mysqldump";
+    m_executable        = "/mysql";
+    m_dumpexecutable    = "/mysqldump";
     bool a = false;
 
 /*! 1. On recherche dans le package logiciel */
 /*! ne marche pas sous Mac Silicon pour le moment */
 #ifdef Q_OS_MACOS
-    QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
-    m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump": "/mysqldump";
+    QDir mysqldir           = QDir(QCoreApplication::applicationDirPath());
     mysqldir.cdUp();
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    a = QFile(dirdefaultsqlexecutable + m_executable).exists();
+    a                       = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
 
 #ifdef Q_OS_WIN
-    m_executable = db->version().contains("MariaDB")? "/mariadb.exe": "/mysql.exe";
-    m_dumpexecutable = db->version().contains("MariaDB")? "/mariadb-dump.exe": "/mysqldump.exe";
-    QDir mysqldir = QDir(QCoreApplication::applicationDirPath());
+    m_executable            = "/mysql.exe";
+    m_dumpexecutable        = "/mysqldump.exe";
+    QDir mysqldir           = QDir(QCoreApplication::applicationDirPath());
     dirdefaultsqlexecutable = mysqldir.absolutePath() + "/Applications";
-    a = QFile(dirdefaultsqlexecutable + m_executable).exists();
+    a                       = QFile(dirdefaultsqlexecutable + m_executable).exists();
 #endif
     if (a)
     {
@@ -655,6 +654,19 @@ void Procedures::setDirSQLExecutable()
         {
             dirsqlexecutable = programs.absolutePath() + "/"  + listmariadbdirs.at(0) + "/bin";
             a = (QFile(dirsqlexecutable + m_executable).exists());
+        }
+        if (!a)
+        {
+            programs = QDir("C:/Program Files/MySQL");
+            if (programs.exists())
+            {
+                QStringList listmysqldirs = programs.entryList(QStringList() << "MySQL Server *", QDir::Dirs);
+                if (listmysqldirs.size() > 0)
+                {
+                    dirsqlexecutable = programs.absolutePath() + "/"  + listmysqldirs.at(0) + "/bin";
+                    a = (QFile(dirsqlexecutable + m_executable).exists());
+                }
+            }
         }
     }
 #endif
