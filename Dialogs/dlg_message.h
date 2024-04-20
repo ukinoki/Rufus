@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QDebug>
 #include <QDialog>
+#include <QGuiApplication>
 #include <QLabel>
 #include <QRegularExpression>
 #include <QScreen>
