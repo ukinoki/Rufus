@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QStandardItem>
 #include "cls_item.h"
-
+class Item;
 class UpStandardItem : public QStandardItem
 {
 public:

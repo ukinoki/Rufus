@@ -46,10 +46,13 @@ template <typename K, typename T>
 void addList(QMap<K, T*> *m_map, QList<T*> *listitems, Item::UPDATE upd = Item::Update)
 {
     for (int i=0; i<listitems->size();)
-        if (!add( m_map, listitems->at(i), upd))
-            listitems->removeAt(i);                 //! on ne delete pas l'item, cela a été fait par la méthode add
+    {
+        T* item = listitems->at(i);
+        if (!add( m_map, item, upd))
+            listitems->removeAt(i);                 //! on ne delete pas l'item, cela a été fait par la méthode add   
         else
             ++i;
+    }
 }
 
 /*!
@@ -123,7 +126,7 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
 * \return false dans le cas contraire (l'item est un Q_NULLPTR ou l'item est déjà présent dans le QMap -> delete l'item passé en paramètre dans ce dernier cas)
 */
 template <typename T>
-bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
+bool add(QMap<int, T*> *m_map, T* &item, Item::UPDATE upd = Item::NoUpdate)
 {
     bool itemadded = false;
     if (item != Q_NULLPTR)
@@ -139,7 +142,7 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
                     if (upd == Item::Update)
                         it.value()->setData(item->datas());
                     delete item;
-                    item = Q_NULLPTR;
+                    item = it.value();
                 }
             }
             else
@@ -153,7 +156,7 @@ bool add(QMap<int, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
 
 /*! le même avec des QString en key */
 template <typename T>
-bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
+bool add(QMap<QString, T*> *m_map, T* &item, Item::UPDATE upd = Item::NoUpdate)
 {
     bool itemadded = false;
     if (item != Q_NULLPTR)
@@ -169,7 +172,7 @@ bool add(QMap<QString, T*> *m_map, T* item, Item::UPDATE upd = Item::NoUpdate)
                     if (upd == Item::Update)
                         it.value()->setData(item->datas());
                     delete item;
-                    item = Q_NULLPTR;
+                    item = it.value();
                 }
             }
             else

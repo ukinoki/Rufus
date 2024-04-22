@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_comptes.h"
 #include "ui_dlg_comptes.h"
 
+
 dlg_comptes::dlg_comptes(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_comptes)

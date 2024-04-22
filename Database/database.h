@@ -73,6 +73,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_message.h"
 #include "upsystemtrayicon.h"
 
+class Utils;
+class ShowMessage;
+class UpSystemTrayIcon;
+
 class DataBase : public QObject
 {
     Q_OBJECT

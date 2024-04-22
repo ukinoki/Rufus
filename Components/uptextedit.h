@@ -25,11 +25,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QKeyEvent>
 #include <QApplication>
 #include <QMenu>
+#include <QTextBlock>
+#include <QTextEdit>
+
 #include "icons.h"
-#include "uptextedit.h"
 #include "macros.h"
 #include "utils.h"
 
+class Utils;
 class UpTextEdit : public QTextEdit
 {
     Q_OBJECT

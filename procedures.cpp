@@ -5298,8 +5298,10 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(ETB);                                            //ETB -> end of text block
             DTRbuff.append(CR);                                                 //CR LF
             DTRbuff.append(LF);                                                 //CR LF
+            /*!
             if (idpat == 0)
                 idpat = Datas::I()->mesurefronto->idpatient();
+            */
         }
 
         /*! réglage de refraction subjecctive
@@ -8438,7 +8440,7 @@ void Procedures::ReponsePortSerie_Tono(const QString &s)
     if (tono=="TOMEY TOP-1000" || tono == "RODENSTOCK Topascope" )
     {
         Datas::I()->mesuretono->cleandatas();
-        Tomey::I()->LectureDonneesTOP1000( m_mesureSerie,  tono);
+        Tomey::I()->LectureDonneesTOP1000( m_mesureSerie);
         if (Datas::I()->mesuretono->isdataclean())
             return;
 
@@ -10160,7 +10162,7 @@ void Procedures::LectureDonneesCSVFronto(QString filecontents)
     QString name =m_settings->value(Param_Poste_Fronto).toString();
     if (name=="TOMEY TL-6100" || name == "RODENSTOCK AL 6600" )
     {
-        Tomey::I()->LectureDonneesAL6400( filecontents,  name);
+        Tomey::I()->LectureDonneesAL6400( filecontents);
     }
 }
 

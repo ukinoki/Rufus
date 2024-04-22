@@ -26,6 +26,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <utils.h>
 #include "QDebug"
 
+class Utils;
 class Item : public QObject
 {
     Q_OBJECT

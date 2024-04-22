@@ -21,7 +21,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLabel>
 #include <QMouseEvent>
 #include <QToolTip>
+
 //#include "cls_item.h"
+//class Item;
 
 class UpLabel : public QLabel
 {
@@ -43,7 +45,6 @@ private:
     QString                 m_tooltipmsg;
     QMap<QString, QVariant> m_datas;
     void                    AfficheToolTip();
-    //Item*                   m_item = Q_NULLPTR;
 signals:
     void                    clicked(int a);
     void                    enter(int a);

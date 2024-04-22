@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlError>
 #include <QSqlQuery>
 
+
 DataBase* DataBase::instance = Q_NULLPTR;
 
 DataBase* DataBase::I()
@@ -2491,7 +2492,10 @@ Patient* DataBase::loadPatientById(int idPat, Patient *pat, Item::LOADDETAILS de
                             CP_IDCREATEUR_PATIENTS " FROM " TBL_PATIENTS " where " CP_IDPAT_PATIENTS " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
+    {
+        delete pat;
         return Q_NULLPTR;
+    }
     QJsonObject jData{};
     jData[CP_IDPAT_PATIENTS]        = idPat;
     jData[CP_NOM_PATIENTS]          = patdata.at(0).toString();
@@ -2691,7 +2695,10 @@ Acte* DataBase::loadActeById(int idActe)
     Acte *acte = new Acte();
     QJsonObject data = loadActeAllData(idActe);
     if (data == QJsonObject{})
+    {
+        delete acte;
         return Q_NULLPTR;
+    }
     acte->setData(data);
     return acte;
 }

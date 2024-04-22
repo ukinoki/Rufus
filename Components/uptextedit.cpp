@@ -16,7 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "uptextedit.h"
-#include <QTextBlock>
 
 UpTextEdit::UpTextEdit(QWidget *parent) : QTextEdit(parent)
 {

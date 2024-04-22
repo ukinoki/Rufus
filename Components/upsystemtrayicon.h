@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include <QTime>
 #include <QStandardItem>
+
 #include "icons.h"
 
 class UpSystemTrayIcon : public QSystemTrayIcon

@@ -37,6 +37,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <QStandardPaths>
 
+#include "macros.h"
+#include "icons.h"
+
 #include "upmessagebox.h"
 #include "dlg_message.h"
 
@@ -55,6 +58,8 @@ const unsigned char ETB = 23; //0x17
 const unsigned char LF  = 10; //0x0A
 const unsigned char CR  = 13; //0x0D
 
+class ShowMessage;
+class UpMessageBox;
 class Utils : public QObject
 {
     Q_OBJECT

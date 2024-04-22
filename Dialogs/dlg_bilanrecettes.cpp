@@ -16,7 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_bilanrecettes.h"
-#include "gbl_datas.h"
+
 
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionRecettes", parent)

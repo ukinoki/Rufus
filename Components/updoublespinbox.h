@@ -21,7 +21,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDoubleSpinBox>
 #include <QSoundEffect>
 #include <cmath>            // sert à introduire la fonction floor()
+
 #include "utils.h"
+class Utils;
 
 class UpDoubleSpinBox : public QDoubleSpinBox
 {

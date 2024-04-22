@@ -89,7 +89,7 @@ bool Users::addUser(User *user)
     if( user == Q_NULLPTR)
         return false;
     int iduser = user->id();
-    add(map_all,user, Item::Update);
+    add(map_all, user, Item::Update);
     auto itusr = map_all->constFind(iduser);
     User *usr = itusr.value();
     if(usr)
@@ -135,14 +135,15 @@ void Users::addList(QList<User*> listusr)
 User* Users::getById(int id, Item::UPDATE upd)
 {
     QMap<int, User*>::const_iterator ituser = map_all->constFind(id);
-    User *result;
+    User *result = Q_NULLPTR;;
     if( ituser == map_all->constEnd() )
     {
         QJsonObject jsonUser = DataBase::I()->loadUserData(id);
-        if( jsonUser.isEmpty() )
-            return Q_NULLPTR;
-        result = new User(jsonUser);
-        addUser(result);
+        if( !jsonUser.isEmpty() )
+        {
+            result = new User(jsonUser);
+            addUser(result);
+        }
     }
     else
     {

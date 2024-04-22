@@ -21,6 +21,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGraphicsView>
 #include "playercontrols.h"
 #include "textprinter.h"
+#include <uppushbutton.h>
+#include <upcheckbox.h>
+
+class PlayerControls;
+class UpPushButton;
+class UpCheckBox;
+class TextPrinter;
 
 class dlg_docsexternes : public UpDialog
 {

@@ -16,7 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upmessagebox.h"
-#include "utils.h"
 
 UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
 {

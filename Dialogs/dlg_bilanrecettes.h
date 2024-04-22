@@ -19,7 +19,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_BILANRECETTES_H
 
 #include "procedures.h"
+#include "gbl_datas.h"
 #include "uptableview.h"
+
+class UpTableView;
+class Procedures;
 
 class dlg_bilanrecettes : public UpDialog
 {

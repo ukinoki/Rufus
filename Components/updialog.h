@@ -21,12 +21,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QHBoxLayout>
 #include <QSettings>
-#include "upsmallbutton.h"
-#include "uppushbutton.h"
-#include "uplabel.h"
-#include "uplineedit.h"
 #include "macros.h"
 #include "icons.h"
+
+#include "upsmallbutton.h"
+#include "uplabel.h"
+#include "uplineedit.h"
+#include "uppushbutton.h"
+
+class UpLabel;
+class UpSmallButton;
+class UpLineEdit;
+class UpPushButton;
 
 class UpDialog : public QDialog
 {

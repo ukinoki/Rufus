@@ -118,7 +118,6 @@ void dlg_actesprecedents::Actualise()
     it_currentacte = map_actes->constFind(map_actes->lastKey());
     if (m_iscurrentpatient)
         it_currentacte --;
-    initScrollValue = map_actes->size();
 
     ui->ScrollBar->disconnect();
     ui->ScrollBar->setMinimum(0);

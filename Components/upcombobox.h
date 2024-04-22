@@ -21,7 +21,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QComboBox>
 #include <QLineEdit>
 #include <QSoundEffect>
+
 #include "upmessagebox.h"
+class UpMessageBox;
 
 class UpComboBox : public QComboBox
 {

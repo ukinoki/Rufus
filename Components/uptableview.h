@@ -20,7 +20,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTableView>
 #include "utils.h"
+#include "macros.h"
+#include "uptextedit.h"
 
+class UpTextEdit;
+class Utils;
 class UpTableView : public QTableView
 {
     Q_OBJECT

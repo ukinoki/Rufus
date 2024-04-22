@@ -16,7 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "updialog.h"
-#include <QDebug>
 
 UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : QDialog(parent)
 {

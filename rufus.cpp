@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("01-04-2024/1");
+    qApp->setApplicationVersion("22-04-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -3970,6 +3970,9 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
 QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 {
     //créer une fiche avec tous les checkbox correspondant aux motifs de RDV : Cs, OCT, CV, BO, Biométrie, Urgence, Angio,...etc...
+    QMap<QString, QVariant>     mapRDV         = QMap<QString,QVariant>();
+    if (Datas::I()->motifs->motifs()->size()==0)
+        return mapRDV;
     dlg_ask            = new UpDialog(this);
     QVBoxLayout     *motiflayout    = new QVBoxLayout();
     UpLabel         *lbltitre       = new UpLabel(dlg_ask);
@@ -3979,7 +3982,6 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
     QTimeEdit       *HeureRDV       = new QTimeEdit(dlg_ask);
     UpComboBox *ComboSuperviseurs   = new UpComboBox(dlg_ask);
     UpLabel         *HeureTitre     = new UpLabel(dlg_ask);
-    QMap<QString, QVariant>     mapRDV         = QMap<QString,QVariant>();
     grpBox      ->setTitle(tr("Motif de l'acte"));
 
     for (auto it =  Datas::I()->users->superviseurs()->constBegin(); it !=  Datas::I()->users->superviseurs()->constEnd(); ++it)
@@ -3996,8 +3998,6 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
     soignantlayout->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
 
 
-    if (Datas::I()->motifs->motifs()->size()==0)
-        return mapRDV;
     int defaut = -1;
     int k = -1;
     for (auto it = Datas::I()->motifs->motifs()->constBegin(); it != Datas::I()->motifs->motifs()->constEnd(); ++it)
@@ -4482,35 +4482,38 @@ void Rufus::RetrouveMontantActe()
             }
             if (Montant == "0.00")
             {
-
-                QString tarifconventionne = (usr->isOPTAM() ? CP_MONTANTOPTAM_CCAM : CP_MONTANTNONOPTAM_CCAM );
-                // qDebug() << parent;
-                QString req =                        
-                        "SELECT " + tarifconventionne + ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
-                        " where " CP_TYPEACTE_COTATIONS " = " CP_CODECCAM_CCAM
-                        " and " CP_IDUSER_COTATIONS " = " + QString::number(parent->id()) +
-                        " and " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
-                // qDebug() << req;
-                QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-                if (m_ok && cotdata.size()>0)
+                QVariantList cotdata = QVariantList();
+                if (parent != Q_NULLPTR)
                 {
-                    if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
-                        Montant = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
-                    else
-                        Montant = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
-                    ui->ActeMontantlineEdit->setText(Montant);
+                    QString tarifconventionne = (usr->isOPTAM() ? CP_MONTANTOPTAM_CCAM : CP_MONTANTNONOPTAM_CCAM );
+                    // qDebug() << parent;
+                    QString req =
+                            "SELECT " + tarifconventionne + ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
+                                                                                                                                       " where " CP_TYPEACTE_COTATIONS " = " CP_CODECCAM_CCAM
+                            " and " CP_IDUSER_COTATIONS " = " + QString::number(parent->id()) +
+                            " and " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
+                    // qDebug() << req;
+                    cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                    if (m_ok && cotdata.size()>0)
+                    {
+                        if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
+                            Montant = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
+                        else
+                            Montant = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
+                        ui->ActeMontantlineEdit->setText(Montant);
+                    }
                 }
-                else
+                if (cotdata == QVariantList())
                 {
                     QString req = "SELECT " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " FROM " TBL_CCAM " where " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
-                    QVariantList cot2data = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-                    if (m_ok && cot2data.size()>0)
+                    cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                    if (m_ok && cotdata.size()>0)
                     {
                         QString MontantActe;
                         if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu() && !parent->isOPTAM())
-                            MontantActe = QLocale().toString(cot2data.at(1).toDouble(),'f',2);
+                            MontantActe = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
                         else
-                            MontantActe = QLocale().toString(cot2data.at(0).toDouble(),'f',2);
+                            MontantActe = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
                         ui->ActeMontantlineEdit->setText(MontantActe);
                     }                    
                     else
@@ -4519,7 +4522,7 @@ void Rufus::RetrouveMontantActe()
                                 "SELECT " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS
                                 " where " CP_TYPEACTE_COTATIONS " like '" + Utils::correctquoteSQL(cotation) + "%'";
                         // qDebug() << req;
-                        QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+                        cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
                         if (m_ok && cotdata.size()>0)
                         {
                             if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
@@ -4533,7 +4536,7 @@ void Rufus::RetrouveMontantActe()
             }
             if (Montant != "0.00")
             {
-                if (parent)
+                if (parent != Q_NULLPTR)
                 {
                     if (parent->secteurconventionnel()>1)
                     {
@@ -5342,14 +5345,14 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
             if (msg->idpatient()>0)                                                                            // le message concerne un patient
             {
-                QHBoxLayout *aboutlay = new QHBoxLayout();
-                UpLabel *aboutdoc = new UpLabel();
                 QString nomprenom ("");
                 Patient *pat = Datas::I()->patients->getById(msg->idpatient());
                 if (pat != Q_NULLPTR)
                     nomprenom = pat->prenom() + " " + pat->nom();
                 if (nomprenom != "")
                 {
+                    QHBoxLayout *aboutlay = new QHBoxLayout();
+                    UpLabel *aboutdoc = new UpLabel();
                     aboutdoc->setText(nomprenom);
                     aboutdoc->setiD(msg->idpatient());
                     aboutlay->addWidget(aboutdoc);
@@ -5479,14 +5482,14 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             }
             if (msg->idpatient() > 0)                                                                            // le message concerne un patient
             {
-                QHBoxLayout *aboutlay = new QHBoxLayout();
-                UpLabel *aboutdoc = new UpLabel();
                 QString nomprenom ("");
                 Patient *pat = Datas::I()->patients->getById(msg->idpatient());
                 if (pat != Q_NULLPTR)
                     nomprenom = pat->prenom() + " " + pat->nom();
                 if (nomprenom != "")
                 {
+                    QHBoxLayout *aboutlay = new QHBoxLayout();
+                    UpLabel *aboutdoc = new UpLabel();
                     aboutdoc->setText(nomprenom);
                     aboutlay->addWidget(aboutdoc);
                     aboutlay->addSpacerItem(new QSpacerItem(40,10,QSizePolicy::Expanding, QSizePolicy::Minimum));

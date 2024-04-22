@@ -45,7 +45,7 @@ QList<QString> getFieldsFromLine(QList<QString> list, int i,  QRegularExpression
 
 
 // "TOMEY TL-6100" "RODENSTOCK AL 6400"
-void Tomey::LectureDonneesAL6400(QString Mesure, QString nameLM)
+void Tomey::LectureDonneesAL6400(QString Mesure)
 {
     QList<QString> list= Mesure.split( "\n"); //split in lines
 
@@ -283,7 +283,7 @@ void Tomey::LectureDonneesRC5000Form(QString Mesure)
 }
 
 // "TOMEY RC-5000" "RODENSTOCK CX 2000"
-void Tomey::LectureDonneesRC5000(QString Mesure, QString name)
+void Tomey::LectureDonneesRC5000(QString Mesure)
 {
     int     a(0);
 
@@ -424,7 +424,7 @@ Avg.     13.5          12.7
 No.        :  00002300
 TopaScope
  */
-void Tomey::LectureDonneesTOP1000(QString Mesure, QString name)
+void Tomey::LectureDonneesTOP1000(QString Mesure)
 {
     QList<QString> list= Mesure.split("\n"); //split in lines (End of line = LF only)
     QString mode = "";

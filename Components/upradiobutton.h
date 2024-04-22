@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolTip>
 #include "cls_item.h"
 
+class Item;
 class UpRadioButton : public QRadioButton
 {
     Q_OBJECT
