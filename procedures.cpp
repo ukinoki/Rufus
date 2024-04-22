@@ -7888,8 +7888,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                         {
                             InsertMesure(MesureKerato);
                             emit NouvMesure(MesureKerato);
-                            delete oldMesureKerato;
                         }
+                            delete oldMesureKerato;
                     }
             //! On essaie de récupérer une mesure de tonométrie
                     if (childnodemeasure.tagName() == "TM" && PortAutoref() == Q_NULLPTR && !m_LANAutoref)             //!=> il y a une mesure pour la tono et l'autoref est directement branché sur la box du refracteur)
