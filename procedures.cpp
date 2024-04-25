@@ -4911,7 +4911,6 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
      * Datas::I()->mesureacuité     qui met en subjectif la dernière mesure d'acuité du patient
      */
     /*! +++ sur les NIDEK, on ne peut que régler l'autoref et le fronto depuis le PC - les refractions subjectives et finales ne peuvent pas être préréglées */
-    int idpat = 0;
     QString AxeOD, AxeOG;
     QString AddOD, AddOG;
     QString SphereOD, SphereOG;
@@ -4979,7 +4978,6 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesureautoref->ecartIP())));  //SD
                 DTRbuff.append(ETB);                            //ETB -> end of text block
             }
-            idpat = Datas::I()->mesureautoref->idpatient();
         }
 
         /*! réglage du fronto */
@@ -5017,8 +5015,6 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP())));   //SD
                 DTRbuff.append(ETB);                            //ETB -> end of text block
             }
-            if (idpat == 0)
-                idpat = Datas::I()->mesurefronto->idpatient();
         }
         DTRbuff.append(EOT);                                    //EOT -> end of transmission
 
@@ -5057,8 +5053,6 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
                 DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP())));   //SD
                 DTRbuff.append(ETB);                            //ETB -> end of text block
             }
-            if (idpat == 0)
-                idpat = Datas::I()->mesurefronto->idpatient();
         }
         DTRbuff.append(EOT);                                    //EOT -> end of transmission
 
@@ -5247,8 +5241,6 @@ SOH*PC_SND_EEOT                 -> end block
             DTRbuff.append(ETB);                                            //ETB -> end of text block
             DTRbuff.append(CR);                                                 //CR LF
             DTRbuff.append(LF);                                                 //CR LF
-            if (idpat == 0)
-                idpat = Datas::I()->mesurefronto->idpatient();
         }
 
         /*! réglage de l'autoref
@@ -7889,7 +7881,7 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                             InsertMesure(MesureKerato);
                             emit NouvMesure(MesureKerato);
                         }
-                            delete oldMesureKerato;
+                        delete oldMesureKerato;
                     }
             //! On essaie de récupérer une mesure de tonométrie
                     if (childnodemeasure.tagName() == "TM" && PortAutoref() == Q_NULLPTR && !m_LANAutoref)             //!=> il y a une mesure pour la tono et l'autoref est directement branché sur la box du refracteur)

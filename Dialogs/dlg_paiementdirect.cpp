@@ -482,6 +482,8 @@ void dlg_paiementdirect::ChangeComptableBox()
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::ChangeComptable(User* comptable, bool depuislecombo)
 {
+    if (!comptable)
+        return;
     m_useracrediter = comptable;
     if (!depuislecombo)
     {
@@ -1284,8 +1286,6 @@ bool dlg_paiementdirect::eventFilter(QObject *obj, QEvent *event)
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::ReconstruitListeTiers()
 {
-    QStringList ListTiers;
-
     ui->TypeTierscomboBox->clear();
     // toute la manip qui suit sert à remetre les banques par ordre aplhabétique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel *model = new QStandardItemModel(this);
@@ -1316,15 +1316,15 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
     {
         QDoubleValidator        *val;
         QTableWidgetItem        *pItem1, *pItem2, *pItem3, *pItem4, *pItem5, *pItem6, *pItem7;
-        pItem1 = new QTableWidgetItem() ;
-        pItem2 = new QTableWidgetItem() ;
-        pItem3 = new QTableWidgetItem() ;
-        pItem4 = new QTableWidgetItem() ;
-        pItem5 = new QTableWidgetItem() ;
-        pItem6 = new QTableWidgetItem() ;
-        pItem7 = new QTableWidgetItem() ;
         if (Coche)
         {
+            pItem1 = new QTableWidgetItem() ;
+            pItem2 = new QTableWidgetItem() ;
+            pItem3 = new QTableWidgetItem() ;
+            pItem4 = new QTableWidgetItem() ;
+            pItem5 = new QTableWidgetItem() ;
+            pItem6 = new QTableWidgetItem() ;
+            pItem7 = new QTableWidgetItem() ;
             int i = ui->DetailupTableWidget->rowCount();
             ui->DetailupTableWidget->insertRow(i);
             UpCheckBox *CheckItem = new UpCheckBox();
@@ -1420,6 +1420,13 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 ui->DetailupTableWidget->setRowCount(ListeActesARemettreEnDetails.size());
                 for (int l = 0; l < NbLignesAVirer ;l++)
                 {
+                    pItem1 = new QTableWidgetItem() ;
+                    pItem2 = new QTableWidgetItem() ;
+                    pItem3 = new QTableWidgetItem() ;
+                    pItem4 = new QTableWidgetItem() ;
+                    pItem5 = new QTableWidgetItem() ;
+                    pItem6 = new QTableWidgetItem() ;
+                    pItem7 = new QTableWidgetItem() ;
                     UpCheckBox *CheckItem = new UpCheckBox();
                     pItem1->setText(ListeActesARemettreEnDetails.at(l));//idActe
                     pItem1->setData(Qt::UserRole, ListeIdComptables.at(l));

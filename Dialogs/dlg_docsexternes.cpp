@@ -139,6 +139,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
 dlg_docsexternes::~dlg_docsexternes()
 {
+    delete m_tripardatemodel;
+    delete m_tripartypemodel;
     delete m_printer;
 }
 
@@ -1384,6 +1386,7 @@ void dlg_docsexternes::RemplirTreeView()
                                                 |   text = type + sous type document    |   |   text = datetime - pour le tri       |
                                                 |   data["id"] = id                     |   |_______________________________________|
                                                 |_______________________________________|
+
                 |---------------------------|           TRI PAR TYPE EXAMEN
                 |        typitem            |
                 |    text = type examen     |

@@ -1185,11 +1185,14 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 
     QHBoxLayout *titreLay       = new QHBoxLayout();
     UpLabel* lbltitre           = new UpLabel;
-    lbltitre                    ->setText(m_currentchirpatient->nom().toUpper() + " " + m_currentchirpatient->prenom());
-    titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    titreLay                    ->addWidget(lbltitre);
-    titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    titreLay                    ->setContentsMargins(0,0,0,0);
+    if (m_currentchirpatient)
+    {
+        lbltitre                    ->setText(m_currentchirpatient->nom().toUpper() + " " + m_currentchirpatient->prenom());
+        titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+        titreLay                    ->addWidget(lbltitre);
+        titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+        titreLay                    ->setContentsMargins(0,0,0,0);
+    }
 
     QHBoxLayout *choixsessionLay = new QHBoxLayout();
     UpLabel* lblsession         = new UpLabel;

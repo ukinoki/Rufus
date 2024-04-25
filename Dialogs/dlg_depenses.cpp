@@ -1591,7 +1591,6 @@ void dlg_depenses::FiltreTable()
     int rowdep = wdg_bigtable->currentRow();
     int row = rowdep;
 
-    QString filtre = ui->Rubriques2035comboBox->currentText();
     int idrubrique = ui->Rubriques2035comboBox->currentData().toInt();
     int idx = ui->Rubriques2035comboBox->findData(idrubrique);
     for (int i=0; i<wdg_bigtable->rowCount(); i++)

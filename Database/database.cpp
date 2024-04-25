@@ -3063,7 +3063,6 @@ QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)             
 QList<QPair<int, int>> DataBase::loadIdInterventionsByPatientId(int id)                  //! charge toutes les Interventions d'un patient
 {
     QList<QPair<int, int>> listpair;
-    QList<int> listid = QList<int> ();
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE
                     " FROM " TBL_LIGNESPRGOPERATOIRES " prog left outer join " TBL_SESSIONSOPERATOIRES " sess "
                     " ON prog." CP_IDSESSION_LIGNPRGOPERATOIRE " = sess." CP_ID_SESSIONOPERATOIRE

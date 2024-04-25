@@ -141,8 +141,9 @@ bool add(QMap<int, T*> *m_map, T* &item, Item::UPDATE upd = Item::NoUpdate)
                 {
                     if (upd == Item::Update)
                         it.value()->setData(item->datas());
-                    delete item;
+                    T* exitem = item;
                     item = it.value();
+                    delete exitem;
                 }
             }
             else
@@ -171,8 +172,9 @@ bool add(QMap<QString, T*> *m_map, T* &item, Item::UPDATE upd = Item::NoUpdate)
                 {
                     if (upd == Item::Update)
                         it.value()->setData(item->datas());
-                    delete item;
+                    T* exitem = item;
                     item = it.value();
+                    delete exitem;
                 }
             }
             else

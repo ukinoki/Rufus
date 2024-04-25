@@ -148,8 +148,7 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     }
 
 
-    DataBase::QueryResult rep = db->verifExistUser(Login, Password);
-    rep = db->calcidUserConnected(Login, Password);
+    DataBase::QueryResult rep = db->calcidUserConnected(Login, Password);
     if (rep == DataBase::Error)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());

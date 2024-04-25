@@ -24,8 +24,6 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     m_mode          = mode;
     m_codeacte      = CodeActe;
 
-    QDoubleValidator *val       = new QDoubleValidator(this);
-
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
 
     wdg_codeline                = new UpLineEdit();
@@ -71,7 +69,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
         wdg_tarifoptamwidg          = new QWidget();
         UpLabel *tarifoptamlabel    = new UpLabel();
         tarifoptamlabel             ->setText(m_cotationsfrance?"Tarif conventionnel OPTAM": tr("Tarif remboursé"));
-        wdg_tarifoptamline          ->setValidator(val);
+        wdg_tarifoptamline          ->setValidator(new QDoubleValidator(this));
         QHBoxLayout *tarifoptamlay  = new QHBoxLayout;
         tarifoptamlay               ->insertWidget(0, tarifoptamlabel);
         tarifoptamlay               ->insertSpacerItem(1, new QSpacerItem(10,5));
@@ -90,7 +88,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
         wdg_tarifnooptamwidg            = new QWidget();
         UpLabel *tarifnooptamlabel      = new UpLabel();
         tarifnooptamlabel               ->setText("Tarif conventionnel non OPTAM");
-        wdg_tarifnooptamline            ->setValidator(val);
+        wdg_tarifnooptamline            ->setValidator(new QDoubleValidator(this));
         QHBoxLayout *tarifnooptamlay    = new QHBoxLayout;
         tarifnooptamlay                 ->insertWidget(0, tarifnooptamlabel);
         tarifnooptamlay                 ->insertSpacerItem(1, new QSpacerItem(10,5));
@@ -109,7 +107,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
         wdg_tarifpratiquewidg           = new QWidget();
         UpLabel *tarifpratiquelabel     = new UpLabel();
         tarifpratiquelabel              ->setText(tr("Tarif pratiqué"));
-        wdg_tarifpratiqueline           ->setValidator(val);
+        wdg_tarifpratiqueline           ->setValidator(new QDoubleValidator(this));
         QHBoxLayout *tarifpratiquelay   = new QHBoxLayout;
         tarifpratiquelay                ->insertWidget(0, tarifpratiquelabel);
         tarifpratiquelay                ->insertSpacerItem(1, new QSpacerItem(10,5));
