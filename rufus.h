@@ -70,6 +70,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <upcombobox.h>
 #include <updoublevalidator.h>
+#include <uplabelitem.h>
 #include <upstandarditem.h>
 #include <conversionbase.h>
 #include <database.h>
@@ -134,7 +135,7 @@ private:
     void        AfficheDossiersRechercheParMotCle();
     void        AfficheCourriersAFaire();
     void        AfficheMenu(QMenu *menu);
-    void        AfficheMotif(UpLabel *lbl);
+    void        AfficheMotif(UpLabelItem *lbl);
     void        AfficheToolTip(Patient *pat);
     void        AppelPaiementDirect(Origin origin);
     void        AppelPaiementTiers();
@@ -205,7 +206,7 @@ private:
     void        RetrouveMontantActe();
     void        SaisieFSE();
     void        SalleDAttente();
-    void        SurbrillanceSalDat(UpLabel *lab);
+    void        SurbrillanceSalDat(UpLabelItem *lab);
     void        Apropos();
 
 
@@ -242,8 +243,8 @@ private:
     void        MenuContextuelMedecin();
     void            ChoixMenuContextuelMedecin();
     void        MenuContextuelMotsCles();
-    void        MenuContextuelAccueil(UpLabel *labelCLicked);
-    void        MenuContextuelSalDat(UpLabel *labelCLicked);
+    void        MenuContextuelAccueil(UpLabelItem *labelCLicked);
+    void        MenuContextuelSalDat(UpLabelItem *labelCLicked);
     void            ChoixMenuContextuelSalDat(int idpat, QString);
 
     //fonctions lancées par des timers
@@ -345,8 +346,7 @@ private:
     void                MAJCorrespondant(QObject*);
     void                MonteUneLigne();
     void                Monte20Lignes();
-    QMap<QString, QVariant>
-                        MotifRDV(QString Motif = "", QString ShowMessage = "", QTime heurerdv = QTime::currentTime());
+    RendezVous*         MotifRDV(QString Motif = "", QString ShowMessage = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(DocsExternes *docs = Datas::I()->docsexternes);

@@ -976,26 +976,34 @@ void Rufus::ActeMontantModifie()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher le motif de l'acte ----------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::AfficheMotif(UpLabel *lbl)
+void Rufus::AfficheMotif(UpLabelItem *lbl)
 {
-    QMap<QString, QVariant> rsgnmt = lbl->datas();
-    QMap<QString,QVariant> mapage = Utils::CalculAge(rsgnmt["ddnpat"].toDate(), m_currentdate);
+    RendezVous *rdv = dynamic_cast<RendezVous *>(lbl->item());
     QString Msg("");
-    Msg += mapage["toString"].toString();
-    if (rsgnmt["urgence"].toBool())
+    Patient *pat = Datas::I()->patients->getById(rdv->idpatient());
+    QDate ddn = QDate();
+    if (pat != Q_NULLPTR)
+        ddn = pat->datedenaissance();
+    QMap<QString,QVariant> mapage;
+    if (ddn.isValid())
+    {
+        mapage = Utils::CalculAge(ddn, m_currentdate);
+        Msg += mapage["toString"].toString();
+    }
+    if (rdv->isurgence())
     {
         if (Msg != "") Msg += "\n";
         Msg += tr("Urgence");
     }
-    else if (rsgnmt["motif"].toString()!= "")
+    else if (rdv->motif() != "")
     {
         if (Msg != "") Msg += "\n";
-        Msg += rsgnmt["motif"].toString();
+        Msg += rdv->motif();
     }
-    if (rsgnmt["message"].toString()!= "")
+    if (rdv->message() != "")
     {
         if (Msg != "") Msg += "\n";
-        Msg += rsgnmt["message"].toString();
+        Msg += rdv->message();
     }
     if (Msg!="")
         QToolTip::showText(cursor().pos(),Msg);
@@ -1031,29 +1039,26 @@ void Rufus::MAJPatientsVus()
 
     for (i = 0; i < patlist.size(); i++)
     {
-        QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"] = patlist.at(i).at(0).toInt();
-        rsgnmt["idsuperviseur"] = patlist.at(i).at(11).toInt();
-        rsgnmt["loginsuperviseur"] = patlist.at(i).at(4).toString();
+        RendezVous *rdv = new RendezVous;
+        rdv     ->setIdpatient(patlist.at(i).at(0).toInt());
+        rdv     ->setIdsuperviseur(patlist.at(i).at(11).toInt());
+        User *usr = Datas::I()->users->getById(rdv->idsuperviseur());
+        QString superviseurlogin = "";
+        if (usr != Q_NULLPTR)
+            superviseurlogin = usr->login();
 
-        UpLabel *label0, *label1, *label2, *label3, *label4;
-        label0 = new UpLabel;
-        label1 = new UpLabel;
-        label2 = new UpLabel;
-        label3 = new UpLabel;
-        label4 = new UpLabel;
+        UpLabelItem *label0, *label1, *label2, *label3, *label4;
+        label0 = new UpLabelItem(rdv);
+        label1 = new UpLabelItem(rdv);
+        label2 = new UpLabelItem(rdv);
+        label3 = new UpLabelItem(rdv);
+        label4 = new UpLabelItem(rdv);
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);
         label2->setContextMenuPolicy(Qt::CustomContextMenu);
         label3->setContextMenuPolicy(Qt::CustomContextMenu);
         label4->setContextMenuPolicy(Qt::CustomContextMenu);
-
-        label0->setdatas(rsgnmt);
-        label1->setdatas(rsgnmt);
-        label2->setdatas(rsgnmt);
-        label3->setdatas(rsgnmt);
-        label4->setdatas(rsgnmt);
 
         NomPrenom = patlist.at(i).at(2).toString().toUpper()
                 + " " + patlist.at(i).at(3).toString();
@@ -1079,23 +1084,26 @@ void Rufus::MAJPatientsVus()
         label1->setAlignment(Qt::AlignLeft);
         label3->setAlignment(Qt::AlignLeft);
         label4->setAlignment(Qt::AlignRight);
-        Patient *pat = Datas::I()->patients->getById(rsgnmt["idpat"].toInt());
 
         connect (label0,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label0);});
         connect (label1,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label1);});
         connect (label2,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label2);});
         connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label3);});
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label4);});
-        connect (label0,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-        connect (label1,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-        connect (label2,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-        connect (label3,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-        connect (label4,        &UpLabel::enter,            this,                   [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-        connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        Patient *pat = Datas::I()->patients->getById(rdv->idpatient());
+        if (pat != Q_NULLPTR)
+        {
+            connect (label0,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label1,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label2,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label3,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label4,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label0,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label1,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label2,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label3,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label4,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        }
 
         ui->PatientsVusupTableWidget->setCellWidget(i,0,label0);
         ui->PatientsVusupTableWidget->setCellWidget(i,1,label1);
@@ -1921,20 +1929,20 @@ void Rufus::FiltreSalleDAttente()
     else
         for(int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-            UpLabel *lbl = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+            UpLabelItem *lbl = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
             ui->SalleDAttenteupTableWidget->setRowHidden(i,lbl->text() != usrlog);
         }
 }
 
 void Rufus::ActiveActeAccueil(int row)
 {
-    UpLabel *lblr = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(row,6));
+    UpLabelItem *lblr = qobject_cast<UpLabelItem*>(ui->AccueilupTableWidget->cellWidget(row,6));
     if (lblr == Q_NULLPTR)
         return;
     int idparent = lblr->text().toInt();
     for (int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
-        UpLabel *lbl = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
+        UpLabelItem *lbl = qobject_cast<UpLabelItem*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
             if (lbl->text().toInt() != idparent)
                 ui->AccueilupTableWidget->setRangeSelected(QTableWidgetSelectionRange(i,0,i,6),false);
@@ -1946,7 +1954,7 @@ void Rufus::FiltreAccueil(int idx)
     int idsuperviseur        = wdg_accueilTab->tabData(idx).toInt();
     for(int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
-        UpLabel *lbl = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
+        UpLabelItem *lbl = qobject_cast<UpLabelItem*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
             ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idsuperviseur));
     }
@@ -3052,17 +3060,17 @@ bool Rufus::InscritEnSalDat(Patient *pat)
     else
     {
         //créer une fiche avec la liste des checkbox
-        QMap<QString, QVariant> mapRDV = MotifRDV();
-        if (mapRDV.isEmpty())
+        RendezVous* rdv = MotifRDV();
+        if (rdv == Q_NULLPTR)
             return false;
         Datas::I()->patientsencours->CreationPatient(pat->id(),                                                 //! idPat
-                                                Datas::I()->users->getById(mapRDV[RDV_IDSUPERVISEUR].toInt()),  //! User
+                                                Datas::I()->users->getById(rdv->idsuperviseur()),               //! User
                                                 ARRIVE,                                                         //! Statut
                                                 QTime(),                                                        //! heureStatut
-                                                mapRDV[RDV_HEURE].toTime(),                                     //! heureRDV
+                                                rdv->heurerdv(),                                                //! heureRDV
                                                 db->ServerDateTime().time(),                                    //! heureArrivee
-                                                mapRDV[RDV_MOTIF].toString(),                                   //! Motif
-                                                mapRDV[RDV_MESSAGE].toString(),                                 //! Message
+                                                rdv->motif(),                                                   //! Motif
+                                                rdv->message(),                                                 //! Message
                                                 0,                                                              //! idActeAPayer
                                                 "",                                                             //! PosteExamen
                                                 0,                                                              //! idUserEnCoursExamen
@@ -3791,14 +3799,16 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     delete Dlg_IdentCorresp;
 }
 
-void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
+void Rufus::MenuContextuelSalDat(UpLabelItem *labelClicked)
 {
     if (currentuser()->isNeutre())
         return;
     int idpat (0);
     if (labelClicked == Q_NULLPTR) return;
-    QMap<QString, QVariant> rsgnmt = labelClicked->datas();
-    idpat = rsgnmt["idpat"].toInt();
+    RendezVous *rdv = dynamic_cast<RendezVous*>(labelClicked->item());
+    if (rdv == Q_NULLPTR)
+        return;
+    idpat = rdv->idpatient();
     int row = labelClicked->Row();
 
     if (m_menuContextuel != Q_NULLPTR)
@@ -3807,7 +3817,7 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 
     if (ui->SalleDAttenteupTableWidget->isAncestorOf(labelClicked))
     {
-        UpLabel *StatutClicked = qobject_cast<UpLabel *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
+        UpLabelItem *StatutClicked = qobject_cast<UpLabelItem *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
         if (StatutClicked != Q_NULLPTR)
         {
             if (StatutClicked->text() == ARRIVE)
@@ -3842,15 +3852,18 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
     m_menuContextuel = Q_NULLPTR;
 }
 
-void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
+void Rufus::MenuContextuelAccueil(UpLabelItem *labelClicked)
 {
     if (currentuser()->isNeutre())
         return;
     int idpat(0);
     QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
-    if (labelClicked == Q_NULLPTR) return;
-    QMap<QString, QVariant> rsgnmt = labelClicked->datas();
-    idpat = rsgnmt["idpat"].toInt();
+    if (labelClicked == Q_NULLPTR)
+        return;
+    RendezVous * rdv = dynamic_cast<RendezVous*>(labelClicked->item());
+    if (rdv == Q_NULLPTR)
+        return;
+    idpat = rdv->idpatient();
     bool a = false;
     // si le label qui émet la demande de menu n'est pas dans la plage sélectionnée, on n'affiche pas de menu
     for (int i = 0; i< listRange.size();i++)
@@ -3918,61 +3931,62 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
         ProgrammationIntervention(dossierpatientaouvrir());                                         //! depuis menu contextuel ListePatients
     else if (choix == "Motif")  //! il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
     {
-        QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"] = -1;
+        RendezVous *rdv = Q_NULLPTR;
         int row(-1);
         for (int i=0; i< ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-             rsgnmt = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->datas();
-             if (rsgnmt["idpat"].toInt()== dossierpatientaouvrir()->id())
+             rdv = dynamic_cast<RendezVous *>(qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->item());
+             if (rdv == Q_NULLPTR)
+                 return;
+             if (rdv->idpatient() == dossierpatientaouvrir()->id())
              {
                  row = i;
                  break;
              }
         }
-        if (rsgnmt["idpat"] == -1)
+        if (rdv == Q_NULLPTR)
             return;
 
         QString Message(""), Motif("");
-        Message = rsgnmt["message"].toString();
-        Motif = qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
-        QTime heurerdv = QTime::fromString(qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
+        Message = rdv->message();
+        Motif = qobject_cast<UpLabelItem *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
+        QTime heurerdv = QTime::fromString(qobject_cast<UpLabelItem *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
 
-        QMap<QString, QVariant> mapRDV = MotifRDV(Motif, Message, heurerdv);
-        if (mapRDV.isEmpty())
+        rdv = MotifRDV(Motif, Message, heurerdv);
+        if (rdv == Q_NULLPTR)
             return;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(dossierpatientaouvrir()->id());
         if (pat == Q_NULLPTR)
             Datas::I()->patientsencours->CreationPatient(dossierpatientaouvrir()->id(),                             //! idPat
-                                                    Datas::I()->users->getById(mapRDV[RDV_IDSUPERVISEUR].toInt()),  //! User
+                                                    Datas::I()->users->getById(rdv->idsuperviseur()),               //! User
                                                     ARRIVE,                                                         //! Statut
                                                     QTime(),                                                        //! heureStatut
-                                                    mapRDV[RDV_HEURE].toTime(),                                     //! heureRDV
+                                                    rdv->heurerdv(),                                                //! heureRDV
                                                     db->ServerDateTime().time(),                                    //! heureArrivee
-                                                    mapRDV[RDV_MOTIF].toString(),                                   //! Motif
-                                                    mapRDV[RDV_MESSAGE].toString(),                                 //! Message
+                                                    rdv->motif(),                                                   //! Motif
+                                                    rdv->message(),                                                 //! Message
                                                     0,                                                              //! idActeAPayer
                                                     "",                                                             //! PosteExamen
                                                     0,                                                              //! idUserEnCoursExamen
                                                     0);                                                             //! idSalDat
         else
         {
-            ItemsList::update(pat, CP_MOTIF_SALDAT, mapRDV[RDV_MOTIF]);
-            ItemsList::update(pat, CP_MESSAGE_SALDAT, mapRDV[RDV_MESSAGE]);
-            ItemsList::update(pat, CP_HEURERDV_SALDAT, mapRDV[RDV_HEURE]);
-            ItemsList::update(pat, CP_IDUSER_SALDAT, mapRDV[RDV_IDSUPERVISEUR]);
+            ItemsList::update(pat, CP_MOTIF_SALDAT, rdv->motif());
+            ItemsList::update(pat, CP_MESSAGE_SALDAT, rdv->message());
+            ItemsList::update(pat, CP_HEURERDV_SALDAT, rdv->heurerdv());
+            ItemsList::update(pat, CP_IDUSER_SALDAT, rdv->idsuperviseur());
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
 }
 
 
-QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
+RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
 {
     //créer une fiche avec tous les checkbox correspondant aux motifs de RDV : Cs, OCT, CV, BO, Biométrie, Urgence, Angio,...etc...
-    QMap<QString, QVariant>     mapRDV         = QMap<QString,QVariant>();
+    RendezVous *rdv = Q_NULLPTR;
     if (Datas::I()->motifs->motifs()->size()==0)
-        return mapRDV;
+        return rdv;
     dlg_ask            = new UpDialog(this);
     QVBoxLayout     *motiflayout    = new QVBoxLayout();
     UpLabel         *lbltitre       = new UpLabel(dlg_ask);
@@ -3982,7 +3996,7 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
     QTimeEdit       *HeureRDV       = new QTimeEdit(dlg_ask);
     UpComboBox *ComboSuperviseurs   = new UpComboBox(dlg_ask);
     UpLabel         *HeureTitre     = new UpLabel(dlg_ask);
-    grpBox      ->setTitle(tr("Motif de l'acte"));
+    grpBox          ->setTitle(tr("Motif de l'acte"));
 
     for (auto it =  Datas::I()->users->superviseurs()->constBegin(); it !=  Datas::I()->users->superviseurs()->constEnd(); ++it)
     {
@@ -4087,14 +4101,15 @@ QMap<QString, QVariant> Rufus::MotifRDV(QString motif, QString Message, QTime he
                 }
             }
         }
-        mapRDV[RDV_MOTIF]           = motif;
-        mapRDV[RDV_MESSAGE]         = Message;
-        mapRDV[RDV_HEURE]           = HeureRDV->time();
-        mapRDV[RDV_IDSUPERVISEUR]   = ComboSuperviseurs->currentData();
+        rdv = new RendezVous;
+        rdv->setMotif(motif);
+        rdv->setMessage(Message);
+        rdv->setHeurerdv(HeureRDV->time());
+        rdv->setIdsuperviseur(ComboSuperviseurs->currentData().toInt());
     }
     delete dlg_ask;
     dlg_ask = Q_NULLPTR;
-    return mapRDV;
+    return rdv;
 }
 
 
@@ -4932,25 +4947,27 @@ void Rufus::setTitre()
     setWindowTitle(windowtitle);
 }
 
-void Rufus::SurbrillanceSalDat(UpLabel *lab)
+void Rufus::SurbrillanceSalDat(UpLabelItem *lab)
 {
     QString styleurg = "background:#EEFFFF ; color: red";
     QString Msg, background;
     QString backgroundsurbrill = "background:#B2D7FF";
     if (lab==Q_NULLPTR)
         return;
-    QMap<QString, QVariant> rsgnmt = lab->datas();
-    int idpat       = rsgnmt["idpat"].toInt();
+    RendezVous *rdv = dynamic_cast<RendezVous*>(lab->item());
+    if (rdv == Q_NULLPTR)
+        return;
+    int idpat       = rdv->idpatient();
     int row         = lab->Row();
     QString color   = "color: black";
     QString colorRDV= "color: black";
-    UpLabel *lab0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
-    UpLabel *lab1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,1));
-    UpLabel *lab2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,2));
-    UpLabel *lab3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,3));
-    UpLabel *lab4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
-    UpLabel *lab5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
-    UpLabel *lab6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
+    UpLabelItem *lab0   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
+    UpLabelItem *lab1   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,1));
+    UpLabelItem *lab2   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,2));
+    UpLabelItem *lab3   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,3));
+    UpLabelItem *lab4   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
+    UpLabelItem *lab5   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
+    UpLabelItem *lab6   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
     PatientEnCours *pat = Q_NULLPTR;
     auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(idpat);
     if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
@@ -5012,21 +5029,20 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     {
         for (int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)  // on remet à la normale ceux qui étaient en surbrillance et on met l'enregistrement en surbrillance
         {
-            UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+            UpLabelItem *labi0   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
             if (labi0->styleSheet().contains(backgroundsurbrill))       // l'enregistrement est en surbrillance, on le remet à la normale
             {
                 QString Msgi;
-                UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
-                UpLabel *labi1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
-                UpLabel *labi2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
-                UpLabel *labi3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
-                UpLabel *labi4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
-                UpLabel *labi5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
-                UpLabel *labi6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+                UpLabelItem *labi0   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+                UpLabelItem *labi1   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
+                UpLabelItem *labi2   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
+                UpLabelItem *labi3   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
+                UpLabelItem *labi4   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
+                UpLabelItem *labi5   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
+                UpLabelItem *labi6   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
                 pat = Q_NULLPTR;
-                QMap<QString, QVariant> rsgnmt = labi0->datas();
-                auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(rsgnmt["idpat"].toInt());
+                auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(rdv->idpatient());
                 if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
                 {
                     pat = const_cast<PatientEnCours*>(itpat.value());
@@ -8063,7 +8079,7 @@ bool Rufus::FermeDossier(Patient *patient)
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
         QString Message(""), Motif(""), idUser ("");
-        QMap<QString, QVariant> mapRDV;
+        RendezVous* rdv;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(patient->id());
         if (pat != Q_NULLPTR)
         {
@@ -8072,12 +8088,12 @@ bool Rufus::FermeDossier(Patient *patient)
             idUser = QString::number(pat->iduser());
             if (Motif=="")
             {
-                mapRDV = MotifRDV(Motif, Message);
-                if (mapRDV.isEmpty())
+                rdv = MotifRDV(Motif, Message);
+                if (rdv == Q_NULLPTR)
                     return false;
-                Motif   = mapRDV[RDV_MOTIF].toString();
-                Message = mapRDV[RDV_MESSAGE].toString();
-                idUser  = mapRDV[RDV_IDSUPERVISEUR].toString();
+                Motif   = rdv->motif();
+                Message = rdv->message();
+                idUser  = QString::number(rdv->idsuperviseur());
             }
             ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
             ItemsList::update(pat, CP_IDUSER_SALDAT, idUser);
@@ -8085,7 +8101,7 @@ bool Rufus::FermeDossier(Patient *patient)
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
             ItemsList::update(pat, CP_MOTIF_SALDAT, Motif);
             ItemsList::update(pat, CP_MESSAGE_SALDAT, Message);
-            ItemsList::update(pat, CP_HEURERDV_SALDAT, mapRDV[RDV_HEURE]);
+            ItemsList::update(pat, CP_HEURERDV_SALDAT, rdv->heurerdv());
         }
         else
             a = InscritEnSalDat(patient);
@@ -9413,31 +9429,21 @@ void Rufus::Remplir_SalDat()
         if (it == Datas::I()->patients->patientssaldat()->end())
             continue;
         Patient *pat                = it.value();
-        QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"]             = patencours->id();
-        rsgnmt["motif"]             = patencours->motif();
-        rsgnmt["ddnpat"]            = pat->datedenaissance();
-        rsgnmt["idsuperviseur"]     = patencours->iduser();
-        rsgnmt["loginsuperviseur"]  = (Datas::I()->users->getById(patencours->iduser()) != Q_NULLPTR? Datas::I()->users->getById(patencours->iduser())->login() : "");
-        rsgnmt["urgence"]           = (patencours->motif() == "URG");
-        rsgnmt["message"]           = patencours->message();
+        RendezVous *rdv = new RendezVous();
+        rdv     ->setIdpatient(patencours->id());
+        rdv     ->setMotif( patencours->motif());
+        rdv     ->setIdsuperviseur(patencours->iduser());
+        rdv     ->setUrgence(patencours->motif() == "URG");
+        rdv     ->setMessage(patencours->message());
 
-        UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
-        label0 = new UpLabel(TableAMettreAJour);
-        label1 = new UpLabel(TableAMettreAJour);
-        label2 = new UpLabel(TableAMettreAJour);
-        label3 = new UpLabel(TableAMettreAJour);
-        label4 = new UpLabel(TableAMettreAJour);
-        label5 = new UpLabel(TableAMettreAJour);
-        label6 = new UpLabel(TableAMettreAJour);
-
-        label0->setdatas(rsgnmt);
-        label1->setdatas(rsgnmt);
-        label2->setdatas(rsgnmt);
-        label3->setdatas(rsgnmt);
-        label4->setdatas(rsgnmt);
-        label5->setdatas(rsgnmt);
-        label6->setdatas(rsgnmt);
+        UpLabelItem *label0, *label1, *label2, *label3, *label4, *label5, *label6;
+        label0 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label1 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label2 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label3 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label4 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label5 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label6 = new UpLabelItem(rdv, "", TableAMettreAJour);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9543,27 +9549,27 @@ void Rufus::Remplir_SalDat()
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDat(label4);});
         connect (label5,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDat(label5);});
         connect (label6,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDat(label6);});
-        connect (label0,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label0);});
-        connect (label1,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label1);});
-        connect (label2,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label2);});
-        connect (label3,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label3);});
-        connect (label4,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label4);});
-        connect (label5,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label5);});
-        connect (label6,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label6);});
-        connect (label0,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label0);});
-        connect (label1,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label1);});
-        connect (label2,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label2);});
-        connect (label3,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label3);});
-        connect (label4,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label4);});
-        connect (label5,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label5);});
-        connect (label6,        &UpLabel::clicked,          this,                   [=] {SurbrillanceSalDat(label6);});
-        connect (label0,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label1,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label2,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label3,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label4,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label5,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label6,        &UpLabel::dblclick,         this,                   [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label0,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label0);});
+        connect (label1,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label1);});
+        connect (label2,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label2);});
+        connect (label3,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label3);});
+        connect (label4,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label4);});
+        connect (label5,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label5);});
+        connect (label6,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label6);});
+        connect (label0,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label0);});
+        connect (label1,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label1);});
+        connect (label2,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label2);});
+        connect (label3,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label3);});
+        connect (label4,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label4);});
+        connect (label5,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label5);});
+        connect (label6,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label6);});
+        connect (label0,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label1,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label2,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label3,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label4,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label5,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label6,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
         TableAMettreAJour->setCellWidget(i,0,label0);
         TableAMettreAJour->setCellWidget(i,1,label1);
         TableAMettreAJour->setCellWidget(i,2,label2);
@@ -9737,31 +9743,22 @@ void Rufus::Remplir_SalDat()
         Acte* actapayer             = Datas::I()->actes->getById(patencours->idacteapayer());
         if (actapayer == Q_NULLPTR)
             continue;
+        RendezVous *rdv = new RendezVous();
+        rdv     ->setIdpatient(patencours->id());
+        rdv     ->setMotif(patencours->motif());
+        rdv     ->setIdsuperviseur(patencours->iduser());
+        rdv     ->setUrgence(patencours->motif() == "URG");
+        rdv     ->setMessage(patencours->message());
+
         QString superviseurlogin    = (Datas::I()->users->getById(patencours->iduser()) != Q_NULLPTR? Datas::I()->users->getById(patencours->iduser())->login() : "");
-        QMap<QString, QVariant> rsgnmt;
-        rsgnmt["idpat"]             = patencours->id();
-        rsgnmt["motif"]             = patencours->motif();
-        rsgnmt["ddnpat"]            = pat->datedenaissance();
-        rsgnmt["idsuperviseur"]     = patencours->iduser();
-        rsgnmt["loginsuperviseur"]  = superviseurlogin;
-        rsgnmt["urgence"]           = (patencours->motif() == "URG");
-        rsgnmt["message"]           = patencours->message();
-        rsgnmt["idComptable"]       = actapayer->idComptable();
 
-        UpLabel *label0, *label1, *label2, *label3, *label4, *label5;
-        label0 = new UpLabel;
-        label1 = new UpLabel;
-        label2 = new UpLabel;
-        label3 = new UpLabel;
-        label4 = new UpLabel;
-        label5 = new UpLabel;
-
-        label0->setdatas(rsgnmt);
-        label1->setdatas(rsgnmt);
-        label2->setdatas(rsgnmt);
-        label3->setdatas(rsgnmt);
-        label4->setdatas(rsgnmt);
-        label5->setdatas(rsgnmt);
+        UpLabelItem *label0, *label1, *label2, *label3, *label4, *label5;
+        label0 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label1 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label2 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label3 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label4 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        label5 = new UpLabelItem(rdv, "", TableAMettreAJour);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9830,12 +9827,12 @@ void Rufus::Remplir_SalDat()
         connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label3);});
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label4);});
         connect (label5,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label5);});
-        connect (label0,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label0);});
-        connect (label1,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label1);});
-        connect (label2,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label2);});
-        connect (label3,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label3);});
-        connect (label4,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label4);});
-        connect (label5,        &UpLabel::enter,            this,                   [=] {AfficheMotif(label5);});
+        connect (label0,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label0);});
+        connect (label1,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label1);});
+        connect (label2,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label2);});
+        connect (label3,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label3);});
+        connect (label4,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label4);});
+        connect (label5,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label5);});
         TableAMettreAJour   ->setCellWidget(i,0,label0);
         TableAMettreAJour   ->setCellWidget(i,1,label1);
         TableAMettreAJour   ->setCellWidget(i,2,label2);

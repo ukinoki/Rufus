@@ -11,6 +11,7 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/updoublevalidator.cpp \
     $$PWD/upgroupbox.cpp \
     $$PWD/uplabel.cpp \
+    $$PWD/uplabelitem.cpp \
     $$PWD/uplineedit.cpp \
     $$PWD/upmessagebox.cpp \
     $$PWD/upprogressdialog.cpp \
@@ -37,6 +38,7 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/updoublevalidator.h \
     $$PWD/upgroupbox.h \
     $$PWD/uplabel.h \
+    $$PWD/uplabelitem.h \
     $$PWD/uplineedit.h \
     $$PWD/upmessagebox.h \
     $$PWD/upprogressdialog.h \
