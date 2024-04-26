@@ -138,8 +138,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
                 connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/ca-cert.pem;");
         }
     }
-    QString connectOptions = connectSSLoptions + "MYSQL_OPT_RECONNECT=1";
-    m_db.setConnectOptions(connectOptions);
+    m_db.setConnectOptions(connectSSLoptions);
 
     m_db.setUserName(login + (useSSL ? "SSL" : ""));
     m_db.setPassword(password);
@@ -148,7 +147,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("databaseName - " + m_db.databaseName());
     Logs::LogSQL("Login        - " + m_db.userName());
     Logs::LogSQL("port         - " + QString::number(m_db.port()));
-    Logs::LogSQL("options      - " + connectOptions);
+    Logs::LogSQL("options      - " + (connectSSLoptions!=""? connectSSLoptions : "none"));
 
     if( m_db.open() )
         return QString();

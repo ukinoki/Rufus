@@ -4055,6 +4055,8 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     lbltitre->setText(tr("Message"));
     MsgText->setFixedSize(300,40);
     HeureTitre->setText(tr("Heure de RDV"));
+    HeureRDV->setFixedWidth(100);
+    HeureRDV->setCalendarPopup(true);
     HeureRDV->setTime(heurerdv);
     HeureRDV->setCurrentSection(QDateTimeEdit::MinuteSection);
     dlg_ask->AjouteWidgetLayButtons(HeureRDV, false);
@@ -4073,7 +4075,7 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     dlg_ask->setWindowTitle(tr("Enregistrer le motif de l'acte"));
 
     dlg_ask->setModal(true);
-    dlg_ask->setFixedWidth(320);
+    dlg_ask->setFixedWidth(360);
     dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     MsgText->setText(Message);
     if (dlg_ask->exec() == QDialog::Accepted)
