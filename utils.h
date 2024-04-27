@@ -282,7 +282,7 @@ public:
     //! Removes control characters from byteArray
     static QByteArray cleanByteArray( QByteArray byteArray );
 
-    //! return min width of QTimeEdit and QDatEdit - vary W11 and MacOS/Linux
+    //! return min width & size of QTimeEdit and QDatEdit - depends on graphics card and OS, vary W11 and MacOS/Linux
     static int qtimeeditwidth() {
         QString width = QTIMEEDITWIDTH;
         return width.toInt();
@@ -290,6 +290,16 @@ public:
     static int qdateeditwidth() {
         QString width = QDATEEDITWIDTH;
         return width.toInt();
+    }
+    static QSize qtimeeditsize() {
+        QString width = QTIMEEDITWIDTH;
+        QString height = QDATETIMEEDITHEIGHT;
+        return QSize(width.toInt(), height.toInt());
+    }
+    static QSize qdateeditsize() {
+        QString width = QDATEEDITWIDTH;
+        QString height = QDATETIMEEDITHEIGHT;
+        return QSize(width.toInt(), height.toInt());
     }
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)

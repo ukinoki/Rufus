@@ -128,7 +128,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->StatutComptaupTextEdit      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     ui->StatutComptaupTextEdit      ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-    ui->HeureBackuptimeEdit         ->setFixedWidth(Utils::qtimeeditwidth());
+    ui->HeureBackuptimeEdit         ->setFixedSize(Utils::qtimeeditsize());
 
     QFont font = qApp->font();
     font.setBold(true);

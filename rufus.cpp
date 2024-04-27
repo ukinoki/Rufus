@@ -4057,7 +4057,7 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     MsgText     ->setFixedHeight(40);
     HeureTitre  ->setText(tr("Heure de RDV"));
     HeureRDV    ->setTime(heurerdv);
-    HeureRDV    ->setMinimumWidth(Utils::qtimeeditwidth());
+    HeureRDV    ->setMinimumSize(Utils::qtimeeditsize());
     HeureRDV    ->setCurrentSection(QDateTimeEdit::MinuteSection);
     dlg_ask     ->AjouteWidgetLayButtons(HeureRDV, false);
     dlg_ask     ->AjouteWidgetLayButtons(HeureTitre, false);

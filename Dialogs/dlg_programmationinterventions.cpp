@@ -1224,7 +1224,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     UpLabel* lblheure   = new UpLabel;
     lblheure            ->setText(tr("Heure"));
     QTimeEdit *timeedit = new QTimeEdit();
-    timeedit            ->setFixedWidth(Utils::qtimeeditwidth());
+    timeedit            ->setFixedSize(Utils::qtimeeditsize());
     choixheureLay       ->addWidget(lblheure);
     choixheureLay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixheureLay       ->addWidget(timeedit);

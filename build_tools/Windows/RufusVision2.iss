@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Rufus"
-#define MyAppVersion "11-02-2024"
+#define MyAppVersion "26-04-2024"
 #define MyAppPublisher "RufusVision"
 #define MyAppURL "https://www.rufusvision.org/"
 #define MyAppExeName "Rufus.exe"
@@ -40,7 +40,7 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Sunglasses.ico
 
 [Files]
-Source: "C:\Users\serge\RufusQt6Deploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: vc_redist.x64.exe
+Source: "C:\Users\serge\RufusDeploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: vc_redist.x64.exe
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
