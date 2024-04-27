@@ -333,7 +333,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_COMPTA_PARAMSYSTEME                          "ComptaFrance"
                             //! Table Rufus.salledattente
 #define CP_IDPAT_SALDAT                                 "idPat"
-#define CP_IDUSER_SALDAT                                "idUser"
+#define CP_IDUSERSUPERVISEUR_SALDAT                     "idUser"
 #define CP_STATUT_SALDAT                                "Statut"
 #define CP_HEURESTATUT_SALDAT                           "HeureStatut"
 #define CP_HEURERDV_SALDAT                              "HeureRDV"
@@ -1167,6 +1167,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Nom_fiche_RemiseCheques                         "RemiseCheques"
 #define Nom_fiche_Edit                                  "Edit"
 #define Nom_fiche_Rufus                                 "Rufus"
+
+//! size of QTimeEdit and QDateEdit differs from W11 and macOS/Linux
+#if defined(Q_OS_LINUX)
+#define QTIMEEDITWIDTH               "<80>"
+#define QDATEEDITWIDTH               "<120>"
+#elif defined(Q_OS_MACOS)
+#define QTIMEEDITWIDTH               "<80>"
+#define QDATEEDITWIDTH               "<120>"
+#elif defined(Q_OS_WIN)
+#define QTIMEEDITWIDTH               "<110>"
+#define QDATEEDITWIDTH               "<120>"
+#endif
 
 
 #endif // MACROS_H

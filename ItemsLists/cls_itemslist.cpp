@@ -157,9 +157,9 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 Utils::CalcintValueSQL(newvalue);
 
             }
-            else if (field == CP_IDUSER_SALDAT)
+            else if (field == CP_IDUSERSUPERVISEUR_SALDAT)
             {
-                patcrs->setiduser(newvalue.toInt());
+                patcrs->setidusersuperviseur(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
 
             }

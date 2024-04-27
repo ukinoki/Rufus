@@ -2895,12 +2895,6 @@ un serveur hébergé sur le réseau local</string>
                </item>
                <item row="1" column="2">
                 <widget class="QTimeEdit" name="HeureBackuptimeEdit">
-                 <property name="maximumSize">
-                  <size>
-                   <width>70</width>
-                   <height>16777215</height>
-                  </size>
-                 </property>
                  <property name="contextMenuPolicy">
                   <enum>Qt::NoContextMenu</enum>
                  </property>
@@ -3875,9 +3869,19 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpLineEdit</class>
    <extends>QLineEdit</extends>
    <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLabel</class>
+   <extends>QLabel</extends>
+   <header>uplabel.h</header>
   </customwidget>
   <customwidget>
    <class>UpPushButton</class>
@@ -3890,19 +3894,9 @@ des organismes bancaires</string>
    <header>upcombobox.h</header>
   </customwidget>
   <customwidget>
-   <class>UpTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpSmallButton</class>
    <extends>QPushButton</extends>
    <header>upsmallbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLabel</class>
-   <extends>QLabel</extends>
-   <header>uplabel.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>

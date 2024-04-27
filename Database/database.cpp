@@ -137,8 +137,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
             if (nomfich == "ca-cert.pem")
                 connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/ca-cert.pem;");
         }
+        m_db.setConnectOptions(connectSSLoptions);
     }
-    m_db.setConnectOptions(connectSSLoptions);
 
     m_db.setUserName(login + (useSSL ? "SSL" : ""));
     m_db.setPassword(password);
@@ -147,7 +147,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("databaseName - " + m_db.databaseName());
     Logs::LogSQL("Login        - " + m_db.userName());
     Logs::LogSQL("port         - " + QString::number(m_db.port()));
-    Logs::LogSQL("options      - " + (connectSSLoptions!=""? connectSSLoptions : "none"));
+    Logs::LogSQL("options      - " + (connectSSLoptions != ""? connectSSLoptions : "none"));
 
     if( m_db.open() )
         return QString();
@@ -2335,9 +2335,7 @@ bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
 PatientEnCours* DataBase::loadPatientEnCoursById(int idPat)
 {
     PatientEnCours *pat = new PatientEnCours;
-    QString req = "SELECT idPat, IdUser, Statut, HeureStatut,  HeureRDV,"
-                  " HeureArrivee, Motif, Message, idActeAPayer, PosteExamen,"
-                  " idUserEnCoursExam, idSalDat FROM " TBL_SALLEDATTENTE " where idPat = " + QString::number(idPat);
+    QString req = "SELECT " CP_IDPAT_SALDAT " FROM " TBL_SALLEDATTENTE " where " CP_IDPAT_SALDAT " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
     {
@@ -2352,9 +2350,9 @@ PatientEnCours* DataBase::loadPatientEnCoursById(int idPat)
 
 QJsonObject DataBase::loadPatientEnCoursDataById(int idPat)
 {
-    QString req = "SELECT idPat, IdUser, Statut, HeureStatut,  HeureRDV,"
-                  " HeureArrivee, Motif, Message, idActeAPayer, PosteExamen,"
-                  " idUserEnCoursExam, idSalDat FROM " TBL_SALLEDATTENTE " where idPat = " + QString::number(idPat);
+    QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
+                  CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
+                  CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT " FROM " TBL_SALLEDATTENTE " where " CP_IDPAT_SALDAT " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return QJsonObject();
@@ -2368,7 +2366,7 @@ QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
     if( !ok || patdata.size()==0 )
         return jData;
     jData[CP_IDPAT_SALDAT]              = patdata.at(0).toInt();
-    jData[CP_IDUSER_SALDAT]             = patdata.at(1).toInt();
+    jData[CP_IDUSERSUPERVISEUR_SALDAT]  = patdata.at(1).toInt();
     jData[CP_STATUT_SALDAT]             = patdata.at(2).toString();
     jData[CP_HEURESTATUT_SALDAT]        = patdata.at(3).toTime().toString("HH:mm:ss");
     jData[CP_HEURERDV_SALDAT]           = patdata.at(4).toTime().toString("HH:mm:ss");
@@ -2385,9 +2383,9 @@ QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
 QList<PatientEnCours *> DataBase::loadPatientsenCoursAll()
 {
     QList<PatientEnCours*> listpat;
-    QString req = "SELECT idPat, IdUser, Statut, HeureStatut,  HeureRDV,"
-                  " HeureArrivee, Motif, Message, idActeAPayer, PosteExamen,"
-                  " idUserEnCoursExam, idSalDat FROM " TBL_SALLEDATTENTE;
+    QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
+                  CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
+                  CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT " FROM " TBL_SALLEDATTENTE;
     QList<QVariantList> patlist = StandardSelectSQL(req, ok);
     if( !ok || patlist.size()==0 )
         return listpat;

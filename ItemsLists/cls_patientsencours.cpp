@@ -92,7 +92,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
 
     QString req = "INSERT INTO " TBL_SALLEDATTENTE
                         " (" CP_IDPAT_SALDAT ","
-                             CP_IDUSER_SALDAT ","
+                             CP_IDUSERSUPERVISEUR_SALDAT ","
                              CP_STATUT_SALDAT ","
                              CP_HEURESTATUT_SALDAT ","
                              CP_HEURERDV_SALDAT ","
@@ -132,7 +132,7 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
     DataBase::I()->unlocktables();
     PatientEnCours *pat = new PatientEnCours();
     pat->setid(idpat);
-    pat->setiduser(usr->id());
+    pat->setidusersuperviseur(usr->id());
     if (Statut != "")
         pat->setstatut(Statut);
     if (heureStatut != QTime())

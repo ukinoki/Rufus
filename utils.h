@@ -280,7 +280,18 @@ public:
     static int getindexFromValue(const QMetaEnum & e, int value);
 
     //! Removes control characters from byteArray
-    static QByteArray cleanByteArray( QByteArray byteArray );};
+    static QByteArray cleanByteArray( QByteArray byteArray );
+
+    //! return min width of QTimeEdit and QDatEdit - vary W11 and MacOS/Linux
+    static int qtimeeditwidth() {
+        QString width = QTIMEEDITWIDTH;
+        return width.toInt();
+    }
+    static int qdateeditwidth() {
+        QString width = QDATEEDITWIDTH;
+        return width.toInt();
+    }
+};
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 
 #endif // UTILS_H

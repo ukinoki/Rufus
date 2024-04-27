@@ -205,7 +205,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         PatientEnCours *pat = const_cast<PatientEnCours*>(it.value());
         if (pat != Q_NULLPTR)
-            if (pat->iduser() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
+            if (pat->idusersuperviseur() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
             {
                 ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                 ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
@@ -1040,8 +1040,8 @@ void Rufus::MAJPatientsVus()
     for (i = 0; i < patlist.size(); i++)
     {
         RendezVous *rdv = new RendezVous;
-        rdv     ->setIdpatient(patlist.at(i).at(0).toInt());
-        rdv     ->setIdsuperviseur(patlist.at(i).at(11).toInt());
+        rdv     ->setidpatient(patlist.at(i).at(0).toInt());
+        rdv     ->setidsuperviseur(patlist.at(i).at(11).toInt());
         User *usr = Datas::I()->users->getById(rdv->idsuperviseur());
         QString superviseurlogin = "";
         if (usr != Q_NULLPTR)
@@ -3974,7 +3974,7 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
             ItemsList::update(pat, CP_MOTIF_SALDAT, rdv->motif());
             ItemsList::update(pat, CP_MESSAGE_SALDAT, rdv->message());
             ItemsList::update(pat, CP_HEURERDV_SALDAT, rdv->heurerdv());
-            ItemsList::update(pat, CP_IDUSER_SALDAT, rdv->idsuperviseur());
+            ItemsList::update(pat, CP_IDUSERSUPERVISEUR_SALDAT, rdv->idsuperviseur());
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
@@ -3987,16 +3987,17 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     RendezVous *rdv = Q_NULLPTR;
     if (Datas::I()->motifs->motifs()->size()==0)
         return rdv;
-    dlg_ask            = new UpDialog(this);
-    QVBoxLayout     *motiflayout    = new QVBoxLayout();
-    UpLabel         *lbltitre       = new UpLabel(dlg_ask);
-    UpLabel         *lblsoignt      = new UpLabel(dlg_ask);
-    QTextEdit       *MsgText        = new QTextEdit(dlg_ask);
-    QGroupBox       *grpBox         = new QGroupBox(dlg_ask);
-    QTimeEdit       *HeureRDV       = new QTimeEdit(dlg_ask);
-    UpComboBox *ComboSuperviseurs   = new UpComboBox(dlg_ask);
-    UpLabel         *HeureTitre     = new UpLabel(dlg_ask);
+    UpDialog        *dlg_ask            = new UpDialog(this);
+    QVBoxLayout     *motiflayout        = new QVBoxLayout();
+    UpLabel         *lbltitre           = new UpLabel(dlg_ask);
+    UpLabel         *lblsoignt          = new UpLabel(dlg_ask);
+    QTextEdit       *MsgText            = new QTextEdit(dlg_ask);
+    QGroupBox       *grpBox             = new QGroupBox(dlg_ask);
+    QTimeEdit       *HeureRDV           = new QTimeEdit(dlg_ask);
+    UpComboBox      *ComboSuperviseurs  = new UpComboBox(dlg_ask);
+    UpLabel         *HeureTitre         = new UpLabel(dlg_ask);
     grpBox          ->setTitle(tr("Motif de l'acte"));
+    int width       = 380;
 
     for (auto it =  Datas::I()->users->superviseurs()->constBegin(); it !=  Datas::I()->users->superviseurs()->constEnd(); ++it)
     {
@@ -4046,28 +4047,27 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     if ((a*2)<n)
         a       += 1;
     for (int i=0;i<a;i++)
-        grpBox->findChildren<QRadioButton*>().at(i)->setGeometry(5,30+(25*i),130,20);
+        grpBox->findChildren<QRadioButton*>().at(i)->setGeometry(5,30+(25*i),(width/2)-20,20);
     for (int j=a;j<n;j++)
-        grpBox->findChildren<QRadioButton*>().at(j)->setGeometry(150,30+(25*(j-a)),130,20);
+        grpBox->findChildren<QRadioButton*>().at(j)->setGeometry((width/2)-20,30+(25*(j-a)),(width/2)-20,20);
 
-    grpBox      ->setFixedSize(300,(a*30)+20);
+    grpBox      ->setFixedHeight((a*30)+20);
 
-    lbltitre->setText(tr("Message"));
-    MsgText->setFixedSize(300,40);
-    HeureTitre->setText(tr("Heure de RDV"));
-    HeureRDV->setFixedWidth(100);
-    HeureRDV->setCalendarPopup(true);
-    HeureRDV->setTime(heurerdv);
-    HeureRDV->setCurrentSection(QDateTimeEdit::MinuteSection);
-    dlg_ask->AjouteWidgetLayButtons(HeureRDV, false);
-    dlg_ask->AjouteWidgetLayButtons(HeureTitre, false);
-    dlg_ask->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    dlg_ask->setStageCount(1);
+    lbltitre    ->setText(tr("Message"));
+    MsgText     ->setFixedHeight(40);
+    HeureTitre  ->setText(tr("Heure de RDV"));
+    HeureRDV    ->setTime(heurerdv);
+    HeureRDV    ->setMinimumWidth(Utils::qtimeeditwidth());
+    HeureRDV    ->setCurrentSection(QDateTimeEdit::MinuteSection);
+    dlg_ask     ->AjouteWidgetLayButtons(HeureRDV, false);
+    dlg_ask     ->AjouteWidgetLayButtons(HeureTitre, false);
+    dlg_ask     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_ask     ->setStageCount(1);
 
-    motiflayout->addLayout(soignantlayout);
-    motiflayout->addWidget(grpBox);
-    motiflayout->addWidget(lbltitre);
-    motiflayout->addWidget(MsgText);
+    motiflayout ->addLayout(soignantlayout);
+    motiflayout ->addWidget(grpBox);
+    motiflayout ->addWidget(lbltitre);
+    motiflayout ->addWidget(MsgText);
     dlg_ask->dlglayout()->insertLayout(0,motiflayout);
 
     connect(dlg_ask->OKButton,   &QPushButton::clicked,  dlg_ask,   &QDialog::accept);
@@ -4075,7 +4075,7 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
     dlg_ask->setWindowTitle(tr("Enregistrer le motif de l'acte"));
 
     dlg_ask->setModal(true);
-    dlg_ask->setFixedWidth(360);
+    dlg_ask->setFixedWidth(width);
     dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     MsgText->setText(Message);
     if (dlg_ask->exec() == QDialog::Accepted)
@@ -4104,10 +4104,10 @@ RendezVous* Rufus::MotifRDV(QString motif, QString Message, QTime heurerdv)
             }
         }
         rdv = new RendezVous;
-        rdv->setMotif(motif);
-        rdv->setMessage(Message);
-        rdv->setHeurerdv(HeureRDV->time());
-        rdv->setIdsuperviseur(ComboSuperviseurs->currentData().toInt());
+        rdv->setmotif(motif);
+        rdv->setmessage(Message);
+        rdv->setheurerdv(HeureRDV->time());
+        rdv->setidsuperviseur(ComboSuperviseurs->currentData().toInt());
     }
     delete dlg_ask;
     dlg_ask = Q_NULLPTR;
@@ -5961,7 +5961,7 @@ void Rufus::VerifVerrouDossier()
                 bool posttrouve = true;
                 foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
                 {
-                    if (post->id() == pat->iduser() && post->nomposte() == pat->posteexamen())
+                    if (post->id() == pat->idusersuperviseur() && post->nomposte() == pat->posteexamen())
                     {
                         posttrouve = true;
                         break;
@@ -7221,7 +7221,7 @@ void Rufus::SortieAppli()
     }
 
     // le tab dossier est fermé, on vérifie s'il y a du monde en salle d'attente
-    QString req = "SELECT " CP_STATUT_SALDAT ", " CP_IDPAT_SALDAT ", " CP_POSTEEXAMEN_SALDAT " FROM " TBL_SALLEDATTENTE " WHERE " CP_IDUSER_SALDAT " = '" + QString::number(currentuser()->id()) + "'";
+    QString req = "SELECT " CP_STATUT_SALDAT ", " CP_IDPAT_SALDAT ", " CP_POSTEEXAMEN_SALDAT " FROM " TBL_SALLEDATTENTE " WHERE " CP_IDUSERSUPERVISEUR_SALDAT " = '" + QString::number(currentuser()->id()) + "'";
     QList<QVariantList> saldatlist = db->StandardSelectSQL(req,m_ok);
     if (m_ok && saldatlist.size()>0)
     {
@@ -8087,7 +8087,7 @@ bool Rufus::FermeDossier(Patient *patient)
         {
             Motif = pat->motif();
             Message = pat->message();
-            idUser = QString::number(pat->iduser());
+            idUser = QString::number(pat->idusersuperviseur());
             if (Motif=="")
             {
                 rdv = MotifRDV(Motif, Message);
@@ -8098,7 +8098,7 @@ bool Rufus::FermeDossier(Patient *patient)
                 idUser  = QString::number(rdv->idsuperviseur());
             }
             ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
-            ItemsList::update(pat, CP_IDUSER_SALDAT, idUser);
+            ItemsList::update(pat, CP_IDUSERSUPERVISEUR_SALDAT, idUser);
             ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
             ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
             ItemsList::update(pat, CP_MOTIF_SALDAT, Motif);
@@ -9375,6 +9375,8 @@ void Rufus::Remplir_SalDat()
     // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
 
     QStandardItemModel      *m_listepatientsencoursmodel    = new QStandardItemModel();
+
+    /*! Sort listpatients on rdv time */
     for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
         PatientEnCours *patencrs = const_cast<PatientEnCours*>(it.value());
@@ -9391,6 +9393,8 @@ void Rufus::Remplir_SalDat()
 
     QList<PatientEnCours*> listpat;
     m_listepatientsencoursmodel->sort(0);
+
+    /*! create list idpat sorted on rdv time */
     for (int i=0; i<m_listepatientsencoursmodel->rowCount(); ++i)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_listepatientsencoursmodel->item(i,1));
@@ -9430,13 +9434,13 @@ void Rufus::Remplir_SalDat()
         auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
         if (it == Datas::I()->patients->patientssaldat()->end())
             continue;
-        Patient *pat                = it.value();
+        Patient *pat    = it.value();
         RendezVous *rdv = new RendezVous();
-        rdv     ->setIdpatient(patencours->id());
-        rdv     ->setMotif( patencours->motif());
-        rdv     ->setIdsuperviseur(patencours->iduser());
-        rdv     ->setUrgence(patencours->motif() == "URG");
-        rdv     ->setMessage(patencours->message());
+        rdv             ->setidpatient(patencours->id());
+        rdv             ->setmotif( patencours->motif());
+        rdv             ->setidsuperviseur(patencours->idusersuperviseur());
+        rdv             ->setUrgence(patencours->motif() == "URG");
+        rdv             ->setmessage(patencours->message());
 
         UpLabelItem *label0, *label1, *label2, *label3, *label4, *label5, *label6;
         label0 = new UpLabelItem(rdv, "", TableAMettreAJour);
@@ -9469,35 +9473,35 @@ void Rufus::Remplir_SalDat()
         label6->setAlignment(Qt::AlignCenter);
 
         QString Msg = patencours->message();
-        NomPrenom = " " + pat->nom().toUpper() + " " + pat->prenom();
-        label0->setText(NomPrenom);                                                     // Nom + Prénom
-        label1->setText(patencours->statut());                                          // Statut
-        label4->setText(patencours->motif());                                           // Motif
+        NomPrenom   = " " + pat->nom().toUpper() + " " + pat->prenom();
+        label0      ->setText(NomPrenom);                                                   // Nom + Prénom
+        label1      ->setText(patencours->statut());                                        // Statut
+        label4      ->setText(patencours->motif());                                         // Motif
         if (Msg != "")
-            label2->setPixmap(Icons::pxApres().scaled(10,10));                          //WARNING : icon scaled : pxApres 10,10
+            label2  ->setPixmap(Icons::pxApres().scaled(10,10));                            //WARNING : icon scaled : pxApres 10,10
 
         QString color;
         if (patencours->heurerarrivee().isValid())
         {
-            QTime heureArriv = patencours->heurerarrivee();
-            label5->setText(heureArriv.toString("HH:mm"));                              // Heure RDV
+            QTime heureArriv    = patencours->heurerarrivee();
+            label5              ->setText(heureArriv.toString("HH:mm"));                     // Heure RDV
             if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
                 color = "color: green";
             else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
-               color = "color: orange";
+                color = "color: orange";
             else
-               color = "color: red";
+                color = "color: red";
         }
         QString superviseurlogin ("");
-        User *superviseur = Datas::I()->users->getById(patencours->iduser());
+        User *superviseur = Datas::I()->users->getById(patencours->idusersuperviseur());
         if (superviseur != Q_NULLPTR)
             superviseurlogin = superviseur->login();
         label6->setText(superviseurlogin);  // Superviseur
 
-        if (!listidusers.contains(patencours->iduser()))
+        if (!listidusers.contains(patencours->idusersuperviseur()))
         {
-            listidusers << patencours->iduser();
-            pitem0 = new QStandardItem(QString::number(patencours->iduser()));
+            listidusers << patencours->idusersuperviseur();
+            pitem0 = new QStandardItem(QString::number(patencours->idusersuperviseur()));
             pitem1 = new QStandardItem(superviseurlogin);
             QList<QStandardItem*> listitems;
             listitems << pitem0 << pitem1;
@@ -9511,9 +9515,9 @@ void Rufus::Remplir_SalDat()
             if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
                 colorRDV = "color: green";
             else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
-               colorRDV = "color: orange";
+                colorRDV = "color: orange";
             else
-               colorRDV = "color: red";
+                colorRDV = "color: red";
         }
         QString background = "background:#FFFFEE";
         if (patencours->motif() == "URG")
@@ -9746,13 +9750,13 @@ void Rufus::Remplir_SalDat()
         if (actapayer == Q_NULLPTR)
             continue;
         RendezVous *rdv = new RendezVous();
-        rdv     ->setIdpatient(patencours->id());
-        rdv     ->setMotif(patencours->motif());
-        rdv     ->setIdsuperviseur(patencours->iduser());
+        rdv     ->setidpatient(patencours->id());
+        rdv     ->setmotif(patencours->motif());
+        rdv     ->setidsuperviseur(patencours->idusersuperviseur());
         rdv     ->setUrgence(patencours->motif() == "URG");
-        rdv     ->setMessage(patencours->message());
+        rdv     ->setmessage(patencours->message());
 
-        QString superviseurlogin    = (Datas::I()->users->getById(patencours->iduser()) != Q_NULLPTR? Datas::I()->users->getById(patencours->iduser())->login() : "");
+        QString superviseurlogin    = (Datas::I()->users->getById(patencours->idusersuperviseur()) != Q_NULLPTR? Datas::I()->users->getById(patencours->idusersuperviseur())->login() : "");
 
         UpLabelItem *label0, *label1, *label2, *label3, *label4, *label5;
         label0 = new UpLabelItem(rdv, "", TableAMettreAJour);
@@ -9792,7 +9796,7 @@ void Rufus::Remplir_SalDat()
         label0->setText(" " + zw);                                                              // Heure acte
         label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
         QString Soignant = superviseurlogin;
-        if (patencours->iduser() != idparent)
+        if (patencours->idusersuperviseur() != idparent)
             Soignant +=  " / " +  (Datas::I()->users->getById(idparent) != Q_NULLPTR? Datas::I()->users->getById(idparent)->login() : "null");
         label2->setText(" " + superviseurlogin);       // Soignant
         label3->setText(" " + actapayer->cotation());                                           // Cotation

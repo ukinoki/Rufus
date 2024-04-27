@@ -30,23 +30,23 @@ class PatientEnCours : public Item
 {
     Q_OBJECT
 private:
-    int m_iduser;                       //!< le user surperviseur pour lequel le patient consulte
-    QString m_statut;
-    QTime m_heurestatut;
-    QTime m_heurerdv;
-    QTime m_heurearrivee;
-    QString m_motif;
-    QString m_message;
-    int m_idacteapayer;
-    QString m_posteexamen;
-    int m_iduserencoursexam;            //!< le user en train d'examiner le patient
-    int m_idsaldat;
+    int m_idusersuperviseur     = 0;            //!< le user surperviseur pour lequel le patient consulte
+    QString m_statut            = "";
+    QTime m_heurestatut         = QTime();
+    QTime m_heurerdv            = QTime();
+    QTime m_heurearrivee        = QTime();
+    QString m_motif             = "";
+    QString m_message           = "";
+    int m_idacteapayer          = 0;
+    QString m_posteexamen       = "";
+    int m_iduserencoursexam     = 0;             //!< le user en train d'examiner le patient
+    int m_idsaldat              = 0;
 
 public:
     explicit PatientEnCours(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
-    int iduser() const                  { return m_iduser; }
+    int idusersuperviseur() const       { return m_idusersuperviseur; }
     QString statut() const              { return m_statut; }
     QTime heurestatut() const           { return m_heurestatut; }
     QTime heurerdv() const              { return m_heurerdv; }
@@ -60,8 +60,8 @@ public:
 
     void setid(int id)                  { m_id = id;
                                           m_data[CP_IDPAT_SALDAT] = id; }
-    void setiduser(int id)              { m_iduser = id;
-                                          m_data[CP_IDUSER_SALDAT] = id; }
+    void setidusersuperviseur(int id)   { m_idusersuperviseur = id;
+                                          m_data[CP_IDUSERSUPERVISEUR_SALDAT] = id; }
     void setstatut(QString txt)         { m_statut = txt;
                                           m_data[CP_STATUT_SALDAT] = txt; }
     void setheurestatut(QTime time)     { m_heurestatut = time;

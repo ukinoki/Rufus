@@ -1332,7 +1332,7 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     QTimeEdit *Time = new QTimeEdit();
                     Time->setContentsMargins(0,0,0,0);
-                    Time->setFixedSize(70,30);
+                    Time->setFixedSize(Utils::qtimeeditwidth(),30);
                     Time->setTime(QTime::currentTime());
                     Time->setTimeSpec(Qt::LocalTime);
                     lay->addWidget(Time);
@@ -1433,7 +1433,7 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     QTimeEdit *Time = new QTimeEdit();
                     Time->setContentsMargins(0,0,0,0);
-                    Time->setFixedSize(70,30);
+                    Time->setFixedSize(Utils::qtimeeditwidth(),30);
                     Time->setTime(QTime::currentTime());
                     Time->setTimeSpec(Qt::LocalTime);
                     Time->setObjectName(HEUREINTERVENTION);
