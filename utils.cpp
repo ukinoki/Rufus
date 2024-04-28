@@ -817,7 +817,7 @@ QString Utils::calcSHA1(QString mdp)
             else if (ConfirmMDP->text() == MDP)
                 dlg_askMDP->accept();
             else
-                UpMessageBox::Watch(dlg_askMDP, QObject::tr("Mot de passe invalide!"));
+                UtilsMessageBox::Watch(dlg_askMDP, QObject::tr("Mot de passe invalide!"));
         });
         connect(ConfirmMDP, &UpLineEdit::returnPressed, dlg_askMDP->OKButton, &QPushButton::click);
         dlg_askMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -847,7 +847,7 @@ QString Utils::calcSHA1(QString mdp)
             else if (quest.textValue() == MDP)
                 return true;
             else
-                UpMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
+                UtilsMessageBox::Watch(Q_NULLPTR, QObject::tr("Mot de passe invalide!"));
         }
         return false;
     }
@@ -1008,12 +1008,12 @@ QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirde
     if (ExclureNomAvecEspace)
             if (url.path().contains(" "))
             {
-                UpMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
+                UtilsMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Vous ne pouvez pas choisir un dossier dont le nom contient des espaces"));
                 return QUrl();
             }
     if (listnomsaeliminer.contains(url.path()))
     {
-        UpMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Le dossier doit être différent"));
+        UtilsMessageBox::Watch(parent, tr("Nom de dossier non conforme"),tr("Le dossier doit être différent"));
         return QUrl();
     }
     return url;
@@ -1208,73 +1208,9 @@ QColor Utils::SelectCouleur(QColor colordep, QWidget *parent)
     return  colorfin;
 }
 
-
-void Utils::setDataString(QJsonObject data, QString key, QString &prop, bool useTrim)
-{
-    if( data.contains(key) )
-    {
-        QString str = data[key].toString();
-        if( useTrim )
-            str = Utils::trim(str);
-        prop = str;
-    }
-}
-void Utils::setDataInt(QJsonObject data, QString key, int &prop)
-{
-    if( data.contains(key) )
-        prop = data[key].toInt();
-}
-void Utils::setDataLongLongInt(QJsonObject data, QString key, qlonglong &prop)
-{
-    if( data.contains(key) )
-        prop = data[key].toVariant().toLongLong();
-}
-void Utils::setDataDouble(QJsonObject data, QString key, double &prop)
-{
-    if( data.contains(key) )
-        prop = data[key].toDouble();
-}
-void Utils::setDataBool(QJsonObject data, QString key, bool &prop)
-{
-    if( data.contains(key) )
-        prop = data[key].toBool();
-}
-void Utils::setDataDateTime(QJsonObject data, QString key, QDateTime &prop)
-{
-    if( data.contains(key) )
-    {
-        double time = data[key].toDouble();
-        QDateTime dt;
-        dt.setMSecsSinceEpoch( qint64(time) );
-        prop = dt;
-    }
-}
-void Utils::setDataTime(QJsonObject data, QString key, QTime &prop)
-{
-    if( data.contains(key) )
-        prop = QTime::fromString(data[key].toString(),"HH:mm:ss");
-}
-void Utils::setDataDate(QJsonObject data, QString key, QDate &prop)
-{
-    if( data.contains(key) )
-        prop = QDate::fromString(data[key].toString(),"yyyy-MM-dd");
-}
-void Utils::setDataByteArray(QJsonObject data, QString key, QByteArray &prop)
-{
-  if( data.contains(key) )
-        prop = QByteArray::fromBase64(data[key].toString().toLatin1());
-}
-void Utils::setDataLogic(QJsonObject data, QString key, Logic &prop)
-{
-    if( data.contains(key) )
-        prop = (data[key].toBool()? True : False);
-    else
-        prop = Null;
-}
-
 void Utils::EnChantier(bool avecMsg)
 {
-    UpMessageBox msgbox;
+    UtilsMessageBox msgbox;
     msgbox.setIconPixmap(Icons::pxWorkInProgress());
     UpSmallButton OKBouton;
     if (avecMsg)
@@ -1283,43 +1219,6 @@ void Utils::EnChantier(bool avecMsg)
     msgbox.exec();
 }
 
-
-//! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
-Utils::Cote Utils::ConvertCote(QString cote)
-{
-    if (cote == "D") return Droit;
-    if (cote == "G") return Gauche;
-    if (cote == "2") return Les2;
-    return  NoLoSo;
-}
-
-QString Utils::ConvertCote(Cote cote)
-{
-    switch (cote) {
-    case Gauche:        return "G";
-    case Droit:         return "D";
-    case Les2:          return "2";
-    default: return "";
-    }
-}
-
-QString Utils::TraduitCote(QString cote)
-{
-    if (cote == "D") return tr("Droit");
-    if (cote == "G") return tr("Gauche");
-    if (cote == "2") return tr("Les 2");
-    return  "";
-}
-
-QString Utils::TraduitCote(Cote cote)
-{
-    switch (cote) {
-    case Gauche:        return tr("Gauche");
-    case Droit:         return tr("Droit");
-    case Les2:          return tr("Les 2");
-    default: return "";
-    }
-}
 
 QList<QImage> Utils::calcImagefromPdf(QString filename)
 {
@@ -1545,3 +1444,309 @@ QByteArray Utils::cleanByteArray( QByteArray byteArray )
     }
     return reponseDataClean;
 }
+
+UtilsMessageBox::UtilsMessageBox(QWidget *parent) : UpDialog(parent)
+{
+    wdg_iconlbl             = new UpLabel();
+    wdg_texteditlbl         = new UpLabel();
+    wdg_infolbl             = new UpLabel();
+    wdg_textlayout          = new QVBoxLayout();
+    wdg_infolayout          = new QHBoxLayout();
+    wdg_ReponsSmallButton   = Q_NULLPTR;
+    wdg_ReponsPushButton    = Q_NULLPTR;
+    wdg_texteditlbl         ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+    wdg_infolbl             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
+
+    wdg_textlayout      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    wdg_textlayout      ->addSpacerItem(new QSpacerItem(350,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
+    wdg_infolayout      ->addLayout(wdg_textlayout);
+    wdg_infolayout      ->setSpacing(30);
+    wdg_textlayout      ->setSpacing(5);
+    wdg_textlayout      ->setContentsMargins(0,0,0,0);
+    dlglayout()     ->insertLayout(0,wdg_infolayout);
+    dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+    setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
+    setWindowModality(Qt::WindowModal);
+}
+
+UtilsMessageBox::~UtilsMessageBox()
+{
+}
+
+void UtilsMessageBox::addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton Style)
+{
+    button->setUpButtonStyle(Style);
+    AjouteWidgetLayButtons(button);
+    connect(button, &QPushButton::clicked, this, [=] {Repons(button);});
+}
+
+void UtilsMessageBox::addButton(UpPushButton *button)
+{
+    AjouteWidgetLayButtons(button);
+    connect(button, &QPushButton::clicked, this, [=] {Repons(button);});
+}
+
+void UtilsMessageBox::removeButton(UpSmallButton *button)
+{
+    for (int i=0; i<buttonslayout()->count();i++)
+    {
+        UpSmallButton *buttonARetirer =  qobject_cast<UpSmallButton*>(buttonslayout()->itemAt(i)->widget());
+        if (buttonARetirer!=Q_NULLPTR)
+            if (buttonARetirer == button)
+            {
+                delete buttonARetirer;
+                return;
+            }
+    }
+}
+
+void UtilsMessageBox::Repons(QPushButton *button)
+{
+    UpSmallButton *but = qobject_cast<UpSmallButton*>(button);
+    if (but != Q_NULLPTR)
+        wdg_ReponsSmallButton = but;
+    else
+        wdg_ReponsPushButton = qobject_cast<UpPushButton*>(button);
+    accept();
+}
+
+UpSmallButton* UtilsMessageBox::clickedButton() const
+{
+    return wdg_ReponsSmallButton;
+}
+
+UpPushButton* UtilsMessageBox::clickedpushbutton() const
+{
+    return wdg_ReponsPushButton;
+}
+
+/*!
+ * \brief UtilsMessageBox::setIcon
+ * \param icn
+ * \param animatedIcon if true = uses animated gif else uses png or ico
+*/
+
+void UtilsMessageBox::setIcon(enum Icon icn, bool animatedIcon)
+{
+    bool resize = true;
+    switch (icn) {
+    case Warning:
+        if (animatedIcon)
+        {
+            setAnimatedIcon(WarningGif);
+            resize = false;
+        }
+        else
+            wdg_iconlbl     ->setPixmap(QPixmap("://damn-icon.png").scaled(80,80));
+        break;
+    case Quest:
+        if (animatedIcon)
+        {
+            setAnimatedIcon(QuestionGif);
+            resize = false;
+        }
+        else
+            wdg_iconlbl ->setPixmap(QPixmap("://question.png").scaled(80,80));
+        break;
+    case Info:
+        if (animatedIcon)
+        {
+            setAnimatedIcon(InfoGif);
+            resize = false;
+        }
+        else
+            wdg_iconlbl     ->setPixmap(QPixmap("://information.png").scaled(80,80));
+        break;
+    case Critical:
+        wdg_iconlbl     ->setPixmap(QPixmap("://cancel.png").scaled(80,80));
+        break;
+    case Print:
+        wdg_iconlbl     ->setPixmap(QPixmap("://11865.png").scaled(80,80));
+        break;
+    }
+    if (!resize)
+        return;
+    wdg_iconlbl     ->setFixedSize(80,80);
+    wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
+}
+
+void UtilsMessageBox::setAnimatedIcon(enum Movie movie)
+{
+    switch (movie) {
+    case WarningGif:
+        m_movie         = new QMovie(":/warning.gif");
+        m_movie         ->setScaledSize(QSize(80,80));
+        break;
+    case InfoGif:
+        m_movie         = new QMovie(":/info.gif");
+        m_movie         ->setScaledSize(QSize(80,80));
+        break;
+    case QuestionGif:
+        m_movie         = new QMovie(":/question.gif");
+        m_movie         ->setScaledSize(QSize(100,100));
+        m_movie         ->setSpeed(400);
+        break;
+    }
+    wdg_iconlbl     ->setMovie(m_movie);
+    wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
+    m_movie         ->start();
+}
+
+void UtilsMessageBox::setIconPixmap(QPixmap pix)
+{
+    wdg_iconlbl     ->setPixmap(pix);
+    wdg_iconlbl     ->setFixedSize(pix.width(),pix.height());
+    wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
+}
+
+void UtilsMessageBox::UtilsMessageBox::setText(QString Text)
+{
+    if (Text == "")
+        return;
+    wdg_texteditlbl         ->setStyleSheet("border: 0px solid; background-color: rgba(200,200,200,0)");
+    wdg_texteditlbl         ->setText("<b>" + Text + "</b>");
+    wdg_texteditlbl         ->setWordWrap(true);
+    wdg_texteditlbl         ->setFixedSize(Utils::CalcSize(Text));
+    wdg_textlayout          ->insertWidget(1,wdg_texteditlbl);
+}
+
+void UtilsMessageBox::setInformativeText(QString Text)
+{
+    if (Text == "")
+        return;
+    wdg_infolbl     ->setStyleSheet("border: 0px solid; background-color: rgba(200,200,200,0)");
+    wdg_infolbl     ->setText(Text);
+    wdg_infolbl     ->setWordWrap(true);
+    int position = 1;
+    if (qobject_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != Q_NULLPTR)
+        position += 1;
+    wdg_infolbl     ->setFixedSize(Utils::CalcSize(Text));
+    wdg_textlayout      ->insertWidget(position,wdg_infolbl);
+    wdg_textlayout      ->setSizeConstraint(QLayout::SetFixedSize);
+}
+
+void UtilsMessageBox::setDefaultButton(QPushButton *butt)
+{
+    butt->setDefault(true);
+    butt->setFocus();
+}
+
+void UtilsMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
+{
+    UtilsMessageBox*msgbox     = new UtilsMessageBox(parent);
+    msgbox  ->setText(Text);
+    msgbox  ->setInformativeText(InfoText.toHtmlEscaped());
+    msgbox  ->setIcon(UtilsMessageBox::Quest);
+    msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
+    msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
+    msgbox  ->buttonslayout()   ->setSpacing(50);
+    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+
+    for (int i=0; i<msgbox->buttonslayout()->count();i++)
+    {
+        UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        if (butt!=Q_NULLPTR)
+            connect(butt, &QPushButton::clicked, msgbox, &UtilsMessageBox::accept);
+    }
+    msgbox  ->exec();
+    delete msgbox;
+}
+
+UpSmallButton::StyleBouton UtilsMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QString link)
+{
+    UtilsMessageBox*msgbox     = new UtilsMessageBox(parent);
+
+    msgbox->setIcon(Warning);
+
+    msgbox  ->setText(Text);
+    UpTextEdit text(InfoText.replace("\n","<br>"));
+    msgbox  ->setInformativeText(text.toHtml());
+    msgbox  ->AjouteLayButtons(Butts);
+
+    for (int i=0; i<msgbox->buttonslayout()->count();i++)
+    {
+        UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        if (butt!=Q_NULLPTR)
+        {
+            if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
+                msgbox->disconnect(butt);
+            connect(butt, &QPushButton::clicked, msgbox, [=] {msgbox->Repons(butt);});
+            if (butt->ButtonStyle() == UpSmallButton::STARTBUTTON)
+                butt->setText("OK");
+        }
+    }
+    msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
+    msgbox  ->buttonslayout()   ->setSpacing(50);
+    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    if (link != "")
+    {
+        msgbox  ->wdg_infolbl   ->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
+        msgbox  ->wdg_infolbl   ->setOpenExternalLinks(true);
+        connect (msgbox->wdg_infolbl,
+                &QLabel::linkActivated,                 /*! bug Qt - Impossible to open URL with linkActivated in a QMessageBox - However linkHovered works */
+                msgbox,
+                [=] { QDesktopServices::openUrl(QUrl(link)); });
+    }
+
+    return ExecMsgBox(msgbox);
+}
+
+UpSmallButton::StyleBouton UtilsMessageBox::ExecMsgBox(UtilsMessageBox*msgbox)
+{
+    UpSmallButton::StyleBouton repons = UpSmallButton::CANCELBUTTON;
+    if (msgbox  ->exec() == QDialog::Accepted)
+        repons = msgbox->clickedButton()->ButtonStyle();
+    //qDebug() << Utils::EnumDescription(QMetaEnum::fromType<UpSmallButton::StyleBouton>(), repons);
+    delete msgbox;
+    return repons;
+}
+
+
+UpSmallButton::StyleBouton UtilsMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList titresboutonslist)
+{
+    UtilsMessageBox*msgbox     = new UtilsMessageBox(parent);
+    msgbox->setIcon(Quest);
+
+    msgbox  ->setText(Text);
+    msgbox  ->setInformativeText(InfoText);
+    msgbox  ->AjouteLayButtons(Butts);
+    int k = 0;
+    for (int i=0; i<msgbox->buttonslayout()->count();i++)
+    {
+        UpSmallButton *butt =  qobject_cast<UpSmallButton*>(msgbox->buttonslayout()->itemAt(i)->widget());
+        if (butt!=Q_NULLPTR)
+        {
+            if (titresboutonslist.size()>k)
+                butt->setText(titresboutonslist.at(k));
+            k++;
+            if (butt->ButtonStyle() == UpSmallButton::CANCELBUTTON)
+                msgbox->disconnect(butt);
+            connect(butt, &QPushButton::clicked, msgbox, [=] {msgbox->Repons(butt);});
+        }
+    }
+    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
+    msgbox  ->buttonslayout()   ->setSpacing(50);
+
+    return ExecMsgBox(msgbox);
+}
+
+void UtilsMessageBox::Information(QWidget *parent, QString Text, QString InfoText)
+{
+    UtilsMessageBox*msgbox     = new UtilsMessageBox(parent);
+    msgbox  ->setText(Text);
+    msgbox  ->setInformativeText(InfoText);
+    msgbox  ->setIcon(UtilsMessageBox::Info);
+
+    msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
+    connect (msgbox->OKButton, &QPushButton::clicked, msgbox, [=] {msgbox->accept();});
+    msgbox  ->wdg_texteditlbl       ->setFixedSize(Utils::CalcSize(Text));
+    msgbox  ->wdg_infolbl   ->setFixedSize(Utils::CalcSize(InfoText));
+    msgbox  ->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
+    msgbox  ->exec();
+    delete msgbox;
+}
+

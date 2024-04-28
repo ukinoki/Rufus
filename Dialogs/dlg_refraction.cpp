@@ -1664,7 +1664,7 @@ MesureRefraction* dlg_refraction::CalcMesureRefraction()
 
         if (ui->OGCheckBox->isChecked())
         {
-            ref->cleandatas(Utils::Gauche);
+            ref->cleandatas(Item::Gauche);
             ref->setsphereOG(ui->SphereOG->value());
             ref->setcylindreOG(ui->CylindreOG->value());
             ref->setaxecylindreOG(Utils::roundToNearestFive(ui->AxeCylindreOG->value()));
@@ -1678,7 +1678,7 @@ MesureRefraction* dlg_refraction::CalcMesureRefraction()
         }
         if (ui->ODCheckBox->isChecked())
         {
-            ref->cleandatas(Utils::Droit);
+            ref->cleandatas(Item::Droit);
             ref->setsphereOD(ui->SphereOD->value());
             ref->setcylindreOD(ui->CylindreOD->value());
             ref->setaxecylindreOD(Utils::roundToNearestFive(ui->AxeCylindreOD->value()));
@@ -1694,23 +1694,23 @@ MesureRefraction* dlg_refraction::CalcMesureRefraction()
     else if (ref == Datas::I()->mesureacuite)
     {
         if (ui->OGCheckBox->isChecked())
-            ref->cleandatas(Utils::Gauche);
+            ref->cleandatas(Item::Gauche);
         if (ui->ODCheckBox->isChecked())
-            ref->cleandatas(Utils::Droit);
+            ref->cleandatas(Item::Droit);
     }
     else if (ref == Datas::I()->mesureacuite)
     {
         if (ui->OGCheckBox->isChecked())
-            ref->cleandatas(Utils::Gauche);
+            ref->cleandatas(Item::Gauche);
         if (ui->ODCheckBox->isChecked())
-            ref->cleandatas(Utils::Droit);
+            ref->cleandatas(Item::Droit);
     }
     else if (ref == Datas::I()->mesureacuite)
     {
         if (ui->OGPrescritCheckBox->isChecked())
-            ref->cleandatas(Utils::Gauche);
+            ref->cleandatas(Item::Gauche);
         if (ui->ODPrescritCheckBox->isChecked())
-            ref->cleandatas(Utils::Droit);
+            ref->cleandatas(Item::Droit);
     }
     return ref;
  }

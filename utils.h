@@ -37,11 +37,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <QStandardPaths>
 
-#include "macros.h"
-#include "icons.h"
-
-#include "upmessagebox.h"
-#include "dlg_message.h"
+#include <QAbstractTextDocumentLayout>
+#include <QApplication>
+#include <QDesktopServices>
+#include <QMovie>
+#include <QTextEdit>
 
 #include <QPdfDocument>
 
@@ -51,6 +51,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSerialPort>
 #include <QTime>
 
+#include "updialog.h"
+#include "uptextedit.h"
+#include "dlg_message.h"
+
 const unsigned char SOH = 01;  //0x01
 const unsigned char STX = 02;  //0x02
 const unsigned char EOT = 04;  //0x04
@@ -59,7 +63,44 @@ const unsigned char LF  = 10; //0x0A
 const unsigned char CR  = 13; //0x0D
 
 class ShowMessage;
-class UpMessageBox;
+class UpDialog;
+class UpTextEdit;
+
+class UtilsMessageBox : public UpDialog
+{
+    Q_OBJECT
+public:
+    explicit                            UtilsMessageBox(QWidget *parent = Q_NULLPTR);
+    ~UtilsMessageBox();
+    static void                         Show        (QWidget*, QString Text = "", QString InfoText = "");
+    static void                         Information (QWidget*, QString Text = "", QString InfoText = "");
+    static UpSmallButton::StyleBouton   Watch(QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonOK, QString link = "");
+    static UpSmallButton::StyleBouton   Question(QWidget*, QString Text = "", QString InfoText = "", Buttons Butts = UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList titresboutonslist = QStringList());
+    enum                                Icon   {Quest, Info, Warning, Critical, Print}; Q_ENUM(Icon)
+    enum                                Movie   {QuestionGif, InfoGif, WarningGif}; Q_ENUM(Movie)
+    void                                addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton);
+    void                                addButton(UpPushButton *button);
+    void                                removeButton(UpSmallButton *);
+    UpSmallButton*                      clickedButton() const;
+    UpPushButton*                       clickedpushbutton() const;
+    void                                setIcon(enum Icon icn, bool animatedIcon = true);
+    void                                setIconPixmap(QPixmap);
+    void                                setText(QString);
+    void                                setInformativeText(QString);
+    void                                setDefaultButton(QPushButton*);
+
+private:
+    static UpSmallButton::StyleBouton   ExecMsgBox(UtilsMessageBox*msgbox);
+    UpLabel         *wdg_iconlbl, *wdg_texteditlbl, *wdg_infolbl;
+    QHBoxLayout     *wdg_infolayout;
+    QVBoxLayout     *wdg_textlayout;
+    QMovie          *m_movie;
+    UpSmallButton   *wdg_ReponsSmallButton;
+    UpPushButton    *wdg_ReponsPushButton;
+    void            Repons(QPushButton *butt);
+    void            setAnimatedIcon(Movie movie);
+};
+
 class Utils : public QObject
 {
     Q_OBJECT
@@ -88,7 +129,6 @@ public:
          * en fait, on pourrait même faire une 4ème valeur correspondant à "ne sait pas" -> ne sait pas si la valeur est true, false ou null
          */
     enum ModeAcces { Poste = 0x1, ReseauLocal = 0x2, Distant = 0x4};     Q_ENUM(ModeAcces)
-    enum Cote {Droit, Gauche, Les2, NoLoSo};
     enum Period {Debut, Fin};
 
     static Utils   *I();
@@ -131,8 +171,7 @@ public:
     static bool retirelignevidefinhtml(QString &txthtml);
     static bool epureFontFamily(QString &text);  /*! >il y eut un temps où on entrait dans les html de Qt la font-family avec tous ses attributs
                                                  * ce qui donnait -> font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0' dans le html
-                                                 * depuis Qt 5.10 cela ne marche plus et il faut enlever tous les attributs psinon Qt s'emmêle les pinceaux dans 'interprétation du html
-                                                 * depuis Qt 5.10 cela ne marche plus et il faut enlever tous les attributs psinon Qt s'emmêle les pinceaux dans l'interprétation du html
+                                                  * depuis Qt 5.10 cela ne marche plus et il faut enlever tous les attributs sinon Qt s'emmêle les pinceaux dans l'interprétation du html
                                                  * il faut donc p.e. remplacer font-family:'Comic Sans MS,13,-1,5,50,0,0,0,0,0' par font-family:'Comic Sans MS'
                                                  * c'est le rôle de cette fonction */
 
@@ -221,24 +260,6 @@ public:
     //! renvoie une couleur
     static QColor   SelectCouleur(QColor colordep, QWidget *parent= Q_NULLPTR);
 
-    //! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
-    static Cote     ConvertCote(QString cote);
-    static QString  ConvertCote(Cote mode);
-    static QString  TraduitCote(Cote mode);
-    static QString  TraduitCote(QString cote);
-
-    //! gestion des QJsonObject des items et des mesures
-    static void setDataString(QJsonObject data, QString key, QString &prop, bool useTrim=false);
-    static void setDataInt(QJsonObject data, QString key, int &prop);
-    static void setDataLongLongInt(QJsonObject data, QString key, qlonglong &prop);
-    static void setDataDouble(QJsonObject data, QString key, double &prop);
-    static void setDataBool(QJsonObject data, QString key, bool &prop);
-    static void setDataDateTime(QJsonObject data, QString key, QDateTime &prop);
-    static void setDataDate(QJsonObject data, QString key, QDate &prop);
-    static void setDataTime(QJsonObject data, QString key, QTime &prop);
-    static void setDataByteArray(QJsonObject data, QString key, QByteArray &prop);
-    static void setDataLogic(QJsonObject data, QString key, Logic &prop);
-
 
     //! arrondit un int au multiple de 5 le plus proche
     static int roundToNearestFive(int number)                   { return static_cast<int>(number / 5. + .5) * 5; }
@@ -283,24 +304,10 @@ public:
     static QByteArray cleanByteArray( QByteArray byteArray );
 
     //! return min width & size of QTimeEdit and QDatEdit - depends on graphics card and OS, vary W11 and MacOS/Linux
-    static int qtimeeditwidth() {
-        QString width = QTIMEEDITWIDTH;
-        return width.toInt();
-    }
-    static int qdateeditwidth() {
-        QString width = QDATEEDITWIDTH;
-        return width.toInt();
-    }
-    static QSize qtimeeditsize() {
-        QString width = QTIMEEDITWIDTH;
-        QString height = QDATETIMEEDITHEIGHT;
-        return QSize(width.toInt(), height.toInt());
-    }
-    static QSize qdateeditsize() {
-        QString width = QDATEEDITWIDTH;
-        QString height = QDATETIMEEDITHEIGHT;
-        return QSize(width.toInt(), height.toInt());
-    }
+    static int qtimeeditwidth()     { return QTIMEEDITWIDTH; }
+    static int qdateeditwidth()     { return QDATEEDITWIDTH; }
+    static QSize qtimeeditsize()    { return QSize(QTIMEEDITWIDTH,QDATETIMEEDITHEIGHT); }
+    static QSize qdateeditsize()    { return QSize(QDATEEDITWIDTH,QDATETIMEEDITHEIGHT); }
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

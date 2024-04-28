@@ -25,13 +25,13 @@ void Commercial::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, CP_ID_COM, m_id);
-    Utils::setDataString(data, CP_NOM_COM, m_nom);
-    Utils::setDataString(data, CP_PRENOM_COM, m_prenom);
-    Utils::setDataString(data, CP_STATUT_COM, m_statut);
-    Utils::setDataString(data, CP_MAIL_COM, m_mail);
-    Utils::setDataString(data, CP_TELEPHONE_COM, m_telephone);
-    Utils::setDataInt(data, CP_IDMANUFACTURER_COM, m_idmanufacturer);
+    setDataInt(data, CP_ID_COM, m_id);
+    setDataString(data, CP_NOM_COM, m_nom);
+    setDataString(data, CP_PRENOM_COM, m_prenom);
+    setDataString(data, CP_STATUT_COM, m_statut);
+    setDataString(data, CP_MAIL_COM, m_mail);
+    setDataString(data, CP_TELEPHONE_COM, m_telephone);
+    setDataInt(data, CP_IDMANUFACTURER_COM, m_idmanufacturer);
 
     m_data = data;
 }

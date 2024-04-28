@@ -28,16 +28,16 @@ void Site::setData(QJsonObject data)
         return;
 
 
-    Utils::setDataInt(data, CP_ID_SITE, m_id);
-    Utils::setDataString(data, CP_NOM_SITE, m_nom);
-    Utils::setDataString(data, CP_ADRESSE1_SITE, m_adresse1);
-    Utils::setDataString(data, CP_ADRESSE2_SITE, m_adresse2);
-    Utils::setDataString(data, CP_ADRESSE3_SITE, m_adresse3);
-    Utils::setDataString(data, CP_CODEPOSTAL_SITE, m_codepostal);
-    Utils::setDataString(data, CP_VILLE_SITE, m_ville);
-    Utils::setDataString(data, CP_TELEPHONE_SITE, m_telephone);
-    Utils::setDataString(data, CP_FAX_SITE, m_fax);
-    Utils::setDataString(data, CP_COULEUR_SITE, m_couleur);
+    setDataInt(data, CP_ID_SITE, m_id);
+    setDataString(data, CP_NOM_SITE, m_nom);
+    setDataString(data, CP_ADRESSE1_SITE, m_adresse1);
+    setDataString(data, CP_ADRESSE2_SITE, m_adresse2);
+    setDataString(data, CP_ADRESSE3_SITE, m_adresse3);
+    setDataString(data, CP_CODEPOSTAL_SITE, m_codepostal);
+    setDataString(data, CP_VILLE_SITE, m_ville);
+    setDataString(data, CP_TELEPHONE_SITE, m_telephone);
+    setDataString(data, CP_FAX_SITE, m_fax);
+    setDataString(data, CP_COULEUR_SITE, m_couleur);
     m_data = data;
 }
 

@@ -54,23 +54,23 @@ void Depense::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data,    CP_ID_DEPENSES,      m_id);
-    Utils::setDataInt(data,    CP_IDUSER_DEPENSES,         m_iduser);
-    Utils::setDataDate(data,   CP_DATE_DEPENSES,           m_datedepepense);
-    Utils::setDataString(data, CP_REFFISCALE_DEPENSES,     m_rubriquefiscale);
-    Utils::setDataString(data, CP_OBJET_DEPENSES,          m_objetdepense);
-    Utils::setDataDouble(data, CP_MONTANT_DEPENSES,        m_montant);
-    Utils::setDataString(data, CP_FAMILLEFISCALE_DEPENSES, m_famillefiscale);
-    Utils::setDataString(data, CP_MONNAIE_DEPENSES,        m_monnaie);
-    Utils::setDataInt(data,    CP_IDRECETTE_DEPENSES,      m_idRec);
-    Utils::setDataString(data, CP_MODEPAIEMENT_DEPENSES,   m_modepaiement);
-    Utils::setDataInt(data,    CP_COMPTE_DEPENSES,         m_compte);
-    Utils::setDataInt(data,    CP_NUMCHEQUE_DEPENSES,      m_nocheque);
-    Utils::setDataInt(data,    CP_IDFACTURE_DEPENSES,      m_idfacture);
-    Utils::setDataString(data, CP_LIENFICHIER_FACTURES,    m_lienfacture);
-    Utils::setDataBool(data,   CP_ECHEANCIER_FACTURES,     m_echeancier);
-    Utils::setDataString(data, CP_INTITULE_FACTURES,       m_objetecheancier);
-    Utils::setDataInt(data,    "idrubrique",               m_idrubriquefiscale);
+    setDataInt(data,    CP_ID_DEPENSES,      m_id);
+    setDataInt(data,    CP_IDUSER_DEPENSES,         m_iduser);
+    setDataDate(data,   CP_DATE_DEPENSES,           m_datedepepense);
+    setDataString(data, CP_REFFISCALE_DEPENSES,     m_rubriquefiscale);
+    setDataString(data, CP_OBJET_DEPENSES,          m_objetdepense);
+    setDataDouble(data, CP_MONTANT_DEPENSES,        m_montant);
+    setDataString(data, CP_FAMILLEFISCALE_DEPENSES, m_famillefiscale);
+    setDataString(data, CP_MONNAIE_DEPENSES,        m_monnaie);
+    setDataInt(data,    CP_IDRECETTE_DEPENSES,      m_idRec);
+    setDataString(data, CP_MODEPAIEMENT_DEPENSES,   m_modepaiement);
+    setDataInt(data,    CP_COMPTE_DEPENSES,         m_compte);
+    setDataInt(data,    CP_NUMCHEQUE_DEPENSES,      m_nocheque);
+    setDataInt(data,    CP_IDFACTURE_DEPENSES,      m_idfacture);
+    setDataString(data, CP_LIENFICHIER_FACTURES,    m_lienfacture);
+    setDataBool(data,   CP_ECHEANCIER_FACTURES,     m_echeancier);
+    setDataString(data, CP_INTITULE_FACTURES,       m_objetecheancier);
+    setDataInt(data,    "idrubrique",               m_idrubriquefiscale);
     m_data = data;
 }
 

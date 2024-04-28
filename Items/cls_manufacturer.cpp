@@ -26,20 +26,20 @@ void Manufacturer::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, CP_ID_MANUFACTURER, m_id);
-    Utils::setDataString(data, CP_NOM_MANUFACTURER, m_nom);
-    Utils::setDataString(data, CP_ADRESSE1_MANUFACTURER, m_adresse1);
-    Utils::setDataString(data, CP_ADRESSE2_MANUFACTURER, m_adresse2);
-    Utils::setDataString(data, CP_ADRESSE3_MANUFACTURER, m_adresse3);
-    Utils::setDataString(data, CP_CODEPOSTAL_MANUFACTURER, m_codepostal);
-    Utils::setDataString(data, CP_VILLE_MANUFACTURER, m_ville);
-    Utils::setDataString(data, CP_TELEPHONE_MANUFACTURER, m_telephone);
-    Utils::setDataString(data, CP_FAX_MANUFACTURER, m_fax);
-    Utils::setDataString(data, CP_PORTABLE_MANUFACTURER, m_portable);
-    Utils::setDataString(data, CP_WEBSITE_MANUFACTURER, m_website);
-    Utils::setDataString(data, CP_MAIL_MANUFACTURER, m_mail);
-    Utils::setDataBool(data, CP_INACTIF_MANUFACTURER, m_inactif);
-    Utils::setDataInt(data, CP_DISTRIBUEPAR_MANUFACTURER, m_distributeur);
+    setDataInt(data, CP_ID_MANUFACTURER, m_id);
+    setDataString(data, CP_NOM_MANUFACTURER, m_nom);
+    setDataString(data, CP_ADRESSE1_MANUFACTURER, m_adresse1);
+    setDataString(data, CP_ADRESSE2_MANUFACTURER, m_adresse2);
+    setDataString(data, CP_ADRESSE3_MANUFACTURER, m_adresse3);
+    setDataString(data, CP_CODEPOSTAL_MANUFACTURER, m_codepostal);
+    setDataString(data, CP_VILLE_MANUFACTURER, m_ville);
+    setDataString(data, CP_TELEPHONE_MANUFACTURER, m_telephone);
+    setDataString(data, CP_FAX_MANUFACTURER, m_fax);
+    setDataString(data, CP_PORTABLE_MANUFACTURER, m_portable);
+    setDataString(data, CP_WEBSITE_MANUFACTURER, m_website);
+    setDataString(data, CP_MAIL_MANUFACTURER, m_mail);
+    setDataBool(data, CP_INACTIF_MANUFACTURER, m_inactif);
+    setDataInt(data, CP_DISTRIBUEPAR_MANUFACTURER, m_distributeur);
 
     m_data = data;
 }

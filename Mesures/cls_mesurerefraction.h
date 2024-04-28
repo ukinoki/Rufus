@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_mesure.h"
 #include "cls_refraction.h"
+#include "utils.h"
 
 class MesureRefraction : public Mesure
 {
@@ -102,11 +103,11 @@ public:
     void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; m_isnullOG = false; }        //!> formule de réfraction OG
     void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Item::Cote cote = Item::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Item::Les2:
+        case Item::NoLoSo:
             m_sphereOD = 0;
             m_cylindreOD = 0;
             m_axecylindreOD = 0;
@@ -130,7 +131,7 @@ public:
             m_isnullOD = true;
             m_isnullOG = true;
             break;
-        case Utils::Droit:
+        case Item::Droit:
             m_sphereOD = 0;
             m_cylindreOD = 0;
             m_axecylindreOD = 0;
@@ -143,7 +144,7 @@ public:
             m_ecartIP = 0;
             m_isnullOD = true;
             break;
-        case Utils::Gauche:
+        case Item::Gauche:
             m_sphereOG = 0;
             m_cylindreOG = 0;
             m_axecylindreOG = 0;

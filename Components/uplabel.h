@@ -22,14 +22,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QToolTip>
 
-//#include "cls_item.h"
-//class Item;
+#include "cls_item.h"
+class Item;
 
 class UpLabel : public QLabel
 {
     Q_OBJECT
 public:
     explicit                UpLabel(QWidget *parent = Q_NULLPTR, QString txt = QString());
+    explicit                UpLabel(Item* itm, QString txt = QString(), QWidget* parent = Q_NULLPTR);
     ~UpLabel();
     void                    setiD(int m_id);
     int                     iD() const;
@@ -38,6 +39,10 @@ public:
     void                    setRow(int m_id);
     void                    setImmediateToolTip(QString);
     int                     Row() const;
+    void                    setitem(Item* item) { m_item = item; }
+    Item*                   item() const        { return m_item; }
+    bool                    hasitem() const     { return m_item != Q_NULLPTR; }
+
 private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     int                     m_id;
@@ -45,6 +50,8 @@ private:
     QString                 m_tooltipmsg;
     QMap<QString, QVariant> m_datas;
     void                    AfficheToolTip();
+    Item*                   m_item;
+
 signals:
     void                    clicked(int a);
     void                    enter(int a);

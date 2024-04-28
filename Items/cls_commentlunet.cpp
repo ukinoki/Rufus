@@ -27,12 +27,12 @@ void CommentLunet::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_COMLUN, m_id);
-    Utils::setDataInt(data, CP_IDUSER_COMLUN, m_iduser);
-    Utils::setDataString(data, CP_TEXT_COMLUN, m_text);
-    Utils::setDataString(data, CP_RESUME_COMLUN, m_resume);
-    Utils::setDataBool(data, CP_PARDEFAUT_COMLUN, m_defaut);
-    Utils::setDataBool(data, CP_PUBLIC_COMLUN, m_public);
+    setDataInt(data, CP_ID_COMLUN, m_id);
+    setDataInt(data, CP_IDUSER_COMLUN, m_iduser);
+    setDataString(data, CP_TEXT_COMLUN, m_text);
+    setDataString(data, CP_RESUME_COMLUN, m_resume);
+    setDataBool(data, CP_PARDEFAUT_COMLUN, m_defaut);
+    setDataBool(data, CP_PUBLIC_COMLUN, m_public);
     m_data = data;
 }
 

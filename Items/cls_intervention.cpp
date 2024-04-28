@@ -28,19 +28,19 @@ void Intervention::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_id);
-    Utils::setDataInt(data, CP_IDSESSION_LIGNPRGOPERATOIRE, m_idsession);
-    Utils::setDataInt(data, CP_IDACTE_LIGNPRGOPERATOIRE, m_idacte);
-    Utils::setDataInt(data, CP_IDPATIENT_LIGNPRGOPERATOIRE, m_idpatient);
-    Utils::setDataTime(data, CP_HEURE_LIGNPRGOPERATOIRE, m_heure);
+    setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_id);
+    setDataInt(data, CP_IDSESSION_LIGNPRGOPERATOIRE, m_idsession);
+    setDataInt(data, CP_IDACTE_LIGNPRGOPERATOIRE, m_idacte);
+    setDataInt(data, CP_IDPATIENT_LIGNPRGOPERATOIRE, m_idpatient);
+    setDataTime(data, CP_HEURE_LIGNPRGOPERATOIRE, m_heure);
     m_anesth = ConvertModeAnesthesie(data[CP_TYPEANESTH_LIGNPRGOPERATOIRE].toString());
-    m_cote   = Utils::ConvertCote(data[CP_COTE_LIGNPRGOPERATOIRE].toString());
-    Utils::setDataInt(data, CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE, m_idtypeintervention);
-    Utils::setDataInt(data, CP_IDIOL_LIGNPRGOPERATOIRE, m_idIOL);
-    Utils::setDataDouble(data, CP_PWRIOL_LIGNPRGOPERATOIRE, m_pwrIOL);
-    Utils::setDataDouble(data, CP_CYLIOL_LIGNPRGOPERATOIRE, m_cylIOL);
-    Utils::setDataString(data, CP_OBSERV_LIGNPRGOPERATOIRE, m_observation);
-    Utils::setDataString(data, CP_INCIDENT_LIGNPRGOPERATOIRE, m_incident);
+    m_cote   = ConvertCote(data[CP_COTE_LIGNPRGOPERATOIRE].toString());
+    setDataInt(data, CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE, m_idtypeintervention);
+    setDataInt(data, CP_IDIOL_LIGNPRGOPERATOIRE, m_idIOL);
+    setDataDouble(data, CP_PWRIOL_LIGNPRGOPERATOIRE, m_pwrIOL);
+    setDataDouble(data, CP_CYLIOL_LIGNPRGOPERATOIRE, m_cylIOL);
+    setDataString(data, CP_OBSERV_LIGNPRGOPERATOIRE, m_observation);
+    setDataString(data, CP_INCIDENT_LIGNPRGOPERATOIRE, m_incident);
     m_data = data;
 }
 
@@ -98,10 +98,10 @@ void TypeIntervention::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, CP_ID_TYPINTERVENTION, m_id);
-    Utils::setDataString(data, CP_TYPEINTERVENTION_TYPINTERVENTION, m_typeintervention);
-    Utils::setDataString(data, CP_CODECCAM_TYPINTERVENTION, m_codeCCAM);
-    Utils::setDataTime(data, CP_DUREE_TYPINTERVENTION, m_duree);
+    setDataInt(data, CP_ID_TYPINTERVENTION, m_id);
+    setDataString(data, CP_TYPEINTERVENTION_TYPINTERVENTION, m_typeintervention);
+    setDataString(data, CP_CODECCAM_TYPINTERVENTION, m_codeCCAM);
+    setDataTime(data, CP_DUREE_TYPINTERVENTION, m_duree);
     m_data = data;
 }
 

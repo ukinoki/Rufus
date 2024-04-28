@@ -27,6 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_fontdialog.h"
 #include "dlg_listevilles.h"
 #include "dlg_motifs.h"
+
 #include "villecpwidget.h"
 #include "ui_villecpwidget.h"
 #include "widgetbuttonframe.h"

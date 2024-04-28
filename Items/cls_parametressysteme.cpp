@@ -26,17 +26,17 @@ void ParametresSysteme::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataString(data, CP_MDPADMIN_PARAMSYSTEME, m_mdpdmin);
-    Utils::setDataInt(data, CP_NUMCENTRE_PARAMSYSTEME, m_numcentre);
-    Utils::setDataInt(data, CP_IDLIEUPARDEFAUT_PARAMSYSTEME, m_idlieupardefaut);
-    Utils::setDataBool(data, CP_DOCSCOMPRIMES_PARAMSYSTEME, m_docscomprimes);
-    Utils::setDataInt(data, CP_VERSIONBASE_PARAMSYSTEME, m_versionbase);
-    Utils::setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
-    Utils::setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
-    Utils::setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
-    Utils::setDataString(data, CP_DIRIMAGERIE_PARAMSYSTEME, m_dirimagerieserveur);
-    Utils::setDataTime(data, CP_HEUREBKUP_PARAMSYSTEME, m_heurebkup);
-    Utils::setDataString(data, CP_DIRBKUP_PARAMSYSTEME, m_dirbkup);
+    setDataString(data, CP_MDPADMIN_PARAMSYSTEME, m_mdpdmin);
+    setDataInt(data, CP_NUMCENTRE_PARAMSYSTEME, m_numcentre);
+    setDataInt(data, CP_IDLIEUPARDEFAUT_PARAMSYSTEME, m_idlieupardefaut);
+    setDataBool(data, CP_DOCSCOMPRIMES_PARAMSYSTEME, m_docscomprimes);
+    setDataInt(data, CP_VERSIONBASE_PARAMSYSTEME, m_versionbase);
+    setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
+    setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
+    setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
+    setDataString(data, CP_DIRIMAGERIE_PARAMSYSTEME, m_dirimagerieserveur);
+    setDataTime(data, CP_HEUREBKUP_PARAMSYSTEME, m_heurebkup);
+    setDataString(data, CP_DIRBKUP_PARAMSYSTEME, m_dirbkup);
     m_daysbkup.setFlag(Utils::Lundi,    data[CP_LUNDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Mardi,    data[CP_MARDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Mercredi, data[CP_MERCREDIBKUP_PARAMSYSTEME].toBool());
@@ -44,9 +44,9 @@ void ParametresSysteme::setData(QJsonObject data)
     m_daysbkup.setFlag(Utils::Vendredi, data[CP_VENDREDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Samedi,   data[CP_SAMEDIBKUP_PARAMSYSTEME].toBool());
     m_daysbkup.setFlag(Utils::Dimanche, data[CP_DIMANCHEBKUP_PARAMSYSTEME].toBool());
-    Utils::setDataBool(data, CP_VILLES_PARAMSYSTEME, m_villesfrance);
-    Utils::setDataBool(data, CP_COMPTA_PARAMSYSTEME, m_comptafrance);
-    Utils::setDataBool(data, CP_COTATIONS_PARAMSYSTEME, m_cotationsfrance);
+    setDataBool(data, CP_VILLES_PARAMSYSTEME, m_villesfrance);
+    setDataBool(data, CP_COMPTA_PARAMSYSTEME, m_comptafrance);
+    setDataBool(data, CP_COTATIONS_PARAMSYSTEME, m_cotationsfrance);
     m_data = data;
 }
 

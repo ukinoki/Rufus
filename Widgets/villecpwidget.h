@@ -24,10 +24,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStandardItemModel>
 #include <QStringListModel>
 #include <QListView>
+
 #include "upmessagebox.h"
 #include "database.h"
 #include "gbl_datas.h"
-#include "utils.h"
 
 namespace Ui {
     class VilleCPWidget;

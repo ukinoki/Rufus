@@ -35,14 +35,14 @@ void Motif::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data, "id", m_id);
-    Utils::setDataString(data, "motif", m_motif);
-    Utils::setDataString(data, "raccourci", m_raccourci);
-    Utils::setDataString(data, "couleur", m_couleur);
-    Utils::setDataInt(data, "duree", m_duree);
-    Utils::setDataBool(data, "pardefaut", m_pardefaut);
-    Utils::setDataBool(data, "utiliser", m_utiliser);
-    Utils::setDataInt(data, "noordre", m_noordre);
+    setDataInt(data, "id", m_id);
+    setDataString(data, "motif", m_motif);
+    setDataString(data, "raccourci", m_raccourci);
+    setDataString(data, "couleur", m_couleur);
+    setDataInt(data, "duree", m_duree);
+    setDataBool(data, "pardefaut", m_pardefaut);
+    setDataBool(data, "utiliser", m_utiliser);
+    setDataInt(data, "noordre", m_noordre);
     m_data = data;
 }
 

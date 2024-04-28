@@ -39,18 +39,18 @@ void Archive::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_ARCHIVESCPT, m_id);
-    Utils::setDataInt(data, CP_IDCOMPTE_ARCHIVESCPT, m_idcompte);
-    Utils::setDataInt(data, CP_IDDEP_ARCHIVESCPT, m_iddepense);
-    Utils::setDataInt(data, CP_IDREC_ARCHIVESCPT, m_idrecette);
-    Utils::setDataInt(data, CP_IDRECSPEC_ARCHIVESCPT, m_idrecettespeciale);
-    Utils::setDataInt(data, CP_IDREMCHEQ_ARCHIVESCPT, m_idremisecheque);
-    Utils::setDataDate(data, CP_DATE_ARCHIVESCPT, m_lignedate);
-    Utils::setDataString(data, CP_LIBELLE_ARCHIVESCPT, m_lignelibelle);
-    Utils::setDataDouble(data, CP_MONTANT_ARCHIVESCPT, m_montant);
-    Utils::setDataString(data, CP_TYPEOPERATION_ARCHIVESCPT, m_lignetypeoperation);
-    Utils::setDataDate(data, CP_DATECONSOLIDE_ARCHIVESCPT, m_lignedateconsolidation);
-    Utils::setDataInt(data, CP_IDARCHIVE_ARCHIVESCPT, m_idarchive);
+    setDataInt(data, CP_ID_ARCHIVESCPT, m_id);
+    setDataInt(data, CP_IDCOMPTE_ARCHIVESCPT, m_idcompte);
+    setDataInt(data, CP_IDDEP_ARCHIVESCPT, m_iddepense);
+    setDataInt(data, CP_IDREC_ARCHIVESCPT, m_idrecette);
+    setDataInt(data, CP_IDRECSPEC_ARCHIVESCPT, m_idrecettespeciale);
+    setDataInt(data, CP_IDREMCHEQ_ARCHIVESCPT, m_idremisecheque);
+    setDataDate(data, CP_DATE_ARCHIVESCPT, m_lignedate);
+    setDataString(data, CP_LIBELLE_ARCHIVESCPT, m_lignelibelle);
+    setDataDouble(data, CP_MONTANT_ARCHIVESCPT, m_montant);
+    setDataString(data, CP_TYPEOPERATION_ARCHIVESCPT, m_lignetypeoperation);
+    setDataDate(data, CP_DATECONSOLIDE_ARCHIVESCPT, m_lignedateconsolidation);
+    setDataInt(data, CP_IDARCHIVE_ARCHIVESCPT, m_idarchive);
     m_data = data;
 }
 

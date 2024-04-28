@@ -31,7 +31,8 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     wdg_totalrecetteslbl    = new UpLabel();
     wdg_totalapportslbl     = new UpLabel();
     wdg_grandtotallbl       = new UpLabel();
-    wdg_label               = new UpLabel(Q_NULLPTR ,tr("Actes effectués par "));
+    QWidget* wdg = Q_NULLPTR;
+    wdg_label               = new UpLabel(wdg ,tr("Actes effectués par "));
     wdg_hboxsup             = new QHBoxLayout();
     QHBoxLayout *hboxinf    = new QHBoxLayout();
     QVBoxLayout *box        = new QVBoxLayout();

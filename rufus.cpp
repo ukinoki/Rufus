@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("25-04-2024/1");
+    qApp->setApplicationVersion("28-04-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -976,7 +976,7 @@ void Rufus::ActeMontantModifie()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Afficher le motif de l'acte ----------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
-void Rufus::AfficheMotif(UpLabelItem *lbl)
+void Rufus::AfficheMotif(UpLabel *lbl)
 {
     RendezVous *rdv = dynamic_cast<RendezVous *>(lbl->item());
     QString Msg("");
@@ -1047,12 +1047,12 @@ void Rufus::MAJPatientsVus()
         if (usr != Q_NULLPTR)
             superviseurlogin = usr->login();
 
-        UpLabelItem *label0, *label1, *label2, *label3, *label4;
-        label0 = new UpLabelItem(rdv);
-        label1 = new UpLabelItem(rdv);
-        label2 = new UpLabelItem(rdv);
-        label3 = new UpLabelItem(rdv);
-        label4 = new UpLabelItem(rdv);
+        UpLabel *label0, *label1, *label2, *label3, *label4;
+        label0 = new UpLabel(rdv);
+        label1 = new UpLabel(rdv);
+        label2 = new UpLabel(rdv);
+        label3 = new UpLabel(rdv);
+        label4 = new UpLabel(rdv);
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1093,16 +1093,16 @@ void Rufus::MAJPatientsVus()
         Patient *pat = Datas::I()->patients->getById(rdv->idpatient());
         if (pat != Q_NULLPTR)
         {
-            connect (label0,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-            connect (label1,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-            connect (label2,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-            connect (label3,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-            connect (label4,        &UpLabelItem::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
-            connect (label0,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-            connect (label1,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-            connect (label2,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-            connect (label3,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-            connect (label4,        &UpLabelItem::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label0,        &UpLabel::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label1,        &UpLabel::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label2,        &UpLabel::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label3,        &UpLabel::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label4,        &UpLabel::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
+            connect (label0,        &UpLabel::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label1,        &UpLabel::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label2,        &UpLabel::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label3,        &UpLabel::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+            connect (label4,        &UpLabel::dblclick,         this,           [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
         }
 
         ui->PatientsVusupTableWidget->setCellWidget(i,0,label0);
@@ -1929,20 +1929,20 @@ void Rufus::FiltreSalleDAttente()
     else
         for(int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-            UpLabelItem *lbl = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+            UpLabel *lbl = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
             ui->SalleDAttenteupTableWidget->setRowHidden(i,lbl->text() != usrlog);
         }
 }
 
 void Rufus::ActiveActeAccueil(int row)
 {
-    UpLabelItem *lblr = qobject_cast<UpLabelItem*>(ui->AccueilupTableWidget->cellWidget(row,6));
+    UpLabel *lblr = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(row,6));
     if (lblr == Q_NULLPTR)
         return;
     int idparent = lblr->text().toInt();
     for (int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
-        UpLabelItem *lbl = qobject_cast<UpLabelItem*>(ui->AccueilupTableWidget->cellWidget(i,6));
+        UpLabel *lbl = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
             if (lbl->text().toInt() != idparent)
                 ui->AccueilupTableWidget->setRangeSelected(QTableWidgetSelectionRange(i,0,i,6),false);
@@ -1954,7 +1954,7 @@ void Rufus::FiltreAccueil(int idx)
     int idsuperviseur        = wdg_accueilTab->tabData(idx).toInt();
     for(int i=0; i<ui->AccueilupTableWidget->rowCount(); i++)
     {
-        UpLabelItem *lbl = qobject_cast<UpLabelItem*>(ui->AccueilupTableWidget->cellWidget(i,6));
+        UpLabel *lbl = qobject_cast<UpLabel*>(ui->AccueilupTableWidget->cellWidget(i,6));
         if (lbl != Q_NULLPTR)
             ui->AccueilupTableWidget->setRowHidden(i,lbl->text() != QString::number(idsuperviseur));
     }
@@ -3799,7 +3799,7 @@ void Rufus::ChoixMenuContextuelCorrespondant(QString choix)
     delete Dlg_IdentCorresp;
 }
 
-void Rufus::MenuContextuelSalDat(UpLabelItem *labelClicked)
+void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
 {
     if (currentuser()->isNeutre())
         return;
@@ -3817,7 +3817,7 @@ void Rufus::MenuContextuelSalDat(UpLabelItem *labelClicked)
 
     if (ui->SalleDAttenteupTableWidget->isAncestorOf(labelClicked))
     {
-        UpLabelItem *StatutClicked = qobject_cast<UpLabelItem *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
+        UpLabel *StatutClicked = qobject_cast<UpLabel *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
         if (StatutClicked != Q_NULLPTR)
         {
             if (StatutClicked->text() == ARRIVE)
@@ -3852,7 +3852,7 @@ void Rufus::MenuContextuelSalDat(UpLabelItem *labelClicked)
     m_menuContextuel = Q_NULLPTR;
 }
 
-void Rufus::MenuContextuelAccueil(UpLabelItem *labelClicked)
+void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
 {
     if (currentuser()->isNeutre())
         return;
@@ -3935,7 +3935,7 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
         int row(-1);
         for (int i=0; i< ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-             rdv = dynamic_cast<RendezVous *>(qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->item());
+             rdv = dynamic_cast<RendezVous *>(qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->item());
              if (rdv == Q_NULLPTR)
                  return;
              if (rdv->idpatient() == dossierpatientaouvrir()->id())
@@ -3949,8 +3949,8 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
 
         QString Message(""), Motif("");
         Message = rdv->message();
-        Motif = qobject_cast<UpLabelItem *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
-        QTime heurerdv = QTime::fromString(qobject_cast<UpLabelItem *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
+        Motif = qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
+        QTime heurerdv = QTime::fromString(qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
 
         rdv = MotifRDV(Motif, Message, heurerdv);
         if (rdv == Q_NULLPTR)
@@ -4949,7 +4949,7 @@ void Rufus::setTitre()
     setWindowTitle(windowtitle);
 }
 
-void Rufus::SurbrillanceSalDat(UpLabelItem *lab)
+void Rufus::SurbrillanceSalDat(UpLabel *lab)
 {
     QString styleurg = "background:#EEFFFF ; color: red";
     QString Msg, background;
@@ -4963,13 +4963,13 @@ void Rufus::SurbrillanceSalDat(UpLabelItem *lab)
     int row         = lab->Row();
     QString color   = "color: black";
     QString colorRDV= "color: black";
-    UpLabelItem *lab0   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
-    UpLabelItem *lab1   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,1));
-    UpLabelItem *lab2   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,2));
-    UpLabelItem *lab3   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,3));
-    UpLabelItem *lab4   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
-    UpLabelItem *lab5   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
-    UpLabelItem *lab6   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
+    UpLabel *lab0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,0));
+    UpLabel *lab1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,1));
+    UpLabel *lab2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,2));
+    UpLabel *lab3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,3));
+    UpLabel *lab4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
+    UpLabel *lab5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
+    UpLabel *lab6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
     PatientEnCours *pat = Q_NULLPTR;
     auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(idpat);
     if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
@@ -5031,17 +5031,17 @@ void Rufus::SurbrillanceSalDat(UpLabelItem *lab)
     {
         for (int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)  // on remet à la normale ceux qui étaient en surbrillance et on met l'enregistrement en surbrillance
         {
-            UpLabelItem *labi0   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+            UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
             if (labi0->styleSheet().contains(backgroundsurbrill))       // l'enregistrement est en surbrillance, on le remet à la normale
             {
                 QString Msgi;
-                UpLabelItem *labi0   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
-                UpLabelItem *labi1   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
-                UpLabelItem *labi2   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
-                UpLabelItem *labi3   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
-                UpLabelItem *labi4   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
-                UpLabelItem *labi5   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
-                UpLabelItem *labi6   = qobject_cast<UpLabelItem*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+                UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+                UpLabel *labi1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
+                UpLabel *labi2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
+                UpLabel *labi3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
+                UpLabel *labi4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
+                UpLabel *labi5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
+                UpLabel *labi6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
                 pat = Q_NULLPTR;
                 auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(rdv->idpatient());
@@ -8081,7 +8081,7 @@ bool Rufus::FermeDossier(Patient *patient)
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
         QString Message(""), Motif(""), idUser ("");
-        RendezVous* rdv;
+        RendezVous* rdv = Q_NULLPTR;
         PatientEnCours *pat = Datas::I()->patientsencours->getById(patient->id());
         if (pat != Q_NULLPTR)
         {
@@ -9442,14 +9442,14 @@ void Rufus::Remplir_SalDat()
         rdv             ->setUrgence(patencours->motif() == "URG");
         rdv             ->setmessage(patencours->message());
 
-        UpLabelItem *label0, *label1, *label2, *label3, *label4, *label5, *label6;
-        label0 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label1 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label2 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label3 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label4 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label5 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label6 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
+        label0 = new UpLabel(rdv, "", TableAMettreAJour);
+        label1 = new UpLabel(rdv, "", TableAMettreAJour);
+        label2 = new UpLabel(rdv, "", TableAMettreAJour);
+        label3 = new UpLabel(rdv, "", TableAMettreAJour);
+        label4 = new UpLabel(rdv, "", TableAMettreAJour);
+        label5 = new UpLabel(rdv, "", TableAMettreAJour);
+        label6 = new UpLabel(rdv, "", TableAMettreAJour);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9555,27 +9555,27 @@ void Rufus::Remplir_SalDat()
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDat(label4);});
         connect (label5,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDat(label5);});
         connect (label6,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelSalDat(label6);});
-        connect (label0,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label0);});
-        connect (label1,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label1);});
-        connect (label2,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label2);});
-        connect (label3,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label3);});
-        connect (label4,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label4);});
-        connect (label5,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label5);});
-        connect (label6,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label6);});
-        connect (label0,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label0);});
-        connect (label1,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label1);});
-        connect (label2,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label2);});
-        connect (label3,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label3);});
-        connect (label4,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label4);});
-        connect (label5,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label5);});
-        connect (label6,        &UpLabelItem::clicked,          this,               [=] {SurbrillanceSalDat(label6);});
-        connect (label0,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label1,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label2,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label3,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label4,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label5,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
-        connect (label6,        &UpLabelItem::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label0,        &UpLabel::enter,            this,               [=] {AfficheMotif(label0);});
+        connect (label1,        &UpLabel::enter,            this,               [=] {AfficheMotif(label1);});
+        connect (label2,        &UpLabel::enter,            this,               [=] {AfficheMotif(label2);});
+        connect (label3,        &UpLabel::enter,            this,               [=] {AfficheMotif(label3);});
+        connect (label4,        &UpLabel::enter,            this,               [=] {AfficheMotif(label4);});
+        connect (label5,        &UpLabel::enter,            this,               [=] {AfficheMotif(label5);});
+        connect (label6,        &UpLabel::enter,            this,               [=] {AfficheMotif(label6);});
+        connect (label0,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label0);});
+        connect (label1,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label1);});
+        connect (label2,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label2);});
+        connect (label3,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label3);});
+        connect (label4,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label4);});
+        connect (label5,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label5);});
+        connect (label6,        &UpLabel::clicked,          this,               [=] {SurbrillanceSalDat(label6);});
+        connect (label0,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label1,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label2,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label3,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label4,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label5,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
+        connect (label6,        &UpLabel::dblclick,         this,               [=] {if (currentuser()->isSoignant()) OuvrirDossier(pat);});
         TableAMettreAJour->setCellWidget(i,0,label0);
         TableAMettreAJour->setCellWidget(i,1,label1);
         TableAMettreAJour->setCellWidget(i,2,label2);
@@ -9758,13 +9758,13 @@ void Rufus::Remplir_SalDat()
 
         QString superviseurlogin    = (Datas::I()->users->getById(patencours->idusersuperviseur()) != Q_NULLPTR? Datas::I()->users->getById(patencours->idusersuperviseur())->login() : "");
 
-        UpLabelItem *label0, *label1, *label2, *label3, *label4, *label5;
-        label0 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label1 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label2 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label3 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label4 = new UpLabelItem(rdv, "", TableAMettreAJour);
-        label5 = new UpLabelItem(rdv, "", TableAMettreAJour);
+        UpLabel *label0, *label1, *label2, *label3, *label4, *label5;
+        label0 = new UpLabel(rdv, "", TableAMettreAJour);
+        label1 = new UpLabel(rdv, "", TableAMettreAJour);
+        label2 = new UpLabel(rdv, "", TableAMettreAJour);
+        label3 = new UpLabel(rdv, "", TableAMettreAJour);
+        label4 = new UpLabel(rdv, "", TableAMettreAJour);
+        label5 = new UpLabel(rdv, "", TableAMettreAJour);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9833,12 +9833,12 @@ void Rufus::Remplir_SalDat()
         connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label3);});
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label4);});
         connect (label5,        &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelAccueil(label5);});
-        connect (label0,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label0);});
-        connect (label1,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label1);});
-        connect (label2,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label2);});
-        connect (label3,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label3);});
-        connect (label4,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label4);});
-        connect (label5,        &UpLabelItem::enter,            this,               [=] {AfficheMotif(label5);});
+        connect (label0,        &UpLabel::enter,            this,               [=] {AfficheMotif(label0);});
+        connect (label1,        &UpLabel::enter,            this,               [=] {AfficheMotif(label1);});
+        connect (label2,        &UpLabel::enter,            this,               [=] {AfficheMotif(label2);});
+        connect (label3,        &UpLabel::enter,            this,               [=] {AfficheMotif(label3);});
+        connect (label4,        &UpLabel::enter,            this,               [=] {AfficheMotif(label4);});
+        connect (label5,        &UpLabel::enter,            this,               [=] {AfficheMotif(label5);});
         TableAMettreAJour   ->setCellWidget(i,0,label0);
         TableAMettreAJour   ->setCellWidget(i,1,label1);
         TableAMettreAJour   ->setCellWidget(i,2,label2);

@@ -1170,17 +1170,17 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //! size of QTimeEdit and QDateEdit differs from W11 and macOS/Linux
 #if defined(Q_OS_LINUX)
-#define QTIMEEDITWIDTH               "80"
-#define QDATEEDITWIDTH               "120"
-#define QDATETIMEEDITHEIGHT          "25"
+#define QTIMEEDITWIDTH               80
+#define QDATEEDITWIDTH               120
+#define QDATETIMEEDITHEIGHT          25
 #elif defined(Q_OS_MACOS)
-#define QTIMEEDITWIDTH               "80"
-#define QDATEEDITWIDTH               "120"
-#define QDATETIMEEDITHEIGHT          "25"
+#define QTIMEEDITWIDTH               70
+#define QDATEEDITWIDTH               120
+#define QDATETIMEEDITHEIGHT          25
 #elif defined(Q_OS_WIN)
-#define QTIMEEDITWIDTH               "110"
-#define QDATEEDITWIDTH               "120"
-#define QDATETIMEEDITHEIGHT          "30"
+#define QTIMEEDITWIDTH               110
+#define QDATEEDITWIDTH               120
+#define QDATETIMEEDITHEIGHT          30
 #endif
 
 

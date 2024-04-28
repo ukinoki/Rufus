@@ -27,8 +27,8 @@ void MotCle::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_MOTCLE, m_id);
-    Utils::setDataString(data, CP_TEXT_MOTCLE, m_motcle);
+    setDataInt(data, CP_ID_MOTCLE, m_id);
+    setDataString(data, CP_TEXT_MOTCLE, m_motcle);
     m_data = data;
 }
 

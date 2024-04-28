@@ -41,7 +41,7 @@
 #include <QTextFrame>
 #include <QPrintPreviewDialog>
 
-#include <utils.h>
+#include "upmessagebox.h"
 #include <QStandardPaths>
 
 ///////////////////////////////////////////////////////////////////////////////

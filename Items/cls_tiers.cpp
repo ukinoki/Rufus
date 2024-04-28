@@ -38,17 +38,17 @@ void Tiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataInt(data,     CP_ID_TIERS,        m_id);
-    Utils::setDataString(data,  CP_NOM_TIERS,       m_nom);
-    Utils::setDataString(data,  CP_ADRESSE1_TIERS,  m_adresse1);
-    Utils::setDataString(data,  CP_ADRESSE2_TIERS,  m_adresse2);
-    Utils::setDataString(data,  CP_ADRESSE3_TIERS,  m_adresse3);
-    Utils::setDataString(data,  CP_CODEPOSTAL_TIERS,m_codepostal);
-    Utils::setDataString(data,  CP_VILLE_TIERS,     m_ville);
-    Utils::setDataString(data,  CP_TELEPHONE_TIERS, m_telephone);
-    Utils::setDataString(data,  CP_FAX_TIERS,       m_fax);
-    Utils::setDataString(data,  CP_MAIL_TIERS,      m_mail);
-    Utils::setDataString(data,  CP_WEB_TIERS,       m_web);
+    setDataInt(data,     CP_ID_TIERS,        m_id);
+    setDataString(data,  CP_NOM_TIERS,       m_nom);
+    setDataString(data,  CP_ADRESSE1_TIERS,  m_adresse1);
+    setDataString(data,  CP_ADRESSE2_TIERS,  m_adresse2);
+    setDataString(data,  CP_ADRESSE3_TIERS,  m_adresse3);
+    setDataString(data,  CP_CODEPOSTAL_TIERS,m_codepostal);
+    setDataString(data,  CP_VILLE_TIERS,     m_ville);
+    setDataString(data,  CP_TELEPHONE_TIERS, m_telephone);
+    setDataString(data,  CP_FAX_TIERS,       m_fax);
+    setDataString(data,  CP_MAIL_TIERS,      m_mail);
+    setDataString(data,  CP_WEB_TIERS,       m_web);
     m_data = data;
 }
 
@@ -89,6 +89,6 @@ void TypeTiers::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataString(data, "typetiers", m_typetiers);
+    setDataString(data, "typetiers", m_typetiers);
 }
 

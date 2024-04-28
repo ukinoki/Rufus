@@ -45,7 +45,7 @@ private: //Données de l'intervention
     int m_idpatient             = 0;                //! id du patient
     ModeAnesthesie m_anesth     = NoLoSo;           //! le type d'anesthésie
     int m_idtypeintervention    = 0;                //! id du type d'intervention
-    Utils::Cote m_cote          = Utils::NoLoSo;    //! côté de l'intervention
+    Cote m_cote                 = Item::NoLoSo;     //! côté de l'intervention
     int m_idIOL                 = 0;                //! id de l'IOL
     double m_pwrIOL             = 0;                //! puissance de l'implant
     double m_cylIOL             = 0;                //! cylindre de l'implant
@@ -60,7 +60,7 @@ public:
     int idacte() const                      { return m_idacte; }
     ModeAnesthesie anesthesie() const       { return m_anesth; }
     int idtypeintervention() const          { return m_idtypeintervention; }
-    Utils::Cote cote() const                { return m_cote; }
+    Cote cote() const                       { return m_cote; }
     int idIOL() const                       { return m_idIOL; }
     double puissanceIOL() const             { return m_pwrIOL; }
     double cylindreIOL() const              { return m_cylIOL; }
@@ -79,8 +79,8 @@ public:
                                               m_data[CP_TYPEANESTH_LIGNPRGOPERATOIRE] = ConvertModeAnesthesie(mode); }
     void setidtypeintervention(int id)      { m_idtypeintervention = id;
                                               m_data[CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE] = id; }
-    void setcote(Utils::Cote cote)          { m_cote = cote;
-                                              m_data[CP_COTE_LIGNPRGOPERATOIRE] = Utils::ConvertCote(cote); }
+    void setcote(Cote cote)                 { m_cote = cote;
+                                              m_data[CP_COTE_LIGNPRGOPERATOIRE] = ConvertCote(cote); }
     void setidIOL(int id)                   { m_idIOL = id;
                                               m_data[CP_IDIOL_LIGNPRGOPERATOIRE] = id; }
     void setpuissanceIOL(double pwr)        { m_pwrIOL = pwr;
@@ -105,12 +105,12 @@ public:
     {
         if( data.isEmpty() )
             return;
-        Utils::setDataInt(data, CP_ID_SESSIONOPERATOIRE, m_id);
-        Utils::setDataInt(data, CP_IDLIEU_SESSIONOPERATOIRE, m_idlieu);
-        Utils::setDataDate(data, CP_DATE_SESSIONOPERATOIRE, m_date);
-        Utils::setDataInt(data, CP_IDUSER_SESSIONOPERATOIRE, m_iduser);
-        Utils::setDataInt(data, CP_IDAIDE_SESSIONOPERATOIRE, m_idaide);
-        Utils::setDataString(data, CP_INCIDENT_SESSIONOPERATOIRE, m_incident);
+        setDataInt(data, CP_ID_SESSIONOPERATOIRE, m_id);
+        setDataInt(data, CP_IDLIEU_SESSIONOPERATOIRE, m_idlieu);
+        setDataDate(data, CP_DATE_SESSIONOPERATOIRE, m_date);
+        setDataInt(data, CP_IDUSER_SESSIONOPERATOIRE, m_iduser);
+        setDataInt(data, CP_IDAIDE_SESSIONOPERATOIRE, m_idaide);
+        setDataString(data, CP_INCIDENT_SESSIONOPERATOIRE, m_incident);
         m_data = data;
     }
 

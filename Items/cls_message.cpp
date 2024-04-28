@@ -27,20 +27,20 @@ void Message::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_MSG, m_id);
-    Utils::setDataInt(data, CP_IDEMETTEUR_MSG, m_idemetteur);
-    Utils::setDataString(data, CP_TEXT_MSG, m_text);
-    Utils::setDataInt(data, CP_IDPATIENT_MSG, m_idpatient);
-    Utils::setDataBool(data, CP_TACHE_MSG, m_istache);
-    Utils::setDataDate(data, CP_DATELIMITE_MSG, m_datelimite);
-    Utils::setDataDateTime(data, CP_DATECREATION_MSG, m_datecreation);
-    Utils::setDataBool(data, CP_URGENT_MSG, m_isurgent);
-    Utils::setDataInt(data, CP_ENREPONSEA_MSG, m_idreponsea);
-    Utils::setDataBool(data, CP_ASUPPRIMER_MSG, m_isasupprimer);
-    Utils::setDataBool(data, CP_LU_JOINTURESMSG, m_islu);
-    Utils::setDataBool(data, CP_FAIT_JOINTURESMSG, m_isfait);
-    Utils::setDataInt(data, CP_ID_JOINTURESMSG, m_idjointure);
-    Utils::setDataInt(data, CP_IDDESTINATAIRE_JOINTURESMSG, m_iddestinataire);
+    setDataInt(data, CP_ID_MSG, m_id);
+    setDataInt(data, CP_IDEMETTEUR_MSG, m_idemetteur);
+    setDataString(data, CP_TEXT_MSG, m_text);
+    setDataInt(data, CP_IDPATIENT_MSG, m_idpatient);
+    setDataBool(data, CP_TACHE_MSG, m_istache);
+    setDataDate(data, CP_DATELIMITE_MSG, m_datelimite);
+    setDataDateTime(data, CP_DATECREATION_MSG, m_datecreation);
+    setDataBool(data, CP_URGENT_MSG, m_isurgent);
+    setDataInt(data, CP_ENREPONSEA_MSG, m_idreponsea);
+    setDataBool(data, CP_ASUPPRIMER_MSG, m_isasupprimer);
+    setDataBool(data, CP_LU_JOINTURESMSG, m_islu);
+    setDataBool(data, CP_FAIT_JOINTURESMSG, m_isfait);
+    setDataInt(data, CP_ID_JOINTURESMSG, m_idjointure);
+    setDataInt(data, CP_IDDESTINATAIRE_JOINTURESMSG, m_iddestinataire);
     m_data = data;
 }
 

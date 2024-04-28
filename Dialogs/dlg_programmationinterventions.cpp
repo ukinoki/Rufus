@@ -678,8 +678,8 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
                         {
                             QString color = "black";
                             QString typinterv = typ->typeintervention().toUpper();
-                            if (interv->cote() != Utils::NoLoSo)
-                                typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
+                            if (interv->cote() != Item::NoLoSo)
+                                typinterv += " - " + tr("Côté") + " " +  Item::TraduitCote(interv->cote()).toLower();
                             if (interv->anesthesie() != Intervention::NoLoSo)                                                                       //! type d'anesthésie
                             {
                                 QString anesth = "";
@@ -941,8 +941,8 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                 if (typ)
                 {
                     QString typinterv = typ->typeintervention().toUpper();
-                    if (interv->cote() != Utils::NoLoSo)
-                        typinterv += " - " + tr("Côté") + " " +  Utils::TraduitCote(interv->cote()).toLower();
+                    if (interv->cote() != Item::NoLoSo)
+                        typinterv += " - " + tr("Côté") + " " +  Item::TraduitCote(interv->cote()).toLower();
                     itemtyp = new UpStandardItem();
                     itemtyp ->setForeground(QBrush(QColor(Qt::darkBlue)));
                     if (interv->anesthesie() != Intervention::NoLoSo)                                                                           //! type d'anesthésie
@@ -1448,7 +1448,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(interv->idtypeintervention());
         if (typ)
             interventioncombo->setCurrentIndex(interventioncombo->findText(typ->typeintervention()));
-        cotecombo->setCurrentIndex(cotecombo->findData(Utils::ConvertCote(interv->cote())));
+        cotecombo->setCurrentIndex(cotecombo->findData(Item::ConvertCote(interv->cote())));
         anesthcombo->setCurrentIndex(anesthcombo->findData(Intervention::ConvertModeAnesthesie(interv->anesthesie())));
         ObservtextEdit->setText(interv->observation());
         if (interv->idIOL() > 0)

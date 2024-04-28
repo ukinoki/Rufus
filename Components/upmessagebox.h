@@ -23,17 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDesktopServices>
 #include <QMovie>
 #include <QTextEdit>
-#include "updialog.h"
-#include "uplabel.h"
-#include "uppushbutton.h"
-#include "upsmallbutton.h"
 #include "utils.h"
-#include "uptextedit.h"
 
-class UpLabel;
-class UpSmallButton;
-class UpPushButton;
-class UpTextEdit;
 class Utils;
 
 class UpMessageBox : public UpDialog

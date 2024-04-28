@@ -63,31 +63,31 @@ void DocExterne::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-    Utils::setDataBool(data, CP_ISALLLOADED, m_isAllLoaded);
+    setDataBool(data, CP_ISALLLOADED, m_isAllLoaded);
 
-    Utils::setDataInt(data, CP_ID_DOCSEXTERNES, m_id);
-    Utils::setDataInt(data, CP_IDUSER_DOCSEXTERNES, m_iduser);
-    Utils::setDataInt(data, CP_IDPAT_DOCSEXTERNES, m_idpatient);
-    Utils::setDataString(data, CP_TYPEDOC_DOCSEXTERNES, m_typedoc);
-    Utils::setDataString(data, CP_SOUSTYPEDOC_DOCSEXTERNES, m_soustypedoc);
+    setDataInt(data, CP_ID_DOCSEXTERNES, m_id);
+    setDataInt(data, CP_IDUSER_DOCSEXTERNES, m_iduser);
+    setDataInt(data, CP_IDPAT_DOCSEXTERNES, m_idpatient);
+    setDataString(data, CP_TYPEDOC_DOCSEXTERNES, m_typedoc);
+    setDataString(data, CP_SOUSTYPEDOC_DOCSEXTERNES, m_soustypedoc);
 
-    Utils::setDataString(data, CP_TITRE_DOCSEXTERNES, m_titre);
-    Utils::setDataString(data, CP_TEXTENTETE_DOCSEXTERNES, m_textentete);
-    Utils::setDataString(data, CP_TEXTCORPS_DOCSEXTERNES, m_textcorps);
-    Utils::setDataString(data, CP_TEXTORIGINE_DOCSEXTERNES, m_textorigine);
-    Utils::setDataString(data, CP_TEXTPIED_DOCSEXTERNES, m_textpied);
+    setDataString(data, CP_TITRE_DOCSEXTERNES, m_titre);
+    setDataString(data, CP_TEXTENTETE_DOCSEXTERNES, m_textentete);
+    setDataString(data, CP_TEXTCORPS_DOCSEXTERNES, m_textcorps);
+    setDataString(data, CP_TEXTORIGINE_DOCSEXTERNES, m_textorigine);
+    setDataString(data, CP_TEXTPIED_DOCSEXTERNES, m_textpied);
 
-    Utils::setDataDateTime(data, CP_DATE_DOCSEXTERNES, m_dateimpression);
-    Utils::setDataInt(data, CP_COMPRESSION_DOCSEXTERNES, m_compression);
-    Utils::setDataString(data, CP_LIENFICHIER_DOCSEXTERNES, m_lienversfichier);
-    Utils::setDataInt(data, CP_ALD_DOCSEXTERNES, m_ald);
-    Utils::setDataInt(data, CP_IDEMETTEUR_DOCSEXTERNES, m_useremetteur);
+    setDataDateTime(data, CP_DATE_DOCSEXTERNES, m_dateimpression);
+    setDataInt(data, CP_COMPRESSION_DOCSEXTERNES, m_compression);
+    setDataString(data, CP_LIENFICHIER_DOCSEXTERNES, m_lienversfichier);
+    setDataInt(data, CP_ALD_DOCSEXTERNES, m_ald);
+    setDataInt(data, CP_IDEMETTEUR_DOCSEXTERNES, m_useremetteur);
 
-    Utils::setDataString(data, CP_FORMATDOC_DOCSEXTERNES, m_formatdoc);
-    Utils::setDataInt(data, CP_IMPORTANCE_DOCSEXTERNES, m_importance);
-    Utils::setDataInt(data, CP_EMISORRECU_DOCSEXTERNES, m_emisrecu);
-    Utils::setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idsite);
-    Utils::setDataInt(data, CP_IDREFRACTION_DOCSEXTERNES, m_idrefraction);
+    setDataString(data, CP_FORMATDOC_DOCSEXTERNES, m_formatdoc);
+    setDataInt(data, CP_IMPORTANCE_DOCSEXTERNES, m_importance);
+    setDataInt(data, CP_EMISORRECU_DOCSEXTERNES, m_emisrecu);
+    setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idsite);
+    setDataInt(data, CP_IDREFRACTION_DOCSEXTERNES, m_idrefraction);
     m_data = data;
 }
 

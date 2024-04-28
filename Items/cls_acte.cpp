@@ -49,30 +49,30 @@ void Acte::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_ACTES, m_id);
-    Utils::setDataInt(data, CP_IDUSERCREATEUR_ACTES, m_idCreatedBy);
-    Utils::setDataInt(data, CP_IDPAT_ACTES, m_idPatient);
-    Utils::setDataInt(data, CP_IDUSER_ACTES, m_idSuperviseur);
-    Utils::setDataInt(data, CP_IDUSERPARENT_ACTES, m_idParent);
-    Utils::setDataInt(data, CP_IDUSERCOMPTABLE_ACTES, m_idComptable);
-    Utils::setDataInt(data, CP_NUMCENTRE_ACTES, m_numCentre);
-    Utils::setDataInt(data, CP_IDLIEU_ACTES, m_idsite);
+    setDataInt(data, CP_ID_ACTES, m_id);
+    setDataInt(data, CP_IDUSERCREATEUR_ACTES, m_idCreatedBy);
+    setDataInt(data, CP_IDPAT_ACTES, m_idPatient);
+    setDataInt(data, CP_IDUSER_ACTES, m_idSuperviseur);
+    setDataInt(data, CP_IDUSERPARENT_ACTES, m_idParent);
+    setDataInt(data, CP_IDUSERCOMPTABLE_ACTES, m_idComptable);
+    setDataInt(data, CP_NUMCENTRE_ACTES, m_numCentre);
+    setDataInt(data, CP_IDLIEU_ACTES, m_idsite);
 
-    Utils::setDataDouble(data, CP_MONTANT_ACTES, m_montant);
+    setDataDouble(data, CP_MONTANT_ACTES, m_montant);
 
-    Utils::setDataString(data, CP_MOTIF_ACTES, m_motif, true);
-    Utils::setDataString(data, CP_TEXTE_ACTES, m_texte, true);
-    Utils::setDataString(data, CP_CONCLUSION_ACTES, m_conclusion, true);
-    Utils::setDataString(data, CP_COURRIERAFAIRE_ACTES, m_courrierStatus);
-    Utils::setDataString(data, CP_COTATION_ACTES, m_cotation);
-    Utils::setDataString(data, CP_MONNAIE_ACTES, m_monnaie);
-    Utils::setDataString(data, CP_TYPEPAIEMENT_TYPEPAIEMENTACTES, m_paiementType);
-    Utils::setDataString(data, CP_TIERS_TYPEPAIEMENTACTES, m_paiementTiers);
+    setDataString(data, CP_MOTIF_ACTES, m_motif, true);
+    setDataString(data, CP_TEXTE_ACTES, m_texte, true);
+    setDataString(data, CP_CONCLUSION_ACTES, m_conclusion, true);
+    setDataString(data, CP_COURRIERAFAIRE_ACTES, m_courrierStatus);
+    setDataString(data, CP_COTATION_ACTES, m_cotation);
+    setDataString(data, CP_MONNAIE_ACTES, m_monnaie);
+    setDataString(data, CP_TYPEPAIEMENT_TYPEPAIEMENTACTES, m_paiementType);
+    setDataString(data, CP_TIERS_TYPEPAIEMENTACTES, m_paiementTiers);
 
-    Utils::setDataDate(data, CP_DATE_ACTES, m_date);
-    Utils::setDataTime(data, CP_HEURE_ACTES, m_heure);
-    Utils::setDataBool(data, CP_SUPERVISEURREMPLACANT_ACTES, m_remplacant);
-    Utils::setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_idintervention);
+    setDataDate(data, CP_DATE_ACTES, m_date);
+    setDataTime(data, CP_HEURE_ACTES, m_heure);
+    setDataBool(data, CP_SUPERVISEURREMPLACANT_ACTES, m_remplacant);
+    setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_idintervention);
     m_data = data;
 }
 

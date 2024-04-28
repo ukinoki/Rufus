@@ -19,6 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CLS_DOCEXTERNE_H
 
 #include "cls_item.h"
+#include "utils.h"
+//#include <QImage>
 
 /*!
  * \brief DocExterne class

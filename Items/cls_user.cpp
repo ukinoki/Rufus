@@ -38,42 +38,42 @@ void User::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_USR, m_id);
+    setDataInt(data, CP_ID_USR, m_id);
 
-    Utils::setDataString(data, CP_PRENOM_USR, m_prenom);
-    Utils::setDataString(data, CP_NOM_USR, m_nom);
-    Utils::setDataString(data, CP_TITRE_USR, m_titre);
-    Utils::setDataString(data, CP_LOGIN_USR, m_login);
-    Utils::setDataString(data, CP_DROITS_USR, m_droits);
-    Utils::setDataString(data, CP_MDP_USR, m_password);
-    Utils::setDataString(data, CP_FONCTION_USR, m_fonction);
-    Utils::setDataString(data, CP_MAIL_USR, m_mail);
-    Utils::setDataString(data, CP_SPECIALITE_USR, m_specialite);
-    Utils::setDataString(data, CP_NUMCO_USR, m_numCO);
-    Utils::setDataString(data, CP_PORTABLE_USR, m_portable);
-    Utils::setDataString(data, CP_MEMO_USR, m_memo);
-    Utils::setDataString(data, CP_POLICEECRAN_USR, m_policeEcran);
-    Utils::setDataString(data, CP_POLICEATTRIBUT_USR, m_policeAttribut);
+    setDataString(data, CP_PRENOM_USR, m_prenom);
+    setDataString(data, CP_NOM_USR, m_nom);
+    setDataString(data, CP_TITRE_USR, m_titre);
+    setDataString(data, CP_LOGIN_USR, m_login);
+    setDataString(data, CP_DROITS_USR, m_droits);
+    setDataString(data, CP_MDP_USR, m_password);
+    setDataString(data, CP_FONCTION_USR, m_fonction);
+    setDataString(data, CP_MAIL_USR, m_mail);
+    setDataString(data, CP_SPECIALITE_USR, m_specialite);
+    setDataString(data, CP_NUMCO_USR, m_numCO);
+    setDataString(data, CP_PORTABLE_USR, m_portable);
+    setDataString(data, CP_MEMO_USR, m_memo);
+    setDataString(data, CP_POLICEECRAN_USR, m_policeEcran);
+    setDataString(data, CP_POLICEATTRIBUT_USR, m_policeAttribut);
 
-    Utils::setDataInt(data, CP_SOIGNANTSTATUS_USR, m_soignant);
-    Utils::setDataInt(data, CP_RESPONSABLEACTES_USR, m_responsableActes);
-    Utils::setDataLongLongInt(data, CP_NUMPS_USR, m_numPS);
-    Utils::setDataInt(data, CP_IDSPECIALITE_USR, m_noSpecialite);
-    Utils::setDataInt(data, CP_IDCOMPTEPARDEFAUT_USR, m_idCompteParDefaut);
-    Utils::setDataInt(data, CP_IDEMPLOYEUR_USR, m_employeur);
-    Utils::setDataBool(data, CP_ISMEDECIN_USR, m_medecin);
-    Utils::setDataInt(data, CP_ENREGHONORAIRES_USR, m_enregHonoraires);
-    Utils::setDataInt(data, CP_SECTEUR_USR, m_secteur);
+    setDataInt(data, CP_SOIGNANTSTATUS_USR, m_soignant);
+    setDataInt(data, CP_RESPONSABLEACTES_USR, m_responsableActes);
+    setDataLongLongInt(data, CP_NUMPS_USR, m_numPS);
+    setDataInt(data, CP_IDSPECIALITE_USR, m_noSpecialite);
+    setDataInt(data, CP_IDCOMPTEPARDEFAUT_USR, m_idCompteParDefaut);
+    setDataInt(data, CP_IDEMPLOYEUR_USR, m_employeur);
+    setDataBool(data, CP_ISMEDECIN_USR, m_medecin);
+    setDataInt(data, CP_ENREGHONORAIRES_USR, m_enregHonoraires);
+    setDataInt(data, CP_SECTEUR_USR, m_secteur);
 
-    Utils::setDataBool(data, CP_ISAGA_USR, m_AGA);
-    Utils::setDataBool(data, CP_ISDESACTIVE_USR, m_desactive);
-    Utils::setDataBool(data, CP_ISOPTAM_USR, m_OPTAM);
-    Utils::setDataBool(data, CP_COTATION_USR, m_cotationactes);
+    setDataBool(data, CP_ISAGA_USR, m_AGA);
+    setDataBool(data, CP_ISDESACTIVE_USR, m_desactive);
+    setDataBool(data, CP_ISOPTAM_USR, m_OPTAM);
+    setDataBool(data, CP_COTATION_USR, m_cotationactes);
 
-    Utils::setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
-    Utils::setDataDate(data, CP_DATECREATIONMDP_USR, m_datecreationMDP);
-    Utils::setDataBool(data, CP_AFFICHEDOCSPUBLICS_USR, m_affichedocspublics);
-    Utils::setDataBool(data, CP_AFFICHECOMMENTSPUBLICS_USR, m_affichecommentslunettespublics);
+    setDataDateTime(data, CP_DATEDERNIERECONNEXION_USR, m_dateDerniereConnexion);
+    setDataDate(data, CP_DATECREATIONMDP_USR, m_datecreationMDP);
+    setDataBool(data, CP_AFFICHEDOCSPUBLICS_USR, m_affichedocspublics);
+    setDataBool(data, CP_AFFICHECOMMENTSPUBLICS_USR, m_affichecommentslunettespublics);
     m_data = data;
     /*qDebug() << login();
 

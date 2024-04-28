@@ -41,11 +41,11 @@ public:
     void setpachyOG(int pa)         { m_pachyOG = pa; m_cleandatas = false; m_isnullOG = false; }
     void setmodemesure(Mode mode)   { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Item::Cote cote = Item::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Item::Les2:
+        case Item::NoLoSo:
             m_pachyOD       = 0;
             m_pachyOG       = 0;
             m_modemesure    = NoMesure;
@@ -53,13 +53,13 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Utils::Droit:
+        case Item::Droit:
             m_pachyOD       = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Utils::Gauche:
+        case Item::Gauche:
             m_pachyOG       = 0;
             m_isnullOG      = true;
             if (m_isnullOD)
@@ -168,11 +168,11 @@ public:
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Item::Cote cote = Item::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Item::Les2:
+        case Item::NoLoSo:
             m_TOD           = 0;
             m_TOG           = 0;
             m_TODcorrigee   = 0;
@@ -183,14 +183,14 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Utils::Droit:
+        case Item::Droit:
             m_TOD           = 0;
             m_TODcorrigee   = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Utils::Gauche:
+        case Item::Gauche:
             m_TOG           = 0;
             m_TOGcorrigee   = 0;
             m_isnullOG      = true;
@@ -252,14 +252,14 @@ public:
         m_timemesure    = tono->timemesure();
         m_modemesure    = tono->modemesure();
         if  (tono->isnullLOD())
-            cleandatas(Utils::Droit);
+            cleandatas(Item::Droit);
         else
         {
             setTOD(tono->TOD());
             setTODcorrigee(tono->TODcorrigee());
         }
         if  (tono->isnullLOG())
-            cleandatas(Utils::Gauche);
+            cleandatas(Item::Gauche);
         else
         {
             setTOG(tono->TOG());
@@ -299,11 +299,11 @@ public:
     void settimeemesure(QDateTime time) { m_timemesure = time; m_cleandatas = false; }
     void setmodemesure(Mode mode)       { m_modemesure = mode; m_cleandatas = false; }
 
-    void cleandatas(Utils::Cote cote = Utils::Les2)
+    void cleandatas(Item::Cote cote = Item::Les2)
     {
         switch (cote) {
-        case Utils::Les2:
-        case Utils::NoLoSo:
+        case Item::Les2:
+        case Item::NoLoSo:
             m_ALOD          = 0;
             m_ACDOD         = 0;
             m_ALOG          = 0;
@@ -314,14 +314,14 @@ public:
             m_isnullOD      = true;
             m_isnullOG      = true;
             break;
-        case Utils::Droit:
+        case Item::Droit:
             m_ALOD          = 0;
             m_ACDOD         = 0;
             m_isnullOD      = true;
             if (m_isnullOG)
                 m_cleandatas = true;
             break;
-        case Utils::Gauche:
+        case Item::Gauche:
             m_ALOG          = 0;
             m_ACDOG         = 0;
             m_isnullOG      = true;
@@ -384,13 +384,13 @@ public:
         m_timemesure    = biom->timemesure();
         m_modemesure    = biom->modemesure();
         if  (biom->isnullLOD())
-            cleandatas(Utils::Droit);
+            cleandatas(Item::Droit);
         else {
             setALOD(biom->ALOD());
             setACDOD(biom->ACDOD());
         }
         if  (biom->isnullLOG())
-            cleandatas(Utils::Gauche);
+            cleandatas(Item::Gauche);
         else {
             setALOG(biom->ALOG());
             setACDOG(biom->ACDOG());

@@ -984,7 +984,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_COTE_LIGNPRGOPERATOIRE)
             {
-                interv->setcote(Utils::ConvertCote(newvalue.toString()));
+                interv->setcote(Item::ConvertCote(newvalue.toString()));
                 Utils::CalcStringValueSQL(newvalue);
             }
             else if (field == CP_IDIOL_LIGNPRGOPERATOIRE)

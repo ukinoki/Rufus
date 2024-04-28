@@ -147,7 +147,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("databaseName - " + m_db.databaseName());
     Logs::LogSQL("Login        - " + m_db.userName());
     Logs::LogSQL("port         - " + QString::number(m_db.port()));
-    Logs::LogSQL("options      - " + (connectSSLoptions != ""? connectSSLoptions : "none"));
+    Logs::LogSQL("options      - " + (useSSL? connectSSLoptions : "none"));
 
     if( m_db.open() )
         return QString();

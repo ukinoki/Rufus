@@ -32,6 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScreen>
 #include <QTextEdit>
 #include <QTime>
+
 #include "icons.h"
 #include "macros.h"
 

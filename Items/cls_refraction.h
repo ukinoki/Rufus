@@ -73,7 +73,7 @@ private:
     QString m_formuleOG;            //!> formule de réfraction OG
     QString m_commentaireordo;      //!> commentaire de l'ordonnace de verres
     Distance m_typeverres;          //!> la distance d'utilisation des verres
-    Utils::Cote m_oeil;             //!> l'oeil pour lequel les verres sont prescrits
+    Cote m_oeil;                    //!> l'oeil pour lequel les verres sont prescrits
     int m_monture;                  //!> le nombre de montures
     bool m_isverreteinte;           //!> les verres sont teintés
     int m_ecartIP = 0;              //!> ecart interpuppilaire
@@ -117,7 +117,7 @@ public:
     QString formuleOG() { return m_formuleOG; }                 //!> formule de réfraction OG
     QString commentaireordo() { return m_commentaireordo; }     //!> commentaire de l'ordonnace de verres
     Distance typeverres() { return m_typeverres; }              //!> la distance d'utilisation des verres
-    Utils::Cote oeil() { return m_oeil; }                       //!> l'oeil pour lequel les verres sont prescrits
+    Cote oeil() { return m_oeil; }                              //!> l'oeil pour lequel les verres sont prescrits
     int monture() { return m_monture; }                         //!> le nombre de montures
     bool isverreteinte() { return m_isverreteinte; }            //!> les verres sont teintés
     int ecartIP() { return m_ecartIP; }                         //!> ecart interpuppilaire
@@ -154,11 +154,11 @@ public:
                                               m_data[CP_BASEPRISMEOD_REFRACTIONS] = base; }
     void setbaseprismetextOD(QString txt)   { m_baseprismetextOD = txt;
                                               m_data[CP_BASEPRISMETEXTOD_REFRACTIONS] = txt; }
-    void sethaspressonOD(bool logic)        { m_haspressonOD = (logic? Utils::True : Utils::False);
+    void sethaspressonOD(bool logic)        { m_haspressonOD = (logic? True : False);
                                               m_data[CP_PRESSONOD_REFRACTIONS] = logic; }
-    void sethasdepoliOD(bool logic)         { m_hasdepoliOD = (logic? Utils::True : Utils::False);
+    void sethasdepoliOD(bool logic)         { m_hasdepoliOD = (logic? True : False);
                                               m_data[CP_DEPOLIOD_REFRACTIONS] = logic; }
-    void sethasplanOD(bool logic)           { m_hasplanOD = (logic? Utils::True : Utils::False);
+    void sethasplanOD(bool logic)           { m_hasplanOD = (logic? True : False);
                                               m_data[CP_PLANOD_REFRACTIONS] = logic; }
     void setryserOD(int val)                { m_ryserOD = val;
                                               m_data[CP_RYSEROD_REFRACTIONS] = val; }
@@ -184,11 +184,11 @@ public:
                                               m_data[CP_BASEPRISMEOG_REFRACTIONS] = base; }
     void setbaseprismetextOG(QString txt)   { m_baseprismetextOG = txt;
                                               m_data[CP_BASEPRISMETEXTOG_REFRACTIONS] = txt; }
-    void sethaspressonOG(bool logic)        { m_haspressonOG = (logic? Utils::True : Utils::False);
+    void sethaspressonOG(bool logic)        { m_haspressonOG = (logic? True : False);
                                               m_data[CP_PRESSONOG_REFRACTIONS] = logic; }
-    void sethasdepoliOG(bool logic)         { m_hasdepoliOG = (logic? Utils::True : Utils::False);
+    void sethasdepoliOG(bool logic)         { m_hasdepoliOG = (logic? True : False);
                                               m_data[CP_DEPOLIOG_REFRACTIONS] = logic; }
-    void sethasplanOG(bool logic)           { m_hasplanOG = (logic? Utils::True : Utils::False);
+    void sethasplanOG(bool logic)           { m_hasplanOG = (logic? True : False);
                                               m_data[CP_PLANOG_REFRACTIONS] = logic; }
     void setryserOG(int val)                { m_ryserOG = val;
                                               m_data[CP_RYSEROG_REFRACTIONS] = val; }
@@ -198,8 +198,8 @@ public:
                                               m_data[CP_COMMENTAIREORDO_REFRACTIONS] = txt; }
     void settypeverres(Distance distance)   { m_typeverres = distance;
                                               m_data[CP_TYPEVERRES_REFRACTIONS] = ConvertDistance(distance); }
-    void setoeil(Utils::Cote oeil)          { m_oeil = oeil;
-                                              m_data[CP_OEIL_REFRACTIONS] = Utils::ConvertCote(oeil); }
+    void setoeil(Cote oeil)          { m_oeil = oeil;
+                                              m_data[CP_OEIL_REFRACTIONS] = ConvertCote(oeil); }
     void setmonture(int n)                  { m_monture = n;
                                               m_data[CP_MONTURE_REFRACTIONS] = n; }
     void setisverreteinte(bool logic)       { m_isverreteinte = logic;

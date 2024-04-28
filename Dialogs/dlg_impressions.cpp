@@ -2900,11 +2900,11 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         txt = "((" + TITRECOTEINTERVENTION + "//" + COTEINTERVENTION + "))";
         {
             QString cote ="";
-            if (m_currentintervention->cote() == Utils::Droit)
+            if (m_currentintervention->cote() == Item::Droit)
                 cote = tr("l'oeil droit");
-            else if (m_currentintervention->cote() == Utils::Gauche)
+            else if (m_currentintervention->cote() == Item::Gauche)
                 cote = tr("l'oeil gauche");
-            else if (m_currentintervention->cote() == Utils::Les2)
+            else if (m_currentintervention->cote() == Item::Les2)
                 cote = tr("des deux yeux");
             texte.replace(txt, cote);
         }

@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 #include "cls_item.h"
+#include "utils.h"
 
 /*!
  * \brief ParametresSysteme class

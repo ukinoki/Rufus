@@ -26,6 +26,14 @@ UpLabel::UpLabel(QWidget *parent, QString txt) : QLabel(txt, parent)  //je ne sa
     setContextMenuPolicy(Qt::NoContextMenu);
 }
 
+UpLabel::UpLabel(Item *item, QString txt, QWidget *parent) : QLabel(txt, parent)
+{
+    m_item = item;
+    m_item->setParent(this);
+    installEventFilter(this);
+    setContextMenuPolicy(Qt::NoContextMenu);
+}
+
 UpLabel::~UpLabel()
 {
 

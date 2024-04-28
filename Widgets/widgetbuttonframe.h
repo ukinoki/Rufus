@@ -19,11 +19,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define WIDGETBUTTONFRAME_H
 
 #include <QFrame>
-#include "upsmallbutton.h"
 #include <QAbstractItemView>
 #include <QLayout>
+
 #include "uplabel.h"
 #include "uplineedit.h"
+#include "upsmallbutton.h"
 
 
 /*!
@@ -55,6 +56,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
         }
     }
  */
+class UpSmallButton;
+class UpLabel;
+class UpLineEdit;
 
 class WidgetButtonFrame : public QFrame
 {

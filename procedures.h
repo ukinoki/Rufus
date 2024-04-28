@@ -52,8 +52,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 
-#include <uppushbutton.h>
-#include <upcheckbox.h>
 #include <textprinter.h>
 #include <serialthread.h>
 #include <ostask.h>
@@ -67,7 +65,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <ui_dlg_identificationuser.h>
 #include <dlg_message.h>
 #include "upprogressdialog.h"
-#include <uptextedit.h>
 #include <uptoolbar.h>
 #include <upmessagebox.h>
 #include <cls_appareilimagerie.h>
@@ -75,6 +72,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <database.h>
 #include <gbl_datas.h>
 #include "ressources.h"
+#include <uppushbutton.h>
+#include <upcheckbox.h>
 #include <timerthread.h>
 #include <tomey.h>
 #include <icons.h>

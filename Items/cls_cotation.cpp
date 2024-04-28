@@ -38,16 +38,16 @@ void Cotation::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, "idcotation", m_id);
-    Utils::setDataString(data, "typeacte", m_typeacte);
-    Utils::setDataDouble(data, "montantconventionnel", m_montantconventionnel);
-    Utils::setDataDouble(data, "montantoptam", m_montantoptam);
-    Utils::setDataDouble(data, "montantnonoptam", m_montantnonoptam);
-    Utils::setDataDouble(data, "montantpratique", m_montantpratique);
-    Utils::setDataBool(data, "ccam", m_ccam);
-    Utils::setDataInt(data, "iduser", m_iduser);
-    Utils::setDataInt(data, "frequence", m_frequence);
-    Utils::setDataString(data, "descriptif", m_descriptif);
+    setDataInt(data, "idcotation", m_id);
+    setDataString(data, "typeacte", m_typeacte);
+    setDataDouble(data, "montantconventionnel", m_montantconventionnel);
+    setDataDouble(data, "montantoptam", m_montantoptam);
+    setDataDouble(data, "montantnonoptam", m_montantnonoptam);
+    setDataDouble(data, "montantpratique", m_montantpratique);
+    setDataBool(data, "ccam", m_ccam);
+    setDataInt(data, "iduser", m_iduser);
+    setDataInt(data, "frequence", m_frequence);
+    setDataString(data, "descriptif", m_descriptif);
     m_data = data;
 }
 

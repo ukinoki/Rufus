@@ -15,10 +15,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSEXTERNES_H
 #define DLG_DOCSEXTERNES_H
 
-#include "procedures.h"
-#include "upswitch.h"
 #include <QGraphicsVideoItem>
 #include <QGraphicsView>
+
+#include "procedures.h"
+#include "upswitch.h"
 #include "playercontrols.h"
 #include "textprinter.h"
 #include <uppushbutton.h>
@@ -28,6 +29,7 @@ class PlayerControls;
 class UpPushButton;
 class UpCheckBox;
 class TextPrinter;
+class UpSwitch;
 
 class dlg_docsexternes : public UpDialog
 {

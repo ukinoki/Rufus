@@ -31,14 +31,14 @@ void Session::setData(QJsonObject data)
     if( data.isEmpty() )
         return;
 
-    Utils::setDataInt(data, CP_ID_SESSIONS, m_id);
-    Utils::setDataInt(data, CP_IDUSER_SESSIONS, m_iduser);
-    Utils::setDataInt(data, CP_IDSUPERVISEUR_SESSIONS, m_idUserSuperviseur);
-    Utils::setDataInt(data, CP_IDPARENT_SESSIONS, m_idUserParent);
-    Utils::setDataInt(data, CP_IDCOMPTABLE_SESSIONS, m_idUserComptable);
-    Utils::setDataInt(data, CP_IDLIEU_SESSIONS, m_idlieu);
-    Utils::setDataDateTime(data,CP_DATEDEBUT_SESSIONS, m_datedebut);
-    Utils::setDataDateTime(data,CP_DATEFIN_SESSIONS, m_datefin);
+    setDataInt(data, CP_ID_SESSIONS, m_id);
+    setDataInt(data, CP_IDUSER_SESSIONS, m_iduser);
+    setDataInt(data, CP_IDSUPERVISEUR_SESSIONS, m_idUserSuperviseur);
+    setDataInt(data, CP_IDPARENT_SESSIONS, m_idUserParent);
+    setDataInt(data, CP_IDCOMPTABLE_SESSIONS, m_idUserComptable);
+    setDataInt(data, CP_IDLIEU_SESSIONS, m_idlieu);
+    setDataDateTime(data,CP_DATEDEBUT_SESSIONS, m_datedebut);
+    setDataDateTime(data,CP_DATEFIN_SESSIONS, m_datefin);
     m_data = data;
 }
 

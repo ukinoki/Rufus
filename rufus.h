@@ -70,7 +70,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <upcombobox.h>
 #include <updoublevalidator.h>
-#include <uplabelitem.h>
 #include <upstandarditem.h>
 #include <conversionbase.h>
 #include <database.h>
@@ -82,6 +81,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <pyxinterf.h>
 #include <styles.h>
 #include <tcpsocket.h>
+#include "uplabel.h"
 #include <upsystemtrayicon.h>
 #include <cls_rendezvous.h>
 
@@ -135,7 +135,7 @@ private:
     void        AfficheDossiersRechercheParMotCle();
     void        AfficheCourriersAFaire();
     void        AfficheMenu(QMenu *menu);
-    void        AfficheMotif(UpLabelItem *lbl);
+    void        AfficheMotif(UpLabel *lbl);
     void        AfficheToolTip(Patient *pat);
     void        AppelPaiementDirect(Origin origin);
     void        AppelPaiementTiers();
@@ -206,7 +206,7 @@ private:
     void        RetrouveMontantActe();
     void        SaisieFSE();
     void        SalleDAttente();
-    void        SurbrillanceSalDat(UpLabelItem *lab);
+    void        SurbrillanceSalDat(UpLabel *lab);
     void        Apropos();
 
 
@@ -243,8 +243,8 @@ private:
     void        MenuContextuelMedecin();
     void            ChoixMenuContextuelMedecin();
     void        MenuContextuelMotsCles();
-    void        MenuContextuelAccueil(UpLabelItem *labelCLicked);
-    void        MenuContextuelSalDat(UpLabelItem *labelCLicked);
+    void        MenuContextuelAccueil(UpLabel *labelCLicked);
+    void        MenuContextuelSalDat(UpLabel *labelCLicked);
     void            ChoixMenuContextuelSalDat(int idpat, QString);
 
     //fonctions lancées par des timers
