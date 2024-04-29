@@ -43,8 +43,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlg_docsexternes.h>
 #include <dlg_docsscanner.h>
 #include <dlg_docsvideo.h>
-#include <dlg_impressions.h>
-#include <ui_dlg_impressions.h>
 #include <dlg_listelieux.h>
 #include <dlg_identificationcorresp.h>
 #include <ui_dlg_identificationcorresp.h>
@@ -72,10 +70,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <updoublevalidator.h>
 #include <upstandarditem.h>
 #include <conversionbase.h>
-#include <database.h>
-#include <flags.h>
-#include <gbl_datas.h>
-#include <icons.h>
 #include <importdocsexternesthread.h>
 #include <log.h>
 #include <pyxinterf.h>

@@ -18,11 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_PROGRAMMATIONINTERVENTIONS_H
 #define DLG_PROGRAMMATIONINTERVENTIONS_H
 
-#include <updialog.h>
-#include <database.h>
-#include <procedures.h>
-#include <updoublespinbox.h>
-#include <uptableview.h>
 #include <widgetbuttonframe.h>
 #include <dlg_impressions.h>
 #include <ui_dlg_impressions.h>
@@ -32,7 +27,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlg_listeiols.h>
 #include <dlg_listemanufacturers.h>
 #include <dlg_listetypesinterventions.h>
+
 #include <updoublevalidator.h>
+#include <updialog.h>
+#include <procedures.h>
+#include <updoublespinbox.h>
+#include <uptableview.h>
 
 class dlg_programmationinterventions : public UpDialog
 {

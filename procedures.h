@@ -64,20 +64,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlg_identificationuser.h>
 #include <ui_dlg_identificationuser.h>
 #include <dlg_message.h>
+#include <cls_appareilimagerie.h>
+
 #include "upprogressdialog.h"
 #include <uptoolbar.h>
 #include <upmessagebox.h>
-#include <cls_appareilimagerie.h>
-
-#include <database.h>
-#include <gbl_datas.h>
 #include "ressources.h"
 #include <uppushbutton.h>
 #include <upcheckbox.h>
 #include <timerthread.h>
 #include <tomey.h>
-#include <icons.h>
-#include <gbl_datas.h>
 
 class Procedures : public QObject
 {

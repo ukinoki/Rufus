@@ -18,11 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_GESTIONUSERS_H
 #define DLG_GESTIONUSERS_H
 
-#include "database.h"
 #include "dlg_gestioncomptes.h"
 #include "dlg_listelieux.h"
-#include "icons.h"
-#include "utils.h"
 #include "upheaderview.h"
 
 /* sert à gérer les comptes utilisateurs
