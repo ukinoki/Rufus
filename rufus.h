@@ -30,8 +30,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPdfDocument>
 #include <QMovie>
 
-//#include <poppler-qt6.h>
-
 #include <dlg_actesprecedents.h>
 #include <dlg_autresmesures.h>
 #include <dlg_bilanortho.h>

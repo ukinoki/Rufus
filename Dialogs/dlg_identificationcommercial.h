@@ -20,11 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "updialog.h"
-#include "cls_commercials.h"
 #include "updoublevalidator.h"
 #include "updoublespinbox.h"
-#include "uptoolbar.h"
-#include "uppushbutton.h"
 
 
 class dlg_identificationcommercial : public UpDialog

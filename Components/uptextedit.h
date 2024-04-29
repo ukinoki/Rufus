@@ -73,7 +73,7 @@ private:
     QString     m_valeuravant, m_valeurapres, m_champ, m_table;
     QString     m_tooltipmsg;
     bool        m_acceptimagemimedatas = false;         //! Le textedit accepte de copier-coller des images
-    bool        m_modified;                             //! le contenuu a été modifié
+    bool        m_modified;                             //! le contenu a été modifié
     int         m_id = 0;
     int         m_iduser = 0;
     int         m_column = -1;
