@@ -41,6 +41,8 @@ bool UpLineEdit::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::Enter)
     {
+        if (m_useselftextastooltip)
+            m_tooltipmsg = text();
         AfficheToolTip();
         return true;
     }
@@ -84,6 +86,11 @@ void UpLineEdit::AfficheToolTip()
 void UpLineEdit::setImmediateToolTip(QString Msg)
 {
     m_tooltipmsg = Msg;
+}
+
+void UpLineEdit::useselftextastooltip(bool usetext)
+{
+    m_useselftextastooltip = usetext;
 }
 
 void UpLineEdit::selectAll()

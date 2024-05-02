@@ -2148,30 +2148,6 @@ QString Procedures::PosteImportDocs()
     return rep;
 }
 
-bool Procedures::Verif_secure_file_priv()
-{
-    QString msg = QString();
-    QVariantList vardata = db->getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", m_ok);
-    if (m_ok && vardata.size()>0)
-        msg = vardata.at(1).toString();
-    if (msg == "NULL")
-        msg = QString();
-    if (msg==QString())
-    {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
-                            tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
-                               "Vous ne pourrez pas afficher les documents d'imagerie\n"
-                               "Veuillez modifier la valeur de cette variable en la faisant pointer sur un sous-dossier du dossier"
-                               "'/Users/Votrenomdutilisateur/Rufus' sur le serveur\n"
-                               "Reportez-vous au bas de la page\n"
-                               "https://www.rufusvision.org/installation-du-serveur-mysql.html\n"
-                               "pour savoir comment modifier le fichier de configuration my.cnf\n"
-                               "de MySQL sur le serveur puis redémarrez le serveur"));
-        return false;
-    }
-    return true;
-}
-
 bool Procedures::ReinitBase()
 {
     if (AutresPostesConnectes())
@@ -2451,29 +2427,17 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 3 - détermination de l'emplacement de destination des fichiers d'imagerie */
-        QString NomDirStockageImagerie = PATH_DIR_IMAGERIE;
         if (OKImages || OKVideos || OKFactures)
         {
-            if (!QDir(PATH_DIR_IMAGERIE).exists())
+            if (!QDir(m_dirimagerie).exists())
             {
-                UpMessageBox::Watch(parent,tr("Pas de dossier de stockage d'imagerie"),
-                                    tr("Indiquez un dossier valide dans la boîte de dialogue qui suit") + "\n" +
-                                    tr("Utilisez de préférence le dossier ") + PATH_DIR_IMAGERIE + " " +tr("Créez-le au besoin"));
-                QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Stocker les images dans le dossier") , PATH_DIR_IMAGERIE);
-                if (url == QUrl())
-                    return false;
-                QDir dirstock = QDir(url.path());
-                if (dirstock.absolutePath().contains(" "))
-                {
-                    UpMessageBox::Watch(parent, tr("Echec de la restauration"), tr("Le chemin vers le dossier ") + dirstock.absolutePath() + tr(" contient des espaces!"));
-                    return false;
-                }
-                db->setdirimagerie(NomDirStockageImagerie);
+                m_dirimagerie = db->verif_secure_file_priv() + NOM_DIR_IMAGERIE;
+                db->setdirimagerie(m_dirimagerie);
             }
         }
 
         /*! 4 - choix des éléments à restaurer */
-        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), NomDirStockageImagerie, OKini, OKImages, OKVideos, OKFactures);
+        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), m_dirimagerie, OKini, OKImages, OKVideos, OKFactures);
         int result = dlg_buprestore->exec();
         if (result > 0)
         {
@@ -2545,7 +2509,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
                             else
                                 msg += tr("Base de données Rufus restaurée\n");
-                            db->setdirimagerie(NomDirStockageImagerie);
                         }
                         ShowMessage::I()->ClosePriorityMessage(handledlg);
                     }
@@ -2573,7 +2536,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationimg   = NomDirStockageImagerie + NOM_DIR_IMAGES;
+                        QString dirdestinationimg   = m_dirimagerie + NOM_DIR_IMAGES;
                         QDir DirDestImg(dirdestinationimg);
                         if (DirDestImg.exists())
                             DirDestImg.removeRecursively();
@@ -2602,7 +2565,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationfact  = NomDirStockageImagerie + NOM_DIR_FACTURES;
+                        QString dirdestinationfact  = m_dirimagerie + NOM_DIR_FACTURES;
                         QDir DirDestFact(dirdestinationfact);
                         if (DirDestFact.exists())
                             DirDestFact.removeRecursively();
@@ -2631,7 +2594,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationvid   =  NomDirStockageImagerie + NOM_DIR_VIDEOS;
+                        QString dirdestinationvid   =  m_dirimagerie + NOM_DIR_VIDEOS;
                         QDir DirDestVid(dirdestinationvid);
                         if (DirDestVid.exists())
                             DirDestVid.removeRecursively();
@@ -3072,7 +3035,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setcotationsfrance(a);
 
     m_connexionbaseOK = true;
-    // On paramètre l'imprimante et les fichiers ressources
+    // On paramètre les dossiers, l'imprimante et les fichiers ressources
     PremierParametrageMateriel();
     return true;
 }
@@ -3205,7 +3168,7 @@ bool Procedures::IdentificationUser()
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);
 
-        Verif_secure_file_priv();
+        m_dirimagerie = m_parametres->dirimagerieserveur();
         if (DefinitRoleUser()) //NOTE : User Role
         {
             /*! definit les iduser pour lequel le user travaille
@@ -3854,50 +3817,6 @@ bool Procedures::PremierDemarrage()
         protoc = BaseVierge;
 
 
-    // Création des dossiers
-    /*!
-        ----- ~/Documents/Rufus
-                                  /Imagerie--
-                                              /DossierEchange
-                                                              /Un dossier par appareil d'imagerie
-                                                              /Refraction
-                                                                          /Refracteur
-                                                                                      /In
-                                                                                      /Out
-                                                                          /Fronto
-                                                                          /Tono
-                                                                          /Autoref
-                                              /Factures
-                                              /EchecsTransferts
-                                              /FacturesSansLien
-                                              /Images
-                                              /Originaux
-                                                              /Factures
-                                                              /Images
-                                              /Prov
-                                              /Video
-                                  /Logs
-                                  /Resources
-      */
-
-    Utils::mkpath(PATH_DIR_IMAGES);
-    Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
-    Utils::mkpath(PATH_DIR_DOSSIERECHANGE);
-    Utils::mkpath(PATH_DIR_VIDEOS);
-    Utils::mkpath(PATH_DIR_PROV);
-    Utils::mkpath(PATH_DIR_FACTURESSANSLIEN);
-    Utils::mkpath(PATH_DIR_FACTURES);
-    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_FACTURES);
-    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
-    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
-    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);
-    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_FRONTO);
-    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO);
-    Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
-    Utils::mkpath(PATH_DIR_TONO);
-    Utils::mkpath(PATH_DIR_AUTOREF);
-    Utils::mkpath(PATH_DIR_FRONTO);
-
 
     if (m_settings != Q_NULLPTR)
         delete m_settings;
@@ -3972,7 +3891,51 @@ void Procedures::PremierParametrageMateriel(bool modifdirimagerie)
     m_settings->setValue(Param_Poste_PortTono,"-");
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NO");
 
+    // Création des dossiers
+    /*!
+        ----- ~/Documents/Rufus
+                                  /Imagerie--
+                                              /DossierEchange
+                                                              /Un dossier par appareil d'imagerie
+                                                              /Refraction
+                                                                          /Refracteur
+                                                                                      /In
+                                                                                      /Out
+                                                                          /Fronto
+                                                                          /Tono
+                                                                          /Autoref
+                                              /Factures
+                                              /EchecsTransferts
+                                              /FacturesSansLien
+                                              /Images
+                                              /Originaux
+                                                              /Factures
+                                                              /Images
+                                              /Prov
+                                              /Video
+                                  /Logs
+                                  /Resources
+      */
+
+    Utils::mkpath(PATH_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_ECHECSTRANSFERTS);
+    Utils::mkpath(PATH_DIR_DOSSIERECHANGE);
+    Utils::mkpath(PATH_DIR_VIDEOS);
+    Utils::mkpath(PATH_DIR_PROV);
+    Utils::mkpath(PATH_DIR_FACTURESSANSLIEN);
+    Utils::mkpath(PATH_DIR_FACTURES);
+    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_FACTURES);
+    Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_FRONTO);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO);
+    Utils::mkpath(PATH_DIR_REFRACTEUR_OUT);
+    Utils::mkpath(PATH_DIR_TONO);
+    Utils::mkpath(PATH_DIR_AUTOREF);
+    Utils::mkpath(PATH_DIR_FRONTO);
+
     Utils::mkpath(PATH_DIR_IMAGERIE);
+
     QString NomDirImg = (modifdirimagerie? PATH_DIR_IMAGERIE : db->parametres()->dirimagerieserveur());
     m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, NomDirImg);
     if (modifdirimagerie)

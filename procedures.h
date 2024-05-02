@@ -86,6 +86,7 @@ private:
     QSettings               *m_settings = Q_NULLPTR;
     ParametresSysteme       *m_parametres;
     OsTask                  m_ostask;
+    QString                 m_dirimagerie = QString();
 
 public:
     static Procedures       *I();
@@ -118,7 +119,6 @@ private:
                                                 QString &MDP,                           //! le mdp du user dnas la table utilisateurs
                                                 bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
                                                 bool OKAccesDistant = true);            //! true =  le choix accès distant est validé ou non
-    bool                    Verif_secure_file_priv();
 public:
     void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     QString                 dirSQLExecutable();                                         /*! le chemin vers le dossier contenant les fichier mysql et mysqldump  */

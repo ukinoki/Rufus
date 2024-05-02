@@ -49,6 +49,7 @@ private:
     bool            m_connectavecloginSQL;
     QString         m_IPaveczero = "";
     QString         m_adresseserveur = "";
+    void            DossierClesSSL();
     void            CalcIP(QString IP);
     void            Clign();
     void            HelpMsg();
@@ -57,7 +58,7 @@ private:
     void            Test();
     void            Verif();
     bool            VerifFiche();
-    bool            TestConnexion(bool avecverifbase);
+    bool            TestConnexion();
 };
 
 #endif // DLG_PARAMCONNEXION_H

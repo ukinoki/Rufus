@@ -49,9 +49,11 @@ public:
     QString     table() const;
     void        setImmediateToolTip(QString Msg);
     void        selectAll();
+    void        useselftextastooltip(bool usetext = true);
 
 private:
     QString     m_tooltipmsg;
+    bool        m_useselftextastooltip = false;
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     int         m_row, m_col, m_id;
     QString     m_valeuravant, m_valeurapres, m_champ, m_table;

@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1020,6 +1020,12 @@
         </property>
         <item>
          <widget class="QTabWidget" name="ParamConnexiontabWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="minimumSize">
            <size>
             <width>0</width>
@@ -1039,7 +1045,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>2</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1477,6 +1483,12 @@ un serveur hébergé sur le réseau local</string>
                <width>54</width>
                <height>32</height>
               </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
              </property>
              <property name="contextMenuPolicy">
               <enum>Qt::NoContextMenu</enum>
@@ -3869,6 +3881,11 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
@@ -3882,11 +3899,6 @@ des organismes bancaires</string>
    <class>UpLabel</class>
    <extends>QLabel</extends>
    <header>uplabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpPushButton</class>
-   <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>

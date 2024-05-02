@@ -37,6 +37,7 @@ void DataBase::initParametresConnexionSQL(QString Server, int Port)
 {
     m_server = Utils::calcIP(Server, false);
     m_port = Port;
+    //qDebug() << m_server << m_port;
 }
 
 void DataBase::setModeacces(const Utils::ModeAcces &modeacces)
@@ -138,9 +139,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
                 connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/ca-cert.pem;");
         }
         m_db.setConnectOptions(connectSSLoptions);
+        login += "SSL";
     }
 
-    m_db.setUserName(login + (useSSL ? "SSL" : ""));
+    m_db.setUserName(login);
     m_db.setPassword(password);
     //qDebug() << m_db.hostName() << m_db.port() << m_db.userName() << m_db.password();
     Logs::LogSQL("Serveur      - " + m_db.hostName());
@@ -155,6 +157,28 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     QString error = m_db.lastError().text();
     Logs::ERROR(error);
     return error;
+}
+
+QString DataBase::verif_secure_file_priv()
+{
+    QString dirdata = QString();
+    bool ok;
+    QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
+    if (ok && vardata.size()>0)
+        dirdata = vardata.at(1).toString();
+    if (dirdata==QString())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
+                            tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
+                               "Vous ne pourrez pas afficher les documents d'imagerie\n"
+                               "Veuillez modifier la valeur de cette variable en la faisant pointer sur un sous-dossier du dossier"
+                               "'/Users/Votrenomdutilisateur/Rufus' sur le serveur\n"
+                               "Reportez-vous au bas de la page\n"
+                               "https://www.rufusvision.org/installation-du-serveur-mysql.html\n"
+                               "pour savoir comment modifier le fichier de configuration my.cnf\n"
+                               "de MySQL sur le serveur puis redémarrez le serveur"));
+    }
+    return dirdata;
 }
 
 QDateTime DataBase::ServerDateTime()

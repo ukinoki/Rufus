@@ -29,7 +29,12 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
     ui->IPlabel             ->setVisible(false);
     ui->IPlineEdit          ->setVisible(false);
-    ui->DistantradioButton  ->setEnabled(OKAccesDistant);
+    ui->DistantradioButton  ->setVisible(OKAccesDistant);
+    ui->LocalradioButton    ->setVisible(OKAccesDistant);
+    ui->ClesSSLLabel        ->setVisible(false);
+    ui->ClesSSLLineEdit     ->setVisible(false);
+    ui->ClesSSLuppushButton ->setVisible(false);
+    ui->PosteradioButton    ->setChecked(!OKAccesDistant);
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
@@ -38,22 +43,41 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     ui->LoginlineEdit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
-    connect(ui->AnnuluppushButton,      &QPushButton::clicked,          this,   &QDialog::reject);
-    connect(ui->HelpupPushButton,       &QPushButton::clicked,          this,   &dlg_paramconnexion::HelpMsg);
-    connect(ui->OKuppushButton,         &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
-    connect(ui->TestuppushButton,       &QPushButton::clicked,          this,   &dlg_paramconnexion::Test);
-    connect(ui->LocalradioButton,       &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->LocalradioButton);});
-    connect(ui->PosteradioButton,       &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->PosteradioButton);});
-    connect(ui->DistantradioButton,     &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->DistantradioButton);});
-    connect(ui->IPlineEdit,             &QLineEdit::textEdited,         this,   &dlg_paramconnexion::CalcIP);
-    connect(ui->IPlineEdit,             &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
+    connect(ui->AnnuluppushButton,          &QPushButton::clicked,          this,   &QDialog::reject);
+    connect(ui->HelpupPushButton,           &QPushButton::clicked,          this,   &dlg_paramconnexion::HelpMsg);
+    connect(ui->OKuppushButton,             &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
+    connect(ui->TestuppushButton,           &QPushButton::clicked,          this,   &dlg_paramconnexion::Test);
+    connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->LocalradioButton);});
+    connect(ui->PosteradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->PosteradioButton);});
+    connect(ui->DistantradioButton,         &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->DistantradioButton);});
+    connect(ui->IPlineEdit,                 &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
+    connect(ui->ClesSSLuppushButton,        &QPushButton::clicked,          this,   &dlg_paramconnexion::DossierClesSSL);
 
-    connect(&t_timer,                   &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
+    connect(&t_timer,                       &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
+    ui->ClesSSLLineEdit ->useselftextastooltip();
+    QString dir = QDir::homePath();
+    if (dir == "" || !QDir(dir).exists())
+        ui->ClesSSLLineEdit ->clear();
+    else ui->ClesSSLLineEdit->setText(dir);
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()
 {
     delete ui;
+}
+
+void dlg_paramconnexion::DossierClesSSL()
+{
+    QString dir = ui->ClesSSLLineEdit->text();
+    if (dir == "" || !QDir(dir).exists())
+        ui->ClesSSLLineEdit ->clear();
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<dir,false);
+    if (url == QUrl())
+        return;
+    ui->ClesSSLLineEdit->setText(url.path());
+    QSettings m_settings    = QSettings(PATH_FILE_INI, QSettings::IniFormat);
+    m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
+    ui->ClesSSLLineEdit ->setImmediateToolTip(ui->ClesSSLLineEdit->text());
 }
 
 void dlg_paramconnexion::CalcIP(QString IP)
@@ -62,13 +86,11 @@ void dlg_paramconnexion::CalcIP(QString IP)
         m_adresseserveur    = "localhost";
     else if (ui->DistantradioButton->isChecked())
     {
-        //if (!Utils::rgx_IPV4.exactMatch(IP))
-        if (!Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP))
+        if (Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP))
             m_adresseserveur  = ui->IPlineEdit->text();
     }
     else if (ui->LocalradioButton->isChecked()
-             || (ui->DistantradioButton->isChecked() && Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP)))
-//             || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(IP)))
+             || (ui->DistantradioButton->isChecked() && !Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP)))
     {
         m_IPaveczero        = Utils::calcIP(IP, true);
         m_adresseserveur    = Utils::calcIP(IP);
@@ -109,13 +131,15 @@ void dlg_paramconnexion::MAJIP()
     CalcIP(ui->IPlineEdit->text());
     if (ui->LocalradioButton->isChecked()
         || (ui->DistantradioButton->isChecked() && Utils::RegularExpressionMatches(Utils::rgx_IPV4, m_IPaveczero)))
-//        || (ui->DistantradioButton->isChecked() && Utils::rgx_IPV4.exactMatch(m_IPaveczero)))
         ui->IPlineEdit->setText(m_IPaveczero);
-    //UpMessageBox::Watch(this, "AvecZero = " + gIPAvecZero + "\nSansZero = " + gIPSansZero + "\nClient = " + gClient);
 }
 
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
+    ui->ClesSSLLabel        ->setVisible(butt == ui->DistantradioButton);
+    ui->ClesSSLLineEdit     ->setVisible(butt == ui->DistantradioButton);
+    ui->ClesSSLuppushButton ->setVisible(butt == ui->DistantradioButton);
+
     if (butt == ui->PosteradioButton)
     {
         ui->IPlabel->setVisible(false);
@@ -169,70 +193,109 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 
 void dlg_paramconnexion::Test()
 {
-    if (TestConnexion(m_connectavecloginSQL))
-        {
-            UpMessageBox::Watch(this,tr("Paramètres OK!"));
-            //QSqlDatabase::removeDatabase("Rufus");
-        }
+    if (TestConnexion())
+        UpMessageBox::Watch(this,tr("Paramètres OK!"));
 }
 
 void dlg_paramconnexion::Verif()
 {
-    if (TestConnexion(m_connectavecloginSQL))
+    if (TestConnexion())
         accept();
 }
 
-bool dlg_paramconnexion::TestConnexion(bool avecverifbase)
+bool dlg_paramconnexion::TestConnexion()
 {
     if (!VerifFiche())
         return false;
 
-    MAJIP();
-    Utils::ModeAcces mode = Utils::Poste;
+    Utils::ModeAcces mode;
     if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
     DataBase::I()->setModeacces(mode);
-    DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
-    QString Login = ui->LoginlineEdit->text();
-    QString Password = ui->MDPlineEdit->text();
-    if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
-    if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
-    if (avecverifbase)
+    switch (mode) {
+    case Utils::Poste:
     {
-        Login = LOGIN_SQL;
-        Password = MDP_SQL;
-    }
-    QString error = "";
-    error = DataBase::I()->connectToDataBase(DB_RUFUS, Login, Password);
+        DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
+        QString Login = ui->LoginlineEdit->text();
+        QString Password = ui->MDPlineEdit->text();
+        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
+        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
+        if (m_connectavecloginSQL)
+        {
+            Login = LOGIN_SQL;
+            Password = MDP_SQL;
+        }
+        QString error = "";
+        error = DataBase::I()->connectToDataBase(DB_RUFUS, Login, Password);
 
-    if( error.size() )
-    {
-        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
-                            tr("Impossible de se connecter au serveur avec le login ") + Login
-                            + tr(" et ce mot de passe") + "\n"
-                            + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
-                            + error);
-        return false;
+        if( error.size() )
+        {
+            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+                                tr("Impossible de se connecter au serveur avec le login ") + Login
+                                    + tr(" et ce mot de passe") + "\n"
+                                    + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
+                                    + error);
+            return false;
+        }
+        if (m_connectavecloginSQL)
+        {
+            DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
+            if (rep == DataBase::Error)
+            {
+                UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
+                                    tr("Impossible d'ouvrir la table Utilisateurs"));
+                return false;
+            }
+            if( rep == DataBase::Empty )
+            {
+                UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
+                                    tr("Identifiant ou mot de passe incorrect") );
+                return false;
+            }
+        }
+        return true;
     }
-    if (m_connectavecloginSQL)
+    default:
     {
-        DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
+        DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
+        QString Login       = ui->LoginlineEdit->text();
+        QString Password    = ui->MDPlineEdit->text();
+        QString IP          = ui->IPlineEdit->text();
+        QString DirSSL      = ui->ClesSSLLineEdit->text();
+        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));              ui->LoginlineEdit->setFocus(); return 0;}
+        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));             ui->MDPlineEdit->setFocus();   return 0;}
+        if ( IP.isEmpty() )       {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé l'adresse du serveur!"));           ui->IPlineEdit->setFocus();    return 0;}
+        if (mode == Utils::Distant)
+            if ( DirSSL.isEmpty() || !QDir(DirSSL).exists())
+                            {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  ui->IPlineEdit->setFocus();    return 0;}
+        QString error = "";
+        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MDP_SQL);
+        if( error.size() )
+        {
+            UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
+                                tr("Impossible de se connecter au serveur avec le login ") + Login
+                                    + tr(" et ce mot de passe") + "\n"
+                                    + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
+                                    + error);
+            return false;
+        }
+        DataBase::QueryResult rep = DataBase::I()->verifExistUser(Login, Password);
         if (rep == DataBase::Error)
         {
             UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
-                                tr("Impossible d'ouvrir la table Utilisateurs"));
+                                    tr("Impossible d'ouvrir la table Utilisateurs"));
             return false;
         }
         if( rep == DataBase::Empty )
         {
             UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
-                                tr("Identifiant ou mot de passe incorrect") );
+                                    tr("Identifiant ou mot de passe incorrect") );
             return false;
         }
+        return true;
     }
-
-    return true;
+    }
 }
 
 bool dlg_paramconnexion::VerifFiche()
