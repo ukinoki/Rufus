@@ -159,8 +159,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return error;
 }
 
-QString DataBase::verif_secure_file_priv()
+QString DataBase::dirimagerie()
 {
+    if (m_dirimagerie != QString())
+        return m_dirimagerie;
     QString dirdata = QString();
     bool ok;
     QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
@@ -171,16 +173,23 @@ QString DataBase::verif_secure_file_priv()
         UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
                             tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
                                "Vous ne pourrez pas afficher les documents d'imagerie\n"
-                               "Veuillez modifier la valeur de cette variable en la faisant pointer sur un sous-dossier du dossier"
-                               "'/Users/Votrenomdutilisateur/Rufus' sur le serveur\n"
+                               "Veuillez modifier la valeur de cette variable en la faisant pointer\n"
+                               "sur un dossier partagé entre les utilisateurs et accessiblle à MySQL"
+                               "'/Users/Shared/Rufus' (macOS) ou 'Users/Public/Rufus' (W1O/11) sur le serveur\n"
                                "Reportez-vous au bas de la page\n"
                                "https://www.rufusvision.org/installation-du-serveur-mysql.html\n"
                                "pour savoir comment modifier le fichier de configuration my.cnf\n"
                                "de MySQL sur le serveur puis redémarrez le serveur"));
     }
-    while (dirdata.endsWith("/"))
-       dirdata.remove(dirdata.size()-1,1);
-    return dirdata;
+    if (dirdata == QString())
+        return dirdata ;
+    else
+    {
+        while (dirdata.endsWith("/"))
+            dirdata.remove(dirdata.size()-1,1);
+        m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
+        return m_dirimagerie;
+    }
 }
 
 QDateTime DataBase::ServerDateTime()
@@ -459,7 +468,7 @@ void DataBase::initParametresSysteme()
     QJsonObject paramData{};
 
     QString req = "select " CP_MDPADMIN_PARAMSYSTEME ", " CP_NUMCENTRE_PARAMSYSTEME ", " CP_IDLIEUPARDEFAUT_PARAMSYSTEME ", " CP_DOCSCOMPRIMES_PARAMSYSTEME ", " CP_VERSIONBASE_PARAMSYSTEME ", "
-                  CP_SANSCOMPTA_PARAMSYSTEME ", " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME ", " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME ", " CP_DIRIMAGERIE_PARAMSYSTEME ", "
+                  CP_SANSCOMPTA_PARAMSYSTEME ", " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME ", " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME ", "
                   CP_LUNDIBKUP_PARAMSYSTEME ", " CP_MARDIBKUP_PARAMSYSTEME ", " CP_MERCREDIBKUP_PARAMSYSTEME ", " CP_JEUDIBKUP_PARAMSYSTEME ", " CP_VENDREDIBKUP_PARAMSYSTEME ", "
                   CP_SAMEDIBKUP_PARAMSYSTEME ", " CP_DIMANCHEBKUP_PARAMSYSTEME ", " CP_HEUREBKUP_PARAMSYSTEME ", " CP_DIRBKUP_PARAMSYSTEME
                   " from " TBL_PARAMSYSTEME;
@@ -474,16 +483,15 @@ void DataBase::initParametresSysteme()
     paramData[CP_SANSCOMPTA_PARAMSYSTEME]             = (paramdata.at(5).toInt() == 1);
     paramData[CP_ADRESSELOCALSERVEUR_PARAMSYSTEME]    = paramdata.at(6).toString();
     paramData[CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME]  = paramdata.at(7).toString();
-    paramData[CP_DIRIMAGERIE_PARAMSYSTEME]            = paramdata.at(8).toString();
-    paramData[CP_LUNDIBKUP_PARAMSYSTEME]              = (paramdata.at(9).toInt() == 1);
-    paramData[CP_MARDIBKUP_PARAMSYSTEME]              = (paramdata.at(10).toInt() == 1);
-    paramData[CP_MERCREDIBKUP_PARAMSYSTEME]           = (paramdata.at(11).toInt() == 1);
-    paramData[CP_JEUDIBKUP_PARAMSYSTEME]              = (paramdata.at(12).toInt() == 1);
-    paramData[CP_VENDREDIBKUP_PARAMSYSTEME]           = (paramdata.at(13).toInt() == 1);
-    paramData[CP_SAMEDIBKUP_PARAMSYSTEME]             = (paramdata.at(14).toInt() == 1);
-    paramData[CP_DIMANCHEBKUP_PARAMSYSTEME]           = (paramdata.at(15).toInt() == 1);
-    paramData[CP_HEUREBKUP_PARAMSYSTEME]              = paramdata.at(16).toTime().toString("HH:mm:ss");
-    paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(17).toString();
+    paramData[CP_LUNDIBKUP_PARAMSYSTEME]              = (paramdata.at(8).toInt() == 1);
+    paramData[CP_MARDIBKUP_PARAMSYSTEME]              = (paramdata.at(9).toInt() == 1);
+    paramData[CP_MERCREDIBKUP_PARAMSYSTEME]           = (paramdata.at(10).toInt() == 1);
+    paramData[CP_JEUDIBKUP_PARAMSYSTEME]              = (paramdata.at(11).toInt() == 1);
+    paramData[CP_VENDREDIBKUP_PARAMSYSTEME]           = (paramdata.at(12).toInt() == 1);
+    paramData[CP_SAMEDIBKUP_PARAMSYSTEME]             = (paramdata.at(13).toInt() == 1);
+    paramData[CP_DIMANCHEBKUP_PARAMSYSTEME]           = (paramdata.at(14).toInt() == 1);
+    paramData[CP_HEUREBKUP_PARAMSYSTEME]              = paramdata.at(15).toTime().toString("HH:mm:ss");
+    paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(16).toString();
     m_parametres->setData(paramData);
     if (m_parametres->versionbase()>73)
     {
@@ -570,14 +578,6 @@ void DataBase::setadresseserveurdistant(QString adress)
     QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME " = " + value);
     parametres()->setadresseserveurdistant(adress);
-}
-void DataBase::setdirimagerie(QString adress)
-{
-    if (!m_db.isOpen())
-        return;
-    QString value = (adress != ""? "'" + Utils::correctquoteSQL(adress) + "'" : "null");
-    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_DIRIMAGERIE_PARAMSYSTEME " = " + value);
-    parametres()->setdirimagerieserveur(adress);
 }
 void DataBase::setdaysbkup(Utils::Days days)
 {

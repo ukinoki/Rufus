@@ -34,7 +34,6 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
     setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
     setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
-    setDataString(data, CP_DIRIMAGERIE_PARAMSYSTEME, m_dirimagerieserveur);
     setDataTime(data, CP_HEUREBKUP_PARAMSYSTEME, m_heurebkup);
     setDataString(data, CP_DIRBKUP_PARAMSYSTEME, m_dirbkup);
     m_daysbkup.setFlag(Utils::Lundi,    data[CP_LUNDIBKUP_PARAMSYSTEME].toBool());
@@ -58,7 +57,6 @@ int ParametresSysteme::versionbase() const                      { return m_versi
 bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
-QString ParametresSysteme::dirimagerieserveur() const           { return m_dirimagerieserveur; }
 Utils::Days ParametresSysteme::daysbkup() const                 { return m_daysbkup; }
 QTime ParametresSysteme::heurebkup() const                      { return m_heurebkup; }
 QString ParametresSysteme::dirbkup() const                      { return m_dirbkup; }
@@ -82,8 +80,6 @@ void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserve
                                                                   m_data[CP_ADRESSELOCALSERVEUR_PARAMSYSTEME] = adress; }
 void ParametresSysteme::setadresseserveurdistant(QString adress){ m_adresseserveurdistant = adress;
                                                                   m_data[CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME] = adress; }
-void ParametresSysteme::setdirimagerieserveur(QString adress)   { m_dirimagerieserveur = adress;
-                                                                  m_data[CP_DIRIMAGERIE_PARAMSYSTEME] = adress; }
 void ParametresSysteme::setheurebkup(QTime time)                { m_heurebkup = time;
                                                                   m_data[CP_HEUREBKUP_PARAMSYSTEME] = time.toString("HH:mm:ss"); }
 void ParametresSysteme::setdirbkup(QString adress)              { m_dirbkup = adress;

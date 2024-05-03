@@ -684,7 +684,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 void dlg_listeiols::resizeiolimage(int size)
 {
     QString szorigin, szfinal;
-    QString m_pathdirstockageprovisoire = Procedures::I()->DefinitDossierImagerie() + NOM_DIR_PROV ;
+    QString m_pathdirstockageprovisoire = Procedures::I()->AbsolutePathDirImagerie() + NOM_DIR_PROV ;
     QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
     for (int t=0; t<listfichresize.size(); t++)
     {

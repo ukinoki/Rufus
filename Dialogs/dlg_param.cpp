@@ -385,9 +385,8 @@ dlg_param::dlg_param(QWidget *parent) :
         bool poste = DataBase::I()->ModeAccesDataBase() == Utils::Poste;
         ui->PosteStockageupLabel        ->setVisible(poste);
         ui->PosteStockageupLineEdit     ->setVisible(poste);
-        ui->PosteStockageupPushButton   ->setVisible(poste);
         ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
-        ui->PosteStockageupLineEdit     ->setText(m_parametres->dirimagerieserveur());
+        ui->PosteStockageupLineEdit     ->setText(db->dirimagerie());
     }
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);
     b = (proc->settings()->value(Base + Param_Active).toString() == "YES");
@@ -689,7 +688,7 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
         mode = Utils::Distant;
     QString dir = proc->pathDossierDocuments(exam, mode);
     if (dir == "" || !QDir(dir).exists())
-        dir = PATH_DIR_DOSSIERECHANGE;
+        dir = QDir::homePath();
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
     if (url == QUrl())
         return;
@@ -995,7 +994,6 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->MonoDocupTableWidget        ->setEnabled(a);
         ui->PosteStockageupLabel        ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
         ui->PosteStockageupLineEdit     ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
-        ui->PosteStockageupPushButton   ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
     }
     else if (box == ui->LocalServcheckBox)
     {
@@ -1221,7 +1219,7 @@ void dlg_param::startImmediateBackup()
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
-        dirsauvorigin = PATH_DIR_DOSSIERECHANGE;
+        dirsauvorigin = db->dirimagerie();
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
                                                        "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin), QStringList(), false);
     if (url == QUrl())
@@ -1903,7 +1901,7 @@ void dlg_param::ModifDirBackup()
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
-        dirsauvorigin = PATH_DIR_DOSSIERECHANGE;
+        dirsauvorigin = db->dirimagerie();
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
                                                        "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
     if (dirsauvorigin == url.path() || url == QUrl())
@@ -2106,26 +2104,6 @@ void dlg_param::DirDistantStockage()
         return;
     ui->DistantStockageupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, url.path());
-}
-
-void dlg_param::DirPosteStockage()
-{
-    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
-     * avec la fonction static, on utilise la boîte de dialog du système
-     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
-    QString dir = ui->PosteStockageupLineEdit->text();
-    if (dir == "" || !QDir(dir).exists())
-        dir = PATH_DIR_RUFUS;
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
-    if (url == QUrl())
-        return;
-    if (!QDir::match(PATH_DIR_RUFUS "/*", url.path()))
-    {
-        UpMessageBox::Watch(this, tr("Vous devez choisir un sous-dossier du dossier Rufus"), PATH_DIR_RUFUS);
-        return;
-    }
-    ui->PosteStockageupLineEdit->setText(url.path());
-    db->setdirimagerie(url.path());
 }
 
 void dlg_param::DossierClesSSL()
@@ -2396,7 +2374,6 @@ void dlg_param::ConnectSignals()
     connect(ui->LocalPathStockageupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::DirLocalStockage);
     connect(ui->DistantStockageupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DirDistantStockage);
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
-    connect(ui->PosteStockageupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::DirPosteStockage);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});

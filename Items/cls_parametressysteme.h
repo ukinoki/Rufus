@@ -39,7 +39,6 @@ private:
     bool m_sanscompta = true;               //!> utilise ou non la compta
     QString m_adresseserveurlocal = "";     //!> l'adresse IP du serveur dans le réseau local
     QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
-    QString m_dirimagerieserveur = "";      //!> l'adresse du dossier d'imagerie vue depuis le serveur
     Utils::Days m_daysbkup;                 //!> flag énumérant les jours de la sauvegarde
     QTime m_heurebkup = QTime(0,0);         //!> l'heure de la sauvegarde
     QString m_dirbkup = "";                 //!> l'adresse du dossier de sauvegarde vue depuis le serveur
@@ -75,7 +74,6 @@ public:
     void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress);
     void setadresseserveurdistant(QString adress);
-    void setdirimagerieserveur(QString adress);
     void setdirbkup(QString adress);
     void setdaysbkup(Utils::Days days);
     void setheurebkup(QTime time);

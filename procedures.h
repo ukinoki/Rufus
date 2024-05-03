@@ -162,7 +162,9 @@ private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
     bool                    PremierDemarrage();
-    void                    PremierParametrageMateriel(bool modifdirimagerie = true);
+    void                    PremierParametrageMateriel();
+    int         protoc = BaseExistante;
+    enum protoc {BaseExistante, BaseVierge};
 
 /*! fin première connection -------------------------------------------------------------------------------------------------------- */
 
@@ -264,7 +266,6 @@ public:
     QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
     void                    setPosteImportDocs(bool a = true);
-    QString                 DefinitDossierImagerie();
 /*! fin import des documents -------------------------------------------------------------------------------------------------------- */
 
 

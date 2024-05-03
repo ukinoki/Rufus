@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("03-05-2024/1");
+    qApp->setApplicationVersion("02-05-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2144,25 +2144,24 @@ void Rufus::ExporteDocs()
                     + "-" + listexportpdf.at(i).at(0).toString()  + ".pdf";
             QString CheminOKTransfrDoc = CheminOKTransfrDirImg + "/" + NomFileDoc;
 
-            QByteArray ba;
-            ba.append(listexportpdf.at(i).at(4).toByteArray());
+            QByteArray bapdf;
+            bapdf.append(listexportpdf.at(i).at(4).toByteArray());
+
+            QBuffer buf(&bapdf);
+            buf.open(QIODevice::ReadWrite);
             QPdfDocument document;
-            QBuffer *buff = new QBuffer(&ba);
-            buff->open(QIODevice::ReadWrite);
-            document.load(buff);
+            document.load(&buf);
             if( document.pageCount() > 0)
             {
                 QFile file(CheminOKTransfrDoc);
                 if (file.open(QIODevice::NewOnly))
                 {
                     QDataStream out(&file);
-                    out << ba;
+                    out << bapdf;
                 }
-                delete buff;
             }
             else
             {
-
                 UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
                 QFile   echectrsfer(echectrsfername);
@@ -2175,13 +2174,12 @@ void Rufus::ExporteDocs()
                     if (CD.open(QIODevice::OpenModeFlag::NewOnly))
                     {
                         QDataStream out(&CD);
-                        out << ba;
+                        out << bapdf;
                     }
                 }
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
-                delete buff;
                 continue;
             }
 
@@ -2416,21 +2414,21 @@ void Rufus::ExporteDocs()
                 }
             QString CheminOKTransfrDoc      = CheminOKTransfrDirImg + "/" + NomFileDoc + "." PDF;
 
-            QByteArray ba;
-            ba.append(listexportpdffact.at(i).at(6).toByteArray());
+            QByteArray bapdf;
+            bapdf.append(listexportpdffact.at(i).at(6).toByteArray());
+
+            QBuffer buf(&bapdf);
+            buf.open(QIODevice::ReadWrite);
             QPdfDocument document;
-            QBuffer *buff = new QBuffer(&ba);
-            buff->open(QIODevice::ReadWrite);
-            document.load(buff);
+            document.load(&buf);
             if( document.pageCount() > 0)
             {
                 QFile file(CheminOKTransfrDoc);
                 if (file.open(QIODevice::NewOnly))
                 {
                     QDataStream out(&file);
-                    out << ba;
+                    out << bapdf;
                 }
-                delete buff;
             }
             else
             {
@@ -2448,13 +2446,12 @@ void Rufus::ExporteDocs()
                     if (CD.open(QIODevice::OpenModeFlag::NewOnly))
                     {
                         QDataStream out(&CD);
-                        out << ba;
+                        out << bapdf;
                     }
                 }
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
-                delete buff;
                 continue;
             }
 
@@ -6637,7 +6634,7 @@ void Rufus::AfficheActe(Acte* acte)
     ui->ActeDatedateEdit        ->setDate(acte->date());
     ui->ActeDatedateEdit        ->setEnabled(false);
     ui->ActeMotiftextEdit       ->setText(acte->motif());
-    QString path = proc->DefinitDossierImagerie() + NOM_DIR_IMAGES + "/" + acte->date().toString("yyyy-MM-dd");
+    QString path = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + "/" + acte->date().toString("yyyy-MM-dd");
     if (Utils::mkpath(path))
         ui->ActeTextetextEdit   ->document()->setBaseUrl("file://" + path);
     ui->ActeTextetextEdit       ->setText(acte->texte());
@@ -7915,7 +7912,7 @@ void Rufus::ExporteActe(Acte *act)
                     QString req = "INSERT INTO " TBL_ECHANGEIMAGES " (" CP_ID_ECHGIMAGES ", " + sfx + ", " CP_COMPRESSION_ECHGIMAGES ")"
                                   " VALUES (" +
                                     QString::number(docmt->id()) + ", " +
-                                    " LOAD_FILE('" + Utils::correctquoteSQL(m_parametres->dirimagerieserveur() + NOM_DIR_IMAGES + Utils::correctquoteSQL(docmt->lienversfichier())) + "'), " +
+                                    " LOAD_FILE('" + Utils::correctquoteSQL(db->dirimagerie() + NOM_DIR_IMAGES + Utils::correctquoteSQL(docmt->lienversfichier())) + "'), " +
                                     QString::number(docmt->compression()) + ")";
                     db->StandardSQL(req);
 
@@ -7938,10 +7935,10 @@ void Rufus::ExporteActe(Acte *act)
                     else if (sfx == PDF)
                     {
 
+                        QBuffer buf(&ba);
+                        buf.open(QIODevice::ReadWrite);
                         QPdfDocument document;
-                        QBuffer *buff = new QBuffer(&ba);
-                        buff->open(QIODevice::ReadWrite);
-                        document.load(buff);
+                        document.load(&buf);
                         if( document.pageCount() > 0)
                         {
                             QFile file(filedest);
@@ -7951,7 +7948,6 @@ void Rufus::ExporteActe(Acte *act)
                                 out << ba;
                             }
                         }
-                        delete buff;
                     }
                 }
             }

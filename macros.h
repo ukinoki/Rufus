@@ -318,7 +318,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_SANSCOMPTA_PARAMSYSTEME                      "SansCompta"
 #define CP_ADRESSELOCALSERVEUR_PARAMSYSTEME             "AdresseServeurLocal"
 #define CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME           "AdresseServeurDistant"
-#define CP_DIRIMAGERIE_PARAMSYSTEME                     "DirImagerie"
 #define CP_LUNDIBKUP_PARAMSYSTEME                       "LundiBkup"
 #define CP_MARDIBKUP_PARAMSYSTEME                       "MardiBkup"
 #define CP_MERCREDIBKUP_PARAMSYSTEME                    "MercrediBkup"
@@ -848,7 +847,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define NOM_DIR_FACTURES                        "/Factures"
 #define NOM_DIR_ORIGINAUX                       "/Originaux"
 #define NOM_DIR_FACTURESSANSLIEN                "/FacturesSansLien"
-#define NOM_DIR_DOSSIERECHANGE                  "/DossierEchange"
+#define NOM_DIR_DOSSIERECHANGEIMAGERIE          "/DossierEchangeImagerie"
+#define NOM_DIR_DOSSIERECHANGEREFRACTION        "/DossierEchangeRefraction"
 #define NOM_DIR_IMAGES                          "/Images"
 #define NOM_DIR_VIDEOS                          "/Videos"
 #define NOM_DIR_PROV                            "/Prov"
@@ -875,20 +875,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define PATH_DIR_RUFUS                          QDir::homePath() + NOM_DIR_RUFUS
 #define PATH_DIR_RUFUSADMIN                     QDir::homePath() + NOM_DIR_RUFUSADMIN
-#define PATH_DIR_IMAGERIE                       PATH_DIR_RUFUS NOM_DIR_IMAGERIE
+
+
 #define PATH_DIR_RESSOURCES                     PATH_DIR_RUFUS NOM_DIR_RESSOURCES
 
-#define PATH_DIR_IMAGES                         PATH_DIR_IMAGERIE NOM_DIR_IMAGES
-#define PATH_DIR_FACTURES                       PATH_DIR_IMAGERIE NOM_DIR_FACTURES
+//! on local PC
 
-#define PATH_DIR_ORIGINAUX                      PATH_DIR_IMAGERIE NOM_DIR_ORIGINAUX
-#define PATH_DIR_FACTURESSANSLIEN               PATH_DIR_IMAGERIE NOM_DIR_FACTURESSANSLIEN
-#define PATH_DIR_DOSSIERECHANGE                 PATH_DIR_IMAGERIE NOM_DIR_DOSSIERECHANGE
-#define PATH_DIR_VIDEOS                         PATH_DIR_IMAGERIE NOM_DIR_VIDEOS
-#define PATH_DIR_PROV                           PATH_DIR_IMAGERIE NOM_DIR_PROV
-#define PATH_DIR_ECHECSTRANSFERTS               PATH_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS
-
-#define PATH_DIR_REFRACTION                     PATH_DIR_DOSSIERECHANGE NOM_DIR_REFRACTION
+#define PATH_DIR_IMAGERIE                       PATH_DIR_RUFUS NOM_DIR_IMAGERIE
+#define PATH_DIR_DOSSIERECHANGEREFRACTION       PATH_DIR_IMAGERIE NOM_DIR_DOSSIERECHANGEREFRACTION
+#define PATH_DIR_REFRACTION                     PATH_DIR_DOSSIERECHANGEREFRACTION NOM_DIR_REFRACTION
 #define PATH_DIR_FRONTO                         PATH_DIR_REFRACTION NOM_DIR_FRONTO
 #define PATH_DIR_AUTOREF                        PATH_DIR_REFRACTION NOM_DIR_AUTOREF
 #define PATH_DIR_TONO                           PATH_DIR_REFRACTION NOM_DIR_TONO
@@ -898,6 +893,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_DIR_REFRACTEUR_FRONTOIN            PATH_DIR_REFRACTEUR_IN NOM_DIR_FRONTO
 #define PATH_DIR_REFRACTEUR_TONOIN              PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO
 #define PATH_DIR_REFRACTEUR_OUT                 PATH_DIR_REFRACTEUR NOM_DIR_REFRACTEUROUT
+
+//! pointed by secure_file_priv
+
+#define PATH_DIR_IMAGES                         PATH_DIR_IMAGERIE NOM_DIR_IMAGES
+#define PATH_DIR_FACTURES                       PATH_DIR_IMAGERIE NOM_DIR_FACTURES
+#define PATH_DIR_ORIGINAUX                      PATH_DIR_IMAGERIE NOM_DIR_ORIGINAUX
+#define PATH_DIR_FACTURESSANSLIEN               PATH_DIR_IMAGERIE NOM_DIR_FACTURESSANSLIEN
+#define PATH_DIR_VIDEOS                         PATH_DIR_IMAGERIE NOM_DIR_VIDEOS
+#define PATH_DIR_ECHECSTRANSFERTS               PATH_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS
 
 #define PATH_FILE_INI                           PATH_DIR_RUFUS NOM_FILE_INI
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP

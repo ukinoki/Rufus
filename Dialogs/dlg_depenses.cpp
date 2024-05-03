@@ -528,7 +528,7 @@ void dlg_depenses::CalcImageFacture(Depense *dep)
         {
             QString dossierimagerie = "";
             if (db->ModeAccesDataBase() == Utils::Poste)
-                dossierimagerie = db->parametres()->dirimagerieserveur();
+                dossierimagerie = db->dirimagerie();
             else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
                 dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
             QFile fileimg(dossierimagerie + NOM_DIR_FACTURES + filename);
@@ -541,7 +541,7 @@ void dlg_depenses::CalcImageFacture(Depense *dep)
         }
         else
         {
-            QString fullFilename = Utils::correctquoteSQL(db->parametres()->dirimagerieserveur()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
+            QString fullFilename = Utils::correctquoteSQL(db->dirimagerie()) + NOM_DIR_FACTURES + Utils::correctquoteSQL(filename);
             ba = proc->getFileFromServer(fullFilename);
         }
     }

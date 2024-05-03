@@ -267,7 +267,7 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             {
                 QString dossierimagerie = "";
                 if (db->ModeAccesDataBase() == Utils::Poste)
-                    dossierimagerie = db->parametres()->dirimagerieserveur();
+                    dossierimagerie = db->dirimagerie();
                 else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
                     dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
                 else return;
@@ -281,7 +281,7 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             }
             else
             {
-                QString fullFilename = Utils::correctquoteSQL(db->parametres()->dirimagerieserveur()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
+                QString fullFilename = Utils::correctquoteSQL(db->dirimagerie()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
                 ba = proc->getFileFromServer(fullFilename);
             }
         }

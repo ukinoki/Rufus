@@ -663,7 +663,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
  */
 bool ImportDocsExternesThread::DefinitDossiersImagerie()
 {
-    m_pathdirstockageimagerie   = proc->DefinitDossierImagerie();
+    m_pathdirstockageimagerie   = proc->AbsolutePathDirImagerie();
     m_pathdirstockageprovisoire = m_pathdirstockageimagerie + NOM_DIR_PROV;
     if (!Utils::mkpath(m_pathdirstockageprovisoire))
     {

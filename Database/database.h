@@ -90,6 +90,7 @@ private:
     DonneesOphtaPatient *m_donneesophtapatient = new DonneesOphtaPatient();
 
     Utils::ModeAcces m_modeacces;
+    QString m_dirimagerie = QString();
     QString m_base;
     QString m_server;
     int m_port = 3306;
@@ -177,7 +178,7 @@ public:
                                                                 * renvoie la réponse sous forme de QVariantList
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
     void                    VideDatabases();                    /*! vide la base de données */
-    QString                 verif_secure_file_priv();           /*! defines dir of storage of all images and video - corresponds to dir pointed by variable secure_file_pric registered in db */
+    QString                 dirimagerie();                      /*! defines dir of storage of all images and video - corresponds to dir pointed by variable secure_file_pric registered in db */
 
     /*
      * Parametres système
@@ -193,7 +194,6 @@ public:
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
     void setporttcp(int port);
-    void setdirimagerie(QString adress = "");
     void setdaysbkup(Utils::Days days);
     void setheurebkup(QTime time = QTime());
     void setdirbkup(QString adress = "");

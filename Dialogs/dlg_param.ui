@@ -1021,14 +1021,14 @@
         <item>
          <widget class="QTabWidget" name="ParamConnexiontabWidget">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
           <property name="minimumSize">
            <size>
-            <width>0</width>
+            <width>950</width>
             <height>350</height>
            </size>
           </property>
@@ -1045,7 +1045,7 @@
            <enum>QTabWidget::North</enum>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>1</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1155,23 +1155,7 @@
              <enum>Qt::NoContextMenu</enum>
             </property>
             <property name="text">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d'imagerie - &lt;span style=&quot; font-weight:600; color:#ff2600;&quot;&gt;Eviter de modifier&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="PosteStockageupPushButton">
-            <property name="geometry">
-             <rect>
-              <x>855</x>
-              <y>36</y>
-              <width>54</width>
-              <height>32</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>...</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d'imagerie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
            <widget class="UpLineEdit" name="PosteStockageupLineEdit">
@@ -1179,7 +1163,7 @@
              <rect>
               <x>360</x>
               <y>40</y>
-              <width>491</width>
+              <width>550</width>
               <height>21</height>
              </rect>
             </property>
@@ -1196,7 +1180,7 @@
              <bool>true</bool>
             </property>
             <property name="readOnly">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
            </widget>
           </widget>
@@ -1331,22 +1315,6 @@ un serveur hébergé sur le réseau local</string>
              <string>Paramètres de la connexion au serveur</string>
             </property>
            </widget>
-           <widget class="QPushButton" name="LocalPathStockageupPushButton">
-            <property name="geometry">
-             <rect>
-              <x>855</x>
-              <y>36</y>
-              <width>54</width>
-              <height>32</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>...</string>
-            </property>
-           </widget>
            <widget class="UpLineEdit" name="LocalPathStockageupLineEdit">
             <property name="geometry">
              <rect>
@@ -1386,6 +1354,22 @@ un serveur hébergé sur le réseau local</string>
             </property>
             <property name="text">
              <string>Chemin depuis ce poste du dossier d'imagerie sur le serveur</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="LocalPathStockageupPushButton">
+            <property name="geometry">
+             <rect>
+              <x>855</x>
+              <y>36</y>
+              <width>54</width>
+              <height>32</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::NoContextMenu</enum>
+            </property>
+            <property name="text">
+             <string>...</string>
             </property>
            </widget>
           </widget>

@@ -114,7 +114,6 @@ private:
     void                ClearPortsComboBox(UpComboBox *box, int);
     void                DirLocalStockage();
     void                DirDistantStockage();
-    void                DirPosteStockage();
     void                DossierClesSSL();
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);

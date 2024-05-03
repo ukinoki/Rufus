@@ -695,7 +695,7 @@ void dlg_identificationIOL::changeImage()
         file_origine.setFileName(fileName);
         QFile file_image;
         QString formatdoc = QFileInfo(file_origine).suffix().toLower();
-        QString m_pathdirstockageprovisoire = Procedures::I()->DefinitDossierImagerie();
+        QString m_pathdirstockageprovisoire = Procedures::I()->AbsolutePathDirImagerie();
         if (!QDir(m_pathdirstockageprovisoire).exists())
         {
             UpMessageBox::Watch(this, tr("Impossible d'enregistrer cette image"), tr("Le dossier d'imagerie") + "\n" + m_pathdirstockageprovisoire +"\n" + tr("n'existe pas") + "\n"
