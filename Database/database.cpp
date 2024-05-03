@@ -178,6 +178,8 @@ QString DataBase::verif_secure_file_priv()
                                "pour savoir comment modifier le fichier de configuration my.cnf\n"
                                "de MySQL sur le serveur puis redémarrez le serveur"));
     }
+    while (dirdata.endsWith("/"))
+       dirdata.remove(dirdata.size()-1,1);
     return dirdata;
 }
 

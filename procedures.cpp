@@ -1968,7 +1968,7 @@ QString Procedures::AbsolutePathDirImagerie()
 {
     QString path = "";
     if (db->ModeAccesDataBase() == Utils::Poste)
-        path = m_parametres->dirimagerieserveur();
+        path = DataBase::I()->verif_secure_file_priv() + NOM_DIR_IMAGERIE;
     else
         path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
     return path;

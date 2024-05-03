@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("02-05-2024/1");
+    qApp->setApplicationVersion("03-05-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2144,21 +2144,24 @@ void Rufus::ExporteDocs()
                     + "-" + listexportpdf.at(i).at(0).toString()  + ".pdf";
             QString CheminOKTransfrDoc = CheminOKTransfrDirImg + "/" + NomFileDoc;
 
-            QByteArray bapdf;
-            bapdf.append(listexportpdf.at(i).at(4).toByteArray());
-
-            QBuffer buf(&bapdf);
+            QByteArray ba;
+            ba.append(listexportpdf.at(i).at(4).toByteArray());
             QPdfDocument document;
-            document.load(&buf);
+            QBuffer *buff = new QBuffer(&ba);
+            buff->open(QIODevice::ReadWrite);
+            document.load(buff);
             if( document.pageCount() > 0)
             {
                 QFile file(CheminOKTransfrDoc);
                 if (file.open(QIODevice::NewOnly))
                 {
                     QDataStream out(&file);
-                    out << bapdf;
+                    out << ba;
                 }
-            } else {
+                delete buff;
+            }
+            else
+            {
 
                 UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
                 QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
@@ -2172,48 +2175,15 @@ void Rufus::ExporteDocs()
                     if (CD.open(QIODevice::OpenModeFlag::NewOnly))
                     {
                         QDataStream out(&CD);
-                        out << bapdf;
+                        out << ba;
                     }
                 }
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
+                delete buff;
                 continue;
             }
-
-            /*
-             * Well. I think that this part reads blobs declared as PDF in DB
-             * Then, verifies (usinf Poppler) that PDF is valid
-             * if not, save the BLOB to file (Text stream???), and ... delete from DB???
-             */
-
-//            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-//            if (!document || document->isLocked() || document == Q_NULLPTR)
-//            {
-//                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
-//                QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
-//                QFile   echectrsfer(echectrsfername);
-//                if (echectrsfer.open(QIODevice::Append))
-//                {
-//                    QTextStream out(&echectrsfer);
-//                    out << NomFileDoc << "\n" ;
-//                    echectrsfer.close();
-//                    QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
-//                    if (CD.open(QIODevice::Append))
-//                    {
-//                        QTextStream out(&CD);
-//                        out << listexportpdf.at(i).at(4).toByteArray() ;
-//                    }
-//                }
-//                QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
-//                //qDebug() << delreq;
-//                db->StandardSQL(delreq);
-//                delete document;
-//                continue;
-//            }
-//            Poppler::PDFConverter *doctosave = document->pdfConverter();
-//            doctosave->setOutputFileName(CheminOKTransfrDoc);
-//            doctosave->convert();
 
 #if !defined(Q_OS_WIN)
             QFile CC(CheminOKTransfrDoc);
@@ -2446,21 +2416,24 @@ void Rufus::ExporteDocs()
                 }
             QString CheminOKTransfrDoc      = CheminOKTransfrDirImg + "/" + NomFileDoc + "." PDF;
 
-            QByteArray bapdf;
-            bapdf.append(listexportpdffact.at(i).at(6).toByteArray());
-
-            QBuffer buf(&bapdf);
+            QByteArray ba;
+            ba.append(listexportpdffact.at(i).at(6).toByteArray());
             QPdfDocument document;
-            document.load(&buf);
+            QBuffer *buff = new QBuffer(&ba);
+            buff->open(QIODevice::ReadWrite);
+            document.load(buff);
             if( document.pageCount() > 0)
             {
                 QFile file(CheminOKTransfrDoc);
                 if (file.open(QIODevice::NewOnly))
                 {
                     QDataStream out(&file);
-                    out << bapdf;
+                    out << ba;
                 }
-            } else {
+                delete buff;
+            }
+            else
+            {
                 QStringList listmsg;
                 listmsg << tr("Impossible de charger le document ") + NomFileDoc;
                 UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
@@ -2475,43 +2448,15 @@ void Rufus::ExporteDocs()
                     if (CD.open(QIODevice::OpenModeFlag::NewOnly))
                     {
                         QDataStream out(&CD);
-                        out << bapdf;
+                        out << ba;
                     }
                 }
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
+                delete buff;
                 continue;
             }
-//            Poppler::Document* document = Poppler::Document::loadFromData(bapdf);
-//            if (!document || document->isLocked() || document == Q_NULLPTR)
-//            {
-//                QStringList listmsg;
-//                listmsg << tr("Impossible de charger le document ") + NomFileDoc;
-//                UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 3000);
-//                QString echectrsfername         = CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfer.toString("yyyy-MM-dd") + ".txt";
-//                QFile   echectrsfer(echectrsfername);
-//                if (echectrsfer.open(QIODevice::Append))
-//                {
-//                    QTextStream out(&echectrsfer);
-//                    out << NomFileDoc << "\n" ;
-//                    echectrsfer.close();
-//                    QFile CD(CheminEchecTransfrDir + "/" + NomFileDoc);
-//                    if (CD.open(QIODevice::Append))
-//                    {
-//                        QTextStream out(&CD);
-//                        out << listexportpdffact.at(i).at(6).toByteArray() ;
-//                    }
-//                }
-//                QString delreq = "delete from " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString();
-//                //qDebug() << delreq;
-//                db->StandardSQL(delreq);
-//                delete document;
-//                continue;
-//            }
-//            Poppler::PDFConverter *doctosave = document->pdfConverter();
-//            doctosave->setOutputFileName(CheminOKTransfrDoc);
-//            doctosave->convert();
 
             QFile CC(CheminOKTransfrDoc);
             CC.open(QIODevice::ReadWrite);
@@ -7993,9 +7938,10 @@ void Rufus::ExporteActe(Acte *act)
                     else if (sfx == PDF)
                     {
 
-                        QBuffer buf(&ba);
                         QPdfDocument document;
-                        document.load(&buf);
+                        QBuffer *buff = new QBuffer(&ba);
+                        buff->open(QIODevice::ReadWrite);
+                        document.load(buff);
                         if( document.pageCount() > 0)
                         {
                             QFile file(filedest);
@@ -8005,13 +7951,7 @@ void Rufus::ExporteActe(Acte *act)
                                 out << ba;
                             }
                         }
-//                        Poppler::Document* document = Poppler::Document::loadFromData(ba);
-//                        Poppler::PDFConverter *pdfConv = document->pdfConverter();
-//                        pdfConv->setOutputFileName(filedest);
-//                        pdfConv->setPDFOptions(pdfConv->pdfOptions()|Poppler::PDFConverter::WithChanges);
-//                        pdfConv->convert();
-//                        delete pdfConv;
-//                        delete document;
+                        delete buff;
                     }
                 }
             }
