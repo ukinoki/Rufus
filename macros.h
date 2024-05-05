@@ -896,12 +896,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 //! pointed by secure_file_priv
 
-#define PATH_DIR_IMAGES                         PATH_DIR_IMAGERIE NOM_DIR_IMAGES
-#define PATH_DIR_FACTURES                       PATH_DIR_IMAGERIE NOM_DIR_FACTURES
 #define PATH_DIR_ORIGINAUX                      PATH_DIR_IMAGERIE NOM_DIR_ORIGINAUX
-#define PATH_DIR_FACTURESSANSLIEN               PATH_DIR_IMAGERIE NOM_DIR_FACTURESSANSLIEN
-#define PATH_DIR_VIDEOS                         PATH_DIR_IMAGERIE NOM_DIR_VIDEOS
-#define PATH_DIR_ECHECSTRANSFERTS               PATH_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS
 
 #define PATH_FILE_INI                           PATH_DIR_RUFUS NOM_FILE_INI
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP

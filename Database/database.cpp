@@ -187,7 +187,10 @@ QString DataBase::dirimagerie()
     {
         while (dirdata.endsWith("/"))
             dirdata.remove(dirdata.size()-1,1);
-        m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+        if (dirdata.endsWith("/Rufus"))
+            m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
+        else
+            m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
         return m_dirimagerie;
     }
 }
