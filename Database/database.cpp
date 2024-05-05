@@ -174,12 +174,11 @@ QString DataBase::dirimagerie()
                             tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
                                "Vous ne pourrez pas afficher les documents d'imagerie\n"
                                "Veuillez modifier la valeur de cette variable en la faisant pointer\n"
-                               "sur un dossier partagé entre les utilisateurs et accessiblle à MySQL"
-                               "'/Users/Shared/Rufus' (macOS) ou 'Users/Public/Rufus' (W1O/11) sur le serveur\n"
-                               "Reportez-vous au bas de la page\n"
-                               "https://www.rufusvision.org/installation-du-serveur-mysql.html\n"
-                               "pour savoir comment modifier le fichier de configuration my.cnf\n"
-                               "de MySQL sur le serveur puis redémarrez le serveur"));
+                               "sur un dossier partagé entre les utilisateurs et accessible à MySQL"
+                               "'/Users/Shared' (macOS) ou 'Users/Public' (W1O/11) sur le serveur\n"
+                               "Reportez-vous à la page installation du serveur mysql du site www.rufusvision.org\n"
+                               "pour savoir comment modifier le fichier de configuration my.cnf (ou my.ini sous Windows)\n"
+                               "de MySQL/MariaDB sur le serveur puis redémarrez le serveur"));
     }
     if (dirdata == QString())
         return dirdata ;
