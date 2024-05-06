@@ -91,6 +91,7 @@ private:
 
     Utils::ModeAcces m_modeacces;
     QString m_dirimagerie = QString();
+    QString m_dirsecurefilepriv = QString();
     QString m_base;
     QString m_server;
     int m_port = 3306;
@@ -179,6 +180,7 @@ public:
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
     void                    VideDatabases();                    /*! vide la base de données */
     QString                 dirimagerie();                      /*! defines dir of storage of all images and video - corresponds to dir pointed by variable secure_file_pric registered in db */
+    QString                 dirsecure_file_priv();             /*! reads dir secure-file-priv registered on server */
 
     /*
      * Parametres système

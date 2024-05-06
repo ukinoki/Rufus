@@ -159,10 +159,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     return error;
 }
 
-QString DataBase::dirimagerie()
+QString DataBase::dirsecure_file_priv()
 {
-    if (m_dirimagerie != QString())
-        return m_dirimagerie;
+    if (m_dirsecurefilepriv != QString())
+        return m_dirsecurefilepriv;
     QString dirdata = QString();
     bool ok;
     QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
@@ -174,24 +174,32 @@ QString DataBase::dirimagerie()
                             tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
                                "Vous ne pourrez pas afficher les documents d'imagerie\n"
                                "Veuillez modifier la valeur de cette variable en la faisant pointer\n"
-                               "sur un dossier partagé entre les utilisateurs et accessible à MySQL"
-                               "'/Users/Shared' (macOS) ou 'Users/Public' (W1O/11) sur le serveur\n"
-                               "Reportez-vous à la page installation du serveur mysql du site www.rufusvision.org\n"
-                               "pour savoir comment modifier le fichier de configuration my.cnf (ou my.ini sous Windows)\n"
-                               "de MySQL/MariaDB sur le serveur puis redémarrez le serveur"));
+                               "sur un dossier partagé entre les utilisateurs et accessiblle à MySQL"
+                               "par exemple '/Users/Shared' (macOS / Ubuntu) ou 'Users/Public' (Windows 1O/11) sur le serveur\n"
+                               "Reportez-vous à la page installation du serveur MySQL"
+                               "sur le site https://www.rufusvision.org\n"
+                               "pour savoir comment modifier cette variabe secure-file-priv dans la configuration de votre serveur"));
     }
-    if (dirdata == QString())
-        return dirdata ;
-    else
-    {
-        while (dirdata.endsWith("/"))
-            dirdata.remove(dirdata.size()-1,1);
-        if (dirdata.endsWith("/Rufus"))
-            m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
-        else
-            m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+    m_dirsecurefilepriv = dirdata;
+    return dirdata;
+}
+
+QString DataBase::dirimagerie()
+{
+    if (m_dirimagerie != QString())
         return m_dirimagerie;
-    }
+    if (m_dirsecurefilepriv == QString())
+        dirsecure_file_priv();
+    if (m_dirsecurefilepriv == QString())
+        return m_dirsecurefilepriv;
+    QString dirdata = m_dirsecurefilepriv;
+    while (dirdata.endsWith("/"))
+        dirdata.remove(dirdata.size()-1,1);
+    if (dirdata.endsWith("/Rufus"))
+        m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
+    else
+        m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+    return m_dirimagerie;
 }
 
 QDateTime DataBase::ServerDateTime()
