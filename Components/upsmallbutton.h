@@ -53,8 +53,8 @@ private:
     QString     m_tooltipmsg;
 
 signals:
-    void        clicked(int a);
-    void        clicked(QVariant var);
+    void        clickedint(int a);
+    void        clickedvar(QVariant var);
 };
 
 #endif // UPSMALLBUTTON_H

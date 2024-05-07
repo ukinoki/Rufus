@@ -204,9 +204,9 @@ bool UpSmallButton::eventFilter(QObject *obj, QEvent *event)
         if (isEnabled())
         {
             if (ButtonStyle() == PRINTBUTTON)
-                emit clicked(data());
+                emit clickedvar(data());
             else
-                emit clicked(iD());
+                emit clickedint(iD());
         }
     }
     if (event->type() == QEvent::KeyRelease)

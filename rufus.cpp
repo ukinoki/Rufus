@@ -4848,7 +4848,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     msglayout       ->addLayout(tasklayout);
 
     dlg_sendMessage->OKButton   ->setiD(idMsg);
-    connect(dlg_sendMessage->OKButton,   QOverload<int>::of(&UpSmallButton::clicked),  this,    [=] {VerifMessage(dlg_sendMessage, idMsg);});
+    connect(dlg_sendMessage->OKButton,   &UpSmallButton::clickedint,  this,    [=] {VerifMessage(dlg_sendMessage, idMsg);});
 
     totallayout->addLayout(destlayout);
     QLabel *Vline = new QLabel(dlg_sendMessage);

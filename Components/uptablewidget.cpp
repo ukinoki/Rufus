@@ -28,20 +28,6 @@ UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
 void UpTableWidget::dropEvent(QDropEvent *drop)
 {
     m_encodedData = drop->mimeData()->data("application/x-qabstractitemmodeldatalist");
-//    for (int j=0; j<drop->mimeData()->formats().size(); j++)
-//        qDebug() << drop->mimeData()->formats().at(j) + "\n";
-
-//    QDataStream stream(&encodedData, QIODevice::ReadOnly);
-//    while (!stream.atEnd() && a)
-//    {
-//        int                 row, col;
-//        QMap<int,QVariant>  roleDataMap;
-//        stream >> row >> col >> roleDataMap;
-//        QString ab = "col = " + QString::number(col) + " row = " + QString::number(row);
-//        for (int i=0;i<roleDataMap.size();i++)
-//            ab += " roledatamap[" + QString::number(i) + "]= " + roleDataMap[i].toString();
-//        qDebug() << ab;
-//    }
     drop->acceptProposedAction();
     emit dropsignal(m_encodedData);
 }

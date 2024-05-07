@@ -1556,7 +1556,7 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
     if (Button.testFlag(UpDialog::ButtonPrint))
     {
         gEditDocumentDialog->PrintButton->setdata(doc);
-        connect(gEditDocumentDialog->PrintButton, QOverload<QVariant>::of(&UpSmallButton::clicked), this, [=](QVariant) {PrintDocument(doc);});
+        connect(gEditDocumentDialog->PrintButton, &UpSmallButton::clickedvar, this, [=](QVariant) {PrintDocument(doc);});
     }
     if (Button.testFlag(UpDialog::ButtonSuppr))
         connect(gEditDocumentDialog->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
@@ -2416,8 +2416,19 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         /*! 3 - détermination de l'emplacement de destination des fichiers d'imagerie */
         if (OKImages || OKVideos || OKFactures)
         {
-            if (!QDir(m_dirimagerie).exists())
-                m_dirimagerie = db->dirimagerie();
+            m_dirimagerie = db->dirimagerie();
+            if (m_dirimagerie == QString())
+            {
+                OKImages    = false;
+                OKFactures  = false;
+                OKVideos    = false;
+            }
+            else if (!QDir(m_dirimagerie).exists())
+            {
+                OKImages    = false;
+                OKFactures  = false;
+                OKVideos    = false;
+            }
         }
 
         /*! 4 - choix des éléments à restaurer */
@@ -3903,7 +3914,7 @@ void Procedures::PremierParametrageMateriel()
     //!                              Rufus.ini
 
 
-    if (protoc = BaseVierge)
+    if (protoc == BaseVierge)
     {
         Utils::mkpath(db->dirimagerie() + NOM_DIR_IMAGES);
         Utils::mkpath(db->dirimagerie() + NOM_DIR_DOSSIERECHANGEIMAGERIE);

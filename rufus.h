@@ -77,7 +77,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <upsystemtrayicon.h>
 #include <cls_rendezvous.h>
 
-
 namespace Ui {
 class Rufus;
 }

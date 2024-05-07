@@ -281,25 +281,22 @@ void dlg_gestioncomptes::CompteFactice()
         if (Utils::trim(intit) == "")
             intit = "DR EDWARD SNOWDEN";
         ui->IntituleCompteuplineEdit    ->setText(intit);
-        int al = 0;
+
         QString iban = "FR";
-        srand(static_cast<uint>(time(Q_NULLPTR)));
-        al = rand() % 100;
-        while (al<10)
-            al = rand() % 100;
-        iban += QString::number(al) + " ";
-        for(int i=0; i<5; i++)
+        std::default_random_engine gen{std::random_device{}()};
+        std::uniform_int_distribution<int> al{1, 100};
+        QString dl = QString::number(al(gen));
+        iban += dl + " ";
+
+        std::uniform_int_distribution<int> bl{1, 10000};
+        for(int i = 0; i < 5; ++i)
         {
-            al = rand() % 10000;
-            while (al<1000)
-                al = rand() % 10000;
-            iban += QString::number(al) + " ";
+            iban += QString::number(bl(gen)) + " ";
         }
-        al = rand() % 1000;
-        while (al<100)
-            al = rand() % 1000;
-        iban += QString::number(al);
-        ui->NomCompteAbregeuplineEdit   ->setText("PaPRS"+QString::number(al));
+        std::uniform_int_distribution<int> cl{1, 1000};
+        iban += QString::number(cl(gen));
+
+        ui->NomCompteAbregeuplineEdit   ->setText("PaPRS" + dl);
         ui->IBANuplineEdit              ->setText(iban);
         ui->SoldeuplineEdit             ->setText("0,00");
         ui->CompteFacticePushButton     ->setVisible(false);

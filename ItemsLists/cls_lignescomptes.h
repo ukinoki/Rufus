@@ -39,16 +39,5 @@ public:
 
     //!> actions sur les enregistrements
     void       SupprimeLigne(LigneCompte *lign);
-//    LigneCompte*    CreationLigne(int idCompte,
-//                                  int iddepense,
-//                                  int idrecette,
-//                                  int idrecettespeciale,
-//                                  int idremisechq,
-//                                  QDate date,
-//                                  QString libelle,
-//                                  QString typeop,
-//                                  double montant,
-//                                  bool iscredit,
-//                                  bool isconsolide);
 };
 #endif // LIGNESCOMPTES_H
