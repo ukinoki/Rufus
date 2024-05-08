@@ -97,6 +97,7 @@ private:
     int m_port = 3306;
     bool ok;
     QSqlDatabase m_db = QSqlDatabase();
+    void                    dirsecure_file_priv();             /*! reads dir secure-file-priv registered on server */
 
 public:
     static DataBase*        I();
@@ -119,6 +120,7 @@ public:
 
     QString                 version();                          /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
+    void                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv
 
     /*! les fonctions qui suivent permettent d'éciter les erreurs de date/heure liées au poste utilisé
      * 1. au cas où le poste utilise une heure incorrecte
@@ -180,7 +182,6 @@ public:
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
     void                    VideDatabases();                    /*! vide la base de données */
     QString                 dirimagerie();                      /*! defines dir of storage of all images and video - corresponds to dir pointed by variable secure_file_pric registered in db */
-    QString                 dirsecure_file_priv();             /*! reads dir secure-file-priv registered on server */
 
     /*
      * Parametres système

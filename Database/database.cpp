@@ -152,26 +152,59 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("options      - " + (useSSL? connectSSLoptions : "none"));
 
     if( m_db.open() )
+    {
+        verifglobalvariablesSQL();
         return QString();
+    }
 
     QString error = m_db.lastError().text();
     Logs::ERROR(error);
     return error;
 }
+void DataBase::verifglobalvariablesSQL()
+{
+    QString result ;
+    QString sqlmode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION";
+    bool okvar;
+    dirsecure_file_priv();
+    if (m_dirsecurefilepriv == QString())
+        exit (0);
+    QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"sql_mode\";", okvar);
+    if (okvar && vardata.size()>0)
+        result =  vardata.at(1).toString();
+    if (result != sqlmode)
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
+                            tr("La variable MySQL 'sql_mode' n'est pas positionnée sur la valeur ") + "'" + sqlmode + "'\n"
+                            + tr("Rufus sera instable\n"
+                            "Veuillez modifier la valeur de cette variable sur la valeur ") + "'" + sqlmode + "'\n"
+                            + tr("Reportez-vous à la page installation du serveur MySQL"
+                               "sur le site https://www.rufusvision.org\n"
+                               "pour savoir comment modifier cette variabe secure-file-priv dans la configuration de votre serveur"));
+    }
+}
 
-QString DataBase::dirsecure_file_priv()
+void DataBase::dirsecure_file_priv()
 {
     if (m_dirsecurefilepriv != QString())
-        return m_dirsecurefilepriv;
+        return;
     QString dirdata = QString();
+    bool result = true;
     bool ok;
     QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", ok);
     if (ok && vardata.size()>0)
-        dirdata = vardata.at(1).toString();
-    if (dirdata==QString())
+    {
+        {
+            dirdata = vardata.at(1).toString();
+            if (m_modeacces == Utils::Poste)
+                result = QDir(dirdata).exists();
+            else result = (dirdata.size() >0 && dirdata != "NULL" && dirdata != "Empty set");
+        }
+    }
+    if (!result)
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
-                            tr("La variable MySQL 'secure_file_priv' est positionnée à 'NULL'\n"
+                            tr("La variable MySQL 'secure_file_priv' n'est pas positionnée sur un dossier existant\n"
                                "Vous ne pourrez pas afficher les documents d'imagerie\n"
                                "Veuillez modifier la valeur de cette variable en la faisant pointer\n"
                                "sur un dossier partagé entre les utilisateurs et accessiblle à MySQL"
@@ -180,16 +213,14 @@ QString DataBase::dirsecure_file_priv()
                                "sur le site https://www.rufusvision.org\n"
                                "pour savoir comment modifier cette variabe secure-file-priv dans la configuration de votre serveur"));
     }
-    m_dirsecurefilepriv = dirdata;
-    return dirdata;
+    else
+        m_dirsecurefilepriv = dirdata;
 }
 
 QString DataBase::dirimagerie()
 {
     if (m_dirimagerie != QString())
         return m_dirimagerie;
-    if (m_dirsecurefilepriv == QString())
-        dirsecure_file_priv();
     if (m_dirsecurefilepriv == QString())
         return m_dirsecurefilepriv;
     QString dirdata = m_dirsecurefilepriv;

@@ -208,7 +208,7 @@ bool dlg_paramconnexion::TestConnexion()
     if (!VerifFiche())
         return false;
 
-    Utils::ModeAcces mode;
+    Utils::ModeAcces mode= Utils::Poste;;
     if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
