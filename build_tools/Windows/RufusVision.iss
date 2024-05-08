@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Rufus"
-#define MyAppVersion "30-04-2023"
+#define MyAppVersion "26-04-2024"
 #define MyAppPublisher "RufusVision"
 #define MyAppURL "https://www.rufusvision.org/"
 #define MyAppExeName "Rufus.exe"
@@ -29,7 +29,6 @@ WizardStyle=modern
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 
-
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "catalan"; MessagesFile: "compiler:Languages\Catalan.isl"
@@ -41,19 +40,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Sunglasses.ico
 
 [Files]
-Source: "Deploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: vc_redist.x64.exe
-Source: "Microsoft\vc_redist.x64.exe"; DestDir: {tmp};
-; NOTE: Don't use "Flags: ignoreversion" on any shared system files
-
+Source: "C:\Users\serge\RufusDeploy\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs; Excludes: vc_redist.x64.exe
 
 [Icons]
 Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: {tmp}\vc_redist.x64.exe; \
-    Parameters: "/q /passive /Q:a /c:""msiexec /q /i vcredist.msi"""; \
-    StatusMsg: "Installing VC++ 2008 Redistributables..."; Flags: postinstall
-
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
