@@ -3895,23 +3895,23 @@ void Procedures::PremierParametrageMateriel()
     //!                                     /Video
 
     //!     on local post
-    //!     -- QDir::homePath() + /Rufus
-    //!                              /Imagerie
-    //!                                     /Originaux
-    //!                                         /Factures
-    //!                                         /Images
-    //!                                     /DossierEchangeRefraction
-    //!                                         /Refracteur
-    //!                                             /In
-    //!                                                 /Autoref
+    //!     -- QDir::homePath()/Doduments/Rufus
+    //!                                         /Imagerie
+    //!                                             /Originaux
+    //!                                                 /Factures
+    //!                                                 /Images
+    //!                                             /DossierEchangeRefraction
+    //!                                                 /Refracteur
+    //!                                                     /In
+    //!                                                         /Autoref
+    //!                                                         /Fronto
+    //!                                                         /Tono
+    //!                                                     /Out
     //!                                                 /Fronto
     //!                                                 /Tono
-    //!                                             /Out
-    //!                                         /Fronto
-    //!                                         /Tono
-    //!                                         /Autoref
-    //!                              /Logs
-    //!                              Rufus.ini
+    //!                                                 /Autoref
+    //!                                         /Logs
+    //!                                         Rufus.ini
 
 
     if (protoc == BaseVierge)

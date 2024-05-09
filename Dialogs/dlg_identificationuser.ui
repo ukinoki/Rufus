@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>320</width>
-    <height>245</height>
+    <height>280</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,13 +22,13 @@
   <property name="minimumSize">
    <size>
     <width>320</width>
-    <height>245</height>
+    <height>280</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
     <width>320</width>
-    <height>245</height>
+    <height>280</height>
    </size>
   </property>
   <widget class="QLabel" name="IdUserlabel">
@@ -201,7 +201,7 @@
      <x>15</x>
      <y>120</y>
      <width>291</width>
-     <height>111</height>
+     <height>145</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -231,7 +231,7 @@ border-radius: 5px;</string>
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>50</y>
+      <y>80</y>
       <width>210</width>
       <height>16</height>
      </rect>
@@ -263,7 +263,7 @@ border-radius: 5px;</string>
     <property name="geometry">
      <rect>
       <x>35</x>
-      <y>50</y>
+      <y>80</y>
       <width>15</width>
       <height>15</height>
      </rect>
@@ -282,7 +282,7 @@ border-radius: 5px;</string>
     <property name="geometry">
      <rect>
       <x>60</x>
-      <y>80</y>
+      <y>110</y>
       <width>210</width>
       <height>16</height>
      </rect>
@@ -295,7 +295,39 @@ border-radius: 5px;</string>
     <property name="geometry">
      <rect>
       <x>35</x>
-      <y>80</y>
+      <y>110</y>
+      <width>15</width>
+      <height>15</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="pixmap">
+     <pixmap resource="../assets/Images/images.qrc">:/unchecked.png</pixmap>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="UpLabel" name="GlobaleVariablesupLabel">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>50</y>
+      <width>210</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Paramétrage serveur</string>
+    </property>
+   </widget>
+   <widget class="UpLabel" name="IconGlobalSQLupLabel">
+    <property name="geometry">
+     <rect>
+      <x>35</x>
+      <y>50</y>
       <width>15</width>
       <height>15</height>
      </rect>
@@ -314,14 +346,14 @@ border-radius: 5px;</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLabel</class>
-   <extends>QLabel</extends>
-   <header>uplabel.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLabel</class>
+   <extends>QLabel</extends>
+   <header>uplabel.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

@@ -45,6 +45,7 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
 
     ui->UsercomboBox->clear();
     QList<User*> listusrs;
+    Datas::I()->postesconnectes->initListe();
     foreach (PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
         if (post->id() != Datas::I()->users->userconnected()->id())

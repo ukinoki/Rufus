@@ -97,7 +97,6 @@ private:
     int m_port = 3306;
     bool ok;
     QSqlDatabase m_db = QSqlDatabase();
-    void                    dirsecure_file_priv();             /*! reads dir secure-file-priv registered on server */
 
 public:
     static DataBase*        I();
@@ -120,7 +119,8 @@ public:
 
     QString                 version();                          /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
-    void                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv
+    bool                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv */
+    bool                    dirsecure_file_priv();              /*! reads dir secure-file-priv registered on server */
 
     /*! les fonctions qui suivent permettent d'éciter les erreurs de date/heure liées au poste utilisé
      * 1. au cas où le poste utilise une heure incorrecte

@@ -73,9 +73,10 @@ void dlg_identificationuser::Validation()
     if (m_loginresult == OK)
         accept();
     ui->OKpushButton->setEnabled(true);
-    ui->IconServerOKupLabel->setPixmap(Icons::pxunCheck());
-    ui->IconBaseOKupLabel->setPixmap(Icons::pxunCheck());
-    ui->IconUserOKupLabel->setPixmap(Icons::pxunCheck());
+    ui->IconServerOKupLabel         ->setPixmap(Icons::pxunCheck());
+    ui->IconGlobalSQLupLabel        ->setPixmap(Icons::pxunCheck());
+    ui->IconBaseOKupLabel           ->setPixmap(Icons::pxunCheck());
+    ui->IconUserOKupLabel           ->setPixmap(Icons::pxunCheck());
 }
 
 //-------------------------------------------------------------------------------------
@@ -134,19 +135,50 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
                             + error);
         return NoConnexion;
     }
-
     ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
+
+    ok = false;
+    if (!DataBase::I()->dirsecure_file_priv())
+    {
+        ui->IconGlobalSQLupLabel->setPixmap(Icons::pxError());
+        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
+                            tr("La variable MySQL 'secure_file_priv' n'est pas positionnée sur un dossier existant\n"
+                               "Vous ne pourrez pas afficher les documents d'imagerie\n"
+                               "Veuillez modifier la valeur de cette variable en la faisant pointer\n"
+                               "sur un dossier partagé entre les utilisateurs et accessiblle à MySQL"
+                               "par exemple '/Users/Shared' (macOS / Ubuntu) ou 'Users/Public' (Windows 10/11) sur le serveur\n"
+                               "Reportez-vous à la page installation du serveur MySQL"
+                               "sur le site https://www.rufusvision.org\n"
+                               "pour savoir comment modifier cette variabe secure-file-priv dans la configuration de votre serveur"));
+        Utils::Pause(600);
+        return CorruptedBase;
+    }
+    if (!DataBase::I()->verifglobalvariablesSQL())
+    {
+        QString sqlmode = "STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION";
+        ui->IconGlobalSQLupLabel->setPixmap(Icons::pxError());
+        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration du serveur défectueuse"),
+                            tr("La variable MySQL 'sql_mode' n'est pas positionnée sur la valeur ") + "'" + sqlmode + "'\n"
+                                + tr("Rufus sera instable\n"
+                                     "Veuillez modifier la valeur de cette variable sur la valeur ") + "'" + sqlmode + "'\n"
+                                + tr("Reportez-vous à la page installation du serveur MySQL"
+                                     "sur le site https://www.rufusvision.org\n"
+                                     "pour savoir comment modifier cette variabe secure-file-priv dans la configuration de votre serveur"));
+        Utils::Pause(600);
+        return CorruptedBase;
+    }
+    ui->IconGlobalSQLupLabel->setPixmap(Icons::pxCheck());
+    Utils::Pause(150);
+
     req = "SHOW TABLES FROM " DB_RUFUS " LIKE '%tilisateurs%'";
     QList<QVariantList> tablist = db->StandardSelectSQL(req, ok);
     if (tablist.size()<2)
     {
         ui->IconBaseOKupLabel->setPixmap(Icons::pxError());
         Utils::Pause(600);
-        //TODO : Erreur non géré
         return CorruptedBase;
     }
-
 
     DataBase::QueryResult rep = db->calcidUserConnected(Login, Password);
     if (rep == DataBase::Error)
@@ -158,9 +190,9 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
                         tr("Impossible d'ouvrir la table Utilisateurs"));
         return CorruptedBase;
     }
-
     ui->IconBaseOKupLabel->setPixmap(Icons::pxCheck());
     Utils::Pause(150);
+
     if( rep == DataBase::Empty )
     {
         ui->IconUserOKupLabel->setPixmap(Icons::pxError());

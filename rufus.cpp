@@ -29,7 +29,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
     qApp->setStyleSheet(Styles::StyleAppli());
-    RecalcCurrentDateTime();
     QToolTip::setPalette(QPalette(Qt::yellow));
 
 
@@ -54,6 +53,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
     m_parametres = db->parametres();
+    RecalcCurrentDateTime();
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     if (proc->settings()->value("PositionsFiches/Rufus") != QVariant())
