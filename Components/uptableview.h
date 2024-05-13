@@ -30,7 +30,7 @@ class UpTableView : public QTableView
     Q_OBJECT
 public:
     explicit UpTableView(QWidget *parent = Q_NULLPTR);
-    void    FixLargeurTotale();
+    void    FixLargeurTotale(int larg = WIDTH_SCROLLBAR);
     int     rowNoHiddenCount() const;
 };
 

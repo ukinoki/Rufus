@@ -1182,5 +1182,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define QDATETIMEEDITHEIGHT          30
 #endif
 
+#define WIDTH_SCROLLBAR              10
 
 #endif // MACROS_H

@@ -110,9 +110,8 @@ void UpTableWidget::clearAllRowsExceptHeader()
         removeRow(i);
 }
 
-int UpTableWidget::FixLargeurTotale()
+int UpTableWidget::FixLargeurTotale(int larg)
 {
-    int larg = 0;
     for (int i=0; i < columnCount(); i++)
         if (!isColumnHidden(i))
         {

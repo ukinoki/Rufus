@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QDropEvent>
 #include <QMimeData>
+#include <QScrollArea>
 
 #include "upmessagebox.h"
 
@@ -37,7 +38,7 @@ public:
     QList<QImage>   AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
     void            clearSelection();
     void            clearAllRowsExceptHeader();                 //! supprime toutes les rangées d'une table (clearContents() vide le contenu des rangées mais ne supprime pas les rangées)
-    int             FixLargeurTotale();
+    int             FixLargeurTotale(int larg = WIDTH_SCROLLBAR);
     int             rowNoHiddenCount() const;
     int             FirstRowNoHidden() const;
     int             LastRowNoHidden() const;

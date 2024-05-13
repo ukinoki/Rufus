@@ -8348,7 +8348,7 @@ void Rufus::InitWidgets()
     ui->AccueilupTableWidget->setColumnWidth(0,70);     //Heure acte
     ui->AccueilupTableWidget->setColumnWidth(1,249);    //Nom Prenom
     ui->AccueilupTableWidget->setColumnWidth(2,120);    //Soignant
-    ui->AccueilupTableWidget->setColumnWidth(3,190);    //Cotation
+    ui->AccueilupTableWidget->setColumnWidth(3,180);    //Cotation
     ui->AccueilupTableWidget->setColumnWidth(4,115);    //Montant
     ui->AccueilupTableWidget->setColumnWidth(5,0);      //idActe
     ui->AccueilupTableWidget->setColumnWidth(6,0);      //UserParent
@@ -8368,7 +8368,7 @@ void Rufus::InitWidgets()
     ui->PatientsVusupTableWidget->setColumnWidth(0,70);                  //Heure Acte
     ui->PatientsVusupTableWidget->setColumnWidth(1,249);                 //Nom Prénom
     ui->PatientsVusupTableWidget->setColumnWidth(2,120);                 //Paiement
-    ui->PatientsVusupTableWidget->setColumnWidth(3,190);                 //Cotation
+    ui->PatientsVusupTableWidget->setColumnWidth(3,180);                 //Cotation
     ui->PatientsVusupTableWidget->setColumnWidth(4,115);                  //Montant
     ui->PatientsVusupTableWidget->verticalHeader()->setVisible(false);
     ui->PatientsVusupTableWidget->setGridStyle(Qt::NoPen);
@@ -8403,9 +8403,9 @@ void Rufus::InitEventFilters()
     ui->FermepushButton                 ->installEventFilter(this);
 
     ui->TabaclineEdit                   ->installEventFilter(this);
-    wdg_MGlineEdit                          ->installEventFilter(this);
-    wdg_autresCorresp1LineEdit              ->installEventFilter(this);
-    wdg_autresCorresp2LineEdit              ->installEventFilter(this);
+    wdg_MGlineEdit                      ->installEventFilter(this);
+    wdg_autresCorresp1LineEdit          ->installEventFilter(this);
+    wdg_autresCorresp2LineEdit          ->installEventFilter(this);
     ui->MGupComboBox                    ->installEventFilter(this);
     ui->AutresCorresp1upComboBox        ->installEventFilter(this);
     ui->AutresCorresp2upComboBox        ->installEventFilter(this);
@@ -9294,6 +9294,7 @@ bool Rufus::Remplir_ListePatients_TableView()
 
     ui->PatientsListeTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->PatientsListeTableView->horizontalHeader()->setFixedHeight(int(fm.height()*1.3));
+    ui->PatientsListeTableView->FixLargeurTotale();
     CalcNbDossiers();
 
     return true;

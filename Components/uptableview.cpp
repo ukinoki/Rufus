@@ -19,9 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpTableView::UpTableView(QWidget *parent) : QTableView(parent) {}
 
-void UpTableView::FixLargeurTotale()
+void UpTableView::FixLargeurTotale(int larg)
 {
-    int larg = 0;
     for (int i=0; i < model()->columnCount(); i++)
         if (!isColumnHidden(i))
             larg += columnWidth(i);

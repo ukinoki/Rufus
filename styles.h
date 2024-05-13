@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STYLES_H
 #define STYLES_H
 #include <QString>
+#include "macros.h"
 // définit les styles de l'application
 
 #define STYLE_UPGROUBOXINACTIVE     "UpGroupBox {font: bold; border: 1px solid rgb(164,164,164); border-radius: 10px;}"
@@ -39,6 +40,7 @@ public:
                 "QRadioButton::indicator {width: 18px; height: 18px;}"
                 "QRadioButton::indicator::checked {image: url(://blueball.png);}"
                 "QScrollArea {background-color:rgb(237, 237, 237); border: 1px solid rgb(150,150,150);}"
+                                              "QScrollBar:vertical {width: " + QString::number(WIDTH_SCROLLBAR) + "px;}"
                 "QTabBar::tab:selected {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #fafafa, stop: 1.0 rgb(164, 205, 255));}"
                 "QTabBar::tab:hover {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #fafafa, stop: 0.4 #f4f4f4,stop: 0.5 #e7e7e7, stop: 1.0 #fafafa);}"
                 "QTabBar::tab:selected {border-color: #9B9B9B; border-bottom-color: #C2C7CB;}"
