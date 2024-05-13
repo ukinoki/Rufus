@@ -140,7 +140,7 @@
        <enum>QTabWidget::Triangular</enum>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <property name="elideMode">
        <enum>Qt::ElideLeft</enum>
@@ -148,12 +148,15 @@
       <property name="tabsClosable">
        <bool>false</bool>
       </property>
-      <widget class="QScrollArea" name="tabListScrollArea">
+      <widget class="QScrollArea" name="tabDossierScrollArea">
        <property name="minimumSize">
         <size>
          <width>0</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -466,7 +469,7 @@ patients - F5</string>
                </property>
                <property name="dateTime">
                 <datetime>
-                 <hour>21</hour>
+                 <hour>19</hour>
                  <minute>0</minute>
                  <second>0</second>
                  <year>1999</year>
@@ -1726,12 +1729,15 @@ aujourd'hui</string>
         </layout>
        </widget>
       </widget>
-      <widget class="QScrollArea" name="tabDossierScrollArea">
+      <widget class="QScrollArea" name="tabListScrollArea">
        <property name="minimumSize">
         <size>
          <width>0</width>
          <height>0</height>
         </size>
+       </property>
+       <property name="verticalScrollBarPolicy">
+        <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
@@ -4698,7 +4704,7 @@ color : gray;
      <x>0</x>
      <y>0</y>
      <width>1339</width>
-     <height>34</height>
+     <height>48</height>
     </rect>
    </property>
   </widget>

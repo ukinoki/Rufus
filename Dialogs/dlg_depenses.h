@@ -18,7 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DEPENSES_H
 #define DLG_DEPENSES_H
 
-
+#include <QScrollArea>
+#include <QGridLayout>
 #include "dlg_comptes.h"
 #include "dlg_docsscanner.h"
 #include "gbl_datas.h"

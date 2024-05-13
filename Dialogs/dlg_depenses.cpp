@@ -26,8 +26,17 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
     setWindowTitle(tr("Journal des dépenses"));
-        setModal(true);
-
+    setModal(true);
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea  ->setWidget(ui->scrollAreaWidget);
+    scrollArea  ->setWidgetResizable(true);
+    scrollArea  ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    scrollArea  ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    int marge = 6;
+    QGridLayout *layout = new QGridLayout(this);
+    layout  ->addWidget(scrollArea);
+    layout  ->setContentsMargins(marge,marge,marge,marge);
+    layout  ->setSpacing(marge);
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire());
 
     int index = 0;
@@ -111,7 +120,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     wdg_boxbuttlayout->addSpacerItem(new QSpacerItem(0,0));
     wdg_boxbuttlayout->addWidget(wdg_modifieruppushbutton);
     wdg_boxbuttlayout->setSpacing(2);
-    wdg_boxbuttlayout->setContentsMargins(0,5,0,0);
+    wdg_boxbuttlayout->setContentsMargins(0,0,0,0);
     ui->frame->layout()->addItem(wdg_boxbuttlayout);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
@@ -186,7 +195,14 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     wdg_bigtable            ->setFocus();
     ui->ExportupPushButton  ->setEnabled(wdg_bigtable->rowCount()>0);
     ui->PrintupSmallButton  ->setEnabled(wdg_bigtable->rowCount()>0);
-    setFixedWidth(wdg_bigtable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
+    ui->scrollAreaWidget->setFixedWidth(
+          wdg_bigtable->width() +
+          ui->VisuDocupTableWidget->width() +
+          ui->mainLayout->contentsMargins().left() +
+          ui->mainLayout->contentsMargins().right() +
+          ui->mainLayout->spacing()+40);
+    setFixedWidth(ui->scrollAreaWidget->width() + ui->scrollAreaWidget->x()*2+ layout->contentsMargins().left() + layout->contentsMargins().right());
+    //setFixedHeight(ui->scrollAreaWidget->height() + ui->scrollAreaWidget->y()*2);
 
     //ui->Facturewidget->setVisible(false);
     //ui->VisuDocupTableWidget->setVisible(false);
