@@ -26,17 +26,8 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowIcon(Icons::icCreditCard());
     setWindowTitle(tr("Journal des dépenses"));
-    setModal(true);
-    QScrollArea *scrollArea = new QScrollArea();
-    scrollArea  ->setWidget(ui->scrollAreaWidget);
-    scrollArea  ->setWidgetResizable(true);
-    scrollArea  ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    scrollArea  ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    int marge = 6;
-    QGridLayout *layout = new QGridLayout(this);
-    layout  ->addWidget(scrollArea);
-    layout  ->setContentsMargins(marge,marge,marge,marge);
-    layout  ->setSpacing(marge);
+        setModal(true);
+
     ui->UserscomboBox->setEnabled(Datas::I()->users->userconnected()->isSecretaire());
 
     int index = 0;
@@ -120,7 +111,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     wdg_boxbuttlayout->addSpacerItem(new QSpacerItem(0,0));
     wdg_boxbuttlayout->addWidget(wdg_modifieruppushbutton);
     wdg_boxbuttlayout->setSpacing(2);
-    wdg_boxbuttlayout->setContentsMargins(0,0,0,0);
+    wdg_boxbuttlayout->setContentsMargins(0,5,0,0);
     ui->frame->layout()->addItem(wdg_boxbuttlayout);
 
     ui->frame->setStyleSheet("QFrame#frame{border: 1px solid gray; border-radius: 5px; background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 210, 210, 50));}");
@@ -195,14 +186,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     wdg_bigtable            ->setFocus();
     ui->ExportupPushButton  ->setEnabled(wdg_bigtable->rowCount()>0);
     ui->PrintupSmallButton  ->setEnabled(wdg_bigtable->rowCount()>0);
-    ui->scrollAreaWidget->setFixedWidth(
-          wdg_bigtable->width() +
-          ui->VisuDocupTableWidget->width() +
-          ui->mainLayout->contentsMargins().left() +
-          ui->mainLayout->contentsMargins().right() +
-          ui->mainLayout->spacing()+40);
-    setFixedWidth(ui->scrollAreaWidget->width() + ui->scrollAreaWidget->x()*2+ layout->contentsMargins().left() + layout->contentsMargins().right());
-    //setFixedHeight(ui->scrollAreaWidget->height() + ui->scrollAreaWidget->y()*2);
+    setFixedWidth(wdg_bigtable->width() + ui->VisuDocupTableWidget->width() + layout()->contentsMargins().left() + layout()->contentsMargins().right() +layout()->spacing());
 
     //ui->Facturewidget->setVisible(false);
     //ui->VisuDocupTableWidget->setVisible(false);
@@ -667,7 +651,7 @@ void dlg_depenses::EnregistreDepense()
 
     QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date(),
                                                               ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), m_userencours->id(),
-                                                              DataBase::Egal);
+                                                              ui->RefFiscalecomboBox->currentText(), DataBase::Egal);
 
     // vérifier que cette dépense n'a pas été déjà saisie
     if (veriflistdepenses.size() > 0)
@@ -682,7 +666,7 @@ void dlg_depenses::EnregistreDepense()
             pb = tr("Elle date de plus de 3 mois");
         veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date().addDays(-180),
                                                   ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), m_userencours->id(),
-                                                  DataBase::Sup);
+                                                  ui->RefFiscalecomboBox->currentText(), DataBase::Sup);
         if (veriflistdepenses.size() > 0)
         {
             Depense *dep = veriflistdepenses.last();
@@ -1274,7 +1258,7 @@ void dlg_depenses::ModifierDepense()
     // vérifier que cette dépense n'a pas été déjà saisie
     QList<Depense*> veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date(),
                                                               ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), m_userencours->id(),
-                                                              DataBase::Egal);
+                                                              ui->RefFiscalecomboBox->currentText(), DataBase::Egal);
     if (veriflistdepenses.size() > 0){
         for (QList<Depense*>::const_iterator itDepense = veriflistdepenses.constBegin(); itDepense != veriflistdepenses.constEnd(); ++itDepense){
             if (veriflistdepenses.last()->id() == idDep.toInt()){
@@ -1295,7 +1279,7 @@ void dlg_depenses::ModifierDepense()
     {
         veriflistdepenses = db->VerifExistDepense(*Datas::I()->depenses->depenses(), ui->DateDepdateEdit->date().addDays(-1),
                                                   ui->ObjetlineEdit->text(), QLocale().toDouble(ui->MontantlineEdit->text()), m_userencours->id(),
-                                                  DataBase::Inf);
+                                                  ui->RefFiscalecomboBox->currentText(), DataBase::Inf);
         if (veriflistdepenses.size() > 0)
         {
             if (pb != "")

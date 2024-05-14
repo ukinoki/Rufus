@@ -1701,7 +1701,7 @@ int DataBase::GetidRubriqueFiscale(Depense *dep)
     return deplist.at(0).at(0).toInt();
 }
 
-QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur Comp)
+QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, QString reffiscale, enum comparateur Comp)
 {
     QString op = "=";
     if (Comp == DataBase::Sup)
@@ -1713,6 +1713,7 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
             "' and " CP_OBJET_DEPENSES " = '" + Utils::correctquoteSQL(objet) +
             "' and " CP_MONTANT_DEPENSES " = " + QString::number(montant) +
             " and " CP_IDUSER_DEPENSES " = " + QString::number(iduser) +
+            " and " CP_REFFISCALE_DEPENSES " = " + reffiscale +
             " order by " CP_DATE_DEPENSES;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
     if(!ok || deplist.size()==0)

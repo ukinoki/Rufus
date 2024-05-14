@@ -277,7 +277,7 @@ public:
     QList<Depense*>         loadDepensesByUser(int idUser);                         //! charge toutes les dépenses d'un utilisateur à partir de la table depenses
     void                    loadDepenseArchivee(Depense *dep);                      //! charge tous renseignements sur une dépense archivée
     QStringList             ListeRubriquesFiscales();                               //! charge la liste de toutes les rubriques fiscales à partir de la table rubriques2035
-    QList<Depense*>         VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, enum comparateur = Egal);
+    QList<Depense*>         VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, QString reffiscale, enum comparateur = Egal);
                                                                                     //! comme son nom l'indique
     int                     GetidRubriqueFiscale(Depense *dep);                     //! retrouve l'id de la rubrique fisclae d'une dépense
 
