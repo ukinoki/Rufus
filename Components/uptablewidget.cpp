@@ -118,11 +118,11 @@ int UpTableWidget::FixLargeurTotale(int larg)
             larg += columnWidth(i);
             //qDebug() << i << columnWidth(i) << larg;
         }
-#ifdef Q_OS_WINDOWS
-    setFixedWidth(larg + Utils::I()->correctedwidth(20));
-#else
+//#ifdef Q_OS_WINDOWS
+  setFixedWidth(larg + Utils::I()->correctedwidth(20));
+//#else
     setFixedWidth(larg+2);
-#endif
+//#endif
     //qDebug() << width();
     return width();
 }

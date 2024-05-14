@@ -24,11 +24,7 @@ void UpTableView::FixLargeurTotale(int larg)
     for (int i=0; i < model()->columnCount(); i++)
         if (!isColumnHidden(i))
             larg += columnWidth(i);
-#ifdef Q_OS_WINDOWS
-    setFixedWidth(larg + Utils::I()->correctedwidth(20));
-#else
     setFixedWidth(larg+2);
-#endif
 }
 
 int UpTableView::rowNoHiddenCount() const

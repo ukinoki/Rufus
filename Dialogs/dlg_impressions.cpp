@@ -77,9 +77,9 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe);});
 
     // Mise en forme de la table Documents et de la table Dossiers
-    QList<QTableView*> listtables;
+    QList<UpTableView*> listtables;
     listtables << ui->DocsupTableView << ui->DossiersupTableView;
-    foreach(QTableView* table, listtables)
+    foreach(UpTableView* table, listtables)
     {
         table->setPalette(QPalette(Qt::white));
         table->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -900,9 +900,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
 
         tabChamps->resizeColumnsToContents();
         tabChamps->setColumnWidth(0,tabChamps->columnWidth(0)+30);
-        if (tabChamps->columnWidth(0) < 250)
-            tabChamps->setFixedWidth(tabChamps->columnWidth(0)+2);
-
+        tabChamps->FixLargeurTotale();
         ListChamps->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         ListChamps->move(QPoint(x()+width()/2,y()+height()/2));
         ListChamps->setFixedWidth(tabChamps->width() + ListChamps->dlglayout()->contentsMargins().left()*2);
@@ -3065,7 +3063,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     dlg_askcorrespondant                 ->setWindowModality(Qt::WindowModal);
 
     dlg_askcorrespondant                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    QTableView  *tblCorresp     = new QTableView(dlg_askcorrespondant);
+    UpTableView  *tblCorresp     = new UpTableView(dlg_askcorrespondant);
     QStandardItemModel *m_modele = new QStandardItemModel;
     UpStandardItem *pitem;
     UpLabel     *label          = new UpLabel(dlg_askcorrespondant);
@@ -3102,8 +3100,8 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     if ((largeurcolonne + 40 + 2) > largfinal)
         largfinal = largeurcolonne + 40 + 2;
     tblCorresp  ->setColumnWidth(0, largfinal - 2);
-    tblCorresp  ->setFixedWidth(largfinal);
-    label       ->setFixedWidth(largfinal);
+    tblCorresp  ->FixLargeurTotale();
+    label       ->setFixedWidth(tblCorresp->width());
     label       ->setFixedHeight(hauteurligne + 2);
     dlg_askcorrespondant->dlglayout()   ->insertWidget(0,tblCorresp);
     dlg_askcorrespondant->dlglayout()   ->insertWidget(0,label);
@@ -3409,8 +3407,12 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
     QFont disabledFont = qApp->font();
     disabledFont.setItalic(true);
 
-    UpStandardItem *pitem0 = new UpStandardItem("", doc);
-    pitem0->setCheckable(true);
+    UpStandardItem *pitem0 = new UpStandardItem("");
+    pitem0       ->setitem(doc);
+    pitem0       ->setEditable(false);
+    pitem0      ->setEnabled(true);
+    pitem0       ->setCheckable(true);
+    pitem0       ->setCheckState(Qt::Unchecked);
     m_docsmodel->setItem(row, 0, pitem0);
     QModelIndex index = m_docsmodel->index(row, 1, QModelIndex());
     m_docsmodel->setData(index, doc->resume());
@@ -3447,13 +3449,13 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
     if(!resizecolumn)
         return;
 
-    //! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
+    /*//! la suite est obligatoire pour contourner un bug d'affichage sous MacOS
     ui->DocsupTableView->setColumnWidth(0,larg(30));      // checkbox
     ui->DocsupTableView->setColumnWidth(1,larg(289));     // Resume
     ui->DocsupTableView->setColumnWidth(2,larg(30));      // Public   - affiche un check si document public
     ui->DocsupTableView->setColumnWidth(3,larg(30));      // Editable - affiche un check si document editable
     ui->DocsupTableView->setColumnWidth(4,larg(30));      // Medical  - affiche un check si document medical
-    ui->DocsupTableView->setColumnWidth(5,0);             // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents
+    ui->DocsupTableView->setColumnWidth(5,0);             // 0 ou 1 suivant que l'item est coché ou pas, suivi du résumé - sert au tri des documents*/
 }
 
 void dlg_impressions::SetDossierToRow(DossierImpression*dossier, int row, bool resizecolumn)

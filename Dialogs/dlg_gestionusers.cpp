@@ -1377,7 +1377,7 @@ void dlg_gestionusers::Inactifs()
     };
     UpDialog *dlg_listinactifs = new UpDialog(this);
     dlg_listinactifs->setWindowModality(Qt::WindowModal);
-    QTableView *wdg_bigtable = new QTableView(dlg_listinactifs);
+    UpTableView *wdg_bigtable = new UpTableView(dlg_listinactifs);
 
     //! Remplissage de la table
     QStandardItemModel  *m_model = new QStandardItemModel;
@@ -1411,7 +1411,7 @@ void dlg_gestionusers::Inactifs()
     wdg_bigtable->setGridStyle(Qt::NoPen);
     wdg_bigtable->setEditTriggers(QAbstractItemView::NoEditTriggers);
     wdg_bigtable->setColumnWidth(0,300);
-    wdg_bigtable->setFixedWidth(wdg_bigtable->columnWidth(0)+2);
+    wdg_bigtable->FixLargeurTotale();
 
     wdg_bigtable->setMinimumHeight(hauteurligne*20);
     wdg_bigtable->setSizeIncrement(0,hauteurligne);
