@@ -75,7 +75,7 @@ void PatientsEnCours::updatePatientEnCours(PatientEnCours *pat)
 
 PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString Statut, QTime heureStatut, QTime heureRDV,
                                                  QTime heureArrivee, QString Motif, QString Message, int idActeAPayer, QString PosteExamen,
-                                                 int idUserEnCours, int idSalDat)
+                                                 int idUserEnCours, int idSalDat, QDate date, QString messageretour)
 
 {
     QString iduser          = (!usr ?                       "null" : QString::number(usr->id()) );
@@ -83,12 +83,14 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
     QString heurestatut     = (heureStatut == QTime()?      "null" : "'" + heureStatut.toString("hh:mm:ss") + "'");
     QString heurerdv        = (heureRDV == QTime()?         "null" : "'" + heureRDV.toString("hh:mm:ss") + "'");
     QString heurearrivee    = (heureArrivee == QTime()?     "null" : "'" + heureArrivee.toString("hh:mm:ss") + "'");
+    QString daterdv         = (date == QDate()?             "null" : "'" + date.toString("yyyy-MM-dd") + "'");
     QString motif           = (Motif == ""?                 "null" : "'" + Utils::correctquoteSQL(Motif) + "'");
     QString message         = (Message == ""?               "null" : "'" + Utils::correctquoteSQL(Message) + "'");
     QString idacteapayer    = (idActeAPayer == 0?           "null" : QString::number(idActeAPayer));
     QString posteexamen     = (PosteExamen == ""?           "null" : "'" + Utils::correctquoteSQL(PosteExamen) + "'");
     QString iduserencours   = (idUserEnCours == 0?          "null" : QString::number(idUserEnCours));
     QString idsaldat        = (idSalDat == 0?               "null" : QString::number(idSalDat));
+    QString messageret      = (messageretour == ""?         "null" : "'" + Utils::correctquoteSQL(messageretour) + "'");
 
     QString req = "INSERT INTO " TBL_SALLEDATTENTE
                         " (" CP_IDPAT_SALDAT ","
@@ -102,6 +104,8 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
                              CP_IDACTEAPAYER_SALDAT ","
                              CP_POSTEEXAMEN_SALDAT ","
                              CP_IDUSERENCOURSEXAM_SALDAT ","
+                             CP_MESSAGERETOUR_SALDAT ","
+                             CP_DATERDV_SALDAT ","
                              CP_IDSALDAT_SALDAT ")"
                         " VALUES (" +   QString::number(idPat) + "," +
                                         iduser + "," +
@@ -114,6 +118,8 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
                                         idacteapayer + "," +
                                         posteexamen    + "," +
                                         iduserencours  + "," +
+                                        messageret  + "," +
+                                        daterdv  + "," +
                                         idsaldat +")";
     QString MsgErreur = tr("Impossible de mettre ce dossier en salle d'attente");
     DataBase::I()->locktables(QStringList() << TBL_SALLEDATTENTE);

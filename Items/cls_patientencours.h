@@ -34,9 +34,11 @@ private:
     QString m_statut            = "";
     QTime m_heurestatut         = QTime();
     QTime m_heurerdv            = QTime();
+    QDate m_daterdv             = QDate();
     QTime m_heurearrivee        = QTime();
     QString m_motif             = "";
     QString m_message           = "";
+    QString m_messageretour     = "";
     int m_idacteapayer          = 0;
     QString m_posteexamen       = "";
     int m_iduserencoursexam     = 0;             //!< le user en train d'examiner le patient
@@ -50,13 +52,17 @@ public:
     QString statut() const              { return m_statut; }
     QTime heurestatut() const           { return m_heurestatut; }
     QTime heurerdv() const              { return m_heurerdv; }
+    QDate daterdv() const               { return m_daterdv; }
     QTime heurerarrivee() const         { return m_heurearrivee; }
     QString motif() const               { return m_motif; }
     QString message() const             { return m_message; }
+    QString messageretour() const       { return m_messageretour; }
     int idacteapayer() const            { return m_idacteapayer; }
     QString posteexamen() const         { return m_posteexamen; }
     int iduserencoursexam() const       { return m_iduserencoursexam; }
     int idsaldat() const                { return m_idsaldat; }
+
+    bool isurgence() const              { return m_motif == "URG";}
 
     void setid(int id)                  { m_id = id;
                                           m_data[CP_IDPAT_SALDAT] = id; }
@@ -68,10 +74,14 @@ public:
                                           m_data[CP_HEURESTATUT_SALDAT] = time.toString("HH:mm:ss"); }
     void setheurerdv(QTime time)        { m_heurerdv = time;
                                           m_data[CP_HEURERDV_SALDAT] = time.toString("HH:mm:ss"); }
+    void setdaterdv(QDate date)         { m_daterdv = date;
+                                          m_data[CP_DATERDV_SALDAT] = date.toString("yyyy-MM-dd"); }
     void setheurearrivee(QTime time)    { m_heurearrivee = time;
                                           m_data[CP_HEUREARRIVEE_SALDAT] = time.toString("HH:mm:ss"); }
     void setmotif(QString txt)          { m_motif = txt;
                                           m_data[CP_MOTIF_SALDAT] = txt; }
+    void setmessageretour(QString txt)  { m_messageretour = txt;
+                                          m_data[CP_MESSAGERETOUR_SALDAT] = txt; }
     void setmessage(QString txt)        { m_message = txt;
                                           m_data[CP_MESSAGE_SALDAT] = txt; }
     void setidacteapayer(int id)        { m_idacteapayer = id;

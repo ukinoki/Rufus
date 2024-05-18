@@ -38,7 +38,6 @@ public:
     //GETTER
     QMap<int, Patient*> *patients()           { return map_patients; }
     QMap<int, Patient*> *patientstable()      { return map_patientstable; }
-    QMap<int, Patient*> *patientssaldat()     { return map_patientssaldat; }
     Patient* currentpatient()                 { return m_currentpatient; }
     Patient* dossierpatientaouvrir()          { return m_dossierpatientaouvrir; }
     void setcurrentpatient(Patient *pat);
@@ -66,9 +65,6 @@ public:
                                                                                             * \param patprenom filtrer sur le prénom de patient
                                                                                             * \param le filtre se fait sur des valeurs aprrochantes */
 
-    void initListeSalDat(QList<int> listidpatients);                                       /*! crée la liste de patients en cours (patients en cours d'examen, en salle d'attente ou à l'accueil)
-                                                                                            * \param list id = la liste des idpatient en cours */
-
     void initListeByDDN(QDate DDN = QDate());                                              /*! crée une liste des patients de la table pour une date de naissance
                                                                                             * \param DDN la date de naissance */
     void initListeIdInterventions(Patient * pat);                                          /*! calcule la liste des interventions d'un patient */
@@ -85,7 +81,6 @@ private:
     */
     QMap<int, Patient*> *map_patients;                                                      //!< une liste fourre tout
     QMap<int, Patient*> *map_patientstable;                                                 //!< la liste des patients de la table listepatients
-    QMap<int, Patient*> *map_patientssaldat;                                                //!< la liste des patients en salle d'attente
     Patient *m_currentpatient           = Q_NULLPTR;                                        //!> le patient dont le dossier est ouvert
     Patient *m_dossierpatientaouvrir    = Q_NULLPTR;                                        //!> le dossier de patient à ouvrir
 

@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          77  // version de la base de données
+#define VERSION_BASE                          78  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 
 // Les bases
@@ -336,6 +336,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_STATUT_SALDAT                                "Statut"
 #define CP_HEURESTATUT_SALDAT                           "HeureStatut"
 #define CP_HEURERDV_SALDAT                              "HeureRDV"
+#define CP_DATERDV_SALDAT                               "DateRDV"
+#define CP_MESSAGERETOUR_SALDAT                         "MessageRetour"
 #define CP_HEUREARRIVEE_SALDAT                          "HeureArrivee"
 #define CP_MOTIF_SALDAT                                 "Motif"
 #define CP_MESSAGE_SALDAT                               "Message"

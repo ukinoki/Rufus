@@ -117,7 +117,16 @@ void dlg_salledattente::OKButtonClicked()
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
-    PatientEnCours *pat = Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id());
+    PatientEnCours *pat = Q_NULLPTR;
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+        if (patcrs->id() == Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id())->id())
+        {
+            pat = patcrs;
+            break;
+        }
+    }
     if (!pat)
         Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                  //! idPat
                                                  Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur()),   //! User

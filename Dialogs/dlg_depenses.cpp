@@ -1872,7 +1872,9 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             UpLineDelegate *linedeleg = new UpLineDelegate();
             listview->setModelColumn(1);
             listview->setItemDelegate(linedeleg);
-            connect(linedeleg, &UpLineDelegate::editingFinished, this, [=] {
+            if (db->ModeAccesDataBase() != Utils::Distant)
+            {
+                connect(linedeleg, &UpLineDelegate::editingFinished, this, [=] {
                                                                             QStandardItem *item = model->itemFromIndex(listview->selectionModel()->selectedIndexes().at(0));
                                                                             QString oldintitule = ListeEch.at(item->row()).at(1).toString();
                                                                             int rowit           = item->row();
@@ -1907,6 +1909,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                                                                                 }
                                                                             }
                                                                         });
+            }
             connect (listview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] {
                                                                             dlg_ask->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
                                                                             dlg_ask->EditButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);

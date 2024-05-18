@@ -3242,7 +3242,7 @@ bool Procedures::IdentificationUser()
 QString Procedures::AbsolutePathDirImagerie()
 {
     QString path = "";
-    if (db->ModeAccesDataBase() != Utils::ReseauLocal)
+    if (db->ModeAccesDataBase() == Utils::Poste)
         path = db->dirimagerie();
     else
         path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();

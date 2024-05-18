@@ -423,7 +423,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,77,NULL,NULL,NULL,'/Users/user/Documents/Rufus/Imagerie',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,78,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -917,18 +917,20 @@ DROP TABLE IF EXISTS `salledattente`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `salledattente` (
-  `idPat` int(11) NOT NULL,
-  `IdUser` int(11) DEFAULT NULL COMMENT 'id soignant responsable du patient',
-  `Statut` varchar(45) CHARACTER SET latin1 DEFAULT NULL,
+  `idPat` int NOT NULL,
+  `IdUser` int DEFAULT NULL COMMENT 'id soignant responsable du patient',
+  `Statut` varchar(45) DEFAULT NULL,
   `HeureStatut` time DEFAULT NULL,
+  `DateRDV` date DEFAULT NULL,
   `HeureRDV` time DEFAULT NULL,
   `HeureArrivee` time DEFAULT NULL,
-  `Motif` varchar(10) CHARACTER SET latin1 DEFAULT NULL,
-  `Message` varchar(300) CHARACTER SET latin1 DEFAULT NULL,
-  `idActeAPayer` int(11) DEFAULT NULL,
-  `PosteExamen` varchar(70) CHARACTER SET latin1 DEFAULT NULL,
-  `idUserEnCoursExam` int(11) DEFAULT NULL COMMENT 'id soignant qui examine le patient',
-  `idSalDat` int(11) DEFAULT NULL COMMENT 'id de la salle d’attente'
+  `MessageRetour` varchar(300) DEFAULT NULL,
+  `Motif` varchar(10) DEFAULT NULL,
+  `Message` varchar(300) DEFAULT NULL,
+  `idActeAPayer` int DEFAULT NULL,
+  `PosteExamen` varchar(70) DEFAULT NULL,
+  `idUserEnCoursExam` int DEFAULT NULL COMMENT 'id soignant qui examine le patient',
+  `idSalDat` int DEFAULT NULL COMMENT 'id de la salle d’attente'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

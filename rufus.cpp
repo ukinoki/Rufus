@@ -978,32 +978,39 @@ void Rufus::ActeMontantModifie()
 ------------------------------------------------------------------------------------------------------------------------------------*/
 void Rufus::AfficheMotif(UpLabel *lbl)
 {
-    RendezVous *rdv = dynamic_cast<RendezVous *>(lbl->item());
     QString Msg("");
-    Patient *pat = Datas::I()->patients->getById(rdv->idpatient());
-    QDate ddn = QDate();
-    if (pat != Q_NULLPTR)
-        ddn = pat->datedenaissance();
+    int id = lbl->iD();
+    PatientEnCours *patcrs = Q_NULLPTR;
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+        if (id == it.key())
+            if (const_cast<PatientEnCours*>(it.value()) != Q_NULLPTR)
+                    patcrs = const_cast<PatientEnCours*>(it.value());
+    }
+    if (patcrs == Q_NULLPTR)
+        return;
+    Patient *pat = Datas::I()->patients->getById(id);
+    QDate ddn = pat->datedenaissance();
     QMap<QString,QVariant> mapage;
     if (ddn.isValid())
     {
         mapage = Utils::CalculAge(ddn, m_currentdate);
         Msg += mapage["toString"].toString();
     }
-    if (rdv->isurgence())
+    if (patcrs->isurgence())
     {
         if (Msg != "") Msg += "\n";
         Msg += tr("Urgence");
     }
-    else if (rdv->motif() != "")
+    else if (patcrs->motif() != "")
     {
         if (Msg != "") Msg += "\n";
-        Msg += rdv->motif();
+        Msg += patcrs->motif();
     }
-    if (rdv->message() != "")
+    if (patcrs->message() != "")
     {
         if (Msg != "") Msg += "\n";
-        Msg += rdv->message();
+        Msg += patcrs->message();
     }
     if (Msg!="")
         QToolTip::showText(cursor().pos(),Msg);
@@ -1034,25 +1041,28 @@ void Rufus::MAJPatientsVus()
     QList<QVariantList> patlist = db->StandardSelectSQL(req, m_ok, tr("Impossible de remplir la salle d'attente!"));
     if (!m_ok)
         return;
+    /*! pas besoin de faire un delete de chaque PatientEncours de chaque UpLabel
+     *  chaque Uplabel est parent de son PatientEncours qui va donc être delete audn le UpLable sera delete;
+     *  Chaque UpLabel est delete par clearContents() */
+
     ui->PatientsVusupTableWidget->clearContents();
     ui->PatientsVusupTableWidget->setRowCount(patlist.size());
 
     for (i = 0; i < patlist.size(); i++)
     {
-        RendezVous *rdv = new RendezVous;
-        rdv     ->setidpatient(patlist.at(i).at(0).toInt());
-        rdv     ->setidsuperviseur(patlist.at(i).at(11).toInt());
-        User *usr = Datas::I()->users->getById(rdv->idsuperviseur());
+        int id = patlist.at(i).at(0).toInt();
+        int idsuperviseur = patlist.at(i).at(11).toInt();
+        User *usr = Datas::I()->users->getById(idsuperviseur);
         QString superviseurlogin = "";
         if (usr != Q_NULLPTR)
             superviseurlogin = usr->login();
 
         UpLabel *label0, *label1, *label2, *label3, *label4;
-        label0 = new UpLabel(rdv);
-        label1 = new UpLabel(rdv);
-        label2 = new UpLabel(rdv);
-        label3 = new UpLabel(rdv);
-        label4 = new UpLabel(rdv);
+        label0 = new UpLabel(id);
+        label1 = new UpLabel(id);
+        label2 = new UpLabel(id);
+        label3 = new UpLabel(id);
+        label4 = new UpLabel(id);
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -1090,7 +1100,7 @@ void Rufus::MAJPatientsVus()
         connect (label2,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label2);});
         connect (label3,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label3);});
         connect (label4,        &QWidget::customContextMenuRequested,       this,   [=] {gTimerPatientsVus->start(); MenuContextuelSalDat(label4);});
-        Patient *pat = Datas::I()->patients->getById(rdv->idpatient());
+        Patient *pat = Datas::I()->patients->getById(id);
         if (pat != Q_NULLPTR)
         {
             connect (label0,        &UpLabel::enter,            this,           [=] {gTimerPatientsVus->start(); AfficheToolTip(pat);});
@@ -1296,8 +1306,17 @@ void Rufus::AppelPaiementDirect(Origin origin)
 
         QString ActeSal = QString::number(currentacte()->id());
         QString Msg;
-        PatientEnCours *pat = Datas::I()->patientsencours->getById(currentpatient()->id());
-        if (pat == Q_NULLPTR)
+        PatientEnCours *patcours = Q_NULLPTR;
+        for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+        {
+            PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+            if (patcrs->id() == currentpatient()->id())
+            {
+                patcours = patcrs;
+                break;
+            }
+        }
+        if (patcours == Q_NULLPTR)
             Datas::I()->patientsencours->CreationPatient(currentpatient()->id(),                                    //! idPat
                                                     Datas::I()->users->getById(currentuser()->idsuperviseur()),     //! User
                                                     RETOURACCUEIL,                                                  //! Statut
@@ -1312,12 +1331,12 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                     0);                                                             //! idSalDat
         else
         {
-            ItemsList::update(pat, CP_STATUT_SALDAT, RETOURACCUEIL);
-            ItemsList::update(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
-            ItemsList::update(pat, CP_MESSAGE_SALDAT, Msg);
-            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
-            ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-            ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+            ItemsList::update(patcours, CP_STATUT_SALDAT, RETOURACCUEIL);
+            ItemsList::update(patcours, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
+            ItemsList::update(patcours, CP_MESSAGE_SALDAT, Msg);
+            ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
+            ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT);
+            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT);
         }
         Flags::I()->MAJFlagSalleDAttente();
         ListidActeAPasser << currentacte()->id();
@@ -1329,8 +1348,17 @@ void Rufus::AppelPaiementDirect(Origin origin)
     delete Dlg_PmtDirect;
     if (origin == BoutonPaiement)  // on redonne le statut en cours d'examen au dossier
     {
-        PatientEnCours *pat = Datas::I()->patientsencours->getById(currentpatient()->id());
-        if (pat == Q_NULLPTR)
+        PatientEnCours *patcours = Q_NULLPTR;
+        for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+        {
+            PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+            if (patcrs->id() == currentpatient()->id())
+            {
+                patcours = patcrs;
+                break;
+            }
+        }
+        if (patcours == Q_NULLPTR)
             Datas::I()->patientsencours->CreationPatient(currentpatient()->id(),                                //! idPat
                                                      Datas::I()->users->getById(currentuser()->idsuperviseur()),//! User
                                                      ENCOURSEXAMEN + currentuser()->login(),                    //! Statut
@@ -1345,10 +1373,10 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                      0);                                                        //! idSalDat
         else
         {
-            ItemsList::update(pat, CP_STATUT_SALDAT, ENCOURSEXAMEN + currentuser()->login());
-            ItemsList::update(pat, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
-            ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT, currentuser()->id());
-            ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
+            ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + currentuser()->login());
+            ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
+            ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, currentuser()->id());
+            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
@@ -2994,8 +3022,20 @@ bool Rufus::InscritEnSalDat(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return false;
-    if (Datas::I()->patientsencours->patientsencours()->constFind(pat->id()) != Datas::I()->patientsencours->patientsencours()->constEnd())
+    PatientEnCours *patcours = Q_NULLPTR;
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
+        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+        if (patcrs->id() == pat->id())
+        {
+            patcours = patcrs;
+            break;
+        }
+    }
+    if (patcours != Q_NULLPTR)
+    {
+        qDebug() << patcours->statut() << patcours->id();
+        if (patcours->statut() == ARRIVE)
         UpMessageBox::Information(this, tr("Patient déjà inscrit en salle d'attente"));
         return false;
     }
@@ -3747,10 +3787,7 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
         return;
     int idpat (0);
     if (labelClicked == Q_NULLPTR) return;
-    RendezVous *rdv = dynamic_cast<RendezVous*>(labelClicked->item());
-    if (rdv == Q_NULLPTR)
-        return;
-    idpat = rdv->idpatient();
+    idpat = labelClicked->iD();
     int row = labelClicked->Row();
 
     if (m_menuContextuel != Q_NULLPTR)
@@ -3798,14 +3835,19 @@ void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
 {
     if (currentuser()->isNeutre())
         return;
-    int idpat(0);
-    QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
+     QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
     if (labelClicked == Q_NULLPTR)
         return;
-    RendezVous * rdv = dynamic_cast<RendezVous*>(labelClicked->item());
-    if (rdv == Q_NULLPTR)
+    int idpat = labelClicked->iD();
+    PatientEnCours *pat = Q_NULLPTR;
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+        if (idpat== it.key())
+            if (const_cast<PatientEnCours*>(it.value()) != Q_NULLPTR)
+                    pat = const_cast<PatientEnCours*>(it.value());
+    }
+    if (pat == Q_NULLPTR)
         return;
-    idpat = rdv->idpatient();
     bool a = false;
     // si le label qui émet la demande de menu n'est pas dans la plage sélectionnée, on n'affiche pas de menu
     for (int i = 0; i< listRange.size();i++)
@@ -3873,51 +3915,39 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
         ProgrammationIntervention(dossierpatientaouvrir());                                         //! depuis menu contextuel ListePatients
     else if (choix == "Motif")  //! il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
     {
-        RendezVous *rdv = Q_NULLPTR;
+        PatientEnCours *patencours = Q_NULLPTR;
         int row(-1);
         for (int i=0; i< ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
-             rdv = dynamic_cast<RendezVous *>(qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0))->item());
-             if (rdv == Q_NULLPTR)
+             UpLabel* lbl = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+             for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+             {
+                 if (idpat == it.key())
+                 {
+                     patencours = const_cast<PatientEnCours*>(it.value());
+                     break;
+                 }
+             }
+             if (patencours == Q_NULLPTR)
                  return;
-             if (rdv->idpatient() == dossierpatientaouvrir()->id())
+             if (patencours->id() == dossierpatientaouvrir()->id())
              {
                  row = i;
                  break;
              }
         }
-        if (rdv == Q_NULLPTR)
-            return;
-
         QString Message(""), Motif("");
-        Message = rdv->message();
+        Message = patencours->message();
         Motif = qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
         QTime heurerdv = QTime::fromString(qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
 
-        rdv = MotifRDV(Motif, Message, heurerdv);
+        RendezVous *rdv = MotifRDV(Motif, Message, heurerdv);
         if (rdv == Q_NULLPTR)
             return;
-        PatientEnCours *pat = Datas::I()->patientsencours->getById(dossierpatientaouvrir()->id());
-        if (pat == Q_NULLPTR)
-            Datas::I()->patientsencours->CreationPatient(dossierpatientaouvrir()->id(),                             //! idPat
-                                                    Datas::I()->users->getById(rdv->idsuperviseur()),               //! User
-                                                    ARRIVE,                                                         //! Statut
-                                                    QTime(),                                                        //! heureStatut
-                                                    rdv->heurerdv(),                                                //! heureRDV
-                                                    db->ServerDateTime().time(),                                    //! heureArrivee
-                                                    rdv->motif(),                                                   //! Motif
-                                                    rdv->message(),                                                 //! Message
-                                                    0,                                                              //! idActeAPayer
-                                                    "",                                                             //! PosteExamen
-                                                    0,                                                              //! idUserEnCoursExamen
-                                                    0);                                                             //! idSalDat
-        else
-        {
-            ItemsList::update(pat, CP_MOTIF_SALDAT, rdv->motif());
-            ItemsList::update(pat, CP_MESSAGE_SALDAT, rdv->message());
-            ItemsList::update(pat, CP_HEURERDV_SALDAT, rdv->heurerdv());
-            ItemsList::update(pat, CP_IDUSERSUPERVISEUR_SALDAT, rdv->idsuperviseur());
-        }
+        ItemsList::update(patencours, CP_MOTIF_SALDAT, rdv->motif());
+        ItemsList::update(patencours, CP_MESSAGE_SALDAT, rdv->message());
+        ItemsList::update(patencours, CP_HEURERDV_SALDAT, rdv->heurerdv());
+        ItemsList::update(patencours, CP_IDUSERSUPERVISEUR_SALDAT, rdv->idsuperviseur());
         Flags::I()->MAJFlagSalleDAttente();
     }
 }
@@ -4593,6 +4623,14 @@ void Rufus::RetrouveMontantActe()
 
 void Rufus::SalleDAttente()
 {
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+
+        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+        Patient *pat2 = Datas::I()->patients->getById(patcrs->id());
+        QString nom = (pat2 == Q_NULLPTR? "unknown":pat2->nomcomplet());
+        qDebug()<< "Rufus::SalleDattente" << it.key() << nom << patcrs->statut();
+    }
     if (AutorDepartConsult(true))
     {
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
@@ -4898,10 +4936,16 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     QString backgroundsurbrill = "background:#B2D7FF";
     if (lab==Q_NULLPTR)
         return;
-    RendezVous *rdv = dynamic_cast<RendezVous*>(lab->item());
-    if (rdv == Q_NULLPTR)
+    int id = lab->iD();
+    PatientEnCours *pat = Q_NULLPTR;
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+        if (id== it.key())
+            if (const_cast<PatientEnCours*>(it.value()) != Q_NULLPTR)
+                    pat = const_cast<PatientEnCours*>(it.value());
+    }
+    if (pat == Q_NULLPTR)
         return;
-    int idpat       = rdv->idpatient();
     int row         = lab->Row();
     QString color   = "color: black";
     QString colorRDV= "color: black";
@@ -4912,32 +4956,26 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     UpLabel *lab4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
     UpLabel *lab5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
     UpLabel *lab6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
-    PatientEnCours *pat = Q_NULLPTR;
-    auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(idpat);
-    if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
+    Msg = pat->message();
+    if (pat->heurerarrivee().isValid())
     {
-        pat = const_cast<PatientEnCours*>(itpat.value());
-        Msg = pat->message();
-        if (pat->heurerarrivee().isValid())
-        {
-            QTime heureArriv = pat->heurerarrivee();
-            if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
-                color = "color: green";
-            else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
-               color = "color: orange";
-            else
-               color = "color: red";
-        }
-        if (pat->heurerdv().isValid())
-        {
-            QTime heureRDV = pat->heurerdv();
-            if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
-                colorRDV = "color: green";
-            else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
-               colorRDV = "color: orange";
-            else
-               colorRDV = "color: red";
-        }
+        QTime heureArriv = pat->heurerarrivee();
+        if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
+            color = "color: green";
+        else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
+            color = "color: orange";
+        else
+            color = "color: red";
+    }
+    if (pat->heurerdv().isValid())
+    {
+        QTime heureRDV = pat->heurerdv();
+        if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
+            colorRDV = "color: green";
+        else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
+            colorRDV = "color: orange";
+        else
+            colorRDV = "color: red";
     }
     if (lab->styleSheet().contains(backgroundsurbrill))       // l'enregistrement est en surbrillance, on le remet à la normale
     {
@@ -4985,32 +5023,26 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
                 UpLabel *labi5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
                 UpLabel *labi6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
                 QString color2, colorRDV2;
-                pat = Q_NULLPTR;
-                auto itpat = Datas::I()->patientsencours->patientsencours()->constFind(rdv->idpatient());
-                if (itpat != Datas::I()->patientsencours->patientsencours()->cend())
+                Msgi = pat->message();
+                if (pat->heurerarrivee().isValid())
                 {
-                    pat = const_cast<PatientEnCours*>(itpat.value());
-                    Msgi = pat->message();
-                    if (pat->heurerarrivee().isValid())
-                    {
-                        QTime heureArriv = pat->heurerarrivee();
-                        if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
-                            color2 = "color: green";
-                        else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
-                           color2 = "color: orange";
-                        else
-                           color2 = "color: red";
-                    }
-                    if (pat->heurerdv().isValid())
-                    {
-                        QTime heureRDV = pat->heurerdv();
-                        if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
-                            colorRDV2 = "color: green";
-                        else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
-                           colorRDV2 = "color: orange";
-                        else
-                           colorRDV2 = "color: red";
-                    }
+                    QTime heureArriv = pat->heurerarrivee();
+                    if (heureArriv.secsTo(QTime::currentTime())/60 < 15)
+                        color2 = "color: green";
+                    else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)
+                        color2 = "color: orange";
+                    else
+                        color2 = "color: red";
+                }
+                if (pat->heurerdv().isValid())
+                {
+                    QTime heureRDV = pat->heurerdv();
+                    if (heureRDV.secsTo(QTime::currentTime())/60 < 15)
+                        colorRDV2 = "color: green";
+                    else if (heureRDV.secsTo(QTime::currentTime())/60 < 30)
+                        colorRDV2 = "color: orange";
+                    else
+                        colorRDV2 = "color: red";
                 }
                 if (Msgi=="URG")
                 {
@@ -6952,8 +6984,17 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         proc->EnvoiDataPatientAuRefracteur();
 
     //5 - mise à jour du dossier en salle d'attente
-    PatientEnCours *patcours = Q_NULLPTR;
-    patcours = Datas::I()->patientsencours->getById(currentpatient()->id());
+    PatientEnCours * patcours= Q_NULLPTR;
+
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+        if (patcrs->id() == currentpatient()->id())
+        {
+            patcours = patcrs;
+            break;
+        }
+    }
     QTime currenttime = db->ServerDateTime().time();
     if (patcours == Q_NULLPTR)
         Datas::I()->patientsencours->CreationPatient( pat->id(),                                                //! idPat
@@ -6980,7 +7021,6 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     RecaleTableView(currentpatient());
     CalcMotsCles(currentpatient());
     Flags::I()->MAJFlagSalleDAttente();
-
     if (currentuser()->id() > 1) return;
     QString prenom = currentpatient()->prenom();
     QString Sexe = "";
@@ -7401,6 +7441,7 @@ void Rufus::FiltreTable(QString nom, QString prenom)
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tablist ou la salle d'attente - vérifie qu'un dossier n'est pas verrouillé avant de l'afficher
 {
+    //qDebug() << "Rufus::OuvrirDossier" << pat->nomcomplet() << pat->id();
     if (pat == Q_NULLPTR)
         return;
     RecalcCurrentDateTime();
@@ -7441,6 +7482,14 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
         }
         AfficheDossier(pat, idacte);
     }
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+
+        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+        Patient *pat2 = Datas::I()->patients->getById(patcrs->id());
+        QString nom = (pat2 == Q_NULLPTR? "unknown":pat2->nomcomplet());
+        qDebug() << "Rufus::OuvrirDossier" << it.key() << nom << patcrs->statut();
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -7448,6 +7497,7 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::CreerActe(Patient *pat)
 {
+    //qDebug() << pat->nomcomplet() << pat->id();
     if (pat == Q_NULLPTR)
         return;
     if (ui->Acteframe->isVisible())
@@ -8017,13 +8067,22 @@ bool Rufus::FermeDossier(Patient *patient)
     else if (msgbox.clickedButton() == &SalDatBouton)                                                   // Garder le dossier en salle d'attente
     {
         QString Message(""), Motif(""), idUser ("");
-        RendezVous* rdv = Q_NULLPTR;
-        PatientEnCours *pat = Datas::I()->patientsencours->getById(patient->id());
-        if (pat != Q_NULLPTR)
+        PatientEnCours *patcours = Q_NULLPTR;
+        for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
         {
-            Motif = pat->motif();
-            Message = pat->message();
-            idUser = QString::number(pat->idusersuperviseur());
+            PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+            if (patcrs->id() == currentpatient()->id())
+            {
+                patcours = patcrs;
+                break;
+            }
+        }
+        if (patcours != Q_NULLPTR)
+        {
+            Motif = patcours->motif();
+            Message = patcours->message();
+            RendezVous *rdv = new RendezVous;
+            idUser = QString::number(patcours->idusersuperviseur());
             if (Motif=="")
             {
                 rdv = MotifRDV(Motif, Message);
@@ -8033,13 +8092,14 @@ bool Rufus::FermeDossier(Patient *patient)
                 Message = rdv->message();
                 idUser  = QString::number(rdv->idsuperviseur());
             }
-            ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
-            ItemsList::update(pat, CP_IDUSERSUPERVISEUR_SALDAT, idUser);
-            ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-            ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
-            ItemsList::update(pat, CP_MOTIF_SALDAT, Motif);
-            ItemsList::update(pat, CP_MESSAGE_SALDAT, Message);
-            ItemsList::update(pat, CP_HEURERDV_SALDAT, rdv->heurerdv());
+            ItemsList::update(patcours, CP_STATUT_SALDAT, ARRIVE);
+            ItemsList::update(patcours, CP_IDUSERSUPERVISEUR_SALDAT, idUser);
+            ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT);
+            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT);
+            ItemsList::update(patcours, CP_MOTIF_SALDAT, Motif);
+            ItemsList::update(patcours, CP_MESSAGE_SALDAT, Message);
+            ItemsList::update(patcours, CP_HEURERDV_SALDAT, rdv->heurerdv());
+            delete rdv;
         }
         else
             a = InscritEnSalDat(patient);
@@ -8070,7 +8130,17 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         {
             //  Mise à jour de currentpatient() et de l'affichage si le dossier modifié est le dossier en cours
             Patients::updatePatient(pat);
-            if (Datas::I()->patientsencours->getById(pat->id()) != Q_NULLPTR)
+            PatientEnCours *patcours = Q_NULLPTR;
+            for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+            {
+                PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+                if (patcrs->id() == currentpatient()->id())
+                {
+                    patcours = patcrs;
+                    break;
+                }
+            }
+            if (patcours)
                 Remplir_SalDat();
             if (m_listepatientsmodel->findItems(QString::number(pat->id())).size() > 0)
             {
@@ -9302,7 +9372,6 @@ bool Rufus::Remplir_ListePatients_TableView()
 
 void Rufus::Remplir_SalDat()
 {
-
     QTableWidget        *TableAMettreAJour;
     int                 i=0;
     QString             NomPrenom, zw;
@@ -9326,8 +9395,6 @@ void Rufus::Remplir_SalDat()
         m_listepatientsencoursmodel->appendRow(items);
     }
 
-    Datas::I()->patients->initListeSalDat(listidpat);  // charge les data des patientsencours
-
     QList<PatientEnCours*> listpat;
     m_listepatientsencoursmodel->sort(0);
 
@@ -9349,14 +9416,13 @@ void Rufus::Remplir_SalDat()
 /*! ---------------------------------------------------------------------------------------------------------------------------------------------------------------
     1 - SALLE D'ATTENTE ----------------------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-
     TableAMettreAJour = ui->SalleDAttenteupTableWidget;
     ui->SalleDAttenteupTableWidget->clearAllRowsExceptHeader();
     QList<PatientEnCours*> listpatsaldat;
-    foreach (PatientEnCours* pat, listpat)
+    foreach (PatientEnCours* patcrs, listpat)
     {
-        if (pat->statut() == ARRIVE || pat->statut() == ENCOURS || pat->statut().contains(ENATTENTENOUVELEXAMEN))
-            listpatsaldat << pat;
+        if (patcrs->statut() == ARRIVE || patcrs->statut() == ENCOURS || patcrs->statut().contains(ENATTENTENOUVELEXAMEN))
+            listpatsaldat << patcrs;
     }
     TableAMettreAJour   ->setRowCount(listpatsaldat.size());
 
@@ -9368,25 +9434,18 @@ void Rufus::Remplir_SalDat()
     QList<int>          listidusers;
     foreach (PatientEnCours* patencours, listpatsaldat)
     {
-        auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
-        if (it == Datas::I()->patients->patientssaldat()->end())
+        Patient *pat    = Datas::I()->patients->getById(patencours->id());
+        if (pat==Q_NULLPTR)
             continue;
-        Patient *pat    = it.value();
-        RendezVous *rdv = new RendezVous();
-        rdv             ->setidpatient(patencours->id());
-        rdv             ->setmotif( patencours->motif());
-        rdv             ->setidsuperviseur(patencours->idusersuperviseur());
-        rdv             ->setUrgence(patencours->motif() == "URG");
-        rdv             ->setmessage(patencours->message());
 
         UpLabel *label0, *label1, *label2, *label3, *label4, *label5, *label6;
-        label0 = new UpLabel(rdv, "", TableAMettreAJour);
-        label1 = new UpLabel(rdv, "", TableAMettreAJour);
-        label2 = new UpLabel(rdv, "", TableAMettreAJour);
-        label3 = new UpLabel(rdv, "", TableAMettreAJour);
-        label4 = new UpLabel(rdv, "", TableAMettreAJour);
-        label5 = new UpLabel(rdv, "", TableAMettreAJour);
-        label6 = new UpLabel(rdv, "", TableAMettreAJour);
+        label0 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label1 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label2 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label3 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label4 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label5 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label6 = new UpLabel(patencours->id(), "", TableAMettreAJour);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9557,7 +9616,6 @@ void Rufus::Remplir_SalDat()
         FiltreSalleDAttente();
     }
 
-
 /*! ---------------------------------------------------------------------------------------------------------------------------------------------------------------
     2 - BUREAUX ----------------------------------------------------------------------------------------------------------
     --------------------------------------------------------------------------------------------------------------------------------------------------------------- */
@@ -9622,10 +9680,7 @@ void Rufus::Remplir_SalDat()
                 html += "<p class=\"p2\">ZZzzz...</p>";
             else
             {
-                auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
-                if (it == Datas::I()->patients->patientssaldat()->end())
-                    continue;
-                Patient *pat                = it.value();
+                Patient *pat    = Datas::I()->patients->getById(patencours->id());
                 if (pat != Q_NULLPTR)
                 {
                     UserBureau->setiD(post->idpatencours());
@@ -9645,7 +9700,7 @@ void Rufus::Remplir_SalDat()
                         else if (heureArriv.secsTo(QTime::currentTime())/60 < 30)   color = "orange";
                         else                                                        color ="red";
                     }
-                    html += "<p class=\"p2\"><span style=\"color:" + color + ";\">" +  patencours->heurerarrivee().toString("HH:mm") + "</span></p>";                                      //heure arrivée
+                    html += "<p class=\"p2\"><span style=\"color:" + color + ";\">" +  patencours->heurerarrivee().toString("HH:mm") + "</span></p>";   //heure arrivée
                 }
                 else
                     html += "<p class=\"p2\">ZZzzz...</p>";
@@ -9679,29 +9734,22 @@ void Rufus::Remplir_SalDat()
     i = 0;
     foreach (PatientEnCours *patencours, listpatvus)
     {
-        auto it = Datas::I()->patients->patientssaldat()->find(patencours->id());
-        if (it == Datas::I()->patients->patientssaldat()->end())
+        Patient *pat    = Datas::I()->patients->getById(patencours->id());
+        if (pat==Q_NULLPTR)
             continue;
-        Patient *pat                = it.value();
         Acte* actapayer             = Datas::I()->actes->getById(patencours->idacteapayer());
         if (actapayer == Q_NULLPTR)
             continue;
-        RendezVous *rdv = new RendezVous();
-        rdv     ->setidpatient(patencours->id());
-        rdv     ->setmotif(patencours->motif());
-        rdv     ->setidsuperviseur(patencours->idusersuperviseur());
-        rdv     ->setUrgence(patencours->motif() == "URG");
-        rdv     ->setmessage(patencours->message());
 
         QString superviseurlogin    = (Datas::I()->users->getById(patencours->idusersuperviseur()) != Q_NULLPTR? Datas::I()->users->getById(patencours->idusersuperviseur())->login() : "");
 
         UpLabel *label0, *label1, *label2, *label3, *label4, *label5;
-        label0 = new UpLabel(rdv, "", TableAMettreAJour);
-        label1 = new UpLabel(rdv, "", TableAMettreAJour);
-        label2 = new UpLabel(rdv, "", TableAMettreAJour);
-        label3 = new UpLabel(rdv, "", TableAMettreAJour);
-        label4 = new UpLabel(rdv, "", TableAMettreAJour);
-        label5 = new UpLabel(rdv, "", TableAMettreAJour);
+        label0 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label1 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label2 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label3 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label4 = new UpLabel(patencours->id(), "", TableAMettreAJour);
+        label5 = new UpLabel(patencours->id(), "", TableAMettreAJour);
 
         label0->setRow(i);
         label1->setRow(i);
@@ -9711,13 +9759,6 @@ void Rufus::Remplir_SalDat()
         label5->setRow(i);
 
         QTableWidgetItem *pItem = new QTableWidgetItem;
-
-        label0->setiD(patencours->id());                      // idPat
-        label1->setiD(patencours->id());                      // idPat
-        label2->setiD(patencours->id());                      // idPat
-        label3->setiD(patencours->id());                      // idPat
-        label4->setiD(patencours->id());                      // idPat
-        label5->setiD(patencours->id());                      // idPat
 
         label0->setContextMenuPolicy(Qt::CustomContextMenu);
         label1->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -9785,6 +9826,7 @@ void Rufus::Remplir_SalDat()
         TableAMettreAJour   ->setItem(i,5,pItem);
         TableAMettreAJour   ->setCellWidget(i,6,label5);
         TableAMettreAJour   ->setRowHeight(i,int(fm.height()*1.1));
+
         ++ i;
     }
     while (wdg_accueilTab->count()>0)
@@ -10663,7 +10705,7 @@ void Rufus::TraiteTCPMessage(QString msg)
             m_listepatientsmodel->item(row,4)->setText(pat->nom());                                                   // Nom                          -> utilisé pour le tri
             m_listepatientsmodel->item(row,5)->setText(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
         }
-        if (Datas::I()->patients->patientssaldat()->find(msg.toInt()) != Datas::I()->patients->patientssaldat()->end())
+        if (Datas::I()->patientsencours->patientsencours()->find(msg.toInt()) != Datas::I()->patientsencours->patientsencours()->end())
             Remplir_SalDat();
         it = Datas::I()->patients->patients()->find(msg.toInt());
         if (it != Datas::I()->patients->patients()->end())

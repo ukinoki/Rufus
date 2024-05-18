@@ -31,6 +31,7 @@ class UpLabel : public QLabel
 public:
     explicit                UpLabel(QWidget *parent = Q_NULLPTR, QString txt = QString());
     explicit                UpLabel(Item* itm, QString txt = QString(), QWidget* parent = Q_NULLPTR);
+    explicit                UpLabel(int id, QString txt = QString(), QWidget* parent = Q_NULLPTR);
     ~UpLabel();
     void                    setiD(int m_id);
     int                     iD() const;
@@ -39,7 +40,7 @@ public:
     void                    setRow(int m_id);
     void                    setImmediateToolTip(QString);
     int                     Row() const;
-    void                    setitem(Item* item) { m_item = item; }
+    void                    setitem(Item* item) { m_item = item; m_item->setParent(this);}
     Item*                   item() const        { return m_item; }
     bool                    hasitem() const     { return m_item != Q_NULLPTR; }
 

@@ -193,17 +193,19 @@ bool DataBase::dirsecure_file_priv()
 
 QString DataBase::dirimagerie()
 {
-    if (m_dirimagerie != QString())
-        return m_dirimagerie;
-    if (m_dirsecurefilepriv == QString())
-        return m_dirsecurefilepriv;
-    QString dirdata = m_dirsecurefilepriv;
-    while (dirdata.endsWith("/"))
-        dirdata.remove(dirdata.size()-1,1);
-    if (dirdata.endsWith("/Rufus"))
-        m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
-    else
-        m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+    if (m_dirimagerie == QString())
+    {
+        dirsecure_file_priv();
+        if (m_dirsecurefilepriv == QString())
+            return m_dirsecurefilepriv;
+        QString dirdata = m_dirsecurefilepriv;
+        while (dirdata.endsWith("/"))
+            dirdata.remove(dirdata.size()-1,1);
+        if (dirdata.endsWith("/Rufus"))
+            m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
+        else
+            m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+    }
     return m_dirimagerie;
 }
 
@@ -2394,7 +2396,7 @@ QJsonObject DataBase::loadPatientEnCoursDataById(int idPat)
 {
     QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
                   CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
-                  CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT " FROM " TBL_SALLEDATTENTE " where " CP_IDPAT_SALDAT " = " + QString::number(idPat);
+                  CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT ", " CP_MESSAGERETOUR_SALDAT ", " CP_DATERDV_SALDAT " FROM " TBL_SALLEDATTENTE " where " CP_IDPAT_SALDAT " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if( !ok || patdata.size()==0 )
         return QJsonObject();
@@ -2419,6 +2421,8 @@ QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
     jData[CP_POSTEEXAMEN_SALDAT]        = patdata.at(9).toString();
     jData[CP_IDUSERENCOURSEXAM_SALDAT]  = patdata.at(10).toInt();
     jData[CP_IDSALDAT_SALDAT]           = patdata.at(11).toInt();
+    jData[CP_MESSAGERETOUR_SALDAT]      = patdata.at(12).toString();
+    jData[CP_DATERDV_SALDAT]            = patdata.at(13).toDate().toString("yyyy-MM-dd");
     return jData;
 }
 
@@ -2427,7 +2431,7 @@ QList<PatientEnCours *> DataBase::loadPatientsenCoursAll()
     QList<PatientEnCours*> listpat;
     QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
                   CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
-                  CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT " FROM " TBL_SALLEDATTENTE;
+                  CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT ", " CP_MESSAGERETOUR_SALDAT ", " CP_DATERDV_SALDAT " FROM " TBL_SALLEDATTENTE;
     QList<QVariantList> patlist = StandardSelectSQL(req, ok);
     if( !ok || patlist.size()==0 )
         return listpat;

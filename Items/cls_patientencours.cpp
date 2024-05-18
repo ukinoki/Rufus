@@ -32,8 +32,10 @@ void PatientEnCours::setData(QJsonObject data)
     setDataTime(data,    CP_HEURESTATUT_SALDAT, m_heurestatut);
     setDataTime(data,    CP_HEURERDV_SALDAT , m_heurerdv);
     setDataTime(data,    CP_HEUREARRIVEE_SALDAT, m_heurearrivee);
+    setDataDate(data,    CP_DATERDV_SALDAT, m_daterdv);
     setDataString(data,  CP_MOTIF_SALDAT, m_motif);
     setDataString(data,  CP_MESSAGE_SALDAT, m_message);
+    setDataString(data,  CP_MESSAGERETOUR_SALDAT, m_messageretour);
     setDataInt(data,     CP_IDACTEAPAYER_SALDAT, m_idacteapayer);
     setDataString(data,  CP_POSTEEXAMEN_SALDAT, m_posteexamen);
     setDataInt(data,     CP_IDUSERENCOURSEXAM_SALDAT, m_iduserencoursexam);

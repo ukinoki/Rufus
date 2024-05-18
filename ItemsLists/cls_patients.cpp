@@ -25,7 +25,6 @@ Patients::Patients(QObject *parent) : ItemsList(parent)
 {
     map_patients              = new QMap<int, Patient*>();
     map_patientstable         = new QMap<int, Patient*>();
-    map_patientssaldat        = new QMap<int, Patient*>();
     m_full                  = false;
 }
 
@@ -118,27 +117,6 @@ void Patients::loadAll(Patient *pat, Item::UPDATE upd)
     }
 }
 
-void Patients::initListeSalDat(QList<int> listidaajouter)
-{
-    /*! on recrée la liste des patients en cours
-     */
-    int id = 0;
-    if (m_currentpatient != Q_NULLPTR)
-        id = m_currentpatient->id();
-    QList<Patient*> listpatients = DataBase::I()->loadPatientsByListId(listidaajouter);
-    //clearAll(map_patientssaldat);
-    epurelist(map_patientssaldat, &listpatients);
-    addList(map_patientssaldat, &listpatients, Item::Update);
-    if (id != 0)
-    {
-        auto it = map_patientssaldat->find(id);
-        if (it != map_patientssaldat->end())
-            setcurrentpatient(it.value());
-        else
-            setcurrentpatient(getById(id, Item::LoadDetails));
-    }
-}
-
 void Patients::initListeTable(QString nom, QString prenom, bool filtre)
 {
     /*! on recrée une liste des patients pour remplir la table
@@ -212,14 +190,7 @@ void Patients::SupprimePatient(Patient *pat)
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_PATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_DONNEESSOCIALESPATIENTS);
     DataBase::I()->SupprRecordFromTable(pat->id(), "idPat", TBL_RENSEIGNEMENTSMEDICAUXPATIENTS);
-    auto it = map_patientssaldat->find(pat->id());
-    if (it != map_patientssaldat->end())
-    {
-        if (it.value() != pat)
-            delete it.value();
-        map_patientssaldat->remove(pat->id());
-    }
-    it = map_patientstable->find(pat->id());
+    auto it = map_patientstable->find(pat->id());
     if (it != map_patientstable->end())
     {
         if (it.value() != pat)

@@ -211,6 +211,16 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 patcrs->setiduserencoursexam(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
+            else if (field == CP_MESSAGERETOUR_SALDAT)
+            {
+                patcrs->setmessageretour(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_DATERDV_SALDAT)
+            {
+                patcrs->setdaterdv(newvalue.toDate());
+                Utils::CalcDateValueSQL(newvalue);
+            }
             else
                 ok = false;
             break;
