@@ -74,6 +74,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <upcheckbox.h>
 #include <timerthread.h>
 #include <tomey.h>
+#include <Topcon.h>
 
 class Procedures : public QObject
 {

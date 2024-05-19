@@ -38,6 +38,7 @@ Procedures::Procedures(QObject *parent) :
     m_Villepardefaut = "";
     db               = DataBase::I();
 
+
     QFile FichierIni(PATH_FILE_INI);
     m_applicationfont = QFont(POLICEPARDEFAUT);
     Utils::CalcFontSize(m_applicationfont);
@@ -5385,7 +5386,12 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
     };
 
 
-    if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop")
+    if (nameRF == "TOPCON CV-5000")
+    {
+        //Topcon::I()->RegleRefracteurXML(flag, nameRF);
+    }
+
+    if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop" || nameRF == "TOPCON CV-5000")
     {
         /*! Il faut régler le réfracteur en créant un fichier xml pour l'autoref et un pour le fronto à partir des données du dossier du patient en cours
          * Il faut déposer ces fichiers dans le dossier réseau correspondant surveillé par le refracteur
@@ -7404,6 +7410,12 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
     int     AxeKOD(0), AxeKOG(0);
     QString mTOOD(""), mTOOG("");
     QString nameRF    = m_settings->value(Param_Poste_Refracteur).toString();
+
+
+    if (nameRF == "TOPCON CV-5000" )
+    {
+        Topcon::I()->LectureDonneesXMLRefracteur(docxml, nameRF);
+    }
 
     // TRADUCTION DES DONNEES EN FONCTION DU REFRACTEUR
     // NIDEK RT-6100 - Glasspop =======================================================================================================================================

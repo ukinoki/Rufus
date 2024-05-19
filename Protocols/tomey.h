@@ -33,6 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlDatabase>
 #include <QSqlRecord>
 #include <QJsonDocument>
+#include <QTranslator>
 
 class Tomey : public QObject
 {

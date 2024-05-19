@@ -1445,6 +1445,8 @@ QByteArray Utils::cleanByteArray( QByteArray byteArray )
     return reponseDataClean;
 }
 
+
+
 UtilsMessageBox::UtilsMessageBox(QWidget *parent) : UpDialog(parent)
 {
     wdg_iconlbl             = new UpLabel();

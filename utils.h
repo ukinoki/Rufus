@@ -51,6 +51,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSerialPort>
 #include <QTime>
 
+
 #include "updialog.h"
 #include "uptextedit.h"
 #include "dlg_message.h"
