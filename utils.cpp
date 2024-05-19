@@ -1752,3 +1752,67 @@ void UtilsMessageBox::Information(QWidget *parent, QString Text, QString InfoTex
     delete msgbox;
 }
 
+
+
+/******************************************************************************
+ *
+ *  XML
+ *
+ ******************************************************************************/
+
+QList<QDomElement> Utils::XMLgetElementsByTagname(QDomElement parent, QString tagName)
+{
+    QList<QDomElement> returnValue;
+    QDomNodeList nodes = parent.elementsByTagName(tagName);
+    int num=nodes.count();
+    for(int i=0; i<num; i++) {
+        if(nodes.item(i).isElement()) {
+            returnValue.append(nodes.item(i).toElement());
+        }
+    }
+    return returnValue;
+}
+
+
+// Get the first element with TagName of parent
+QDomElement Utils::XMLfirstElementByTagName(QDomElement parent, QString tagName)
+{
+    QDomElement returnValue;
+    QDomNodeList nodes = parent.elementsByTagName(tagName);
+    if(nodes.count() > 0)
+    {
+        if(nodes.item(0).isElement()) {
+            returnValue = nodes.item(0).toElement();
+        }
+    }
+    return returnValue;
+}
+
+
+// Get the value of first tagName of parent ( return empty string if not found)
+QString Utils::XMLfirstElementValueByTagName(QDomElement parent, QString tagName)
+{
+    QString returnValue = "";
+    QDomElement elem =  XMLfirstElementByTagName(parent, tagName);
+    if(!elem.isNull())
+    {
+        returnValue = elem.text();
+    }
+    return returnValue;
+}
+
+QList<QDomElement> Utils::XMLgetElementsByTagnameNS(QDomElement parent, QString nsURI, QString tagName)
+{
+    return XMLgetElementsByTagname(parent, nsURI+":"+tagName);
+}
+
+QDomElement Utils::XMLfirstElementByTagNameNS(QDomElement parent, QString nsURI, QString tagName)
+{
+    return XMLfirstElementByTagName(parent, nsURI+":"+tagName);
+}
+
+QString Utils::XMLfirstElementValueByTagNameNS(QDomElement parent, QString nsURI, QString tagName)
+{
+    return XMLfirstElementValueByTagName(parent, nsURI+":"+tagName);
+}
+

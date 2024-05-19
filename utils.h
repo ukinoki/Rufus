@@ -51,6 +51,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSerialPort>
 #include <QTime>
 
+#include <QDomDocument>
 
 #include "updialog.h"
 #include "uptextedit.h"
@@ -309,6 +310,18 @@ public:
     static int qdateeditwidth()     { return QDATEEDITWIDTH; }
     static QSize qtimeeditsize()    { return QSize(QTIMEEDITWIDTH,QDATETIMEEDITHEIGHT); }
     static QSize qdateeditsize()    { return QSize(QDATEEDITWIDTH,QDATETIMEEDITHEIGHT); }
+
+    // XML
+    static QList<QDomElement> XMLgetElementsByTagname(QDomElement parent, QString tagName);
+    static QDomElement XMLfirstElementByTagName(QDomElement parent, QString tagName);
+    static QString XMLfirstElementValueByTagName(QDomElement parent, QString tagName);
+
+    // XML ... pseudo NameSpace
+    static QList<QDomElement> XMLgetElementsByTagnameNS(QDomElement parent, QString nsURI, QString tagName);
+    static QDomElement XMLfirstElementByTagNameNS(QDomElement parent, QString nsURI, QString tagName);
+    static QString XMLfirstElementValueByTagNameNS(QDomElement parent, QString nsURI, QString tagName);
+
+
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 
