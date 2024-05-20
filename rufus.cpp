@@ -3916,30 +3916,19 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
     else if (choix == "Motif")  //! il s'agit de modifier le motif de la consultation - la patient est dans la  salle d'attente, on a son id, il suffit de le retrouver sans passer par SQL
     {
         PatientEnCours *patencours = Q_NULLPTR;
-        int row(-1);
-        for (int i=0; i< ui->SalleDAttenteupTableWidget->rowCount(); i++)
+        for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
         {
-             UpLabel* lbl = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
-             for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
-             {
-                 if (idpat == it.key())
-                 {
-                     patencours = const_cast<PatientEnCours*>(it.value());
-                     break;
-                 }
-             }
-             if (patencours == Q_NULLPTR)
-                 return;
-             if (patencours->id() == dossierpatientaouvrir()->id())
-             {
-                 row = i;
-                 break;
-             }
+            if (idpat == it.key())
+            {
+                patencours = const_cast<PatientEnCours*>(it.value());
+                break;
+            }
         }
-        QString Message(""), Motif("");
-        Message = patencours->message();
-        Motif = qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,4))->text();
-        QTime heurerdv = QTime::fromString(qobject_cast<UpLabel *>(ui->SalleDAttenteupTableWidget->cellWidget(row,3))->text(), "HH:mm");
+        if (patencours == Q_NULLPTR)
+            return;
+        QString Message = patencours->message();
+        QString Motif   = patencours->motif();
+        QTime heurerdv  = patencours->heurerdv();
 
         RendezVous *rdv = MotifRDV(Motif, Message, heurerdv);
         if (rdv == Q_NULLPTR)
@@ -4623,14 +4612,6 @@ void Rufus::RetrouveMontantActe()
 
 void Rufus::SalleDAttente()
 {
-    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
-    {
-
-        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
-        Patient *pat2 = Datas::I()->patients->getById(patcrs->id());
-        QString nom = (pat2 == Q_NULLPTR? "unknown":pat2->nomcomplet());
-        qDebug()<< "Rufus::SalleDattente" << it.key() << nom << patcrs->statut();
-    }
     if (AutorDepartConsult(true))
     {
         ui->tabWidget->removeTab(ui->tabWidget->indexOf(ui->tabDossier));
@@ -5889,9 +5870,15 @@ void Rufus::VerifVerrouDossier()
                 if (pat != Q_NULLPTR)
                     if (pat->iduserencoursexam() == post->id() && pat->statut().contains(ENCOURSEXAMEN) && pat->posteexamen() == post->nomposte())
                     {
+                        //! on supprime les doublons -> tous les patients de la salle d'attente avec cet id dont le statut est ARRIVE
+                        QString req = "delete FROM " TBL_SALLEDATTENTE " WHERE " CP_STATUT_SALDAT " = " + ARRIVE + " AND " + CP_IDPAT_SALDAT + " = " + QString::number(pat->id());
+                        db->StandardSQL(req);
+                        qDebug() << "Rufus::VerifVerrouDossier" << req;
+                        //! on remet le patient en salle d'accueil avec le statut ARRIVE
                         ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                         ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
                         ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
+                        mettreajourlasalledattente = true;
                     }
             }
             if (!listpostsAEliminer.contains(post))
@@ -7481,14 +7468,6 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
             }
         }
         AfficheDossier(pat, idacte);
-    }
-    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
-    {
-
-        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
-        Patient *pat2 = Datas::I()->patients->getById(patcrs->id());
-        QString nom = (pat2 == Q_NULLPTR? "unknown":pat2->nomcomplet());
-        qDebug() << "Rufus::OuvrirDossier" << it.key() << nom << patcrs->statut();
     }
 }
 
