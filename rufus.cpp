@@ -1007,10 +1007,26 @@ void Rufus::AfficheMotif(UpLabel *lbl)
         if (Msg != "") Msg += "\n";
         Msg += patcrs->motif();
     }
-    if (patcrs->message() != "")
+    if (lbl->parent()->parent() == ui->SalleDAttenteupTableWidget)
     {
-        if (Msg != "") Msg += "\n";
-        Msg += patcrs->message();
+        if (patcrs->message() != "")
+        {
+            if (Msg != "") Msg += "\n";
+            Msg += patcrs->message();
+        }
+    }
+    else if (lbl->parent()->parent() == ui->AccueilupTableWidget)
+    {
+        if (patcrs->messageretour() != "")
+        {
+            if (Msg != "") Msg += "\n";
+            Msg += patcrs->messageretour();
+        }
+        else if (patcrs->message() != "")
+        {
+            if (Msg != "") Msg += "\n";
+            Msg += patcrs->message();
+        }
     }
     if (Msg!="")
         QToolTip::showText(cursor().pos(),Msg);
@@ -7107,7 +7123,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
                     " act WHERE " CP_IDPAT_ACTES " = " + QString::number(currentpatient()->id()) +
                     " AND act." CP_ID_ACTES " NOT IN (SELECT typ." CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " typ)";
 
-            QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver  le dernier acte du patient pour le contrôler!"));
+            QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver le dernier acte du patient pour le contrôler!"));
             // cette requête renvoie toujours une table non vide en QT même si elle est vide en mysql... d'où la suite
             if (actdata.size()>0 && actdata.at(0).toInt() > 0) // =il n'y a pas de paiement enregistré pour le dernier acte
             {
@@ -9763,7 +9779,7 @@ void Rufus::Remplir_SalDat()
         if (actapayer->montant() == 0.0)
             typpaiement = "Gratuit";
         label4->setAlignment(Qt::AlignRight);
-        if (patencours->message()!="")
+        if (patencours->messageretour()!="" || patencours->message()!="")
         {
             QString color = "color:green";
             label0->setStyleSheet(color);

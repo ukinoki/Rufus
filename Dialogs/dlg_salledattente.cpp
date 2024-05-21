@@ -26,6 +26,12 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     m_currentact        = act;
 
+    auto it = Datas::I()->patientsencours->patientsencours()->constFind(Datas::I()->patients->currentpatient()->id());
+    if ( it != Datas::I()->patientsencours->patientsencours()->constEnd())
+    {
+        m_patcrs = const_cast<PatientEnCours*>(it.value());
+    }
+
     ui->MessagetextEdit->setText(Datas::I()->patients->currentpatient()->nom() + " " + Datas::I()->patients->currentpatient()->prenom() + "\n" + Titre);
 
     ui->MessagetextEdit->document()->setTextWidth(width()-dlglayout()->contentsMargins().left()*2-2);
@@ -83,6 +89,8 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     }
     OKButton->setEnabled(false);
     ui->MsgtextEdit->setVisible(false);
+    if (m_patcrs != Q_NULLPTR)
+        ui->MsgtextEdit->setText(m_patcrs->messageretour());
     ui->Msglabel->setVisible(false);
     ui->RetourAccueilradioButton->setText(tr("Examen terminé, en attente des informations de paiement"));
 }
@@ -102,7 +110,7 @@ void dlg_salledattente::OKButtonClicked()
     }
 
     QString ActeSal ="null";
-    QString Msg("");
+    QString Msg = (m_patcrs? m_patcrs->message():"");
     if (ui->ExamEnCoursradioButton->isChecked())                Statut = ENCOURS;
     if (ui->ExamenEnAttenteAutreAvisradioButton->isChecked())   Statut = ENATTENTENOUVELEXAMEN + ui->UsercomboBox->currentText();
     if (ui->RetourAccueilradioButton->isChecked())
@@ -117,17 +125,7 @@ void dlg_salledattente::OKButtonClicked()
         Statut  = RETOURACCUEIL;
         Msg     = ui->MsgtextEdit->toPlainText();
     }
-    PatientEnCours *pat = Q_NULLPTR;
-    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
-    {
-        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
-        if (patcrs->id() == Datas::I()->patientsencours->getById(Datas::I()->patients->currentpatient()->id())->id())
-        {
-            pat = patcrs;
-            break;
-        }
-    }
-    if (!pat)
+    if (m_patcrs == Q_NULLPTR)
         Datas::I()->patientsencours->CreationPatient(Datas::I()->patients->currentpatient()->id(),                                  //! idPat
                                                  Datas::I()->users->getById(Datas::I()->users->userconnected()->idsuperviseur()),   //! User
                                                  Statut,                                                                            //! Statut
@@ -142,12 +140,13 @@ void dlg_salledattente::OKButtonClicked()
                                                  0);                                                                                //! idSalDat
     else
     {
-        ItemsList::update(pat, CP_STATUT_SALDAT, Statut);
-        ItemsList::update(pat, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
-        ItemsList::update(pat, CP_MESSAGE_SALDAT, Msg);
-        ItemsList::update(pat, CP_HEURESTATUT_SALDAT, QTime::currentTime());
-        ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-        ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
+        ItemsList::update(m_patcrs, CP_STATUT_SALDAT, Statut);
+        ItemsList::update(m_patcrs, CP_IDACTEAPAYER_SALDAT, ActeSal.toInt());
+        ItemsList::update(m_patcrs, CP_MESSAGERETOUR_SALDAT, Msg);
+        ItemsList::update(m_patcrs, CP_MESSAGE_SALDAT, Msg);       // pour garder la comm_patcrsibilité avec la version 77 de la base
+        ItemsList::update(m_patcrs, CP_HEURESTATUT_SALDAT, QTime::currentTime());
+        ItemsList::update(m_patcrs, CP_IDUSERENCOURSEXAM_SALDAT);
+        ItemsList::update(m_patcrs, CP_POSTEEXAMEN_SALDAT);
     }
     Flags::I()->MAJFlagSalleDAttente();
     accept();

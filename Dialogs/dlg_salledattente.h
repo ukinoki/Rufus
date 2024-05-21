@@ -36,6 +36,7 @@ private:
     Acte                *m_currentact;
     void                OKButtonClicked();
     void                EnableOKButton();
+    PatientEnCours*     m_patcrs = Q_NULLPTR;
 };
 
 #endif // DLG_SALLEDATTENTE_H
