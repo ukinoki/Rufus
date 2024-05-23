@@ -4436,7 +4436,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     sp_portFronto->setDataTerminalReady(true);
                     if (t_threadFronto != Q_NULLPTR)
                         delete t_threadFronto;
-                    t_threadFronto = new SerialThread(sp_portFronto);
+                    t_threadFronto = new SerialThread(sp_portFronto, "Fronto");
                     t_threadFronto->transaction();
                     connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
                     msg = tr("Connexion frontocomètre OK sur ") + m_portFronto;
@@ -4473,7 +4473,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     sp_portRefracteur->setDataTerminalReady(true);
                     if (t_threadRefracteur != Q_NULLPTR)
                         delete t_threadRefracteur;
-                    t_threadRefracteur = new SerialThread(sp_portRefracteur);
+                    t_threadRefracteur = new SerialThread(sp_portRefracteur, "Refracteur");
                     t_threadRefracteur->transaction();
                     connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
                     msg = tr("Connexion refracteur OK sur ") + m_portRefracteur;
@@ -4510,7 +4510,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     sp_portAutoref->setDataTerminalReady(true);
                     if (t_threadAutoref != Q_NULLPTR)
                         delete t_threadAutoref;
-                    t_threadAutoref = new SerialThread(sp_portAutoref);
+                    t_threadAutoref = new SerialThread(sp_portAutoref, "Autoref");
                     t_threadAutoref->transaction();
                     connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
                     msg = tr("Connexion autorefractomètre OK sur ") + m_portAutoref;
@@ -4545,7 +4545,7 @@ bool Procedures::Ouverture_Ports_Series(TypesAppareils appareils)
                     sp_portTono->setDataTerminalReady(true);
                     if (t_threadTono != Q_NULLPTR)
                         delete t_threadTono;
-                    t_threadTono = new SerialThread(sp_portTono);
+                    t_threadTono = new SerialThread(sp_portTono, "Tono");
                     t_threadTono->transaction();
                     connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
                     msg = tr("Connexion tonomètre OK sur ") + m_portTono;

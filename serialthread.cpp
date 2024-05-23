@@ -22,11 +22,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 SerialThread::SerialThread(QSerialPort *PortProc)
 {
     Port = PortProc;
+    m_nomapp        = NomApp;
     m_thread = new QThread(this);
     moveToThread(m_thread);
     connect(m_thread, &QThread::started, this, [&]{
                                 connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
-                                connect(Port,   &QSerialPort::errorOccurred, this, [] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
+                                connect(Port,   &QSerialPort::errorOccurred, this, [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
                                 });
 
     t_timer = new QTimer(0);
@@ -65,9 +66,10 @@ void SerialThread::transaction()
 #else
 QT_USE_NAMESPACE
 
-SerialThread::SerialThread(QSerialPort *PortProc)
+SerialThread::SerialThread(QSerialPort *PortProc, QString NomApp)
 {
     Port            = PortProc;
+    m_nomapp        = NomApp;
 }
 
 void SerialThread::transaction()
@@ -79,7 +81,7 @@ void SerialThread::transaction()
 void SerialThread::run()
 {
     connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
-    connect(Port,   &QSerialPort::errorOccurred, this, [] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
+    connect(Port,   &QSerialPort::errorOccurred, this, [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
 }
 
 void SerialThread::LitPort()

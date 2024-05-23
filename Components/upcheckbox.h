@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCheckBox>
 #include <QToolTip>
 #include <QMouseEvent>
+#include <QApplication>
 
 class UpCheckBox : public QCheckBox
 {
