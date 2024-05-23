@@ -24,6 +24,7 @@ UpLabel::UpLabel(QWidget *parent, QString txt) : QLabel(txt, parent)  //je ne sa
     m_tooltipmsg = "";
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 
 UpLabel::UpLabel(Item *item, QString txt, QWidget *parent) : QLabel(txt, parent)
@@ -32,6 +33,7 @@ UpLabel::UpLabel(Item *item, QString txt, QWidget *parent) : QLabel(txt, parent)
     m_item->setParent(this);
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 
 UpLabel::UpLabel(int id, QString txt, QWidget *parent) : QLabel(txt, parent)
@@ -39,6 +41,7 @@ UpLabel::UpLabel(int id, QString txt, QWidget *parent) : QLabel(txt, parent)
     m_id = id;
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 
 UpLabel::~UpLabel()

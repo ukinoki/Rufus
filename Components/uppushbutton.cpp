@@ -29,11 +29,13 @@ UpPushButton::UpPushButton(QWidget *parent) : QPushButton(parent)
     setFlat(false);
     setStyleSheet(STYLE_UPPUSHBUTTON);
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 
 UpPushButton::UpPushButton(QString text, QWidget *parent) : UpPushButton(parent)
 {
     setText(text);
+    setFont(qApp->font());
 }
 
 UpPushButton::~UpPushButton()

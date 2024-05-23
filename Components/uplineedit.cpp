@@ -29,6 +29,7 @@ UpLineEdit::UpLineEdit(QWidget *parent) : QLineEdit(parent)
     m_datas        = QVariant();
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 
 UpLineEdit::~UpLineEdit()

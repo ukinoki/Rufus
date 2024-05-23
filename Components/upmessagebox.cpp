@@ -39,6 +39,7 @@ UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     setWindowModality(Qt::WindowModal);
+    setFont(qApp->font());
 }
 
 UpMessageBox::~UpMessageBox()

@@ -24,6 +24,7 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
     m_nomfichierini         = NomSettings;
     m_settings              = new QSettings(m_nomfichierini, QSettings::IniFormat, this);
     restoreGeometry(m_settings->value(m_position).toByteArray());
+    setFont(qApp->font());
     AjouteLay();
     setStageCount(0);
     m_mode           = NullMode;    
@@ -33,6 +34,7 @@ UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {
     AjouteLay();
+    setFont(qApp->font());
     m_enregistreposition   = false;
 }
 

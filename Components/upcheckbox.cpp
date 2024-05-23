@@ -23,12 +23,14 @@ UpCheckBox::UpCheckBox(QWidget *parent) : QCheckBox(parent)
     m_id          = -1;
     m_toggleable  = true;
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
     installEventFilter(this);
 }
 
 UpCheckBox::UpCheckBox(QString text, QWidget *parent) : UpCheckBox(parent)
 {
     setText(text);
+    setFont(qApp->font());
 }
 
 UpCheckBox::~UpCheckBox()

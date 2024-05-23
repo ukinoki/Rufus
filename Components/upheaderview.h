@@ -23,6 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTableWidget>
 #include <QScrollBar>
 #include <QEvent>
+#include <QApplication>
+
 
 class UpHeaderView : public QHeaderView
 {

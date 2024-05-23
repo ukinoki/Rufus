@@ -23,6 +23,7 @@ UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
     horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     setVerticalScrollMode(QAbstractItemView::ScrollPerItem);
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 
 void UpTableWidget::dropEvent(QDropEvent *drop)

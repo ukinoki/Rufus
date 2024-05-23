@@ -24,6 +24,7 @@ UpDoubleSpinBox::UpDoubleSpinBox(QWidget *parent) : QDoubleSpinBox(parent)
     setKeyboardTracking(false);
     m_correctiondioptries = true;
     setContextMenuPolicy(Qt::NoContextMenu);
+    setFont(qApp->font());
 }
 UpDoubleSpinBox::~UpDoubleSpinBox()
 {

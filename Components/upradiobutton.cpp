@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpRadioButton::UpRadioButton(QWidget *parent) : QRadioButton(parent)
 {
+    setFont(qApp->font());
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
     m_id         = -1;
@@ -28,6 +29,7 @@ UpRadioButton::UpRadioButton(QWidget *parent) : QRadioButton(parent)
 
 UpRadioButton::UpRadioButton(const QString Title, QWidget *parent) : QRadioButton(Title, parent)
 {
+    setFont(qApp->font());
     installEventFilter(this);
     setContextMenuPolicy(Qt::NoContextMenu);
     m_id          = -1;

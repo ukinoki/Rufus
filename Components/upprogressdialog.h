@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QProgressBar>
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QApplication>
 
 class UpProgressDialog : public QProgressDialog
 {

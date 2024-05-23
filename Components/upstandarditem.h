@@ -19,7 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define UPSTANDARDITEM_H
 
 #include <QStandardItem>
+#include <QApplication>
 #include "cls_item.h"
+
 class Item;
 class UpStandardItem : public QStandardItem
 {

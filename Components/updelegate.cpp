@@ -23,6 +23,7 @@ QWidget* UpLabelDelegate::createEditor(QWidget* parent, const QStyleOptionViewIt
     //if (index.data().canConvert(QMetaType::QString))
     {
         UpLabel *editor = new UpLabel(parent);
+        editor->setFont(qApp->font());
         editor->setRow(index.row());
         return editor;
     }
@@ -54,6 +55,8 @@ QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewIte
     m_line->setContextMenuPolicy(Qt::CustomContextMenu);
     m_line->selectAll();
     m_line->setFocus();
+    m_line->setFont(qApp->font());
+
     connect(m_line, &QLineEdit::editingFinished,  this, &UpLineDelegate::editingFinished);
     connect(m_line, &QLineEdit::textEdited,       this, &UpLineDelegate::textEdited);
     //connect(m_line, &QLineEdit::editingFinished,  this, &UpLineDelegate::commitEditor);

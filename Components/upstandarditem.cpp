@@ -19,18 +19,21 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpStandardItem::UpStandardItem()
 {
+    setFont(qApp->font());
 }
 
 UpStandardItem::UpStandardItem(QString txt, Item *item) : QStandardItem(txt)
 {
     if (item != Q_NULLPTR)
         setitem(item);
+    setFont(qApp->font());
 }
 
 UpStandardItem::UpStandardItem(const QIcon &icon, const QString &txt, Item *item) : QStandardItem(icon, txt)
 {
     if (item != Q_NULLPTR)
         setitem(item);
+    setFont(qApp->font());
 }
 
 void UpStandardItem::setitem(Item* item)

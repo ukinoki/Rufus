@@ -28,6 +28,7 @@ UpSmallButton::UpSmallButton(QWidget *parent) : QPushButton(parent)
     setFixedHeight(35);
     setFlat(true);
     setFocusPolicy(Qt::NoFocus);
+    setFont(qApp->font());
 
     m_style             = NOBUTTON;
     m_luggage            = -1;
@@ -37,6 +38,7 @@ UpSmallButton::UpSmallButton(QWidget *parent) : QPushButton(parent)
 UpSmallButton::UpSmallButton(QString text, QWidget *parent) : UpSmallButton(parent)
 {
     setText(text);
+    setFont(qApp->font());
 }
 
 UpSmallButton::~UpSmallButton()

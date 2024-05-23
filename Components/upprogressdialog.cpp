@@ -30,6 +30,7 @@ UpProgressDialog::UpProgressDialog(int n, int t, QWidget *parent, Qt::WindowFlag
     setRange(n,t);
     setCancelButton(Q_NULLPTR);
     setWindowModality(Qt::WindowModal);
+    setFont(qApp->font());
 }
 
 UpProgressDialog::~UpProgressDialog()

@@ -23,6 +23,7 @@ UpHeaderView::UpHeaderView(QHeaderView *header) : QHeaderView(Qt::Horizontal, he
     setGeometry(0, 0, header->width(), header->height());
     updateOffset();
     mainHeader->installEventFilter(this);
+    setFont(qApp->font());
 }
 
 void UpHeaderView::reDim(int section, int deb, int fin)

@@ -28,6 +28,7 @@ UpComboBox::UpComboBox(QWidget *parent) : QComboBox (parent)
     m_tooltipmsg     = "";
     setContextMenuPolicy(Qt::NoContextMenu);
     installEventFilter(this);
+    setFont(qApp->font());
     connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged),  this, &UpComboBox::clearImmediateToolTip);
  }
 

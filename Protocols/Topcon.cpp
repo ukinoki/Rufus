@@ -1,6 +1,6 @@
 #include "Topcon.h"
 #include "gbl_datas.h"
-#include "Utils.h"
+#include "utils.h"
 
 Topcon* Topcon::instance = Q_NULLPTR;
 
@@ -404,6 +404,12 @@ void Topcon::RegleRefracteurXML(int flg, QString nameRF)
 {
 
     // I don't know how to pass Procedures::Types
+    /*!
+     *  I'd create in Protocols, a protocolgeneric.h class with TypeMesures and TypeMesure inside
+     *  Then Tomey.h and Topcon.h inherits from this class
+     *  and migrate definition of TypeMesures and TypeMesure from Procedures.h to ProtocolGeneric:.h
+     *  and #include "protocolgeneric.h" in procedures.h
+     */
     //TypesMesures flag(flg);
 
     /*! LE FRONTO */

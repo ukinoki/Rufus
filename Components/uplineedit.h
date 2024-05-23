@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSoundEffect>
 #include <QTimer>
 #include <QToolTip>
+#include <QApplication>
 
 class UpLineEdit : public QLineEdit
 {
