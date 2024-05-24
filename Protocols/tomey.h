@@ -25,17 +25,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
 
-#include <QBuffer>
-#include <QJsonObject>
-#include <QHostInfo>
-#include <QObject>
-#include <QSettings>
-#include <QSqlDatabase>
-#include <QSqlRecord>
-#include <QJsonDocument>
-#include <QTranslator>
+#include "genericprotocol.h"
 
-class Tomey : public QObject
+class Tomey : public GenericProtocol
 {
     Q_OBJECT
 private:

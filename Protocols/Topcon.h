@@ -3,9 +3,9 @@
 
 #include <QObject>
 #include <QDomDocument>
+#include "genericprotocol.h"
 
-
-class Topcon
+class Topcon :  public GenericProtocol
 {
 
 

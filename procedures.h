@@ -512,17 +512,6 @@ public:
         Csv = 1
     };  Q_ENUM(TypeTextFile)
     Q_DECLARE_FLAGS(TypeTextFiles, TypeTextFile)
-    enum TypeMesure {
-                MesureNone        = 0x0,
-                MesureAll         = 0x1,
-                MesureFronto      = 0x2,
-                MesureAutoref     = 0x4,
-                MesureKerato      = 0x8,
-                MesureRefracteur  = 0x10,
-                MesureTono        = 0x20,
-                MesurePachy       = 0x40
-                };  Q_ENUM(TypeMesure)
-    Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
     enum TypeAppareil {
                 AppNone     = 0x0,
                 Fronto      = 0x1,
@@ -532,7 +521,7 @@ public:
                 };  Q_ENUM(TypeAppareil)
     Q_DECLARE_FLAGS(TypesAppareils, TypeAppareil)
 signals:
-    void                    NouvMesure(Procedures::TypeMesure);
+    void                    NouvMesure(GenericProtocol::TypeMesure);
     void                    newdataxml(const QDomDocument &xml);
 
 public:
@@ -569,10 +558,10 @@ public:
     QString                 HtmlPachy();
    //LE REFRACTEUR ------------------------------------------------
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
-    void                    InsertMesure(TypeMesure typemesure = MesureAll);        //! enregistre la mesure de réfraction
+    void                    InsertMesure(GenericProtocol::TypeMesure typemesure = GenericProtocol::MesureAll);        //! enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
-    static TypeMesure       ConvertMesure(QString Mesure);
-    static QString          ConvertMesure(Procedures::TypeMesure Mesure);
+    static GenericProtocol::TypeMesure       ConvertMesure(QString Mesure);
+    static QString                           ConvertMesure(GenericProtocol::TypeMesure Mesure);
 
     // LES PORTS COM ------------------------------------------------
     void RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map);        /*! règle les datas du port série pour l'appareil passé en paramètre */
@@ -597,8 +586,8 @@ private:
     QString                 m_filewatchertonofile = "";                             /*! le signal directorychanged est émis 2 fois de suite dans certains cas. Bug connu de Qt. ce QString sert à bloquer la deuxième émission du signal */
     /*! fin récupération des données de refraction par le réseau */
 
-    TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
-    TypesMesures            m_flagreglagerefracteurNidek = MesureNone;
+    GenericProtocol::TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
+    GenericProtocol::TypesMesures            m_flagreglagerefracteurNidek = GenericProtocol::MesureNone;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    Ouverture_Appareils_Refraction();
     bool                    Ouverture_Ports_Series(TypesAppareils appareils);       //! ouvre les ports séries des appareils connectés en  port COM
@@ -619,9 +608,9 @@ private:
     void                    LectureDonneesCOMRefracteur(QString Mesure);            //! lit les données envoyées sur le port série du refracteur
     void                    LectureDonneesXMLRefracteur(QDomDocument docxml);       //! lit les données envoyées sur le fichier échange XML du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
-    void                    RegleRefracteur(TypesMesures flag);                     //! Règle le refracteur pour les types de mesure précisées
-    void                    RegleRefracteurCOM(TypesMesures flag);                  //! règle le refracteur par le port Com
-    void                    RegleRefracteurXML(TypesMesures flag);                  //! règle le refracteur par le réseau
+    void                    RegleRefracteur(GenericProtocol::TypesMesures flag);                     //! Règle le refracteur pour les types de mesure précisées
+    void                    RegleRefracteurCOM(GenericProtocol::TypesMesures flag);                  //! règle le refracteur par le port Com
+    void                    RegleRefracteurXML(GenericProtocol::TypesMesures flag);                  //! règle le refracteur par le réseau
     void                    ReponseXML_Refracteur(const QDomDocument &docxml);
     //LE TONO ----------------------------------------------------
     void                    ReponseXML_Tono(const QDomDocument &docxml);
@@ -636,7 +625,6 @@ private:
     void                    logmesure(QString mesure)                       { Logs::LogToFile("refraction.txt", mesure); }
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesMesures)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesAppareils)
 
 #endif // PROCEDURES_H

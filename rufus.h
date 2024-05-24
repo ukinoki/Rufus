@@ -185,7 +185,7 @@ private:
     void        ModifCotationActe();
     void        ModifierTerrain();
     void        Moulinette();
-    void        NouvelleMesure(Procedures::TypeMesure TypeMesure);
+    void        NouvelleMesure(GenericProtocol::TypeMesure TypeMesure);
     void        OKModifierTerrain(Patient *pat, bool recalclesdonnees = true);                  //!> recalcule le TreeWidgtet résumant le terrain
     void        OuvrirActesPrecspushButtonClicked();
     void        OuvrirJournalDepenses();

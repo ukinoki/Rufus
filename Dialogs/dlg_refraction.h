@@ -162,7 +162,7 @@ private:
 
 // les connexions aux appareils de mesure
 private:
-    void                    NouvMesureRefraction(Procedures::TypeMesure TypeMesure);
+    void                    NouvMesureRefraction(GenericProtocol::TypeMesure TypeMesure);
 public:
     void                    AfficheMesureFronto();
     void                    AfficheMesureAutoref();

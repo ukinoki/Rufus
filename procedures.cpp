@@ -111,7 +111,7 @@ Procedures::Procedures(QObject *parent) :
     mapPortsCOM();
     Ouverture_Appareils_Refraction();
     ReconstruitListeModesAcces();
-    m_typemesureRefraction               = MesureNone;
+    m_typemesureRefraction               = GenericProtocol::MesureNone;
     m_dlgrefractionouverte    = false;
     int margemm         = TailleTopMarge(); // exprimé en mm
     p_printer             = new QPrinter(QPrinter::HighResolution);
@@ -4826,13 +4826,13 @@ void Procedures::ReponsePortSerie_Refracteur(const QString &s)
         return;
 
     //! Enregistre les mesures dans la base
-    InsertMesure(MesureRefracteur);
+    InsertMesure(GenericProtocol::MesureRefracteur);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
-    emit NouvMesure(MesureRefracteur);
+    emit NouvMesure(GenericProtocol::MesureRefracteur);
 }
 
-void Procedures::RegleRefracteur(TypesMesures flag)
+void Procedures::RegleRefracteur(GenericProtocol::TypesMesures flag)
 {
     if (t_threadRefracteur!=Q_NULLPTR) /*! par le port COM */
     {
@@ -4862,7 +4862,7 @@ void Procedures::RegleRefracteur(TypesMesures flag)
         RegleRefracteurXML(flag);
 }
 
-void Procedures::RegleRefracteurCOM(TypesMesures flag)
+void Procedures::RegleRefracteurCOM(GenericProtocol::TypesMesures flag)
 {
     /*! Si on lance cette fonction à l'ouverture d'un dossier, on a créé 3 mesures
      * Chacune de ces 3 mesures est envoyée au réfracteur pour le régler
@@ -4911,7 +4911,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
         DTRbuff.append(SOH);                                    //SOH -> start of header
 
         /*! réglage de l'autoref */
-        if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+        if (flag.testFlag(GenericProtocol::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
         {
             initvariables();
             convertaxeNIDEK(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
@@ -4941,7 +4941,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
         }
 
         /*! réglage du fronto */
-        if (flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(GenericProtocol::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -4979,7 +4979,7 @@ void Procedures::RegleRefracteurCOM(TypesMesures flag)
         DTRbuff.append(EOT);                                    //EOT -> end of transmission
 
         /*! réglage du fronto */
-        if (flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(GenericProtocol::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -5162,7 +5162,7 @@ SOH*PC_SND_EEOT                 -> end block
             *CY| -0.25| -0.25|              -> Cylindre | left result | right result|
             *AX|135|135|                    -> Axe | left result | right result|
             *AD| 1.50| 1.50|                -> Addition | left result | right result|        */
-        if (flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(GenericProtocol::MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -5212,7 +5212,7 @@ SOH*PC_SND_EEOT                 -> end block
             *VA|0.2|0.4|0.5|
             *PH|O| 1.00|O| 1.00|
             *PV|U| 1.50|D| 1.50|                */
-        if (flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
+        if (flag.testFlag(GenericProtocol::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
         {
             initvariables();
             convertaxeTOMEY(AxeOD, Datas::I()->mesureautoref->axecylindreOD());
@@ -5265,7 +5265,7 @@ SOH*PC_SND_EEOT                 -> end block
             *VA|0.2|0.4|0.5|
             *PH|O| 0.50|O| 0.50|
             *PV|U| 0.50|D| 0.50|    */
-        if (flag.testFlag(Procedures::MesureRefracteur) && !Datas::I()->mesurefronto->isdataclean())
+        if (flag.testFlag(GenericProtocol::MesureRefracteur) && !Datas::I()->mesurefronto->isdataclean())
         {
             initvariables();
 
@@ -5332,7 +5332,7 @@ SOH*PC_SND_EEOT                 -> end block
     // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
 }
 
-void Procedures::RegleRefracteurXML(TypesMesures flag)
+void Procedures::RegleRefracteurXML(GenericProtocol::TypesMesures flag)
 {
     /*! Si on lance cette fonction à l'ouverture d'un dossier, on a créé 3 mesures
      * Chacune de ces 3 mesures est envoyée au réfracteur pour le régler
@@ -5342,18 +5342,18 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
      */
 
     QString nameRF    = m_settings->value(Param_Poste_Refracteur).toString();
-    auto EnregistreFileDatasXML = [] (QDomDocument xml, Procedures::TypeMesure typmesure)
+    auto EnregistreFileDatasXML = [] (QDomDocument xml, GenericProtocol::TypeMesure typmesure)
     {
         const QByteArray codecname = "UTF16LE";
         //QTextCodec *codec = QTextCodec::codecForName(codecname);
         QString Adress ("");
         QString typfile("");
-        if (typmesure == Procedures::MesureAutoref)
+        if (typmesure == GenericProtocol::MesureAutoref)
         {
             Adress = Procedures::I()->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Autoref).toString();
             typfile = "ARK";
         }
-        else if (typmesure == Procedures::MesureFronto)
+        else if (typmesure == GenericProtocol::MesureFronto)
         {
             Adress = Procedures::I()->settings()->value(Param_Poste_PortRefracteur_DossierEchange_Fronto).toString();
             typfile = "LM";
@@ -5398,7 +5398,7 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
         */
 
 /*! LE FRONTO */
-        bool ExistMesureFronto = flag.testFlag(Procedures::MesureFronto) && !Datas::I()->mesurefronto->isdataclean();
+        bool ExistMesureFronto = flag.testFlag(GenericProtocol::MesureFronto) && !Datas::I()->mesurefronto->isdataclean();
         if (ExistMesureFronto)
         {
             QDomDocument LMxml("");
@@ -5674,11 +5674,11 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
                     }
                 }
             }
-            EnregistreFileDatasXML(LMxml, Procedures::MesureFronto);
+            EnregistreFileDatasXML(LMxml, GenericProtocol::MesureFronto);
         }
 
 /*! L'AUTOREF */
-        bool ExistMesureAutoref = flag.testFlag(Procedures::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean();
+        bool ExistMesureAutoref = flag.testFlag(GenericProtocol::MesureAutoref) && !Datas::I()->mesureautoref->isdataclean();
         if (ExistMesureAutoref)
         {
             QDomDocument ARxml("");
@@ -6259,10 +6259,10 @@ void Procedures::RegleRefracteurXML(TypesMesures flag)
                 t_xmlfiletimer.setSingleShot(true);
                 t_xmlfiletimer.setInterval(3000);
                 t_xmlfiletimer.start();
-                connect(&t_xmlfiletimer, &QTimer::timeout, this, [=] { EnregistreFileDatasXML(ARxml, Procedures::MesureAutoref); });
+                connect(&t_xmlfiletimer, &QTimer::timeout, this, [=] { EnregistreFileDatasXML(ARxml, GenericProtocol::MesureAutoref); });
             }
             else
-                EnregistreFileDatasXML(ARxml, Procedures::MesureAutoref);
+                EnregistreFileDatasXML(ARxml, GenericProtocol::MesureAutoref);
         }
     }
 }
@@ -6413,7 +6413,7 @@ void Procedures::debugMesure(QObject *mesure, QString titre)
 
 void Procedures::EnvoiDataPatientAuRefracteur()
 {
-    TypesMesures flag = MesureAutoref | MesureFronto | MesureRefracteur;
+    GenericProtocol::TypesMesures flag = GenericProtocol::MesureAutoref | GenericProtocol::MesureFronto | GenericProtocol::MesureRefracteur;
     RegleRefracteur(flag);
 }
 
@@ -6540,8 +6540,8 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
             //debugMesureRefraction(Datas::I()->mesurefronto);
             if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
             {
-                InsertMesure(MesureFronto);
-                emit NouvMesure(MesureFronto);
+                InsertMesure(GenericProtocol::MesureFronto);
+                emit NouvMesure(GenericProtocol::MesureFronto);
             }
             delete oldMesureFronto;
         }
@@ -6591,8 +6591,8 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
             }
             if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
             {
-                InsertMesure(MesureKerato);
-                emit NouvMesure(MesureKerato);
+                InsertMesure(GenericProtocol::MesureKerato);
+                emit NouvMesure(GenericProtocol::MesureKerato);
             }
             delete oldMesureKerato;
         }
@@ -6629,8 +6629,8 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
             //debugMesureRefraction(Datas::I()->mesureautoref);
             if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
             {
-                InsertMesure(MesureAutoref);
-                emit NouvMesure(MesureAutoref);
+                InsertMesure(GenericProtocol::MesureAutoref);
+                emit NouvMesure(GenericProtocol::MesureAutoref);
             }
             delete oldMesureAutoref;
         }
@@ -6757,8 +6757,8 @@ void Procedures::LectureDonneesCOMRefracteur(QString Mesure)
             Datas::I()->mesuretono->setTOG(int(mTOOG.toDouble()));
             Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
             logmesure("LectureDonneesRefracteur() - nouvelle mesure tono -> TOD = " + QString::number(Datas::I()->mesuretono->TOD()) + " - TOG = " + QString::number(Datas::I()->mesuretono->TOG()));
-            InsertMesure(MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
-            emit NouvMesure(MesureTono);
+            InsertMesure(GenericProtocol::MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
+            emit NouvMesure(GenericProtocol::MesureTono);
         }
         //debugMesure(Datas::I()->mesurekerato, "Procedures::LectureDonneesRefracteur(QString Mesure)");
     }
@@ -6908,8 +6908,8 @@ SOH*PC_RCV_EEOT                 -> end block
             //debugMesureRefraction(Datas::I()->mesurefronto);
             if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
             {
-                InsertMesure(MesureFronto);
-                emit NouvMesure(MesureFronto);
+                InsertMesure(GenericProtocol::MesureFronto);
+                emit NouvMesure(GenericProtocol::MesureFronto);
             }
             delete oldMesureFronto;
         }
@@ -6972,8 +6972,8 @@ SOH*PC_RCV_EEOT                 -> end block
             //debugMesureRefraction(Datas::I()->mesureautoref);
             if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
             {
-                InsertMesure(MesureAutoref);
-                emit NouvMesure(MesureAutoref);
+                InsertMesure(GenericProtocol::MesureAutoref);
+                emit NouvMesure(GenericProtocol::MesureAutoref);
             }
             delete oldMesureAutoref;
         }
@@ -7533,8 +7533,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                                     }
                                     if (Datas::I()->mesurefronto->isDifferent(oldMesureFronto) && !Datas::I()->mesurefronto->isdataclean())
                                     {
-                                        InsertMesure(MesureFronto);
-                                        emit NouvMesure(MesureFronto);
+                                        InsertMesure(GenericProtocol::MesureFronto);
+                                        emit NouvMesure(GenericProtocol::MesureFronto);
                                     }
                                     delete oldMesureFronto;
                                     //if (!OKMesureFronto) qDebug() << "pas OK Fronto";
@@ -7610,8 +7610,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                                         }
                                         if (Datas::I()->mesureautoref->isDifferent(oldMesureAutoref) && !Datas::I()->mesureautoref->isdataclean())
                                         {
-                                            InsertMesure(MesureAutoref);
-                                            emit NouvMesure(MesureAutoref);
+                                            InsertMesure(GenericProtocol::MesureAutoref);
+                                            emit NouvMesure(GenericProtocol::MesureAutoref);
                                         }
                                         delete oldMesureAutoref;
                                         //if (!OKMesureAutoref) qDebug() << "pas OK Autoref";
@@ -7849,8 +7849,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                         }
                         if (Datas::I()->mesurekerato->isDifferent(oldMesureKerato) && !Datas::I()->mesurekerato->isdataclean())
                         {
-                            InsertMesure(MesureKerato);
-                            emit NouvMesure(MesureKerato);
+                            InsertMesure(GenericProtocol::MesureKerato);
+                            emit NouvMesure(GenericProtocol::MesureKerato);
                         }
                         delete oldMesureKerato;
                     }
@@ -7903,8 +7903,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                         {
                             Datas::I()->mesuretono->setmodemesure(Tonometrie::Air);
                             //qDebug() << "TOD = " + QString::number(Datas::I()->mesuretono->TOD()) + "mmHg - TOG = " + QString::number(Datas::I()->mesuretono->TOG()) + "mmHg";
-                            InsertMesure(MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
-                            emit NouvMesure(MesureTono);
+                            InsertMesure(GenericProtocol::MesureTono);                     //! depuis LectureDonneesRefracteur(QString Mesure)
+                            emit NouvMesure(GenericProtocol::MesureTono);
                         }
                     }
             //! On essaie de récupérer une mesure de pachymétrie
@@ -7945,8 +7945,8 @@ void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
                         {
                             Datas::I()->mesurepachy->setmodemesure(Pachymetrie::Optique);
                             //qDebug() << "pachyOD = " + QString::number(Datas::I()->mesurepachy->pachyOD()) + " - pachyOG = " + QString::number(Datas::I()->mesurepachy->pachyOG());
-                            InsertMesure(MesurePachy);                     //! depuis LectureDonneesXMLRefracteur(QString Mesure)
-                            emit NouvMesure(MesurePachy);
+                            InsertMesure(GenericProtocol::MesurePachy);                     //! depuis LectureDonneesXMLRefracteur(QString Mesure)
+                            emit NouvMesure(GenericProtocol::MesurePachy);
                         }
                    }
                 }
@@ -8409,15 +8409,15 @@ void Procedures::ReponsePortSerie_Tono(const QString &s)
 
         //! Enregistre les mesures dans la base
         if (!Datas::I()->mesuretono->isdataclean())
-            InsertMesure(MesureTono);
+            InsertMesure(GenericProtocol::MesureTono);
         if (!Datas::I()->mesurepachy->isdataclean())
-            InsertMesure(MesurePachy);
+            InsertMesure(GenericProtocol::MesurePachy);
 
         //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
         if (!Datas::I()->mesuretono->isdataclean())
-            emit NouvMesure(MesureTono);
+            emit NouvMesure(GenericProtocol::MesureTono);
         if (!Datas::I()->mesurepachy->isdataclean())
-            emit NouvMesure(MesurePachy);
+            emit NouvMesure(GenericProtocol::MesurePachy);
     }
     else
     {
@@ -8458,14 +8458,14 @@ void Procedures::ReponsePortSerie_Fronto(const QString &s)
         return;
 
     //! Enregistre la mesures dans la base
-    InsertMesure(MesureFronto);
+    InsertMesure(GenericProtocol::MesureFronto);
 
     //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    TypesMesures flag = MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
+    GenericProtocol::TypesMesures flag = GenericProtocol::MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
     RegleRefracteur(flag);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
-    emit NouvMesure(MesureFronto);
+    emit NouvMesure(GenericProtocol::MesureFronto);
 }
 
 
@@ -8813,32 +8813,32 @@ void Procedures::ReponseXML_Autoref(const QDomDocument &xmldoc)
 
     //! Enregistre les mesures dans la base
     if (!Datas::I()->mesurekerato->isdataclean())
-        InsertMesure(MesureKerato);
+        InsertMesure(GenericProtocol::MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
-        InsertMesure(MesureAutoref);
+        InsertMesure(GenericProtocol::MesureAutoref);
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
-            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
+            InsertMesure(GenericProtocol::MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
         if (!Datas::I()->mesurepachy->isdataclean())
-            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
+            InsertMesure(GenericProtocol::MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
     }
 
     //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    TypesMesures flag = MesureAutoref;                        /*! règle le flag de reglage du refracteur sur Autoref seulement */
+    GenericProtocol::TypesMesures flag = GenericProtocol::MesureAutoref;                        /*! règle le flag de reglage du refracteur sur Autoref seulement */
     RegleRefracteur(flag);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
-        emit NouvMesure(MesureKerato);
+        emit NouvMesure(GenericProtocol::MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
-        emit NouvMesure(MesureAutoref);
+        emit NouvMesure(GenericProtocol::MesureAutoref);
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
-            emit NouvMesure(MesureTono);
+            emit NouvMesure(GenericProtocol::MesureTono);
         if (!Datas::I()->mesurepachy->isdataclean())
-            emit NouvMesure(MesurePachy);
+            emit NouvMesure(GenericProtocol::MesurePachy);
     }
 }
 
@@ -8854,14 +8854,14 @@ void Procedures::ReponseCSV_Fronto(const QString filecontents)
         return;
 
     //! Enregistre la mesures dans la base
-    InsertMesure(MesureFronto);
+    InsertMesure(GenericProtocol::MesureFronto);
 
     //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    TypesMesures flag = MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
+    GenericProtocol::TypesMesures flag = GenericProtocol::MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
     RegleRefracteur(flag);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
-    emit NouvMesure(MesureFronto);
+    emit NouvMesure(GenericProtocol::MesureFronto);
 }
 
 //! lire les fichiers xml des appareils de refraction
@@ -8876,14 +8876,14 @@ void Procedures::ReponseXML_Fronto(const QDomDocument &xmldoc)
         return;
 
     //! Enregistre la mesures dans la base
-    InsertMesure(MesureFronto);
+    InsertMesure(GenericProtocol::MesureFronto);
 
     //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    TypesMesures flag = MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
+    GenericProtocol::TypesMesures flag = GenericProtocol::MesureFronto;                        /*! règle le flag de reglage du refracteur sur Fronto seulement */
     RegleRefracteur(flag);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuée
-    emit NouvMesure(MesureFronto);
+    emit NouvMesure(GenericProtocol::MesureFronto);
 }
 
 //! lire les fichiers xml des appareils de refraction
@@ -8900,10 +8900,10 @@ void Procedures::ReponseXML_Refracteur(const QDomDocument &xmldoc)
         return;
 
     //! Enregistre les mesures dans la base
-    InsertMesure(MesureRefracteur);
+    InsertMesure(GenericProtocol::MesureRefracteur);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
-    emit NouvMesure(MesureRefracteur);
+    emit NouvMesure(GenericProtocol::MesureRefracteur);
 }
 
 
@@ -8920,15 +8920,15 @@ void Procedures::ReponseXML_Tono(const QDomDocument &xmldoc)
 
     //! Enregistre les mesures dans la base
     if (!Datas::I()->mesuretono->isdataclean())
-        InsertMesure(MesureTono);
+        InsertMesure(GenericProtocol::MesureTono);
     if (!Datas::I()->mesurepachy->isdataclean())
-        InsertMesure(MesurePachy);
+        InsertMesure(GenericProtocol::MesurePachy);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     if (!Datas::I()->mesuretono->isdataclean())
-        emit NouvMesure(MesureTono);
+        emit NouvMesure(GenericProtocol::MesureTono);
     if (!Datas::I()->mesurepachy->isdataclean())
-        emit NouvMesure(MesurePachy);
+        emit NouvMesure(GenericProtocol::MesurePachy);
 }
 
 //! lire les ports séries
@@ -8996,32 +8996,32 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 
     //! Enregistre les mesures dans la base
     if (!Datas::I()->mesurekerato->isdataclean())
-        InsertMesure(MesureKerato);
+        InsertMesure(GenericProtocol::MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
-        InsertMesure(MesureAutoref);
+        InsertMesure(GenericProtocol::MesureAutoref);
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
-            InsertMesure(MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
+            InsertMesure(GenericProtocol::MesureTono);                     //! depuis ReponsePortSerie_Autoref(const QString &s)
         if (!Datas::I()->mesurepachy->isdataclean())
-            InsertMesure(MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
+            InsertMesure(GenericProtocol::MesurePachy);                    //! depuis ReponsePortSerie_Autoref(const QString &s)
     }
 
     //! TRANSMETTRE LES DONNEES AU REFRACTEUR --------------------------------------------------------------------------------------------------------------------------------------------------------
-    TypesMesures flag = MesureAutoref;                        /*! règle le flag de reglage du refracteur sur Autoref seulement */
+    GenericProtocol::TypesMesures flag = GenericProtocol::MesureAutoref;                        /*! règle le flag de reglage du refracteur sur Autoref seulement */
     RegleRefracteur(flag);
 
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), les mesures qui viennent d'être effectuées
     if (autorefhaskerato && !Datas::I()->mesurekerato->isdataclean())
-        emit NouvMesure(MesureKerato);
+        emit NouvMesure(GenericProtocol::MesureKerato);
     if (!Datas::I()->mesureautoref->isdataclean())
-        emit NouvMesure(MesureAutoref);
+        emit NouvMesure(GenericProtocol::MesureAutoref);
     if (autorefhastonopachy)
     {
         if (!Datas::I()->mesuretono->isdataclean())
-            emit NouvMesure(MesureTono);
+            emit NouvMesure(GenericProtocol::MesureTono);
         if (!Datas::I()->mesurepachy->isdataclean())
-            emit NouvMesure(MesurePachy);
+            emit NouvMesure(GenericProtocol::MesurePachy);
     }
 }
 
@@ -10572,20 +10572,20 @@ bool Procedures::HasAppareilRefractionConnecte()
     return m_hasappareilrefractionconnecte;
 }
 
-Procedures::TypeMesure Procedures::ConvertMesure(QString Mesure)
+GenericProtocol::TypeMesure Procedures::ConvertMesure(QString Mesure)
 {
-    if (Mesure == "P") return MesureFronto;
-    if (Mesure == "A") return MesureAutoref;
-    if (Mesure == "R") return MesureRefracteur;
-    return  MesureNone;
+    if (Mesure == "P") return GenericProtocol::MesureFronto;
+    if (Mesure == "A") return GenericProtocol::MesureAutoref;
+    if (Mesure == "R") return GenericProtocol::MesureRefracteur;
+    return  GenericProtocol::MesureNone;
 }
 
-QString Procedures::ConvertMesure(TypeMesure Mesure)
+QString Procedures::ConvertMesure(GenericProtocol::TypeMesure Mesure)
 {
     switch (Mesure) {
-    case MesureFronto:        return "P";
-    case MesureAutoref:       return "A";
-    case MesureRefracteur:    return "R";
+    case GenericProtocol::MesureFronto:        return "P";
+    case GenericProtocol::MesureAutoref:       return "A";
+    case GenericProtocol::MesureRefracteur:    return "R";
     default: return "";
     }
 }
@@ -10631,7 +10631,7 @@ QString Procedures::CalculeFormule(MesureRefraction *ref,  QString Cote)
 //---------------------------------------------------------------------------------
 // Calcul de la formule de refraction
 //---------------------------------------------------------------------------------
-void Procedures::InsertMesure(TypeMesure typemesure)
+void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
 {
     if (Datas::I()->patients->currentpatient() == Q_NULLPTR)
         return;
@@ -10639,7 +10639,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         return;
     int idPatient   = Datas::I()->patients->currentpatient()->id();
     int idActe      = Datas::I()->actes->currentacte()->id();
-    if (typemesure == MesureFronto)
+    if (typemesure == GenericProtocol::MesureFronto)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -10705,7 +10705,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
             listbinds[CP_PD_REFRACTIONS]                = Datas::I()->mesurefronto->ecartIP();
         Datas::I()->refractions->CreationRefraction(listbinds);
     }
-    else if (typemesure == MesureAutoref)
+    else if (typemesure == GenericProtocol::MesureAutoref)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -10808,9 +10808,9 @@ void Procedures::InsertMesure(TypeMesure typemesure)
             db->StandardSQL (requete, tr("Erreur de mise à jour de données autoref dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    else if (typemesure == MesureKerato)
+    else if (typemesure == GenericProtocol::MesureKerato)
     {
-        QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(MesureAutoref) + "'";
+        QString req = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(GenericProtocol::MesureAutoref) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
         if (!m_ok)
             return;
@@ -10822,7 +10822,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     CP_DIOTRIESK1OD_DATAOPHTA ", " CP_DIOTRIESK2OD_DATAOPHTA ", " CP_DIOTRIESK1OG_DATAOPHTA ", " CP_DIOTRIESK2OG_DATAOPHTA ")"
                     " VALUES (" +
                     QString::number(idPatient)  + ", '" +
-                    ConvertMesure(MesureAutoref) + "', "
+                    ConvertMesure(GenericProtocol::MesureAutoref) + "', "
                     "CURDATE(), " +
                     (Datas::I()->mesurekerato->isnullLOD()? "null" : QString::number(Datas::I()->mesurekerato->K1OD(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOD()? "null" : QString::number(Datas::I()->mesurekerato->K2OD(), 'f', 2)) + ", " +
@@ -10830,7 +10830,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     (Datas::I()->mesurekerato->isnullLOG()? "null" : QString::number(Datas::I()->mesurekerato->K1OG(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOG()? "null" : QString::number(Datas::I()->mesurekerato->K2OG(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOG()? "null" : QString::number(Datas::I()->mesurekerato->axeKOG()))       + ", " +
-                    "'" + ConvertMesure(MesureAutoref) + "', " +
+                    "'" + ConvertMesure(GenericProtocol::MesureAutoref) + "', " +
                     (Datas::I()->mesurekerato->isnullLOD() || Datas::I()->mesurekerato->dioptriesK1OD() == 0.0? "null" : QString::number(Datas::I()->mesurekerato->dioptriesK1OD(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOD() || Datas::I()->mesurekerato->dioptriesK2OD() == 0.0? "null" : QString::number(Datas::I()->mesurekerato->dioptriesK2OD(), 'f', 2)) + ", " +
                     (Datas::I()->mesurekerato->isnullLOG() || Datas::I()->mesurekerato->dioptriesK1OG() == 0.0? "null" : QString::number(Datas::I()->mesurekerato->dioptriesK1OG(), 'f', 2)) + ", " +
@@ -10842,7 +10842,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         {
             req = "UPDATE " TBL_DONNEES_OPHTA_PATIENTS " set "
                     CP_DATEKERATO_DATAOPHTA " = CURDATE(), "
-                    CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(MesureAutoref) + "'";
+                    CP_MODEMESUREKERATO_DATAOPHTA " = '" + ConvertMesure(GenericProtocol::MesureAutoref) + "'";
             if (!Datas::I()->mesurekerato->isnullLOD())
             {
                 req +=
@@ -10867,11 +10867,11 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                             ", " CP_DIOTRIESK2OG_DATAOPHTA " = " + QString::number(Datas::I()->mesurekerato->dioptriesK2OG(), 'f', 2);
 
             }
-            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(MesureAutoref) + "'";
+            req += " where " CP_IDPATIENT_DATAOPHTA " = "+ QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(GenericProtocol::MesureAutoref) + "'";
             db->StandardSQL (req, tr("Erreur de modification de données de kératométrie dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    else if (typemesure == MesureRefracteur)
+    else if (typemesure == GenericProtocol::MesureRefracteur)
     {
         QString mSphereOD, mSphereOG;
         QString mCylOD, mCylOG;
@@ -10944,7 +10944,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
 
         Datas::I()->refractions->CreationRefraction(listbinds);
 
-        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(MesureRefracteur) + "'";
+        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(GenericProtocol::MesureRefracteur) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
             return;
@@ -10996,12 +10996,12 @@ void Procedures::InsertMesure(TypeMesure typemesure)
                     CP_AVLOG_DATAOPHTA " = '"       + mAVLOG + "'," +
                     CP_AVPOG_DATAOPHTA " = '"       + mAVPOG + "'," +
                     CP_ECARTIP_DATAOPHTA " = "      + PD +
-                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(MesureRefracteur) + "'";
+                    " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(GenericProtocol::MesureRefracteur) + "'";
 
             db->StandardSQL (requete, tr("Erreur de mise à jour de données de refraction dans ") + TBL_DONNEES_OPHTA_PATIENTS);
         }
     }
-    else if (typemesure == MesureTono)
+    else if (typemesure == GenericProtocol::MesureTono)
     {
         Datas::I()->mesuretono->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_TONOMETRIE);
@@ -11015,7 +11015,7 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         Datas::I()->mesuretono->setid(db->selectMaxFromTable(CP_ID_TONO, TBL_TONOMETRIE,ok));
         db->unlocktables();
     }
-    else if (typemesure == MesurePachy)
+    else if (typemesure == GenericProtocol::MesurePachy)
     {
         Datas::I()->mesurepachy->setidpatient(Datas::I()->patients->currentpatient()->id());
         db->locktable(TBL_PACHYMETRIE);
@@ -11029,6 +11029,6 @@ void Procedures::InsertMesure(TypeMesure typemesure)
         Datas::I()->mesurepachy->setid(db->selectMaxFromTable(CP_ID_PACHY, TBL_PACHYMETRIE,ok));
         db->unlocktables();
     }
-    if (typemesure != MesureFronto && typemesure != MesureTono && typemesure != MesurePachy)
+    if (typemesure != GenericProtocol::MesureFronto && typemesure != GenericProtocol::MesureTono && typemesure != GenericProtocol::MesurePachy)
         Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }

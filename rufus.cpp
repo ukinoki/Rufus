@@ -10267,7 +10267,7 @@ void Rufus::Pachymetrie()
 
     if (Dlg_AutresMes->exec() == QDialog::Accepted)
     {
-        proc->InsertMesure(Procedures::MesurePachy);
+        proc->InsertMesure(GenericProtocol::MesurePachy);
         AffichePachymetrie();
     }
     delete Dlg_AutresMes;
@@ -10314,7 +10314,7 @@ void Rufus::Tonometrie()
 
     if (Dlg_AutresMes->exec() == QDialog::Accepted)
     {
-        proc->InsertMesure(Procedures::MesureTono);
+        proc->InsertMesure(GenericProtocol::MesureTono);
         QString tono = proc->HtmlTono();
         if (tono != "")
         {
@@ -10430,36 +10430,36 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
     return true;
 }
 
-void Rufus::NouvelleMesure(Procedures::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
+void Rufus::NouvelleMesure(GenericProtocol::TypeMesure TypeMesure) //utilisé pour ouvrir la fiche refraction quand un appareil a transmis une mesure
 {
     if (findChildren<dlg_refraction*>().size()>0)
-        if (TypeMesure == Procedures::MesureRefracteur
-                || TypeMesure == Procedures::MesureFronto
-                || TypeMesure == Procedures::MesureAutoref)
+        if (TypeMesure == GenericProtocol::MesureRefracteur
+                || TypeMesure == GenericProtocol::MesureFronto
+                || TypeMesure == GenericProtocol::MesureAutoref)
             return;
     if (currentpatient() == Q_NULLPTR
             || currentacte() == Q_NULLPTR)
         return;
 
     switch (TypeMesure) {
-    case  Procedures::MesureRefracteur:
+    case  GenericProtocol::MesureRefracteur:
         if (!Datas::I()->mesureacuite->isdataclean() && !Datas::I()->mesurefinal->isdataclean())
             ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlRefracteur()));
         RefractionMesure(dlg_refraction::Auto);
         break;
-    case Procedures::MesureAutoref:
+    case GenericProtocol::MesureAutoref:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlAutoref()));
         break;
-    case Procedures::MesureFronto:
+    case GenericProtocol::MesureFronto:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlFronto()));
         break;
-    case Procedures::MesureKerato:
+    case GenericProtocol::MesureKerato:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlKerato()));
         break;
-    case Procedures::MesurePachy:
+    case GenericProtocol::MesurePachy:
         AffichePachymetrie();
         break;
-    case Procedures::MesureTono:
+    case GenericProtocol::MesureTono:
         ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(proc->HtmlTono()));
         break;
     default:
