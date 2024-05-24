@@ -28,7 +28,7 @@ class SerialThread : public QObject
     Q_OBJECT
 
 public:
-    explicit        SerialThread(QSerialPort *PortProc);
+    explicit        SerialThread(QSerialPort *PortProc, QString NomApp = "");
     void            transaction();
 
 signals:
@@ -37,6 +37,7 @@ signals:
 private:
     QByteArray      reponseData;
     QSerialPort     *Port;
+    QString         m_nomapp = "";
     void            LitPort();
     QThread         *m_thread;
     QTimer          *t_timer;
@@ -49,7 +50,7 @@ class SerialThread : public QThread
     Q_OBJECT
 
 public:
-    explicit        SerialThread(QSerialPort *PortProc);
+    explicit        SerialThread(QSerialPort *PortProc, QString NomApp = "");
     void            transaction();
     void            run() Q_DECL_OVERRIDE;
 
@@ -59,6 +60,7 @@ signals:
 private:
     QByteArray      reponseData;
     QSerialPort     *Port;
+    QString         m_nomapp = "";
     void            LitPort();
 };
 #endif

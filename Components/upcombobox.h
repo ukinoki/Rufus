@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QToolTip>
 #include <QKeyEvent>
+#include <QApplication>
 
 
 class UpComboBox : public QComboBox
