@@ -1,6 +1,4 @@
 #include "Topcon.h"
-#include "gbl_datas.h"
-#include "utils.h"
 
 Topcon* Topcon::instance = Q_NULLPTR;
 

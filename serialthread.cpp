@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef Q_OS_WIN
 
-SerialThread::SerialThread(QSerialPort *PortProc)
+SerialThread::SerialThread(QSerialPort *PortProc, QString NomApp)
 {
     Port = PortProc;
     m_nomapp        = NomApp;

@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QToolTip>
 #include <QApplication>
+
 #include "cls_item.h"
 class Item;
 

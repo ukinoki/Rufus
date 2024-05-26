@@ -75,6 +75,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <timerthread.h>
 #include <tomey.h>
 #include <Topcon.h>
+#include <nidek.h>
 
 class Procedures : public QObject
 {
@@ -520,8 +521,9 @@ public:
                 Tonometre   = 0x8,
                 };  Q_ENUM(TypeAppareil)
     Q_DECLARE_FLAGS(TypesAppareils, TypeAppareil)
+
 signals:
-    void                    NouvMesure(GenericProtocol::TypeMesure);
+    void                    NouvMesure(GenericProtocol::TypeMesure);     //! signal de mise à jour des fiches rufus.ccp et dlg_reraction.cpp
     void                    newdataxml(const QDomDocument &xml);
 
 public:
@@ -592,6 +594,8 @@ private:
     void                    Ouverture_Appareils_Refraction();
     bool                    Ouverture_Ports_Series(TypesAppareils appareils);       //! ouvre les ports séries des appareils connectés en  port COM
     bool                    Ouverture_Fichiers_Echange(TypesAppareils appareils);   //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
+    void                    logmesure(QString mesure)  { Logs::LogToFile("refraction.txt", mesure); }
+
     //LE FRONTO ----------------------------------------------------
     void                    LectureDonneesCOMFronto(QString Mesure);                //! lit les données envoyées sur le port série du fronto
     void                    LectureDonneesXMLFronto(QDomDocument docxml);           //! lit les données envoyées sur le fichier échange XML du fronto
@@ -617,12 +621,6 @@ private:
     void                    LectureDonneesXMLTono(QDomDocument docxml);             //! lit les données envoyées sur le fichier échange XML du fronto
     void                    ReponsePortSerie_Tono(const QString &s);
 
-
-
-    QByteArray              RequestToSendNIDEK();
-    QByteArray              SendDataNIDEK(QString mesure);
-
-    void                    logmesure(QString mesure)                       { Logs::LogToFile("refraction.txt", mesure); }
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Procedures::TypesAppareils)

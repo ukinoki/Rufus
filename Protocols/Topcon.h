@@ -1,8 +1,6 @@
 #ifndef TOPCON_H
 #define TOPCON_H
 
-#include <QObject>
-#include <QDomDocument>
 #include "genericprotocol.h"
 
 class Topcon :  public GenericProtocol

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-05-2024/2");
+    qApp->setApplicationVersion("24-05-2024/2");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -10268,7 +10268,6 @@ void Rufus::Pachymetrie()
     if (Dlg_AutresMes->exec() == QDialog::Accepted)
     {
         proc->InsertMesure(GenericProtocol::MesurePachy);
-        AffichePachymetrie();
     }
     delete Dlg_AutresMes;
 }
@@ -10315,12 +10314,6 @@ void Rufus::Tonometrie()
     if (Dlg_AutresMes->exec() == QDialog::Accepted)
     {
         proc->InsertMesure(GenericProtocol::MesureTono);
-        QString tono = proc->HtmlTono();
-        if (tono != "")
-        {
-            QString ARajouterEnText =  HTML_RETOURLIGNE + tono  + "</p>" HTML_FINPARAGRAPH;
-            ItemsList::update(currentacte(), CP_TEXTE_ACTES, ui->ActeTextetextEdit->appendHtml(ARajouterEnText));
-        }
         ui->ActeTextetextEdit->setFocus();
         ui->ActeTextetextEdit->moveCursor(QTextCursor::End);
     }

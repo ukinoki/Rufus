@@ -2,10 +2,17 @@
 #define GENERICPROTOCOL_H
 
 #include <QObject>
+#include <QDomDocument>
+#include "gbl_datas.h"
+#include "utils.h"
+#include <QSettings>
+#include "log.h"
 
 class GenericProtocol : public QObject
 {
     Q_OBJECT
+private:
+    QSettings  settings() {return QSettings(PATH_FILE_INI, QSettings::IniFormat);}
 public:
     enum TypeMesure {
         MesureNone        = 0x0,
@@ -18,6 +25,13 @@ public:
         MesurePachy       = 0x40
     };  Q_ENUM(TypeMesure)
     Q_DECLARE_FLAGS(TypesMesures, TypeMesure)
+
+protected:
+    void        EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmesure);
+    void        logmesure(QString mesure)  { Logs::LogToFile("refraction.txt", mesure); }
+
+signals:
+    void        newmesure(TypeMesure);             //! signal d'insertion d'une nouvelle mesure dans la base et de mise à jour des fiches rufus.cpp et dlg_refraction.cpp
 
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(GenericProtocol::TypesMesures)
