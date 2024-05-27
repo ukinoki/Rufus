@@ -6744,7 +6744,6 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
 void Procedures::LectureDonneesCOMAutoref(QString Mesure)
 {
     Logs::LogToFile("MesuresAutoref.txt", Mesure);
-    int     a(0);
 
     QString nameARK   = m_settings->value(Param_Poste_Autoref).toString();
     QString test;
@@ -6821,7 +6820,6 @@ void Procedures::LectureDonneesXMLAutoref(QDomDocument docxml)
           return;
       if (nameARK == "NIKON Speedy-K")
           nameARK = "HUVITZ HTR-1A";
-    bool autorefhastonopachy = false;
     if (nameARK == "NIDEK ARK-1A"
      || nameARK == "NIDEK ARK-1"
      || nameARK == "NIDEK ARK-1S"

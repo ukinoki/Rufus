@@ -448,10 +448,8 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     int idActe = -1;
     if (i == ItemsList::Suiv)
     {
-        ++it_currentacte;
-        if( it_currentacte == map_actes->constEnd() )
-            it_currentacte = map_actes->constFind(map_actes->lastKey());
-
+        if( it_currentacte != std::prev(map_actes->constEnd(),2) )
+            ++it_currentacte;
     }
     else if (i == ItemsList::Prec)
     {
