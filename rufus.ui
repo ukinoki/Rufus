@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1339</width>
-    <height>1000</height>
+    <height>950</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -19,7 +19,7 @@
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>1000</height>
+    <height>950</height>
    </size>
   </property>
   <property name="palette">
@@ -93,7 +93,7 @@
    <string>Rufus</string>
   </property>
   <property name="windowIcon">
-   <iconset>
+   <iconset resource="assets/Images/images.qrc">
     <normaloff>:/rufus.jpg</normaloff>:/rufus.jpg</iconset>
   </property>
   <property name="windowOpacity">
@@ -113,6 +113,21 @@
     </size>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_8">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <property name="minimumSize">
@@ -255,7 +270,7 @@
 dossier - F6</string>
                   </property>
                   <property name="icon">
-                   <iconset>
+                   <iconset resource="assets/Images/images.qrc">
                     <normaloff>:/toolbar_new_folder.png</normaloff>:/toolbar_new_folder.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -283,7 +298,7 @@ seront recopiés automatiquement</string>
                    <string>Recopier</string>
                   </property>
                   <property name="icon">
-                   <iconset>
+                   <iconset resource="assets/Images/images.qrc">
                     <normaloff>:/copy_v2.png</normaloff>:/copy_v2.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -310,7 +325,7 @@ seront recopiés automatiquement</string>
 patients - F5</string>
                   </property>
                   <property name="icon">
-                   <iconset>
+                   <iconset resource="assets/Images/images.qrc">
                     <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
                   </property>
                   <property name="iconSize">
@@ -385,7 +400,7 @@ patients - F5</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset>
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/Vitale.jpg</normaloff>:/Vitale.jpg</iconset>
                 </property>
                 <property name="iconSize">
@@ -442,7 +457,7 @@ patients - F5</string>
               </property>
               <property name="dateTime">
                <datetime>
-                <hour>16</hour>
+                <hour>14</hour>
                 <minute>0</minute>
                 <second>0</second>
                 <year>1999</year>
@@ -603,7 +618,7 @@ patients - F5</string>
 le dossier</string>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="assets/Images/images.qrc">
                 <normaloff>:/start.png</normaloff>:/start.png</iconset>
               </property>
               <property name="iconSize">
@@ -633,7 +648,7 @@ le dossier</string>
 date de naissance</string>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="assets/Images/images.qrc">
                 <normaloff>:/calendar2.png</normaloff>:/calendar2.png</iconset>
               </property>
               <property name="iconSize">
@@ -763,7 +778,7 @@ date de naissance</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset>
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/Post-it.png</normaloff>:/Post-it.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -865,7 +880,7 @@ date de naissance</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset>
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
                 </property>
                 <property name="iconSize">
@@ -1241,7 +1256,7 @@ d'attente </string>
                   <x>0</x>
                   <y>0</y>
                   <width>698</width>
-                  <height>97</height>
+                  <height>100</height>
                  </rect>
                 </property>
                </widget>
@@ -1775,7 +1790,7 @@ background-color:rgb(255, 255, 255)</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset>
+         <iconset resource="assets/Images/images.qrc">
           <normaloff>:/edit.png</normaloff>:/edit.png</iconset>
         </property>
         <property name="iconSize">
@@ -1883,7 +1898,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/list_all_participants.png</normaloff>:/list_all_participants.png</iconset>
            </property>
            <property name="iconSize">
@@ -1936,7 +1951,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/toolbar_new_folder.png</normaloff>:/toolbar_new_folder.png</iconset>
            </property>
            <property name="iconSize">
@@ -1999,7 +2014,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/FSE.png</normaloff>:/FSE.png</iconset>
            </property>
            <property name="iconSize">
@@ -2062,7 +2077,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/orthoptist.png</normaloff>:/orthoptist.png</iconset>
            </property>
            <property name="iconSize">
@@ -2112,7 +2127,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/nouveau_dossier.jpg</normaloff>:/nouveau_dossier.jpg</iconset>
            </property>
            <property name="iconSize">
@@ -2168,7 +2183,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/Post-it.png</normaloff>:/Post-it.png</iconset>
            </property>
            <property name="iconSize">
@@ -2234,7 +2249,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/waiting_room.png</normaloff>:/waiting_room.png</iconset>
            </property>
            <property name="iconSize">
@@ -2287,7 +2302,7 @@ background-color:rgb(255, 255, 255)</string>
             <string/>
            </property>
            <property name="icon">
-            <iconset>
+            <iconset resource="assets/Images/images.qrc">
              <normaloff>:/shutdown.png</normaloff>:/shutdown.png</iconset>
            </property>
            <property name="iconSize">
@@ -2685,7 +2700,7 @@ background-color:rgb(255, 255, 255)</string>
                  <string/>
                 </property>
                 <property name="icon">
-                 <iconset>
+                 <iconset resource="assets/Images/images.qrc">
                   <normaloff>:/start.png</normaloff>
                   <normalon>:/startpushed.png</normalon>:/start.png</iconset>
                 </property>
@@ -3211,7 +3226,7 @@ suivante</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_play.png</normaloff>:/button_blue_play.png</iconset>
           </property>
           <property name="iconSize">
@@ -3244,7 +3259,7 @@ précédente</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_rear.png</normaloff>:/button_blue_rear.png</iconset>
           </property>
           <property name="iconSize">
@@ -3340,7 +3355,7 @@ acte</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_first.png</normaloff>:/button_blue_first.png</iconset>
           </property>
           <property name="iconSize">
@@ -3373,7 +3388,7 @@ acte</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/button_blue_last.png</normaloff>:/button_blue_last.png</iconset>
           </property>
           <property name="iconSize">
@@ -3405,7 +3420,7 @@ acte</string>
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/trash.png</normaloff>:/trash.png</iconset>
           </property>
           <property name="iconSize">
@@ -3565,7 +3580,7 @@ color : gray;
            <string>Réfraction - F3</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/LunettesRondes.png</normaloff>:/LunettesRondes.png</iconset>
           </property>
           <property name="iconSize">
@@ -3623,7 +3638,7 @@ color : gray;
            <string>Tonométrie - F4</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/Tonometrie2.png</normaloff>:/Tonometrie2.png</iconset>
           </property>
           <property name="iconSize">
@@ -3858,7 +3873,7 @@ color : gray;
            <string>Créer un acte</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/nouveau_dossier.jpg</normaloff>:/nouveau_dossier.jpg</iconset>
           </property>
           <property name="iconSize">
@@ -3913,7 +3928,7 @@ color : gray;
            <string>Actes précédents</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/listedossiers.jpg</normaloff>:/listedossiers.jpg</iconset>
           </property>
           <property name="iconSize">
@@ -3968,7 +3983,7 @@ color : gray;
            <string>Imprimer</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/Imprimer.png</normaloff>:/Imprimer.png</iconset>
           </property>
           <property name="iconSize">
@@ -4117,7 +4132,7 @@ color : gray;
            <string>bilan orthoptique</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/orthoptist.png</normaloff>:/orthoptist.png</iconset>
           </property>
           <property name="iconSize">
@@ -4203,7 +4218,7 @@ color : gray;
            <string/>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/calendar2.png</normaloff>:/calendar2.png</iconset>
           </property>
          </widget>
@@ -4249,7 +4264,7 @@ color : gray;
            <string>Documents</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/Archives.png</normaloff>:/Archives.png</iconset>
           </property>
           <property name="iconSize">
@@ -4399,7 +4414,7 @@ color : gray;
            <string>Programme opératoire</string>
           </property>
           <property name="icon">
-           <iconset>
+           <iconset resource="assets/Images/images.qrc">
             <normaloff>:/orthoptist.png</normaloff>:/orthoptist.png</iconset>
           </property>
           <property name="iconSize">
@@ -4645,34 +4660,6 @@ color : gray;
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menuBar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1339</width>
-     <height>24</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QToolBar" name="mainToolBar">
-   <property name="movable">
-    <bool>true</bool>
-   </property>
-   <property name="allowedAreas">
-    <set>Qt::NoToolBarArea</set>
-   </property>
-   <property name="floatable">
-    <bool>false</bool>
-   </property>
-   <attribute name="toolBarArea">
-    <enum>TopToolBarArea</enum>
-   </attribute>
-   <attribute name="toolBarBreak">
-    <bool>false</bool>
-   </attribute>
-  </widget>
-  <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -4750,6 +4737,8 @@ color : gray;
   <tabstop>MotsClesupSmallButton</tabstop>
   <tabstop>FSEpushButton</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="assets/Images/images.qrc"/>
+ </resources>
  <connections/>
 </ui>

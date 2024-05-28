@@ -956,7 +956,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define LARGEURLISTE                                    1300
 #define LARGEURNORMALE                                  1260
 #define HAUTEUR_MINI                                    280
-#define HAUTEUR_NORMALE                                 970
 
 //Opérations bancaires
 #define VIREMENT            "Virement"
