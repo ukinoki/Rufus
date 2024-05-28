@@ -176,7 +176,6 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     }
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
-    Datas::I()->typesinterventions->initListe();
     m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
 }
 
