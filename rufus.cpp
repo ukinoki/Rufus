@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("24-05-2024/2");
+    qApp->setApplicationVersion("29-05-2024/2");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -8125,18 +8125,11 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
         {
             //  Mise à jour de currentpatient() et de l'affichage si le dossier modifié est le dossier en cours
             Patients::updatePatient(pat);
-            PatientEnCours *patcours = Q_NULLPTR;
-            for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+            if (Datas::I()->patientsencours->patientsencours()->constFind(pat->id()) != Datas::I()->patientsencours->patientsencours()->constEnd())
             {
-                PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
-                if (patcrs->id() == currentpatient()->id())
-                {
-                    patcours = patcrs;
-                    break;
-                }
-            }
-            if (patcours)
                 Remplir_SalDat();
+                Flags::I()->MAJFlagSalleDAttente();
+            }
             if (m_listepatientsmodel->findItems(QString::number(pat->id())).size() > 0)
             {
                 int row = m_listepatientsmodel->findItems(QString::number(pat->id())).at(0)->row();
@@ -8165,7 +8158,6 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
                 QMap<QString,QVariant>  NewAge = Utils::CalculAge(currentpatient()->datedenaissance(), ui->ActeDatedateEdit->date());
                 ui->AgelineEdit->setText(NewAge["toString"].toString());
             }
-            Flags::I()->MAJFlagSalleDAttente();
             unpatientaetecreeoumodifie = true;
         }
 
@@ -8230,7 +8222,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
             FiltreTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
         }
     }
-    if (unpatientaetecreeoumodifie && Dlg_IdentPatient->currentpatient() != Q_NULLPTR)
+    if (unpatientaetecreeoumodifie && Dlg_IdentPatient->currentpatient() != Q_NULLPTR && m_utiliseTCP)
         envoieTCPMessage(QString::number(Dlg_IdentPatient->currentpatient()->id()) + TCPMSG_MAJPatient);
     delete Dlg_IdentPatient;
     return unpatientaetecreeoumodifie;
@@ -8501,27 +8493,30 @@ void Rufus::InitEventFilters()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitMenus()
 {
-    bool a = (currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie() || currentuser()->isSocComptable());
-    actionPaiementTiers             ->setVisible(a);
-    actionPaiementDirect            ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
-    actionBilanRecettes             ->setVisible(a);
-    actionRecettesSpeciales         ->setVisible(currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
-    actionJournalDepenses           ->setVisible(a && (Datas::I()->users->comptablesActes()->size() + Datas::I()->users->liberaux()->size() > 0));
-    actionGestionComptesBancaires   ->setVisible(currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
-    actionRemiseCheques             ->setVisible(a);
-    menuComptabilite                ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
+    if (QLocale().territory() == QLocale::Madagascar)
+    {
+        actionPaiementTiers             ->setVisible(currentuser()->isComptableActes() || currentuser()->isSecretaire());
+        actionPaiementDirect            ->setVisible(currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isRemplacant());
+        actionBilanRecettes             ->setVisible(currentuser()->isSecretaire() || currentuser()->isAutreFonction() || currentuser()->isComptableActes());
+        actionRecettesSpeciales         ->setVisible(currentuser()->isComptableActes());
+        actionJournalDepenses           ->setVisible(currentuser()->isComptableActes() || currentuser()->isSecretaire());
+        actionGestionComptesBancaires   ->setVisible(currentuser()->isComptableActes());
+        actionRemiseCheques             ->setVisible(currentuser()->isComptableActes() || currentuser()->isSecretaire());
+        menuComptabilite                ->setVisible(currentuser()->isComptableActes() || currentuser()->isSecretaire());
+    }
+    else
+    {
+        bool a = (currentuser()->isComptableActes() || currentuser()->isSecretaire() || currentuser()->isSoignantSalarie());
+        actionPaiementTiers             ->setVisible(a);
+        actionPaiementDirect            ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
+        actionBilanRecettes             ->setVisible(a);
+        actionRecettesSpeciales         ->setVisible(currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
+        actionJournalDepenses           ->setVisible(a && (Datas::I()->users->comptablesActes()->size() + Datas::I()->users->liberaux()->size() > 0));
+        actionGestionComptesBancaires   ->setVisible(currentuser()->modecomptable().testFlag(User::ComptaNoMedical));
+        actionRemiseCheques             ->setVisible(a);
+        menuComptabilite                ->setVisible(a || (currentuser()->isSoignantSalarie() && !currentuser()->isAssistant()) || currentuser()->isRemplacant());
+    }
     actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
-    /* Mada
-    actionPaiementTiers             ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSocComptable());
-    actionPaiementDirect            ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSalarie() || currentuser()->isRemplacant());
-    actionBilanRecettes             ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSalarie() || currentuser()->isComptable());
-    actionRecettesSpeciales         ->setVisible(currentuser()->isComptable());
-    actionJournalDepenses           ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire());
-    actionGestionComptesBancaires   ->setVisible(currentuser()->isLiberal() || currentuser()->isComptable());
-    actionRemiseCheques             ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSocComptable());
-    menuComptabilite                ->setVisible(currentuser()->isLiberal() || currentuser()->isSecretaire() || currentuser()->isSocComptable());
-    actionEnregistrerVideo          ->setVisible(db->ModeAccesDataBase() != Utils::Distant);
-    */
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9373,10 +9368,9 @@ void Rufus::Remplir_SalDat()
     QFontMetrics        fm(qApp->font());
     Datas::I()->patientsencours->initListeAll();
     QList<int> listidpat;
+
     // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
-
     QStandardItemModel      *m_listepatientsencoursmodel    = new QStandardItemModel();
-
     /*! Sort listpatients on rdv time */
     for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
@@ -9389,7 +9383,6 @@ void Rufus::Remplir_SalDat()
               << itempat;
         m_listepatientsencoursmodel->appendRow(items);
     }
-
     QList<PatientEnCours*> listpat;
     m_listepatientsencoursmodel->sort(0);
 
@@ -9830,6 +9823,8 @@ void Rufus::Remplir_SalDat()
         wdg_accueilTab->setVisible(false);
     else
     {
+        if (m_listesuperviseursaccueilmodel->rowCount() > 1)
+            m_listesuperviseursaccueilmodel->sort(0);
         wdg_accueilTab->setVisible(true);
         for (int i=0; i<m_listesuperviseursaccueilmodel->rowCount(); i++)
         {
