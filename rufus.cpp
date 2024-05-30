@@ -9644,7 +9644,12 @@ void Rufus::Remplir_SalDat()
             PatientEnCours *patencours = Q_NULLPTR;
             foreach (PatientEnCours *pat, *Datas::I()->patientsencours->patientsencours())
                 if (pat->iduserencoursexam() == post->id() && pat->posteexamen() == post->nomposte())
+                {
                     patencours = pat;
+                    //qDebug() << "pat->iduserencoursexam()" <<pat->iduserencoursexam() << "post->id()" << post->id();
+                    //qDebug() << "pat->posteexamen()" << post->nomposte() << "pat->posteexamen()" << post->nomposte();
+                    break;
+                }
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
