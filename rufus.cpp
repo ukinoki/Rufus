@@ -197,21 +197,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     connect (t_timerActualiseDocsExternes,      &QTimer::timeout,   this,   &Rufus::ActualiseDocsExternes);
 
     //! 7 - Nettoyage des erreurs éventuelles de la salle d'attente
-    Datas::I()->patientsencours->initListeAll();
-    // on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam est l'utilisateur actuel et qui n'auraient pas été supprimés (plantage)
-    QString blabla              = ENCOURSEXAMEN;
-    int length                  = blabla.size();
-    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
-    {
-        PatientEnCours *pat = const_cast<PatientEnCours*>(it.value());
-        if (pat != Q_NULLPTR)
-            if (pat->idusersuperviseur() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
-            {
-                ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
-                ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
-                ItemsList::update(pat, CP_IDUSERENCOURSEXAM_SALDAT);
-            }
-    }
+    CleanSalleDAttente();
 
     //! 8 les signaux
     ConnectSignals();
@@ -5776,10 +5762,89 @@ void Rufus::VerifMessages()
     }
 }
 
+void Rufus::CleanSalleDAttente()
+{
+    /*! il faut nettoyer la salle d'attente des patients en cours d'examen
+        * soit inscits sur un poste qui n'est pas connecté
+            * on vérifie dans les postes connectés qu'on trouve bien ce poste
+        * soit inscrits sur un poste qui est connecté mais avec un autre utilisateur que celui qui est inscrit comme encours d'examen sur ce poste
+            * on vérifie dans les postes connectés qu'on trouve bien ce poste et que l'utilisateur qui y est inscrit est le même que celui qui est déclaré comme iduserencoursexamen du pateint en salle d'attente
+        * soit dont l'iduserencours d'examen n'est plus connecté
+            * on vérifie dans les postes connectés qu'on trouve bien ce poste avec l'utilisateur déclaré comme iduserencoursexamen du patient en salle d'attente
+    */
+    QList<PosteConnecte*> listpostsoignant;
+    Datas::I()->postesconnectes->initListe();
+    for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
+    {
+        PosteConnecte* post = const_cast<PosteConnecte*>(it.value());
+        if (post != Q_NULLPTR)
+            if (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR)
+                if (Datas::I()->users->getById(post->iduser())->isSoignant())
+                    listpostsoignant << post;
+    }
+    QStringList listnomspostessoignants = QStringList();
+    if (listpostsoignant.size() >0)
+    {
+        for (int i=0; i<listpostsoignant.size(); ++i)
+        {
+            PosteConnecte* post = listpostsoignant.at(i);
+            listnomspostessoignants << post->nomposte();
+        }
+    }
+    Datas::I()->patientsencours->initListeAll();
+    //! on donne le statut "arrivé" aux patients en salle d'attente dont le iduserencourssexam est l'utilisateur actuel et qui n'auraient pas été supprimés (plantage)
+    QString blabla              = ENCOURSEXAMEN;
+    int length                  = blabla.size();
+    bool majsaldat = false;
+    QList<PatientEnCours*> listpatcrstoremove = QList<PatientEnCours*>();
+    for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+    {
+        PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+        if (patcrs != Q_NULLPTR)
+        {
+            if (patcrs->idusersuperviseur() == currentuser()->id() && patcrs->statut().left(length) == ENCOURSEXAMEN && patcrs->posteexamen() == QHostInfo::localHostName().left(60))
+            {
+                ItemsList::update(patcrs, CP_STATUT_SALDAT, ARRIVE);
+                ItemsList::update(patcrs, CP_POSTEEXAMEN_SALDAT);
+                ItemsList::update(patcrs, CP_IDUSERENCOURSEXAM_SALDAT);
+                majsaldat = true;
+                continue;
+            }
+            if (listnomspostessoignants.size()>0  && patcrs->statut().left(length) == ENCOURSEXAMEN)
+            {
+                //! on vérifie dans les postes connectés qu'on trouve bien ce poste
+                if (!listnomspostessoignants.contains(patcrs->posteexamen()))
+                {
+                    listpatcrstoremove << patcrs;
+                    continue;
+                }
+                //! on vérifie dans les postes connectés qu'on trouve bien ce poste et que l'utilisateur qui y est inscrit est le même que celui qui est déclaré comme iduserencoursexamen du pateint en salle d'attente
+                else for (int itpost = 0; itpost < listpostsoignant.size(); ++ itpost)
+                {
+                    PosteConnecte *post = listpostsoignant.at(itpost);
+                    if (post->nomposte() == patcrs->posteexamen()
+                     && post->iduser() != patcrs->iduserencoursexam())
+                        listpatcrstoremove << patcrs;
+                }
+            }
+        }
+    }
+    if (listpatcrstoremove.size() >0)
+    {
+        majsaldat = true;
+        for (auto itpatcrs = listpatcrstoremove.cbegin(); itpatcrs != listpatcrstoremove.cend();++ itpatcrs)
+        {
+            PatientEnCours* patcrs = *itpatcrs;
+            Datas::I()->patientsencours->SupprimePatientEnCours(patcrs);
+        }
+    }
+    if (majsaldat)
+        Flags::I()->MAJFlagSalleDAttente();
+}
+
 void Rufus::VerifSalleDAttente()
 {
     int flagsaldat = Flags::I()->flagSalleDAttente();
-
     if (m_flagsalledattente < flagsaldat)
     {
         m_flagsalledattente = flagsaldat;
@@ -5877,14 +5942,14 @@ void Rufus::VerifVerrouDossier()
             qDebug() << "timenow = " << timenow;
             qDebug() << "heure dernière connexion = " << post->dateheurederniereconnexion();
             qDebug() << "temps ecoule depuis actualisation = " << tempsecouledepuisactualisation;
-            qDebug() << "user = " << (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : tr("inconnu"));
+            qDebug() << "user = " << (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR? Datas::I()->users->getById(post->iduser())->login() : tr("inconnu"));
             //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
             //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
             for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
             {
                 PatientEnCours *pat = const_cast<PatientEnCours*>(it.value());
                 if (pat != Q_NULLPTR)
-                    if (pat->iduserencoursexam() == post->id() && pat->statut().contains(ENCOURSEXAMEN) && pat->posteexamen() == post->nomposte())
+                    if (pat->iduserencoursexam() == post->iduser() && pat->statut().contains(ENCOURSEXAMEN) && pat->posteexamen() == post->nomposte())
                     {
                         //! on supprime les doublons -> tous les patients de la salle d'attente avec cet id dont le statut est ARRIVE
                         QString req = "delete FROM " TBL_SALLEDATTENTE " WHERE " CP_STATUT_SALDAT " = " + ARRIVE + " AND " + CP_IDPAT_SALDAT + " = " + QString::number(pat->id());
@@ -5900,7 +5965,7 @@ void Rufus::VerifVerrouDossier()
             if (!listpostsAEliminer.contains(post))
                 listpostsAEliminer << post;
         }
-        if (post->id() != currentuser()->id() && post->macadress() == Utils::MACAdress())
+        if (post->iduser() != currentuser()->id() && post->macadress() == Utils::MACAdress())
             if (!listpostsAEliminer.contains(post))
                 listpostsAEliminer << post;
     }
@@ -5938,7 +6003,7 @@ void Rufus::VerifVerrouDossier()
                 bool posttrouve = true;
                 foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
                 {
-                    if (post->id() == pat->idusersuperviseur() && post->nomposte() == pat->posteexamen())
+                    if (post->iduser() == pat->idusersuperviseur() && post->nomposte() == pat->posteexamen())
                     {
                         posttrouve = true;
                         break;
@@ -6308,7 +6373,7 @@ Cotations* Rufus::getListeCotationdByUser(User *usr)
         for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
         {
             PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-            if (post->id() == usr->id())
+            if (post->iduser() == usr->id())
             {
                 id = post->idparent();
                 userparent = Datas::I()->users->getById(id);
@@ -6384,7 +6449,7 @@ void Rufus::closeEvent(QCloseEvent *)
         for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
         {
             PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-            if(post->id() == iduserposte)
+            if(post->iduser() == iduserposte)
             {
                 usernotconnectedever = false;
                 break;
@@ -7218,7 +7283,7 @@ void Rufus::SortieAppli()
         for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
         {
             PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-            if (post->nomposte() != currentpost()->nomposte() && post->id() == currentpost()->id())
+            if (post->nomposte() != currentpost()->nomposte() && post->iduser() == currentpost()->id())
             {
                 IlResteDesPostesConnectesAvecCeUser = true;
                 break;
@@ -8971,7 +9036,7 @@ void    Rufus::ReconstruitListesCotations(User *usr)
         for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
         {
             PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-            if (post->id() == usr->id())
+            if (post->iduser() == usr->id())
             {
                 userparent = Datas::I()->users->getById(post->idparent());
                 if (userparent == Q_NULLPTR)
@@ -9366,7 +9431,6 @@ void Rufus::Remplir_SalDat()
     int                 i=0;
     QString             NomPrenom, zw;
     QFontMetrics        fm(qApp->font());
-    Datas::I()->patientsencours->initListeAll();
     QList<int> listidpat;
 
     // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
@@ -9622,8 +9686,8 @@ void Rufus::Remplir_SalDat()
     {
         PosteConnecte* post = const_cast<PosteConnecte*>(it.value());
         if (post != Q_NULLPTR)
-            if (Datas::I()->users->getById(post->id()) != Q_NULLPTR)
-                if (Datas::I()->users->getById(post->id())->isSoignant())
+            if (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR)
+                if (Datas::I()->users->getById(post->iduser())->isSoignant())
                     listpostsoignant << post;
     }
     if (listpostsoignant.size() >0)
@@ -9638,23 +9702,21 @@ void Rufus::Remplir_SalDat()
         lay->setSpacing(2);
         foreach (PosteConnecte *post, listpostsoignant)
         {
-            User *usr = Datas::I()->users->getById(post->id());
+            User *usr = Datas::I()->users->getById(post->iduser());
             QString usrlogin = (usr? usr->login() : "");
             QString PosteLog  = post->nomposte().remove(".local");
             PatientEnCours *patencours = Q_NULLPTR;
             foreach (PatientEnCours *pat, *Datas::I()->patientsencours->patientsencours())
-                if (pat->iduserencoursexam() == post->id() && pat->posteexamen() == post->nomposte())
+                if (pat->iduserencoursexam() == post->iduser() && pat->posteexamen() == post->nomposte())
                 {
                     patencours = pat;
-                    //qDebug() << "pat->iduserencoursexam()" <<pat->iduserencoursexam() << "post->id()" << post->id();
-                    //qDebug() << "pat->posteexamen()" << post->nomposte() << "pat->posteexamen()" << post->nomposte();
                     break;
                 }
             UpTextEdit *UserBureau;
             UserBureau = new UpTextEdit;
             UserBureau->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
             UserBureau->setObjectName(usrlogin + "BureauupTextEdit");
-            UserBureau->setIdUser(post->id());
+            UserBureau->setIdUser(post->iduser());
             ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
             UserBureau->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
                                       "border: 1px solid gray;  border-radius: 10px;");
@@ -9676,14 +9738,8 @@ void Rufus::Remplir_SalDat()
                 Patient *pat    = Datas::I()->patients->getById(patencours->id());
                 if (pat != Q_NULLPTR)
                 {
-                    UserBureau->setiD(post->idpatencours());
-                    if( UserBureau->idUser() == currentuser()->id() )
-                        connect(UserBureau, &UpTextEdit::dblclick, this,  [=] {if (currentuser()->isSecretaire()) OuvrirDossier(pat);});
-                    else
-                    {
-                        connect(UserBureau,         &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuelBureaux(UserBureau);});
-                        connect(UserBureau,         &UpTextEdit::dblclick,                  this,   [=] {AutreDossier(pat);});
-                    }
+                    connect(UserBureau,         &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuelBureaux(UserBureau);});
+                    connect(UserBureau,         &UpTextEdit::dblclick,                  this,   [=] {AutreDossier(pat);});
                     html += "<p class=\"p2\">" +  pat->nom() + " " + pat->prenom() + "</p>";      //Nom Prenom
                     QString color = "black";
                     if (patencours->heurerarrivee().isValid())
@@ -9881,7 +9937,7 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += post->ipadress() + " - "
                             + post->macadress() + " - "
                             + post->nomposte() + " --- "
-                            + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "") ;
+                            + (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR? Datas::I()->users->getById(post->iduser())->login() : "") ;
                 }
                 else
                     m_resumeStatut += tr("inconnu");
@@ -9894,7 +9950,7 @@ void Rufus::ResumeStatut()
                     m_resumeStatut += "\t" + post->ipadress() + " - "
                             + post->macadress() + " - "
                             + post->nomposte() + " --- "
-                            + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "") + "\n";
+                            + (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR? Datas::I()->users->getById(post->iduser())->login() : "") + "\n";
                 }
                 else
                     m_resumeStatut += "\t" + tr("inconnu");
@@ -9910,14 +9966,14 @@ void Rufus::ResumeStatut()
                 m_resumeStatut += "\t" + post->nomposte() + " - "
                         + post->ipadress() + " - "
                         + post->macadress() + " --- "
-                        + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "") + "\n";
+                        + (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR? Datas::I()->users->getById(post->iduser())->login() : "") + "\n";
         }
     }
     foreach (PosteConnecte *post, *Datas::I()->postesconnectes->postesconnectes())
     {
         if(post->isdistant())
             m_resumeStatut += "\t" + (Datas::I()->sites->getById(post->idlieu())? Datas::I()->sites->getById(post->idlieu())->nom() : "") + " ---- "
-                    + (Datas::I()->users->getById(post->id()) != Q_NULLPTR? Datas::I()->users->getById(post->id())->login() : "" )+ "\n";
+                    + (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR? Datas::I()->users->getById(post->iduser())->login() : "" )+ "\n";
     }
 
     // l'importateur des documents

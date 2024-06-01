@@ -5269,7 +5269,7 @@ bool Procedures::isUserConnected(User *usr)
     for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
     {
         PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-        if (post->id() == usr->id())
+        if (post->iduser() == usr->id())
             return true;
     }
     return false;

@@ -1025,10 +1025,11 @@ QList<User*> DataBase::loadUsers()
 QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
 {
     QJsonObject posteData{};
-    QString req = "select NomPosteConnecte, AccesDistant, UserSuperviseur,"
-                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat, IPAdress"
+    QString req = "select " CP_NOMPOSTE_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
+                  CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
+                  CP_IDPATENCOURS_USRCONNECT ", " CP_IPADRESS_USRCONNECT
                   " from " TBL_USERSCONNECTES
-                  " where idUser = " + QString::number(iduser) +
+                  " where " CP_IDUSER_USRCONNECT " = " + QString::number(iduser) +
                   " and " CP_MACADRESS_USRCONNECT " = '" + macadress + "'";
     QList<QVariantList> postlist = StandardSelectSQL(req, ok);
     if( !ok || postlist.size()==0 )
@@ -1054,8 +1055,9 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
 QList<PosteConnecte*> DataBase::loadPostesConnectes()
 {
     QList<PosteConnecte*> postes;
-    QString req = "select idUser, NomPosteConnecte, MACAdressePosteConnecte, AccesDistant, UserSuperviseur,"
-                  " UserComptable, UserParent, idLieu, HeureDerniereConnexion, idPat, IPAdress"
+    QString req = "select " CP_IDUSER_USRCONNECT ", " CP_NOMPOSTE_USRCONNECT ", " CP_MACADRESS_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
+                  CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
+                  CP_IDPATENCOURS_USRCONNECT ", " CP_IPADRESS_USRCONNECT
                   " from " TBL_USERSCONNECTES ;
     QList<QVariantList> postlist = StandardSelectSQL(req, ok);
     if( !ok || postlist.size()==0 )
@@ -1084,7 +1086,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
 QList<QString> DataBase::loadStringIdPostesConnectes()
 {
     QList<QString> listpostes = QList<QString>();
-    QString req = "select idUser, MACAdressePosteConnecte from " TBL_USERSCONNECTES ;
+    QString req = "select " CP_IDUSER_USRCONNECT ", " CP_MACADRESS_USRCONNECT " from " TBL_USERSCONNECTES ;
     QList<QVariantList> postlist = StandardSelectSQL(req, ok);
     if( !ok || postlist.size()==0 )
         return listpostes;

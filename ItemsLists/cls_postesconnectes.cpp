@@ -117,16 +117,16 @@ void PostesConnectes::SupprimePosteConnecte(PosteConnecte *post)
     if (post == Q_NULLPTR)
         return;
     bool canremoveverrouactes = true;
-    QString req = "delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
+    QString req = "delete from " TBL_USERSCONNECTES " where " CP_IDUSER_USRCONNECT " = " + QString::number(post->iduser()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
     DataBase::I()->StandardSQL(req);
     foreach (PosteConnecte *postit, *map_postesconnectes)
-        if (postit->id() == post->id() && postit->nomposte() != post->nomposte())
+        if (postit->iduser() == post->iduser() && postit->nomposte() != post->nomposte())
         {
             canremoveverrouactes = false;
             break;
         }
     if (canremoveverrouactes)
-        DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(post->id()));
+        DataBase::I()->StandardSQL("delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(post->iduser()));
     if (post->isadmin()) {
         adminset = true;
         if (m_admin != Q_NULLPTR)
@@ -168,6 +168,7 @@ PosteConnecte* PostesConnectes::CreationPosteConnecte(User* usr, int idsite)
     PosteConnecte *post = new PosteConnecte();
     post->setstringid(macadressid);
     post->setid(usr->id());
+    post->setiduser(usr->id());
     post->setidsuperviseur(usr->idsuperviseur());
     post->setidcomptable(usr->idcomptableactes());
     post->setidparent(usr->idparent());

@@ -443,10 +443,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         {
             table = TBL_USERSCONNECTES;
             ok = true;
-            clause = CP_IDUSER_USRCONNECT " = " + QString::number(item->id()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
+            clause = CP_IDUSER_USRCONNECT " = " + QString::number(post->iduser()) + " and " CP_MACADRESS_USRCONNECT " = '" + post->macadress() + "'";
             if (field == CP_IDUSER_USRCONNECT )
             {
                 post->setid(newvalue.toInt());
+                post->setiduser(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_NOMPOSTE_USRCONNECT)

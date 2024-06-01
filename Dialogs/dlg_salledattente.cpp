@@ -54,9 +54,9 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
     Datas::I()->postesconnectes->initListe();
     foreach (PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
-        if (post->id() != Datas::I()->users->userconnected()->id())
+        if (post->iduser() != Datas::I()->users->userconnected()->id())
         {
-            User *usr = Datas::I()->users->getById(post->id());
+            User *usr = Datas::I()->users->getById(post->iduser());
             if (usr)
                 if (usr->isSoignant())
                     listusrs << usr;

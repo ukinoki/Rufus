@@ -36,7 +36,7 @@ public:
     void setData(QJsonObject data);
 
 private:
-    //!< m_id = id de l'utilisateur en base
+    //!< m_id = pas utilisé - id de l'utilisateur en base
     //!< m_stringid = l'adresses mac du poste connecté suivi de l'id de l'utilisateur séparé par " - "
 
     QString m_nomposte;                 //!< nom du poste connexté
@@ -48,6 +48,7 @@ private:
     int m_idcomptable;                  //!> l'id du comptable
     int m_idlieu;                       //!> l'id du site de connexion
     int m_idpatencours;                 //!> l'id du patient en train d'être examiné par le user
+    int m_iduser;                       //!> l'id du user qui travaille sur ce poste
 
     /*! Quand le tcp n'est pas utilisé, les déconnexions sont surveillées par un système de timer
      * le couple user-macadress actualise l'heure de dernière connexion toutes les 10 secondes
@@ -61,6 +62,7 @@ public:
     QString macadress() const                       { return m_macadress; }
     bool isdistant() const                          { return m_accesdistant; }
     int idsuperviseur() const                       { return m_idsuperviseur; }
+    int iduser() const                              { return m_iduser; }
     int idparent() const                            { return m_idparent; }
     int idcomptable() const                         { return m_idcomptable; }
     int idlieu() const                              { return m_idlieu; }
@@ -72,6 +74,8 @@ public:
     void setstringid(QString stringid)                      { m_stringid = stringid;
                                                               m_data["stringid"] = stringid; }
     void setid(int id)                                      { m_id = id;
+                                                              m_data[CP_IDUSER_USRCONNECT] = id; }
+    void setiduser(int id)                                  { m_id = id;
                                                               m_data[CP_IDUSER_USRCONNECT] = id; }
     void setnomposte(QString txt)                           { m_nomposte = txt;
                                                               m_data[CP_NOMPOSTE_USRCONNECT] = txt; }
