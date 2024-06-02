@@ -39,22 +39,22 @@ private:
     //!< m_id = pas utilisé - id de l'utilisateur en base
     //!< m_stringid = l'adresses mac du poste connecté suivi de l'id de l'utilisateur séparé par " - "
 
-    QString m_nomposte;                 //!< nom du poste connexté
-    QString m_macadress;                //!< macadress+login du poste connecté
-    QString m_ipadress;                 //!> l'adresse IP du poste connecté
-    bool m_accesdistant;                //!> le poste connecte est en accès distant
-    int m_idsuperviseur;                //!> l'id du superviseur
-    int m_idparent;                     //!> l'id du parent
-    int m_idcomptable;                  //!> l'id du comptable
-    int m_idlieu;                       //!> l'id du site de connexion
-    int m_idpatencours;                 //!> l'id du patient en train d'être examiné par le user
-    int m_iduser;                       //!> l'id du user qui travaille sur ce poste
+    QString m_nomposte = "";                //!< nom du poste connexté
+    QString m_macadress = "";               //!< macadress+login du poste connecté
+    QString m_ipadress = "";                //!> l'adresse IP du poste connecté
+    bool m_accesdistant = false;            //!> le poste connecte est en accès distant
+    int m_idsuperviseur = 0;                //!> l'id du superviseur
+    int m_idparent = 0;                     //!> l'id du parent
+    int m_idcomptable = 0;                  //!> l'id du comptable
+    int m_idlieu = 0;                       //!> l'id du site de connexion
+    int m_idpatencours = 0;                 //!> l'id du patient en train d'être examiné par le user
+    int m_iduser = 0;                       //!> l'id du user qui travaille sur ce poste
 
     /*! Quand le tcp n'est pas utilisé, les déconnexions sont surveillées par un système de timer
      * le couple user-macadress actualise l'heure de dernière connexion toutes les 10 secondes
      * un poste désigné par la fonction Procedures::setPosteImportDocs(bool a) surveille les users connectes toutes les mintutes
      * si un couple user-macadress n'a pas remis à jour sa connection depuis plus d'une minute, il est supprimé de la liste des users connectés */
-    QDateTime   m_dateheurederniereconnexion;   //!> la date et l'heure de la connexion
+    QDateTime   m_dateheurederniereconnexion = QDateTime();   //!> la date et l'heure de la connexion
 
 public:
 
@@ -75,7 +75,7 @@ public:
                                                               m_data["stringid"] = stringid; }
     void setid(int id)                                      { m_id = id;
                                                               m_data[CP_IDUSER_USRCONNECT] = id; }
-    void setiduser(int id)                                  { m_id = id;
+    void setiduser(int id)                                  { m_iduser = id;
                                                               m_data[CP_IDUSER_USRCONNECT] = id; }
     void setnomposte(QString txt)                           { m_nomposte = txt;
                                                               m_data[CP_NOMPOSTE_USRCONNECT] = txt; }

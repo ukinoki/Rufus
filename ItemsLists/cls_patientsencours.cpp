@@ -128,16 +128,10 @@ PatientEnCours* PatientsEnCours::CreationPatient(int idPat, User* usr , QString 
         DataBase::I()->unlocktables();
         return Q_NULLPTR;
     }
-    // Récupération de l'idPatient créé ------------------------------------
-    int idpat = DataBase::I()->selectMaxFromTable("idPat", TBL_SALLEDATTENTE, m_ok, tr("Impossible de sélectionner les enregistrements"));
-    if (!m_ok)
-    {
-        DataBase::I()->unlocktables();
-        return Q_NULLPTR;
-    }
     DataBase::I()->unlocktables();
+
     PatientEnCours *pat = new PatientEnCours();
-    pat->setid(idpat);
+    pat->setid(idPat);
     pat->setidusersuperviseur(usr->id());
     if (Statut != "")
         pat->setstatut(Statut);
