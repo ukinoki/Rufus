@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("29-05-2024/2");
+    qApp->setApplicationVersion("04-06-2024/2");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -5809,7 +5809,7 @@ void Rufus::CleanSalleDAttente()
             if (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR)
                 if (Datas::I()->users->getById(post->iduser())->isSoignant())
                 {
-                    listpostsoignant << post;
+                    listpostsoignant            << post;
                     listnomspostessoignants     << post->nomposte();
                     listidpatientsencoursexamen << post->idpatencours();
                 }
@@ -7084,15 +7084,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
     }
 
-    for (auto it = Datas::I()->postesconnectes->postesconnectes()->cbegin(); it != Datas::I()->postesconnectes->postesconnectes()->cend(); ++it)
-    {
-        PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-            if (post->iduser() == currentuser()->id())
-            {
-                ItemsList::update(post, CP_IDPATENCOURS_USRCONNECT, pat->id());
-                break;
-            }
-    }
+    ItemsList::update(currentpost(), CP_IDPATENCOURS_USRCONNECT, pat->id());
 
     ui->AtcdtsPersostextEdit->setFocus();
     RecaleTableView(currentpatient());
@@ -8178,15 +8170,7 @@ bool Rufus::FermeDossier(Patient *patient)
         Datas::I()->patients        ->setcurrentpatient(Q_NULLPTR);
         Datas::I()->actes           ->setcurrentacte(Q_NULLPTR);
         Datas::I()->docsexternes    ->reset();
-    }
-    for (auto it = Datas::I()->postesconnectes->postesconnectes()->cbegin(); it != Datas::I()->postesconnectes->postesconnectes()->cend(); ++it)
-    {
-        PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-            if (post->iduser() == currentuser()->id())
-            {
-                ItemsList::update(post, CP_IDPATENCOURS_USRCONNECT);
-                break;
-            }
+        ItemsList::update(currentpost(), CP_IDPATENCOURS_USRCONNECT);
     }
 
     Flags::I()->MAJFlagSalleDAttente();

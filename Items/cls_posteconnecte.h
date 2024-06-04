@@ -48,7 +48,6 @@ private:
     int m_idcomptable = 0;                  //!> l'id du comptable
     int m_idlieu = 0;                       //!> l'id du site de connexion
     int m_idpatencours = 0;                 //!> l'id du patient en train d'être examiné par le user
-    int m_iduser = 0;                       //!> l'id du user qui travaille sur ce poste
 
     /*! Quand le tcp n'est pas utilisé, les déconnexions sont surveillées par un système de timer
      * le couple user-macadress actualise l'heure de dernière connexion toutes les 10 secondes
@@ -62,7 +61,7 @@ public:
     QString macadress() const                       { return m_macadress; }
     bool isdistant() const                          { return m_accesdistant; }
     int idsuperviseur() const                       { return m_idsuperviseur; }
-    int iduser() const                              { return m_iduser; }
+    int iduser() const                              { return m_id; }
     int idparent() const                            { return m_idparent; }
     int idcomptable() const                         { return m_idcomptable; }
     int idlieu() const                              { return m_idlieu; }
@@ -75,8 +74,7 @@ public:
                                                               m_data["stringid"] = stringid; }
     void setid(int id)                                      { m_id = id;
                                                               m_data[CP_IDUSER_USRCONNECT] = id; }
-    void setiduser(int id)                                  { m_iduser = id;
-                                                              m_data[CP_IDUSER_USRCONNECT] = id; }
+    void setiduser(int id)                                  { setid(id);}
     void setnomposte(QString txt)                           { m_nomposte = txt;
                                                               m_data[CP_NOMPOSTE_USRCONNECT] = txt; }
     void setmacadress(QString txt)                          { m_macadress = txt;
