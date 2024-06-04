@@ -5968,7 +5968,7 @@ void Rufus::VerifDocsDossiersEchanges()
 
 void Rufus::VerifVerrouDossier()
 {
-    if (!isPosteImport() && DataBase::I()->ModeAccesDataBase() != Utils::Distant)
+    if (!isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         return;
     // Seuls le poste importateur des documents et les postes distants utilisent cette fonction
     /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
@@ -9435,6 +9435,8 @@ void Rufus::Remplir_SalDat()
     QString             NomPrenom, zw;
     QFontMetrics        fm(qApp->font());
     QList<int> listidpat;
+    Datas::I()->postesconnectes->initListe();
+    Datas::I()->patientsencours->initListeAll();
 
     // toute la manip qui suit sert à remetre les patients en cours par ordre chronologique - si vous trouvez plus simple, ne vous génez pas
     QStandardItemModel      *m_listepatientsencoursmodel    = new QStandardItemModel();
@@ -9734,7 +9736,9 @@ void Rufus::Remplir_SalDat()
             "</head>"
             "<body LANG=\"fr-FR\" DIR=\"LTR\">";
             html += "<p class=\"p10\"><b>" + PosteLog + "</b></p><p class=\"p2\"><b><span style=\"color:green;\">" + usrlogin + "</b></p>";
-            if (post->idpatencours() == 0 || patencours == Q_NULLPTR)
+            if (post->idpatencours() == 0)
+                html += "<p class=\"p2\">ZZzzz...</p>";
+            else if (patencours == Q_NULLPTR)
                 html += "<p class=\"p2\">ZZzzz...</p>";
             else
             {
