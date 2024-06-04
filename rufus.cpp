@@ -5835,15 +5835,21 @@ void Rufus::CleanSalleDAttente()
                 if (!listidpatientsencoursexamen.contains(patcrs->id()))
                 {
                     if (!listpatcrstoremove.contains(patcrs))
+                    {
                         listpatcrstoremove << patcrs;
+                        qDebug() << "1 - Retrait du patient" << Datas::I()->patients->getById(patcrs->id())->nomcomplet() << "de la salle d'attente";
+                    }
                     continue;
                 }
                 //! on vérifie dans les postes connectés qu'on trouve bien ce poste
                 if (!listnomspostessoignants.contains(patcrs->posteexamen()))
                 {
                     if (!listpatcrstoremove.contains(patcrs))
+                    {
                         listpatcrstoremove << patcrs;
-                    continue;
+                        qDebug() << "2 - Retrait du patient" << Datas::I()->patients->getById(patcrs->id())->nomcomplet() << "de la salle d'attente";
+                    }
+                     continue;
                 }
                 //! on vérifie dans les postes connectés utilisés par ce patientencours,
                 //! que l'utilisateur qui est inscrit sur un poste est le même
@@ -5858,13 +5864,19 @@ void Rufus::CleanSalleDAttente()
                         if (post->iduser() != patcrs->iduserencoursexam())
                         {
                             if (!listpatcrstoremove.contains(patcrs))
+                            {
                                 listpatcrstoremove << patcrs;
+                                qDebug() << "3 - Retrait du patient" << Datas::I()->patients->getById(patcrs->id())->nomcomplet() << "de la salle d'attente";
+                            }
                             continue;
                         }
                         else if (post->idpatencours() != patcrs->id())
                         {
                             if (!listpatcrstoremove.contains(patcrs))
+                            {
                                 listpatcrstoremove << patcrs;
+                                qDebug() << "4 - Retrait du patient" << Datas::I()->patients->getById(patcrs->id())->nomcomplet() << "de la salle d'attente";
+                            }
                             continue;
                         }
                     }
