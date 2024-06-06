@@ -40,15 +40,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     d=2;
 #endif
     m_font              .setPointSize(m_font.pointSize()-d);
-    int margemm         = proc->TailleTopMarge();                                       // exprimé en mm
-    m_printer           = new QPrinter(QPrinter::HighResolution);
-    m_printer           ->setFullPage(true);
-    m_rect              = m_printer->paperRect(QPrinter::Inch);
-
-    m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
-                  Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
-                  - Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
-                  - Utils::mmToInches(margemm) * m_printer->logicalDpiY());
 
     obj_graphicscene        = new QGraphicsScene(this);
     wdg_listdocstreewiew    = new QTreeView(this);
@@ -141,7 +132,6 @@ dlg_docsexternes::~dlg_docsexternes()
 {
     delete m_tripardatemodel;
     delete m_tripartypemodel;
-    delete m_printer;
 }
 
 void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
@@ -930,6 +920,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
 
 void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 {
+    m_avecprevisu = true;
     typeDoc typedoc;
     if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
         typedoc = Image;
@@ -955,18 +946,18 @@ void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
     {
         if (m_avecprevisu)
         {
-            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer, this);
+            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(proc->printer(), this);
             dialog->setWindowTitle(docmt->titre());
             dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this, &dlg_docsexternes::Print);
+            connect(dialog, &QPrintPreviewDialog::paintRequested, this, [&] {proc->Print(m_imagelist);});// dlg_docsexternes::Print);
             dialog->exec();
             delete dialog;
         }
         else
         {
-            QPrintDialog *dialog = new QPrintDialog(m_printer, this);
+            QPrintDialog *dialog = new QPrintDialog(proc->printer(), this);
             if (dialog->exec() == QDialog::Accepted)
-                Print();
+                proc->Print(m_imagelist);
             delete dialog;
         }
     }
@@ -1054,25 +1045,6 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     delete dlg;
-}
-
-void dlg_docsexternes::Print(QPrinter *Imprimante)
-{
-    if (Imprimante == Q_NULLPTR)
-        Imprimante = m_printer;
-    QPainter PrintingPreView(Imprimante);
-
-
-    for (int i=0; i<m_imagelist.size();++i)
-    {
-        if( i > 0 ) {
-                Imprimante->newPage();
-        }
-        //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
-        QPageSize pgSize = Imprimante->pageLayout().pageSize();
-        QImage page = m_imagelist.at(i).scaled(pgSize.sizePixels(Imprimante->resolution()), Qt::KeepAspectRatio);
-        PrintingPreView.drawImage(QPoint(0,0),page);
-    }
 }
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)

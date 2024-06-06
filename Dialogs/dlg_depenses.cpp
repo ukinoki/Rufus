@@ -1066,7 +1066,6 @@ void dlg_depenses::ZoomDoc()
     QMap<QString,QVariant> doc;
     doc.insert("ba", m_depenseencours->factureblob());
     doc.insert("type", m_depenseencours->factureformat());
-    CalcImageFacture(m_depenseencours);
     proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),

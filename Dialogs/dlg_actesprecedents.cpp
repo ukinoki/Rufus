@@ -448,7 +448,8 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
     int idActe = -1;
     if (i == ItemsList::Suiv)
     {
-        if( it_currentacte != std::prev(map_actes->constEnd(),2) )
+        int pos = (m_iscurrentpatient? 2 : 1);
+        if( it_currentacte != std::prev(map_actes->constEnd(),pos) )
             ++it_currentacte;
     }
     else if (i == ItemsList::Prec)
@@ -473,7 +474,6 @@ bool dlg_actesprecedents::NavigationConsult(ItemsList::POSITION i)
         ActesPrecsAfficheActe();
         return true;
     }
-
     return false;
 }
 

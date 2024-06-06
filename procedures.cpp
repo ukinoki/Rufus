@@ -114,13 +114,13 @@ Procedures::Procedures(QObject *parent) :
     m_typemesureRefraction               = GenericProtocol::MesureNone;
     m_dlgrefractionouverte    = false;
     int margemm         = TailleTopMarge(); // exprimé en mm
-    p_printer             = new QPrinter(QPrinter::HighResolution);
-    p_printer             ->setFullPage(true);
-    m_rect                = p_printer->paperRect(QPrinter::Inch);
-    m_rect.adjust(Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
-                  Utils::mmToInches(margemm) * p_printer->logicalDpiY(),
-                - Utils::mmToInches(margemm) * p_printer->logicalDpiX(),
-                - Utils::mmToInches(margemm) * p_printer->logicalDpiY());
+    m_printer             = new QPrinter(QPrinter::HighResolution);
+    m_printer             ->setFullPage(true);
+    m_rect                = m_printer->paperRect(QPrinter::Inch);
+    m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
+                  Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
+                - Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
+                - Utils::mmToInches(margemm) * m_printer->logicalDpiY());
 }
 
 void Procedures::ab(int i)
@@ -1644,69 +1644,42 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
  */
 bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
 {
-    bool AvecPrevisu = false;
     QByteArray ba = doc.value("ba").toByteArray();
+    QList<QImage> listimg;
     if (doc.value("type").toString() == PDF)     // le document est un pdf
-    {
-        QList<QImage> listimg = Utils::calcImagefromPdf(ba);
-        if (listimg.size())
-        {
-            for (int i=0; i<listimg.size();++i)
-            {
-                QImage image = listimg.at(i);
-                if (i==0)
-                {
-                    if (AvecPrevisu)
-                    {
-                        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
-                        dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-                        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
-                        if (dialog->exec() == QDialog::Accepted)
-                            delete dialog;
-                        else {
-                            delete dialog;
-                            return false;
-                        }
-                    }
-                    else
-                    {
-                        QPrintDialog *dialog = new QPrintDialog(p_printer);
-                        if (dialog->exec() == QDialog::Accepted)
-                        {
-                            p_printer = dialog->printer();
-                            Print(p_printer, image);
-                            delete dialog;
-                        }
-                        else {
-                            delete dialog;
-                            return false;
-                        }
-                    }
-                }
-                else
-                    Print(p_printer, image);
-            }
-        }
-    }
+        listimg = Utils::calcImagefromPdf(ba);
     else if (doc.value("type").toString() == JPG)     // le document est un jpg
     {
         QPixmap pix;
         pix.loadFromData(ba);
         QImage image= pix.toImage();
-        if (AvecPrevisu)
+        listimg << image;
+    }
+    //bool Apercu = true;
+    if (ApercuAvantImpression())
+    {
+        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer);
+        dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(listimg);});
+        if (dialog->exec() == QDialog::Accepted)
+            delete dialog;
+        else {
+            delete dialog;
+            return false;
+        }
+    }
+    else
+    {
+        QPrintDialog *dialog = new QPrintDialog(m_printer);
+        if (dialog->exec() == QDialog::Accepted)
         {
-            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(p_printer);
-            dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(p_printer, image);});
-            dialog->exec();
+            m_printer = dialog->printer();
+            Print(listimg);
             delete dialog;
         }
-        else
-        {
-            QPrintDialog *dialog = new QPrintDialog(p_printer);
-            if (dialog->exec() == QDialog::Accepted)
-                Print(p_printer, image);
+        else {
             delete dialog;
+            return false;
         }
     }
     return true;
@@ -1786,11 +1759,20 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     return aa;
 }
 
-void Procedures::Print(QPrinter *Imprimante, QImage image)
+void Procedures::Print(QList<QImage> listimage)
 {
-    QPainter PrintingPreView(Imprimante);
-    QPixmap pix = QPixmap::fromImage(image).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
-    PrintingPreView.drawImage(QPoint(0,0),pix.toImage());
+    QPainter PrintingPreView(m_printer);
+
+    for (int i=0; i<listimage.size();++i)
+    {
+        if( i > 0 ) {
+                m_printer->newPage();
+        }
+        //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
+        QPageSize pgSize = m_printer->pageLayout().pageSize();
+        QImage page = listimage.at(i).scaled(pgSize.sizePixels(m_printer->resolution()), Qt::KeepAspectRatio);
+        PrintingPreView.drawImage(QPoint(0,0),page);
+    }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

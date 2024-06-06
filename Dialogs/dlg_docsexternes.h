@@ -69,9 +69,7 @@ private:
     QLabel                  *wdg_inflabel;
     PlayerControls          *wdg_playctrl;
 
-    QRectF                  m_rect;
-    QList<QPixmap>          m_listpixmp;
-    QPrinter                *m_printer;
+     QList<QPixmap>          m_listpixmp;
     QStandardItemModel      *m_model            = Q_NULLPTR;
     QStandardItemModel      *m_tripardatemodel  = Q_NULLPTR;
     QStandardItemModel      *m_tripartypemodel  = Q_NULLPTR;
@@ -110,7 +108,6 @@ private:
     bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
-    void                    Print(QPrinter* = Q_NULLPTR);
 
     void                    ReImprimeDoc(DocExterne *docmt);
     void                    RemplirTreeView();

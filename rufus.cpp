@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-06-2024/2");
+    qApp->setApplicationVersion("06-06-2024/2");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -6759,7 +6759,7 @@ void Rufus::AfficheActe(Acte* acte)
     double H = 1;
     if (acte->isFactureEnFranc())
     {
-        ui->ActeMontantLabel    ->setText(tr("Montant (€)\n(payé en F)"));
+        ui->ActeMontantLabel    ->setText(tr("Montant") + "(" + QLocale().currencySymbol() + ")\n(payé en F)");
         H = 6.55957;
     }
     else

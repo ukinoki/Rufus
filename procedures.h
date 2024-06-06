@@ -217,11 +217,12 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     QString                 m_nomImprimante;
-    QPrinter                *p_printer;
+    QPrinter                *m_printer;
     QRectF                  m_rect;
-    void                    Print(QPrinter*, QImage image);
 
 public:
+    QPrinter*               printer() {return m_printer;}
+    void                    Print(QList<QImage> listimage);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
                                           bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
