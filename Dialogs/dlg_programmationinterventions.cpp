@@ -604,11 +604,10 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
     else
     {
         bool AvecDupli   = false;
-        bool AvecPrevisu = proc->ApercuAvantImpression();
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
     }
 }
 
@@ -773,11 +772,10 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
     else
     {
         bool AvecDupli   = false;
-        bool AvecPrevisu = proc->ApercuAvantImpression();
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
     }
 }
 
@@ -1692,10 +1690,9 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
 
             QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> map = Dlg_Imprs->mapdocsaimprimer();
             bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
-            bool AvecPrevisu            = proc->ApercuAvantImpression();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             proc                        ->setNomImprimante(imprimante);
-            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, AvecChoixImprimante, Administratif);
             if (!m_docimprime)
                 break;
             imprimante = proc->nomImprimante();
@@ -2081,11 +2078,10 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
         else
         {
             bool AvecDupli   = false;
-            bool AvecPrevisu = proc->ApercuAvantImpression();
             bool AvecNumPage = true;
             proc->Imprime_Etat(this, textcorps, textentete, textpied,
                            proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                           AvecDupli, AvecPrevisu, AvecNumPage);
+                           AvecDupli, AvecNumPage);
         }
     }
 }

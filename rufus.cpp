@@ -2967,12 +2967,11 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
    }
    else
    {
-       bool     AvecPrevisu = false;
        bool     AvecDupli   = false;
        bool     AvecNumPage = true;
        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                               proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                              AvecDupli, AvecPrevisu, AvecNumPage);
+                              AvecDupli, AvecNumPage);
    }
    if (aa)
    {
@@ -3494,7 +3493,6 @@ void Rufus::ImprimeListPatients(QVariant var)
     if (listidMc.size()==0)
         return;
     bool AvecDupli   = false;
-    bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = true;
 
     //--------------------------------------------------------------------
@@ -3564,7 +3562,7 @@ void Rufus::ImprimeListPatients(QVariant var)
 
     proc->Imprime_Etat(this, textecorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
 }
 
 void Rufus::MasquePatientsVusWidget()
@@ -8864,12 +8862,11 @@ void    Rufus::ImprimeDocument(Patient *pat)
             QString TxtDocument         =  mapdoc.find(dlg_impressions::d_Texte).value();
             QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
-            bool AvecPrevisu            = proc->ApercuAvantImpression();
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             proc                        ->setNomImprimante(imprimante);
             success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
-                                                                  AvecPrevisu, AvecDupli, AvecChoixImprimante, Administratif);
+                                                                  AvecDupli, AvecChoixImprimante, Administratif);
             if (!success)
                 break;
             imprimante = proc->nomImprimante();

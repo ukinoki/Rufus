@@ -397,11 +397,10 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
     else
     {
         bool AvecDupli   = false;
-        bool AvecPrevisu = true;
         bool AvecNumPage = false;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
     }
 }
 

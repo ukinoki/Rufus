@@ -268,7 +268,6 @@ void dlg_depenses::PrintReport(bool pdf)
 {
     QString            textentete, textpied;
     bool AvecDupli   = false;
-    bool AvecPrevisu = true;
     bool AvecNumPage = false;
 
     User *userEntete = Q_NULLPTR;
@@ -360,7 +359,7 @@ void dlg_depenses::PrintReport(bool pdf)
     {
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
     }
 }
 

@@ -242,7 +242,6 @@ void dlg_bilanortho::EnableAnimauxWirtcomboBox(QString PionWirt)
 void dlg_bilanortho::ImprimeBOClicked()
 {
     bool AvecDupli   = false;
-    bool AvecPrevisu = true;
     bool AvecNumPage = false;
 
     User *userEntete = Datas::I()->users->getById(m_currentact->idUserSuperviseur());
@@ -291,7 +290,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     QString textcorps = textHtml->toHtml();
     bool aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)

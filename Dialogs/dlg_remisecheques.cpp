@@ -1061,7 +1061,6 @@ bool dlg_remisecheques::VoirNouvelleRemise()
 bool dlg_remisecheques::ImprimerRemise(int idRemise)
 {
     bool AvecDupli   = false;
-    bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = true;
 
     QString LigneChq;
@@ -1081,7 +1080,6 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     if (m_mode == RevoirRemisesPrecs) {
         QMap<QString, QVariant> MapRemise =  ui->RemisePrecsupComboBox->currentData().toMap();
         date = MapRemise["DateRemise"].toDate();
-        AvecPrevisu = true;
     }
     else if (m_mode == NouvelleRemise) {
         iduser      = m_userencours->id();
@@ -1149,7 +1147,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
     return a;
 }
 

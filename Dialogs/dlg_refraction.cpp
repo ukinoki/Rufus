@@ -1481,7 +1481,6 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 {
     QString textcorps, textentete, textpied, textorigine;
     bool AvecDupli   = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
-    bool AvecPrevisu = proc->ApercuAvantImpression();
     bool AvecNumPage = false;
     textorigine = ui->ResumePrescriptionTextEdit->toHtml();
     //création de l'entête
@@ -1512,7 +1511,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(),
-                       AvecDupli, AvecPrevisu, AvecNumPage);
+                       AvecDupli, AvecNumPage);
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)
     {

@@ -100,7 +100,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_wdelta            = 0;
     m_hdeltaframe       = 0;
     m_wdeltaframe       = 0;
-    m_avecprevisu       = proc->ApercuAvantImpression();
 
     connect (wdg_upswitch,                      &UpSwitch::Bascule,             this,   [=] {BasculeTriListe(wdg_upswitch->PosSwitch()==0?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
@@ -826,7 +825,6 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     // reconstruire le document en refaisant l'entête et en récupérant le corps et le pied enregistrés dans la base
     QString     textcorps, textentete, textpied, txt;
     QTextEdit   *Etat_textEdit  = new QTextEdit;
-    bool        AvecNumPage     = false;
     bool        aa;
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
@@ -874,7 +872,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
 
     aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                             proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
-                            AvecDupli, m_avecprevisu, AvecNumPage);
+                            AvecDupli);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -920,7 +918,6 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
 
 void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
 {
-    m_avecprevisu = true;
     typeDoc typedoc;
     if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
         typedoc = Image;
@@ -942,25 +939,8 @@ void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
         m_imagelist << pix.toImage();
     }
 
-    if (m_imagelist.size() > 0)
-    {
-        if (m_avecprevisu)
-        {
-            QPrintPreviewDialog *dialog = new QPrintPreviewDialog(proc->printer(), this);
-            dialog->setWindowTitle(docmt->titre());
-            dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-            connect(dialog, &QPrintPreviewDialog::paintRequested, this, [&] {proc->Print(m_imagelist);});// dlg_docsexternes::Print);
-            dialog->exec();
-            delete dialog;
-        }
-        else
-        {
-            QPrintDialog *dialog = new QPrintDialog(proc->printer(), this);
-            if (dialog->exec() == QDialog::Accepted)
-                proc->Print(m_imagelist);
-            delete dialog;
-        }
-    }
+    proc->Print(m_imagelist);
+
     if (currentpatient() != Datas::I()->patients->currentpatient())
         close();
 }

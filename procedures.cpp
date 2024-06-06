@@ -1278,7 +1278,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                               int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
-                              bool AvecDupli, bool AvecPrevisu, bool AvecNumPage, bool AvecChoixImprimante)
+                              bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
@@ -1300,7 +1300,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
     bool a = false;
-    if (AvecPrevisu)
+    if (ApercuAvantImpression())
         a = TexteAImprimer->preview(Etat->document());
     else
     {
@@ -1655,38 +1655,11 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
         QImage image= pix.toImage();
         listimg << image;
     }
-    //bool Apercu = true;
-    if (ApercuAvantImpression())
-    {
-        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer);
-        dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {Print(listimg);});
-        if (dialog->exec() == QDialog::Accepted)
-            delete dialog;
-        else {
-            delete dialog;
-            return false;
-        }
-    }
-    else
-    {
-        QPrintDialog *dialog = new QPrintDialog(m_printer);
-        if (dialog->exec() == QDialog::Accepted)
-        {
-            m_printer = dialog->printer();
-            Print(listimg);
-            delete dialog;
-        }
-        else {
-            delete dialog;
-            return false;
-        }
-    }
-    return true;
+    return Print(listimg);
 }
 
 bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
-                                    bool Prescription, bool ALD, bool AvecPrevisu, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
+                                   bool Prescription, bool ALD, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
 {
     if (pat == Q_NULLPTR || user == Q_NULLPTR)
         return false;
@@ -1724,7 +1697,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 
     aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(),
-                            AvecDupli, AvecPrevisu, AvecNumPage, AvecChoixImprimante);
+                            AvecDupli, AvecNumPage, AvecChoixImprimante);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -1759,20 +1732,51 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     return aa;
 }
 
-void Procedures::Print(QList<QImage> listimage)
+bool Procedures::Print(QList<QImage> listimage)
 {
-    QPainter PrintingPreView(m_printer);
-
-    for (int i=0; i<listimage.size();++i)
+    auto print = [=]
     {
-        if( i > 0 ) {
+        QPainter PrintingPreView(m_printer);
+        for (int i=0; i<listimage.size();++i)
+        {
+            if( i > 0 ) {
                 m_printer->newPage();
+            }
+            //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
+            QPageSize pgSize = m_printer->pageLayout().pageSize();
+            QImage page = listimage.at(i).scaled(pgSize.sizePixels(m_printer->resolution()), Qt::KeepAspectRatio);
+            PrintingPreView.drawImage(QPoint(0,0),page);
         }
-        //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
-        QPageSize pgSize = m_printer->pageLayout().pageSize();
-        QImage page = listimage.at(i).scaled(pgSize.sizePixels(m_printer->resolution()), Qt::KeepAspectRatio);
-        PrintingPreView.drawImage(QPoint(0,0),page);
+    };
+
+    //bool Apercu = true;
+    if (ApercuAvantImpression())
+    {
+        QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer);
+        dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {print();});
+        if (dialog->exec() == QDialog::Accepted)
+            delete dialog;
+        else {
+            delete dialog;
+            return false;
+        }
     }
+    else
+    {
+        QPrintDialog *dialog = new QPrintDialog(m_printer);
+        if (dialog->exec() == QDialog::Accepted)
+        {
+            m_printer = dialog->printer();
+            print();
+            delete dialog;
+        }
+        else {
+            delete dialog;
+            return false;
+        }
+    }
+    return true;
 }
 
 /*-----------------------------------------------------------------------------------------------------------------

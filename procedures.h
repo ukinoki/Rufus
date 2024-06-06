@@ -222,10 +222,10 @@ private:
 
 public:
     QPrinter*               printer() {return m_printer;}
-    void                    Print(QList<QImage> listimage);
+    bool                    Print(QList<QImage> listimage);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
-                                          bool Prescription, bool ALD, bool AvecPrintDialog, bool AvecDupli = false, bool AvecChoixImprimante = false, bool Administratif = true);
+                                              bool Prescription, bool ALD, bool AvecDupli, bool AvecChoixImprimante = false, bool Administratif = true);
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 
@@ -240,9 +240,9 @@ public:
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                                     int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
-                                     bool AvecDupli = false, bool AvecPrevisu = false, bool AvecNumPage = false,
-                                     bool AvecChoixImprimante = true);
+                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+                      bool AvecDupli = false, bool AvecNumPage = false,
+                      bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
     bool                    Cree_pdf(QString textcorps, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
             /*! c - Choice: print or pdf */

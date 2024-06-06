@@ -69,14 +69,13 @@ private:
     QLabel                  *wdg_inflabel;
     PlayerControls          *wdg_playctrl;
 
-     QList<QPixmap>          m_listpixmp;
+    QList<QPixmap>          m_listpixmp;
     QStandardItemModel      *m_model            = Q_NULLPTR;
     QStandardItemModel      *m_tripardatemodel  = Q_NULLPTR;
     QStandardItemModel      *m_tripartypemodel  = Q_NULLPTR;
     QPoint                  m_positionorigin;
     QSize                   m_sizeorigin;
 
-    bool                    m_avecprevisu;
     double                  m_idealproportion;
     int                     m_hdelta , m_wdelta;
     int                     m_hdeltaframe, m_wdeltaframe;
