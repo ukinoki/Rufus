@@ -40,6 +40,7 @@ Datas::Datas()
     iols                = new IOLs();
     lignescomptes       = new LignesComptes();
     lignespaiements     = new LignesPaiements();
+    listrendezvous      = new ListRendezVous();
     manufacturers       = new Manufacturers();
     messages            = new Messages();
     metadocuments       = new DossiersImpressions();

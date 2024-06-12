@@ -3234,7 +3234,12 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
                             listpatients << pat;
                 }
                 for (int i=0; i<listpatients.size();++i)
+                {
                     Datas::I()->patientsencours->SupprimePatientEnCours(listpatients.at(i));
+                    RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(listpatients.at(i)->id());
+                    if (rdv != Q_NULLPTR)
+                        Datas::I()->listrendezvous->SupprimeRendezVous(rdv);
+                }
             }
         }
     db->commit();

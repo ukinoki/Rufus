@@ -32,6 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_interventions.h"
 #include "cls_interventions.h"
 #include "cls_iols.h"
+#include "cls_listrendezvous.h"
 #include "cls_manufacturers.h"
 #include "cls_messages.h"
 #include "cls_motscles.h"
@@ -77,6 +78,7 @@ public:
     IOLs *iols;                             //!< Les iimplants
     LignesComptes *lignescomptes;           //!< Les lignes non rapprochées d'un compte bancaire
     LignesPaiements *lignespaiements;       //!< Les lignes de paiement des actes d'un patient
+    ListRendezVous *listrendezvous;         //!< Les rendezvous en cours
     DossiersImpressions *metadocuments;     //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)
     Messages *messages;                     //!< les messages
     Manufacturers *manufacturers;           //!< tous les fabricants

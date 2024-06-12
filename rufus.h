@@ -338,7 +338,7 @@ private:
     void                MAJCorrespondant(QObject*);
     void                MonteUneLigne();
     void                Monte20Lignes();
-    RendezVous*         MotifRDV(QString Motif = "", QString ShowMessage = "", QTime heurerdv = QTime::currentTime());
+    RendezVous*         MotifRDV(int idpatient, QString Motif = "", QString ShowMessage = "", QTime heurerdv = QTime::currentTime());
     bool                NavigationConsult(ItemsList::POSITION i);
     void                OuvrirActesPrecedents();
     void                OuvrirDocsExternes(DocsExternes *docs = Datas::I()->docsexternes);

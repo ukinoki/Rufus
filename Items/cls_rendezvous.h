@@ -8,10 +8,10 @@ class RendezVous : public Item
     Q_OBJECT
 
 private:
-    int m_idpatient = 0;                        //!< le pateint qui fait l'objet dur le message
+    int m_idpatient = 0;                        //!< le patoent qui fait l'objet dur le message
     QString m_motif = "";                       //!< le motif du message
-    QTime m_heurerdv = QTime();                 //!> l'heure du rdv
-    QTime m_heurearrivee = QTime();             //!> l'heure d'arrivée
+    QTime m_heurerdv = QTime(0,0);              //!> l'heure du rdv
+    QTime m_heurearrivee = QTime(0,0);          //!> l'heure d'arrivée
     QString m_message = "";                     //!> message concernant le rdv
     int m_idsuperviseur = 0;                    //!> le soigant avec lequel la patient a rdv
     bool m_urgence = false;                     //!> le rdv est une urgence
