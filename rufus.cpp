@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("12-06-2024/2");
+    qApp->setApplicationVersion("13-06-2024/2");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -3078,7 +3078,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
                                                 0);                                                             //! idSalDat
         Flags::I()->MAJFlagSalleDAttente();
         RecaleTableView(pat);
-        Datas::I()->listrendezvous->AddRendezVous(rdv);
+        delete rdv;
     }
     return true;
 }
@@ -3924,9 +3924,6 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
     else if (choix == "Retirer" || choix == "Fermer")
     {
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(dossierpatientaouvrir()->id()));
-        RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(dossierpatientaouvrir()->id());
-        if (rdv != Q_NULLPTR)
-            Datas::I()->listrendezvous->SupprimeRendezVous(rdv);
         Flags::I()->MAJFlagSalleDAttente();
     }
     else if (choix == "Copie")
@@ -3960,6 +3957,7 @@ void Rufus::ChoixMenuContextuelSalDat(int idpat, QString choix)
         ItemsList::update(patencours, CP_HEURERDV_SALDAT, rdv->heurerdv());
         ItemsList::update(patencours, CP_IDUSERSUPERVISEUR_SALDAT, rdv->idsuperviseur());
         Flags::I()->MAJFlagSalleDAttente();
+        delete rdv;
     }
 }
 
@@ -5831,9 +5829,6 @@ void Rufus::CleanSalleDAttente()
             if (Datas::I()->patients->getById(patcrs->id()) == Q_NULLPTR)
             {
                 Datas::I()->patientsencours->SupprimePatientEnCours(patcrs);
-                RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(patcrs->id());
-                if (rdv != Q_NULLPTR)
-                    Datas::I()->listrendezvous->SupprimeRendezVous(rdv);
                 continue;
             }
             if (patcrs->statut().left(length) == ENCOURSEXAMEN)
@@ -7748,9 +7743,6 @@ void Rufus::CreerDossier()
             Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
             Datas::I()->patients->SupprimePatient(pat);
             Datas::I()->patients->initListeTable(ui->CreerNomlineEdit->text(), ui->CreerPrenomlineEdit->text());
-            RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(pat->id());
-            if (rdv != Q_NULLPTR)
-                Datas::I()->listrendezvous->SupprimeRendezVous(rdv);
             return;
         }
         FiltreTable(pat->nom(), pat->prenom());
@@ -8148,9 +8140,6 @@ bool Rufus::FermeDossier(Patient *patient)
     if (msgbox.clickedButton() == &CloseBouton)                         // Fermer le dossier et le rtire de la liste despatients en cours
     {
         Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(patient->id()));
-        RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(patient->id());
-        if (rdv != Q_NULLPTR)
-            Datas::I()->listrendezvous->SupprimeRendezVous(rdv);
     }
     else if (msgbox.clickedButton() == &SalDatBouton)                   // Garder le dossier en salle d'attente
     {
@@ -8171,13 +8160,8 @@ bool Rufus::FermeDossier(Patient *patient)
             Message = patcours->message();
             QTime heurerdv = QTime(0,0);
             QTime heurearrivee = QTime(0,0);
-            RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(patient->id());
-            if (rdv != Q_NULLPTR)
-            {
-                heurerdv = rdv->heurerdv();
-                heurearrivee = rdv->heurearrivee();
-            }
             idUser = QString::number(patcours->idusersuperviseur());
+            RendezVous *rdv = Q_NULLPTR;
             if (Motif=="")
             {
                 rdv = MotifRDV(patcours->id(), Motif, Message);
@@ -8191,15 +8175,25 @@ bool Rufus::FermeDossier(Patient *patient)
                     rdv->setheurerdv(heurerdv);
                 idUser  = QString::number(rdv->idsuperviseur());
             }
+            if (rdv != Q_NULLPTR)
+            {
+                heurerdv = rdv->heurerdv();
+                heurearrivee = rdv->heurearrivee();
+                delete rdv;
+            }
+            else
+            {
+                heurerdv = patcours->heurerdv();
+                heurearrivee = patcours->heurerarrivee();
+            }
             ItemsList::update(patcours, CP_STATUT_SALDAT, ARRIVE);
             ItemsList::update(patcours, CP_IDUSERSUPERVISEUR_SALDAT, idUser);
             ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT);
             ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT);
             ItemsList::update(patcours, CP_MOTIF_SALDAT, Motif);
             ItemsList::update(patcours, CP_MESSAGE_SALDAT, Message);
-            ItemsList::update(patcours, CP_HEURERDV_SALDAT, (rdv != Q_NULLPTR? rdv->heurerdv() : patcours->heurerdv()));
-            ItemsList::update(patcours, CP_HEUREARRIVEE_SALDAT, (rdv != Q_NULLPTR? rdv->heurearrivee() : patcours->heurerarrivee()));
-            delete rdv;
+            ItemsList::update(patcours, CP_HEURERDV_SALDAT, (heurerdv == QTime()? QTime::currentTime() : heurerdv));
+            ItemsList::update(patcours, CP_HEUREARRIVEE_SALDAT, (heurearrivee == QTime()? QTime::currentTime() : patcours->heurerarrivee()));
         }
         else
             a = InscritEnSalDat(patient);
@@ -9611,7 +9605,7 @@ void Rufus::Remplir_SalDat()
                 colorRDV = "color: red";
         }
         QString background = "background:#FFFFEE";
-        if (patencours->motif() == "URG")
+        if (patencours->isurgence())
         {
             QString styleurg = "background:#EEFFFF ; color: red";
             label0->setStyleSheet(styleurg);
@@ -10342,9 +10336,6 @@ void Rufus::SupprimerDossier(Patient *pat)
 
     //!. Suppression du dossier, reconstruction de la liste et du treeView
     Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
-    RendezVous * rdv = Datas::I()->listrendezvous->getByIdPatient(pat->id());
-    if (rdv != Q_NULLPTR)
-        Datas::I()->listrendezvous->SupprimeRendezVous(rdv);
     Datas::I()->patients->SupprimePatient(pat);
     ItemsList::clearAll(m_listeactes->actes());
 
