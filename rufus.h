@@ -214,7 +214,6 @@ private:
     QString m_MAJcomment ="";
     bool m_MAJBase = false;
     bool m_MAJBaseCompatibiltyWithPrec = true;
-    bool m_MAJRessources = false;
 
     void        VerifLastVersion();                             /*! vérifie que la version en cours du logiciel*/
     void        ImprimeDossier(Patient *pat, bool quelepdf = false);

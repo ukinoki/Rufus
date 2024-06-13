@@ -150,7 +150,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         paction_ImportantNorm->setIcon(icon);
     else if (imptce == 2)
         paction_ImportantMax->setIcon(icon);
-    if (currentuser()->isMedecin())
+    if (currentuser()->isSoignant())
     {
         menu->addAction(paction_ImportantMin);
         menu->addAction(paction_ImportantNorm);
@@ -183,7 +183,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
 
         // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
-        if (currentuser()->isMedecin()
+        if (currentuser()->isSoignant()
             && (docmt->format() != IMAGERIE && docmt->format() != DOCUMENTRECU))
         {   // si le document a été émis aujourd'hui, on propose de le modifier - dans ce cas, on va créer une copie qu'on va modifier et on détruira le document d'origine à la fin
             if (m_currentdate == docmt->datetimeimpression().date())
@@ -200,7 +200,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
-    if (currentuser()->isMedecin())
+    if (currentuser()->isSoignant())
         menu->addAction(paction_Poubelle);
 
     menu->exec(cursor().pos());

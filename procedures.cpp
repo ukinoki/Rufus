@@ -1264,7 +1264,12 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
     if (ALD)
         textpied =  Ressources::I()->FooterOrdo();
     else
+   {
         textpied = (lunettes? Ressources::I()->FooterOrdoLunettes() : Ressources::I()->FooterOrdo());
+        if (lunettes)
+            textpied.replace("{{METIER}}", (Datas::I()->users->userconnected()->metier()==User::Ophtalmo? tr("ophtalmologiste"):
+                                            (Datas::I()->users->userconnected()->metier()==User::Orthoptiste)? tr("orthoptiste") : tr("optométriste")));
+    }
     bool isaga = false;
     if (user)
     {

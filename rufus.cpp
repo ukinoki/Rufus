@@ -6104,8 +6104,6 @@ void Rufus::VerifLastVersion()
                                 m_MAJBaseCompatibiltyWithPrec = (basechild.text() == "Yes");
                         }
                     }
-                    else if (child.tagName() == "UPDRessources")
-                        m_MAJRessources = (child.text() == "Yes");
                     else if (child.tagName() == "Comment")
                         m_MAJcomment = child.text();
                 }
