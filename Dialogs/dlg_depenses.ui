@@ -316,14 +316,14 @@
        </property>
        <property name="minimumSize">
         <size>
-         <width>310</width>
-         <height>268</height>
+         <width>339</width>
+         <height>315</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
-         <width>16777215</width>
-         <height>305</height>
+         <width>339</width>
+         <height>315</height>
         </size>
        </property>
        <property name="autoFillBackground">
