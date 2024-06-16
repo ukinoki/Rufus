@@ -5183,10 +5183,10 @@ void Procedures::RegleRefracteurXML(GenericProtocol::TypesMesures flag)
     QString nameRF    = m_settings->value(Param_Poste_Refracteur).toString();
     if (nameRF == "TOPCON CV-5000")
     {
-        //Topcon::I()->RegleRefracteurXML(flag, nameRF);
+        Topcon::I()->RegleRefracteurXML(flag, nameRF);
     }
 
-    if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop" || nameRF == "TOPCON CV-5000")
+    if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop" )
     {
         Nidek::I()->RegleRefracteurXML(flag, nameRF);
     }

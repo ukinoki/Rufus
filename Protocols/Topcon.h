@@ -5,23 +5,20 @@
 
 class Topcon :  public GenericProtocol
 {
-
-
+    Q_OBJECT
 private:
     Topcon();
     static Topcon *instance;
 
 public:
-
-
-
     static Topcon*        I();
 
-    static void LectureDonneesXMLnsCommon(QDomDocument docxml);
-    static void LectureDonneesXMLnsSBJ(QDomDocument docxml);
-    static void LectureDonneesXMLRefracteur(QDomDocument docxml, QString nameRF);
+    void LectureDonneesXMLnsCommon(QDomDocument docxml);
+    void LectureDonneesXMLnsSBJ(QDomDocument docxml);
+    void LectureDonneesXMLRefracteur(QDomDocument docxml, QString nameRF);
 
-    static void RegleRefracteurXML(int flag, QString nameRF);
+    void RegleRefracteurXML(TypesMesures flag, QString nameRF);
+    void EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmesure);
 
 };
 

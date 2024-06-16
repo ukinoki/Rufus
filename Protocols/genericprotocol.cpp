@@ -18,22 +18,38 @@ void GenericProtocol::EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmes
         typfile = "LM";
     }
     else
+    {
         return;
-    QDir Dir(Adress);
-    if (!Dir.exists(Adress))
-        Dir.mkdir(Adress);
+    }
+
+    PrepareFolder(Adress);
+
+    QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
+    SaveFileXML(xml, filename, QStringConverter::Utf16LE );
+}
+
+void GenericProtocol::PrepareFolder(QString folder)
+{
+    QDir Dir(folder);
+
+    if (!Dir.exists(folder))
+        Dir.mkdir(folder);
+
     QStringList listfiles = Dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
     for(int i = 0; i < listfiles.size(); ++i)
     {
-        QFile file(Adress + "/" + listfiles.at(i));
+        QFile file(folder + "/" + listfiles.at(i));
         Utils::removeWithoutPermissions(file);
     }
-    QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
+}
+
+void GenericProtocol::SaveFileXML(QDomDocument xml, QString filename, QStringConverter::Encoding encoding)
+{
     QFile file(filename);
     if (file.open(QIODevice::ReadWrite))
     {
         QTextStream stream( &file );
-        stream.setEncoding(QStringConverter::Utf16LE);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
+        stream.setEncoding(encoding);         /*! Impose le codec UTF16LE que les Nidek exigent pour les fichiers xml */
         QString strxml = xml.toString();
         stream << strxml;
         file.setPermissions(QFileDevice::ReadOther    | QFileDevice::WriteOther
@@ -42,4 +58,5 @@ void GenericProtocol::EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmes
                             | QFileDevice::ReadUser   | QFileDevice::WriteUser);
         file.close();
     }
+
 }

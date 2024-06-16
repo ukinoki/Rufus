@@ -395,875 +395,421 @@ void Topcon::LectureDonneesXMLnsSBJ(QDomDocument docxml)
  * ******************************************************************************
  */
 
-
-
-
-void Topcon::RegleRefracteurXML(int flg, QString nameRF)
+//
+// Polymorphism QDomDocument  QDomElement + 2 QString
+//
+QDomElement CreateNode(QDomDocument doc, QDomElement parent, QString nsURI, QString name)
 {
+    QDomElement child = doc.createElement(nsURI+ ":" + name);
+    parent.appendChild(child);
+    return child;
+}
 
-    // I don't know how to pass Procedures::Types
-    /*!
-     *  I'd create in Protocols, a protocolgeneric.h class with TypeMesures and TypeMesure inside
-     *  Then Tomey.h and Topcon.h inherits from this class
-     *  and migrate definition of TypeMesures and TypeMesure from Procedures.h to ProtocolGeneric:.h
-     *  and #include "protocolgeneric.h" in procedures.h
-     */
-    //TypesMesures flag(flg);
+//
+// Polymorphism QDomDocument  QDomElement + 3 QString (add Text Node with Value)
+//
+QDomElement CreateNode(QDomDocument doc, QDomElement parent, QString nsURI, QString name, QString value)
+{
+    QDomElement child =CreateNode(doc, parent, nsURI, name);
+    if( value != "")
+    {
+        child.appendChild(doc.createTextNode(value));
+    }
+    return child;
+}
 
+//
+// Polymorphism QDomDocument  QDomElement + 4 QString (add atttibute) + 1 QString optional value
+//
+QDomElement CreateNode(QDomDocument doc, QDomElement parent, QString nsURI, QString attribute , QString valueAtt, QString name , QString value = "")
+{
+    QDomElement child =CreateNode(doc, parent, nsURI, name, value);
+    if( attribute != "" && valueAtt != "")
+    {
+        child.setAttribute(attribute, valueAtt);
+    }
+    return child;
+}
+
+
+void AddCommon(QDomDocument LMxml, QDomElement ophtalmology)
+{
+/*
+<nsCommon:Common>
+    <nsCommon:Company>TOPCON</nsCommon:Company>
+    <nsCommon:ModelName>CV-5000</nsCommon:ModelName>
+    <nsCommon:MachineNo>192168118</nsCommon:MachineNo>
+    <nsCommon:ROMVersion>2.21.00</nsCommon:ROMVersion>
+    <nsCommon:Version>1.2</nsCommon:Version>
+    <nsCommon:Date>2024-05-11</nsCommon:Date>
+    <nsCommon:Time>20:52:16.712</nsCommon:Time>
+    <nsCommon:Patient>
+        <nsCommon:No.>12</nsCommon:No.>
+        <nsCommon:ID>12</nsCommon:ID>
+        <nsCommon:FirstName/>
+        <nsCommon:MiddleName/>
+        <nsCommon:LastName/>
+        <nsCommon:Sex/>
+        <nsCommon:Age/>
+        <nsCommon:DOB/>
+        <nsCommon:NameJ1/>
+        <nsCommon:NameJ2/>
+    </nsCommon:Patient>
+    <Duration>00:07:10</Duration>
+    <DateFormat>D_M_Y</DateFormat>
+</nsCommon:Common>
+*/
+    QString nsURI="nsCommon";
+    QString value = ""; // For convenience
+
+    QDomElement elemCommon = CreateNode(LMxml, ophtalmology, nsURI, "Common");
+
+    CreateNode(LMxml, elemCommon, nsURI, "Company", "RUFUS");
+    CreateNode(LMxml, elemCommon, nsURI, "ModelName", "Rufus");
+    CreateNode(LMxml, elemCommon, nsURI, "MachineNo", "1");
+    CreateNode(LMxml, elemCommon, nsURI, "ROMVersion", "1.0");
+    CreateNode(LMxml, elemCommon, nsURI, "Version", "1.2");
+
+    value = QDate::currentDate().toString(QObject::tr("yyyy/MM/dd"));
+    CreateNode(LMxml, elemCommon, nsURI, "Date", value);
+
+    value = QTime::currentTime().toString(QObject::tr("HH:mm:ss"));
+    CreateNode(LMxml, elemCommon, nsURI, "Time", value);
+
+    QDomElement elePatient = CreateNode(LMxml, elemCommon, nsURI, "Patient");
+
+    value = Datas::I()->patients->currentpatient()? QString::number(Datas::I()->patients->currentpatient()->id()) : "0";
+    CreateNode(LMxml, elePatient, nsURI, "No.", value);
+    CreateNode(LMxml, elePatient, nsURI, "ID", value);
+
+    CreateNode(LMxml, elePatient, nsURI, "FirstName");
+    CreateNode(LMxml, elePatient, nsURI, "MiddleName");
+    CreateNode(LMxml, elePatient, nsURI, "LastName");
+    CreateNode(LMxml, elePatient, nsURI, "Sex");
+    CreateNode(LMxml, elePatient, nsURI, "Age");
+    CreateNode(LMxml, elePatient, nsURI, "DOB");
+    CreateNode(LMxml, elePatient, nsURI, "NameJ1");
+    CreateNode(LMxml, elePatient, nsURI, "NameJ2");
+
+    // QDomElement eleOperator = CreateNode(LMxml, elemCommon, nsURI, "Operator");
+    CreateNode(LMxml, elePatient, nsURI, "No.");
+    CreateNode(LMxml, elePatient, nsURI, "ID");
+
+    CreateNode(LMxml, elemCommon, nsURI, "Duration", "00:00:30");
+    CreateNode(LMxml, elemCommon, nsURI, "DateFormat", "D_M_Y");
+}
+
+// Add Pupillary Distance to Measure Element
+void AddPD(QDomDocument RMxml, QDomElement elemMeasure, QString nsURI)
+{
+    // Measure -> PD
+    if (Datas::I()->mesurefronto->ecartIP()>0)
+    {
+        QString value=QString::number(Datas::I()->mesurefronto->ecartIP());
+        QDomElement elePD = CreateNode(RMxml, elemMeasure, nsURI, "PD");
+        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Distance", value);
+
+        // Measure -> PD VOID data
+        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "DistanceR");
+        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "DistanceL");
+        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Near");
+        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearR");
+        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearL");
+    }
+}
+
+void AddLMVoidData(QDomDocument LMxml, QDomElement eleS, QString nsURI)
+{
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "SE");
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "ADD2");
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "NearSphere");
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "NearSphere2");
+    CreateNode(LMxml, eleS, nsURI, "unit", "pri", "Prism");
+    CreateNode(LMxml, eleS, nsURI, "unit", "deg", "PrismBase");
+    CreateNode(LMxml, eleS, nsURI, "unit", "pri", "PrismX");
+    CreateNode(LMxml, eleS, nsURI, "unit", "pri", "PrismY");
+    CreateNode(LMxml, eleS, nsURI, "unit", "%", "UVTransmittance");
+    CreateNode(LMxml, eleS, nsURI, "ConfidenceIndex");
+}
+
+
+void AddLM(QDomDocument LMxml, QDomElement ophtalmology)
+{
+/*
+<nsLM:Measure type="LM">
+    <nsLM:MeasureMode>Progressive</nsLM:MeasureMode>
+    <nsLM:DiopterStep unit="D">0.25</nsLM:DiopterStep>
+    <nsLM:AxisStep unit="deg">1</nsLM:AxisStep>
+    <nsLM:CylinderMode>-</nsLM:CylinderMode>
+    <nsLM:PrismDiopterStep unit="pri">0.25</nsLM:PrismDiopterStep>
+    <nsLM:PrismBaseStep unit="deg">1</nsLM:PrismBaseStep>
+    <nsLM:PrismMode>xy</nsLM:PrismMode>
+    <nsLM:AddMode>add</nsLM:AddMode>
+    <nsLM:LM>
+        <nsLM:S>
+            <nsLM:Sphere unit="D">-3.00</nsLM:Sphere>
+            <nsLM:Cylinder unit="D">-11.00</nsLM:Cylinder>
+            <nsLM:Axis unit="deg">180</nsLM:Axis>
+            <nsLM:SE unit="D">-8.50</nsLM:SE>
+            <nsLM:ADD unit="D">1.50</nsLM:ADD>
+            <nsLM:ADD2 unit="D">2.00</nsLM:ADD2>
+            <nsLM:NearSphere unit="D">-1.50</nsLM:NearSphere>
+            <nsLM:NearSphere2 unit="D">-1.00</nsLM:NearSphere2>
+            <nsLM:Prism unit="pri">0.25</nsLM:Prism>
+            <nsLM:PrismBase unit="deg">102</nsLM:PrismBase>
+            <nsLM:PrismX unit="pri" base="in">0.00</nsLM:PrismX>
+            <nsLM:PrismY unit="pri" base="up">0.25</nsLM:PrismY>
+            <nsLM:UVTransmittance unit="%">5</nsLM:UVTransmittance>
+            <nsLM:ConfidenceIndex>CYL OVERFLOW</nsLM:ConfidenceIndex>
+        </nsLM:S>
+        <nsLM:R>
+            <nsLM:Sphere unit="D">-3.00</nsLM:Sphere>
+            <nsLM:Cylinder unit="D">0.00</nsLM:Cylinder>
+            <nsLM:Axis unit="deg">0</nsLM:Axis>
+            <nsLM:SE unit="D">-3.00</nsLM:SE>
+            <nsLM:ADD unit="D">1.50</nsLM:ADD>
+            <nsLM:ADD2 unit="D">2.00</nsLM:ADD2>
+            <nsLM:NearSphere unit="D">-1.50</nsLM:NearSphere>
+            <nsLM:NearSphere2 unit="D">-1.00</nsLM:NearSphere2>
+            <nsLM:Prism unit="pri">0.25</nsLM:Prism>
+            <nsLM:PrismBase unit="deg">102</nsLM:PrismBase>
+            <nsLM:PrismX unit="pri" base="in">0.00</nsLM:PrismX>
+            <nsLM:PrismY unit="pri" base="up">0.25</nsLM:PrismY>
+            <nsLM:UVTransmittance unit="%">5</nsLM:UVTransmittance>
+            <nsLM:ConfidenceIndex></nsLM:ConfidenceIndex>
+        </nsLM:R>
+        <nsLM:L>
+            <nsLM:Sphere unit="D">-2.00</nsLM:Sphere>
+            <nsLM:Cylinder unit="D">-1.00</nsLM:Cylinder>
+            <nsLM:Axis unit="deg">176</nsLM:Axis>
+            <nsLM:SE unit="D">-2.50</nsLM:SE>
+            <nsLM:ADD unit="D">1.75</nsLM:ADD>
+            <nsLM:ADD2 unit="D">2.00</nsLM:ADD2>
+            <nsLM:NearSphere unit="D">-0.25</nsLM:NearSphere>
+            <nsLM:NearSphere2 unit="D">0.00</nsLM:NearSphere2>
+            <nsLM:Prism unit="pri">2.50</nsLM:Prism>
+            <nsLM:PrismBase unit="deg">90</nsLM:PrismBase>
+            <nsLM:PrismX unit="pri" base="out">0.00</nsLM:PrismX>
+            <nsLM:PrismY unit="pri" base="up">2.50</nsLM:PrismY>
+            <nsLM:UVTransmittance unit="%">5</nsLM:UVTransmittance>
+            <nsLM:ConfidenceIndex></nsLM:ConfidenceIndex>
+        </nsLM:L>
+    </nsLM:LM>
+    <nsLM:PD>
+        <nsLM:Distance unit="mm">58.5</nsLM:Distance>
+        <nsLM:DistanceR unit="mm">29.5</nsLM:DistanceR>
+        <nsLM:DistanceL unit="mm">29.0</nsLM:DistanceL>
+        <nsLM:Near unit="mm"></nsLM:Near>
+        <nsLM:NearR unit="mm"></nsLM:NearR>
+        <nsLM:NearL unit="mm"></nsLM:NearL>
+    </nsLM:PD>
+</nsLM:Measure>
+*/
+    QString nsURI="nsLM";
+    QString value = ""; // For convenience
+
+    // Measure
+    //QDomElement CreateNode(QDomDocument doc, QDomElement parent, QString nsURI, QString attribute , QString valueAtt, QString name , QString value = "")
+    QDomElement elemMeasure = CreateNode(LMxml, ophtalmology, nsURI, "type", "LM", "Measure", "");
+
+    // Measure VOID children
+    CreateNode(LMxml, elemMeasure, nsURI, "MeasureMode");
+    CreateNode(LMxml, elemMeasure, nsURI, "unit", "D", "DiopterStep");
+    CreateNode(LMxml, elemMeasure, nsURI, "unit", "deg", "AxisStep");
+    CreateNode(LMxml, elemMeasure, nsURI, "CylinderMode");
+    CreateNode(LMxml, elemMeasure, nsURI, "unit", "pri", "PrismDiopterStep");
+    CreateNode(LMxml, elemMeasure, nsURI, "unit", "deg", "PrismBaseStep");
+    CreateNode(LMxml, elemMeasure, nsURI, "PrismMode");
+    CreateNode(LMxml, elemMeasure, nsURI, "AddMode");
+    CreateNode(LMxml, elemMeasure, nsURI, "LensLabel");
+
+    // Measure -> LM
+    QDomElement eleLM = CreateNode(LMxml, elemMeasure, nsURI, "LM");
+    // Measure -> LM -> S
+    QDomElement eleS = CreateNode(LMxml, eleLM, nsURI, "S");
+
+    // Measure -> LM -> S   VOID data
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "Sphere");
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "Cylinder");
+    CreateNode(LMxml, eleS, nsURI, "unit", "deg", "Axis");
+    CreateNode(LMxml, eleS, nsURI, "unit", "D", "ADD");
+    // Rest of VOID (or default) data
+    AddLMVoidData(LMxml, eleS, nsURI);
+
+    // Measure -> LM -> R
+    QDomElement eleR = CreateNode(LMxml, eleLM, nsURI, "R");
+
+    value=QString::number(Datas::I()->mesurefronto->sphereOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "Sphere", value);
+
+    value=QString::number(Datas::I()->mesurefronto->cylindreOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "Cylinder", value);
+
+    value=QString::number(Datas::I()->mesurefronto->axecylindreOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "Axis", value);
+
+    value=QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "ADD", value);
+
+    // Measure -> LM -> R   VOID data
+    AddLMVoidData(LMxml, eleR, nsURI);
+
+
+    // Measure -> LM -> L
+    QDomElement eleL = CreateNode(LMxml, eleLM, nsURI, "L");
+
+    value=QString::number(Datas::I()->mesurefronto->sphereOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "Sphere", value);
+
+    value=QString::number(Datas::I()->mesurefronto->cylindreOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "Cylinder", value);
+
+    value=QString::number(Datas::I()->mesurefronto->axecylindreOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "Axis", value);
+
+    value=QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "ADD", value);
+
+    // Measure -> LM -> L   VOID data
+    AddLMVoidData(LMxml, eleL, nsURI);
+
+
+    // Measure -> PD
+    AddPD(LMxml, elemMeasure, nsURI);
+}
+
+
+void AddRM(QDomDocument RMxml, QDomElement ophtalmology)
+{
+    QString nsURI="nsREF";
+    QString value = ""; // For convenience
+
+    // Measure
+    //QDomElement CreateNode(QDomDocument doc, QDomElement parent, QString nsURI, QString attribute , QString valueAtt, QString name , QString value = "")
+    QDomElement elemMeasure = CreateNode(RMxml, ophtalmology, nsURI, "type", "REF", "Measure", "");
+
+    // Measure VOID children
+    CreateNode(RMxml, elemMeasure, nsURI, "unit", "mm", "VD", "14.00");
+    CreateNode(RMxml, elemMeasure, nsURI, "unit", "D", "DiopterStep");
+    CreateNode(RMxml, elemMeasure, nsURI, "unit", "deg", "AxisStep");
+    CreateNode(RMxml, elemMeasure, nsURI, "CylinderMode", "-");
+
+    // Measure -> REF
+    QDomElement eleREF = CreateNode(RMxml, elemMeasure, nsURI, "REF");
+    // Measure -> REF -> R
+    QDomElement eleR = CreateNode(RMxml, eleREF, nsURI, "R");
+    // Measure -> REF -> R -> List
+    QDomElement eleListR = CreateNode(RMxml, eleR, nsURI, "No", "1","List");
+
+    value = QString::number(Datas::I()->mesureautoref->sphereOD(),'f',2);
+    CreateNode(RMxml, eleListR, nsURI, "unit", "D", "Sphere", value);
+    value = QString::number(Datas::I()->mesureautoref->cylindreOD(),'f',2);
+    CreateNode(RMxml, eleListR, nsURI, "unit", "D", "Cylinder", value);
+    value = QString::number(Datas::I()->mesureautoref->axecylindreOD());
+    CreateNode(RMxml, eleListR, nsURI, "unit", "deg", "Axis", value);
+
+    CreateNode(RMxml, eleListR, nsURI, "unit", "D", "SE");
+    CreateNode(RMxml, eleListR, nsURI, "CataractMode");
+    CreateNode(RMxml, eleListR, nsURI, "IOLMode");
+    CreateNode(RMxml, eleListR, nsURI, "ConfidenceIndex");
+
+
+    // Measure -> REF -> L
+    QDomElement eleL = CreateNode(RMxml, eleREF, nsURI, "L");
+    // Measure -> REF -> L -> List
+    QDomElement eleListL = CreateNode(RMxml, eleL, nsURI, "No", "1","List");
+
+    value = QString::number(Datas::I()->mesureautoref->sphereOG(),'f',2);
+    CreateNode(RMxml, eleListL, nsURI, "unit", "D", "Sphere", value);
+    value = QString::number(Datas::I()->mesureautoref->cylindreOG(),'f',2);
+    CreateNode(RMxml, eleListL, nsURI, "unit", "D", "Cylinder", value);
+    value = QString::number(Datas::I()->mesureautoref->axecylindreOG());
+    CreateNode(RMxml, eleListL, nsURI, "unit", "deg", "Axis", value);
+
+    CreateNode(RMxml, eleListL, nsURI, "unit", "D", "SE");
+    CreateNode(RMxml, eleListL, nsURI, "CataractMode");
+    CreateNode(RMxml, eleListL, nsURI, "IOLMode");
+    CreateNode(RMxml, eleListL, nsURI, "ConfidenceIndex");
+
+    // Measure -> PD
+    AddPD(RMxml, elemMeasure, nsURI);
+}
+
+
+
+
+void Topcon::RegleRefracteurXML(TypesMesures flag, QString nameRF)
+{
+/*
+     QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";
+*/
     /*! LE FRONTO */
-    bool ExistMesureFronto =  !Datas::I()->mesurefronto->isdataclean();
+    bool ExistMesureFronto =  flag.testFlag(MesureFronto) && !Datas::I()->mesurefronto->isdataclean();
+
+    /*
+     *  Te lens meter XML file isn't recognized by the CV-5000 PC
+     *  Its generation is disabled.
+     */
+    ExistMesureFronto = false;
     if (ExistMesureFronto)
     {
         QDomDocument LMxml("");
-        QDomElement ophtalmology = LMxml.createElement("Ophtalmology");
-        LMxml.appendChild(ophtalmology);
-        {
-            QDomElement Common = LMxml.createElement("Common");
-            ophtalmology.appendChild(Common);
-            {
-                QDomElement company = LMxml.createElement("Company");
-                Common.appendChild(company);
-                company.appendChild(LMxml.createTextNode("RUFUS"));
-                QDomElement model = LMxml.createElement("ModelName");
-                Common.appendChild(model);
-                model.appendChild(LMxml.createTextNode("Rufus"));
-                Common.appendChild(LMxml.createElement("MachineNo"));
-                Common.appendChild(LMxml.createElement("ROMVersion"));
-                QDomElement version = LMxml.createElement("Version");
-                Common.appendChild(version);
-                version.appendChild(LMxml.createTextNode("Rufus"));
-                QDomElement date = LMxml.createElement("Date");
-                Common.appendChild(date);
-                date.appendChild(LMxml.createTextNode(QDate::currentDate().toString(QObject::tr("yyyy/MM/dd"))));
-                QDomElement time = LMxml.createElement("Time");
-                Common.appendChild(time);
-                time.appendChild(LMxml.createTextNode(QTime::currentTime().toString(QObject::tr("HH:mm:ss"))));
-                QDomElement patient = LMxml.createElement("Patient");
-                Common.appendChild(patient);
-                {
-                    QDomElement patientno = LMxml.createElement("No.");
-                    patient.appendChild(patientno);
-                    {
-                        QDomText id = LMxml.createTextNode(Datas::I()->patients->currentpatient()? QString::number(Datas::I()->patients->currentpatient()->id()) : "0");
-                        patientno.appendChild(id);
-                    }
-                    QDomElement patientid = LMxml.createElement("ID");
-                    patient.appendChild(patientid);
-                    {
-                        QDomText id = LMxml.createTextNode(Datas::I()->patients->currentpatient()? QString::number(Datas::I()->patients->currentpatient()->id()) : "0");
-                        patientid.appendChild(id);
-                    }
-                    patient.appendChild(LMxml.createElement("FirstName"));
-                    patient.appendChild(LMxml.createElement("MiddleName"));
-                    patient.appendChild(LMxml.createElement("LastName"));
-                    patient.appendChild(LMxml.createElement("Sex"));
-                    patient.appendChild(LMxml.createElement("Age"));
-                    patient.appendChild(LMxml.createElement("DOB"));
-                    patient.appendChild(LMxml.createElement("NameJ1"));
-                    patient.appendChild(LMxml.createElement("NameJ2"));
-                }
-                QDomElement oper = LMxml.createElement("Operator");
-                Common.appendChild(oper);
-                {
-                    oper.appendChild(LMxml.createElement("No."));
-                    oper.appendChild(LMxml.createElement("ID"));
-                }
-            }
-            QDomElement Measure = LMxml.createElement("Measure");
-            Measure.setAttribute("Type","LM");
-            ophtalmology.appendChild(Measure);
-            {
-                Measure.appendChild(LMxml.createElement("MeasureMode"));
-                Measure.appendChild(LMxml.createElement("DiopterStep"));
-                Measure.appendChild(LMxml.createElement("AxisStep"));
-                Measure.appendChild(LMxml.createElement("CylinderMode"));
-                Measure.appendChild(LMxml.createElement("PrismDiopterStep"));
-                Measure.appendChild(LMxml.createElement("PrismBaseStep"));
-                Measure.appendChild(LMxml.createElement("PrismMode"));
-                Measure.appendChild(LMxml.createElement("AddMode"));
-                QDomElement lm = LMxml.createElement("LM");
-                Measure.appendChild(lm);
-                {
-                    QDomElement s = LMxml.createElement("S");
-                    lm.appendChild(s);
-                    {
-                        s.appendChild(LMxml.createElement("Sphere"));
-                        s.appendChild(LMxml.createElement("Cylinder"));
-                        s.appendChild(LMxml.createElement("Axis"));
-                        s.appendChild(LMxml.createElement("SE"));
-                        s.appendChild(LMxml.createElement("ADD"));
-                        s.appendChild(LMxml.createElement("ADD2"));
-                        s.appendChild(LMxml.createElement("NearSphere"));
-                        s.appendChild(LMxml.createElement("NearSPhere2"));
-                        s.appendChild(LMxml.createElement("Prism"));
-                        s.appendChild(LMxml.createElement("PrismBase"));
-                        s.appendChild(LMxml.createElement("PrismX"));
-                        s.appendChild(LMxml.createElement("PrismY"));
-                        s.appendChild(LMxml.createElement("Prism"));
-                        s.appendChild(LMxml.createElement("UVTransmittance"));
-                        s.appendChild(LMxml.createElement("ConfidenceIndex"));
-                    }
-                    QDomElement r = LMxml.createElement("R");
-                    lm.appendChild(r);
-                    {
-                        QDomElement sph = LMxml.createElement("Sphere");
-                        sph.setAttribute("unit","D");
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->sphereOD(),'f',2));
-                            sph.appendChild(val);
-                        }
-                        r.appendChild(sph);
-                        QDomElement cyl = LMxml.createElement("Cylinder");
-                        cyl.setAttribute("unit","D");
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->cylindreOD(),'f',2));
-                            cyl.appendChild(val);
-                        }
-                        r.appendChild(cyl);
-                        QDomElement ax = LMxml.createElement("Axis");
-                        ax.setAttribute("unit","deg");
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->axecylindreOD()));
-                            ax.appendChild(val);
-                        }
-                        r.appendChild(ax);
-                        r.appendChild(LMxml.createElement("SE"));
-                        QDomElement add = LMxml.createElement("ADD");
-                        r.appendChild(add);
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2));
-                            add.appendChild(val);
-                        }
-                        r.appendChild(add);
-                        r.appendChild(LMxml.createElement("ADD2"));
-                        r.appendChild(LMxml.createElement("NearSphere"));
-                        r.appendChild(LMxml.createElement("NearSPhere2"));
-                        r.appendChild(LMxml.createElement("Prism"));
-                        r.appendChild(LMxml.createElement("PrismBase"));
-                        r.appendChild(LMxml.createElement("PrismX"));
-                        r.appendChild(LMxml.createElement("PrismY"));
-                        r.appendChild(LMxml.createElement("Prism"));
-                        r.appendChild(LMxml.createElement("UVTransmittance"));
-                        r.appendChild(LMxml.createElement("ConfidenceIndex"));
-                    }
-                    QDomElement l = LMxml.createElement("L");
-                    lm.appendChild(l);
-                    {
-                        QDomElement sph = LMxml.createElement("Sphere");
-                        sph.setAttribute("unit","D");
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->sphereOG(),'f',2));
-                            sph.appendChild(val);
-                        }
-                        l.appendChild(sph);
-                        QDomElement cyl = LMxml.createElement("Cylinder");
-                        cyl.setAttribute("unit","D");
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->cylindreOG(),'f',2));
-                            cyl.appendChild(val);
-                        }
-                        l.appendChild(cyl);
-                        QDomElement ax = LMxml.createElement("Axis");
-                        ax.setAttribute("unit","deg");
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->axecylindreOG()));
-                            ax.appendChild(val);
-                        }
-                        l.appendChild(ax);
-                        l.appendChild(LMxml.createElement("SE"));
-                        QDomElement add = LMxml.createElement("ADD");
-                        l.appendChild(add);
-                        {
-                            QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2));
-                            add.appendChild(val);
-                        }
-                        l.appendChild(add);
-                        l.appendChild(LMxml.createElement("ADD2"));
-                        l.appendChild(LMxml.createElement("NearSphere"));
-                        l.appendChild(LMxml.createElement("NearSPhere2"));
-                        l.appendChild(LMxml.createElement("Prism"));
-                        l.appendChild(LMxml.createElement("PrismBase"));
-                        l.appendChild(LMxml.createElement("PrismX"));
-                        l.appendChild(LMxml.createElement("PrismY"));
-                        l.appendChild(LMxml.createElement("Prism"));
-                        l.appendChild(LMxml.createElement("UVTransmittance"));
-                        l.appendChild(LMxml.createElement("ConfidenceIndex"));
-                    }
-                }
-                QDomElement pd = LMxml.createElement("PD");
-                Measure.appendChild(pd);
-                {
-                    QDomElement pdb = LMxml.createElement("Distance");
-                    pdb.setAttribute("Unit","mm");
-                    if (Datas::I()->mesurefronto->ecartIP()>0)
-                    {
-                        QDomText val = LMxml.createTextNode(QString::number(Datas::I()->mesurefronto->ecartIP()));
-                        pdb.appendChild(val);
-                    }
-                    pd.appendChild(pdb);
-                    QDomElement pdr = LMxml.createElement("DistanceR");
-                    pdr.setAttribute("Unit","mm");
-                    pd.appendChild(pdr);
-                    QDomElement pdl = LMxml.createElement("DistanceR");
-                    pdl.setAttribute("Unit","mm");
-                    pd.appendChild(pdl);
-                }
-                QDomElement nidek = LMxml.createElement("NIDEK");
-                Measure.appendChild(nidek);
-                {
-                    QDomElement s = LMxml.createElement("S");
-                    nidek.appendChild(s);
-                    {
-                        QDomElement length = LMxml.createElement("Length");
-                        length.setAttribute("unit","mm");
-                        s.appendChild(length);
-                        QDomElement chwidth = LMxml.createElement("Length");
-                        chwidth.setAttribute("unit","mm");
-                        s.appendChild(chwidth);
-                        QDomElement chlength = LMxml.createElement("Length");
-                        chlength.setAttribute("unit","mm");
-                        s.appendChild(chlength);
-                        s.appendChild(LMxml.createElement("Index"));
-                        QDomElement gtrs = LMxml.createElement("GreenTransmittance");
-                        gtrs.setAttribute("unit","%");
-                        s.appendChild(gtrs);
-                    }
-                    QDomElement r = LMxml.createElement("R");
-                    nidek.appendChild(r);
-                    {
-                        QDomElement length = LMxml.createElement("Length");
-                        length.setAttribute("unit","mm");
-                        r.appendChild(length);
-                        QDomElement chwidth = LMxml.createElement("Length");
-                        chwidth.setAttribute("unit","mm");
-                        r.appendChild(chwidth);
-                        QDomElement chlength = LMxml.createElement("Length");
-                        chlength.setAttribute("unit","mm");
-                        r.appendChild(chlength);
-                        r.appendChild(LMxml.createElement("Index"));
-                        QDomElement gtrs = LMxml.createElement("GreenTransmittance");
-                        gtrs.setAttribute("unit","%");
-                        r.appendChild(gtrs);
-                    }
-                    QDomElement l = LMxml.createElement("L");
-                    nidek.appendChild(l);
-                    {
-                        QDomElement length = LMxml.createElement("Length");
-                        length.setAttribute("unit","mm");
-                        l.appendChild(length);
-                        QDomElement chwidth = LMxml.createElement("Length");
-                        chwidth.setAttribute("unit","mm");
-                        l.appendChild(chwidth);
-                        QDomElement chlength = LMxml.createElement("Length");
-                        chlength.setAttribute("unit","mm");
-                        l.appendChild(chlength);
-                        l.appendChild(LMxml.createElement("Index"));
-                        QDomElement gtrs = LMxml.createElement("GreenTransmittance");
-                        gtrs.setAttribute("unit","%");
-                        l.appendChild(gtrs);
-                    }
-                    QDomElement netprism = LMxml.createElement("NetPrism");
-                    nidek.appendChild(netprism);
-                    {
-                        QDomElement neth = LMxml.createElement("NetHPrism");
-                        neth.setAttribute("unit","pri");
-                        neth.setAttribute("base","in");
-                        netprism.appendChild(neth);
-                        QDomElement netv = LMxml.createElement("NetVPrism");
-                        netv.setAttribute("unit","pri");
-                        netv.setAttribute("base","out");
-                        netprism.appendChild(netv);
-                    }
-                    QDomElement inside = LMxml.createElement("Inside");
-                    nidek.appendChild(netprism);
-                    {
-                        QDomElement r = LMxml.createElement("InsideR");
-                        r.setAttribute("unit","mm");
-                        inside.appendChild(r);
-                        QDomElement l = LMxml.createElement("InsideL");
-                        l.setAttribute("unit","mm");
-                        inside.appendChild(l);
-                    }
-                }
-            }
-        }
-        //EnregistreFileDatasXML(LMxml, MesureFronto);
-    }
 
+        QDomElement eleOphtalmology = LMxml.createElement("Ophthalmology");
+        eleOphtalmology.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        eleOphtalmology.setAttribute("xmlns:nsCommon", "http://www.joia.or.jp/standardized/namespaces/Common");
+        eleOphtalmology.setAttribute("xmlns:nsLM", "http://www.joia.or.jp/standardized/namespaces/LM");
+        eleOphtalmology.setAttribute("xsi:schemaLocation", "http://www.joia.or.jp/standardized/namespaces/Common Common_schema.xsd http://www.joia.or.jp/standardized/namespaces/LM LM_schema.xsd");
+        LMxml.appendChild(eleOphtalmology);
+
+        AddCommon(LMxml, eleOphtalmology);
+        AddLM(LMxml, eleOphtalmology);
+        EnregistreFileDatasXML(LMxml, MesureFronto);
+    }
     /*! L'AUTOREF */
-    bool ExistMesureAutoref = !Datas::I()->mesureautoref->isdataclean();
+    bool ExistMesureAutoref =  flag.testFlag(MesureAutoref) && !Datas::I()->mesureautoref->isdataclean();
     if (ExistMesureAutoref)
     {
-        QDomDocument ARxml("");
-        QDomElement Data = ARxml.createElement("Data");
-        ARxml.appendChild(Data);
-        QDomElement company = ARxml.createElement("Company");
-        Data.appendChild(company);
-        {
-            QDomText t = ARxml.createTextNode("NIDEK");
-            company.appendChild(t);
-        }
-        QDomElement model = ARxml.createElement("ModelName");
-        Data.appendChild(model);
-        {
-            QDomText u = ARxml.createTextNode("ARK-1s");
-            model.appendChild(u);
-        }
-        QDomElement rom = ARxml.createElement("ROMVersion");
-        Data.appendChild(rom);
-        QDomElement date = ARxml.createElement("Date");
-        Data.appendChild(date);
-        {
-            QDomText w = ARxml.createTextNode(QDate::currentDate().toString(QObject::tr("yyyy/MM/dd")));
-            date.appendChild(w);
-        }
-        QDomElement time = ARxml.createElement("Time");
-        Data.appendChild(time);
-        {
-            QDomText x = ARxml.createTextNode(QTime::currentTime().toString(QObject::tr("HH:mm:ss")));
-            time.appendChild(x);
-        }
-        QDomElement patient = ARxml.createElement("Patient");
-        Data.appendChild(patient);
-        {
-            QDomElement patientno = ARxml.createElement("No.");
-            patient.appendChild(patientno);
-            {
-                QDomText id = ARxml.createTextNode(Datas::I()->patients->currentpatient()? QString::number(Datas::I()->patients->currentpatient()->id()) : "0");
-                patientno.appendChild(id);
-            }
-            QDomElement patientid = ARxml.createElement("ID");
-            patient.appendChild(patientid);
-        }
-        QDomElement comment = ARxml.createElement("Comment");
-        Data.appendChild(comment);
-        QDomElement vd = ARxml.createElement("VD");
-        Data.appendChild(vd);
-        QDomElement wd = ARxml.createElement("WorkingDistance");
-        Data.appendChild(wd);
-        QDomElement ds = ARxml.createElement("DiopterStep");
-        Data.appendChild(ds);
-        QDomElement as = ARxml.createElement("AxisStep");
-        Data.appendChild(as);
-        QDomElement cm = ARxml.createElement("CylinderMode");
-        Data.appendChild(cm);
-        QDomElement ri = ARxml.createElement("RefractiveIndex");
-        Data.appendChild(ri);
-        QDomElement r = ARxml.createElement("R");
-        Data.appendChild(r);
-        {
-            QDomElement ar = ARxml.createElement("AR");
-            r.appendChild(ar);
-            {
-                QDomElement arlist = ARxml.createElement("ARList");
-                ar.appendChild(arlist);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    arlist.appendChild(sph);
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    arlist.appendChild(cyl);
-                    QDomElement ax = ARxml.createElement("Axis");
-                    arlist.appendChild(ax);
-                    QDomElement cm = ARxml.createElement("CataractMode");
-                    arlist.appendChild(cm);
-                    QDomElement ci = ARxml.createElement("ConfidenceIndex");
-                    arlist.appendChild(ci);
-                    QDomElement se = ARxml.createElement("SE");
-                    arlist.appendChild(se);
-                }
-                QDomElement armed = ARxml.createElement("ARMedian");
-                ar.appendChild(armed);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    armed.appendChild(sph);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->sphereOD(),'f',2));
-                        sph.appendChild(val);
-                    }
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    armed.appendChild(cyl);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->cylindreOD(),'f',2));
-                        cyl.appendChild(val);
-                    }
-                    QDomElement ax = ARxml.createElement("Axis");
-                    armed.appendChild(ax);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->axecylindreOD()));
-                        ax.appendChild(val);
-                    }
-                    QDomElement se = ARxml.createElement("SE");
-                    armed.appendChild(se);
-                }
-                QDomElement tl = ARxml.createElement("TrialLens");
-                ar.appendChild(tl);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    tl.appendChild(sph);
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    tl.appendChild(cyl);
-                    QDomElement ax = ARxml.createElement("Axis");
-                    tl.appendChild(ax);
-                }
-                QDomElement cl = ARxml.createElement("ContactLens");
-                ar.appendChild(cl);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    cl.appendChild(sph);
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    cl.appendChild(cyl);
-                    QDomElement ax = ARxml.createElement("Axis");
-                    cl.appendChild(ax);
-                    QDomElement se = ARxml.createElement("SE");
-                    cl.appendChild(se);
-                }
-                QDomElement img = ARxml.createElement("RingImage");
-                ar.appendChild(img);
+        QDomDocument RMxml("");
+        QDomElement eleOphtalmology = RMxml.createElement("Ophthalmology");
+        eleOphtalmology.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        eleOphtalmology.setAttribute("xmlns:nsCommon", "http://www.joia.or.jp/standardized/namespaces/Common");
+        eleOphtalmology.setAttribute("xmlns:nsREF", "http://www.joia.or.jp/standardized/namespaces/REF");
+        eleOphtalmology.setAttribute("xsi:schemaLocation", "http://www.joia.or.jp/standardized/namespaces/Common Common_schema.xsd http://www.joia.or.jp/standardized/namespaces/REF REF_schema.xsd");
+        RMxml.appendChild(eleOphtalmology);
 
-            }
-            QDomElement va = ARxml.createElement("VA");
-            r.appendChild(va);
-            {
-                QDomElement ucva = ARxml.createElement("UCVA");
-                va.appendChild(ucva);
-                QDomElement bcva = ARxml.createElement("BCVA");
-                va.appendChild(bcva);
-                QDomElement lva = ARxml.createElement("LVA");
-                va.appendChild(lva);
-                QDomElement gva = ARxml.createElement("GVA");
-                va.appendChild(gva);
-                QDomElement nva = ARxml.createElement("NVA");
-                va.appendChild(nva);
-                QDomElement wd = ARxml.createElement("WorkingDistance");
-                va.appendChild(wd);
-            }
-            QDomElement sr = ARxml.createElement("SR");
-            r.appendChild(sr);
-            {
-                QDomElement sph = ARxml.createElement("Sphere");
-                sr.appendChild(sph);
-                QDomElement cyl = ARxml.createElement("Cylinder");
-                sr.appendChild(cyl);
-                QDomElement ax = ARxml.createElement("Axis");
-                sr.appendChild(ax);
-                QDomElement se = ARxml.createElement("SE");
-                sr.appendChild(se);
-                QDomElement add = ARxml.createElement("ADD");
-                sr.appendChild(add);
-                QDomElement wd = ARxml.createElement("WorkingDistance");
-                sr.appendChild(wd);
-            }
-            QDomElement lm = ARxml.createElement("LM");
-            r.appendChild(lm);
-            {
-                lm.appendChild(ARxml.createElement("Sphere"));
-                lm.appendChild(ARxml.createElement("Cylinder"));
-                lm.appendChild(ARxml.createElement("Axis"));
-                lm.appendChild(ARxml.createElement("ADD"));
-                lm.appendChild(ARxml.createElement("ADD2"));
-            }
-            QDomElement km = ARxml.createElement("KM");
-            r.appendChild(km);
-            {
-                QDomElement kmlist = ARxml.createElement("KMList");
-                kmlist.setAttribute("No","1");
-                km.appendChild(kmlist);
-                {
-                    QDomElement r1 = ARxml.createElement("R1");
-                    kmlist.appendChild(r1);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r1.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r1.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r1.appendChild(ax);
-                    }
-                    QDomElement r2 = ARxml.createElement("R2");
-                    kmlist.appendChild(r2);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r2.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r2.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r2.appendChild(ax);
-                    }
-                    QDomElement avg = ARxml.createElement("Average");
-                    kmlist.appendChild(avg);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        avg.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        avg.appendChild(pwr);
-                    }
-                    QDomElement kmc = ARxml.createElement("KMCylinder");
-                    kmlist.appendChild(kmc);
-                    {
-                        QDomElement pwr = ARxml.createElement("Power");
-                        kmc.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        kmc.appendChild(ax);
-                    }
-                }
-                QDomElement kmmed = ARxml.createElement("KMMedian");
-                km.appendChild(kmmed);
-                {
-                    QDomElement r1 = ARxml.createElement("R1");
-                    kmmed.appendChild(r1);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r1.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r1.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r1.appendChild(ax);
-                    }
-                    QDomElement r2 = ARxml.createElement("R2");
-                    kmmed.appendChild(r2);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r2.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r2.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r2.appendChild(ax);
-                    }
-                    QDomElement avg = ARxml.createElement("Average");
-                    kmmed.appendChild(avg);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        avg.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        avg.appendChild(pwr);
-                    }
-                    QDomElement kmc = ARxml.createElement("KMCylinder");
-                    kmmed.appendChild(kmc);
-                    {
-                        QDomElement pwr = ARxml.createElement("Power");
-                        kmc.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        kmc.appendChild(ax);
-                    }
-                }
-            }
-            QDomElement cs = ARxml.createElement("CS");
-            r.appendChild(cs);
-            {
-                QDomElement cslist = ARxml.createElement("CSList");
-                cslist.setAttribute("No","1");
-                cs.appendChild(cslist);
-                {
-                    QDomElement sz = ARxml.createElement("Size");
-                    cslist.appendChild(sz);
-                }
-            }
-            QDomElement ps = ARxml.createElement("PS");
-            r.appendChild(ps);
-            {
-                QDomElement pslist = ARxml.createElement("PSList");
-                pslist.setAttribute("No","1");
-                ps.appendChild(pslist);
-                {
-                    QDomElement sz = ARxml.createElement("Size");
-                    pslist.appendChild(sz);
-                    QDomElement lp = ARxml.createElement("Lamp");
-                    pslist.appendChild(lp);
-                }
-            }
-            QDomElement ac = ARxml.createElement("AC");
-            r.appendChild(ac);
-            {
-                QDomElement sph = ARxml.createElement("Sphere");
-                ac.appendChild(sph);
-                QDomElement maxps = ARxml.createElement("MaxPS");
-                ac.appendChild(maxps);
-                QDomElement minps = ARxml.createElement("MinPS");
-                ac.appendChild(minps);
-                QDomElement img = ARxml.createElement("AccImage");
-                ac.appendChild(img);
-            }
-            QDomElement ri = ARxml.createElement("RI");
-            r.appendChild(ri);
-            {
-                QDomElement coih = ARxml.createElement("COIH");
-                ri.appendChild(coih);
-                QDomElement coia = ARxml.createElement("COIA");
-                ri.appendChild(coia);
-                QDomElement poi = ARxml.createElement("POI");
-                ri.appendChild(poi);
-                QDomElement rimg = ARxml.createElement("RetroImage");
-                ri.appendChild(rimg);
-            }
-        }
-        QDomElement l = ARxml.createElement("L");
-        Data.appendChild(l);
-        {
-            QDomElement ar = ARxml.createElement("AR");
-            l.appendChild(ar);
-            {
-                QDomElement arlist = ARxml.createElement("ARList");
-                ar.appendChild(arlist);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    arlist.appendChild(sph);
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    arlist.appendChild(cyl);
-                    QDomElement ax = ARxml.createElement("Axis");
-                    arlist.appendChild(ax);
-                    QDomElement cm = ARxml.createElement("CataractMode");
-                    arlist.appendChild(cm);
-                    QDomElement ci = ARxml.createElement("ConfidenceIndex");
-                    arlist.appendChild(ci);
-                    QDomElement se = ARxml.createElement("SE");
-                    arlist.appendChild(se);
-                }
-                QDomElement armed = ARxml.createElement("ARMedian");
-                ar.appendChild(armed);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    armed.appendChild(sph);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->sphereOG(),'f',2));
-                        sph.appendChild(val);
-                    }
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    armed.appendChild(cyl);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->cylindreOG(),'f',2));
-                        cyl.appendChild(val);
-                    }
-                    QDomElement ax = ARxml.createElement("Axis");
-                    armed.appendChild(ax);
-                    {
-                        QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->axecylindreOG()));
-                        ax.appendChild(val);
-                    }
-                    QDomElement se = ARxml.createElement("SE");
-                    armed.appendChild(se);
-                }
-                QDomElement tl = ARxml.createElement("TrialLens");
-                ar.appendChild(tl);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    tl.appendChild(sph);
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    tl.appendChild(cyl);
-                    QDomElement ax = ARxml.createElement("Axis");
-                    tl.appendChild(ax);
-                }
-                QDomElement cl = ARxml.createElement("ContactLens");
-                ar.appendChild(cl);
-                {
-                    QDomElement sph = ARxml.createElement("Sphere");
-                    cl.appendChild(sph);
-                    QDomElement cyl = ARxml.createElement("Cylinder");
-                    cl.appendChild(cyl);
-                    QDomElement ax = ARxml.createElement("Axis");
-                    cl.appendChild(ax);
-                    QDomElement se = ARxml.createElement("SE");
-                    cl.appendChild(se);
-                }
-                QDomElement img = ARxml.createElement("RingImage");
-                ar.appendChild(img);
-
-            }
-            QDomElement va = ARxml.createElement("VA");
-            l.appendChild(va);
-            {
-                QDomElement ucva = ARxml.createElement("UCVA");
-                va.appendChild(ucva);
-                QDomElement bcva = ARxml.createElement("BCVA");
-                va.appendChild(bcva);
-                QDomElement lva = ARxml.createElement("LVA");
-                va.appendChild(lva);
-                QDomElement gva = ARxml.createElement("GVA");
-                va.appendChild(gva);
-                QDomElement nva = ARxml.createElement("NVA");
-                va.appendChild(nva);
-                QDomElement wd = ARxml.createElement("WorkingDistance");
-                va.appendChild(wd);
-            }
-            QDomElement sr = ARxml.createElement("SR");
-            l.appendChild(sr);
-            {
-                QDomElement sph = ARxml.createElement("Sphere");
-                sr.appendChild(sph);
-                QDomElement cyl = ARxml.createElement("Cylinder");
-                sr.appendChild(cyl);
-                QDomElement ax = ARxml.createElement("Axis");
-                sr.appendChild(ax);
-                QDomElement se = ARxml.createElement("SE");
-                sr.appendChild(se);
-                QDomElement add = ARxml.createElement("ADD");
-                sr.appendChild(add);
-                QDomElement wd = ARxml.createElement("WorkingDistance");
-                sr.appendChild(wd);
-            }
-            QDomElement lm = ARxml.createElement("LM");
-            l.appendChild(lm);
-            {
-                lm.appendChild(ARxml.createElement("Sphere"));
-                lm.appendChild(ARxml.createElement("Cylinder"));
-                lm.appendChild(ARxml.createElement("Axis"));
-                lm.appendChild(ARxml.createElement("ADD"));
-                lm.appendChild(ARxml.createElement("ADD2"));
-            }
-            QDomElement km = ARxml.createElement("KM");
-            l.appendChild(km);
-            {
-                QDomElement kmlist = ARxml.createElement("KMList");
-                kmlist.setAttribute("No","1");
-                km.appendChild(kmlist);
-                {
-                    QDomElement r1 = ARxml.createElement("R1");
-                    kmlist.appendChild(r1);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r1.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r1.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r1.appendChild(ax);
-                    }
-                    QDomElement r2 = ARxml.createElement("R2");
-                    kmlist.appendChild(r2);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r2.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r2.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r2.appendChild(ax);
-                    }
-                    QDomElement avg = ARxml.createElement("Average");
-                    kmlist.appendChild(avg);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        avg.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        avg.appendChild(pwr);
-                    }
-                    QDomElement kmc = ARxml.createElement("KMCylinder");
-                    kmlist.appendChild(kmc);
-                    {
-                        QDomElement pwr = ARxml.createElement("Power");
-                        kmc.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        kmc.appendChild(ax);
-                    }
-                }
-                QDomElement kmmed = ARxml.createElement("KMMedian");
-                km.appendChild(kmmed);
-                {
-                    QDomElement r1 = ARxml.createElement("R1");
-                    kmmed.appendChild(r1);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r1.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r1.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r1.appendChild(ax);
-                    }
-                    QDomElement r2 = ARxml.createElement("R2");
-                    kmmed.appendChild(r2);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        r2.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        r2.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        r2.appendChild(ax);
-                    }
-                    QDomElement avg = ARxml.createElement("Average");
-                    kmmed.appendChild(avg);
-                    {
-                        QDomElement rd = ARxml.createElement("Radius");
-                        avg.appendChild(rd);
-                        QDomElement pwr = ARxml.createElement("Power");
-                        avg.appendChild(pwr);
-                    }
-                    QDomElement kmc = ARxml.createElement("KMCylinder");
-                    kmmed.appendChild(kmc);
-                    {
-                        QDomElement pwr = ARxml.createElement("Power");
-                        kmc.appendChild(pwr);
-                        QDomElement ax = ARxml.createElement("Axis");
-                        kmc.appendChild(ax);
-                    }
-                }
-            }
-            QDomElement cs = ARxml.createElement("CS");
-            l.appendChild(cs);
-            {
-                QDomElement cslist = ARxml.createElement("CSList");
-                cslist.setAttribute("No","1");
-                cs.appendChild(cslist);
-                {
-                    QDomElement sz = ARxml.createElement("Size");
-                    cslist.appendChild(sz);
-                }
-            }
-            QDomElement ps = ARxml.createElement("PS");
-            l.appendChild(ps);
-            {
-                QDomElement pslist = ARxml.createElement("PSList");
-                pslist.setAttribute("No","1");
-                ps.appendChild(pslist);
-                {
-                    QDomElement sz = ARxml.createElement("Size");
-                    pslist.appendChild(sz);
-                    QDomElement lp = ARxml.createElement("Lamp");
-                    pslist.appendChild(lp);
-                }
-            }
-            QDomElement ac = ARxml.createElement("AC");
-            l.appendChild(ac);
-            {
-                QDomElement sph = ARxml.createElement("Sphere");
-                ac.appendChild(sph);
-                QDomElement maxps = ARxml.createElement("MaxPS");
-                ac.appendChild(maxps);
-                QDomElement minps = ARxml.createElement("MinPS");
-                ac.appendChild(minps);
-                QDomElement img = ARxml.createElement("AccImage");
-                ac.appendChild(img);
-            }
-            QDomElement ri = ARxml.createElement("RI");
-            l.appendChild(ri);
-            {
-                QDomElement coih = ARxml.createElement("COIH");
-                ri.appendChild(coih);
-                QDomElement coia = ARxml.createElement("COIA");
-                ri.appendChild(coia);
-                QDomElement poi = ARxml.createElement("POI");
-                ri.appendChild(poi);
-                QDomElement rimg = ARxml.createElement("RetroImage");
-                ri.appendChild(rimg);
-            }
-        }
-        QDomElement pd = ARxml.createElement("PD");
-        Data.appendChild(pd);
-        {
-            QDomElement pdl = ARxml.createElement("PDList");
-            pdl.setAttribute("No","1");
-            pd.appendChild(pdl);
-            {
-                QDomElement fpd = ARxml.createElement("FarPD");
-                pdl.appendChild(fpd);
-                if (Datas::I()->mesurefronto->ecartIP()>0)
-                {
-                    QDomText val = ARxml.createTextNode(QString::number(Datas::I()->mesureautoref->ecartIP()));
-                    fpd.appendChild(val);
-                }
-                QDomElement rpd = ARxml.createElement("RPD");
-                pdl.appendChild(rpd);
-                QDomElement lpd = ARxml.createElement("LPD");
-                pdl.appendChild(lpd);
-                QDomElement npd = ARxml.createElement("NearPD");
-                pdl.appendChild(npd);
-            }
-        }
+        AddCommon(RMxml, eleOphtalmology);
+        AddRM(RMxml, eleOphtalmology);
+        EnregistreFileDatasXML(RMxml, MesureAutoref);
     }
+}
+
+
+void Topcon::EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmesure)
+
+{
+    QString folder ("");
+    if (typmesure == MesureAutoref)
+    {
+        folder = settings().value(Param_Poste_PortRefracteur_DossierEchange_Autoref).toString();
+    }
+    else if (typmesure == MesureFronto)
+    {
+        folder = settings().value(Param_Poste_PortRefracteur_DossierEchange_Fronto).toString();
+    }
+    else
+    {
+        return;
+    }
+
+    PrepareFolder(folder);
+    QDateTime date = QDateTime::currentDateTime();
+    QString formattedTime = date.toString("yyyyMMdd_hhmmss");
+    QString filename = folder + "/" + QString::number(Datas::I()->patients->currentpatient()->id()) + "_" + formattedTime + "_RUFUS_V1_Rufus.xml";
+
+    QDomNode node = xml.createProcessingInstruction( "xml", "version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"" );
+    xml.insertBefore( node, xml.firstChild() );
+
+
+    SaveFileXML(xml, filename, QStringConverter::Utf8 );
 }

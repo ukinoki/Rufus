@@ -12,8 +12,10 @@ class GenericProtocol : public QObject
 {
     Q_OBJECT
 private:
-    QSettings  settings() {return QSettings(PATH_FILE_INI, QSettings::IniFormat);}
 public:
+
+    QSettings  settings() {return QSettings(PATH_FILE_INI, QSettings::IniFormat);}
+
     enum TypeMesure {
         MesureNone        = 0x0,
         MesureAll         = 0x1,
@@ -28,6 +30,8 @@ public:
 
 protected:
     void        EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmesure);
+    void        SaveFileXML(QDomDocument xml, QString filename, QStringConverter::Encoding encoding);
+    void        PrepareFolder(QString folder);
     void        logmesure(QString mesure)  { Logs::LogToFile("refraction.txt", mesure); }
 
 signals:
