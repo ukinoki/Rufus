@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-06-2024/2");
+    qApp->setApplicationVersion("16-06-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -88,9 +88,12 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     MAJPosteConnecte();
     if (postadmin == Q_NULLPTR)
         VerifVerrouDossier();
+    if (Datas::I()->postesconnectes->postesconnectes()->size()==1)
+        Flags::I()->videFlags();
 
     //! 5 - lancement du TCP
     m_utiliseTCP = false;
+    Flags::I()->cleanFlags();
     QString log;
     qintptr z = 0;
     if (postadmin != Q_NULLPTR)
@@ -217,18 +220,14 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (majsaldat)
         Flags::I()->MAJFlagSalleDAttente();
 
-
     //! 8 les signaux
     ConnectSignals();
 
     //! 9 - libération des verrous de la compta
     QString req = " delete from " TBL_VERROUCOMPTAACTES " where " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(currentuser()->id());
     db->StandardSQL(req);
-
     m_closeflag = false;
-
     setTitre();
-
 
     //!10 - reconstruction du QCompleter de la liste de cotations
     if (currentuser()->isSoignant())
@@ -243,7 +242,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         comp->popup()->setFont(ui->ActeMontantlineEdit->font());
         comp->setMaxVisibleItems(5);
         ui->ActeCotationcomboBox->lineEdit()->setCompleter(comp);
-        connect(comp,                       QOverload<const QString &>::of(&QCompleter::activated), this,   &Rufus::RetrouveMontantActe);
+        connect(comp, QOverload<const QString &>::of(&QCompleter::activated), this, &Rufus::RetrouveMontantActe);
     }
 
     //! 11 - Mise à jour des salles d'attente
@@ -5774,10 +5773,8 @@ void Rufus::VerifMessages()
         return;
     int flagmsg = Flags::I()->flagMessages();
     if (m_flagmessages < flagmsg)
-    {
         ReconstruitListeMessages();
-        m_flagmessages = flagmsg;
-    }
+    m_flagmessages = flagmsg;
 }
 
 /*!
@@ -5907,10 +5904,8 @@ void Rufus::VerifSalleDAttente()
 {
     int flagsaldat = Flags::I()->flagSalleDAttente();
     if (m_flagsalledattente < flagsaldat)
-    {
-        m_flagsalledattente = flagsaldat;
         Remplir_SalDat();                       // par le timer VerifSalleDAttente
-    }
+    m_flagsalledattente = flagsaldat;
 }
 
 void Rufus::VerifCorrespondants()
@@ -5920,7 +5915,6 @@ void Rufus::VerifCorrespondants()
     int flagcor = Flags::I()->flagCorrespondants();
     if (m_flagcorrespondants < flagcor)
     {
-        m_flagcorrespondants = flagcor;
         // on reconstruit la liste des MG et des correspondants
         ReconstruitCombosCorresp();                     // par le timer gTimerCorrespondants
         // on resynchronise l'affichage du combobox au besoin
@@ -5946,6 +5940,7 @@ void Rufus::VerifCorrespondants()
             OKModifierTerrain(currentpatient());
         }
     }
+    m_flagcorrespondants = flagcor;
 }
 
 void Rufus::VerifDocsDossiersEchanges()

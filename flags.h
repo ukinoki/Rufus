@@ -98,13 +98,15 @@ public:
     static Flags            *I();
     explicit                Flags(QObject *parent = Q_NULLPTR);
     ~Flags();
-
-    void                    setTCP(bool tcp);
+    enum Flag               {Correspondants, Messages, SalleDattente, UserDistant}; Q_ENUM(Flag)
 
     int                     flagCorrespondants() const; //!> flag de mise à jour de la liste des corresondants
     int                     flagMessages() const;       //!> flag de vérification des messages
     int                     flagSalleDAttente() const;  //!> flag de mise à jour de la salle d'attente
     int                     flagUserDistant() const;    //!> flag de mise à jour de la liste des utilisateurs distants
+
+    void                    cleanFlags();               //!> nettoie tous les enregistrements de la table flags pour ne laisser que le seul avec la valeur maxi de flagsalledattente;
+    void                    videFlags();                //!> vide flags
 
     void                    MAJflagCorrespondants();    //!< MAJ du flag de la liste des correspondants
     void                    MAJflagMessages();          //!< MAJ du flag de la messagerie
@@ -121,7 +123,7 @@ signals:
 private:
     static Flags            *instance;
     bool                    m_ok;
-    bool                    m_useTCP;
+    void                    MajFlag(enum Flag flag);
 };
 
 

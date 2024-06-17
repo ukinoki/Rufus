@@ -76,7 +76,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplabel.h"
 #include <upsystemtrayicon.h>
 
-class RendezVous : public Item
+class RendezVous : public QObject
 {
     Q_OBJECT
 
