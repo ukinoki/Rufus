@@ -503,9 +503,9 @@ void AddCommon(QDomDocument LMxml, QDomElement ophtalmology)
 void AddPD(QDomDocument RMxml, QDomElement elemMeasure, QString nsURI)
 {
     // Measure -> PD
-    if (Datas::I()->mesurefronto->ecartIP()>0)
+    if (Datas::I()->mesureautoref->ecartIP()>0)
     {
-        QString value=QString::number(Datas::I()->mesurefronto->ecartIP());
+        QString value=QString::number(Datas::I()->mesureautoref->ecartIP());
         QDomElement elePD = CreateNode(RMxml, elemMeasure, nsURI, "PD");
         CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Distance", value);
 
@@ -533,7 +533,28 @@ void AddLMVoidData(QDomDocument LMxml, QDomElement eleS, QString nsURI)
 }
 
 
-void AddLM(QDomDocument LMxml, QDomElement ophtalmology)
+void AddLMEyeVoidData(QDomDocument LMxml, QDomElement eleS, QString nsURI)
+{
+    /*
+    <nsSBJ:HPri unit="prism"/>
+    <nsSBJ:HBase/>
+    <nsSBJ:VPri unit="prism"/>
+    <nsSBJ:VBase/>
+    <nsSBJ:Prism unit="prism"/>
+    <nsSBJ:Angle unit="deg"/>
+    */
+    CreateNode(LMxml, eleS, nsURI, "unit", "prism", "HPri");
+    CreateNode(LMxml, eleS, nsURI, "HBase");
+    CreateNode(LMxml, eleS, nsURI, "unit", "prism", "VPri");
+    CreateNode(LMxml, eleS, nsURI, "VBase");
+    CreateNode(LMxml, eleS, nsURI, "unit", "prism", "Prism");
+    CreateNode(LMxml, eleS, nsURI, "unit", "deg", "Angle");
+
+}
+
+
+
+void AddLMJOIA(QDomDocument LMxml, QDomElement ophtalmology)
 {
 /*
 <nsLM:Measure type="LM">
@@ -679,6 +700,124 @@ void AddLM(QDomDocument LMxml, QDomElement ophtalmology)
 }
 
 
+
+void AddLM(QDomDocument LMxml, QDomElement ophtalmology)
+{
+
+    QString nsURI="nsSBJ";
+    QString value = ""; // For convenience
+
+    // Measure
+    QDomElement elemMeasure = CreateNode(LMxml, ophtalmology, nsURI, "type", "SBJ", "Measure", "");
+    QDomElement elemRefTest = CreateNode(LMxml, elemMeasure, nsURI, "RefractionTest", "");
+    QDomElement elemType1 = CreateNode(LMxml, elemRefTest, nsURI, "No", "1", "Type", "");
+    CreateNode(LMxml, elemType1, nsURI, "TypeName", "Current Spectacles"); // Fronto for TopCon
+    QDomElement elemExamDistance1 = CreateNode(LMxml, elemType1, nsURI, "No", "1", "ExamDistance", "");
+
+
+    // ExamDistance No 1 (Far vision)
+    CreateNode(LMxml, elemExamDistance1, nsURI, "unit", "cm", "Distance", "500.00");
+    QDomElement elemRefractionData = CreateNode(LMxml, elemExamDistance1, nsURI, "RefractionData", "");
+
+    // RefractionData 1 -> R
+    QDomElement eleR = CreateNode(LMxml, elemRefractionData, nsURI, "R", "");
+
+    value=QString::number(Datas::I()->mesurefronto->sphereOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "Sph", value);
+
+    value=QString::number(Datas::I()->mesurefronto->cylindreOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "Cyl", value);
+
+    value=QString::number(Datas::I()->mesurefronto->axecylindreOD(),'f',2);
+    CreateNode(LMxml, eleR, nsURI, "unit", "D", "Axis", value);
+
+
+    // RefractionData 1 -> R   VOID data
+    AddLMEyeVoidData(LMxml, eleR, nsURI);
+
+
+    // RefractionData 1 -> L
+    QDomElement eleL = CreateNode(LMxml, elemRefractionData, nsURI, "L", "");
+
+    value=QString::number(Datas::I()->mesurefronto->sphereOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "Sph", value);
+
+    value=QString::number(Datas::I()->mesurefronto->cylindreOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "Cyl", value);
+
+    value=QString::number(Datas::I()->mesurefronto->axecylindreOG(),'f',2);
+    CreateNode(LMxml, eleL, nsURI, "unit", "D", "Axis", value);
+
+
+    // RefractionData 1 -> L   VOID data
+    AddLMEyeVoidData(LMxml, eleL, nsURI);
+
+    // <nsSBJ:VD unit="mm">12,00</nsSBJ:VD>
+    CreateNode(LMxml, elemRefractionData, nsURI, "unit", "mm", "VD", "12.0");
+
+    // RefractionData 1 -> PD
+    AddPD(LMxml, elemExamDistance1, nsURI);
+
+
+
+    // ExamDistance No 2 (Near vision)
+    QDomElement elemExamDistance2 = CreateNode(LMxml, elemType1, nsURI, "No", "2", "ExamDistance", "");
+    CreateNode(LMxml, elemExamDistance2, nsURI, "unit", "cm", "Distance", "67.00");
+    QDomElement elemRefractionData2 = CreateNode(LMxml, elemExamDistance2, nsURI, "RefractionData", "");
+
+
+
+    // RefractionData 2 -> R
+    QDomElement eleR2 = CreateNode(LMxml, elemRefractionData2, nsURI, "R", "");
+
+
+    // ADD  R
+    value=QString::number(Datas::I()->mesurefronto->addVPOD() + Datas::I()->mesurefronto->sphereOD(),'f',2);
+    CreateNode(LMxml, eleR2, nsURI, "unit", "D", "Sph", value);
+
+    // Needed ... ???
+
+    value=QString::number(Datas::I()->mesurefronto->cylindreOD(),'f',2);
+    CreateNode(LMxml, eleR2, nsURI, "unit", "D", "Cyl", value);
+
+    value=QString::number(Datas::I()->mesurefronto->axecylindreOD(),'f',2);
+    CreateNode(LMxml, eleR2, nsURI, "unit", "D", "Axis", value);
+
+    // RefractionData 2 -> R   VOID data
+    AddLMEyeVoidData(LMxml, eleR2, nsURI);
+
+
+
+
+
+
+    // RefractionData 2 -> L
+    QDomElement eleL2 = CreateNode(LMxml, elemRefractionData2, nsURI, "L", "");
+
+
+    // ADD  R
+    value=QString::number(Datas::I()->mesurefronto->addVPOG() + Datas::I()->mesurefronto->sphereOG(),'f',2);
+    CreateNode(LMxml, eleL2, nsURI, "unit", "D", "Sph", value);
+
+    // Needed ... ???
+    value=QString::number(Datas::I()->mesurefronto->cylindreOG(),'f',2);
+    CreateNode(LMxml, eleL2, nsURI, "unit", "D", "Cyl", value);
+
+    value=QString::number(Datas::I()->mesurefronto->axecylindreOG(),'f',2);
+    CreateNode(LMxml, eleL2, nsURI, "unit", "D", "Axis", value);
+
+    // RefractionData 1 -> L   VOID data
+    AddLMEyeVoidData(LMxml, eleL2, nsURI);
+
+    // <nsSBJ:VD unit="mm">12,00</nsSBJ:VD>
+    CreateNode(LMxml, elemRefractionData2, nsURI, "unit", "mm", "VD", "12.0");
+
+}
+
+
+
+
+
 void AddRM(QDomDocument RMxml, QDomElement ophtalmology)
 {
     QString nsURI="nsREF";
@@ -749,8 +888,9 @@ void Topcon::RegleRefracteurXML(TypesMesures flag, QString nameRF)
     /*
      *  Te lens meter XML file isn't recognized by the CV-5000 PC
      *  Its generation is disabled.
+        ExistMesureFronto = false;
      */
-    ExistMesureFronto = false;
+
     if (ExistMesureFronto)
     {
         QDomDocument LMxml("");
@@ -758,8 +898,16 @@ void Topcon::RegleRefracteurXML(TypesMesures flag, QString nameRF)
         QDomElement eleOphtalmology = LMxml.createElement("Ophthalmology");
         eleOphtalmology.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
         eleOphtalmology.setAttribute("xmlns:nsCommon", "http://www.joia.or.jp/standardized/namespaces/Common");
+        eleOphtalmology.setAttribute("xmlns:nsSBJ", "http://www.joia.or.jp/standardized/namespaces/SBJ");
+        eleOphtalmology.setAttribute("xsi:schemaLocation", "http://www.joia.or.jp/standardized/namespaces/Common Common_schema.xsd http://www.joia.or.jp/standardized/namespaces/SBJ SBJ_schema.xsd");
+
+        /*
+        eleOphtalmology.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        eleOphtalmology.setAttribute("xmlns:nsCommon", "http://www.joia.or.jp/standardized/namespaces/Common");
         eleOphtalmology.setAttribute("xmlns:nsLM", "http://www.joia.or.jp/standardized/namespaces/LM");
         eleOphtalmology.setAttribute("xsi:schemaLocation", "http://www.joia.or.jp/standardized/namespaces/Common Common_schema.xsd http://www.joia.or.jp/standardized/namespaces/LM LM_schema.xsd");
+        */
+
         LMxml.appendChild(eleOphtalmology);
 
         AddCommon(LMxml, eleOphtalmology);
