@@ -149,7 +149,16 @@ QMap<Utils::Period, QDate> Procedures::ChoixDate(QWidget *parent)
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::pathDossierDocuments(QString Appareil, Utils::ModeAcces mode)
 {
-    QString cle = Utils::getBaseFromMode( mode ) + Dossier_Documents + Appareil;
+    QString cle ("");
+    switch (mode) {
+    case Utils::ReseauLocal:
+        cle = Utils::getBaseFromMode( mode );
+        break;
+    default:
+        cle = Utils::getBaseFromMode( Utils::Poste );
+        break;
+    }
+    cle += Dossier_Documents + Appareil;
     QString dossier = m_settings->value(cle).toString();
     return dossier;
 }
