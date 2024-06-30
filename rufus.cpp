@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("16-06-2024/1");
+    qApp->setApplicationVersion("30-06-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -1487,12 +1487,12 @@ void Rufus::ChangeTabBureau()
 {
     if(ui->tabWidget->currentWidget() == ui->tabList)
     {
-        setFixedWidth(LARGEURLISTE);
+        //setFixedWidth(LARGEURLISTE);
         ui->CreerNomlineEdit->setFocus();
         CalcNbDossiers();
     }
-    else
-        setFixedWidth(LARGEURNORMALE);
+    //else
+        //setFixedWidth(LARGEURNORMALE);
 }
 
 void Rufus::ChoixMG()
@@ -8327,7 +8327,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitWidgets()
 {
-    setFixedWidth(LARGEURLISTE);
+    //setFixedWidth(LARGEURLISTE);
     ui->tabWidget->setGeometry(5,10,-10,920);
 
     wdg_MGlineEdit->setStyleSheet(

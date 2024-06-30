@@ -953,8 +953,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define HAUTEUR_SANS_ORDONNANCE_AVEC_DETAIL             335                 // Hauteur du formulaire Refraction sans la partie ordonnance avec detail sans observ
 #define HAUTEUR_AVEC_ORDONNANCE_SANS_DETAIL             450                 // Hauteur du formulaire Refraction avec partie ordonnance sans detail
 #define HAUTEUR_AVEC_ORDONNANCE_AVEC_DETAIL             590                 // Hauteur du formulaire Refraction avec partie ordonnance avec detail
-#define LARGEURLISTE                                    1300
-#define LARGEURNORMALE                                  1260
+#define LARGEURLISTE                                    1320 //1306
+#define LARGEURNORMALE                                  1320 //1260
 #define HAUTEUR_MINI                                    280
 
 //Opérations bancaires
