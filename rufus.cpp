@@ -6128,6 +6128,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     if (db->ModeAccesDataBase() == Utils::Distant)
     {
         m_isposteImport = true;
+        VerifDossiersImagerie();
         return;
     }
 

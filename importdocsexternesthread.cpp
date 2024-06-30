@@ -48,7 +48,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
      * contenu du fichier
      * idpatient
      */
-
+    //qDebug() << appareil->nomappareil();
     QString NomDirDoc   = appareil->nomdossierechange();
     QString Titredoc    = appareil->titreexamen();
     if (NomDirDoc == "")
