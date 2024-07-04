@@ -233,7 +233,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
         for (int j=0; j<QDir(pathorigin).entryList(filters).size(); j++)
             listnomsfilestorestore << pathorigin + "/" + QDir(pathorigin).entryList(filters).at(j);
         for (int i=0; i<listnomsfilestorestore.size(); i++)
-            m_basesize += QFile(listnomsfilestorestore.at(i)).size()/1024/1024;
+            m_basesize += QFile(listnomsfilestorestore.at(i)).size();
     }
     else
         m_basesize = CalcBaseSize();
@@ -242,9 +242,6 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     // espace libre sur le disque ------------------------------------------------------------------------------------------------------------------------------------------------
 
     m_freespace = QStorageInfo(pathdestination).bytesAvailable();
-    m_freespace = m_freespace/1024/1024;
-    //qDebug() << QStorageInfo(dirbkup).bytesAvailable();
-    //qDebug() << QString::number(FreeSpace,'f',0);
 
     dlg_buprestore = new UpDialog();
     dlg_buprestore->setModal(true);
@@ -275,7 +272,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + NOM_DIR_VIDEOS);
-        m_videossize = DataDir["Size"]/1024/1024;
+        m_videossize = DataDir["Size"];
         if (m_videossize> 0)
         {
             QHBoxLayout *layVideos = new QHBoxLayout;
@@ -301,7 +298,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     {
         // taille du dossier Images ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + NOM_DIR_IMAGES);
-        m_imagessize = DataDir["Size"]/1024/1024;
+        m_imagessize = DataDir["Size"];
         if (m_imagessize > 0)
         {
             QHBoxLayout *layImges = new QHBoxLayout;
@@ -327,7 +324,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     {
         // taille du dossier Factures ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + NOM_DIR_FACTURES);
-        m_facturessize = DataDir["Size"]/1024/1024;
+        m_facturessize = DataDir["Size"];
         if (m_facturessize > 0)
         {
             QHBoxLayout *layFctures = new QHBoxLayout;
@@ -2177,8 +2174,8 @@ bool Procedures::ReinitBase()
 qint64 Procedures::CalcBaseSize()
 {
     qint64 basesize = 0;
-    QString req = "SELECT SUM(SizeMB) from "
-                      "(SELECT table_schema, round(sum(data_length+index_length)/1024/1024,4) AS SizeMB FROM information_schema.tables"
+    QString req = "SELECT SUM(TotalSize) from "
+                      "(SELECT table_schema, round(sum(data_length+index_length),4) AS TotalSize FROM information_schema.tables"
                       " where table_schema = '" DB_COMPTA "'"
                       " or table_schema = '" DB_RUFUS "'"
                       " or table_schema = '" DB_OPHTA "'"
@@ -2218,7 +2215,7 @@ void Procedures::CalcTimeBupRestore()
                 volume += m_facturessize;
         }
     }
-    time = (volume/1024 /2)*60000; //duréée approximative de sauvegarde en ms
+    time = (volume/1024/1024/1024 /2)*60000; //duréée approximative de sauvegarde en ms
     QString Volumelitteral = Utils::getExpressionSize(volume);
     QString timelitteral;
     if (Volumelitteral.right(2) == "Go")

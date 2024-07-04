@@ -474,16 +474,6 @@ bool Utils::isFormatRecognized(QFile &fileimg)
 }
 
 
-QString Utils::ConvertSizetoKoMo(double sz)
-{
-    QString szorigin("");
-    if (sz/(1024*1024) > 1)
-        szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
-    else
-        szorigin = QString::number(sz/1024,'f',1) + "Ko";
-    return szorigin;
-}
-
 /*!
  * \brief Utils::CompressFileToJPG(QString pathfile, QString Dirprov, QString nomfileEchec)
  * comprime un fichier jpg, jpeg ou png à une taille inférieure à celle de la macro TAILLEMAXIIMAGES
@@ -501,11 +491,11 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
 {
     QString                 szorigin, szfinal;
     QFile                   file_origin(pathfile);
-    double                  sz = file_origin.size();
+    qint64                  sz = file_origin.size();
     QString                 EchecPath   = EchecDir();
     QString                 ProvPath        = ProvDir();
 
-    szorigin = ConvertSizetoKoMo(sz);
+    szorigin = getExpressionSize(sz);
     szfinal = szorigin;
 
     /*! on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
@@ -582,7 +572,7 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
         pixmap.save(nomfichresize, "jpeg",tauxcompress);
         sz = fileresize.size();
     }
-    szfinal  = ConvertSizetoKoMo(sz);
+    szfinal  = getExpressionSize(sz);
 
     /*! on recopie le fichier compressé et exporté en jpg à sa place d'origine */
     pathfile = QFileInfo(pathfile).absolutePath() + "/" + filename;
@@ -639,19 +629,29 @@ QMap<QString, qint64> Utils::dir_size(const QString DirPath)
  */
 QString Utils::getExpressionSize(qint64 size)
 {
-    QString com = "Mo";
+    QString com = "bytes";
     double dsize = size;
     if (dsize>1024)
     {
-        com = "Go";
+        com = "Ko";
         dsize /= 1024;
         if (dsize>1024)
         {
-            com = "To";
+            com = "Mo";
             dsize /= 1024;
+            if (dsize>1024)
+            {
+                com = "Go";
+                dsize /= 1024;
+                if (dsize>1024)
+                {
+                    com = "To";
+                    dsize /= 1024;
+                }
+            }
         }
     }
-    return QString::number(dsize,'f',2) + com;
+    return QString::number(dsize,'f',1) + com;
 }
 
 qint32 Utils::ArrayToInt(QByteArray source)

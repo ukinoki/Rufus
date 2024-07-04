@@ -364,15 +364,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
     QByteArray ba;
     QString szorigin, szfinal;
-    double sz = file_origin.size();
-    szorigin = Utils::ConvertSizetoKoMo(sz);
+    qint64 sz = file_origin.size();
+    szorigin = Utils::getExpressionSize(sz);
     if ((formatdoc == JPG || formatdoc == JPEG || formatdoc == PNG) && sz > TAILLEMAXIIMAGES)
         Utils::CompressFileToJPG(path_file_origin, false);
     file_origin.setFileName(path_file_origin);
     file_origin.open(QIODevice::ReadOnly);
     ba = file_origin.readAll();
     file_origin.close();
-    szfinal = Utils::ConvertSizetoKoMo(file_origin.size());
+    szfinal = Utils::getExpressionSize(file_origin.size());
 
     // IdPatient------------------------------------------------------------------------------------------------------------------------------------------------
     QString req(""), idPatient("");

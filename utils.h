@@ -202,9 +202,8 @@ public:
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);              //! true if image file forat is recognized by Rufus
     static bool                     CompressFileToJPG(QString &pathfile, bool withRecordError = true, int maxsizeimg = TAILLEMAXIIMAGES);
-    static QString                  ConvertSizetoKoMo(double sz);
     static QMap<QString, qint64>    dir_size(const QString DirPath);
-    static QString                  getExpressionSize(qint64 size);                 //! convertit en Go, To la taille en Mo du qint64 passé en paramètre
+    static QString                  getExpressionSize(qint64 size);                 //! convertit en Go, To, Mo ou Ko la taille du qint64 passé en paramètre
     static bool                     mkpath(QString path);
     static void                     cleanfolder(QString path, bool evenNonEmptyDirs = false);
     static void                     countFilesInDirRecursively(const QString dirpath, int &tot); // compte le nombre de fichiers présents dans un dossier et ses sous-dossiers
