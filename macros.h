@@ -783,6 +783,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // Divers
 #define PDF                                         "pdf"
 #define JPG                                         "jpg"
+#define JPEG                                        "jpeg"
 #define PNG                                         "png"
 
 #define BILANORTHOPTIQUE                            "BO"
@@ -896,7 +897,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PATH_DIR_REFRACTEUR_TONOIN              PATH_DIR_REFRACTEUR_IN NOM_DIR_TONO
 #define PATH_DIR_REFRACTEUR_OUT                 PATH_DIR_REFRACTEUR NOM_DIR_REFRACTEUROUT
 
-//! pointed by secure_file_priv
+//! on server - pointed by secure_file_priv
 
 #define PATH_DIR_ORIGINAUX                      PATH_DIR_IMAGERIE NOM_DIR_ORIGINAUX
 

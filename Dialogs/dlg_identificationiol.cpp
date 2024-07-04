@@ -686,87 +686,27 @@ void dlg_identificationIOL::menuChangeImage()
 
 void dlg_identificationIOL::changeImage()
 {
-    int sizemaxi = 8192;
     QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop + "/ImagesIOL" ,  tr("Images (*.pdf *.png *.jpg)"));
-    if (fileName != "")
+    QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop + "/ImagesIOL" ,  tr("Images (*.pdf *.png *.jpg *.jpeg)"));
+    if (path_file_origin != "")
     {
-        QFile file_origine;
-        file_origine.setFileName(fileName);
-        QFile file_image;
-        QString formatdoc = QFileInfo(file_origine).suffix().toLower();
-        QString m_pathdirstockageprovisoire = Procedures::I()->AbsolutePathDirImagerie();
-        if (!QDir(m_pathdirstockageprovisoire).exists())
-        {
-            UpMessageBox::Watch(this, tr("Impossible d'enregistrer cette image"), tr("Le dossier d'imagerie") + "\n" + m_pathdirstockageprovisoire +"\n" + tr("n'existe pas") + "\n"
-                                + tr("Revoyez le réglage de l'emplacement de ce dossier dans la fiche Paramètres"));
-            return;
-        }
-        m_pathdirstockageprovisoire += NOM_DIR_PROV;
-        if (!QDir(m_pathdirstockageprovisoire).exists())
-            Utils::mkpath(m_pathdirstockageprovisoire);
-
+        QString formatdoc = QFileInfo(path_file_origin).suffix().toLower();
         // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
-        QByteArray ba;
-        QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + QFileInfo(file_origine).fileName();
-        QString szorigin, szfinal;
-        // on vide le dossier provisoire
-        QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
-        for (int t=0; t<listfichresize.size(); t++)
-        {
-            QString nomdocrz  = listfichresize.at(t);
-            QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
-            QFile file(CheminFichierResize);
-            Utils::removeWithoutPermissions(file);
-        }
-        if (file_origine.open(QIODevice::ReadOnly))
-        {
-            double sz = file_origine.size();
-            if (sz/(1024*1024) > 1)
-                szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
-            else
-                szorigin = QString::number(sz/1024,'f',1) + "Ko";
-            szfinal = szorigin;
-            Utils::copyWithPermissions(file_origine,nomfichresize);
-            file_image.setFileName(nomfichresize);
-            QImage  imgresize;
-            if ((formatdoc == JPG ||formatdoc == PNG) && sz > sizemaxi)
-            {
-                imgresize.load(nomfichresize);
-                Utils::removeWithoutPermissions(file_image);
-                QPixmap pixmap;
-                pixmap = pixmap.fromImage(imgresize);
-                pixmap.save(nomfichresize, "jpeg");
-                pixmap = pixmap.fromImage(imgresize.scaledToWidth(256));
-                int     tauxcompress = 90;
-                while (sz > sizemaxi && tauxcompress > 1)
-                {
-                    pixmap.save(nomfichresize, "jpeg",tauxcompress);
-                    sz = file_image.size();
-                    if (tauxcompress > 19)
-                        tauxcompress -= 10;
-                    else
-                        tauxcompress -= 1;
-                }
-                if (sz/(1024*1024) > 1)
-                    szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
-                else
-                    szfinal = QString::number(sz/1024,'f',0) + "Ko";
-            }
-            file_image.open(QIODevice::ReadOnly);
-            ba = file_image.readAll();
-            Utils::removeWithoutPermissions(file_image);
-            m_listbinds[CP_ARRAYIMG_IOLS] = ba;
-            QString suffix = QFileInfo(file_origine).suffix().toLower();
-            suffix = (suffix == PDF? PDF : JPG);
-            m_listbinds[CP_TYPIMG_IOLS] = suffix;
-            EnableOKpushButton();
-            QImage img = (suffix == PDF? Utils::calcImagefromPdf(ba).at(0) : imgresize);
-            setimage(img);
-            Utils::removeWithoutPermissions(file_origine);
-        }
-        else
-            UpMessageBox::Watch(this, tr("Impossible d'enregistrer cette image"), tr("Impossible d'ouvrir le fichier ") + fileName);
+        if ((formatdoc == JPG || formatdoc == JPEG || formatdoc == PNG))
+            if (!Utils::CompressFileToJPG(path_file_origin, false, 16384))
+                return;
+        QFile       file_origin(path_file_origin);
+        file_origin.open(QIODevice::ReadOnly);
+        QByteArray  ba = file_origin.readAll();
+        m_listbinds[CP_ARRAYIMG_IOLS] = ba;
+        QString     suffix = QFileInfo(file_origin).suffix().toLower();
+        suffix = (suffix == PDF? PDF : JPG);
+        m_listbinds[CP_TYPIMG_IOLS] = suffix;
+        EnableOKpushButton();
+        QImage      img;
+        img = (suffix == PDF? Utils::calcImagefromPdf(ba).at(0) : QImage(path_file_origin));
+        setimage(img);
+        Utils::removeWithoutPermissions(file_origin);
     }
 }
 

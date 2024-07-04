@@ -406,7 +406,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
-    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
+    bool j                      =((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
+                                   && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
+    RecordButton                ->setVisible(j);
     RecordButton                ->disconnect();
     QPixmap pix;
     m_listpixmp    .clear();
@@ -430,7 +432,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
             NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->AbsolutePathDirImagerie();
-        if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
+        if (!QDir(NomDirStockageImagerie).exists())
         {
             QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
             QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet \"ce poste\"/Onglet \"") + NomOnglet + "\"";

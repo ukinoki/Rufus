@@ -222,7 +222,7 @@ void dlg_docsvideo::ValideFiche()
     if (db->ModeAccesDataBase() == Utils::Poste)                NomOnglet = tr("Monoposte");
     else if (db->ModeAccesDataBase() == Utils::ReseauLocal)     NomOnglet = tr("Réseau local");
     QString NomDirStockageImagerie = Procedures::I()->AbsolutePathDirImagerie();
-    if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
+    if (!QDir(NomDirStockageImagerie).exists())
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
         QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet \"ce poste\"/Onglet \"") + NomOnglet + "\"";

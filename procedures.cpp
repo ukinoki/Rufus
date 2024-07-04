@@ -3243,11 +3243,20 @@ bool Procedures::IdentificationUser()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::AbsolutePathDirImagerie()
 {
-    QString path = "";
-    if (db->ModeAccesDataBase() == Utils::Poste)
+    QString path ("");
+    switch (db->ModeAccesDataBase()) {
+    case Utils::Poste:
         path = db->dirimagerie();
-    else
+        break;
+    case Utils::ReseauLocal:
         path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
+        break;
+    case Utils::Distant:
+        path = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
+        if (!QDir(path).exists())
+            Utils::mkpath(path);
+        break;
+    }
     return path;
 }
 
@@ -3766,21 +3775,6 @@ int Procedures::idCentre()
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::PremierDemarrage()
 {
-    /*UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton RecupIniBouton           (tr("Restaurer le fichier d'initialisation\nà partir d'une sauvegarde"));
-        UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nd'initialisation"));
-    UpSmallButton PremierDemarrageBouton   (tr("Premier démarrage\nde Rufus"));
-
-        UpMessageBox *msgbox = new UpMessageBox;
-    msgbox->setText(msg);
-    msgbox->setInformativeText(msgInfo);
-    msgbox->setIcon(UpMessageBox::Warning);
-    if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     UpSmallButton::NOBUTTON);
-    if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
-    if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
-    msgbox->addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
-    msgbox->exec();
-    bool reponse = false;*/
     UpMessageBox *msgbox = new UpMessageBox;
     UpSmallButton    AnnulBouton        (tr("Retour\nau menu d'accueil"));
     UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
@@ -3829,8 +3823,8 @@ bool Procedures::PremierDemarrage()
     }
     else if (protoc == BaseVierge)
     {
-        bool SansAccesDistant = false;
-        if (VerifParamConnexion(login, MDP, false, SansAccesDistant))
+        bool AccesDistant = false;
+        if (VerifParamConnexion(login, MDP, false, AccesDistant))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne "
@@ -3839,8 +3833,6 @@ bool Procedures::PremierDemarrage()
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
-             if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString());
              m_parametres = db->parametres();
 
              // Création de l'utilisateur
@@ -3912,6 +3904,7 @@ void Procedures::PremierParametrageMateriel()
     //!                                                 /Fronto
     //!                                                 /Tono
     //!                                                 /Autoref
+    //!                                             /EchecTransferts
     //!                                         /Logs
     //!                                         Rufus.ini
 
@@ -3938,6 +3931,7 @@ void Procedures::PremierParametrageMateriel()
     Utils::mkpath(PATH_DIR_RUFUS NOM_DIR_LOGS);
     Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_FACTURES);
     Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_RUFUS NOM_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS);
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------

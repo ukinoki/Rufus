@@ -77,7 +77,7 @@ private:
     IOL*                    getIOLFromIndex(QModelIndex idx);
     void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
-    void                    resizeiolimage(int size = 8192);                               //! reprend toute la liste des images d'IOL pour les redimensionner au dessous du seuil
+    void                    resizeiolimage(IOL *iol);                       //! redimensionne l'image de l'iol au dessous du seuil
     void                    scrollToIOL(IOL *iol);
     void                    SupprIOL(IOL *iol);
     void                    ReconstruitTreeViewIOLs(QString filtre = "");

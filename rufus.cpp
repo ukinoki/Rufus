@@ -2129,7 +2129,7 @@ void Rufus::ExporteDocs()
                 //qDebug() << "erreur";
                 return;
             }
-            if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
+            if (!Utils::CompressFileToJPG(CheminOKTransfrProv))
             {
                 db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
@@ -2369,7 +2369,7 @@ void Rufus::ExporteDocs()
                 //qDebug() << "erreur";
                 return;
             }
-            if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
+            if (!Utils::CompressFileToJPG(CheminOKTransfrProv))
             {
                 db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
@@ -2545,7 +2545,7 @@ void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
         }
         QString nomdossier  = appareil->nomdossierechange();
         QStringList filters, listnomsfiles;
-        filters << "*.pdf" << "*.jpg";
+        filters << "*.pdf" << "*.jpg" << "*.png" << "*.jpeg";
         listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
         for (int it=0; it<listnomsfiles.size(); it++)
         {
@@ -5960,7 +5960,7 @@ void Rufus::VerifDocsDossiersEchanges()
                 if (QDir(nomdossier).exists())
                 {
                     QStringList filters, listnomsfiles;
-                    filters << "*.pdf" << "*.jpg";
+                    filters << "*.pdf" << "*.jpg" << "*.png" << "*.jpeg";
                     listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
                     if (listnomsfiles.size() > 0)
                         for (int it=0; it<listnomsfiles.size(); it++)
