@@ -197,6 +197,8 @@ public:
     static QString                  calcIP(QString IP, bool aveczero = false);
     static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
+    static QString                  hostName();
+    static QString                  hostNameMacAdress();
     static QByteArray               StringToArray(QString source);
 
     //! Fichiers

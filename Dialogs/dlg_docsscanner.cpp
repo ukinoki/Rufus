@@ -338,10 +338,6 @@ void dlg_docsscanner::ValideFiche()
         suffixe = JPG;
         file_origin.setFileName(filename);
         if (!file_origin.open( QIODevice::ReadOnly ))
-        {
-            UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
-            return;
-        }
         ba = file_origin.readAll();
     }
 

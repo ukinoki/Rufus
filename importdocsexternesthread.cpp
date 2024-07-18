@@ -63,7 +63,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     if (jnaltrsferfile.open(QIODevice::Append))
     {
         QTextStream out(&jnaltrsferfile);
-        out << m_currentdate.toString("yyyy-MM-dd") << QTime::currentTime().toString() << " - " + tr ("Rapatriement de ") << Titredoc << " - " << nomfiledoc << " - " << QHostInfo::localHostName() << "\n" ;
+        out << m_currentdate.toString("yyyy-MM-dd") << QTime::currentTime().toString() << " - " + tr ("Rapatriement de ") << Titredoc << " - " << nomfiledoc << " - " << Utils::hostName() << "\n" ;
         jnaltrsferfile.close();
     }
     QString commentechec;
@@ -264,7 +264,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             else
             {
                 commentechec =  tr("nom invalide");
-                EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+                EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
                 return;
             }
             if (details.split("-").size()>0)
@@ -282,7 +282,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         else
         {
             commentechec =  tr("nom invalide");
-            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
             return;
         }
     }
@@ -346,18 +346,18 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     if (!QDate().fromString(datestring,"yyyyMMdd").isValid())
     {
         commentechec =  tr("date invalide") + " -> " + datestring;
-        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         return;
     }
 
     datestring = QDate().fromString(datestring,"yyyyMMdd").toString("yyyy-MM-dd");
 
     // Format du document------------------------------------------------------------------------------------------------------------------------------------------------
-    QString formatdoc = QFileInfo(file_origin).suffix().toLower();
+    QString suffix = QFileInfo(file_origin).suffix().toLower();
     if (!Utils::isFormatRecognized(file_origin))
     {
-        commentechec = tr("format invalide") + " -> " + formatdoc;
-        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        commentechec = tr("format invalide") + " -> " + suffix;
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         return;
     }
 
@@ -366,7 +366,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     QString szorigin, szfinal;
     qint64 sz = file_origin.size();
     szorigin = Utils::getExpressionSize(sz);
-    if ((formatdoc == JPG || formatdoc == JPEG || formatdoc == PNG) && sz > TAILLEMAXIIMAGES)
+    if ((suffix == JPG || suffix == JPEG || suffix == PNG) && sz > TAILLEMAXIIMAGES)
         Utils::CompressFileToJPG(path_file_origin, false);
     file_origin.setFileName(path_file_origin);
     file_origin.open(QIODevice::ReadOnly);
@@ -381,7 +381,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         if (listn.size()<5)
         {
             commentechec =  tr("Impossible d'ouvrir le fichier");
-            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
             return;
         }
         QString nom     = Utils::capitilize(listn.at(0));
@@ -398,7 +398,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         if (!m_ok || patlst.size()==0)
         {
             commentechec =  tr("Impossible d'ouvrir le fichier");
-            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
             return;
         }
         idPatient = patlst.at(0).toString();
@@ -469,13 +469,13 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     if (idPatient.toInt(&b)<1)
     {
         commentechec = tr("idPatient invalide") + " -> " + idPatient;
-        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         return;
     }
     if (!b)
     {
         commentechec = tr("idPatient invalide") + " -> " + idPatient;
-        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         return;
     }
     QString identpat;
@@ -483,7 +483,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     if (!m_ok || patlst.size()==0)
     {
         commentechec =  tr("Pas de patient pour cet idPatient") + " -> " + idPatient;
-        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         return;
     }
     identpat = patlst.at(0).toString() + " " + patlst.at(1).toString();
@@ -528,14 +528,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             if (jnaltrsferfile.open(QIODevice::Append))
             {
                 QTextStream out(&jnaltrsferfile);
-                out << m_currentdate.toString("yyyy-MM-dd") << QTime::currentTime().toString() << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
+                out << m_currentdate.toString("yyyy-MM-dd") << QTime::currentTime().toString() << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << Utils::hostName() << "\n" ;
                 jnaltrsferfile.close();
             }
             if (Utils::removeWithoutPermissions(file_origin))
             {
                 QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                               " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
-                if ((formatdoc == JPG || formatdoc == JPEG || formatdoc == PNG) && szorigin != szfinal)
+                if ((suffix == JPG || suffix == JPEG || suffix == PNG) && szorigin != szfinal)
                     msg += "<br />" + tr("le cliché a été compressé de ") + szorigin + tr(" à ") + szfinal;
                 else
                     msg += "<br />" + tr("la taille du fichier est de ") + szorigin;
@@ -547,15 +547,15 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         else
         {
             commentechec = tr("impossible d'enregistrer le fichier");
-            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         }
     }
     else if (m_acces == Distant)
     {
-        if (formatdoc == PDF)
-            formatdoc = CP_PDF_DOCSEXTERNES;
-        else if (formatdoc== JPG || formatdoc == JPEG || formatdoc == PNG)
-            formatdoc = CP_JPG_DOCSEXTERNES;
+        if (suffix == PDF)
+            suffix = CP_PDF_DOCSEXTERNES;
+        else if (suffix== JPG || suffix == JPEG || suffix == PNG)
+            suffix = CP_JPG_DOCSEXTERNES;
         // on doit passer par les bindvalue pour incorporer le bytearray dans la requête
         QHash<QString, QVariant> listbinds;
         listbinds[CP_ID_DOCSEXTERNES]           = idimpr;
@@ -566,7 +566,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         listbinds[CP_TITRE_DOCSEXTERNES]        = Titredoc;
         listbinds[CP_DATE_DOCSEXTERNES]         = datestring + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]   = Datas::I()->users->userconnected()->id();
-        listbinds[formatdoc]                    = ba;
+        listbinds[suffix]                    = ba;
         listbinds[CP_EMISORRECU_DOCSEXTERNES]   = "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES]    = IMAGERIE;
         listbinds[CP_IDLIEU_DOCSEXTERNES]       = Datas::I()->sites->idcurrentsite();
@@ -577,14 +577,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             if (jnaltrsferfile.open(QIODevice::Append))
             {
                 QTextStream out(&jnaltrsferfile);
-                out << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << QHostInfo::localHostName() << "\n" ;
+                out << Titredoc << " - " << nomfiledoc << " - " << idPatient << " - " << identpat << " - " << Utils::hostName() << "\n" ;
                 jnaltrsferfile.close();
             }
             if (Utils::removeWithoutPermissions(file_origin))
             {
                 QString msg = tr("Enregistrement d'un cliché") + " <font color=\"red\"><b>" + Titredoc + "</b></font>"
                               " " + tr("pour") + " <font color=\"green\"><b>" + identpat + "</b></font> " + tr("dans la base de données");
-                if (formatdoc == CP_JPG_DOCSEXTERNES && szorigin != szfinal)
+                if (suffix == CP_JPG_DOCSEXTERNES && szorigin != szfinal)
                     msg += "<br />" + tr("le cliché a été compressé de ") + szorigin + tr(" à ") + szfinal;
                 else
                     msg += "<br />" + tr("la taille du fichier est de ") + szorigin;
@@ -596,7 +596,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         else
         {
             commentechec = tr("impossible d'enregistrer ") + nomfiledoc;
-            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + QHostInfo::localHostName());
+            EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         }
     }
 

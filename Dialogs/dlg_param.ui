@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -3525,7 +3525,7 @@ liste des villes</string>
               <rect>
                <x>20</x>
                <y>400</y>
-               <width>221</width>
+               <width>360</width>
                <height>21</height>
               </rect>
              </property>
@@ -3707,7 +3707,7 @@ des organismes bancaires</string>
               <rect>
                <x>20</x>
                <y>348</y>
-               <width>321</width>
+               <width>360</width>
                <height>21</height>
               </rect>
              </property>

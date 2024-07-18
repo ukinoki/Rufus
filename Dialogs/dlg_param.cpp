@@ -2245,7 +2245,7 @@ void dlg_param::VerifPosteImportDocs()
     }
     else
     {
-        A = "<font color=\"green\"><b>" + A.remove(".local") + "</b></font>";
+        A = "<font color=\"green\"><b>" + A + "</b></font>";
         QString B;
         if (A.contains(" - " NOM_ADMINISTRATEUR))
             B = tr("Administrateur");
@@ -2254,7 +2254,6 @@ void dlg_param::VerifPosteImportDocs()
         B = "<b>" + B + "</b>";
         A.remove(" - prioritaire");
         A.remove(" - " NOM_ADMINISTRATEUR);
-
         ui->PosteImportDocslabel->setText(A);
         if (B == tr("non prioritaire"))
             B = "<font color=\"red\">" + B + "</font>";

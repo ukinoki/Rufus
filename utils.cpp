@@ -686,17 +686,16 @@ QByteArray Utils::IntToArray(int source)
 
 QString Utils::IPAdress()
 {
-    QString IPadress = "";
-
+    QString m_ipadress = "";
     //autre méthode
     /*!
-    foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
+        foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress::LocalHost)
         {
             IPadress = address.toString();
             break;
         }
-    */
+        */
 
     //autre méthode
     foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
@@ -708,16 +707,15 @@ QString Utils::IPAdress()
             {
                 if(address.ip().protocol() == QAbstractSocket::IPv4Protocol)
                 {
-                    IPadress = address.ip().toString();
+                    m_ipadress = address.ip().toString();
                     break;
                 }
             }
         }
-        if (IPadress != "")
+        if (m_ipadress != "")
             break;
     }
-
-    return IPadress;
+    return m_ipadress;
 }
 
 // https://doc-snapshots.qt.io/qt6-dev/qtcore-changes-qt6.html
@@ -761,17 +759,17 @@ QString Utils::calcIP(QString IP, bool aveczero)
 
 QString Utils::MACAdress()
 {
+    QString m_macadress = "";
     QString IPadress = IPAdress();
-    QString MACAddress = "";
     foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {
         foreach (const QNetworkAddressEntry &entry, networkInterface.addressEntries()) {
             if (entry.ip().toString() == IPadress) {
-                MACAddress = networkInterface.hardwareAddress();
+                m_macadress = networkInterface.hardwareAddress();
                 break;
             }
         }
     }
-    return MACAddress;
+    return m_macadress;
 }
 
 QString Utils::getMacForIP(QString ipAddress)
@@ -790,6 +788,17 @@ QString Utils::getMacForIP(QString ipAddress)
     }
     return MAC;
 }
+
+QString Utils::hostName()
+{
+    return QHostInfo::localHostName().remove(".local").remove(".home");
+}
+
+QString Utils::hostNameMacAdress()
+{
+    return hostName() + " - " + MACAdress();
+}
+
 
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Faire précéder l'apostrophe d'un caractère d'échappement pour les requêtes SQL --------------------

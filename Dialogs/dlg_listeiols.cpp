@@ -715,8 +715,6 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
     Utils::RemoveProvDir();
 }
 
-
-
 void dlg_listeiols::scrollToIOL(IOL *iol)
 {
     if (iol != Q_NULLPTR)

@@ -2088,9 +2088,9 @@ void Procedures::setPosteImportDocs(bool a)
     if (a)
     {
         if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
-            IpAdress = QHostInfo::localHostName() + " - prioritaire" ;
+            IpAdress = Utils::hostNameMacAdress() + " - prioritaire" ;
         else
-            IpAdress = QHostInfo::localHostName();
+            IpAdress = Utils::hostNameMacAdress();
     }
     req = "CREATE PROCEDURE " MYSQL_PROC_POSTEIMPORTDOCS "()\n\
             BEGIN\n\
@@ -2108,7 +2108,8 @@ QString Procedures::PosteImportDocs()
         isMysql8 = (db->version().split(".").at(0).toInt() == 8);
     //qDebug() << "Mysql = " << db->version() << " - Mysql version = " << db->version().split(".").at(0).toInt();
 
-    /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
+    /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé serge    gaxt78iy
+     *  de passer par une procédure stockée pour en simuler une
     * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
     * if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
 

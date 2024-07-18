@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-07-2024/1");
+    qApp->setApplicationVersion("18-07-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -209,7 +209,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         PatientEnCours *pat = const_cast<PatientEnCours*>(it.value());
         if (pat != Q_NULLPTR)
-            if (pat->idusersuperviseur() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
+            if (pat->idusersuperviseur() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == Utils::hostName().left(60))
             {
                 ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                 ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
@@ -1388,7 +1388,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                      "",                                                        //! Motif
                                                      "",                                                        //! Message
                                                      0,                                                         //! idActeAPayer
-                                                     QHostInfo::localHostName().left(60),                       //! PosteExamen
+                                                     Utils::hostName().left(60),                       //! PosteExamen
                                                      currentuser()->id(),                                       //! idUserEnCoursExamen
                                                      0);                                                        //! idSalDat
         else
@@ -1396,7 +1396,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + currentuser()->login());
             ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
             ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, currentuser()->id());
-            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
+            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, Utils::hostName().left(60));
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
@@ -6134,7 +6134,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
 
     bool statut = isPosteImport();
     //qDebug()<< statut;
-    QString ImportateurDocs = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
+    QString ImportateurDocs = proc->PosteImportDocs(); //le nom et l'adresse Mac du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
         if ((proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() == "NORM")
@@ -6146,9 +6146,9 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         QString Adr = "";
         QString B = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
         if (B == "YES")
-            Adr = QHostInfo::localHostName() + " - prioritaire";
+            Adr = Utils::hostNameMacAdress() + " - prioritaire";
         else if (B == "NORM")
-            Adr = QHostInfo::localHostName();
+            Adr = Utils::hostNameMacAdress();
 
         if (ImportateurDocs != Adr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
         {
@@ -6157,7 +6157,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
             for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
             {
                 PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-                if (post->nomposte() == ImportateurDocs.remove(" - prioritaire"))
+                if (post->nomposte()+ " - " + post->macadress() == ImportateurDocs.remove(" - prioritaire"))
                 {
                     idx = Datas::I()->postesconnectes->postesconnectes()->values().indexOf(post);
                     break;
@@ -6179,12 +6179,12 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
             {
                 if (B == "YES" && !ImportateurDocs.contains(" - prioritaire"))
                     proc->setPosteImportDocs();
-                else if (ImportateurDocs.remove(" - prioritaire") == QHostInfo::localHostName()) // cas rare du poste qui a modifié son propre statut
+                else if (ImportateurDocs.remove(" - prioritaire") == Utils::hostNameMacAdress()) // cas rare du poste qui a modifié son propre statut
                     proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
             }
         }
     }
-    m_isposteImport = (proc->PosteImportDocs().remove(" - prioritaire") == QHostInfo::localHostName());
+    m_isposteImport = (proc->PosteImportDocs().remove(" - prioritaire") == Utils::hostNameMacAdress());
     bool chgtstatut = (statut != isPosteImport());
     if (chgtstatut)
     {
@@ -6436,7 +6436,7 @@ void Rufus::closeEvent(QCloseEvent *)
     int iduserposte = 0;
     if (currentpost() != Q_NULLPTR)
         iduserposte = currentpost()->id();
-    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::IPAdress())
+    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::hostNameMacAdress())
         proc->setPosteImportDocs(false);
 
     QString req = "update " TBL_UTILISATEURS " set " CP_DATEDERNIERECONNEXION_USR " = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
@@ -7081,7 +7081,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
                                                  "",                                                            //! Motif
                                                  "",                                                            //! Message
                                                  0,                                                             //! idActeAPayer
-                                                 QHostInfo::localHostName().left(60),                           //! PosteExamen
+                                                 Utils::hostName().left(60),                           //! PosteExamen
                                                  currentuser()->id(),                                           //! idUserEnCoursExamen
                                                  0);                                                            //! idSalDat
     else
@@ -7089,7 +7089,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + currentuser()->login());
         ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, currenttime);
         ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, currentuser()->id());
-        ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
+        ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, Utils::hostName().left(60));
     }
 
     ItemsList::update(currentpost(), CP_IDPATENCOURS_USRCONNECT, pat->id());
@@ -7549,7 +7549,7 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
             {
                 PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
                 if (patcrs->id() == pat->id() && patcrs->statut().left(length) == ENCOURSEXAMEN
-                        && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != QHostInfo::localHostName().left(60))))
+                        && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != Utils::hostName().left(60))))
                 {
                     UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
                                         tr("Ce patient est") + "\n" + patcrs->statut().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
@@ -9735,7 +9735,7 @@ void Rufus::Remplir_SalDat()
         {
             User *usr = Datas::I()->users->getById(post->iduser());
             QString usrlogin = (usr? usr->login() : "");
-            QString PosteLog  = post->nomposte().remove(".local");
+            QString PosteLog  = post->nomposte();
             PatientEnCours *patencours = Q_NULLPTR;
             foreach (PatientEnCours *patcrs, *Datas::I()->patientsencours->patientsencours())
                 if (patcrs->iduserencoursexam() == post->iduser() && patcrs->posteexamen() == post->nomposte() && patcrs->id() == post->idpatencours())
@@ -10016,7 +10016,6 @@ void Rufus::ResumeStatut()
         m_resumeStatut += tr("Pas de poste paramétré");
     else
     {
-        A.remove(".local");
         QString B;
         if (A.contains(" - " NOM_ADMINISTRATEUR))
             B = tr("Administrateur");
