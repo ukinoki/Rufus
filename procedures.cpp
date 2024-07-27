@@ -2069,7 +2069,7 @@ QString Procedures::VilleParDefaut()
     return set.value(Ville_Defaut).toString();
 }
 
-void Procedures::setPosteImportDocs(bool a)
+void Procedures::setPosteImportDocs(QString IPAdress)
 {
     /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
     * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
@@ -2084,17 +2084,9 @@ void Procedures::setPosteImportDocs(bool a)
     req = "DROP PROCEDURE IF EXISTS " MYSQL_PROC_POSTEIMPORTDOCS ";";
     db->StandardSQL(req);
 
-    QString IpAdress("NULL");
-    if (a)
-    {
-        if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
-            IpAdress = Utils::hostNameMacAdress() + " - prioritaire" ;
-        else
-            IpAdress = Utils::hostNameMacAdress();
-    }
     req = "CREATE PROCEDURE " MYSQL_PROC_POSTEIMPORTDOCS "()\n\
             BEGIN\n\
-            SELECT '" + IpAdress + "';\n\
+            SELECT '" + IPAdress + "';\n\
             END ;";
     db->StandardSQL(req);
 }
