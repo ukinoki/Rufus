@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("27-07-2024/1");
+    qApp->setApplicationVersion("07-08-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -5130,7 +5130,9 @@ void Rufus::SupprimerDocsEtFactures()
     QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
 
     /* Supprimer les documents en attente de suppression*/
-    QString req = "Select " CP_FILEPATH_DOCSASUPPR " from " TBL_DOCSASUPPRIMER;
+    QString req = "delete from " TBL_DOCSASUPPRIMER " where " CP_FILEPATH_DOCSASUPPR " is null or " CP_FILEPATH_DOCSASUPPR " = \"\"" ;
+    db->StandardSQL(req);
+    req = "Select " CP_FILEPATH_DOCSASUPPR " from " TBL_DOCSASUPPRIMER;
     QList<QVariantList> ListeDocs = db->StandardSelectSQL(req, m_ok);
     for (int i=0; i<ListeDocs.size(); i++)
     {
@@ -5149,12 +5151,16 @@ void Rufus::SupprimerDocsEtFactures()
         ShowMessage::I()->SplashMessage(msg, 3000);
         return;
     }
+    req = "delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " is null or " CP_LIENFICHIER_FACTASUPPR " = \"\"" ;
+    db->StandardSQL(req);
     req = "select " CP_LIENFICHIER_FACTASUPPR " from " TBL_FACTURESASUPPRIMER;
     QList<QVariantList> ListeFactures = db->StandardSelectSQL(req, m_ok);
     for (int i=0; i<ListeFactures.size(); i++)
     {
         QString lienfichier = ListeFactures.at(i).at(0).toString();
         /*  on copie le fichier dans le dossier facturessanslien*/
+        if (lienfichier.split("/").size() < 2)
+           continue;
         QString user = lienfichier.split("/").at(1);
         QString CheminOKTransfrDirImg = CheminOKTransfrDir + "/" + user;
         if (!Utils::mkpath(CheminOKTransfrDir))

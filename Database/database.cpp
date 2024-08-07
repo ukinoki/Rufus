@@ -110,12 +110,14 @@ QString DataBase::version()
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
+    //qDebug() << m_server << m_port;// << m_db.hostName() << m_db.port();
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
+    //qDebug() << m_server << m_port;// << m_db.hostName() << m_db.port();
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
-    //qDebug() << m_server << m_port << m_db.hostName() << m_db.port();
     bool useSSL = (m_modeacces == Utils::Distant);
     QString connectSSLoptions = "";
+
     if (useSSL)
     {
         QString dirkey = "/etc/mysql";

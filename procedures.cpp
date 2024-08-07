@@ -1424,7 +1424,6 @@ QByteArray Procedures::getFileFromSQL(Item *item)
         sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + QString::number(docmt->id());
     else if (isfacture)
         sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + QString::number(dep->idfacture());
-
     QList<QVariantList> listimpr;
     listimpr = db->StandardSelectSQL(sQuery, m_ok,  tr("Impossible d'accéder à la table ") + (isdocument? TBL_DOCSEXTERNES : TBL_FACTURES));
 
@@ -1468,7 +1467,6 @@ QByteArray Procedures::getFileFromServer(QString filename)
     QByteArray ba = QByteArray();
     QList<QVariantList> listimpr;
     QString req = "SELECT LOAD_FILE('" + filename + "') AS content";
-    //qDebug() << req;
     listimpr = db->StandardSelectSQL(req,m_ok, tr("Impossible d'accéder au fichier ") + filename);
     if(m_ok && listimpr.size() >0)
         ba.append(listimpr.at(0).at(0).toByteArray());
@@ -3879,7 +3877,7 @@ void Procedures::PremierParametrageMateriel()
     //!                                     /Video
 
     //!     on local post
-    //!     -- QDir::homePath()/Doduments/Rufus
+    //!     -- QDir::homePath()/Documents/Rufus
     //!                                         /Imagerie
     //!                                             /Originaux
     //!                                                 /Factures
