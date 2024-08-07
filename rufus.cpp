@@ -5159,20 +5159,24 @@ void Rufus::SupprimerDocsEtFactures()
     {
         QString lienfichier = ListeFactures.at(i).at(0).toString();
         /*  on copie le fichier dans le dossier facturessanslien*/
-        if (lienfichier.split("/").size() < 2)
-           continue;
-        QString user = lienfichier.split("/").at(1);
-        QString CheminOKTransfrDirImg = CheminOKTransfrDir + "/" + user;
-        if (!Utils::mkpath(CheminOKTransfrDir))
-        {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
-            ShowMessage::I()->SplashMessage(msg, 3000);
-            continue;
-        }
         QFile facturefile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier);
-        Utils::copyWithPermissions(facturefile, NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
-        /*  on l'efface du dossier de factures*/
-        Utils::removeWithoutPermissions(facturefile);
+        if (facturefile.exists())
+        {
+            if (lienfichier.split("/").size() > 1)
+            {
+                QString user = lienfichier.split("/").at(1);
+                QString CheminOKTransfrDirImg = CheminOKTransfrDir + "/" + user;
+                if (!Utils::mkpath(CheminOKTransfrDir))
+                {
+                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
+                    ShowMessage::I()->SplashMessage(msg, 3000);
+                    continue;
+                }
+                Utils::copyWithPermissions(facturefile, NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
+            }
+            /*  on l'efface du dossier de factures*/
+            Utils::removeWithoutPermissions(facturefile);
+        }
         /* on détruit l'enregistrement dans la table FacturesASupprimer*/
         db->StandardSQL("delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " = '" + Utils::correctquoteSQL(lienfichier) + "'");
     }
