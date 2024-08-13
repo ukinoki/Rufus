@@ -91,7 +91,7 @@ dlg_param::dlg_param(QWidget *parent) :
     Cotationslay    ->setStretch(0,7);      // Marge2lay - les associations
     Cotationslay    ->setStretch(1,5);      // Margelay - les actes hors nomenclature
 
-    if (db->parametres()->cotationsfrance())    {
+    if (m_parametres->cotationsfrance())    {
 
         Cotationslay    ->insertWidget(0,ui->CCAMwidget);
         Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
@@ -283,15 +283,15 @@ dlg_param::dlg_param(QWidget *parent) :
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
-    ui->CotationsFrancecheckBox->setChecked(db->parametres()->cotationsfrance());
+    ui->CotationsFrancecheckBox->setChecked(m_parametres->cotationsfrance());
     connect (ui->CotationsFrancecheckBox, &QCheckBox::stateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
 
     /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
-        ui->UtiliseBDDVillescheckBox     ->setChecked(db->parametres()->villesfrance() == true);
-        ui->UtiliseCustomVillescheckBox  ->setChecked(db->parametres()->villesfrance() == false);
-        ui->ModifListVillesupPushButton  ->setVisible(db->parametres()->villesfrance() == false);
+        ui->UtiliseBDDVillescheckBox     ->setChecked(m_parametres->villesfrance() == true);
+        ui->UtiliseCustomVillescheckBox  ->setChecked(m_parametres->villesfrance() == false);
+        ui->ModifListVillesupPushButton  ->setVisible(m_parametres->villesfrance() == false);
         connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::stateChanged, this, [=](int state){
                 ui->ModifListVillesupPushButton->setVisible(state == Qt::Checked);
                 enum Villes::TownsFrom from;
@@ -354,7 +354,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ChoixFontupPushButton           ->setEnabled(false);
     ui->ModifDataUserpushButton         ->setEnabled(false);
     ui->ImportDocsgroupBox              ->setEnabled(false);
-    EnableWidgContent(ui->Sauvegardeframe,false);
+    EnableWidgContent(ui->BackupRestoreframe,false);
     EnableWidgContent(ui->Appareilsconnectesframe,false);
     ui->ParamConnexiontabWidget         ->setEnabled(false);
     EnableWidgContent(ui->Instrmtsframe,false);
@@ -551,7 +551,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->Appareilsconnectesframe->setFixedWidth(wdg_appareilswdgbuttonframe->widgButtonParent()->width() + marge + marge);
     ui->Appareilsconnectesframe->setLayout(applay);
 
-    ui->Sauvegardeframe         ->setEnabled(db->ModeAccesDataBase() == (Utils::Poste));
+    ui->BackupRestoreframe         ->setEnabled(db->ModeAccesDataBase() != Utils::Distant);
     ui->DirBackupuplineEdit->setText(m_parametres->dirbkup());
     if (m_parametres->heurebkup().isValid())
         ui->HeureBackuptimeEdit->setTime(m_parametres->heurebkup());
@@ -644,7 +644,7 @@ void dlg_param::EnableSupprAppareilBouton()
 void dlg_param::ChercheCodeCCAM(QString txt)
 {
    QList<QTableWidgetItem*> listitems;
-   if (db->parametres()->cotationsfrance())
+   if (m_parametres->cotationsfrance())
    {
         listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
         if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
@@ -689,7 +689,7 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
     QString dir = proc->pathDossierDocuments(exam, mode);
     if (dir == "" || !QDir(dir).exists())
         dir = QDir::homePath();
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
     int row;
@@ -976,7 +976,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->InitMDPAdminpushButton          ->setEnabled(a);
         ui->GestionBanquespushButton        ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
-        EnableWidgContent(ui->Sauvegardeframe, db->ModeAccesDataBase() == Utils::Poste && a);
+        EnableWidgContent(ui->BackupRestoreframe, db->ModeAccesDataBase() != Utils::Distant && a);
     }
 }
 
@@ -1897,7 +1897,7 @@ void dlg_param::RecalcAvailablesPorts(bool fromSettings)
 
 void dlg_param::ModifDirBackup()
 {
-    if (db->ModeAccesDataBase() != Utils::Poste)
+    if (db->ModeAccesDataBase() == Utils::Distant)
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
@@ -1937,7 +1937,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
         }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
-        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<m_parametres->dirbkup());
         if (url == QUrl())
             return;
         ui->NetworkPathFrontoupLineEdit ->setText(url.path());
@@ -1953,7 +1953,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
         }
          if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
-        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<m_parametres->dirbkup());
         if (url == QUrl())
             return;
         ui->NetworkPathAutorefupLineEdit ->setText(url.path());
@@ -1969,7 +1969,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
         }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
-        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<m_parametres->dirbkup());
         if (url == QUrl())
             return;
         ui->NetworkPathRefracteurupLineEdit ->setText(url.path());
@@ -1985,7 +1985,7 @@ void dlg_param::ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil)
         }
         if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
-        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<m_parametres->dirbkup());
         if (url == QUrl())
             return;
         ui->NetworkPathTonoupLineEdit ->setText(url.path());
@@ -2015,7 +2015,7 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appar
         }
          if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
-        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<m_parametres->dirbkup());
         if (url == QUrl())
             return;
         proc->settings()->setValue(Param_Poste_PortRefracteur_DossierEchange_Fronto, url.path());
@@ -2031,7 +2031,7 @@ void dlg_param::ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appar
         }
          if (!QDir(pathappareil).exists())
             pathappareil = QDir::homePath();
-        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<db->parametres()->dirbkup());
+        url = Utils::getExistingDirectoryUrl(this, title, QUrl::fromLocalFile(pathappareil), QStringList()<<m_parametres->dirbkup());
         if (url == QUrl())
             return;
         ui->NetworkPathEchangeAutorefupLineEdit ->setText(url.path());
@@ -2084,7 +2084,7 @@ void dlg_param::DirLocalStockage()
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
     if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
     ui->LocalPathStockageupLineEdit->setText(url.path());
@@ -2099,7 +2099,7 @@ void dlg_param::DirDistantStockage()
     QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
     if (dir == "" || !QDir(dir).exists())
         dir = PATH_DIR_RUFUS;
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup());
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
     ui->DistantStockageupLineEdit->setText(url.path());
@@ -2114,7 +2114,7 @@ void dlg_param::DossierClesSSL()
         ui->DossierClesSSLupLineEdit->clear();
         proc->settings()->remove(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL);
     }
-    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<db->parametres()->dirbkup(),false);
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup(),false);
     if (url == QUrl())
         return;
     ui->DossierClesSSLupLineEdit->setText(url.path());
@@ -2342,7 +2342,7 @@ void dlg_param::AfficheParamUser()
     if (!currentuser()->isSecretaire() && !currentuser()->isAutreFonction())
     {
         ui->Cotationswidget->setVisible(true);
-        if (db->parametres()->cotationsfrance())
+        if (m_parametres->cotationsfrance())
             Remplir_TableActesCCAM();
         Remplir_TableAssocCCAM();
         Remplir_TableHorsNomenclature();
@@ -2738,16 +2738,14 @@ void dlg_param::EnableWidgContent(QWidget *widg, bool a)
     QList<QWidget*> listwidg = widg->findChildren<QWidget*>();
     for (int i=0; i<listwidg.size(); i++)
         listwidg.at(i)->setEnabled(a);
-    if (widg == ui->Sauvegardeframe)
+    if (widg == ui->BackupRestoreframe)
     {
-        ui->ModifBaselabel->setVisible(db->ModeAccesDataBase() != Utils::Poste);
-        if (db->ModeAccesDataBase() == Utils::Poste)
+        ui->ModifBaselabel->setVisible(db->ModeAccesDataBase() == Utils::Distant);
+        if (db->ModeAccesDataBase() != Utils::Distant)
             ui->EffacePrgSauvupPushButton->setEnabled(m_parametres->daysbkup()
-                                                   && QDir(m_parametres->dirbkup()).exists()
                                                    && m_parametres->dirbkup() != ""
-                                                   && m_parametres->heurebkup() != QTime());
-        else
-            ui->ModifBaselabel->setEnabled(true);
+                                                   && m_parametres->heurebkup() != QTime()
+                                                   && a);
     }
 }
 
@@ -3221,7 +3219,7 @@ void dlg_param::Remplir_TableAssocCCAM()
     ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
     ui->AssocCCAMupTableWidget->setMouseTracking(true);
     int ncol = 4;
-    if (db->parametres()->cotationsfrance())
+    if (m_parametres->cotationsfrance())
     {
         if (currentuser()->secteurconventionnel() > 1)
             ncol = 5;
@@ -3305,7 +3303,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
         ui->AssocCCAMupTableWidget->setCellWidget(i,2,lbl1);
 
-        int rang = (db->parametres()->cotationsfrance()?2:3);
+        int rang = (m_parametres->cotationsfrance()?2:3);
         UpLineEdit *lbl2 = new UpLineEdit();
         lbl2->setText(QLocale().toString(Assoclist.at(i).at(rang).toDouble(),'f',2));      // montant nonOPTAM
         lbl2->setAlignment(Qt::AlignRight);

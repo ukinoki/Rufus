@@ -464,9 +464,16 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     {
         QString dirNomSource;
         QString dirNomDest;
+        QString DirImagery;
+        if (db->ModeAccesDataBase() == Utils::Poste)
+            DirImagery = db->dirimagerie();
+        else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+            DirImagery = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+        if (!QDir(DirImagery).exists())
+            return false;
 
         if (OKFactures) {
-            dirNomSource = db->dirimagerie() + NOM_DIR_FACTURES;
+            dirNomSource = DirImagery + NOM_DIR_FACTURES;
             dirNomDest = pathdirdestination + NOM_DIR_FACTURES;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -478,7 +485,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             msg += tr("Factures sauvegardées\n");
         }
         if (OKImages) {
-            dirNomSource = db->dirimagerie() + NOM_DIR_IMAGES;
+            dirNomSource = DirImagery + NOM_DIR_IMAGES;
             dirNomDest = pathdirdestination + NOM_DIR_IMAGES;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -490,7 +497,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             msg += tr("Fichiers imagerie sauvegardés\n");
         }
         if (OKVideos) {
-            dirNomSource = db->dirimagerie() + NOM_DIR_VIDEOS;
+            dirNomSource = DirImagery + NOM_DIR_VIDEOS;
             dirNomDest = pathdirdestination + NOM_DIR_VIDEOS;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -884,16 +891,21 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     bool OKImages   = false;
     bool OKVideos   = false;
     bool OKFactures = false;
+    QString DirImagery = "";
+    if (db->ModeAccesDataBase() == Utils::Poste)
+        DirImagery = db->dirimagerie();
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+        DirImagery = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
     if (full)
     {
         OKbase = true;
-        OKImages = QDir(db->dirimagerie()).exists();
-        OKVideos = QDir(db->dirimagerie()).exists();
-        OKFactures = QDir(db->dirimagerie()).exists();
+        OKImages = QDir(DirImagery).exists();
+        OKVideos = QDir(DirImagery).exists();
+        OKFactures = QDir(DirImagery).exists();
     }
     else
     {
-        AskBupRestore(BackupOp, db->dirimagerie(), dirdestination );
+        AskBupRestore(BackupOp, DirImagery, dirdestination );
         if (dlg_buprestore->exec() != QDialog::Accepted)
             return false;
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();

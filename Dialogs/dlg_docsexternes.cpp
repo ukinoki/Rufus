@@ -222,17 +222,22 @@ QString dlg_docsexternes::CalcTitre(DocExterne* docmt)
     return a;
 }
 
+
+/*! * \brief dlg_docsexternes::CalcImageDocument
+      Cette fonction sert à calculer les propriétés m_blob et m_formatimage
+        * des documents d'imagerie
+        * des courriers émis par le logiciel
+      pour les afficher ou les imprimer
+    * \param docmt
+    * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
+                                Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+                                Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
+                                Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
+             typedoc = Image -> le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
+*/
 void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedoc)
 {
-    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
-     *  pour pouvoir les afficher ou les imprimer
 
-   * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
-     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
-     *                          Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
-     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
-     *      typedoc = Image ->  le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
-    */
     if (docmt == Q_NULLPTR )
         return;
     QByteArray ba = QByteArray();
@@ -254,13 +259,13 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             else return;
             if (db->ModeAccesDataBase() != Utils::Distant)
             {
-                QString dossierimagerie = "";
+                QString DirImagery = "";
                 if (db->ModeAccesDataBase() == Utils::Poste)
-                    dossierimagerie = db->dirimagerie();
+                    DirImagery = db->dirimagerie();
                 else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                    dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+                    DirImagery = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
                 else return;
-                QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
+                QFile fileimg(DirImagery + NOM_DIR_IMAGES + filename);
                 if (fileimg.open(QIODevice::ReadOnly))
                 {
                     ba = fileimg.readAll();

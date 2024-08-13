@@ -62,10 +62,10 @@
       </size>
      </property>
      <property name="contextMenuPolicy">
-      <enum>Qt::NoContextMenu</enum>
+      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -134,16 +134,16 @@
              </size>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="toolTip">
              <string/>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::Shape::StyledPanel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Shadow::Raised</enum>
             </property>
             <widget class="Line" name="line_3">
              <property name="geometry">
@@ -155,10 +155,10 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Sunken</enum>
+              <enum>QFrame::Shadow::Sunken</enum>
              </property>
              <property name="lineWidth">
               <number>3</number>
@@ -167,7 +167,7 @@
               <number>1</number>
              </property>
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
             <widget class="UpLineEdit" name="NomuplineEdit">
@@ -180,10 +180,10 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="maxLength">
               <number>45</number>
@@ -199,10 +199,10 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="maxLength">
               <number>45</number>
@@ -218,7 +218,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Prénom</string>
@@ -234,7 +234,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Mail</string>
@@ -250,10 +250,10 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="maxLength">
               <number>45</number>
@@ -269,7 +269,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Portable</string>
@@ -285,7 +285,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Nom</string>
@@ -301,10 +301,10 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="maxLength">
               <number>17</number>
@@ -320,7 +320,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Titre</string>
@@ -339,7 +339,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>idUser</string>
@@ -355,7 +355,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Login</string>
@@ -371,13 +371,13 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
             <widget class="QLabel" name="MDPlabel">
@@ -390,7 +390,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Mot de passe</string>
@@ -406,16 +406,16 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="echoMode">
-              <enum>QLineEdit::Password</enum>
+              <enum>QLineEdit::EchoMode::Password</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
             <widget class="UpLineEdit" name="idUseruplineEdit">
@@ -431,13 +431,13 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
             <widget class="Line" name="line_4">
@@ -450,10 +450,10 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="frameShadow">
-              <enum>QFrame::Sunken</enum>
+              <enum>QFrame::Shadow::Sunken</enum>
              </property>
              <property name="lineWidth">
               <number>3</number>
@@ -462,7 +462,7 @@
               <number>1</number>
              </property>
              <property name="orientation">
-              <enum>Qt::Horizontal</enum>
+              <enum>Qt::Orientation::Horizontal</enum>
              </property>
             </widget>
             <widget class="UpLineEdit" name="TitreuplineEdit">
@@ -475,10 +475,10 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="maxLength">
               <number>45</number>
@@ -494,7 +494,7 @@
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
             </widget>
             <widget class="UpTableWidget" name="AdressupTableWidget">
@@ -512,10 +512,10 @@
           <item>
            <spacer name="horizontalSpacer_3">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeType">
-             <enum>QSizePolicy::Expanding</enum>
+             <enum>QSizePolicy::Policy::Expanding</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -564,13 +564,13 @@
               <bool>true</bool>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="selectionMode">
-              <enum>QAbstractItemView::SingleSelection</enum>
+              <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
              </property>
              <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
+              <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
              </property>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>false</bool>
@@ -586,7 +586,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Actes hors nomenclature</string>
@@ -602,7 +602,7 @@
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Associations CCAM et actes hors CCAM</string>
@@ -643,16 +643,16 @@
               <bool>true</bool>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="horizontalScrollBarPolicy">
-              <enum>Qt::ScrollBarAlwaysOff</enum>
+              <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
              </property>
              <property name="selectionMode">
-              <enum>QAbstractItemView::SingleSelection</enum>
+              <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
              </property>
              <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
+              <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
              </property>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>false</bool>
@@ -748,7 +748,7 @@
                 <item>
                  <widget class="QLabel" name="ActesCCAMlabel">
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="text">
                    <string>Actes CCAM</string>
@@ -758,7 +758,7 @@
                 <item>
                  <spacer name="horizontalSpacer_5">
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                   <property name="sizeHint" stdset="0">
                    <size>
@@ -816,16 +816,16 @@
                    <bool>true</bool>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="selectionMode">
-                   <enum>QAbstractItemView::SingleSelection</enum>
+                   <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
                   </property>
                   <property name="selectionBehavior">
-                   <enum>QAbstractItemView::SelectRows</enum>
+                   <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
                   </property>
                   <property name="verticalScrollMode">
-                   <enum>QAbstractItemView::ScrollPerItem</enum>
+                   <enum>QAbstractItemView::ScrollMode::ScrollPerItem</enum>
                   </property>
                   <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
                    <bool>false</bool>
@@ -843,7 +843,7 @@
         <item>
          <spacer name="verticalSpacer_4">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -885,7 +885,7 @@
              </size>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Modifier mes données</string>
@@ -917,10 +917,10 @@
              </size>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Changer la police d'écran</string>
@@ -940,7 +940,7 @@
           <item>
            <spacer name="horizontalSpacer_8">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -968,7 +968,7 @@
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>T</string>
@@ -1039,10 +1039,10 @@
            </size>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
+           <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
           </property>
           <property name="tabPosition">
-           <enum>QTabWidget::North</enum>
+           <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
            <number>1</number>
@@ -1074,10 +1074,10 @@
              </rect>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::Shape::StyledPanel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Shadow::Raised</enum>
             </property>
             <widget class="QLabel" name="SQLPortlabel_2">
              <property name="geometry">
@@ -1152,7 +1152,7 @@
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d'imagerie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -1168,10 +1168,10 @@
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="maxLength">
              <number>150</number>
@@ -1198,10 +1198,10 @@
              </rect>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::Shape::StyledPanel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Shadow::Raised</enum>
             </property>
             <widget class="QLabel" name="SQLPortlabel">
              <property name="geometry">
@@ -1299,7 +1299,7 @@ un serveur hébergé sur le réseau local</string>
              </size>
             </property>
             <property name="selectionMode">
-             <enum>QAbstractItemView::SingleSelection</enum>
+             <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
             </property>
            </widget>
            <widget class="UpLabel" name="LocalConnexionupLabel">
@@ -1325,10 +1325,10 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="maxLength">
              <number>150</number>
@@ -1350,7 +1350,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Chemin depuis ce poste du dossier d'imagerie sur le serveur</string>
@@ -1366,7 +1366,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>...</string>
@@ -1387,13 +1387,13 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::Shape::StyledPanel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Shadow::Raised</enum>
             </property>
             <widget class="QLabel" name="SQLPortlabel_3">
              <property name="geometry">
@@ -1405,7 +1405,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Port</string>
@@ -1421,7 +1421,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Emplacement</string>
@@ -1437,7 +1437,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="maxLength">
               <number>70</number>
@@ -1456,7 +1456,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
             </widget>
             <widget class="QPushButton" name="DossierCLesSSLupPushButton">
@@ -1475,7 +1475,7 @@ un serveur hébergé sur le réseau local</string>
               </sizepolicy>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>...</string>
@@ -1491,7 +1491,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Emplacement des clés client SSL</string>
@@ -1507,10 +1507,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string/>
@@ -1533,7 +1533,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Cet appareil peut se connecter à un serveur distant</string>
@@ -1549,7 +1549,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Emplacement des dossiers des documents émis par chaque appareil d'imagerie</string>
@@ -1571,7 +1571,7 @@ un serveur hébergé sur le réseau local</string>
              </size>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
            </widget>
            <widget class="UpLabel" name="DistantConnexionupLabel">
@@ -1584,7 +1584,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Paramètres de la connexion au serveur</string>
@@ -1600,7 +1600,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>Emplacement du dossier de copie des originaux des fichiers image importés depuis ce poste</string>
@@ -1616,7 +1616,7 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="text">
              <string>...</string>
@@ -1632,10 +1632,10 @@ un serveur hébergé sur le réseau local</string>
              </rect>
             </property>
             <property name="focusPolicy">
-             <enum>Qt::NoFocus</enum>
+             <enum>Qt::FocusPolicy::NoFocus</enum>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="maxLength">
              <number>150</number>
@@ -1659,13 +1659,13 @@ un serveur hébergé sur le réseau local</string>
            </size>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
+           <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
           </property>
           <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
+           <enum>QFrame::Shape::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Shadow::Raised</enum>
           </property>
           <widget class="UpLabel" name="AppareilsupLabel">
            <property name="geometry">
@@ -1677,7 +1677,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>Instruments connectés</string>
@@ -1693,7 +1693,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>Frontofocomètre</string>
@@ -1709,7 +1709,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>Autorefractomètre</string>
@@ -1725,7 +1725,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>Refracteur</string>
@@ -1741,7 +1741,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
           </widget>
           <widget class="UpComboBox" name="AutorefupComboBox">
@@ -1754,7 +1754,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
           </widget>
           <widget class="UpComboBox" name="RefracteurupComboBox">
@@ -1767,7 +1767,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
           </widget>
           <widget class="QLabel" name="Frontolabel">
@@ -1780,7 +1780,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string notr="true"/>
@@ -1796,7 +1796,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string notr="true"/>
@@ -1812,7 +1812,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string notr="true"/>
@@ -1828,7 +1828,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
           </widget>
           <widget class="UpLabel" name="RefracteurupLabel_2">
@@ -1841,7 +1841,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>Tonomètre</string>
@@ -1857,7 +1857,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string notr="true"/>
@@ -1873,10 +1873,10 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="toolTip">
             <string extracomment="Emplacement du fichier d'échange"/>
@@ -1901,7 +1901,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>...</string>
@@ -1917,10 +1917,10 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="toolTip">
             <string extracomment="Emplacement du fichier d'échange"/>
@@ -1945,7 +1945,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>...</string>
@@ -1961,7 +1961,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>...</string>
@@ -1977,10 +1977,10 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="toolTip">
             <string extracomment="Emplacement du fichier d'échange"/>
@@ -2005,7 +2005,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>...</string>
@@ -2021,10 +2021,10 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="toolTip">
             <string extracomment="Emplacement du fichier d'échange"/>
@@ -2049,10 +2049,10 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="toolTip">
             <string/>
@@ -2077,7 +2077,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>...</string>
@@ -2093,7 +2093,7 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="text">
             <string>...</string>
@@ -2109,10 +2109,10 @@ un serveur hébergé sur le réseau local</string>
             </rect>
            </property>
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <property name="contextMenuPolicy">
-            <enum>Qt::NoContextMenu</enum>
+            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
            <property name="toolTip">
             <string/>
@@ -2155,7 +2155,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpPushButton" name="ParamCOMFrontoupPushButton">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="text">
                <string>Param</string>
@@ -2165,7 +2165,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpComboBox" name="PortFrontoupComboBox">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
              </widget>
             </item>
@@ -2199,7 +2199,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpPushButton" name="ParamCOMAutorefupPushButton">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="text">
                <string>Param</string>
@@ -2209,7 +2209,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpComboBox" name="PortAutorefupComboBox">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
              </widget>
             </item>
@@ -2243,7 +2243,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpPushButton" name="ParamCOMRefracteurupPushButton">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="text">
                <string>Param</string>
@@ -2253,7 +2253,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpComboBox" name="PortRefracteurupComboBox">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
              </widget>
             </item>
@@ -2287,7 +2287,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpPushButton" name="ParamCOMTonoupPushButton">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="text">
                <string>Param</string>
@@ -2297,7 +2297,7 @@ un serveur hébergé sur le réseau local</string>
             <item>
              <widget class="UpComboBox" name="PortTonometreupComboBox">
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
              </widget>
             </item>
@@ -2322,13 +2322,13 @@ un serveur hébergé sur le réseau local</string>
              </size>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::Shape::StyledPanel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Shadow::Raised</enum>
             </property>
             <widget class="QLabel" name="Imprimantelabel">
              <property name="geometry">
@@ -2340,7 +2340,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Imprimante</string>
@@ -2356,7 +2356,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Entête standard</string>
@@ -2372,7 +2372,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Entête Ordonnance ALD</string>
@@ -2388,7 +2388,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Pied de page standard</string>
@@ -2404,7 +2404,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Marge haute</string>
@@ -2420,7 +2420,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Pied de page ordonnance lunettes</string>
@@ -2436,10 +2436,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
             <widget class="QSpinBox" name="EnteteALDspinBox">
@@ -2452,10 +2452,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
             <widget class="QSpinBox" name="PiedDePagespinBox">
@@ -2468,10 +2468,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
             <widget class="QSpinBox" name="PiedDePageOrdoLunettesspinBox">
@@ -2484,10 +2484,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
             <widget class="QSpinBox" name="TopMargespinBox">
@@ -2500,10 +2500,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="alignment">
-              <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
             <widget class="QPushButton" name="OupspushButton">
@@ -2516,10 +2516,10 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="focusPolicy">
-              <enum>Qt::NoFocus</enum>
+              <enum>Qt::FocusPolicy::NoFocus</enum>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Oups!</string>
@@ -2545,7 +2545,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Afficher un aperçu avant impression</string>
@@ -2561,7 +2561,7 @@ un serveur hébergé sur le réseau local</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Ordonnances avec duplicata</string>
@@ -2575,7 +2575,7 @@ un serveur hébergé sur le réseau local</string>
           <item>
            <spacer name="horizontalSpacer_9">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -2617,7 +2617,7 @@ un serveur hébergé sur le réseau local</string>
                 </rect>
                </property>
                <property name="contextMenuPolicy">
-                <enum>Qt::NoContextMenu</enum>
+                <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                </property>
                <property name="text">
                 <string>Cet appareil est prioritaire pour importer les documents d'imagerie dans la base</string>
@@ -2636,7 +2636,7 @@ un serveur hébergé sur le réseau local</string>
                 </rect>
                </property>
                <property name="contextMenuPolicy">
-                <enum>Qt::NoContextMenu</enum>
+                <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                </property>
                <property name="text">
                 <string>Cet appareil importe les documents d'imagerie dans la base sans être prioritaire</string>
@@ -2655,7 +2655,7 @@ un serveur hébergé sur le réseau local</string>
                 </rect>
                </property>
                <property name="contextMenuPolicy">
-                <enum>Qt::NoContextMenu</enum>
+                <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                </property>
                <property name="text">
                 <string>Cet appareil ne participe pas à l'importation des documents d'imagerie</string>
@@ -2681,13 +2681,13 @@ un serveur hébergé sur le réseau local</string>
                </size>
               </property>
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="frameShape">
-               <enum>QFrame::NoFrame</enum>
+               <enum>QFrame::Shape::NoFrame</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
              </widget>
             </item>
@@ -2698,7 +2698,7 @@ un serveur hébergé sur le réseau local</string>
         <item>
          <spacer name="verticalSpacer_3">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -2728,7 +2728,7 @@ un serveur hébergé sur le réseau local</string>
           <item>
            <spacer name="horizontalSpacer_4">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -2756,7 +2756,7 @@ un serveur hébergé sur le réseau local</string>
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -2810,7 +2810,7 @@ un serveur hébergé sur le réseau local</string>
          <number>5</number>
         </property>
         <item>
-         <widget class="QFrame" name="Sauvegardeframe">
+         <widget class="QFrame" name="BackupRestoreframe">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -2818,16 +2818,16 @@ un serveur hébergé sur le réseau local</string>
            </size>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
+           <enum>Qt::FocusPolicy::NoFocus</enum>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
+           <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
           </property>
           <property name="frameShape">
-           <enum>QFrame::StyledPanel</enum>
+           <enum>QFrame::Shape::StyledPanel</enum>
           </property>
           <property name="frameShadow">
-           <enum>QFrame::Raised</enum>
+           <enum>QFrame::Shadow::Raised</enum>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
            <property name="leftMargin">
@@ -2849,7 +2849,7 @@ un serveur hébergé sur le réseau local</string>
                <item>
                 <widget class="UpLabel" name="SauvegardeupLabel">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="text">
                   <string>Paramétrage des sauvegardes</string>
@@ -2859,7 +2859,7 @@ un serveur hébergé sur le réseau local</string>
                <item>
                 <spacer name="verticalSpacer">
                  <property name="orientation">
-                  <enum>Qt::Vertical</enum>
+                  <enum>Qt::Orientation::Vertical</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -2876,10 +2876,10 @@ un serveur hébergé sur le réseau local</string>
                <item row="1" column="0">
                 <spacer name="horizontalSpacer_6">
                  <property name="orientation">
-                  <enum>Qt::Horizontal</enum>
+                  <enum>Qt::Orientation::Horizontal</enum>
                  </property>
                  <property name="sizeType">
-                  <enum>QSizePolicy::Fixed</enum>
+                  <enum>QSizePolicy::Policy::Fixed</enum>
                  </property>
                  <property name="sizeHint" stdset="0">
                   <size>
@@ -2892,17 +2892,17 @@ un serveur hébergé sur le réseau local</string>
                <item row="1" column="2">
                 <widget class="QTimeEdit" name="HeureBackuptimeEdit">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                 </widget>
                </item>
                <item row="0" column="2">
                 <widget class="UpLineEdit" name="DirBackupuplineEdit">
                  <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
+                  <enum>Qt::FocusPolicy::NoFocus</enum>
                  </property>
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="maxLength">
                   <number>150</number>
@@ -2915,7 +2915,7 @@ un serveur hébergé sur le réseau local</string>
                <item row="1" column="1">
                 <widget class="QLabel" name="HoraireBackuplabel">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="text">
                   <string>Heure</string>
@@ -2925,7 +2925,7 @@ un serveur hébergé sur le réseau local</string>
                <item row="0" column="3">
                 <widget class="QPushButton" name="DirBackuppushButton">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="text">
                   <string>...</string>
@@ -2935,7 +2935,7 @@ un serveur hébergé sur le réseau local</string>
                <item row="0" column="1">
                 <widget class="QLabel" name="DirBackuplabel">
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="text">
                   <string>Emplacement</string>
@@ -2957,25 +2957,25 @@ un serveur hébergé sur le réseau local</string>
                   </size>
                  </property>
                  <property name="focusPolicy">
-                  <enum>Qt::WheelFocus</enum>
+                  <enum>Qt::FocusPolicy::WheelFocus</enum>
                  </property>
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Box</enum>
+                  <enum>QFrame::Shape::Box</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Sunken</enum>
+                  <enum>QFrame::Shadow::Sunken</enum>
                  </property>
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
                   <item>
                    <widget class="UpRadioButton" name="LundiradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Lundi</string>
@@ -2988,10 +2988,10 @@ un serveur hébergé sur le réseau local</string>
                   <item>
                    <widget class="UpRadioButton" name="MardiradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Mardi</string>
@@ -3004,10 +3004,10 @@ un serveur hébergé sur le réseau local</string>
                   <item>
                    <widget class="UpRadioButton" name="MercrediradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Mercredi</string>
@@ -3020,10 +3020,10 @@ un serveur hébergé sur le réseau local</string>
                   <item>
                    <widget class="UpRadioButton" name="JeudiradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Jeudi</string>
@@ -3036,10 +3036,10 @@ un serveur hébergé sur le réseau local</string>
                   <item>
                    <widget class="UpRadioButton" name="VendrediradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Vendredi</string>
@@ -3052,10 +3052,10 @@ un serveur hébergé sur le réseau local</string>
                   <item>
                    <widget class="UpRadioButton" name="SamediradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Samedi</string>
@@ -3068,10 +3068,10 @@ un serveur hébergé sur le réseau local</string>
                   <item>
                    <widget class="UpRadioButton" name="DimancheradioButton">
                     <property name="focusPolicy">
-                     <enum>Qt::StrongFocus</enum>
+                     <enum>Qt::FocusPolicy::StrongFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>Dimanche</string>
@@ -3094,7 +3094,7 @@ un serveur hébergé sur le réseau local</string>
               <string>Les  interventions sur la base de données ne sont possibles qu'à partir du poste serveur</string>
              </property>
              <property name="alignment">
-              <set>Qt::AlignCenter</set>
+              <set>Qt::AlignmentFlag::AlignCenter</set>
              </property>
             </widget>
            </item>
@@ -3103,7 +3103,7 @@ un serveur hébergé sur le réseau local</string>
              <item>
               <spacer name="horizontalSpacer_7">
                <property name="orientation">
-                <enum>Qt::Horizontal</enum>
+                <enum>Qt::Orientation::Horizontal</enum>
                </property>
                <property name="sizeHint" stdset="0">
                 <size>
@@ -3124,7 +3124,7 @@ immédiatement</string>
              <item>
               <widget class="UpPushButton" name="EffacePrgSauvupPushButton">
                <property name="contextMenuPolicy">
-                <enum>Qt::NoContextMenu</enum>
+                <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                </property>
                <property name="text">
                 <string>Effacer la programmation
@@ -3141,7 +3141,7 @@ des sauvegardes</string>
              <item>
               <widget class="UpPushButton" name="RestaurBaseupPushButton">
                <property name="contextMenuPolicy">
-                <enum>Qt::NoContextMenu</enum>
+                <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                </property>
                <property name="text">
                 <string>Restaurer
@@ -3158,7 +3158,7 @@ la base</string>
              <item>
               <widget class="UpPushButton" name="ReinitBaseupPushButton">
                <property name="contextMenuPolicy">
-                <enum>Qt::NoContextMenu</enum>
+                <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                </property>
                <property name="text">
                 <string>Réinitialiser
@@ -3197,13 +3197,13 @@ les données</string>
              </size>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="frameShape">
-             <enum>QFrame::StyledPanel</enum>
+             <enum>QFrame::Shape::StyledPanel</enum>
             </property>
             <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
+             <enum>QFrame::Shadow::Raised</enum>
             </property>
             <widget class="UpTableWidget" name="AppareilsConnectesupTableWidget">
              <property name="geometry">
@@ -3227,13 +3227,13 @@ les données</string>
               </size>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
+              <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
              </property>
              <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectRows</enum>
+              <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
              </property>
             </widget>
             <widget class="UpLabel" name="AppareilsconnectesupLabel">
@@ -3258,7 +3258,7 @@ les données</string>
               </size>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Appareils connectés au réseau</string>
@@ -3491,7 +3491,7 @@ liste des villes</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Gestion des utilisateurs</string>
@@ -3543,7 +3543,7 @@ liste des villes</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Paramétrer
@@ -3596,7 +3596,7 @@ les motifs de consultation</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Changer le mot
@@ -3636,7 +3636,7 @@ de passe administrateur</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Gestion
@@ -3663,7 +3663,7 @@ des organismes bancaires</string>
               </rect>
              </property>
              <property name="contextMenuPolicy">
-              <enum>Qt::NoContextMenu</enum>
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
               <string>Gestion des lieux d'activité</string>
@@ -3722,7 +3722,7 @@ des organismes bancaires</string>
         <item>
          <spacer name="verticalSpacer_2">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
+           <enum>Qt::Orientation::Vertical</enum>
           </property>
           <property name="sizeHint" stdset="0">
            <size>
@@ -3752,7 +3752,7 @@ des organismes bancaires</string>
           <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">
-             <enum>Qt::Horizontal</enum>
+             <enum>Qt::Orientation::Horizontal</enum>
             </property>
             <property name="sizeHint" stdset="0">
              <size>
@@ -3780,7 +3780,7 @@ des organismes bancaires</string>
              <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="contextMenuPolicy">
-             <enum>Qt::NoContextMenu</enum>
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
             <property name="styleSheet">
              <string notr="true"/>
@@ -3805,7 +3805,7 @@ des organismes bancaires</string>
      <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Horizontal</enum>
+        <enum>Qt::Orientation::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
@@ -3833,10 +3833,10 @@ des organismes bancaires</string>
         <bool>true</bool>
        </property>
        <property name="focusPolicy">
-        <enum>Qt::NoFocus</enum>
+        <enum>Qt::FocusPolicy::NoFocus</enum>
        </property>
        <property name="contextMenuPolicy">
-        <enum>Qt::NoContextMenu</enum>
+        <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
        </property>
        <property name="toolTip">
         <string/>
