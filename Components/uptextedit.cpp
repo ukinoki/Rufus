@@ -175,11 +175,7 @@ bool UpTextEdit::eventFilter(QObject *obj, QEvent *event)
         if (keyEvent->key()==Qt::Key_Return || keyEvent->key() == Qt::Key_Enter || keyEvent->key()==Qt::Key_Tab)
         {
             // Ctrl-Return ou Ctrl-Enter ou Ctrl-Tab sur un TextEdit- On va sur la tabulation suivante -------------
-#ifdef Q_OS_WIN
-            if ((keyEvent->modifiers() == Qt::ControlModifier))
-#else
-            if ((keyEvent->modifiers() == Qt::MetaModifier))
-#endif
+            if (keyEvent->modifiers() == Qt::MetaModifier)
             {
                 UpTextEdit *textnext = qobject_cast<UpTextEdit*>(nextInFocusChain());
                 if (textnext){

@@ -40,7 +40,7 @@ private:
     //!< m_stringid = l'adresses mac du poste connecté suivi de l'id de l'utilisateur séparé par " - "
 
     QString m_nomposte = "";                //!< nom du poste connexté
-    QString m_macadress = "";               //!< macadress+login du poste connecté
+    QString m_macadress = "";               //!< macadress (+ " - admin" si le poste est RufusAdmin)
     QString m_ipadress = "";                //!> l'adresse IP du poste connecté
     bool m_accesdistant = false;            //!> le poste connecte est en accès distant
     int m_idsuperviseur = 0;                //!> l'id du superviseur

@@ -113,7 +113,6 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
 dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
 {
     bool ok;
-    //TODO : SQL
     QString req;
     QString Login = ui->LoginlineEdit->text();
     QString Password = ui->MDPlineEdit->text();

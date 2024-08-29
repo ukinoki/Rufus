@@ -197,14 +197,17 @@ public:
     static QString                  calcIP(QString IP, bool aveczero = false);
     static QString                  MACAdress();
     static QString                  getMacForIP(QString ipAddress);
+    static QString                  hostName();
+    static QString                  hostNameMacAdress();
     static QByteArray               StringToArray(QString source);
 
     //! Fichiers
-    static bool                     CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfert = QDate::currentDate());
+    static bool                     isFormatRecognized(QFile &fileimg);              //! true if image file forat is recognized by Rufus
+    static bool                     CompressFileToJPG(QString &pathfile, bool withRecordError = true, int maxsizeimg = TAILLEMAXIIMAGES);
     static QMap<QString, qint64>    dir_size(const QString DirPath);
-    static QString                  getExpressionSize(qint64 size);                 //! concertit en Go, To la taille en Mo du qint64 passé en paramètre
+    static QString                  getExpressionSize(qint64 size);                 //! convertit en Go, To, Mo ou Ko la taille du qint64 passé en paramètre
     static bool                     mkpath(QString path);
-    static void                     cleanfolder(QString path);
+    static void                     cleanfolder(QString path, bool evenNonEmptyDirs = false);
     static void                     countFilesInDirRecursively(const QString dirpath, int &tot); // compte le nombre de fichiers présents dans un dossier et ses sous-dossiers
     static void                     copyfolderrecursively(const QString origindirpath, const QString destdirpath,
                                                                 int &n,
@@ -229,6 +232,9 @@ public:
     static bool                     removeWithoutPermissions(QFile &file);      // efface le fichier file vers la destination path même s'il est enlecture seule
     static double                   mmToInches(double mm);
     static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList(), bool ExclureNomAvecEspace = true);
+    static QString                  ProvDir();
+    static void                     RemoveProvDir();
+    static QString                  EchecDir();
 
     //! refraction
     static QString                  PrefixePlus(double);                           //! convertit en QString signé + ou - les valeurs QDouble de dioptries

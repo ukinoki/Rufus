@@ -233,7 +233,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
         for (int j=0; j<QDir(pathorigin).entryList(filters).size(); j++)
             listnomsfilestorestore << pathorigin + "/" + QDir(pathorigin).entryList(filters).at(j);
         for (int i=0; i<listnomsfilestorestore.size(); i++)
-            m_basesize += QFile(listnomsfilestorestore.at(i)).size()/1024/1024;
+            m_basesize += QFile(listnomsfilestorestore.at(i)).size();
     }
     else
         m_basesize = CalcBaseSize();
@@ -242,9 +242,6 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     // espace libre sur le disque ------------------------------------------------------------------------------------------------------------------------------------------------
 
     m_freespace = QStorageInfo(pathdestination).bytesAvailable();
-    m_freespace = m_freespace/1024/1024;
-    //qDebug() << QStorageInfo(dirbkup).bytesAvailable();
-    //qDebug() << QString::number(FreeSpace,'f',0);
 
     dlg_buprestore = new UpDialog();
     dlg_buprestore->setModal(true);
@@ -275,7 +272,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + NOM_DIR_VIDEOS);
-        m_videossize = DataDir["Size"]/1024/1024;
+        m_videossize = DataDir["Size"];
         if (m_videossize> 0)
         {
             QHBoxLayout *layVideos = new QHBoxLayout;
@@ -301,7 +298,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     {
         // taille du dossier Images ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + NOM_DIR_IMAGES);
-        m_imagessize = DataDir["Size"]/1024/1024;
+        m_imagessize = DataDir["Size"];
         if (m_imagessize > 0)
         {
             QHBoxLayout *layImges = new QHBoxLayout;
@@ -327,7 +324,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     {
         // taille du dossier Factures ---------------------------------------------------------------------------------------------------------------------------------------
         DataDir = Utils::dir_size(pathorigin + NOM_DIR_FACTURES);
-        m_facturessize = DataDir["Size"]/1024/1024;
+        m_facturessize = DataDir["Size"];
         if (m_facturessize > 0)
         {
             QHBoxLayout *layFctures = new QHBoxLayout;
@@ -467,9 +464,16 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     {
         QString dirNomSource;
         QString dirNomDest;
+        QString DirImagery;
+        if (db->ModeAccesDataBase() == Utils::Poste)
+            DirImagery = db->dirimagerie();
+        else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+            DirImagery = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+        if (!QDir(DirImagery).exists())
+            return false;
 
         if (OKFactures) {
-            dirNomSource = db->dirimagerie() + NOM_DIR_FACTURES;
+            dirNomSource = DirImagery + NOM_DIR_FACTURES;
             dirNomDest = pathdirdestination + NOM_DIR_FACTURES;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -481,7 +485,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             msg += tr("Factures sauvegardées\n");
         }
         if (OKImages) {
-            dirNomSource = db->dirimagerie() + NOM_DIR_IMAGES;
+            dirNomSource = DirImagery + NOM_DIR_IMAGES;
             dirNomDest = pathdirdestination + NOM_DIR_IMAGES;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -493,7 +497,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             msg += tr("Fichiers imagerie sauvegardés\n");
         }
         if (OKVideos) {
-            dirNomSource = db->dirimagerie() + NOM_DIR_VIDEOS;
+            dirNomSource = DirImagery + NOM_DIR_VIDEOS;
             dirNomDest = pathdirdestination + NOM_DIR_VIDEOS;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -887,16 +891,21 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     bool OKImages   = false;
     bool OKVideos   = false;
     bool OKFactures = false;
+    QString DirImagery = "";
+    if (db->ModeAccesDataBase() == Utils::Poste)
+        DirImagery = db->dirimagerie();
+    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
+        DirImagery = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
     if (full)
     {
         OKbase = true;
-        OKImages = QDir(db->dirimagerie()).exists();
-        OKVideos = QDir(db->dirimagerie()).exists();
-        OKFactures = QDir(db->dirimagerie()).exists();
+        OKImages = QDir(DirImagery).exists();
+        OKVideos = QDir(DirImagery).exists();
+        OKFactures = QDir(DirImagery).exists();
     }
     else
     {
-        AskBupRestore(BackupOp, db->dirimagerie(), dirdestination );
+        AskBupRestore(BackupOp, DirImagery, dirdestination );
         if (dlg_buprestore->exec() != QDialog::Accepted)
             return false;
         QList<UpCheckBox*> listchk = dlg_buprestore->findChildren<UpCheckBox*>();
@@ -1427,7 +1436,6 @@ QByteArray Procedures::getFileFromSQL(Item *item)
         sQuery = "select " CP_PDF_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES "  from " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + QString::number(docmt->id());
     else if (isfacture)
         sQuery = "select " CP_PDF_FACTURES ", " CP_JPG_FACTURES "  from " TBL_FACTURES " where " CP_ID_FACTURES " = " + QString::number(dep->idfacture());
-
     QList<QVariantList> listimpr;
     listimpr = db->StandardSelectSQL(sQuery, m_ok,  tr("Impossible d'accéder à la table ") + (isdocument? TBL_DOCSEXTERNES : TBL_FACTURES));
 
@@ -1471,7 +1479,6 @@ QByteArray Procedures::getFileFromServer(QString filename)
     QByteArray ba = QByteArray();
     QList<QVariantList> listimpr;
     QString req = "SELECT LOAD_FILE('" + filename + "') AS content";
-    //qDebug() << req;
     listimpr = db->StandardSelectSQL(req,m_ok, tr("Impossible d'accéder au fichier ") + filename);
     if(m_ok && listimpr.size() >0)
         ba.append(listimpr.at(0).at(0).toByteArray());
@@ -2072,7 +2079,7 @@ QString Procedures::VilleParDefaut()
     return set.value(Ville_Defaut).toString();
 }
 
-void Procedures::setPosteImportDocs(bool a)
+void Procedures::setPosteImportDocs(QString IPAdress)
 {
     /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
     * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
@@ -2087,17 +2094,9 @@ void Procedures::setPosteImportDocs(bool a)
     req = "DROP PROCEDURE IF EXISTS " MYSQL_PROC_POSTEIMPORTDOCS ";";
     db->StandardSQL(req);
 
-    QString IpAdress("NULL");
-    if (a)
-    {
-        if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
-            IpAdress = QHostInfo::localHostName() + " - prioritaire" ;
-        else
-            IpAdress = QHostInfo::localHostName();
-    }
     req = "CREATE PROCEDURE " MYSQL_PROC_POSTEIMPORTDOCS "()\n\
             BEGIN\n\
-            SELECT '" + IpAdress + "';\n\
+            SELECT '" + IPAdress + "';\n\
             END ;";
     db->StandardSQL(req);
 }
@@ -2111,7 +2110,8 @@ QString Procedures::PosteImportDocs()
         isMysql8 = (db->version().split(".").at(0).toInt() == 8);
     //qDebug() << "Mysql = " << db->version() << " - Mysql version = " << db->version().split(".").at(0).toInt();
 
-    /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé de passer par une procédure stockée pour en simuler une
+    /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé serge    gaxt78iy
+     *  de passer par une procédure stockée pour en simuler une
     * pour créer une procédure avec Qt, séparer le drop du create, ne pas utiliser les délimiteurs et utiliser les retours à la ligne \n\.......
     * if (gsettingsIni->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() ==  "YES")
 
@@ -2177,8 +2177,8 @@ bool Procedures::ReinitBase()
 qint64 Procedures::CalcBaseSize()
 {
     qint64 basesize = 0;
-    QString req = "SELECT SUM(SizeMB) from "
-                      "(SELECT table_schema, round(sum(data_length+index_length)/1024/1024,4) AS SizeMB FROM information_schema.tables"
+    QString req = "SELECT SUM(TotalSize) from "
+                      "(SELECT table_schema, round(sum(data_length+index_length),4) AS TotalSize FROM information_schema.tables"
                       " where table_schema = '" DB_COMPTA "'"
                       " or table_schema = '" DB_RUFUS "'"
                       " or table_schema = '" DB_OPHTA "'"
@@ -2218,7 +2218,7 @@ void Procedures::CalcTimeBupRestore()
                 volume += m_facturessize;
         }
     }
-    time = (volume/1024 /2)*60000; //duréée approximative de sauvegarde en ms
+    time = (volume/1024/1024/1024 /2)*60000; //duréée approximative de sauvegarde en ms
     QString Volumelitteral = Utils::getExpressionSize(volume);
     QString timelitteral;
     if (Volumelitteral.right(2) == "Go")
@@ -3243,11 +3243,20 @@ bool Procedures::IdentificationUser()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::AbsolutePathDirImagerie()
 {
-    QString path = "";
-    if (db->ModeAccesDataBase() == Utils::Poste)
+    QString path ("");
+    switch (db->ModeAccesDataBase()) {
+    case Utils::Poste:
         path = db->dirimagerie();
-    else
+        break;
+    case Utils::ReseauLocal:
         path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
+        break;
+    case Utils::Distant:
+        path = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
+        if (!QDir(path).exists())
+            Utils::mkpath(path);
+        break;
+    }
     return path;
 }
 
@@ -3766,21 +3775,6 @@ int Procedures::idCentre()
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::PremierDemarrage()
 {
-    /*UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton RecupIniBouton           (tr("Restaurer le fichier d'initialisation\nà partir d'une sauvegarde"));
-        UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nd'initialisation"));
-    UpSmallButton PremierDemarrageBouton   (tr("Premier démarrage\nde Rufus"));
-
-        UpMessageBox *msgbox = new UpMessageBox;
-    msgbox->setText(msg);
-    msgbox->setInformativeText(msgInfo);
-    msgbox->setIcon(UpMessageBox::Warning);
-    if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     UpSmallButton::NOBUTTON);
-    if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
-    if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
-    msgbox->addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
-    msgbox->exec();
-    bool reponse = false;*/
     UpMessageBox *msgbox = new UpMessageBox;
     UpSmallButton    AnnulBouton        (tr("Retour\nau menu d'accueil"));
     UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
@@ -3829,8 +3823,8 @@ bool Procedures::PremierDemarrage()
     }
     else if (protoc == BaseVierge)
     {
-        bool SansAccesDistant = false;
-        if (VerifParamConnexion(login, MDP, false, SansAccesDistant))
+        bool AccesDistant = false;
+        if (VerifParamConnexion(login, MDP, false, AccesDistant))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne "
@@ -3839,8 +3833,6 @@ bool Procedures::PremierDemarrage()
             // Création de la base
              if (!RestaureBase(true, true))
                 return false;
-             if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                 db->setadresseserveurlocal(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString());
              m_parametres = db->parametres();
 
              // Création de l'utilisateur
@@ -3897,7 +3889,7 @@ void Procedures::PremierParametrageMateriel()
     //!                                     /Video
 
     //!     on local post
-    //!     -- QDir::homePath()/Doduments/Rufus
+    //!     -- QDir::homePath()/Documents/Rufus
     //!                                         /Imagerie
     //!                                             /Originaux
     //!                                                 /Factures
@@ -3912,6 +3904,7 @@ void Procedures::PremierParametrageMateriel()
     //!                                                 /Fronto
     //!                                                 /Tono
     //!                                                 /Autoref
+    //!                                             /EchecTransferts
     //!                                         /Logs
     //!                                         Rufus.ini
 
@@ -3938,6 +3931,7 @@ void Procedures::PremierParametrageMateriel()
     Utils::mkpath(PATH_DIR_RUFUS NOM_DIR_LOGS);
     Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_FACTURES);
     Utils::mkpath(PATH_DIR_ORIGINAUX NOM_DIR_IMAGES);
+    Utils::mkpath(PATH_DIR_RUFUS NOM_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS);
 }
 
 /*------------------------------------------------------------------------------------------------------------------------------------
