@@ -252,7 +252,6 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
         int row = 0;
         if (mc)
             row = m_model->getRowFromItem(mc);
-        if(row < 0) row=0;
         m_model->insertRow(row);
         m_currentmotcle = new MotCle();
         m_currentmotcle->setmotcle(tr("Nouveau mot-clé"));

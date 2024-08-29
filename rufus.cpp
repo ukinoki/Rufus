@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("13-08-2024/1");
+    qApp->setApplicationVersion("29-08-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -209,7 +209,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         PatientEnCours *pat = const_cast<PatientEnCours*>(it.value());
         if (pat != Q_NULLPTR)
-            if (pat->idusersuperviseur() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == Utils::hostName().left(60))
+            if (pat->idusersuperviseur() == currentuser()->id() && pat->statut().left(length) == ENCOURSEXAMEN && pat->posteexamen() == QHostInfo::localHostName().left(60))
             {
                 ItemsList::update(pat, CP_STATUT_SALDAT, ARRIVE);
                 ItemsList::update(pat, CP_POSTEEXAMEN_SALDAT);
@@ -1388,7 +1388,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
                                                      "",                                                        //! Motif
                                                      "",                                                        //! Message
                                                      0,                                                         //! idActeAPayer
-                                                     Utils::hostName().left(60),                       //! PosteExamen
+                                                     QHostInfo::localHostName().left(60),                       //! PosteExamen
                                                      currentuser()->id(),                                       //! idUserEnCoursExamen
                                                      0);                                                        //! idSalDat
         else
@@ -1396,7 +1396,7 @@ void Rufus::AppelPaiementDirect(Origin origin)
             ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + currentuser()->login());
             ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, db->ServerDateTime().time());
             ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, currentuser()->id());
-            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, Utils::hostName().left(60));
+            ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
         }
         Flags::I()->MAJFlagSalleDAttente();
     }
@@ -1487,12 +1487,12 @@ void Rufus::ChangeTabBureau()
 {
     if(ui->tabWidget->currentWidget() == ui->tabList)
     {
-        //setFixedWidth(LARGEURLISTE);
+        setFixedWidth(LARGEURLISTE);
         ui->CreerNomlineEdit->setFocus();
         CalcNbDossiers();
     }
-    //else
-        //setFixedWidth(LARGEURNORMALE);
+    else
+        setFixedWidth(LARGEURNORMALE);
 }
 
 void Rufus::ChoixMG()
@@ -2129,7 +2129,7 @@ void Rufus::ExporteDocs()
                 //qDebug() << "erreur";
                 return;
             }
-            if (!Utils::CompressFileToJPG(CheminOKTransfrProv))
+            if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
             {
                 db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
@@ -2354,7 +2354,7 @@ void Rufus::ExporteDocs()
             QByteArray ba = listexportjpgfact.at(i).at(6).toByteArray();
             QPixmap pix;
             pix.loadFromData(ba);
-            /*!
+            /*
          * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
          * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
          * QFile prov (CheminOKTransfrProv);
@@ -2369,7 +2369,7 @@ void Rufus::ExporteDocs()
                 //qDebug() << "erreur";
                 return;
             }
-            if (!Utils::CompressFileToJPG(CheminOKTransfrProv))
+            if (!Utils::CompressFileJPG(CheminOKTransfrProv, pathDirImagerie))
             {
                 db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
@@ -2545,7 +2545,7 @@ void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
         }
         QString nomdossier  = appareil->nomdossierechange();
         QStringList filters, listnomsfiles;
-        filters << "*.pdf" << "*.jpg" << "*.png" << "*.jpeg";
+        filters << "*.pdf" << "*.jpg";
         listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
         for (int it=0; it<listnomsfiles.size(); it++)
         {
@@ -5130,9 +5130,7 @@ void Rufus::SupprimerDocsEtFactures()
     QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
 
     /* Supprimer les documents en attente de suppression*/
-    QString req = "delete from " TBL_DOCSASUPPRIMER " where " CP_FILEPATH_DOCSASUPPR " is null or " CP_FILEPATH_DOCSASUPPR " = \"\"" ;
-    db->StandardSQL(req);
-    req = "Select " CP_FILEPATH_DOCSASUPPR " from " TBL_DOCSASUPPRIMER;
+    QString req = "Select " CP_FILEPATH_DOCSASUPPR " from " TBL_DOCSASUPPRIMER;
     QList<QVariantList> ListeDocs = db->StandardSelectSQL(req, m_ok);
     for (int i=0; i<ListeDocs.size(); i++)
     {
@@ -5151,32 +5149,24 @@ void Rufus::SupprimerDocsEtFactures()
         ShowMessage::I()->SplashMessage(msg, 3000);
         return;
     }
-    req = "delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " is null or " CP_LIENFICHIER_FACTASUPPR " = \"\"" ;
-    db->StandardSQL(req);
     req = "select " CP_LIENFICHIER_FACTASUPPR " from " TBL_FACTURESASUPPRIMER;
     QList<QVariantList> ListeFactures = db->StandardSelectSQL(req, m_ok);
     for (int i=0; i<ListeFactures.size(); i++)
     {
         QString lienfichier = ListeFactures.at(i).at(0).toString();
         /*  on copie le fichier dans le dossier facturessanslien*/
-        QFile facturefile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier);
-        if (facturefile.exists())
+        QString user = lienfichier.split("/").at(1);
+        QString CheminOKTransfrDirImg = CheminOKTransfrDir + "/" + user;
+        if (!Utils::mkpath(CheminOKTransfrDir))
         {
-            if (lienfichier.split("/").size() > 1)
-            {
-                QString user = lienfichier.split("/").at(1);
-                QString CheminOKTransfrDirImg = CheminOKTransfrDir + "/" + user;
-                if (!Utils::mkpath(CheminOKTransfrDir))
-                {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
-                    ShowMessage::I()->SplashMessage(msg, 3000);
-                    continue;
-                }
-                Utils::copyWithPermissions(facturefile, NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
-            }
-            /*  on l'efface du dossier de factures*/
-            Utils::removeWithoutPermissions(facturefile);
+            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
+            ShowMessage::I()->SplashMessage(msg, 3000);
+            continue;
         }
+        QFile facturefile(NomDirStockageImagerie + NOM_DIR_FACTURES + lienfichier);
+        Utils::copyWithPermissions(facturefile, NomDirStockageImagerie + NOM_DIR_FACTURESSANSLIEN + lienfichier);
+        /*  on l'efface du dossier de factures*/
+        Utils::removeWithoutPermissions(facturefile);
         /* on détruit l'enregistrement dans la table FacturesASupprimer*/
         db->StandardSQL("delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " = '" + Utils::correctquoteSQL(lienfichier) + "'");
     }
@@ -5970,7 +5960,7 @@ void Rufus::VerifDocsDossiersEchanges()
                 if (QDir(nomdossier).exists())
                 {
                     QStringList filters, listnomsfiles;
-                    filters << "*.pdf" << "*.jpg" << "*.png" << "*.jpeg";
+                    filters << "*.pdf" << "*.jpg";
                     listnomsfiles = QDir(nomdossier).entryList(filters, QDir::Files | QDir::NoDotAndDotDot);
                     if (listnomsfiles.size() > 0)
                         for (int it=0; it<listnomsfiles.size(); it++)
@@ -5987,19 +5977,21 @@ void Rufus::VerifDocsDossiersEchanges()
 
 void Rufus::VerifVerrouDossier()
 {
-    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+    if (!isPosteImport() || DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         return;
-    /*! Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
-     *  elle n'est utilisée qu'en cas de non utilisation du tcp
+    // Seuls le poste importateur des documents et les postes distants utilisent cette fonction
+    /* Cette fonction sert à déconnecter et lever les verrous d'un utilisateur qui se serait déconnecté accidentellement
+     * elle n'est utilisée qu'en cas de non utilisation du tcp
      on fait la liste des utilisateurs qui n'ont pas remis à jour leur connexion depuis plus de 60 secondes,
-     on retire les verrous qu'ils auraient pu poser et on les déconnecte */
+     on retire les verrous qu'ils auraient pu poser et on les déconnecte*/
     Datas::I()->postesconnectes->initListe();
+    Datas::I()->patientsencours->initListeAll();
     QDateTime timenow = db->ServerDateTime();
     QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
     foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
         qint64 tempsecouledepuisactualisation = post->dateheurederniereconnexion().secsTo(timenow);
-        if (tempsecouledepuisactualisation > 240)
+        if (tempsecouledepuisactualisation > 120)
         {
             qDebug() << "Suppression d'un poste débranché accidentellement" << "Rufus::VerifVerrouDossier()";
             qDebug() << "nom du poste" << post->nomposte();
@@ -6008,30 +6000,29 @@ void Rufus::VerifVerrouDossier()
             qDebug() << "heure dernière connexion = " << post->dateheurederniereconnexion();
             qDebug() << "temps ecoule depuis actualisation = " << tempsecouledepuisactualisation;
             qDebug() << "user = " << (Datas::I()->users->getById(post->iduser()) != Q_NULLPTR? Datas::I()->users->getById(post->iduser())->login() : tr("inconnu"));
+            //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 120 secondes
+            //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
+            for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+            {
+                PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+                if (patcrs != Q_NULLPTR)
+                    if (patcrs->iduserencoursexam() == post->iduser() && patcrs->statut().contains(ENCOURSEXAMEN) && patcrs->posteexamen() == post->nomposte())
+                    {
+                        //! on remet le patient en salle d'accueil avec le statut ARRIVE
+                        ItemsList::update(patcrs, CP_STATUT_SALDAT, ARRIVE);
+                        ItemsList::update(patcrs, CP_POSTEEXAMEN_SALDAT);
+                        ItemsList::update(patcrs, CP_IDUSERENCOURSEXAM_SALDAT);
+                    }
+            }
             if (!listpostsAEliminer.contains(post))
                 listpostsAEliminer << post;
         }
     }
     if (listpostsAEliminer.size() > 0)
     {
-       Datas::I()->patientsencours->initListeAll();
        foreach (PosteConnecte* post, listpostsAEliminer)
        {
            QString nomposte = (post->isadmin()? tr("administrateur") + " " : "") + post->nomposte();
-           //! l'utilisateur n'a pas remis sa connexion à jour depuis plus de 240 secondes
-           //! on déverrouille les dossiers verrouillés par cet utilisateur et on les remet en salle d'attente
-           for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
-           {
-               PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
-               if (patcrs != Q_NULLPTR)
-                   if (patcrs->iduserencoursexam() == post->iduser() && patcrs->statut().contains(ENCOURSEXAMEN) && patcrs->posteexamen() == post->nomposte())
-                   {
-                       //! on remet le patient en salle d'accueil avec le statut ARRIVE
-                       ItemsList::update(patcrs, CP_STATUT_SALDAT, ARRIVE);
-                       ItemsList::update(patcrs, CP_POSTEEXAMEN_SALDAT);
-                       ItemsList::update(patcrs, CP_IDUSERENCOURSEXAM_SALDAT);
-                   }
-           }
            Datas::I()->postesconnectes->SupprimePosteConnecte(post);
            //ItemsList::update(Datas::I()->sessions->currentsession(), CP_ID_SESSIONS, QDateTime::currentDateTime());
            UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Le poste ") + nomposte + tr(" a été retiré de la liste des postes connectés actuellement au serveur"),Icons::icSunglasses(), 1000);
@@ -6143,55 +6134,57 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
 
     bool statut = isPosteImport();
     //qDebug()<< statut;
-    QString ImportateurDocs = proc->PosteImportDocs(); //le nom et l'adresse Mac du poste importateur des docs externes
-    QString importsetting = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
-    QString IPAdress = "NULL";
-    if (importsetting == "YES")
-        IPAdress = Utils::hostNameMacAdress() + " - prioritaire";
-    else if (importsetting == "NORM")
-        IPAdress = Utils::hostNameMacAdress();
-
+    QString ImportateurDocs = proc->PosteImportDocs(); //le nom du poste importateur des docs externes
     if (ImportateurDocs.toUpper() == "NULL")
     {
-        if ((importsetting == "YES" || importsetting == "NORM") && db->ModeAccesDataBase() != Utils::Distant)
-             proc->setPosteImportDocs(IPAdress);
+        if ((proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() == "YES" || proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString() == "NORM")
+                && db->ModeAccesDataBase() != Utils::Distant)
+             proc->setPosteImportDocs();
     }
     else
     {
+        QString Adr = "";
+        QString B = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
+        if (B == "YES")
+            Adr = QHostInfo::localHostName() + " - prioritaire";
+        else if (B == "NORM")
+            Adr = QHostInfo::localHostName();
 
-        if (ImportateurDocs != IPAdress) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
+        if (ImportateurDocs != Adr) //si le poste défini comme importateur des docs est différent de ce poste, on vérifie qu'il est toujours actif et qu'il n'est pas prioritaire
         {
             // on vérifie que l'importateur est toujours connecté
             int idx = -1;
             for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it != Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
             {
                 PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-                if (post->nomposte()+ " - " + post->macadress() == ImportateurDocs.remove(" - prioritaire"))
+                if (post->nomposte() == ImportateurDocs.remove(" - prioritaire"))
                 {
                     idx = Datas::I()->postesconnectes->postesconnectes()->values().indexOf(post);
                     break;
                 }
             }
-            if (idx<0)                                                      //! Le poste défini comme importateur des docs externes n'est pas connecté,
+            if (idx<0)
             {
-                /*! on prend la place si
-                 *      on n'est pas en accès distant
-                 *      et si on est importateur
-                 *  sinon, on retire le poste */
-                proc->setPosteImportDocs(IPAdress);
+                /*! Le poste défini comme importateur des docs externes n'est pas connecté,
+                 on prend la place si
+                    on n'est pas en accès distant
+                    et si on est importateur
+                sinon, on retire le poste*/
+                proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
             }
-            else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEUR))   //! le poste défini comme importateur est valide mais pas administrateur
+            else if (!ImportateurDocs.contains(" - " NOM_ADMINISTRATEUR))
+                /*! le poste défini comme importateur est valide mais pas administrateur, on prend sa place si
+                    on est prioritaire et pas lui
+                    à condition de ne pas être en accès distant */
             {
-                /*! on prend sa place si on est prioritaire et pas lui */
-                if (importsetting == "YES" && !ImportateurDocs.contains(" - prioritaire"))
-                    proc->setPosteImportDocs(IPAdress);
-                else if (ImportateurDocs.remove(" - prioritaire") == Utils::hostNameMacAdress() && ImportateurDocs != IPAdress)
-                                                                            //! cas rare du poste qui a modifié son propre statut
-                    proc->setPosteImportDocs(IPAdress);
+                if (B == "YES" && !ImportateurDocs.contains(" - prioritaire"))
+                    proc->setPosteImportDocs();
+                else if (ImportateurDocs.remove(" - prioritaire") == QHostInfo::localHostName()) // cas rare du poste qui a modifié son propre statut
+                    proc->setPosteImportDocs((B == "YES" || B == "NORM") && db->ModeAccesDataBase() != Utils::Distant);
             }
         }
     }
-    m_isposteImport = (proc->PosteImportDocs().remove(" - prioritaire") == Utils::hostNameMacAdress());
+    m_isposteImport = (proc->PosteImportDocs().remove(" - prioritaire") == QHostInfo::localHostName());
     bool chgtstatut = (statut != isPosteImport());
     if (chgtstatut)
     {
@@ -6336,7 +6329,11 @@ void Rufus::keyPressEvent (QKeyEvent * event )
         if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
         {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-            if ((keyEvent->modifiers() == Qt::MetaModifier))// || focusWidget() == ui->PatientsListeTableView)
+#ifdef Q_OS_WIN
+            if ((keyEvent->modifiers() == Qt::ControlModifier))
+#else
+            if ((keyEvent->modifiers() == Qt::MetaModifier))
+#endif
             {
                 if (m_mode == NouveauDossier)
                     CreerDossier();
@@ -6443,8 +6440,8 @@ void Rufus::closeEvent(QCloseEvent *)
     int iduserposte = 0;
     if (currentpost() != Q_NULLPTR)
         iduserposte = currentpost()->id();
-    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::hostNameMacAdress())
-        proc->setPosteImportDocs("NULL");
+    if ( proc->PosteImportDocs().remove(" - prioritaire")== Utils::IPAdress())
+        proc->setPosteImportDocs(false);
 
     QString req = "update " TBL_UTILISATEURS " set " CP_DATEDERNIERECONNEXION_USR " = '" + QDateTime::currentDateTime().toString("yyyy-MM-dd HH:mm:ss")
             + "' where " CP_ID_USR " = " + QString::number(currentuser()->id());
@@ -6692,6 +6689,7 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             if (obj == ui->MGupComboBox)            ui->AutresCorresp1upComboBox->setFocus();
             if (obj == ui->AutresCorresp1upComboBox)ui->AutresCorresp2upComboBox->setFocus();
         }
+
         if (keyEvent->key() == Qt::Key_Right && keyEvent->modifiers() == Qt::MetaModifier)
         {
             if (obj == ui->AtcdtsPersostextEdit)                                                                    return QWidget::focusNextChild();
@@ -7088,7 +7086,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
                                                  "",                                                            //! Motif
                                                  "",                                                            //! Message
                                                  0,                                                             //! idActeAPayer
-                                                 Utils::hostName().left(60),                           //! PosteExamen
+                                                 QHostInfo::localHostName().left(60),                           //! PosteExamen
                                                  currentuser()->id(),                                           //! idUserEnCoursExamen
                                                  0);                                                            //! idSalDat
     else
@@ -7096,7 +7094,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
         ItemsList::update(patcours, CP_STATUT_SALDAT, ENCOURSEXAMEN + currentuser()->login());
         ItemsList::update(patcours, CP_HEURESTATUT_SALDAT, currenttime);
         ItemsList::update(patcours, CP_IDUSERENCOURSEXAM_SALDAT, currentuser()->id());
-        ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, Utils::hostName().left(60));
+        ItemsList::update(patcours, CP_POSTEEXAMEN_SALDAT, QHostInfo::localHostName().left(60));
     }
 
     ItemsList::update(currentpost(), CP_IDPATENCOURS_USRCONNECT, pat->id());
@@ -7556,7 +7554,7 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
             {
                 PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
                 if (patcrs->id() == pat->id() && patcrs->statut().left(length) == ENCOURSEXAMEN
-                        && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != Utils::hostName().left(60))))
+                        && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != QHostInfo::localHostName().left(60))))
                 {
                     UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
                                         tr("Ce patient est") + "\n" + patcrs->statut().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
@@ -8335,7 +8333,7 @@ bool Rufus::IdentificationPatient(dlg_identificationpatient::Mode mode, Patient 
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::InitWidgets()
 {
-    //setFixedWidth(LARGEURLISTE);
+    setFixedWidth(LARGEURLISTE);
     ui->tabWidget->setGeometry(5,10,-10,920);
 
     wdg_MGlineEdit->setStyleSheet(
@@ -9742,7 +9740,7 @@ void Rufus::Remplir_SalDat()
         {
             User *usr = Datas::I()->users->getById(post->iduser());
             QString usrlogin = (usr? usr->login() : "");
-            QString PosteLog  = post->nomposte();
+            QString PosteLog  = post->nomposte().remove(".local");
             PatientEnCours *patencours = Q_NULLPTR;
             foreach (PatientEnCours *patcrs, *Datas::I()->patientsencours->patientsencours())
                 if (patcrs->iduserencoursexam() == post->iduser() && patcrs->posteexamen() == post->nomposte() && patcrs->id() == post->idpatencours())
@@ -10023,6 +10021,7 @@ void Rufus::ResumeStatut()
         m_resumeStatut += tr("Pas de poste paramétré");
     else
     {
+        A.remove(".local");
         QString B;
         if (A.contains(" - " NOM_ADMINISTRATEUR))
             B = tr("Administrateur");

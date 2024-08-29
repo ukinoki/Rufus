@@ -372,6 +372,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     bool a,b,c;
 
+    ui->DossierClesSSLupLineEdit    ->useselftextastooltip();
     QString Base;
     Base = Utils::getBaseFromMode(Utils::Poste);
     a = (proc->settings()->value(Base + Param_Active).toString() == "YES");

@@ -42,7 +42,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     m_accesdistant = (db->ModeAccesDataBase()==Utils::Distant);
     m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
 
-    if (!QDir(m_pathdirstockageimagerie).exists())
+    if (!QDir(m_pathdirstockageimagerie).exists() || m_pathdirstockageimagerie == "")
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + m_pathdirstockageimagerie + "</b></font>" + tr(" n'existe pas");
         msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet \"ce poste\" /Onglet \"") + NomOnglet + "</b></font>";
@@ -165,7 +165,7 @@ dlg_docsscanner::~dlg_docsscanner()
 void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
 {
     QStringList filters;
-    filters << "*.pdf" << "*.jpg" << "*.jpeg" << ".png";
+    filters << "*.pdf" << "*.jpg" << "*.jpeg";
     QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
         UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + m_docpath,
@@ -212,13 +212,13 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
 
 void dlg_docsscanner::ChangeFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg)"));
     if (fileName != "")
     {
         m_docpath = QFileInfo(fileName).dir().absolutePath();
         m_nomfichierimageencours = QFileInfo(fileName).fileName();
         QStringList filters;
-        filters << "*.pdf" << "*.jpg" << "*.png" << "*.jpeg" ;
+        filters << "*.pdf" << "*.jpg";
         QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
         int idx = listfich.indexOf(m_nomfichierimageencours);
         wdg_toolbar->First()    ->setEnabled(idx>0);
@@ -290,14 +290,16 @@ void dlg_docsscanner::ValideFiche()
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
     QString filename = m_docpath + "/" + m_nomfichierimageencours;
-    QFile   file_origin(filename);
-    if (!file_origin.open( QIODevice::ReadOnly ))
+    QFile   qFileOrigin(filename);
+    if (!qFileOrigin.open( QIODevice::ReadOnly ))
     {
         UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
-    QByteArray ba = file_origin.readAll();
-    file_origin.close();
+    QByteArray ba = qFileOrigin.readAll();
+    QString suffixe = QFileInfo(qFileOrigin).suffix().toLower();
+    if (suffixe == "jpeg")
+        suffixe= "jpg";
 
     QString datetransfer = m_currentdate.toString("yyyy-MM-dd");
     QString user("");
@@ -309,36 +311,29 @@ void dlg_docsscanner::ValideFiche()
         if (Datas::I()->users->getById(iduserdep) != Q_NULLPTR)
             user = Datas::I()->users->getById(iduserdep)->login();
     }
-
-    //! copie de l'original sur le poste importateur en accès distant et sur le serveur dans les autres cas
-    QString CheminBackup = proc->AbsolutePathDirImagerie() + NOM_DIR_ORIGINAUX
-                         + ( m_mode==Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
+    QString CheminBackup = m_pathdirstockageimagerie + NOM_DIR_ORIGINAUX + ( m_mode==Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
-    Utils::copyWithPermissions(file_origin, CheminBackup + "/" + m_nomfichierimageencours);
+    Utils::copyWithPermissions(qFileOrigin, CheminBackup + "/" + m_nomfichierimageencours);
 
-    //! création du dossier d'enregistrement du document renommé et compressé en mode monoposte ou réseau local
-    if (!m_accesdistant)
+    QString CheminOKTransfrDir  = m_pathdirstockageimagerie + ( m_mode == Document? NOM_DIR_IMAGES "/" + datetransfer : NOM_DIR_FACTURES "/" + user) ;
+    if (!Utils::mkpath(CheminOKTransfrDir))
     {
-        QString CheminOKTransfrDir  = proc->AbsolutePathDirImagerie()
-                                    + ( m_mode == Document? NOM_DIR_IMAGES "/" + datetransfer : NOM_DIR_FACTURES "/" + user) ;
-        if (!Utils::mkpath(CheminOKTransfrDir))
-        {
-            QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-            ShowMessage::I()->SplashMessage(msg, 3000);
-            return;
-        }
+        QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
+        ShowMessage::I()->SplashMessage(msg, 3000);
+        return;
     }
 
-    //! compression du document si c'est un jpg
-    QString suffixe = QFileInfo(file_origin).suffix().toLower();
-    if (suffixe == JPG ||suffixe == PNG || suffixe == JPEG)
+    if (suffixe == "jpg" && qFileOrigin.size() > TAILLEMAXIIMAGES)
     {
-        if (!Utils::CompressFileToJPG(filename))
+        qFileOrigin.close();
+        if (!Utils::CompressFileJPG(filename, proc->AbsolutePathDirImagerie()))
             return;
-        suffixe = JPG;
-        file_origin.setFileName(filename);
-        if (!file_origin.open( QIODevice::ReadOnly ))
-        ba = file_origin.readAll();
+        if (!qFileOrigin.open( QIODevice::ReadOnly ))
+        {
+            UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
+            return;
+        }
+        ba = qFileOrigin.readAll();
     }
 
     QString sstypedoc = wdg_linetitre->text();
@@ -357,6 +352,8 @@ void dlg_docsscanner::ValideFiche()
                 + sstypedoc.replace("/",".") + "_"                  // on fait ça pour que le / ne soit pas interprété comme un / de séparation de dossier dans le nom du fichier, ce qui planterait l'enregistrement
                 + wdg_editdate->dateTime().toString("yyyy-MM-dd");
         lien = "/" + datetransfer + "/" + NomFileDoc + "-" + QString::number(idimpr) + "." + suffixe;
+//        QJsonValue val = QJsonValue::fromVariant(ba);
+//        qDebug() << "val" << val;
         if (!m_accesdistant)
         {
             listbinds[CP_ID_DOCSEXTERNES] =               idimpr;
@@ -373,9 +370,9 @@ void dlg_docsscanner::ValideFiche()
         }
         else
         {
-            if (suffixe == PDF)
+            if (suffixe == "pdf")
                 suffixe = CP_PDF_DOCSEXTERNES;
-            else if (suffixe == JPG)
+            else if (suffixe== "jpg" || suffixe == "jpeg")
                 suffixe = CP_JPG_DOCSEXTERNES;
             listbinds[CP_ID_DOCSEXTERNES] =               idimpr;
             listbinds[CP_IDPAT_DOCSEXTERNES] =            m_iditem;
@@ -384,6 +381,10 @@ void dlg_docsscanner::ValideFiche()
             listbinds[CP_TITRE_DOCSEXTERNES] =            wdg_typedoccombobx->currentText();
             listbinds[CP_DATE_DOCSEXTERNES] =             wdg_editdate->date().toString("yyyy-MM-dd") + " 00:00:00";
             listbinds[CP_IDEMETTEUR_DOCSEXTERNES] =       Datas::I()->users->userconnected()->id();
+            //QJsonValue val = QJsonDocument::fromBinaryData(ba)[suffixe];
+            //            if (val.isObject())
+            //                QJsonDocument doc(val.toObject());
+            //listbinds[suffixe] =                         val;
             listbinds[suffixe] =                          ba;
             listbinds[CP_EMISORRECU_DOCSEXTERNES] =       "1";
             listbinds[CP_FORMATDOC_DOCSEXTERNES] =        DOCUMENTRECU;
@@ -430,7 +431,7 @@ void dlg_docsscanner::ValideFiche()
     }
     if(!b)
     {
-        file_origin.close ();
+        qFileOrigin.close ();
         reject();
         return;
     }
@@ -443,9 +444,9 @@ void dlg_docsscanner::ValideFiche()
             Utils::copyWithPermissions(CF,CheminOKTransfrDoc);
         }
         else if (suffixe == PDF)
-            Utils::copyWithPermissions(file_origin, CheminOKTransfrDoc);
+            Utils::copyWithPermissions(qFileOrigin, CheminOKTransfrDoc);
      }
-    Utils::removeWithoutPermissions(file_origin);
+    Utils::removeWithoutPermissions(qFileOrigin);
     QString msg;
     switch ( m_mode) {
     case Document:      msg = tr("Document ") + sstypedoc +  tr(" enregistré");     break;

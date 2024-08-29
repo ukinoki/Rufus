@@ -467,16 +467,9 @@ QSize Utils::CalcSize(QString txt, QFont fm)
     return QSize(w,int(hauteurligne*nlignes));
 }
 
-bool Utils::isFormatRecognized(QFile &fileimg)
-{
-    QString suffix = QFileInfo(fileimg).suffix().toLower();
-    return (suffix == JPG || suffix == JPEG ||suffix == PDF ||suffix == PNG);
-}
-
-
 /*!
- * \brief Utils::CompressFileToJPG(QString pathfile, QString Dirprov, QString nomfileEchec)
- * comprime un fichier jpg, jpeg ou png à une taille inférieure à celle de la macro TAILLEMAXIIMAGES
+ * \brief Utils::CompressFileJPG(QString pathfile, QString Dirprov, QString nomfileEchec)
+ * comprime un fichier jpg à une taille inférieure à celle de la macro TAILLEMAXIIMAGES
  * \param QString pathfile le chemin complet du fichier d'origine utilisé aussi en cas d'échec pour faire le log
  * \param QString dirprov le nom du dossier d'imagerie
  * \param QDate datetransfert date utilisée en cas d'échec pour faire le log
@@ -486,58 +479,48 @@ bool Utils::isFormatRecognized(QFile &fileimg)
     * et une ligne résumant l'échec est ajoutée en fin de ce fichier
     * le fichier d'origine est ajouté dans ce même répertoire
  */
-
-bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsizeimg)
+bool Utils::CompressFileJPG(QString pathfile, QString Dirprov, QDate datetransfert)
 {
-    QString                 szorigin, szfinal;
-    QFile                   file_origin(pathfile);
-    qint64                  sz = file_origin.size();
-    QString                 EchecPath   = EchecDir();
-    QString                 ProvPath        = ProvDir();
-
-    szorigin = getExpressionSize(sz);
-    szfinal = szorigin;
-
-    /*! on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
-    if (withRecordError)
+    /* on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
+    QString CheminEchecTransfrDir   = Dirprov + NOM_DIR_ECHECSTRANSFERTS;
+    if (!mkpath(CheminEchecTransfrDir))
     {
-        if (EchecPath == "")
-        {
-            QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + EchecPath + "</b></font>" + QObject::tr(" invalide");
-            ShowMessage::I()->SplashMessage(msg, 3000);
-            return false;
-        }
+        QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminEchecTransfrDir + "</b></font>" + QObject::tr(" invalide");
+        ShowMessage::I()->SplashMessage(msg, 3000);
+        return false;
     }
-    /*! on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin */
-    if (ProvPath == "")
+    /* on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin*/
+    QString DirStockProvPath = Dirprov + NOM_DIR_PROV;
+    if (!mkpath(DirStockProvPath))
     {
-        QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + ProvPath + "</b></font>" + QObject::tr(" invalide");
+        QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + DirStockProvPath + "</b></font>" + QObject::tr(" invalide");
         ShowMessage::I()->SplashMessage(msg, 3000);
         return false;
     }
 
-    QImage                  img(pathfile);
-    QPixmap                 pixmap;
-    double w                = img.width();
-    double h                = img.height();
-    int x                   = w;
-
-    /*! si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions */
-    if (int(w*h)>(4096*1024))
+    QFile CC(pathfile);
+    double sz = CC.size();
+    if (sz < TAILLEMAXIIMAGES)
+        return true;
+    QImage  img(pathfile);
+    QString filename = QFileInfo(pathfile).fileName();
+    QString nomfichresize = DirStockProvPath + "/" + filename;
+    QFile fileresize(nomfichresize);
+    if (fileresize.exists())
+        removeWithoutPermissions(fileresize);
+    QFile echectrsfer(CheminEchecTransfrDir + "/0EchecTransferts - " + datetransfert.toString("yyyy-MM-dd") + ".txt");
+    QPixmap pixmap;
+    double w = img.width();
+    double h = img.height();
+    int x = img.width();
+    if (int(w*h)>(4096*1024)) // si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions
     {
         double proportion = w/h;
         int y = int(sqrt((4096*1024)/proportion));
         x = int (y*proportion);
     }
     pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
-
-    QString filename        = QFileInfo(pathfile).completeBaseName() + "." JPG;
-    QString nomfichresize   = ProvPath + "/" + filename;
-    QFile                   fileresize(nomfichresize);
-    if (fileresize.exists())
-        removeWithoutPermissions(fileresize);
-
-    /*! on copie le fichier sur le disque du poste dans le dossier Prov de Rufus
+    /* on enregistre le fichier sur le disque du serveur
      * si on n'y arrive pas,
         * on crée le fichier log des echecstransferts correspondants dans le répertoire des echecs de transfert sur le serveur
         * on complète ce fichier en ajoutant une ligne correspondant à cet échec
@@ -545,42 +528,28 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
      */
     if (!pixmap.save(nomfichresize, "jpeg"))
     {
-        if (withRecordError)
+        if (echectrsfer.open(QIODevice::Append))
         {
-            QFile echectrsfer(EchecPath + "/0EchecTransferts - " + QDate::currentDate().toString("yyyy-MM-dd") + ".txt");
-            if (echectrsfer.open(QIODevice::Append))
-            {
-                QTextStream out(&echectrsfer);
-                out << file_origin.fileName() << "\n" ;
-                echectrsfer.close();
-                copyWithPermissions(file_origin, EchecDir() + "/" + filename);
-            }
+            QTextStream out(&echectrsfer);
+            out << CC.fileName() << "\n" ;
+            echectrsfer.close();
+            copyWithPermissions(CC, CheminEchecTransfrDir + "/" + filename);
         }
-        if (QFileInfo(file_origin).absolutePath() != ProvPath)
-            RemoveProvDir();
         return false;
     }
-
-    /*! on efface le fichier origine */
-    removeWithoutPermissions(file_origin);
-
-    /*! on convertit en jpg et on comprime */
-    int tauxcompress        = 100;
-    while (sz > maxsizeimg && tauxcompress > 1)
+    removeWithoutPermissions(CC);
+    /* on comprime*/
+    int tauxcompress = 90;
+    while (sz > TAILLEMAXIIMAGES && tauxcompress > 1)
     {
-        tauxcompress -= 10;
         pixmap.save(nomfichresize, "jpeg",tauxcompress);
         sz = fileresize.size();
+        tauxcompress -= 10;
     }
-    szfinal  = getExpressionSize(sz);
-
-    /*! on recopie le fichier compressé et exporté en jpg à sa place d'origine */
-    pathfile = QFileInfo(pathfile).absolutePath() + "/" + filename;
     copyWithPermissions(fileresize, pathfile);
     fileresize.close();
-    if (QFileInfo(pathfile).absolutePath() != ProvPath)
-        RemoveProvDir();
-    return szfinal != szorigin;
+    removeWithoutPermissions(fileresize);
+    return true;
 }
 
 /*!
@@ -629,29 +598,19 @@ QMap<QString, qint64> Utils::dir_size(const QString DirPath)
  */
 QString Utils::getExpressionSize(qint64 size)
 {
-    QString com = "bytes";
+    QString com = "Mo";
     double dsize = size;
     if (dsize>1024)
     {
-        com = "Ko";
+        com = "Go";
         dsize /= 1024;
         if (dsize>1024)
         {
-            com = "Mo";
+            com = "To";
             dsize /= 1024;
-            if (dsize>1024)
-            {
-                com = "Go";
-                dsize /= 1024;
-                if (dsize>1024)
-                {
-                    com = "To";
-                    dsize /= 1024;
-                }
-            }
         }
     }
-    return QString::number(dsize,'f',1) + com;
+    return QString::number(dsize,'f',2) + com;
 }
 
 qint32 Utils::ArrayToInt(QByteArray source)
@@ -686,16 +645,17 @@ QByteArray Utils::IntToArray(int source)
 
 QString Utils::IPAdress()
 {
-    QString m_ipadress = "";
+    QString IPadress = "";
+
     //autre méthode
     /*!
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
+    foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
         if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress::LocalHost)
         {
             IPadress = address.toString();
             break;
         }
-        */
+    */
 
     //autre méthode
     foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
@@ -707,15 +667,16 @@ QString Utils::IPAdress()
             {
                 if(address.ip().protocol() == QAbstractSocket::IPv4Protocol)
                 {
-                    m_ipadress = address.ip().toString();
+                    IPadress = address.ip().toString();
                     break;
                 }
             }
         }
-        if (m_ipadress != "")
+        if (IPadress != "")
             break;
     }
-    return m_ipadress;
+
+    return IPadress;
 }
 
 // https://doc-snapshots.qt.io/qt6-dev/qtcore-changes-qt6.html
@@ -759,17 +720,17 @@ QString Utils::calcIP(QString IP, bool aveczero)
 
 QString Utils::MACAdress()
 {
-    QString m_macadress = "";
     QString IPadress = IPAdress();
+    QString MACAddress = "";
     foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {
         foreach (const QNetworkAddressEntry &entry, networkInterface.addressEntries()) {
             if (entry.ip().toString() == IPadress) {
-                m_macadress = networkInterface.hardwareAddress();
+                MACAddress = networkInterface.hardwareAddress();
                 break;
             }
         }
     }
-    return m_macadress;
+    return MACAddress;
 }
 
 QString Utils::getMacForIP(QString ipAddress)
@@ -788,17 +749,6 @@ QString Utils::getMacForIP(QString ipAddress)
     }
     return MAC;
 }
-
-QString Utils::hostName()
-{
-    return QHostInfo::localHostName().remove(".local").remove(".home");
-}
-
-QString Utils::hostNameMacAdress()
-{
-    return hostName() + " - " + MACAdress();
-}
-
 
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Faire précéder l'apostrophe d'un caractère d'échappement pour les requêtes SQL --------------------
@@ -914,12 +864,9 @@ bool Utils::mkpath(QString path)
 
 /*!
  * \brief Utils::cleanfolder
- * \param dirpath = chemin du dossier
- * \param evenNonEmptyDirs élimine aussi les sousdossiers non vides
  * élimine les sous-dossiers vides d'un dossier
  */
-
-void Utils::cleanfolder(const QString DirPath, bool evenNonEmptyDirs)
+void Utils::cleanfolder(const QString DirPath)
 {
     QDir dir(DirPath);
     if (!dir.exists())
@@ -928,22 +875,16 @@ void Utils::cleanfolder(const QString DirPath, bool evenNonEmptyDirs)
     QFileInfoList list = dir.entryInfoList();
 
     if (list.size()==0)
-        dir.rmdir(DirPath);
-    else
     {
-        for(int i = 0; i < list.size(); ++i)
-        {
-            QFileInfo fileInfo = list.at(i);
-            if (fileInfo.isDir())
-                cleanfolder(fileInfo.absoluteFilePath());
-            else if (fileInfo.isFile() && evenNonEmptyDirs)
-            {
-                QFile file(fileInfo.absoluteFilePath());
-                removeWithoutPermissions(file);
-            }
-        }
+        dir.rmdir(DirPath);
+        //qDebug() << "dossier vide effacé" << DirPath;
     }
-
+    else for(int i = 0; i < list.size(); ++i)
+    {
+        QFileInfo fileInfo = list.at(i);
+        if (fileInfo.isDir())
+            cleanfolder(fileInfo.absoluteFilePath());
+    }
 }
 
 void Utils::countFilesInDirRecursively(const QString dirpath, int &tot)
@@ -1078,30 +1019,6 @@ QUrl   Utils::getExistingDirectoryUrl(QWidget *parent, QString title, QUrl Dirde
     return url;
 }
 
-QString Utils::ProvDir()
-{
-    QString provpath = PATH_DIR_RUFUS NOM_DIR_PROV;
-    if (!Utils::mkpath(provpath))
-        return "";
-    return provpath;
-}
-
-void Utils::RemoveProvDir()
-{
-    QString provpath = PATH_DIR_RUFUS NOM_DIR_PROV;
-    QDir dir(provpath);
-    dir.removeRecursively();
-}
-
-QString Utils::EchecDir()
-{
-    QString echecpath = PATH_DIR_RUFUS NOM_DIR_IMAGERIE NOM_DIR_ECHECSTRANSFERTS;
-    if (QDir(echecpath).exists())
-        return echecpath;
-    if (!Utils::mkpath(echecpath))
-        return "";
-    return echecpath;
-}
 
 QString Utils::PrefixePlus(double Dioptr)                          // convertit en QString signé + ou - les valeurs de dioptries issues des appareils de mesure
 {

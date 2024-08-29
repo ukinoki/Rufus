@@ -27,13 +27,8 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     m_connectavecloginSQL = connectavecLoginSQL;
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
-    ui->IPlabel             ->setVisible(false);
-    ui->IPlineEdit          ->setVisible(false);
     ui->DistantradioButton  ->setVisible(OKAccesDistant);
     ui->LocalradioButton    ->setVisible(OKAccesDistant);
-    ui->ClesSSLLabel        ->setVisible(false);
-    ui->ClesSSLLineEdit     ->setVisible(false);
-    ui->ClesSSLuppushButton ->setVisible(false);
     ui->PosteradioButton    ->setChecked(!OKAccesDistant);
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
@@ -59,6 +54,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     if (dir == "" || !QDir(dir).exists())
         ui->ClesSSLLineEdit ->clear();
     else ui->ClesSSLLineEdit->setText(dir);
+    ui->IPFrame->setVisible(false);
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()
@@ -136,19 +132,9 @@ void dlg_paramconnexion::MAJIP()
 
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
-    ui->ClesSSLLabel        ->setVisible(butt == ui->DistantradioButton);
-    ui->ClesSSLLineEdit     ->setVisible(butt == ui->DistantradioButton);
-    ui->ClesSSLuppushButton ->setVisible(butt == ui->DistantradioButton);
-
-    if (butt == ui->PosteradioButton)
+    ui->IPFrame->setVisible(butt!=ui->PosteradioButton);
+    if (butt == ui->LocalradioButton)
     {
-        ui->IPlabel->setVisible(false);
-        ui->IPlineEdit->setVisible(false);
-    }
-    else if (butt == ui->LocalradioButton)
-    {
-        ui->IPlabel->setVisible(true);
-        ui->IPlabel->setText(tr("adresse IP"));
         QString AdressIP, MasqueReseauLocal;
         foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
@@ -166,7 +152,6 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
         MasqueReseauLocal += "000";
         ui->IPlineEdit->setText(MasqueReseauLocal);
         ui->IPlineEdit->setInputMask("000.000.000.000");
-        ui->IPlineEdit->setVisible(true);
         ui->IPlineEdit->setFocus();
     }
     else if (butt == ui->DistantradioButton)
@@ -182,11 +167,8 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
                                   "Reportez vous à la page internet\n"
                                   "http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html\n"
                                   "pour savoir comment modifier la configuration du serveur et générer des clés de cryptage\n"));
-        ui->IPlabel->setVisible(true);
-        ui->IPlabel->setText(tr("adresse IP ou DNS"));
-        ui->IPlineEdit->setInputMask("");
-        ui->IPlineEdit->setText("");
-        ui->IPlineEdit->setVisible(true);
+        ui->IPlineEdit->clearMask();
+        ui->IPlineEdit->clear();
         ui->IPlineEdit->setFocus();
     }
 }

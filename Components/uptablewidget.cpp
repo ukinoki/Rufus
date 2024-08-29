@@ -77,7 +77,7 @@ QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoo
             }
         }
     }
-    else if (doc.value("type").toString() == JPG || doc.value("type").toString() == PNG || doc.value("type").toString() == JPEG)
+    else if (doc.value("type").toString() == JPG)
     {
         QImage image;
         if (!image.loadFromData(ba))

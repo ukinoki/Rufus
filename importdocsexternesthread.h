@@ -265,10 +265,14 @@ private:
 
     bool                        m_compressiondocs;
     bool                        m_ok;
-
+    QString                     m_pathdirstockageprovisoire;
+    QString                     m_pathdirstockageimagerie;
+    QString                     m_pathdirOKtransfer;
+    QString                     m_pathdirOKtransferorigin;
+    QString                     m_pathdirechectransfer;
     QString                     m_datetransfer;
     QStringList                 m_listmsg;
-    QFile                       file_origin;                 // le fichier original à traiter
+    QFile                       file_image, file_origine;
 
     QThread                     m_thread;
     Acces                       m_acces;

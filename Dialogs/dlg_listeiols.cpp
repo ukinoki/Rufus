@@ -46,6 +46,11 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     AjouteWidgetLayButtons(importbutt, false);
     importbutt->setVisible(false);
 
+    UpPushButton *resizebutt =   new UpPushButton(tr("Comprimer"));
+    resizebutt->setIcon(Icons::icComputer());
+    AjouteWidgetLayButtons(resizebutt, false);
+    resizebutt->setVisible(false);
+
     UpLabel* searchlbl          = new UpLabel;
     searchlbl                   ->setText(tr("Recherche d'implant"));
     QHBoxLayout *titrelay       = new QHBoxLayout();
@@ -155,6 +160,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_clairchk        ->installEventFilter(this);
 
     connect(importbutt,                     &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
+    connect(resizebutt,                     &QPushButton::clicked,      this,   [&] {resizeiolimage();});
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) {
                                                                                             wdg_buttonframe->searchline()->setText(txt);
@@ -675,45 +681,74 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     delete Dlg_IdentIOL;
 }
 
-void dlg_listeiols::resizeiolimage(IOL *iol)
+void dlg_listeiols::resizeiolimage(int size)
 {
-    int maxsizeimg = 16384;
-    Utils::RemoveProvDir();
-    if (iol->imageformat() != JPG || iol->imageformat() != PNG || iol->imageformat() != JPEG)
-        return;
-    if (iol->arrayimgiol().size() < maxsizeimg)
-        return;
-    QString nomfichresize = Utils::ProvDir() + "/resize" + iol->modele() + "." JPG;
-    QPixmap pix;
-    pix.loadFromData(iol->arrayimgiol());
-    /*!
-    * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-    * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
-    QFile file_image(nomfichresize);
-    if (file_image.open(QIODevice::ReadWrite))
+    QString szorigin, szfinal;
+    QString m_pathdirstockageprovisoire = Procedures::I()->AbsolutePathDirImagerie() + NOM_DIR_PROV ;
+    QStringList listfichresize = QDir(m_pathdirstockageprovisoire).entryList(QDir::Files | QDir::NoDotAndDotDot);
+    for (int t=0; t<listfichresize.size(); t++)
     {
-        QByteArray ba(iol->arrayimgiol());
-        QTextStream out(&file_image);
-        out << ba;
+        QString nomdocrz  = listfichresize.at(t);
+        QString CheminFichierResize = m_pathdirstockageprovisoire + "/" + nomdocrz;
+        QFile file(CheminFichierResize);
+        Utils::removeWithoutPermissions(file);
     }
-    */
-    if (!pix.save(nomfichresize, "jpeg"))
-        return;
-
-    if (Utils::CompressFileToJPG(nomfichresize, false, maxsizeimg))
+    bool ok;
+    QString req = "select " CP_ID_IOLS ", " CP_ARRAYIMG_IOLS " from " TBL_IOLS
+                " where " CP_ARRAYIMG_IOLS " is not null and " CP_TYPIMG_IOLS " <> '" PDF "'";
+    QList<QVariantList> listimg  = DataBase::I()->StandardSelectSQL(req, ok);
+    for (int i=0; i<listimg.size(); ++i)
     {
-        QFile file_image(nomfichresize);
+        QString nomfichresize = m_pathdirstockageprovisoire + "/resize" + listimg.at(i).at(0).toString() + "." JPG;
+        QByteArray ba = QByteArray();
+        int id = listimg.at(i).at(0).toInt();
+        ba = listimg.at(i).at(1).toByteArray();
+        QFile file_image;
+        QImage img;
+        img.loadFromData(ba);
+        double sz = ba.size();
+        if (sz/(1024*1024) > 1)
+            szorigin = QString::number(sz/(1024*1024),'f',1) + "Mo";
+        else
+            szorigin = QString::number(sz/1024,'f',1) + "Ko";
+        szfinal = szorigin;
         file_image.setFileName(nomfichresize);
-        file_image.open(QIODevice::ReadOnly);
-        QByteArray ba = file_image.readAll();
-        QHash<QString, QVariant> m_listbinds;
-        m_listbinds[CP_ARRAYIMG_IOLS] = ba;
-        m_listbinds[CP_TYPIMG_IOLS] = JPG;
-        DataBase::I()->UpDateIOL(iol->id(), m_listbinds);
-        Utils::removeWithoutPermissions(file_image);
+        int tauxcompress = 90;
+        bool resized = false;
+        if (sz > size)
+        {
+            resized = true;
+            Utils::removeWithoutPermissions(file_image);
+            QPixmap pixmap;
+            pixmap = pixmap.fromImage(img.scaledToWidth(256,Qt::SmoothTransformation));
+            tauxcompress = 90;
+            while (sz > size && tauxcompress > 1)
+            {
+                pixmap.save(nomfichresize, "jpeg",tauxcompress);
+                ba = file_image.readAll();
+                sz = ba.size();
+                if (tauxcompress > 19)
+                    tauxcompress -= 10;
+                else tauxcompress -= 1;
+            }
+            if (sz/(1024*1024) > 1)
+                szfinal = QString::number(sz/(1024*1024),'f',0) + "Mo";
+            else
+                szfinal = QString::number(sz/1024,'f',0) + "Ko";
+        }
+        if (resized)
+        {
+            file_image.open(QIODevice::ReadOnly);
+            ba = file_image.readAll();
+            QHash<QString, QVariant> m_listbinds;
+            m_listbinds[CP_ARRAYIMG_IOLS] = ba;
+            m_listbinds[CP_TYPIMG_IOLS] = JPG;
+            DataBase::I()->UpDateIOL(id, m_listbinds);
+            Utils::removeWithoutPermissions(file_image);
+        }
     }
-    Utils::RemoveProvDir();
 }
+
 
 void dlg_listeiols::scrollToIOL(IOL *iol)
 {
@@ -959,10 +994,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                                                                                                         {
                                                                                                             IOL*iol = getIOLFromIndex(idx);
                                                                                                             if (iol)
-                                                                                                            {
-                                                                                                                resizeiolimage(iol);
                                                                                                                 QToolTip::showText(cursor().pos(), iol->tooltip());
-                                                                                                            }
                                                                                                         }
                                                                                                     } );
         connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listeiols::Enablebuttons);

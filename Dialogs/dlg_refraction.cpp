@@ -763,7 +763,11 @@ bool dlg_refraction::eventFilter(QObject *obj, QEvent *event) // A REVOIR
 
         if ((keyEvent->key() == Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)  && !ui->CommentaireGroupBox->isAncestorOf(widg))            // Return - Idem Flèche Droite - On boucle dans la box en cours ---------------------------
         {
-            if (keyEvent->modifiers() == Qt::MetaModifier)
+#ifdef Q_OS_WIN
+            if ((keyEvent->modifiers() == Qt::ControlModifier))
+#else
+            if ((keyEvent->modifiers() == Qt::MetaModifier))
+#endif
             {
                 OKPushButton_Clicked();
                 return true;

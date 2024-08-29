@@ -110,14 +110,12 @@ QString DataBase::version()
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
-    //qDebug() << m_server << m_port;// << m_db.hostName() << m_db.port();
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
-    //qDebug() << m_server << m_port;// << m_db.hostName() << m_db.port();
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
+    //qDebug() << m_server << m_port << m_db.hostName() << m_db.port();
     bool useSSL = (m_modeacces == Utils::Distant);
     QString connectSSLoptions = "";
-
     if (useSSL)
     {
         QString dirkey = "/etc/mysql";
@@ -155,6 +153,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
     {
+        //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
         return QString();
     }
 
@@ -179,7 +178,7 @@ bool DataBase::dirsecure_file_priv()
         return true;
     QString dirdata = QString();
     bool okvar;
-    ok = true;
+    ok = false;
     QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", okvar);
     if (okvar && vardata.size()>0)
     {
@@ -188,14 +187,8 @@ bool DataBase::dirsecure_file_priv()
             if (m_modeacces == Utils::Poste)
                 ok = QDir(dirdata).exists();
             else
-                ok = (dirdata.size() >0 && dirdata.toUpper() != "NULL" && dirdata.toUpper() != "EMPTY SET");
-            Logs::LogSQL(dirdata);
+                ok = (dirdata.size() >0 && dirdata != "NULL" && dirdata != "Empty set");
         }
-    }
-    else
-    {
-        Logs::LogSQL("secure file prive unknown");
-        ok = false;
     }
     m_dirsecurefilepriv = dirdata;
     return ok;
@@ -432,7 +425,6 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
      */
     QList<QVariantList> listreponses = QList<QVariantList>();
     QSqlQuery query(req, m_db);
-    QSqlRecord rec = query.record();
     if( erreurRequete(query.lastError(), req, errormsg))
     {
         OK = false;
@@ -447,11 +439,13 @@ QList<QVariantList> DataBase::StandardSelectSQL(QString req , bool &OK, QString 
     }
     do
     {
+        QSqlRecord rec = query.record();
         QVariantList record;
         for (int i=0; i<rec.count(); ++i)
             record << query.value(i);
         listreponses << record;
-    } while (query.next());
+    }
+    while (query.next());
     query.finish();
     return listreponses;
 }

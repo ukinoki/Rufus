@@ -917,7 +917,7 @@ void conversionbase::conversionbaseoplus()
                                 nomfiledestination +=  ".jpg";
                                 QString pathfiledestination = nomdossierdestination + "/" + nomfiledestination;
                                 img.save(pathfiledestination);
-                                Utils::CompressFileToJPG(pathfiledestination);
+                                Utils::CompressFileJPG(pathfiledestination, proc->AbsolutePathDirImagerie());
                             }
                         }
                         else
@@ -927,7 +927,7 @@ void conversionbase::conversionbaseoplus()
                             nomfiledestination +=  "." + suffix;
                             QString pathfiledestination = nomdossierdestination + "/" + nomfiledestination;
                             fileorigin.copy(pathfiledestination);
-                            Utils::CompressFileToJPG(pathfiledestination);
+                            Utils::CompressFileJPG(pathfiledestination, proc->AbsolutePathDirImagerie());
                         }
                         req = "insert into " TBL_DOCSEXTERNES " (" CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ",  " CP_IDPAT_DOCSEXTERNES ",  " CP_TYPEDOC_DOCSEXTERNES ",  " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
                                                                    CP_IDEMETTEUR_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_EMISORRECU_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IDLIEU_DOCSEXTERNES ")"

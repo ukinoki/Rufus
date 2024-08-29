@@ -268,7 +268,7 @@ public:
     void                    setlisteappareils (QList<AppareilImagerie*> list);
     QString                 pathDossierDocuments(QString Appareil, Utils::ModeAcces mod = Utils::ReseauLocal);
     QString                 PosteImportDocs();
-    void                    setPosteImportDocs(QString IPAdress);
+    void                    setPosteImportDocs(bool a = true);
 /*! fin import des documents -------------------------------------------------------------------------------------------------------- */
 
 

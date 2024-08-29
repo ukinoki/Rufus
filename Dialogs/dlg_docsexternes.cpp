@@ -222,22 +222,17 @@ QString dlg_docsexternes::CalcTitre(DocExterne* docmt)
     return a;
 }
 
-
-/*! * \brief dlg_docsexternes::CalcImageDocument
-      Cette fonction sert à calculer les propriétés m_blob et m_formatimage
-        * des documents d'imagerie
-        * des courriers émis par le logiciel
-      pour les afficher ou les imprimer
-    * \param docmt
-    * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
-                                Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
-                                Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
-                                Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
-             typedoc = Image -> le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
-*/
 void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedoc)
 {
+    /*! Cette fonction sert à calculer les propriétés m_blob et m_formatimage des documents d'imagerie ou des courriers émis par le logiciel
+     *  pour pouvoir les afficher ou les imprimer
 
+   * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
+     *                          Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+     *                          Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
+     *                          Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
+     *      typedoc = Image ->  le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
+    */
     if (docmt == Q_NULLPTR )
         return;
     QByteArray ba = QByteArray();
@@ -259,13 +254,13 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             else return;
             if (db->ModeAccesDataBase() != Utils::Distant)
             {
-                QString DirImagery = "";
+                QString dossierimagerie = "";
                 if (db->ModeAccesDataBase() == Utils::Poste)
-                    DirImagery = db->dirimagerie();
+                    dossierimagerie = db->dirimagerie();
                 else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                    DirImagery = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+                    dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
                 else return;
-                QFile fileimg(DirImagery + NOM_DIR_IMAGES + filename);
+                QFile fileimg(dossierimagerie + NOM_DIR_IMAGES + filename);
                 if (fileimg.open(QIODevice::ReadOnly))
                 {
                     ba = fileimg.readAll();
@@ -411,9 +406,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     PrintButton                 ->setVisible(true);
     PrintButton                 ->setEnabled(true);
     SupprButton                 ->setEnabled(true);
-    bool j                      =((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
-                                   && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
-    RecordButton                ->setVisible(j);
+    RecordButton                ->setVisible((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton                ->disconnect();
     QPixmap pix;
     m_listpixmp    .clear();
@@ -437,7 +430,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
             NomOnglet = tr("Réseau local");
         NomDirStockageImagerie  = proc->AbsolutePathDirImagerie();
-        if (!QDir(NomDirStockageImagerie).exists())
+        if (!QDir(NomDirStockageImagerie).exists() || NomDirStockageImagerie == "")
         {
             QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
             QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet \"ce poste\"/Onglet \"") + NomOnglet + "\"";
