@@ -179,6 +179,7 @@ bool DataBase::dirsecure_file_priv()
         return true;
     QString dirdata = QString();
     bool okvar;
+    ok = true;
     QVariantList vardata = getFirstRecordFromStandardSelectSQL("SHOW VARIABLES LIKE \"secure_file_priv\";", okvar);
     if (okvar && vardata.size()>0)
     {
@@ -186,8 +187,15 @@ bool DataBase::dirsecure_file_priv()
             dirdata = vardata.at(1).toString();
             if (m_modeacces == Utils::Poste)
                 ok = QDir(dirdata).exists();
-            else ok = (dirdata.size() >0 && dirdata != "NULL" && dirdata != "Empty set");
+            else
+                ok = (dirdata.size() >0 && dirdata.toUpper() != "NULL" && dirdata.toUpper() != "EMPTY SET");
+            Logs::LogSQL(dirdata);
         }
+    }
+    else
+    {
+        Logs::LogSQL("secure file prive unknown");
+        ok = false;
     }
     m_dirsecurefilepriv = dirdata;
     return ok;
