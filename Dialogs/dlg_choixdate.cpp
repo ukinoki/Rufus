@@ -180,9 +180,15 @@ bool dlg_choixdate::eventFilter(QObject *obj, QEvent *event)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key() == Qt::Key_Return || keyEvent->key()==Qt::Key_Enter)
+        {
+#ifdef Q_OS_WIN
+            if (keyEvent->modifiers() == Qt::ControlModifier)
+#else
             if (keyEvent->modifiers() == Qt::MetaModifier)
+#endif
                 Fermefiche();
-        if (keyEvent->key() == Qt::Key_F12)
+        }
+        else if (keyEvent->key() == Qt::Key_F12)
                 reject();
     }
     return QWidget::eventFilter(obj, event);

@@ -84,7 +84,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     if (Button.testFlag(ButtonCancel))
     {
         CancelButton        = new UpSmallButton();
-        CancelButton        ->setShortcut(QKeySequence("F12"));
+        CancelButton        ->setShortcut(QKeySequence(Qt::Key_F12));
         CancelButton        ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
         wdg_buttonslayout   ->addWidget(CancelButton);
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
@@ -93,7 +93,11 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     {
         PrintButton         = new UpSmallButton();
         PrintButton         ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
-        PrintButton         ->setShortcut(QKeySequence("Meta+P"));
+#ifdef Q_OS_WIN
+        PrintButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
+#else
+        PrintButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_P));
+#endif
         wdg_buttonslayout   ->addWidget(PrintButton);
     }
     if (Button.testFlag(ButtonSuppr))
@@ -112,14 +116,22 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     {
         OKButton            = new UpSmallButton();
         OKButton            ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-        OKButton            ->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_WIN
+        OKButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#else
+        OKButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#endif
         wdg_buttonslayout   ->addWidget(OKButton);
     }
     if (Button.testFlag(ButtonClose))
     {
         CloseButton         = new UpSmallButton();
         CloseButton         ->setUpButtonStyle(UpSmallButton::CLOSEBUTTON);
-        CloseButton         ->setShortcut(QKeySequence("Meta+P"));
+#ifdef Q_OS_WIN
+        CloseButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
+#else
+        CloseButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_C));
+#endif
         wdg_buttonslayout   ->addWidget(CloseButton);
     }
     if (Button.testFlag(ButtonOups))

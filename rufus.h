@@ -343,7 +343,7 @@ private:
                     // Fonctions ---------------------------------------------------------------------------------------------------
     void                closeEvent(QCloseEvent *);
     bool                eventFilter(QObject *obj, QEvent *event)  ;
-    void                keyPressEvent ( QKeyEvent * event );
+    void                keyPressEvent (QKeyEvent * keyEvent );
     void                AfficheActe(Acte *acte);
     void                AfficheActeCompta(Acte *acte);
     void                AfficheDossier(Patient *pat, int idacte = 0);

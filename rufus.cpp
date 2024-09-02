@@ -6294,9 +6294,9 @@ void Rufus::ActualiseDocsExternes()
 //-------------------------------------------------------------------------------------
 // Interception des évènements clavier
 //-------------------------------------------------------------------------------------
-void Rufus::keyPressEvent (QKeyEvent * event )
+void Rufus::keyPressEvent (QKeyEvent * keyEvent )
 {
-        switch (event->key()) {
+        switch (keyEvent->key()) {
         case Qt::Key_F3:
             RefractionMesure(dlg_refraction::Manuel);
             break;
@@ -6333,10 +6333,13 @@ void Rufus::keyPressEvent (QKeyEvent * event )
     }
     if (ui->tabWidget->currentWidget() == ui->tabList)
     {
-        if (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+        if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter)
         {
-            QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
-            if ((keyEvent->modifiers() == Qt::MetaModifier))// || focusWidget() == ui->PatientsListeTableView)
+#ifdef Q_OS_WIN
+            if (keyEvent->modifiers() == Qt::ControlModifier)
+#else
+            if (keyEvent->modifiers() == Qt::MetaModifier)
+#endif
             {
                 if (m_mode == NouveauDossier)
                     CreerDossier();
@@ -6692,10 +6695,14 @@ bool Rufus::eventFilter(QObject *obj, QEvent *event)
             if (obj == ui->MGupComboBox)            ui->AutresCorresp1upComboBox->setFocus();
             if (obj == ui->AutresCorresp1upComboBox)ui->AutresCorresp2upComboBox->setFocus();
         }
-        if (keyEvent->key() == Qt::Key_Right && keyEvent->modifiers() == Qt::MetaModifier)
-        {
-            if (obj == ui->AtcdtsPersostextEdit)                                                                    return QWidget::focusNextChild();
-        }
+        if (keyEvent->key() == Qt::Key_Right)
+        #ifdef Q_OS_WIN
+            if (keyEvent->modifiers() == Qt::ControlModifier)
+        #else
+            if (keyEvent->modifiers() == Qt::MetaModifier)
+        #endif
+                if (obj == ui->AtcdtsPersostextEdit)
+                    return QWidget::focusNextChild();
 
         // Flèche gauche - variable suivant les cas -----------------------------------------------------------------------------------------------------------------------------------
         if (keyEvent->key() == Qt::Key_Left)
