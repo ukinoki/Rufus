@@ -7209,6 +7209,7 @@ bool Rufus::AutorDepartConsult(bool ChgtDossier)
 
             QString requete =   "SELECT max(act." CP_ID_ACTES "), " CP_DATE_ACTES ", " CP_COTATION_ACTES ", " CP_MONTANT_ACTES " FROM " TBL_ACTES
                     " act WHERE " CP_IDPAT_ACTES " = " + QString::number(currentpatient()->id()) +
+                    //" AND act." CP_DATE_ACTES " = " + QDate::currentDate().toString("yy-mm-dddd") +
                     " AND act." CP_ID_ACTES " NOT IN (SELECT typ." CP_IDACTE_TYPEPAIEMENTACTES " FROM " TBL_TYPEPAIEMENTACTES " typ)";
 
             QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(requete,m_ok,tr("Impossible de retrouver le dernier acte du patient pour le contrôler!"));

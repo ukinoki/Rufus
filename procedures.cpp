@@ -3875,11 +3875,16 @@ void Procedures::PremierParametrageMateriel()
 
     // Création des dossiers
     //!    on server
-    //!    -- secure-file-priv (/Users/Shared on macOS Users/Public on W10/11)
+    //!    -- dir defined by variable MySQL secure-file-priv (/Users/Shared on macOS Users/Public on W10/11)
     //!                              /Imagerie
-    //!                                     /Images
-    //!                                     /DossierEchangeImages
+    //!                                     /Images                         <- dir where Rufus writes every pict renamed by Rufus with a dir for each date
+    //!                                     /DossierEchangeImages           <- dir where each machine writes its picts where Rufus can read them (with a subdir for each machine)
     //!                                         /one dir for each machine
+    //!                                                  (p.e.
+    //!                                                  /OCT NIDEK
+    //!                                                  /RNM EIDON
+    //!                                                  /CV ZEISS
+    //!                                                  /...etc...)
     //!                                     /EchecsTransferts
     //!                                     /Factures
     //!                                     /FacturesSansLien
@@ -3897,16 +3902,16 @@ void Procedures::PremierParametrageMateriel()
     //!                                             /DossierEchangeRefraction
     //!                                                 /Refracteur
     //!                                                     /In
-    //!                                                         /Autoref
-    //!                                                         /Fronto
-    //!                                                         /Tono
-    //!                                                     /Out
-    //!                                                 /Fronto
-    //!                                                 /Tono
-    //!                                                 /Autoref
+    //!                                                         /Autoref    <- Rufus     writes here the param file of AR section of phoropter where the phoropter read it
+    //!                                                         /Fronto     <- Rufus     writes here the param file of LM section of phoropter where the phoropter read it
+    //!                                                         /Tono       <- Rufus     writes here the param file of TO section of phoropter where the phoropter read it
+    //!                                                     /Out            <- Phoropter writes here the results file                          where Rufus read it
+    //!                                                 /Fronto             <- Lensmeter writes here the results file                          where Rufus read it
+    //!                                                 /Tono               <- Tonometer writes here the results file                          where Rufus read it
+    //!                                                 /Autoref            <- ARK       writes here the results file                          where Rufus read it
     //!                                             /EchecTransferts
     //!                                         /Logs
-    //!                                         Rufus.ini
+    //!                                         Rufus.ini                   <- param file of Rufus on this post
 
 
     if (protoc == BaseVierge)
