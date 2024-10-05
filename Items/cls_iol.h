@@ -34,7 +34,7 @@ public:
     void setData(QJsonObject data = QJsonObject{});
 
 private: //Données de l'intervention
-    //!<m_id = Id de l'ntervention en base
+    //!<m_id = Id de l'iol en base
     int m_idmanufacturer    = 0;                //! id du fabricant
     int m_iddistributeur    = 0;                //! id du distributeur du fabricant - non stocké en base parce que redondant
     QString m_modele        = "";               //! modèle de l'implant

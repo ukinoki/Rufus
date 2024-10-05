@@ -605,11 +605,13 @@ void dlg_impressions::MenuContextuelTexteDocument()
     QAction *pAction_InsInterroHeure;
     QAction *pAction_InsInterroMontant;
     QAction *pAction_InsInterroMedecin;
+    QAction *pAction_InsInterroChirIntervention;
     QAction *pAction_InsInterroAnesthIntervention;
     QAction *pAction_InsInterroProvenance;
     QAction *pAction_InsInterroDateIntervention;
     QAction *pAction_InsInterroHeureIntervention;
     QAction *pAction_InsInterroSiteIntervention;
+    QAction *pAction_InsInterroIOLIntervention;
     QAction *pAction_InsInterroCoteIntervention;
     QAction *pAction_InsInterroTypeIntervention;
     QAction *pAction_InsInterroSejour;
@@ -628,12 +630,14 @@ void dlg_impressions::MenuContextuelTexteDocument()
     pAction_InsInterroSejour            = interro->addAction            (Icons::icInformation(),tr("Séjour"));
     pAction_InsInterroSite              = interro->addAction            (Icons::icClinic(),     tr("Centre"));
     pAction_InsInterroText              = interro->addAction            (Icons::icMedoc(),      tr("Texte libre"));
+    pAction_InsInterroChirIntervention  = interro->addAction            (Icons::icSurgeon(),    TITRESURGEONINTERVENTION);
     pAction_InsInterroDateIntervention  = interro->addAction            (Icons::icDate(),       TITREDATEINTERVENTION);
     pAction_InsInterroAnesthIntervention= interro->addAction            (Icons::icStetho(),     TITREANESTHINTERVENTION);
     pAction_InsInterroHeureIntervention = interro->addAction            (Icons::icClock(),      TITREHEUREINTERVENTION);
     pAction_InsInterroCoteIntervention  = interro->addAction            (Icons::icSide(),       TITRECOTEINTERVENTION);
     pAction_InsInterroTypeIntervention  = interro->addAction            (Icons::icMedoc(),      TITRETYPEINTERVENTION);
     pAction_InsInterroSiteIntervention  = interro->addAction            (Icons::icClinic(),     TITRESITEINTERVENTION);
+    pAction_InsInterroIOLIntervention   = interro->addAction            (Icons::icIOL(),        TITREIMPLANTINTERVENTION);
 
     m_menucontextuel_textdoc->addSeparator();
     if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
@@ -686,11 +690,13 @@ void dlg_impressions::MenuContextuelTexteDocument()
     connect (pAction_Blockright,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Droite");});
     connect (pAction_Blockleft,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Gauche");});
     connect (pAction_Blockjust,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Justifie");});
+    connect (pAction_InsInterroChirIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(SURGEONINTERVENTION);});
     connect (pAction_InsInterroDateIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(DATEINTERVENTION);});
     connect (pAction_InsInterroHeureIntervention,   &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(HEUREINTERVENTION);});
     connect (pAction_InsInterroCoteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTEINTERVENTION);});
     connect (pAction_InsInterroTypeIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(TYPEINTERVENTION);});
     connect (pAction_InsInterroSiteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(SITEINTERVENTION);});
+    connect (pAction_InsInterroIOLIntervention,     &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(IMPLANTINTERVENTION);});
     connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(ANESTHINTERVENTION);});
 
     // ouvrir le menu
@@ -960,6 +966,11 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
     }
+    else if (choix == SURGEONINTERVENTION)
+    {
+        QString txt = "((" + TITRESURGEONINTERVENTION + "//" + SURGEONINTERVENTION + "))";
+        ui->upTextEdit->textCursor().insertHtml(txt);
+    }
     else if (choix == DATEINTERVENTION)
     {
         QString txt = "((" + TITREDATEINTERVENTION + "//" + DATEINTERVENTION + "))";
@@ -980,6 +991,11 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         QString txt = "((" + TITRETYPEINTERVENTION + "//" + TYPEINTERVENTION + "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
     }
+    else if (choix == IMPLANTINTERVENTION)
+    {
+        QString txt = "((" + TITREIMPLANTINTERVENTION + "//" + IMPLANTINTERVENTION + "))";
+        ui->upTextEdit->textCursor().insertHtml(txt);
+    }
     else if (choix == SITEINTERVENTION)
     {
         QString txt = "((" + TITRESITEINTERVENTION + "//" + SITEINTERVENTION + "))";
@@ -987,7 +1003,7 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
     }
     else if (choix == TYPESEJOUR)
     {
-        QString txt = "((" + tr("Sejour") + "//";
+        QString txt = "((" + tr("Séjour") + "//";
         txt += TYPESEJOUR;
         txt += "))";
         ui->upTextEdit->textCursor().insertHtml(txt);
@@ -1234,7 +1250,9 @@ void dlg_impressions::OKpushButtonClicked()
                     QString questpattern    = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
                     questpattern            += "|" + COTEOEIL + "|" + COTEBRUT + "|" + YESNO + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
-                        questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION + "|" + TYPEINTERVENTION + "|" + SITEINTERVENTION + "|" + ANESTHINTERVENTION;
+                        questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION +
+                                               "|" + TYPEINTERVENTION + "|" + IMPLANTINTERVENTION + "|" + SITEINTERVENTION +
+                                               "|" + ANESTHINTERVENTION + "|" + SURGEONINTERVENTION;
                     questpattern            += ")[)][)])";
                     QRegularExpression reg;
                     reg.setPattern(questpattern);
@@ -1260,6 +1278,7 @@ void dlg_impressions::OKpushButtonClicked()
                         if (a){
                             listQuestions << txt.mid(2,lengthquest);
                             listtypeQuestions << txt.mid(fin+2,lengthtype-4);
+                            //qDebug() << txt.mid(2,lengthquest) << txt.mid(fin+2,lengthtype-4);
                         }
                     }
                 }
@@ -1288,7 +1307,7 @@ void dlg_impressions::OKpushButtonClicked()
                 if (listtypeQuestions.at(m)  == "TEXTE")
                 {
                     UpLineEdit *Line = new UpLineEdit();
-                    Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
+                    Line->setValidator(new QRegularExpressionValidator(Utils::rgx_all,this));
                     Line->setMaxLength(60);
                     Line->setFixedHeight(23);
                     lay->addWidget(Line);
@@ -1369,6 +1388,18 @@ void dlg_impressions::OKpushButtonClicked()
                     QStringList listouinon;
                     listouinon << tr("Oui") << tr("Non");
                     Combo->addItems(listouinon);
+                    lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == SURGEONINTERVENTION)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo->setContentsMargins(0,0,0,0);
+                    Combo->setFixedHeight(34);
+                    Combo->setEditable(false);
+                    Combo->setObjectName(SURGEONINTERVENTION);
+                    foreach (User* usr, *Datas::I()->users->actifs())
+                        if (usr->isMedecin())
+                            Combo->addItem(usr->login(), usr->id());
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m) == ANESTHINTERVENTION)
@@ -1459,6 +1490,41 @@ void dlg_impressions::OKpushButtonClicked()
                         Combo->addItem(typ->typeintervention(), QString::number(typ->id()) );
                     Combo->setObjectName(TYPEINTERVENTION);
                     lay->addWidget(Combo);
+                }
+                else if (listtypeQuestions.at(m)  == IMPLANTINTERVENTION)
+                {
+                    UpComboBox *Combo = new UpComboBox();
+                    Combo   ->setContentsMargins(0,0,0,0);
+                    Combo   ->setFixedHeight(34);
+                    Combo   ->setEditable(true);
+                    Combo   ->setFixedSize(QSize(250,32));
+                    Datas::I()->iols->initListe();
+                    QStandardItemModel *model = new QStandardItemModel();
+                    // toute la manip qui suit sert à remettre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
+                    foreach (IOL* iol, *Datas::I()->iols->iols())
+                    {
+                        Manufacturer* man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                        if (man != Q_NULLPTR)
+                        {
+                            QList<QStandardItem *> items;
+                            items << new QStandardItem(man->nom() + " " + iol->modele()) << new QStandardItem(QString::number(iol->id()));
+                            model->appendRow(items);
+                        }
+
+                    }
+                    model->sort(0);
+                    for(int i=0; i<model->rowCount(); i++)
+                        Combo->addItem(model->item(i)->text(), model->item(i,1)->text());
+                    Combo->setObjectName(IMPLANTINTERVENTION);
+                    lay->addWidget(Combo);
+                    UpDoubleSpinBox *pwrIOLspinbox = new UpDoubleSpinBox();
+                    pwrIOLspinbox   ->setSingleStep(0.50);
+                    pwrIOLspinbox   ->setValuewithPrefix(21.00);
+                    pwrIOLspinbox   ->setFixedSize(QSize(70,28));
+                    pwrIOLspinbox   ->setRange(-10.0, 35.0);
+                    pwrIOLspinbox   ->setObjectName(PWRIOLINTERVENTION);
+                    lay             ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Expanding));
+                    lay             ->addWidget(pwrIOLspinbox);
                 }
                 else if (listtypeQuestions.at(m)  == SITEINTERVENTION)
                 {
@@ -1568,12 +1634,26 @@ void dlg_impressions::OKpushButtonClicked()
                                         Rempla          << babar;
                                         ExpARemplacer   << minidou + "//SOIGNANT))";
                                     }
-                                    else if (linecombo->objectName() == COTEINTERVENTION
-                                            || linecombo->objectName() == SITEINTERVENTION
-                                            || linecombo->objectName() == ANESTHINTERVENTION
-                                            || linecombo->objectName() == TYPEINTERVENTION)
+                                    else if (linecombo->objectName() == SURGEONINTERVENTION
+                                             || linecombo->objectName() == COTEINTERVENTION
+                                             || linecombo->objectName() == SITEINTERVENTION
+                                             || linecombo->objectName() == ANESTHINTERVENTION
+                                             || linecombo->objectName() == TYPEINTERVENTION)
                                     {
                                         Rempla          << linecombo->currentText();
+                                        ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
+                                    }
+                                    else if (linecombo->objectName() == IMPLANTINTERVENTION)
+                                    {
+                                        QString         item;
+                                        item = linecombo->currentText();
+                                        UpDoubleSpinBox *spinbox = qobject_cast<UpDoubleSpinBox*>(listwidg.at(p+1));
+                                        if (spinbox != Q_NULLPTR)
+                                        {
+                                            QString pos = (spinbox->value()>0? "+":"");
+                                            item += " " + pos + spinbox->textFromValue(spinbox->value());
+                                        }
+                                        Rempla          << item;
                                         ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
                                     }
                                     else if (linecombo->objectName() != listusersComboBox)
@@ -2889,6 +2969,10 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
             sit = Datas::I()->sites->getById(session->idlieu());
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
 
+        txt = "((" + TITRESURGEONINTERVENTION + "//" + SURGEONINTERVENTION + "))";
+        User *usr = Datas::I()->users->getById(session->iduser());
+        texte.replace(txt,  (usr != Q_NULLPTR? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null"));
+
         txt = "((" + TITREDATEINTERVENTION + "//" + DATEINTERVENTION + "))";
         texte.replace(txt,  (session != Q_NULLPTR? QLocale::system().toString(session->date(),tr("d MMMM yyyy")) : "null"));
 
@@ -2921,6 +3005,31 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
 
         txt = "((" + TITRESITEINTERVENTION + "//" + SITEINTERVENTION + "))";
         texte.replace(txt, (sit? sit->nom() : "null"));
+
+        txt = "((" + TITREIMPLANTINTERVENTION + "//" + IMPLANTINTERVENTION + "))";
+        QString iolnom ("");
+        if (m_currentintervention->idIOL() != 0)
+        {
+            if (Datas::I()->iols->iols()->size()==0)
+                Datas::I()->iols->initListe();
+            IOL* iol = Datas::I()->iols->getById(m_currentintervention->idIOL());
+            if (iol)
+            {
+                Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+                if (man)
+                {
+                    QString plus = (m_currentintervention->puissanceIOL()>0? "+":"");
+                    iolnom = man->nom() + " " + iol->modele() + " " + plus + QString::number(m_currentintervention->puissanceIOL(),'f',2);
+                }
+                if (m_currentintervention->cylindreIOL() != 0)
+                {
+                    QString plus = (m_currentintervention->cylindreIOL()>0? " cyl ":"");
+                    iolnom +=  plus + QString::number(m_currentintervention->cylindreIOL(),'f',2);
+                }
+            }
+            texte.replace(txt, (iol? iolnom : "null"));
+        }
+
 
         txt = "((" + TITRETYPEINTERVENTION + "//" + TYPEINTERVENTION + "))";
         texte.replace(txt, (typ? typ->typeintervention() : "null"));

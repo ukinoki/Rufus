@@ -74,7 +74,7 @@ public:
     Depenses *depenses;                     //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;             //!< Les documents externes
     Interventions *interventions;           //!< les interventions d'une session
-    IOLs *iols;                             //!< Les iimplants
+    IOLs *iols;                             //!< Les implants
     LignesComptes *lignescomptes;           //!< Les lignes non rapprochées d'un compte bancaire
     LignesPaiements *lignespaiements;       //!< Les lignes de paiement des actes d'un patient
     DossiersImpressions *metadocuments;     //!< les dossiers de documents émis (ordonnances, certificats, docs administratifs...etc...)

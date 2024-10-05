@@ -975,7 +975,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_IDSESSION_LIGNPRGOPERATOIRE)
             {
-                interv->setidsession(newvalue.toInt());
+                interv->setidsessionop(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_IDPATIENT_LIGNPRGOPERATOIRE)

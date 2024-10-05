@@ -29,7 +29,7 @@ void Intervention::setData(QJsonObject data)
         return;
 
     setDataInt(data, CP_ID_LIGNPRGOPERATOIRE, m_id);
-    setDataInt(data, CP_IDSESSION_LIGNPRGOPERATOIRE, m_idsession);
+    setDataInt(data, CP_IDSESSION_LIGNPRGOPERATOIRE, m_idsessionoperatoire);
     setDataInt(data, CP_IDACTE_LIGNPRGOPERATOIRE, m_idacte);
     setDataInt(data, CP_IDPATIENT_LIGNPRGOPERATOIRE, m_idpatient);
     setDataTime(data, CP_HEURE_LIGNPRGOPERATOIRE, m_heure);

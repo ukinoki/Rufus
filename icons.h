@@ -270,6 +270,7 @@ public:
     static QIcon icSide() { return foundIC("icSide", "://right_left.png"); }
     static QIcon icSunglasses() { return foundIC("icSunglasses", "://Sunglasses.png"); }
     static QIcon icSupprimer() { return foundIC("icSmoking", "://Supprime.png", QSize(30,30)); }
+    static QIcon icSurgeon() { return foundIC("icSurgeon", "://surgeon.ico"); }
     static QIcon icSmoking() { return foundIC("icSmoking", "://No_smoking.png"); }
     static QIcon icSortirDossier() { return foundIC("icSortirDossier", "://metadoc.png", QSize(25,25)); }
     static QIcon icStetho() { return foundIC("icStetho", "://stetho.png"); }

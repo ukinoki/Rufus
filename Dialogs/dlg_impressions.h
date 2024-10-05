@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include <QGraphicsOpacityEffect>
 #include "gbl_datas.h"
+#include <updoublespinbox.h>
 #include "upstandarditemmodel.h"
 #include "updelegate.h"
 
@@ -195,20 +196,26 @@ private:
     QString COTEBRUT            = tr(STR_SIDE);
     QString YESNO               = tr(STR_YESNO);
     QString SITE                = tr(STR_SITE);
+    QString SURGEONINTERVENTION = tr(STR_SURGEONINTERVENTION);
     QString DATEINTERVENTION    = tr(STR_DATEINTERVENTION);
     QString HEUREINTERVENTION   = tr(STR_HEUREINTERVENTION);
     QString COTEINTERVENTION    = tr(STR_COTEINTERVENTION);
     QString SITEINTERVENTION    = tr(STR_SITEINTERVENTION);
     QString TYPEINTERVENTION    = tr(STR_TYPEINTERVENTION);
+    QString IMPLANTINTERVENTION = tr(STR_IMPLANTINTERVENTION);
+    QString PWRIOLINTERVENTION  = tr(STR_PWRIOLINTERVENTION);
 
     QString NOCOR               = tr(STR_NOCOR);
 
+    QString TITRESURGEONINTERVENTION = tr("Chirurgien");
     QString TITREDATEINTERVENTION    = tr("Date d'intervention");
     QString TITREHEUREINTERVENTION   = tr("Heure d'intervention");
     QString TITRECOTEINTERVENTION    = tr("Côté de l'intervention");
     QString TITREANESTHINTERVENTION  = tr("Type d'anesthésie");
     QString TITRESITEINTERVENTION    = tr("Lieu d'intervention");
     QString TITRETYPEINTERVENTION    = tr("Type d'intervention");
+    QString TITREIMPLANTINTERVENTION = "IOL";
+    QString TITREPWRIOLINTERVENTION  = "PWRIOL";
 
 };
 

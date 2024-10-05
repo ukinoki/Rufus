@@ -200,5 +200,6 @@
         <file>info.gif</file>
         <file>pdf.png</file>
         <file>eye-color-icon.png</file>
+        <file>surgeon.ico</file>
     </qresource>
 </RCC>

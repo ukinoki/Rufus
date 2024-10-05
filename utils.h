@@ -152,6 +152,7 @@ public:
     static QRegularExpression const rgx_NNI;
 
     static QRegularExpression const rgx_adresse;
+    static QRegularExpression const rgx_all; //rgx_adress plus .
     static QRegularExpression const rgx_intitulecompta;
     static QRegularExpression const rgx_CP;
     static QRegularExpression const rgx_ville;

@@ -41,7 +41,7 @@ public:
 private: //Données de l'intervention
     //!<m_id = Id de l'ntervention en base
     QTime m_heure               = QTime();          //! l'heure de l'intervention
-    int m_idsession             = 0;                //! id de la session
+    int m_idsessionoperatoire   = 0;                //! id de la session
     int m_idpatient             = 0;                //! id du patient
     ModeAnesthesie m_anesth     = NoLoSo;           //! le type d'anesthésie
     int m_idtypeintervention    = 0;                //! id du type d'intervention
@@ -56,7 +56,7 @@ private: //Données de l'intervention
 public:
     QTime heure() const                     { return m_heure; }
     int idpatient() const                   { return m_idpatient; }
-    int idsession() const                   { return m_idsession; }
+    int idsession() const                   { return m_idsessionoperatoire; }
     int idacte() const                      { return m_idacte; }
     ModeAnesthesie anesthesie() const       { return m_anesth; }
     int idtypeintervention() const          { return m_idtypeintervention; }
@@ -71,7 +71,7 @@ public:
                                               m_data[CP_HEURE_LIGNPRGOPERATOIRE] = time.toString("HH:mm::ss"); }
     void setidpatient(int id)               { m_idpatient = id;
                                               m_data[CP_IDPATIENT_LIGNPRGOPERATOIRE] = id; }
-    void setidsession(int id)               { m_idsession = id;
+    void setidsessionop(int id)             { m_idsessionoperatoire = id;
                                               m_data[CP_IDSESSION_LIGNPRGOPERATOIRE] = id; }
     void setidacte(int id)                  { m_idacte = id;
                                               m_data[CP_IDACTE_LIGNPRGOPERATOIRE] = id; }

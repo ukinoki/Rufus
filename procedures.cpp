@@ -3878,7 +3878,7 @@ void Procedures::PremierParametrageMateriel()
     //!    -- dir defined by variable MySQL secure-file-priv (/Users/Shared on macOS Users/Public on W10/11)
     //!                              /Imagerie
     //!                                     /Images                         <- dir where Rufus writes every pict renamed by Rufus with a dir for each date
-    //!                                     /DossierEchangeImages           <- dir where each machine writes its picts where Rufus can read them (with a subdir for each machine)
+    //!                                     /DossierEchangeImages           <- dir where each machine writes its picts and where Rufus can read them (with a subdir for each machine)
     //!                                         /one dir for each machine
     //!                                                  (p.e.
     //!                                                  /OCT NIDEK
@@ -3902,13 +3902,13 @@ void Procedures::PremierParametrageMateriel()
     //!                                             /DossierEchangeRefraction
     //!                                                 /Refracteur
     //!                                                     /In
-    //!                                                         /Autoref    <- Rufus     writes here the param file of AR section of phoropter where the phoropter read it
-    //!                                                         /Fronto     <- Rufus     writes here the param file of LM section of phoropter where the phoropter read it
-    //!                                                         /Tono       <- Rufus     writes here the param file of TO section of phoropter where the phoropter read it
-    //!                                                     /Out            <- Phoropter writes here the results file                          where Rufus read it
-    //!                                                 /Fronto             <- Lensmeter writes here the results file                          where Rufus read it
-    //!                                                 /Tono               <- Tonometer writes here the results file                          where Rufus read it
-    //!                                                 /Autoref            <- ARK       writes here the results file                          where Rufus read it
+    //!                                                         /Autoref    <- Rufus     writes here the param file of AR section of phoropter where the phoropter reads it
+    //!                                                         /Fronto     <- Rufus     writes here the param file of LM section of phoropter where the phoropter reads it
+    //!                                                         /Tono       <- Rufus     writes here the param file of TO section of phoropter where the phoropter reads it
+    //!                                                     /Out            <- Phoropter writes here its results file                          where Rufus reads it
+    //!                                                 /Fronto             <- Lensmeter writes here its results file                          where Rufus reads it
+    //!                                                 /Tono               <- Tonometer writes here its results file                          where Rufus reads it
+    //!                                                 /Autoref            <- ARK       writes here its results file                          where Rufus reads it
     //!                                             /EchecTransferts
     //!                                         /Logs
     //!                                         Rufus.ini                   <- param file of Rufus on this post

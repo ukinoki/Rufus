@@ -56,6 +56,7 @@ QRegularExpression const Utils::rgx_mail                = QRegularExpression("^[
 QRegularExpression const Utils::rgx_NNI                 = QRegularExpression("[12][0-9]{14}");
 
 QRegularExpression const Utils::rgx_adresse             = QRegularExpression("[\\w'°, \\-]*", QRegularExpression::UseUnicodePropertiesOption);
+QRegularExpression const Utils::rgx_all                 = QRegularExpression("[\\w'°,. \\-]*", QRegularExpression::UseUnicodePropertiesOption);
 QRegularExpression const Utils::rgx_intitulecompta      = QRegularExpression("[\\w'°, \\-/%]*", QRegularExpression::UseUnicodePropertiesOption);
 QRegularExpression const Utils::rgx_CP                  = QRegularExpression(cp());
 QRegularExpression const Utils::rgx_ville               = QRegularExpression("[\\w' \\-]*", QRegularExpression::UseUnicodePropertiesOption);
