@@ -78,14 +78,14 @@ class TypesInterventions : public ItemsList
 private:
     QMap<int, TypeIntervention*> *map_all = Q_NULLPTR;    //!< la liste des TypeInterventions
     QCompleter *m_completer = Q_NULLPTR;
-    UpStandardItemModel  *m_listetypesinterventionsmodel = Q_NULLPTR;
+    UpStandardItemModel  *m_listetypesinterventionsmodel = new UpStandardItemModel;
 
 public:
     explicit TypesInterventions(QObject *parent = Q_NULLPTR);
 
     QMap<int, TypeIntervention*> *typeinterventions() const;
     QCompleter*         completer();
-    UpStandardItemModel* listetypesinterventionsmodel(bool reconstruit =  false);
+    UpStandardItemModel* listetypesinterventionsmodel();
 
     TypeIntervention*   getById(int id, bool reload = false);
     void                initListe();

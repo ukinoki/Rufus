@@ -214,8 +214,8 @@ private:
     QString TITREANESTHINTERVENTION  = tr("Type d'anesthésie");
     QString TITRESITEINTERVENTION    = tr("Lieu d'intervention");
     QString TITRETYPEINTERVENTION    = tr("Type d'intervention");
-    QString TITREIMPLANTINTERVENTION = "IOL";
-    QString TITREPWRIOLINTERVENTION  = "PWRIOL";
+    QString TITREIMPLANTINTERVENTION = tr("Implant envisagé");
+    QString TITREPWRIOLINTERVENTION  = "PWR";
 
 };
 

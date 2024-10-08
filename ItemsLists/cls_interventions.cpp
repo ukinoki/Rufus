@@ -333,26 +333,31 @@ bool TypesInterventions::isThisTypUsed(TypeIntervention* typ)
     return (DataBase::I()->StandardSelectSQL(req, ok).size()>0);
 }
 
-UpStandardItemModel* TypesInterventions::listetypesinterventionsmodel(bool reconstruit)
+UpStandardItemModel* TypesInterventions::listetypesinterventionsmodel()
 {
-    if (reconstruit || m_listetypesinterventionsmodel != Q_NULLPTR)
+    for (int i= 0; i != m_listetypesinterventionsmodel->rowCount(); i++)
     {
-        if (m_listetypesinterventionsmodel != Q_NULLPTR)
-            delete m_listetypesinterventionsmodel;
-        m_listetypesinterventionsmodel = new UpStandardItemModel(this);
-        for (auto it = typeinterventions()->constBegin(); it != typeinterventions()->constEnd();++it)
+        for (int j= 0; j != m_listetypesinterventionsmodel->columnCount(); j++)
         {
-            QList<QStandardItem *> items;
-            TypeIntervention* typ = it.value();
-            if (typ)
-            {
-                UpStandardItem *itemtyp = new UpStandardItem(typ->typeintervention(), typ);
-                UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
-                items << itemtyp << itemccam;
-                m_listetypesinterventionsmodel->appendRow(items);
-            }
+            UpStandardItem *itemtyp = dynamic_cast<UpStandardItem*>(m_listetypesinterventionsmodel->item(i,j));
+            if (itemtyp)
+                delete itemtyp;
         }
-        m_listetypesinterventionsmodel->sort(0, Qt::AscendingOrder);
     }
+    m_listetypesinterventionsmodel->clear();
+    for (auto it = typeinterventions()->constBegin(); it != typeinterventions()->constEnd();++it)
+    {
+        QList<QStandardItem *> items;
+        TypeIntervention* typ = it.value();
+        if (typ)
+        {
+            UpStandardItem *itemtyp = new UpStandardItem(typ->typeintervention(), typ);
+            UpStandardItem *itemccam = new UpStandardItem(typ->codeCCAM(), typ);
+            UpStandardItem *itemid = new UpStandardItem(QString::number(typ->id()), typ);
+            items << itemtyp << itemccam << itemid;
+            m_listetypesinterventionsmodel->appendRow(items);
+        }
+    }
+    m_listetypesinterventionsmodel->sort(0, Qt::AscendingOrder);
     return m_listetypesinterventionsmodel;
 }

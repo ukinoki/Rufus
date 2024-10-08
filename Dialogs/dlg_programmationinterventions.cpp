@@ -176,7 +176,7 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     }
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
-    m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
+    m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel();
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -1261,7 +1261,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, dlg_intervention);
         if (dlgtyp->exec() == QDialog::Accepted)
         {
-            m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
+            m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel();
             interventioncombo       ->setModel(m_typeinterventionsmodel);
             interventioncombo       ->setCompleter(Datas::I()->typesinterventions->completer());
             typ = dlgtyp->currenttype();
@@ -1761,7 +1761,11 @@ void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool
                 delete m_currenttypeintervention;
                 m_currenttypeintervention = Q_NULLPTR;
             }
-            FicheTypeIntervention(Utils::trimcapitilize(txt));
+            FicheTypeIntervention(Utils::trimcapitilize(txt, dlg));
+            if (m_currenttypeintervention != Q_NULLPTR)
+                delete m_currenttypeintervention;
+            m_currenttypeintervention = Datas::I()->typesinterventions->CreationTypeIntervention(m_listbinds);
+            m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel();
             box->setModel(m_typeinterventionsmodel);
             if (m_currenttypeintervention != Q_NULLPTR)
             {
@@ -1815,11 +1819,11 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
 
 /*! les types d'intervention ----------------------------------------------------------------------------------------------------------------------------------------------------*/
 
-void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
+void dlg_programmationinterventions::FicheTypeIntervention(QString txt, UpDialog *parent)
 {
-    UpDialog            *dlg_typintervention = new UpDialog(this);
-    dlg_typintervention->setWindowTitle(tr("créer un type d'intervention"));
-    dlg_typintervention->setWindowModality(Qt::WindowModal);
+    UpDialog *dlg_typintervention = new UpDialog(parent);
+    dlg_typintervention ->setWindowTitle(tr("créer un type d'intervention"));
+    //dlg_typintervention ->setWindowModality(Qt::WindowModal);
 
     QHBoxLayout *nomLay    = new QHBoxLayout();
     UpLabel* lblnom = new UpLabel;
@@ -1862,13 +1866,8 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt)
                 return;
             }
         }
-        QHash<QString, QVariant> listbinds;
-        listbinds[CP_TYPEINTERVENTION_TYPINTERVENTION] = Utils::trimcapitilize(linenom->text());
-        listbinds[CP_CODECCAM_TYPINTERVENTION]  = lineccam->text().toUpper();
-        if (m_currenttypeintervention != Q_NULLPTR)
-            delete m_currenttypeintervention;
-        m_currenttypeintervention = Datas::I()->typesinterventions->CreationTypeIntervention(listbinds);
-        m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel(true);
+        m_listbinds[CP_TYPEINTERVENTION_TYPINTERVENTION] = Utils::trimcapitilize(linenom->text());
+        m_listbinds[CP_CODECCAM_TYPINTERVENTION]  = lineccam->text().toUpper();
         dlg_typintervention->accept();
     });
     dlg_typintervention->exec();
@@ -2061,7 +2060,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
             QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" +
                                   tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
             QString filename    = userEntete->prenom() + " " + userEntete->nom()
-                                  + " - " + tr("Commende d'implants")
+                                  + " - " + tr("Commande d'implants")
                                   + " - " + man->nom()
                                   + " - " + tr("session opératoire du") + " " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy") + ".pdf";
             QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +

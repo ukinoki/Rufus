@@ -49,10 +49,11 @@ private:
     QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
     QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);
-    UpStandardItemModel             *m_typeinterventionsmodel   = new UpStandardItemModel(this);
+    UpStandardItemModel             *m_typeinterventionsmodel   = Q_NULLPTR;
     QStandardItemModel              *m_manufacturersmodel       = new QStandardItemModel(this);
     QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
     QFont                           m_font = QApplication::font();
+    QHash<QString, QVariant> m_listbinds =  QHash<QString, QVariant>();
 
     bool                eventFilter(QObject *obj, QEvent *event);
     void                EnregistreIncident(Item *itm);
@@ -128,7 +129,7 @@ private slots:
 
 /*! les types d'interventions */
 private:
-    void                FicheTypeIntervention(QString txt);
+    void                FicheTypeIntervention(QString txt, UpDialog *parent = Q_NULLPTR);
 
 /*! les fabricants */
     void                ChoixManufacturer(int idx);
