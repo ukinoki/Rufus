@@ -176,7 +176,6 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     }
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
-    m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel();
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()
@@ -1261,7 +1260,6 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         dlg_listetypesinterventions *dlgtyp = new dlg_listetypesinterventions(typ, dlg_intervention);
         if (dlgtyp->exec() == QDialog::Accepted)
         {
-            m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel();
             interventioncombo       ->setModel(m_typeinterventionsmodel);
             interventioncombo       ->setCompleter(Datas::I()->typesinterventions->completer());
             typ = dlgtyp->currenttype();
@@ -1765,7 +1763,6 @@ void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool
             if (m_currenttypeintervention != Q_NULLPTR)
                 delete m_currenttypeintervention;
             m_currenttypeintervention = Datas::I()->typesinterventions->CreationTypeIntervention(m_listbinds);
-            m_typeinterventionsmodel = Datas::I()->typesinterventions->listetypesinterventionsmodel();
             box->setModel(m_typeinterventionsmodel);
             if (m_currenttypeintervention != Q_NULLPTR)
             {
@@ -2183,7 +2180,8 @@ void dlg_programmationinterventions::FicheListeManufacturers()
 
 void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufacturer)
 {
-    m_currentmanufacturer = Q_NULLPTR;
+    if (m_currentmanufacturer != Q_NULLPTR)
+        delete m_currentmanufacturer;
     m_manufacturercompleterlist.clear();
     wdg_manufacturercombo->disconnect();
     wdg_manufacturercombo->clear();

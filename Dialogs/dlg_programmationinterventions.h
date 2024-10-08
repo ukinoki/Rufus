@@ -46,12 +46,12 @@ private:
     Procedures                      *proc = Procedures::I();
     DataBase                        *db =DataBase::I();
     QDate                           m_currentdate = db->ServerDate();
-    QStandardItemModel              *m_medecinsmodel            = new QStandardItemModel(this);
-    QStandardItemModel              *m_sessionsmodel            = new QStandardItemModel(this);
-    QStandardItemModel              *m_interventionsmodel       = new QStandardItemModel(this);
-    UpStandardItemModel             *m_typeinterventionsmodel   = Q_NULLPTR;
-    QStandardItemModel              *m_manufacturersmodel       = new QStandardItemModel(this);
-    QStandardItemModel              *m_IOLsmodel                = new QStandardItemModel(this);
+    QStandardItemModel              *m_medecinsmodel            = Q_NULLPTR;
+    QStandardItemModel              *m_sessionsmodel            = Q_NULLPTR;
+    QStandardItemModel              *m_interventionsmodel       = Q_NULLPTR;
+    UpStandardItemModel             *m_typeinterventionsmodel   = Datas::I()->typesinterventions->listetypesinterventionsmodel();
+    QStandardItemModel              *m_manufacturersmodel       = Q_NULLPTR;
+    QStandardItemModel              *m_IOLsmodel                = Q_NULLPTR;
     QFont                           m_font = QApplication::font();
     QHash<QString, QVariant> m_listbinds =  QHash<QString, QVariant>();
 

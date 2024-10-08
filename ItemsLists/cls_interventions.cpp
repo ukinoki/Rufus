@@ -280,12 +280,14 @@ void TypesInterventions::initListe()
     QList<TypeIntervention*> listtypesinterventions = DataBase::I()->loadTypeInterventions();
     epurelist(map_all, &listtypesinterventions);
     addList(map_all, &listtypesinterventions, Item::Update);
+    UpdateModel();
 }
 
 
 void TypesInterventions::SupprimeTypeIntervention(TypeIntervention *typeintervention)
 {
     Supprime(map_all, typeintervention);
+    UpdateModel();
 }
 
 TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QVariant> sets)
@@ -320,6 +322,7 @@ TypeIntervention* TypesInterventions::CreationTypeIntervention(QHash<QString, QV
     typ = new TypeIntervention(data);
     if (typ != Q_NULLPTR)
         map_all->insert(typ->id(), typ);
+    UpdateModel();
     return typ;
 }
 
@@ -333,7 +336,7 @@ bool TypesInterventions::isThisTypUsed(TypeIntervention* typ)
     return (DataBase::I()->StandardSelectSQL(req, ok).size()>0);
 }
 
-UpStandardItemModel* TypesInterventions::listetypesinterventionsmodel()
+void TypesInterventions::UpdateModel()
 {
     for (int i= 0; i != m_listetypesinterventionsmodel->rowCount(); i++)
     {
@@ -359,5 +362,9 @@ UpStandardItemModel* TypesInterventions::listetypesinterventionsmodel()
         }
     }
     m_listetypesinterventionsmodel->sort(0, Qt::AscendingOrder);
+}
+
+UpStandardItemModel* TypesInterventions::listetypesinterventionsmodel()
+{
     return m_listetypesinterventionsmodel;
 }

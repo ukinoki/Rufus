@@ -321,8 +321,6 @@ bool dlg_listetypesinterventions::EnregistreType(TypeIntervention *typ)
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (!itm)
         return false;
-    wdg_tblview->closePersistentEditor(m_model->index(row,0));
-    wdg_tblview->closePersistentEditor(m_model->index(row,1));
     qApp->focusWidget()->clearFocus();   //permet de déclencher le focusout du delegate qui va lancer le signal commiData
     m_model->setData(m_model->index(row,0),m_textdelegate);
     m_model->setData(m_model->index(row,1),m_ccamdelegate);
@@ -347,6 +345,7 @@ bool dlg_listetypesinterventions::EnregistreType(TypeIntervention *typ)
     {
         DataBase::I()->UpdateTable(TBL_TYPESINTERVENTIONS, m_listbinds, "where " CP_ID_TYPINTERVENTION " = " + QString::number(typ->id()));
         m_currenttype = Datas::I()->typesinterventions->getById(idtyp, true);
+        Datas::I()->typesinterventions->UpdateModel();
     }
     settypeToRow(m_currenttype, row);
     if (m_currenttype)
@@ -403,22 +402,6 @@ void dlg_listetypesinterventions::RemplirTableView()
 {
     wdg_tblview->disconnect();
     wdg_tblview->selectionModel()->disconnect();
-    UpLineDelegate *linetxt = new UpLineDelegate();
-    connect(linetxt,   &UpLineDelegate::textEdited, this, [&] {OKButton->setEnabled(true);});
-    connect(linetxt,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
-                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
-                                                                        if (line)
-                                                                            m_textdelegate = line->text();
-                                                                      });
-    UpLineDelegate *lineccam = new UpLineDelegate();
-    connect(lineccam,   &UpLineDelegate::textEdited, this, [&] {OKButton->setEnabled(true);});
-    connect(lineccam,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
-                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
-                                                                        if(line)
-                                                                            m_ccamdelegate = line->text();
-                                                                      });
-    wdg_tblview->setItemDelegateForColumn(0,linetxt);
-    wdg_tblview->setItemDelegateForColumn(1,lineccam);
     m_listidtypesdepart.clear();
     for (auto it = Datas::I()->typesinterventions->typeinterventions()->constBegin(); it != Datas::I()->typesinterventions->typeinterventions()->constEnd() ;++it )
         if (it.value())
@@ -472,7 +455,7 @@ void dlg_listetypesinterventions::RemplirTableView()
                                                                                                                             wdg_buttonframe->searchline()->setText(m_currenttype->typeintervention());
                                                                                                                         }
                                                                                                                         });
-        connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) {
+       connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) {
             TypeIntervention *typ = getTypeFromIndex(idx);
             if (typ)
             {
@@ -482,6 +465,22 @@ void dlg_listetypesinterventions::RemplirTableView()
             }
         });
         wdg_tblview->selectionModel()->clear();
+        UpLineDelegate *linetxt = new UpLineDelegate();
+        connect(linetxt,    &UpLineDelegate::textEdited,        this, [&] {OKButton->setEnabled(true);});
+        connect(linetxt,    &UpLineDelegate::commitData,        this, [&](QWidget *editor) {
+                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+                                                                        if (line)
+                                                                            m_textdelegate = line->text();});
+        UpLineDelegate *lineccam = new UpLineDelegate();
+        connect(lineccam,   &UpLineDelegate::textEdited, this, [&] {OKButton->setEnabled(true);});
+        connect(lineccam,   &UpLineDelegate::commitData, this, [&](QWidget *editor) {
+                                                                        UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
+                                                                        if(line)
+                                                                            m_ccamdelegate = line->text();
+                                                                      });
+        wdg_tblview->setItemDelegateForColumn(0,linetxt);
+        wdg_tblview->setItemDelegateForColumn(1,lineccam);
+
     }
     else
         ConfigMode(Creation);

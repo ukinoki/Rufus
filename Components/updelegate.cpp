@@ -49,8 +49,7 @@ bool UpLabelDelegate::editorEvent(QEvent *event, QAbstractItemModel*model, const
 
 QWidget* UpLineDelegate::createEditor(QWidget* parent, const QStyleOptionViewItem &, const QModelIndex &index) const
 {
-    UpLineEdit *m_line;
-    m_line = new UpLineEdit(parent);
+    UpLineEdit *    m_line = new UpLineEdit(parent);
     m_line->setRow(index.row());
     m_line->setContextMenuPolicy(Qt::CustomContextMenu);
     m_line->selectAll();
@@ -90,11 +89,6 @@ void UpLineDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
     QString txt = line->text();
     model->setData(index, txt, Qt::EditRole | Qt::DisplayRole);
-}
-
-void UpLineDelegate::commitEditor(){
-    UpLineEdit *editor = qobject_cast<UpLineEdit *>(sender());
-    emit commitData(editor);
 }
 
 QSize TreeViewDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const

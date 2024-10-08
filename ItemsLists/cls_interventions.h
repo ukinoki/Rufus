@@ -86,6 +86,7 @@ public:
     QMap<int, TypeIntervention*> *typeinterventions() const;
     QCompleter*         completer();
     UpStandardItemModel* listetypesinterventionsmodel();
+    void                UpdateModel();
 
     TypeIntervention*   getById(int id, bool reload = false);
     void                initListe();
