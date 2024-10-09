@@ -1095,8 +1095,8 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     QMap<QString, QString> EnteteMap = QMap<QString, QString>();
     if (!user)
         return EnteteMap;
-    EnteteMap["Norm"]   = "";
-    EnteteMap["ALD"]    = "";
+    EnteteMap[NORMHeader]   = "";
+    EnteteMap[ALDHeader]    = "";
     QString textentete;
 
     int idparent = -1;
@@ -1268,7 +1268,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         textentete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
         Utils::epureFontFamily(textentete);
 
-        (i==1? EnteteMap["Norm"] = textentete : EnteteMap["ALD"] = textentete);
+        (i==1? EnteteMap[NORMHeader] = textentete : EnteteMap[ALDHeader] = textentete);
     }
     return EnteteMap;
 }
@@ -1690,9 +1690,9 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 
     //création de l'entête
     QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user);
-    if (EnteteMap.value("Norm") == "")
+    if (EnteteMap.value(NORMHeader) == "")
         return false;
-    textentete                      = (ALD? EnteteMap.value("ALD") : EnteteMap.value("Norm"));
+    textentete                      = (ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
     if (textentete == "") return false;
     textentete.replace("{{TITRE1}}"        , "");
     textentete.replace("{{TITRE}}"         , "");
@@ -3871,7 +3871,7 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue(Param_Poste_PortRefracteur,"-");
     m_settings->setValue(Param_Poste_PortFronto,"-");
     m_settings->setValue(Param_Poste_PortTono,"-");
-    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NO");
+    m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NOimport);
 
     // Création des dossiers
     //!    on server

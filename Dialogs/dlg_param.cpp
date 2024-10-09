@@ -446,14 +446,14 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ApercuImpressioncheckBox->setChecked(proc->settings()->value(Imprimante_ApercuAvantImpression).toString() ==  "YES");
     ui->OrdoAvecDuplicheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() ==  "YES");
     QString A = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
-    if (A=="YES")
+    if (A==YESimport)
         ui->PrioritaireImportDocscheckBox->setChecked(true);
-    else if (A=="NO")
+    else if (A==NOimport)
         ui->NonImportDocscheckBox->setChecked(true);
     else
     {
         ui->NonPrioritaireImportDocscheckBox->setChecked(true);
-        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NORM");
+        proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
     }
     t_timerverifimportdocs.start(500);
     connect (&t_timerverifimportdocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
@@ -3830,11 +3830,11 @@ bool dlg_param::Valide_Modifications()
         proc->settings()->setValue(Imprimante_ApercuAvantImpression, (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO"));
         proc->settings()->setValue(Imprimante_OrdoAvecDupli,(ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO"));
         if (ui->PrioritaireImportDocscheckBox->isChecked())
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"YES");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,YESimport);
         else if (ui->NonImportDocscheckBox->isChecked())
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NO");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NOimport);
         else
-            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,"NORM");
+            proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
         proc->settings()->setValue(Imprimante_TailleEnTete,ui->EntetespinBox->text());
         proc->settings()->setValue(Imprimante_TailleEnTeteALD,ui->EnteteALDspinBox->text());
         proc->settings()->setValue(Imprimante_TaillePieddePage,ui->PiedDePagespinBox->text());

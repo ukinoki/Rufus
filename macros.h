@@ -1094,6 +1094,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define RDV_HEURE               "HEURE"
 #define RDV_IDSUPERVISEUR       "IDSUPERVISEUR"
 
+//types d'en tête d'impression
+#define NORMHeader              "Norm"
+#define ALDHeader               "ALD"
+
+//types de statut importateur documents
+#define NORMimport              "Norm"
+#define NOimport                "NO"
+#define YESimport               "YES"
+#define PrioritaireGestionDocs  "/PrioritaireGestionDocs"
+
 //QSettings
 #define Param_Poste_PortFronto                          "Param_Poste/PortFronto"
 #define Param_Poste_PortAutoref                         "Param_Poste/PortAutoref"
@@ -1149,8 +1159,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Imprimante_TailleTopMarge                       "Param_Imprimante/TailleTopMarge"
 #define Imprimante_ApercuAvantImpression                "Param_Imprimante/ApercuAvantImpression"
 #define Imprimante_OrdoAvecDupli                        "Param_Imprimante/OrdoAvecDupli"
-
-#define PrioritaireGestionDocs                          "/PrioritaireGestionDocs"
 
 #define Ville_Defaut                                    "Param_Poste/VilleParDefaut"
 #define CodePostal_Defaut                               "Param_Poste/CodePostalParDefaut"

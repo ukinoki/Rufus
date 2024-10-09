@@ -1092,7 +1092,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     User *userEntete = Datas::I()->users->getById(iduser);
     if(!userEntete)
         return false;
-    textentete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(date, userEntete).value(NORMHeader);
     if (textentete == "") return false;
 
     textentete.replace("{{TITRE1}}"            , (Datas::I()->banques->getById(cpt->idBanque()) != Q_NULLPTR? Datas::I()->banques->getById(cpt->idBanque())->nomabrege().toUpper() : ""));

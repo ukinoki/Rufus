@@ -1497,7 +1497,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     }
     if (userEntete == Q_NULLPTR)
         return false;
-    textentete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(ui->DateDateEdit->date(), userEntete).value(NORMHeader);
     if (textentete == "") return false;
     textentete.replace("{{TITRE1}}"            , "");
     textentete.replace("{{TITRE}}"             , "");

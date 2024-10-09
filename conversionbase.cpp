@@ -119,7 +119,7 @@ void conversionbase::conversionbaseophtalogic()
             nom     = ordolist.at(i).at(5).toString();
             prenom  = Utils::trimcapitilize(ordolist.at(i).at(6).toString());
             //création de l'entête
-            Entete = (ALDQ? proc->CalcEnteteImpression(DateCreation, Q_NULLPTR).value("ALD") : proc->CalcEnteteImpression(DateCreation, Q_NULLPTR).value("Norm"));
+            Entete = (ALDQ? proc->CalcEnteteImpression(DateCreation, Q_NULLPTR).value(ALDHeader) : proc->CalcEnteteImpression(DateCreation, Q_NULLPTR).value(NORMHeader));
             Entete.replace("{{TITRE1}}"            , "");
             Entete.replace("{{TITRE}}"             , "");
             Entete.replace("{{DDN}}"               , "");

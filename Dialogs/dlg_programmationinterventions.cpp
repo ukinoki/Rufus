@@ -532,7 +532,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return;
-    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
     if (textentete == "") return;
     Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
@@ -626,7 +626,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return;
-    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
     if (textentete == "") return;
     Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
@@ -1994,7 +1994,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
         User *userEntete = Datas::I()->users->getById(iduser);
         if(userEntete == Q_NULLPTR)
             return;
-        textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+        textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
         if (textentete == "") return;
 
         textentete.replace("{{TITRE1}}"            , "");
