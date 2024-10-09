@@ -1747,7 +1747,7 @@ void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool
     QString txt = box->lineEdit()->text();
     if (m_typeinterventionsmodel->findItems(txt).size() ==0 && txt !="")
     {
-        if (UpMessageBox::Question(dlg, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(dlg, tr("Intervention non référencée!"), tr("Il vous faut l'enregistrer!")) != UpSmallButton::STARTBUTTON)
         {
             box->lineEdit()->clear();
             return;
