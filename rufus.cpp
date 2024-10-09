@@ -6060,6 +6060,8 @@ void Rufus::VerifLastVersion()
             }
             else
                 text += "<br/>" + QObject::tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
+            if (m_MAJcomment !="")
+                text +="<br/>" + m_MAJcomment;
             text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site") + " <a href=\'https://www.rufusvision.org\'>www.rufusvision.org</a>";
             UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
         }
