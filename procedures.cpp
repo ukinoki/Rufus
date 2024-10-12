@@ -1299,6 +1299,52 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
     return textpied;
 }
 
+
+
+/*!
+ * \brief Procedures::Cree_pdf
+ * \abstract Create pdf file from document
+ * \param QString textcorps
+ * \param QString textentete
+ * \param QString textpied
+ * \param QString nomfichier = nom du fichier
+ * \param QString nomdossier = dossier où est enregistré le fichier
+ * \return
+ */
+bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpied, QString nomfichier, bool ALD, QString nomdossier)
+{
+    bool a = false;
+    QTextEdit *Etat = new QTextEdit;
+    Etat->setHtml(textcorps);
+    if (nomdossier == "")
+        nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
+    Utils::mkpath(nomdossier);
+    QString nomficpdf = nomdossier + "/" + nomfichier;
+
+    TextPrinter *TexteAImprimer = new TextPrinter();
+    textpied.replace("{{DUPLI}}","");
+
+    TexteAImprimer->setFooterSize(TaillePieddePage());
+    TexteAImprimer->setHeaderText(textentete);
+    int tailleEnTete = (ALD? TailleEnTeteALD(): TailleEnTete());
+    TexteAImprimer->setHeaderSize(tailleEnTete);
+    TexteAImprimer->setFooterText(textpied);
+    TexteAImprimer->setTopMargin(TailleTopMarge());
+
+
+    TexteAImprimer->print(Etat->document(), nomficpdf);
+    // le paramètre true de la fonction print() génère la création du fichier pdf nomficpdf et pas son impression
+    QFile filepdf(nomficpdf);
+    if (!filepdf.open( QIODevice::ReadOnly ))
+        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
+    else
+        a = true;
+    filepdf.close ();
+    delete TexteAImprimer;
+    delete Etat;
+    return a;
+}
+
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                               int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
                               bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante)
@@ -1352,7 +1398,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
 //!    -- Choice printing : pdf or print ------------------------------------------------------------------------
 //  --------------------------------------------------------------------------------------------------------------
 
-bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &ok)
+bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &pdf)
 {
     UpMessageBox *msgbox            = new UpMessageBox(parent);
     msgbox                          ->setText(tr("Imprimer ou créer un pdf?"));
@@ -1372,53 +1418,9 @@ bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &ok)
 
     bool initok = (msgbox->exec() == QDialog::Accepted && msgbox->clickedpushbutton() != wdg_annulbouton);
     if (initok)
-        ok = (msgbox->clickedpushbutton() == wdg_pdfbouton);
+        pdf = (msgbox->clickedpushbutton() == wdg_pdfbouton);
     delete msgbox;
     return initok;
-}
-
-
-/*!
- * \brief Procedures::Cree_pdf
- * \abstract Create pdf file from document
- * \param QString textcorps
- * \param QString textentete
- * \param QString textpied
- * \param QString nomfichier = nom du fichier
- * \param QString nomdossier = dossier où est enregistré le fichier
- * \return
- */
-bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpied, QString nomfichier, QString nomdossier)
-{
-    bool a = false;
-    QTextEdit *Etat = new QTextEdit;
-    Etat->setHtml(textcorps);
-    if (nomdossier == "")
-        nomdossier = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-    Utils::mkpath(nomdossier);
-    QString nomficpdf = nomdossier + "/" + nomfichier;
-
-    TextPrinter *TexteAImprimer = new TextPrinter();
-    textpied.replace("{{DUPLI}}","");
-
-    TexteAImprimer->setFooterSize(TaillePieddePage());
-    TexteAImprimer->setHeaderText(textentete);
-    TexteAImprimer->setHeaderSize(TailleEnTete());
-    TexteAImprimer->setFooterText(textpied);
-    TexteAImprimer->setTopMargin(TailleTopMarge());
-
-
-    TexteAImprimer->print(Etat->document(), nomficpdf);
-    // le paramètre true de la fonction print() génère la création du fichier pdf nomficpdf et pas son impression
-    QFile filepdf(nomficpdf);
-    if (!filepdf.open( QIODevice::ReadOnly ))
-        UpMessageBox::Watch(Q_NULLPTR,  tr("Erreur d'accès au fichier:\n") + nomficpdf, tr("Impossible d'enregistrer l'impression dans la base"));
-    else
-        a = true;
-    filepdf.close ();
-    delete TexteAImprimer;
-    delete Etat;
-    return a;
 }
 
 // Get file content from SQL table
@@ -1680,7 +1682,7 @@ bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
 }
 
 bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
-                                   bool Prescription, bool ALD, bool AvecDupli, bool AvecChoixImprimante, bool Administratif)
+                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif)
 {
     if (pat == Q_NULLPTR || user == Q_NULLPTR)
         return false;
@@ -1713,12 +1715,28 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     Etat_textEdit.setHtml(textcorps);
     if (Etat_textEdit.toPlainText() == "")
         return false;
-    int tailleEnTete = TailleEnTete();
-    if (ALD) tailleEnTete = TailleEnTeteALD();
-
-    aa = Imprime_Etat(parent, textcorps, textentete, textpied,
+    if (pdf)
+    {
+        QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + m_dirnamepdf;
+        QString filename    = pat->prenom() + " " + pat->nom()  + " - " + titre + ".pdf";
+        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                              tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
+                              m_dirnamepdf;
+        Cree_pdf(textcorps, textentete, textpied,filename, ALD, dirname);
+        QFile file          = QFile(dirname + "/" + filename);
+        aa                  = file.exists();
+        UpMessageBox::Watch(parent,
+                            aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                            aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+    }
+    else
+    {
+        int tailleEnTete = TailleEnTete();
+        if (ALD) tailleEnTete = TailleEnTeteALD();
+        aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(),
                             AvecDupli, AvecNumPage, AvecChoixImprimante);
+    }
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
@@ -5272,6 +5290,16 @@ bool Procedures::isUserConnected(User *usr)
             return true;
     }
     return false;
+}
+
+QString Procedures::dirnamepdf() const
+{
+    return m_dirnamepdf;
+}
+
+void Procedures::setDirnamepdf(const QString &newDirnamepdf)
+{
+    m_dirnamepdf = newDirnamepdf;
 }
 
 void Procedures::debugMesure(QObject *mesure, QString titre)

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("08-10-2024/1");
+    qApp->setApplicationVersion("11-10-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2958,7 +2958,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                              tr ("sauvegardé ") + dossier;
        proc                ->Cree_pdf(textcorps, textentete, textpied,
-                               filename, dirname);
+                               filename, false, dirname);
        QFile file          = QFile(dirname + "/" + filename);
        aa                  = file.exists();
        UpMessageBox::Watch(this, aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
@@ -8885,6 +8885,8 @@ void    Rufus::ImprimeDocument(Patient *pat)
         QString imprimante = "";
         QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> listdocs = Dlg_Imprs->mapdocsaimprimer();
         QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdoc;
+        if (Dlg_Imprs->printPdf())
+            proc->setDirnamepdf(tr("Documents") + " - " + userEntete->prenom() + " " + userEntete->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
         foreach (mapdoc, listdocs)
         {
             bool Prescription           = (mapdoc.find(dlg_impressions::d_Prescription).value() == "1");
@@ -8898,7 +8900,7 @@ void    Rufus::ImprimeDocument(Patient *pat)
             proc                        ->setNomImprimante(imprimante);
             success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
-                                                                  AvecDupli, AvecChoixImprimante, Administratif);
+                                                                  AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif);
             if (!success)
                 break;
             imprimante = proc->nomImprimante();

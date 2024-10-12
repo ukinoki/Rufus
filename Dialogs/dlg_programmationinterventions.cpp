@@ -113,23 +113,23 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     connect(wdg_manufacturerbutt,       &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeManufacturers);
     connect(wdg_IOLbutt,                &QPushButton::clicked,  this,   &dlg_programmationinterventions::FicheListeIOLs);
     connect(wdg_incidentbutt,           &QPushButton::clicked,  this,   [&] {
-                                                                                bool ok;
-                                                                                if (proc->QuestionPdfOrPrint(this, ok))
-                                                                                    ImprimeRapportIncident(ok);
+                                                                                bool pdf;
+                                                                                if (proc->QuestionPdfOrPrint(this, pdf))
+                                                                                    ImprimeRapportIncident(pdf);
                                                                             });
     connect(wdg_commandeIOLbutt,        &QPushButton::clicked,  this,   [&] {
-                                                                                bool ok;
-                                                                                if (proc->QuestionPdfOrPrint(this, ok))
-                                                                                    ImprimeListeIOLsSession(ok);
+                                                                                bool pdf;
+                                                                                if (proc->QuestionPdfOrPrint(this, pdf))
+                                                                                    ImprimeListeIOLsSession(pdf);
                                                                             });
     wdg_IOLbutt->setEnabled(Datas::I()->users->userconnected()->isMedecin());
 
     AjouteLayButtons(UpDialog::ButtonPrint | UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(OKButton,     &QPushButton::clicked,    this, &QDialog::close);
     connect(PrintButton,  &QPushButton::clicked,    this, [&] {
-                                                                bool ok;
-                                                                if (proc->QuestionPdfOrPrint(this, ok))
-                                                                    ImprimeSession(ok);
+                                                                bool pdf;
+                                                                if (proc->QuestionPdfOrPrint(this, pdf))
+                                                                    ImprimeSession(pdf);
                                                                });
 
     dlglayout()->setStretch(0,1);
@@ -594,6 +594,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
         proc                ->Cree_pdf(textcorps, textentete, textpied,
                                 filename,
+                                false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
         bool a              = file.exists();
@@ -762,6 +763,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
         proc                ->Cree_pdf(textcorps, textentete, textpied,
                                 filename,
+                                false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
         bool a              = file.exists();
@@ -1666,6 +1668,7 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
     if (pat == Q_NULLPTR || interv == Q_NULLPTR)
         return;
     dlg_impressions *Dlg_Imprs   = new dlg_impressions(pat, interv, this);
+
     m_docimprime = false;
     if (Dlg_Imprs->exec() == QDialog::Accepted)
     {
@@ -1690,7 +1693,9 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
             proc                        ->setNomImprimante(imprimante);
-            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, AvecChoixImprimante, Administratif);
+            if (Dlg_Imprs->printPdf())
+                proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
+            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif);
             if (!m_docimprime)
                 break;
             imprimante = proc->nomImprimante();
@@ -2065,6 +2070,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
                                   tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
             proc                ->Cree_pdf(textcorps, textentete, textpied,
                                     filename,
+                                    false,
                                     dirname);
             QFile file          = QFile(dirname + "/" + filename);
             bool a              = file.exists();

@@ -217,15 +217,20 @@ public:
 * -------------------------------------------------------------------------------------------------------- */
 private:
     QString                 m_nomImprimante;
+    QString                 m_dirnamepdf = "";
+    QString                 m_filenamepdf = "";
     QPrinter                *m_printer;
     QRectF                  m_rect;
 
 public:
+    QString dirnamepdf() const;
+    void setDirnamepdf(const QString &newDirnamepdf);
+
     QPrinter*               printer() {return m_printer;}
     bool                    Print(QList<QImage> listimage);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
-                                              bool Prescription, bool ALD, bool AvecDupli, bool AvecChoixImprimante = false, bool Administratif = true);
+                                              bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true);
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 
@@ -244,7 +249,7 @@ public:
                       bool AvecDupli = false, bool AvecNumPage = false,
                       bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
-    bool                    Cree_pdf(QString textcorps, QString EnTete, QString Pied, QString nomfichier, QString nomdossier = "");
+    bool                    Cree_pdf(QString textcorps, QString EnTete, QString Pied, QString nomfichier, bool ALD = false, QString nomdossier = "");
             /*! c - Choice: print or pdf */
     bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
 

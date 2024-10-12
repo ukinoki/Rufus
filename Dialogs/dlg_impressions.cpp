@@ -1722,7 +1722,10 @@ void dlg_impressions::OKpushButtonClicked()
             }
         }
         if (map_docsaimprimer.size() > 0)
+        {
+            proc->QuestionPdfOrPrint(this, m_pdf);
             accept();
+        }
         break;
     default:
         break;

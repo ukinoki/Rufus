@@ -349,6 +349,7 @@ void dlg_depenses::PrintReport(bool pdf)
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
         proc                ->Cree_pdf(textcorps, textentete, textpied,
                                 filename,
+                                false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
         bool a              = file.exists();

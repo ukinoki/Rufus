@@ -390,6 +390,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité");
         bool a = proc->Cree_pdf(textcorps, textentete, textpied,
                             filename,
+                            false,
                             dirname);
         UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")),
                                    a? msgOK : tr ("Impossible d'enregistret le fichier ") + QDir::toNativeSeparators(filename));
