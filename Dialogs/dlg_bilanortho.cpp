@@ -258,7 +258,7 @@ void dlg_bilanortho::ImprimeBOClicked()
     QDate l_currentdate = db->ServerDate();
 
     //création de l'entête
-    textentete = proc->CalcEnteteImpression(l_currentdate, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(l_currentdate, userEntete).value(NORMHeader);
     if (textentete == "") return;
     textentete.replace("{{TITRE1}}"            , "");
     textentete.replace("{{TITRE}}"             , "<font color = \"" COULEUR_TITRES "\">" + tr("BILAN ORTHOPTIQUE DU ") + date + "</font>");

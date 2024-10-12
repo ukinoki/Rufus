@@ -532,7 +532,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return;
-    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
     if (textentete == "") return;
     Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
@@ -627,7 +627,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
     User *userEntete = Datas::I()->users->getById(iduser);
     if(userEntete == Q_NULLPTR)
         return;
-    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
     if (textentete == "") return;
     Site *sit = Datas::I()->sites->getById(currentsession()->idlieu());
 
@@ -1752,7 +1752,7 @@ void dlg_programmationinterventions::VerifExistIntervention(UpDialog * dlg, bool
     QString txt = box->lineEdit()->text();
     if (m_typeinterventionsmodel->findItems(txt).size() ==0 && txt !="")
     {
-        if (UpMessageBox::Question(dlg, tr("Intervention non référencée!"), tr("Voulez-vous l'enregistrer?")) != UpSmallButton::STARTBUTTON)
+        if (UpMessageBox::Question(dlg, tr("Intervention non référencée!"), tr("Il vous faut l'enregistrer!")) != UpSmallButton::STARTBUTTON)
         {
             box->lineEdit()->clear();
             return;
@@ -1999,7 +1999,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
         User *userEntete = Datas::I()->users->getById(iduser);
         if(userEntete == Q_NULLPTR)
             return;
-        textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+        textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
         if (textentete == "") return;
 
         textentete.replace("{{TITRE1}}"            , "");

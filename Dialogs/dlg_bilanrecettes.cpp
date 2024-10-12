@@ -262,7 +262,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
         UpMessageBox::Watch(this, tr("Impossible de retrouver les données de l'en-tête") , tr("Annulation de l'impression"));
         return;
     }
-    textentete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(db->ServerDate(), userEntete).value(NORMHeader);
     if (textentete == "") return;
 
     // NOTE : POURQUOI mettre ici "PRENOM PATIENT" alors que ce sont les données d'un User qui sont utilisées ???

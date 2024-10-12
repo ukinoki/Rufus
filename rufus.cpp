@@ -2912,7 +2912,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            return;
        }
    }
-   textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value("Norm");
+   textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
    if (textentete == "") return;
    textentete.replace("{{TITRE1}}"             , "");
    QString comment;
@@ -3528,7 +3528,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
     if (userEntete == Q_NULLPTR)
         return;
-    textentete = proc->CalcEnteteImpression(date, userEntete).value("Norm");
+    textentete = proc->CalcEnteteImpression(date, userEntete).value(NORMHeader);
     if (textentete == "") return;
     textentete.replace("{{TITRE1}}"            , "");
     textentete.replace("{{PRENOM PATIENT}}"    , "");
@@ -6060,6 +6060,8 @@ void Rufus::VerifLastVersion()
             }
             else
                 text += "<br/>" + QObject::tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
+            if (m_MAJcomment !="")
+                text +="<br/>" + m_MAJcomment;
             text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site") + " <a href=\'https://www.rufusvision.org\'>www.rufusvision.org</a>";
             UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
         }
@@ -6146,14 +6148,14 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
     QString ImportateurDocs = proc->PosteImportDocs(); //le nom et l'adresse Mac du poste importateur des docs externes
     QString importsetting = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
     QString IPAdress = "NULL";
-    if (importsetting == "YES")
+    if (importsetting == YESimport)
         IPAdress = Utils::hostNameMacAdress() + " - prioritaire";
-    else if (importsetting == "NORM")
+    else if (importsetting == NORMimport)
         IPAdress = Utils::hostNameMacAdress();
 
     if (ImportateurDocs.toUpper() == "NULL")
     {
-        if ((importsetting == "YES" || importsetting == "NORM") && db->ModeAccesDataBase() != Utils::Distant)
+        if ((importsetting == YESimport || importsetting == NORMimport) && db->ModeAccesDataBase() != Utils::Distant)
              proc->setPosteImportDocs(IPAdress);
     }
     else
