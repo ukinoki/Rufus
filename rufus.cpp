@@ -425,7 +425,7 @@ void Rufus::ConnectSignals()
         connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
-    ui->MoulinettepushButton->setVisible(false);
+    ui->MoulinettepushButton->setVisible(true);
 }
 
 
@@ -531,11 +531,12 @@ void Rufus::Moulinette()
 {
 
     //!CONVERSION DES BASES OPLUS ============================================================================================================================================================
-    QString req;
+    /*
     conversionbase *convbase = new conversionbase();
     convbase->conversionbaseoplus();
     delete convbase;
     Remplir_ListePatients_TableView();
+    */
 
     //! CONVERSION DES BASES OPHTALOGIC ============================================================================================================================================================
     /*
@@ -602,7 +603,8 @@ void Rufus::Moulinette()
         QSqlQuery (req, db->getDataBase() );
         idquer.next();
     }*/
-    /*// REGROUPEMENT DES OCT DANS UN SEUL DOSSIER ============================================================================================================================================================
+    //! REGROUPEMENT DES OCT DANS UN SEUL DOSSIER ============================================================================================================================================================
+    /*
     QString StartDir, DestDir, List;
     QStringList ListDir;
     QFileDialog dialog(this);
@@ -657,8 +659,8 @@ void Rufus::Moulinette()
         }
     }*/
 
+    //! SUPPRESSION DES RETOURS A LA LIGNE DANS LES CHAMPS TEXTE DE ACTES ET IMPRESSIONS ============================================================================================================================================================
     /*
-    // SUPPRESSION DES RETOURS A LA LIGNE DANS LES CHAMPS TEXTE DE ACTES ET IMPRESSIONS ============================================================================================================================================================
     QString req = "select idActe, ActeTexte from " TBL_ACTES " order by idacte desc";
     QSqlQuery imp(req, db->getDataBase() );
     imp.first();
@@ -719,8 +721,9 @@ void Rufus::Moulinette()
     */
 
 
+
+    //! CORRECTION DE LA BASE VILLES - ELIMINATION DES TIRETS ============================================================================================================================================================
     /*
-    // CORRECTION DE LA BASE VILLES - ELIMINATION DES TIRETS ============================================================================================================================================================
     QString req = "select patville from " TBL_DONNEESSOCIALESPATIENTS;
     QSqlQuery quer(req, db->getDataBase() );
     quer.first();
@@ -958,6 +961,193 @@ void Rufus::Moulinette()
     }
     UpMessageBox::Watch(this,"OK pour Correspondants");
     */
+
+    //! INCORPORATION DES IOL de la base xml IOLCON ============================================================================================================================================================
+    //QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), QDir::homePath(),  tr("XML files (*.xml)"));
+    QString fileName = "//Users//serge//Downloads//IOLexport.xml";
+    if (fileName != "")
+    {
+        //UpMessageBox::Watch(this,fileName);
+        QFile datafile(fileName);
+
+        QDomDocument docxml;
+        if (datafile.open(QIODevice::ReadOnly))
+            docxml.setContent(&datafile);
+
+        QDomElement xml = docxml.documentElement();
+        QStringList IntendedLocation;
+        for (int i=0; i<xml.childNodes().size(); i++)
+        {
+            QDomElement childnode = xml.childNodes().at(i).toElement();
+            if (childnode.tagName() == "Lens")
+            {
+                IOL iol;
+                iol.setid(childnode.attribute("id").toInt());
+                for (int j=0; j<childnode.childNodes().size(); j++)
+                {
+                    QDomElement Lensnode = childnode.childNodes().at(j).toElement();
+                    if (Lensnode.tagName() == "Manufacturer")
+                        iol.setstringid(Lensnode.text());
+                    if (Lensnode.tagName() == "Name")
+                        iol.setmodele(Lensnode.text());
+                    if (Lensnode.tagName() == "Specifications")
+                    {
+                        for (int k=0; k<Lensnode.childNodes().size(); k++)
+                        {
+                            QDomElement Specsnode = Lensnode.childNodes().at(k).toElement();
+                            if (Specsnode.tagName() == "SinglePiece")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yes")
+                                    b = true;
+                                iol.setsinglepiece(b);
+                            }
+                            if (Specsnode.tagName() == "OpticMaterial")
+                                iol.setOpticalMaterial(Specsnode.text());
+                            if (Specsnode.tagName() == "HapticMaterial")
+                                iol.setHapticalMaterial(Specsnode.text());
+                            if (Specsnode.tagName() == "Preloaded")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yes")
+                                    b = true;
+                                iol.setpreloaded(b);
+                            }
+                            if (Specsnode.tagName() == "Toric")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yes")
+                                    b = true;
+                                iol.setToric(b);
+                            }
+                            if (Specsnode.tagName() == "OpticConcept")
+                            {
+                                bool b = false;
+                                if (Specsnode.text().toUpper()=="EDOF")
+                                {
+                                    b = true;
+                                    iol.setEdof(b);
+                                }
+                                else if (Specsnode.text().toUpper()=="MULTIFOCAL")
+                                {
+                                    b = true;
+                                    iol.setMultifocal(b);
+                                }
+                            }
+                            if (Specsnode.tagName() == "Filter")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yellow")
+                                    b = true;
+                                iol.setpreloaded(b);
+                            }
+                            if (Specsnode.tagName() == "IncisionWidth")
+                                if (Specsnode.text().toDouble() >0)
+                                    iol.setDiainjecteur(Specsnode.text().toDouble());
+                            if (Specsnode.tagName() == "IncisionWidth")
+                                if (Specsnode.text().toDouble() >0)
+                                    iol.setDiainjecteur(Specsnode.text().toDouble());
+                            if (Specsnode.tagName() == "OpticDiameter")
+                                iol.setOpticalDiameter(Specsnode.text().toDouble());
+                            if (Specsnode.tagName() == "HapticDiameter")
+                                iol.setDiaall(Specsnode.text().toDouble());
+                            if (Specsnode.tagName() == "IntendedLocation")
+                                if (!IntendedLocation.contains(Specsnode.text()))
+                                    IntendedLocation << Specsnode.text();
+                        }
+                    }
+                    if (Lensnode.tagName() == "Availability")
+                    {
+                        int range = 1;
+                        for (int k=0; k<Lensnode.childNodes().size(); k++)
+                        {
+                            QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
+                            if (Availabilitynode.tagName() == "Sphere")
+                            {
+                                int r = Availabilitynode.attribute("range").toInt();
+                                if (r > range)
+                                    range = r;
+                            }
+                        }
+                        for (int k=0; k<Lensnode.childNodes().size(); k++)
+                        {
+                            QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
+                            if (Availabilitynode.tagName() == "Sphere" && Availabilitynode.attribute("range").toInt() == 1)
+                            {
+                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                {
+                                    QDomElement Fromnode = Availabilitynode.childNodes().at(l).toElement();
+                                    if (Fromnode.tagName() == "From")
+                                        iol.setPwrmin(Fromnode.text().toDouble());
+                                }
+                            }
+                            if (Availabilitynode.tagName() == "Sphere" && Availabilitynode.attribute("range").toInt() == range)
+                            {
+                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                {
+                                    QDomElement Tonode = Availabilitynode.childNodes().at(l).toElement();
+                                    if (Tonode.tagName() == "To")
+                                        iol.setPwrmax(Tonode.text().toDouble());
+                                }
+                            }
+                        }
+                        if (iol.istoric())
+                        {
+                            int range = 1;
+                            for (int k=0; k<Lensnode.childNodes().size(); k++)
+                            {
+                                QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
+                                if (Availabilitynode.tagName() == "Cylinder")
+                                {
+                                    int r = Availabilitynode.attribute("range").toInt();
+                                    if (r > range)
+                                        range = r;
+                                }
+                            }
+                            for (int k=0; k<Lensnode.childNodes().size(); k++)
+                            {
+                                QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
+                                if (Availabilitynode.tagName() == "Cylinder" && Availabilitynode.attribute("range").toInt() == 1)
+                                {
+                                    for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                    {
+                                        QDomElement Fromnode = Availabilitynode.childNodes().at(l).toElement();
+                                        if (Fromnode.tagName() == "From")
+                                            iol.setCylmin(Fromnode.text().toDouble());
+                                    }
+                                }
+                                if (Availabilitynode.tagName() == "Cylinder" && Availabilitynode.attribute("range").toInt() == range)
+                                {
+                                    for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                    {
+                                        QDomElement Tonode = Availabilitynode.childNodes().at(l).toElement();
+                                        if (Tonode.tagName() == "To")
+                                            iol.setCylmax(Tonode.text().toDouble());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                qDebug() << "id" << iol.id()
+                         << "nom" << iol.stringid() + "-" + iol.modele()
+                         << "materiau" << iol.opticalmaterial()
+                         << "préchargé" << (iol.ispreloaded()?"oui":"non")
+                         << "incision" << iol.diainjecteur()
+                         << "dia optique" << iol.opticdiameter()
+                         << "diamètre" << iol.diaall()
+                         << "from" << iol.pwrmin()
+                         << "to" << iol.pwrmax();
+                if (iol.istoric())
+                    qDebug() << "from" << iol.cylmin()
+                         << "to" << iol.cylmax();
+            }
+        }
+        qDebug() << "IntendedLocation" << IntendedLocation.size();
+        for (int i=0; i<IntendedLocation.size(); i++)
+            qDebug() << "IntendedLocation" << IntendedLocation.at(i);
+    }
+
 
 }
 

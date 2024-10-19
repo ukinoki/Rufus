@@ -35,16 +35,42 @@ public:
 
 private: //Données de l'intervention
     //!<m_id = Id de l'iol en base
+    //! m_stringid = manufacturer
     int m_idmanufacturer    = 0;                //! id du fabricant
     int m_iddistributeur    = 0;                //! id du distributeur du fabricant - non stocké en base parce que redondant
     QString m_modele        = "";               //! modèle de l'implant
     bool m_inactif          = false;
+
+    //! diamètres
+    double m_diainjecteur   = 0;                //! diamètre minimal de l'injecteur
+    double m_diaall         = 0;                //! diamètre hors tout
+    double m_opticaldiameter= 0;                //! diamètre optique
+
+    //! image
+    QByteArray m_arrayimgiol= QByteArray();     //! le cliché de l'IOL
+    QString m_imageformat   = "";               //! le type de cliché, jpg ou pdf
+
+    //! material
+    QString m_opticmaterial = "";               //! le matériau de l'IOL
+    QString m_hapticmaterial= "";               //! le matériau des haptiques
+    bool m_singlepiece      = true;
+    QString m_remarque      = "";               //! remarque à propos de l'IOL
+
+    bool m_preloaded        = false;            //! préchargé
+    bool m_yellow           = false;            //! jaune ou clair
+    bool m_multifocal       = false;            //! multifocal
+    bool m_edof             = false;            //! edof
+    bool m_toric            = false;            //! toric
+
+    //! range power
     double m_pwrmax         = 0;                //! puissance maximale de l'implant
     double m_pwrmin         = 0;                //! puissance minimale de l'implant
     double m_pwrstp         = 0;                //! pas de variation de la puissance l'implant
-    double m_cylmax         = 0;                //! cylindre maximale de l'implant
-    double m_cylmin         = 0;                //! cylinde minimale de l'implant
+    double m_cylmax         = 0;                //! cylindre maximal de l'implant
+    double m_cylmin         = 0;                //! cylinde minimal de l'implant
     double m_cylstp         = 0;                //! pas de variation du cylindre l'implant
+
+    //! constants
     double m_csteAopt       = 0;                //! constante A optique
     double m_csteAEcho      = 0;                //! constante A echographique
     double m_haigisa0       = 0;                //! constante Haigis a0
@@ -52,19 +78,10 @@ private: //Données de l'intervention
     double m_haigisa2       = 0;                //! constante Haigis a2
     double m_holladay       = 0;                //! constante Holladay
     double m_acd            = 0;                //! ACD
-    double m_diainjecteur   = 0;                //! diamètre minimal de l'injecteur
-    double m_diaall         = 0;                //! diamètre hors tout
-    double m_diaoptique     = 0;                //! diamètre optique
-    QByteArray m_arrayimgiol= QByteArray();     //! le cliché de l'IOL
-    QString m_imageformat   = "";               //! le type de cliché, jpg ou pdf
-    QString m_materiau      = "";               //! le matériau de l'IOL
-    QString m_remarque      = "";               //! remarque à propos de l'IOL
-    bool m_precharge        = false;            //! préchargé
-    bool m_jaune            = false;            //! jaune ou clair
-    bool m_multifocal       = false;            //! multifocal
-    bool m_edof             = false;            //! edof
-    bool m_toric            = false;            //! toric
+
+    //! type IOL
     QString m_type          = "";               //! le type de l'IOL : CP, CA, addon, support irien, refractif ca
+
     QImage m_nullimage      = QImage("://IOL.png");
     QImage m_currentimage   = m_nullimage;
 
@@ -88,14 +105,16 @@ public:
     double acd() const                          { return m_acd; }
     double diainjecteur() const                 { return m_diainjecteur; }
     double diaall() const                       { return m_diaall; }
-    double diaoptique() const                   { return m_diaoptique; }
+    double opticdiameter() const                { return m_opticaldiameter; }
     QByteArray arrayimgiol() const              { return m_arrayimgiol; }
     QString imageformat() const                 { return m_imageformat; }
-    QString materiau() const                    { return m_materiau; }
+    QString opticalmaterial() const             { return m_opticmaterial; }
+    QString hapticalmaterial() const            { return m_hapticmaterial; }
+    bool issinglepiece() const                  { return m_singlepiece; }
     QString remarque() const                    { return m_remarque; }
     bool isactif() const                        { return !m_inactif; }
-    bool isprecharge() const                    { return m_precharge; }
-    bool isjaune() const                        { return m_jaune; }
+    bool ispreloaded() const                    { return m_preloaded; }
+    bool isyellow() const                       { return m_yellow; }
     bool ismultifocal() const                   { return m_multifocal; }
     bool isedof() const                         { return m_edof; }
     bool istoric() const                        { return m_toric; }
@@ -103,35 +122,37 @@ public:
     QString tooltip(bool avecimage = false) const;
 
 
-    void setidmanufacturer(int &id)             { m_idmanufacturer = id;            m_data[CP_IDMANUFACTURER_IOLS] = id; }
-    void setidistributeur(int id)               { m_iddistributeur = id;}
-    void setmodele(const QString &txt)          { m_modele = txt;                   m_data[CP_MODELNAME_IOLS] = txt; }
-    void setactif(bool &actif)                  { m_inactif = !actif;               m_data[CP_INACTIF_IOLS] = !actif; }
-    void setPwrmax(double pwrmax)               { m_pwrmax = pwrmax;                m_data[CP_MAXPWR_IOLS] = pwrmax; }
-    void setPwrmin(double pwrmin)               { m_pwrmin = pwrmin;                m_data[CP_MINPWR_IOLS] = pwrmin; }
-    void setPwrstp(double pwrstp)               { m_pwrstp = pwrstp;                m_data[CP_PWRSTEP_IOLS] = pwrstp; }
-    void setCylmax(double cylmax)               { m_cylmax = cylmax;                m_data[CP_MAXCYL_IOLS] = cylmax; }
-    void setCylmin(double cylmin)               { m_cylmin = cylmin;                m_data[CP_MINCYL_IOLS] = cylmin; }
-    void setCylstp(double cylstp)               { m_cylstp = cylstp;                m_data[CP_CYLSTEP_IOLS] = cylstp; }
-    void setCsteAopt(double csteAopt)           { m_csteAopt = csteAopt;            m_data[CP_CSTEAOPT_IOLS] = csteAopt; }
-    void setCsteAEcho(double csteAEcho)         { m_csteAEcho = csteAEcho;          m_data[CP_CSTEAOPT_IOLS] = csteAEcho; }
-    void setHaigisa0(double haigisa0)           { m_haigisa0 = haigisa0;            m_data[CP_HAIGISA0_IOLS] = haigisa0; }
-    void setHaigisa1(double haigisa1)           { m_haigisa1 = haigisa1;            m_data[CP_HAIGISA1_IOLS] = haigisa1; }
-    void setHaigisa2(double haigisa2)           { m_haigisa2 = haigisa2;            m_data[CP_HAIGISA2_IOLS] = haigisa2; }
-    void setHolladay(double holladay)           { m_holladay = holladay;            m_data[CP_HOLL1_IOLS] = holladay; }
-    void setAcd(double acd)                     { m_acd = acd;                      m_data[CP_ACD_IOLS] = acd; }
-    void setDiainjecteur(double diainjecteur)   { m_diainjecteur = diainjecteur;    m_data[CP_DIAINJECTEUR_IOLS] = diainjecteur; }
-    void setDiaall(double diaall)               { m_diaall = diaall;                m_data[CP_DIAALL_IOLS] = diaall; }
-    void setDiaoptique(double diaoptique)       { m_diaoptique = diaoptique;        m_data[CP_DIAOPT_IOLS] = diaoptique; }
-    void setArrayImgiol(const QByteArray &imgiol){ m_arrayimgiol = imgiol;          m_data[CP_ARRAYIMG_IOLS] = QLatin1String(imgiol.toBase64()); }
-    void setimageformat(const QString &typeimage) { m_imageformat = typeimage;        m_data[CP_TYPIMG_IOLS] = typeimage; }
-    void setMateriau(const QString &materiau)   { m_materiau = materiau;            m_data[CP_MATERIAU_IOLS] = materiau; }
-    void setRemarque(const QString &remarque)   { m_remarque = remarque;            m_data[CP_REMARQUE_IOLS] = remarque; }
-    void setprecharge(bool &precharge)          { m_precharge = precharge;          m_data[CP_PRECHARGE_IOLS] = precharge; }
-    void setjaune(bool &jaune)                  { m_jaune = jaune;                  m_data[CP_JAUNE_IOLS] = jaune; }
-    void setMultifocal(bool &multifocal)        { m_multifocal = multifocal;        m_data[CP_MULTIFOCAL_IOLS] = multifocal; }
-    void setToric(bool &toric)                  { m_toric = toric;                  m_data[CP_TORIC_IOLS] = toric; }
-    void setEdof(bool &edof)                    { m_edof = edof;                    m_data[CP_EDOF_IOLS] = edof; }
+    void setidmanufacturer(int &id)                     { m_idmanufacturer = id;                m_data[CP_IDMANUFACTURER_IOLS] = id; }
+    void setidistributeur(int id)                       { m_iddistributeur = id;}
+    void setmodele(const QString &txt)                  { m_modele = txt;                       m_data[CP_MODELNAME_IOLS] = txt; }
+    void setactif(bool &actif)                          { m_inactif = !actif;                   m_data[CP_INACTIF_IOLS] = !actif; }
+    void setPwrmax(double pwrmax)                       { m_pwrmax = pwrmax;                    m_data[CP_MAXPWR_IOLS] = pwrmax; }
+    void setPwrmin(double pwrmin)                       { m_pwrmin = pwrmin;                    m_data[CP_MINPWR_IOLS] = pwrmin; }
+    void setPwrstp(double pwrstp)                       { m_pwrstp = pwrstp;                    m_data[CP_PWRSTEP_IOLS] = pwrstp; }
+    void setCylmax(double cylmax)                       { m_cylmax = cylmax;                    m_data[CP_MAXCYL_IOLS] = cylmax; }
+    void setCylmin(double cylmin)                       { m_cylmin = cylmin;                    m_data[CP_MINCYL_IOLS] = cylmin; }
+    void setCylstp(double cylstp)                       { m_cylstp = cylstp;                    m_data[CP_CYLSTEP_IOLS] = cylstp; }
+    void setCsteAopt(double csteAopt)                   { m_csteAopt = csteAopt;                m_data[CP_CSTEAOPT_IOLS] = csteAopt; }
+    void setCsteAEcho(double csteAEcho)                 { m_csteAEcho = csteAEcho;              m_data[CP_CSTEAOPT_IOLS] = csteAEcho; }
+    void setHaigisa0(double haigisa0)                   { m_haigisa0 = haigisa0;                m_data[CP_HAIGISA0_IOLS] = haigisa0; }
+    void setHaigisa1(double haigisa1)                   { m_haigisa1 = haigisa1;                m_data[CP_HAIGISA1_IOLS] = haigisa1; }
+    void setHaigisa2(double haigisa2)                   { m_haigisa2 = haigisa2;                m_data[CP_HAIGISA2_IOLS] = haigisa2; }
+    void setHolladay(double holladay)                   { m_holladay = holladay;                m_data[CP_HOLL1_IOLS] = holladay; }
+    void setAcd(double acd)                             { m_acd = acd;                          m_data[CP_ACD_IOLS] = acd; }
+    void setDiainjecteur(double diainjecteur)           { m_diainjecteur = diainjecteur;        m_data[CP_DIAINJECTEUR_IOLS] = diainjecteur; }
+    void setDiaall(double diaall)                       { m_diaall = diaall;                    m_data[CP_DIAALL_IOLS] = diaall; }
+    void setOpticalDiameter(double opticaldiameter)     { m_opticaldiameter = opticaldiameter;  m_data[CP_DIAOPT_IOLS] = opticaldiameter; }
+    void setArrayImgiol(const QByteArray &imgiol)       { m_arrayimgiol = imgiol;               m_data[CP_ARRAYIMG_IOLS] = QLatin1String(imgiol.toBase64()); }
+    void setimageformat(const QString &typeimage)       { m_imageformat = typeimage;            m_data[CP_TYPIMG_IOLS] = typeimage; }
+    void setOpticalMaterial(const QString &material)    { m_opticmaterial = material;           m_data[CP_OPTICMATERIAU_IOLS] = material; }
+    void setHapticalMaterial(const QString &material)   { m_hapticmaterial = material;          m_data[CP_HAPTICMATERIAU_IOLS] = material; }
+    void setsinglepiece(bool &singlepiece)              { m_singlepiece = singlepiece;          m_data[CP_SINGLEPIECE_IOLS] = singlepiece; }
+    void setRemarque(const QString &remarque)           { m_remarque = remarque;                m_data[CP_REMARQUE_IOLS] = remarque; }
+    void setpreloaded(bool &preloaded)                  { m_preloaded = preloaded;              m_data[CP_PRECHARGE_IOLS] = preloaded; }
+    void setyellow(bool &yellow)                        { m_yellow = yellow;                    m_data[CP_JAUNE_IOLS] = yellow; }
+    void setMultifocal(bool &multifocal)                { m_multifocal = multifocal;            m_data[CP_MULTIFOCAL_IOLS] = multifocal; }
+    void setToric(bool &toric)                          { m_toric = toric;                      m_data[CP_TORIC_IOLS] = toric; }
+    void setEdof(bool &edof)                            { m_edof = edof;                        m_data[CP_EDOF_IOLS] = edof; }
     void setType(const QString &type)
     {
         m_type = type;

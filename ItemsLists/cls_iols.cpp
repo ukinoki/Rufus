@@ -114,7 +114,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         else if (champ == CP_DIAINJECTEUR_IOLS)                     data[champ] = itset.value().toDouble();
         else if (champ == CP_TYPIMG_IOLS)                           data[champ] = itset.value().toString();
         else if (champ == CP_REMARQUE_IOLS)                         data[champ] = itset.value().toString();
-        else if (champ == CP_MATERIAU_IOLS)                         data[champ] = itset.value().toString();
+        else if (champ == CP_OPTICMATERIAU_IOLS)                         data[champ] = itset.value().toString();
         else if (champ == CP_TYP_IOLS)                              data[champ] = itset.value().toString();
         else if (champ == CP_PRECHARGE_IOLS)                        data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_JAUNE_IOLS)                            data[champ] = (itset.value().toInt() == 1);

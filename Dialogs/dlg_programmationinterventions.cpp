@@ -861,7 +861,8 @@ void dlg_programmationinterventions::ChoixIntervention(QModelIndex idx)
     UpStandardItem      *upitem = dynamic_cast<UpStandardItem*>(m_interventionsmodel->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return;
-    setcurrentintervention(qobject_cast<Intervention*>(upitem->item()));
+    Intervention * interv = qobject_cast<Intervention*>(upitem->item());
+    setcurrentintervention(interv);
     if (currentintervention() == Q_NULLPTR)
     {
         wdg_buttoninterventionframe->wdg_moinsBouton->setEnabled(false);
@@ -1174,18 +1175,21 @@ void dlg_programmationinterventions::ModifStatutActeCorrespondant(int idacte)
 
 void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 {
+    Patient *pat = (interv == Q_NULLPTR? m_currentchirpatient : Datas::I()->patients->getById(interv->idpatient()));
+    QString title = "";
+    if (pat)
+        title = pat->nom().toUpper() + " " + pat->prenom();
     bool verifencours = false;
     UpDialog *dlg_intervention = new UpDialog(this);
     dlg_intervention->setWindowModality(Qt::WindowModal);
-    Patient *pat = (interv == Q_NULLPTR? m_currentchirpatient : Datas::I()->patients->getById(interv->idpatient()));
     if (pat != Q_NULLPTR)
-            dlg_intervention->setWindowTitle(pat->prenom() + " " + pat->nom());
+        dlg_intervention->setWindowTitle(title);
 
     QHBoxLayout *titreLay       = new QHBoxLayout();
     UpLabel* lbltitre           = new UpLabel;
     if (m_currentchirpatient)
     {
-        lbltitre                    ->setText(m_currentchirpatient->nom().toUpper() + " " + m_currentchirpatient->prenom());
+        lbltitre                    ->setText(title);
         titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
         titreLay                    ->addWidget(lbltitre);
         titreLay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -2187,7 +2191,7 @@ void dlg_programmationinterventions::FicheListeManufacturers()
 void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufacturer)
 {
     if (m_currentmanufacturer != Q_NULLPTR)
-        delete m_currentmanufacturer;
+        m_currentmanufacturer = Q_NULLPTR;
     m_manufacturercompleterlist.clear();
     wdg_manufacturercombo->disconnect();
     wdg_manufacturercombo->clear();
@@ -2214,7 +2218,6 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
                 }
         }
     }
-
     if (m_manufacturersmodel->rowCount() > 0)
     {
         if (m_manufacturersmodel->rowCount() > 1)
@@ -2222,6 +2225,7 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
             m_manufacturersmodel->sort(0, Qt::AscendingOrder);
             m_manufacturercompleterlist.sort();
         }
+
         if (idmanufacturer > 0)
             m_currentmanufacturer = Datas::I()->manufacturers->getById(idmanufacturer);
         else

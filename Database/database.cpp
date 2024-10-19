@@ -3192,7 +3192,7 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! 
     data[CP_HOLL1_IOLS]             = ioldata.at(17).toDouble();
     data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(18).toDouble();
     data[CP_ARRAYIMG_IOLS]          = QLatin1String(ioldata.at(19).toByteArray().toBase64());
-    data[CP_MATERIAU_IOLS]          = ioldata.at(20).toString();
+    data[CP_OPTICMATERIAU_IOLS]          = ioldata.at(20).toString();
     data[CP_REMARQUE_IOLS]          = ioldata.at(21).toString();
     data[CP_INACTIF_IOLS]           = (ioldata.at(22) == 1);
     data[CP_PRECHARGE_IOLS]         = (ioldata.at(23) == 1);
@@ -3216,7 +3216,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
                     CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", "                   // 15-16-17-18-19
-                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
+                    CP_OPTICMATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
                     CP_MULTIFOCAL_IOLS ", " CP_TYPIMG_IOLS ", " CP_EDOF_IOLS ", " CP_TORIC_IOLS ", " CP_TYP_IOLS                                // 25-26-27-28-29
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
@@ -3240,7 +3240,7 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
                     CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", "                   // 15-16-17-18-19
-                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
+                    CP_OPTICMATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
                     CP_MULTIFOCAL_IOLS ", " CP_TYPIMG_IOLS ", " CP_EDOF_IOLS ", " CP_TORIC_IOLS ", " CP_TYP_IOLS                                // 25-26-27-28-29
                     " FROM " TBL_IOLS
                     " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
@@ -3270,7 +3270,7 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
                     CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", " CP_MINCYL_IOLS ", "                           // 5-6-7-8-9
                     CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", "                 // 10-11-12-13-14
                     CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", " CP_HOLL1_IOLS ", " CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", "              // 15-16-17-18-19
-                    CP_MATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
+                    CP_OPTICMATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_INACTIF_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", "                  // 20-21-22-23-24
                     CP_MULTIFOCAL_IOLS ", " CP_TYPIMG_IOLS ", " CP_EDOF_IOLS ", " CP_TORIC_IOLS ", " CP_TYP_IOLS                                // 25-26-27-28-29
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;

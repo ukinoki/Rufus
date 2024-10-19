@@ -50,14 +50,14 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_HOLL1_IOLS, m_holladay);
     setDataDouble(data, CP_DIAINJECTEUR_IOLS, m_diainjecteur);
     setDataDouble(data, CP_DIAALL_IOLS, m_diaall);
-    setDataDouble(data, CP_DIAOPT_IOLS, m_diaoptique);
+    setDataDouble(data, CP_DIAOPT_IOLS, m_opticaldiameter);
     setDataByteArray(data, CP_ARRAYIMG_IOLS, m_arrayimgiol);
     setDataString(data, CP_TYPIMG_IOLS, m_imageformat);
-    setDataString(data, CP_MATERIAU_IOLS, m_materiau);
+    setDataString(data, CP_OPTICMATERIAU_IOLS, m_opticmaterial);
     setDataString(data, CP_REMARQUE_IOLS, m_remarque);
-    setDataBool(data, CP_PRECHARGE_IOLS, m_precharge);
+    setDataBool(data, CP_PRECHARGE_IOLS, m_preloaded);
     setDataBool(data, CP_MULTIFOCAL_IOLS, m_multifocal);
-    setDataBool(data, CP_JAUNE_IOLS, m_jaune);
+    setDataBool(data, CP_JAUNE_IOLS, m_yellow);
     setDataBool(data, CP_EDOF_IOLS, m_edof);
     setDataBool(data, CP_TORIC_IOLS, m_toric);
     switch (data[CP_TYP_IOLS].toInt()) {
@@ -99,9 +99,9 @@ QString IOL::tooltip(bool avecimage) const
         message += "<br>" + tr("Multifocal");
     else
         message += "<br>" + tr("Monofocal");
-    if (m_precharge)
+    if (m_preloaded)
         message += "<br>" + tr("Préchargé");
-    if (m_jaune)
+    if (m_yellow)
         message += "<br>" + tr("Jaune");
     if (m_diaall != 0.0)
         message += "<br>" + tr("diamètre hors tout") + " " + QString::number(m_diaall, 'f', 1) + " mm";
@@ -109,8 +109,15 @@ QString IOL::tooltip(bool avecimage) const
         message += "<br>" + tr("incision") + " " + QString::number(m_diainjecteur, 'f', 1) + " mm";
     if (m_csteAEcho != 0.0)
         message += "<br>" + tr("csteA echo") + " " + QString::number(m_csteAEcho, 'f', 1);
-    if (m_materiau != "")
-        message += "<br>" + m_materiau;
+    if (m_singlepiece && m_opticmaterial != "")
+        message += "<br>" + m_opticmaterial;
+    if (!m_singlepiece)
+    {
+        if (m_opticmaterial != "")
+            message += "<br>" + tr("optique") + " " + m_opticmaterial;
+        if (m_hapticmaterial != "")
+            message += "<br>" + tr("haptique") + " " + m_hapticmaterial;
+    }
     if (m_remarque != "")
         message += "<br>" + remarque().replace("\n","<br>");
     if (!avecimage)
@@ -155,7 +162,7 @@ void IOL::resetdatas()
     data[CP_DIAOPT_IOLS]             = 0;
     data[CP_ARRAYIMG_IOLS]           = QLatin1String(QVariant().toByteArray().toBase64());
     data[CP_TYPIMG_IOLS]             = "";
-    data[CP_MATERIAU_IOLS]           = "";
+    data[CP_OPTICMATERIAU_IOLS]           = "";
     data[CP_REMARQUE_IOLS]           = "";
     data[CP_PRECHARGE_IOLS]          = false;
     data[CP_JAUNE_IOLS]              = false;

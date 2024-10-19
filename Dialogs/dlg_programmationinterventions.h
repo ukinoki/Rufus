@@ -53,7 +53,7 @@ private:
     QStandardItemModel              *m_manufacturersmodel       = Q_NULLPTR;
     QStandardItemModel              *m_IOLsmodel                = Q_NULLPTR;
     QFont                           m_font = QApplication::font();
-    QHash<QString, QVariant> m_listbinds =  QHash<QString, QVariant>();
+    QHash<QString, QVariant>        m_listbinds =  QHash<QString, QVariant>();
 
     bool                eventFilter(QObject *obj, QEvent *event);
     void                EnregistreIncident(Item *itm);

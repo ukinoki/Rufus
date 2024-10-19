@@ -825,7 +825,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_DIAOPT_IOLS)
             {
-                iol->setDiaoptique(newvalue.toDouble());
+                iol->setOpticalDiameter(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_DIAALL_IOLS)
@@ -913,9 +913,9 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setimageformat(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
-            else if (field == CP_MATERIAU_IOLS)
+            else if (field == CP_OPTICMATERIAU_IOLS)
             {
-                iol->setMateriau(newvalue.toString());
+                iol->setOpticalMaterial(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
             else if (field == CP_REMARQUE_IOLS)
@@ -926,13 +926,13 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             else if (field == CP_PRECHARGE_IOLS)
             {
                 bool a = newvalue.toBool();
-                iol->setprecharge(a);
+                iol->setpreloaded(a);
                 newvalue = (a? "1" : "null");
             }
             else if (field == CP_JAUNE_IOLS)
             {
                 bool a = newvalue.toBool();
-                iol->setjaune(a);
+                iol->setyellow(a);
                 newvalue = (a? "1" : "null");
             }
             else if (field == CP_TORIC_IOLS)

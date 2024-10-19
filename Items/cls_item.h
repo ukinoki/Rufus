@@ -43,7 +43,9 @@ public:
         m_stringid = "";
     }
     int id() const                      { return m_id; }
+    void setid(int id)                  { m_id = id; }
     QString stringid() const            { return m_stringid; }
+    void setstringid(QString strid)     { m_stringid = strid; }
     QJsonObject datas() const           { return m_data; }
 
     //! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"

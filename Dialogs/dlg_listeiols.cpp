@@ -601,7 +601,7 @@ void dlg_listeiols::ImportListeIOLS()
                 m_listbinds[CP_HAIGISA2_IOLS]       = (haigis2 >0.0?  haigis2  : QVariant());
                 m_listbinds[CP_ACD_IOLS]            = (hofferQ>0.0?   hofferQ  : QVariant());
                 m_listbinds[CP_HOLL1_IOLS]          = (holladay>0.0?  holladay : QVariant());
-                m_listbinds[CP_MATERIAU_IOLS]       = materiau;
+                m_listbinds[CP_OPTICMATERIAU_IOLS]       = materiau;
                 m_listbinds[CP_DIAALL_IOLS]         = (diaall >0.0?  diaall : QVariant());
                 m_listbinds[CP_DIAOPT_IOLS]         = (diaoptique >0.0? diaoptique  : QVariant());
                 m_listbinds[CP_DIAINJECTEUR_IOLS]   = (incision >0.0? incision : QVariant());
@@ -884,15 +884,15 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             }
             /*! filtrage des precharge */
             if (wdg_prechargechk->isChecked())
-                if (!iol->isprecharge())
+                if (!iol->ispreloaded())
                     continue;
             /*! filtrage des jaunes */
             if (wdg_jaunechk->isChecked())
-                if (!iol->isjaune())
+                if (!iol->isyellow())
                     continue;
             /*! filtrage des clairs */
             if (wdg_clairchk->isChecked())
-                if (iol->isjaune())
+                if (iol->isyellow())
                     continue;
             /*! filtrage des toric */
             if (wdg_toricchk->isChecked())

@@ -621,8 +621,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2(), 'f', 4));
         wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
-        if (m_currentIOL->materiau() != "")
-            wdg_materiaubox ->setCurrentText(m_currentIOL->materiau());
+        if (m_currentIOL->opticalmaterial() != "")
+            wdg_materiaubox ->setCurrentText(m_currentIOL->opticalmaterial());
         else
             wdg_materiaubox ->setCurrentIndex(-1);
         if (m_currentIOL->type() != "")
@@ -631,13 +631,13 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_typebox     ->setCurrentIndex(-1);
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
         wdg_inactifchk      ->setChecked(!m_currentIOL->isactif());
-        wdg_jaunechk        ->setChecked(m_currentIOL->isjaune());
-        if (m_currentIOL->isjaune())
+        wdg_jaunechk        ->setChecked(m_currentIOL->isyellow());
+        if (m_currentIOL->isyellow())
             wdg_jaunechk->setStyleSheet("background-color: yellow");
         else
             wdg_jaunechk->setStyleSheet("");
         wdg_multifocalchk   ->setChecked(m_currentIOL->ismultifocal());
-        wdg_prechargechk    ->setChecked(m_currentIOL->isprecharge());
+        wdg_prechargechk    ->setChecked(m_currentIOL->ispreloaded());
         wdg_edofchk         ->setChecked(m_currentIOL->isedof());
         wdg_toricchk        ->setChecked(m_currentIOL->istoric());
         wdg_cylindres       ->setVisible(m_currentIOL->istoric());
@@ -650,8 +650,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         }
         if (m_currentIOL->diaall() > 0.0)
             wdg_diaht       ->setText(QLocale().toString(m_currentIOL->diaall(), 'f', 1));
-        if (m_currentIOL->diaoptique() > 0.0)
-            wdg_diaoptique   ->setText(QLocale().toString(m_currentIOL->diaoptique(), 'f', 1));
+        if (m_currentIOL->opticdiameter() > 0.0)
+            wdg_diaoptique   ->setText(QLocale().toString(m_currentIOL->opticdiameter(), 'f', 1));
         if (m_currentIOL->diainjecteur() > 0.0)
             wdg_diainjecteur ->setText(QLocale().toString(m_currentIOL->diainjecteur(), 'f', 1));
         if (m_currentIOL->arrayimgiol() != QByteArray())
@@ -833,7 +833,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) >0.0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
     m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) >0.0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
     m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) >0.0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
-    m_listbinds[CP_MATERIAU_IOLS]       = wdg_materiaubox->currentText();
+    m_listbinds[CP_OPTICMATERIAU_IOLS]       = wdg_materiaubox->currentText();
     m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
     m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?        QLocale().toDouble(wdg_diaht->text())       : QVariant());
     m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0.0?   QLocale().toDouble(wdg_diaoptique->text())  : QVariant());
