@@ -975,7 +975,8 @@ void Rufus::Moulinette()
             docxml.setContent(&datafile);
 
         QDomElement xml = docxml.documentElement();
-        QStringList IntendedLocation;
+        QStringList IntendedLocation, TypeConstant;
+
         for (int i=0; i<xml.childNodes().size(); i++)
         {
             QDomElement childnode = xml.childNodes().at(i).toElement();
@@ -988,9 +989,9 @@ void Rufus::Moulinette()
                     QDomElement Lensnode = childnode.childNodes().at(j).toElement();
                     if (Lensnode.tagName() == "Manufacturer")
                         iol.setstringid(Lensnode.text());
-                    if (Lensnode.tagName() == "Name")
+                    else if (Lensnode.tagName() == "Name")
                         iol.setmodele(Lensnode.text());
-                    if (Lensnode.tagName() == "Specifications")
+                    else if (Lensnode.tagName() == "Specifications")
                     {
                         for (int k=0; k<Lensnode.childNodes().size(); k++)
                         {
@@ -1002,25 +1003,25 @@ void Rufus::Moulinette()
                                     b = true;
                                 iol.setsinglepiece(b);
                             }
-                            if (Specsnode.tagName() == "OpticMaterial")
+                            else if (Specsnode.tagName() == "OpticMaterial")
                                 iol.setOpticalMaterial(Specsnode.text());
-                            if (Specsnode.tagName() == "HapticMaterial")
+                            else if (Specsnode.tagName() == "HapticMaterial" && !iol.issinglepiece())
                                 iol.setHapticalMaterial(Specsnode.text());
-                            if (Specsnode.tagName() == "Preloaded")
+                            else if (Specsnode.tagName() == "Preloaded")
                             {
                                 bool b = false;
                                 if (Specsnode.text()=="yes")
                                     b = true;
                                 iol.setpreloaded(b);
                             }
-                            if (Specsnode.tagName() == "Toric")
+                            else if (Specsnode.tagName() == "Toric")
                             {
                                 bool b = false;
                                 if (Specsnode.text()=="yes")
                                     b = true;
                                 iol.setToric(b);
                             }
-                            if (Specsnode.tagName() == "OpticConcept")
+                            else if (Specsnode.tagName() == "OpticConcept")
                             {
                                 bool b = false;
                                 if (Specsnode.text().toUpper()=="EDOF")
@@ -1034,29 +1035,33 @@ void Rufus::Moulinette()
                                     iol.setMultifocal(b);
                                 }
                             }
-                            if (Specsnode.tagName() == "Filter")
+                            else if (Specsnode.tagName() == "Filter")
                             {
                                 bool b = false;
                                 if (Specsnode.text()=="yellow")
                                     b = true;
                                 iol.setpreloaded(b);
                             }
-                            if (Specsnode.tagName() == "IncisionWidth")
+                            else if (Specsnode.tagName() == "IncisionWidth")
+                            {
                                 if (Specsnode.text().toDouble() >0)
                                     iol.setDiainjecteur(Specsnode.text().toDouble());
-                            if (Specsnode.tagName() == "IncisionWidth")
+                            }
+                            else if (Specsnode.tagName() == "InjectorSize")
+                            {
                                 if (Specsnode.text().toDouble() >0)
                                     iol.setDiainjecteur(Specsnode.text().toDouble());
-                            if (Specsnode.tagName() == "OpticDiameter")
+                            }
+                            else if (Specsnode.tagName() == "OpticDiameter")
                                 iol.setOpticalDiameter(Specsnode.text().toDouble());
-                            if (Specsnode.tagName() == "HapticDiameter")
+                            else if (Specsnode.tagName() == "HapticDiameter")
                                 iol.setDiaall(Specsnode.text().toDouble());
-                            if (Specsnode.tagName() == "IntendedLocation")
+                            else if (Specsnode.tagName() == "IntendedLocation")
                                 if (!IntendedLocation.contains(Specsnode.text()))
                                     IntendedLocation << Specsnode.text();
                         }
                     }
-                    if (Lensnode.tagName() == "Availability")
+                    else if (Lensnode.tagName() == "Availability")
                     {
                         int range = 1;
                         for (int k=0; k<Lensnode.childNodes().size(); k++)
@@ -1081,7 +1086,7 @@ void Rufus::Moulinette()
                                         iol.setPwrmin(Fromnode.text().toDouble());
                                 }
                             }
-                            if (Availabilitynode.tagName() == "Sphere" && Availabilitynode.attribute("range").toInt() == range)
+                            else if (Availabilitynode.tagName() == "Sphere" && Availabilitynode.attribute("range").toInt() == range)
                             {
                                 for (int l=0; l<Availabilitynode.childNodes().size(); l++)
                                 {
@@ -1116,7 +1121,7 @@ void Rufus::Moulinette()
                                             iol.setCylmin(Fromnode.text().toDouble());
                                     }
                                 }
-                                if (Availabilitynode.tagName() == "Cylinder" && Availabilitynode.attribute("range").toInt() == range)
+                                else if (Availabilitynode.tagName() == "Cylinder" && Availabilitynode.attribute("range").toInt() == range)
                                 {
                                     for (int l=0; l<Availabilitynode.childNodes().size(); l++)
                                     {
@@ -1125,6 +1130,199 @@ void Rufus::Moulinette()
                                             iol.setCylmax(Tonode.text().toDouble());
                                     }
                                 }
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="nominal")
+                    {
+                        for (int i=0; i<Lensnode.childNodes().size(); i++)
+                        {
+                            QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "Ultrasound")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAEcho(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "SRKt")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAopt_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Haigis")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Haigisnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Haigisnode.tagName() == "a0")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa0_nominal(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a1")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa1_nominal(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a2")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa2_nominal(Haigisnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "HofferQ")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHofferQ_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Holladay1")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHolladay1_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Barrett")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Barettnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Barettnode.tagName() == "DF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettDF_nominal(Barettnode.text().toDouble());
+                                    }
+                                    if (Barettnode.tagName() == "LF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettLF_nominal(Barettnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "Olsen")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setOlsen_nominal(Constantnode.text().toDouble());
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="ULIB")
+                    {
+                        iol.setresultsulib(Lensnode.attribute("results").toInt());
+                        for (int i=0; i<Lensnode.childNodes().size(); i++)
+                        {
+                            QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "SRKt")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAopt_ulib(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Haigis")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Haigisnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Haigisnode.tagName() == "a0")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa0_ulib(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a1")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa1_ulib(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a2")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa2_ulib(Haigisnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "HofferQ")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHofferQ_ulib(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Holladay1")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHolladay1_ulib(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Barrett")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Barettnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Barettnode.tagName() == "DF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettDF_ulib(Barettnode.text().toDouble());
+                                    }
+                                    if (Barettnode.tagName() == "LF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettLF_ulib(Barettnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "Olsen")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setOlsen_ulib(Constantnode.text().toDouble());
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="optimized" && Lensnode.attribute("results").toInt() >0)
+                    {
+                        iol.setresultsoptimized(Lensnode.attribute("results").toInt());
+                        for (int i=0; i<Lensnode.childNodes().size(); i++)
+                        {
+                            QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "SRKt")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAopt_optimized(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Haigis")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Haigisnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Haigisnode.tagName() == "a0")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa0_optimized(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a1")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa1_optimized(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a2")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa2_optimized(Haigisnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "HofferQ")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHofferQ_optimized(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Holladay1")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHolladay1_optimized(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Barrett")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Barettnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Barettnode.tagName() == "DF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettDF_optimized(Barettnode.text().toDouble());
+                                    }
+                                    if (Barettnode.tagName() == "LF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettLF_optimized(Barettnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "Olsen")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setOlsen_optimized(Constantnode.text().toDouble());
                             }
                         }
                     }
@@ -1141,11 +1339,47 @@ void Rufus::Moulinette()
                 if (iol.istoric())
                     qDebug() << "from" << iol.cylmin()
                          << "to" << iol.cylmax();
+                qDebug() << "NOMINAL"
+                         << "csteAEcho" << iol.csteAEcho()
+                         << "csteA" << iol.csteAopt_nominal()
+                         << "HaigisAO" << iol.haigisa0_nominal()
+                         << "HaigisA1" << iol.haigisa1_nominal()
+                         << "HaigisA2" << iol.haigisa2_nominal()
+                         << "Hollladay1" << iol.holladay1_nominal()
+                         << "HofferQ" << iol.hofferQ_nominal()
+                         << "BarettDF" << iol.barettDF_nominal()
+                         << "BarettLF" << iol.barettLF_nominal()
+                         << "Olsen" << iol.olsen_nominal();
+                if (iol.results_ulib() >0)
+                    qDebug() << "ULIB"
+                             << "csteAULIB" << iol.csteAopt_ulib()
+                             << "HaigisAOUlib" << iol.haigisa0_ulib()
+                             << "HaigisA1Ulib" << iol.haigisa1_ulib()
+                             << "HaigisA2Ulib" << iol.haigisa2_ulib()
+                             << "Hollladay1Ulib" << iol.holladay1_ulib()
+                             << "HofferQUlib" << iol.hofferQ_ulib()
+                             << "BarettDFUlib" << iol.barettDF_ulib()
+                             << "BarettLFUlib" << iol.barettLF_ulib()
+                             << "OlsenUlib" << iol.olsen_ulib();
+                if (iol.results_optimized() >0)
+                    qDebug() << "OPTIMIZED"
+                             << "csteAoptimized" << iol.csteAopt_optimized()
+                             << "HaigisAOoptimized" << iol.haigisa0_optimized()
+                             << "HaigisA1optimized" << iol.haigisa1_optimized()
+                             << "HaigisA2optimized" << iol.haigisa2_optimized()
+                             << "Hollladay1optimized" << iol.holladay1_optimized()
+                             << "HofferQoptimized" << iol.hofferQ_optimized()
+                             << "BarettDFoptimized" << iol.barettDF_optimized()
+                             << "BarettLFoptimized" << iol.barettLF_optimized()
+                             << "Olsenoptimized" << iol.olsen_optimized();
             }
         }
         qDebug() << "IntendedLocation" << IntendedLocation.size();
         for (int i=0; i<IntendedLocation.size(); i++)
             qDebug() << "IntendedLocation" << IntendedLocation.at(i);
+        qDebug() << "TypeConstant" << TypeConstant.size();
+        for (int i=0; i<TypeConstant.size(); i++)
+            qDebug() << "TypeConstant" << TypeConstant.at(i);
     }
 
 

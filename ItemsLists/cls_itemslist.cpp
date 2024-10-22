@@ -870,7 +870,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_CSTEAOPT_IOLS)
             {
-                iol->setCsteAopt(newvalue.toDouble());
+                iol->setCsteAopt_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_CSTEAECHO_IOLS)
@@ -880,22 +880,22 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_HAIGISA0_IOLS)
             {
-                iol->setHaigisa0(newvalue.toDouble());
+                iol->setHaigisa0_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_HAIGISA1_IOLS)
             {
-                iol->setHaigisa1(newvalue.toDouble());
+                iol->setHaigisa1_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_HAIGISA2_IOLS)
             {
-                iol->setHaigisa2(newvalue.toDouble());
+                iol->setHaigisa2_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_HOLL1_IOLS)
             {
-                iol->setHolladay(newvalue.toDouble());
+                iol->setHolladay1_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_DIAINJECTEUR_IOLS)

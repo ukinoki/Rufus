@@ -52,8 +52,11 @@ private: //Données de l'intervention
 
     //! material
     QString m_opticmaterial = "";               //! le matériau de l'IOL
+            //!new
     QString m_hapticmaterial= "";               //! le matériau des haptiques
+            //!new
     bool m_singlepiece      = true;
+
     QString m_remarque      = "";               //! remarque à propos de l'IOL
 
     bool m_preloaded        = false;            //! préchargé
@@ -69,15 +72,51 @@ private: //Données de l'intervention
     double m_cylmax         = 0;                //! cylindre maximal de l'implant
     double m_cylmin         = 0;                //! cylinde minimal de l'implant
     double m_cylstp         = 0;                //! pas de variation du cylindre l'implant
+        //!new
+    double m_addintermediate= 0;                //! addition in intermediate vision
+        //!new
+    double m_addnear        = 0;                //! addition in near vision
 
     //! constants
-    double m_csteAopt       = 0;                //! constante A optique
     double m_csteAEcho      = 0;                //! constante A echographique
-    double m_haigisa0       = 0;                //! constante Haigis a0
-    double m_haigisa1       = 0;                //! constante Haigis a1
-    double m_haigisa2       = 0;                //! constante Haigis a2
-    double m_holladay       = 0;                //! constante Holladay
+
+    double m_csteAopt_nominal   = 0;            //! constante A optique nominal
+    double m_haigisa0_nominal   = 0;            //! constante Haigis a0 nominal
+    double m_haigisa1_nominal   = 0;            //! constante Haigis a1 nominal
+    double m_haigisa2_nominal   = 0;            //! constante Haigis a2 nominal
+    double m_holladay1_nominal  = 0;            //! constante Holladay1 nominal
+    double m_hofferq_nominal    = 0;            //! constante HofferQ nominal
+    double m_barettdf_nominal   = 0;            //! constante BarettDF nominal
+    double m_barettlf_nominal   = 0;            //! constante BarettLF nominal
+    double m_olsen_nominal      = 0;            //! constante Olsen nominal
+
+    int m_ulibresults        = 0;               //! nbre de resultats ulib
+    double m_csteAopt_ulib   = 0;               //! constante A optique ulib
+    double m_haigisa0_ulib   = 0;               //! constante Haigis a0 ulib
+    double m_haigisa1_ulib   = 0;               //! constante Haigis a1 ulib
+    double m_haigisa2_ulib   = 0;               //! constante Haigis a2 ulib
+    double m_holladay1_ulib  = 0;               //! constante Holladay1 ulib
+    double m_hofferq_ulib    = 0;               //! constante HofferQ ulib
+    double m_barettdf_ulib   = 0;               //! constante BarettDF ulib
+    double m_barettlf_ulib   = 0;               //! constante BarettLF ulib
+    double m_olsen_ulib      = 0;               //! constante Olsen ulib
+
+    int m_optimizedresults        = 0;          //! nbre de resultats optimized
+    double m_csteAopt_optimized   = 0;          //! constante A optique optimized
+    double m_haigisa0_optimized   = 0;          //! constante Haigis a0 optimized
+    double m_haigisa1_optimized   = 0;          //! constante Haigis a1 optimized
+    double m_haigisa2_optimized   = 0;          //! constante Haigis a2 optimized
+    double m_holladay1_optimized  = 0;          //! constante Holladay1 optimized
+    double m_hofferq_optimized    = 0;          //! constante HofferQ optimized
+    double m_barettdf_optimized   = 0;          //! constante BarettDF optimized
+    double m_barettlf_optimized   = 0;          //! constante BarettLF optimized
+    double m_olsen_optimized      = 0;          //! constante Olsen ulib
+
     double m_acd            = 0;                //! ACD
+
+    bool m_ulib             = false;            //! constant comes from ulib
+    bool m_optimized        = false;            //! constant is optimized from manufacturer
+    bool m_nominal          = true;             //! constant is nominal from manufacturer
 
     //! type IOL
     QString m_type          = "";               //! le type de l'IOL : CP, CA, addon, support irien, refractif ca
@@ -96,12 +135,43 @@ public:
     double cylmax() const                       { return m_cylmax; }
     double cylmin() const                       { return m_cylmin; }
     double cylstp() const                       { return m_cylstp; }
-    double csteAopt() const                     { return m_csteAopt; }
+    double addnear() const                      { return m_addnear; }
+    double addintermediate() const              { return m_addintermediate; }
+
     double csteAEcho() const                    { return m_csteAEcho; }
-    double haigisa0() const                     { return m_haigisa0; }
-    double haigisa1() const                     { return m_haigisa1; }
-    double haigisa2() const                     { return m_haigisa2; }
-    double holladay() const                     { return m_holladay; }
+
+    double csteAopt_nominal() const             { return m_csteAopt_nominal; }
+    double haigisa0_nominal() const             { return m_haigisa0_nominal; }
+    double haigisa1_nominal() const             { return m_haigisa1_nominal; }
+    double haigisa2_nominal() const             { return m_haigisa2_nominal; }
+    double holladay1_nominal() const            { return m_holladay1_nominal; }
+    double hofferQ_nominal() const              { return m_hofferq_nominal; }
+    double barettLF_nominal() const             { return m_barettlf_nominal; }
+    double barettDF_nominal() const             { return m_barettdf_nominal; }
+    double olsen_nominal() const                { return m_olsen_nominal; }
+
+    int results_ulib() const                    { return m_ulibresults; }
+    double csteAopt_ulib() const                { return m_csteAopt_ulib; }
+    double haigisa0_ulib() const                { return m_haigisa0_ulib; }
+    double haigisa1_ulib() const                { return m_haigisa1_ulib; }
+    double haigisa2_ulib() const                { return m_haigisa2_ulib; }
+    double holladay1_ulib() const               { return m_holladay1_ulib; }
+    double hofferQ_ulib() const                 { return m_hofferq_ulib; }
+    double barettLF_ulib() const                { return m_barettlf_ulib; }
+    double barettDF_ulib() const                { return m_barettdf_ulib; }
+    double olsen_ulib() const                   { return m_olsen_ulib; }
+
+    int results_optimized() const               { return m_optimizedresults; }
+    double csteAopt_optimized() const           { return m_csteAopt_optimized; }
+    double haigisa0_optimized() const           { return m_haigisa0_optimized; }
+    double haigisa1_optimized() const           { return m_haigisa1_optimized; }
+    double haigisa2_optimized() const           { return m_haigisa2_optimized; }
+    double holladay1_optimized() const          { return m_holladay1_optimized; }
+    double hofferQ_optimized() const            { return m_hofferq_optimized; }
+    double barettLF_optimized() const           { return m_barettlf_optimized; }
+    double barettDF_optimized() const           { return m_barettdf_optimized; }
+    double olsen_optimized() const              { return m_olsen_optimized; }
+
     double acd() const                          { return m_acd; }
     double diainjecteur() const                 { return m_diainjecteur; }
     double diaall() const                       { return m_diaall; }
@@ -132,12 +202,44 @@ public:
     void setCylmax(double cylmax)                       { m_cylmax = cylmax;                    m_data[CP_MAXCYL_IOLS] = cylmax; }
     void setCylmin(double cylmin)                       { m_cylmin = cylmin;                    m_data[CP_MINCYL_IOLS] = cylmin; }
     void setCylstp(double cylstp)                       { m_cylstp = cylstp;                    m_data[CP_CYLSTEP_IOLS] = cylstp; }
-    void setCsteAopt(double csteAopt)                   { m_csteAopt = csteAopt;                m_data[CP_CSTEAOPT_IOLS] = csteAopt; }
+    void setAddnear(double addnear)                     { m_addnear = addnear;                  m_data[CP_ADDNEAR_IOLS] = addnear; }
+    void setADDintermediate(double addintermediate)     { m_addintermediate = addintermediate;  m_data[CP_ADDINTERMEDIATE_IOLS] = addintermediate; }
+
     void setCsteAEcho(double csteAEcho)                 { m_csteAEcho = csteAEcho;              m_data[CP_CSTEAOPT_IOLS] = csteAEcho; }
-    void setHaigisa0(double haigisa0)                   { m_haigisa0 = haigisa0;                m_data[CP_HAIGISA0_IOLS] = haigisa0; }
-    void setHaigisa1(double haigisa1)                   { m_haigisa1 = haigisa1;                m_data[CP_HAIGISA1_IOLS] = haigisa1; }
-    void setHaigisa2(double haigisa2)                   { m_haigisa2 = haigisa2;                m_data[CP_HAIGISA2_IOLS] = haigisa2; }
-    void setHolladay(double holladay)                   { m_holladay = holladay;                m_data[CP_HOLL1_IOLS] = holladay; }
+
+    void setCsteAopt_nominal(double csteAopt)           { m_csteAopt_nominal = csteAopt;        m_data[CP_CSTEAOPT_IOLS] = csteAopt; }
+    void setHaigisa0_nominal(double haigisa0)           { m_haigisa0_nominal = haigisa0;        m_data[CP_HAIGISA0_IOLS] = haigisa0; }
+    void setHaigisa1_nominal(double haigisa1)           { m_haigisa1_nominal = haigisa1;        m_data[CP_HAIGISA1_IOLS] = haigisa1; }
+    void setHaigisa2_nominal(double haigisa2)           { m_haigisa2_nominal = haigisa2;        m_data[CP_HAIGISA2_IOLS] = haigisa2; }
+    void setHolladay1_nominal(double holladay1)         { m_holladay1_nominal = holladay1;      m_data[CP_HOLL1_IOLS] = holladay1; }
+    void setHofferQ_nominal(double hofferq)             { m_haigisa0_nominal = hofferq;         m_data[CP_HOFFERQ_IOLS] = hofferq; }
+    void setBarettLF_nominal(double barettlf)           { m_haigisa1_nominal = barettlf;        m_data[CP_BARETTLF_IOLS] = barettlf; }
+    void setBarettDF_nominal(double barettdf)           { m_haigisa2_nominal = barettdf;        m_data[CP_BARETTDF_IOLS] = barettdf; }
+    void setOlsen_nominal(double olsen)                 { m_olsen_nominal = olsen;              m_data[CP_OLSEN_IOLS] = olsen; }
+
+    void setresultsulib(int results)                    { m_ulibresults = results;              m_data[CP_RESULTSU_IOLS] = results; }
+    void setCsteAopt_ulib(double csteAopt)              { m_csteAopt_ulib = csteAopt;           m_data[CP_CSTEAOPTU_IOLS] = csteAopt; }
+    void setHaigisa0_ulib(double haigisa0)              { m_haigisa0_ulib = haigisa0;           m_data[CP_HAIGISA0U_IOLS] = haigisa0; }
+    void setHaigisa1_ulib(double haigisa1)              { m_haigisa1_ulib = haigisa1;           m_data[CP_HAIGISA1U_IOLS] = haigisa1; }
+    void setHaigisa2_ulib(double haigisa2)              { m_haigisa2_ulib = haigisa2;           m_data[CP_HAIGISA2U_IOLS] = haigisa2; }
+    void setHolladay1_ulib(double holladay1)            { m_holladay1_ulib = holladay1;         m_data[CP_HOLL1U_IOLS] = holladay1; }
+    void setHofferQ_ulib(double hofferq)                { m_haigisa0_ulib = hofferq;            m_data[CP_HOFFERQU_IOLS] = hofferq; }
+    void setBarettLF_ulib(double barettlf)              { m_haigisa1_ulib = barettlf;           m_data[CP_BARETTLFU_IOLS] = barettlf; }
+    void setBarettDF_ulib(double barettdf)              { m_haigisa2_ulib = barettdf;           m_data[CP_BARETTDFU_IOLS] = barettdf; }
+    void setOlsen_ulib(double olsen)                    { m_olsen_ulib = olsen;                 m_data[CP_OLSENU_IOLS] = olsen; }
+
+    void setresultsoptimized(int results)               { m_optimizedresults = results;         m_data[CP_RESULTSO_IOLS] = results; }
+    void setCsteAopt_optimized(double csteAopt)         { m_csteAopt_optimized = csteAopt;      m_data[CP_CSTEAOPTO_IOLS] = csteAopt; }
+    void setHaigisa0_optimized(double haigisa0)         { m_haigisa0_optimized = haigisa0;      m_data[CP_HAIGISA0O_IOLS] = haigisa0; }
+    void setHaigisa1_optimized(double haigisa1)         { m_haigisa1_optimized = haigisa1;      m_data[CP_HAIGISA1O_IOLS] = haigisa1; }
+    void setHaigisa2_optimized(double haigisa2)         { m_haigisa2_optimized = haigisa2;      m_data[CP_HAIGISA2O_IOLS] = haigisa2; }
+    void setHolladay1_optimized(double holladay1)       { m_holladay1_optimized = holladay1;    m_data[CP_HOLL1O_IOLS] = holladay1; }
+    void setHofferQ_optimized(double hofferq)           { m_haigisa0_optimized = hofferq;       m_data[CP_HOFFERQO_IOLS] = hofferq; }
+    void setBarettLF_optimized(double barettlf)         { m_haigisa1_optimized = barettlf;      m_data[CP_BARETTLFO_IOLS] = barettlf; }
+    void setBarettDF_optimized(double barettdf)         { m_haigisa2_optimized = barettdf;      m_data[CP_BARETTDFO_IOLS] = barettdf; }
+    void setOlsen_optimized(double olsen)               { m_olsen_optimized = olsen;            m_data[CP_OLSENO_IOLS] = olsen; }
+
+
     void setAcd(double acd)                             { m_acd = acd;                          m_data[CP_ACD_IOLS] = acd; }
     void setDiainjecteur(double diainjecteur)           { m_diainjecteur = diainjecteur;        m_data[CP_DIAINJECTEUR_IOLS] = diainjecteur; }
     void setDiaall(double diaall)                       { m_diaall = diaall;                    m_data[CP_DIAALL_IOLS] = diaall; }

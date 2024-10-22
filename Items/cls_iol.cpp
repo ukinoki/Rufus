@@ -42,12 +42,12 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_MINCYL_IOLS, m_cylmin);
     setDataDouble(data, CP_MAXCYL_IOLS, m_cylmax);
     setDataDouble(data, CP_CYLSTEP_IOLS, m_cylstp);
-    setDataDouble(data, CP_CSTEAOPT_IOLS, m_csteAopt);
+    setDataDouble(data, CP_CSTEAOPT_IOLS, m_csteAopt_nominal);
     setDataDouble(data, CP_CSTEAECHO_IOLS, m_csteAEcho);
-    setDataDouble(data, CP_HAIGISA0_IOLS, m_haigisa0);
-    setDataDouble(data, CP_HAIGISA1_IOLS, m_haigisa1);
-    setDataDouble(data, CP_HAIGISA2_IOLS, m_haigisa2);
-    setDataDouble(data, CP_HOLL1_IOLS, m_holladay);
+    setDataDouble(data, CP_HAIGISA0_IOLS, m_haigisa0_nominal);
+    setDataDouble(data, CP_HAIGISA1_IOLS, m_haigisa1_nominal);
+    setDataDouble(data, CP_HAIGISA2_IOLS, m_haigisa2_nominal);
+    setDataDouble(data, CP_HOLL1_IOLS, m_holladay1_nominal);
     setDataDouble(data, CP_DIAINJECTEUR_IOLS, m_diainjecteur);
     setDataDouble(data, CP_DIAALL_IOLS, m_diaall);
     setDataDouble(data, CP_DIAOPT_IOLS, m_opticaldiameter);

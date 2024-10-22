@@ -436,16 +436,16 @@ void dlg_listeiols::ImportListeIOLS()
         for (int i=0; i<xml.childNodes().size(); i++)     // on reprend chaque IOL un par un
         {
             int idiol;
-            QString fabricant  = "";
-            QString modele = "";
-            QString materiau = "";
-            bool precharge = false;
+            QString manufacturer  = "";
+            QString model = "";
+            QString material = "";
+            bool preloaded = false;
             double incision= 0.0;
-            double diaoptique = 0.0;
+            double opticaldiameter = 0.0;
             double diaall = 0.0;
             bool multifocal = false;
             bool toric = false;
-            bool jaune = false;
+            bool yellow = false;
             bool edof = false;
             double pwrmin = 100.0;
             double pwrmax = -100.0;
@@ -468,28 +468,28 @@ void dlg_listeiols::ImportListeIOLS()
             {
                 QDomElement node = lensnode.childNodes().at(i).toElement();
                 if (node.tagName() == "Manufacturer")
-                    fabricant = node.text();
+                    manufacturer = node.text();
                 else if (node.tagName() == "Name")
-                    modele = node.text();
+                    model = node.text();
                 else if (node.tagName() == "Specifications")
                     for (int i=0; i<node.childNodes().size(); i++)
                     {
                         QDomElement nodespec = node.childNodes().at(i).toElement();
                         if (nodespec.tagName() == "OpticMaterial")
-                            materiau = nodespec.text();
+                            material = nodespec.text();
                         else if (nodespec.tagName() == "Hydro")
                         {
                             if (nodespec.text() != "")
-                                materiau += " " + nodespec.text();
+                                material += " " + nodespec.text();
                         }
                         else if (nodespec.tagName() == "Preloaded")
-                            precharge = (nodespec.text() != "no");
+                            preloaded = (nodespec.text() != "no");
                         else if (nodespec.tagName() == "Filter")
-                            jaune = (nodespec.text() == "yellow");
+                            yellow = (nodespec.text() == "yellow");
                         else if (nodespec.tagName() == "IncisionWidth")
                             incision = nodespec.text().toDouble();
                         else if (nodespec.tagName() == "OpticDiameter")
-                            diaoptique = nodespec.text().toDouble();
+                            opticaldiameter = nodespec.text().toDouble();
                         else if (nodespec.tagName() == "HapticDiameter")
                             diaall = nodespec.text().toDouble();
                         else if (nodespec.tagName() == "OpticConcept")
@@ -575,7 +575,7 @@ void dlg_listeiols::ImportListeIOLS()
             {
                 Manufacturer *manf = const_cast<Manufacturer*>(it.value());
                  if (manf)
-                    if (manf->nom().toUpper() == fabricant.toUpper())
+                    if (manf->nom().toUpper() == manufacturer.toUpper())
                     {
                         man = manf;
                         break;
@@ -584,7 +584,7 @@ void dlg_listeiols::ImportListeIOLS()
             if (!man)
                 continue;
             foreach (IOL *iol, *Datas::I()->iols->iols())
-                if (iol->modele().toUpper() == modele.toUpper() && man->nom().toUpper() == fabricant.toUpper())
+                if (iol->modele().toUpper() == model.toUpper() && man->nom().toUpper() == manufacturer.toUpper())
                 {
                     foundiol = true;
                     break;
@@ -592,7 +592,7 @@ void dlg_listeiols::ImportListeIOLS()
             if (!foundiol && man != Q_NULLPTR)
             {
                 QHash<QString, QVariant> m_listbinds;
-                m_listbinds[CP_MODELNAME_IOLS]      = modele;
+                m_listbinds[CP_MODELNAME_IOLS]      = model;
                 m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
                 m_listbinds[CP_CSTEAOPT_IOLS]       = (csteA >0.0?    csteA    : QVariant());
                 m_listbinds[CP_CSTEAECHO_IOLS]      = (srkt >0.0?     srkt     : QVariant());
@@ -601,16 +601,16 @@ void dlg_listeiols::ImportListeIOLS()
                 m_listbinds[CP_HAIGISA2_IOLS]       = (haigis2 >0.0?  haigis2  : QVariant());
                 m_listbinds[CP_ACD_IOLS]            = (hofferQ>0.0?   hofferQ  : QVariant());
                 m_listbinds[CP_HOLL1_IOLS]          = (holladay>0.0?  holladay : QVariant());
-                m_listbinds[CP_OPTICMATERIAU_IOLS]       = materiau;
+                m_listbinds[CP_OPTICMATERIAU_IOLS]       = material;
                 m_listbinds[CP_DIAALL_IOLS]         = (diaall >0.0?  diaall : QVariant());
-                m_listbinds[CP_DIAOPT_IOLS]         = (diaoptique >0.0? diaoptique  : QVariant());
+                m_listbinds[CP_DIAOPT_IOLS]         = (opticaldiameter >0.0? opticaldiameter  : QVariant());
                 m_listbinds[CP_DIAINJECTEUR_IOLS]   = (incision >0.0? incision : QVariant());
-                m_listbinds[CP_PRECHARGE_IOLS]      = (precharge?   "1" : QVariant());
+                m_listbinds[CP_PRECHARGE_IOLS]      = (preloaded?   "1" : QVariant());
                 m_listbinds[CP_MAXPWR_IOLS]         = pwrmax;
                 m_listbinds[CP_MINPWR_IOLS]         = pwrmin;
                 m_listbinds[CP_MAXCYL_IOLS]         = (toric? cylmax : QVariant());
                 m_listbinds[CP_MINCYL_IOLS]         = (toric? cylmin : QVariant());
-                m_listbinds[CP_JAUNE_IOLS]          = (jaune?       "1" : QVariant());
+                m_listbinds[CP_JAUNE_IOLS]          = (yellow?       "1" : QVariant());
                 m_listbinds[CP_MULTIFOCAL_IOLS]     = (multifocal?  "1" : QVariant());
                 m_listbinds[CP_EDOF_IOLS]           = (edof?        "1" : QVariant());
                 m_listbinds[CP_TORIC_IOLS]          = (toric?       "1" : QVariant());

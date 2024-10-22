@@ -652,13 +652,44 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_PWRSTEP_IOLS                                 "PuissancePas"
 #define CP_MINCYL_IOLS                                  "CylindreMin"
 #define CP_MAXCYL_IOLS                                  "CylindreMax"
+#define CP_ADDNEAR_IOLS                                 "AddNear"
+#define CP_ADDINTERMEDIATE_IOLS                         "AddIntermediate"
 #define CP_CYLSTEP_IOLS                                 "CylindrePas"
-#define CP_CSTEAOPT_IOLS                                "CsteAOptique"
+
 #define CP_CSTEAECHO_IOLS                               "CsteAEcho"
+
+#define CP_CSTEAOPT_IOLS                                "CsteAOptique"
 #define CP_HAIGISA0_IOLS                                "Haigisa0"
 #define CP_HAIGISA1_IOLS                                "Haigisa1"
 #define CP_HAIGISA2_IOLS                                "Haigisa2"
 #define CP_HOLL1_IOLS                                   "Holladay1sf"
+#define CP_HOFFERQ_IOLS                                 "HofferQ"
+#define CP_BARETTLF_IOLS                                "BarettLF"
+#define CP_BARETTDF_IOLS                                "BarettDF"
+#define CP_OLSEN_IOLS                                   "Olsen"
+
+#define CP_RESULTSU_IOLS                                "ResultsULIB"
+#define CP_CSTEAOPTU_IOLS                               "CsteAOptiqueULIB"
+#define CP_HAIGISA0U_IOLS                               "Haigisa0ULIB"
+#define CP_HAIGISA1U_IOLS                               "Haigisa1ULIB"
+#define CP_HAIGISA2U_IOLS                               "Haigisa2ULIB"
+#define CP_HOLL1U_IOLS                                  "Holladay1sfULIB"
+#define CP_HOFFERQU_IOLS                                "HofferQULIB"
+#define CP_BARETTLFU_IOLS                               "BarettLFULIB"
+#define CP_BARETTDFU_IOLS                               "BarettDFULIB"
+#define CP_OLSENU_IOLS                                  "OlsenULIB"
+
+#define CP_RESULTSO_IOLS                                "ResultsOptimized"
+#define CP_CSTEAOPTO_IOLS                               "CsteAOptiqueOptimized"
+#define CP_HAIGISA0O_IOLS                               "Haigisa0Optimized"
+#define CP_HAIGISA1O_IOLS                               "Haigisa1Optimized"
+#define CP_HAIGISA2O_IOLS                               "Haigisa2Optimized"
+#define CP_HOLL1O_IOLS                                  "Holladay1sfOptimized"
+#define CP_HOFFERQO_IOLS                                "HofferQOptimized"
+#define CP_BARETTLFO_IOLS                               "BarettLFOptimized"
+#define CP_BARETTDFO_IOLS                               "BarettDFOptimized"
+#define CP_OLSENO_IOLS                                  "OlsenOptimized"
+
 #define CP_DIAINJECTEUR_IOLS                            "DiametreInjecteur"
 #define CP_ARRAYIMG_IOLS                                "Image"
 #define CP_TYPIMG_IOLS                                  "TypeImage"
@@ -801,13 +832,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define FACTURE                                     "Facture"
 #define ECHEANCIER                                  "Echéancier"
 
-                        //! les types d'IOLS
+                //! les types d'IOLS
 #define IOL_CP                                      "Chambre postérieure"
 #define IOL_CA                                      "Chambre antérieure"
 #define IOL_ADDON                                   "Add-on"
 #define IOL_IRIEN                                   "Support irien"
 #define IOL_CAREFRACTIF                             "Refractif CA"
 #define IOL_AUTRE                                   "Autre"
+
+                //! les types de constante d'IOLS
+#define IOL_ULIB                                    "ULIB"
+#define IOL_OPTIMIZED                               "optimized"
+#define IOL_NOMINAL                                 "nominal"
 
 #define NOM_APPLI                                   "Rufus"
 
@@ -818,7 +854,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #define NOM_ADMINISTRATEUR                          "Admin"
 #define MDP_ADMINISTRATEUR                          "bob"
-
 
 //les TCP
 #define NOM_PORT_TCPSERVEUR                         "50885"

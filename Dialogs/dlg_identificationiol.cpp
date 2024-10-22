@@ -605,20 +605,20 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
     if (m_mode == Modification)
     {
         wdg_nomiolline      ->setText(m_currentIOL->modele());
-        if (m_currentIOL->csteAopt() > 0.0)
-            wdg_Aoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt(), 'f', 1));
+        if (m_currentIOL->csteAopt_nominal() > 0.0)
+            wdg_Aoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_nominal(), 'f', 1));
         if (m_currentIOL->csteAEcho() > 0.0)
             wdg_Aecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho(), 'f', 1));
         if (m_currentIOL->acd() > 0.0)
             wdg_ACDline         ->setText(QLocale().toString(m_currentIOL->acd(), 'f', 2));
-        if (m_currentIOL->holladay() > 0.0)
-            wdg_holladayline    ->setText(QLocale().toString(m_currentIOL->holladay(), 'f', 2));
-        if (m_currentIOL->haigisa0() > 0.0)
-            wdg_haigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0(), 'f', 4));
-        if (m_currentIOL->haigisa1() > 0.0)
-            wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1(), 'f', 4));
-        if (m_currentIOL->haigisa2() > 0.0)
-            wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2(), 'f', 4));
+        if (m_currentIOL->holladay1_nominal() > 0.0)
+            wdg_holladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_nominal(), 'f', 2));
+        if (m_currentIOL->haigisa0_nominal() > 0.0)
+            wdg_haigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0_nominal(), 'f', 4));
+        if (m_currentIOL->haigisa1_nominal() > 0.0)
+            wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_nominal(), 'f', 4));
+        if (m_currentIOL->haigisa2_nominal() > 0.0)
+            wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_nominal(), 'f', 4));
         wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
         if (m_currentIOL->opticalmaterial() != "")
