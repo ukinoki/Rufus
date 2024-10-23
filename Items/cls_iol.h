@@ -38,6 +38,7 @@ private: //Données de l'intervention
     //! m_stringid = manufacturer
     int m_idmanufacturer    = 0;                //! id du fabricant
     int m_iddistributeur    = 0;                //! id du distributeur du fabricant - non stocké en base parce que redondant
+    int m_idiolcon          = 0;                //! id iol in iolcon base
     QString m_modele        = "";               //! modèle de l'implant
     bool m_inactif          = false;
 
@@ -114,10 +115,6 @@ private: //Données de l'intervention
 
     double m_acd            = 0;                //! ACD
 
-    bool m_ulib             = false;            //! constant comes from ulib
-    bool m_optimized        = false;            //! constant is optimized from manufacturer
-    bool m_nominal          = true;             //! constant is nominal from manufacturer
-
     //! type IOL
     QString m_type          = "";               //! le type de l'IOL : CP, CA, addon, support irien, refractif ca
 
@@ -128,6 +125,7 @@ private: //Données de l'intervention
 public:
     int idmanufacturer() const                  { return m_idmanufacturer; }
     int iddistributeur() const                  { return m_iddistributeur; }
+    int iddiolcon() const                       { return m_idiolcon; }
     QString modele() const                      { return m_modele; }
     double pwrmax() const                       { return m_pwrmax; }
     double pwrmin() const                       { return m_pwrmin; }
@@ -194,6 +192,7 @@ public:
 
     void setidmanufacturer(int &id)                     { m_idmanufacturer = id;                m_data[CP_IDMANUFACTURER_IOLS] = id; }
     void setidistributeur(int id)                       { m_iddistributeur = id;}
+    void setidiolcon(int id)                            { m_idiolcon = id;                      m_data[CP_IDIOLCON_IOLS] = id; }
     void setmodele(const QString &txt)                  { m_modele = txt;                       m_data[CP_MODELNAME_IOLS] = txt; }
     void setactif(bool &actif)                          { m_inactif = !actif;                   m_data[CP_INACTIF_IOLS] = !actif; }
     void setPwrmax(double pwrmax)                       { m_pwrmax = pwrmax;                    m_data[CP_MAXPWR_IOLS] = pwrmax; }
@@ -203,7 +202,7 @@ public:
     void setCylmin(double cylmin)                       { m_cylmin = cylmin;                    m_data[CP_MINCYL_IOLS] = cylmin; }
     void setCylstp(double cylstp)                       { m_cylstp = cylstp;                    m_data[CP_CYLSTEP_IOLS] = cylstp; }
     void setAddnear(double addnear)                     { m_addnear = addnear;                  m_data[CP_ADDNEAR_IOLS] = addnear; }
-    void setADDintermediate(double addintermediate)     { m_addintermediate = addintermediate;  m_data[CP_ADDINTERMEDIATE_IOLS] = addintermediate; }
+    void setAddintermediate(double addintermediate)     { m_addintermediate = addintermediate;  m_data[CP_ADDINTERMEDIATE_IOLS] = addintermediate; }
 
     void setCsteAEcho(double csteAEcho)                 { m_csteAEcho = csteAEcho;              m_data[CP_CSTEAOPT_IOLS] = csteAEcho; }
 

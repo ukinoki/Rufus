@@ -643,6 +643,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
                             //! Table Ophtalmologie.IOLs
 #define CP_ID_IOLS                                      "idIOL"
 #define CP_IDMANUFACTURER_IOLS                          "idmanufacturer"
+#define CP_IDIOLCON_IOLS                                "idiolcon"
 #define CP_MODELNAME_IOLS                               "modelname"
 #define CP_DIAOPT_IOLS                                  "DiametreOptique"
 #define CP_DIAALL_IOLS                                  "DiametreAll"

@@ -151,18 +151,12 @@ void IOL::resetdatas()
     data[CP_MINCYL_IOLS]             = 0;
     data[CP_MAXCYL_IOLS]             = 0;
     data[CP_CYLSTEP_IOLS]            = 0;
-    data[CP_CSTEAOPT_IOLS]           = 0;
-    data[CP_CSTEAECHO_IOLS]          = 0;
-    data[CP_HAIGISA0_IOLS]           = 0;
-    data[CP_HAIGISA1_IOLS]           = 0;
-    data[CP_HAIGISA2_IOLS]           = 0;
-    data[CP_HOLL1_IOLS]              = 0;
     data[CP_DIAINJECTEUR_IOLS]       = 0;
     data[CP_DIAALL_IOLS]             = 0;
     data[CP_DIAOPT_IOLS]             = 0;
     data[CP_ARRAYIMG_IOLS]           = QLatin1String(QVariant().toByteArray().toBase64());
     data[CP_TYPIMG_IOLS]             = "";
-    data[CP_OPTICMATERIAU_IOLS]           = "";
+    data[CP_OPTICMATERIAU_IOLS]      = "";
     data[CP_REMARQUE_IOLS]           = "";
     data[CP_PRECHARGE_IOLS]          = false;
     data[CP_JAUNE_IOLS]              = false;
@@ -170,6 +164,50 @@ void IOL::resetdatas()
     data[CP_EDOF_IOLS]               = false;
     data[CP_TORIC_IOLS]              = false;
     data[CP_TYP_IOLS]                = 0;
+
+    data[CP_CSTEAECHO_IOLS]          = 0;
+
+    data[CP_CSTEAOPT_IOLS]           = 0;
+    data[CP_HAIGISA0_IOLS]           = 0;
+    data[CP_HAIGISA1_IOLS]           = 0;
+    data[CP_HAIGISA2_IOLS]           = 0;
+    data[CP_HOLL1_IOLS]              = 0;
+
+    //! champs ajoutés 10/24
+    data[CP_IDIOLCON_IOLS]           = 0;
+
+    data[CP_SINGLEPIECE_IOLS]        = false;
+    data[CP_HAPTICMATERIAU_IOLS]     = "";
+    data[CP_ADDINTERMEDIATE_IOLS]    = 0;
+    data[CP_ADDNEAR_IOLS]            = 0;
+
+    data[CP_HOFFERQ_IOLS]            = 0;
+    data[CP_BARETTLF_IOLS]           = 0;
+    data[CP_BARETTDF_IOLS]           = 0;
+    data[CP_OLSEN_IOLS]              = 0;
+
+    data[CP_RESULTSU_IOLS]           = 0;
+    data[CP_CSTEAOPTU_IOLS]          = 0;
+    data[CP_HAIGISA0U_IOLS]          = 0;
+    data[CP_HAIGISA1U_IOLS]          = 0;
+    data[CP_HAIGISA2U_IOLS]          = 0;
+    data[CP_HOLL1U_IOLS]             = 0;
+    data[CP_HOFFERQU_IOLS]           = 0;
+    data[CP_BARETTLFU_IOLS]          = 0;
+    data[CP_BARETTDFU_IOLS]          = 0;
+    data[CP_OLSENU_IOLS]             = 0;
+
+    data[CP_RESULTSO_IOLS]           = 0;
+    data[CP_CSTEAOPTO_IOLS]          = 0;
+    data[CP_HAIGISA0O_IOLS]          = 0;
+    data[CP_HAIGISA1O_IOLS]          = 0;
+    data[CP_HAIGISA2O_IOLS]          = 0;
+    data[CP_HOLL1O_IOLS]             = 0;
+    data[CP_HOFFERQO_IOLS]           = 0;
+    data[CP_BARETTLFO_IOLS]          = 0;
+    data[CP_BARETTDFO_IOLS]          = 0;
+    data[CP_OLSENO_IOLS]             = 0;
+
     setData(data);
 }
 

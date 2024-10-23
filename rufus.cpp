@@ -425,7 +425,7 @@ void Rufus::ConnectSignals()
         connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
-    ui->MoulinettepushButton->setVisible(true);
+    //ui->MoulinettepushButton->setVisible(true);
 }
 
 
@@ -975,7 +975,6 @@ void Rufus::Moulinette()
             docxml.setContent(&datafile);
 
         QDomElement xml = docxml.documentElement();
-        QStringList IntendedLocation, TypeConstant;
 
         for (int i=0; i<xml.childNodes().size(); i++)
         {
@@ -983,7 +982,7 @@ void Rufus::Moulinette()
             if (childnode.tagName() == "Lens")
             {
                 IOL iol;
-                iol.setid(childnode.attribute("id").toInt());
+                iol.setidiolcon(childnode.attribute("id").toInt());
                 for (int j=0; j<childnode.childNodes().size(); j++)
                 {
                     QDomElement Lensnode = childnode.childNodes().at(j).toElement();
@@ -1024,12 +1023,12 @@ void Rufus::Moulinette()
                             else if (Specsnode.tagName() == "OpticConcept")
                             {
                                 bool b = false;
-                                if (Specsnode.text().toUpper()=="EDOF")
+                                if (Specsnode.text()=="EDoF")
                                 {
                                     b = true;
                                     iol.setEdof(b);
                                 }
-                                else if (Specsnode.text().toUpper()=="MULTIFOCAL")
+                                else if (Specsnode.text()=="multifocal" || Specsnode.text()=="bifocal")
                                 {
                                     b = true;
                                     iol.setMultifocal(b);
@@ -1056,80 +1055,69 @@ void Rufus::Moulinette()
                                 iol.setOpticalDiameter(Specsnode.text().toDouble());
                             else if (Specsnode.tagName() == "HapticDiameter")
                                 iol.setDiaall(Specsnode.text().toDouble());
-                            else if (Specsnode.tagName() == "IntendedLocation")
-                                if (!IntendedLocation.contains(Specsnode.text()))
-                                    IntendedLocation << Specsnode.text();
-                        }
+                            else if (Specsnode.tagName() == "HapticDesign")
+                            {
+                                if (Specsnode.text() == "Iris claw")
+                                    iol.setType(IOL_IRIEN);
+                            }
+                            else if (Specsnode.tagName() == "IntendedLocation" && iol.type() == "")
+                            {
+                                if (Specsnode.text()=="anterior chamber" || Specsnode.text()=="pre iridal")
+                                    iol.setType(IOL_CA);
+                                else if (Specsnode.text()=="capsular bag" || Specsnode.text()=="retro iridal" || Specsnode.text()=="")
+                                    iol.setType(IOL_CP);
+                                else if (Specsnode.text()=="sulcus ciliaris")
+                                    iol.setType(IOL_ADDON);
+                            }
+                                                                }
                     }
                     else if (Lensnode.tagName() == "Availability")
                     {
-                        int range = 1;
+                        QList<double> listpwr;
                         for (int k=0; k<Lensnode.childNodes().size(); k++)
                         {
                             QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
                             if (Availabilitynode.tagName() == "Sphere")
                             {
-                                int r = Availabilitynode.attribute("range").toInt();
-                                if (r > range)
-                                    range = r;
+                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                {
+                                    QDomElement Spherenode = Availabilitynode.childNodes().at(l).toElement();
+                                    if (Spherenode.tagName() == "From")
+                                        listpwr << Spherenode.text().toDouble();
+                                    else if (Spherenode.tagName() == "To")
+                                        listpwr << Spherenode.text().toDouble();
+                                }
                             }
                         }
-                        for (int k=0; k<Lensnode.childNodes().size(); k++)
+                        if (listpwr.size() >0)
                         {
-                            QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
-                            if (Availabilitynode.tagName() == "Sphere" && Availabilitynode.attribute("range").toInt() == 1)
-                            {
-                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
-                                {
-                                    QDomElement Fromnode = Availabilitynode.childNodes().at(l).toElement();
-                                    if (Fromnode.tagName() == "From")
-                                        iol.setPwrmin(Fromnode.text().toDouble());
-                                }
-                            }
-                            else if (Availabilitynode.tagName() == "Sphere" && Availabilitynode.attribute("range").toInt() == range)
-                            {
-                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
-                                {
-                                    QDomElement Tonode = Availabilitynode.childNodes().at(l).toElement();
-                                    if (Tonode.tagName() == "To")
-                                        iol.setPwrmax(Tonode.text().toDouble());
-                                }
-                            }
+                            auto mm = std::minmax_element(listpwr.begin(), listpwr.end());
+                            iol.setPwrmin(*mm.first);
+                            iol.setPwrmax(*mm.second);
                         }
                         if (iol.istoric())
                         {
-                            int range = 1;
+                            listpwr.clear();
                             for (int k=0; k<Lensnode.childNodes().size(); k++)
                             {
                                 QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
-                                if (Availabilitynode.tagName() == "Cylinder")
+                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
                                 {
-                                    int r = Availabilitynode.attribute("range").toInt();
-                                    if (r > range)
-                                        range = r;
+                                    if (Availabilitynode.tagName() == "Cylinder")
+                                    {
+                                        QDomElement Cylindrenode = Availabilitynode.childNodes().at(l).toElement();
+                                        if (Cylindrenode.tagName() == "From")
+                                            listpwr << Cylindrenode.text().toDouble();
+                                        else if (Cylindrenode.tagName() == "To")
+                                            listpwr << Cylindrenode.text().toDouble();
+                                    }
                                 }
                             }
-                            for (int k=0; k<Lensnode.childNodes().size(); k++)
+                            if (listpwr.size() >0)
                             {
-                                QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
-                                if (Availabilitynode.tagName() == "Cylinder" && Availabilitynode.attribute("range").toInt() == 1)
-                                {
-                                    for (int l=0; l<Availabilitynode.childNodes().size(); l++)
-                                    {
-                                        QDomElement Fromnode = Availabilitynode.childNodes().at(l).toElement();
-                                        if (Fromnode.tagName() == "From")
-                                            iol.setCylmin(Fromnode.text().toDouble());
-                                    }
-                                }
-                                else if (Availabilitynode.tagName() == "Cylinder" && Availabilitynode.attribute("range").toInt() == range)
-                                {
-                                    for (int l=0; l<Availabilitynode.childNodes().size(); l++)
-                                    {
-                                        QDomElement Tonode = Availabilitynode.childNodes().at(l).toElement();
-                                        if (Tonode.tagName() == "To")
-                                            iol.setCylmax(Tonode.text().toDouble());
-                                    }
-                                }
+                                auto mm = std::minmax_element(listpwr.begin(), listpwr.end());
+                                iol.setCylmin(*mm.first);
+                                iol.setCylmax(*mm.second);
                             }
                         }
                     }
@@ -1334,11 +1322,11 @@ void Rufus::Moulinette()
                          << "incision" << iol.diainjecteur()
                          << "dia optique" << iol.opticdiameter()
                          << "diamètre" << iol.diaall()
-                         << "from" << iol.pwrmin()
+                         << "Sphere from" << iol.pwrmin()
                          << "to" << iol.pwrmax();
                 if (iol.istoric())
-                    qDebug() << "from" << iol.cylmin()
-                         << "to" << iol.cylmax();
+                    qDebug() << "Cylinder from" << iol.cylmin()
+                             << "to" << iol.cylmax();
                 qDebug() << "NOMINAL"
                          << "csteAEcho" << iol.csteAEcho()
                          << "csteA" << iol.csteAopt_nominal()
@@ -1374,12 +1362,6 @@ void Rufus::Moulinette()
                              << "Olsenoptimized" << iol.olsen_optimized();
             }
         }
-        qDebug() << "IntendedLocation" << IntendedLocation.size();
-        for (int i=0; i<IntendedLocation.size(); i++)
-            qDebug() << "IntendedLocation" << IntendedLocation.at(i);
-        qDebug() << "TypeConstant" << TypeConstant.size();
-        for (int i=0; i<TypeConstant.size(); i++)
-            qDebug() << "TypeConstant" << TypeConstant.at(i);
     }
 
 
