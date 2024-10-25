@@ -77,6 +77,14 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     colorlay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     colorlay                    ->setContentsMargins(0,0,0,0);
     colorlay                    ->setSpacing(20);
+    wdg_singlepiecechk          = new UpCheckBox(tr("Monobloc"));
+    wdg_twopiecechk             = new UpCheckBox(tr("Anses rapportée"));
+    QHBoxLayout *singlepiecelay = new QHBoxLayout();
+    singlepiecelay              ->addWidget(wdg_singlepiecechk);
+    singlepiecelay              ->addWidget(wdg_twopiecechk);
+    singlepiecelay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    singlepiecelay              ->setContentsMargins(0,0,0,0);
+    singlepiecelay              ->setSpacing(20);
     QHBoxLayout *typelay        = new QHBoxLayout();
     wdg_edofchk                 = new UpCheckBox("EDOF");
     wdg_multifocalchk           = new UpCheckBox(tr("Multifocal"));
@@ -119,6 +127,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     searchLay               ->addWidget(wdg_typebox);
     searchLay               ->addWidget(wdg_prechargechk);
     searchLay               ->addLayout(colorlay);
+    searchLay               ->addLayout(singlepiecelay);
     searchLay               ->addWidget(wdg_toricchk);
     searchLay               ->addLayout(typelay);
     searchLay               ->addLayout(pwrlay);
@@ -153,6 +162,8 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_monofocalchk    ->installEventFilter(this);
     wdg_jaunechk        ->installEventFilter(this);
     wdg_clairchk        ->installEventFilter(this);
+    wdg_singlepiecechk  ->installEventFilter(this);
+    wdg_twopiecechk     ->installEventFilter(this);
 
     connect(importbutt,                     &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
@@ -243,6 +254,8 @@ void dlg_listeiols::Annulerlesfiltres()
     wdg_prechargechk        ->setChecked(false);
     wdg_jaunechk            ->setChecked(false);
     wdg_clairchk            ->setChecked(false);
+    wdg_singlepiecechk      ->setChecked(false);
+    wdg_twopiecechk         ->setChecked(false);
     wdg_toricchk            ->setChecked(false);
     wdg_edofchk             ->setChecked(false);
     wdg_multifocalchk       ->setChecked(false);
@@ -277,6 +290,16 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
+    connect(wdg_singlepiecechk,      &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                         wdg_twopiecechk->setChecked(false);
+                                                                                       ReconstruitTreeViewIOLs();
+                                                                                       wdg_annulfiltresbut->setEnabled(true);
+                                                                                     } );
+    connect(wdg_twopiecechk,         &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+                                                                                         wdg_singlepiecechk->setChecked(false);
+                                                                                       ReconstruitTreeViewIOLs();
+                                                                                       wdg_annulfiltresbut->setEnabled(true);
+                                                                                      } );
     connect(wdg_multifocalchk,      &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
                                                                                       {
                                                                                         wdg_edofchk->setChecked(false);
@@ -313,6 +336,8 @@ void dlg_listeiols::disconnectFiltersSignals()
     wdg_prechargechk        ->disconnect();
     wdg_jaunechk            ->disconnect();
     wdg_clairchk            ->disconnect();
+    wdg_singlepiecechk      ->disconnect();
+    wdg_twopiecechk         ->disconnect();
     wdg_toricchk            ->disconnect();
     wdg_edofchk             ->disconnect();
     wdg_monofocalchk        ->disconnect();
@@ -893,6 +918,14 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             /*! filtrage des clairs */
             if (wdg_clairchk->isChecked())
                 if (iol->isyellow())
+                    continue;
+            /*! filtrage des jaunes */
+            if (wdg_singlepiecechk->isChecked())
+                if (!iol->issinglepiece())
+                    continue;
+            /*! filtrage des clairs */
+            if (wdg_twopiecechk->isChecked())
+                if (!iol->issinglepiece())
                     continue;
             /*! filtrage des toric */
             if (wdg_toricchk->isChecked())

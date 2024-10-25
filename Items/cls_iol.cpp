@@ -32,6 +32,7 @@ void IOL::setData(QJsonObject data)
 //    qDebug() << "map[CP_IDMANUFACTURER_IOLS]" << map[CP_IDMANUFACTURER_IOLS];
 //    qDebug() << "map[CP_INACTIF_IOLS]" << map[CP_INACTIF_IOLS];
     setDataInt(data, CP_ID_IOLS, m_id);
+    setDataInt(data, CP_IDIOLCON_IOLS, m_idiolcon);
     setDataInt(data, CP_IDMANUFACTURER_IOLS, m_idmanufacturer);
     setDataString(data, CP_MODELNAME_IOLS, m_modele);
     setDataBool(data, CP_INACTIF_IOLS, m_inactif);
@@ -42,18 +43,26 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_MINCYL_IOLS, m_cylmin);
     setDataDouble(data, CP_MAXCYL_IOLS, m_cylmax);
     setDataDouble(data, CP_CYLSTEP_IOLS, m_cylstp);
+    setDataDouble(data, CP_ADDINTERMEDIATE_IOLS, m_addintermediate);
+    setDataDouble(data, CP_ADDNEAR_IOLS, m_addnear);
     setDataDouble(data, CP_CSTEAOPT_IOLS, m_csteAopt_nominal);
     setDataDouble(data, CP_CSTEAECHO_IOLS, m_csteAEcho);
     setDataDouble(data, CP_HAIGISA0_IOLS, m_haigisa0_nominal);
     setDataDouble(data, CP_HAIGISA1_IOLS, m_haigisa1_nominal);
     setDataDouble(data, CP_HAIGISA2_IOLS, m_haigisa2_nominal);
     setDataDouble(data, CP_HOLL1_IOLS, m_holladay1_nominal);
+    setDataDouble(data, CP_HOFFERQ_IOLS, m_hofferq_nominal);
+    setDataDouble(data, CP_BARETTDF_IOLS, m_barettdf_nominal);
+    setDataDouble(data, CP_BARETTLF_IOLS, m_barettlf_nominal);
+    setDataDouble(data, CP_OLSEN_IOLS, m_olsen_nominal);
     setDataDouble(data, CP_DIAINJECTEUR_IOLS, m_diainjecteur);
     setDataDouble(data, CP_DIAALL_IOLS, m_diaall);
     setDataDouble(data, CP_DIAOPT_IOLS, m_opticaldiameter);
     setDataByteArray(data, CP_ARRAYIMG_IOLS, m_arrayimgiol);
     setDataString(data, CP_TYPIMG_IOLS, m_imageformat);
+    setDataBool(data, CP_SINGLEPIECE_IOLS, m_singlepiece);
     setDataString(data, CP_OPTICMATERIAU_IOLS, m_opticmaterial);
+    setDataString(data, CP_HAPTICMATERIAU_IOLS, m_hapticmaterial);
     setDataString(data, CP_REMARQUE_IOLS, m_remarque);
     setDataBool(data, CP_PRECHARGE_IOLS, m_preloaded);
     setDataBool(data, CP_MULTIFOCAL_IOLS, m_multifocal);
@@ -69,6 +78,26 @@ void IOL::setData(QJsonObject data)
     case 6: m_type = IOL_AUTRE; break;
     default: m_type = "";
     }
+    setDataInt(data, CP_RESULTSU_IOLS, m_ulibresults);
+    setDataDouble(data, CP_CSTEAOPTU_IOLS, m_csteAopt_ulib);
+    setDataDouble(data, CP_HAIGISA0U_IOLS, m_haigisa0_ulib);
+    setDataDouble(data, CP_HAIGISA1U_IOLS, m_haigisa1_ulib);
+    setDataDouble(data, CP_HAIGISA2U_IOLS, m_haigisa2_ulib);
+    setDataDouble(data, CP_HOLL1U_IOLS, m_holladay1_ulib);
+    setDataDouble(data, CP_HOFFERQU_IOLS, m_hofferq_ulib);
+    setDataDouble(data, CP_BARETTDFU_IOLS, m_barettdf_ulib);
+    setDataDouble(data, CP_BARETTLFU_IOLS, m_barettlf_ulib);
+    setDataDouble(data, CP_OLSENU_IOLS, m_olsen_ulib);
+    setDataInt(data, CP_RESULTSO_IOLS, m_optimizedresults);
+    setDataDouble(data, CP_CSTEAOPTO_IOLS, m_csteAopt_optimized);
+    setDataDouble(data, CP_HAIGISA0O_IOLS, m_haigisa0_optimized);
+    setDataDouble(data, CP_HAIGISA1O_IOLS, m_haigisa1_optimized);
+    setDataDouble(data, CP_HAIGISA2O_IOLS, m_haigisa2_optimized);
+    setDataDouble(data, CP_HOLL1O_IOLS, m_holladay1_optimized);
+    setDataDouble(data, CP_HOFFERQO_IOLS, m_hofferq_optimized);
+    setDataDouble(data, CP_BARETTDFO_IOLS, m_barettdf_optimized);
+    setDataDouble(data, CP_BARETTLFO_IOLS, m_barettlf_optimized);
+    setDataDouble(data, CP_OLSENO_IOLS, m_olsen_optimized);
     QImage img = m_nullimage;
     if (m_arrayimgiol.size())
     {
@@ -176,7 +205,7 @@ void IOL::resetdatas()
     //! champs ajoutés 10/24
     data[CP_IDIOLCON_IOLS]           = 0;
 
-    data[CP_SINGLEPIECE_IOLS]        = false;
+    data[CP_SINGLEPIECE_IOLS]        = true;
     data[CP_HAPTICMATERIAU_IOLS]     = "";
     data[CP_ADDINTERMEDIATE_IOLS]    = 0;
     data[CP_ADDNEAR_IOLS]            = 0;

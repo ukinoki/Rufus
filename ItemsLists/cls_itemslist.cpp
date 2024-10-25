@@ -812,6 +812,12 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setidmanufacturer(a);
                 Utils::CalcintValueSQL(newvalue);
             }
+            if (field == CP_IDIOLCON_IOLS)
+            {
+                int a = newvalue.toInt();
+                iol->setidiolcon(a);
+                Utils::CalcintValueSQL(newvalue);
+            }
             else if (field == CP_MODELNAME_IOLS)
             {
                 iol->setmodele(newvalue.toString());
@@ -868,6 +874,16 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setCylstp(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
+            else if (field == CP_ADDINTERMEDIATE_IOLS)
+            {
+                iol->setAddintermediate(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_ADDNEAR_IOLS)
+            {
+                iol->setAddnear(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
             else if (field == CP_CSTEAOPT_IOLS)
             {
                 iol->setCsteAopt_nominal(newvalue.toDouble());
@@ -898,6 +914,26 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setHolladay1_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
+            else if (field == CP_HOFFERQ_IOLS)
+            {
+                iol->setHofferQ_nominal(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_BARETTDF_IOLS)
+            {
+                iol->setBarettDF_nominal(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_BARETTLF_IOLS)
+            {
+                iol->setBarettLF_nominal(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_OLSEN_IOLS)
+            {
+                iol->setOlsen_nominal(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
             else if (field == CP_DIAINJECTEUR_IOLS)
             {
                 iol->setDiainjecteur(newvalue.toDouble());
@@ -913,9 +949,20 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setimageformat(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else if (field == CP_SINGLEPIECE_IOLS)
+            {
+                bool a = newvalue.toBool();
+                iol->setsinglepiece(a);
+                newvalue = (a? "null" : "1");
+            }
             else if (field == CP_OPTICMATERIAU_IOLS)
             {
                 iol->setOpticalMaterial(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_HAPTICMATERIAU_IOLS)
+            {
+                iol->setHapticalMaterial(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
             else if (field == CP_REMARQUE_IOLS)
@@ -957,6 +1004,106 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             {
                 iol->setType(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
+            }
+            else if (field == CP_RESULTSU_IOLS)
+            {
+                iol->setresults_ulib(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_CSTEAOPTU_IOLS)
+            {
+                iol->setCsteAopt_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HAIGISA0U_IOLS)
+            {
+                iol->setHaigisa0_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HAIGISA1U_IOLS)
+            {
+                iol->setHaigisa1_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HAIGISA2U_IOLS)
+            {
+                iol->setHaigisa2_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HOLL1U_IOLS)
+            {
+                iol->setHolladay1_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HOFFERQU_IOLS)
+            {
+                iol->setHofferQ_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+             else if (field == CP_BARETTDFU_IOLS)
+            {
+                iol->setBarettDF_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_BARETTLFU_IOLS)
+            {
+                iol->setBarettLF_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_OLSENU_IOLS)
+            {
+                iol->setOlsen_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_RESULTSO_IOLS)
+            {
+                iol->setresults_optimized(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_CSTEAOPTO_IOLS)
+            {
+                iol->setCsteAopt_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HAIGISA0O_IOLS)
+            {
+                iol->setHaigisa0_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HAIGISA1O_IOLS)
+            {
+                iol->setHaigisa1_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HAIGISA2O_IOLS)
+            {
+                iol->setHaigisa2_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HOLL1O_IOLS)
+            {
+                iol->setHolladay1_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_HOFFERQO_IOLS)
+            {
+                iol->setHofferQ_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_BARETTDFO_IOLS)
+            {
+                iol->setBarettDF_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_BARETTLFO_IOLS)
+            {
+                iol->setBarettLF_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
+            }
+            else if (field == CP_OLSENO_IOLS)
+            {
+                iol->setOlsen_optimized(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
             }
             else
                 ok = false;

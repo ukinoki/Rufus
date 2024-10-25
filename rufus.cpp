@@ -1190,7 +1190,7 @@ void Rufus::Moulinette()
                     }
                     else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="ULIB")
                     {
-                        iol.setresultsulib(Lensnode.attribute("results").toInt());
+                        iol.setresults_ulib(Lensnode.attribute("results").toInt());
                         for (int i=0; i<Lensnode.childNodes().size(); i++)
                         {
                             QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
@@ -1253,7 +1253,7 @@ void Rufus::Moulinette()
                     }
                     else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="optimized" && Lensnode.attribute("results").toInt() >0)
                     {
-                        iol.setresultsoptimized(Lensnode.attribute("results").toInt());
+                        iol.setresults_optimized(Lensnode.attribute("results").toInt());
                         for (int i=0; i<Lensnode.childNodes().size(); i++)
                         {
                             QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
@@ -1363,8 +1363,6 @@ void Rufus::Moulinette()
             }
         }
     }
-
-
 }
 
 void Rufus::ActeGratuit()
