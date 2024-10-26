@@ -969,6 +969,7 @@ void Rufus::Moulinette()
     {
         //UpMessageBox::Watch(this,fileName);
         QFile datafile(fileName);
+        Datas::I()->iols->initListe();
 
         QDomDocument docxml;
         if (datafile.open(QIODevice::ReadOnly))
@@ -976,6 +977,55 @@ void Rufus::Moulinette()
 
         QDomElement xml = docxml.documentElement();
 
+        /*! Mise à jour de la liste des fabricants */
+        QStringList listmanufacturers;
+        for (int i=0; i<xml.childNodes().size(); i++)
+        {
+            QDomElement lensnode = xml.childNodes().at(i).toElement();
+            for (int i=0; i<lensnode.childNodes().size(); i++)
+            {
+                QDomElement node = lensnode.childNodes().at(i).toElement();
+                if (node.tagName() == "Manufacturer")
+                    if (!listmanufacturers.contains(node.text()))
+                        listmanufacturers << node.text();
+            }
+        }
+        listmanufacturers.sort();
+        QStringList listmanofficiel;
+        for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+        {
+            Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+            listmanofficiel << manf->nom().toUpper();
+        }
+        foreach (QString nommanufacturer, listmanufacturers)
+        {
+            if (!listmanofficiel.contains(nommanufacturer.toUpper()))
+            {
+                QHash<QString,QVariant> listbinds;
+                listbinds[CP_NOM_MANUFACTURER] = nommanufacturer.toUpper();
+                Datas::I()->manufacturers->CreationManufacturer(listbinds);
+            }
+        }
+        /*! fin mise à jour de la liste des fabricants */
+
+        /*! Mise à jour de la liste des IOLs */
+        int newiols = 0;
+        int updateiols = 0;
+        QStringList iolbrandmodel= QStringList();
+        QList<int> iollistid = QList<int>();
+        foreach (IOL *iolfromlist, *Datas::I()->iols->iols())
+        {
+            if (iolfromlist != Q_NULLPTR)
+            {
+                Manufacturer* man = Datas::I()->manufacturers->getById(iolfromlist->idmanufacturer());
+                if (man != Q_NULLPTR)
+                    if (!iolbrandmodel.contains(man->nom()))
+                    {
+                        iolbrandmodel << man->nom().toUpper() + " " + iolfromlist->modele().toUpper();
+                        iollistid << iolfromlist->id();
+                    }
+            }
+        }
         for (int i=0; i<xml.childNodes().size(); i++)
         {
             QDomElement childnode = xml.childNodes().at(i).toElement();
@@ -1315,7 +1365,7 @@ void Rufus::Moulinette()
                         }
                     }
                 }
-                qDebug() << "id" << iol.id()
+                /*qDebug() << "id" << iol.id()
                          << "nom" << iol.stringid() + "-" + iol.modele()
                          << "materiau" << iol.opticalmaterial()
                          << "préchargé" << (iol.ispreloaded()?"oui":"non")
@@ -1323,7 +1373,8 @@ void Rufus::Moulinette()
                          << "dia optique" << iol.opticdiameter()
                          << "diamètre" << iol.diaall()
                          << "Sphere from" << iol.pwrmin()
-                         << "to" << iol.pwrmax();
+                         << "to" << iol.pwrmax()
+                         <<"type" << iol.type();
                 if (iol.istoric())
                     qDebug() << "Cylinder from" << iol.cylmin()
                              << "to" << iol.cylmax();
@@ -1359,9 +1410,151 @@ void Rufus::Moulinette()
                              << "HofferQoptimized" << iol.hofferQ_optimized()
                              << "BarettDFoptimized" << iol.barettDF_optimized()
                              << "BarettLFoptimized" << iol.barettLF_optimized()
-                             << "Olsenoptimized" << iol.olsen_optimized();
+                             << "Olsenoptimized" << iol.olsen_optimized();*/
+                Manufacturer *man = Q_NULLPTR;
+                for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+                {
+                    Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+                     if (manf)
+                        if (manf->nom().toUpper() == iol.stringid().toUpper())
+                        {
+                            man = manf;
+                            break;
+                        }
+                }
+                if (!man)
+                    continue;
+                int idx = iolbrandmodel.indexOf(iol.stringid().toUpper() + " " + iol.modele().toUpper());
+                if (idx > -1)
+                {
+                    /*! update existant iol */
+                    IOL* iolfromlist = Datas::I()->iols->getById(iollistid.at(idx));
+                    if (iolfromlist != Q_NULLPTR)
+                    {
+                        /*! update existant iol */
+                        qDebug()  << "UPDATE IOL"
+                                  << "manufacturer iol from list" << man->id() << man->nom()
+                                  << "iolfromlist->modele()" <<  iolfromlist->modele()
+                                  << "iol->modele()" <<  iol.modele()
+                                  << "iol->manufacturer()" <<  iol.stringid();
+                                     ;
+                        ItemsList::update(iolfromlist, CP_MODELNAME_IOLS,       iol.modele());
+                        ItemsList::update(iolfromlist, CP_IDMANUFACTURER_IOLS,  man->id());
+                        ItemsList::update(iolfromlist, CP_CSTEAECHO_IOLS,       iol.csteAEcho());
+                        ItemsList::update(iolfromlist, CP_CSTEAOPT_IOLS,        iol.csteAopt_nominal());
+                        ItemsList::update(iolfromlist, CP_HAIGISA0_IOLS,        iol.haigisa0_nominal());
+                        ItemsList::update(iolfromlist, CP_HAIGISA1_IOLS,        iol.haigisa1_nominal());
+                        ItemsList::update(iolfromlist, CP_HAIGISA2_IOLS,        iol.haigisa2_nominal());
+                        ItemsList::update(iolfromlist, CP_HOLL1_IOLS,           iol.holladay1_nominal());
+                        ItemsList::update(iolfromlist, CP_HOFFERQ_IOLS,         iol.hofferQ_nominal());
+                        ItemsList::update(iolfromlist, CP_BARETTDF_IOLS,        iol.barettDF_nominal());
+                        ItemsList::update(iolfromlist, CP_BARETTLF_IOLS,        iol.barettLF_nominal());
+                        ItemsList::update(iolfromlist, CP_OLSEN_IOLS,           iol.olsen_nominal());
+                        ItemsList::update(iolfromlist, CP_ACD_IOLS,             iol.acd());
+                        ItemsList::update(iolfromlist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
+                        ItemsList::update(iolfromlist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
+                        ItemsList::update(iolfromlist, CP_DIAALL_IOLS,          iol.diaall());
+                        ItemsList::update(iolfromlist, CP_DIAOPT_IOLS,          iol.opticdiameter());
+                        ItemsList::update(iolfromlist, CP_DIAINJECTEUR_IOLS,    iol.diainjecteur());
+                        ItemsList::update(iolfromlist, CP_PRECHARGE_IOLS,       iol.ispreloaded());
+                        ItemsList::update(iolfromlist, CP_MAXPWR_IOLS,          iol.pwrmax());
+                        ItemsList::update(iolfromlist, CP_MINPWR_IOLS,          iol.pwrmin());
+                        ItemsList::update(iolfromlist, CP_MAXCYL_IOLS,          iol.cylmax());
+                        ItemsList::update(iolfromlist, CP_MINCYL_IOLS,          iol.cylmin());
+                        ItemsList::update(iolfromlist, CP_ADDINTERMEDIATE_IOLS, iol.addintermediate());
+                        ItemsList::update(iolfromlist, CP_ADDNEAR_IOLS,         iol.addnear());
+                        ItemsList::update(iolfromlist, CP_JAUNE_IOLS,           iol.isyellow());
+                        ItemsList::update(iolfromlist, CP_MULTIFOCAL_IOLS,      iol.ismultifocal());
+                        ItemsList::update(iolfromlist, CP_EDOF_IOLS,            iol.isedof());
+                        ItemsList::update(iolfromlist, CP_TORIC_IOLS,           iol.istoric());
+                        ItemsList::update(iolfromlist, CP_SINGLEPIECE_IOLS,     iol.issinglepiece());
+                        ItemsList::update(iolfromlist, CP_RESULTSU_IOLS,        iol.results_ulib());
+                        ItemsList::update(iolfromlist, CP_CSTEAOPTU_IOLS,       iol.csteAopt_ulib());
+                        ItemsList::update(iolfromlist, CP_HAIGISA0U_IOLS,       iol.haigisa0_ulib());
+                        ItemsList::update(iolfromlist, CP_HAIGISA1U_IOLS,       iol.haigisa1_ulib());
+                        ItemsList::update(iolfromlist, CP_HAIGISA2U_IOLS,       iol.haigisa2_ulib());
+                        ItemsList::update(iolfromlist, CP_HOLL1U_IOLS,          iol.holladay1_ulib());
+                        ItemsList::update(iolfromlist, CP_HOFFERQU_IOLS,        iol.hofferQ_ulib());
+                        ItemsList::update(iolfromlist, CP_BARETTDFU_IOLS,       iol.barettDF_ulib());
+                        ItemsList::update(iolfromlist, CP_BARETTLFU_IOLS,       iol.barettLF_ulib());
+                        ItemsList::update(iolfromlist, CP_OLSENU_IOLS,          iol.olsen_ulib());
+                        ItemsList::update(iolfromlist, CP_RESULTSO_IOLS,        iol.results_optimized());
+                        ItemsList::update(iolfromlist, CP_CSTEAOPTO_IOLS,       iol.csteAopt_optimized());
+                        ItemsList::update(iolfromlist, CP_HAIGISA0O_IOLS,       iol.haigisa0_optimized());
+                        ItemsList::update(iolfromlist, CP_HAIGISA1O_IOLS,       iol.haigisa1_optimized());
+                        ItemsList::update(iolfromlist, CP_HAIGISA2O_IOLS,       iol.haigisa2_optimized());
+                        ItemsList::update(iolfromlist, CP_HOLL1O_IOLS,          iol.holladay1_optimized());
+                        ItemsList::update(iolfromlist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
+                        ItemsList::update(iolfromlist, CP_BARETTDFO_IOLS,       iol.barettDF_optimized());
+                        ItemsList::update(iolfromlist, CP_BARETTLFO_IOLS,       iol.barettLF_optimized());
+                        ItemsList::update(iolfromlist, CP_OLSENO_IOLS,          iol.olsen_optimized());
+                        ItemsList::update(iolfromlist, CP_TYP_IOLS,             iol.typetoint());
+                        ++ updateiols;
+                    }
+                }
+                else /*! newiol */
+                {
+                    qDebug()  << "CREATE IOL"
+                              << "iol->modele()" <<  iol.modele()
+                              << "iol->stringid()" <<  iol.stringid();
+                    QHash<QString, QVariant> m_listbinds;
+                    m_listbinds[CP_MODELNAME_IOLS]      = iol.modele();
+                    m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
+                    m_listbinds[CP_CSTEAECHO_IOLS]      = (iol.csteAEcho() >0.0?        iol.csteAEcho()         : QVariant());
+                    m_listbinds[CP_CSTEAOPT_IOLS]       = (iol.csteAopt_nominal() >0.0? iol.csteAopt_nominal()  : QVariant());
+                    m_listbinds[CP_HAIGISA0_IOLS]       = (iol.haigisa0_nominal() >0.0? iol.haigisa0_nominal()  : QVariant());
+                    m_listbinds[CP_HAIGISA1_IOLS]       = (iol.haigisa1_nominal() >0.0? iol.haigisa1_nominal()  : QVariant());
+                    m_listbinds[CP_HAIGISA2_IOLS]       = (iol.haigisa2_nominal() >0.0? iol.haigisa2_nominal()  : QVariant());
+                    m_listbinds[CP_HOLL1_IOLS]          = (iol.holladay1_nominal()>0.0? iol.holladay1_nominal() : QVariant());
+                    m_listbinds[CP_HOFFERQ_IOLS]        = (iol.hofferQ_nominal()>0.0?   iol.hofferQ_nominal()   : QVariant());
+                    m_listbinds[CP_BARETTDF_IOLS]       = (iol.barettDF_nominal()>0.0?  iol.barettDF_nominal()  : QVariant());
+                    m_listbinds[CP_BARETTLF_IOLS]       = (iol.barettLF_nominal()>0.0?  iol.barettLF_nominal()  : QVariant());
+                    m_listbinds[CP_OLSEN_IOLS]          = (iol.olsen_nominal()>0.0?     iol.olsen_nominal()     : QVariant());
+                    m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?               iol.acd()               : QVariant());
+                    m_listbinds[CP_OPTICMATERIAU_IOLS]  = iol.opticalmaterial();
+                    m_listbinds[CP_HAPTICMATERIAU_IOLS] = iol.hapticalmaterial();
+                    m_listbinds[CP_DIAALL_IOLS]         = (iol.diaall() >0.0?           iol.diaall()            : QVariant());
+                    m_listbinds[CP_DIAOPT_IOLS]         = (iol.opticdiameter() >0.0?    iol.opticdiameter()     : QVariant());
+                    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (iol.diainjecteur() >0.0?     iol.diainjecteur()      : QVariant());
+                    m_listbinds[CP_PRECHARGE_IOLS]      = (iol.ispreloaded()?           "1"                     : QVariant());
+                    m_listbinds[CP_MAXPWR_IOLS]         = iol.pwrmax();
+                    m_listbinds[CP_MINPWR_IOLS]         = iol.pwrmin();
+                    m_listbinds[CP_MAXCYL_IOLS]         = (iol.istoric()?               iol.cylmax()            : QVariant());
+                    m_listbinds[CP_MINCYL_IOLS]         = (iol.istoric()?               iol.cylmin()            : QVariant());
+                    m_listbinds[CP_ADDINTERMEDIATE_IOLS]= (iol.addintermediate() >0.0?  iol.addintermediate()   : QVariant());
+                    m_listbinds[CP_ADDNEAR_IOLS]        = (iol.addnear() >0.0?          iol.addnear()           : QVariant());
+                    m_listbinds[CP_JAUNE_IOLS]          = (iol.isyellow()?              "1"                     : QVariant());
+                    m_listbinds[CP_MULTIFOCAL_IOLS]     = (iol.ismultifocal()?          "1"                     : QVariant());
+                    m_listbinds[CP_EDOF_IOLS]           = (iol.isedof()?                "1"                     : QVariant());
+                    m_listbinds[CP_TORIC_IOLS]          = (iol.istoric()?               "1"                     : QVariant());
+                    m_listbinds[CP_SINGLEPIECE_IOLS]    = (iol.issinglepiece()?         "1"                     : QVariant());
+                    m_listbinds[CP_RESULTSU_IOLS]       = (iol.results_ulib() >0?       iol.results_ulib()      : QVariant());
+                    m_listbinds[CP_CSTEAOPTU_IOLS]      = (iol.csteAopt_ulib() >0.0?    iol.csteAopt_ulib()     : QVariant());
+                    m_listbinds[CP_HAIGISA0U_IOLS]      = (iol.haigisa0_ulib() >0.0?    iol.haigisa0_ulib()     : QVariant());
+                    m_listbinds[CP_HAIGISA1U_IOLS]      = (iol.haigisa1_ulib() >0.0?    iol.haigisa1_ulib()     : QVariant());
+                    m_listbinds[CP_HAIGISA2U_IOLS]      = (iol.haigisa2_ulib() >0.0?    iol.haigisa2_ulib()     : QVariant());
+                    m_listbinds[CP_HOLL1U_IOLS]         = (iol.holladay1_ulib()>0.0?    iol.holladay1_ulib()    : QVariant());
+                    m_listbinds[CP_HOFFERQU_IOLS]       = (iol.hofferQ_ulib()>0.0?      iol.hofferQ_ulib()      : QVariant());
+                    m_listbinds[CP_BARETTDFU_IOLS]      = (iol.barettDF_ulib()>0.0?     iol.barettDF_ulib()     : QVariant());
+                    m_listbinds[CP_BARETTLFU_IOLS]      = (iol.barettLF_ulib()>0.0?     iol.barettLF_ulib()     : QVariant());
+                    m_listbinds[CP_OLSENU_IOLS]         = (iol.olsen_ulib()>0.0?        iol.olsen_ulib()        : QVariant());
+                    m_listbinds[CP_RESULTSO_IOLS]       = (iol.results_optimized() >0?      iol.results_optimized()     : QVariant());
+                    m_listbinds[CP_CSTEAOPTO_IOLS]      = (iol.csteAopt_optimized() >0.0?   iol.csteAopt_optimized()    : QVariant());
+                    m_listbinds[CP_HAIGISA0O_IOLS]      = (iol.haigisa0_optimized() >0.0?   iol.haigisa0_optimized()    : QVariant());
+                    m_listbinds[CP_HAIGISA1O_IOLS]      = (iol.haigisa1_optimized() >0.0?   iol.haigisa1_optimized()    : QVariant());
+                    m_listbinds[CP_HAIGISA2O_IOLS]      = (iol.haigisa2_optimized() >0.0?   iol.haigisa2_optimized()    : QVariant());
+                    m_listbinds[CP_HOLL1O_IOLS]         = (iol.holladay1_optimized()>0.0?   iol.holladay1_optimized()   : QVariant());
+                    m_listbinds[CP_HOFFERQO_IOLS]       = (iol.hofferQ_optimized()>0.0?     iol.hofferQ_optimized()     : QVariant());
+                    m_listbinds[CP_BARETTDFO_IOLS]      = (iol.barettDF_optimized()>0.0?    iol.barettDF_optimized()    : QVariant());
+                    m_listbinds[CP_BARETTLFO_IOLS]      = (iol.barettLF_optimized()>0.0?    iol.barettLF_optimized()    : QVariant());
+                    m_listbinds[CP_OLSENO_IOLS]         = (iol.olsen_optimized()>0.0?       iol.olsen_optimized()       : QVariant());
+                    m_listbinds[CP_TYP_IOLS]            = (iol.typetoint()>0?               iol.typetoint()      : QVariant());
+                    Datas::I()->iols->CreationIOL(m_listbinds);
+                    ++newiols;
+                }
             }
         }
+        /*! fin mise à jour de la liste des IOLs */
     }
 }
 

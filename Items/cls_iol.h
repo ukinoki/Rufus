@@ -187,6 +187,15 @@ public:
     bool isedof() const                         { return m_edof; }
     bool istoric() const                        { return m_toric; }
     QString type() const                        { return m_type; }
+    int typetoint() const                       {
+        if (m_type ==IOL_CP) return 1;
+        else if (m_type ==IOL_CA) return 2;
+        else if (m_type ==IOL_ADDON) return 3;
+        else if (m_type ==IOL_IRIEN) return 4;
+        else if (m_type ==IOL_CAREFRACTIF) return 5;
+        else if (m_type ==IOL_AUTRE) return 6;
+        else return 0;
+; }
     QString tooltip(bool avecimage = false) const;
 
 

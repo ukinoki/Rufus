@@ -3255,7 +3255,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
                     CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS                                              // 55-56-57-58
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
-    qDebug() << req;
+    //qDebug() << req;
     QList<QVariantList> iollist = StandardSelectSQL(req,ok);
     if(!ok || iollist.size()==0)
         return list;
