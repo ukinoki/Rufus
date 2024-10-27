@@ -55,23 +55,74 @@ private:
     QImage              m_currentIOLimage;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
-    UpLineEdit          *wdg_Aoptline;
     UpLineEdit          *wdg_Aecholine;
     UpDoubleSpinBox     *wdg_puissancemaxspin;
     UpDoubleSpinBox     *wdg_puissanceminspin;
     UpDoubleSpinBox     *wdg_cylindremaxspin;
     UpDoubleSpinBox     *wdg_cylindreminspin;
-    UpLineEdit          *wdg_ACDline;
-    UpLineEdit          *wdg_holladayline;
-    UpLineEdit          *wdg_haigisaline;
-    UpLineEdit          *wdg_haigisbline;
-    UpLineEdit          *wdg_haigiscline;
+
+
+    /*! constants */
+    UpRadioButton       *wdg_nominalrb      = new UpRadioButton("nominal");
+    UpRadioButton       *wdg_ulibrb         = new UpRadioButton("ulib");
+    UpRadioButton       *wdg_optimizedrb    = new UpRadioButton("optimized");
+    enum                TypeConstant {Nominal, Ulib, Optimized};    Q_ENUM(TypeConstant)
+    TypeConstant        m_typcste = Nominal;
+    void                switchDisplayConstant(TypeConstant typcst);
+
+        /*! nominal */
+    QWidget             *wdg_nominalCsteA   = new QWidget;
+    QWidget             *wdg_nominalhaigis  = new QWidget;
+    QWidget             *wdg_nominalbarett  = new QWidget;
+    QWidget             *wdg_nominalhofferq = new QWidget;
+    UpLineEdit          *wdg_Aoptline       = new UpLineEdit;
+    UpLineEdit          *wdg_holladayline   = new UpLineEdit;
+    UpLineEdit          *wdg_haigisaline    = new UpLineEdit;
+    UpLineEdit          *wdg_haigisbline    = new UpLineEdit;
+    UpLineEdit          *wdg_haigiscline    = new UpLineEdit;
+    UpLineEdit          *wdg_hofferQline    = new UpLineEdit;
+    UpLineEdit          *wdg_barettDFline   = new UpLineEdit;
+    UpLineEdit          *wdg_barettLFline   = new UpLineEdit;
+    UpLineEdit          *wdg_olsenline      = new UpLineEdit;
+
+        /*! ulib */
+    QWidget             *wdg_ulibCsteA       = new QWidget;
+    QWidget             *wdg_ulibhaigis      = new QWidget;
+    QWidget             *wdg_ulibbarett      = new QWidget;
+    QWidget             *wdg_ulibhofferq     = new QWidget;
+    UpLineEdit          *wdg_UAoptline       = new UpLineEdit;
+    UpLineEdit          *wdg_Uholladayline   = new UpLineEdit;
+    UpLineEdit          *wdg_Uhaigisaline    = new UpLineEdit;
+    UpLineEdit          *wdg_Uhaigisbline    = new UpLineEdit;
+    UpLineEdit          *wdg_Uhaigiscline    = new UpLineEdit;
+    UpLineEdit          *wdg_UhofferQline    = new UpLineEdit;
+    UpLineEdit          *wdg_UbarettDFline   = new UpLineEdit;
+    UpLineEdit          *wdg_UbarettLFline   = new UpLineEdit;
+    UpLineEdit          *wdg_Uolsenline      = new UpLineEdit;
+
+        /*! optimized */
+    QWidget             *wdg_optimizedCsteA  = new QWidget;
+    QWidget             *wdg_optimizedhaigis = new QWidget;
+    QWidget             *wdg_optimizedbarett = new QWidget;
+    QWidget             *wdg_optimizedhofferq= new QWidget;
+    UpLineEdit          *wdg_OAoptline       = new UpLineEdit;
+    UpLineEdit          *wdg_Oholladayline   = new UpLineEdit;
+    UpLineEdit          *wdg_Ohaigisaline    = new UpLineEdit;
+    UpLineEdit          *wdg_Ohaigisbline    = new UpLineEdit;
+    UpLineEdit          *wdg_Ohaigiscline    = new UpLineEdit;
+    UpLineEdit          *wdg_OhofferQline    = new UpLineEdit;
+    UpLineEdit          *wdg_ObarettDFline   = new UpLineEdit;
+    UpLineEdit          *wdg_ObarettLFline   = new UpLineEdit;
+    UpLineEdit          *wdg_Oolsenline      = new UpLineEdit;
+
     UpLineEdit          *wdg_diaoptique;
     UpLineEdit          *wdg_diaht;
     UpLineEdit          *wdg_diainjecteur;
     UpLabel             *wdg_imgIOL;
-    UpComboBox          *wdg_materiaubox;
-    UpComboBox          *wdg_typebox;
+    UpLabel             *wdg_HapticMateriaulbl;
+    UpComboBox          *wdg_materiaubox     = new UpComboBox;;
+    UpComboBox          *wdg_hapticmateriaubox= new UpComboBox;
+    UpComboBox          *wdg_typebox         = new UpComboBox;;
     UpTextEdit          *wdg_remarquetxt;
     UpToolBar           *wdg_toolbar = Q_NULLPTR;
     UpPushButton        *wdg_recopiebutton = Q_NULLPTR;
@@ -81,6 +132,7 @@ private:
     UpCheckBox          *wdg_multifocalchk;
     UpCheckBox          *wdg_edofchk;
     UpCheckBox          *wdg_toricchk;
+    UpCheckBox          *wdg_singlepiecechk = new UpCheckBox(tr("Monobloc"));
     QWidget             *wdg_cylindres;
     QVBoxLayout         *lay_materiau    = new QVBoxLayout();
 
