@@ -46,7 +46,7 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_ADDINTERMEDIATE_IOLS, m_addintermediate);
     setDataDouble(data, CP_ADDNEAR_IOLS, m_addnear);
     setDataDouble(data, CP_CSTEAOPT_IOLS, m_csteAopt_nominal);
-    setDataDouble(data, CP_CSTEAECHO_IOLS, m_csteAEcho);
+    setDataDouble(data, CP_CSTEAECHO_IOLS, m_csteAEcho_nominal);
     setDataDouble(data, CP_HAIGISA0_IOLS, m_haigisa0_nominal);
     setDataDouble(data, CP_HAIGISA1_IOLS, m_haigisa1_nominal);
     setDataDouble(data, CP_HAIGISA2_IOLS, m_haigisa2_nominal);
@@ -79,6 +79,7 @@ void IOL::setData(QJsonObject data)
     default: m_type = "";
     }
     setDataInt(data, CP_RESULTSU_IOLS, m_ulibresults);
+    setDataDouble(data, CP_CSTEAECHOU_IOLS, m_csteAEcho_ulib);
     setDataDouble(data, CP_CSTEAOPTU_IOLS, m_csteAopt_ulib);
     setDataDouble(data, CP_HAIGISA0U_IOLS, m_haigisa0_ulib);
     setDataDouble(data, CP_HAIGISA1U_IOLS, m_haigisa1_ulib);
@@ -136,8 +137,8 @@ QString IOL::tooltip(bool avecimage) const
         message += "<br>" + tr("diamètre hors tout") + " " + QString::number(m_diaall, 'f', 1) + " mm";
     if (m_diainjecteur != 0.0)
         message += "<br>" + tr("incision") + " " + QString::number(m_diainjecteur, 'f', 1) + " mm";
-    if (m_csteAEcho != 0.0)
-        message += "<br>" + tr("csteA echo") + " " + QString::number(m_csteAEcho, 'f', 1);
+    if (m_csteAEcho_nominal != 0.0)
+        message += "<br>" + tr("csteA echo") + " " + QString::number(m_csteAEcho_nominal, 'f', 1);
     if (m_singlepiece && m_opticmaterial != "")
         message += "<br>" + m_opticmaterial;
     if (!m_singlepiece)

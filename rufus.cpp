@@ -964,6 +964,16 @@ void Rufus::Moulinette()
 
     //! INCORPORATION DES IOL de la base xml IOLCON ============================================================================================================================================================
     //QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), QDir::homePath(),  tr("XML files (*.xml)"));
+    for (auto it = Datas::I()->iols->iols()->begin(); it != Datas::I()->iols->iols()->end(); ++it)
+    {
+        IOL* iol = Datas::I()->iols->getById(it.key());
+        if (iol)
+        {
+            if (iol->acd() != 0)
+                qDebug() << iol->modele() << iol->acd();
+        }
+
+    }
     QString fileName = "//Users//serge//Downloads//IOLexport.xml";
     if (fileName != "")
     {
@@ -1051,11 +1061,16 @@ void Rufus::Moulinette()
                                 if (Specsnode.text()=="yes")
                                     b = true;
                                 iol.setsinglepiece(b);
+                                //if (iol.modele() == "AcrySof SN6CWS")
+                                //    qDebug() << iol.modele() << Specsnode.text().toDouble() << "singlepiece" << iol.issinglepiece();
+
                             }
                             else if (Specsnode.tagName() == "OpticMaterial")
                                 iol.setOpticalMaterial(Specsnode.text());
                             else if (Specsnode.tagName() == "HapticMaterial" && !iol.issinglepiece())
+                            {
                                 iol.setHapticalMaterial(Specsnode.text());
+                            }
                             else if (Specsnode.tagName() == "Preloaded")
                             {
                                 bool b = false;
@@ -1179,7 +1194,7 @@ void Rufus::Moulinette()
                             if (Constantnode.tagName() == "Ultrasound")
                             {
                                 if (Constantnode.text().toDouble() !=0)
-                                    iol.setCsteAEcho(Constantnode.text().toDouble());
+                                    iol.setCsteAEcho_nominal(Constantnode.text().toDouble());
                             }
                             else if (Constantnode.tagName() == "SRKt")
                             {
@@ -1225,7 +1240,7 @@ void Rufus::Moulinette()
                                         if (Barettnode.text().toDouble() !=0)
                                             iol.setBarettDF_nominal(Barettnode.text().toDouble());
                                     }
-                                    if (Barettnode.tagName() == "LF")
+                                    else if (Barettnode.tagName() == "LF")
                                     {
                                         if (Barettnode.text().toDouble() !=0)
                                             iol.setBarettLF_nominal(Barettnode.text().toDouble());
@@ -1244,6 +1259,11 @@ void Rufus::Moulinette()
                         for (int i=0; i<Lensnode.childNodes().size(); i++)
                         {
                             QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "Ultrasound")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAEcho_ulib(Constantnode.text().toDouble());
+                            }
                             if (Constantnode.tagName() == "SRKt")
                             {
                                 if (Constantnode.text().toDouble() !=0)
@@ -1272,7 +1292,10 @@ void Rufus::Moulinette()
                             else if (Constantnode.tagName() == "HofferQ")
                             {
                                 if (Constantnode.text().toDouble() !=0)
+                                {
                                     iol.setHofferQ_ulib(Constantnode.text().toDouble());
+                                    //qDebug() << iol.modele() << Constantnode.text().toDouble() << "HofferQ" << iol.hofferQ_ulib();
+                                }
                             }
                             else if (Constantnode.tagName() == "Holladay1")
                             {
@@ -1288,7 +1311,7 @@ void Rufus::Moulinette()
                                         if (Barettnode.text().toDouble() !=0)
                                             iol.setBarettDF_ulib(Barettnode.text().toDouble());
                                     }
-                                    if (Barettnode.tagName() == "LF")
+                                    else if (Barettnode.tagName() == "LF")
                                     {
                                         if (Barettnode.text().toDouble() !=0)
                                             iol.setBarettLF_ulib(Barettnode.text().toDouble());
@@ -1297,7 +1320,10 @@ void Rufus::Moulinette()
                             else if (Constantnode.tagName() == "Olsen")
                             {
                                 if (Constantnode.text().toDouble() !=0)
+                                {
                                     iol.setOlsen_ulib(Constantnode.text().toDouble());
+                                    //qDebug() << iol.modele() << Constantnode.text().toDouble() << "Olsen" << iol.olsen_ulib();
+                                }
                             }
                         }
                     }
@@ -1351,7 +1377,7 @@ void Rufus::Moulinette()
                                         if (Barettnode.text().toDouble() !=0)
                                             iol.setBarettDF_optimized(Barettnode.text().toDouble());
                                     }
-                                    if (Barettnode.tagName() == "LF")
+                                    else if (Barettnode.tagName() == "LF")
                                     {
                                         if (Barettnode.text().toDouble() !=0)
                                             iol.setBarettLF_optimized(Barettnode.text().toDouble());
@@ -1365,7 +1391,9 @@ void Rufus::Moulinette()
                         }
                     }
                 }
-                /*qDebug() << "id" << iol.id()
+                /*if (iol.modele() == "AcrySof MA60MA (+D)")
+                {
+                qDebug() << "id" << iol.id()
                          << "nom" << iol.stringid() + "-" + iol.modele()
                          << "materiau" << iol.opticalmaterial()
                          << "préchargé" << (iol.ispreloaded()?"oui":"non")
@@ -1379,7 +1407,7 @@ void Rufus::Moulinette()
                     qDebug() << "Cylinder from" << iol.cylmin()
                              << "to" << iol.cylmax();
                 qDebug() << "NOMINAL"
-                         << "csteAEcho" << iol.csteAEcho()
+                         << "csteAEcho" << iol.csteAEcho_nominal()
                          << "csteA" << iol.csteAopt_nominal()
                          << "HaigisAO" << iol.haigisa0_nominal()
                          << "HaigisA1" << iol.haigisa1_nominal()
@@ -1391,6 +1419,7 @@ void Rufus::Moulinette()
                          << "Olsen" << iol.olsen_nominal();
                 if (iol.results_ulib() >0)
                     qDebug() << "ULIB"
+                             << "csteAEchoULIB" << iol.csteAEcho_ulib()
                              << "csteAULIB" << iol.csteAopt_ulib()
                              << "HaigisAOUlib" << iol.haigisa0_ulib()
                              << "HaigisA1Ulib" << iol.haigisa1_ulib()
@@ -1402,6 +1431,7 @@ void Rufus::Moulinette()
                              << "OlsenUlib" << iol.olsen_ulib();
                 if (iol.results_optimized() >0)
                     qDebug() << "OPTIMIZED"
+                             << "csteAEchooptimized" << iol.csteAEcho_optimized()
                              << "csteAoptimized" << iol.csteAopt_optimized()
                              << "HaigisAOoptimized" << iol.haigisa0_optimized()
                              << "HaigisA1optimized" << iol.haigisa1_optimized()
@@ -1410,7 +1440,8 @@ void Rufus::Moulinette()
                              << "HofferQoptimized" << iol.hofferQ_optimized()
                              << "BarettDFoptimized" << iol.barettDF_optimized()
                              << "BarettLFoptimized" << iol.barettLF_optimized()
-                             << "Olsenoptimized" << iol.olsen_optimized();*/
+                             << "Olsenoptimized" << iol.olsen_optimized();
+                }*/
                 Manufacturer *man = Q_NULLPTR;
                 for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
                 {
@@ -1432,15 +1463,16 @@ void Rufus::Moulinette()
                     if (iolfromlist != Q_NULLPTR)
                     {
                         /*! update existant iol */
-                        qDebug()  << "UPDATE IOL"
+                        /*qDebug()  << "UPDATE IOL"
                                   << "manufacturer iol from list" << man->id() << man->nom()
                                   << "iolfromlist->modele()" <<  iolfromlist->modele()
                                   << "iol->modele()" <<  iol.modele()
-                                  << "iol->manufacturer()" <<  iol.stringid();
+                                  << "iol->manufacturer()" <<  iol.stringid();*/
                                      ;
                         ItemsList::update(iolfromlist, CP_MODELNAME_IOLS,       iol.modele());
                         ItemsList::update(iolfromlist, CP_IDMANUFACTURER_IOLS,  man->id());
-                        ItemsList::update(iolfromlist, CP_CSTEAECHO_IOLS,       iol.csteAEcho());
+                        ItemsList::update(iolfromlist, CP_CSTEAECHO_IOLS,       iol.csteAEcho_nominal());
+
                         ItemsList::update(iolfromlist, CP_CSTEAOPT_IOLS,        iol.csteAopt_nominal());
                         ItemsList::update(iolfromlist, CP_HAIGISA0_IOLS,        iol.haigisa0_nominal());
                         ItemsList::update(iolfromlist, CP_HAIGISA1_IOLS,        iol.haigisa1_nominal());
@@ -1450,6 +1482,7 @@ void Rufus::Moulinette()
                         ItemsList::update(iolfromlist, CP_BARETTDF_IOLS,        iol.barettDF_nominal());
                         ItemsList::update(iolfromlist, CP_BARETTLF_IOLS,        iol.barettLF_nominal());
                         ItemsList::update(iolfromlist, CP_OLSEN_IOLS,           iol.olsen_nominal());
+
                         ItemsList::update(iolfromlist, CP_ACD_IOLS,             iol.acd());
                         ItemsList::update(iolfromlist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
                         ItemsList::update(iolfromlist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
@@ -1468,7 +1501,9 @@ void Rufus::Moulinette()
                         ItemsList::update(iolfromlist, CP_EDOF_IOLS,            iol.isedof());
                         ItemsList::update(iolfromlist, CP_TORIC_IOLS,           iol.istoric());
                         ItemsList::update(iolfromlist, CP_SINGLEPIECE_IOLS,     iol.issinglepiece());
+
                         ItemsList::update(iolfromlist, CP_RESULTSU_IOLS,        iol.results_ulib());
+                        ItemsList::update(iolfromlist, CP_CSTEAECHOU_IOLS,      iol.csteAEcho_ulib());
                         ItemsList::update(iolfromlist, CP_CSTEAOPTU_IOLS,       iol.csteAopt_ulib());
                         ItemsList::update(iolfromlist, CP_HAIGISA0U_IOLS,       iol.haigisa0_ulib());
                         ItemsList::update(iolfromlist, CP_HAIGISA1U_IOLS,       iol.haigisa1_ulib());
@@ -1478,6 +1513,7 @@ void Rufus::Moulinette()
                         ItemsList::update(iolfromlist, CP_BARETTDFU_IOLS,       iol.barettDF_ulib());
                         ItemsList::update(iolfromlist, CP_BARETTLFU_IOLS,       iol.barettLF_ulib());
                         ItemsList::update(iolfromlist, CP_OLSENU_IOLS,          iol.olsen_ulib());
+
                         ItemsList::update(iolfromlist, CP_RESULTSO_IOLS,        iol.results_optimized());
                         ItemsList::update(iolfromlist, CP_CSTEAOPTO_IOLS,       iol.csteAopt_optimized());
                         ItemsList::update(iolfromlist, CP_HAIGISA0O_IOLS,       iol.haigisa0_optimized());
@@ -1488,56 +1524,62 @@ void Rufus::Moulinette()
                         ItemsList::update(iolfromlist, CP_BARETTDFO_IOLS,       iol.barettDF_optimized());
                         ItemsList::update(iolfromlist, CP_BARETTLFO_IOLS,       iol.barettLF_optimized());
                         ItemsList::update(iolfromlist, CP_OLSENO_IOLS,          iol.olsen_optimized());
+
                         ItemsList::update(iolfromlist, CP_TYP_IOLS,             iol.typetoint());
                         ++ updateiols;
                     }
                 }
                 else /*! newiol */
                 {
-                    qDebug()  << "CREATE IOL"
+                    /*qDebug()  << "CREATE IOL"
                               << "iol->modele()" <<  iol.modele()
-                              << "iol->stringid()" <<  iol.stringid();
+                              << "iol->stringid()" <<  iol.stringid();*/
                     QHash<QString, QVariant> m_listbinds;
                     m_listbinds[CP_MODELNAME_IOLS]      = iol.modele();
                     m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
-                    m_listbinds[CP_CSTEAECHO_IOLS]      = (iol.csteAEcho() >0.0?        iol.csteAEcho()         : QVariant());
-                    m_listbinds[CP_CSTEAOPT_IOLS]       = (iol.csteAopt_nominal() >0.0? iol.csteAopt_nominal()  : QVariant());
-                    m_listbinds[CP_HAIGISA0_IOLS]       = (iol.haigisa0_nominal() >0.0? iol.haigisa0_nominal()  : QVariant());
-                    m_listbinds[CP_HAIGISA1_IOLS]       = (iol.haigisa1_nominal() >0.0? iol.haigisa1_nominal()  : QVariant());
-                    m_listbinds[CP_HAIGISA2_IOLS]       = (iol.haigisa2_nominal() >0.0? iol.haigisa2_nominal()  : QVariant());
-                    m_listbinds[CP_HOLL1_IOLS]          = (iol.holladay1_nominal()>0.0? iol.holladay1_nominal() : QVariant());
-                    m_listbinds[CP_HOFFERQ_IOLS]        = (iol.hofferQ_nominal()>0.0?   iol.hofferQ_nominal()   : QVariant());
-                    m_listbinds[CP_BARETTDF_IOLS]       = (iol.barettDF_nominal()>0.0?  iol.barettDF_nominal()  : QVariant());
-                    m_listbinds[CP_BARETTLF_IOLS]       = (iol.barettLF_nominal()>0.0?  iol.barettLF_nominal()  : QVariant());
-                    m_listbinds[CP_OLSEN_IOLS]          = (iol.olsen_nominal()>0.0?     iol.olsen_nominal()     : QVariant());
-                    m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?               iol.acd()               : QVariant());
+                    m_listbinds[CP_CSTEAECHO_IOLS]      = (iol.csteAEcho_nominal() >0.0?            iol.csteAEcho_nominal()             : QVariant());
+
+                    m_listbinds[CP_CSTEAOPT_IOLS]       = (iol.csteAopt_nominal() >0.0?     iol.csteAopt_nominal()      : QVariant());
+                    m_listbinds[CP_HAIGISA0_IOLS]       = (iol.haigisa0_nominal() >0.0?     iol.haigisa0_nominal()      : QVariant());
+                    m_listbinds[CP_HAIGISA1_IOLS]       = (iol.haigisa1_nominal() >0.0?     iol.haigisa1_nominal()      : QVariant());
+                    m_listbinds[CP_HAIGISA2_IOLS]       = (iol.haigisa2_nominal() >0.0?     iol.haigisa2_nominal()      : QVariant());
+                    m_listbinds[CP_HOLL1_IOLS]          = (iol.holladay1_nominal()>0.0?     iol.holladay1_nominal()     : QVariant());
+                    m_listbinds[CP_HOFFERQ_IOLS]        = (iol.hofferQ_nominal()>0.0?       iol.hofferQ_nominal()       : QVariant());
+                    m_listbinds[CP_BARETTDF_IOLS]       = (iol.barettDF_nominal()>0.0?      iol.barettDF_nominal()      : QVariant());
+                    m_listbinds[CP_BARETTLF_IOLS]       = (iol.barettLF_nominal()>0.0?      iol.barettLF_nominal()      : QVariant());
+                    m_listbinds[CP_OLSEN_IOLS]          = (iol.olsen_nominal()>0.0?         iol.olsen_nominal()         : QVariant());
+
+                    m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?                   iol.acd()                   : QVariant());
                     m_listbinds[CP_OPTICMATERIAU_IOLS]  = iol.opticalmaterial();
                     m_listbinds[CP_HAPTICMATERIAU_IOLS] = iol.hapticalmaterial();
-                    m_listbinds[CP_DIAALL_IOLS]         = (iol.diaall() >0.0?           iol.diaall()            : QVariant());
-                    m_listbinds[CP_DIAOPT_IOLS]         = (iol.opticdiameter() >0.0?    iol.opticdiameter()     : QVariant());
-                    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (iol.diainjecteur() >0.0?     iol.diainjecteur()      : QVariant());
-                    m_listbinds[CP_PRECHARGE_IOLS]      = (iol.ispreloaded()?           "1"                     : QVariant());
+                    m_listbinds[CP_DIAALL_IOLS]         = (iol.diaall() >0.0?               iol.diaall()                : QVariant());
+                    m_listbinds[CP_DIAOPT_IOLS]         = (iol.opticdiameter() >0.0?        iol.opticdiameter()         : QVariant());
+                    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (iol.diainjecteur() >0.0?         iol.diainjecteur()          : QVariant());
+                    m_listbinds[CP_PRECHARGE_IOLS]      = (iol.ispreloaded()?               "1"                         : QVariant());
                     m_listbinds[CP_MAXPWR_IOLS]         = iol.pwrmax();
                     m_listbinds[CP_MINPWR_IOLS]         = iol.pwrmin();
-                    m_listbinds[CP_MAXCYL_IOLS]         = (iol.istoric()?               iol.cylmax()            : QVariant());
-                    m_listbinds[CP_MINCYL_IOLS]         = (iol.istoric()?               iol.cylmin()            : QVariant());
-                    m_listbinds[CP_ADDINTERMEDIATE_IOLS]= (iol.addintermediate() >0.0?  iol.addintermediate()   : QVariant());
-                    m_listbinds[CP_ADDNEAR_IOLS]        = (iol.addnear() >0.0?          iol.addnear()           : QVariant());
-                    m_listbinds[CP_JAUNE_IOLS]          = (iol.isyellow()?              "1"                     : QVariant());
-                    m_listbinds[CP_MULTIFOCAL_IOLS]     = (iol.ismultifocal()?          "1"                     : QVariant());
-                    m_listbinds[CP_EDOF_IOLS]           = (iol.isedof()?                "1"                     : QVariant());
-                    m_listbinds[CP_TORIC_IOLS]          = (iol.istoric()?               "1"                     : QVariant());
-                    m_listbinds[CP_SINGLEPIECE_IOLS]    = (iol.issinglepiece()?         "1"                     : QVariant());
-                    m_listbinds[CP_RESULTSU_IOLS]       = (iol.results_ulib() >0?       iol.results_ulib()      : QVariant());
-                    m_listbinds[CP_CSTEAOPTU_IOLS]      = (iol.csteAopt_ulib() >0.0?    iol.csteAopt_ulib()     : QVariant());
-                    m_listbinds[CP_HAIGISA0U_IOLS]      = (iol.haigisa0_ulib() >0.0?    iol.haigisa0_ulib()     : QVariant());
-                    m_listbinds[CP_HAIGISA1U_IOLS]      = (iol.haigisa1_ulib() >0.0?    iol.haigisa1_ulib()     : QVariant());
-                    m_listbinds[CP_HAIGISA2U_IOLS]      = (iol.haigisa2_ulib() >0.0?    iol.haigisa2_ulib()     : QVariant());
-                    m_listbinds[CP_HOLL1U_IOLS]         = (iol.holladay1_ulib()>0.0?    iol.holladay1_ulib()    : QVariant());
-                    m_listbinds[CP_HOFFERQU_IOLS]       = (iol.hofferQ_ulib()>0.0?      iol.hofferQ_ulib()      : QVariant());
-                    m_listbinds[CP_BARETTDFU_IOLS]      = (iol.barettDF_ulib()>0.0?     iol.barettDF_ulib()     : QVariant());
-                    m_listbinds[CP_BARETTLFU_IOLS]      = (iol.barettLF_ulib()>0.0?     iol.barettLF_ulib()     : QVariant());
-                    m_listbinds[CP_OLSENU_IOLS]         = (iol.olsen_ulib()>0.0?        iol.olsen_ulib()        : QVariant());
+                    m_listbinds[CP_MAXCYL_IOLS]         = (iol.istoric()?                   iol.cylmax()                : QVariant());
+                    m_listbinds[CP_MINCYL_IOLS]         = (iol.istoric()?                   iol.cylmin()                : QVariant());
+                    m_listbinds[CP_ADDINTERMEDIATE_IOLS]= (iol.addintermediate() >0.0?      iol.addintermediate()       : QVariant());
+                    m_listbinds[CP_ADDNEAR_IOLS]        = (iol.addnear() >0.0?              iol.addnear()               : QVariant());
+                    m_listbinds[CP_JAUNE_IOLS]          = (iol.isyellow()?                  "1"                         : QVariant());
+                    m_listbinds[CP_MULTIFOCAL_IOLS]     = (iol.ismultifocal()?              "1"                         : QVariant());
+                    m_listbinds[CP_EDOF_IOLS]           = (iol.isedof()?                    "1"                         : QVariant());
+                    m_listbinds[CP_TORIC_IOLS]          = (iol.istoric()?                   "1"                         : QVariant());
+                    m_listbinds[CP_SINGLEPIECE_IOLS]    = (iol.issinglepiece()?             "1"                         : QVariant());
+
+                    m_listbinds[CP_RESULTSU_IOLS]       = (iol.results_ulib() >0?           iol.results_ulib()          : QVariant());
+                    m_listbinds[CP_CSTEAECHOU_IOLS]     = (iol.csteAEcho_ulib() >0.0?       iol.csteAEcho_ulib()        : QVariant());
+                    m_listbinds[CP_CSTEAOPTU_IOLS]      = (iol.csteAopt_ulib() >0.0?        iol.csteAopt_ulib()         : QVariant());
+                    m_listbinds[CP_HAIGISA0U_IOLS]      = (iol.haigisa0_ulib() >0.0?        iol.haigisa0_ulib()         : QVariant());
+                    m_listbinds[CP_HAIGISA1U_IOLS]      = (iol.haigisa1_ulib() >0.0?        iol.haigisa1_ulib()         : QVariant());
+                    m_listbinds[CP_HAIGISA2U_IOLS]      = (iol.haigisa2_ulib() >0.0?        iol.haigisa2_ulib()         : QVariant());
+                    m_listbinds[CP_HOLL1U_IOLS]         = (iol.holladay1_ulib()>0.0?        iol.holladay1_ulib()        : QVariant());
+                    m_listbinds[CP_HOFFERQU_IOLS]       = (iol.hofferQ_ulib()>0.0?          iol.hofferQ_ulib()          : QVariant());
+                    m_listbinds[CP_BARETTDFU_IOLS]      = (iol.barettDF_ulib()>0.0?         iol.barettDF_ulib()         : QVariant());
+                    m_listbinds[CP_BARETTLFU_IOLS]      = (iol.barettLF_ulib()>0.0?         iol.barettLF_ulib()         : QVariant());
+                    m_listbinds[CP_OLSENU_IOLS]         = (iol.olsen_ulib()>0.0?            iol.olsen_ulib()            : QVariant());
+
                     m_listbinds[CP_RESULTSO_IOLS]       = (iol.results_optimized() >0?      iol.results_optimized()     : QVariant());
                     m_listbinds[CP_CSTEAOPTO_IOLS]      = (iol.csteAopt_optimized() >0.0?   iol.csteAopt_optimized()    : QVariant());
                     m_listbinds[CP_HAIGISA0O_IOLS]      = (iol.haigisa0_optimized() >0.0?   iol.haigisa0_optimized()    : QVariant());

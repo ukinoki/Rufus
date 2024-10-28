@@ -658,7 +658,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_CYLSTEP_IOLS                                 "CylindrePas"
 
 #define CP_CSTEAECHO_IOLS                               "CsteAEcho"
-
 #define CP_CSTEAOPT_IOLS                                "CsteAOptique"
 #define CP_HAIGISA0_IOLS                                "Haigisa0"
 #define CP_HAIGISA1_IOLS                                "Haigisa1"
@@ -670,6 +669,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_OLSEN_IOLS                                   "Olsen"
 
 #define CP_RESULTSU_IOLS                                "ResultsULIB"
+#define CP_CSTEAECHOU_IOLS                              "CsteAEchoULIB"
 #define CP_CSTEAOPTU_IOLS                               "CsteAOptiqueULIB"
 #define CP_HAIGISA0U_IOLS                               "Haigisa0ULIB"
 #define CP_HAIGISA1U_IOLS                               "Haigisa1ULIB"

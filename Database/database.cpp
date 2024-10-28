@@ -3231,6 +3231,7 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! 
     data[CP_BARETTLFO_IOLS]         = ioldata.at(56).toDouble();
     data[CP_BARETTDFO_IOLS]         = ioldata.at(57).toDouble();
     data[CP_OLSENO_IOLS]            = ioldata.at(58).toDouble();
+    data[CP_CSTEAECHOU_IOLS]        = ioldata.at(59).toDouble();
     return data;
 }
 
@@ -3252,7 +3253,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
                     CP_HOFFERQU_IOLS ", " CP_BARETTLFU_IOLS ", " CP_BARETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS  ", "                // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS                                              // 55-56-57-58
+                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
     //qDebug() << req;
@@ -3283,7 +3284,7 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
                     CP_HOFFERQU_IOLS ", " CP_BARETTLFU_IOLS ", " CP_BARETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS ", "                 // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS                                              // 55-56-57-58
+                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
                     " FROM " TBL_IOLS
                     " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
                     " order by " CP_IDMANUFACTURER_IOLS;
@@ -3319,7 +3320,7 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
                     CP_HOFFERQU_IOLS ", " CP_BARETTLFU_IOLS ", " CP_BARETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS ", "                 // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS                                              // 55-56-57-58
+                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
     //qDebug() << req;

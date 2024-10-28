@@ -891,7 +891,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_CSTEAECHO_IOLS)
             {
-                iol->setCsteAEcho(newvalue.toDouble());
+                iol->setCsteAEcho_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_HAIGISA0_IOLS)
@@ -953,7 +953,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             {
                 bool a = newvalue.toBool();
                 iol->setsinglepiece(a);
-                newvalue = (a? "null" : "1");
+                newvalue = (a? "1" : "null");
             }
             else if (field == CP_OPTICMATERIAU_IOLS)
             {
@@ -1009,6 +1009,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             {
                 iol->setresults_ulib(newvalue.toInt());
                 Utils::CalcintValueSQL(newvalue);
+            }
+            else if (field == CP_CSTEAECHOU_IOLS)
+            {
+                iol->setCsteAEcho_ulib(newvalue.toDouble());
+                Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_CSTEAOPTU_IOLS)
             {

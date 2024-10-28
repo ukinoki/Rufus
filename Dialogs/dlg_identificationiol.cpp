@@ -52,7 +52,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         reconstruitListeIOLs(m_currentmanufacturer);
 
     setWindowTitle(m_mode == Creation? tr("Enregistrer un IOL") : tr("Modifier un IOL"));
-
+    int spacing = 10;
     //! FABRICANT
     if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
@@ -86,7 +86,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     choixManufacturerIOLLay     ->addWidget(lblManufacturerIOL);
     choixManufacturerIOLLay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixManufacturerIOLLay     ->addWidget(wdg_manufacturercombo);
-    choixManufacturerIOLLay     ->setSpacing(5);
+    choixManufacturerIOLLay     ->setSpacing(spacing);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
     //! MODELE
@@ -100,29 +100,48 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     choixIOLLay                 ->addWidget(lblIOL);
     choixIOLLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixIOLLay                 ->addWidget(wdg_nomiolline);
-    choixIOLLay                 ->setSpacing(5);
+    choixIOLLay                 ->setSpacing(spacing);
     choixIOLLay                 ->setContentsMargins(0,0,0,0);
 
     //! Constante A Echo
     QHBoxLayout *csteAEcho_Lay  = new QHBoxLayout();
-    UpLabel* lblcsteAIOL        = new UpLabel;
-    lblcsteAIOL                 ->setText(tr("Cste A Echo"));
-    lblcsteAIOL                 ->setFixedSize(QSize(110,28));
-    wdg_Aecholine               = new UpLineEdit();
+
+        //! nominal
+    QHBoxLayout *NcsteAEcho_Lay = new QHBoxLayout();
+    UpLabel* NlblcsteAIOL       = new UpLabel;
+    NlblcsteAIOL                ->setText(tr("Cste A Echo"));
+    NlblcsteAIOL                ->setFixedSize(QSize(80,28));
     wdg_Aecholine               ->setValidator(new QRegularExpressionValidator(rgx_csteA, wdg_Aecholine));
     wdg_Aecholine               ->setFixedSize(QSize(50,28));
-    csteAEcho_Lay               ->addWidget(lblcsteAIOL);
-    csteAEcho_Lay               ->addWidget(wdg_Aecholine);
+    NcsteAEcho_Lay              ->addWidget(NlblcsteAIOL);
+    NcsteAEcho_Lay              ->addWidget(wdg_Aecholine);
+    NcsteAEcho_Lay              ->setSpacing(spacing);
+    NcsteAEcho_Lay              ->setContentsMargins(0,0,0,0);
+    wdg_nominalCsteAEcho        ->setLayout(NcsteAEcho_Lay);
+
+        //! ulib
+    QHBoxLayout *UcsteAEcho_Lay = new QHBoxLayout();
+    UpLabel* UlblcsteAIOL       = new UpLabel;
+    UlblcsteAIOL                ->setText("<font color=\"red\"><b>" + tr("Cste A Echo") + "</b></font>");
+    UlblcsteAIOL                ->setFixedSize(QSize(80,28));
+    wdg_UAecholine              ->setValidator(new QRegularExpressionValidator(rgx_csteA, wdg_UAecholine));
+    wdg_UAecholine              ->setFixedSize(QSize(50,28));
+    UcsteAEcho_Lay              ->addWidget(UlblcsteAIOL);
+    UcsteAEcho_Lay              ->addWidget(wdg_UAecholine);
+    UcsteAEcho_Lay              ->setSpacing(spacing);
+    UcsteAEcho_Lay              ->setContentsMargins(0,0,0,0);
+    wdg_ulibCsteAEcho           ->setLayout(UcsteAEcho_Lay);
+
+    wdg_prechargechk            ->setFixedHeight(35);
+    wdg_jaunechk                ->setFixedHeight(35);
+
+    csteAEcho_Lay               ->addWidget(wdg_nominalCsteAEcho);
+    csteAEcho_Lay               ->addWidget(wdg_ulibCsteAEcho);
     csteAEcho_Lay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    csteAEcho_Lay               ->setSpacing(5);
+    csteAEcho_Lay               ->addWidget(wdg_prechargechk);
+    csteAEcho_Lay               ->addWidget(wdg_jaunechk);
+    csteAEcho_Lay               ->setSpacing(spacing);
     csteAEcho_Lay               ->setContentsMargins(0,0,0,0);
-    for (int i=0; i < csteAEcho_Lay->count(); ++i)
-    {
-        if (i==1)
-            csteAEcho_Lay->setStretch(i,5);
-        else
-            csteAEcho_Lay->setStretch(i,1);
-    }
 
     //! Nominal, Ulib & optimized
     QHBoxLayout *Typecst_Lay    = new QHBoxLayout();
@@ -156,7 +175,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     NCsteAOPT_Holladay_Lay      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     NCsteAOPT_Holladay_Lay      ->addWidget(lblHolIOL);
     NCsteAOPT_Holladay_Lay      ->addWidget(wdg_holladayline);
-    NCsteAOPT_Holladay_Lay      ->setSpacing(5);
+    NCsteAOPT_Holladay_Lay      ->setSpacing(spacing);
     NCsteAOPT_Holladay_Lay      ->setContentsMargins(0,0,0,0);
     for (int i=0; i < NCsteAOPT_Holladay_Lay->count(); ++i)
     {
@@ -183,7 +202,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UCsteAOPT_Holladay_Lay      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     UCsteAOPT_Holladay_Lay      ->addWidget(UlblHolIOL);
     UCsteAOPT_Holladay_Lay      ->addWidget(wdg_Uholladayline);
-    UCsteAOPT_Holladay_Lay      ->setSpacing(5);
+    UCsteAOPT_Holladay_Lay      ->setSpacing(spacing);
     UCsteAOPT_Holladay_Lay      ->setContentsMargins(0,0,0,0);
     for (int i=0; i < UCsteAOPT_Holladay_Lay->count(); ++i)
     {
@@ -210,7 +229,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     OCsteAOPT_Holladay_Lay      ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     OCsteAOPT_Holladay_Lay      ->addWidget(OlblHolIOL);
     OCsteAOPT_Holladay_Lay      ->addWidget(wdg_Oholladayline);
-    OCsteAOPT_Holladay_Lay      ->setSpacing(5);
+    OCsteAOPT_Holladay_Lay      ->setSpacing(spacing);
     OCsteAOPT_Holladay_Lay      ->setContentsMargins(0,0,0,0);
     for (int i=0; i < OCsteAOPT_Holladay_Lay->count(); ++i)
     {
@@ -254,7 +273,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     NHaigis_Lay                  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     NHaigis_Lay                  ->addWidget(NHaigisclbl);
     NHaigis_Lay                  ->addWidget(wdg_haigiscline);
-    NHaigis_Lay                  ->setSpacing(5);
+    NHaigis_Lay                  ->setSpacing(spacing);
     NHaigis_Lay                  ->setContentsMargins(0,0,0,0);
     for (int i=0; i < NHaigis_Lay->count(); ++i)
     {
@@ -291,7 +310,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UHaigis_Lay                  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     UHaigis_Lay                  ->addWidget(UHaigisclbl);
     UHaigis_Lay                  ->addWidget(wdg_Uhaigiscline);
-    UHaigis_Lay                  ->setSpacing(5);
+    UHaigis_Lay                  ->setSpacing(spacing);
     UHaigis_Lay                  ->setContentsMargins(0,0,0,0);
     for (int i=0; i < UHaigis_Lay->count(); ++i)
     {
@@ -328,7 +347,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     OHaigis_Lay                  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     OHaigis_Lay                  ->addWidget(OHaigisclbl);
     OHaigis_Lay                  ->addWidget(wdg_Ohaigiscline);
-    OHaigis_Lay                  ->setSpacing(5);
+    OHaigis_Lay                  ->setSpacing(spacing);
     OHaigis_Lay                  ->setContentsMargins(0,0,0,0);
     for (int i=0; i < OHaigis_Lay->count(); ++i)
     {
@@ -367,7 +386,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     Nbarett_Lay                  ->addWidget(wdg_barettDFline);
     Nbarett_Lay                  ->addWidget(NlbLF_IOL);
     Nbarett_Lay                  ->addWidget(wdg_barettLFline);
-    Nbarett_Lay                  ->setSpacing(5);
+    Nbarett_Lay                  ->setSpacing(spacing);
     Nbarett_Lay                  ->setContentsMargins(0,0,0,0);
     for (int i=0; i < Nbarett_Lay->count(); ++i)
     {
@@ -399,7 +418,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     Ubarett_Lay                  ->addWidget(wdg_UbarettDFline);
     Ubarett_Lay                  ->addWidget(UlbLF_IOL);
     Ubarett_Lay                  ->addWidget(wdg_UbarettLFline);
-    Ubarett_Lay                  ->setSpacing(5);
+    Ubarett_Lay                  ->setSpacing(spacing);
     Ubarett_Lay                  ->setContentsMargins(0,0,0,0);
     for (int i=0; i < Ubarett_Lay->count(); ++i)
     {
@@ -431,7 +450,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     Obarett_Lay                  ->addWidget(wdg_ObarettDFline);
     Obarett_Lay                  ->addWidget(OlbLF_IOL);
     Obarett_Lay                  ->addWidget(wdg_ObarettLFline);
-    Obarett_Lay                  ->setSpacing(5);
+    Obarett_Lay                  ->setSpacing(spacing);
     Obarett_Lay                  ->setContentsMargins(0,0,0,0);
     for (int i=0; i < Obarett_Lay->count(); ++i)
     {
@@ -466,7 +485,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     NHofOls_Lay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     NHofOls_Lay                 ->addWidget(NlbOlsen_IOL);
     NHofOls_Lay                 ->addWidget(wdg_olsenline);
-    NHofOls_Lay                 ->setSpacing(5);
+    NHofOls_Lay                 ->setSpacing(spacing);
     NHofOls_Lay                 ->setContentsMargins(0,0,0,0);
     for (int i=0; i < NHofOls_Lay->count(); ++i)
     {
@@ -494,7 +513,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UHofOls_Lay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     UHofOls_Lay                 ->addWidget(UlbOlsen_IOL);
     UHofOls_Lay                 ->addWidget(wdg_Uolsenline);
-    UHofOls_Lay                 ->setSpacing(5);
+    UHofOls_Lay                 ->setSpacing(spacing);
     UHofOls_Lay                 ->setContentsMargins(0,0,0,0);
     for (int i=0; i < UHofOls_Lay->count(); ++i)
     {
@@ -522,7 +541,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     OHofOls_Lay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     OHofOls_Lay                 ->addWidget(OlbOlsen_IOL);
     OHofOls_Lay                 ->addWidget(wdg_Oolsenline);
-    OHofOls_Lay                 ->setSpacing(5);
+    OHofOls_Lay                 ->setSpacing(spacing);
     OHofOls_Lay                 ->setContentsMargins(0,0,0,0);
     for (int i=0; i < OHofOls_Lay->count(); ++i)
     {
@@ -537,8 +556,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     HofOls_Lay                  ->addWidget(wdg_ulibhofferq);
     HofOls_Lay                  ->addWidget(wdg_optimizedhofferq);
 
-    wdg_nominalrb               ->setChecked(true);
-    switchDisplayConstant(Nominal);
     /*! fin constantes */
 
     //! Diametres optique et ht
@@ -562,7 +579,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     diametresLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     diametresLay                ->addWidget(lbldiaopt);
     diametresLay                ->addWidget(wdg_diaoptique);
-    diametresLay                ->setSpacing(5);
+    diametresLay                ->setSpacing(spacing);
     diametresLay                ->setContentsMargins(0,0,0,0);
     for (int i=0; i < diametresLay->count(); ++i)
     {
@@ -582,7 +599,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     injecteurLay                ->addWidget(lbldiainjecteur);
     injecteurLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     injecteurLay                ->addWidget(wdg_diainjecteur);
-    injecteurLay                ->setSpacing(5);
+    injecteurLay                ->setSpacing(spacing);
     injecteurLay                ->setContentsMargins(0,0,0,0);
 
     //! Plage puissances
@@ -607,7 +624,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     puissancesLay               ->addWidget(wdg_puissanceminspin);
     puissancesLay               ->addWidget(lblpuissancemax);
     puissancesLay               ->addWidget(wdg_puissancemaxspin);
-    puissancesLay               ->setSpacing(5);
+    puissancesLay               ->setSpacing(spacing);
     puissancesLay               ->setContentsMargins(0,0,0,0);
     for (int i=0; i < puissancesLay->count(); ++i)
     {
@@ -633,7 +650,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_cylindremaxspin         ->setSingleStep(0.25);
     wdg_cylindreminspin         ->setRange(-8.0, 8.0);
     wdg_cylindreminspin         ->setSingleStep(0.25);
-    wdg_toricchk                = new UpCheckBox(tr("Torique"));
     wdg_toricchk                ->setFixedHeight(35);
     cylindresLay                ->insertWidget(0,wdg_toricchk);
     cylindresLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -645,7 +661,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_cylindres               ->setLayout(wdgcylindresLay);
     cylindresLay                ->addWidget(wdg_cylindres);
 
-    cylindresLay                ->setSpacing(5);
+    cylindresLay                ->setSpacing(spacing);
     cylindresLay                ->setContentsMargins(0,0,0,0);
     for (int i=0; i < cylindresLay->count(); ++i)
     {
@@ -656,20 +672,28 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     }
 
 
-    //! Constante precharge jaune multifocal
+    //! Constante edof multifocal
     QHBoxLayout *checkboxLay    = new QHBoxLayout();
-    wdg_prechargechk            = new UpCheckBox(tr("Prechargé"));
-    wdg_jaunechk                = new UpCheckBox(tr("Jaune"));
-    wdg_edofchk                 = new UpCheckBox("EDOF");
-    wdg_multifocalchk           = new UpCheckBox(tr("Multifocal"));
-    checkboxLay                 ->addWidget(wdg_prechargechk);
-    checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    checkboxLay                 ->addWidget(wdg_jaunechk);
-    checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    UpLabel* addintermediatelbl = new UpLabel;
+    addintermediatelbl          ->setText("Add.  inter");
+    UpLabel* addnearlbl         = new UpLabel;
+    addnearlbl                  ->setText(tr("près"));
+    wdg_addinterspin            = new UpDoubleSpinBox();
+    wdg_addnearspin             = new UpDoubleSpinBox();
+    wdg_addinterspin            ->setFixedSize(QSize(50,28));
+    wdg_addnearspin             ->setFixedSize(QSize(50,28));
+    wdg_addinterspin            ->setRange(0.5, 2.5);
+    wdg_addinterspin            ->setSingleStep(0.25);
+    wdg_addnearspin             ->setRange(1.5, 4.5);
+    wdg_addnearspin             ->setSingleStep(0.25);
     checkboxLay                 ->addWidget(wdg_edofchk);
-    checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     checkboxLay                 ->addWidget(wdg_multifocalchk);
-    checkboxLay                 ->setSpacing(5);
+    checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    checkboxLay                 ->addWidget(addintermediatelbl);
+    checkboxLay                 ->addWidget(wdg_addinterspin);
+    checkboxLay                 ->addWidget(addnearlbl);
+    checkboxLay                 ->addWidget(wdg_addnearspin);
+    checkboxLay                 ->setSpacing(spacing);
     checkboxLay                 ->setContentsMargins(0,0,0,0);
 
     //! Materiau - Image - Navigation - recopie
@@ -688,13 +712,26 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_materiaubox             ->setEditable(true);
     wdg_materiaubox             ->lineEdit()->setMaxLength(45);
     wdg_materiaubox             ->setFixedWidth(180);
-    wdg_materiaubox             ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA") << tr("copolymère"));
+    QStringList listopticmaterial, listhapticmaterial;
+    for (auto it = Datas::I()->iols->iols()->begin(); it != Datas::I()->iols->iols()->end(); ++it)
+    {
+        IOL* iol = Datas::I()->iols->getById(it.key());
+        if (iol)
+        {
+            if (!listopticmaterial.contains(iol->opticalmaterial()) && iol->opticalmaterial() != "")
+                listopticmaterial << iol->opticalmaterial();
+            if (!listhapticmaterial.contains(iol->hapticalmaterial()) && iol->hapticalmaterial() != "")
+                listhapticmaterial << iol->hapticalmaterial();
+        }
+
+    }
+    wdg_materiaubox             ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << "PMMA" << tr("copolymère"));
     wdg_hapticmateriaubox       ->setEditable(true);
     wdg_hapticmateriaubox       ->lineEdit()->setMaxLength(45);
     wdg_hapticmateriaubox       ->setFixedWidth(180);
-    wdg_hapticmateriaubox       ->addItems(QStringList() << tr("Acrylique hydrophile") << tr("Acrylique hydrophobe") << tr("PMMA") << tr("copolymère"));
+    wdg_hapticmateriaubox       ->addItems(listopticmaterial);
     wdg_typebox                 ->setEditable(false);
-    wdg_typebox                 ->addItems(QStringList() << IOL_CP << IOL_CA << IOL_ADDON << IOL_IRIEN << IOL_CAREFRACTIF << IOL_AUTRE);
+    wdg_typebox                 ->addItems(listhapticmaterial);
     wdg_typebox                 ->setFixedWidth(180);
     wdg_typebox                 ->setCurrentIndex(-1);
     wdg_materiaubox             ->setCurrentIndex(-1);
@@ -869,10 +906,15 @@ void dlg_identificationIOL::connectSignals()
                                                                                                                     EnableOKpushButton();
                                                                                                                     if (a) wdg_multifocalchk->setChecked(!a);
                                                                                                                  });
-     connect (wdg_toricchk,          &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+     connect (wdg_toricchk,          &UpCheckBox::uptoggled,                                this,   [&](bool a) {
                                                                                                                     EnableOKpushButton();
                                                                                                                     wdg_cylindres->setVisible(a);
                                                                                                                  });
+     connect (wdg_singlepiecechk,   &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
+                                                                                                                    wdg_hapticmateriaubox   ->setVisible(!a);
+                                                                                                                    wdg_HapticMateriaulbl   ->setVisible(!a);
+                                                                                                                });
+
      connect (wdg_jaunechk,          &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
                                                                                                                     EnableOKpushButton();
                                                                                                                     QString style = (a? "background-color: yellow" : "background-color: none" );
@@ -950,6 +992,9 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         return;
     disconnectSignals();
     m_currentIOL = iol;
+    bool nominalvalid = (m_currentIOL->csteAEcho_nominal() > 0 || m_currentIOL->csteAopt_nominal() > 0);
+    bool ulibvalid = (m_currentIOL->results_ulib() > 0);
+    bool optimizedvalid = (m_currentIOL->results_optimized() > 0);
     if (m_currentmanufacturer)
         wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
     if (wdg_toolbar)
@@ -957,13 +1002,38 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
     if (wdg_recopiebutton)
         wdg_recopiebutton   ->setEnabled(false);
 
-    if (m_mode == Modification)
+    if (m_mode == Modification)        
     {
+        wdg_ulibrb      ->setText("ulib (" + QString::number(m_currentIOL->results_ulib()) + ")");
+        wdg_optimizedrb ->setText("optimized (" + QString::number(m_currentIOL->results_optimized()) + ")");
+        if (nominalvalid)
+        {
+            wdg_nominalrb   ->setChecked(true);
+            wdg_ulibrb      ->setChecked(false);
+            wdg_optimizedrb ->setChecked(false);
+            switchDisplayConstant(Nominal);
+        }
+        else if (ulibvalid)
+        {
+            wdg_nominalrb   ->setChecked(false);
+            wdg_ulibrb      ->setChecked(true);
+            wdg_optimizedrb ->setChecked(false);
+            switchDisplayConstant(Ulib);
+        }
+        else if (optimizedvalid)
+        {
+            wdg_nominalrb   ->setChecked(false);
+            wdg_ulibrb      ->setChecked(false);
+            wdg_optimizedrb ->setChecked(true);
+            switchDisplayConstant(Optimized);
+        }
+
         wdg_nomiolline      ->setText(m_currentIOL->modele());
+
         if (m_currentIOL->csteAopt_nominal() > 0.0)
             wdg_Aoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_nominal(), 'f', 1));
-        if (m_currentIOL->csteAEcho() > 0.0)
-            wdg_Aecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho(), 'f', 1));
+        if (m_currentIOL->csteAEcho_nominal() > 0.0)
+            wdg_Aecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho_nominal(), 'f', 1));
         if (m_currentIOL->holladay1_nominal() > 0.0)
             wdg_holladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_nominal(), 'f', 2));
         if (m_currentIOL->haigisa0_nominal() > 0.0)
@@ -972,6 +1042,55 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_nominal(), 'f', 4));
         if (m_currentIOL->haigisa2_nominal() > 0.0)
             wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_nominal(), 'f', 4));
+        if (m_currentIOL->hofferQ_nominal() > 0.0)
+            wdg_hofferQline    ->setText(QLocale().toString(m_currentIOL->hofferQ_nominal(), 'f', 2));
+        if (m_currentIOL->barettDF_nominal() > 0.0)
+            wdg_barettDFline    ->setText(QLocale().toString(m_currentIOL->barettDF_nominal(), 'f', 4));
+        if (m_currentIOL->barettLF_nominal() > 0.0)
+            wdg_barettLFline    ->setText(QLocale().toString(m_currentIOL->barettLF_nominal(), 'f', 4));
+        if (m_currentIOL->olsen_nominal() > 0.0)
+            wdg_olsenline     ->setText(QLocale().toString(m_currentIOL->olsen_nominal(), 'f', 4));
+
+        if (m_currentIOL->csteAopt_ulib() > 0.0)
+            wdg_UAoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_ulib(), 'f', 1));
+        if (m_currentIOL->csteAEcho_ulib() > 0.0)
+            wdg_UAecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho_ulib(), 'f', 1));
+        if (m_currentIOL->holladay1_ulib() > 0.0)
+            wdg_Uholladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_ulib(), 'f', 2));
+        if (m_currentIOL->haigisa0_ulib() > 0.0)
+            wdg_Uhaigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0_ulib(), 'f', 4));
+        if (m_currentIOL->haigisa1_ulib() > 0.0)
+            wdg_Uhaigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_ulib(), 'f', 4));
+        if (m_currentIOL->haigisa2_ulib() > 0.0)
+            wdg_Uhaigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_ulib(), 'f', 4));
+        if (m_currentIOL->hofferQ_ulib() > 0.0)
+            wdg_UhofferQline    ->setText(QLocale().toString(m_currentIOL->hofferQ_ulib(), 'f', 2));
+        if (m_currentIOL->barettDF_ulib() > 0.0)
+            wdg_UbarettDFline    ->setText(QLocale().toString(m_currentIOL->barettDF_ulib(), 'f', 4));
+        if (m_currentIOL->barettLF_ulib() > 0.0)
+            wdg_UbarettLFline    ->setText(QLocale().toString(m_currentIOL->barettLF_ulib(), 'f', 4));
+        if (m_currentIOL->olsen_ulib() > 0.0)
+            wdg_Uolsenline     ->setText(QLocale().toString(m_currentIOL->olsen_ulib(), 'f', 4));
+
+        if (m_currentIOL->csteAopt_optimized() > 0.0)
+            wdg_OAoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_optimized(), 'f', 1));
+        if (m_currentIOL->holladay1_optimized() > 0.0)
+            wdg_Oholladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_optimized(), 'f', 2));
+        if (m_currentIOL->haigisa0_optimized() > 0.0)
+            wdg_Ohaigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0_optimized(), 'f', 4));
+        if (m_currentIOL->haigisa1_optimized() > 0.0)
+            wdg_Ohaigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_optimized(), 'f', 4));
+        if (m_currentIOL->haigisa2_optimized() > 0.0)
+            wdg_Ohaigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_optimized(), 'f', 4));
+        if (m_currentIOL->hofferQ_optimized() > 0.0)
+            wdg_OhofferQline    ->setText(QLocale().toString(m_currentIOL->hofferQ_optimized(), 'f', 2));
+        if (m_currentIOL->barettDF_optimized() > 0.0)
+            wdg_ObarettDFline    ->setText(QLocale().toString(m_currentIOL->barettDF_optimized(), 'f', 4));
+        if (m_currentIOL->barettLF_optimized() > 0.0)
+            wdg_ObarettLFline    ->setText(QLocale().toString(m_currentIOL->barettLF_optimized(), 'f', 4));
+        if (m_currentIOL->olsen_optimized() > 0.0)
+            wdg_Oolsenline     ->setText(QLocale().toString(m_currentIOL->olsen_optimized(), 'f', 4));
+
         wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
         if (m_currentIOL->opticalmaterial() != "")
@@ -993,6 +1112,10 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_prechargechk    ->setChecked(m_currentIOL->ispreloaded());
         wdg_edofchk         ->setChecked(m_currentIOL->isedof());
         wdg_toricchk        ->setChecked(m_currentIOL->istoric());
+        wdg_singlepiecechk  ->setChecked(m_currentIOL->issinglepiece());
+        wdg_hapticmateriaubox   ->setVisible(!m_currentIOL->issinglepiece());
+        wdg_HapticMateriaulbl   ->setVisible(!m_currentIOL->issinglepiece());
+        wdg_hapticmateriaubox   ->setCurrentText(m_currentIOL->hapticalmaterial());
         wdg_cylindres       ->setVisible(m_currentIOL->istoric());
         if (m_currentIOL->istoric())
         {
@@ -1021,6 +1144,9 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_toolbar->Next()     ->setEnabled(idx < m_listeidIOLs.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
     }
+    wdg_nominalrb   ->setEnabled(nominalvalid);
+    wdg_ulibrb      ->setEnabled(ulibvalid);
+    wdg_optimizedrb ->setEnabled(optimizedvalid);
     connectSignals();
 }
 
@@ -1080,63 +1206,66 @@ void dlg_identificationIOL::switchDisplayConstant(TypeConstant typcst)
 {
     switch (typcst) {
     case Nominal:
-        wdg_nominalCsteA    ->setVisible(true);
-        wdg_ulibCsteA       ->setVisible(false);
-        wdg_optimizedCsteA  ->setVisible(false);
-        wdg_nominalhaigis   ->setVisible(true);
-        wdg_ulibhaigis      ->setVisible(false);
-        wdg_optimizedhaigis ->setVisible(false);
-        wdg_nominalbarett   ->setVisible(true);
-        wdg_ulibbarett      ->setVisible(false);
-        wdg_optimizedbarett ->setVisible(false);
-        wdg_nominalhofferq  ->setVisible(true);
-        wdg_ulibhofferq     ->setVisible(false);
-        wdg_optimizedhofferq->setVisible(false);
-        wdg_ulibrb          ->setChecked(false);
-        wdg_optimizedrb     ->setChecked(false);
-        wdg_nominalrb       ->setToggleable(false);
-        wdg_ulibrb          ->setToggleable(true);
-        wdg_optimizedrb     ->setToggleable(true);
+        wdg_nominalCsteAEcho    ->setVisible(true);
+        wdg_ulibCsteAEcho       ->setVisible(false);
+        wdg_nominalCsteA        ->setVisible(true);
+        wdg_ulibCsteA           ->setVisible(false);
+        wdg_optimizedCsteA      ->setVisible(false);
+        wdg_nominalhaigis       ->setVisible(true);
+        wdg_ulibhaigis          ->setVisible(false);
+        wdg_optimizedhaigis     ->setVisible(false);
+        wdg_nominalbarett       ->setVisible(true);
+        wdg_ulibbarett          ->setVisible(false);
+        wdg_optimizedbarett     ->setVisible(false);
+        wdg_nominalhofferq      ->setVisible(true);
+        wdg_ulibhofferq         ->setVisible(false);
+        wdg_optimizedhofferq    ->setVisible(false);
+        wdg_ulibrb              ->setChecked(false);
+        wdg_optimizedrb         ->setChecked(false);
         break;
     case Ulib:
-        wdg_nominalCsteA    ->setVisible(false);
-        wdg_ulibCsteA       ->setVisible(true);
-        wdg_optimizedCsteA  ->setVisible(false);
-        wdg_nominalhaigis   ->setVisible(false);
-        wdg_ulibhaigis      ->setVisible(true);
-        wdg_optimizedhaigis ->setVisible(false);
-        wdg_nominalbarett   ->setVisible(false);
-        wdg_ulibbarett      ->setVisible(true);
-        wdg_optimizedbarett ->setVisible(false);
-        wdg_nominalhofferq  ->setVisible(false);
-        wdg_ulibhofferq     ->setVisible(true);
-        wdg_optimizedhofferq->setVisible(false);
-        wdg_nominalrb       ->setChecked(false);
-        wdg_optimizedrb     ->setChecked(false);
-        wdg_nominalrb       ->setToggleable(true);
-        wdg_ulibrb          ->setToggleable(false);
-        wdg_optimizedrb     ->setToggleable(true);
+        wdg_nominalCsteAEcho    ->setVisible(false);
+        wdg_ulibCsteAEcho       ->setVisible(true);
+        wdg_nominalCsteA        ->setVisible(false);
+        wdg_ulibCsteA           ->setVisible(true);
+        wdg_optimizedCsteA      ->setVisible(false);
+        wdg_nominalhaigis       ->setVisible(false);
+        wdg_ulibhaigis          ->setVisible(true);
+        wdg_optimizedhaigis     ->setVisible(false);
+        wdg_nominalbarett       ->setVisible(false);
+        wdg_ulibbarett          ->setVisible(true);
+        wdg_optimizedbarett     ->setVisible(false);
+        wdg_nominalhofferq      ->setVisible(false);
+        wdg_ulibhofferq         ->setVisible(true);
+        wdg_optimizedhofferq    ->setVisible(false);
+        wdg_nominalrb           ->setChecked(false);
+        wdg_optimizedrb         ->setChecked(false);
         break;
     case Optimized:
-        wdg_nominalCsteA    ->setVisible(false);
-        wdg_ulibCsteA       ->setVisible(false);
-        wdg_optimizedCsteA  ->setVisible(true);
-        wdg_nominalhaigis   ->setVisible(false);
-        wdg_ulibhaigis      ->setVisible(false);
-        wdg_optimizedhaigis ->setVisible(true);
-        wdg_nominalbarett   ->setVisible(false);
-        wdg_ulibbarett      ->setVisible(false);
-        wdg_optimizedbarett ->setVisible(true);
-        wdg_nominalhofferq  ->setVisible(false);
-        wdg_ulibhofferq     ->setVisible(false);
-        wdg_optimizedhofferq->setVisible(true);
-        wdg_nominalrb       ->setChecked(false);
-        wdg_ulibrb          ->setChecked(false);
-        wdg_nominalrb       ->setToggleable(true);
-        wdg_ulibrb          ->setToggleable(true);
-        wdg_optimizedrb     ->setToggleable(false);
+        wdg_nominalCsteAEcho    ->setVisible(false);
+        wdg_ulibCsteAEcho       ->setVisible(false);
+        wdg_nominalCsteA        ->setVisible(false);
+        wdg_ulibCsteA           ->setVisible(false);
+        wdg_optimizedCsteA      ->setVisible(true);
+        wdg_nominalhaigis       ->setVisible(false);
+        wdg_ulibhaigis          ->setVisible(false);
+        wdg_optimizedhaigis     ->setVisible(true);
+        wdg_nominalbarett       ->setVisible(false);
+        wdg_ulibbarett          ->setVisible(false);
+        wdg_optimizedbarett     ->setVisible(true);
+        wdg_nominalhofferq      ->setVisible(false);
+        wdg_ulibhofferq         ->setVisible(false);
+        wdg_optimizedhofferq    ->setVisible(true);
+        wdg_nominalrb           ->setChecked(false);
+        wdg_ulibrb              ->setChecked(false);
         break;
     }
+    bool nominalvalid = (m_currentIOL->csteAEcho_nominal() > 0 || m_currentIOL->csteAopt_nominal() > 0);
+    bool ulibvalid = (m_currentIOL->results_ulib() > 0);
+    bool optimizedvalid = (m_currentIOL->results_optimized() > 0);
+    wdg_nominalrb   ->setEnabled(nominalvalid);
+    wdg_ulibrb      ->setEnabled(ulibvalid);
+    wdg_optimizedrb ->setEnabled(optimizedvalid);
 }
 
 void dlg_identificationIOL:: EnableOKpushButton()
