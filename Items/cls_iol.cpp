@@ -196,7 +196,6 @@ void IOL::resetdatas()
     data[CP_TYP_IOLS]                = 0;
 
     data[CP_CSTEAECHO_IOLS]          = 0;
-
     data[CP_CSTEAOPT_IOLS]           = 0;
     data[CP_HAIGISA0_IOLS]           = 0;
     data[CP_HAIGISA1_IOLS]           = 0;
@@ -217,6 +216,7 @@ void IOL::resetdatas()
     data[CP_OLSEN_IOLS]              = 0;
 
     data[CP_RESULTSU_IOLS]           = 0;
+    data[CP_CSTEAECHOU_IOLS]         = 0;
     data[CP_CSTEAOPTU_IOLS]          = 0;
     data[CP_HAIGISA0U_IOLS]          = 0;
     data[CP_HAIGISA1U_IOLS]          = 0;

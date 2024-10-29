@@ -131,6 +131,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         else if (champ == CP_JAUNE_IOLS)                            data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_ARRAYIMG_IOLS)                         data[champ] = QLatin1String(itset.value().toByteArray().toBase64());
         else if (champ == CP_RESULTSU_IOLS)                         data[champ] = itset.value().toInt();
+        else if (champ == CP_CSTEAECHOU_IOLS)                       data[champ] = itset.value().toDouble();
         else if (champ == CP_CSTEAOPTU_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_HAIGISA0U_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_HAIGISA1U_IOLS)                        data[champ] = itset.value().toDouble();

@@ -55,7 +55,7 @@ private:
     QImage              m_currentIOLimage;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
-     UpDoubleSpinBox     *wdg_puissancemaxspin;
+    UpDoubleSpinBox     *wdg_puissancemaxspin;
     UpDoubleSpinBox     *wdg_puissanceminspin;
     UpDoubleSpinBox     *wdg_cylindremaxspin;
     UpDoubleSpinBox     *wdg_cylindreminspin;
@@ -64,10 +64,10 @@ private:
 
 
     /*! constants */
-    QRadioButton       *wdg_nominalrb      = new QRadioButton("nominal");
-    QRadioButton       *wdg_ulibrb         = new QRadioButton("ulib");
-    QRadioButton       *wdg_optimizedrb    = new QRadioButton("optimized");
-    enum                TypeConstant {Nominal, Ulib, Optimized};    Q_ENUM(TypeConstant)
+    UpCheckBox          *wdg_nominalrb      = new UpCheckBox("nominal");
+    UpCheckBox          *wdg_ulibrb         = new UpCheckBox("ulib");
+    UpCheckBox          *wdg_optimizedrb    = new UpCheckBox("optimized");
+    enum                TypeConstant {Nominal, Ulib, Optimized, None};    Q_ENUM(TypeConstant)
     TypeConstant        m_typcste = Nominal;
     void                switchDisplayConstant(TypeConstant typcst);
 

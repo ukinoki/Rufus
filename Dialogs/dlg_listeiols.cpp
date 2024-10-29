@@ -165,7 +165,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_singlepiecechk  ->installEventFilter(this);
     wdg_twopiecechk     ->installEventFilter(this);
 
-    connect(importbutt,                     &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
+    //connect(importbutt,                     &QPushButton::clicked,      this,   &dlg_listeiols::ImportListeIOLS);
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) {
                                                                                             wdg_buttonframe->searchline()->setText(txt);
@@ -409,25 +409,27 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 /*-----------------------------------------------------------------------------------------------------------------
 -- // mise à jour de la liste des implants  --------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void dlg_listeiols::ImportListeIOLS()
+void dlg_listeiols::ImportListeIOLS(QWidget *parent)
 {
-    UpMessageBox::Watch(this,tr("Mise à jour de la liste des implants"), tr("Pour mettre à jour la liste des implants") + "\n"
+    UpMessageBox::Watch(parent,tr("Mise à jour de la liste des implants"), tr("Pour mettre à jour la liste des implants") + "\n"
                         + tr("Téléchargez la liste des implants - fichier IOLexport.xml - sur le site https://iolcon.org/") + "\n"
                         + tr("Sélectionnez ce fichier une fois téléchargé dans la boîte de dialogue qui suit") + "\n"
                         + tr("Aucun implant de votre base actuelle ne sera modifié"));
 
     /*! Choix du fichier xml contenant la liste des implants */
-    QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  "*.xml");
-    if (fileName == "")
-        return;
-    QFile xmldoc(fileName);
-    int nbimplants = 0;
-    if (xmldoc.open(QIODevice::ReadOnly))
+    //QString fileName = QFileDialog::getOpenFileName(parent, tr("Choisir un fichier"),  QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)),  tr("XML files (*.xml)"));
+    QString fileName = "/Users/serge/Downloads/IOLexport.xml";
+    if (fileName != "")
     {
-        QDomDocument *docxml = new QDomDocument();
-        docxml->setContent(&xmldoc);
-        QDomElement xml = docxml->documentElement();
+        QFile datafile(fileName);
+        Datas::I()->iols->initListe();
+
+        QDomDocument docxml;
+        if (datafile.open(QIODevice::ReadOnly))
+            docxml.setContent(&datafile);
+
+        QDomElement xml = docxml.documentElement();
+
         /*! Mise à jour de la liste des fabricants */
         QStringList listmanufacturers;
         for (int i=0; i<xml.childNodes().size(); i++)
@@ -449,225 +451,562 @@ void dlg_listeiols::ImportListeIOLS()
             listmanofficiel << manf->nom().toUpper();
         }
         foreach (QString nommanufacturer, listmanufacturers)
+        {
             if (!listmanofficiel.contains(nommanufacturer.toUpper()))
             {
                 QHash<QString,QVariant> listbinds;
                 listbinds[CP_NOM_MANUFACTURER] = nommanufacturer.toUpper();
                 Datas::I()->manufacturers->CreationManufacturer(listbinds);
             }
+        }
         /*! fin mise à jour de la liste des fabricants */
 
         /*! Mise à jour de la liste des IOLs */
-        for (int i=0; i<xml.childNodes().size(); i++)     // on reprend chaque IOL un par un
+        int newiols = 0;
+        int updateiols = 0;
+        QStringList iolbrandmodel= QStringList();
+        QList<int> iollistid = QList<int>();
+        foreach (IOL *iolfromlist, *Datas::I()->iols->iols())
         {
-            int idiol;
-            QString manufacturer  = "";
-            QString model = "";
-            QString material = "";
-            bool preloaded = false;
-            double incision= 0.0;
-            double opticaldiameter = 0.0;
-            double diaall = 0.0;
-            bool multifocal = false;
-            bool toric = false;
-            bool yellow = false;
-            bool edof = false;
-            double pwrmin = 100.0;
-            double pwrmax = -100.0;
-            double cylmin = 100.0;
-            double cylmax = -100.0;
-            double add = 0.0;
-            double srkt = 0.0;
-            double csteA = 0.0;
-            double haigis0 = 0.0;
-            double haigis1 = 0.0;
-            double haigis2 = 0.0;
-            double hofferQ = 0.0;
-            double holladay = 0.0;
-            double barettdf = 0.0;
-            double barettlf = 0.0;
-            double olsen = 0.0;
-            QDomElement lensnode = xml.childNodes().at(i).toElement();
-            idiol = lensnode.attributeNode("id").value().toInt();
-            for (int i=0; i<lensnode.childNodes().size(); i++)
+            if (iolfromlist != Q_NULLPTR)
             {
-                QDomElement node = lensnode.childNodes().at(i).toElement();
-                if (node.tagName() == "Manufacturer")
-                    manufacturer = node.text();
-                else if (node.tagName() == "Name")
-                    model = node.text();
-                else if (node.tagName() == "Specifications")
-                    for (int i=0; i<node.childNodes().size(); i++)
+                Manufacturer* man = Datas::I()->manufacturers->getById(iolfromlist->idmanufacturer());
+                if (man != Q_NULLPTR)
+                    if (!iolbrandmodel.contains(man->nom()))
                     {
-                        QDomElement nodespec = node.childNodes().at(i).toElement();
-                        if (nodespec.tagName() == "OpticMaterial")
-                            material = nodespec.text();
-                        else if (nodespec.tagName() == "Hydro")
-                        {
-                            if (nodespec.text() != "")
-                                material += " " + nodespec.text();
-                        }
-                        else if (nodespec.tagName() == "Preloaded")
-                            preloaded = (nodespec.text() != "no");
-                        else if (nodespec.tagName() == "Filter")
-                            yellow = (nodespec.text() == "yellow");
-                        else if (nodespec.tagName() == "IncisionWidth")
-                            incision = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "OpticDiameter")
-                            opticaldiameter = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "HapticDiameter")
-                            diaall = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "OpticConcept")
-                        {
-                            multifocal = (nodespec.text() == "multifocal");
-                            edof = (nodespec.text() == "EDoF");
-                        }
-                        else if (nodespec.tagName() == "Toric")
-                            toric = (nodespec.text() != "no");
-                    }
-                else if (node.tagName() == "Availability")
-                    for (int i=0; i<node.childNodes().size(); i++)
-                    {
-                        QDomElement nodespec = node.childNodes().at(i).toElement();
-                        if (nodespec.tagName() == "Sphere")
-                            for (int i=0; i<nodespec.childNodes().size(); i++)
-                            {
-                                QDomElement nodepwr = nodespec.childNodes().at(i).toElement();
-                                if (nodepwr.tagName() == "From")
-                                    if (pwrmin > 99.0 || pwrmin > nodepwr.text().toDouble())
-                                        pwrmin = nodepwr.text().toDouble();
-                                if (nodepwr.tagName() == "To")
-                                    if (pwrmax < -99.0 || pwrmax < nodepwr.text().toDouble())
-                                        pwrmax = nodepwr.text().toDouble();
-                            }
-                        else if (nodespec.tagName() == "Cylinder")
-                            for (int i=0; i<nodespec.childNodes().size(); i++)
-                            {
-                                QDomElement nodecyl = nodespec.childNodes().at(i).toElement();
-                                if (nodecyl.tagName() == "From")
-                                    if (cylmin > 99.0 || cylmin > nodecyl.text().toDouble())
-                                    cylmin = nodecyl.text().toDouble();
-                                if (nodecyl.tagName() == "To")
-                                    if (cylmax < -99.0 || cylmax < nodecyl.text().toDouble())
-                                        cylmax = nodecyl.text().toDouble();
-                            }
-                        else if (nodespec.tagName() == "Addition")
-                            add = nodespec.text().toDouble();
-                    }
-                else if (node.tagName() == "Constants" && node.attributeNode("type").value() == "nominal")
-                    for (int i=0; i<node.childNodes().size(); i++)
-                    {
-                        QDomElement nodespec = node.childNodes().at(i).toElement();
-                        if (nodespec.tagName() == "Ultrasound")
-                            csteA = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "SRKt")
-                            srkt = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "Haigis")
-                            for (int i=0; i<nodespec.childNodes().size(); i++)
-                            {
-                                QDomElement nodehaigis = nodespec.childNodes().at(i).toElement();
-                                if (nodehaigis.tagName() == "a0")
-                                    haigis0 = nodehaigis.text().toDouble();
-                                else if (nodehaigis.tagName() == "a1")
-                                    haigis1 = nodehaigis.text().toDouble();
-                                else if (nodehaigis.tagName() == "a2")
-                                    haigis2 = nodehaigis.text().toDouble();
-                            }
-                        else if (nodespec.tagName() == "HofferQ")
-                            hofferQ = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "Holladay1")
-                            holladay = nodespec.text().toDouble();
-                        else if (nodespec.tagName() == "Barrett")
-                            for (int i=0; i<nodespec.childNodes().size(); i++)
-                            {
-                                QDomElement nodebarrett = nodespec.childNodes().at(i).toElement();
-                                if (nodebarrett.tagName() == "DF")
-                                    barettdf = nodebarrett.text().toDouble();
-                                if (nodebarrett.tagName() == "LF")
-                                    barettlf = nodebarrett.text().toDouble();
-                            }
-                        else if (nodespec.tagName() == "Olsen")
-                            olsen = nodespec.text().toDouble();
+                        iolbrandmodel << man->nom().toUpper() + " " + iolfromlist->modele().toUpper();
+                        iollistid << iolfromlist->id();
                     }
             }
-            bool foundiol = false;
-            if (pwrmin > 99.0) pwrmin= 0.0;
-            if (pwrmax < -99.0) pwrmax= 0.0;
-            if (cylmin > 99.0) cylmin= 0.0;
-            if (cylmax < -99.0) cylmax= 0.0;
-            Manufacturer *man = Q_NULLPTR;
-            for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+        }
+        for (int i=0; i<xml.childNodes().size(); i++)
+        {
+            QDomElement childnode = xml.childNodes().at(i).toElement();
+            if (childnode.tagName() == "Lens")
             {
-                Manufacturer *manf = const_cast<Manufacturer*>(it.value());
-                 if (manf)
-                    if (manf->nom().toUpper() == manufacturer.toUpper())
-                    {
-                        man = manf;
-                        break;
-                    }
-            }
-            if (!man)
-                continue;
-            foreach (IOL *iol, *Datas::I()->iols->iols())
-                if (iol->modele().toUpper() == model.toUpper() && man->nom().toUpper() == manufacturer.toUpper())
+                IOL iol;
+                iol.setidiolcon(childnode.attribute("id").toInt());
+                for (int j=0; j<childnode.childNodes().size(); j++)
                 {
-                    foundiol = true;
-                    break;
+                    QDomElement Lensnode = childnode.childNodes().at(j).toElement();
+                    if (Lensnode.tagName() == "Manufacturer")
+                        iol.setstringid(Lensnode.text());
+                    else if (Lensnode.tagName() == "Name")
+                        iol.setmodele(Lensnode.text());
+                    else if (Lensnode.tagName() == "Specifications")
+                    {
+                        for (int k=0; k<Lensnode.childNodes().size(); k++)
+                        {
+                            QDomElement Specsnode = Lensnode.childNodes().at(k).toElement();
+                            if (Specsnode.tagName() == "SinglePiece")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yes")
+                                    b = true;
+                                iol.setsinglepiece(b);
+
+                            }
+                            else if (Specsnode.tagName() == "OpticMaterial")
+                                iol.setOpticalMaterial(Specsnode.text());
+                            else if (Specsnode.tagName() == "HapticMaterial" && !iol.issinglepiece())
+                            {
+                                iol.setHapticalMaterial(Specsnode.text());
+                            }
+                            else if (Specsnode.tagName() == "Preloaded")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yes")
+                                    b = true;
+                                iol.setpreloaded(b);
+                            }
+                            else if (Specsnode.tagName() == "Toric")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yes")
+                                    b = true;
+                                iol.setToric(b);
+                            }
+                            else if (Specsnode.tagName() == "OpticConcept")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="EDoF")
+                                {
+                                    b = true;
+                                    iol.setEdof(b);
+                                }
+                                else if (Specsnode.text()=="multifocal" || Specsnode.text()=="bifocal")
+                                {
+                                    b = true;
+                                    iol.setMultifocal(b);
+                                }
+                            }
+                            else if (Specsnode.tagName() == "Filter")
+                            {
+                                bool b = false;
+                                if (Specsnode.text()=="yellow")
+                                    b = true;
+                                iol.setpreloaded(b);
+                            }
+                            else if (Specsnode.tagName() == "IncisionWidth")
+                            {
+                                if (Specsnode.text().toDouble() >0)
+                                    iol.setDiainjecteur(Specsnode.text().toDouble());
+                            }
+                            else if (Specsnode.tagName() == "InjectorSize")
+                            {
+                                if (Specsnode.text().toDouble() >0)
+                                    iol.setDiainjecteur(Specsnode.text().toDouble());
+                            }
+                            else if (Specsnode.tagName() == "OpticDiameter")
+                                iol.setOpticalDiameter(Specsnode.text().toDouble());
+                            else if (Specsnode.tagName() == "HapticDiameter")
+                                iol.setDiaall(Specsnode.text().toDouble());
+                            else if (Specsnode.tagName() == "HapticDesign")
+                            {
+                                if (Specsnode.text() == "Iris claw")
+                                    iol.setType(IOL_IRIEN);
+                            }
+                            else if (Specsnode.tagName() == "IntendedLocation" && iol.type() == "")
+                            {
+                                if (Specsnode.text()=="anterior chamber" || Specsnode.text()=="pre iridal")
+                                    iol.setType(IOL_CA);
+                                else if (Specsnode.text()=="capsular bag" || Specsnode.text()=="retro iridal" || Specsnode.text()=="")
+                                    iol.setType(IOL_CP);
+                                else if (Specsnode.text()=="sulcus ciliaris")
+                                    iol.setType(IOL_ADDON);
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Availability")
+                    {
+                        QList<double> listpwr;
+                        for (int k=0; k<Lensnode.childNodes().size(); k++)
+                        {
+                            QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
+                            if (Availabilitynode.tagName() == "Sphere")
+                            {
+                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                {
+                                    QDomElement Spherenode = Availabilitynode.childNodes().at(l).toElement();
+                                    if (Spherenode.tagName() == "From")
+                                        listpwr << Spherenode.text().toDouble();
+                                    else if (Spherenode.tagName() == "To")
+                                        listpwr << Spherenode.text().toDouble();
+                                }
+                            }
+                        }
+                        if (listpwr.size() >0)
+                        {
+                            auto mm = std::minmax_element(listpwr.begin(), listpwr.end());
+                            iol.setPwrmin(*mm.first);
+                            iol.setPwrmax(*mm.second);
+                        }
+                        if (iol.istoric())
+                        {
+                            listpwr.clear();
+                            for (int k=0; k<Lensnode.childNodes().size(); k++)
+                            {
+                                QDomElement Availabilitynode = Lensnode.childNodes().at(k).toElement();
+                                for (int l=0; l<Availabilitynode.childNodes().size(); l++)
+                                {
+                                    if (Availabilitynode.tagName() == "Cylinder")
+                                    {
+                                        QDomElement Cylindrenode = Availabilitynode.childNodes().at(l).toElement();
+                                        if (Cylindrenode.tagName() == "From")
+                                            listpwr << Cylindrenode.text().toDouble();
+                                        else if (Cylindrenode.tagName() == "To")
+                                            listpwr << Cylindrenode.text().toDouble();
+                                    }
+                                }
+                            }
+                            if (listpwr.size() >0)
+                            {
+                                auto mm = std::minmax_element(listpwr.begin(), listpwr.end());
+                                iol.setCylmin(*mm.first);
+                                iol.setCylmax(*mm.second);
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="nominal")
+                    {
+                        for (int i=0; i<Lensnode.childNodes().size(); i++)
+                        {
+                            QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "Ultrasound")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAEcho_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "SRKt")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAopt_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Haigis")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Haigisnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Haigisnode.tagName() == "a0")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa0_nominal(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a1")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa1_nominal(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a2")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa2_nominal(Haigisnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "HofferQ")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHofferQ_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Holladay1")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHolladay1_nominal(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Barrett")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Barettnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Barettnode.tagName() == "DF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettDF_nominal(Barettnode.text().toDouble());
+                                    }
+                                    else if (Barettnode.tagName() == "LF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettLF_nominal(Barettnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "Olsen")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setOlsen_nominal(Constantnode.text().toDouble());
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="ULIB")
+                    {
+                        iol.setresults_ulib(Lensnode.attribute("results").toInt());
+                        for (int i=0; i<Lensnode.childNodes().size(); i++)
+                        {
+                            QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "Ultrasound")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAEcho_ulib(Constantnode.text().toDouble());
+                            }
+                            if (Constantnode.tagName() == "SRKt")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAopt_ulib(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Haigis")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Haigisnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Haigisnode.tagName() == "a0")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa0_ulib(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a1")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa1_ulib(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a2")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa2_ulib(Haigisnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "HofferQ")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHofferQ_ulib(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Holladay1")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHolladay1_ulib(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Barrett")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Barettnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Barettnode.tagName() == "DF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettDF_ulib(Barettnode.text().toDouble());
+                                    }
+                                    else if (Barettnode.tagName() == "LF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettLF_ulib(Barettnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "Olsen")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setOlsen_ulib(Constantnode.text().toDouble());
+                            }
+                        }
+                    }
+                    else if (Lensnode.tagName() == "Constants" && Lensnode.attribute("type")=="optimized" && Lensnode.attribute("results").toInt() >0)
+                    {
+                        iol.setresults_optimized(Lensnode.attribute("results").toInt());
+                        for (int i=0; i<Lensnode.childNodes().size(); i++)
+                        {
+                            QDomElement Constantnode = Lensnode.childNodes().at(i).toElement();
+                            if (Constantnode.tagName() == "SRKt")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setCsteAopt_optimized(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Haigis")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Haigisnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Haigisnode.tagName() == "a0")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa0_optimized(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a1")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa1_optimized(Haigisnode.text().toDouble());
+                                    }
+                                    else if (Haigisnode.tagName() == "a2")
+                                    {
+                                        if (Haigisnode.text().toDouble() !=0)
+                                            iol.setHaigisa2_optimized(Haigisnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "HofferQ")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHofferQ_optimized(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Holladay1")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setHolladay1_optimized(Constantnode.text().toDouble());
+                            }
+                            else if (Constantnode.tagName() == "Barrett")
+                                for (int i=0; i<Constantnode.childNodes().size(); i++)
+                                {
+                                    QDomElement Barettnode = Constantnode.childNodes().at(i).toElement();
+                                    if (Barettnode.tagName() == "DF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettDF_optimized(Barettnode.text().toDouble());
+                                    }
+                                    else if (Barettnode.tagName() == "LF")
+                                    {
+                                        if (Barettnode.text().toDouble() !=0)
+                                            iol.setBarettLF_optimized(Barettnode.text().toDouble());
+                                    }
+                                }
+                            else if (Constantnode.tagName() == "Olsen")
+                            {
+                                if (Constantnode.text().toDouble() !=0)
+                                    iol.setOlsen_optimized(Constantnode.text().toDouble());
+                            }
+                        }
+                    }
                 }
-            if (!foundiol && man != Q_NULLPTR)
-            {
-                QHash<QString, QVariant> m_listbinds;
-                m_listbinds[CP_MODELNAME_IOLS]      = model;
-                m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
-                m_listbinds[CP_CSTEAOPT_IOLS]       = (csteA >0.0?    csteA    : QVariant());
-                m_listbinds[CP_CSTEAECHO_IOLS]      = (srkt >0.0?     srkt     : QVariant());
-                m_listbinds[CP_HAIGISA0_IOLS]       = (haigis0 >0.0?  haigis0  : QVariant());
-                m_listbinds[CP_HAIGISA1_IOLS]       = (haigis1 >0.0?  haigis1  : QVariant());
-                m_listbinds[CP_HAIGISA2_IOLS]       = (haigis2 >0.0?  haigis2  : QVariant());
-                m_listbinds[CP_ACD_IOLS]            = (hofferQ>0.0?   hofferQ  : QVariant());
-                m_listbinds[CP_HOLL1_IOLS]          = (holladay>0.0?  holladay : QVariant());
-                m_listbinds[CP_OPTICMATERIAU_IOLS]       = material;
-                m_listbinds[CP_DIAALL_IOLS]         = (diaall >0.0?  diaall : QVariant());
-                m_listbinds[CP_DIAOPT_IOLS]         = (opticaldiameter >0.0? opticaldiameter  : QVariant());
-                m_listbinds[CP_DIAINJECTEUR_IOLS]   = (incision >0.0? incision : QVariant());
-                m_listbinds[CP_PRECHARGE_IOLS]      = (preloaded?   "1" : QVariant());
-                m_listbinds[CP_MAXPWR_IOLS]         = pwrmax;
-                m_listbinds[CP_MINPWR_IOLS]         = pwrmin;
-                m_listbinds[CP_MAXCYL_IOLS]         = (toric? cylmax : QVariant());
-                m_listbinds[CP_MINCYL_IOLS]         = (toric? cylmin : QVariant());
-                m_listbinds[CP_JAUNE_IOLS]          = (yellow?       "1" : QVariant());
-                m_listbinds[CP_MULTIFOCAL_IOLS]     = (multifocal?  "1" : QVariant());
-                m_listbinds[CP_EDOF_IOLS]           = (edof?        "1" : QVariant());
-                m_listbinds[CP_TORIC_IOLS]          = (toric?       "1" : QVariant());
-                Datas::I()->iols->CreationIOL(m_listbinds);
-                ++nbimplants;
+                Manufacturer *man = Q_NULLPTR;
+                for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+                {
+                    Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+                    if (manf)
+                        if (manf->nom().toUpper() == iol.stringid().toUpper())
+                        {
+                            man = manf;
+                            break;
+                        }
+                }
+                if (!man)
+                    continue;
+                int idx = iolbrandmodel.indexOf(iol.stringid().toUpper() + " " + iol.modele().toUpper());
+                if (idx > -1)
+                {
+                    /*! update existant iol */
+                    IOL* iolfromlist = Datas::I()->iols->getById(iollistid.at(idx));
+                    if (iolfromlist != Q_NULLPTR)
+                    {
+                        /*! update existant iol */
+                        ItemsList::update(iolfromlist, CP_MODELNAME_IOLS,       iol.modele());
+                        ItemsList::update(iolfromlist, CP_IDMANUFACTURER_IOLS,  man->id());
+                        ItemsList::update(iolfromlist, CP_CSTEAECHO_IOLS,       iol.csteAEcho_nominal());
+
+                        ItemsList::update(iolfromlist, CP_CSTEAOPT_IOLS,        iol.csteAopt_nominal());
+                        ItemsList::update(iolfromlist, CP_HAIGISA0_IOLS,        iol.haigisa0_nominal());
+                        ItemsList::update(iolfromlist, CP_HAIGISA1_IOLS,        iol.haigisa1_nominal());
+                        ItemsList::update(iolfromlist, CP_HAIGISA2_IOLS,        iol.haigisa2_nominal());
+                        ItemsList::update(iolfromlist, CP_HOLL1_IOLS,           iol.holladay1_nominal());
+                        ItemsList::update(iolfromlist, CP_HOFFERQ_IOLS,         iol.hofferQ_nominal());
+                        ItemsList::update(iolfromlist, CP_BARETTDF_IOLS,        iol.barettDF_nominal());
+                        ItemsList::update(iolfromlist, CP_BARETTLF_IOLS,        iol.barettLF_nominal());
+                        ItemsList::update(iolfromlist, CP_OLSEN_IOLS,           iol.olsen_nominal());
+
+                        ItemsList::update(iolfromlist, CP_ACD_IOLS,             iol.acd());
+                        ItemsList::update(iolfromlist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
+                        ItemsList::update(iolfromlist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
+                        ItemsList::update(iolfromlist, CP_DIAALL_IOLS,          iol.diaall());
+                        ItemsList::update(iolfromlist, CP_DIAOPT_IOLS,          iol.opticdiameter());
+                        ItemsList::update(iolfromlist, CP_DIAINJECTEUR_IOLS,    iol.diainjecteur());
+                        ItemsList::update(iolfromlist, CP_PRECHARGE_IOLS,       iol.ispreloaded());
+                        ItemsList::update(iolfromlist, CP_MAXPWR_IOLS,          iol.pwrmax());
+                        ItemsList::update(iolfromlist, CP_MINPWR_IOLS,          iol.pwrmin());
+                        ItemsList::update(iolfromlist, CP_MAXCYL_IOLS,          iol.cylmax());
+                        ItemsList::update(iolfromlist, CP_MINCYL_IOLS,          iol.cylmin());
+                        ItemsList::update(iolfromlist, CP_ADDINTERMEDIATE_IOLS, iol.addintermediate());
+                        ItemsList::update(iolfromlist, CP_ADDNEAR_IOLS,         iol.addnear());
+                        ItemsList::update(iolfromlist, CP_JAUNE_IOLS,           iol.isyellow());
+                        ItemsList::update(iolfromlist, CP_MULTIFOCAL_IOLS,      iol.ismultifocal());
+                        ItemsList::update(iolfromlist, CP_EDOF_IOLS,            iol.isedof());
+                        ItemsList::update(iolfromlist, CP_TORIC_IOLS,           iol.istoric());
+                        ItemsList::update(iolfromlist, CP_SINGLEPIECE_IOLS,     iol.issinglepiece());
+
+                        ItemsList::update(iolfromlist, CP_RESULTSU_IOLS,        iol.results_ulib());
+                        ItemsList::update(iolfromlist, CP_CSTEAECHOU_IOLS,      iol.csteAEcho_ulib());
+                        ItemsList::update(iolfromlist, CP_CSTEAOPTU_IOLS,       iol.csteAopt_ulib());
+                        ItemsList::update(iolfromlist, CP_HAIGISA0U_IOLS,       iol.haigisa0_ulib());
+                        ItemsList::update(iolfromlist, CP_HAIGISA1U_IOLS,       iol.haigisa1_ulib());
+                        ItemsList::update(iolfromlist, CP_HAIGISA2U_IOLS,       iol.haigisa2_ulib());
+                        ItemsList::update(iolfromlist, CP_HOLL1U_IOLS,          iol.holladay1_ulib());
+                        ItemsList::update(iolfromlist, CP_HOFFERQU_IOLS,        iol.hofferQ_ulib());
+                        ItemsList::update(iolfromlist, CP_BARETTDFU_IOLS,       iol.barettDF_ulib());
+                        ItemsList::update(iolfromlist, CP_BARETTLFU_IOLS,       iol.barettLF_ulib());
+                        ItemsList::update(iolfromlist, CP_OLSENU_IOLS,          iol.olsen_ulib());
+
+                        ItemsList::update(iolfromlist, CP_RESULTSO_IOLS,        iol.results_optimized());
+                        ItemsList::update(iolfromlist, CP_CSTEAOPTO_IOLS,       iol.csteAopt_optimized());
+                        ItemsList::update(iolfromlist, CP_HAIGISA0O_IOLS,       iol.haigisa0_optimized());
+                        ItemsList::update(iolfromlist, CP_HAIGISA1O_IOLS,       iol.haigisa1_optimized());
+                        ItemsList::update(iolfromlist, CP_HAIGISA2O_IOLS,       iol.haigisa2_optimized());
+                        ItemsList::update(iolfromlist, CP_HOLL1O_IOLS,          iol.holladay1_optimized());
+                        ItemsList::update(iolfromlist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
+                        ItemsList::update(iolfromlist, CP_BARETTDFO_IOLS,       iol.barettDF_optimized());
+                        ItemsList::update(iolfromlist, CP_BARETTLFO_IOLS,       iol.barettLF_optimized());
+                        ItemsList::update(iolfromlist, CP_OLSENO_IOLS,          iol.olsen_optimized());
+
+                        ItemsList::update(iolfromlist, CP_TYP_IOLS,             iol.typetoint());
+                        ++ updateiols;
+                    }
+                }
+                else /*! newiol */
+                {
+                    QHash<QString, QVariant> m_listbinds;
+                    m_listbinds[CP_MODELNAME_IOLS]      = iol.modele();
+                    m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
+                    m_listbinds[CP_CSTEAECHO_IOLS]      = (iol.csteAEcho_nominal() >0.0?            iol.csteAEcho_nominal()             : QVariant());
+
+                    m_listbinds[CP_CSTEAOPT_IOLS]       = (iol.csteAopt_nominal() >0.0?     iol.csteAopt_nominal()      : QVariant());
+                    m_listbinds[CP_HAIGISA0_IOLS]       = (iol.haigisa0_nominal() >0.0?     iol.haigisa0_nominal()      : QVariant());
+                    m_listbinds[CP_HAIGISA1_IOLS]       = (iol.haigisa1_nominal() >0.0?     iol.haigisa1_nominal()      : QVariant());
+                    m_listbinds[CP_HAIGISA2_IOLS]       = (iol.haigisa2_nominal() >0.0?     iol.haigisa2_nominal()      : QVariant());
+                    m_listbinds[CP_HOLL1_IOLS]          = (iol.holladay1_nominal()>0.0?     iol.holladay1_nominal()     : QVariant());
+                    m_listbinds[CP_HOFFERQ_IOLS]        = (iol.hofferQ_nominal()>0.0?       iol.hofferQ_nominal()       : QVariant());
+                    m_listbinds[CP_BARETTDF_IOLS]       = (iol.barettDF_nominal()>0.0?      iol.barettDF_nominal()      : QVariant());
+                    m_listbinds[CP_BARETTLF_IOLS]       = (iol.barettLF_nominal()>0.0?      iol.barettLF_nominal()      : QVariant());
+                    m_listbinds[CP_OLSEN_IOLS]          = (iol.olsen_nominal()>0.0?         iol.olsen_nominal()         : QVariant());
+
+                    m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?                   iol.acd()                   : QVariant());
+                    m_listbinds[CP_OPTICMATERIAU_IOLS]  = iol.opticalmaterial();
+                    m_listbinds[CP_HAPTICMATERIAU_IOLS] = iol.hapticalmaterial();
+                    m_listbinds[CP_DIAALL_IOLS]         = (iol.diaall() >0.0?               iol.diaall()                : QVariant());
+                    m_listbinds[CP_DIAOPT_IOLS]         = (iol.opticdiameter() >0.0?        iol.opticdiameter()         : QVariant());
+                    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (iol.diainjecteur() >0.0?         iol.diainjecteur()          : QVariant());
+                    m_listbinds[CP_PRECHARGE_IOLS]      = (iol.ispreloaded()?               "1"                         : QVariant());
+                    m_listbinds[CP_MAXPWR_IOLS]         = iol.pwrmax();
+                    m_listbinds[CP_MINPWR_IOLS]         = iol.pwrmin();
+                    m_listbinds[CP_MAXCYL_IOLS]         = (iol.istoric()?                   iol.cylmax()                : QVariant());
+                    m_listbinds[CP_MINCYL_IOLS]         = (iol.istoric()?                   iol.cylmin()                : QVariant());
+                    m_listbinds[CP_ADDINTERMEDIATE_IOLS]= (iol.addintermediate() >0.0?      iol.addintermediate()       : QVariant());
+                    m_listbinds[CP_ADDNEAR_IOLS]        = (iol.addnear() >0.0?              iol.addnear()               : QVariant());
+                    m_listbinds[CP_JAUNE_IOLS]          = (iol.isyellow()?                  "1"                         : QVariant());
+                    m_listbinds[CP_MULTIFOCAL_IOLS]     = (iol.ismultifocal()?              "1"                         : QVariant());
+                    m_listbinds[CP_EDOF_IOLS]           = (iol.isedof()?                    "1"                         : QVariant());
+                    m_listbinds[CP_TORIC_IOLS]          = (iol.istoric()?                   "1"                         : QVariant());
+                    m_listbinds[CP_SINGLEPIECE_IOLS]    = (iol.issinglepiece()?             "1"                         : QVariant());
+
+                    m_listbinds[CP_RESULTSU_IOLS]       = (iol.results_ulib() >0?           iol.results_ulib()          : QVariant());
+                    m_listbinds[CP_CSTEAECHOU_IOLS]     = (iol.csteAEcho_ulib() >0.0?       iol.csteAEcho_ulib()        : QVariant());
+                    m_listbinds[CP_CSTEAOPTU_IOLS]      = (iol.csteAopt_ulib() >0.0?        iol.csteAopt_ulib()         : QVariant());
+                    m_listbinds[CP_HAIGISA0U_IOLS]      = (iol.haigisa0_ulib() >0.0?        iol.haigisa0_ulib()         : QVariant());
+                    m_listbinds[CP_HAIGISA1U_IOLS]      = (iol.haigisa1_ulib() >0.0?        iol.haigisa1_ulib()         : QVariant());
+                    m_listbinds[CP_HAIGISA2U_IOLS]      = (iol.haigisa2_ulib() >0.0?        iol.haigisa2_ulib()         : QVariant());
+                    m_listbinds[CP_HOLL1U_IOLS]         = (iol.holladay1_ulib()>0.0?        iol.holladay1_ulib()        : QVariant());
+                    m_listbinds[CP_HOFFERQU_IOLS]       = (iol.hofferQ_ulib()>0.0?          iol.hofferQ_ulib()          : QVariant());
+                    m_listbinds[CP_BARETTDFU_IOLS]      = (iol.barettDF_ulib()>0.0?         iol.barettDF_ulib()         : QVariant());
+                    m_listbinds[CP_BARETTLFU_IOLS]      = (iol.barettLF_ulib()>0.0?         iol.barettLF_ulib()         : QVariant());
+                    m_listbinds[CP_OLSENU_IOLS]         = (iol.olsen_ulib()>0.0?            iol.olsen_ulib()            : QVariant());
+
+                    m_listbinds[CP_RESULTSO_IOLS]       = (iol.results_optimized() >0?      iol.results_optimized()     : QVariant());
+                    m_listbinds[CP_CSTEAOPTO_IOLS]      = (iol.csteAopt_optimized() >0.0?   iol.csteAopt_optimized()    : QVariant());
+                    m_listbinds[CP_HAIGISA0O_IOLS]      = (iol.haigisa0_optimized() >0.0?   iol.haigisa0_optimized()    : QVariant());
+                    m_listbinds[CP_HAIGISA1O_IOLS]      = (iol.haigisa1_optimized() >0.0?   iol.haigisa1_optimized()    : QVariant());
+                    m_listbinds[CP_HAIGISA2O_IOLS]      = (iol.haigisa2_optimized() >0.0?   iol.haigisa2_optimized()    : QVariant());
+                    m_listbinds[CP_HOLL1O_IOLS]         = (iol.holladay1_optimized()>0.0?   iol.holladay1_optimized()   : QVariant());
+                    m_listbinds[CP_HOFFERQO_IOLS]       = (iol.hofferQ_optimized()>0.0?     iol.hofferQ_optimized()     : QVariant());
+                    m_listbinds[CP_BARETTDFO_IOLS]      = (iol.barettDF_optimized()>0.0?    iol.barettDF_optimized()    : QVariant());
+                    m_listbinds[CP_BARETTLFO_IOLS]      = (iol.barettLF_optimized()>0.0?    iol.barettLF_optimized()    : QVariant());
+                    m_listbinds[CP_OLSENO_IOLS]         = (iol.olsen_optimized()>0.0?       iol.olsen_optimized()       : QVariant());
+                    m_listbinds[CP_TYP_IOLS]            = (iol.typetoint()>0?               iol.typetoint()             : QVariant());
+                    Datas::I()->iols->CreationIOL(m_listbinds);
+                    ++newiols;
+                }
             }
         }
-    }
-    /*! fin mise à jour de la liste des IOLs */
-    QString msg = "Aucun implant n'a été rajouté à la base";
-    switch (nbimplants) {
-    case 0:
-        break;
-    case 1:
-        msg = "Un implant a été rajouté à la base";
-        break;
-    default:
-        msg = QString::number(nbimplants) + " implants ont été rajoutés à la base";
-    }
-    UpMessageBox::Watch(this, msg);
-    Datas::I()->iols->initListe();
-    ReconstruitTreeViewIOLs();
-    wdg_manufacturerscombo->clear();
-    for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
-        if (itm)
-        {
-            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
-            if (man)
-                wdg_manufacturerscombo->addItem(man->nom(), man->id());
+        /*! fin mise à jour de la liste des IOLs */
+        QString totaliol = QString::number(Datas::I()->iols->iols()->size());
+        QString msg = "Aucun implant n'a été rajouté à la base";
+        switch (newiols) {
+        case 0:
+            break;
+        case 1:
+            msg = tr("Un implant a été rajouté à la base");
+            break;
+        default:
+            msg = QString::number(newiols) + " " + tr("implants ont été rajoutés à la base");
         }
+        QString msgupdate = tr("Aucun implant n'a été mis à jour");
+        switch (updateiols) {
+        case 0:
+            break;
+        case 1:
+            msgupdate += tr("Un implant a été mis à jour");
+            break;
+        default:
+            msgupdate = QString::number(updateiols) + " " + tr("implants ont été mis à jour");
+        }
+        msg += "\n" + msgupdate;
+        msg += "\n" + tr("Il y a") + " " + totaliol + " " + tr("implants dans la base");
+        UpMessageBox::Watch(parent,tr("Mise à jour de la liste des implants"),  msg);
+        /*wdg_manufacturerscombo->clear();
+        for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+            if (itm)
+            {
+                Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
+                if (man)
+                    wdg_manufacturerscombo->addItem(man->nom(), man->id());
+            }
+        }*/
     }
 }
 
@@ -893,7 +1232,6 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
         m_IOLsmodel->sort(0);
     }
     int dim = 45;
-    //qDebug() << Datas::I()->iols->iols()->size();
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
         IOL *iol = const_cast<IOL*>(it.value());
@@ -968,7 +1306,6 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             }
         }
     }
-    //qDebug() << m_IOLsmodel->rowCount();
     for (int i=0; i<m_IOLsmodel->rowCount();i++)
     {
         if (m_IOLsmodel->item(i) != Q_NULLPTR)
