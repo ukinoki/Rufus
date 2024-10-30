@@ -61,6 +61,8 @@ private:
     UpDoubleSpinBox     *wdg_cylindreminspin;
     UpDoubleSpinBox     *wdg_addinterspin;
     UpDoubleSpinBox     *wdg_addnearspin;
+    UpLabel             *wdg_addinterlbl        = new UpLabel;
+    UpLabel             *wdg_addnearlbl         = new UpLabel;
 
 
     /*! constants */

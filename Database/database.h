@@ -193,6 +193,7 @@ public:
     void setidlieupardefaut(int id);
     void setdocscomprimes(bool one);
     void setversionbase(int version);
+    void setversionbaseiol(double version);
     void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
@@ -203,6 +204,7 @@ public:
     void setvillesfrance(bool one = true);
     void setcotationsfrance(bool one = true);
     void setcomptafrance(bool one= true);
+    double versionbaseiol();
 
     /*
      * Donnees ophta patient

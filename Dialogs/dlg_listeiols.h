@@ -38,7 +38,6 @@ public:
     ~dlg_listeiols();
     int                     idcurrentIOL() const;
     bool                    listeIOLsmodifiee() const;
-    static void             ImportListeIOLS(QWidget *parent);
 
 private:
     bool                    m_listemodifiee = false;
@@ -74,15 +73,17 @@ private:
     void                    ChoixButtonFrame();
     void                    connectFiltersSignals();
     void                    disconnectFiltersSignals();
-     void                    Enablebuttons(QModelIndex idx);
+     void                   Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauIOL();
     IOL*                    getIOLFromIndex(QModelIndex idx);
+    void                    ImportListeIOLS(QDomDocument docxml);
     void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
     void                    resizeiolimage(IOL *iol);                       //! redimensionne l'image de l'iol au dessous du seuil
     void                    scrollToIOL(IOL *iol);
     void                    SupprIOL(IOL *iol);
     void                    ReconstruitTreeViewIOLs(QString filtre = "");
+    void                    HasNewVersion();
 
 };
 

@@ -36,6 +36,7 @@ private:
     int m_idlieupardefaut = 0;              //!> l'id du lieu principal de l'installation, où se trouve le serveur
     bool m_docscomprimes = false;           //!> utilise la compression des pdf - pas utilisé
     int m_versionbase = 0;                  //!> la version de la base de données
+    double m_versionbaseiol = 0;            //!> la version de la base de données des IOL
     bool m_sanscompta = true;               //!> utilise ou non la compta
     QString m_adresseserveurlocal = "";     //!> l'adresse IP du serveur dans le réseau local
     QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
@@ -55,6 +56,7 @@ public:
     int idlieupardefaut() const;
     bool docscomprimes() const;
     int versionbase() const;
+    double versionbaseiol() const;
     bool sanscompta() const;
     QString adresseserveurlocal() const;
     QString adresseserveurdistant() const;
@@ -71,6 +73,7 @@ public:
     void setidlieupardefaut(int id);
     void setdocscomprimes(bool one);
     void setversionbase(int version);
+    void setversionbaseiol(double version);
     void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress);
     void setadresseserveurdistant(QString adress);

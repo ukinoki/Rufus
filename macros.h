@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // Les versions de la base et des ressources
 #define VERSION_BASE                          79  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
+#define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
 
 // Les bases
 #define DB_CCAM                               "CCAM"
@@ -315,6 +316,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDLIEUPARDEFAUT_PARAMSYSTEME                 "idLieuParDefaut"
 #define CP_DOCSCOMPRIMES_PARAMSYSTEME                   "DocsComprimes"
 #define CP_VERSIONBASE_PARAMSYSTEME                     "VersionBase"
+#define CP_VERSIONBASEIOL_PARAMSYSTEME                  "VersionBaseIOL"
 #define CP_SANSCOMPTA_PARAMSYSTEME                      "SansCompta"
 #define CP_ADRESSELOCALSERVEUR_PARAMSYSTEME             "AdresseServeurLocal"
 #define CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME           "AdresseServeurDistant"

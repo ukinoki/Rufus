@@ -576,6 +576,25 @@ void DataBase::setversionbase(int version)
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONBASE_PARAMSYSTEME " = " + QString::number(version));
     parametres()->setversionbase(version);
 }
+void DataBase::setversionbaseiol(double version)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONBASEIOL_PARAMSYSTEME " = " + QString::number(version));
+    parametres()->setversionbase(version);
+}
+double DataBase::versionbaseiol()
+{
+    if (!m_db.isOpen())
+        return 0.0;
+    QString req = "SELECT " CP_VERSIONBASEIOL_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
+    bool ok = false;
+    QList<QVariantList> query = StandardSelectSQL(req, ok);
+    if (ok)
+        return query.at(0).at(0).toDouble();
+    else
+        return 0.0;
+}
 void DataBase::setsanscompta(bool one)
 {
     if (!m_db.isOpen())

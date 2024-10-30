@@ -674,24 +674,22 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
 
     //! Constante edof multifocal
     QHBoxLayout *checkboxLay    = new QHBoxLayout();
-    UpLabel* addintermediatelbl = new UpLabel;
-    addintermediatelbl          ->setText("Add.  inter");
-    UpLabel* addnearlbl         = new UpLabel;
-    addnearlbl                  ->setText(tr("près"));
+    wdg_addinterlbl             ->setText("Add.  inter");
+    wdg_addnearlbl              ->setText(tr("près"));
     wdg_addinterspin            = new UpDoubleSpinBox();
     wdg_addnearspin             = new UpDoubleSpinBox();
-    wdg_addinterspin            ->setFixedSize(QSize(50,28));
-    wdg_addnearspin             ->setFixedSize(QSize(50,28));
-    wdg_addinterspin            ->setRange(0.5, 2.5);
+    wdg_addinterspin            ->setFixedSize(QSize(55,28));
+    wdg_addnearspin             ->setFixedSize(QSize(55,28));
+    wdg_addinterspin            ->setRange(0.0, 2.5);
     wdg_addinterspin            ->setSingleStep(0.25);
-    wdg_addnearspin             ->setRange(1.5, 4.5);
+    wdg_addnearspin             ->setRange(0.0, 4.5);
     wdg_addnearspin             ->setSingleStep(0.25);
     checkboxLay                 ->addWidget(wdg_edofchk);
     checkboxLay                 ->addWidget(wdg_multifocalchk);
     checkboxLay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    checkboxLay                 ->addWidget(addintermediatelbl);
+    checkboxLay                 ->addWidget(wdg_addinterlbl);
     checkboxLay                 ->addWidget(wdg_addinterspin);
-    checkboxLay                 ->addWidget(addnearlbl);
+    checkboxLay                 ->addWidget(wdg_addnearlbl);
     checkboxLay                 ->addWidget(wdg_addnearspin);
     checkboxLay                 ->setSpacing(spacing);
     checkboxLay                 ->setContentsMargins(0,0,0,0);
@@ -699,7 +697,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     //! Materiau - Image - Navigation - recopie
     QHBoxLayout *MateriauImgLay = new QHBoxLayout();
     UpLabel* Materiaulbl        = new UpLabel;
-    wdg_HapticMateriaulbl  = new UpLabel;
+    wdg_HapticMateriaulbl       = new UpLabel;
     UpLabel* Typelbl            = new UpLabel;
     Materiaulbl                 ->setText(tr("Materiau"));
     wdg_HapticMateriaulbl       ->setText(tr("Haptique"));
@@ -906,7 +904,11 @@ void dlg_identificationIOL::connectSignals()
      connect (wdg_prechargechk,      &UpCheckBox::uptoggled,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_edofchk,           &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
                                                                                                                     EnableOKpushButton();
-                                                                                                                    if (a) wdg_multifocalchk->setChecked(!a);
+                                                                                                                    wdg_addinterlbl         ->setVisible(a);
+                                                                                                                    wdg_addnearlbl          ->setVisible(false);
+                                                                                                                    wdg_addnearspin         ->setVisible(false);
+                                                                                                                    wdg_addinterspin        ->setVisible(a);
+                                                                                                                    wdg_multifocalchk       ->setChecked(false);
                                                                                                                  });
      connect (wdg_toricchk,          &UpCheckBox::uptoggled,                                this,   [&](bool a) {
                                                                                                                     EnableOKpushButton();
@@ -928,7 +930,11 @@ void dlg_identificationIOL::connectSignals()
                                                                                                                   });
      connect (wdg_multifocalchk,     &UpCheckBox::uptoggled,                                 this,   [&](bool a) {
                                                                                                                     EnableOKpushButton();
-                                                                                                                    if (a) wdg_edofchk->setChecked(!a);
+                                                                                                                    wdg_addinterlbl         ->setVisible(a);
+                                                                                                                    wdg_addnearlbl          ->setVisible(a);
+                                                                                                                    wdg_addnearspin         ->setVisible(a);
+                                                                                                                    wdg_addinterspin        ->setVisible(a);
+                                                                                                                    wdg_edofchk             ->setChecked(false);
                                                                                                                  });
      connect (wdg_puissancemaxspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
      connect (wdg_puissanceminspin,  QOverload<double>::of(&QDoubleSpinBox::valueChanged),   this,   &dlg_identificationIOL::EnableOKpushButton);
@@ -1018,67 +1024,66 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             switchDisplayConstant(None);
 
         wdg_nomiolline      ->setText(m_currentIOL->modele());
+        double n = m_currentIOL->csteAopt_nominal();
+            wdg_Aoptline        ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->csteAEcho_nominal();
+            wdg_Aecholine       ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->holladay1_nominal();
+            wdg_holladayline    ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
+        n = m_currentIOL->haigisa0_nominal();
+            wdg_haigisaline     ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->haigisa1_nominal();
+            wdg_haigisbline     ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->haigisa2_nominal();
+            wdg_haigiscline     ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->hofferQ_nominal();
+            wdg_hofferQline     ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
+        n = m_currentIOL->barettDF_nominal();
+            wdg_barettDFline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->barettLF_nominal();
+            wdg_barettLFline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->olsen_nominal();
+            wdg_olsenline       ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
 
-        if (m_currentIOL->csteAopt_nominal() > 0.0)
-            wdg_Aoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_nominal(), 'f', 1));
-        if (m_currentIOL->csteAEcho_nominal() > 0.0)
-            wdg_Aecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho_nominal(), 'f', 1));
-        if (m_currentIOL->holladay1_nominal() > 0.0)
-            wdg_holladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_nominal(), 'f', 2));
-        if (m_currentIOL->haigisa0_nominal() > 0.0)
-            wdg_haigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0_nominal(), 'f', 4));
-        if (m_currentIOL->haigisa1_nominal() > 0.0)
-            wdg_haigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_nominal(), 'f', 4));
-        if (m_currentIOL->haigisa2_nominal() > 0.0)
-            wdg_haigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_nominal(), 'f', 4));
-        if (m_currentIOL->hofferQ_nominal() > 0.0)
-            wdg_hofferQline    ->setText(QLocale().toString(m_currentIOL->hofferQ_nominal(), 'f', 2));
-        if (m_currentIOL->barettDF_nominal() > 0.0)
-            wdg_barettDFline    ->setText(QLocale().toString(m_currentIOL->barettDF_nominal(), 'f', 4));
-        if (m_currentIOL->barettLF_nominal() > 0.0)
-            wdg_barettLFline    ->setText(QLocale().toString(m_currentIOL->barettLF_nominal(), 'f', 4));
-        if (m_currentIOL->olsen_nominal() > 0.0)
-            wdg_olsenline     ->setText(QLocale().toString(m_currentIOL->olsen_nominal(), 'f', 4));
+        n = m_currentIOL->csteAopt_ulib();
+            wdg_UAoptline       ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->csteAEcho_ulib();
+            wdg_UAecholine      ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->holladay1_ulib();
+            wdg_Uholladayline   ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
+        n = m_currentIOL->haigisa0_ulib();
+            wdg_Uhaigisaline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->haigisa1_ulib();
+            wdg_Uhaigisbline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->haigisa2_ulib();
+            wdg_Uhaigiscline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->hofferQ_ulib();
+            wdg_UhofferQline    ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
+        n = m_currentIOL->barettDF_ulib();
+            wdg_UbarettDFline   ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->barettLF_ulib();
+            wdg_UbarettLFline   ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->olsen_ulib();
+            wdg_Uolsenline      ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
 
-        if (m_currentIOL->csteAopt_ulib() > 0.0)
-            wdg_UAoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_ulib(), 'f', 1));
-        if (m_currentIOL->csteAEcho_ulib() > 0.0)
-            wdg_UAecholine       ->setText(QLocale().toString(m_currentIOL->csteAEcho_ulib(), 'f', 1));
-        if (m_currentIOL->holladay1_ulib() > 0.0)
-            wdg_Uholladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_ulib(), 'f', 2));
-        if (m_currentIOL->haigisa0_ulib() > 0.0)
-            wdg_Uhaigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0_ulib(), 'f', 4));
-        if (m_currentIOL->haigisa1_ulib() > 0.0)
-            wdg_Uhaigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_ulib(), 'f', 4));
-        if (m_currentIOL->haigisa2_ulib() > 0.0)
-            wdg_Uhaigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_ulib(), 'f', 4));
-        if (m_currentIOL->hofferQ_ulib() > 0.0)
-            wdg_UhofferQline    ->setText(QLocale().toString(m_currentIOL->hofferQ_ulib(), 'f', 2));
-        if (m_currentIOL->barettDF_ulib() > 0.0)
-            wdg_UbarettDFline    ->setText(QLocale().toString(m_currentIOL->barettDF_ulib(), 'f', 4));
-        if (m_currentIOL->barettLF_ulib() > 0.0)
-            wdg_UbarettLFline    ->setText(QLocale().toString(m_currentIOL->barettLF_ulib(), 'f', 4));
-        if (m_currentIOL->olsen_ulib() > 0.0)
-            wdg_Uolsenline     ->setText(QLocale().toString(m_currentIOL->olsen_ulib(), 'f', 4));
-
-        if (m_currentIOL->csteAopt_optimized() > 0.0)
-            wdg_OAoptline        ->setText(QLocale().toString(m_currentIOL->csteAopt_optimized(), 'f', 1));
-        if (m_currentIOL->holladay1_optimized() > 0.0)
-            wdg_Oholladayline    ->setText(QLocale().toString(m_currentIOL->holladay1_optimized(), 'f', 2));
-        if (m_currentIOL->haigisa0_optimized() > 0.0)
-            wdg_Ohaigisaline     ->setText(QLocale().toString(m_currentIOL->haigisa0_optimized(), 'f', 4));
-        if (m_currentIOL->haigisa1_optimized() > 0.0)
-            wdg_Ohaigisbline     ->setText(QLocale().toString(m_currentIOL->haigisa1_optimized(), 'f', 4));
-        if (m_currentIOL->haigisa2_optimized() > 0.0)
-            wdg_Ohaigiscline     ->setText(QLocale().toString(m_currentIOL->haigisa2_optimized(), 'f', 4));
-        if (m_currentIOL->hofferQ_optimized() > 0.0)
-            wdg_OhofferQline    ->setText(QLocale().toString(m_currentIOL->hofferQ_optimized(), 'f', 2));
-        if (m_currentIOL->barettDF_optimized() > 0.0)
-            wdg_ObarettDFline    ->setText(QLocale().toString(m_currentIOL->barettDF_optimized(), 'f', 4));
-        if (m_currentIOL->barettLF_optimized() > 0.0)
-            wdg_ObarettLFline    ->setText(QLocale().toString(m_currentIOL->barettLF_optimized(), 'f', 4));
-        if (m_currentIOL->olsen_optimized() > 0.0)
-            wdg_Oolsenline     ->setText(QLocale().toString(m_currentIOL->olsen_optimized(), 'f', 4));
+        n = m_currentIOL->csteAopt_optimized();
+            wdg_OAoptline       ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->holladay1_optimized();
+            wdg_Oholladayline   ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
+        n = m_currentIOL->haigisa0_optimized();
+            wdg_Ohaigisaline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->haigisa1_optimized();
+            wdg_Ohaigisbline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->haigisa2_optimized();
+            wdg_Ohaigiscline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->hofferQ_optimized();
+            wdg_OhofferQline    ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
+        n = m_currentIOL->barettDF_optimized();
+            wdg_ObarettDFline   ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->barettLF_optimized();
+            wdg_ObarettLFline   ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
+        n = m_currentIOL->olsen_optimized();
+            wdg_Oolsenline      ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
 
         wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
@@ -1100,12 +1105,20 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_multifocalchk   ->setChecked(m_currentIOL->ismultifocal());
         wdg_prechargechk    ->setChecked(m_currentIOL->ispreloaded());
         wdg_edofchk         ->setChecked(m_currentIOL->isedof());
-        wdg_toricchk        ->setChecked(m_currentIOL->istoric());
-        wdg_singlepiecechk  ->setChecked(m_currentIOL->issinglepiece());
+        wdg_addnearspin     ->setVisible(m_currentIOL->addnear() > 0 || m_currentIOL->ismultifocal());
+        wdg_addinterspin    ->setVisible(m_currentIOL->addintermediate() > 0 || m_currentIOL->isedof() || m_currentIOL->ismultifocal());
+        wdg_addnearlbl      ->setVisible(m_currentIOL->addnear() > 0 || m_currentIOL->ismultifocal());
+        wdg_addinterlbl     ->setVisible(m_currentIOL->addintermediate() > 0 || m_currentIOL->isedof() || m_currentIOL->ismultifocal());
+        if (m_currentIOL->addnear() >0)
+            wdg_addnearspin     ->setValue(m_currentIOL->addnear());
+        if (m_currentIOL->addintermediate() >0)
+            wdg_addinterspin    ->setValue(m_currentIOL->addintermediate());
+        wdg_toricchk            ->setChecked(m_currentIOL->istoric());
+        wdg_singlepiecechk      ->setChecked(m_currentIOL->issinglepiece());
         wdg_hapticmateriaubox   ->setVisible(!m_currentIOL->issinglepiece());
         wdg_HapticMateriaulbl   ->setVisible(!m_currentIOL->issinglepiece());
         wdg_hapticmateriaubox   ->setCurrentText(m_currentIOL->hapticalmaterial());
-        wdg_cylindres       ->setVisible(m_currentIOL->istoric());
+        wdg_cylindres           ->setVisible(m_currentIOL->istoric());
         if (m_currentIOL->istoric())
         {
             if (m_currentIOL->cylmax() > 0.0)
@@ -1113,17 +1126,17 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             if (m_currentIOL->cylmin() > 0.0)
                 wdg_cylindreminspin->setValuewithPrefix(m_currentIOL->cylmin());
         }
-        if (m_currentIOL->diaall() > 0.0)
-            wdg_diaht       ->setText(QLocale().toString(m_currentIOL->diaall(), 'f', 1));
-        if (m_currentIOL->opticdiameter() > 0.0)
-            wdg_diaoptique   ->setText(QLocale().toString(m_currentIOL->opticdiameter(), 'f', 1));
-        if (m_currentIOL->diainjecteur() > 0.0)
-            wdg_diainjecteur ->setText(QLocale().toString(m_currentIOL->diainjecteur(), 'f', 1));
+        n = m_currentIOL->diaall();
+        wdg_diaht               ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->opticdiameter();
+        wdg_diaoptique          ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
+        n = m_currentIOL->diainjecteur();
+        wdg_diainjecteur        ->setText(n > 0.0? QLocale().toString(n, 'f', 1) : "");
         if (m_currentIOL->arrayimgiol() != QByteArray())
         {
             setimage(m_currentIOL->image());
-            m_listbinds[CP_ARRAYIMG_IOLS] = m_currentIOL->arrayimgiol();
-            m_listbinds[CP_TYPIMG_IOLS] = m_currentIOL->imageformat();
+            m_listbinds[CP_ARRAYIMG_IOLS]   = m_currentIOL->arrayimgiol();
+            m_listbinds[CP_TYPIMG_IOLS]     = m_currentIOL->imageformat();
         }
         else setimage(m_nullimage);
         EnableWidget(m_currentIOL->isactif());

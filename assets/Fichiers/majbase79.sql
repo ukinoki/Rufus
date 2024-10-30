@@ -276,7 +276,16 @@ BEGIN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
 			ADD COLUMN `OlsenOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarettDFOptimized`;
         END IF;
-UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 79;
+	SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'VersionBaseIOL') as chp;
+        IF tot=0
+        THEN
+			ALTER TABLE `rufus`.`ParametresSysteme` 
+			ADD COLUMN `VersionBaseIOL` DOUBLE NULL DEFAULT 1 AFTER `VersionBase`;
+        END IF;
+UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 79, VersionBaseIOL = 1;
 END|
 
 CALL MAJ79();

@@ -54,6 +54,7 @@ int ParametresSysteme::numcentre() const                        { return m_numce
 int ParametresSysteme::idlieupardefaut() const                  { return m_idlieupardefaut; }
 bool ParametresSysteme::docscomprimes() const                   { return m_docscomprimes; }
 int ParametresSysteme::versionbase() const                      { return m_versionbase; }
+double ParametresSysteme::versionbaseiol() const                { return m_versionbaseiol; }
 bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
@@ -74,6 +75,8 @@ void ParametresSysteme::setdocscomprimes(bool one)              { m_docscomprime
                                                                   m_data[CP_DOCSCOMPRIMES_PARAMSYSTEME] = one; }
 void ParametresSysteme::setversionbase(int version)             { m_versionbase = version;
                                                                   m_data[CP_VERSIONBASE_PARAMSYSTEME] = version; }
+void ParametresSysteme::setversionbaseiol(double version)       { m_versionbaseiol = version;
+                                                                  m_data[CP_VERSIONBASEIOL_PARAMSYSTEME] = version; }
 void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one;
                                                                   m_data[CP_SANSCOMPTA_PARAMSYSTEME] = one; }
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress;

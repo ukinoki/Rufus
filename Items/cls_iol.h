@@ -220,9 +220,9 @@ public:
     void setHaigisa1_nominal(double haigisa1)           { m_haigisa1_nominal = haigisa1;        m_data[CP_HAIGISA1_IOLS] = haigisa1; }
     void setHaigisa2_nominal(double haigisa2)           { m_haigisa2_nominal = haigisa2;        m_data[CP_HAIGISA2_IOLS] = haigisa2; }
     void setHolladay1_nominal(double holladay1)         { m_holladay1_nominal = holladay1;      m_data[CP_HOLL1_IOLS] = holladay1; }
-    void setHofferQ_nominal(double hofferq)             { m_haigisa0_nominal = hofferq;         m_data[CP_HOFFERQ_IOLS] = hofferq; }
-    void setBarettLF_nominal(double barettlf)           { m_haigisa1_nominal = barettlf;        m_data[CP_BARETTLF_IOLS] = barettlf; }
-    void setBarettDF_nominal(double barettdf)           { m_haigisa2_nominal = barettdf;        m_data[CP_BARETTDF_IOLS] = barettdf; }
+    void setHofferQ_nominal(double hofferq)             { m_hofferq_nominal = hofferq;          m_data[CP_HOFFERQ_IOLS] = hofferq; }
+    void setBarettLF_nominal(double barettlf)           { m_barettlf_nominal = barettlf;        m_data[CP_BARETTLF_IOLS] = barettlf; }
+    void setBarettDF_nominal(double barettdf)           { m_barettdf_nominal = barettdf;        m_data[CP_BARETTDF_IOLS] = barettdf; }
     void setOlsen_nominal(double olsen)                 { m_olsen_nominal = olsen;              m_data[CP_OLSEN_IOLS] = olsen; }
 
     void setresults_ulib(int results)                   { m_ulibresults = results;              m_data[CP_RESULTSU_IOLS] = results; }
@@ -243,7 +243,7 @@ public:
     void setHaigisa1_optimized(double haigisa1)         { m_haigisa1_optimized = haigisa1;      m_data[CP_HAIGISA1O_IOLS] = haigisa1; }
     void setHaigisa2_optimized(double haigisa2)         { m_haigisa2_optimized = haigisa2;      m_data[CP_HAIGISA2O_IOLS] = haigisa2; }
     void setHolladay1_optimized(double holladay1)       { m_holladay1_optimized = holladay1;    m_data[CP_HOLL1O_IOLS] = holladay1; }
-    void setHofferQ_optimized(double hofferq)           { m_hofferq_optimized = hofferq;       m_data[CP_HOFFERQO_IOLS] = hofferq; }
+    void setHofferQ_optimized(double hofferq)           { m_hofferq_optimized = hofferq;        m_data[CP_HOFFERQO_IOLS] = hofferq; }
     void setBarettLF_optimized(double barettlf)         { m_barettlf_optimized = barettlf;      m_data[CP_BARETTLFO_IOLS] = barettlf; }
     void setBarettDF_optimized(double barettdf)         { m_barettdf_optimized = barettdf;      m_data[CP_BARETTDFO_IOLS] = barettdf; }
     void setOlsen_optimized(double olsen)               { m_olsen_optimized = olsen;            m_data[CP_OLSENO_IOLS] = olsen; }

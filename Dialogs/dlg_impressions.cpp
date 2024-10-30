@@ -1498,7 +1498,8 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo   ->setFixedHeight(34);
                     Combo   ->setEditable(true);
                     Combo   ->setFixedSize(QSize(250,32));
-                    Datas::I()->iols->initListe();
+                    if (!Datas::I()->iols->isfull())
+                        Datas::I()->iols->initListe();
                     QStandardItemModel *model = new QStandardItemModel();
                     // toute la manip qui suit sert à remettre les correspondants par ordre aplhabétique (dans le QMap, ils sont triés par id croissant) - si  vous trouvez plus simple, ne vous génez pas
                     foreach (IOL* iol, *Datas::I()->iols->iols())
@@ -3013,7 +3014,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         QString iolnom ("");
         if (m_currentintervention->idIOL() != 0)
         {
-            if (Datas::I()->iols->iols()->size()==0)
+            if (!Datas::I()->iols->isfull())
                 Datas::I()->iols->initListe();
             IOL* iol = Datas::I()->iols->getById(m_currentintervention->idIOL());
             if (iol)

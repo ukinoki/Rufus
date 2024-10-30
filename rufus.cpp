@@ -425,7 +425,7 @@ void Rufus::ConnectSignals()
         connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
-    //ui->MoulinettepushButton->setVisible(true);
+    ui->MoulinettepushButton->setVisible(false);
 }
 
 
@@ -963,7 +963,7 @@ void Rufus::Moulinette()
     */
 
     //! INCORPORATION DES IOL de la base xml IOLCON ============================================================================================================================================================
-    dlg_listeiols::ImportListeIOLS(this);
+    //dlg_listeiols::ImportListeIOLS();
 }
 
 void Rufus::ActeGratuit()
