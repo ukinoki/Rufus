@@ -3213,8 +3213,8 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! 
     data[CP_HAIGISA2_IOLS]          = ioldata.at(19).toDouble();
     data[CP_HOLL1_IOLS]             = ioldata.at(20).toDouble();
     data[CP_HOFFERQ_IOLS]           = ioldata.at(21).toDouble();
-    data[CP_BARETTLF_IOLS]          = ioldata.at(22).toDouble();
-    data[CP_BARETTDF_IOLS]          = ioldata.at(23).toDouble();
+    data[CP_BARRETTLF_IOLS]          = ioldata.at(22).toDouble();
+    data[CP_BARRETTDF_IOLS]          = ioldata.at(23).toDouble();
     data[CP_OLSEN_IOLS]             = ioldata.at(24).toDouble();
     data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(25).toDouble();
     data[CP_ARRAYIMG_IOLS]          = QLatin1String(ioldata.at(26).toByteArray().toBase64());
@@ -3237,8 +3237,8 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! 
     data[CP_HAIGISA2U_IOLS]         = ioldata.at(43).toDouble();
     data[CP_HOLL1U_IOLS]            = ioldata.at(44).toDouble();
     data[CP_HOFFERQU_IOLS]          = ioldata.at(45).toDouble();
-    data[CP_BARETTLFU_IOLS]         = ioldata.at(46).toDouble();
-    data[CP_BARETTDFU_IOLS]         = ioldata.at(47).toDouble();
+    data[CP_BARRETTLFU_IOLS]         = ioldata.at(46).toDouble();
+    data[CP_BARRETTDFU_IOLS]         = ioldata.at(47).toDouble();
     data[CP_OLSENU_IOLS]            = ioldata.at(48).toDouble();
     data[CP_RESULTSO_IOLS]          = ioldata.at(49).toInt();
     data[CP_CSTEAOPTO_IOLS]         = ioldata.at(50).toDouble();
@@ -3247,8 +3247,8 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! 
     data[CP_HAIGISA2O_IOLS]         = ioldata.at(53).toDouble();
     data[CP_HOLL1O_IOLS]            = ioldata.at(54).toDouble();
     data[CP_HOFFERQO_IOLS]          = ioldata.at(55).toDouble();
-    data[CP_BARETTLFO_IOLS]         = ioldata.at(56).toDouble();
-    data[CP_BARETTDFO_IOLS]         = ioldata.at(57).toDouble();
+    data[CP_BARRETTLFO_IOLS]         = ioldata.at(56).toDouble();
+    data[CP_BARRETTDFO_IOLS]         = ioldata.at(57).toDouble();
     data[CP_OLSENO_IOLS]            = ioldata.at(58).toDouble();
     data[CP_CSTEAECHOU_IOLS]        = ioldata.at(59).toDouble();
     return data;
@@ -3265,14 +3265,14 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
                     CP_DIAALL_IOLS ", " CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", "                               // 5-6-7-8-9
                     CP_MINCYL_IOLS ", " CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_ADDINTERMEDIATE_IOLS ", " CP_ADDNEAR_IOLS ", "                  // 10-11-12-13-14
                     CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", " CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", "                  // 15-16-17-18-19
-                    CP_HOLL1_IOLS ", " CP_HOFFERQ_IOLS ", " CP_BARETTLF_IOLS ", " CP_BARETTDF_IOLS ", " CP_OLSEN_IOLS ", "                          // 20-21-22-23-24
+                    CP_HOLL1_IOLS ", " CP_HOFFERQ_IOLS ", " CP_BARRETTLF_IOLS ", " CP_BARRETTDF_IOLS ", " CP_OLSEN_IOLS ", "                          // 20-21-22-23-24
                     CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", " CP_TYPIMG_IOLS ", "  CP_SINGLEPIECE_IOLS ", " CP_OPTICMATERIAU_IOLS ", "        // 25-26-27-28-29
                     CP_HAPTICMATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", " CP_TORIC_IOLS ", "                  // 30-31-32-33-34
                     CP_EDOF_IOLS ", " CP_MULTIFOCAL_IOLS ", " CP_INACTIF_IOLS ", " CP_TYP_IOLS ", " CP_RESULTSU_IOLS  ", "                          // 35-36-37-38-39
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
-                    CP_HOFFERQU_IOLS ", " CP_BARETTLFU_IOLS ", " CP_BARETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
+                    CP_HOFFERQU_IOLS ", " CP_BARRETTLFU_IOLS ", " CP_BARRETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS  ", "                // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
+                    CP_HOFFERQO_IOLS ", " CP_BARRETTLFO_IOLS ", " CP_BARRETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
     //qDebug() << req;
@@ -3296,14 +3296,14 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
                     CP_DIAALL_IOLS ", " CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", "                               // 5-6-7-8-9
                     CP_MINCYL_IOLS ", " CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_ADDINTERMEDIATE_IOLS ", " CP_ADDNEAR_IOLS ", "                  // 10-11-12-13-14
                     CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", " CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", "                  // 15-16-17-18-19
-                    CP_HOLL1_IOLS ", " CP_HOFFERQ_IOLS ", " CP_BARETTLF_IOLS ", " CP_BARETTDF_IOLS ", " CP_OLSEN_IOLS ", "                          // 20-21-22-23-24
+                    CP_HOLL1_IOLS ", " CP_HOFFERQ_IOLS ", " CP_BARRETTLF_IOLS ", " CP_BARRETTDF_IOLS ", " CP_OLSEN_IOLS ", "                          // 20-21-22-23-24
                     CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", " CP_TYPIMG_IOLS ", "  CP_SINGLEPIECE_IOLS ", " CP_OPTICMATERIAU_IOLS ", "        // 25-26-27-28-29
                     CP_HAPTICMATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", " CP_TORIC_IOLS ", "                  // 30-31-32-33-34
                     CP_EDOF_IOLS ", " CP_MULTIFOCAL_IOLS ", " CP_INACTIF_IOLS ", " CP_TYP_IOLS ", " CP_RESULTSU_IOLS  ", "                          // 35-36-37-38-39
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
-                    CP_HOFFERQU_IOLS ", " CP_BARETTLFU_IOLS ", " CP_BARETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
+                    CP_HOFFERQU_IOLS ", " CP_BARRETTLFU_IOLS ", " CP_BARRETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS ", "                 // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
+                    CP_HOFFERQO_IOLS ", " CP_BARRETTLFO_IOLS ", " CP_BARRETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
                     " FROM " TBL_IOLS
                     " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
                     " order by " CP_IDMANUFACTURER_IOLS;
@@ -3332,14 +3332,14 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
                     CP_DIAALL_IOLS ", " CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", "                               // 5-6-7-8-9
                     CP_MINCYL_IOLS ", " CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_ADDINTERMEDIATE_IOLS ", " CP_ADDNEAR_IOLS ", "                  // 10-11-12-13-14
                     CP_CSTEAOPT_IOLS ", " CP_CSTEAECHO_IOLS ", " CP_HAIGISA0_IOLS ", " CP_HAIGISA1_IOLS ", " CP_HAIGISA2_IOLS ", "                  // 15-16-17-18-19
-                    CP_HOLL1_IOLS ", " CP_HOFFERQ_IOLS ", " CP_BARETTLF_IOLS ", " CP_BARETTDF_IOLS ", " CP_OLSEN_IOLS ", "                          // 20-21-22-23-24
+                    CP_HOLL1_IOLS ", " CP_HOFFERQ_IOLS ", " CP_BARRETTLF_IOLS ", " CP_BARRETTDF_IOLS ", " CP_OLSEN_IOLS ", "                          // 20-21-22-23-24
                     CP_DIAINJECTEUR_IOLS ", " CP_ARRAYIMG_IOLS ", " CP_TYPIMG_IOLS ", "  CP_SINGLEPIECE_IOLS ", " CP_OPTICMATERIAU_IOLS ", "        // 25-26-27-28-29
                     CP_HAPTICMATERIAU_IOLS ", " CP_REMARQUE_IOLS ", " CP_PRECHARGE_IOLS ", " CP_JAUNE_IOLS ", " CP_TORIC_IOLS ", "                  // 30-31-32-33-34
                     CP_EDOF_IOLS ", " CP_MULTIFOCAL_IOLS ", " CP_INACTIF_IOLS ", " CP_TYP_IOLS ", " CP_RESULTSU_IOLS  ", "                          // 35-36-37-38-39
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
-                    CP_HOFFERQU_IOLS ", " CP_BARETTLFU_IOLS ", " CP_BARETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
+                    CP_HOFFERQU_IOLS ", " CP_BARRETTLFU_IOLS ", " CP_BARRETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                   // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS ", "                 // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_BARETTLFO_IOLS ", " CP_BARETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
+                    CP_HOFFERQO_IOLS ", " CP_BARRETTLFO_IOLS ", " CP_BARRETTDFO_IOLS ", " CP_OLSENO_IOLS ", " CP_CSTEAECHOU_IOLS                      // 55-56-57-58-59
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
     //qDebug() << req;

@@ -52,8 +52,8 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_HAIGISA2_IOLS, m_haigisa2_nominal);
     setDataDouble(data, CP_HOLL1_IOLS, m_holladay1_nominal);
     setDataDouble(data, CP_HOFFERQ_IOLS, m_hofferq_nominal);
-    setDataDouble(data, CP_BARETTDF_IOLS, m_barettdf_nominal);
-    setDataDouble(data, CP_BARETTLF_IOLS, m_barettlf_nominal);
+    setDataDouble(data, CP_BARRETTDF_IOLS, m_barrettdf_nominal);
+    setDataDouble(data, CP_BARRETTLF_IOLS, m_barrettlf_nominal);
     setDataDouble(data, CP_OLSEN_IOLS, m_olsen_nominal);
     setDataDouble(data, CP_DIAINJECTEUR_IOLS, m_diainjecteur);
     setDataDouble(data, CP_DIAALL_IOLS, m_diaall);
@@ -86,8 +86,8 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_HAIGISA2U_IOLS, m_haigisa2_ulib);
     setDataDouble(data, CP_HOLL1U_IOLS, m_holladay1_ulib);
     setDataDouble(data, CP_HOFFERQU_IOLS, m_hofferq_ulib);
-    setDataDouble(data, CP_BARETTDFU_IOLS, m_barettdf_ulib);
-    setDataDouble(data, CP_BARETTLFU_IOLS, m_barettlf_ulib);
+    setDataDouble(data, CP_BARRETTDFU_IOLS, m_barrettdf_ulib);
+    setDataDouble(data, CP_BARRETTLFU_IOLS, m_barrettlf_ulib);
     setDataDouble(data, CP_OLSENU_IOLS, m_olsen_ulib);
     setDataInt(data, CP_RESULTSO_IOLS, m_optimizedresults);
     setDataDouble(data, CP_CSTEAOPTO_IOLS, m_csteAopt_optimized);
@@ -96,8 +96,8 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_HAIGISA2O_IOLS, m_haigisa2_optimized);
     setDataDouble(data, CP_HOLL1O_IOLS, m_holladay1_optimized);
     setDataDouble(data, CP_HOFFERQO_IOLS, m_hofferq_optimized);
-    setDataDouble(data, CP_BARETTDFO_IOLS, m_barettdf_optimized);
-    setDataDouble(data, CP_BARETTLFO_IOLS, m_barettlf_optimized);
+    setDataDouble(data, CP_BARRETTDFO_IOLS, m_barrettdf_optimized);
+    setDataDouble(data, CP_BARRETTLFO_IOLS, m_barrettlf_optimized);
     setDataDouble(data, CP_OLSENO_IOLS, m_olsen_optimized);
     QImage img = m_nullimage;
     if (m_arrayimgiol.size())
@@ -211,8 +211,8 @@ void IOL::resetdatas()
     data[CP_ADDNEAR_IOLS]            = 0;
 
     data[CP_HOFFERQ_IOLS]            = 0;
-    data[CP_BARETTLF_IOLS]           = 0;
-    data[CP_BARETTDF_IOLS]           = 0;
+    data[CP_BARRETTLF_IOLS]           = 0;
+    data[CP_BARRETTDF_IOLS]           = 0;
     data[CP_OLSEN_IOLS]              = 0;
 
     data[CP_RESULTSU_IOLS]           = 0;
@@ -223,8 +223,8 @@ void IOL::resetdatas()
     data[CP_HAIGISA2U_IOLS]          = 0;
     data[CP_HOLL1U_IOLS]             = 0;
     data[CP_HOFFERQU_IOLS]           = 0;
-    data[CP_BARETTLFU_IOLS]          = 0;
-    data[CP_BARETTDFU_IOLS]          = 0;
+    data[CP_BARRETTLFU_IOLS]          = 0;
+    data[CP_BARRETTDFU_IOLS]          = 0;
     data[CP_OLSENU_IOLS]             = 0;
 
     data[CP_RESULTSO_IOLS]           = 0;
@@ -234,8 +234,8 @@ void IOL::resetdatas()
     data[CP_HAIGISA2O_IOLS]          = 0;
     data[CP_HOLL1O_IOLS]             = 0;
     data[CP_HOFFERQO_IOLS]           = 0;
-    data[CP_BARETTLFO_IOLS]          = 0;
-    data[CP_BARETTDFO_IOLS]          = 0;
+    data[CP_BARRETTLFO_IOLS]          = 0;
+    data[CP_BARRETTDFO_IOLS]          = 0;
     data[CP_OLSENO_IOLS]             = 0;
 
     setData(data);

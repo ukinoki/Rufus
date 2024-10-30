@@ -45,20 +45,20 @@ BEGIN
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarettLF') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettLF') as chp;
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `BarettLF` DOUBLE NULL DEFAULT NULL AFTER `HofferQ`;
+                        ADD COLUMN `BarrettLF` DOUBLE NULL DEFAULT NULL AFTER `HofferQ`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarettDF') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettDF') as chp;
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `BarettDF` DOUBLE NULL DEFAULT NULL AFTER `BarettLF`;
+                        ADD COLUMN `BarrettDF` DOUBLE NULL DEFAULT NULL AFTER `BarrettLF`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -67,7 +67,7 @@ BEGIN
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `Olsen` DOUBLE NULL DEFAULT NULL AFTER `BarettDF`;
+                        ADD COLUMN `Olsen` DOUBLE NULL DEFAULT NULL AFTER `BarrettDF`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -162,20 +162,20 @@ BEGIN
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarettLFULIB') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettLFULIB') as chp;
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `BarettLFULIB` DOUBLE NULL DEFAULT NULL AFTER `HofferQULIB`;
+                        ADD COLUMN `BarrettLFULIB` DOUBLE NULL DEFAULT NULL AFTER `HofferQULIB`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarettDFULIB') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettDFULIB') as chp;
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `BarettDFULIB` DOUBLE NULL DEFAULT NULL AFTER `BarettLFULIB`;
+                        ADD COLUMN `BarrettDFULIB` DOUBLE NULL DEFAULT NULL AFTER `BarrettLFULIB`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -184,7 +184,7 @@ BEGIN
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `OlsenULIB` DOUBLE NULL DEFAULT NULL AFTER `BarettDFULIB`;
+                        ADD COLUMN `OlsenULIB` DOUBLE NULL DEFAULT NULL AFTER `BarrettDFULIB`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -252,20 +252,20 @@ BEGIN
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarettLFOptimized') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettLFOptimized') as chp;
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `BarettLFOptimized` DOUBLE NULL DEFAULT NULL AFTER `HofferQOptimized`;
+                        ADD COLUMN `BarrettLFOptimized` DOUBLE NULL DEFAULT NULL AFTER `HofferQOptimized`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarettDFOptimized') as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettDFOptimized') as chp;
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `BarettDFOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarettLFOptimized`;
+                        ADD COLUMN `BarrettDFOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarrettLFOptimized`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -274,7 +274,7 @@ BEGIN
         IF tot=0
         THEN
 			ALTER TABLE `Ophtalmologie`.`IOLs` 
-			ADD COLUMN `OlsenOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarettDFOptimized`;
+                        ADD COLUMN `OlsenOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarrettDFOptimized`;
         END IF;
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY

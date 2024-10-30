@@ -398,6 +398,7 @@ CREATE TABLE `ParametresSysteme` (
   `idLieuParDefaut` int(11) DEFAULT NULL,
   `DocsComprimes` int(1) DEFAULT NULL,
   `VersionBase` int(3) DEFAULT NULL,
+  `VersionBaseIOL` DOUBLE DEFAULT NULL,
   `SansCompta` int(1) DEFAULT NULL COMMENT '0 = AvecCompta\n1 = SansCompta et sans cotation\n2 = Sans compta mais avec cotation\n3 = Avec compta mais sans cotation',
   `AdresseServeurLocal` varchar(45) DEFAULT NULL,
   `AdresseServeurDistant` varchar(45) DEFAULT NULL,
@@ -423,7 +424,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,79,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,79,2,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 

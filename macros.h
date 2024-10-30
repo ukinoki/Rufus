@@ -666,8 +666,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_HAIGISA2_IOLS                                "Haigisa2"
 #define CP_HOLL1_IOLS                                   "Holladay1sf"
 #define CP_HOFFERQ_IOLS                                 "HofferQ"
-#define CP_BARETTLF_IOLS                                "BarettLF"
-#define CP_BARETTDF_IOLS                                "BarettDF"
+#define CP_BARRETTLF_IOLS                               "BarrettLF"
+#define CP_BARRETTDF_IOLS                               "BarrettDF"
 #define CP_OLSEN_IOLS                                   "Olsen"
 
 #define CP_RESULTSU_IOLS                                "ResultsULIB"
@@ -678,8 +678,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_HAIGISA2U_IOLS                               "Haigisa2ULIB"
 #define CP_HOLL1U_IOLS                                  "Holladay1sfULIB"
 #define CP_HOFFERQU_IOLS                                "HofferQULIB"
-#define CP_BARETTLFU_IOLS                               "BarettLFULIB"
-#define CP_BARETTDFU_IOLS                               "BarettDFULIB"
+#define CP_BARRETTLFU_IOLS                              "BarrettLFULIB"
+#define CP_BARRETTDFU_IOLS                              "BarrettDFULIB"
 #define CP_OLSENU_IOLS                                  "OlsenULIB"
 
 #define CP_RESULTSO_IOLS                                "ResultsOptimized"
@@ -689,8 +689,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_HAIGISA2O_IOLS                               "Haigisa2Optimized"
 #define CP_HOLL1O_IOLS                                  "Holladay1sfOptimized"
 #define CP_HOFFERQO_IOLS                                "HofferQOptimized"
-#define CP_BARETTLFO_IOLS                               "BarettLFOptimized"
-#define CP_BARETTDFO_IOLS                               "BarettDFOptimized"
+#define CP_BARRETTLFO_IOLS                              "BarrettLFOptimized"
+#define CP_BARRETTDFO_IOLS                              "BarrettDFOptimized"
 #define CP_OLSENO_IOLS                                  "OlsenOptimized"
 
 #define CP_DIAINJECTEUR_IOLS                            "DiametreInjecteur"

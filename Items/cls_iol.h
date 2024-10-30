@@ -87,8 +87,8 @@ private: //Données de l'intervention
     double m_haigisa2_nominal   = 0;            //! constante Haigis a2 nominal
     double m_holladay1_nominal  = 0;            //! constante Holladay1 nominal
     double m_hofferq_nominal    = 0;            //! constante HofferQ nominal
-    double m_barettdf_nominal   = 0;            //! constante BarettDF nominal
-    double m_barettlf_nominal   = 0;            //! constante BarettLF nominal
+    double m_barrettdf_nominal   = 0;            //! constante BarrettDF nominal
+    double m_barrettlf_nominal   = 0;            //! constante BarrettLF nominal
     double m_olsen_nominal      = 0;            //! constante Olsen nominal
 
     int m_ulibresults        = 0;               //! nbre de resultats ulib
@@ -99,8 +99,8 @@ private: //Données de l'intervention
     double m_haigisa2_ulib   = 0;               //! constante Haigis a2 ulib
     double m_holladay1_ulib  = 0;               //! constante Holladay1 ulib
     double m_hofferq_ulib    = 0;               //! constante HofferQ ulib
-    double m_barettdf_ulib   = 0;               //! constante BarettDF ulib
-    double m_barettlf_ulib   = 0;               //! constante BarettLF ulib
+    double m_barrettdf_ulib   = 0;               //! constante BarrettDF ulib
+    double m_barrettlf_ulib   = 0;               //! constante BarrettLF ulib
     double m_olsen_ulib      = 0;               //! constante Olsen ulib
 
     int m_optimizedresults        = 0;          //! nbre de resultats optimized
@@ -110,8 +110,8 @@ private: //Données de l'intervention
     double m_haigisa2_optimized   = 0;          //! constante Haigis a2 optimized
     double m_holladay1_optimized  = 0;          //! constante Holladay1 optimized
     double m_hofferq_optimized    = 0;          //! constante HofferQ optimized
-    double m_barettdf_optimized   = 0;          //! constante BarettDF optimized
-    double m_barettlf_optimized   = 0;          //! constante BarettLF optimized
+    double m_barrettdf_optimized   = 0;          //! constante BarrettDF optimized
+    double m_barrettlf_optimized   = 0;          //! constante BarrettLF optimized
     double m_olsen_optimized      = 0;          //! constante Olsen ulib
 
     double m_acd            = 0;                //! ACD
@@ -144,8 +144,8 @@ public:
     double haigisa2_nominal() const             { return m_haigisa2_nominal; }
     double holladay1_nominal() const            { return m_holladay1_nominal; }
     double hofferQ_nominal() const              { return m_hofferq_nominal; }
-    double barettLF_nominal() const             { return m_barettlf_nominal; }
-    double barettDF_nominal() const             { return m_barettdf_nominal; }
+    double barrettLF_nominal() const             { return m_barrettlf_nominal; }
+    double barrettDF_nominal() const             { return m_barrettdf_nominal; }
     double olsen_nominal() const                { return m_olsen_nominal; }
 
     int results_ulib() const                    { return m_ulibresults; }
@@ -156,8 +156,8 @@ public:
     double haigisa2_ulib() const                { return m_haigisa2_ulib; }
     double holladay1_ulib() const               { return m_holladay1_ulib; }
     double hofferQ_ulib() const                 { return m_hofferq_ulib; }
-    double barettLF_ulib() const                { return m_barettlf_ulib; }
-    double barettDF_ulib() const                { return m_barettdf_ulib; }
+    double barrettLF_ulib() const                { return m_barrettlf_ulib; }
+    double barrettDF_ulib() const                { return m_barrettdf_ulib; }
     double olsen_ulib() const                   { return m_olsen_ulib; }
 
     int results_optimized() const               { return m_optimizedresults; }
@@ -167,8 +167,8 @@ public:
     double haigisa2_optimized() const           { return m_haigisa2_optimized; }
     double holladay1_optimized() const          { return m_holladay1_optimized; }
     double hofferQ_optimized() const            { return m_hofferq_optimized; }
-    double barettLF_optimized() const           { return m_barettlf_optimized; }
-    double barettDF_optimized() const           { return m_barettdf_optimized; }
+    double barrettLF_optimized() const           { return m_barrettlf_optimized; }
+    double barrettDF_optimized() const           { return m_barrettdf_optimized; }
     double olsen_optimized() const              { return m_olsen_optimized; }
 
     double acd() const                          { return m_acd; }
@@ -221,8 +221,8 @@ public:
     void setHaigisa2_nominal(double haigisa2)           { m_haigisa2_nominal = haigisa2;        m_data[CP_HAIGISA2_IOLS] = haigisa2; }
     void setHolladay1_nominal(double holladay1)         { m_holladay1_nominal = holladay1;      m_data[CP_HOLL1_IOLS] = holladay1; }
     void setHofferQ_nominal(double hofferq)             { m_hofferq_nominal = hofferq;          m_data[CP_HOFFERQ_IOLS] = hofferq; }
-    void setBarettLF_nominal(double barettlf)           { m_barettlf_nominal = barettlf;        m_data[CP_BARETTLF_IOLS] = barettlf; }
-    void setBarettDF_nominal(double barettdf)           { m_barettdf_nominal = barettdf;        m_data[CP_BARETTDF_IOLS] = barettdf; }
+    void setBarrettLF_nominal(double barrettlf)         { m_barrettlf_nominal = barrettlf;        m_data[CP_BARRETTLF_IOLS] = barrettlf; }
+    void setBarrettDF_nominal(double barrettdf)         { m_barrettdf_nominal = barrettdf;        m_data[CP_BARRETTDF_IOLS] = barrettdf; }
     void setOlsen_nominal(double olsen)                 { m_olsen_nominal = olsen;              m_data[CP_OLSEN_IOLS] = olsen; }
 
     void setresults_ulib(int results)                   { m_ulibresults = results;              m_data[CP_RESULTSU_IOLS] = results; }
@@ -233,8 +233,8 @@ public:
     void setHaigisa2_ulib(double haigisa2)              { m_haigisa2_ulib = haigisa2;           m_data[CP_HAIGISA2U_IOLS] = haigisa2; }
     void setHolladay1_ulib(double holladay1)            { m_holladay1_ulib = holladay1;         m_data[CP_HOLL1U_IOLS] = holladay1; }
     void setHofferQ_ulib(double hofferq)                { m_hofferq_ulib = hofferq;             m_data[CP_HOFFERQU_IOLS] = hofferq; }
-    void setBarettLF_ulib(double barettlf)              { m_barettlf_ulib = barettlf;           m_data[CP_BARETTLFU_IOLS] = barettlf; }
-    void setBarettDF_ulib(double barettdf)              { m_barettdf_ulib = barettdf;           m_data[CP_BARETTDFU_IOLS] = barettdf; }
+    void setBarrettLF_ulib(double barrettlf)            { m_barrettlf_ulib = barrettlf;           m_data[CP_BARRETTLFU_IOLS] = barrettlf; }
+    void setBarrettDF_ulib(double barrettdf)            { m_barrettdf_ulib = barrettdf;           m_data[CP_BARRETTDFU_IOLS] = barrettdf; }
     void setOlsen_ulib(double olsen)                    { m_olsen_ulib = olsen;                 m_data[CP_OLSENU_IOLS] = olsen; }
 
     void setresults_optimized(int results)              { m_optimizedresults = results;         m_data[CP_RESULTSO_IOLS] = results; }
@@ -244,8 +244,8 @@ public:
     void setHaigisa2_optimized(double haigisa2)         { m_haigisa2_optimized = haigisa2;      m_data[CP_HAIGISA2O_IOLS] = haigisa2; }
     void setHolladay1_optimized(double holladay1)       { m_holladay1_optimized = holladay1;    m_data[CP_HOLL1O_IOLS] = holladay1; }
     void setHofferQ_optimized(double hofferq)           { m_hofferq_optimized = hofferq;        m_data[CP_HOFFERQO_IOLS] = hofferq; }
-    void setBarettLF_optimized(double barettlf)         { m_barettlf_optimized = barettlf;      m_data[CP_BARETTLFO_IOLS] = barettlf; }
-    void setBarettDF_optimized(double barettdf)         { m_barettdf_optimized = barettdf;      m_data[CP_BARETTDFO_IOLS] = barettdf; }
+    void setBarrettLF_optimized(double barrettlf)       { m_barrettlf_optimized = barrettlf;      m_data[CP_BARRETTLFO_IOLS] = barrettlf; }
+    void setBarrettDF_optimized(double barrettdf)       { m_barrettdf_optimized = barrettdf;      m_data[CP_BARRETTDFO_IOLS] = barrettdf; }
     void setOlsen_optimized(double olsen)               { m_olsen_optimized = olsen;            m_data[CP_OLSENO_IOLS] = olsen; }
 
 

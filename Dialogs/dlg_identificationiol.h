@@ -77,7 +77,7 @@ private:
     QWidget             *wdg_nominalCsteAEcho   = new QWidget;
     QWidget             *wdg_nominalCsteA       = new QWidget;
     QWidget             *wdg_nominalhaigis      = new QWidget;
-    QWidget             *wdg_nominalbarett      = new QWidget;
+    QWidget             *wdg_nominalbarrett      = new QWidget;
     QWidget             *wdg_nominalhofferq     = new QWidget;
     UpLineEdit          *wdg_Aecholine          = new UpLineEdit;
     UpLineEdit          *wdg_Aoptline           = new UpLineEdit;
@@ -86,15 +86,15 @@ private:
     UpLineEdit          *wdg_haigisbline        = new UpLineEdit;
     UpLineEdit          *wdg_haigiscline        = new UpLineEdit;
     UpLineEdit          *wdg_hofferQline        = new UpLineEdit;
-    UpLineEdit          *wdg_barettDFline       = new UpLineEdit;
-    UpLineEdit          *wdg_barettLFline       = new UpLineEdit;
+    UpLineEdit          *wdg_barrettDFline       = new UpLineEdit;
+    UpLineEdit          *wdg_barrettLFline       = new UpLineEdit;
     UpLineEdit          *wdg_olsenline          = new UpLineEdit;
 
         /*! ulib */
     QWidget             *wdg_ulibCsteAEcho      = new QWidget;
     QWidget             *wdg_ulibCsteA          = new QWidget;
     QWidget             *wdg_ulibhaigis         = new QWidget;
-    QWidget             *wdg_ulibbarett         = new QWidget;
+    QWidget             *wdg_ulibbarrett         = new QWidget;
     QWidget             *wdg_ulibhofferq        = new QWidget;
     UpLineEdit          *wdg_UAecholine         = new UpLineEdit;
     UpLineEdit          *wdg_UAoptline          = new UpLineEdit;
@@ -103,14 +103,14 @@ private:
     UpLineEdit          *wdg_Uhaigisbline       = new UpLineEdit;
     UpLineEdit          *wdg_Uhaigiscline       = new UpLineEdit;
     UpLineEdit          *wdg_UhofferQline       = new UpLineEdit;
-    UpLineEdit          *wdg_UbarettDFline      = new UpLineEdit;
-    UpLineEdit          *wdg_UbarettLFline      = new UpLineEdit;
+    UpLineEdit          *wdg_UbarrettDFline      = new UpLineEdit;
+    UpLineEdit          *wdg_UbarrettLFline      = new UpLineEdit;
     UpLineEdit          *wdg_Uolsenline         = new UpLineEdit;
 
         /*! optimized */
     QWidget             *wdg_optimizedCsteA     = new QWidget;
     QWidget             *wdg_optimizedhaigis    = new QWidget;
-    QWidget             *wdg_optimizedbarett    = new QWidget;
+    QWidget             *wdg_optimizedbarrett    = new QWidget;
     QWidget             *wdg_optimizedhofferq   = new QWidget;
     UpLineEdit          *wdg_OAoptline          = new UpLineEdit;
     UpLineEdit          *wdg_Oholladayline      = new UpLineEdit;
@@ -118,8 +118,8 @@ private:
     UpLineEdit          *wdg_Ohaigisbline       = new UpLineEdit;
     UpLineEdit          *wdg_Ohaigiscline       = new UpLineEdit;
     UpLineEdit          *wdg_OhofferQline       = new UpLineEdit;
-    UpLineEdit          *wdg_ObarettDFline      = new UpLineEdit;
-    UpLineEdit          *wdg_ObarettLFline      = new UpLineEdit;
+    UpLineEdit          *wdg_ObarrettDFline      = new UpLineEdit;
+    UpLineEdit          *wdg_ObarrettLFline      = new UpLineEdit;
     UpLineEdit          *wdg_Oolsenline         = new UpLineEdit;
 
     UpLineEdit          *wdg_diaoptique;

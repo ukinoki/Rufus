@@ -113,8 +113,8 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         else if (champ == CP_HAIGISA2_IOLS)                         data[champ] = itset.value().toDouble();
         else if (champ == CP_HOLL1_IOLS)                            data[champ] = itset.value().toDouble();
         else if (champ == CP_HOFFERQ_IOLS)                          data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARETTDF_IOLS)                         data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARETTLF_IOLS)                         data[champ] = itset.value().toDouble();
+        else if (champ == CP_BARRETTDF_IOLS)                         data[champ] = itset.value().toDouble();
+        else if (champ == CP_BARRETTLF_IOLS)                         data[champ] = itset.value().toDouble();
         else if (champ == CP_OLSEN_IOLS)                            data[champ] = itset.value().toDouble();
         else if (champ == CP_DIAOPT_IOLS)                           data[champ] = itset.value().toDouble();
         else if (champ == CP_DIAALL_IOLS)                           data[champ] = itset.value().toDouble();
@@ -138,8 +138,8 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         else if (champ == CP_HAIGISA2U_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_HOLL1U_IOLS)                           data[champ] = itset.value().toDouble();
         else if (champ == CP_HOFFERQU_IOLS)                         data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARETTDFU_IOLS)                        data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARETTLFU_IOLS)                        data[champ] = itset.value().toDouble();
+        else if (champ == CP_BARRETTDFU_IOLS)                        data[champ] = itset.value().toDouble();
+        else if (champ == CP_BARRETTLFU_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_OLSENU_IOLS)                           data[champ] = itset.value().toDouble();
         else if (champ == CP_RESULTSO_IOLS)                         data[champ] = itset.value().toInt();
         else if (champ == CP_CSTEAOPTO_IOLS)                        data[champ] = itset.value().toDouble();
@@ -148,8 +148,8 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         else if (champ == CP_HAIGISA2O_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_HOLL1O_IOLS)                           data[champ] = itset.value().toDouble();
         else if (champ == CP_HOFFERQO_IOLS)                         data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARETTDFO_IOLS)                        data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARETTLFO_IOLS)                        data[champ] = itset.value().toDouble();
+        else if (champ == CP_BARRETTDFO_IOLS)                        data[champ] = itset.value().toDouble();
+        else if (champ == CP_BARRETTLFO_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_OLSENO_IOLS)                           data[champ] = itset.value().toDouble();
      }
     iol = new IOL(data);

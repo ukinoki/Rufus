@@ -919,14 +919,14 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setHofferQ_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-            else if (field == CP_BARETTDF_IOLS)
+            else if (field == CP_BARRETTDF_IOLS)
             {
-                iol->setBarettDF_nominal(newvalue.toDouble());
+                iol->setBarrettDF_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-            else if (field == CP_BARETTLF_IOLS)
+            else if (field == CP_BARRETTLF_IOLS)
             {
-                iol->setBarettLF_nominal(newvalue.toDouble());
+                iol->setBarrettLF_nominal(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_OLSEN_IOLS)
@@ -1045,14 +1045,14 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setHofferQ_ulib(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-             else if (field == CP_BARETTDFU_IOLS)
+             else if (field == CP_BARRETTDFU_IOLS)
             {
-                iol->setBarettDF_ulib(newvalue.toDouble());
+                iol->setBarrettDF_ulib(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-            else if (field == CP_BARETTLFU_IOLS)
+            else if (field == CP_BARRETTLFU_IOLS)
             {
-                iol->setBarettLF_ulib(newvalue.toDouble());
+                iol->setBarrettLF_ulib(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_OLSENU_IOLS)
@@ -1095,14 +1095,14 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setHofferQ_optimized(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-            else if (field == CP_BARETTDFO_IOLS)
+            else if (field == CP_BARRETTDFO_IOLS)
             {
-                iol->setBarettDF_optimized(newvalue.toDouble());
+                iol->setBarrettDF_optimized(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-            else if (field == CP_BARETTLFO_IOLS)
+            else if (field == CP_BARRETTLFO_IOLS)
             {
-                iol->setBarettLF_optimized(newvalue.toDouble());
+                iol->setBarrettLF_optimized(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
             else if (field == CP_OLSENO_IOLS)
