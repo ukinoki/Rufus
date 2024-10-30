@@ -96,9 +96,6 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_HAIGISA2O_IOLS, m_haigisa2_optimized);
     setDataDouble(data, CP_HOLL1O_IOLS, m_holladay1_optimized);
     setDataDouble(data, CP_HOFFERQO_IOLS, m_hofferq_optimized);
-    setDataDouble(data, CP_BARRETTDFO_IOLS, m_barrettdf_optimized);
-    setDataDouble(data, CP_BARRETTLFO_IOLS, m_barrettlf_optimized);
-    setDataDouble(data, CP_OLSENO_IOLS, m_olsen_optimized);
     QImage img = m_nullimage;
     if (m_arrayimgiol.size())
     {
@@ -234,9 +231,6 @@ void IOL::resetdatas()
     data[CP_HAIGISA2O_IOLS]          = 0;
     data[CP_HOLL1O_IOLS]             = 0;
     data[CP_HOFFERQO_IOLS]           = 0;
-    data[CP_BARRETTLFO_IOLS]          = 0;
-    data[CP_BARRETTDFO_IOLS]          = 0;
-    data[CP_OLSENO_IOLS]             = 0;
 
     setData(data);
 }

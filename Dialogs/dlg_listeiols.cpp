@@ -790,26 +790,6 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                             if (Constantnode.text().toDouble() !=0)
                                 iol.setHolladay1_optimized(Constantnode.text().toDouble());
                         }
-                        else if (Constantnode.tagName() == "Barrett")
-                            for (int i=0; i<Constantnode.childNodes().size(); i++)
-                            {
-                                QDomElement Barrettnode = Constantnode.childNodes().at(i).toElement();
-                                if (Barrettnode.tagName() == "DF")
-                                {
-                                    if (Barrettnode.text().toDouble() !=0)
-                                        iol.setBarrettDF_optimized(Barrettnode.text().toDouble());
-                                }
-                                else if (Barrettnode.tagName() == "LF")
-                                {
-                                    if (Barrettnode.text().toDouble() !=0)
-                                        iol.setBarrettLF_optimized(Barrettnode.text().toDouble());
-                                }
-                            }
-                        else if (Constantnode.tagName() == "Olsen")
-                        {
-                            if (Constantnode.text().toDouble() !=0)
-                                iol.setOlsen_optimized(Constantnode.text().toDouble());
-                        }
                     }
                 }
             }
@@ -844,8 +824,8 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                     ItemsList::update(iolfromlist, CP_HAIGISA2_IOLS,        iol.haigisa2_nominal());
                     ItemsList::update(iolfromlist, CP_HOLL1_IOLS,           iol.holladay1_nominal());
                     ItemsList::update(iolfromlist, CP_HOFFERQ_IOLS,         iol.hofferQ_nominal());
-                    ItemsList::update(iolfromlist, CP_BARRETTDF_IOLS,        iol.barrettDF_nominal());
-                    ItemsList::update(iolfromlist, CP_BARRETTLF_IOLS,        iol.barrettLF_nominal());
+                    ItemsList::update(iolfromlist, CP_BARRETTDF_IOLS,       iol.barrettDF_nominal());
+                    ItemsList::update(iolfromlist, CP_BARRETTLF_IOLS,       iol.barrettLF_nominal());
                     ItemsList::update(iolfromlist, CP_OLSEN_IOLS,           iol.olsen_nominal());
 
                     ItemsList::update(iolfromlist, CP_ACD_IOLS,             iol.acd());
@@ -886,9 +866,6 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                     ItemsList::update(iolfromlist, CP_HAIGISA2O_IOLS,       iol.haigisa2_optimized());
                     ItemsList::update(iolfromlist, CP_HOLL1O_IOLS,          iol.holladay1_optimized());
                     ItemsList::update(iolfromlist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
-                    ItemsList::update(iolfromlist, CP_BARRETTDFO_IOLS,      iol.barrettDF_optimized());
-                    ItemsList::update(iolfromlist, CP_BARRETTLFO_IOLS,      iol.barrettLF_optimized());
-                    ItemsList::update(iolfromlist, CP_OLSENO_IOLS,          iol.olsen_optimized());
 
                     ItemsList::update(iolfromlist, CP_TYP_IOLS,             iol.typetoint());
                     ++ updateiols;
@@ -907,8 +884,8 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HAIGISA2_IOLS]       = (iol.haigisa2_nominal() >0.0?     iol.haigisa2_nominal()      : QVariant());
                 m_listbinds[CP_HOLL1_IOLS]          = (iol.holladay1_nominal()>0.0?     iol.holladay1_nominal()     : QVariant());
                 m_listbinds[CP_HOFFERQ_IOLS]        = (iol.hofferQ_nominal()>0.0?       iol.hofferQ_nominal()       : QVariant());
-                m_listbinds[CP_BARRETTDF_IOLS]       = (iol.barrettDF_nominal()>0.0?      iol.barrettDF_nominal()      : QVariant());
-                m_listbinds[CP_BARRETTLF_IOLS]       = (iol.barrettLF_nominal()>0.0?      iol.barrettLF_nominal()      : QVariant());
+                m_listbinds[CP_BARRETTDF_IOLS]      = (iol.barrettDF_nominal()>0.0?     iol.barrettDF_nominal()      : QVariant());
+                m_listbinds[CP_BARRETTLF_IOLS]      = (iol.barrettLF_nominal()>0.0?     iol.barrettLF_nominal()      : QVariant());
                 m_listbinds[CP_OLSEN_IOLS]          = (iol.olsen_nominal()>0.0?         iol.olsen_nominal()         : QVariant());
 
                 m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?                   iol.acd()                   : QVariant());
@@ -938,8 +915,8 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HAIGISA2U_IOLS]      = (iol.haigisa2_ulib() >0.0?        iol.haigisa2_ulib()         : QVariant());
                 m_listbinds[CP_HOLL1U_IOLS]         = (iol.holladay1_ulib()>0.0?        iol.holladay1_ulib()        : QVariant());
                 m_listbinds[CP_HOFFERQU_IOLS]       = (iol.hofferQ_ulib()>0.0?          iol.hofferQ_ulib()          : QVariant());
-                m_listbinds[CP_BARRETTDFU_IOLS]      = (iol.barrettDF_ulib()>0.0?         iol.barrettDF_ulib()         : QVariant());
-                m_listbinds[CP_BARRETTLFU_IOLS]      = (iol.barrettLF_ulib()>0.0?         iol.barrettLF_ulib()         : QVariant());
+                m_listbinds[CP_BARRETTDFU_IOLS]     = (iol.barrettDF_ulib()>0.0?        iol.barrettDF_ulib()         : QVariant());
+                m_listbinds[CP_BARRETTLFU_IOLS]     = (iol.barrettLF_ulib()>0.0?        iol.barrettLF_ulib()         : QVariant());
                 m_listbinds[CP_OLSENU_IOLS]         = (iol.olsen_ulib()>0.0?            iol.olsen_ulib()            : QVariant());
 
                 m_listbinds[CP_RESULTSO_IOLS]       = (iol.results_optimized() >0?      iol.results_optimized()     : QVariant());
@@ -949,9 +926,6 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HAIGISA2O_IOLS]      = (iol.haigisa2_optimized() >0.0?   iol.haigisa2_optimized()    : QVariant());
                 m_listbinds[CP_HOLL1O_IOLS]         = (iol.holladay1_optimized()>0.0?   iol.holladay1_optimized()   : QVariant());
                 m_listbinds[CP_HOFFERQO_IOLS]       = (iol.hofferQ_optimized()>0.0?     iol.hofferQ_optimized()     : QVariant());
-                m_listbinds[CP_BARRETTDFO_IOLS]      = (iol.barrettDF_optimized()>0.0?    iol.barrettDF_optimized()    : QVariant());
-                m_listbinds[CP_BARRETTLFO_IOLS]      = (iol.barrettLF_optimized()>0.0?    iol.barrettLF_optimized()    : QVariant());
-                m_listbinds[CP_OLSENO_IOLS]         = (iol.olsen_optimized()>0.0?       iol.olsen_optimized()       : QVariant());
                 m_listbinds[CP_TYP_IOLS]            = (iol.typetoint()>0?               iol.typetoint()             : QVariant());
                 Datas::I()->iols->CreationIOL(m_listbinds);
                 ++newiols;

@@ -1095,21 +1095,6 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setHofferQ_optimized(newvalue.toDouble());
                 Utils::CalcdoubleValueSQL(newvalue);
             }
-            else if (field == CP_BARRETTDFO_IOLS)
-            {
-                iol->setBarrettDF_optimized(newvalue.toDouble());
-                Utils::CalcdoubleValueSQL(newvalue);
-            }
-            else if (field == CP_BARRETTLFO_IOLS)
-            {
-                iol->setBarrettLF_optimized(newvalue.toDouble());
-                Utils::CalcdoubleValueSQL(newvalue);
-            }
-            else if (field == CP_OLSENO_IOLS)
-            {
-                iol->setOlsen_optimized(newvalue.toDouble());
-                Utils::CalcdoubleValueSQL(newvalue);
-            }
             else
                 ok = false;
             break;

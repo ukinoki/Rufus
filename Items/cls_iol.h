@@ -110,9 +110,6 @@ private: //Données de l'intervention
     double m_haigisa2_optimized   = 0;          //! constante Haigis a2 optimized
     double m_holladay1_optimized  = 0;          //! constante Holladay1 optimized
     double m_hofferq_optimized    = 0;          //! constante HofferQ optimized
-    double m_barrettdf_optimized   = 0;          //! constante BarrettDF optimized
-    double m_barrettlf_optimized   = 0;          //! constante BarrettLF optimized
-    double m_olsen_optimized      = 0;          //! constante Olsen ulib
 
     double m_acd            = 0;                //! ACD
 
@@ -167,9 +164,6 @@ public:
     double haigisa2_optimized() const           { return m_haigisa2_optimized; }
     double holladay1_optimized() const          { return m_holladay1_optimized; }
     double hofferQ_optimized() const            { return m_hofferq_optimized; }
-    double barrettLF_optimized() const           { return m_barrettlf_optimized; }
-    double barrettDF_optimized() const           { return m_barrettdf_optimized; }
-    double olsen_optimized() const              { return m_olsen_optimized; }
 
     double acd() const                          { return m_acd; }
     double diainjecteur() const                 { return m_diainjecteur; }
@@ -244,9 +238,6 @@ public:
     void setHaigisa2_optimized(double haigisa2)         { m_haigisa2_optimized = haigisa2;      m_data[CP_HAIGISA2O_IOLS] = haigisa2; }
     void setHolladay1_optimized(double holladay1)       { m_holladay1_optimized = holladay1;    m_data[CP_HOLL1O_IOLS] = holladay1; }
     void setHofferQ_optimized(double hofferq)           { m_hofferq_optimized = hofferq;        m_data[CP_HOFFERQO_IOLS] = hofferq; }
-    void setBarrettLF_optimized(double barrettlf)       { m_barrettlf_optimized = barrettlf;      m_data[CP_BARRETTLFO_IOLS] = barrettlf; }
-    void setBarrettDF_optimized(double barrettdf)       { m_barrettdf_optimized = barrettdf;      m_data[CP_BARRETTDFO_IOLS] = barrettdf; }
-    void setOlsen_optimized(double olsen)               { m_olsen_optimized = olsen;            m_data[CP_OLSENO_IOLS] = olsen; }
 
 
     void setAcd(double acd)                             { m_acd = acd;                          m_data[CP_ACD_IOLS] = acd; }

@@ -252,33 +252,6 @@ BEGIN
 	SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettLFOptimized') as chp;
-        IF tot=0
-        THEN
-			ALTER TABLE `Ophtalmologie`.`IOLs` 
-                        ADD COLUMN `BarrettLFOptimized` DOUBLE NULL DEFAULT NULL AFTER `HofferQOptimized`;
-        END IF;
-	SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'BarrettDFOptimized') as chp;
-        IF tot=0
-        THEN
-			ALTER TABLE `Ophtalmologie`.`IOLs` 
-                        ADD COLUMN `BarrettDFOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarrettLFOptimized`;
-        END IF;
-	SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'OlsenOptimized') as chp;
-        IF tot=0
-        THEN
-			ALTER TABLE `Ophtalmologie`.`IOLs` 
-                        ADD COLUMN `OlsenOptimized` DOUBLE NULL DEFAULT NULL AFTER `BarrettDFOptimized`;
-        END IF;
-	SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
         WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'VersionBaseIOL') as chp;
         IF tot=0
         THEN

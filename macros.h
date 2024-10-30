@@ -689,9 +689,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_HAIGISA2O_IOLS                               "Haigisa2Optimized"
 #define CP_HOLL1O_IOLS                                  "Holladay1sfOptimized"
 #define CP_HOFFERQO_IOLS                                "HofferQOptimized"
-#define CP_BARRETTLFO_IOLS                              "BarrettLFOptimized"
-#define CP_BARRETTDFO_IOLS                              "BarrettDFOptimized"
-#define CP_OLSENO_IOLS                                  "OlsenOptimized"
 
 #define CP_DIAINJECTEUR_IOLS                            "DiametreInjecteur"
 #define CP_ARRAYIMG_IOLS                                "Image"

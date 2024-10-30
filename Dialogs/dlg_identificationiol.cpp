@@ -429,41 +429,8 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     }
     wdg_ulibbarrett           ->setLayout(Ubarrett_Lay);
 
-        //! optimized
-    QHBoxLayout *Obarrett_Lay     = new QHBoxLayout();
-    UpLabel* Olblbarrett_IOL      = new UpLabel;
-    Olblbarrett_IOL               ->setText(tr("<font color=\"blue\"><b>Barrett</b></font>"));
-    Olblbarrett_IOL               ->setFixedSize(QSize(110,28));
-    UpLabel* OlbDF_IOL           = new UpLabel;
-    OlbDF_IOL                    ->setText("<font color=\"blue\"><b>DF</b></font>");
-    OlbDF_IOL                    ->setFixedSize(QSize(30,28));
-    UpLabel* OlbLF_IOL           = new UpLabel;
-    OlbLF_IOL                    ->setText("<font color=\"blue\"><b>LF</b></font>");
-    OlbLF_IOL                    ->setFixedSize(QSize(30,28));
-    wdg_ObarrettDFline            ->setValidator(new QRegularExpressionValidator(rgx_csteA, wdg_ObarrettDFline));
-    wdg_ObarrettDFline            ->setFixedSize(QSize(50,28));
-    wdg_ObarrettLFline            ->setValidator(new QRegularExpressionValidator(rgx_csteA, wdg_ObarrettLFline));
-    wdg_ObarrettLFline            ->setFixedSize(QSize(50,28));
-    Obarrett_Lay                  ->addWidget(Olblbarrett_IOL);
-    Obarrett_Lay                  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    Obarrett_Lay                  ->addWidget(OlbDF_IOL);
-    Obarrett_Lay                  ->addWidget(wdg_ObarrettDFline);
-    Obarrett_Lay                  ->addWidget(OlbLF_IOL);
-    Obarrett_Lay                  ->addWidget(wdg_ObarrettLFline);
-    Obarrett_Lay                  ->setSpacing(spacing);
-    Obarrett_Lay                  ->setContentsMargins(0,0,0,0);
-    for (int i=0; i < Obarrett_Lay->count(); ++i)
-    {
-        if (i==1)
-            Obarrett_Lay->setStretch(i,5);
-        else
-            Obarrett_Lay->setStretch(i,1);
-    }
-    wdg_optimizedbarrett         ->setLayout(Obarrett_Lay);
-
     barrett_Lay                  ->addWidget(wdg_nominalbarrett);
     barrett_Lay                  ->addWidget(wdg_ulibbarrett);
-    barrett_Lay                  ->addWidget(wdg_optimizedbarrett);
 
     //! HofferQ Olsen
     QHBoxLayout *HofOls_Lay  = new QHBoxLayout();
@@ -534,13 +501,8 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UpLabel* OlbOlsen_IOL       = new UpLabel;
     OlbOlsen_IOL                ->setText("<font color=\"blue\"><b>Olsen</b></font>");
     OlbOlsen_IOL                ->setFixedSize(QSize(60,28));
-    wdg_Oolsenline              ->setValidator(new QRegularExpressionValidator(rgx_csteA, wdg_Oolsenline));
-    wdg_Oolsenline              ->setFixedSize(QSize(50,28));
     OHofOls_Lay                 ->addWidget(OlbHofferQ_IOL);
     OHofOls_Lay                 ->addWidget(wdg_OhofferQline);
-    OHofOls_Lay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
-    OHofOls_Lay                 ->addWidget(OlbOlsen_IOL);
-    OHofOls_Lay                 ->addWidget(wdg_Oolsenline);
     OHofOls_Lay                 ->setSpacing(spacing);
     OHofOls_Lay                 ->setContentsMargins(0,0,0,0);
     for (int i=0; i < OHofOls_Lay->count(); ++i)
@@ -755,9 +717,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
         wdg_recopiebutton           ->setVisible(false);
         lay_materiau                ->addWidget(wdg_recopiebutton);
-        wdg_toolbar                 = new UpToolBar();
-        lay_materiau                ->addWidget(wdg_toolbar);
-        wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
    }
 
     //! Remarque
@@ -790,6 +749,17 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     dlglayout()   ->insertLayout(0, CsteAOPT_Holladay_Lay);
     dlglayout()   ->insertLayout(0, Typecst_Lay);
     dlglayout()   ->insertLayout(0, csteAEcho_Lay);
+    if (m_mode == Modification)
+    {
+        QHBoxLayout *ToolbarLay    = new QHBoxLayout();
+        wdg_toolbar = new UpToolBar();
+        ToolbarLay  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+        ToolbarLay  ->addWidget(wdg_toolbar);
+        ToolbarLay  ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+        dlglayout() ->insertLayout(0, ToolbarLay);
+        wdg_toolbar ->setEnabled(m_listeidIOLs.size()>1);
+    }
+
     dlglayout()   ->insertLayout(0, choixIOLLay);
     dlglayout()   ->insertLayout(0, choixManufacturerIOLLay);
     dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
@@ -1078,12 +1048,6 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_Ohaigiscline    ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
         n = m_currentIOL->hofferQ_optimized();
             wdg_OhofferQline    ->setText(n > 0.0? QLocale().toString(n, 'f', 2) : "");
-        n = m_currentIOL->barrettDF_optimized();
-            wdg_ObarrettDFline   ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
-        n = m_currentIOL->barrettLF_optimized();
-            wdg_ObarrettLFline   ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
-        n = m_currentIOL->olsen_optimized();
-            wdg_Oolsenline      ->setText(n > 0.0? QLocale().toString(n, 'f', 4) : "");
 
         wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
@@ -1218,7 +1182,6 @@ void dlg_identificationIOL::switchDisplayConstant(TypeConstant typcst)
         wdg_optimizedhaigis     ->setVisible(false);
         wdg_nominalbarrett      ->setVisible(true);
         wdg_ulibbarrett         ->setVisible(false);
-        wdg_optimizedbarrett    ->setVisible(false);
         wdg_nominalhofferq      ->setVisible(true);
         wdg_ulibhofferq         ->setVisible(false);
         wdg_optimizedhofferq    ->setVisible(false);
@@ -1237,7 +1200,6 @@ void dlg_identificationIOL::switchDisplayConstant(TypeConstant typcst)
         wdg_optimizedhaigis     ->setVisible(false);
         wdg_nominalbarrett       ->setVisible(false);
         wdg_ulibbarrett         ->setVisible(true);
-        wdg_optimizedbarrett    ->setVisible(false);
         wdg_nominalhofferq      ->setVisible(false);
         wdg_ulibhofferq         ->setVisible(true);
         wdg_optimizedhofferq    ->setVisible(false);
@@ -1256,7 +1218,6 @@ void dlg_identificationIOL::switchDisplayConstant(TypeConstant typcst)
         wdg_optimizedhaigis     ->setVisible(true);
         wdg_nominalbarrett      ->setVisible(false);
         wdg_ulibbarrett         ->setVisible(false);
-        wdg_optimizedbarrett    ->setVisible(true);
         wdg_nominalhofferq      ->setVisible(false);
         wdg_ulibhofferq         ->setVisible(false);
         wdg_optimizedhofferq    ->setVisible(true);
@@ -1275,7 +1236,6 @@ void dlg_identificationIOL::switchDisplayConstant(TypeConstant typcst)
         wdg_optimizedhaigis     ->setVisible(false);
         wdg_nominalbarrett       ->setVisible(false);
         wdg_ulibbarrett          ->setVisible(false);
-        wdg_optimizedbarrett     ->setVisible(false);
         wdg_nominalhofferq      ->setVisible(false);
         wdg_ulibhofferq         ->setVisible(false);
         wdg_optimizedhofferq    ->setVisible(false);
@@ -1442,9 +1402,6 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_HAIGISA1O_IOLS]      = (QLocale().toDouble(wdg_Ohaigisbline->text()) >0.0?  QLocale().toDouble(wdg_Ohaigisbline->text()) : QVariant());
     m_listbinds[CP_HAIGISA2O_IOLS]      = (QLocale().toDouble(wdg_Ohaigiscline->text()) >0.0?  QLocale().toDouble(wdg_Ohaigiscline->text()) : QVariant());
     m_listbinds[CP_HOFFERQO_IOLS]       = (QLocale().toDouble(wdg_OhofferQline->text()) >0.0?  QLocale().toDouble(wdg_OhofferQline->text()) : QVariant());
-    m_listbinds[CP_BARRETTDFO_IOLS]     = (QLocale().toDouble(wdg_ObarrettDFline->text()) >0.0? QLocale().toDouble(wdg_ObarrettDFline->text()): QVariant());
-    m_listbinds[CP_BARRETTLFO_IOLS]     = (QLocale().toDouble(wdg_ObarrettLFline->text()) >0.0? QLocale().toDouble(wdg_ObarrettLFline->text()): QVariant());
-    m_listbinds[CP_OLSENO_IOLS]         = (QLocale().toDouble(wdg_Oolsenline->text()) >0.0?    QLocale().toDouble(wdg_Oolsenline->text())   : QVariant());
      if (m_mode == Creation)
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)

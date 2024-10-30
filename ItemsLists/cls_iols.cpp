@@ -148,9 +148,6 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
         else if (champ == CP_HAIGISA2O_IOLS)                        data[champ] = itset.value().toDouble();
         else if (champ == CP_HOLL1O_IOLS)                           data[champ] = itset.value().toDouble();
         else if (champ == CP_HOFFERQO_IOLS)                         data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARRETTDFO_IOLS)                        data[champ] = itset.value().toDouble();
-        else if (champ == CP_BARRETTLFO_IOLS)                        data[champ] = itset.value().toDouble();
-        else if (champ == CP_OLSENO_IOLS)                           data[champ] = itset.value().toDouble();
      }
     iol = new IOL(data);
     if (iol != Q_NULLPTR)
