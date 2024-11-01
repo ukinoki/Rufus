@@ -37,11 +37,11 @@ public:
     bool                        initok() const          { return m_initok; }
 
 private:
-    QRegularExpression             rgx_csteA           = QRegularExpression("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression             rgx_csteA           = QRegularExpression("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]{0,2}");
     QRegularExpression             rgx_diainjecteur    = QRegularExpression("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
     QRegularExpression             rgx_diaoptique      = QRegularExpression("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
     QRegularExpression             rgx_diaht           = QRegularExpression("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegularExpression             rgx_haigis          = QRegularExpression("-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
+    QRegularExpression             rgx_haigis          = QRegularExpression("^-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
     QList<int>          m_listeidIOLs           = QList<int>();
@@ -73,6 +73,7 @@ private:
     TypeConstant        m_typcste = Nominal;
     void                switchDisplayConstant(TypeConstant typcst);
 
+    QWidget             *wdg_CsteAEcho          = new QWidget;
         /*! nominal */
     QWidget             *wdg_nominalCsteAEcho   = new QWidget;
     QWidget             *wdg_nominalCsteA       = new QWidget;
@@ -126,18 +127,18 @@ private:
     UpComboBox          *wdg_materiaubox        = new UpComboBox;
     UpComboBox          *wdg_hapticmateriaubox  = new UpComboBox;
     UpComboBox          *wdg_typebox            = new UpComboBox;
-    UpTextEdit          *wdg_remarquetxt;
-    UpToolBar           *wdg_toolbar = Q_NULLPTR;
-    UpPushButton        *wdg_recopiebutton = Q_NULLPTR;
+    UpTextEdit          *wdg_remarquetxt        = new UpTextEdit;
+    UpToolBar           *wdg_toolbar            = new UpToolBar();
+    UpPushButton        *wdg_recopiebutton      = Q_NULLPTR;
     UpCheckBox          *wdg_prechargechk       = new UpCheckBox(tr("Prechargé"));
     UpCheckBox          *wdg_jaunechk           = new UpCheckBox(tr("Jaune"));
     UpCheckBox          *wdg_inactifchk;
     UpCheckBox          *wdg_multifocalchk      = new UpCheckBox(tr("Multifocal"));
     UpCheckBox          *wdg_edofchk            = new UpCheckBox("EDOF");
     UpCheckBox          *wdg_toricchk           = new UpCheckBox(tr("Torique"));
-    UpCheckBox          *wdg_singlepiecechk = new UpCheckBox(tr("Monobloc"));
+    UpCheckBox          *wdg_singlepiecechk     = new UpCheckBox(tr("Monobloc"));
     QWidget             *wdg_cylindres;
-    QVBoxLayout         *lay_materiau    = new QVBoxLayout();
+    QVBoxLayout         *lay_materiau           = new QVBoxLayout();
 
     bool                eventFilter(QObject *obj, QEvent *event);
     void                AfficheDatasIOL(IOL *iol);
@@ -153,6 +154,8 @@ private:
     void                reconstruitListeIOLs(Manufacturer *man);
     void                setimage(QImage img);
     void                supprimeImage();
+
+    QString             m_stylesheet = "color:rgb(164, 205, 255); margin:5px";
 };
 
 #endif // DLG_IDENTIFICATIONIOL_H
