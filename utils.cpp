@@ -494,7 +494,7 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
     QFile                   file_origin(pathfile);
     qint64                  sz = file_origin.size();
     QString                 EchecPath   = EchecDir();
-    QString                 ProvPath        = ProvDir();
+    QString                 ProvPath    = ProvDir();
 
     szorigin = getExpressionSize(sz);
     szfinal = szorigin;

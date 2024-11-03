@@ -37,21 +37,21 @@ public:
     bool                        initok() const          { return m_initok; }
 
 private:
-    QRegularExpression             rgx_csteA           = QRegularExpression("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]{0,2}");
-    QRegularExpression             rgx_diainjecteur    = QRegularExpression("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegularExpression             rgx_diaoptique      = QRegularExpression("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegularExpression             rgx_diaht           = QRegularExpression("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
-    QRegularExpression             rgx_haigis          = QRegularExpression("^-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
+    QRegularExpression  rgx_csteA               = QRegularExpression("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]{0,2}");
+    QRegularExpression  rgx_diainjecteur        = QRegularExpression("[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression  rgx_diaoptique          = QRegularExpression("[4-9]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression  rgx_diaht               = QRegularExpression("1[1-3]" + QString(QLocale().decimalPoint()) + "[0-9]");
+    QRegularExpression  rgx_haigis              = QRegularExpression("^-?[0-1]" + QString(QLocale().decimalPoint()) + "[0-9]*4");
+    QRegularExpression  rgx_int                 = QRegularExpression("[0-9]{6}");
     QStandardItemModel  *m_manufacturersmodel   = Q_NULLPTR;
     QStandardItemModel  *m_IOLsmodel            = Q_NULLPTR;
     QList<int>          m_listeidIOLs           = QList<int>();
     Mode                m_mode = Creation;
     Manufacturer        *m_currentmanufacturer  = Q_NULLPTR;
     IOL                 *m_currentIOL           = Q_NULLPTR;
-    QHash<QString, QVariant>
-                        m_listbinds;
-    bool                m_initok = true;
-    QImage              m_nullimage = QImage("://IOL.png");
+    QHash<QString, QVariant>    m_listbinds;
+    bool                m_initok                = true;
+    QImage              m_nullimage             = QImage("://IOL.png");
     QImage              m_currentIOLimage;
     QComboBox           *wdg_manufacturercombo ;
     UpLineEdit          *wdg_nomiolline;
@@ -66,11 +66,12 @@ private:
 
 
     /*! constants */
-    UpCheckBox          *wdg_nominalrb      = new UpCheckBox("nominal");
-    UpCheckBox          *wdg_ulibrb         = new UpCheckBox("ulib");
-    UpCheckBox          *wdg_optimizedrb    = new UpCheckBox("optimized");
+    UpCheckBox          *wdg_nominalrb          = new UpCheckBox("nominal");
+    UpCheckBox          *wdg_ulibrb             = new UpCheckBox("ulib");
+    UpCheckBox          *wdg_optimizedrb        = new UpCheckBox("optimized");
     enum                TypeConstant {Nominal, Ulib, Optimized, None};    Q_ENUM(TypeConstant)
-    TypeConstant        m_typcste = Nominal;
+    TypeConstant        m_typcste               = Nominal;
+    UpSmallButton       *wdg_modifButton        = new UpSmallButton;
     void                switchDisplayConstant(TypeConstant typcst);
 
     QWidget             *wdg_CsteAEcho          = new QWidget;
@@ -97,8 +98,10 @@ private:
     QWidget             *wdg_ulibhaigis         = new QWidget;
     QWidget             *wdg_ulibbarrett        = new QWidget;
     QWidget             *wdg_ulibhofferq        = new QWidget;
+    QWidget             *wdg_ulibnbcases        = new QWidget;
     UpLineEdit          *wdg_UAecholine         = new UpLineEdit;
     UpLineEdit          *wdg_UAoptline          = new UpLineEdit;
+    UpLineEdit          *wdg_UNbCasesline       = new UpLineEdit;
     UpLineEdit          *wdg_Uholladayline      = new UpLineEdit;
     UpLineEdit          *wdg_Uhaigisaline       = new UpLineEdit;
     UpLineEdit          *wdg_Uhaigisbline       = new UpLineEdit;
@@ -112,7 +115,9 @@ private:
     QWidget             *wdg_optimizedCsteA     = new QWidget;
     QWidget             *wdg_optimizedhaigis    = new QWidget;
     QWidget             *wdg_optimizedhofferq   = new QWidget;
+    QWidget             *wdg_optimizednbcases   = new QWidget;
     UpLineEdit          *wdg_OAoptline          = new UpLineEdit;
+    UpLineEdit          *wdg_ONbCasesline       = new UpLineEdit;
     UpLineEdit          *wdg_Oholladayline      = new UpLineEdit;
     UpLineEdit          *wdg_Ohaigisaline       = new UpLineEdit;
     UpLineEdit          *wdg_Ohaigisbline       = new UpLineEdit;
