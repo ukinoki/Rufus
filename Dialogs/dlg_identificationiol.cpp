@@ -976,8 +976,7 @@ void dlg_identificationIOL::connectSignals()
     connect (wdg_nominalrb,         &QRadioButton::clicked,                                 this,   [&](bool a) { if (a) switchDisplayConstant(Nominal);});
     connect (wdg_ulibrb,            &QRadioButton::clicked,                                 this,   [&](bool a) { if (a) switchDisplayConstant(Ulib);});
     connect (wdg_optimizedrb,       &QRadioButton::clicked,                                 this,   [&](bool a) { if (a) switchDisplayConstant(Optimized);});
-    connect (wdg_singlepiecechk,    &QCheckBox::checkStateChanged,                          this,   [&](Qt::CheckState st) { wdg_hapticmateriaubox->setVisible(st != Qt::Checked);
-                                                                                                                              wdg_HapticMateriaulbl->setVisible(st != Qt::Checked);});
+
     if (wdg_recopiebutton)
         connect (wdg_recopiebutton,  &UpPushButton::clicked,                                this,   &dlg_identificationIOL::creeCopieIOL);
     if (wdg_toolbar)
@@ -1205,7 +1204,7 @@ void dlg_identificationIOL::changeImage()
         QString formatdoc = QFileInfo(path_file_origin).suffix().toLower();
         // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
         if ((formatdoc == JPG || formatdoc == JPEG || formatdoc == PNG))
-            if (!Utils::CompressFileToJPG(path_file_origin, false, 16384))
+            if (!Utils::CompressFileToJPG(path_file_origin, false, SIZEMAXIMGIOL))
                 return;
         QFile       file_origin(path_file_origin);
         file_origin                         .open(QIODevice::ReadOnly);
@@ -1341,6 +1340,7 @@ void dlg_identificationIOL:: EnableOKpushButton()
         wdg_toolbar         ->setEnabled(a);
     if(wdg_recopiebutton)
         wdg_recopiebutton   ->setEnabled(false);
+    wdg_modifButton->disconnect();
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 
@@ -1408,6 +1408,12 @@ void dlg_identificationIOL::OKpushButtonClicked()
                 AfficheDatasIOL(m_currentIOL);
                 disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
                 connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);
+                connect (wdg_modifButton,      &QPushButton::released,                                  this,   [&] {
+                    EnableOKpushButton();
+                    wdg_nominalrb  ->setEnabled(true);
+                    wdg_ulibrb  ->setEnabled(true);
+                    wdg_optimizedrb  ->setEnabled(true);
+                });
                 return;
             }
             break;
@@ -1429,6 +1435,12 @@ void dlg_identificationIOL::OKpushButtonClicked()
             AfficheDatasIOL(m_currentIOL);
             disconnect (OKButton,   &QPushButton::clicked,  this,   &dlg_identificationIOL::OKpushButtonClicked);
             connect(OKButton,       &QPushButton::clicked,  this,   &dlg_identificationIOL::accept);
+            connect (wdg_modifButton,      &QPushButton::released,                                  this,   [&] {
+                EnableOKpushButton();
+                wdg_nominalrb  ->setEnabled(true);
+                wdg_ulibrb  ->setEnabled(true);
+                wdg_optimizedrb  ->setEnabled(true);
+            });
             return;
         }
      }

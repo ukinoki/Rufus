@@ -1003,7 +1003,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 
 void dlg_listeiols::resizeiolimage(IOL *iol)
 {
-    int maxsizeimg = 16384;
+    int maxsizeimg = SIZEMAXIMGIOL;
     Utils::RemoveProvDir();
     if (iol->imageformat() != JPG || iol->imageformat() != PNG || iol->imageformat() != JPEG)
         return;

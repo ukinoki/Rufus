@@ -366,7 +366,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     QString szorigin, szfinal;
     qint64 sz = file_origin.size();
     szorigin = Utils::getExpressionSize(sz);
-    if ((suffix == JPG || suffix == JPEG || suffix == PNG) && sz > TAILLEMAXIIMAGES)
+    if ((suffix == JPG || suffix == JPEG || suffix == PNG) && sz > SIZEMAXIMAGES)
         Utils::CompressFileToJPG(path_file_origin, false);
     file_origin.setFileName(path_file_origin);
     file_origin.open(QIODevice::ReadOnly);

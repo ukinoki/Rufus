@@ -490,13 +490,12 @@ bool Utils::isFormatRecognized(QFile &fileimg)
 
 bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsizeimg)
 {
-    QString                 szorigin, szfinal;
+    qint64                  szorigin, szfinal;
     QFile                   file_origin(pathfile);
-    qint64                  sz = file_origin.size();
     QString                 EchecPath   = EchecDir();
     QString                 ProvPath    = ProvDir();
 
-    szorigin = getExpressionSize(sz);
+    szorigin = file_origin.size();
     szfinal = szorigin;
 
     /*! on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
@@ -532,6 +531,10 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
     }
     pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
 
+    /*! on efface le fichier origine */
+    removeWithoutPermissions(file_origin);
+
+
     QString filename        = QFileInfo(pathfile).completeBaseName() + "." JPG;
     QString nomfichresize   = ProvPath + "/" + filename;
     QFile                   fileresize(nomfichresize);
@@ -562,18 +565,14 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
         return false;
     }
 
-    /*! on efface le fichier origine */
-    removeWithoutPermissions(file_origin);
-
     /*! on convertit en jpg et on comprime */
     int tauxcompress        = 100;
-    while (sz > maxsizeimg && tauxcompress > 1)
+    while (szfinal > maxsizeimg && tauxcompress > 1)
     {
         tauxcompress -= 10;
         pixmap.save(nomfichresize, "jpeg",tauxcompress);
-        sz = fileresize.size();
+        szfinal = fileresize.size();
     }
-    szfinal  = getExpressionSize(sz);
 
     /*! on recopie le fichier compressé et exporté en jpg à sa place d'origine */
     pathfile = QFileInfo(pathfile).absolutePath() + "/" + filename;
@@ -581,7 +580,7 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
     fileresize.close();
     if (QFileInfo(pathfile).absolutePath() != ProvPath)
         RemoveProvDir();
-    return szfinal != szorigin;
+    return szfinal <= szorigin;
 }
 
 /*!

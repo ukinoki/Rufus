@@ -961,7 +961,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define LIEN_CCAM                               "https://www.ameli.fr/accueil-de-la-ccam/trouver-un-acte/consultation-par-chapitre.php?chap=a%3A0%3A%7B%7D&add=2#chapitre_2"
 
 // la taille maximale des images
-#define TAILLEMAXIIMAGES                        262144 // 256 Ko
+#define SIZEMAXIMAGES                           262144 // 256 Ko
+#define SIZEMAXIMGIOL                           16284  // 16 Ko
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"

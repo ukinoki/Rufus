@@ -204,7 +204,7 @@ public:
 
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);              //! true if image file forat is recognized by Rufus
-    static bool                     CompressFileToJPG(QString &pathfile, bool withRecordError = true, int maxsizeimg = TAILLEMAXIIMAGES);
+    static bool                     CompressFileToJPG(QString &pathfile, bool withRecordError = true, int maxsizeimg = SIZEMAXIMAGES);
     static QMap<QString, qint64>    dir_size(const QString DirPath);
     static QString                  getExpressionSize(qint64 size);                 //! convertit en Go, To, Mo ou Ko la taille du qint64 passé en paramètre
     static bool                     mkpath(QString path);

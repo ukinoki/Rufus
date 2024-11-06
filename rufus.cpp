@@ -420,9 +420,8 @@ void Rufus::ConnectSignals()
                                                                                                                                                 ReconstruitListeMessages();
                                                                                                                                             } );
 
-    // Nouvelle mesure d'appareil de refraction ----------------------------------------------------------------------------------
-    if (proc->HasAppareilRefractionConnecte())
-        connect(proc,                                               &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
+    // Nouvelle mesure d'appareil de refraction, de tonométrie ou de pachymétrie ----------------------------------------------------------------------------------
+    connect(proc,                                                   &Procedures::NouvMesure,                            this,   &Rufus::NouvelleMesure);
 
     connect (ui->MoulinettepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Moulinette);
     ui->MoulinettepushButton->setVisible(false);
