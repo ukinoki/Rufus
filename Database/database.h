@@ -422,11 +422,11 @@ public:
      * IOLs
     */
 private:
-    QJsonObject             loadIOLData(QVariantList refdata);                      //! attribue la liste des datas à un IOL
+    QJsonObject             IOLData(QVariantList refdata);                      //! attribue la liste des datas à un IOL
 public:
     QList<IOL*>             loadIOLs();                                             //! charge tous les IOLs
     QList<IOL*>             loadIOLsByManufacturerId(int id);                       //! charge tous les IOLs d'un fabricant
-    IOL*                    loadIOLById(int idintervention);                        //! charge les datas d'un IOL défini par son id - utilisé pour renouveler les données en cas de modification
+    QJsonObject             loadIOLdataById(int idintervention);                        //! charge les datas d'un IOL défini par son id - utilisé pour renouveler les données en cas de modification
     void                    UpDateIOL(int id, QHash<QString, QVariant> sets);
 
     /*

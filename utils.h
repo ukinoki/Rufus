@@ -202,6 +202,9 @@ public:
     static QString                  hostNameMacAdress();
     static QByteArray               StringToArray(QString source);
 
+    //! StyleSheet
+    static QString                  nullmargingstyle() { return "padding:0 ; margin:0"; };
+
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);              //! true if image file forat is recognized by Rufus
     static bool                     CompressFileToJPG(QString &pathfile, bool withRecordError = true, int maxsizeimg = SIZEMAXIMAGES);

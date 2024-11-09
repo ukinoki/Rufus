@@ -3188,7 +3188,7 @@ Intervention* DataBase::loadInterventionByDateIdPatient(QDate date, int idpatien
  * IOLs
 */
 
-QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! attribue la liste des datas à un IOL
+QJsonObject DataBase::IOLData(QVariantList ioldata)                     //! attribue la liste des datas à un IOL
 {
     QJsonObject data{};
     data[CP_ID_IOLS]                = ioldata.at(0).toInt();
@@ -3213,8 +3213,8 @@ QJsonObject DataBase::loadIOLData(QVariantList ioldata)                     //! 
     data[CP_HAIGISA2_IOLS]          = ioldata.at(19).toDouble();
     data[CP_HOLL1_IOLS]             = ioldata.at(20).toDouble();
     data[CP_HOFFERQ_IOLS]           = ioldata.at(21).toDouble();
-    data[CP_BARRETTLF_IOLS]          = ioldata.at(22).toDouble();
-    data[CP_BARRETTDF_IOLS]          = ioldata.at(23).toDouble();
+    data[CP_BARRETTLF_IOLS]         = ioldata.at(22).toDouble();
+    data[CP_BARRETTDF_IOLS]         = ioldata.at(23).toDouble();
     data[CP_OLSEN_IOLS]             = ioldata.at(24).toDouble();
     data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(25).toDouble();
     data[CP_ARRAYIMG_IOLS]          = QLatin1String(ioldata.at(26).toByteArray().toBase64());
@@ -3278,7 +3278,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
         return list;
     for (int i=0; i<iollist.size(); ++i)
     {
-        QJsonObject data = loadIOLData(iollist.at(i));
+        QJsonObject data = IOLData(iollist.at(i));
         IOL *iol = new IOL(data);
         if (iol != Q_NULLPTR)
             list << iol;
@@ -3310,7 +3310,7 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
         return list;
     for (int i=0; i<iollist.size(); ++i)
     {
-        QJsonObject data = loadIOLData(iollist.at(i));
+        QJsonObject data = IOLData(iollist.at(i));
         IOL *iol = new IOL(data);
         if (iol != Q_NULLPTR)
             list << iol;
@@ -3318,8 +3318,9 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
     return list;
 }
 
-IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
+QJsonObject DataBase::loadIOLdataById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    QJsonObject ioldata = QJsonObject();
     QString reqdel = "delete from " TBL_IOLS " where " CP_MODELNAME_IOLS " is null or " CP_MODELNAME_IOLS " = \"\""
                      " or " CP_IDMANUFACTURER_IOLS " is null or " CP_IDMANUFACTURER_IOLS " not in (select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS ")";
     //qDebug() << reqdel;
@@ -3340,10 +3341,10 @@ IOL* DataBase::loadIOLById(int idiol)                   //! charge un IOL défin
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
     //qDebug() << req;
-    QVariantList ioldata = getFirstRecordFromStandardSelectSQL(req,ok);
-    if(!ok || ioldata.size()==0)
-        return iol;
-    return new IOL(loadIOLData(ioldata));
+    QVariantList ioldatalist = getFirstRecordFromStandardSelectSQL(req,ok);
+    if(!ok || ioldatalist.size()==0)
+        return ioldata;
+    return IOLData(ioldatalist);
 }
 
 void DataBase::UpDateIOL(int id, QHash<QString, QVariant> sets)

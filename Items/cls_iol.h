@@ -258,22 +258,24 @@ public:
     void setType(const QString &type)
     {
         m_type = type;
-        if (type ==IOL_CP) m_data[CP_TYP_IOLS] = 1;
-        else if (type ==IOL_CA) m_data[CP_TYP_IOLS] = 2;
-        else if (type ==IOL_ADDON) m_data[CP_TYP_IOLS] = 3;
-        else if (type ==IOL_IRIEN) m_data[CP_TYP_IOLS] = 4;
-        else if (type ==IOL_CAREFRACTIF) m_data[CP_TYP_IOLS] = 5;
-        else if (type ==IOL_AUTRE) m_data[CP_TYP_IOLS] = 6;
-        else m_data[CP_TYP_IOLS] = 0;
+        if (type ==IOL_CP)                  m_data[CP_TYP_IOLS] = 1;
+        else if (type ==IOL_CA)             m_data[CP_TYP_IOLS] = 2;
+        else if (type ==IOL_ADDON)          m_data[CP_TYP_IOLS] = 3;
+        else if (type ==IOL_IRIEN)          m_data[CP_TYP_IOLS] = 4;
+        else if (type ==IOL_CAREFRACTIF)    m_data[CP_TYP_IOLS] = 5;
+        else if (type ==IOL_AUTRE)          m_data[CP_TYP_IOLS] = 6;
+        else                                m_data[CP_TYP_IOLS] = 0;
     }
 
     QImage image() const                        { return m_currentimage; }
-    void setimage(QImage &img)
+    void setimage(QImage img = QImage())
     {
         if (img.isNull())
-            m_nullimage.swap(m_currentimage);
+            m_currentimage = m_nullimage;
+           // m_nullimage.swap(m_currentimage);
         else
-            img.swap(m_currentimage);
+            m_currentimage = img;
+//            img.swap(m_currentimage);
         m_data[CP_ARRAYIMG_IOLS] = Utils::jsonValFromImage(m_currentimage);
     }
     void resetdatas();

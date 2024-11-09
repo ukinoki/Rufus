@@ -32,7 +32,7 @@ public:
     enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
     explicit                    dlg_identificationIOL(IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
     dlg_identificationIOL();
-    void                        setNomIOL(QString nom)  {wdg_nomiolline->setText(nom);}
+    void                        setNomIOL(QString nom)  { wdg_nomiolline->setText(nom); }
     int                         idcurrentIOL() const    { return (m_currentIOL? m_currentIOL->id() : 0); }
     bool                        initok() const          { return m_initok; }
 
@@ -68,7 +68,7 @@ private:
     /*! constants */
     UpCheckBox          *wdg_nominalrb          = new UpCheckBox("nominal");
     UpCheckBox          *wdg_ulibrb             = new UpCheckBox("ulib");
-    UpCheckBox          *wdg_optimizedrb        = new UpCheckBox("optimized");
+    UpCheckBox          *wdg_optimizedrb        = new UpCheckBox("optimized (iolcon.org)");
     enum                TypeConstant {Nominal, Ulib, Optimized, None};    Q_ENUM(TypeConstant)
     TypeConstant        m_typcste               = Nominal;
     UpSmallButton       *wdg_modifButton        = new UpSmallButton;
@@ -141,6 +141,7 @@ private:
     UpCheckBox          *wdg_multifocalchk      = new UpCheckBox(tr("Multifocal"));
     UpCheckBox          *wdg_edofchk            = new UpCheckBox("EDOF");
     UpCheckBox          *wdg_toricchk           = new UpCheckBox(tr("Torique"));
+    UpCheckBox          *wdg_toricchk2          = new UpCheckBox(tr("Torique"));
     UpCheckBox          *wdg_singlepiecechk     = new UpCheckBox(tr("Monobloc"));
     QWidget             *wdg_cylindres;
     QVBoxLayout         *lay_materiau           = new QVBoxLayout();

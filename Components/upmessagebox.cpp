@@ -206,7 +206,7 @@ void UpMessageBox::setDefaultButton(QPushButton *butt)
 
 void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 {
-    UpMessageBox*msgbox     = new UpMessageBox(parent);
+    UpMessageBox *msgbox     = new UpMessageBox(parent);
     msgbox  ->setText(Text);
     msgbox  ->setInformativeText(InfoText.toHtmlEscaped());
     msgbox  ->setIcon(UpMessageBox::Quest);

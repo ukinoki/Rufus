@@ -580,7 +580,7 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
     fileresize.close();
     if (QFileInfo(pathfile).absolutePath() != ProvPath)
         RemoveProvDir();
-    return szfinal <= szorigin;
+    return true;
 }
 
 /*!

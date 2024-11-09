@@ -208,8 +208,8 @@ void IOL::resetdatas()
     data[CP_ADDNEAR_IOLS]            = 0;
 
     data[CP_HOFFERQ_IOLS]            = 0;
-    data[CP_BARRETTLF_IOLS]           = 0;
-    data[CP_BARRETTDF_IOLS]           = 0;
+    data[CP_BARRETTLF_IOLS]          = 0;
+    data[CP_BARRETTDF_IOLS]          = 0;
     data[CP_OLSEN_IOLS]              = 0;
 
     data[CP_RESULTSU_IOLS]           = 0;
@@ -220,8 +220,8 @@ void IOL::resetdatas()
     data[CP_HAIGISA2U_IOLS]          = 0;
     data[CP_HOLL1U_IOLS]             = 0;
     data[CP_HOFFERQU_IOLS]           = 0;
-    data[CP_BARRETTLFU_IOLS]          = 0;
-    data[CP_BARRETTDFU_IOLS]          = 0;
+    data[CP_BARRETTLFU_IOLS]         = 0;
+    data[CP_BARRETTDFU_IOLS]         = 0;
     data[CP_OLSENU_IOLS]             = 0;
 
     data[CP_RESULTSO_IOLS]           = 0;
@@ -233,5 +233,6 @@ void IOL::resetdatas()
     data[CP_HOFFERQO_IOLS]           = 0;
 
     setData(data);
+    setimage();
 }
 

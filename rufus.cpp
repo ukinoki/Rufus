@@ -31,7 +31,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setStyleSheet(Styles::StyleAppli());
     QToolTip::setPalette(QPalette(Qt::yellow));
 
-
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
     switch (proc->ListeModesAcces().size()) {
