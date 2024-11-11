@@ -166,6 +166,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_hapticmateriaubox       ->setFixedWidth(180);
     wdg_hapticmateriaubox       ->addItems(listopticmaterials);
     wdg_typebox                 ->setEditable(false);
+    wdg_typebox                 ->setFocusPolicy(Qt::StrongFocus);
     wdg_typebox                 ->addItems(listtypes);
     wdg_typebox                 ->setFixedWidth(180);
     wdg_typebox                 ->setCurrentIndex(-1);
@@ -729,7 +730,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         wdg_toolbar     ->setEnabled(m_listeidIOLs.size()>1);
     }
     wdg_inactifchk              = new UpCheckBox(tr("Discontinué"));
-    wdg_inactifchk              ->setFocusPolicy(Qt::NoFocus);
     AjouteWidgetLayButtons(wdg_inactifchk, false);
 
     QWidget *wdg_global         = new QWidget;
@@ -787,14 +787,18 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
 
     QList <QWidget*> ListTab;
-    ListTab << wdg_manufacturercombo << wdg_nomiolline << wdg_Aecholine << wdg_Aoptline << wdg_holladayline
-            << wdg_haigisaline << wdg_haigisbline << wdg_haigiscline
-            << wdg_barrettDFline << wdg_barrettLFline
-            << wdg_hofferQline << wdg_olsenline
-            << wdg_diaht << wdg_diaoptique << wdg_diainjecteur
+    ListTab << wdg_manufacturercombo << wdg_nomiolline
+            << wdg_prechargechk << wdg_toricchk << wdg_jaunechk << wdg_edofchk << wdg_multifocalchk << wdg_addinterspin << wdg_addnearspin
+            << wdg_typebox << wdg_singlepiecechk << wdg_materiaubox << wdg_hapticmateriaubox
+            << wdg_diainjecteur << wdg_diaht << wdg_diaoptique
             << wdg_puissanceminspin << wdg_puissancemaxspin
-            << wdg_toricchk << wdg_cylindreminspin << wdg_cylindremaxspin
-            << wdg_prechargechk << wdg_jaunechk << wdg_multifocalchk << wdg_typebox << wdg_materiaubox << wdg_remarquetxt;
+            << wdg_toricchk2 << wdg_cylindreminspin << wdg_cylindremaxspin
+            << wdg_Aecholine << wdg_UAecholine << wdg_Aoptline << wdg_UAoptline << wdg_OAoptline << wdg_holladayline << wdg_Uholladayline << wdg_Oholladayline
+            << wdg_haigisaline << wdg_haigisbline << wdg_haigiscline << wdg_Uhaigisaline << wdg_Uhaigisbline << wdg_Uhaigiscline << wdg_Ohaigisaline << wdg_Ohaigisbline << wdg_Ohaigiscline
+            << wdg_barrettDFline << wdg_barrettLFline << wdg_UbarrettDFline << wdg_UbarrettLFline
+            << wdg_hofferQline << wdg_olsenline << wdg_UhofferQline << wdg_Uolsenline << wdg_OhofferQline
+            << wdg_UNbCasesline << wdg_ONbCasesline << wdg_inactifchk;
+
     for (int i = 0; i<ListTab.size()-1 ; i++ )
     {
         setTabOrder(ListTab.at(i), ListTab.at(i+1));
@@ -821,7 +825,10 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     {
         UpCheckBox *chk = qobject_cast<UpCheckBox*>(wdg);
         if (chk)
+        {
             chk->installEventFilter(this);
+            chk->setFocusPolicy(Qt::StrongFocus);
+        }
     }
 
     wdg_puissancemaxspin->installEventFilter(this);
@@ -836,6 +843,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     RecordButton->setEnabled(false);
     RecordButton->setText(tr("Enregistrer"));
     setStageCount(1);
+    wdg_prechargechk->setFocus();
 }
 
 bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
@@ -854,6 +862,12 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if ((keyEvent->key()==Qt::Key_Return  && keyEvent->modifiers() == Qt::NoModifier) || keyEvent->key() == Qt::Key_Enter)
             return QWidget::focusNextChild();
+        else if (keyEvent->key()==Qt::Key_Space)
+        {
+            UpCheckBox *chk = qobject_cast<UpCheckBox*>(obj);
+            if (chk)
+                emit chk->uptoggled(!chk->isChecked());
+        }
     }
     if(event->type()==QEvent::MouseButtonPress)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
@@ -1194,6 +1208,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
     wdg_nominalrb   ->setEnabled(nominalvalid);
     wdg_ulibrb      ->setEnabled(ulibvalid);
     wdg_optimizedrb ->setEnabled(optimizedvalid);
+    RecordButton->setEnabled(false);
     connectSignals();
 }
 
@@ -1233,6 +1248,7 @@ void dlg_identificationIOL::changeImage()
         setimage(img);
         m_listbinds[CP_ARRAYIMG_IOLS]       = ba;
         m_listbinds[CP_TYPIMG_IOLS]         = suffix;
+        RecordButton->setEnabled(true);
         EnableOKpushButton();
         /*! le code qui suit provoque une erreur.
          *  Quand la UpmessageBox est fermée, la fonction ModifIol() de dlg_listeiols s'interrompt et ne reprend qu'à la fermeture de la fiche dlg_listeiols appelante...
@@ -1518,6 +1534,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)
         DataBase::I()->UpDateIOL(m_currentIOL->id(), m_listbinds);
+    RecordButton->setEnabled(false);
 }
 
 void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
