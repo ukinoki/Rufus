@@ -130,6 +130,7 @@ private:
     UpLabel             *wdg_imgIOL;
     UpLabel             *wdg_HapticMateriaulbl;
     UpComboBox          *wdg_materiaubox        = new UpComboBox;
+    UpComboBox          *wdg_hydrofilybox       = new UpComboBox;
     UpComboBox          *wdg_hapticmateriaubox  = new UpComboBox;
     UpComboBox          *wdg_typebox            = new UpComboBox;
     UpTextEdit          *wdg_remarquetxt        = new UpTextEdit;

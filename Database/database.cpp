@@ -3237,8 +3237,8 @@ QJsonObject DataBase::IOLData(QVariantList ioldata)                     //! attr
     data[CP_HAIGISA2U_IOLS]         = ioldata.at(43).toDouble();
     data[CP_HOLL1U_IOLS]            = ioldata.at(44).toDouble();
     data[CP_HOFFERQU_IOLS]          = ioldata.at(45).toDouble();
-    data[CP_BARRETTLFU_IOLS]         = ioldata.at(46).toDouble();
-    data[CP_BARRETTDFU_IOLS]         = ioldata.at(47).toDouble();
+    data[CP_BARRETTLFU_IOLS]        = ioldata.at(46).toDouble();
+    data[CP_BARRETTDFU_IOLS]        = ioldata.at(47).toDouble();
     data[CP_OLSENU_IOLS]            = ioldata.at(48).toDouble();
     data[CP_RESULTSO_IOLS]          = ioldata.at(49).toInt();
     data[CP_CSTEAOPTO_IOLS]         = ioldata.at(50).toDouble();
@@ -3248,6 +3248,7 @@ QJsonObject DataBase::IOLData(QVariantList ioldata)                     //! attr
     data[CP_HOLL1O_IOLS]            = ioldata.at(54).toDouble();
     data[CP_HOFFERQO_IOLS]          = ioldata.at(55).toDouble();
     data[CP_CSTEAECHOU_IOLS]        = ioldata.at(56).toDouble();
+    data[CP_HYDROFILY_IOLS]         = ioldata.at(57).toString();
     return data;
 }
 
@@ -3269,7 +3270,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
                     CP_HOFFERQU_IOLS ", " CP_BARRETTLFU_IOLS ", " CP_BARRETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                 // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS  ", "                // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_CSTEAECHOU_IOLS                                                                                        // 55-56
+                    CP_HOFFERQO_IOLS ", " CP_CSTEAECHOU_IOLS ", " CP_HYDROFILY_IOLS                                                                 // 55-56-57
                     " FROM " TBL_IOLS
                     " order by " CP_IDMANUFACTURER_IOLS;
     //qDebug() << req;
@@ -3300,7 +3301,7 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
                     CP_HOFFERQU_IOLS ", " CP_BARRETTLFU_IOLS ", " CP_BARRETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                 // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS ", "                 // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_CSTEAECHOU_IOLS                                                                                        // 55-56
+                    CP_HOFFERQO_IOLS ", " CP_CSTEAECHOU_IOLS ", " CP_HYDROFILY_IOLS                                                                 // 55-56-57
                     " FROM " TBL_IOLS
                     " where " CP_IDMANUFACTURER_IOLS " = " + QString::number(id) +
                     " order by " CP_IDMANUFACTURER_IOLS;
@@ -3337,7 +3338,7 @@ QJsonObject DataBase::loadIOLdataById(int idiol)                   //! charge un
                     CP_CSTEAOPTU_IOLS ", " CP_HAIGISA0U_IOLS ", " CP_HAIGISA1U_IOLS ", " CP_HAIGISA2U_IOLS ", " CP_HOLL1U_IOLS ", "                 // 40-41-42-43-44
                     CP_HOFFERQU_IOLS ", " CP_BARRETTLFU_IOLS ", " CP_BARRETTDFU_IOLS ", " CP_OLSENU_IOLS ", " CP_RESULTSO_IOLS ", "                 // 46-47-48-49-50
                     CP_CSTEAOPTO_IOLS ", " CP_HAIGISA0O_IOLS ", " CP_HAIGISA1O_IOLS ", " CP_HAIGISA2O_IOLS ", " CP_HOLL1O_IOLS ", "                 // 50-51-52-53-54
-                    CP_HOFFERQO_IOLS ", " CP_CSTEAECHOU_IOLS                                                                                        // 55-56
+                    CP_HOFFERQO_IOLS ", " CP_CSTEAECHOU_IOLS ", " CP_HYDROFILY_IOLS                                                                 // 55-56-57
                     " FROM " TBL_IOLS
                     " WHERE " CP_ID_IOLS " = " + QString::number(idiol) ;
     //qDebug() << req;

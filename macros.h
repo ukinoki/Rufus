@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          79  // version de la base de données
+#define VERSION_BASE                          78  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
 
@@ -694,6 +694,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ARRAYIMG_IOLS                                "Image"
 #define CP_TYPIMG_IOLS                                  "TypeImage"
 #define CP_OPTICMATERIAU_IOLS                           "Materiau"
+#define CP_HYDROFILY_IOLS                               "Hydrophilie"
 #define CP_HAPTICMATERIAU_IOLS                          "HaptiqueMateriau"
 #define CP_SINGLEPIECE_IOLS                             "SinglePiece"
 #define CP_REMARQUE_IOLS                                "Remarque"

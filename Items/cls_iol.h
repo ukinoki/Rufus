@@ -53,7 +53,9 @@ private: //Données de l'intervention
 
     //! material
     QString m_opticmaterial = "";               //! le matériau de l'IOL
-            //!new
+        //!new
+    QString m_hydrofily     = "";               //! IOL hydrofily
+        //!new
     QString m_hapticmaterial= "";               //! le matériau des haptiques
             //!new
     bool m_singlepiece      = true;
@@ -172,6 +174,7 @@ public:
     QByteArray arrayimgiol() const              { return m_arrayimgiol; }
     QString imageformat() const                 { return m_imageformat; }
     QString opticalmaterial() const             { return m_opticmaterial; }
+    QString hydrofily() const                   { return m_hydrofily; }
     QString hapticalmaterial() const            { return m_hapticmaterial; }
     bool issinglepiece() const                  { return m_singlepiece; }
     QString remarque() const                    { return m_remarque; }
@@ -247,6 +250,7 @@ public:
     void setArrayImgiol(const QByteArray &imgiol)       { m_arrayimgiol = imgiol;               m_data[CP_ARRAYIMG_IOLS] = QLatin1String(imgiol.toBase64()); }
     void setimageformat(const QString &typeimage)       { m_imageformat = typeimage;            m_data[CP_TYPIMG_IOLS] = typeimage; }
     void setOpticalMaterial(const QString &material)    { m_opticmaterial = material;           m_data[CP_OPTICMATERIAU_IOLS] = material; }
+    void setHydrofily(const QString &hydrofily)         { m_hydrofily = hydrofily;              m_data[CP_HYDROFILY_IOLS] = hydrofily; }
     void setHapticalMaterial(const QString &material)   { m_hapticmaterial = material;          m_data[CP_HAPTICMATERIAU_IOLS] = material; }
     void setsinglepiece(bool &singlepiece)              { m_singlepiece = singlepiece;          m_data[CP_SINGLEPIECE_IOLS] = singlepiece; }
     void setRemarque(const QString &remarque)           { m_remarque = remarque;                m_data[CP_REMARQUE_IOLS] = remarque; }

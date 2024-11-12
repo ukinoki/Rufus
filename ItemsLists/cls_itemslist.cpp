@@ -960,6 +960,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setOpticalMaterial(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else if (field == CP_HYDROFILY_IOLS)
+            {
+                iol->setHydrofily(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
             else if (field == CP_HAPTICMATERIAU_IOLS)
             {
                 iol->setHapticalMaterial(newvalue.toString());

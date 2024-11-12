@@ -62,6 +62,7 @@ void IOL::setData(QJsonObject data)
     setDataString(data, CP_TYPIMG_IOLS, m_imageformat);
     setDataBool(data, CP_SINGLEPIECE_IOLS, m_singlepiece);
     setDataString(data, CP_OPTICMATERIAU_IOLS, m_opticmaterial);
+    setDataString(data, CP_HYDROFILY_IOLS, m_hydrofily);
     setDataString(data, CP_HAPTICMATERIAU_IOLS, m_hapticmaterial);
     setDataString(data, CP_REMARQUE_IOLS, m_remarque);
     setDataBool(data, CP_PRECHARGE_IOLS, m_preloaded);
@@ -134,14 +135,20 @@ QString IOL::tooltip(bool avecimage) const
         message += "<br>" + tr("diamètre hors tout") + " " + QString::number(m_diaall, 'f', 1) + " mm";
     if (m_diainjecteur != 0.0)
         message += "<br>" + tr("incision") + " " + QString::number(m_diainjecteur, 'f', 1) + " mm";
-    if (m_csteAEcho_nominal != 0.0)
-        message += "<br>" + tr("csteA echo") + " " + QString::number(m_csteAEcho_nominal, 'f', 1);
+    if (m_csteAopt_nominal != 0.0)
+        message += "<br>" + tr("csteA opt") + " " + QString::number(m_csteAopt_nominal, 'f', 1);
     if (m_singlepiece && m_opticmaterial != "")
+    {
         message += "<br>" + m_opticmaterial;
+        if (m_opticmaterial != "" && m_hydrofily != "")
+            message += " " + m_hydrofily;
+    }
     if (!m_singlepiece)
     {
         if (m_opticmaterial != "")
             message += "<br>" + tr("optique") + " " + m_opticmaterial;
+        if (m_opticmaterial != "" && m_hydrofily != "")
+            message += " " + m_hydrofily;
         if (m_hapticmaterial != "")
             message += "<br>" + tr("haptique") + " " + m_hapticmaterial;
     }
@@ -184,6 +191,7 @@ void IOL::resetdatas()
     data[CP_ARRAYIMG_IOLS]           = QLatin1String(QVariant().toByteArray().toBase64());
     data[CP_TYPIMG_IOLS]             = "";
     data[CP_OPTICMATERIAU_IOLS]      = "";
+    data[CP_HYDROFILY_IOLS]          = "";
     data[CP_REMARQUE_IOLS]           = "";
     data[CP_PRECHARGE_IOLS]          = false;
     data[CP_JAUNE_IOLS]              = false;

@@ -22,7 +22,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
 {
     m_onlyactifs = onlyactifs;
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowTitle(tr("Liste des IOLS -  source www.iolcon.org"));
+    setWindowTitle(tr("Liste des IOLS -  d'après www.iolcon.org"));
 
     wdg_itemstree = new QTreeView(this);
     wdg_itemstree ->setFixedWidth(320);
@@ -160,7 +160,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_singlepiecechk  ->installEventFilter(this);
     wdg_twopiecechk     ->installEventFilter(this);
 
-    PdfButton->setVisible(false); // this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
+    PdfButton->setVisible(false); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
@@ -457,6 +457,27 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
     }
     /*! fin mise à jour de la liste des fabricants */
 
+    /*! Mise à jour des materiaux */
+    for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
+    {
+        IOL *iol = const_cast<IOL*>(it.value());
+        QString optmaterial = Utils::trim(iol->opticalmaterial()).toLower();
+        QString Hydrof = Utils::trim(iol->hydrofily()).toLower();
+        if (optmaterial.split(" ").size()>1)
+        {
+            QString split = optmaterial;
+            Hydrof = split.split(" ").at(1).toLower();
+            optmaterial = split.split(" ").at(0).toLower();
+        }
+        if (optmaterial == "acrylic" || optmaterial == "hydrophobic")
+            optmaterial = tr("acrylique");
+        else if (optmaterial == "copolymer")
+            optmaterial = tr("copolymère");
+        ItemsList::update(iol, CP_OPTICMATERIAU_IOLS,optmaterial);
+        ItemsList::update(iol, CP_HYDROFILY_IOLS, Hydrof);
+    }
+    /*! fin mise à jour de la liste des materiaux */
+
     /*! Mise à jour de la liste des IOLs */
     int newiols = 0;
     int updateiols = 0;
@@ -475,6 +496,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 }
         }
     }
+    QStringList listitem;
     for (int i=0; i<xml.childNodes().size(); i++)
     {
         QDomElement childnode = xml.childNodes().at(i).toElement();
@@ -503,10 +525,32 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
 
                         }
                         else if (Specsnode.tagName() == "OpticMaterial")
-                            iol.setOpticalMaterial(Specsnode.text());
+                        {
+                            QString optmaterial = Specsnode.text();
+                            if (optmaterial == "acrylic")
+                                iol.setOpticalMaterial(tr("acrylique"));
+                            else if (optmaterial == "copolymer")
+                                iol.setOpticalMaterial(tr("copolymère"));
+                            else if (optmaterial == "silicone")
+                                iol.setOpticalMaterial(tr("silicone"));
+                            else
+                                iol.setOpticalMaterial(optmaterial);
+                            //if (!listitem.contains(Specsnode.text()))
+                            //    listitem << Specsnode.text();
+                        }
                         else if (Specsnode.tagName() == "HapticMaterial" && !iol.issinglepiece())
                         {
                             iol.setHapticalMaterial(Specsnode.text());
+                        }
+                        else if (Specsnode.tagName() == "Hydro")
+                        {
+                            QString Hydrofily = Specsnode.text();
+                            if (Hydrofily == "hydrophilic")
+                                iol.setHydrofily(tr("hydrophile"));
+                            else if (Hydrofily == "hydrophobic")
+                                iol.setHydrofily(tr("hydrophobe"));
+                            else
+                                iol.setHydrofily(Hydrofily);
                         }
                         else if (Specsnode.tagName() == "Preloaded")
                         {
@@ -830,11 +874,11 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
             int idx = iolbrandmodellist.indexOf(iol.stringid().toUpper() + " " + iol.modele().toUpper());
             if (idx > -1)
             {
-                /*! update existant iol */
+                //! update existant iol
                 IOL* iolfromlist = Datas::I()->iols->getById(iollistid.at(idx));
                 if (iolfromlist != Q_NULLPTR)
                 {
-                    /*! update existant iol */
+                    //! update existant iol
                     ItemsList::update(iolfromlist, CP_MODELNAME_IOLS,       iol.modele());
                     ItemsList::update(iolfromlist, CP_IDMANUFACTURER_IOLS,  man->id());
                     ItemsList::update(iolfromlist, CP_CSTEAECHO_IOLS,       iol.csteAEcho_nominal());
@@ -851,6 +895,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
 
                     ItemsList::update(iolfromlist, CP_ACD_IOLS,             iol.acd());
                     ItemsList::update(iolfromlist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
+                    ItemsList::update(iolfromlist, CP_HYDROFILY_IOLS,       iol.hydrofily());
                     ItemsList::update(iolfromlist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
                     ItemsList::update(iolfromlist, CP_DIAALL_IOLS,          iol.diaall());
                     ItemsList::update(iolfromlist, CP_DIAOPT_IOLS,          iol.opticdiameter());
@@ -892,7 +937,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                     ++ updateiols;
                 }
             }
-            else /*! newiol */
+            else //! newiol
             {
                 QHash<QString, QVariant> m_listbinds;
                 m_listbinds[CP_MODELNAME_IOLS]      = iol.modele();
@@ -911,6 +956,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
 
                 m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?                   iol.acd()                   : QVariant());
                 m_listbinds[CP_OPTICMATERIAU_IOLS]  = iol.opticalmaterial();
+                m_listbinds[CP_HYDROFILY_IOLS]      = iol.hydrofily();
                 m_listbinds[CP_HAPTICMATERIAU_IOLS] = iol.hapticalmaterial();
                 m_listbinds[CP_DIAALL_IOLS]         = (iol.diaall() >0.0?               iol.diaall()                : QVariant());
                 m_listbinds[CP_DIAOPT_IOLS]         = (iol.opticdiameter() >0.0?        iol.opticdiameter()         : QVariant());
@@ -952,8 +998,9 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 ++newiols;
             }
         }
-
     }
+    //for (int i = 0; i<listitem.size();++i)
+    //    qDebug()<<listitem.at(i);
     /*! fin mise à jour de la liste des IOLs */
     QString totaliol = QString::number(Datas::I()->iols->iols()->size());
     QString msg = "Aucun implant n'a été rajouté à la base";
@@ -1314,7 +1361,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                                                                                                             if (iol)
                                                                                                             {
                                                                                                                 resizeiolimage(iol);
-                                                                                                                QToolTip::showText(cursor().pos(), iol->tooltip());
+                                                                                                                int i = 100;
+                                                                                                                QToolTip::showText(cursor().pos(), iol->tooltip(), this, QRect(cursor().pos(),QSize(i,i)), 5000);
                                                                                                             }
                                                                                                         }
                                                                                                     } );
