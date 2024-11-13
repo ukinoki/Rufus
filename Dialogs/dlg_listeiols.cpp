@@ -73,7 +73,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     colorlay                    ->setContentsMargins(0,0,0,0);
     colorlay                    ->setSpacing(20);
     wdg_singlepiecechk          = new UpCheckBox(tr("Monobloc"));
-    wdg_twopiecechk             = new UpCheckBox(tr("Anses rapportée"));
+    wdg_twopiecechk             = new UpCheckBox(tr("Anses rapportées"));
     QHBoxLayout *singlepiecelay = new QHBoxLayout();
     singlepiecelay              ->addWidget(wdg_singlepiecechk);
     singlepiecelay              ->addWidget(wdg_twopiecechk);
@@ -160,7 +160,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_singlepiecechk  ->installEventFilter(this);
     wdg_twopiecechk     ->installEventFilter(this);
 
-    PdfButton->setVisible(false); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
+    PdfButton->setVisible(true); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
@@ -457,7 +457,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
     }
     /*! fin mise à jour de la liste des fabricants */
 
-    /*! Mise à jour des materiaux */
+    /*! Mise à jour des IOLS */
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
         IOL *iol = const_cast<IOL*>(it.value());
@@ -469,14 +469,21 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
             Hydrof = split.split(" ").at(1).toLower();
             optmaterial = split.split(" ").at(0).toLower();
         }
-        if (optmaterial == "acrylic" || optmaterial == "hydrophobic")
+        if (optmaterial == "acrylic" || optmaterial == "hydrophobic")
             optmaterial = tr("acrylique");
         else if (optmaterial == "copolymer")
             optmaterial = tr("copolymère");
         ItemsList::update(iol, CP_OPTICMATERIAU_IOLS,optmaterial);
         ItemsList::update(iol, CP_HYDROFILY_IOLS, Hydrof);
+        if (!iol->isedof() && !iol->ismultifocal())
+        {
+            if(iol->addnear() > 0)
+                ItemsList::update(iol, CP_ADDNEAR_IOLS, 0.0);
+            if(iol->addintermediate() > 0)
+                ItemsList::update(iol, CP_ADDINTERMEDIATE_IOLS, 0.0);
+        }
     }
-    /*! fin mise à jour de la liste des materiaux */
+    /*! fin mise à jour de la liste des IOLs */
 
     /*! Mise à jour de la liste des IOLs */
     int newiols = 0;

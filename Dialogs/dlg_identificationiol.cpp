@@ -841,8 +841,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
 
     connectSignals();
 
-    if (m_mode == Modification)
-        AfficheDatasIOL(m_currentIOL);
     foreach (QWidget *wdg, findChildren<QWidget*>())        //! ce micmac sert a créé une émission du signal uptoggled seulement si le checkbox est coché/décoché par l'utilisateur pas s'il est coché/décoché par le programme
     {
         UpCheckBox *chk = qobject_cast<UpCheckBox*>(wdg);
@@ -866,6 +864,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     RecordButton->setText(tr("Enregistrer"));
     setStageCount(1);
     wdg_prechargechk->setFocus();
+    AfficheDatasIOL(m_currentIOL);
 }
 
 bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
@@ -1079,15 +1078,10 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 {
     m_listbinds[CP_ARRAYIMG_IOLS] = QVariant();
     m_listbinds[CP_TYPIMG_IOLS] = "";
-    if (iol == Q_NULLPTR)
-        return;
     disconnectSignals();
-    m_currentIOL = iol;
-    bool nominalvalid = (m_currentIOL->csteAEcho_nominal() > 0 || m_currentIOL->csteAopt_nominal() > 0);
-    bool ulibvalid = (m_currentIOL->results_ulib() > 0);
-    bool optimizedvalid = (m_currentIOL->results_optimized() > 0);
-    if (m_currentmanufacturer)
-        wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
+    bool nominalvalid = true;
+    bool ulibvalid = true;
+    bool optimizedvalid = true;
     if (wdg_toolbar)
         wdg_toolbar         ->setEnabled(true);
     if (wdg_recopiebutton)
@@ -1095,6 +1089,12 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 
     if (m_mode == Modification)        
     {
+        m_currentIOL = iol;
+        nominalvalid = (m_currentIOL->csteAEcho_nominal() > 0 || m_currentIOL->csteAopt_nominal() > 0);
+        ulibvalid = (m_currentIOL->results_ulib() > 0);
+        optimizedvalid = (m_currentIOL->results_optimized() > 0);
+        if (m_currentmanufacturer)
+            wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
         wdg_ulibrb      ->setText("ulib (" + QString::number(m_currentIOL->results_ulib()) + ")");
         wdg_optimizedrb ->setText("iolcon optim. (" + QString::number(m_currentIOL->results_optimized()) + ")");
         if (nominalvalid)
@@ -1107,6 +1107,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             switchDisplayConstant(None);
 
         wdg_nomiolline      ->setText(m_currentIOL->modele());
+        wdg_modifButton     ->setVisible(true);
         double n = m_currentIOL->csteAopt_nominal();
             wdg_Aoptline        ->setText(n != 0.0? QLocale().toString(n, 'f', 2) : "");
         n = m_currentIOL->csteAEcho_nominal();
@@ -1229,6 +1230,29 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_toolbar->Next()     ->setEnabled(idx < m_listeidIOLs.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < m_listeidIOLs.size()-1);
     }
+    else if (m_mode == Creation)
+    {
+        wdg_manufacturercombo   ->setCurrentIndex(-1);
+        wdg_ulibrb              ->setText("ulib (0)");
+        wdg_optimizedrb         ->setText("iolcon optim. (0)");
+        wdg_modifButton         ->setVisible(false);
+
+        int n = 0;
+        wdg_UNbCasesline        ->setText(QString::number(n));
+        wdg_ONbCasesline        ->setText(QString::number(n));
+
+        wdg_addnearspin         ->setVisible(false);
+        wdg_addinterspin        ->setVisible(false);
+        wdg_addnearlbl          ->setVisible(false);
+        wdg_addinterlbl         ->setVisible(false);
+        wdg_cylindremaxspin     ->setVisible(false);
+        wdg_cylindreminspin     ->setVisible(false);
+        setimage(m_nullimage);
+        switchDisplayConstant(Nominal);
+        EnableWidget(true);
+        wdg_toolbar             ->setVisible(false);
+    }
+
     wdg_nominalrb   ->setEnabled(nominalvalid);
     wdg_ulibrb      ->setEnabled(ulibvalid);
     wdg_optimizedrb ->setEnabled(optimizedvalid);
@@ -1297,95 +1321,37 @@ void dlg_identificationIOL::supprimeImage()
 
 void dlg_identificationIOL::switchDisplayConstant(TypeConstant typcst)
 {
-    switch (typcst) {
-    case Nominal:
-        wdg_CsteAEcho           ->setVisible(true);
-        wdg_nominalCsteAEcho    ->setVisible(true);
-        wdg_ulibCsteAEcho       ->setVisible(false);
-        wdg_nominalCsteA        ->setVisible(true);
-        wdg_ulibCsteA           ->setVisible(false);
-        wdg_optimizedCsteA      ->setVisible(false);
-        wdg_nominalhaigis       ->setVisible(true);
-        wdg_ulibhaigis          ->setVisible(false);
-        wdg_optimizedhaigis     ->setVisible(false);
-        wdg_nominalbarrett      ->setVisible(true);
-        wdg_ulibbarrett         ->setVisible(false);
-        wdg_nominalhofferq      ->setVisible(true);
-        wdg_ulibhofferq         ->setVisible(false);
-        wdg_optimizedhofferq    ->setVisible(false);
-        wdg_ulibnbcases         ->setVisible(false);
-        wdg_optimizednbcases    ->setVisible(false);
-        wdg_ulibrb              ->setChecked(false);
-        wdg_nominalrb           ->setChecked(true);
-        wdg_optimizedrb         ->setChecked(false);
-        break;
-    case Ulib:
-        wdg_CsteAEcho           ->setVisible(true);
-        wdg_nominalCsteAEcho    ->setVisible(false);
-        wdg_ulibCsteAEcho       ->setVisible(true);
-        wdg_nominalCsteA        ->setVisible(false);
-        wdg_ulibCsteA           ->setVisible(true);
-        wdg_optimizedCsteA      ->setVisible(false);
-        wdg_nominalhaigis       ->setVisible(false);
-        wdg_ulibhaigis          ->setVisible(true);
-        wdg_optimizedhaigis     ->setVisible(false);
-        wdg_nominalbarrett      ->setVisible(false);
-        wdg_ulibbarrett         ->setVisible(true);
-        wdg_nominalhofferq      ->setVisible(false);
-        wdg_ulibhofferq         ->setVisible(true);
-        wdg_optimizedhofferq    ->setVisible(false);
-        wdg_ulibnbcases         ->setVisible(true);
-        wdg_optimizednbcases    ->setVisible(false);
-        wdg_nominalrb           ->setChecked(false);
-        wdg_ulibrb              ->setChecked(true);
-        wdg_optimizedrb         ->setChecked(false);
-        break;
-    case Optimized:
-        wdg_CsteAEcho           ->setVisible(false);
-        wdg_nominalCsteAEcho    ->setVisible(false);
-        wdg_ulibCsteAEcho       ->setVisible(false);
-        wdg_nominalCsteA        ->setVisible(false);
-        wdg_ulibCsteA           ->setVisible(false);
-        wdg_optimizedCsteA      ->setVisible(true);
-        wdg_nominalhaigis       ->setVisible(false);
-        wdg_ulibhaigis          ->setVisible(false);
-        wdg_optimizedhaigis     ->setVisible(true);
-        wdg_nominalbarrett      ->setVisible(false);
-        wdg_ulibbarrett         ->setVisible(false);
-        wdg_nominalhofferq      ->setVisible(false);
-        wdg_ulibhofferq         ->setVisible(false);
-        wdg_optimizedhofferq    ->setVisible(true);
-        wdg_ulibnbcases         ->setVisible(false);
-        wdg_optimizednbcases    ->setVisible(true);
-        wdg_nominalrb           ->setChecked(false);
-        wdg_ulibrb              ->setChecked(false);
-        wdg_optimizedrb         ->setChecked(true);
-        break;
-    case None:
-        wdg_nominalCsteAEcho    ->setVisible(false);
-        wdg_ulibCsteAEcho       ->setVisible(false);
-        wdg_nominalCsteA        ->setVisible(false);
-        wdg_ulibCsteA           ->setVisible(false);
-        wdg_optimizedCsteA      ->setVisible(false);
-        wdg_nominalhaigis       ->setVisible(false);
-        wdg_ulibhaigis          ->setVisible(false);
-        wdg_optimizedhaigis     ->setVisible(false);
-        wdg_nominalbarrett      ->setVisible(false);
-        wdg_ulibbarrett         ->setVisible(false);
-        wdg_nominalhofferq      ->setVisible(false);
-        wdg_ulibhofferq         ->setVisible(false);
-        wdg_optimizedhofferq    ->setVisible(false);
-        wdg_ulibnbcases         ->setVisible(false);
-        wdg_optimizednbcases    ->setVisible(false);
-        wdg_nominalrb           ->setChecked(false);
-        wdg_nominalrb           ->setChecked(false);
-        wdg_ulibrb              ->setChecked(false);
-        wdg_optimizedrb         ->setChecked(false);
-        break;
+        wdg_nominalCsteAEcho    ->setVisible(typcst == Nominal);
+        wdg_ulibCsteAEcho       ->setVisible(typcst == Ulib);
+
+        wdg_nominalCsteA        ->setVisible(typcst == Nominal);
+        wdg_ulibCsteA           ->setVisible(typcst == Ulib);
+        wdg_optimizedCsteA      ->setVisible(typcst == Optimized);
+
+        wdg_nominalhaigis       ->setVisible(typcst == Nominal);
+        wdg_ulibhaigis          ->setVisible(typcst == Ulib);
+        wdg_optimizedhaigis     ->setVisible(typcst == Optimized);
+
+        wdg_nominalbarrett      ->setVisible(typcst == Nominal);
+        wdg_ulibbarrett         ->setVisible(typcst == Ulib);
+        wdg_nominalhofferq      ->setVisible(typcst == Nominal);
+        wdg_ulibhofferq         ->setVisible(typcst == Ulib);
+        wdg_optimizedhofferq    ->setVisible(typcst == Optimized);
+        wdg_ulibnbcases         ->setVisible(typcst == Ulib);
+        wdg_optimizednbcases    ->setVisible(typcst == Optimized);
+        wdg_ulibrb              ->setChecked(typcst == Ulib);
+        wdg_nominalrb           ->setChecked(typcst == Nominal);
+        wdg_optimizedrb         ->setChecked(typcst == Optimized);
+
+    bool nominalvalid = true;
+    bool ulibvalid = true;
+    bool optimizedvalid = true;
+    if (m_currentIOL)
+    {
+        nominalvalid   = (m_currentIOL->csteAEcho_nominal() > 0 || m_currentIOL->csteAopt_nominal() > 0);
+        ulibvalid      = (m_currentIOL->results_ulib() > 0);
+        optimizedvalid = (m_currentIOL->results_optimized() > 0);
     }
-    bool nominalvalid   = (m_currentIOL->csteAEcho_nominal() > 0 || m_currentIOL->csteAopt_nominal() > 0);
-    bool ulibvalid      = (m_currentIOL->results_ulib() > 0);
-    bool optimizedvalid = (m_currentIOL->results_optimized() > 0);
     wdg_nominalrb       ->setEnabled(nominalvalid);
     wdg_ulibrb          ->setEnabled(ulibvalid);
     wdg_optimizedrb     ->setEnabled(optimizedvalid);
@@ -1502,7 +1468,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
             });
             return;
         }
-     }
+    }
 
     m_listbinds[CP_MODELNAME_IOLS]      = wdg_nomiolline->text();
     m_listbinds[CP_IDMANUFACTURER_IOLS] = m_currentmanufacturer->id();
@@ -1558,7 +1524,10 @@ void dlg_identificationIOL::OKpushButtonClicked()
     if (m_mode == Creation)
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)
+    {
         DataBase::I()->UpDateIOL(m_currentIOL->id(), m_listbinds);
+        Datas::I()->iols->getById(m_currentIOL->id(), true);
+    }
     RecordButton->setEnabled(false);
 }
 
@@ -1599,5 +1568,6 @@ void dlg_identificationIOL::setimage(QImage img)
 {
     wdg_imgIOL   ->setPixmap(QPixmap::fromImage(img.scaled(wdg_imgIOL->width(),wdg_imgIOL->height(), Qt::KeepAspectRatio)));
     m_currentIOLimage = img;
-    m_currentIOL->setimage(img);
+    if (m_currentIOL)
+        m_currentIOL->setimage(img);
 }
