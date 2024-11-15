@@ -130,30 +130,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     edofmfocLay                 ->setContentsMargins(0,0,0,0);
 
     //! Materiau - Image recopie
-    QHBoxLayout *MateriauImgLay = new QHBoxLayout();
-    QHBoxLayout *MateriaulblLay = new QHBoxLayout();
-    QHBoxLayout *MateriauboxLay = new QHBoxLayout();
-    UpLabel* Materiaulbl        = new UpLabel;
-    UpLabel* Hydrofilylbl       = new UpLabel;
-    wdg_HapticMateriaulbl       = new UpLabel;
-    UpLabel* Typelbl            = new UpLabel;
-    Materiaulbl                 ->setText(tr("Materiau"));
-    Hydrofilylbl                ->setText(tr("Hydrophilie"));
-    Materiaulbl                 ->setFixedWidth(105);
-    Hydrofilylbl                ->setFixedWidth(105);
-    wdg_HapticMateriaulbl       ->setText(tr("Haptique"));
-    QHBoxLayout *TypeLay        = new QHBoxLayout();
-    Typelbl                     ->setText(tr("Type"));
-    wdg_imgIOL                  = new UpLabel;
-    wdg_imgIOL                  ->setFixedSize(180,180);
-    wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    wdg_materiaubox             ->setEditable(false);
-    wdg_materiaubox             ->setFixedWidth(105);
-    wdg_hydrofilybox            ->setEditable(false);
-    wdg_hydrofilybox            ->setFixedWidth(105);
     QStringList listopticmaterials, listhapticmaterials, listhydrofily, listtypes;
-    listhydrofily << "";
     for (auto it = Datas::I()->iols->iols()->begin(); it != Datas::I()->iols->iols()->end(); ++it)
     {
         IOL* iol = Datas::I()->iols->getById(it.key());
@@ -169,41 +146,66 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
 
     }
     listtypes << IOL_CP << IOL_CA << IOL_ADDON << IOL_IRIEN << IOL_CAREFRACTIF << IOL_AUTRE;
+    listhydrofily << "";
 
-    wdg_materiaubox             ->addItems(listopticmaterials);
-    wdg_hydrofilybox            ->addItems(listhydrofily);
-    wdg_hapticmateriaubox       ->setEditable(true);
-    wdg_hapticmateriaubox       ->lineEdit()->setMaxLength(45);
-    wdg_hapticmateriaubox       ->setFixedWidth(180);
-    wdg_hapticmateriaubox       ->addItems(listhapticmaterials);
+    QHBoxLayout *TypeLay        = new QHBoxLayout();
+    UpLabel* Typelbl            = new UpLabel;
+    Typelbl                     ->setText(tr("Type"));
+    TypeLay                     ->insertWidget(0,wdg_typebox);
+    TypeLay                     ->insertWidget(0,Typelbl);
     wdg_typebox                 ->setEditable(false);
     wdg_typebox                 ->setFocusPolicy(Qt::StrongFocus);
     wdg_typebox                 ->addItems(listtypes);
     wdg_typebox                 ->setFixedWidth(180);
     wdg_typebox                 ->setCurrentIndex(-1);
-    wdg_materiaubox             ->setCurrentIndex(-1);
-    wdg_hydrofilybox            ->setCurrentIndex(-1);
-    wdg_hapticmateriaubox       ->setCurrentIndex(-1);
+    wdg_imgIOL                  = new UpLabel;
+    wdg_imgIOL                  ->setFixedSize(160,180);
+    wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
 
-
+    QHBoxLayout *MateriaulblLay = new QHBoxLayout();
+    UpLabel* Materiaulbl        = new UpLabel;
+    Materiaulbl                 ->setText(tr("Materiau"));
+    Materiaulbl                 ->setFixedWidth(115);
+    UpLabel* Hydrofilylbl       = new UpLabel;
+    Hydrofilylbl                ->setText(tr("Hydrophilie"));
+    Hydrofilylbl                ->setFixedWidth(115);
     MateriaulblLay              ->insertWidget(0,Hydrofilylbl);
     MateriaulblLay              ->insertWidget(0,Materiaulbl);
+    MateriaulblLay              ->setContentsMargins(0,0,0,0);
+    MateriaulblLay              ->setSpacing(spacing);
+
+    QHBoxLayout *MateriauboxLay = new QHBoxLayout();
+    wdg_materiaubox             ->setEditable(false);
+    wdg_materiaubox             ->setFixedWidth(115);
+    wdg_materiaubox             ->addItems(listopticmaterials);
+    wdg_materiaubox             ->setCurrentIndex(-1);
+    wdg_hydrofilybox            ->setEditable(false);
+    wdg_hydrofilybox            ->setFixedWidth(115);
+    wdg_hydrofilybox            ->addItems(listhydrofily);
+    wdg_hydrofilybox            ->setCurrentIndex(-1);
     MateriauboxLay              ->insertWidget(0,wdg_hydrofilybox);
     MateriauboxLay              ->insertWidget(0,wdg_materiaubox);
     MateriauboxLay              ->setContentsMargins(0,0,0,0);
-    MateriaulblLay              ->setContentsMargins(0,0,0,0);
     MateriauboxLay              ->setSpacing(spacing);
-    MateriaulblLay              ->setSpacing(spacing);
+
+    wdg_HapticMateriaulbl       ->setText(tr("Haptique"));
+    wdg_hapticmateriaubox       ->setEditable(true);
+
+    wdg_hapticmateriaubox       ->lineEdit()->setMaxLength(45);
+    wdg_hapticmateriaubox       ->setFixedWidth(180);
+    wdg_hapticmateriaubox       ->addItems(listhapticmaterials);
+    wdg_hapticmateriaubox       ->setCurrentIndex(-1);
+
     lay_materiau                ->insertWidget(0,wdg_hapticmateriaubox);
     lay_materiau                ->insertWidget(0,wdg_HapticMateriaulbl);
     lay_materiau                ->insertLayout(0,MateriauboxLay);
     lay_materiau                ->insertLayout(0,MateriaulblLay);
     lay_materiau                ->insertWidget(0,wdg_singlepiecechk);
-    TypeLay                     ->insertWidget(0,wdg_typebox);
-    TypeLay                     ->insertWidget(0,Typelbl);
     lay_materiau                ->insertLayout(0,TypeLay);
     lay_materiau                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     lay_materiau                ->setContentsMargins(0,0,0,0);
+
+    QHBoxLayout *MateriauImgLay = new QHBoxLayout();
     MateriauImgLay              ->addLayout(lay_materiau);
     MateriauImgLay              ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     MateriauImgLay              ->addWidget(wdg_imgIOL);
@@ -862,6 +864,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     CancelButton->setText(tr("Annuler"));
     RecordButton->setEnabled(false);
     RecordButton->setText(tr("Enregistrer"));
+    RecordButton->setVisible(m_mode == Modification);
     setStageCount(1);
     wdg_prechargechk->setFocus();
     AfficheDatasIOL(m_currentIOL);
@@ -1292,7 +1295,6 @@ void dlg_identificationIOL::changeImage()
         QImage      img;
         img                                 = (suffix == PDF? Utils::calcImagefromPdf(ba).at(0) : QImage(path_file_origin));
         file_origin                         .close();
-
         setimage(img);
         m_listbinds[CP_ARRAYIMG_IOLS]       = ba;
         m_listbinds[CP_TYPIMG_IOLS]         = suffix;
@@ -1513,14 +1515,14 @@ void dlg_identificationIOL::OKpushButtonClicked()
     m_listbinds[CP_BARRETTDFU_IOLS]     = (QLocale().toDouble(wdg_UbarrettDFline->text()) != 0.0?   QLocale().toDouble(wdg_UbarrettDFline->text())  : QVariant());
     m_listbinds[CP_BARRETTLFU_IOLS]     = (QLocale().toDouble(wdg_UbarrettLFline->text()) != 0.0?   QLocale().toDouble(wdg_UbarrettLFline->text())  : QVariant());
     m_listbinds[CP_OLSENU_IOLS]         = (QLocale().toDouble(wdg_Uolsenline->text()) != 0.0?       QLocale().toDouble(wdg_Uolsenline->text())      : QVariant());
-    m_listbinds[CP_RESULTSO_IOLS]       = wdg_UNbCasesline->text().toInt();
+    m_listbinds[CP_RESULTSU_IOLS]       = wdg_UNbCasesline->text().toInt();
 
     m_listbinds[CP_CSTEAOPTO_IOLS]      = (QLocale().toDouble(wdg_OAoptline->text()) != 0.0?        QLocale().toDouble(wdg_OAoptline->text())       : QVariant());
     m_listbinds[CP_HAIGISA0O_IOLS]      = (QLocale().toDouble(wdg_Ohaigisaline->text()) != 0.0?     QLocale().toDouble(wdg_Ohaigisaline->text())    : QVariant());
     m_listbinds[CP_HAIGISA1O_IOLS]      = (QLocale().toDouble(wdg_Ohaigisbline->text()) != 0.0?     QLocale().toDouble(wdg_Ohaigisbline->text())    : QVariant());
     m_listbinds[CP_HAIGISA2O_IOLS]      = (QLocale().toDouble(wdg_Ohaigiscline->text()) != 0.0?     QLocale().toDouble(wdg_Ohaigiscline->text())    : QVariant());
     m_listbinds[CP_HOFFERQO_IOLS]       = (QLocale().toDouble(wdg_OhofferQline->text()) != 0.0?     QLocale().toDouble(wdg_OhofferQline->text())    : QVariant());
-    m_listbinds[CP_RESULTSU_IOLS]       = wdg_ONbCasesline->text().toInt();
+    m_listbinds[CP_RESULTSO_IOLS]       = wdg_ONbCasesline->text().toInt();
     if (m_mode == Creation)
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)

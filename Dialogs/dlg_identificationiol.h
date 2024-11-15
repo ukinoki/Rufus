@@ -128,7 +128,8 @@ private:
     UpLineEdit          *wdg_diaht;
     UpLineEdit          *wdg_diainjecteur;
     UpLabel             *wdg_imgIOL;
-    UpLabel             *wdg_HapticMateriaulbl;
+    UpLabel             *wdg_HapticMateriaulbl  = new UpLabel;
+
     UpComboBox          *wdg_materiaubox        = new UpComboBox;
     UpComboBox          *wdg_hydrofilybox       = new UpComboBox;
     UpComboBox          *wdg_hapticmateriaubox  = new UpComboBox;
