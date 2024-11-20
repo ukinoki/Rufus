@@ -7880,7 +7880,7 @@
 		<Manufacturer>Bausch + Lomb</Manufacturer>
 		<Name>Akreos Adapt</Name>
 		<Specifications>
-			<SinglePiece>no</SinglePiece>
+			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
 			<HapticMaterial></HapticMaterial>
 			<Preloaded></Preloaded>
@@ -7945,7 +7945,7 @@
 		<Manufacturer>Bausch + Lomb</Manufacturer>
 		<Name>Akreos Adapt AO</Name>
 		<Specifications>
-			<SinglePiece></SinglePiece>
+			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
 			<HapticMaterial></HapticMaterial>
 			<Preloaded></Preloaded>
@@ -8605,7 +8605,7 @@
 		<Manufacturer>Bausch + Lomb</Manufacturer>
 		<Name>EyeCee One CRYSTAL Preloaded</Name>
 		<Specifications>
-			<SinglePiece>no</SinglePiece>
+			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
 			<HapticMaterial></HapticMaterial>
 			<Preloaded>no</Preloaded>
@@ -8675,7 +8675,7 @@
 		<Manufacturer>Bausch + Lomb</Manufacturer>
 		<Name>EyeCee One Preloaded</Name>
 		<Specifications>
-			<SinglePiece>no</SinglePiece>
+			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
 			<HapticMaterial></HapticMaterial>
 			<Preloaded>no</Preloaded>
@@ -26968,176 +26968,6 @@
 			<Holladay1>2.01</Holladay1>
 			<Barrett>
 				<LF></LF>
-				<DF></DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1809">
-		<Manufacturer>Medicontur</Manufacturer>
-		<Name>Bi-Flex 677 TA</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>2.2</IncisionWidth>
-			<InjectorSize>2.2</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>clear</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>13</HapticDiameter>
-			<OpticConcept>monofocal</OpticConcept>
-			<HapticDesign>C loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>neutral</Aberration>
-			<saCorrection></saCorrection>
-			<Toric>yes</Toric>
-		</Specifications>
-		<Availability refractivePower="spherical equivalent" tNotation="no">
-			<Sphere range="1">
-				<From>10</From>
-				<To>30</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Sphere range="2">
-				<From>-10</From>
-				<To>9</To>
-				<Increment>1</Increment>
-			</Sphere>
-			<Sphere range="3">
-				<From>31</From>
-				<To>35</To>
-				<Increment>1</Increment>
-			</Sphere>
-			<Cylinder range="1">
-				<From>1</From>
-				<To>1.5</To>
-				<Increment>0.5</Increment>
-			</Cylinder>
-			<Cylinder range="2">
-				<From>1.5</From>
-				<To>9</To>
-				<Increment>0.75</Increment>
-			</Cylinder>
-			<Cylinder range="3">
-				<From>10</From>
-				<To>11</To>
-				<Increment>1</Increment>
-			</Cylinder>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.9</Ultrasound>
-			<SRKt>118.828</SRKt>
-			<Haigis>
-				<a0>0.19</a0>
-				<a1>0.192</a1>
-				<a2>0.173</a2>
-			</Haigis>
-			<HofferQ>5.431</HofferQ>
-			<Holladay1>1.682</Holladay1>
-			<Barrett>
-				<LF>1.79</LF>
-				<DF></DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1810">
-		<Manufacturer>Medicontur</Manufacturer>
-		<Name>Bi-Flex 677 TAY</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>2.2</IncisionWidth>
-			<InjectorSize>2.2</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>13</HapticDiameter>
-			<OpticConcept>monofocal</OpticConcept>
-			<HapticDesign>C loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>neutral</Aberration>
-			<saCorrection>0</saCorrection>
-			<Toric>yes</Toric>
-		</Specifications>
-		<Availability refractivePower="spherical equivalent" tNotation="no">
-			<Sphere range="1">
-				<From>10</From>
-				<To>30</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Sphere range="2">
-				<From>-10</From>
-				<To>9</To>
-				<Increment>1</Increment>
-			</Sphere>
-			<Sphere range="3">
-				<From>31</From>
-				<To>35</To>
-				<Increment>1</Increment>
-			</Sphere>
-			<Cylinder range="1">
-				<From>1</From>
-				<To>1.5</To>
-				<Increment>0.5</Increment>
-			</Cylinder>
-			<Cylinder range="2">
-				<From>1.5</From>
-				<To>9</To>
-				<Increment>0.75</Increment>
-			</Cylinder>
-			<Cylinder range="3">
-				<From>9</From>
-				<To>11</To>
-				<Increment>1</Increment>
-			</Cylinder>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.9</Ultrasound>
-			<SRKt>118.828</SRKt>
-			<Haigis>
-				<a0>0.19</a0>
-				<a1>0.192</a1>
-				<a2>0.173</a2>
-			</Haigis>
-			<HofferQ>5.431</HofferQ>
-			<Holladay1>1.682</Holladay1>
-			<Barrett>
-				<LF>1.79</LF>
 				<DF></DF>
 			</Barrett>
 			<Olsen></Olsen>

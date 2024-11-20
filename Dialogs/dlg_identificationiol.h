@@ -124,10 +124,10 @@ private:
     UpLineEdit          *wdg_Ohaigiscline       = new UpLineEdit;
     UpLineEdit          *wdg_OhofferQline       = new UpLineEdit;
 
-    UpLineEdit          *wdg_diaoptique;
-    UpLineEdit          *wdg_diaht;
-    UpLineEdit          *wdg_diainjecteur;
-    UpLabel             *wdg_imgIOL;
+    UpLineEdit          *wdg_diaoptique         = new UpLineEdit;
+    UpLineEdit          *wdg_diaht              = new UpLineEdit;
+    UpLineEdit          *wdg_diainjecteur       = new UpLineEdit;
+    UpLabel             *wdg_imgIOL             = new UpLabel;
     UpLabel             *wdg_HapticMateriaulbl  = new UpLabel;
 
     UpComboBox          *wdg_materiaubox        = new UpComboBox;
@@ -145,7 +145,7 @@ private:
     UpCheckBox          *wdg_toricchk           = new UpCheckBox(tr("Torique"));
     UpCheckBox          *wdg_toricchk2          = new UpCheckBox(tr("Torique"));
     UpCheckBox          *wdg_singlepiecechk     = new UpCheckBox(tr("Monobloc"));
-    QWidget             *wdg_cylindres;
+    QWidget             *wdg_cylindres          = new QWidget;
     QVBoxLayout         *lay_materiau           = new QVBoxLayout();
 
     bool                eventFilter(QObject *obj, QEvent *event);
@@ -158,10 +158,14 @@ private:
     void                EnableOKpushButton();
     void                EnableWidget(bool a);
     void                NavigueVers(UpToolBar::Choix choix);
-    void                OKpushButtonClicked();
+    bool                EnregistreIOL();
     void                reconstruitListeIOLs(Manufacturer *man);
     void                setimage(QImage img);
     void                supprimeImage();
+
+    QWidget*            VerifCstesANominal();
+    QWidget*            VerifCstesAUlib();
+    QWidget*            VerifCstesAOptimized();
 
     QString             m_stylesheet = "color:rgb(164, 205, 255); margin:5px";
 };

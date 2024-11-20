@@ -218,8 +218,8 @@ public:
     void setHaigisa2_nominal(double haigisa2)           { m_haigisa2_nominal = haigisa2;        m_data[CP_HAIGISA2_IOLS] = haigisa2; }
     void setHolladay1_nominal(double holladay1)         { m_holladay1_nominal = holladay1;      m_data[CP_HOLL1_IOLS] = holladay1; }
     void setHofferQ_nominal(double hofferq)             { m_hofferq_nominal = hofferq;          m_data[CP_HOFFERQ_IOLS] = hofferq; }
-    void setBarrettLF_nominal(double barrettlf)         { m_barrettlf_nominal = barrettlf;        m_data[CP_BARRETTLF_IOLS] = barrettlf; }
-    void setBarrettDF_nominal(double barrettdf)         { m_barrettdf_nominal = barrettdf;        m_data[CP_BARRETTDF_IOLS] = barrettdf; }
+    void setBarrettLF_nominal(double barrettlf)         { m_barrettlf_nominal = barrettlf;      m_data[CP_BARRETTLF_IOLS] = barrettlf; }
+    void setBarrettDF_nominal(double barrettdf)         { m_barrettdf_nominal = barrettdf;      m_data[CP_BARRETTDF_IOLS] = barrettdf; }
     void setOlsen_nominal(double olsen)                 { m_olsen_nominal = olsen;              m_data[CP_OLSEN_IOLS] = olsen; }
 
     void setresults_ulib(int results)                   { m_ulibresults = results;              m_data[CP_RESULTSU_IOLS] = results; }
@@ -230,8 +230,8 @@ public:
     void setHaigisa2_ulib(double haigisa2)              { m_haigisa2_ulib = haigisa2;           m_data[CP_HAIGISA2U_IOLS] = haigisa2; }
     void setHolladay1_ulib(double holladay1)            { m_holladay1_ulib = holladay1;         m_data[CP_HOLL1U_IOLS] = holladay1; }
     void setHofferQ_ulib(double hofferq)                { m_hofferq_ulib = hofferq;             m_data[CP_HOFFERQU_IOLS] = hofferq; }
-    void setBarrettLF_ulib(double barrettlf)            { m_barrettlf_ulib = barrettlf;           m_data[CP_BARRETTLFU_IOLS] = barrettlf; }
-    void setBarrettDF_ulib(double barrettdf)            { m_barrettdf_ulib = barrettdf;           m_data[CP_BARRETTDFU_IOLS] = barrettdf; }
+    void setBarrettLF_ulib(double barrettlf)            { m_barrettlf_ulib = barrettlf;         m_data[CP_BARRETTLFU_IOLS] = barrettlf; }
+    void setBarrettDF_ulib(double barrettdf)            { m_barrettdf_ulib = barrettdf;         m_data[CP_BARRETTDFU_IOLS] = barrettdf; }
     void setOlsen_ulib(double olsen)                    { m_olsen_ulib = olsen;                 m_data[CP_OLSENU_IOLS] = olsen; }
 
     void setresults_optimized(int results)              { m_optimizedresults = results;         m_data[CP_RESULTSO_IOLS] = results; }
@@ -284,6 +284,11 @@ public:
     }
     void resetdatas();
     bool isnull() const                         { return m_id == 0; }
-
+    bool hasnoregisteredcsteA()                 { return (m_csteAEcho_nominal == 0
+                                                        && m_csteAopt_nominal == 0
+                                                        && m_csteAopt_ulib == 0
+                                                        && m_csteAEcho_ulib == 0
+                                                        && m_csteAopt_optimized == 0);
+                                                }
 };
 #endif // IOL_H

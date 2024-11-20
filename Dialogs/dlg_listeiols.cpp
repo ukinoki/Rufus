@@ -49,7 +49,6 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     titrelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     wdg_manufacturerscombo = new UpComboBox();
     wdg_manufacturerscombo->setEditable(false);
-    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
     wdg_manufacturerscombo->setFixedSize(250,30);
     QHBoxLayout *manufacturerlay = new QHBoxLayout();
     manufacturerlay     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
@@ -84,33 +83,45 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_edofchk                 = new UpCheckBox("EDOF");
     wdg_multifocalchk           = new UpCheckBox(tr("Multifocal"));
     wdg_monofocalchk            = new UpCheckBox(tr("Monofocal"));
-    UpLabel* pwrlbl             = new UpLabel;
     typelay                     ->addWidget(wdg_edofchk);
     typelay                     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     typelay                     ->addWidget(wdg_multifocalchk);
     typelay                     ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     typelay                     ->addWidget(wdg_monofocalchk);
     typelay                     ->setContentsMargins(0,0,0,0);
-    pwrlbl                      ->setText(tr("Puissance"));
+    wdg_pwrchk                  = new UpCheckBox(tr("Filtrer par puissance"));
     QVBoxLayout *pwrlay         = new QVBoxLayout();
-    wdg_pwrslider               = new RangeSlider(Qt::Horizontal);
-    wdg_pwrslider               ->SetRange(-150,400);
+    wdg_rangepwrslider          = new RangeSlider(Qt::Horizontal);
+    QString maxpwr = IOL_PWRMAX;
+    int max = maxpwr.toInt();
+    QString minpwr = IOL_PWRMIN;
+    int min = minpwr.toInt();
+    wdg_rangepwrslider          ->SetRange(min*10,max*10);
+    wdg_rangepwrslider          ->SetLowerValue(m_minpwr*10);
+    wdg_rangepwrslider          ->SetUpperValue(m_maxpwr*10);
     QHBoxLayout *rangelay       = new QHBoxLayout();
     wdg_minpwrlbl               = new UpLabel;
     wdg_maxpwrlbl               = new UpLabel;
     wdg_minpwrlbl               ->setFixedSize(50,28);
     wdg_maxpwrlbl               ->setFixedSize(50,28);
-    wdg_minpwrlbl               ->setText("-10.00");
-    wdg_maxpwrlbl               ->setText("+40.00");
+    wdg_minpwrlbl               ->setText(Utils::PrefixePlus(double(wdg_rangepwrslider->LowerValue())/10));
+    wdg_maxpwrlbl               ->setText(Utils::PrefixePlus(double(wdg_rangepwrslider->UpperValue())/10));
     rangelay                    ->addWidget(wdg_minpwrlbl);
     rangelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     rangelay                    ->addWidget(wdg_maxpwrlbl);
     rangelay                    ->setContentsMargins(0,0,0,0);
-    pwrlay                      ->addWidget(pwrlbl);
+    QVBoxLayout *Vrangelay      = new QVBoxLayout();
+    Vrangelay                   ->addWidget(wdg_rangepwrslider);
+    Vrangelay                   ->addLayout(rangelay);
+    Vrangelay                   ->setContentsMargins(0,0,0,0);
+    Vrangelay                   ->setSpacing(0);
+    wdg_pwrslider               ->setLayout(Vrangelay);
+    wdg_pwrslider               ->setEnabled(false);
+
+    pwrlay                      ->addWidget(wdg_pwrchk);
     pwrlay                      ->addWidget(wdg_pwrslider);
-    pwrlay                      ->addLayout(rangelay);
     pwrlay                      ->setContentsMargins(0,0,0,0);
-    pwrlay                      ->setSpacing(0);
+    pwrlay                      ->setSpacing(5);
     wdg_annulfiltresbut         = new UpPushButton(tr("Annuler les filtres"));
 
 
@@ -127,6 +138,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     searchLay               ->addLayout(typelay);
     searchLay               ->addLayout(pwrlay);
     searchLay               ->addWidget(wdg_annulfiltresbut);
+    searchLay               ->addWidget(m_IOLtotalcount);
     searchLay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Fixed,QSizePolicy::Expanding));
     searchLay               ->setSpacing(10);
     globallay               ->addLayout(searchLay);
@@ -140,6 +152,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
         Datas::I()->iols->initListe();
     ReconstruitTreeViewIOLs();
 
+    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
     for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
@@ -159,8 +172,9 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_clairchk        ->installEventFilter(this);
     wdg_singlepiecechk  ->installEventFilter(this);
     wdg_twopiecechk     ->installEventFilter(this);
+    wdg_pwrchk          ->installEventFilter(this);
 
-    PdfButton->setVisible(true); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
+    PdfButton->setVisible(false); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
@@ -224,7 +238,7 @@ bool dlg_listeiols::eventFilter(QObject *obj, QEvent *event)
                 if (chk)
                 {
                     chk->setChecked(!chk->isChecked());
-                    emit chk->uptoggled(chk->isChecked());  //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
+                    emit chk->uptoggled(chk->isChecked());  //!la propriété checked est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
                     return true;
                 }
             }
@@ -236,7 +250,7 @@ bool dlg_listeiols::eventFilter(QObject *obj, QEvent *event)
             if (chk)
             {
                 chk->setChecked(!chk->isChecked());
-                emit chk->uptoggled(chk->isChecked());  //!la propriété checkecd est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
+                emit chk->uptoggled(chk->isChecked());  //!la propriété checked est affectée après l'event keypress, il faut donc envoyer l'inverse de la propriété pour avoir sa vraie valeur
                 return true;
             }
         }
@@ -250,6 +264,10 @@ void dlg_listeiols::Enablebuttons(QModelIndex idx)
     {
         wdg_buttonframe->wdg_modifBouton->setEnabled(true);
         wdg_buttonframe->wdg_moinsBouton->setEnabled(m_listidiolsutilises.indexOf(iol->id()) == -1);
+        wdg_buttonframe->wdg_moinsBouton->setImmediateToolTip(
+            m_listidiolsutilises.indexOf(iol->id()) > -1?
+                tr("Vous ne pouvez pas supprimer cet implant") + "\n" + tr("il a déjà été utilisé lors de programmations opératoires précédentes") :
+                "");
     }
     else
     {
@@ -271,10 +289,13 @@ void dlg_listeiols::Annulerlesfiltres()
     wdg_toricchk            ->setChecked(false);
     wdg_edofchk             ->setChecked(false);
     wdg_multifocalchk       ->setChecked(false);
-    wdg_pwrslider           ->SetLowerValue(wdg_pwrslider->Minimun());
-    wdg_pwrslider           ->SetUpperValue(wdg_pwrslider->Maximun());
-    wdg_minpwrlbl           ->setText(Utils::PrefixePlus(double(wdg_pwrslider->Minimun())/10));
-    wdg_maxpwrlbl           ->setText(Utils::PrefixePlus(double(wdg_pwrslider->Maximun())/10));
+    wdg_pwrchk              ->setChecked(false);
+    wdg_rangepwrslider      ->SetLowerValue(m_minpwr*10);
+    wdg_rangepwrslider      ->SetUpperValue(m_maxpwr*10);
+    m_filterbypwr           = false;
+    wdg_pwrslider           ->setEnabled(false);
+    wdg_minpwrlbl           ->setText(Utils::PrefixePlus(double(wdg_rangepwrslider->LowerValue())/10));
+    wdg_maxpwrlbl           ->setText(Utils::PrefixePlus(double(wdg_rangepwrslider->UpperValue())/10));
     connectFiltersSignals();
 }
 
@@ -328,13 +349,19 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
-    connect(wdg_pwrslider,          &RangeSlider::lowerValueChanged,    this, [&](int a) {
+    connect(wdg_pwrchk,           &UpCheckBox::uptoggled,  this,      [=](bool a) {   wdg_pwrslider->setEnabled(a);
+                                                                                      m_filterbypwr = a;
+                                                                                      ReconstruitTreeViewIOLs();
+                                                                                      if (a)
+                                                                                          wdg_annulfiltresbut->setEnabled(true);
+                                                                                  } );
+    connect(wdg_rangepwrslider,          &RangeSlider::lowerValueChanged,    this, [&](int a) {
                                                                                             m_minpwr = double(Utils::roundToNearestFive(a))/10;
                                                                                             wdg_minpwrlbl->setText(Utils::PrefixePlus(m_minpwr));
                                                                                             ReconstruitTreeViewIOLs();
                                                                                             wdg_annulfiltresbut->setEnabled(true);
                                                                                          } );
-    connect(wdg_pwrslider,          &RangeSlider::upperValueChanged,    this, [&](int a) {
+    connect(wdg_rangepwrslider,          &RangeSlider::upperValueChanged,    this, [&](int a) {
                                                                                             m_maxpwr = double(Utils::roundToNearestFive(a))/10;
                                                                                             wdg_maxpwrlbl->setText(Utils::PrefixePlus(m_maxpwr));
                                                                                             ReconstruitTreeViewIOLs();
@@ -354,7 +381,7 @@ void dlg_listeiols::disconnectFiltersSignals()
     wdg_edofchk             ->disconnect();
     wdg_monofocalchk        ->disconnect();
     wdg_multifocalchk       ->disconnect();
-    wdg_pwrslider           ->disconnect();
+    wdg_rangepwrslider           ->disconnect();
 }
 
 void dlg_listeiols::ChoixButtonFrame()
@@ -458,6 +485,16 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
     /*! fin mise à jour de la liste des fabricants */
 
     /*! Mise à jour des IOLS */
+    int id1stq = 0;
+    for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+    {
+        Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+        if (manf->nom().toUpper() == "1STQ")
+        {
+            id1stq = manf->id();
+            break;
+        }
+    }
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
         IOL *iol = const_cast<IOL*>(it.value());
@@ -482,6 +519,8 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
             if(iol->addintermediate() > 0)
                 ItemsList::update(iol, CP_ADDINTERMEDIATE_IOLS, 0.0);
         }
+        if (iol->idmanufacturer() == id1stq)
+            ItemsList::update(iol, CP_SINGLEPIECE_IOLS,true);
     }
     /*! fin mise à jour de la liste des IOLs */
 
@@ -503,7 +542,6 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 }
         }
     }
-    QStringList listitem;
     for (int i=0; i<xml.childNodes().size(); i++)
     {
         QDomElement childnode = xml.childNodes().at(i).toElement();
@@ -517,7 +555,9 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 if (Lensnode.tagName() == "Manufacturer")
                     iol.setstringid(Lensnode.text());
                 else if (Lensnode.tagName() == "Name")
+                {
                     iol.setmodele(Lensnode.text());
+                }
                 else if (Lensnode.tagName() == "Specifications")
                 {
                     for (int k=0; k<Lensnode.childNodes().size(); k++)
@@ -529,8 +569,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                             if (Specsnode.text()=="yes")
                                 b = true;
                             iol.setsinglepiece(b);
-
-                        }
+                       }
                         else if (Specsnode.tagName() == "OpticMaterial")
                         {
                             QString optmaterial = Specsnode.text();
@@ -1035,6 +1074,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
     UpMessageBox::Watch(this,tr("Mise à jour de la liste des implants"),  msg);
 
     wdg_manufacturerscombo->clear();
+    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
     for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
@@ -1222,6 +1262,7 @@ void dlg_listeiols::ReconstruitListeManufacturers()
 
 void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
 {
+    int IOLtotal = 0;
     ReconstruitListeManufacturers();
     wdg_itemstree->disconnect();
     wdg_itemstree->selectionModel()->disconnect();
@@ -1319,8 +1360,11 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                 if (iol->ismultifocal() || iol->isedof())
                     continue;
             /*! filtrage des puissances */
-            if (iol->pwrmin() > m_maxpwr || iol->pwrmax() < m_minpwr)
-                continue;
+            if (m_filterbypwr)
+            {
+                if (iol->pwrmin() >= m_minpwr || iol->pwrmax() <= m_maxpwr)
+                    continue;
+            }
             pitem   = new UpStandardItem(iol->modele(), iol);
             if (!iol->isactif())
                 pitem ->setForeground(QBrush(QColor(Qt::darkGray)));
@@ -1341,6 +1385,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                 if (listitems.size()>0)
                     listitems.at(0)->appendRow(pitem);
             }
+            IOLtotal ++;
         }
     }
     for (int i=0; i<m_IOLsmodel->rowCount();i++)
@@ -1358,6 +1403,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     wdg_itemstree   ->expandAll();
     m_treedelegate  .setHeight(dim + 5);
     wdg_itemstree   ->setItemDelegate(&m_treedelegate);
+    m_IOLtotalcount ->setText(QString::number(IOLtotal) + " " + tr("implants"));
     if (m_IOLsmodel->rowCount()>0)
     {
         m_IOLsmodel->sort(0);

@@ -46,6 +46,7 @@ private:
     QStandardItemModel      *m_IOLsmodel            = Q_NULLPTR;
     QStandardItemModel      *m_manufacturersmodel   = Q_NULLPTR;
     UpComboBox              *wdg_manufacturerscombo = Q_NULLPTR;
+    UpCheckBox              *wdg_pwrchk             = Q_NULLPTR;
     UpComboBox              *wdg_typebox            = Q_NULLPTR;
     UpCheckBox              *wdg_prechargechk       = Q_NULLPTR;
     UpCheckBox              *wdg_jaunechk           = Q_NULLPTR;
@@ -58,15 +59,18 @@ private:
     UpCheckBox              *wdg_monofocalchk       = Q_NULLPTR;
     UpLabel                 *wdg_minpwrlbl          = Q_NULLPTR;
     UpLabel                 *wdg_maxpwrlbl          = Q_NULLPTR;
-    RangeSlider             *wdg_pwrslider          = Q_NULLPTR;
-    double                  m_minpwr                = -10.00;
-    double                  m_maxpwr                = 40.00;
+    RangeSlider             *wdg_rangepwrslider     = Q_NULLPTR;
+    QWidget                 *wdg_pwrslider          = new QWidget();
+    double                  m_minpwr                = 10.00;
+    double                  m_maxpwr                = 30.00;
     UpPushButton            *wdg_annulfiltresbut    = Q_NULLPTR;
     QTreeView               *wdg_itemstree          = Q_NULLPTR;
     WidgetButtonFrame       *wdg_buttonframe        = Q_NULLPTR;
     TreeViewDelegate        m_treedelegate;
     IOL                     *m_currentIOL           = Q_NULLPTR;
     QImage                  m_nullimage             = QImage("://IOL.png");
+    bool                    m_filterbypwr           = false;
+    QLabel                  *m_IOLtotalcount        = new QLabel;
 
     bool                    eventFilter(QObject *obj, QEvent *event);
     void                    Annulerlesfiltres();

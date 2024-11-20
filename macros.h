@@ -846,6 +846,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define IOL_OPTIMIZED                               "optimized"
 #define IOL_NOMINAL                                 "nominal"
 
+                //! les puissances d'IOLS
+#define IOL_PWRMAX                                  "45"
+#define IOL_PWRMIN                                  "-20"
+
 #define NOM_APPLI                                   "Rufus"
 
 #define LOGIN_SQL                                   "adminrufus"

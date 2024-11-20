@@ -158,7 +158,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_typebox                 ->addItems(listtypes);
     wdg_typebox                 ->setFixedWidth(180);
     wdg_typebox                 ->setCurrentIndex(-1);
-    wdg_imgIOL                  = new UpLabel;
     wdg_imgIOL                  ->setFixedSize(160,180);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -663,10 +662,8 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     lbldiaht                    ->setText(tr("Hors-tout"));
     UpLabel* lbldiaopt          = new UpLabel;
     lbldiaopt                   ->setText(tr("Optique"));
-    wdg_diaht                   = new UpLineEdit();
     wdg_diaht                   ->setValidator(new QRegularExpressionValidator(rgx_diaht, wdg_diaht));
     wdg_diaht                   ->setFixedSize(QSize(50,28));
-    wdg_diaoptique              = new UpLineEdit();
     wdg_diaoptique              ->setValidator(new QRegularExpressionValidator(rgx_diaoptique, wdg_diaoptique));
     wdg_diaoptique              ->setFixedSize(QSize(50,28));
     diametresLay                ->addWidget(lbldiametres);
@@ -683,7 +680,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     QHBoxLayout *injecteurLay   = new QHBoxLayout();
     UpLabel* lbldiainjecteur    = new UpLabel;
     lbldiainjecteur             ->setText(tr("Injecteur (mm)"));
-    wdg_diainjecteur            = new UpLineEdit();
     wdg_diainjecteur            ->setValidator(new QRegularExpressionValidator(rgx_diainjecteur, wdg_diaoptique));
     wdg_diainjecteur            ->setFixedSize(QSize(50,28));
     injecteurLay                ->addWidget(lbldiainjecteur);
@@ -704,9 +700,13 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_puissanceminspin        = new UpDoubleSpinBox();
     wdg_puissancemaxspin        ->setFixedSize(QSize(70,28));
     wdg_puissanceminspin        ->setFixedSize(QSize(70,28));
-    wdg_puissancemaxspin        ->setRange(0.0, 35.0);
+    QString maxpwr = IOL_PWRMAX;
+    double max = maxpwr.toDouble();
+    QString minpwr = IOL_PWRMIN;
+    double min = minpwr.toDouble();
+    wdg_puissancemaxspin        ->setRange(0.0, max);
     wdg_puissancemaxspin        ->setSingleStep(0.5);
-    wdg_puissanceminspin        ->setRange(-10.0, 15.0);
+    wdg_puissanceminspin        ->setRange(min, 15.0);
     wdg_puissanceminspin        ->setSingleStep(0.5);
     puissancesLay               ->addWidget(lplpuissances);
     puissancesLay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
@@ -718,9 +718,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     puissancesLay               ->setContentsMargins(0,0,0,0);
 
     //! Plage cylindres
-    QHBoxLayout *cylindresLay   = new QHBoxLayout();
     QHBoxLayout *wdgcylindresLay  = new QHBoxLayout();
-    wdg_cylindres               = new QWidget();
     UpLabel* lblcylindremax     = new UpLabel;
     lblcylindremax              ->setText(tr("Max."));
     UpLabel* lblcylindremin     = new UpLabel;
@@ -733,19 +731,21 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_cylindremaxspin         ->setSingleStep(0.25);
     wdg_cylindreminspin         ->setRange(-8.0, 8.0);
     wdg_cylindreminspin         ->setSingleStep(0.25);
-    wdg_toricchk2               ->setFixedHeight(35);
-    cylindresLay                ->addWidget(wdg_toricchk2);
-    cylindresLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     wdgcylindresLay             ->addWidget(lblcylindremin);
     wdgcylindresLay             ->addWidget(wdg_cylindreminspin);
     wdgcylindresLay             ->addWidget(lblcylindremax);
     wdgcylindresLay             ->addWidget(wdg_cylindremaxspin);
     wdgcylindresLay             ->setContentsMargins(0,0,0,0);
     wdg_cylindres               ->setLayout(wdgcylindresLay);
-    cylindresLay                ->addWidget(wdg_cylindres);
 
+    QHBoxLayout *cylindresLay   = new QHBoxLayout();
+    wdg_toricchk2               ->setFixedHeight(35);
+    cylindresLay                ->addWidget(wdg_toricchk2);
+    cylindresLay                ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
+    cylindresLay                ->addWidget(wdg_cylindres);
     cylindresLay                ->setSpacing(spacing);
     cylindresLay                ->setContentsMargins(0,0,0,0);
+
 
 
     if (m_mode == Modification)
@@ -906,10 +906,10 @@ bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)
 void dlg_identificationIOL::connectSignals()
 {
     connect (OKButton,             &QPushButton::clicked,                                   this,   [&] {
-                                                                                                            OKpushButtonClicked();
-                                                                                                            accept();
+                                                                                                            if (EnregistreIOL())
+                                                                                                                accept();
                                                                                                         });
-    connect (RecordButton,         &QPushButton::clicked,                                   this,   &dlg_identificationIOL::OKpushButtonClicked);
+    connect (RecordButton,         &QPushButton::clicked,                                   this,   &dlg_identificationIOL::EnregistreIOL);
     connect (wdg_manufacturercombo,QOverload<int>::of(&QComboBox::currentIndexChanged),     this,   [&](int id) {
                                                                                                                     int idman = wdg_manufacturercombo->itemData(id).toInt();
                                                                                                                     m_currentmanufacturer = Datas::I()->manufacturers->getById(idman);
@@ -1100,7 +1100,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
             wdg_manufacturercombo   ->setCurrentIndex(wdg_manufacturercombo->findData(m_currentmanufacturer->id()));
         wdg_ulibrb      ->setText("ulib (" + QString::number(m_currentIOL->results_ulib()) + ")");
         wdg_optimizedrb ->setText("iolcon optim. (" + QString::number(m_currentIOL->results_optimized()) + ")");
-        if (nominalvalid)
+        if (nominalvalid || iol->hasnoregisteredcsteA())
             switchDisplayConstant(Nominal);
         else if (ulibvalid)
             switchDisplayConstant(Ulib);
@@ -1111,6 +1111,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 
         wdg_nomiolline      ->setText(m_currentIOL->modele());
         wdg_modifButton     ->setVisible(true);
+
         double n = m_currentIOL->csteAopt_nominal();
             wdg_Aoptline        ->setText(n != 0.0? QLocale().toString(n, 'f', 2) : "");
         n = m_currentIOL->csteAEcho_nominal();
@@ -1248,8 +1249,7 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         wdg_addinterspin        ->setVisible(false);
         wdg_addnearlbl          ->setVisible(false);
         wdg_addinterlbl         ->setVisible(false);
-        wdg_cylindremaxspin     ->setVisible(false);
-        wdg_cylindreminspin     ->setVisible(false);
+        wdg_cylindres           ->setVisible(false);
         setimage(m_nullimage);
         switchDisplayConstant(Nominal);
         EnableWidget(true);
@@ -1403,24 +1403,59 @@ void dlg_identificationIOL::NavigueVers(UpToolBar::Choix choix)
     }
 }
 
-void dlg_identificationIOL::OKpushButtonClicked()
+bool dlg_identificationIOL::EnregistreIOL()
 {
     qApp->focusWidget()->clearFocus();
+
+    // - Verifying if all importants fields are completed
     if (wdg_nomiolline->text() == "")
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas indiqué le modèle d'implant!"));
         wdg_nomiolline->setFocus();
-        return;
+        return false;
     }
-    // D - On vérifie ensuite si cet implant existe déjà
+    if (wdg_typebox->currentText() == "")
+    {
+        UpMessageBox::Watch(this, tr("Vous n'avez pas saisi le type de l'implant"));
+        wdg_typebox->setFocus();
+        return false;
+    }
+    QWidget* widg = VerifCstesANominal();
+    if (widg != Q_NULLPTR)
+    {
+        UpMessageBox::Watch(this,tr("Vous n'avez saisi aucune constante A!"));
+        switchDisplayConstant(Nominal);
+        widg->setFocus();
+        return false;
+    }
+
+    widg = VerifCstesAUlib();
+    if (widg != Q_NULLPTR)
+    {
+        UpMessageBox::Watch(this,tr("Vous avez saisi des paramètres Ulib incomplets!"), tr("Vous devez renseigner au moins une constante A et le nombre de cas"));
+        switchDisplayConstant(Ulib);
+        widg->setFocus();
+        return false;
+    }
+
+    widg = VerifCstesAOptimized();
+    if (widg != Q_NULLPTR)
+    {
+        UpMessageBox::Watch(this,tr("Vous avez saisi des paramètres iolcon optimized incomplets!"), tr("Vous devez renseigner au moins la constante A et le nombre de cas"));
+        switchDisplayConstant(Optimized);
+        widg->setFocus();
+        return false;
+    }
+
+    // - Verifying if this IOL already existst in db
     bool ok;
     QString requete = "select " CP_ID_IOLS " from " TBL_IOLS
-            " where " CP_MODELNAME_IOLS " = '" + wdg_nomiolline->text() + "'";
+                      " where " CP_MODELNAME_IOLS " = '" + wdg_nomiolline->text() + "'";
     QVariantList ioldata = DataBase::I()->getFirstRecordFromStandardSelectSQL(requete,ok, tr("Impossible d'interroger la table des implants!"));
     if (!ok)
     {
         reject();
-        return;
+        return false;
     }
     if (ioldata.size() > 0)
     {
@@ -1436,13 +1471,13 @@ void dlg_identificationIOL::OKpushButtonClicked()
                 AfficheDatasIOL(m_currentIOL);
                 OKButton            ->setEnabled(false);
                 RecordButton        ->setEnabled(false);
-                connect (wdg_modifButton,      &QPushButton::released,                                  this,   [&] {
+                connect (wdg_modifButton,   &QPushButton::released, this,   [&] {
                     EnableOKpushButton();
-                    wdg_nominalrb  ->setEnabled(true);
-                    wdg_ulibrb  ->setEnabled(true);
-                    wdg_optimizedrb  ->setEnabled(true);
+                    wdg_nominalrb   ->setEnabled(true);
+                    wdg_ulibrb      ->setEnabled(true);
+                    wdg_optimizedrb ->setEnabled(true);
                 });
-                return;
+                return false;
             }
             break;
         case Creation:
@@ -1450,25 +1485,25 @@ void dlg_identificationIOL::OKpushButtonClicked()
             m_currentIOL = Datas::I()->iols->getById(ioldata.at(0).toInt());
             m_currentmanufacturer = Datas::I()->manufacturers->getById(m_currentIOL->idmanufacturer());
             reconstruitListeIOLs(m_currentmanufacturer);
-            OKButton            ->setEnabled(false);
-            RecordButton        ->setEnabled(false);
-            wdg_toolbar         ->setEnabled(true);
-            wdg_recopiebutton   ->setEnabled(true);
-            m_mode = Modification;           
-            wdg_recopiebutton           = new UpPushButton ("Recopier l'IOL");
-            wdg_recopiebutton           ->setVisible(false);
-            lay_materiau                ->addWidget(wdg_recopiebutton);
-            wdg_toolbar                 = new UpToolBar();
-            lay_materiau                ->addWidget(wdg_toolbar);
-            wdg_toolbar                 ->setEnabled(m_listeidIOLs.size()>1);
+            OKButton                ->setEnabled(false);
+            RecordButton            ->setEnabled(false);
+            wdg_toolbar             ->setEnabled(true);
+            wdg_recopiebutton       ->setEnabled(true);
+            m_mode = Modification;
+            wdg_recopiebutton       = new UpPushButton ("Recopier l'IOL");
+            wdg_recopiebutton       ->setVisible(false);
+            lay_materiau            ->addWidget(wdg_recopiebutton);
+            wdg_toolbar             = new UpToolBar();
+            lay_materiau            ->addWidget(wdg_toolbar);
+            wdg_toolbar             ->setEnabled(m_listeidIOLs.size()>1);
             AfficheDatasIOL(m_currentIOL);
-            connect (wdg_modifButton,      &QPushButton::released,                                  this,   [&] {
+            connect (wdg_modifButton,       &QPushButton::released, this,   [&] {
                 EnableOKpushButton();
-                wdg_nominalrb  ->setEnabled(true);
-                wdg_ulibrb  ->setEnabled(true);
-                wdg_optimizedrb  ->setEnabled(true);
+                wdg_nominalrb       ->setEnabled(true);
+                wdg_ulibrb          ->setEnabled(true);
+                wdg_optimizedrb     ->setEnabled(true);
             });
-            return;
+            return false;
         }
     }
 
@@ -1531,6 +1566,7 @@ void dlg_identificationIOL::OKpushButtonClicked()
         Datas::I()->iols->getById(m_currentIOL->id(), true);
     }
     RecordButton->setEnabled(false);
+    return true;
 }
 
 void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
@@ -1572,4 +1608,48 @@ void dlg_identificationIOL::setimage(QImage img)
     m_currentIOLimage = img;
     if (m_currentIOL)
         m_currentIOL->setimage(img);
+}
+
+QWidget* dlg_identificationIOL::VerifCstesANominal()
+{
+    if (wdg_UNbCasesline->text().toInt() == 0 && wdg_ONbCasesline->text().toInt() == 0
+        && QLocale().toDouble(wdg_Aecholine->text()) == 0 && QLocale().toDouble(wdg_Aoptline->text())==0
+        && QLocale().toDouble(wdg_UAecholine->text()) == 0 && QLocale().toDouble(wdg_UAoptline->text()) == 0
+        && QLocale().toDouble(wdg_OAoptline->text()) == 0)
+    {
+        if (QLocale().toDouble(wdg_Aecholine->text()) == 0)
+            return wdg_Aecholine;
+        if (QLocale().toDouble(wdg_Aoptline->text()) == 0)
+            return wdg_Aoptline;
+    }
+    return Q_NULLPTR;
+}
+
+QWidget *dlg_identificationIOL::VerifCstesAUlib()
+{
+    if ((QLocale().toDouble(wdg_UAecholine->text()) > 0 && wdg_UNbCasesline->text().toInt() == 0)
+        || (QLocale().toDouble(wdg_UAoptline->text()) > 0 && wdg_UNbCasesline->text().toInt() == 0)
+        || (QLocale().toDouble(wdg_UAoptline->text()) == 0 && QLocale().toDouble(wdg_UAecholine->text()) == 0 && wdg_UNbCasesline->text().toInt() > 0))
+    {
+        if (QLocale().toDouble(wdg_UAecholine->text()) == 0)
+            return wdg_UAecholine;
+        if (QLocale().toDouble(wdg_UAoptline->text()) == 0)
+            return wdg_UAoptline;
+        if (wdg_UNbCasesline->text().toInt() == 0)
+            return wdg_UNbCasesline;
+    }
+    return Q_NULLPTR;
+}
+
+QWidget* dlg_identificationIOL::VerifCstesAOptimized()
+{
+    if ((QLocale().toDouble(wdg_OAoptline->text()) > 0 && wdg_ONbCasesline->text().toInt() == 0)
+        || (QLocale().toDouble(wdg_OAoptline->text()) == 0 && wdg_ONbCasesline->text().toInt() > 0))
+    {
+        if (QLocale().toDouble(wdg_OAoptline->text()) == 0)
+            return wdg_OAoptline;
+        if (wdg_ONbCasesline->text().toInt() == 0)
+            return wdg_ONbCasesline;
+    }
+    return Q_NULLPTR;
 }
