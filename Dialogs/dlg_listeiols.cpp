@@ -174,7 +174,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_twopiecechk     ->installEventFilter(this);
     wdg_pwrchk          ->installEventFilter(this);
 
-    PdfButton->setVisible(true); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
+    PdfButton->setVisible(false); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
