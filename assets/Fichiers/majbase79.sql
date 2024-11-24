@@ -267,7 +267,7 @@ BEGIN
             ALTER TABLE `rufus`.`ParametresSysteme`
             ADD COLUMN `VersionBaseIOL` DOUBLE NULL DEFAULT 1 AFTER `VersionBase`;
         END IF;
-UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 79, VersionBaseIOL = 2;
+UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 79, VersionBaseIOL = 1;
 END|
 
 CALL MAJ79();

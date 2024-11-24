@@ -31,6 +31,7 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataInt(data, CP_IDLIEUPARDEFAUT_PARAMSYSTEME, m_idlieupardefaut);
     setDataBool(data, CP_DOCSCOMPRIMES_PARAMSYSTEME, m_docscomprimes);
     setDataInt(data, CP_VERSIONBASE_PARAMSYSTEME, m_versionbase);
+    setDataDouble(data, CP_VERSIONBASEIOL_PARAMSYSTEME, m_versionbaseiol);
     setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
     setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
     setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);

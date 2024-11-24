@@ -160,6 +160,8 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     wdg_typebox                 ->setCurrentIndex(-1);
     wdg_imgIOL                  ->setFixedSize(160,180);
     wdg_imgIOL                  ->setContextMenuPolicy(Qt::CustomContextMenu);
+    wdg_imgIOL                  ->setImmediateToolTip(tr("Clic droit pour modifier l'image de l'implant"));
+    wdg_imgIOL                  ->setAlignment(Qt::AlignCenter);
 
     QHBoxLayout *MateriaulblLay = new QHBoxLayout();
     UpLabel* Materiaulbl        = new UpLabel;

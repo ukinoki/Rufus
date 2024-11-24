@@ -488,10 +488,10 @@ void DataBase::initParametresSysteme()
         m_parametres = new ParametresSysteme();
     QJsonObject paramData{};
 
-    QString req = "select " CP_MDPADMIN_PARAMSYSTEME ", " CP_NUMCENTRE_PARAMSYSTEME ", " CP_IDLIEUPARDEFAUT_PARAMSYSTEME ", " CP_DOCSCOMPRIMES_PARAMSYSTEME ", " CP_VERSIONBASE_PARAMSYSTEME ", "
-                  CP_SANSCOMPTA_PARAMSYSTEME ", " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME ", " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME ", "
-                  CP_LUNDIBKUP_PARAMSYSTEME ", " CP_MARDIBKUP_PARAMSYSTEME ", " CP_MERCREDIBKUP_PARAMSYSTEME ", " CP_JEUDIBKUP_PARAMSYSTEME ", " CP_VENDREDIBKUP_PARAMSYSTEME ", "
-                  CP_SAMEDIBKUP_PARAMSYSTEME ", " CP_DIMANCHEBKUP_PARAMSYSTEME ", " CP_HEUREBKUP_PARAMSYSTEME ", " CP_DIRBKUP_PARAMSYSTEME
+    QString req = "select " CP_MDPADMIN_PARAMSYSTEME ", " CP_NUMCENTRE_PARAMSYSTEME ", " CP_IDLIEUPARDEFAUT_PARAMSYSTEME ", " CP_DOCSCOMPRIMES_PARAMSYSTEME ", " CP_VERSIONBASE_PARAMSYSTEME ", "   //! O,1,2,3,4
+                  CP_SANSCOMPTA_PARAMSYSTEME ", " CP_ADRESSELOCALSERVEUR_PARAMSYSTEME ", " CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME ", " CP_LUNDIBKUP_PARAMSYSTEME ", " CP_MARDIBKUP_PARAMSYSTEME ", " //! 5,6,7,8,9
+                  CP_MERCREDIBKUP_PARAMSYSTEME ", " CP_JEUDIBKUP_PARAMSYSTEME ", " CP_VENDREDIBKUP_PARAMSYSTEME ", " CP_SAMEDIBKUP_PARAMSYSTEME ", " CP_DIMANCHEBKUP_PARAMSYSTEME ", "              //! 10,11,12,13,14
+                  CP_HEUREBKUP_PARAMSYSTEME ", " CP_DIRBKUP_PARAMSYSTEME                                                                                                                            //! 15,1§
                   " from " TBL_PARAMSYSTEME;
     QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
     if(!ok || paramdata.size() == 0)
@@ -517,13 +517,22 @@ void DataBase::initParametresSysteme()
     if (m_parametres->versionbase()>73)
     {
         req = "select " CP_VILLES_PARAMSYSTEME ", " CP_COTATIONS_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME
-                " from " TBL_PARAMSYSTEME;
+              " from " TBL_PARAMSYSTEME;
         QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
         if(!ok || paramdata.size() == 0)
             return ;
         paramData[CP_VILLES_PARAMSYSTEME]                 = (paramdata.at(0).toInt() == 1);
         paramData[CP_COTATIONS_PARAMSYSTEME]              = (paramdata.at(1).toInt() == 1);
         paramData[CP_COMPTA_PARAMSYSTEME]                 = (paramdata.at(2).toInt() == 1);
+        m_parametres->setData(paramData);
+    }
+    if (m_parametres->versionbase()>78)
+    {
+        req = "select " CP_VERSIONBASEIOL_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
+        QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+        if(!ok || paramdata.size() == 0)
+            return ;
+        paramData[CP_VERSIONBASEIOL_PARAMSYSTEME]         = (paramdata.at(0).toDouble());
         m_parametres->setData(paramData);
     }
 }
@@ -581,7 +590,7 @@ void DataBase::setversionbaseiol(double version)
     if (!m_db.isOpen())
         return;
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONBASEIOL_PARAMSYSTEME " = " + QString::number(version));
-    parametres()->setversionbase(version);
+    parametres()->setversionbaseiol(version);
 }
 double DataBase::versionbaseiol()
 {

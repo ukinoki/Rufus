@@ -460,10 +460,11 @@ dlg_param::dlg_param(QWidget *parent) :
     connect (proc,                        &Procedures::ConnectTimers, this,   [=](bool a) {ConnectTimers(a);});
 
      if (m_parametres->versionbase() == 0)
-        ui->VersionBaselabel->setText(tr("Version de la base") + "\t<font color=\"red\"><b>" + tr("inconnue") + "</b></font>");
+        ui->VersionBaselabel->setText("<font color=\"red\"><b>" + tr("inconnue") + "</b></font>");
     else
-        ui->VersionBaselabel->setText(tr("Version de la base ") + "<font color=\"green\"><b>" + QString::number(m_parametres->versionbase()) + "</b></font>");
-    ui->VersionRufuslabel->setText(tr("Version de Rufus ") + "<font color=\"green\"><b>" + qApp->applicationVersion() + "</b></font>");
+        ui->VersionBaselabel->setText("<font color=\"green\"><b>" + QString::number(m_parametres->versionbase()) + "</b></font>");
+    ui->VersionBaseIOLlabel->setText("<font color=\"green\"><b>" + QLocale(QLocale::English).toString(DataBase::I()->parametres()->versionbaseiol(),'f',1) + "</b></font>");
+    ui->VersionRufuslabel->setText(" <font color=\"green\"><b>" + qApp->applicationVersion() + "</b></font>");
 
     // Mise en forme de la table DossiersDocuments
     ui->MonoDocupTableWidget->setPalette(QPalette(Qt::white));

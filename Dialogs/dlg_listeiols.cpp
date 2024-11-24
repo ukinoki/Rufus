@@ -174,7 +174,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     wdg_twopiecechk     ->installEventFilter(this);
     wdg_pwrchk          ->installEventFilter(this);
 
-    PdfButton->setVisible(false); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
+    PdfButton->setVisible(true); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
@@ -484,7 +484,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
     }
     /*! fin mise à jour de la liste des fabricants */
 
-    /*! Mise à jour des IOLS */
+    /*! Mise à jour des IOLS - correction des modifs de la base 1 iolcon des IOLS */
     int id1stq = 0;
     for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
     {
@@ -521,6 +521,65 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
         }
         if (iol->idmanufacturer() == id1stq)
             ItemsList::update(iol, CP_SINGLEPIECE_IOLS,true);
+    }
+    //! copy data Physiol IOL to BVI IOL
+    QMap<int, QString> physioliolmap, BVIiolmap;
+    int idbvi = -1;
+    for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
+    {
+        Manufacturer *manf = const_cast<Manufacturer*>(it.value());
+        if (manf->nom().toUpper() == "BVI")
+            idbvi = manf->id();
+    }
+    for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
+    {
+        IOL *iol = const_cast<IOL*>(it.value());
+        if( iol)
+        {
+            Manufacturer* manf = Datas::I()->manufacturers->getById(iol->idmanufacturer());
+            if (manf)
+            {
+                if (manf->nom().toUpper() == "PHYSIOL")
+                    physioliolmap.insert(iol->id(), iol->modele());
+                else if (manf->nom().toUpper() == "BVI")
+                    BVIiolmap.insert(iol->id(), iol->modele());
+            }
+        }
+    }
+    for (auto it = physioliolmap.cbegin(); it!= physioliolmap.cend(); ++it)
+    {
+        IOL *physioliol = Datas::I()->iols->getById(it.key());
+        QImage img = physioliol->image();
+        QString physioliolname = physioliol->modele();
+        QStringList bvinameslist = BVIiolmap.values();
+        if (bvinameslist.contains(physioliolname))
+        {
+            for (auto itbv = BVIiolmap.cbegin(); itbv!= BVIiolmap.cend(); ++itbv)
+            {
+                IOL *bviol = Datas::I()->iols->getById(itbv.key());
+                if (bviol)
+                {
+                    if (bviol->modele() == Datas::I()->iols->getById(it.key())->modele())
+                    {
+                        bviol->setData(Datas::I()->iols->getById(itbv.key())->datas());
+                        bviol->setidmanufacturer(idbvi);
+                        QHash <QString, QVariant> sets = bviol->datas().toVariantHash();
+                        sets[CP_ARRAYIMG_IOLS] = physioliol->arrayimgiol();
+                        DataBase::I()->UpDateIOL(bviol->id(), sets);
+                        itbv->cend();
+                    }
+                }
+            }
+        }
+        else
+        {
+            QHash <QString, QVariant> sets = physioliol->datas().toVariantHash();
+            sets[CP_IDMANUFACTURER_IOLS] = idbvi;
+            sets[CP_ARRAYIMG_IOLS] = physioliol->arrayimgiol();
+            Datas::I()->iols->CreationIOL(sets);
+        }
+        if (!m_listidiolsutilises.contains(physioliol->id()))
+            Datas::I()->iols->SupprimeIOL(physioliol);
     }
     /*! fin mise à jour de la liste des IOLs */
 
@@ -1362,7 +1421,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             /*! filtrage des puissances */
             if (m_filterbypwr)
             {
-                if (iol->pwrmin() >= m_minpwr || iol->pwrmax() <= m_maxpwr)
+                if (iol->pwrmin() > m_minpwr || iol->pwrmax() < m_maxpwr)
                     continue;
             }
             pitem   = new UpStandardItem(iol->modele(), iol);
@@ -1442,13 +1501,13 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                     docxml.setContent(data);
                     QDomElement xml = docxml.documentElement();
                     double lastversion = xml.attribute("fileVersion").toDouble();
-                    double actualversion = DataBase::I()->versionbaseiol();
+                    double actualversion = DataBase::I()->parametres()->versionbaseiol();
                     if(actualversion < lastversion)
                     {
                         if (UpMessageBox::Question
                             (this,tr("Mise à jour de la liste des implants"),
-                             tr("Vous utilisez la version") + " " + QString::number(actualversion) + "\n"
-                                 + tr("La version") + " " + QString::number(lastversion) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
+                             tr("Vous utilisez la version") + " " + QLocale(QLocale::English).toString(actualversion, 'f',1) + "\n"
+                                 + tr("La version") + " " + QLocale(QLocale::English).toString(lastversion, 'f',1) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
                                  + tr("Voulez vous l'incorporer dans Rufus?") + "\n"
                                  + tr("Aucun implant de votre base actuelle ne sera modifié"))
                             == UpSmallButton::STARTBUTTON)

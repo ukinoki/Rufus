@@ -10952,7 +10952,7 @@
 	</Lens>
 	<Lens id="933">
 		<Manufacturer>BVI</Manufacturer>
-		<Name>FINEVISION HP POD F GF</Name>
+		<Name>HP POD F GF</Name>
 		<Specifications>
 			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
@@ -11014,7 +11014,7 @@
 	</Lens>
 	<Lens id="2438">
 		<Manufacturer>BVI</Manufacturer>
-		<Name>FINEVISION HP Toric POD FT 49P</Name>
+		<Name>HP Toric POD FT 49P</Name>
 		<Specifications>
 			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
@@ -11086,7 +11086,7 @@
 	</Lens>
 	<Lens id="927">
 		<Manufacturer>BVI</Manufacturer>
-		<Name>FINEVISION MICRO F</Name>
+		<Name>MICRO F</Name>
 		<Specifications>
 			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
@@ -11148,7 +11148,7 @@
 	</Lens>
 	<Lens id="928">
 		<Manufacturer>BVI</Manufacturer>
-		<Name>FINEVISION POD F</Name>
+		<Name>POD F</Name>
 		<Specifications>
 			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
@@ -11210,7 +11210,7 @@
 	</Lens>
 	<Lens id="929">
 		<Manufacturer>BVI</Manufacturer>
-		<Name>FINEVISION Toric POD FT</Name>
+		<Name>Toric POD FT</Name>
 		<Specifications>
 			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
@@ -11282,7 +11282,7 @@
 	</Lens>
 	<Lens id="1629">
 		<Manufacturer>BVI</Manufacturer>
-		<Name>FINEVISION Triumf POD L GF</Name>
+		<Name>Triumf POD L GF</Name>
 		<Specifications>
 			<SinglePiece>yes</SinglePiece>
 			<OpticMaterial>acrylic</OpticMaterial>
@@ -28469,138 +28469,6 @@
 			<Holladay1></Holladay1>
 		</Constants>
 	</Lens>
-	<Lens id="1812">
-		<Manufacturer>Medicontur</Manufacturer>
-		<Name>Liberty 677 MTY</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>2.2</IncisionWidth>
-			<InjectorSize>2.2</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>13</HapticDiameter>
-			<OpticConcept>multifocal</OpticConcept>
-			<HapticDesign>C loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>neutral</Aberration>
-			<saCorrection>0</saCorrection>
-			<Toric>yes</Toric>
-		</Specifications>
-		<Availability refractivePower="spherical equivalent" tNotation="no">
-			<Sphere range="1">
-				<From>8</From>
-				<To>35</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Cylinder range="1">
-				<From>1</From>
-				<To>4.5</To>
-				<Increment>0.5</Increment>
-			</Cylinder>
-			<Cylinder range="2">
-				<From>4.5</From>
-				<To>6</To>
-				<Increment>0.75</Increment>
-			</Cylinder>
-			<Addition distance="near">3.5</Addition>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.9</Ultrasound>
-			<SRKt>118.828</SRKt>
-			<Haigis>
-				<a0>0.19</a0>
-				<a1>0.192</a1>
-				<a2>0.173</a2>
-			</Haigis>
-			<HofferQ>5.431</HofferQ>
-			<Holladay1>1.682</Holladay1>
-			<Barrett>
-				<LF>1.79</LF>
-				<DF></DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1811">
-		<Manufacturer>Medicontur</Manufacturer>
-		<Name>Liberty 677 MY</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>1.8</IncisionWidth>
-			<InjectorSize>1.8</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>13</HapticDiameter>
-			<OpticConcept>multifocal</OpticConcept>
-			<HapticDesign>C loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>neutral</Aberration>
-			<saCorrection>0</saCorrection>
-			<Toric>no</Toric>
-		</Specifications>
-		<Availability>
-			<Sphere range="1">
-				<From>8</From>
-				<To>35</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Addition distance="near">3.5</Addition>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.9</Ultrasound>
-			<SRKt>118.828</SRKt>
-			<Haigis>
-				<a0>0.19</a0>
-				<a1>0.192</a1>
-				<a2>0.173</a2>
-			</Haigis>
-			<HofferQ>5.431</HofferQ>
-			<Holladay1>1.682</Holladay1>
-			<Barrett>
-				<LF>1.79</LF>
-				<DF></DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
 	<Lens id="1819">
 		<Manufacturer>Medicontur</Manufacturer>
 		<Name>Lucidis 108M</Name>
@@ -29325,262 +29193,6 @@
 			<Barrett>
 				<LF></LF>
 				<DF></DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1075">
-		<Manufacturer>Physiol</Manufacturer>
-		<Name>Ankoris</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>2.2</IncisionWidth>
-			<InjectorSize>2</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>11.4</HapticDiameter>
-			<OpticConcept>monofocal</OpticConcept>
-			<HapticDesign>Double C-loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>correcting</Aberration>
-			<saCorrection>-0.11</saCorrection>
-			<Toric>yes</Toric>
-		</Specifications>
-		<Availability refractivePower="spherical equivalent" tNotation="no">
-			<Sphere range="1">
-				<From>0</From>
-				<To>30</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.95</Ultrasound>
-			<SRKt>118.95</SRKt>
-			<Haigis>
-				<a0>1.36</a0>
-				<a1>0.4</a1>
-				<a2>0.1</a2>
-			</Haigis>
-			<HofferQ>5.59</HofferQ>
-			<Holladay1>1.83</Holladay1>
-			<Barrett>
-				<LF>1.86</LF>
-				<DF>1</DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1022">
-		<Manufacturer>Physiol</Manufacturer>
-		<Name>FineVision Micro F</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial>Acryl</HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>1.8</IncisionWidth>
-			<InjectorSize>1.8</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6.15</OpticDiameter>
-			<HapticDiameter>10.75</HapticDiameter>
-			<OpticConcept>multifocal</OpticConcept>
-			<HapticDesign>4-loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>correcting</Aberration>
-			<saCorrection>-0.11</saCorrection>
-			<Toric>no</Toric>
-		</Specifications>
-		<Availability>
-			<Sphere range="1">
-				<From>10</From>
-				<To>35</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Addition distance="near">3.5</Addition>
-			<Addition distance="intermediate">1.75</Addition>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.8</Ultrasound>
-			<SRKt>118.8</SRKt>
-			<Haigis>
-				<a0>1.36</a0>
-				<a1>0.4</a1>
-				<a2>0.1</a2>
-			</Haigis>
-			<HofferQ>5.35</HofferQ>
-			<Holladay1>1.6</Holladay1>
-			<Barrett>
-				<LF>1.78</LF>
-				<DF>1</DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1023">
-		<Manufacturer>Physiol</Manufacturer>
-		<Name>FineVision Pod F</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>2.2</IncisionWidth>
-			<InjectorSize>2.2</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>11.4</HapticDiameter>
-			<OpticConcept>multifocal</OpticConcept>
-			<HapticDesign>Double C-loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>correcting</Aberration>
-			<saCorrection>-0.11</saCorrection>
-			<Toric>no</Toric>
-		</Specifications>
-		<Availability>
-			<Sphere range="1">
-				<From>6</From>
-				<To>35</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Addition distance="near">3.5</Addition>
-			<Addition distance="intermediate">1.75</Addition>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.95</Ultrasound>
-			<SRKt>118.95</SRKt>
-			<Haigis>
-				<a0>1.36</a0>
-				<a1>0.4</a1>
-				<a2>0.1</a2>
-			</Haigis>
-			<HofferQ>5.59</HofferQ>
-			<Holladay1>1.83</Holladay1>
-			<Barrett>
-				<LF>1.86</LF>
-				<DF>1</DF>
-			</Barrett>
-			<Olsen></Olsen>
-		</Constants>
-		<Constants type="optimized" results="0">
-			<SRKt></SRKt>
-			<Haigis>
-				<a0></a0>
-				<a1></a1>
-				<a2></a2>
-			</Haigis>
-			<HofferQ></HofferQ>
-			<Holladay1></Holladay1>
-		</Constants>
-	</Lens>
-	<Lens id="1024">
-		<Manufacturer>Physiol</Manufacturer>
-		<Name>FineVision Pod FT</Name>
-		<Specifications>
-			<SinglePiece>yes</SinglePiece>
-			<OpticMaterial>acrylic</OpticMaterial>
-			<HapticMaterial></HapticMaterial>
-			<Preloaded>no</Preloaded>
-			<Foldable>yes</Foldable>
-			<IncisionWidth>2</IncisionWidth>
-			<InjectorSize>2</InjectorSize>
-			<Hydro>hydrophilic</Hydro>
-			<Filter>yellow</Filter>
-			<RefractiveIndex>1.46</RefractiveIndex>
-			<AbbeNumber>58</AbbeNumber>
-			<Achromatic>no</Achromatic>
-			<OpticDiameter>6</OpticDiameter>
-			<HapticDiameter>11.4</HapticDiameter>
-			<OpticConcept>multifocal</OpticConcept>
-			<HapticDesign>Double C-loop</HapticDesign>
-			<IntendedLocation>capsular bag</IntendedLocation>
-			<OpticDesign>asphere</OpticDesign>
-			<Aberration>correcting</Aberration>
-			<saCorrection>-0.11</saCorrection>
-			<Toric>yes</Toric>
-		</Specifications>
-		<Availability refractivePower="spherical equivalent" tNotation="no">
-			<Sphere range="1">
-				<From>6</From>
-				<To>35</To>
-				<Increment>0.5</Increment>
-			</Sphere>
-			<Cylinder range="1">
-				<From>1</From>
-				<To>1.5</To>
-				<Increment>0.5</Increment>
-			</Cylinder>
-			<Cylinder range="2">
-				<From>2.25</From>
-				<To>6</To>
-				<Increment>0.75</Increment>
-			</Cylinder>
-			<Addition distance="near">3.5</Addition>
-			<Addition distance="intermediate">1.75</Addition>
-		</Availability>
-		<Constants type="nominal">
-			<Ultrasound>118.95</Ultrasound>
-			<SRKt>118.95</SRKt>
-			<Haigis>
-				<a0>1.36</a0>
-				<a1>0.4</a1>
-				<a2>0.1</a2>
-			</Haigis>
-			<HofferQ>5.59</HofferQ>
-			<Holladay1>1.83</Holladay1>
-			<Barrett>
-				<LF>1.86</LF>
-				<DF>1</DF>
 			</Barrett>
 			<Olsen></Olsen>
 		</Constants>

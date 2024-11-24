@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -3511,7 +3511,7 @@ liste des villes</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>420</y>
+               <y>392</y>
                <width>221</width>
                <height>21</height>
               </rect>
@@ -3524,7 +3524,7 @@ liste des villes</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>400</y>
+               <y>372</y>
                <width>360</width>
                <height>21</height>
               </rect>
@@ -3537,7 +3537,7 @@ liste des villes</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>115</y>
+               <y>111</y>
                <width>241</width>
                <height>55</height>
               </rect>
@@ -3560,12 +3560,12 @@ les motifs de consultation</string>
               </size>
              </property>
             </widget>
-            <widget class="QLabel" name="VersionBaselabel">
+            <widget class="QLabel" name="VersionDatabaslabel">
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>470</y>
-               <width>221</width>
+               <y>441</y>
+               <width>171</width>
                <height>21</height>
               </rect>
              </property>
@@ -3577,7 +3577,7 @@ les motifs de consultation</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>380</y>
+               <y>352</y>
                <width>221</width>
                <height>21</height>
               </rect>
@@ -3590,7 +3590,7 @@ les motifs de consultation</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>60</y>
+               <y>58</y>
                <width>241</width>
                <height>55</height>
               </rect>
@@ -3613,12 +3613,12 @@ de passe administrateur</string>
               </size>
              </property>
             </widget>
-            <widget class="QLabel" name="VersionRufuslabel">
+            <widget class="QLabel" name="VersionRufuslbl">
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>450</y>
-               <width>221</width>
+               <y>414</y>
+               <width>171</width>
                <height>21</height>
               </rect>
              </property>
@@ -3630,7 +3630,7 @@ de passe administrateur</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>170</y>
+               <y>164</y>
                <width>241</width>
                <height>55</height>
               </rect>
@@ -3657,7 +3657,7 @@ des organismes bancaires</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>230</y>
+               <y>222</y>
                <width>241</width>
                <height>55</height>
               </rect>
@@ -3683,7 +3683,7 @@ des organismes bancaires</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>290</y>
+               <y>280</y>
                <width>161</width>
                <height>21</height>
               </rect>
@@ -3696,7 +3696,7 @@ des organismes bancaires</string>
              <property name="geometry">
               <rect>
                <x>17</x>
-               <y>310</y>
+               <y>300</y>
                <width>311</width>
                <height>26</height>
               </rect>
@@ -3706,13 +3706,65 @@ des organismes bancaires</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>348</y>
+               <y>330</y>
                <width>360</width>
                <height>21</height>
               </rect>
              </property>
              <property name="text">
               <string>AdresseTCP</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VersionIOLlabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>470</y>
+               <width>171</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Version de la base Implants</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VersionBaseIOLlabel">
+             <property name="geometry">
+              <rect>
+               <x>200</x>
+               <y>470</y>
+               <width>141</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Version de la base IOL</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VersionBaselabel">
+             <property name="geometry">
+              <rect>
+               <x>200</x>
+               <y>441</y>
+               <width>121</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Version de la base</string>
+             </property>
+            </widget>
+            <widget class="QLabel" name="VersionRufuslabel">
+             <property name="geometry">
+              <rect>
+               <x>200</x>
+               <y>414</y>
+               <width>171</width>
+               <height>21</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Version de Rufus</string>
              </property>
             </widget>
            </widget>
@@ -3865,19 +3917,9 @@ des organismes bancaires</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpPushButton</class>
+   <class>UpSmallButton</class>
    <extends>QPushButton</extends>
-   <header>uppushbutton.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpTableWidget</class>
-   <extends>QTableWidget</extends>
-   <header>uptablewidget.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
+   <header>upsmallbutton.h</header>
   </customwidget>
   <customwidget>
    <class>UpLabel</class>
@@ -3885,14 +3927,24 @@ des organismes bancaires</string>
    <header>uplabel.h</header>
   </customwidget>
   <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpPushButton</class>
+   <extends>QPushButton</extends>
+   <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
   </customwidget>
   <customwidget>
-   <class>UpSmallButton</class>
-   <extends>QPushButton</extends>
-   <header>upsmallbutton.h</header>
+   <class>UpTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header>uptablewidget.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>
