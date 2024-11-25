@@ -514,11 +514,17 @@ void DataBase::initParametresSysteme()
     paramData[CP_HEUREBKUP_PARAMSYSTEME]              = paramdata.at(15).toTime().toString("HH:mm:ss");
     paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(16).toString();
     m_parametres->setData(paramData);
-    if (m_parametres->versionbase()>73)
+
+    //! from versionbase 73
+    req = "SELECT COUNT(*) FROM "
+          "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+          "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VILLES_PARAMSYSTEME "') as chp;";
+    QVariantList listquery = getFirstRecordFromStandardSelectSQL(req,ok);
+    if (listquery.size() > 0)
     {
         req = "select " CP_VILLES_PARAMSYSTEME ", " CP_COTATIONS_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME
               " from " TBL_PARAMSYSTEME;
-        QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+        paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
         if(!ok || paramdata.size() == 0)
             return ;
         paramData[CP_VILLES_PARAMSYSTEME]                 = (paramdata.at(0).toInt() == 1);
@@ -526,10 +532,16 @@ void DataBase::initParametresSysteme()
         paramData[CP_COMPTA_PARAMSYSTEME]                 = (paramdata.at(2).toInt() == 1);
         m_parametres->setData(paramData);
     }
-    if (m_parametres->versionbase()>78)
+
+    //! from versionbase 79
+    req = "SELECT COUNT(*) FROM "
+          "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+          "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VERSIONBASEIOL_PARAMSYSTEME "') as chp;";
+    listquery = getFirstRecordFromStandardSelectSQL(req,ok);
+    if (listquery.size() > 0)
     {
         req = "select " CP_VERSIONBASEIOL_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
-        QVariantList paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+        paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
         if(!ok || paramdata.size() == 0)
             return ;
         paramData[CP_VERSIONBASEIOL_PARAMSYSTEME]         = (paramdata.at(0).toDouble());
