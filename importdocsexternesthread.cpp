@@ -110,7 +110,20 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             datestring  = datestring.left(8);
         }
         else
-             datestring      = m_currentdate.toString("yyyyMMdd");
+            datestring      = m_currentdate.toString("yyyyMMdd");
+        Titredoc    = "OCT - Topcon";
+        Typedoc     = "OCT";
+        SousTypeDoc = "Topcon";
+    }
+    else if (Appareil == "TOPCON MAESTRO")
+    {
+        if (nomfiledoc.split("_").size()>1)
+        {
+            datestring  = nomfiledoc.split("_").at(1);
+            datestring  = datestring.left(8);
+        }
+        else
+            datestring      = m_currentdate.toString("yyyyMMdd");
         Titredoc    = "OCT - Topcon";
         Typedoc     = "OCT";
         SousTypeDoc = "Topcon";
@@ -408,6 +421,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         idPatient           = nomfiledoc.split("_").at(0);
     else if (Appareil == "TOPCON TRITON")
         idPatient           = nomfiledoc.split("_").at(2);
+    else if (Appareil == "TOPCON MAESTRO")
+        idPatient           = nomfiledoc.split("_").at(0);
     else if (Appareil == "CANON CR-2")
         idPatient           = nomfiledoc.split("_").at(0);
     else if (Appareil == "OTI SLO")
