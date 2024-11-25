@@ -29,6 +29,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSystemTrayIcon>
 #include <QPdfDocument>
 #include <QMovie>
+#include <QStyleFactory>
 
 #include <dlg_actesprecedents.h>
 #include <dlg_autresmesures.h>

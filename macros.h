@@ -369,6 +369,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_IDUSERPARENT_USRCONNECT                      "UserParent"
 #define CP_IDLIEU_USRCONNECT                            "idLieu"
 #define CP_HEUREDERNIERECONNECTION_USRCONNECT           "HeureDerniereConnexion"
+#define CP_SECONDESDERNIERECONNECTION_USRCONNECT        "SecondesDerniereConnexion"
 #define CP_IDPATENCOURS_USRCONNECT                      "idPat"
 
                             //! Table Rufus.utilisateurs

@@ -217,7 +217,7 @@ void Topcon::LectureDonneesXMLnsSBJ(QDomDocument docxml)
         bool readedVP = false;
 
         // Get ExamDistances (VL et VP)
-        QList<QDomElement> ExamDistances = Utils::XMLgetElementsByTagnameNS(xml, nsURI, "ExamDistance" );
+        QList<QDomElement> ExamDistances = Utils::XMLgetElementsByTagnameNS(elemType, nsURI, "ExamDistance" );
         num=ExamDistances.count();
         for(int i=0; i<num; i++)
         {
@@ -293,7 +293,7 @@ void Topcon::LectureDonneesXMLnsSBJ(QDomDocument docxml)
                     readedVL = true;
                 }
                 // PD
-                QDomElement elemPD =  Utils::XMLfirstElementByTagNameNS(RefractionData, nsURI,"PD");
+                QDomElement elemPD =  Utils::XMLfirstElementByTagNameNS(ExamDistance, nsURI,"PD");
                 if(!elemPD.isNull())
                 {
                     //PDD = Utils::XMLfirstElementValueByTagNameNS(PDis, nsURI, "R");
@@ -304,6 +304,23 @@ void Topcon::LectureDonneesXMLnsSBJ(QDomDocument docxml)
                     PD = PD.replace(",",".");
                     Datas::I()->mesureacuite->setecartIP(static_cast<int>(std::round(PD.toDouble())));
                 }
+                QDomElement AV =  Utils::XMLfirstElementByTagNameNS(ExamDistance, nsURI,"VA");
+                if(!AV.isNull())
+                {
+                    QString AVLOD(""), AVLOG("");
+                    AVLOD = Utils::XMLfirstElementValueByTagNameNS(AV, nsURI, "R");
+                    AVLOD = AVLOD.replace(",",".").replace(" ","0");
+                    AVLOG = Utils::XMLfirstElementValueByTagNameNS(AV, nsURI, "L");
+                    AVLOG = AVLOG.replace(",",".").replace(" ","0");
+
+                    Datas::I()->mesureacuite->setavlOD(AVLOD);
+                    Datas::I()->mesureacuite->setavlOG(AVLOG);
+                }
+                //<nsSBJ:VA>
+                //<nsSBJ:R/>
+                //<nsSBJ:L/>
+                //<nsSBJ:B unit="Decimal"> 7.5</nsSBJ:B>
+                //</nsSBJ:VA>
 
             }// if(mode == "VL")
             else if(mode == "VP")
@@ -345,23 +362,18 @@ void Topcon::LectureDonneesXMLnsSBJ(QDomDocument docxml)
                     readedVP = true;
 
                 }
-                QDomElement AV =  Utils::XMLfirstElementByTagNameNS(RefractionData, nsURI,"VA");
+                QDomElement AV =  Utils::XMLfirstElementByTagNameNS(ExamDistance, nsURI,"VA");
                 if(!AV.isNull())
                 {
                     QString AVLOD(""), AVLOG("");
                     AVLOD = Utils::XMLfirstElementValueByTagNameNS(AV, nsURI, "R");
                     AVLOD = AVLOD.replace(",",".").replace(" ","0");
                     AVLOG = Utils::XMLfirstElementValueByTagNameNS(AV, nsURI, "L");
-                    AVLOG = AVLOD.replace(",",".").replace(" ","0");
+                    AVLOG = AVLOG.replace(",",".").replace(" ","0");
 
-                    Datas::I()->mesureacuite->setavlOD(AVLOD);
-                    Datas::I()->mesureacuite->setavlOG(AVLOG);
+                    Datas::I()->mesureacuite->setavpOD(AVLOD);
+                    Datas::I()->mesureacuite->setavpOG(AVLOG);
                 }
-                //<nsSBJ:VA>
-                //<nsSBJ:R/>
-                //<nsSBJ:L/>
-                //<nsSBJ:B unit="Decimal"> 7.5</nsSBJ:B>
-                //</nsSBJ:VA>
 
             } // if(mode == "VP")
 
@@ -502,20 +514,24 @@ void AddCommon(QDomDocument LMxml, QDomElement ophtalmology)
 // Add Pupillary Distance to Measure Element
 void AddPD(QDomDocument RMxml, QDomElement elemMeasure, QString nsURI)
 {
-    // Measure -> PD
-    if (Datas::I()->mesureautoref->ecartIP()>0)
-    {
-        QString value=QString::number(Datas::I()->mesureautoref->ecartIP());
-        QDomElement elePD = CreateNode(RMxml, elemMeasure, nsURI, "PD");
-        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Distance", value);
+// doesn't work with CV5000PC
+    return;
 
-        // Measure -> PD VOID data
-        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "DistanceR");
-        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "DistanceL");
-        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Near");
-        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearR");
-        CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearL");
-    }
+    // // Measure -> PD
+    // if (Datas::I()->mesureautoref->ecartIP()>0)
+    // {
+    //     QString value=QString::number(Datas::I()->mesureautoref->ecartIP());
+    //     QDomElement elePD = CreateNode(RMxml, elemMeasure, nsURI, "PD");
+    //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Distance", value);
+
+    //     // Measure -> PD VOID data
+    //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "DistanceR");
+    //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "DistanceL");
+    //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "Near");
+    //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearR");
+    //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearL");
+    // }
+
 }
 
 void AddLMVoidData(QDomDocument LMxml, QDomElement eleS, QString nsURI)
@@ -696,7 +712,8 @@ void AddLMJOIA(QDomDocument LMxml, QDomElement ophtalmology)
 
 
     // Measure -> PD
-    AddPD(LMxml, elemMeasure, nsURI);
+    // doesn't work
+    //AddPD(LMxml, elemMeasure, nsURI);
 }
 
 

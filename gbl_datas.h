@@ -95,6 +95,7 @@ public:
     TypesTiers *typestiers;                 //!< tous les types tiers payants
     Users *users;                           //!< Les users
     PostesConnectes *postesconnectes;       //!< Les postesconnectes
+    PosteConnecte   *ceposte;               //!< Ce poste
     Villes *villes;                         //!< toutes les villes
     QMap<int, Cotations*> *listecotations;  //!< la liste des cotations par iduser
     MesureRefraction*   mesurefronto;

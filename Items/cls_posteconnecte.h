@@ -54,6 +54,7 @@ private:
      * un poste désigné par la fonction Procedures::setPosteImportDocs(bool a) surveille les users connectes toutes les mintutes
      * si un couple user-macadress n'a pas remis à jour sa connection depuis plus d'une minute, il est supprimé de la liste des users connectés */
     QDateTime   m_dateheurederniereconnexion = QDateTime();   //!> la date et l'heure de la connexion
+    int         m_secondesderniereconnexion = 0;
 
 public:
 
@@ -67,6 +68,7 @@ public:
     int idlieu() const                              { return m_idlieu; }
     int idpatencours() const                        { return m_idpatencours; }
     QDateTime dateheurederniereconnexion() const    { return m_dateheurederniereconnexion; }
+    int secondesderniereconnexion() const           { return m_secondesderniereconnexion; }
     QString ipadress() const                        { return m_ipadress; }
     bool isadmin() const                            { return m_macadress.contains(NOM_ADMINISTRATEUR);}
 
@@ -95,6 +97,8 @@ public:
                                                               m_data[CP_IDPATENCOURS_USRCONNECT] = id; }
     void setdateheurederniereconnexion(QDateTime datetime)  { m_dateheurederniereconnexion = datetime;
                                                               m_data[CP_HEUREDERNIERECONNECTION_USRCONNECT] = datetime.toMSecsSinceEpoch(); }
+    void setsecondesderniereconnexion(int seconds)          { m_secondesderniereconnexion = seconds;
+                                                              m_data[CP_SECONDESDERNIERECONNECTION_USRCONNECT] = seconds; }
 };
 
 #endif // CLS_POSTECONNECTE_H

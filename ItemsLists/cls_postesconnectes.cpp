@@ -96,7 +96,9 @@ PosteConnecte* PostesConnectes::admin(Item::UPDATE upd)
 
 PosteConnecte* PostesConnectes::currentpost()
 {
-    return getByStringId(Utils::MACAdress() + " - " + QString::number(DataBase::I()->idUserConnected()));
+    QString macAddr = Utils::MACAdress();
+    int idUser = DataBase::I()->idUserConnected();
+    return getByStringId(macAddr + " - " + QString::number(idUser));
 }
 
 

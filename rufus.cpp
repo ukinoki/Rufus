@@ -28,6 +28,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
+#ifdef Q_OS_WINDOWS
+    qApp->setStyle(QStyleFactory::create("Fusion"));
+#endif
     qApp->setStyleSheet(Styles::StyleAppli());
     QToolTip::setPalette(QPalette(Qt::yellow));
 
@@ -4105,9 +4108,10 @@ void Rufus::MAJPosteConnecte()
     // On en profite au passage pour sauvegarder la position de la fenêtre principale
     //bug Qt? -> cette ligne de code ne peut pas être mise juste avant exit(0) sinon elle n'est pas éxécutée...
     proc->settings()->setValue(Position_Fiche Nom_fiche_Rufus, saveGeometry());
-    if (currentpost() != Q_NULLPTR)
+    PosteConnecte* currentPoste = currentpost();
+    if (currentPoste != Q_NULLPTR)
     {
-        ItemsList::update(currentpost(), CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
+        ItemsList::update(currentPoste, CP_HEUREDERNIERECONNECTION_USRCONNECT, db->ServerDateTime());
     }
     else
     {
@@ -4115,6 +4119,7 @@ void Rufus::MAJPosteConnecte()
         Flags::I()->MAJFlagSalleDAttente();
     }
 }
+
 
 void Rufus::ModifCotationActe()
 {
@@ -6001,7 +6006,7 @@ void Rufus::VerifVerrouDossier()
     QList<PosteConnecte*> listpostsAEliminer = QList<PosteConnecte*>();
     foreach(PosteConnecte* post, *Datas::I()->postesconnectes->postesconnectes())
     {
-        qint64 tempsecouledepuisactualisation = post->dateheurederniereconnexion().secsTo(timenow);
+        int tempsecouledepuisactualisation = post->secondesderniereconnexion();
         if (tempsecouledepuisactualisation > 240)
         {
             qDebug() << "Suppression d'un poste débranché accidentellement" << "Rufus::VerifVerrouDossier()";

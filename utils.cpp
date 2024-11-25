@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "utils.h"
+#include "gbl_datas.h"
 
 Utils* Utils::instance =  Q_NULLPTR;
 Utils* Utils::I()
@@ -686,36 +687,45 @@ QByteArray Utils::IntToArray(int source)
 
 QString Utils::IPAdress()
 {
-    QString m_ipadress = "";
-    //autre méthode
-    /*!
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses())
-        if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress::LocalHost)
-        {
-            IPadress = address.toString();
-            break;
-        }
-        */
+    PosteConnecte *ceposte = Datas::I()->ceposte;
+    if( ceposte->ipadress() == "") { // Calculate and set if void
+        QString m_ipadress = DataBase::I()->getClientIP();
+        ceposte->setipadress(m_ipadress);
 
-    //autre méthode
-    foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
-    {
-        QNetworkInterface::InterfaceFlags flags = netInterface.flags();
-        if(flags.testFlag(QNetworkInterface::IsRunning) && !flags.testFlag(QNetworkInterface::IsLoopBack))
+        QString m_macadress = "";
+        //search interface
+        bool ipFound = false;
+        foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
         {
-            foreach (const QNetworkAddressEntry &address, netInterface.addressEntries())
+            QNetworkInterface::InterfaceFlags flags = netInterface.flags();
+            if(flags.testFlag(QNetworkInterface::IsRunning) && !flags.testFlag(QNetworkInterface::IsLoopBack))
             {
-                if(address.ip().protocol() == QAbstractSocket::IPv4Protocol)
+                foreach (const QNetworkAddressEntry &address, netInterface.addressEntries())
                 {
-                    m_ipadress = address.ip().toString();
-                    break;
+                    if(address.ip().toString() == m_ipadress)
+                    {
+                        m_macadress = netInterface.hardwareAddress();
+                        ipFound = true;
+                        break;
+                    }
                 }
             }
+            if (ipFound)
+                break;
         }
-        if (m_ipadress != "")
-            break;
+        if(m_macadress == "") // if interface hasn't MAC (e.g. WireGuard VPN adapter), create a MAC from IP (must be unique in the server)
+        {
+            QStringList l = m_ipadress.split(".");
+
+            m_macadress = "00:00";
+            m_macadress += ":" + QString("%1").arg(l[0].toInt(), 2, 16, QLatin1Char( '0' ));
+            m_macadress += ":" + QString("%1").arg(l[1].toInt(), 2, 16, QLatin1Char( '0' ));
+            m_macadress += ":" + QString("%1").arg(l[2].toInt(), 2, 16, QLatin1Char( '0' ));
+            m_macadress += ":" + QString("%1").arg(l[3].toInt(), 2, 16, QLatin1Char( '0' ));
+        }
+        ceposte->setmacadress(m_macadress);
     }
-    return m_ipadress;
+    return ceposte->ipadress();
 }
 
 // https://doc-snapshots.qt.io/qt6-dev/qtcore-changes-qt6.html
@@ -759,16 +769,8 @@ QString Utils::calcIP(QString IP, bool aveczero)
 
 QString Utils::MACAdress()
 {
-    QString m_macadress = "";
-    QString IPadress = IPAdress();
-    foreach (const QNetworkInterface &networkInterface, QNetworkInterface::allInterfaces()) {
-        foreach (const QNetworkAddressEntry &entry, networkInterface.addressEntries()) {
-            if (entry.ip().toString() == IPadress) {
-                m_macadress = networkInterface.hardwareAddress();
-                break;
-            }
-        }
-    }
+    IPAdress(); //Set IP and MAC if not
+    QString m_macadress = Datas::I()->ceposte->macadress();
     return m_macadress;
 }
 

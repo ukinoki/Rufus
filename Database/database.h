@@ -182,6 +182,7 @@ public:
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
     void                    VideDatabases();                    /*! vide la base de données */
     QString                 dirimagerie();                      /*! defines dir of storage of all images and video - corresponds to dir pointed by variable secure_file_pric registered in db */
+    QString                 getClientIP();                      /*! gets client IP from server connection */
 
     /*
      * Parametres système

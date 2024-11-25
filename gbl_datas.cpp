@@ -58,6 +58,7 @@ Datas::Datas()
     typestiers          = new TypesTiers();
     users               = new Users();
     postesconnectes     = new PostesConnectes();
+    ceposte             = new PosteConnecte();
     villes              = new Villes();
     listecotations      = new QMap<int, Cotations*>;
     mesurefronto        = new MesureRefraction();

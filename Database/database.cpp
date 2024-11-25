@@ -467,6 +467,17 @@ QVariantList DataBase::getFirstRecordFromStandardSelectSQL(QString req , bool &O
         return QVariantList();
 }
 
+QString DataBase::getClientIP()
+{
+    QString ip="";
+    bool OK;
+    QVariantList list = getFirstRecordFromStandardSelectSQL("select host from information_schema.processlist WHERE ID=connection_id();" , OK, "");
+    if( OK && list.size() > 0) {
+        ip=list.at(0).toString().split(":").at(0); // response = ip:port
+    }
+    return ip;
+}
+
 void DataBase::VideDatabases()
 {
     UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Suppression de l'ancienne base Rufus en cours"), Icons::icSunglasses(), 3000);
@@ -1072,6 +1083,7 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
     QString req = "select " CP_NOMPOSTE_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
                   CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                   CP_IDPATENCOURS_USRCONNECT ", " CP_IPADRESS_USRCONNECT
+                  ", TIMESTAMPDIFF(SECOND," CP_HEUREDERNIERECONNECTION_USRCONNECT ",NOW())" CP_SECONDESDERNIERECONNECTION_USRCONNECT
                   " from " TBL_USERSCONNECTES
                   " where " CP_IDUSER_USRCONNECT " = " + QString::number(iduser) +
                   " and " CP_MACADRESS_USRCONNECT " = '" + macadress + "'";
@@ -1092,6 +1104,7 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
         posteData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(7).toInt();
         posteData["stringid"]                               = macadress.split(" ").at(0) + " - " + QString::number(iduser);
         posteData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(8).toString();
+        posteData[CP_SECONDESDERNIERECONNECTION_USRCONNECT] = postlist.at(i).at(9).toInt();
     }
     return posteData;
 }
@@ -1102,6 +1115,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
     QString req = "select " CP_IDUSER_USRCONNECT ", " CP_NOMPOSTE_USRCONNECT ", " CP_MACADRESS_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
                   CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                   CP_IDPATENCOURS_USRCONNECT ", " CP_IPADRESS_USRCONNECT
+                  ", TIMESTAMPDIFF(SECOND," CP_HEUREDERNIERECONNECTION_USRCONNECT ",NOW())" CP_SECONDESDERNIERECONNECTION_USRCONNECT
                   " from " TBL_USERSCONNECTES ;
     QList<QVariantList> postlist = StandardSelectSQL(req, ok);
     if( !ok || postlist.size()==0 )
@@ -1121,6 +1135,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
         jData[CP_IDPATENCOURS_USRCONNECT]               = postlist.at(i).at(9).toInt();
         jData["stringid"]                               = postlist.at(i).at(2).toString().split(" ").at(0) + " - " + postlist.at(i).at(0).toString();
         jData[CP_IPADRESS_USRCONNECT]                   = postlist.at(i).at(10).toString();
+        jData[CP_SECONDESDERNIERECONNECTION_USRCONNECT] = postlist.at(i).at(11).toInt();
         PosteConnecte *post = new PosteConnecte(jData);
         postes << post;
     }
