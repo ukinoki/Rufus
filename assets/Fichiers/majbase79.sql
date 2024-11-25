@@ -267,6 +267,14 @@ BEGIN
             ALTER TABLE `rufus`.`ParametresSysteme`
             ADD COLUMN `VersionBaseIOL` DOUBLE NULL DEFAULT 1 AFTER `VersionBase`;
         END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT idAppareil
+            FROM `rufus`.`listeappareils`
+            WHERE TitreExamen = 'OCT' AND NomAppareil = 'TOPCON MAESTRO') as chp;
+            IF tot=0
+            THEN
+                INSERT INTO `rufus`.`listeappareils` (`TitreExamen`, `NomAppareil`) VALUES ('OCT', 'TOPCON MAESTRO');
+            END IF;
 UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 79, VersionBaseIOL = 1;
 END|
 
