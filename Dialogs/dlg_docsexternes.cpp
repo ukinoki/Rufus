@@ -41,10 +41,10 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 #endif
     m_font              .setPointSize(m_font.pointSize()-d);
 
-    obj_graphicscene        = new QGraphicsScene(this);
     wdg_listdocstreewiew    = new QTreeView(this);
     wdg_inflabel            = new QLabel();
     wdg_inflabel            ->setFont(font);
+    wdg_inflabel            ->setParent(wdg_scrolltablewidget);
 
     wdg_scrolltablewidget   = new UpTableWidget(this);                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
     wdg_scrolltablewidget->horizontalHeader() ->setVisible(false);
@@ -54,12 +54,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_scrolltablewidget   ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
     wdg_scrolltablewidget   ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     wdg_scrolltablewidget   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
-
-    graphview_view          = new QGraphicsView(obj_graphicscene, this);                // utilisé pour afficher les jpg et les video
-    graphview_view          ->installEventFilter(this);
-    graphview_view          ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    graphview_view          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    graphview_view          ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
+    wdg_scrolltablewidget   ->setColumnCount(1);
 
     wdg_listdocstreewiew    ->setFixedWidth(185);
     wdg_listdocstreewiew    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -75,7 +70,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     QHBoxLayout *lay    = new QHBoxLayout();
     lay                 ->addWidget(wdg_listdocstreewiew,2);
     lay                 ->addWidget(wdg_scrolltablewidget,8);
-    lay                 ->addWidget(graphview_view,8);
     lay                 ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
     lay                 ->setSpacing(10);
     dlglayout()         ->insertLayout(0,lay);
@@ -415,12 +409,12 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton                ->setVisible(j);
     RecordButton                ->disconnect();
-    QPixmap pix;
     m_listpixmp    .clear();
     wdg_scrolltablewidget ->clear();
-    wdg_scrolltablewidget ->setVisible(false);
-    graphview_view ->setVisible(false);
-    obj_graphicscene       ->clear();
+    if (obj_videoitem != Q_NULLPTR)      { delete obj_videoitem;     obj_videoitem = Q_NULLPTR; }
+    if (wdg_graphview != Q_NULLPTR)      { delete wdg_graphview;     wdg_graphview = Q_NULLPTR; }
+    if (obj_graphicscene != Q_NULLPTR)   { delete obj_graphicscene;  obj_graphicscene = Q_NULLPTR; }
+    wdg_scrolltablewidget       ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
     double x;
     double y;
 
@@ -451,30 +445,43 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
             return;
         }
-        wdg_inflabel->setParent(graphview_view);
         QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
         wdg_inflabel    ->setText(sstitre);
 
         m_typedoc           = VIDEO;
-        graphview_view      ->setVisible(true);
-        medobj_videoitem    = new QGraphicsVideoItem;
-        obj_graphicscene    ->addItem(medobj_videoitem);
+
+        obj_graphicscene    = new QGraphicsScene();
+
+        wdg_graphview       = new QGraphicsView(obj_graphicscene);                // utilisé pour afficher les jpg et les video
+        wdg_graphview       ->installEventFilter(this);
+        wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+        obj_videoitem       = new QGraphicsVideoItem;
+
+        obj_graphicscene    ->addItem(obj_videoitem);
+
         medplay_player      = new QMediaPlayer;
         medplay_player      ->setSource( QUrl::fromLocalFile(filename));
+        medplay_player      ->setVideoOutput(obj_videoitem);
+
         wdg_playctrl        ->setPlayer(medplay_player);
-        medobj_videoitem    ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
-        medplay_player      ->setVideoOutput(medobj_videoitem);
+
+        obj_videoitem       ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
         wdg_playctrl        ->setVisible(true);
         PrintButton         ->setVisible(false);
         connect (RecordButton,  &QPushButton::clicked,   this,   &dlg_docsexternes::EnregistreVideo);
-        x = medobj_videoitem->size().width();
-        y = medobj_videoitem->size().height();
+        obj_videoitem       ->setSize(QSize(wdg_graphview->width(),wdg_graphview->height()));
+        x                   = obj_videoitem->size().width();
+        y                   = obj_videoitem->size().height();
         m_idealproportion   = x/y;
-        medobj_videoitem    ->setSize(QSize(graphview_view->width(),graphview_view->height()));
-        x = medobj_videoitem->size().width();
-        y = medobj_videoitem->size().height();
-        obj_graphicscene    ->setSceneRect(1,1,x-1,y-1);
+        obj_graphicscene    ->setSceneRect(0,0,x,y);
         wdg_playctrl        ->startplay();
+
+        wdg_scrolltablewidget   ->setRowHeight(0,obj_videoitem->size().height());
+        wdg_scrolltablewidget   ->setRowCount(1);
+        wdg_scrolltablewidget   ->setColumnWidth(0,wdg_scrolltablewidget->width()-2);
+        wdg_scrolltablewidget   ->setCellWidget(0,0,wdg_graphview);
     }
     else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
     {
@@ -495,51 +502,56 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
         if (docmt->imageformat() == JPG)     // le document est un JPG
         {
-            wdg_inflabel->setParent(graphview_view);
             m_typedoc                = JPG;
-            graphview_view             ->setVisible(true);
+
+            obj_graphicscene    = new QGraphicsScene();
+
+            wdg_graphview       = new QGraphicsView(obj_graphicscene);                      // utilisé pour afficher les jpg et les video
+            wdg_graphview       ->installEventFilter(this);
+            wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
             QImage image;
             if (!image.loadFromData(docmt->imageblob()))
             {
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 return;
             }
-            pix = QPixmap();
+            QPixmap pix         = QPixmap();
             QList<QScreen*> listscreens = QGuiApplication::screens();
             if (listscreens.size()>0)
                 pix = QPixmap::fromImage(image).scaled(QSize(listscreens.first()->geometry().width(),
                                                          listscreens.first()->geometry().height()),
                                                    Qt::KeepAspectRatioByExpanding,
                                                    Qt::SmoothTransformation);
-            x = pix.size().width();
-            y = pix.size().height();
+            x = pix.width();
+            y = pix.height();
             m_idealproportion = x/y;
             m_listpixmp << pix;
-            pix = QPixmap::fromImage(image).scaled(QSize(graphview_view->width()-2,graphview_view->height()-2),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-            obj_graphicscene   ->addPixmap(pix);
-            x = pix.size().width();
-            y = pix.size().height();
-            obj_graphicscene   ->setSceneRect(1,1,x-1,y-1);
+            pix = QPixmap::fromImage(image).scaled(QSize(wdg_scrolltablewidget->width(),wdg_scrolltablewidget->height()),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+            x = pix.width();
+            y = pix.height();
+            wdg_scrolltablewidget   ->setRowHeight(0,pix.height());
+            obj_graphicscene        ->addPixmap(pix);
+            obj_graphicscene        ->setSceneRect(0,0,x,y);
+            wdg_scrolltablewidget   ->setRowCount(1);
+            wdg_scrolltablewidget   ->setCellWidget(0,0,wdg_graphview);
         }
         else if (docmt->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
-            QList<QImage> listimg;// = Utils::calcImagefromPdf(filename);
-            // listimg = Utils::calcImagefromPdf(docmt->imageblob());
-            listimg = docmt->pagelist(); // Il aurait d'être
+            QList<QImage> listimg;
+            listimg = docmt->pagelist();
 
             if (listimg.size())
             {
-                wdg_inflabel->setParent(wdg_scrolltablewidget);
                 m_typedoc    = PDF;
-                wdg_scrolltablewidget ->setVisible(true);
-                wdg_scrolltablewidget ->setColumnCount(1);
                 wdg_scrolltablewidget ->setColumnWidth(0,wdg_scrolltablewidget->width()-2);
                 wdg_scrolltablewidget->setRowCount(listimg.size());
                 for (int i=0; i<listimg.size();++i)
                 {
                     QImage image = listimg.at(i);
                     //qDebug() << image.size();
-                    pix = QPixmap();
+                    QPixmap pix     = QPixmap();
                     QList<QScreen*> listscreens = QGuiApplication::screens();
                     if (listscreens.size()>0)
                         pix = QPixmap::fromImage(image).scaled(QSize(listscreens.first()->geometry().width(),
@@ -548,20 +560,22 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                                            Qt::SmoothTransformation);
                     if (i==0)
                     {
-                        x = pix.size().width();
-                        y = pix.size().height();
+                        x = pix.width();
+                        y = pix.height();
                         m_idealproportion = x/y;
                     }
                     m_listpixmp << pix;
-                    pix = QPixmap::fromImage(image).scaled(QSize(wdg_scrolltablewidget->width()-2,wdg_scrolltablewidget->height()-2),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-                    wdg_scrolltablewidget->setRowHeight(i,pix.height());
-                    UpLabel *lab = new UpLabel(wdg_scrolltablewidget);
-                    lab->resize(pix.width(),pix.height());
-                    lab->setPixmap(pix);
-                    lab->setContextMenuPolicy(Qt::CustomContextMenu);
+                    pix                     = QPixmap::fromImage(image).scaled(QSize(wdg_scrolltablewidget->width(),wdg_scrolltablewidget->height()),
+                                                                                Qt::KeepAspectRatioByExpanding,
+                                                                                Qt::SmoothTransformation);
+                    UpLabel *lab            = new UpLabel();
+                    lab                     ->resize(pix.width(),pix.height());
+                    lab                     ->setPixmap(pix);
+                    lab                     ->setContextMenuPolicy(Qt::CustomContextMenu);
                     connect(lab,    &UpLabel::clicked,                      this, &dlg_docsexternes::ZoomDoc);
                     connect(lab,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
-                    wdg_scrolltablewidget->setCellWidget(i,0,lab);
+                    wdg_scrolltablewidget   ->setRowHeight(i,pix.height());
+                    wdg_scrolltablewidget   ->setCellWidget(i,0,lab);
                 }
             }
         }
@@ -599,38 +613,39 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
-                    lbl->setPixmap(m_listpixmp.at(i).scaled(wfinal-2, hfinal-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-                    wdg_scrolltablewidget->setRowHeight(i,hfinal-2);
-                    wdg_scrolltablewidget->setColumnWidth(0,wfinal-2);
+                    lbl->setPixmap(m_listpixmp.at(i).scaled(wfinal, hfinal, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+                    wdg_scrolltablewidget->setRowHeight(i,hfinal);
+                    wdg_scrolltablewidget->setColumnWidth(0,wfinal);
                     if (i==0) wdg_scrolltablewidget->resize(wfinal, hfinal);
                 }
             }
         }
         else if (m_typedoc == VIDEO)
         {
-            graphview_view ->resize(wfinal, hfinal);
-            medobj_videoitem   ->setSize(QSize(wfinal-2, hfinal-2));
+            wdg_graphview ->resize(wfinal, hfinal);
+            obj_videoitem   ->setSize(QSize(wfinal, hfinal));
             obj_graphicscene->setSceneRect(1,1,wfinal-1,hfinal-1);
         }
         else if (m_typedoc == JPG)
         {
-            graphview_view ->resize(wfinal, hfinal);
-            obj_graphicscene->clear();
-            QPixmap pix = m_listpixmp.at(0).scaled(wfinal-2, hfinal-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-            obj_graphicscene->addPixmap(pix);
-            int x = pix.size().width();
-            int y = pix.size().height();
-            obj_graphicscene->setSceneRect(1,1,x-1,y-1);
+            wdg_graphview           ->resize(wfinal, hfinal);
+            obj_graphicscene        ->clear();
+            QPixmap pix             = m_listpixmp.at(0).scaled(wfinal,
+                                                   hfinal,
+                                                   Qt::KeepAspectRatioByExpanding,
+                                                   Qt::SmoothTransformation);
+            obj_graphicscene        ->addPixmap(pix);
+            int x                   = pix.width();
+            int y                   = pix.height();
+            obj_graphicscene        ->setSceneRect(0,0,x,y);
+            wdg_scrolltablewidget   ->setRowHeight(0,hfinal);
+            wdg_scrolltablewidget   ->setColumnWidth(0,wfinal);
         }
         if (listscreens.size())
             if ((w + m_wdeltaframe) > (listscreens.first()->geometry().width() - this->x()))
                 move(listscreens.first()->geometry().width() - (w + m_wdeltaframe), 0);
-    }
-
-    if (m_typedoc == PDF)
-        wdg_inflabel    ->setGeometry(10,wdg_scrolltablewidget->viewport()->height()-40, 500, 25);
-    else
-        wdg_inflabel    ->setGeometry(10,graphview_view->height() -40, 500, 25);
+    }   
+    wdg_inflabel    ->setGeometry(10,wdg_scrolltablewidget->viewport()->height()-40, 500, 25);
 }
 
 void dlg_docsexternes::BasculeTriListe(ModeTri mode)
@@ -1107,23 +1122,22 @@ void dlg_docsexternes::ZoomDoc()
 {
     if (m_mode == Normal)
     {
-        m_positionorigin      = pos();
+        m_positionorigin = pos();
         m_sizeorigin     = size();
         m_mode           = Zoom;
         wdg_scrolltablewidget     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomOut 30,30
-        graphview_view     ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomOut 30,30
 
         if (m_hdeltaframe == 0)   m_hdeltaframe = frameGeometry().height() - height();
         if (m_wdeltaframe == 0)   m_wdeltaframe = frameGeometry().width()  - width();
         if (m_hdelta == 0)
         {
-            if (m_typedoc == PDF)    m_hdelta  = height() - wdg_scrolltablewidget->height();
-            else                    m_hdelta  = height() - graphview_view->height();
+            if (m_typedoc == PDF)   m_hdelta  = height() - wdg_scrolltablewidget->height();
+            else                    m_hdelta  = height() - wdg_graphview->height();
         }
         if (m_wdelta == 0)
         {
-            if (m_typedoc == PDF)    m_wdelta  = width() - wdg_scrolltablewidget->width();
-            else                    m_wdelta  = width() - graphview_view->width();
+            if (m_typedoc == PDF)   m_wdelta  = width() - wdg_scrolltablewidget->width();
+            else                    m_wdelta  = width() - wdg_graphview->width();
         }
 
         // les dimensions maxi de la zone de visu
@@ -1156,31 +1170,36 @@ void dlg_docsexternes::ZoomDoc()
                 UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
-                    lbl->setPixmap(m_listpixmp.at(i).scaled(wfinal-2, hfinal-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-                    wdg_scrolltablewidget->setRowHeight(i,hfinal-2);
-                    wdg_scrolltablewidget->setColumnWidth(0,wfinal-2);
+                    lbl->setPixmap(m_listpixmp.at(i).scaled(wfinal, hfinal, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+                    wdg_scrolltablewidget->setRowHeight(i,hfinal);
+                    wdg_scrolltablewidget->setColumnWidth(0,wfinal);
                     if (i==0) wdg_scrolltablewidget->resize(wfinal, hfinal);
                 }
             }
         }
         else if (m_typedoc == JPG)
         {
-            obj_graphicscene->clear();
-            QPixmap pix = m_listpixmp.at(0).scaled(wfinal-2, hfinal-2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-            obj_graphicscene->addPixmap(pix);
-            int x = pix.size().width();
-            int y = pix.size().height();
-            obj_graphicscene->setSceneRect(1,1,x-1,y-1);
+            obj_graphicscene        ->clear();
+            QPixmap pix             = m_listpixmp.at(0).scaled(wfinal,
+                                                   hfinal,
+                                                   Qt::KeepAspectRatioByExpanding,
+                                                   Qt::SmoothTransformation);
+            obj_graphicscene        ->addPixmap(pix);
+            wdg_graphview           ->resize(wfinal, hfinal);
+            obj_graphicscene        ->setSceneRect(0,0,wfinal,hfinal);
+            wdg_scrolltablewidget   ->setRowHeight(0,hfinal);
+            wdg_scrolltablewidget   ->setColumnWidth(0,wfinal);
         }
         else if (m_typedoc == VIDEO)
         {
             if (obj_graphicscene->items().size()>0)
             {
                 if (dynamic_cast<QGraphicsVideoItem*>(obj_graphicscene->items().at(0)) != Q_NULLPTR)
-                    medobj_videoitem   ->setSize(QSize(wfinal-2,hfinal-2));
-                int x = int(medobj_videoitem->size().width());
-                int y = int(medobj_videoitem->size().height());
-                obj_graphicscene->setSceneRect(1,1,x-1,y-1);
+                    obj_videoitem       ->setSize(QSize(wfinal,hfinal));
+                wdg_graphview           ->resize(wfinal, hfinal);
+                obj_graphicscene        ->setSceneRect(0,0,wfinal,hfinal);
+                wdg_scrolltablewidget   ->setRowHeight(0,hfinal);
+                wdg_scrolltablewidget   ->setColumnWidth(0,wfinal);
             }
         }
         if (listscreens.size())
@@ -1189,9 +1208,10 @@ void dlg_docsexternes::ZoomDoc()
     else if (m_mode == Zoom)
     {
         wdg_scrolltablewidget     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        graphview_view     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         move(m_positionorigin);
         resize(m_sizeorigin);
+        int worigin = m_sizeorigin.width() - m_wdelta;
+        int horigin = m_sizeorigin.height() - m_hdelta;
         if (m_typedoc == PDF)
         {
             for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
@@ -1199,38 +1219,39 @@ void dlg_docsexternes::ZoomDoc()
                 UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
                 if (lbl != Q_NULLPTR)
                 {
-                    QPixmap pix = m_listpixmp.at(i).scaled(m_sizeorigin.width() - m_wdelta - 2, m_sizeorigin.height() - m_hdelta - 2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                    QPixmap pix = m_listpixmp.at(i).scaled(worigin, horigin, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
                     lbl->setPixmap(pix);
-                    wdg_scrolltablewidget->setRowHeight(i,pix.height());
-                    wdg_scrolltablewidget->setColumnWidth(0,pix.width());
-                    wdg_scrolltablewidget->resize(m_sizeorigin.width()-m_wdelta, m_sizeorigin.height()-m_hdelta);
+                    wdg_scrolltablewidget->setRowHeight(i,horigin);
+                    wdg_scrolltablewidget->setColumnWidth(0,worigin);
                 }
             }
         }
         else if (m_typedoc == JPG)
         {
             obj_graphicscene->clear();
-            QPixmap pix = m_listpixmp.at(0).scaled(m_sizeorigin.width() - m_wdelta - 2, m_sizeorigin.height() - m_hdelta - 2, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-            obj_graphicscene->addPixmap(pix);
-            int x = pix.size().width();
-            int y = pix.size().height();
-            obj_graphicscene->setSceneRect(1,1,x-1,y-1);
+            QPixmap pix = m_listpixmp.at(0).scaled(worigin, horigin, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            obj_graphicscene        ->addPixmap(pix);
+            wdg_graphview           ->resize(worigin,horigin);
+            obj_graphicscene        ->setSceneRect(0,0,worigin,horigin);
+            wdg_scrolltablewidget   ->setRowHeight(0,horigin);
+            wdg_scrolltablewidget   ->setColumnWidth(0,worigin);
         }
         else if (m_typedoc == VIDEO)
         {
             if (obj_graphicscene->items().size()>0)
             {
                 if (dynamic_cast<QGraphicsVideoItem*>(obj_graphicscene->items().at(0)) != Q_NULLPTR)
-                    medobj_videoitem   ->setSize(QSize(m_sizeorigin.width() - m_wdelta - 2, m_sizeorigin.height() - m_hdelta - 2));
-                int x = int(medobj_videoitem->size().width());
-                int y = int(medobj_videoitem->size().height());
-                obj_graphicscene->setSceneRect(1,1,x-1,y-1);
+                    obj_videoitem       ->setSize(QSize(worigin, horigin));
+                wdg_graphview           ->resize(worigin,horigin);
+                obj_graphicscene        ->setSceneRect(0,0,worigin,horigin);
+                wdg_scrolltablewidget   ->setRowHeight(0,horigin);
+                wdg_scrolltablewidget   ->setColumnWidth(0,worigin);
             }
         }
         m_mode           = Normal;
     }
     setEnregPosition(m_mode == Normal);
-    wdg_inflabel    ->move(10, (m_typedoc == PDF? wdg_scrolltablewidget->height() : graphview_view->height())-40);
+    wdg_inflabel    ->move(10, wdg_scrolltablewidget->height() -40);
 }
 
 bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
@@ -1240,49 +1261,53 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
         if (rszevent != Q_NULLPTR)
         {
-            for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
+            if (m_typedoc == PDF)
             {
-                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
-                if (lbl != Q_NULLPTR)
+                for (int i=0; i < wdg_scrolltablewidget->rowCount(); i++)
                 {
-                    lbl->setPixmap(m_listpixmp.at(i).scaled(wdg_scrolltablewidget->width(), wdg_scrolltablewidget->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
-                    wdg_scrolltablewidget->setRowHeight(i,lbl->pixmap().height());
-                    wdg_scrolltablewidget->setColumnWidth(i,lbl->pixmap().width());
+                    UpLabel *lbl = qobject_cast<UpLabel*>(wdg_scrolltablewidget->cellWidget(i,0));
+                    if (lbl != Q_NULLPTR)
+                    {
+                        lbl->setPixmap(m_listpixmp.at(i).scaled(wdg_scrolltablewidget->width(), wdg_scrolltablewidget->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation));
+                        wdg_scrolltablewidget->setRowHeight(i,lbl->pixmap().height());
+                        wdg_scrolltablewidget->setColumnWidth(i,lbl->pixmap().width());
+                    }
                 }
             }
-            wdg_inflabel    ->move(10,wdg_scrolltablewidget->viewport()->height()-40);
-        }
-    }
-    if (obj == graphview_view)
-    {
-        QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-        if (rszevent != Q_NULLPTR)
-        {
             if (m_typedoc == JPG)
             {
                 if (obj_graphicscene->items().size()>0)
                 {
                     obj_graphicscene->clear();
-                    QPixmap pix = m_listpixmp.at(0).scaled(graphview_view->width(), graphview_view->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+                    QPixmap pix = m_listpixmp.at(0).scaled(wdg_scrolltablewidget->width(), wdg_scrolltablewidget->height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
                     obj_graphicscene->addPixmap(pix);
-                    int x = pix.size().width();
-                    int y = pix.size().height();
-                    obj_graphicscene->setSceneRect(1,1,x-1,y-1);
-                 }
+                    int x = pix.width();
+                    int y = pix.height();
+                    wdg_graphview           ->resize(x,y);
+                    obj_graphicscene        ->setSceneRect(0,0,x,y);
+                    wdg_scrolltablewidget   ->setRowHeight(0,y);
+                    wdg_scrolltablewidget   ->setColumnWidth(0,x);
+                }
             }
             else if (m_typedoc == VIDEO)
             {
                 if (obj_graphicscene->items().size()>0)
                 {
                     if (dynamic_cast<QGraphicsVideoItem*>(obj_graphicscene->items().at(0)) != Q_NULLPTR)
-                        medobj_videoitem   ->setSize(QSize(graphview_view->width(),graphview_view->height()));
-                    int x = int(medobj_videoitem->size().width());
-                    int y = int(medobj_videoitem->size().height());
-                    obj_graphicscene->setSceneRect(1,1,x-1,y-1);
+                        obj_videoitem   ->setSize(QSize(wdg_scrolltablewidget->width(),wdg_scrolltablewidget->height()));
+                    int x = int(obj_videoitem->size().width());
+                    int y = int(obj_videoitem->size().height());
+                    wdg_graphview           ->resize(x,y);
+                    obj_graphicscene        ->setSceneRect(0,0,x,y);
+                    wdg_scrolltablewidget   ->setRowHeight(0,y);
+                    wdg_scrolltablewidget   ->setColumnWidth(0,x);
                 }
             }
-            wdg_inflabel    ->move(10,graphview_view->height()-40);
+            wdg_inflabel    ->move(10,wdg_scrolltablewidget->viewport()->height()-40);
         }
+    }
+    if (obj == wdg_graphview)
+    {
         if (event)
             if (event->type() == QEvent::MouseButtonPress)
             {
@@ -1388,7 +1413,7 @@ void dlg_docsexternes::RemplirTreeView()
     wdg_onlyimportantsdocsupcheckbox->setEnabled(listdatesimportants.size() > 0);
     if (m_modefiltre == ImportantFiltre && listdatesimportants.size() == 0)
     {
-        graphview_view->setVisible(false);
+        wdg_graphview->setVisible(false);
         wdg_scrolltablewidget->setVisible(false);
     }
 
@@ -1560,11 +1585,19 @@ void dlg_docsexternes::RemplirTreeView()
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
     AfficheDoc(idx);
-    connect(wdg_listdocstreewiew->selectionModel(), &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());});
-    connect(wdg_listdocstreewiew,                   &QTreeView::customContextMenuRequested, this,   [=] {
-        QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
-        DocExterne *docmt = getDocumentFromIndex(idx);
-        if (docmt != Q_NULLPTR)
-            AfficheCustomMenu(docmt);
-    });
+    connect(wdg_listdocstreewiew->selectionModel(),
+            &QItemSelectionModel::currentChanged,
+            this,
+            [=] {
+                    AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());
+                });
+    connect(wdg_listdocstreewiew,
+            &QTreeView::customContextMenuRequested,
+            this,
+            [=] {
+                    QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
+                    DocExterne *docmt = getDocumentFromIndex(idx);
+                    if (docmt != Q_NULLPTR)
+                        AfficheCustomMenu(docmt);
+                });
 }

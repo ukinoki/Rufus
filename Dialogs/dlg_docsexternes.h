@@ -31,6 +31,7 @@ class UpCheckBox;
 class TextPrinter;
 class UpSwitch;
 
+
 class dlg_docsexternes : public UpDialog
 {
     Q_OBJECT
@@ -55,21 +56,50 @@ private:
 
     DocsExternes            *m_docsexternes;
 
-    QGraphicsScene          *obj_graphicscene;
-    QGraphicsVideoItem      *medobj_videoitem;
-    QGraphicsView           *graphview_view;
-    QList<QImage>           m_imagelist;
-    QMediaPlayer            *medplay_player;
-
+/*! la classe dlg_docsexternes affiche les documents pdf, jpg ou video dans une fiche Updialog
+ *  Les intitulés des documents sont affichés à gauche dans un QTreeView *wdg_listdocstreewiew
+ *  et les documents eux-mêmes sont affichés à droite dans
+ *      . un UpTablWidget *wdg_scrolltablewidget
+ */
     QTreeView               *wdg_listdocstreewiew;
+    UpTableWidget           *wdg_scrolltablewidget;
+
+
+    /*! les video et les jpg sont affichés via une QGraphicsScene *obj_graphicscene dans un QGraphicsView *wdg_graphview
+     *  le Qgraphicswiew est inséré dans la cellule (0,0) de la UpTablWidget *wdg_scrolltablewidget
+    */
+    QGraphicsView           *wdg_graphview;
+    QGraphicsScene          *obj_graphicscene;
+        /*! Le QGraphicsScene *obj_graphicscene affiche
+         *     . les video dans un QGraphicsVideoItem  *obj_videoitem
+         *     . les jpg dans un QPixmap créé à la volée
+        */
+        QGraphicsVideoItem      *obj_videoitem;
+            /*! le QGraphicsVideoItem *obj_videoitem est alimenté par un QMediaPlayer *medplay_player
+             *  contrôlé parcontrôlé par le PlayerControls *wdg_playctrl
+            */
+                QMediaPlayer            *medplay_player;
+                PlayerControls          *wdg_playctrl;
+
+    /*! les pdf sont affichés via des QLabel dans la UpTableWidget *wdg_scrolltablewidget.
+     *  Le pdf est transformé en liste d'images QList<QImage> m_imagelist via la fonction pagelist() de cls_docexterne.h
+     *  chaque image est transformée en QPixmap puis insérée dans un QLabel, inséré lui-même dans une cellule du scrolltablewidget
+     */
+    QList<QImage>           m_imagelist;
+
+    /*! pour l'affichage des jpg comme des pdf, une listde QPixmap est créée QList<QPixmap> m_listpixmp;
+     *  pour gérer le redimensionnement en mode zoom en redimensionnement
+     *  cette liste est effacée à chaque changement de document.
+     *  Pour les jpg, elle ne contient qu'un seul Pixmap
+     */
+
+    QList<QPixmap>          m_listpixmp;
+
     UpCheckBox              *wdg_alldocsupcheckbox;
     UpCheckBox              *wdg_onlyimportantsdocsupcheckbox;
     UpSwitch                *wdg_upswitch;
-    UpTableWidget           *wdg_scrolltablewidget;
     QLabel                  *wdg_inflabel;
-    PlayerControls          *wdg_playctrl;
 
-    QList<QPixmap>          m_listpixmp;
     QStandardItemModel      *m_model            = Q_NULLPTR;
     QStandardItemModel      *m_tripardatemodel  = Q_NULLPTR;
     QStandardItemModel      *m_tripartypemodel  = Q_NULLPTR;

@@ -690,8 +690,27 @@ QString Utils::IPAdress()
     PosteConnecte *ceposte = Datas::I()->ceposte;
     if( ceposte->ipadress() == "") { // Calculate and set if void
         QString m_ipadress = DataBase::I()->getClientIP();
+        if (m_ipadress == "localhost" || m_ipadress == "127.0.0.1")
+        {
+            foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
+            {
+                QNetworkInterface::InterfaceFlags flags = netInterface.flags();
+                if(flags.testFlag(QNetworkInterface::IsRunning) && !flags.testFlag(QNetworkInterface::IsLoopBack))
+                {
+                    foreach (const QNetworkAddressEntry &address, netInterface.addressEntries())
+                    {
+                        if(address.ip().protocol() == QAbstractSocket::IPv4Protocol)
+                        {
+                            m_ipadress = address.ip().toString();
+                            break;
+                        }
+                    }
+                }
+                if (m_ipadress != "localhost")
+                    break;
+            }
+        }
         ceposte->setipadress(m_ipadress);
-
         QString m_macadress = "";
         //search interface
         bool ipFound = false;
