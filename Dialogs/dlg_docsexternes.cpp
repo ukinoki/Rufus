@@ -42,9 +42,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_font              .setPointSize(m_font.pointSize()-d);
 
     wdg_listdocstreewiew    = new QTreeView(this);
-    wdg_inflabel            = new QLabel();
-    wdg_inflabel            ->setFont(font);
-    wdg_inflabel            ->setParent(wdg_scrolltablewidget);
 
     wdg_scrolltablewidget   = new UpTableWidget(this);                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
     wdg_scrolltablewidget->horizontalHeader() ->setVisible(false);
@@ -411,9 +408,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     RecordButton                ->disconnect();
     m_listpixmp    .clear();
     wdg_scrolltablewidget ->clear();
-    if (obj_videoitem != Q_NULLPTR)      { delete obj_videoitem;     obj_videoitem = Q_NULLPTR; }
-    if (wdg_graphview != Q_NULLPTR)      { delete wdg_graphview;     wdg_graphview = Q_NULLPTR; }
-    if (obj_graphicscene != Q_NULLPTR)   { delete obj_graphicscene;  obj_graphicscene = Q_NULLPTR; }
+    if (wdg_inflabel != Q_NULLPTR)      { delete wdg_inflabel;      wdg_inflabel = Q_NULLPTR; }
+    if (obj_videoitem != Q_NULLPTR)     { delete obj_videoitem;     obj_videoitem = Q_NULLPTR; }
+    if (wdg_graphview != Q_NULLPTR)     { delete wdg_graphview;     wdg_graphview = Q_NULLPTR; }
+    if (obj_graphicscene != Q_NULLPTR)  { delete obj_graphicscene;  obj_graphicscene = Q_NULLPTR; }
     wdg_scrolltablewidget       ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
     double x;
     double y;
@@ -445,8 +443,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
             return;
         }
-        QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
-        wdg_inflabel    ->setText(sstitre);
 
         m_typedoc           = VIDEO;
 
@@ -464,6 +460,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         medplay_player      = new QMediaPlayer;
         medplay_player      ->setSource( QUrl::fromLocalFile(filename));
         medplay_player      ->setVideoOutput(obj_videoitem);
+
+        QString sstitre     = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
+        wdg_inflabel        = new QLabel(sstitre, wdg_graphview);
+        wdg_inflabel        ->setFont(m_font);
 
         wdg_playctrl        ->setPlayer(medplay_player);
 
@@ -492,13 +492,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             typedoc = Text;
         if (docmt->imageformat() == "")
             CalcImageDocument(docmt, typedoc);
-        if (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
-        {
-            QString sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
-            wdg_inflabel    ->setText(sstitre);
-        }
-        else
-            wdg_inflabel    ->setText("");
+        QString sstitre =   ((docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)?
+                            "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>":
+                            "");
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
         if (docmt->imageformat() == JPG)     // le document est un JPG
         {
@@ -510,6 +506,11 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             wdg_graphview       ->installEventFilter(this);
             wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
             wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+            if (sstitre != "")
+            {
+                wdg_inflabel        = new QLabel(sstitre, wdg_graphview);
+                wdg_inflabel        ->setFont(m_font);
+            }
 
             QImage image;
             if (!image.loadFromData(docmt->imageblob()))
@@ -545,7 +546,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             if (listimg.size())
             {
                 m_typedoc    = PDF;
-                wdg_scrolltablewidget ->setColumnWidth(0,wdg_scrolltablewidget->width()-2);
+                wdg_scrolltablewidget ->setColumnWidth(0,wdg_scrolltablewidget->width());
                 wdg_scrolltablewidget->setRowCount(listimg.size());
                 for (int i=0; i<listimg.size();++i)
                 {
@@ -576,6 +577,11 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                     connect(lab,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
                     wdg_scrolltablewidget   ->setRowHeight(i,pix.height());
                     wdg_scrolltablewidget   ->setCellWidget(i,0,lab);
+                }
+                if (sstitre != "")
+                {
+                    wdg_inflabel        = new QLabel(sstitre, wdg_scrolltablewidget->viewport());
+                    wdg_inflabel        ->setFont(m_font);
                 }
             }
         }
@@ -644,8 +650,14 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         if (listscreens.size())
             if ((w + m_wdeltaframe) > (listscreens.first()->geometry().width() - this->x()))
                 move(listscreens.first()->geometry().width() - (w + m_wdeltaframe), 0);
-    }   
-    wdg_inflabel    ->setGeometry(10,wdg_scrolltablewidget->viewport()->height()-40, 500, 25);
+    }
+    if (wdg_inflabel != Q_NULLPTR)
+    {
+        if (m_typedoc == PDF)
+            wdg_inflabel    ->setGeometry(10,wdg_scrolltablewidget->height()-40, 500, 25);
+        else
+            wdg_inflabel    ->setGeometry(10,wdg_graphview->height() -40, 500, 25);
+    }
 }
 
 void dlg_docsexternes::BasculeTriListe(ModeTri mode)
@@ -1251,7 +1263,8 @@ void dlg_docsexternes::ZoomDoc()
         m_mode           = Normal;
     }
     setEnregPosition(m_mode == Normal);
-    wdg_inflabel    ->move(10, wdg_scrolltablewidget->height() -40);
+    if (wdg_inflabel != Q_NULLPTR)
+        wdg_inflabel    ->move(10, (m_typedoc == PDF? wdg_scrolltablewidget->height()-40 : wdg_graphview->height())-40);
 }
 
 bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
@@ -1303,7 +1316,8 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
                     wdg_scrolltablewidget   ->setColumnWidth(0,x);
                 }
             }
-            wdg_inflabel    ->move(10,wdg_scrolltablewidget->viewport()->height()-40);
+            if (wdg_inflabel != Q_NULLPTR)
+                wdg_inflabel    ->move(10, (m_typedoc == PDF? wdg_scrolltablewidget->height()-40 : wdg_graphview->height())-40);
         }
     }
     if (obj == wdg_graphview)

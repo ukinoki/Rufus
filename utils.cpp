@@ -47,7 +47,7 @@ QRegularExpression const Utils::rgx_AlphaNumeric_5_15   = QRegularExpression("[A
 QRegularExpression const Utils::rgx_AlphaNumeric_5_12   = QRegularExpression("[A-Za-z0-9]{5,12}$");
 QRegularExpression const Utils::rgx_MajusculeSeul       = QRegularExpression("[A-Z]*");
 QRegularExpression const Utils::rgx_Question            = QRegularExpression("[\\w'°, \\-]*[?]*", QRegularExpression::UseUnicodePropertiesOption);
-QRegularExpression const Utils::rgx_IPV4                = QRegularExpression("[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}");
+QRegularExpression const Utils::rgx_IPV4                = QRegularExpression("^[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}$");
 QRegularExpression const Utils::rgx_IPV4_mask           = QRegularExpression("(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                                                                             "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
                                                                             "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\."
@@ -690,7 +690,7 @@ QString Utils::IPAdress()
     PosteConnecte *ceposte = Datas::I()->ceposte;
     if( ceposte->ipadress() == "") { // Calculate and set if void
         QString m_ipadress = DataBase::I()->getClientIP();
-        if (m_ipadress == "localhost" || m_ipadress == "127.0.0.1")
+        if (!rgx_IPV4.match(m_ipadress).hasMatch() || m_ipadress == "127.0.0.1")
         {
             foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
             {
@@ -706,7 +706,7 @@ QString Utils::IPAdress()
                         }
                     }
                 }
-                if (m_ipadress != "localhost")
+                if (rgx_IPV4.match(m_ipadress).hasMatch() && m_ipadress != "127.0.0.1")
                     break;
             }
         }
@@ -744,6 +744,7 @@ QString Utils::IPAdress()
         }
         ceposte->setmacadress(m_macadress);
     }
+    //qDebug() << ceposte->ipadress() << ceposte->macadress();
     return ceposte->ipadress();
 }
 

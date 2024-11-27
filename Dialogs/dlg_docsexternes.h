@@ -61,25 +61,25 @@ private:
  *  et les documents eux-mêmes sont affichés à droite dans
  *      . un UpTablWidget *wdg_scrolltablewidget
  */
-    QTreeView               *wdg_listdocstreewiew;
-    UpTableWidget           *wdg_scrolltablewidget;
+    QTreeView               *wdg_listdocstreewiew       = Q_NULLPTR;
+    UpTableWidget           *wdg_scrolltablewidget      = Q_NULLPTR;
 
 
     /*! les video et les jpg sont affichés via une QGraphicsScene *obj_graphicscene dans un QGraphicsView *wdg_graphview
      *  le Qgraphicswiew est inséré dans la cellule (0,0) de la UpTablWidget *wdg_scrolltablewidget
     */
-    QGraphicsView           *wdg_graphview;
-    QGraphicsScene          *obj_graphicscene;
+    QGraphicsView           *wdg_graphview              = Q_NULLPTR;
+    QGraphicsScene          *obj_graphicscene           = Q_NULLPTR;
         /*! Le QGraphicsScene *obj_graphicscene affiche
          *     . les video dans un QGraphicsVideoItem  *obj_videoitem
          *     . les jpg dans un QPixmap créé à la volée
         */
-        QGraphicsVideoItem      *obj_videoitem;
+        QGraphicsVideoItem      *obj_videoitem          = Q_NULLPTR;
             /*! le QGraphicsVideoItem *obj_videoitem est alimenté par un QMediaPlayer *medplay_player
              *  contrôlé parcontrôlé par le PlayerControls *wdg_playctrl
             */
-                QMediaPlayer            *medplay_player;
-                PlayerControls          *wdg_playctrl;
+                QMediaPlayer            *medplay_player = Q_NULLPTR;
+                PlayerControls          *wdg_playctrl   = Q_NULLPTR;
 
     /*! les pdf sont affichés via des QLabel dans la UpTableWidget *wdg_scrolltablewidget.
      *  Le pdf est transformé en liste d'images QList<QImage> m_imagelist via la fonction pagelist() de cls_docexterne.h
@@ -95,10 +95,10 @@ private:
 
     QList<QPixmap>          m_listpixmp;
 
-    UpCheckBox              *wdg_alldocsupcheckbox;
-    UpCheckBox              *wdg_onlyimportantsdocsupcheckbox;
-    UpSwitch                *wdg_upswitch;
-    QLabel                  *wdg_inflabel;
+    UpCheckBox              *wdg_alldocsupcheckbox    = Q_NULLPTR;
+    UpCheckBox              *wdg_onlyimportantsdocsupcheckbox    = Q_NULLPTR;
+    UpSwitch                *wdg_upswitch       = Q_NULLPTR;
+    QLabel                  *wdg_inflabel       = Q_NULLPTR;
 
     QStandardItemModel      *m_model            = Q_NULLPTR;
     QStandardItemModel      *m_tripardatemodel  = Q_NULLPTR;
