@@ -563,6 +563,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                     {
                         bviol->setData(Datas::I()->iols->getById(itbv.key())->datas());
                         bviol->setidmanufacturer(idbvi);
+                        bviol->setimage(img);
                         QHash <QString, QVariant> sets = bviol->datas().toVariantHash();
                         sets[CP_ARRAYIMG_IOLS] = physioliol->arrayimgiol();
                         DataBase::I()->UpDateIOL(bviol->id(), sets);
