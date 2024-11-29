@@ -116,7 +116,7 @@ private: //Données de l'intervention
     double m_acd            = 0;                //! ACD
 
     //! type IOL
-    QString m_type          = "";               //! le type de l'IOL : CP, CA, addon, support irien, refractif ca
+    int m_typeInt           = 0;                //! le type de l'IOL : CP, CA, addon, support irien, refractif ca, autre exprimé en database
 
     QImage m_nullimage      = QImage("://IOL.png");
     QImage m_currentimage   = m_nullimage;
@@ -143,8 +143,8 @@ public:
     double haigisa2_nominal() const             { return m_haigisa2_nominal; }
     double holladay1_nominal() const            { return m_holladay1_nominal; }
     double hofferQ_nominal() const              { return m_hofferq_nominal; }
-    double barrettLF_nominal() const             { return m_barrettlf_nominal; }
-    double barrettDF_nominal() const             { return m_barrettdf_nominal; }
+    double barrettLF_nominal() const            { return m_barrettlf_nominal; }
+    double barrettDF_nominal() const            { return m_barrettdf_nominal; }
     double olsen_nominal() const                { return m_olsen_nominal; }
 
     int results_ulib() const                    { return m_ulibresults; }
@@ -155,8 +155,8 @@ public:
     double haigisa2_ulib() const                { return m_haigisa2_ulib; }
     double holladay1_ulib() const               { return m_holladay1_ulib; }
     double hofferQ_ulib() const                 { return m_hofferq_ulib; }
-    double barrettLF_ulib() const                { return m_barrettlf_ulib; }
-    double barrettDF_ulib() const                { return m_barrettdf_ulib; }
+    double barrettLF_ulib() const               { return m_barrettlf_ulib; }
+    double barrettDF_ulib() const               { return m_barrettdf_ulib; }
     double olsen_ulib() const                   { return m_olsen_ulib; }
 
     int results_optimized() const               { return m_optimizedresults; }
@@ -184,16 +184,17 @@ public:
     bool ismultifocal() const                   { return m_multifocal; }
     bool isedof() const                         { return m_edof; }
     bool istoric() const                        { return m_toric; }
-    QString type() const                        { return m_type; }
-    int typetoint() const                       {
-        if (m_type ==IOL_CP) return 1;
-        else if (m_type ==IOL_CA) return 2;
-        else if (m_type ==IOL_ADDON) return 3;
-        else if (m_type ==IOL_IRIEN) return 4;
-        else if (m_type ==IOL_CAREFRACTIF) return 5;
-        else if (m_type ==IOL_AUTRE) return 6;
-        else return 0;
-; }
+    QString typeString() const
+    {
+        if (m_typeInt == 1)        return IOL_CP;
+        else if (m_typeInt == 2)   return IOL_CA;
+        else if (m_typeInt == 3)   return IOL_ADDON;
+        else if (m_typeInt == 4)   return IOL_IRIEN;
+        else if (m_typeInt == 5)   return IOL_CAREFRACTIF;
+        else if (m_typeInt == 6)   return IOL_AUTRE;
+        else                       return "";
+    }
+    int type() const                            { return m_typeInt; }
     QString tooltip(bool avecimage = false) const;
 
 
@@ -259,16 +260,16 @@ public:
     void setMultifocal(bool &multifocal)                { m_multifocal = multifocal;            m_data[CP_MULTIFOCAL_IOLS] = multifocal; }
     void setToric(bool &toric)                          { m_toric = toric;                      m_data[CP_TORIC_IOLS] = toric; }
     void setEdof(bool &edof)                            { m_edof = edof;                        m_data[CP_EDOF_IOLS] = edof; }
+    void setTypeInt(int type)                           { m_typeInt = type;                     m_data[CP_TYP_IOLS] = type; }
     void setType(const QString &type)
     {
-        m_type = type;
-        if (type ==IOL_CP)                  m_data[CP_TYP_IOLS] = 1;
-        else if (type ==IOL_CA)             m_data[CP_TYP_IOLS] = 2;
-        else if (type ==IOL_ADDON)          m_data[CP_TYP_IOLS] = 3;
-        else if (type ==IOL_IRIEN)          m_data[CP_TYP_IOLS] = 4;
-        else if (type ==IOL_CAREFRACTIF)    m_data[CP_TYP_IOLS] = 5;
-        else if (type ==IOL_AUTRE)          m_data[CP_TYP_IOLS] = 6;
-        else                                m_data[CP_TYP_IOLS] = 0;
+        if (type ==IOL_CP)                  { setTypeInt(1); }
+        else if (type ==IOL_CA)             { setTypeInt(2); }
+        else if (type ==IOL_ADDON)          { setTypeInt(3); }
+        else if (type ==IOL_IRIEN)          { setTypeInt(4); }
+        else if (type ==IOL_CAREFRACTIF)    { setTypeInt(5); }
+        else if (type ==IOL_AUTRE)          { setTypeInt(6); }
+        else                                { setTypeInt(0); }
     }
 
     QImage image() const                        { return m_currentimage; }

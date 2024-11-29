@@ -1180,8 +1180,8 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
         else
             wdg_materiaubox ->setCurrentIndex(-1);
         wdg_hydrofilybox ->setCurrentIndex(wdg_hydrofilybox->findText(m_currentIOL->hydrofily()));
-        if (m_currentIOL->type() != "")
-            wdg_typebox     ->setCurrentText(m_currentIOL->type());
+        if (m_currentIOL->typeString() != "")
+            wdg_typebox     ->setCurrentText(m_currentIOL->typeString());
         else
             wdg_typebox     ->setCurrentIndex(-1);
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
@@ -1511,37 +1511,37 @@ bool dlg_identificationIOL::EnregistreIOL()
 
     m_listbinds[CP_MODELNAME_IOLS]      = wdg_nomiolline->text();
     m_listbinds[CP_IDMANUFACTURER_IOLS] = m_currentmanufacturer->id();
-    m_listbinds[CP_HOLL1_IOLS]          = (QLocale().toDouble(wdg_holladayline->text()) != 0.0? QLocale().toDouble(wdg_holladayline->text()): QVariant());
-    m_listbinds[CP_CSTEAECHO_IOLS]      = (QLocale().toDouble(wdg_Aecholine->text()) != 0.0?    QLocale().toDouble(wdg_Aecholine->text())   : QVariant());
-    m_listbinds[CP_CSTEAOPT_IOLS]       = (QLocale().toDouble(wdg_Aoptline->text()) != 0.0?     QLocale().toDouble(wdg_Aoptline->text())    : QVariant());
-    m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) != 0.0?  QLocale().toDouble(wdg_haigisaline->text()) : QVariant());
-    m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) != 0.0?  QLocale().toDouble(wdg_haigisbline->text()) : QVariant());
-    m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) != 0.0?  QLocale().toDouble(wdg_haigiscline->text()) : QVariant());
-    m_listbinds[CP_HOFFERQ_IOLS]        = (QLocale().toDouble(wdg_hofferQline->text()) != 0.0?  QLocale().toDouble(wdg_hofferQline->text()) : QVariant());
-    m_listbinds[CP_BARRETTDF_IOLS]      = (QLocale().toDouble(wdg_barrettDFline->text()) != 0.0? QLocale().toDouble(wdg_barrettDFline->text()): QVariant());
-    m_listbinds[CP_BARRETTLF_IOLS]      = (QLocale().toDouble(wdg_barrettLFline->text()) != 0.0? QLocale().toDouble(wdg_barrettLFline->text()): QVariant());
-    m_listbinds[CP_OLSEN_IOLS]          = (QLocale().toDouble(wdg_olsenline->text()) != 0.0?    QLocale().toDouble(wdg_olsenline->text())   : QVariant());
+    m_listbinds[CP_HOLL1_IOLS]          = (QLocale().toDouble(wdg_holladayline->text()) != 0.0?     QLocale().toDouble(wdg_holladayline->text())    : QVariant());
+    m_listbinds[CP_CSTEAECHO_IOLS]      = (QLocale().toDouble(wdg_Aecholine->text()) != 0.0?        QLocale().toDouble(wdg_Aecholine->text())       : QVariant());
+    m_listbinds[CP_CSTEAOPT_IOLS]       = (QLocale().toDouble(wdg_Aoptline->text()) != 0.0?         QLocale().toDouble(wdg_Aoptline->text())        : QVariant());
+    m_listbinds[CP_HAIGISA0_IOLS]       = (QLocale().toDouble(wdg_haigisaline->text()) != 0.0?      QLocale().toDouble(wdg_haigisaline->text())     : QVariant());
+    m_listbinds[CP_HAIGISA1_IOLS]       = (QLocale().toDouble(wdg_haigisbline->text()) != 0.0?      QLocale().toDouble(wdg_haigisbline->text())     : QVariant());
+    m_listbinds[CP_HAIGISA2_IOLS]       = (QLocale().toDouble(wdg_haigiscline->text()) != 0.0?      QLocale().toDouble(wdg_haigiscline->text())     : QVariant());
+    m_listbinds[CP_HOFFERQ_IOLS]        = (QLocale().toDouble(wdg_hofferQline->text()) != 0.0?      QLocale().toDouble(wdg_hofferQline->text())     : QVariant());
+    m_listbinds[CP_BARRETTDF_IOLS]      = (QLocale().toDouble(wdg_barrettDFline->text()) != 0.0?    QLocale().toDouble(wdg_barrettDFline->text())   : QVariant());
+    m_listbinds[CP_BARRETTLF_IOLS]      = (QLocale().toDouble(wdg_barrettLFline->text()) != 0.0?    QLocale().toDouble(wdg_barrettLFline->text())   : QVariant());
+    m_listbinds[CP_OLSEN_IOLS]          = (QLocale().toDouble(wdg_olsenline->text()) != 0.0?        QLocale().toDouble(wdg_olsenline->text())       : QVariant());
     m_listbinds[CP_OPTICMATERIAU_IOLS]  = wdg_materiaubox->currentText();
     m_listbinds[CP_HYDROFILY_IOLS]      = wdg_hydrofilybox->currentText();
     m_listbinds[CP_HAPTICMATERIAU_IOLS] = wdg_hapticmateriaubox->currentText();
     m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
-    m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?        QLocale().toDouble(wdg_diaht->text())       : QVariant());
-    m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0.0?   QLocale().toDouble(wdg_diaoptique->text())  : QVariant());
-    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (QLocale().toDouble(wdg_diainjecteur->text()) >0.0? QLocale().toDouble(wdg_diainjecteur->text()): QVariant());
-    m_listbinds[CP_PRECHARGE_IOLS]      = (wdg_prechargechk->isChecked()?   "1" : QVariant());
-    m_listbinds[CP_SINGLEPIECE_IOLS]    = (wdg_singlepiecechk->isChecked()? "1" : QVariant());
+    m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?              QLocale().toDouble(wdg_diaht->text())           : QVariant());
+    m_listbinds[CP_DIAOPT_IOLS]         = (QLocale().toDouble(wdg_diaoptique->text()) >0.0?         QLocale().toDouble(wdg_diaoptique->text())      : QVariant());
+    m_listbinds[CP_DIAINJECTEUR_IOLS]   = (QLocale().toDouble(wdg_diainjecteur->text()) >0.0?       QLocale().toDouble(wdg_diainjecteur->text())    : QVariant());
+    m_listbinds[CP_PRECHARGE_IOLS]      = (wdg_prechargechk->isChecked()?                           "1"                                             : QVariant());
+    m_listbinds[CP_SINGLEPIECE_IOLS]    = (wdg_singlepiecechk->isChecked()?                         "1"                                             : QVariant());
     m_listbinds[CP_MAXPWR_IOLS]         = wdg_puissancemaxspin->value();
     m_listbinds[CP_MINPWR_IOLS]         = wdg_puissanceminspin->value();
     m_listbinds[CP_ADDINTERMEDIATE_IOLS]= wdg_addinterspin->value();
     m_listbinds[CP_ADDNEAR_IOLS]        = wdg_addnearspin->value();
-    m_listbinds[CP_MAXCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked? wdg_cylindremaxspin->value() : QVariant());
-    m_listbinds[CP_MINCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked? wdg_cylindreminspin->value() : QVariant());
-    m_listbinds[CP_JAUNE_IOLS]          = (wdg_jaunechk->isChecked()?       "1" : QVariant());
-    m_listbinds[CP_MULTIFOCAL_IOLS]     = (wdg_multifocalchk->isChecked()?  "1" : QVariant());
-    m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?     "1" : QVariant());
-    m_listbinds[CP_EDOF_IOLS]           = (wdg_edofchk->isChecked()?        "1" : QVariant());
-    m_listbinds[CP_TORIC_IOLS]          = (wdg_toricchk->isChecked()?       "1" : QVariant());
-    m_listbinds[CP_TYP_IOLS]            = (wdg_typebox->currentIndex()>-1?   QString::number(wdg_typebox->currentIndex()+1) : QVariant());
+    m_listbinds[CP_MAXCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked?               wdg_cylindremaxspin->value()                    : QVariant());
+    m_listbinds[CP_MINCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked?               wdg_cylindreminspin->value()                    : QVariant());
+    m_listbinds[CP_JAUNE_IOLS]          = (wdg_jaunechk->isChecked()?                               "1"                                             : QVariant());
+    m_listbinds[CP_MULTIFOCAL_IOLS]     = (wdg_multifocalchk->isChecked()?                          "1"                                             : QVariant());
+    m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?                             "1"                                             : QVariant());
+    m_listbinds[CP_EDOF_IOLS]           = (wdg_edofchk->isChecked()?                                "1"                                             : QVariant());
+    m_listbinds[CP_TORIC_IOLS]          = (wdg_toricchk->isChecked()?                               "1"                                             : QVariant());
+    m_listbinds[CP_TYP_IOLS]            = (wdg_typebox->currentIndex()>-1?                          QString::number(wdg_typebox->currentIndex()+1)  : QVariant());
 
     m_listbinds[CP_CSTEAECHOU_IOLS]     = (QLocale().toDouble(wdg_UAecholine->text()) != 0.0?       QLocale().toDouble(wdg_UAecholine->text())      : QVariant());
     m_listbinds[CP_CSTEAOPTU_IOLS]      = (QLocale().toDouble(wdg_UAoptline->text()) != 0.0?        QLocale().toDouble(wdg_UAoptline->text())       : QVariant());

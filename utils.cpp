@@ -690,6 +690,48 @@ QString Utils::IPAdress()
 {
     PosteConnecte *ceposte = Datas::I()->ceposte;
     if( ceposte->ipadress() == "") { // Calculate and set if void
+        QString m_ipadress = "";
+        QString m_macadress = "";
+        //search for an interface with IP and MAC (typical physical network interface)
+        bool netFound = false;
+
+        foreach (const QNetworkInterface &netInterface, QNetworkInterface::allInterfaces())
+        {
+            QNetworkInterface::InterfaceFlags flags = netInterface.flags();
+            if(flags.testFlag(QNetworkInterface::IsRunning) && !flags.testFlag(QNetworkInterface::IsLoopBack))
+            {
+                foreach (const QNetworkAddressEntry &address, netInterface.addressEntries())
+                {
+                    if ( address.ip().protocol() == QAbstractSocket::IPv4Protocol ){
+                        m_ipadress = address.ip().toString().trimmed();
+                        m_macadress = netInterface.hardwareAddress().trimmed();
+                        if( m_ipadress != "" && m_macadress != "" )
+                        {
+                            netFound = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            if (netFound)
+                break;
+        }
+        // If there isn't a network interface with IP and MAC
+        // Rufus is installed in "monoposte" and there isn't possibility of external connection (due to the lack of network interface)
+        // We can set any IP and MAC because it will be unique in this system
+        if( ! netFound ) {
+            m_ipadress="127.0.0.1"; // Set IP to loopbak
+            QByteArray ba = QSysInfo::machineUniqueId(); // Machine unique ID (for testing purposes)
+            m_macadress = QString(ba);
+        }
+        ceposte->setipadress(m_ipadress);
+        ceposte->setmacadress(m_macadress);
+    }
+    return ceposte->ipadress();
+}
+/*{
+    PosteConnecte *ceposte = Datas::I()->ceposte;
+    if( ceposte->ipadress() == "") { // Calculate and set if void
         QString m_ipadress = DataBase::I()->getClientIP();
         if (!rgx_IPV4.match(m_ipadress).hasMatch() || rgx_IPlocalhost.match(m_ipadress).hasMatch())
         {
@@ -746,7 +788,7 @@ QString Utils::IPAdress()
         ceposte->setmacadress(m_macadress);
     }
     return ceposte->ipadress();
-}
+}*/
 
 // https://doc-snapshots.qt.io/qt6-dev/qtcore-changes-qt6.html
 bool Utils::RegularExpressionMatches(QRegularExpression rgx, QString s, bool exact)

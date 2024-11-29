@@ -595,7 +595,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
         {
             Manufacturer* man = Datas::I()->manufacturers->getById(iolfromlist->idmanufacturer());
             if (man != Q_NULLPTR)
-                if (!iolbrandmodellist.contains(man->nom()))
+                if (!iolbrandmodellist.contains(man->nom()) && !iolbrandmodellist.contains(man->nom().toUpper()) && !iolbrandmodellist.contains(man->nom().toLower()))
                 {
                     iolbrandmodellist << man->nom().toUpper() + " " + iolfromlist->modele().toUpper();
                     iollistid << iolfromlist->id();
@@ -712,7 +712,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                             if (Specsnode.text() == "Iris claw")
                                 iol.setType(IOL_IRIEN);
                         }
-                        else if (Specsnode.tagName() == "IntendedLocation" && iol.type() == "")
+                        else if (Specsnode.tagName() == "IntendedLocation" && iol.typeString() == "")
                         {
                             if (Specsnode.text()=="anterior chamber" || Specsnode.text()=="pre iridal")
                                 iol.setType(IOL_CA);
@@ -981,65 +981,65 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
             if (idx > -1)
             {
                 //! update existant iol
-                IOL* iolfromlist = Datas::I()->iols->getById(iollistid.at(idx));
-                if (iolfromlist != Q_NULLPTR)
+                IOL* ioloflist = Datas::I()->iols->getById(iollistid.at(idx));
+                if (ioloflist != Q_NULLPTR)
                 {
                     //! update existant iol
-                    ItemsList::update(iolfromlist, CP_MODELNAME_IOLS,       iol.modele());
-                    ItemsList::update(iolfromlist, CP_IDMANUFACTURER_IOLS,  man->id());
-                    ItemsList::update(iolfromlist, CP_CSTEAECHO_IOLS,       iol.csteAEcho_nominal());
+                    ItemsList::update(ioloflist, CP_MODELNAME_IOLS,       iol.modele());
+                    ItemsList::update(ioloflist, CP_IDMANUFACTURER_IOLS,  man->id());
+                    ItemsList::update(ioloflist, CP_CSTEAECHO_IOLS,       iol.csteAEcho_nominal());
 
-                    ItemsList::update(iolfromlist, CP_CSTEAOPT_IOLS,        iol.csteAopt_nominal());
-                    ItemsList::update(iolfromlist, CP_HAIGISA0_IOLS,        iol.haigisa0_nominal());
-                    ItemsList::update(iolfromlist, CP_HAIGISA1_IOLS,        iol.haigisa1_nominal());
-                    ItemsList::update(iolfromlist, CP_HAIGISA2_IOLS,        iol.haigisa2_nominal());
-                    ItemsList::update(iolfromlist, CP_HOLL1_IOLS,           iol.holladay1_nominal());
-                    ItemsList::update(iolfromlist, CP_HOFFERQ_IOLS,         iol.hofferQ_nominal());
-                    ItemsList::update(iolfromlist, CP_BARRETTDF_IOLS,       iol.barrettDF_nominal());
-                    ItemsList::update(iolfromlist, CP_BARRETTLF_IOLS,       iol.barrettLF_nominal());
-                    ItemsList::update(iolfromlist, CP_OLSEN_IOLS,           iol.olsen_nominal());
+                    ItemsList::update(ioloflist, CP_CSTEAOPT_IOLS,        iol.csteAopt_nominal());
+                    ItemsList::update(ioloflist, CP_HAIGISA0_IOLS,        iol.haigisa0_nominal());
+                    ItemsList::update(ioloflist, CP_HAIGISA1_IOLS,        iol.haigisa1_nominal());
+                    ItemsList::update(ioloflist, CP_HAIGISA2_IOLS,        iol.haigisa2_nominal());
+                    ItemsList::update(ioloflist, CP_HOLL1_IOLS,           iol.holladay1_nominal());
+                    ItemsList::update(ioloflist, CP_HOFFERQ_IOLS,         iol.hofferQ_nominal());
+                    ItemsList::update(ioloflist, CP_BARRETTDF_IOLS,       iol.barrettDF_nominal());
+                    ItemsList::update(ioloflist, CP_BARRETTLF_IOLS,       iol.barrettLF_nominal());
+                    ItemsList::update(ioloflist, CP_OLSEN_IOLS,           iol.olsen_nominal());
 
-                    ItemsList::update(iolfromlist, CP_ACD_IOLS,             iol.acd());
-                    ItemsList::update(iolfromlist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
-                    ItemsList::update(iolfromlist, CP_HYDROFILY_IOLS,       iol.hydrofily());
-                    ItemsList::update(iolfromlist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
-                    ItemsList::update(iolfromlist, CP_DIAALL_IOLS,          iol.diaall());
-                    ItemsList::update(iolfromlist, CP_DIAOPT_IOLS,          iol.opticdiameter());
-                    ItemsList::update(iolfromlist, CP_DIAINJECTEUR_IOLS,    iol.diainjecteur());
-                    ItemsList::update(iolfromlist, CP_PRECHARGE_IOLS,       iol.ispreloaded());
-                    ItemsList::update(iolfromlist, CP_MAXPWR_IOLS,          iol.pwrmax());
-                    ItemsList::update(iolfromlist, CP_MINPWR_IOLS,          iol.pwrmin());
-                    ItemsList::update(iolfromlist, CP_MAXCYL_IOLS,          iol.cylmax());
-                    ItemsList::update(iolfromlist, CP_MINCYL_IOLS,          iol.cylmin());
-                    ItemsList::update(iolfromlist, CP_ADDINTERMEDIATE_IOLS, iol.addintermediate());
-                    ItemsList::update(iolfromlist, CP_ADDNEAR_IOLS,         iol.addnear());
-                    ItemsList::update(iolfromlist, CP_JAUNE_IOLS,           iol.isyellow());
-                    ItemsList::update(iolfromlist, CP_MULTIFOCAL_IOLS,      iol.ismultifocal());
-                    ItemsList::update(iolfromlist, CP_EDOF_IOLS,            iol.isedof());
-                    ItemsList::update(iolfromlist, CP_TORIC_IOLS,           iol.istoric());
-                    ItemsList::update(iolfromlist, CP_SINGLEPIECE_IOLS,     iol.issinglepiece());
+                    ItemsList::update(ioloflist, CP_ACD_IOLS,             iol.acd());
+                    ItemsList::update(ioloflist, CP_OPTICMATERIAU_IOLS,   iol.opticalmaterial());
+                    ItemsList::update(ioloflist, CP_HYDROFILY_IOLS,       iol.hydrofily());
+                    ItemsList::update(ioloflist, CP_HAPTICMATERIAU_IOLS,  iol.hapticalmaterial());
+                    ItemsList::update(ioloflist, CP_DIAALL_IOLS,          iol.diaall());
+                    ItemsList::update(ioloflist, CP_DIAOPT_IOLS,          iol.opticdiameter());
+                    ItemsList::update(ioloflist, CP_DIAINJECTEUR_IOLS,    iol.diainjecteur());
+                    ItemsList::update(ioloflist, CP_PRECHARGE_IOLS,       iol.ispreloaded());
+                    ItemsList::update(ioloflist, CP_MAXPWR_IOLS,          iol.pwrmax());
+                    ItemsList::update(ioloflist, CP_MINPWR_IOLS,          iol.pwrmin());
+                    ItemsList::update(ioloflist, CP_MAXCYL_IOLS,          iol.cylmax());
+                    ItemsList::update(ioloflist, CP_MINCYL_IOLS,          iol.cylmin());
+                    ItemsList::update(ioloflist, CP_ADDINTERMEDIATE_IOLS, iol.addintermediate());
+                    ItemsList::update(ioloflist, CP_ADDNEAR_IOLS,         iol.addnear());
+                    ItemsList::update(ioloflist, CP_JAUNE_IOLS,           iol.isyellow());
+                    ItemsList::update(ioloflist, CP_MULTIFOCAL_IOLS,      iol.ismultifocal());
+                    ItemsList::update(ioloflist, CP_EDOF_IOLS,            iol.isedof());
+                    ItemsList::update(ioloflist, CP_TORIC_IOLS,           iol.istoric());
+                    ItemsList::update(ioloflist, CP_SINGLEPIECE_IOLS,     iol.issinglepiece());
 
-                    ItemsList::update(iolfromlist, CP_RESULTSU_IOLS,        iol.results_ulib());
-                    ItemsList::update(iolfromlist, CP_CSTEAECHOU_IOLS,      iol.csteAEcho_ulib());
-                    ItemsList::update(iolfromlist, CP_CSTEAOPTU_IOLS,       iol.csteAopt_ulib());
-                    ItemsList::update(iolfromlist, CP_HAIGISA0U_IOLS,       iol.haigisa0_ulib());
-                    ItemsList::update(iolfromlist, CP_HAIGISA1U_IOLS,       iol.haigisa1_ulib());
-                    ItemsList::update(iolfromlist, CP_HAIGISA2U_IOLS,       iol.haigisa2_ulib());
-                    ItemsList::update(iolfromlist, CP_HOLL1U_IOLS,          iol.holladay1_ulib());
-                    ItemsList::update(iolfromlist, CP_HOFFERQU_IOLS,        iol.hofferQ_ulib());
-                    ItemsList::update(iolfromlist, CP_BARRETTDFU_IOLS,      iol.barrettDF_ulib());
-                    ItemsList::update(iolfromlist, CP_BARRETTLFU_IOLS,      iol.barrettLF_ulib());
-                    ItemsList::update(iolfromlist, CP_OLSENU_IOLS,          iol.olsen_ulib());
+                    ItemsList::update(ioloflist, CP_RESULTSU_IOLS,        iol.results_ulib());
+                    ItemsList::update(ioloflist, CP_CSTEAECHOU_IOLS,      iol.csteAEcho_ulib());
+                    ItemsList::update(ioloflist, CP_CSTEAOPTU_IOLS,       iol.csteAopt_ulib());
+                    ItemsList::update(ioloflist, CP_HAIGISA0U_IOLS,       iol.haigisa0_ulib());
+                    ItemsList::update(ioloflist, CP_HAIGISA1U_IOLS,       iol.haigisa1_ulib());
+                    ItemsList::update(ioloflist, CP_HAIGISA2U_IOLS,       iol.haigisa2_ulib());
+                    ItemsList::update(ioloflist, CP_HOLL1U_IOLS,          iol.holladay1_ulib());
+                    ItemsList::update(ioloflist, CP_HOFFERQU_IOLS,        iol.hofferQ_ulib());
+                    ItemsList::update(ioloflist, CP_BARRETTDFU_IOLS,      iol.barrettDF_ulib());
+                    ItemsList::update(ioloflist, CP_BARRETTLFU_IOLS,      iol.barrettLF_ulib());
+                    ItemsList::update(ioloflist, CP_OLSENU_IOLS,          iol.olsen_ulib());
 
-                    ItemsList::update(iolfromlist, CP_RESULTSO_IOLS,        iol.results_optimized());
-                    ItemsList::update(iolfromlist, CP_CSTEAOPTO_IOLS,       iol.csteAopt_optimized());
-                    ItemsList::update(iolfromlist, CP_HAIGISA0O_IOLS,       iol.haigisa0_optimized());
-                    ItemsList::update(iolfromlist, CP_HAIGISA1O_IOLS,       iol.haigisa1_optimized());
-                    ItemsList::update(iolfromlist, CP_HAIGISA2O_IOLS,       iol.haigisa2_optimized());
-                    ItemsList::update(iolfromlist, CP_HOLL1O_IOLS,          iol.holladay1_optimized());
-                    ItemsList::update(iolfromlist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
+                    ItemsList::update(ioloflist, CP_RESULTSO_IOLS,        iol.results_optimized());
+                    ItemsList::update(ioloflist, CP_CSTEAOPTO_IOLS,       iol.csteAopt_optimized());
+                    ItemsList::update(ioloflist, CP_HAIGISA0O_IOLS,       iol.haigisa0_optimized());
+                    ItemsList::update(ioloflist, CP_HAIGISA1O_IOLS,       iol.haigisa1_optimized());
+                    ItemsList::update(ioloflist, CP_HAIGISA2O_IOLS,       iol.haigisa2_optimized());
+                    ItemsList::update(ioloflist, CP_HOLL1O_IOLS,          iol.holladay1_optimized());
+                    ItemsList::update(ioloflist, CP_HOFFERQO_IOLS,        iol.hofferQ_optimized());
 
-                    ItemsList::update(iolfromlist, CP_TYP_IOLS,             iol.typetoint());
+                    ItemsList::update(ioloflist, CP_TYP_IOLS,             iol.type());
                     ++ updateiols;
                 }
             }
@@ -1048,7 +1048,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 QHash<QString, QVariant> m_listbinds;
                 m_listbinds[CP_MODELNAME_IOLS]      = iol.modele();
                 m_listbinds[CP_IDMANUFACTURER_IOLS] = man->id();
-                m_listbinds[CP_CSTEAECHO_IOLS]      = (iol.csteAEcho_nominal() >0.0?            iol.csteAEcho_nominal()             : QVariant());
+                m_listbinds[CP_CSTEAECHO_IOLS]      = (iol.csteAEcho_nominal() >0.0?    iol.csteAEcho_nominal()     : QVariant());
 
                 m_listbinds[CP_CSTEAOPT_IOLS]       = (iol.csteAopt_nominal() >0.0?     iol.csteAopt_nominal()      : QVariant());
                 m_listbinds[CP_HAIGISA0_IOLS]       = (iol.haigisa0_nominal() >0.0?     iol.haigisa0_nominal()      : QVariant());
@@ -1056,8 +1056,8 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HAIGISA2_IOLS]       = (iol.haigisa2_nominal() >0.0?     iol.haigisa2_nominal()      : QVariant());
                 m_listbinds[CP_HOLL1_IOLS]          = (iol.holladay1_nominal()>0.0?     iol.holladay1_nominal()     : QVariant());
                 m_listbinds[CP_HOFFERQ_IOLS]        = (iol.hofferQ_nominal()>0.0?       iol.hofferQ_nominal()       : QVariant());
-                m_listbinds[CP_BARRETTDF_IOLS]      = (iol.barrettDF_nominal()>0.0?     iol.barrettDF_nominal()      : QVariant());
-                m_listbinds[CP_BARRETTLF_IOLS]      = (iol.barrettLF_nominal()>0.0?     iol.barrettLF_nominal()      : QVariant());
+                m_listbinds[CP_BARRETTDF_IOLS]      = (iol.barrettDF_nominal()>0.0?     iol.barrettDF_nominal()     : QVariant());
+                m_listbinds[CP_BARRETTLF_IOLS]      = (iol.barrettLF_nominal()>0.0?     iol.barrettLF_nominal()     : QVariant());
                 m_listbinds[CP_OLSEN_IOLS]          = (iol.olsen_nominal()>0.0?         iol.olsen_nominal()         : QVariant());
 
                 m_listbinds[CP_ACD_IOLS]            = (iol.acd()>0.0?                   iol.acd()                   : QVariant());
@@ -1088,8 +1088,8 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HAIGISA2U_IOLS]      = (iol.haigisa2_ulib() >0.0?        iol.haigisa2_ulib()         : QVariant());
                 m_listbinds[CP_HOLL1U_IOLS]         = (iol.holladay1_ulib()>0.0?        iol.holladay1_ulib()        : QVariant());
                 m_listbinds[CP_HOFFERQU_IOLS]       = (iol.hofferQ_ulib()>0.0?          iol.hofferQ_ulib()          : QVariant());
-                m_listbinds[CP_BARRETTDFU_IOLS]     = (iol.barrettDF_ulib()>0.0?        iol.barrettDF_ulib()         : QVariant());
-                m_listbinds[CP_BARRETTLFU_IOLS]     = (iol.barrettLF_ulib()>0.0?        iol.barrettLF_ulib()         : QVariant());
+                m_listbinds[CP_BARRETTDFU_IOLS]     = (iol.barrettDF_ulib()>0.0?        iol.barrettDF_ulib()        : QVariant());
+                m_listbinds[CP_BARRETTLFU_IOLS]     = (iol.barrettLF_ulib()>0.0?        iol.barrettLF_ulib()        : QVariant());
                 m_listbinds[CP_OLSENU_IOLS]         = (iol.olsen_ulib()>0.0?            iol.olsen_ulib()            : QVariant());
 
                 m_listbinds[CP_RESULTSO_IOLS]       = (iol.results_optimized() >0?      iol.results_optimized()     : QVariant());
@@ -1099,7 +1099,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HAIGISA2O_IOLS]      = (iol.haigisa2_optimized() >0.0?   iol.haigisa2_optimized()    : QVariant());
                 m_listbinds[CP_HOLL1O_IOLS]         = (iol.holladay1_optimized()>0.0?   iol.holladay1_optimized()   : QVariant());
                 m_listbinds[CP_HOFFERQO_IOLS]       = (iol.hofferQ_optimized()>0.0?     iol.hofferQ_optimized()     : QVariant());
-                m_listbinds[CP_TYP_IOLS]            = (iol.typetoint()>0?               iol.typetoint()             : QVariant());
+                m_listbinds[CP_TYP_IOLS]            = (iol.type()>0?                    iol.type()                  : QVariant());
                 Datas::I()->iols->CreationIOL(m_listbinds);
                 ++newiols;
             }
@@ -1380,7 +1380,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             /*! filtrage des types */
             if (wdg_typebox->currentIndex() != 0)
             {
-                if (iol->type() != wdg_typebox->currentText())
+                if (iol->typeString() != wdg_typebox->currentText())
                     continue;
             }
             /*! filtrage des precharge */

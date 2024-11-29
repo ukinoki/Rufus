@@ -70,15 +70,7 @@ void IOL::setData(QJsonObject data)
     setDataBool(data, CP_JAUNE_IOLS, m_yellow);
     setDataBool(data, CP_EDOF_IOLS, m_edof);
     setDataBool(data, CP_TORIC_IOLS, m_toric);
-    switch (data[CP_TYP_IOLS].toInt()) {
-    case 1: m_type = IOL_CP; break;
-    case 2: m_type = IOL_CA; break;
-    case 3: m_type = IOL_ADDON; break;
-    case 4: m_type = IOL_IRIEN; break;
-    case 5: m_type = IOL_CAREFRACTIF; break;
-    case 6: m_type = IOL_AUTRE; break;
-    default: m_type = "";
-    }
+    setDataInt(data, CP_TYP_IOLS, m_typeInt);
     setDataInt(data, CP_RESULTSU_IOLS, m_ulibresults);
     setDataDouble(data, CP_CSTEAECHOU_IOLS, m_csteAEcho_ulib);
     setDataDouble(data, CP_CSTEAOPTU_IOLS, m_csteAopt_ulib);
@@ -117,8 +109,8 @@ void IOL::setData(QJsonObject data)
 QString IOL::tooltip(bool avecimage) const
 {
     QString message = modele();
-    if (m_type != "")
-        message += "<br>" + m_type;
+    if (typeString() != "")
+        message += "<br>" + typeString();
     if (m_toric)
         message += "<br>" + tr("Torique");
     if (m_edof)

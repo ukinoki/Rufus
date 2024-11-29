@@ -158,9 +158,9 @@ dlg_param::dlg_param(QWidget *parent) :
     for (int i=0; i<listcheck.size(); i++)
         listcheck.at(i)->setToggleable(false);
 
-    ui->PosteStockageInfoUpLabel    ->setStyleSheet("background-color: yellow");
+    ui->PosteStockageInfoUpLabel    ->setStyleSheet("background-color: white");
     QString tip = tr("Emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>"
-                     "<br/>Cet emplacement n'est pas modifiable et correspond à la variable d'envirronement secure_filepriv de MySQL");
+                     "<br/>Cet emplacement n'est pas modifiable et correspond à la variable secure_file_priv de MySQL");
     ui->PosteStockageInfoUpLabel    ->setImmediateToolTip(tip);
     tip = tr("Indiquez ici <br /><font color=\"green\"><b>LE LIEN</b></font><br /> vers l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
     ui->LocalPathStockageupLabel    ->setImmediateToolTip(tip);

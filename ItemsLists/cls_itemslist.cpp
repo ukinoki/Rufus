@@ -1007,8 +1007,9 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             }
             else if (field == CP_TYP_IOLS)
             {
-                iol->setType(newvalue.toString());
-                Utils::CalcStringValueSQL(newvalue);
+                int a = newvalue.toInt();
+                iol->setTypeInt(a);
+                Utils::CalcintValueSQL(newvalue);
             }
             else if (field == CP_RESULTSU_IOLS)
             {
