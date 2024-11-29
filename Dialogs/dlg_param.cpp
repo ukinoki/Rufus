@@ -158,9 +158,10 @@ dlg_param::dlg_param(QWidget *parent) :
     for (int i=0; i<listcheck.size(); i++)
         listcheck.at(i)->setToggleable(false);
 
-    QString tip = tr("Indiquez ici l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>");
-    ui->PosteStockageupLabel        ->setImmediateToolTip(tip);
-    ui->PosteStockageupLineEdit     ->setImmediateToolTip(tip);
+    ui->PosteStockageInfoUpLabel    ->setStyleSheet("background-color: yellow");
+    QString tip = tr("Emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR CE POSTE SERVEUR</b></font>"
+                     "<br/>Cet emplacement n'est pas modifiable et correspond à la variable d'envirronement secure_filepriv de MySQL");
+    ui->PosteStockageInfoUpLabel    ->setImmediateToolTip(tip);
     tip = tr("Indiquez ici <br /><font color=\"green\"><b>LE LIEN</b></font><br /> vers l'emplacement du dossier de stockage des documents d'imagerie <br /><font color=\"green\"><b>SUR LE SERVEUR</b></font>");
     ui->LocalPathStockageupLabel    ->setImmediateToolTip(tip);
     ui->LocalPathStockageupLineEdit ->setImmediateToolTip(tip);
@@ -385,9 +386,9 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         bool poste = DataBase::I()->ModeAccesDataBase() == Utils::Poste;
         ui->PosteStockageupLabel        ->setVisible(poste);
-        ui->PosteStockageupLineEdit     ->setVisible(poste);
+        ui->PosteStockageInfoUpLabel    ->setVisible(poste);
         ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
-        ui->PosteStockageupLineEdit     ->setText(db->dirimagerie());
+        ui->PosteStockageInfoUpLabel    ->setText(QDir::toNativeSeparators(db->dirimagerie()));
     }
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);
     b = (proc->settings()->value(Base + Param_Active).toString() == "YES");
@@ -995,7 +996,7 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->MonoDocsExtupLabel          ->setEnabled(a);
         ui->MonoDocupTableWidget        ->setEnabled(a);
         ui->PosteStockageupLabel        ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
-        ui->PosteStockageupLineEdit     ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
+        ui->PosteStockageInfoUpLabel    ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
     }
     else if (box == ui->LocalServcheckBox)
     {
@@ -2138,34 +2139,6 @@ bool dlg_param::VerifDirStockageImagerie()
 {
     if (ui->NonImportDocscheckBox->isChecked())
         return true;
-    if (ui->PosteServcheckBox->isChecked() && db->ModeAccesDataBase() == Utils::Poste)
-    {
-        bool DirStockageAVerifier = false;
-        if (ui->MonoDocupTableWidget->rowCount()>0)
-        {
-            for (int i=0; i<ui->MonoDocupTableWidget->rowCount(); i++)
-            {
-                UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->MonoDocupTableWidget->cellWidget(i,2));
-                if (line !=  Q_NULLPTR)
-                    if (line->text() != "")
-                    {
-                        DirStockageAVerifier = true;
-                        break;
-                    }
-            }
-        }
-        if (DirStockageAVerifier)
-        {
-            if (!QDir(ui->PosteStockageupLineEdit->text()).exists() || ui->PosteStockageupLineEdit->text() == "")
-            {
-                UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié de dossier de stockage valide pour les documents d'imagerie !"));
-                ui->ParamtabWidget->setCurrentWidget(ui->PosteParamtab);
-                ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabMono);
-                ui->PosteStockageupLineEdit->setFocus();
-                return false;
-            }
-        }
-    }
     if (ui->LocalServcheckBox->isChecked() && db->ModeAccesDataBase() == Utils::ReseauLocal)
     {
         bool DirStockageAVerifier = false;

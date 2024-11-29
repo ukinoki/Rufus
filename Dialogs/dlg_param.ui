@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1045,7 +1045,7 @@
            <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>0</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1158,29 +1158,17 @@
              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d'imagerie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
            </widget>
-           <widget class="UpLineEdit" name="PosteStockageupLineEdit">
+           <widget class="UpLabel" name="PosteStockageInfoUpLabel">
             <property name="geometry">
              <rect>
-              <x>360</x>
+              <x>358</x>
               <y>40</y>
-              <width>550</width>
-              <height>21</height>
+              <width>551</width>
+              <height>20</height>
              </rect>
             </property>
-            <property name="focusPolicy">
-             <enum>Qt::FocusPolicy::NoFocus</enum>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-            </property>
-            <property name="maxLength">
-             <number>150</number>
-            </property>
-            <property name="frame">
-             <bool>true</bool>
-            </property>
-            <property name="readOnly">
-             <bool>true</bool>
+            <property name="text">
+             <string>secure_file_priv</string>
             </property>
            </widget>
           </widget>

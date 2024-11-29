@@ -183,7 +183,7 @@ bool DataBase::dirsecure_file_priv()
     if (okvar && vardata.size()>0)
     {
         {
-            dirdata = vardata.at(1).toString();
+            dirdata = QDir::fromNativeSeparators(vardata.at(1).toString());
             if (m_modeacces == Utils::Poste)
                 ok = QDir(dirdata).exists();
             else
