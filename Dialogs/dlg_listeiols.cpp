@@ -1375,7 +1375,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
         IOL *iol = const_cast<IOL*>(it.value());
         if (m_onlyactifs && !iol->isactif())
             continue;
-        if (iol->modele().startsWith(filtre, Qt::CaseInsensitive))
+        if (iol->modele().contains(filtre, Qt::CaseInsensitive))
         {
             /*! filtrage des types */
             if (wdg_typebox->currentIndex() != 0)
@@ -1415,7 +1415,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             if (wdg_multifocalchk->isChecked())
                 if (!iol->ismultifocal())
                     continue;
-            /*! filtrage des monfoocaux */
+            /*! filtrage des monofocaux */
             if (wdg_monofocalchk->isChecked())
                 if (iol->ismultifocal() || iol->isedof())
                     continue;

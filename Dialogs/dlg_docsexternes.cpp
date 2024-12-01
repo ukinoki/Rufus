@@ -250,12 +250,7 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             else return;
             if (db->ModeAccesDataBase() != Utils::Distant)
             {
-                QString DirImagery = "";
-                if (db->ModeAccesDataBase() == Utils::Poste)
-                    DirImagery = db->dirimagerie();
-                else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                    DirImagery = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
-                else return;
+                QString DirImagery = proc->AbsolutePathDirImagerie();
                 QFile fileimg(DirImagery + NOM_DIR_IMAGES + filename);
                 if (fileimg.open(QIODevice::ReadOnly))
                 {

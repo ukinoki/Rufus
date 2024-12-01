@@ -526,11 +526,7 @@ void dlg_depenses::CalcImageFacture(Depense *dep)
             return;
         if (db->ModeAccesDataBase() != Utils::Distant)
         {
-            QString dossierimagerie = "";
-            if (db->ModeAccesDataBase() == Utils::Poste)
-                dossierimagerie = db->dirimagerie();
-            else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-                dossierimagerie = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+            QString dossierimagerie = proc->AbsolutePathDirImagerie();
             QFile fileimg(dossierimagerie + NOM_DIR_FACTURES + filename);
             if (fileimg.open(QIODevice::ReadOnly))
             {

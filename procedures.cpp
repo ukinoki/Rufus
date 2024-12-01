@@ -464,11 +464,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     {
         QString dirNomSource;
         QString dirNomDest;
-        QString DirImagery;
-        if (db->ModeAccesDataBase() == Utils::Poste)
-            DirImagery = db->dirimagerie();
-        else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-            DirImagery = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+        QString DirImagery = AbsolutePathDirImagerie();
         if (!QDir(DirImagery).exists())
             return false;
 
@@ -3261,21 +3257,38 @@ bool Procedures::IdentificationUser()
     ------------------------------------------------------------------------------------------------------------------------------------*/
 QString Procedures::AbsolutePathDirImagerie()
 {
-    QString path ("");
+    if (m_dirimagerie != QString())
+        return m_dirimagerie;
     switch (db->ModeAccesDataBase()) {
     case Utils::Poste:
-        path = db->dirimagerie();
+        m_dirimagerie = db->dirimagerie();
         break;
     case Utils::ReseauLocal:
-        path = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
+        m_dirimagerie = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
         break;
     case Utils::Distant:
-        path = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
-        if (!QDir(path).exists())
-            Utils::mkpath(path);
+        m_dirimagerie = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
+        if (!QDir(m_dirimagerie).exists())
+            Utils::mkpath(m_dirimagerie);
         break;
     }
-    return path;
+    return m_dirimagerie;
+}
+
+void Procedures::setAbsolutePathDirImagerie(QString dir)
+{
+    switch (db->ModeAccesDataBase()) {
+    case Utils::Poste:
+        break;
+    case Utils::ReseauLocal:
+        settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie, dir);
+        break;
+    case Utils::Distant:
+        m_dirimagerie = dir;
+        if (!QDir(m_dirimagerie).exists())
+            Utils::mkpath(m_dirimagerie);
+        break;
+    }
 }
 
 bool Procedures::DefinitRoleUser() //NOTE : User Role Function
@@ -3893,7 +3906,7 @@ void Procedures::PremierParametrageMateriel()
 
     // Création des dossiers
     //!    on server
-    //!    -- dir defined by variable MySQL secure-file-priv (/Users/Shared on macOS Users/Public on W10/11)
+    //!    -- dir defined by variable MySQL secure-file-priv (/Users/Shared on macOS/Linux, Users/Public on W10/11)
     //!                              /Imagerie
     //!                                     /Images                         <- dir where Rufus writes every pict renamed by Rufus with a dir for each date
     //!                                     /DossierEchangeImages           <- dir where each machine writes its picts and where Rufus can read them (with a subdir for each machine)

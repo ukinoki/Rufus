@@ -1904,7 +1904,7 @@ void dlg_param::ModifDirBackup()
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
-        dirsauvorigin = db->dirimagerie();
+        dirsauvorigin = proc->AbsolutePathDirImagerie();
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
                                                        "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
     if (dirsauvorigin == url.path() || url == QUrl())
@@ -2090,8 +2090,9 @@ void dlg_param::DirLocalStockage()
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
-    ui->LocalPathStockageupLineEdit->setText(url.path());
-    proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie, url.path());
+    QString path = (url.host()!=""? "//" + url.host() + "/" : "") + url.path();
+    ui->LocalPathStockageupLineEdit->setText(path);
+    proc->setAbsolutePathDirImagerie(path);
 }
 
 void dlg_param::DirDistantStockage()

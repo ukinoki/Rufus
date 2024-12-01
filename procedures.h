@@ -149,6 +149,7 @@ public:
     static QString          VilleParDefaut();
 
     QString                 AbsolutePathDirImagerie();                      /*! le dossier sur lequel est stocké l'imagerie, vu depuis le poste client */
+    void                    setAbsolutePathDirImagerie(QString dir);
 
 /*! fin opérations sur la base de données, le système et les datas -------------------------------------------------------------------------------------------------------- */
 
