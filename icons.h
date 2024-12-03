@@ -86,6 +86,7 @@ public:
     static QPixmap pxAutoref() { return foundPX("pxAutoref", "://autoref.png"); }
     static QPixmap pxAVTest() { return foundPX("pxAVTest", "://AVTest1.png"); }
 
+    static QPixmap pxBarCode() { return foundPX("pxBarCode", "://barcode.png"); }
     static QPixmap pxBlackCheck() { return foundPX("pxBlackCheck", "://blackcheck.png"); }
     static QPixmap pxblockCheck() { return foundPX("pxblockCheck", "://checked.png"); }
 
@@ -164,6 +165,7 @@ public:
         return icSilhouette();
     }
 
+    static QIcon icBarCode(QSize size = QSize()) { return foundIC("icBarCode", pxBarCode(),size); }
     static QIcon icCopy() { return foundIC("icCopy", "://copy.png"); }
     static QIcon icCut() { return foundIC("icCut", "://cut.ico"); }
     static QIcon icPaste() { return foundIC("icPaste", "://paste.ico"); }

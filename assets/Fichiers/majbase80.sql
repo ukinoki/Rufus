@@ -54,7 +54,7 @@ BEGIN
         IF tot=0
         THEN
             ALTER TABLE `rufus`.`utilisateurs`
-            ADD COLUMN `UsersBarCode2` BLOB NULL DEFAULT NULL COMMENT 'ADELI' AFTER `UserBarCode1`;
+            ADD COLUMN `UserBarCode2` BLOB NULL DEFAULT NULL COMMENT 'ADELI' AFTER `UserBarCode1`;
         END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY

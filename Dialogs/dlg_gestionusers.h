@@ -40,6 +40,7 @@ public:
      * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
      * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut, de chaque utilisateur, sauf les données bancaires
     */
+    enum                     BarCode {ADELI, RPPS};    Q_ENUM(BarCode)
     explicit dlg_gestionusers(int idlieu, UserMode  mode, bool mdpverified=true, QWidget *parent = Q_NULLPTR);
     /*
      * la variable mdpverified est utilisée pour l'appel de la fiche dlg_gestionlieux
@@ -112,6 +113,9 @@ private:
     void                    ModifUser();
     void                    RegleAffichage();
     void                    SupprUser();
+
+    void                    changeBarCode(BarCode code);
+
 };
 
 #endif // DLG_gestionusers_H
