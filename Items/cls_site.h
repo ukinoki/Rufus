@@ -34,6 +34,7 @@ private:
     QString m_telephone = "";
     QString m_fax = "";
     QString m_couleur = "";
+    QByteArray m_logo = QByteArray();   //! le logo du site
 
 public:
     explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);

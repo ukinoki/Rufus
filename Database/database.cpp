@@ -937,9 +937,9 @@ QJsonObject DataBase::loadUserData(int idUser)
             CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
             CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
             CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
-            CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                        // 20,21,22,23,24
+            CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                    // 20,21,22,23,24
             CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
-            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR                                                                                // 30,31
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERBARCODE1_USR ", " CP_USERBARCODE2_USR                              // 30,31,32,33
             " from " TBL_UTILISATEURS
             " where " CP_ID_USR " = " + QString::number(idUser);
 
@@ -986,6 +986,8 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
     userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
     userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
+    userData[CP_USERBARCODE1_USR]                   = QLatin1String(usrdata.at(32).toByteArray().toBase64());
+    userData[CP_USERBARCODE2_USR]                   = QLatin1String(usrdata.at(33).toByteArray().toBase64());
     return userData;
 }
 
@@ -1014,7 +1016,7 @@ QList<User*> DataBase::loadUsers()
             CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
             CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
             CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
-            CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                        // 20,21,22,23,24
+            CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                    // 20,21,22,23,24
             CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
             CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR                                                                                // 30,31
             " from " TBL_UTILISATEURS;
@@ -1286,7 +1288,8 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
     if (pat == Q_NULLPTR)
         return QList<DocExterne*>();
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
-                  CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+                  CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES
+                  " from " TBL_DOCSEXTERNES
                   " where " CP_IDPAT_DOCSEXTERNES " = " + QString::number(pat->id());
 
     QList<QVariantList> doclist = StandardSelectSQL(req,ok);
@@ -1307,6 +1310,7 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
         jData[CP_LIENFICHIER_DOCSEXTERNES]      = doclist.at(i).at(6).toString();
         jData[CP_FORMATDOC_DOCSEXTERNES]        = doclist.at(i).at(7).toString();
         jData[CP_IMPORTANCE_DOCSEXTERNES]       = doclist.at(i).at(8).toInt();
+        jData[CP_COTE_DOCSEXTERNES]             = doclist.at(i).at(9).toInt();
         DocExterne *doc = new DocExterne(jData);
         if (doc != Q_NULLPTR)
             docsexternes << doc;
@@ -1317,10 +1321,10 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 QJsonObject DataBase::loadDocExterneData(int idDoc)
 {
     QJsonObject jData{};
-    QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","
-                  CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","
-                  CP_DATE_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_ALD_DOCSEXTERNES ", " CP_IDEMETTEUR_DOCSEXTERNES ","
-                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES " from " TBL_DOCSEXTERNES
+    QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","     //! 0,1,2,3,4
+                  CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","   //! 5,6,7,8,9
+                  CP_DATE_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_ALD_DOCSEXTERNES ", " CP_IDEMETTEUR_DOCSEXTERNES ","       //! 10,11,12,13,14
+                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES " from " TBL_DOCSEXTERNES           //! 15,16,17,18
                   " where " CP_ID_DOCSEXTERNES " = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
@@ -1348,6 +1352,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     jData[CP_FORMATDOC_DOCSEXTERNES]        = docdata.at(15).toString();
     jData[CP_IMPORTANCE_DOCSEXTERNES]       = docdata.at(16).toInt();
     jData[CP_IDREFRACTION_DOCSEXTERNES]     = docdata.at(17).toInt();
+    jData[CP_COTE_DOCSEXTERNES]             = docdata.at(18).toInt();
 
     return jData;
 }

@@ -49,6 +49,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
      * idpatient
      */
     //qDebug() << appareil->nomappareil();
+    QString  cote = "";
+    QString R = tr("OD");
+    QString L = tr("OG");
     QString NomDirDoc   = appareil->nomdossierechange();
     QString Titredoc    = appareil->titreexamen();
     if (NomDirDoc == "")
@@ -124,9 +127,18 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         }
         else
             datestring      = m_currentdate.toString("yyyyMMdd");
+        if (nomfiledoc.split("_").size()>4)
+        {
+            cote = nomfiledoc.split("-").at(4);
+            if (cote =="R")
+                cote = R;
+            else if (cote == "L")
+                cote = L;
+            else cote = "";
+        }
         Titredoc    = "OCT - Topcon";
         Typedoc     = "OCT";
-        SousTypeDoc = "Topcon";
+        SousTypeDoc = "Topcon" + (cote != ""? " " + cote : "");
     }
     else if (Appareil == "CANON CR-2")
     {
@@ -139,9 +151,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
              datestring      = m_currentdate.toString("yyyyMMdd");
         Titredoc    = "RNM - Canon";
         Typedoc     = "RNM";
-        QString cote = "";
          if (nomfiledoc.split("_").size()>2)
-             cote = ((nomfiledoc.split("_").at(2) == "R")? tr("OD") : tr("OG"));
+             cote = ((nomfiledoc.split("_").at(2) == "R")? R : L);
         SousTypeDoc = "Canon " + cote;
     }
     else if (Appareil == "OTI SLO") {
@@ -182,12 +193,11 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         }
         Titredoc    = "OCT - Canon";
         Typedoc     = "OCT";
-        QString cote = (nomfiledoc.contains("BothEyes")? tr("ODG") : ((nomfiledoc.split("_").at(4) == "R")? tr("OD") : tr("OG")));
+        cote = (nomfiledoc.contains("BothEyes")? tr("ODG") : ((nomfiledoc.split("_").at(4) == "R")? R : L));
         QString typeexam = nomfiledoc.split("_").at(3);
         if (typeexam == "OCTA")     typeexam = "AngioOCT";
         if (typeexam == "Disc3D")   typeexam = "Glaucome";
         SousTypeDoc = "Canon " + typeexam + " " + cote;
-        if (typeexam == "Disc3D")   typeexam = "Glaucome";
         datetimecreation = datestring + "-" + nomfiledoc.split("_").at(2);
         QStringList filters;
         filters << "*.exd";
@@ -271,7 +281,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             idxdate = nomfiledoc.indexOf(re);
             datestring = nomfiledoc.mid(idxdate,10).replace("-","");
             datetimecreation = datestring + "-" + nomfiledoc.mid(idxdate + 11,8).replace("_","");
-            QString details (""), cote("");
+            QString details ("");
             if (nomfiledoc.split(re).size()>1)
                 details = nomfiledoc.split(re).at(1);
             else
@@ -280,8 +290,8 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
                 EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
                 return;
             }
-            if (details.split("-").size()>0)
-                cote = ((details.split("-").at(1)=="right")? tr("OD") : tr("OG"));
+            if (details.split("-").size()>1)
+                cote = ((details.split("-").at(1)=="right")? R : L);
             SousTypeDoc = "Eidon " + cote;
             if (details.split("-").size()>3)
             {
@@ -334,12 +344,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     {
         //! 20240126_23_R_012.JPG
         if (nomfiledoc.split("_").size()>2)
+        {
             datestring = nomfiledoc.split("_").at(0);
+            cote = nomfiledoc.split("_").at(2);
+            cote = (cote=="R")? R : L;
+        }
         Titredoc    = "RNM TRC-NW400";
         Typedoc     = "RNM";
-        QString cote = nomfiledoc.split("_").at(2);
-        cote = (cote=="R")? tr("OD") : tr("OG");
-        SousTypeDoc = "TRC-NW400 " + cote;
+        SousTypeDoc = "TRC-NW400" + (cote != ""? " " + cote : "");
     }
     else if (Appareil == "ESSILOR Retina 550")
     {
@@ -348,9 +360,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         Titredoc    = "RNM - Retina 550";
         Typedoc     = "RNM";
         QString cote ("");
-        if (nomfiledoc.split("_").size()>0)
+        if (nomfiledoc.split("_").size()>1)
             cote = nomfiledoc.split("_").at(1);
-        cote = (cote=="OD")? tr("OD") : tr("OG");
+        cote = (cote=="OD")? R : L;
         SousTypeDoc = "Retina 550";
         if (cote != "")
             SousTypeDoc += " " + cote;
@@ -365,7 +377,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
 
     datestring = QDate().fromString(datestring,"yyyyMMdd").toString("yyyy-MM-dd");
 
-    // Format du document------------------------------------------------------------------------------------------------------------------------------------------------
+    //! Format du document------------------------------------------------------------------------------------------------------------------------------------------------
     QString suffix = QFileInfo(file_origin).suffix().toLower();
     if (!Utils::isFormatRecognized(file_origin))
     {
@@ -374,7 +386,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         return;
     }
 
-    // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
+    //! Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
     QByteArray ba;
     QString szorigin, szfinal;
     qint64 sz = file_origin.size();
@@ -387,7 +399,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     file_origin.close();
     szfinal = Utils::getExpressionSize(file_origin.size());
 
-    // IdPatient------------------------------------------------------------------------------------------------------------------------------------------------
+    //! IdPatient------------------------------------------------------------------------------------------------------------------------------------------------
     QString req(""), idPatient("");
     if (Appareil == "TOPCON ALADDIN")   {
         QStringList listn = nomfiledoc.split("_");
@@ -518,11 +530,16 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             + "-" + QString::number(idimpr)
             + "." + QFileInfo(file_origin).suffix().toLower();
 
+    int side = 0;
+    if (cote == R)
+        side = 1;
+    else if (cote == L)
+        side = 2;
     if (m_acces == Local)
     {
         req = "insert into " TBL_DOCSEXTERNES " (" CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ",  " CP_IDPAT_DOCSEXTERNES ",  " CP_TYPEDOC_DOCSEXTERNES ",  " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
-                CP_IDEMETTEUR_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_EMISORRECU_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IDLIEU_DOCSEXTERNES ")"
-                                                                                                                                                                       " values("
+                CP_IDEMETTEUR_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_EMISORRECU_DOCSEXTERNES ", " CP_FORMATDOC_DOCSEXTERNES ", " CP_IDLIEU_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES ")"
+                " values("
                 + QString::number(idimpr) + ", "
                 + QString::number(Datas::I()->users->userconnected()->id()) + ", "
                 + idPatient + ", '"
@@ -534,7 +551,9 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
                 + "/" + m_datetransfer + "/" + NomFileFinal + "', "
                 + "0" + ", '"
                 IMAGERIE "', "
-                + QString::number(Datas::I()->sites->idcurrentsite()) + ")";
+                + QString::number(Datas::I()->sites->idcurrentsite()) + ", "
+                + (side>0? QString::number(side) : "NULL")
+                + ")";
 
         if(db->StandardSQL(req))
         {
@@ -581,10 +600,12 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
         listbinds[CP_TITRE_DOCSEXTERNES]        = Titredoc;
         listbinds[CP_DATE_DOCSEXTERNES]         = datestring + " " + QTime::currentTime().toString("HH:mm:ss");
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]   = Datas::I()->users->userconnected()->id();
-        listbinds[suffix]                    = ba;
+        listbinds[suffix]                       = ba;
         listbinds[CP_EMISORRECU_DOCSEXTERNES]   = "0";
         listbinds[CP_FORMATDOC_DOCSEXTERNES]    = IMAGERIE;
         listbinds[CP_IDLIEU_DOCSEXTERNES]       = Datas::I()->sites->idcurrentsite();
+        if (side>0)
+            listbinds[CP_COTE_DOCSEXTERNES]     = side;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if(doc != Q_NULLPTR)
         {

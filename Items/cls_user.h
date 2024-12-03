@@ -132,6 +132,8 @@ private:
     QString m_policeAttribut = "";      //!> le choix d'attribut de la police d'écran
     bool m_affichedocspublics = true;   //!> affiche les docs publics des autres utilisateurs dans la fiche impressions
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
+    QByteArray m_barcode1= QByteArray();//! le code barre RPPS
+    QByteArray m_barcode2= QByteArray();//! le code barre ADELI
 
     int m_soignant;
     qlonglong m_numPS;

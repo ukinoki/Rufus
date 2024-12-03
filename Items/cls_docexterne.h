@@ -69,6 +69,8 @@ private:
     QList<QImage> m_imagelist = QList<QImage>();          //!< page list ready to print
     QString m_formatimage = "";         //!< le format du fichier image
 
+    int m_cote=0;                       //!> le côté de l'examen (0 = les 2 ou inconnu, 1 = D, 2 = G)
+
     int m_idrefraction;                 //!> l'id de la refraction concernée quand il s'agit d'une prescription de verres correcteurs
 
 public:
@@ -113,5 +115,7 @@ public:
 
     bool isJPG()    {return m_formatimage == JPG;};
     bool isPDF()    {return m_formatimage == PDF;};
+    int cote() const;
+    void setCote(int newCote);
 };
 #endif // CLS_DOCEXTERNE_H

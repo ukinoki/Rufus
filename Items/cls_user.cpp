@@ -74,6 +74,9 @@ void User::setData(QJsonObject data)
     setDataDate(data, CP_DATECREATIONMDP_USR, m_datecreationMDP);
     setDataBool(data, CP_AFFICHEDOCSPUBLICS_USR, m_affichedocspublics);
     setDataBool(data, CP_AFFICHECOMMENTSPUBLICS_USR, m_affichecommentslunettespublics);
+
+    setDataByteArray(data, CP_USERBARCODE1_USR, m_barcode1);
+    setDataByteArray(data, CP_USERBARCODE2_USR, m_barcode2);
     m_data = data;
     /*qDebug() << login();
 

@@ -79,6 +79,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 doc->settexteentete(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
+            else if (field == CP_COTE_DOCSEXTERNES)
+            {
+                doc->setCote(newvalue.toInt());
+                Utils::CalcintValueSQL(newvalue);
+            }
             else
                 ok = false;
             break;

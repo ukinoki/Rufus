@@ -19,6 +19,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_docexterne.h"
 #include <QDebug>
 
+int DocExterne::cote() const
+{
+    return m_cote;
+}
+
+void DocExterne::setCote(int newCote)
+{
+    m_cote = newCote;
+}
+
 DocExterne::DocExterne(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
@@ -88,6 +98,7 @@ void DocExterne::setData(QJsonObject data)
     setDataInt(data, CP_EMISORRECU_DOCSEXTERNES, m_emisrecu);
     setDataInt(data, CP_IDLIEU_DOCSEXTERNES, m_idsite);
     setDataInt(data, CP_IDREFRACTION_DOCSEXTERNES, m_idrefraction);
+    setDataInt(data, CP_COTE_DOCSEXTERNES, m_cote);
     m_data = data;
 }
 

@@ -168,7 +168,7 @@ DocExterne* DocsExternes::CreationDocumentExterne(QHash<QString, QVariant> sets)
         else if (champ == CP_EMISORRECU_DOCSEXTERNES)        data[champ] = itset.value().toInt();
         else if (champ == CP_IDLIEU_DOCSEXTERNES)            data[champ] = itset.value().toInt();
         else if (champ == CP_IDREFRACTION_DOCSEXTERNES)      data[champ] = itset.value().toInt();
-
+        else if (champ == CP_COTE_DOCSEXTERNES)              data[champ] = itset.value().toInt();
     }
     doc = new DocExterne(data);
     return doc;

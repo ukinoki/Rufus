@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define MACROS_H
 
 // Les versions de la base et des ressources
-#define VERSION_BASE                          79  // version de la base de données
+#define VERSION_BASE                          80  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
 
@@ -225,6 +225,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TELEPHONE_SITE                               "LieuTelephone"
 #define CP_FAX_SITE                                     "LieuFax"
 #define CP_COULEUR_SITE                                 "LieuCouleur"
+#define CP_SITELOGO_SITE                                "SiteLogo"
 
                             //! Table Rufus.jointuresLieux
 #define CP_IDUSER_JOINTSITE                             "idUser"
@@ -294,6 +295,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_FORMATDOC_DOCSEXTERNES                       "FormatDoc"
 #define CP_IDLIEU_DOCSEXTERNES                          "idLieu"
 #define CP_IMPORTANCE_DOCSEXTERNES                      "Importance"
+#define CP_COTE_DOCSEXTERNES                            "Cote"
 
                             //! Table rufus.listeappareils
 #define CP_ID_APPAREIL                                  "idAppareil"
@@ -406,7 +408,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ISORDOSIGNE_USR                              "OrdoSigne"   //!> pas utilisé
 #define CP_DATEDERNIERECONNEXION_USR                    "DateDerniereConnexion"
 #define CP_DATECREATIONMDP_USR                          "DateCreationMDP"
-#define CP_USERBARCODE_USR                              "UserBarCode"
+#define CP_USERBARCODE1_USR                             "UserBarCode1"
+#define CP_USERBARCODE2_USR                             "UserBarCode2"
 #define CP_AFFICHEDOCSPUBLICS_USR                       "AfficheDocsPublics"
 #define CP_AFFICHECOMMENTSPUBLICS_USR                   "AfficheCommentsPublics"
 

@@ -2663,7 +2663,7 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                 UpMessageBox msgbox(parent);
                 msgbox.setText(tr("Mise à jour de la base nécessaire"));
                 msgbox.setInformativeText(tr("Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version") +
-                                          " <b>" + QString::number(Version) + "</b><br />" +
+                                          " <b>" + QString::number(VERSION_BASE) + "</b><br />" +
                                           tr("et une sauvegarde de la base actuelle est fortement conseillée"));
                 msgbox.setIcon(UpMessageBox::Warning);
                 UpSmallButton *OKBouton = new UpSmallButton();
@@ -3132,7 +3132,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             "'Bâtiment C', "
             "23260, "
             "'La Mazière', "
-            "'O4 56 78 90 12', "
+            "'04 56 78 90 12', "
             "'000000')";
     //qDebug() << req;
     db->StandardSQL(req);
