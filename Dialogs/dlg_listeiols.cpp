@@ -566,7 +566,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                         bviol->setimage(img);
                         QHash <QString, QVariant> sets = bviol->datas().toVariantHash();
                         sets[CP_ARRAYIMG_IOLS] = physioliol->arrayimgiol();
-                        DataBase::I()->UpDateIOL(bviol->id(), sets);
+                        DataBase::I()->UpDateImgIOL(bviol->id(), sets);
                         itbv->cend();
                     }
                 }
@@ -1210,7 +1210,7 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
         QHash<QString, QVariant> m_listbinds;
         m_listbinds[CP_ARRAYIMG_IOLS] = ba;
         m_listbinds[CP_TYPIMG_IOLS] = JPG;
-        DataBase::I()->UpDateIOL(iol->id(), m_listbinds);
+        DataBase::I()->UpDateImgIOL(iol->id(), m_listbinds);
         Utils::removeWithoutPermissions(file_image);
     }
     Utils::RemoveProvDir();

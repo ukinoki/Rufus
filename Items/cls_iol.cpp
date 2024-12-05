@@ -58,7 +58,9 @@ void IOL::setData(QJsonObject data)
     setDataDouble(data, CP_DIAINJECTEUR_IOLS, m_diainjecteur);
     setDataDouble(data, CP_DIAALL_IOLS, m_diaall);
     setDataDouble(data, CP_DIAOPT_IOLS, m_opticaldiameter);
+
     setDataByteArray(data, CP_ARRAYIMG_IOLS, m_arrayimgiol);
+
     setDataString(data, CP_TYPIMG_IOLS, m_imageformat);
     setDataBool(data, CP_SINGLEPIECE_IOLS, m_singlepiece);
     setDataString(data, CP_OPTICMATERIAU_IOLS, m_opticmaterial);

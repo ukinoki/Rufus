@@ -134,6 +134,8 @@ private:
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
     QByteArray m_barcode1= QByteArray();//! le code barre RPPS
     QByteArray m_barcode2= QByteArray();//! le code barre ADELI
+    QImage m_barcodeimg1 = QImage();
+    QImage m_barcodeimg2 = QImage();
 
     int m_soignant;
     qlonglong m_numPS;
@@ -287,6 +289,24 @@ public:
     void setdesactive(bool logic)                 { m_desactive = logic;
                                                     m_data[CP_ISDESACTIVE_USR] = logic; }
 
+    QImage barcode1img() const                    { return m_barcodeimg1; }
+    QImage barcode2img() const                    { return m_barcodeimg2; }
+    void setimageBarCode1(QImage img = QImage())
+    {
+        if (img.isNull())
+            m_barcodeimg1 = QImage();
+        else
+            m_barcodeimg1 = img;
+        m_data[CP_USERBARCODE1_USR] = Utils::jsonValFromImage(m_barcodeimg1);
+    }
+    void setimageBarCode2(QImage img = QImage())
+    {
+        if (img.isNull())
+            m_barcodeimg2 = QImage();
+        else
+            m_barcodeimg2 = img;
+        m_data[CP_USERBARCODE1_USR] = Utils::jsonValFromImage(m_barcodeimg2);
+    }
     /*! concernant tout le monde */
     bool isComptableActes();
     bool isLiberal();
@@ -320,6 +340,10 @@ public:
 
     int idcomptableactes() const                       { return m_idComptableActes; }
     void setidcomptableactes(int idusr)                { m_idComptableActes = idusr; }
+    QByteArray barcode1() const;
+    void setBarcode1(const QByteArray &newBarcode1);
+    QByteArray barcode2() const;
+    void setBarcode2(const QByteArray &newBarcode2);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(User::ModeCompta)

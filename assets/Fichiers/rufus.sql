@@ -108,6 +108,7 @@ CREATE TABLE `Impressions` (
   `TextEntete` blob,
   `TextCorps` mediumblob,
   `TextOrigine` blob,
+  `PdfOrigin` mediumblob,
   `TextPied` blob,
   `DateImpression` datetime DEFAULT NULL,
   `pdf` longblob,

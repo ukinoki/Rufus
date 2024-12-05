@@ -338,8 +338,8 @@ bool DataBase::UpdateTable(QString nomtable,
     {
         itset.next();
         QString clause  = " " + itset.key() + " = " + (itset.value().toString().toLower()=="null" || itset.value() == QVariant() || itset.value().toString() == ""?
-                                                           "null," :
-                                                           "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
+                                                          "null," :
+                                                          "'" + Utils::correctquoteSQL(itset.value().toString()) + "',");
         //qDebug() << "itset.value().toString() = " << itset.value().toString();
         //qDebug() << "clause = " << clause;
         req += clause;
@@ -394,6 +394,41 @@ bool DataBase::InsertSQLByBinds(QString nomtable,
         itset.next();
         query.bindValue(":" + itset.key(), itset.value());
         //qDebug() << "query.bindValue("":" + itset.key() + "," + itset.value().toString() + ")";
+    }
+    query.exec();
+    bool a = true;
+    if (query.lastError().type() != QSqlError::NoError)
+    {
+        Logs::ERROR(errormsg, tr("\nErreur\n") + query.lastError().text());
+        a =  false;
+    }
+    query.finish();
+    return a;
+}
+
+bool DataBase::UpdateTablebyBinds(QString nomtable,
+                                  QHash<QString, QVariant> sets,
+                                  QString idfieldname,
+                                  int id,
+                                  QString errormsg)
+{
+    QSqlQuery query = QSqlQuery(m_db);
+    QString req = "update " + nomtable + " set";
+    QHashIterator<QString, QVariant> itset(sets);
+    while (itset.hasNext())
+    {
+        itset.next();
+        QString clause  = " " + itset.key() + " = :" + itset.key() + ",";
+        req += clause;
+    }
+    req = req.left(req.size()-1); //retire la virgule de la fin
+    req += " where " + idfieldname + " = " + QString::number(id);
+    query.prepare(req);
+    itset.toFront();
+    while (itset.hasNext())
+    {
+        itset.next();
+        query.bindValue(":" +itset.key(), itset.value());
     }
     query.exec();
     bool a = true;
@@ -1070,12 +1105,18 @@ QList<User*> DataBase::loadUsers()
         userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
         userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
         userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
+
         userData[CP_USERBARCODE1_USR]                   = QLatin1String(usrdata.at(32).toByteArray().toBase64());
         userData[CP_USERBARCODE2_USR]                   = QLatin1String(usrdata.at(33).toByteArray().toBase64());
         User *usr = new User(userData);
         users << usr;
     }
     return users;
+}
+
+void DataBase::UpDateBarCodeUSr(int id, QHash<QString, QVariant> sets)
+{
+    UpdateTablebyBinds(TBL_UTILISATEURS, sets, CP_ID_USR, id,tr("Impossible de modifier le code barre de l'utilisateur"));
 }
 
 /*
@@ -1326,7 +1367,8 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","     //! 0,1,2,3,4
                   CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","   //! 5,6,7,8,9
                   CP_DATE_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_ALD_DOCSEXTERNES ", " CP_IDEMETTEUR_DOCSEXTERNES ","       //! 10,11,12,13,14
-                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES " from " TBL_DOCSEXTERNES           //! 15,16,17,18
+                  CP_FORMATDOC_DOCSEXTERNES ", " CP_IMPORTANCE_DOCSEXTERNES ", " CP_IDREFRACTION_DOCSEXTERNES ", " CP_COTE_DOCSEXTERNES ", " CP_PDFORIGIN_DOCSEXTERNES     //! 15,16,17,18,19
+                  " from " TBL_DOCSEXTERNES
                   " where " CP_ID_DOCSEXTERNES " = " + QString::number(idDoc);
     QVariantList docdata = getFirstRecordFromStandardSelectSQL(req, ok);
     if (!ok || docdata.size()==0)
@@ -1355,6 +1397,7 @@ QJsonObject DataBase::loadDocExterneData(int idDoc)
     jData[CP_IMPORTANCE_DOCSEXTERNES]       = docdata.at(16).toInt();
     jData[CP_IDREFRACTION_DOCSEXTERNES]     = docdata.at(17).toInt();
     jData[CP_COTE_DOCSEXTERNES]             = docdata.at(18).toInt();
+    jData[CP_PDFORIGIN_DOCSEXTERNES]        = QLatin1String(docdata.at(19).toByteArray().toBase64());
 
     return jData;
 }
@@ -3260,7 +3303,9 @@ QJsonObject DataBase::IOLData(QVariantList ioldata)                     //! attr
     data[CP_BARRETTDF_IOLS]         = ioldata.at(23).toDouble();
     data[CP_OLSEN_IOLS]             = ioldata.at(24).toDouble();
     data[CP_DIAINJECTEUR_IOLS]      = ioldata.at(25).toDouble();
+
     data[CP_ARRAYIMG_IOLS]          = QLatin1String(ioldata.at(26).toByteArray().toBase64());
+
     data[CP_TYPIMG_IOLS]            = ioldata.at(27).toString();
     data[CP_SINGLEPIECE_IOLS]       = (ioldata.at(28) == 1);
     data[CP_OPTICMATERIAU_IOLS]     = ioldata.at(29).toString();
@@ -3391,19 +3436,11 @@ QJsonObject DataBase::loadIOLdataById(int idiol)                   //! charge un
     return IOLData(ioldatalist);
 }
 
-void DataBase::UpDateIOL(int id, QHash<QString, QVariant> sets)
+void DataBase::UpDateImgIOL(int id, QHash<QString, QVariant> sets)
 {
-    UpdateTable(TBL_IOLS, sets, " where " CP_ID_IOLS " = " + QString::number(id),tr("Impossible de modifier l'IOL"));
-
-    QByteArray ba = sets[CP_ARRAYIMG_IOLS].toByteArray();
-    QSqlQuery query = QSqlQuery(m_db);
-    QString prepare = "update " TBL_IOLS " set " CP_ARRAYIMG_IOLS " = :" CP_ARRAYIMG_IOLS " where " CP_ID_IOLS " = " + QString::number(id);
-    query.prepare(prepare);
-    query.bindValue(":" CP_ARRAYIMG_IOLS, ba);
-    query.exec();
-    if (query.lastError().type() != QSqlError::NoError)
-        Logs::ERROR("erreur", tr("\nErreur\n") + query.lastError().text());
-    query.finish();
+    QHash<QString, QVariant> newsets = QHash<QString, QVariant>();
+    newsets[CP_ARRAYIMG_IOLS] = sets[CP_ARRAYIMG_IOLS];
+    UpdateTablebyBinds(TBL_IOLS, newsets, CP_ID_IOLS, id,tr("Impossible de modifier l'IOL"));
 }
 
 /*

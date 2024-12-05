@@ -65,6 +65,16 @@ BEGIN
             ALTER TABLE `rufus`.`LieuxExercice`
             ADD COLUMN `SiteLogo` BLOB NULL DEFAULT NULL;
         END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'Impressions' AND COLUMN_NAME = 'PdfOrigin') as chp;
+        IF tot=0
+        THEN
+            ALTER TABLE `rufus`.`Impressions`
+            ADD COLUMN `PdfOrigin` MEDIUMBLOB AFTER `TextOrigine`;
+        END IF;
+
 UPDATE `rufus`.`AppareilsRefraction` SET LAN = 1, Implemente = 1 WHERE Marque = 'TOPCON' and Modele = 'CV-5000';
 UPDATE `rufus`.`AppareilsRefraction` SET LAN = 1, Implemente = 1 WHERE Marque = 'TOPCON' and Modele = 'CV-3000';
 UPDATE `rufus`.`AppareilsRefraction` SET LAN = 1, Implemente = 1 WHERE Marque = 'TOPCON' and Modele = 'CV-2500';

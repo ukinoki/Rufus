@@ -50,6 +50,8 @@ private: //Données de l'intervention
     //! image
     QByteArray m_arrayimgiol= QByteArray();     //! le cliché de l'IOL
     QString m_imageformat   = "";               //! le type de cliché, jpg ou pdf
+    QImage m_nullimage      = QImage("://IOL.png");
+    QImage m_currentimage   = m_nullimage;
 
     //! material
     QString m_opticmaterial = "";               //! le matériau de l'IOL
@@ -118,8 +120,6 @@ private: //Données de l'intervention
     //! type IOL
     int m_typeInt           = 0;                //! le type de l'IOL : CP, CA, addon, support irien, refractif ca, autre exprimé en database
 
-    QImage m_nullimage      = QImage("://IOL.png");
-    QImage m_currentimage   = m_nullimage;
 
 
 public:
@@ -277,10 +277,8 @@ public:
     {
         if (img.isNull())
             m_currentimage = m_nullimage;
-           // m_nullimage.swap(m_currentimage);
         else
             m_currentimage = img;
-//            img.swap(m_currentimage);
         m_data[CP_ARRAYIMG_IOLS] = Utils::jsonValFromImage(m_currentimage);
     }
     void resetdatas();

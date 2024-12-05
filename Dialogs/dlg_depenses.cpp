@@ -347,7 +347,7 @@ void dlg_depenses::PrintReport(bool pdf)
                               + ".pdf";
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
-        proc                ->Cree_pdf(textcorps, textentete, textpied,
+        proc                ->Cree_pdffile(textcorps, textentete, textpied,
                                 filename,
                                 false,
                                 dirname);

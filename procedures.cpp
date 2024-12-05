@@ -1298,7 +1298,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
 
 
 /*!
- * \brief Procedures::Cree_pdf
+ * \brief Procedures::Cree_pdffile
  * \abstract Create pdf file from document
  * \param QString textcorps
  * \param QString textentete
@@ -1307,7 +1307,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
  * \param QString nomdossier = dossier où est enregistré le fichier
  * \return
  */
-bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpied, QString nomfichier, bool ALD, QString nomdossier)
+bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, bool ALD, QString nomdossier)
 {
     bool a = false;
     QTextEdit *Etat = new QTextEdit;
@@ -1339,6 +1339,35 @@ bool Procedures::Cree_pdf(QString textcorps, QString textentete, QString textpie
     delete TexteAImprimer;
     delete Etat;
     return a;
+}
+
+/*!
+ * \brief Procedures::Cree_pdfByteArray
+ * \abstract Create pdf file from document
+ * \param QString textcorps
+ * \param QString textentete
+ * \param QString textpied
+ * \return
+ */
+QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, QString textpied, bool ALD)
+{
+    QTextEdit *Etat = new QTextEdit;
+    Etat->setHtml(textcorps);
+
+    TextPrinter *TexteAImprimer = new TextPrinter();
+    textpied.replace("{{DUPLI}}","");
+
+    TexteAImprimer->setFooterSize(TaillePieddePage());
+    TexteAImprimer->setHeaderText(textentete);
+    int tailleEnTete = (ALD? TailleEnTeteALD(): TailleEnTete());
+    TexteAImprimer->setHeaderSize(tailleEnTete);
+    TexteAImprimer->setFooterText(textpied);
+    TexteAImprimer->setTopMargin(TailleTopMarge());
+
+    QByteArray ba = TexteAImprimer->getPDFByteArray(Etat->document());
+    delete TexteAImprimer;
+    delete Etat;
+    return ba;
 }
 
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
@@ -1718,7 +1747,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               m_dirnamepdf;
-        Cree_pdf(textcorps, textentete, textpied,filename, ALD, dirname);
+        Cree_pdffile(textcorps, textentete, textpied,filename, ALD, dirname);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(parent,
@@ -1738,6 +1767,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     if (aa)
     {
         Utils::nettoieHTML(textcorps, 9);
+        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, ALD);
 
         int idpat = 0;
         idpat = pat->id();
@@ -1760,6 +1790,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         listbinds[CP_FORMATDOC_DOCSEXTERNES]     = (Prescription? PRESCRIPTION : (Administratif? COURRIERADMINISTRATIF : COURRIER));
         listbinds[CP_IDLIEU_DOCSEXTERNES]        = Datas::I()->sites->idcurrentsite();
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = (Administratif? "0" : "1");
+        listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if(doc != Q_NULLPTR)
             delete doc;
@@ -1819,7 +1850,7 @@ bool Procedures::Print(QList<QImage> listimage)
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::ApercuAvantImpression()
 {
-    return (m_settings->value(Imprimante_ApercuAvantImpression).toString() == "YES");
+    return true;//(m_settings->value(Imprimante_ApercuAvantImpression).toString() == "YES");
 }
 
 QString Procedures::CodePostalParDefaut()

@@ -497,6 +497,32 @@ lieux d'activité</string>
           </rect>
          </property>
         </widget>
+        <widget class="UpLabel" name="BarCode1label">
+         <property name="geometry">
+          <rect>
+           <x>40</x>
+           <y>350</y>
+           <width>58</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="UpLabel" name="BarCode2label">
+         <property name="geometry">
+          <rect>
+           <x>380</x>
+           <y>350</y>
+           <width>58</width>
+           <height>41</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
        </widget>
       </item>
       <item>
@@ -745,7 +771,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>245</y>
+           <y>215</y>
            <width>145</width>
            <height>21</height>
           </rect>
@@ -767,7 +793,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>35</x>
-           <y>248</y>
+           <y>218</y>
            <width>45</width>
            <height>16</height>
           </rect>
@@ -786,7 +812,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>35</x>
-           <y>200</y>
+           <y>196</y>
            <width>220</width>
            <height>16</height>
           </rect>
@@ -824,7 +850,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>218</y>
+           <y>240</y>
            <width>145</width>
            <height>21</height>
           </rect>
@@ -881,7 +907,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>35</x>
-           <y>221</y>
+           <y>243</y>
            <width>45</width>
            <height>16</height>
           </rect>
@@ -1265,7 +1291,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>230</x>
-           <y>213</y>
+           <y>235</y>
            <width>35</width>
            <height>32</height>
           </rect>
@@ -1288,7 +1314,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>230</x>
-           <y>240</y>
+           <y>210</y>
            <width>35</width>
            <height>32</height>
           </rect>

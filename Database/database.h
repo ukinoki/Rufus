@@ -161,6 +161,12 @@ public:
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
                                                                 *  avec la clause where
                                                                 * affiche le message errormsg en cas de pb */
+                                        //! NE MARCHE PAS AVEC LES QBYTEARRAY (????)
+    bool                    UpdateTablebyBinds(QString nomtable, QHash<QString, QVariant> sets, QString idfieldname, int id, QString errormsg="");
+                                                                /*! Update la table nomtable
+                                                                * le hash énumère les couples nomchamp, valeur à écrire
+                                                                *  avec la clause where
+                                                                * affiche le message errormsg en cas de pb */
     bool                    InsertIntoTable(QString nomtable,  QHash<QString, QString>, QString errormsg="");
                                                                 /*! Insertion dans la table nomtable
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
@@ -222,6 +228,7 @@ public:
     QJsonObject             loadUserData(int idUser);                               //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
     QJsonObject             loadAdminData();                                        //! complète tous les renseignements concernant l'utilisateur admin
     void                    NettoieTableUsers();                                    //! Elimine les enregistrements corrompus de la table utilisateurs
+    void                    UpDateBarCodeUSr(int id, QHash<QString, QVariant> sets);
 
     /*
      * Postes connectés
@@ -428,7 +435,7 @@ public:
     QList<IOL*>             loadIOLs();                                             //! charge tous les IOLs
     QList<IOL*>             loadIOLsByManufacturerId(int id);                       //! charge tous les IOLs d'un fabricant
     QJsonObject             loadIOLdataById(int idintervention);                        //! charge les datas d'un IOL défini par son id - utilisé pour renouveler les données en cas de modification
-    void                    UpDateIOL(int id, QHash<QString, QVariant> sets);
+    void                    UpDateImgIOL(int id, QHash<QString, QVariant> sets);
 
     /*
      * TypeInterventions

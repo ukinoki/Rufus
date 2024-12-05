@@ -85,6 +85,7 @@ void DocExterne::setData(QJsonObject data)
     setDataString(data, CP_TEXTENTETE_DOCSEXTERNES, m_textentete);
     setDataString(data, CP_TEXTCORPS_DOCSEXTERNES, m_textcorps);
     setDataString(data, CP_TEXTORIGINE_DOCSEXTERNES, m_textorigine);
+    setDataByteArray(data, CP_PDFORIGIN_DOCSEXTERNES, m_pdforigin);
     setDataString(data, CP_TEXTPIED_DOCSEXTERNES, m_textpied);
 
     setDataDateTime(data, CP_DATE_DOCSEXTERNES, m_dateimpression);

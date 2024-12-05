@@ -68,11 +68,19 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->RPPSupLineEdit          ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{12}"),this));
     ui->NumCOupLineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
-    ui->BarCodeRPPSupPushButton    ->setStyleSheet(Utils::nullmargingstyle());
-    ui->BarCodeADELIupPushButton   ->setStyleSheet(Utils::nullmargingstyle());
+    ui->BarCodeRPPSupPushButton     ->setStyleSheet(Utils::nullmargingstyle());
+    ui->BarCodeADELIupPushButton    ->setStyleSheet(Utils::nullmargingstyle());
     QString BarCode = tr("Cliquez sur ce bouton pour") + "\n" + tr("enregistrer le code barre") + " ";
-    ui->BarCodeRPPSupPushButton    ->setImmediateToolTip(BarCode + "RPPS");
-    ui->BarCodeADELIupPushButton   ->setImmediateToolTip(BarCode + "ADELI");
+    ui->BarCodeRPPSupPushButton     ->setImmediateToolTip(BarCode + "RPPS");
+    ui->BarCodeADELIupPushButton    ->setImmediateToolTip(BarCode + "ADELI");
+
+    ui->BarCode1label               ->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->BarCode2label               ->setContextMenuPolicy(Qt::CustomContextMenu);
+
+    ui->BarCode1label               ->setImmediateToolTip(tr("code barre ADELI\nclic droit pour modifier"));
+    ui->BarCode2label               ->setImmediateToolTip(tr("code barre RPPS\nclic droit pour modifier"));
+    connect (ui->BarCode1label,            &QLabel::customContextMenuRequested,                    this,   [=] { menuChangeUserBarCode(ADELI);});
+    connect (ui->BarCode2label,            &QLabel::customContextMenuRequested,                    this,   [=] { menuChangeUserBarCode(RPPS);});
 
     QStringList ListTitres;
     ListTitres                      << tr("Docteur") << tr("Professeur");
@@ -255,6 +263,30 @@ void dlg_gestionusers::Annulation()
     }
 }
 
+void dlg_gestionusers::menuChangeUserBarCode(BarCode code)
+{
+    QMenu m_menuContextuel;
+    QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Modifier le code barre"));
+    connect (pAction_ChangeImage,  &QAction::triggered,    this, [=] {changeBarCode(code);});
+    switch (code) {
+    case ADELI:
+        if (m_userencours->barcode1img() != QImage())
+        {
+            QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Supprimer le code barre ADELI"));
+            connect (pAction_ChangeImage,  &QAction::triggered,    this, [=] { delBarCode(ADELI);});
+        }
+        break;
+    case RPPS:
+        if (m_userencours->barcode2img() != QImage())
+        {
+            QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Supprimer le code barre RPPS"));
+            connect (pAction_ChangeImage,  &QAction::triggered,    this, [=] { delBarCode(RPPS);});
+        }
+        break;
+    }
+    m_menuContextuel.exec(cursor().pos());
+}
+
 void dlg_gestionusers::ChoixButtonFrame()
 {
     switch (wdg_buttonframe->Choix()) {
@@ -340,33 +372,72 @@ void dlg_gestionusers::CreerUser()
 
 void dlg_gestionusers::changeBarCode(BarCode code)
 {
+    UpMessageBox::Watch(this, tr("Choix d'un code barre"),tr("Dans la boîte de dialogue suivante") + "\n" + tr("choisissez un fichier image au format .jpg, .jpeg ou .png"));
     QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
     QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images) (*.jpg *.jpeg *.png)"));
     if (path_file_origin != "")
     {
-        QString formatdoc = QFileInfo(path_file_origin).suffix().toLower();
-        // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
-        if (!Utils::CompressFileToJPG(path_file_origin, false, SIZEMAXIMGIOL))
+        if (!Utils::CompressFileToJPG(path_file_origin, false, SIZEMAXIBARCODE))
             return;
         QFile       file_origin(path_file_origin);
-        file_origin                         .open(QIODevice::ReadOnly);
-        QByteArray  ba                      = file_origin.readAll();
-        QString     suffix                  = QFileInfo(file_origin).suffix().toLower();
-        suffix                              = JPG;
-        QImage      img;
-        img                                 = QImage(path_file_origin);
-        file_origin                         .close();
-        /*setimage(img);
-        m_listbinds[CP_ARRAYIMG_IOLS]       = ba;
-        m_listbinds[CP_TYPIMG_IOLS]         = suffix;
-        RecordButton->setEnabled(true);
-        EnableOKpushButton();
-        /*! le code qui suit provoque une erreur.
-         *  Quand la UpmessageBox est fermée, la fonction ModifIol() de dlg_listeiols s'interrompt et ne reprend qu'à la fermeture de la fiche dlg_listeiols appelante...
-         *  if (UpMessageBox::Question(this, tr("Image enregistrée"), tr("Voulez-vous suprimer le fichier image origine?")) == UpSmallButton::STARTBUTTON)
-         *      Utils::removeWithoutPermissions(file_origin);
-         */
+        if (file_origin.size() > SIZEMAXIBARCODE)
+        {
+            UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXIBARCODE/1024) + "Ko");
+            return;
+        }
+        file_origin .open(QIODevice::ReadOnly);
+        QImage img(path_file_origin);
+        switch (code) {
+        case ADELI:
+            m_userencours->setimageBarCode1(img);
+            ui->BarCode1label->setPixmap(QPixmap::fromImage(img.scaled(ui->BarCode1label->width(),ui->BarCode1label->height(), Qt::KeepAspectRatio)));
+            ui->BarCode1label->setVisible(true);
+            m_listbinds[CP_USERBARCODE1_USR] = file_origin.readAll();
+            break;
+        case RPPS:
+            m_userencours->setimageBarCode2(img);
+            ui->BarCode2label->setPixmap(QPixmap::fromImage(img.scaled(ui->BarCode2label->width(),ui->BarCode2label->height(), Qt::KeepAspectRatio)));
+            ui->BarCode2label->setVisible(true);
+            m_listbinds[CP_USERBARCODE2_USR] = file_origin.readAll();
+            break;
+        }
+        file_origin.close();
+        ui->OKupSmallButton->setEnabled(true);
     }
+}
+
+void dlg_gestionusers::delBarCode(BarCode code)
+{
+    QString codebar;
+    switch (code) {
+    case ADELI:
+        codebar = "ADELI";
+        break;
+    case RPPS:
+        codebar = "RPPS";
+        break;
+    }
+
+    if (UpMessageBox::Question(this,
+                               tr("Suppressin du code barre") + " " + codebar,
+                               tr("Confirmez-vous la suppression du code barre") + " " + codebar + "?")
+        != UpSmallButton::STARTBUTTON)
+        return;
+    switch (code) {
+    case ADELI:
+        m_userencours->setimageBarCode1(QImage());
+        ui->BarCode1label->setPixmap(QPixmap());
+        ui->BarCode1label->setVisible(false);
+        m_listbinds[CP_USERBARCODE1_USR] = QByteArray();
+        break;
+    case RPPS:
+        m_userencours->setimageBarCode2(QImage());
+        ui->BarCode2label->setPixmap(QPixmap());
+        ui->BarCode2label->setVisible(false);
+        m_listbinds[CP_USERBARCODE2_USR] = QByteArray();
+        break;
+    }
+    ui->OKupSmallButton->setEnabled(true);
 }
 
 void dlg_gestionusers::EnregistreNouvMDP()
@@ -450,8 +521,10 @@ void dlg_gestionusers::EnregistreUser()
                CP_IDSPECIALITE_USR " = 15,\n"
                CP_SOIGNANTSTATUS_USR " = 1,\n"
                CP_ISMEDECIN_USR " = 1,\n"
-               CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n "
-               CP_NUMPS_USR " = "       + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
+               CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n"
+               CP_NUMPS_USR " = "       + ((ui->RPPSupLineEdit->text().toLong()==0 || !db->parametres()->cotationsfrance())?
+                                                "null" :
+                                                QString::number(ui->RPPSupLineEdit->text().toLong())) + ",\n"
                CP_RESPONSABLEACTES_USR " = 1,\n";
         if (ui->ComptaLiberalupRadioButton->isChecked())
         {
@@ -497,7 +570,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 2,\n"
                CP_ISMEDECIN_USR " = null,\n"
                CP_NUMCO_USR " = null,\n "
-               CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
+               CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toLong()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toLong())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -560,7 +633,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_SOIGNANTSTATUS_USR " = 3,\n"
                CP_ISMEDECIN_USR " = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
                CP_NUMCO_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
-               CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toInt()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toInt())) + ",\n"
+               CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toLong()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toLong())) + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->MedecincheckBox->isChecked() || ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -691,10 +764,10 @@ void dlg_gestionusers::EnregistreUser()
     }
     req += CP_SECTEUR_USR " = " + secteur + ",\n";
     req += CP_ISOPTAM_USR " = " + Optam + "\n";
-
     req +=  " where " CP_ID_USR " = " + ui->idUseruplineEdit->text();
-    //Edit(req);
+    //Procedures::I()->Edit(req);
     db->StandardSQL(req);
+    DataBase::I()->UpDateBarCodeUSr(m_userencours->id(), m_listbinds);
     int idlieu=-1;
     db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", TBL_JOINTURESLIEUX);
     if (!m_neutre)
@@ -993,7 +1066,8 @@ void dlg_gestionusers::RegleAffichage()
 
     ui->RPPSlabel                   ->setVisible(m_responsable && db->parametres()->cotationsfrance());
     ui->RPPSupLineEdit              ->setVisible(m_responsable && db->parametres()->cotationsfrance());
-    ui->BarCodeRPPSupPushButton    ->setVisible(m_responsable && db->parametres()->cotationsfrance());
+    ui->BarCodeRPPSupPushButton     ->setVisible(m_responsable && db->parametres()->cotationsfrance());
+    ui->BarCode2label               ->setVisible(m_responsable && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(m_soignant);
     if(m_medecin)
         ui->ResponsableupRadioButton->setChecked(true);
@@ -1003,7 +1077,8 @@ void dlg_gestionusers::RegleAffichage()
     ui->OPTAMupRadioButton          ->setVisible(m_medecin && m_soignantnonremplacant && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()) && db->parametres()->cotationsfrance());
     ui->NumCOlabel                  ->setVisible(m_medecin);
     ui->NumCOupLineEdit             ->setVisible(m_medecin);
-    ui->BarCodeADELIupPushButton   ->setVisible(m_medecin);
+    ui->BarCodeADELIupPushButton    ->setVisible(m_medecin);
+    ui->BarCode1label               ->setVisible(m_medecin);
     ui->TitreupcomboBox             ->setVisible(m_medecin);
     ui->Titrelabel                  ->setVisible(m_medecin);
     ui->AutreSoignantupLineEdit     ->setVisible(m_autresoignant);
@@ -1195,15 +1270,25 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     bool remplacant     = m_userencours->isRemplacant();
 
     bool cotation       = m_userencours->useCotationsActes();
+    QImage img1 = m_userencours->barcode1img();
+    ui->BarCode1label->setVisible(img1 != QImage());
+    if (img1 != QImage())
+        ui->BarCode1label->setPixmap(QPixmap::fromImage(img1.scaled(ui->BarCode1label->width(),ui->BarCode1label->height(), Qt::KeepAspectRatio)));
+    QImage img2 = m_userencours->barcode2img();
+    ui->BarCode1label->setVisible(img2 != QImage());
+    if (img2 != QImage())
+        ui->BarCode2label->setPixmap(QPixmap::fromImage(img2.scaled(ui->BarCode2label->width(),ui->BarCode2label->height(), Qt::KeepAspectRatio)));
 
     ui->RPPSlabel                   ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->RPPSupLineEdit              ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
-    ui->BarCodeRPPSupPushButton    ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
+    ui->BarCodeRPPSupPushButton     ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
+    ui->BarCode2label               ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(soignant);
     ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !remplacant);
     ui->NumCOlabel                  ->setVisible(medecin);
     ui->NumCOupLineEdit             ->setVisible(medecin);
-    ui->BarCodeADELIupPushButton   ->setVisible(medecin);
+    ui->BarCodeADELIupPushButton    ->setVisible(medecin);
+    ui->BarCode1label               ->setVisible(medecin);
     ui->SecteurgroupBox             ->setVisible(medecin && !assistant && !remplacant && cotation && db->parametres()->cotationsfrance());
     ui->OPTAMupRadioButton          ->setVisible(medecin && !assistant && !remplacant && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2) && db->parametres()->cotationsfrance());
     ui->TitreupcomboBox             ->setVisible(medecin);
@@ -1353,7 +1438,8 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
         ui->SecteurgroupBox             ->setVisible(db->parametres()->cotationsfrance());
         ui->RPPSlabel                   ->setVisible(db->parametres()->cotationsfrance());
         ui->RPPSupLineEdit              ->setVisible(db->parametres()->cotationsfrance());
-        ui->BarCodeRPPSupPushButton    ->setVisible(db->parametres()->cotationsfrance());
+        ui->BarCodeRPPSupPushButton     ->setVisible(db->parametres()->cotationsfrance());
+        ui->BarCode2label               ->setVisible(db->parametres()->cotationsfrance());
         ui->AutreSoignantupLineEdit     ->setVisible(false);
         ui->AutreFonctionuplineEdit     ->setVisible(false);
     }

@@ -77,6 +77,11 @@ void User::setData(QJsonObject data)
 
     setDataByteArray(data, CP_USERBARCODE1_USR, m_barcode1);
     setDataByteArray(data, CP_USERBARCODE2_USR, m_barcode2);
+    if (m_barcode1.size())
+        m_barcodeimg1.loadFromData(m_barcode1);
+    if (m_barcode2.size())
+        m_barcodeimg2.loadFromData(m_barcode2);
+
     m_data = data;
     /*qDebug() << login();
 
@@ -113,6 +118,26 @@ User::METIER User::metier() const
     }
     return NoMetier;
 }
+QByteArray User::barcode1() const
+{
+    return m_barcode1;
+}
+
+void User::setBarcode1(const QByteArray &newBarcode1)
+{
+    m_barcode1 = newBarcode1;
+}
+
+QByteArray User::barcode2() const
+{
+    return m_barcode2;
+}
+
+void User::setBarcode2(const QByteArray &newBarcode2)
+{
+    m_barcode2 = newBarcode2;
+}
+
 User::RESPONSABLE User::responsableactes() const           /*! Responsable                      = effectue exclusivement des actes sous sa responsabilite
                                                             *  AlterneResponsablePasResponsable = effectue des actes sous sa responsabilite et sous celle des autres users
                                                             *  PasResponsable                   = sans objet (secrétaire, comptable...) ou n'effectue aucun acte sous sa responsabilite */

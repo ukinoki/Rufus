@@ -273,32 +273,40 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
 
     case Text:
         //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-        QString textentete  = docmt->textentete();
+        if (docmt->pdforifgin() != QByteArray())
+        {
+            docmt           ->setimageformat(PDF);
+            docmt           ->setimageblob(docmt->pdforifgin());
+        }
+        else
+        {
+            QString textentete  = docmt->textentete();
 
-        //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
-        if (Utils::epureFontFamily(textentete) || Utils::corrigeErreurHtmlEntete(textentete, docmt->isALD()))
-            ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, textentete);
-        QString textcorps   = docmt->textcorps();
-        if (Utils::epureFontFamily(textcorps))
-            ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, textcorps);
-        QString textpied    = docmt->textpied();
-        if (Utils::epureFontFamily(textpied))
-            ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, textpied);
+            //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
+            if (Utils::epureFontFamily(textentete) || Utils::corrigeErreurHtmlEntete(textentete, docmt->isALD()))
+                ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, textentete);
+            QString textcorps   = docmt->textcorps();
+            if (Utils::epureFontFamily(textcorps))
+                ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, textcorps);
+            QString textpied    = docmt->textpied();
+            if (Utils::epureFontFamily(textpied))
+                ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, textpied);
 
-        //! émission du pdf
-        QTextEdit   *Etat_textEdit = new UpTextEdit;
-        Etat_textEdit   ->setText(textcorps);
-        TextPrinter *TexteAImprimer = new TextPrinter();
-        TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
-        TexteAImprimer  ->setHeaderText(textentete);
-        TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? proc->TaillePieddePageOrdoLunettes() : proc->TaillePieddePage());
-        TexteAImprimer  ->setFooterText(textpied);
-        TexteAImprimer  ->setTopMargin(proc->TailleTopMarge());
-        ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
-        docmt           ->setimageformat(PDF);
-        docmt           ->setimageblob(ba);
-        delete Etat_textEdit;
-        delete TexteAImprimer;
+            //! émission du pdf
+            QTextEdit   *Etat_textEdit = new UpTextEdit;
+            Etat_textEdit   ->setText(textcorps);
+            TextPrinter *TexteAImprimer = new TextPrinter();
+            TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
+            TexteAImprimer  ->setHeaderText(textentete);
+            TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? proc->TaillePieddePageOrdoLunettes() : proc->TaillePieddePage());
+            TexteAImprimer  ->setFooterText(textpied);
+            TexteAImprimer  ->setTopMargin(proc->TailleTopMarge());
+            ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+            docmt           ->setimageformat(PDF);
+            docmt           ->setimageblob(ba);
+            delete Etat_textEdit;
+            delete TexteAImprimer;
+        }
         break;
     }
 }
@@ -385,7 +393,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
 
 void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 {
-    DocExterne *docmt = getDocumentFromIndex(idx);
+    DocExterne *docmt = getDocumentFromIndex(idx);              //! load all details from document
 
     if (docmt == Q_NULLPTR)
     {

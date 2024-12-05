@@ -1433,7 +1433,7 @@ QJsonValue Utils::jsonValFromImage(const QImage &img)
   return {QLatin1String(encoded)};
 }
 
-QImage Utils::imagemapFrom(const QJsonValue &val)
+QImage Utils::imageFromjsonVal(const QJsonValue &val)
 {
     QByteArray const encoded = val.toString().toLatin1();
     return QImage::fromData(QByteArray::fromBase64(encoded), "JPG");

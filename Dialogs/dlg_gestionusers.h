@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestioncomptes.h"
 #include "dlg_listelieux.h"
 #include "upheaderview.h"
+//#include "procedures.h"
 
 /* sert à gérer les comptes utilisateurs
  * QUASI-IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -83,6 +84,7 @@ private:
     UpDialog                *dlg_ask;
     int                     m_idlieu;
     User                    *m_userencours;
+    QHash<QString, QVariant>m_listbinds;
     QString                 gLoginupLineEdit, gMDPupLineEdit, gConfirmMDPupLineEdit;
     QString                 gLibActiv, gNoLibActiv;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
@@ -91,6 +93,7 @@ private:
     bool                    AfficheParamUser(int idUser);
     void                    CalcListitemsCompteComptacomboBox(User *usr, bool m_soccomptable);
     void                    CalcListitemsEmployeurcomboBox(User* usr);
+    void                    menuChangeUserBarCode(BarCode code);
     void                    ChoixButtonFrame();
     void                    DefinitLesVariables();
     bool                    ExisteEmployeur(int iduser);
@@ -115,6 +118,7 @@ private:
     void                    SupprUser();
 
     void                    changeBarCode(BarCode code);
+    void                    delBarCode(BarCode code);
 
 };
 

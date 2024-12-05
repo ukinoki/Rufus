@@ -11,28 +11,28 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
         return false;
     QString table = "";
     QString clause;
+    Acte *act                   = Q_NULLPTR;
+    Banque *bq                  = Q_NULLPTR;
+    CommentLunet *comment       = Q_NULLPTR;
+    Commercial *com             = Q_NULLPTR;
     Depense *dep                = Q_NULLPTR;
     DocExterne *doc             = Q_NULLPTR;
-    Acte *act                   = Q_NULLPTR;
-    PatientEnCours *patcrs      = Q_NULLPTR;
+    DossierImpression *dossier  = Q_NULLPTR;
+    Impression *impr            = Q_NULLPTR;
+    Intervention *interv        = Q_NULLPTR;
+    IOL *iol                    = Q_NULLPTR;
+    Manufacturer *man           = Q_NULLPTR;
+    Message *msg                = Q_NULLPTR;
+    MotCle *motcle              = Q_NULLPTR;
     Patient *pat                = Q_NULLPTR;
+    PatientEnCours *patcrs      = Q_NULLPTR;
     PosteConnecte *post         = Q_NULLPTR;
-    Banque *bq                  = Q_NULLPTR;
-    User *usr                   = Q_NULLPTR;
+    Tiers *tiers                = Q_NULLPTR;
     Session *session            = Q_NULLPTR;
     SessionOperatoire *sessionop= Q_NULLPTR;
     Site *sit                   = Q_NULLPTR;
-    Manufacturer *man           = Q_NULLPTR;
     TypeIntervention *typinterv = Q_NULLPTR;
-    IOL *iol                    = Q_NULLPTR;
-    Intervention *interv        = Q_NULLPTR;
-    Tiers *tiers                = Q_NULLPTR;
-    Commercial *com             = Q_NULLPTR;
-    CommentLunet *comment       = Q_NULLPTR;
-    MotCle *motcle              = Q_NULLPTR;
-    Impression *impr            = Q_NULLPTR;
-    DossierImpression *dossier  = Q_NULLPTR;
-    Message *msg                = Q_NULLPTR;
+    User *usr                   = Q_NULLPTR;
     Ville *ville                = Q_NULLPTR;
     bool ok = false;
     bool loop = false;
@@ -620,6 +620,16 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             {
                 usr->setaffichecommentslunettespublics(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
+            }
+            else if (field == CP_USERBARCODE1_USR)
+            {
+                usr->setBarcode1(newvalue.toByteArray());
+                Utils::CalcBlobValueSQL(newvalue);
+            }
+            else if (field == CP_USERBARCODE2_USR)
+            {
+                usr->setBarcode2(newvalue.toByteArray());
+                Utils::CalcBlobValueSQL(newvalue);
             }
             else
                 ok = false;

@@ -592,7 +592,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
-        proc                ->Cree_pdf(textcorps, textentete, textpied,
+        proc                ->Cree_pdffile(textcorps, textentete, textpied,
                                 filename,
                                 false,
                                 dirname);
@@ -761,7 +761,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n " +
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
-        proc                ->Cree_pdf(textcorps, textentete, textpied,
+        proc                ->Cree_pdffile(textcorps, textentete, textpied,
                                 filename,
                                 false,
                                 dirname);
@@ -2072,7 +2072,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
             QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                                   tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                                   tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
-            proc                ->Cree_pdf(textcorps, textentete, textpied,
+            proc                ->Cree_pdffile(textcorps, textentete, textpied,
                                     filename,
                                     false,
                                     dirname);

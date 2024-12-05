@@ -1564,7 +1564,7 @@ bool dlg_identificationIOL::EnregistreIOL()
         m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
     else if (m_mode == Modification)
     {
-        DataBase::I()->UpDateIOL(m_currentIOL->id(), m_listbinds);
+        DataBase::I()->UpDateImgIOL(m_currentIOL->id(), m_listbinds);
         Datas::I()->iols->getById(m_currentIOL->id(), true);
     }
     RecordButton->setEnabled(false);

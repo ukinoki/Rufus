@@ -388,7 +388,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
         QString filename    = userEntete->prenom() + " " + userEntete->nom() + " - " + windowTitle() + ".pdf";
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité");
-        bool a = proc->Cree_pdf(textcorps, textentete, textpied,
+        bool a = proc->Cree_pdffile(textcorps, textentete, textpied,
                             filename,
                             false,
                             dirname);

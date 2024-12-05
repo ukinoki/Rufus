@@ -250,8 +250,10 @@ public:
                       bool AvecDupli = false, bool AvecNumPage = false,
                       bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
-    bool                    Cree_pdf(QString textcorps, QString EnTete, QString Pied, QString nomfichier, bool ALD = false, QString nomdossier = "");
-            /*! c - Choice: print or pdf */
+    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, bool ALD = false, QString nomdossier = "");
+            /*! c - Création d'un pdf QByteArray à stocker dans la base */
+    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, bool ALD = false);
+            /*! d - Choice: print or pdf */
     bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
 
   /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h --------------------------*/
