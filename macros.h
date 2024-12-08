@@ -409,8 +409,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_ISORDOSIGNE_USR                              "OrdoSigne"   //!> pas utilisé
 #define CP_DATEDERNIERECONNEXION_USR                    "DateDerniereConnexion"
 #define CP_DATECREATIONMDP_USR                          "DateCreationMDP"
-#define CP_USERBARCODE1_USR                             "UserBarCode1"
-#define CP_USERBARCODE2_USR                             "UserBarCode2"
+#define CP_USERLOGO_USR                                 "UserLogo"
 #define CP_AFFICHEDOCSPUBLICS_USR                       "AfficheDocsPublics"
 #define CP_AFFICHECOMMENTSPUBLICS_USR                   "AfficheCommentsPublics"
 
@@ -973,7 +972,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // la taille maximale des images
 #define SIZEMAXIMAGES                           262144  // 256 Ko
 #define SIZEMAXIMGIOL                           16284   // 16 Ko
-#define SIZEMAXIBARCODE                         8192    // 8 Ko
+#define SIZEMAXILOGO                         8192    // 8 Ko
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"

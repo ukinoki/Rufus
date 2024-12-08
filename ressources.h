@@ -18,6 +18,9 @@ public:
     QString HeaderOrdo();
     QString HeaderOrdoALD();
 
+    QString HeaderOrdoWithBarCode();
+    QString HeaderOrdoALDWithBarCode();
+
     QString BodyOrdo();
     QString BodyOrdoALD();
 

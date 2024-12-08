@@ -1413,7 +1413,7 @@ void Utils::AfficheImage(QImage img)
 {
     UpDialog *dlg = new UpDialog();
     QPixmap pix = QPixmap();
-    pix = QPixmap::fromImage(img).scaled(QSize(210-2,297-2),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+    pix = QPixmap::fromImage(img).scaled(QSize(810,510),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
     UpLabel *lab = new UpLabel();
     lab->resize(pix.width(),pix.height());
     lab->setPixmap(pix);

@@ -38,7 +38,6 @@ Procedures::Procedures(QObject *parent) :
     m_Villepardefaut = "";
     db               = DataBase::I();
 
-
     QFile FichierIni(PATH_FILE_INI);
     m_applicationfont = QFont(POLICEPARDEFAUT);
     Utils::CalcFontSize(m_applicationfont);
@@ -151,6 +150,9 @@ QString Procedures::pathDossierDocuments(QString Appareil, Utils::ModeAcces mode
 {
     QString cle ("");
     switch (mode) {
+    case Utils::Distant:
+        cle = Utils::getBaseFromMode( mode );
+        break;
     case Utils::ReseauLocal:
         cle = Utils::getBaseFromMode( mode );
         break;
@@ -1067,6 +1069,38 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 //! fin sauvegardes
 //--------------------------------------------------------------------------------------------------------
 
+
+QPixmap Procedures::CalcCode128(const QString &arg1)
+{
+    QFile barcodefile(QDir::homePath() + "/barcodepng.png");
+    barcodefile.remove();
+
+    QFile barcodefile1(QDir::homePath() + "/barcodepng1.png");
+    barcodefile.remove();
+
+    Code128Item *Barcode    = new Code128Item();
+    Barcode                 ->setWidth(1000);
+    Barcode                 ->setHeight(250);
+    Barcode                 ->setPos(0,0);
+    Barcode                 ->setText(arg1);
+    Barcode                 ->setTextVisible(false);
+    Barcode                 ->setHighDPI(false);
+
+    QGraphicsScene Scene;
+    Scene                   .addItem( Barcode );
+    Scene                   .update();
+    Barcode                 ->update();
+
+    QPixmap pixmap(Barcode->boundingRect().width(), Barcode->boundingRect().height());
+    pixmap                  .fill(Qt::white);
+    QPainter painter(&pixmap);
+    Scene                   .render(&painter);
+    painter                 .end();
+
+    delete Barcode;
+    return pixmap;
+}
+
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -1086,7 +1120,7 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 /*---------------------------------------------------------------------------------
     Retourne l'entête du document à imprimer
 -----------------------------------------------------------------------------------*/
-QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
+QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, bool withBarCodes)
 {
     QMap<QString, QString> EnteteMap = QMap<QString, QString>();
     if (!user)
@@ -1181,8 +1215,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
     }
     for (int i = 1; i<3; i++)
     {
-        /*!
-        nomModeleEntete = (i==1? PATH_FILE_ENTETEORDO : PATH_FILE_ENTETEORDOALD);
+
+        /*! Pour tester à partir d'un fichier */
+        /*QString nomModeleEntete = QDir::homePath() + "/test.html";
         QFile qFileEnTete(nomModeleEntete);
         if (!qFileEnTete.open( QIODevice::ReadOnly ))
             return QMap<QString, QString>();
@@ -1190,9 +1225,12 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         QByteArray  baEnTete        = qFileEnTete.readAll();
         qFileEnTete.close ();
         textentete = baEnTete;
-        */
+        //*/
 
-        textentete =  (i==1? Ressources::I()->HeaderOrdo() : Ressources::I()->HeaderOrdoALD());
+
+        textentete =  (i==1?
+                        (withBarCodes? Ressources::I()->HeaderOrdoWithBarCode() :  Ressources::I()->HeaderOrdo())
+                        : Ressources::I()->HeaderOrdoALD());
 
         textentete.replace("{{POLICE}}", qApp->font().family());
 
@@ -1224,7 +1262,7 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
         {
             QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
             if (listsites.size()>0)
-                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adreesse
+                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adresse
             else {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
                 return EnteteMap;
@@ -1260,12 +1298,55 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user)
             if( user->NumPS() > 0 ) NumSS += " - ";
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
-        textentete.replace("{{NUMSS}}",  db->parametres()->cotationsfrance()? NumSS : "");
+
+        QString numss = user->numOrdre().replace(" ", "").left(9);
+        QPixmap AdeliPix = CalcCode128(numss);
+        QPixmap RPPSPix = CalcCode128(QString::number(user->NumPS()));
+
+        QString adelifilename   = QDir::homePath() + "/barcodeadeli.png";
+        QString rppsfilename    = QDir::homePath() + "/barcoderpps.png";
+        QFile adelifile(adelifilename);
+        QFile rppsfile(rppsfilename);
+        adelifile               .remove();
+        rppsfile                .remove();
+        QImage ADELIimg         = AdeliPix.toImage();
+        QImage RPPSimg          = RPPSPix.toImage();
+        ADELIimg                .save(adelifilename);
+        RPPSimg                 .save(rppsfilename);
+        QString proportions     = " width= 45% height=15%";
+
+        /*! doesn't work
+        QByteArray data;
+        QBuffer buffer(&data);
+        ADELIimg.save(&buffer, PNG, 100);
+        QString ADELICodBar = QString("<img src='data:image/png;base64, %0'").arg(QString(data.toBase64()) + "' width= 45% height=15%;");
+        */
+
+        QString ADELICodBar     = "<img src='"+ adelifilename + "'" + proportions + ">";
+        QString RPPSCodBar      = "<img src='"+ rppsfilename + "'" + proportions + ">";
+        //qDebug() << ADELICodBar << RPPSCodBar;
+
+        textentete.replace("{{NUMSS}}", db->parametres()->cotationsfrance()? numss + " " + QString::number(user->NumPS())   : "");
+        textentete.replace("{{ADELI_NUM}}", db->parametres()->cotationsfrance()? "AM " + numss                              : "");
+        textentete.replace("{{RPPS_NUM}}",  db->parametres()->cotationsfrance()? "RPPS " + QString::number(user->NumPS())   : "");
+        textentete.replace("{{ADELI_IMG}}", db->parametres()->cotationsfrance()? ADELICodBar                                : "");
+        textentete.replace("{{RPPS_IMG}}",  db->parametres()->cotationsfrance()? RPPSCodBar                                 : "");
         textentete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
         Utils::epureFontFamily(textentete);
 
+        if (i==1)
+        {
+            QFile test(QDir::homePath()+ "/test2.html");
+            test.remove();
+            test.open(QIODevice::ReadWrite);
+            QTextStream stream(&test);
+            stream << textentete;
+            test.close();
+        }
+
         (i==1? EnteteMap[NORMHeader] = textentete : EnteteMap[ALDHeader] = textentete);
     }
+
     return EnteteMap;
 }
 
@@ -1294,8 +1375,6 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
     textpied.replace("{{AGA}}",(isaga?"Membre d'une association de gestion agréée - Le règlement des honoraires par chèque ou carte de crédit est accepté":""));
     return textpied;
 }
-
-
 
 /*!
  * \brief Procedures::Cree_pdffile
@@ -1716,7 +1795,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     bool        aa;
 
     //création de l'entête
-    QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user);
+    QMap<QString,QString> EnteteMap = CalcEnteteImpression(date, user, Prescription);
     if (EnteteMap.value(NORMHeader) == "")
         return false;
     textentete                      = (ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
@@ -1850,7 +1929,7 @@ bool Procedures::Print(QList<QImage> listimage)
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::ApercuAvantImpression()
 {
-    return true;//(m_settings->value(Imprimante_ApercuAvantImpression).toString() == "YES");
+    return (m_settings->value(Imprimante_ApercuAvantImpression).toString() == "YES");
 }
 
 QString Procedures::CodePostalParDefaut()

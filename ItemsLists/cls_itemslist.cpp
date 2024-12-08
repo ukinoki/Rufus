@@ -621,14 +621,9 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 usr->setaffichecommentslunettespublics(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
             }
-            else if (field == CP_USERBARCODE1_USR)
+            else if (field == CP_USERLOGO_USR)
             {
-                usr->setBarcode1(newvalue.toByteArray());
-                Utils::CalcBlobValueSQL(newvalue);
-            }
-            else if (field == CP_USERBARCODE2_USR)
-            {
-                usr->setBarcode2(newvalue.toByteArray());
+                usr->setLogo(newvalue.toByteArray());
                 Utils::CalcBlobValueSQL(newvalue);
             }
             else

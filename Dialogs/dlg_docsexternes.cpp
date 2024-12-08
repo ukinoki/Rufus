@@ -874,7 +874,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     }
 
     //création de l'entête
-    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(m_currentdate, currentuser());
+    QMap<QString,QString> EnteteMap = proc->CalcEnteteImpression(m_currentdate, currentuser(), Prescription);
     textentete = (ALD? EnteteMap.value(ALDHeader) : EnteteMap.value(NORMHeader));
     if (textentete == "")
     {

@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_gestioncomptes.h"
 #include "dlg_listelieux.h"
 #include "upheaderview.h"
+#include <QPainter>
 //#include "procedures.h"
 
 /* sert à gérer les comptes utilisateurs
@@ -41,7 +42,6 @@ public:
      * MODIFUSER   -> appelé par l'utilisateur dans le premier onglet de la fiche dlg_param -> on ne peut modifier que les données d'identité, geographiques et bancaires
      * ADMIN       -> appelé par l'administrateur, on peut tout modidier, y compris le statut, de chaque utilisateur, sauf les données bancaires
     */
-    enum                     BarCode {ADELI, RPPS};    Q_ENUM(BarCode)
     explicit dlg_gestionusers(int idlieu, UserMode  mode, bool mdpverified=true, QWidget *parent = Q_NULLPTR);
     /*
      * la variable mdpverified est utilisée pour l'appel de la fiche dlg_gestionlieux
@@ -84,7 +84,7 @@ private:
     UpDialog                *dlg_ask;
     int                     m_idlieu;
     User                    *m_userencours;
-    QHash<QString, QVariant>m_listbinds;
+    QHash<QString, QVariant>m_listlogobinds;
     QString                 gLoginupLineEdit, gMDPupLineEdit, gConfirmMDPupLineEdit;
     QString                 gLibActiv, gNoLibActiv;
     QString                 gNouvMDP, gAncMDP, gConfirmMDP;
@@ -93,7 +93,7 @@ private:
     bool                    AfficheParamUser(int idUser);
     void                    CalcListitemsCompteComptacomboBox(User *usr, bool m_soccomptable);
     void                    CalcListitemsEmployeurcomboBox(User* usr);
-    void                    menuChangeUserBarCode(BarCode code);
+    void                    menuChangeUserLogo();
     void                    ChoixButtonFrame();
     void                    DefinitLesVariables();
     bool                    ExisteEmployeur(int iduser);
@@ -117,8 +117,8 @@ private:
     void                    RegleAffichage();
     void                    SupprUser();
 
-    void                    changeBarCode(BarCode code);
-    void                    delBarCode(BarCode code);
+    void                    changeBarCode();
+    void                    delLogo();
 
 };
 

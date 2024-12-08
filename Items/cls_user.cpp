@@ -75,12 +75,9 @@ void User::setData(QJsonObject data)
     setDataBool(data, CP_AFFICHEDOCSPUBLICS_USR, m_affichedocspublics);
     setDataBool(data, CP_AFFICHECOMMENTSPUBLICS_USR, m_affichecommentslunettespublics);
 
-    setDataByteArray(data, CP_USERBARCODE1_USR, m_barcode1);
-    setDataByteArray(data, CP_USERBARCODE2_USR, m_barcode2);
-    if (m_barcode1.size())
-        m_barcodeimg1.loadFromData(m_barcode1);
-    if (m_barcode2.size())
-        m_barcodeimg2.loadFromData(m_barcode2);
+    setDataByteArray(data, CP_USERLOGO_USR, m_logo);
+    if (m_logo.size())
+        m_logoimg.loadFromData(m_logo);
 
     m_data = data;
     /*qDebug() << login();
@@ -118,24 +115,14 @@ User::METIER User::metier() const
     }
     return NoMetier;
 }
-QByteArray User::barcode1() const
+QByteArray User::logo() const
 {
-    return m_barcode1;
+    return m_logo;
 }
 
-void User::setBarcode1(const QByteArray &newBarcode1)
+void User::setLogo(const QByteArray &newLogo)
 {
-    m_barcode1 = newBarcode1;
-}
-
-QByteArray User::barcode2() const
-{
-    return m_barcode2;
-}
-
-void User::setBarcode2(const QByteArray &newBarcode2)
-{
-    m_barcode2 = newBarcode2;
+    m_logo = newLogo;
 }
 
 User::RESPONSABLE User::responsableactes() const           /*! Responsable                      = effectue exclusivement des actes sous sa responsabilite

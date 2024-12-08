@@ -41,20 +41,11 @@ BEGIN
         IF tot=1
         THEN
             ALTER TABLE `rufus`.`utilisateurs`
-            CHANGE COLUMN `UserBarCode` `UserBarCode1` BLOB NULL DEFAULT NULL COMMENT 'RPPS' ;
+            CHANGE COLUMN `UserBarCode` `UserLogo` BLOB NULL DEFAULT NULL;
         ELSEIF tot=0
         THEN
             ALTER TABLE `rufus`.`utilisateurs`
-            ADD COLUMN `UsersBarCode1` BLOB NULL DEFAULT NULL COMMENT 'RPPS';
-        END IF;
-    SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'utilisateurs' AND COLUMN_NAME = 'UserBarCode2') as chp;
-        IF tot=0
-        THEN
-            ALTER TABLE `rufus`.`utilisateurs`
-            ADD COLUMN `UserBarCode2` BLOB NULL DEFAULT NULL COMMENT 'ADELI' AFTER `UserBarCode1`;
+            ADD COLUMN `UserLogo` BLOB NULL DEFAULT NULL;
         END IF;
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY

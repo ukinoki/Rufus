@@ -106,6 +106,7 @@ include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 include(Protocols/protocols.pri)
+include(Code128/code128.pri)
 
 
 unix|win32{

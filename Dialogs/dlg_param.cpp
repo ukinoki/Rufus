@@ -755,7 +755,12 @@ void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
     if (ok && appdata.size()>0)
         app = appdata.at(0).toString();
     if (app != "")
-        proc->settings()->setValue(Utils::getBaseFromMode(mode) + Dossier_Documents + app, dir);
+    {
+        if (dir != "")
+            proc->settings()->setValue(Utils::getBaseFromMode(mode) + Dossier_Documents + app, dir);
+        else
+            proc->settings()->remove(Utils::getBaseFromMode(mode) + Dossier_Documents + app);
+    }
     else
         UpMessageBox::Watch(this,tr("Impossible de retrouver le nom de l'appareil"));
 

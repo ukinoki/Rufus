@@ -77,6 +77,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <Topcon.h>
 #include <nidek.h>
 
+#include <QGraphicsScene>
+#include "code128item.h"
+
 class Procedures : public QObject
 {
     Q_OBJECT
@@ -153,8 +156,10 @@ public:
 
 /*! fin opérations sur la base de données, le système et les datas -------------------------------------------------------------------------------------------------------- */
 
+/*! BARCODES -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
+    QPixmap                 CalcCode128(const QString &arg1);
 
-
+/*! end BARCODES ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
 
 
 
@@ -243,7 +248,7 @@ public:
     int                     TailleTopMarge();
             /*! a - Impression d'un texte */
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
-    QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user);
+    QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                       int TaillePieddePage, int TailleEnTete, int TailleTopMarge,

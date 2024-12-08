@@ -1012,8 +1012,7 @@ CREATE TABLE `utilisateurs` (
   `OrdoSigne` tinyint(1) DEFAULT NULL,
   `DateDerniereConnexion` datetime DEFAULT NULL,
   `DateCreationMDP` date DEFAULT NULL,
-  `UserBarCode1` BLOB DEFAULT NULL COMMENT 'RPPS',
-  `UserBarCode2` BLOB DEFAULT NULL COMMENT 'ADELI',
+  `UserLogo` BLOB DEFAULT NULL,
   `AfficheDocsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les documents rendus publics par leur createur dans la fiche Impressions',
   `AfficheCommentsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les commentaires de lunettes rendus publics par leur createur dans la fiche commentaires lunettes',
   PRIMARY KEY (`idUser`)

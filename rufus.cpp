@@ -2918,7 +2918,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
            return;
        }
    }
-   textentete = proc->CalcEnteteImpression(m_currentdate, userEntete).value(NORMHeader);
+   textentete = proc->CalcEnteteImpression(m_currentdate, userEntete, false).value(NORMHeader);
    if (textentete == "") return;
    textentete.replace("{{TITRE1}}"             , "");
    QString comment;
@@ -3534,7 +3534,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     User *userEntete = Datas::I()->users->getById(currentuser()->idparent());
     if (userEntete == Q_NULLPTR)
         return;
-    textentete = proc->CalcEnteteImpression(date, userEntete).value(NORMHeader);
+    textentete = proc->CalcEnteteImpression(date, userEntete, false).value(NORMHeader);
     if (textentete == "") return;
     textentete.replace("{{TITRE1}}"            , "");
     textentete.replace("{{PRENOM PATIENT}}"    , "");
@@ -6133,7 +6133,7 @@ bool Rufus::isPosteImport()
     return m_isposteImport;
 }
 
-void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas utilisé et ne mode réseau local ou monoposte
+void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas utilisé et en mode réseau local ou monoposte
 {
      /*! s'il n'existe pas de poste défini comme importateur des documents, on prend la place si on est accrédite et qu'on n'est pas en accès distant
      * s'il existe un poste défini comme importateur des docs et qu'il est différent de ce poste,

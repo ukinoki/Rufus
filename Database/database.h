@@ -228,7 +228,7 @@ public:
     QJsonObject             loadUserData(int idUser);                               //! complète tous les renseignements concernant l'utilisateur défini par l'id sauf la liste des comptes
     QJsonObject             loadAdminData();                                        //! complète tous les renseignements concernant l'utilisateur admin
     void                    NettoieTableUsers();                                    //! Elimine les enregistrements corrompus de la table utilisateurs
-    void                    UpDateBarCodeUSr(int id, QHash<QString, QVariant> sets);
+    void                    UpDateLogoUser(int id, QHash<QString, QVariant> sets);
 
     /*
      * Postes connectés

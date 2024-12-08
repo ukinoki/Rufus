@@ -974,7 +974,7 @@ QJsonObject DataBase::loadUserData(int idUser)
             CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
             CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                    // 20,21,22,23,24
             CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
-            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERBARCODE1_USR ", " CP_USERBARCODE2_USR                              // 30,31,32,33
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERLOGO_USR                                                           // 30,31,32
             " from " TBL_UTILISATEURS
             " where " CP_ID_USR " = " + QString::number(idUser);
 
@@ -1021,8 +1021,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
     userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
     userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
-    userData[CP_USERBARCODE1_USR]                   = QLatin1String(usrdata.at(32).toByteArray().toBase64());
-    userData[CP_USERBARCODE2_USR]                   = QLatin1String(usrdata.at(33).toByteArray().toBase64());
+    userData[CP_USERLOGO_USR]                       = QLatin1String(usrdata.at(32).toByteArray().toBase64());
     return userData;
 }
 
@@ -1053,7 +1052,7 @@ QList<User*> DataBase::loadUsers()
             CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
             CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                    // 20,21,22,23,24
             CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
-            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERBARCODE1_USR ", " CP_USERBARCODE2_USR                              // 30,31,32,33
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERLOGO_USR                                                           // 30,31,32
             " from " TBL_UTILISATEURS;
     //qDebug() << req;
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
@@ -1105,18 +1104,16 @@ QList<User*> DataBase::loadUsers()
         userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
         userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
         userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
-
-        userData[CP_USERBARCODE1_USR]                   = QLatin1String(usrdata.at(32).toByteArray().toBase64());
-        userData[CP_USERBARCODE2_USR]                   = QLatin1String(usrdata.at(33).toByteArray().toBase64());
+        userData[CP_USERLOGO_USR]                       = QLatin1String(usrdata.at(32).toByteArray().toBase64());
         User *usr = new User(userData);
         users << usr;
     }
     return users;
 }
 
-void DataBase::UpDateBarCodeUSr(int id, QHash<QString, QVariant> sets)
+void DataBase::UpDateLogoUser(int id, QHash<QString, QVariant> sets)
 {
-    UpdateTablebyBinds(TBL_UTILISATEURS, sets, CP_ID_USR, id,tr("Impossible de modifier le code barre de l'utilisateur"));
+    UpdateTablebyBinds(TBL_UTILISATEURS, sets, CP_ID_USR, id,tr("Impossible de modifier le logo de l'utilisateur"));
 }
 
 /*

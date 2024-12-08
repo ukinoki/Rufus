@@ -398,7 +398,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
      */
 
     QRectF rect;
-    double onepoint = painter->device()->logicalDpiY() / 72.0;
+    double NbPixlsFor1point = painter->device()->logicalDpiY() / 72.0;       /*! -> the number of pixels from device need to draw onepoint
 
 /*! 1 - header ----------------------------------------------------------------------------------------------------------------------------------- */
     if (headersize_ > 0) {
@@ -425,7 +425,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
             /*! draw line between header and content */
             painter->save();
             painter->translate(0, rect.top() - spacing_ * toinchfactor_ * painter->device()->logicalDpiY());
-            painter->setPen(QPen(Qt::blue, headerlinepenwidth_ * onepoint));               // choisit le format du pinceau
+            painter->setPen(QPen(Qt::blue, headerlinepenwidth_ * NbPixlsFor1point));               // choisit le format du pinceau
             painter->drawLine(rect.bottomLeft(),rect.bottomRight());                       // trace une ligne depuis le bas à gauche au bas à droite de l'en-tête
             painter->restore();
         }
@@ -438,7 +438,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         if (footerlinepenwidth_ > 0.0) {
             /*! draw line between content and footer */
             painter->save();
-            painter->setPen(QPen(Qt::black, footerlinepenwidth_ * onepoint));
+            painter->setPen(QPen(Qt::black, footerlinepenwidth_ * NbPixlsFor1point));
             painter->drawLine(rect.topLeft(), rect.topRight());
             painter->restore();
         }
