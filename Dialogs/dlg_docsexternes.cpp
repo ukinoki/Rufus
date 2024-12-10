@@ -297,6 +297,9 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             Etat_textEdit   ->setText(textcorps);
             TextPrinter *TexteAImprimer = new TextPrinter();
             TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
+            User * usr = Datas::I()->users->getById(docmt->iduser());
+            if (usr != Q_NULLPTR)
+                TexteAImprimer  ->setmapBarcodes(usr->mapBarCodes());
             TexteAImprimer  ->setHeaderText(textentete);
             TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? proc->TaillePieddePageOrdoLunettes() : proc->TaillePieddePage());
             TexteAImprimer  ->setFooterText(textpied);
@@ -554,7 +557,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 for (int i=0; i<listimg.size();++i)
                 {
                     QImage image = listimg.at(i);
-                    //qDebug() << image.size();
                     QPixmap pix     = QPixmap();
                     QList<QScreen*> listscreens = QGuiApplication::screens();
                     if (listscreens.size()>0)

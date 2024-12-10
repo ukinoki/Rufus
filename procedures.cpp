@@ -1343,7 +1343,8 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     TexteAImprimer->setHeaderSize(tailleEnTete);
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
-    TexteAImprimer->setUser(usr);
+    if (usr != Q_NULLPTR)
+        TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
 
     TexteAImprimer->print(Etat->document(), nomficpdf);
@@ -1381,7 +1382,8 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     TexteAImprimer->setHeaderSize(tailleEnTete);
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
-    TexteAImprimer->setUser(usr);
+    if (usr != Q_NULLPTR)
+        TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
     QByteArray ba = TexteAImprimer->getPDFByteArray(Etat->document());
     delete TexteAImprimer;
@@ -1409,10 +1411,11 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
-    TexteAImprimer->setUser(usr);
-    //QByteArray ba = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+    if (usr != Q_NULLPTR)
+        TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
+
     bool a = false;
     if (ApercuAvantImpression())
         a = TexteAImprimer->preview(Etat->document());

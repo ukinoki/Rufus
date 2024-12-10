@@ -42,7 +42,6 @@
 #include <QPrintPreviewDialog>
 
 #include "upmessagebox.h"
-#include "cls_user.h"
 #include <QStandardPaths>
 
 #include "code128.h"
@@ -123,7 +122,11 @@ public:
     //added by Javier
     void                    setUnits(const Unit);
 
-    void                    setUser (User *usr)   { m_user = usr; }
+    void                    setmapBarcodes (QMap<QString,QString> map)   { m_mapBarCodes = map; }
+    void                    setBarCodesWidth(int w)         {m_BarCodesWidth = w;}
+    void                    setBarCodesHeight(int h)        {m_BarCodesHeight = h;}
+    void                    setBarCodesFontsize(int sz)     {m_BarCodesFontSize = sz;}
+    void                    setBarCodesInterval(int itv)    {m_BarCodesInterval = itv;}
 
     /*! ----------- PAS UTILISÉS --------------------------- */
     QPageSize                pageSize() const;                                                                  // Get page size
@@ -180,7 +183,7 @@ private:
     double                  rightmargin_    = 10;
     double                  topmargin_      = 10;
     double                  bottommargin_   = 10;
-    double                  spacing_        = 5;
+    double                  spacing_        = 3;
 
     // footer and header size in units_ (default = millimeter)
     double                  headersize_     = 0.0;
@@ -204,8 +207,11 @@ private:
     double                  toinchfactor_;
     void                    PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist);
 
-    User                    *m_user = Q_NULLPTR;
-    QStringList             m_listBarCodes = QStringList();
+    QMap<QString,QString>   m_mapBarCodes = QMap<QString,QString>();
+    int                     m_BarCodesWidth = 1250;
+    int                     m_BarCodesHeight = 400;
+    int                     m_BarCodesFontSize = 6;
+    int                     m_BarCodesInterval = 400;
 
 };
 

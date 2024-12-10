@@ -1519,6 +1519,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)
     {
+        QByteArray ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, userEntete);
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES] =           Datas::I()->users->userconnected()->id();
         listbinds[CP_IDPAT_DOCSEXTERNES] =            Datas::I()->patients->currentpatient()->id();
@@ -1536,6 +1537,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
         listbinds[CP_FORMATDOC_DOCSEXTERNES] =        PRESCRIPTIONLUNETTES;
         listbinds[CP_IDLIEU_DOCSEXTERNES] =           Datas::I()->sites->idcurrentsite();
         listbinds[CP_IDREFRACTION_DOCSEXTERNES] =     ref->id();
+        listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
         DocExterne * doc = DocsExternes::CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
             delete doc;

@@ -275,6 +275,7 @@ public:
     bool isResponsable();
     bool isAlterneResponsableEtAssistant();
     bool isAssistant();
+    QMap<QString,QString> mapBarCodes();
 
     /*! concernant les non soignants */
     bool isSecretaire();

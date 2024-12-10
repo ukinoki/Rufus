@@ -276,7 +276,7 @@ qreal  TextPrinter::adjustedheaderheight(QPainter *painter)
 QRectF TextPrinter::adjustedHeaderRect(QPainter *painter)
 {
     QRectF rect;
-    double onepoint = painter->device()->logicalDpiY() / 72.0;
+    double NPixlsFor1point = painter->device()->logicalDpiY() / 72.0;
     // header
     if (headersize_ > 0) {
         rect = paperRectDPI(painter->device());
@@ -294,8 +294,12 @@ QRectF TextPrinter::adjustedHeaderRect(QPainter *painter)
         doc.setPageSize(rect.size());
 
         adjustedheaderheight_ = doc.size().height();
+        if (m_mapBarCodes.size() >0)
+        {
+            adjustedheaderheight_ += m_BarCodesHeight;
+        }
         adjustedheaderheight_ += spacing_* toinchfactor_ * painter->device()->logicalDpiY();
-        adjustedheaderheight_ += headerlinepenwidth_ * onepoint;
+        adjustedheaderheight_ += headerlinepenwidth_ * NPixlsFor1point;
         adjustedheaderheight_ += spacing_* toinchfactor_ * painter->device()->logicalDpiY();
         rect.setBottom(adjustedheaderheight_);
         painter->restore();
@@ -398,7 +402,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
      */
 
     QRectF rect;
-    double NbPixlsFor1point = painter->device()->logicalDpiY() / 72.0;       /*! -> the number of pixels from device need to draw onepoint */
+    double NPixlsFor1point = painter->device()->logicalDpiY() / 72.0;       /*! -> the number of pixels from device need to draw onepoint */
 
 /*! 1 - header ----------------------------------------------------------------------------------------------------------------------------------- */
     if (headersize_ > 0) {
@@ -425,44 +429,35 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
 
         /*! - BARCODES ----------------------------------------------------------------------------------------------------------------------------------- */
 
-        if (m_user != Q_NULLPTR && (m_user->NumPS() != 0 || m_user->numOrdre() != ""))
+        if (m_mapBarCodes.size() > 0)
         {
-            painter->translate(0, rect.bottom() - spacing_ * toinchfactor_ * painter->device()->logicalDpiY());
-
-            QStringList listcodes;
-            QString numss = m_user->numOrdre().replace(" ", "").left(9);
-            if (numss != "")
-                listcodes  << numss;
-            if (m_user->NumPS() > 0)
-                listcodes << QString::number(m_user->NumPS());
-            for (int i= 0; i< listcodes.size(); i++)
+            painter->translate(0, rect.bottom()
+                                      - headerlinepenwidth_ * NPixlsFor1point
+                                      - m_BarCodesHeight);
+            int it = 0;
+            for (auto i = m_mapBarCodes.cbegin(), end = m_mapBarCodes.cend(); i != end; ++i)
             {
-                QString BCText = listcodes.at(i);
+                QString BCText      = i.value();
                 Code128::BarCode BCcode = Code128::encode(BCText);
-                if (BCText == numss)
-                    BCText = "AM " + numss;
-                else if (BCText == QString::number(m_user->NumPS()))
-                    BCText = "RPPS " + QString::number(m_user->NumPS());
-                int BCwidth = 1250;
-                int BCheight = 350;
-                int BClength = 0;
-                for (int i=0;i<BCcode.length();i++)
-                    BClength+=BCcode[i];
-                float lineWidth =1;
-                if (BClength >0)
-                    lineWidth = BCwidth / BClength;
+                int BCheight        = m_BarCodesHeight;
+                int BClength        = 0;
+                for (int i = 0; i < BCcode.length(); i++)
+                    BClength += BCcode[i];
+                float lineWidth     = 1;
+                if (BClength > 0)
+                    lineWidth = m_BarCodesWidth / BClength;
 
                 float height        = BCheight;
                 float fontHeight    = 0;
                 QFont font          = qApp->font();
-                font                .setPixelSize(NbPixlsFor1point * 5);
+                font                .setPixelSize(NPixlsFor1point * m_BarCodesFontSize);
                 painter             ->setFont(font);
                 fontHeight          = painter->fontMetrics().height();
                 height              -= fontHeight;
 
-                float left = rect.left() + (i==1? BCwidth +200: 0);
+                float left          = rect.left() + it*(m_BarCodesWidth + m_BarCodesInterval);
                 float lefty(left);
-                for (int i=0;i<BCcode.length();i++)
+                for (int i = 0; i < BCcode.length(); i++)
                 {
                     float width = BCcode[i] * lineWidth;
                     if ( i % 2 == 0 )
@@ -470,10 +465,13 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
                         QRectF bar(left, 0, width, height );
                         painter->fillRect(bar, Qt::SolidPattern);
                     }
-                    left+= width;
+                    left += width;
                 }
-                QRectF barcode(lefty,height, BCwidth, fontHeight);
+                QRectF barcode(lefty,height, m_BarCodesWidth, fontHeight);
+                if (! i.key().contains("nokey"))
+                    BCText = i.key() +  " " + BCText;
                 painter->drawText(barcode, BCText, Qt::AlignHCenter | Qt::AlignVCenter);
+                ++ it;
             }
             painter->restore();
         }
@@ -483,8 +481,8 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         if (headerlinepenwidth_ > 0.0) {
             /*! draw line between header and content */
             painter->save();
-            painter->translate(0, rect.top());
-            painter->setPen(QPen(Qt::blue, headerlinepenwidth_ * NbPixlsFor1point));               // choisit le format du pinceau
+            painter->translate(0, rect.top() - spacing_ * toinchfactor_ * painter->device()->logicalDpiY());
+            painter->setPen(QPen(Qt::blue, headerlinepenwidth_ * NPixlsFor1point));               // choisit le format du pinceau
             painter->drawLine(rect.bottomLeft(),rect.bottomRight());                       // trace une ligne depuis le bas à gauche au bas à droite de l'en-tête
             painter->restore();
         }
@@ -497,7 +495,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         if (footerlinepenwidth_ > 0.0) {
             /*! draw line between content and footer */
             painter->save();
-            painter->setPen(QPen(Qt::black, footerlinepenwidth_ * NbPixlsFor1point));
+            painter->setPen(QPen(Qt::black, footerlinepenwidth_ * NPixlsFor1point));
             painter->drawLine(rect.topLeft(), rect.topRight());
             painter->restore();
         }

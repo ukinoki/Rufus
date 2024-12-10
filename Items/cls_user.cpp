@@ -170,6 +170,22 @@ bool User::isRemplacant()                           { return statutcomptable() =
 bool User::isResponsable()                          { return isSoignant() && responsableactes() == Responsable; }
 bool User::isAlterneResponsableEtAssistant()        { return isSoignant() && responsableactes() == AlterneResponsablePasResponsable; }
 bool User::isAssistant()                            { return isSoignant() && responsableactes() == PasResponsable; }
+
+QMap<QString, QString> User::mapBarCodes()
+{
+    QMap<QString,QString> mapbarcodes = QMap<QString,QString>();
+    if (m_numCO != "")
+    {
+        QString numss = m_numCO;
+        numss.replace(" ", "");
+        if (numss.size() > 9)
+            numss = numss.left(9);
+        mapbarcodes.insert("AM", numss);
+    }
+    if (m_numPS > 0)
+        mapbarcodes.insert("RPPS", QString::number(m_numPS));
+    return mapbarcodes;
+}
 bool User::isDesactive()                            { return m_desactive; }
 
 

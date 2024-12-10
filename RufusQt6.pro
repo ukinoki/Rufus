@@ -65,7 +65,6 @@ SOURCES += main.cpp\
     rufus.cpp \
     procedures.cpp \
     pyxinterf.cpp \
-    textprinter.cpp \
     conversionbase.cpp \
     serialthread.cpp \
     importdocsexternesthread.cpp \
@@ -78,7 +77,6 @@ HEADERS += rufus.h \
     procedures.h \
     pyxinterf.h \
     ressources.h \
-    textprinter.h \
     conversionbase.h \
     serialthread.h \
     importdocsexternesthread.h \
@@ -106,7 +104,7 @@ include(Mesures/mesures.pri)
 include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 include(Protocols/protocols.pri)
-include(Code128/code128.pri)
+include(TextPrinter/textprinter.pri)
 
 
 unix|win32{
