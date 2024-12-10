@@ -101,6 +101,7 @@ public:
     QString imagelien() const;
     bool isAllLoaded() const;
     int idrefraction() const;
+    bool isprescription()  {return m_typedoc == PRESCRIPTION || m_typedoc == PRESCRIPTIONLUNETTES; }
 
     void setdate(QDateTime date);
     void setimportance(int imptce);

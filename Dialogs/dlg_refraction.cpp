@@ -1514,7 +1514,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     if (textcorps == "") return false;
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(), userEntete,
                        AvecDupli, AvecNumPage);
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)

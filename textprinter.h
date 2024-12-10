@@ -42,7 +42,10 @@
 #include <QPrintPreviewDialog>
 
 #include "upmessagebox.h"
+#include "cls_user.h"
 #include <QStandardPaths>
+
+#include "code128.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 /// \class TextPrinter
@@ -120,6 +123,8 @@ public:
     //added by Javier
     void                    setUnits(const Unit);
 
+    void                    setUser (User *usr)   { m_user = usr; }
+
     /*! ----------- PAS UTILISÉS --------------------------- */
     QPageSize                pageSize() const;                                                                  // Get page size
     void                     setPageSize(QPageSize size);                                                       // Set page size
@@ -175,7 +180,7 @@ private:
     double                  rightmargin_    = 10;
     double                  topmargin_      = 10;
     double                  bottommargin_   = 10;
-    double                  spacing_        = 3;
+    double                  spacing_        = 5;
 
     // footer and header size in units_ (default = millimeter)
     double                  headersize_     = 0.0;
@@ -198,6 +203,10 @@ private:
     //added by Javier
     double                  toinchfactor_;
     void                    PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist);
+
+    User                    *m_user = Q_NULLPTR;
+    QStringList             m_listBarCodes = QStringList();
+
 };
 
 #endif // TEXTPRINTER_H

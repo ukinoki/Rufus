@@ -1146,7 +1146,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
     textcorps += "</body></html>";
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
     return a;
 }

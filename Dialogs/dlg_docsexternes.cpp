@@ -907,8 +907,12 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool AvecDupli          = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
 
+    User *usr = Q_NULLPTR;
+    if (docmt->isprescription())
+        usr = Datas::I()->users->getById(docmt->iduser());
+
     aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                            proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(),
+                            proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), usr,
                             AvecDupli);
 
     // stockage du document dans la base de donnees - table impressions

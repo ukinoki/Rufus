@@ -2,9 +2,7 @@
 # CODE128
 #--------------------
 INCLUDEPATH += $$PWD
-SOURCES += $$PWD/code128.cpp \
-    $$PWD/code128item.cpp
+SOURCES += $$PWD/code128.cpp
 
-HEADERS += $$PWD/code128.h \
-    $$PWD/code128item.h
+HEADERS += $$PWD/code128.h
 

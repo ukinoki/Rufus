@@ -1069,38 +1069,6 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 //! fin sauvegardes
 //--------------------------------------------------------------------------------------------------------
 
-
-QPixmap Procedures::CalcCode128(const QString &arg1)
-{
-    QFile barcodefile(QDir::homePath() + "/barcodepng.png");
-    barcodefile.remove();
-
-    QFile barcodefile1(QDir::homePath() + "/barcodepng1.png");
-    barcodefile.remove();
-
-    Code128Item *Barcode    = new Code128Item();
-    Barcode                 ->setWidth(1000);
-    Barcode                 ->setHeight(250);
-    Barcode                 ->setPos(0,0);
-    Barcode                 ->setText(arg1);
-    Barcode                 ->setTextVisible(false);
-    Barcode                 ->setHighDPI(false);
-
-    QGraphicsScene Scene;
-    Scene                   .addItem( Barcode );
-    Scene                   .update();
-    Barcode                 ->update();
-
-    QPixmap pixmap(Barcode->boundingRect().width(), Barcode->boundingRect().height());
-    pixmap                  .fill(Qt::white);
-    QPainter painter(&pixmap);
-    Scene                   .render(&painter);
-    painter                 .end();
-
-    delete Barcode;
-    return pixmap;
-}
-
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
@@ -1298,39 +1266,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
             if( user->NumPS() > 0 ) NumSS += " - ";
         }
         if (user->NumPS() > 0) NumSS += "RPPS " + QString::number(user->NumPS());
-
         QString numss = user->numOrdre().replace(" ", "").left(9);
-        QPixmap AdeliPix = CalcCode128(numss);
-        QPixmap RPPSPix = CalcCode128(QString::number(user->NumPS()));
-
-        QString adelifilename   = QDir::homePath() + "/barcodeadeli.png";
-        QString rppsfilename    = QDir::homePath() + "/barcoderpps.png";
-        QFile adelifile(adelifilename);
-        QFile rppsfile(rppsfilename);
-        adelifile               .remove();
-        rppsfile                .remove();
-        QImage ADELIimg         = AdeliPix.toImage();
-        QImage RPPSimg          = RPPSPix.toImage();
-        ADELIimg                .save(adelifilename);
-        RPPSimg                 .save(rppsfilename);
-        QString proportions     = " width= 45% height=15%";
-
-        /*! doesn't work
-        QByteArray data;
-        QBuffer buffer(&data);
-        ADELIimg.save(&buffer, PNG, 100);
-        QString ADELICodBar = QString("<img src='data:image/png;base64, %0'").arg(QString(data.toBase64()) + "' width= 45% height=15%;");
-        */
-
-        QString ADELICodBar     = "<img src='"+ adelifilename + "'" + proportions + ">";
-        QString RPPSCodBar      = "<img src='"+ rppsfilename + "'" + proportions + ">";
-        //qDebug() << ADELICodBar << RPPSCodBar;
 
         textentete.replace("{{NUMSS}}", db->parametres()->cotationsfrance()? numss + " " + QString::number(user->NumPS())   : "");
-        textentete.replace("{{ADELI_NUM}}", db->parametres()->cotationsfrance()? "AM " + numss                              : "");
-        textentete.replace("{{RPPS_NUM}}",  db->parametres()->cotationsfrance()? "RPPS " + QString::number(user->NumPS())   : "");
-        textentete.replace("{{ADELI_IMG}}", db->parametres()->cotationsfrance()? ADELICodBar                                : "");
-        textentete.replace("{{RPPS_IMG}}",  db->parametres()->cotationsfrance()? RPPSCodBar                                 : "");
         textentete.replace("{{DATE}}", sit->ville()  + tr(", le ") + QLocale::system().toString(date,tr("d MMMM yyyy")));
         Utils::epureFontFamily(textentete);
 
@@ -1386,7 +1324,7 @@ QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
  * \param QString nomdossier = dossier où est enregistré le fichier
  * \return
  */
-bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, bool ALD, QString nomdossier)
+bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, User *usr, bool ALD, QString nomdossier)
 {
     bool a = false;
     QTextEdit *Etat = new QTextEdit;
@@ -1405,6 +1343,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     TexteAImprimer->setHeaderSize(tailleEnTete);
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
+    TexteAImprimer->setUser(usr);
 
 
     TexteAImprimer->print(Etat->document(), nomficpdf);
@@ -1428,7 +1367,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
  * \param QString textpied
  * \return
  */
-QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, QString textpied, bool ALD)
+QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, QString textpied, User *usr, bool ALD)
 {
     QTextEdit *Etat = new QTextEdit;
     Etat->setHtml(textcorps);
@@ -1442,6 +1381,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     TexteAImprimer->setHeaderSize(tailleEnTete);
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
+    TexteAImprimer->setUser(usr);
 
     QByteArray ba = TexteAImprimer->getPDFByteArray(Etat->document());
     delete TexteAImprimer;
@@ -1450,7 +1390,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
 }
 
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge, User *usr,
                               bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
@@ -1469,6 +1409,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
+    TexteAImprimer->setUser(usr);
     //QByteArray ba = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
@@ -1826,7 +1767,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               m_dirnamepdf;
-        Cree_pdffile(textcorps, textentete, textpied,filename, ALD, dirname);
+        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : Q_NULLPTR), ALD, dirname);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(parent,
@@ -1838,7 +1779,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         int tailleEnTete = TailleEnTete();
         if (ALD) tailleEnTete = TailleEnTeteALD();
         aa = Imprime_Etat(parent, textcorps, textentete, textpied,
-                            TaillePieddePage(), tailleEnTete, TailleTopMarge(),
+                            TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user : Q_NULLPTR),
                             AvecDupli, AvecNumPage, AvecChoixImprimante);
     }
 
@@ -1846,7 +1787,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     if (aa)
     {
         Utils::nettoieHTML(textcorps, 9);
-        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, ALD);
+        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : Q_NULLPTR), ALD);
 
         int idpat = 0;
         idpat = pat->id();
@@ -1929,6 +1870,7 @@ bool Procedures::Print(QList<QImage> listimage)
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::ApercuAvantImpression()
 {
+    //return true;
     return (m_settings->value(Imprimante_ApercuAvantImpression).toString() == "YES");
 }
 

@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-12-2024/1");
+    qApp->setApplicationVersion("09-12-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2964,7 +2964,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                              tr ("sauvegardé ") + dossier;
        proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                               filename, false, dirname);
+                               filename, Q_NULLPTR, false, dirname);
        QFile file          = QFile(dirname + "/" + filename);
        aa                  = file.exists();
        UpMessageBox::Watch(this, aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
@@ -2975,7 +2975,7 @@ void Rufus::ImprimeListActes(QList<Acte*> listeactes, bool toutledossier, bool q
        bool     AvecDupli   = false;
        bool     AvecNumPage = true;
        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                              proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                              proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                               AvecDupli, AvecNumPage);
    }
    if (aa)
@@ -3567,7 +3567,7 @@ void Rufus::ImprimeListPatients(QVariant var)
      }
 
     proc->Imprime_Etat(this, textecorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
 }
 
@@ -9750,19 +9750,19 @@ void Rufus::Remplir_SalDat()
     }
     if (listpostsoignant.size() >0)
     {
-        ui->scrollArea->setWidgetResizable(true);
-        QHBoxLayout *lay = new QHBoxLayout();
-        QWidget *widg = new QWidget();
-        widg->setLayout(lay);
-        ui->scrollArea->setWidget(widg);
+        ui->scrollArea          ->setWidgetResizable(true);
+        QHBoxLayout *lay        = new QHBoxLayout();
+        QWidget *widg           = new QWidget();
+        widg                    ->setLayout(lay);
+        ui->scrollArea          ->setWidget(widg);
         int a = 0;
-        lay->setContentsMargins(a,a,a,a);
-        lay->setSpacing(2);
+        lay                     ->setContentsMargins(a,a,a,a);
+        lay                     ->setSpacing(2);
         foreach (PosteConnecte *post, listpostsoignant)
         {
-            User *usr = Datas::I()->users->getById(post->iduser());
-            QString usrlogin = (usr? usr->login() : "");
-            QString PosteLog  = post->nomposte();
+            User *usr           = Datas::I()->users->getById(post->iduser());
+            QString usrlogin    = (usr? usr->login() : "");
+            QString PosteLog    = post->nomposte();
             PatientEnCours *patencours = Q_NULLPTR;
             foreach (PatientEnCours *patcrs, *Datas::I()->patientsencours->patientsencours())
                 if (patcrs->iduserencoursexam() == post->iduser() && patcrs->posteexamen() == post->nomposte() && patcrs->id() == post->idpatencours())
@@ -9771,14 +9771,12 @@ void Rufus::Remplir_SalDat()
                     break;
                 }
             UpTextEdit *UserBureau;
-            UserBureau = new UpTextEdit;
-            UserBureau->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
-            UserBureau->setObjectName(usrlogin + "BureauupTextEdit");
-            UserBureau->setIdUser(post->iduser());
-            ui->scrollArea->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
-            UserBureau->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
+            UserBureau          = new UpTextEdit;
+            UserBureau          ->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
+            ui->scrollArea      ->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
+            UserBureau          ->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
                                       "border: 1px solid gray;  border-radius: 10px;");
-            UserBureau->setFocusPolicy(Qt::NoFocus);
+            UserBureau          ->setFocusPolicy(Qt::NoFocus);
             QString html =
             "<html>"
             "<head>"
@@ -9798,6 +9796,7 @@ void Rufus::Remplir_SalDat()
                 Patient *pat    = Datas::I()->patients->getById(post->idpatencours());
                 if (pat != Q_NULLPTR)
                 {
+                    UserBureau                  ->setiD(pat->id());
                     connect(UserBureau,         &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuelBureaux(UserBureau);});
                     connect(UserBureau,         &UpTextEdit::dblclick,                  this,   [=] {AutreDossier(pat);});
                     html += "<p class=\"p2\">" +  pat->nom() + " " + pat->prenom() + "</p>";      //Nom Prenom
@@ -9815,8 +9814,8 @@ void Rufus::Remplir_SalDat()
                     html += "<p class=\"p2\">ZZzzz...</p>";
             }
             html += "</body></html>";
-            UserBureau->setHtml(html);
-            lay->addWidget(UserBureau);
+            UserBureau          ->setHtml(html);
+            lay                 ->addWidget(UserBureau);
         }
     }
 

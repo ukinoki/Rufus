@@ -389,7 +389,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité");
         bool a = proc->Cree_pdffile(textcorps, textentete, textpied,
-                            filename,
+                            filename, Q_NULLPTR,
                             false,
                             dirname);
         UpMessageBox::Watch(this, (a? tr("Enregistrement pdf") : tr("Echec enregistrement pdf")),
@@ -400,7 +400,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
         bool AvecDupli   = false;
         bool AvecNumPage = false;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
     }
 }

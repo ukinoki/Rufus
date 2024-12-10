@@ -77,9 +77,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <Topcon.h>
 #include <nidek.h>
 
-#include <QGraphicsScene>
-#include "code128item.h"
-
 class Procedures : public QObject
 {
     Q_OBJECT
@@ -155,12 +152,6 @@ public:
     void                    setAbsolutePathDirImagerie(QString dir);
 
 /*! fin opérations sur la base de données, le système et les datas -------------------------------------------------------------------------------------------------------- */
-
-/*! BARCODES -------------------------------------------------------------------------------------------------------------------------------------------------------------- */
-    QPixmap                 CalcCode128(const QString &arg1);
-
-/*! end BARCODES ---------------------------------------------------------------------------------------------------------------------------------------------------------- */
-
 
 
 /*! --------------------------------------------------------------------------------------------------------
@@ -251,13 +242,13 @@ public:
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge,
+                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge, User *usr = Q_NULLPTR,
                       bool AvecDupli = false, bool AvecNumPage = false,
                       bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */
-    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, bool ALD = false, QString nomdossier = "");
+    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = Q_NULLPTR, bool ALD = false, QString nomdossier = "");
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
-    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, bool ALD = false);
+    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false);
             /*! d - Choice: print or pdf */
     bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
 

@@ -289,7 +289,7 @@ void dlg_bilanortho::ImprimeBOClicked()
 
     QString textcorps = textHtml->toHtml();
     bool aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
 
     // stockage du document dans la base de donnees - table impressions

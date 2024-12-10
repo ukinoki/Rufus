@@ -398,7 +398,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
      */
 
     QRectF rect;
-    double NbPixlsFor1point = painter->device()->logicalDpiY() / 72.0;       /*! -> the number of pixels from device need to draw onepoint
+    double NbPixlsFor1point = painter->device()->logicalDpiY() / 72.0;       /*! -> the number of pixels from device need to draw onepoint */
 
 /*! 1 - header ----------------------------------------------------------------------------------------------------------------------------------- */
     if (headersize_ > 0) {
@@ -421,10 +421,69 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         doc.drawContents(painter, clip);
         painter->restore();
 
+        painter->save();
+
+        /*! - BARCODES ----------------------------------------------------------------------------------------------------------------------------------- */
+
+        if (m_user != Q_NULLPTR && (m_user->NumPS() != 0 || m_user->numOrdre() != ""))
+        {
+            painter->translate(0, rect.bottom() - spacing_ * toinchfactor_ * painter->device()->logicalDpiY());
+
+            QStringList listcodes;
+            QString numss = m_user->numOrdre().replace(" ", "").left(9);
+            if (numss != "")
+                listcodes  << numss;
+            if (m_user->NumPS() > 0)
+                listcodes << QString::number(m_user->NumPS());
+            for (int i= 0; i< listcodes.size(); i++)
+            {
+                QString BCText = listcodes.at(i);
+                Code128::BarCode BCcode = Code128::encode(BCText);
+                if (BCText == numss)
+                    BCText = "AM " + numss;
+                else if (BCText == QString::number(m_user->NumPS()))
+                    BCText = "RPPS " + QString::number(m_user->NumPS());
+                int BCwidth = 1250;
+                int BCheight = 350;
+                int BClength = 0;
+                for (int i=0;i<BCcode.length();i++)
+                    BClength+=BCcode[i];
+                float lineWidth =1;
+                if (BClength >0)
+                    lineWidth = BCwidth / BClength;
+
+                float height        = BCheight;
+                float fontHeight    = 0;
+                QFont font          = qApp->font();
+                font                .setPixelSize(NbPixlsFor1point * 5);
+                painter             ->setFont(font);
+                fontHeight          = painter->fontMetrics().height();
+                height              -= fontHeight;
+
+                float left = rect.left() + (i==1? BCwidth +200: 0);
+                float lefty(left);
+                for (int i=0;i<BCcode.length();i++)
+                {
+                    float width = BCcode[i] * lineWidth;
+                    if ( i % 2 == 0 )
+                    {
+                        QRectF bar(left, 0, width, height );
+                        painter->fillRect(bar, Qt::SolidPattern);
+                    }
+                    left+= width;
+                }
+                QRectF barcode(lefty,height, BCwidth, fontHeight);
+                painter->drawText(barcode, BCText, Qt::AlignHCenter | Qt::AlignVCenter);
+            }
+            painter->restore();
+        }
+
+        /*! - LINE ----------------------------------------------------------------------------------------------------------------------------------- */
+
         if (headerlinepenwidth_ > 0.0) {
             /*! draw line between header and content */
             painter->save();
-            painter->translate(0, rect.top() - spacing_ * toinchfactor_ * painter->device()->logicalDpiY());
+            painter->translate(0, rect.top());
             painter->setPen(QPen(Qt::blue, headerlinepenwidth_ * NbPixlsFor1point));               // choisit le format du pinceau
             painter->drawLine(rect.bottomLeft(),rect.bottomRight());                       // trace une ligne depuis le bas à gauche au bas à droite de l'en-tête
             painter->restore();

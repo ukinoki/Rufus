@@ -348,7 +348,7 @@ void dlg_depenses::PrintReport(bool pdf)
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier Comptabilité") ;
         proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                                filename,
+                                filename, Q_NULLPTR,
                                 false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
@@ -359,7 +359,7 @@ void dlg_depenses::PrintReport(bool pdf)
     else
     {
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
     }
 }

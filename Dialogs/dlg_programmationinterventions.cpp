@@ -593,7 +593,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
         proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                                filename,
+                                filename, Q_NULLPTR,
                                 false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
@@ -606,7 +606,7 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
         bool AvecDupli   = false;
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
     }
 }
@@ -762,7 +762,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n " +
                               tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
         proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                                filename,
+                                filename, Q_NULLPTR,
                                 false,
                                 dirname);
         QFile file          = QFile(dirname + "/" + filename);
@@ -775,7 +775,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
         bool AvecDupli   = false;
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                        AvecDupli, AvecNumPage);
     }
 }
@@ -2073,7 +2073,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
                                   tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                                   tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy");
             proc                ->Cree_pdffile(textcorps, textentete, textpied,
-                                    filename,
+                                    filename, Q_NULLPTR,
                                     false,
                                     dirname);
             QFile file          = QFile(dirname + "/" + filename);
@@ -2086,7 +2086,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
             bool AvecDupli   = false;
             bool AvecNumPage = true;
             proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(),
+                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
                            AvecDupli, AvecNumPage);
         }
     }
