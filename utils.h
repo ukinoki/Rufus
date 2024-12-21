@@ -332,7 +332,17 @@ public:
     static QDomElement XMLfirstElementByTagNameNS(QDomElement parent, QString nsURI, QString tagName);
     static QString XMLfirstElementValueByTagNameNS(QDomElement parent, QString nsURI, QString tagName);
 
-
+    //COM Port
+    struct SerialSettings {                                                                                 /*! list of settings for a device */
+        qint32 baudRate;
+        QSerialPort::DataBits dataBits;
+        QSerialPort::Parity parity;
+        QSerialPort::StopBits stopBits;
+        QSerialPort::FlowControl flowControl;
+    };
+    static QMetaEnum enumeratorSP(QString enumName);
+    static QStringList listKeyEnumeratorSP(QString prop);
+    static QString stringKeyFromEnumIndexSP(QString prop, int idx);                             /*! return string value from index for property in QserialPort metaobject metaenum */
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(Utils::Days)
 

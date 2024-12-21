@@ -98,12 +98,7 @@ bool UpComboBox::eventFilter(QObject *obj, QEvent *event)
             if (lineEdit()->text() != "")
             {
                 if (!lineEdit()->hasAcceptableInput())
-                {
-                    //QString ab = lineEdit()->text();
                     setCurrentText(valeuravant());
-                    //QRegularExpressionValidator const * reg = static_cast<QRegularExpressionValidator const*>(lineEdit()->validator());
-                    //QMessageBox::warning(this, tr("Attention"),reg->regularExpression().pattern() + "\n'" + ab + "'");
-                }
             }
             else
                 setCurrentIndex(-1);
@@ -236,5 +231,13 @@ void UpComboBox::emitactivated(int idx)
     if (idx == m_idxavant)
         return;
      emit QComboBox::currentIndexChanged(idx);
- }
+}
+
+QStringList UpComboBox::listitems()
+{
+    QStringList list = QStringList();
+    for (int i = 0; i < count(); ++i)
+        list << itemText(i);
+    return list;
+}
 

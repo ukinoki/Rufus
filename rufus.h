@@ -141,7 +141,7 @@ public:
 private:
     bool                            UtiliserTcpSocket = false;
 
-    Procedures                      *proc = Procedures::I();
+    Procedures                      *proc;
     DataBase                        *db = DataBase::I();
     ParametresSysteme               *m_parametres;
     UpLabel                         *wdg_nomlbl;

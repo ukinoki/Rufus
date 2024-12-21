@@ -127,6 +127,7 @@ public:
     void                    setDirSSLKeys();                                            /*! fixe le chemin vers le dossier des clés SSL */
     QString                 dirSSLKeys();                                               /*! le chemin vers le dossier des clés SSL */
     bool                    AutresPostesConnectes(bool msg = true);
+    void                    CleanIniFile();
     bool                    FicheChoixConnexion();
     bool                    Connexion_A_La_Base();
     bool                    ConnexionBaseOK() const     { return m_connexionbaseOK; }
@@ -149,7 +150,6 @@ public:
     static QString          VilleParDefaut();
 
     QString                 AbsolutePathDirImagerie();                      /*! le dossier sur lequel est stocké l'imagerie, vu depuis le poste client */
-    void                    setAbsolutePathDirImagerie(QString dir);
 
 /*! fin opérations sur la base de données, le système et les datas -------------------------------------------------------------------------------------------------------- */
 
@@ -437,9 +437,24 @@ signals:
 /*! ------------------------------------------------------------------------------------------------------------------------------------------
      GESTION DES APPAREILS DE REFRACTION - PORTS SERIES, FICHIER ECHANGE XML -----------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------*/
-public:
-    void                    setFicheRefractionOuverte(bool a);
-    bool                    FicheRefractionOuverte();
+    private:
+        Utils::SerialSettings          s_paramPortSerieAutoref;
+        Utils::SerialSettings          s_paramPortSerieFronto;
+        Utils::SerialSettings          s_paramPortSerieRefracteur;
+        Utils::SerialSettings          s_paramPortSerieTono;
+
+        bool                    m_issettingFrontoFromInvalidKey       = true;
+        bool                    m_issettingAutorefFromInvalidKey      = true;
+        bool                    m_issettingRefracteurFromInvalidKey   = true;
+        bool                    m_issettingTonoFromInvalidKey         = true;
+
+    public:
+        void                    setFicheRefractionOuverte(bool a);
+        bool                    FicheRefractionOuverte();
+        QMap<QString, QString>  DefaultSerialSettings(QString nameDevice);                                             /*! default values of settings for a device */
+
+
+
 private:
     // https://fr.wikipedia.org/wiki/Caract%C3%A8re_de_contr%C3%B4le
     bool                    m_dlgrefractionouverte;
@@ -447,70 +462,53 @@ private:
     QMap<QString,QString>   m_mapports{{"-1","-1"}};
     QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
-    struct SerialSettings {
-        qint32 baudRate;
-        QSerialPort::DataBits dataBits;
-        QSerialPort::Parity parity;
-        QSerialPort::StopBits stopBits;
-        QSerialPort::FlowControl flowControl;
-    };
-    SerialSettings          s_paramPortSerieAutoref;
-    SerialSettings          s_paramPortSerieFronto;
-    SerialSettings          s_paramPortSerieRefracteur;
-    SerialSettings          s_paramPortSerieTono;
     SerialThread            *t_threadFronto = Q_NULLPTR;
     SerialThread            *t_threadTono = Q_NULLPTR;
     SerialThread            *t_threadRefracteur = Q_NULLPTR;
     SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
-    void                    InitialiseSerialSettings(SerialSettings &set)
+    void                    ResetSerialSettings(Utils::SerialSettings &set)                                            /*! reset settings of the serial port defined for a device */
                             {
-                                QMetaEnum metaEnum;
-                                int index(-1);
-                                index           = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
-                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                QMetaEnum metaEnum = Utils::enumeratorSP(BAUDRATE);
                                 set.baudRate    = (QSerialPort::BaudRate)metaEnum.value(0);
-                                index           = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
-                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                metaEnum        = Utils::enumeratorSP(DATABITS);
                                 set.dataBits    = (QSerialPort::DataBits)metaEnum.value(0);
-                                index           = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
-                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                metaEnum        = Utils::enumeratorSP(STOPBITS);
                                 set.stopBits    = (QSerialPort::StopBits)metaEnum.value(0);
-                                index           = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
-                                metaEnum        = QSerialPort().metaObject()->enumerator(index);
+                                metaEnum        = Utils::enumeratorSP(FLOWCONTROL);
                                 set.flowControl = (QSerialPort::FlowControl)metaEnum.value(0);
+                                metaEnum        = Utils::enumeratorSP(PARITY);
+                                set.parity      = (QSerialPort::Parity)metaEnum.value(0);
                             };
-    bool                    isSerialSettingsReinitialised(SerialSettings set)
+    bool                    isSerialSettingsValid(Utils::SerialSettings set)                                   /*! indicates if serial settings of a device as they are tuned in rufus.ini are complete */
                             {
-                                bool a = true;
-                                QMetaEnum metaEnum;
-                                int index(-1);
-                                index       = QSerialPort().metaObject()->indexOfEnumerator(BAUDRATE);
-                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
-                                a = (set.baudRate == (QSerialPort::BaudRate)metaEnum.value(0));
-                                if (!a)
+                                int a = 0;
+                                QMetaEnum metaEnum = Utils::enumeratorSP(BAUDRATE);
+                                if (metaEnum.valueToKey(set.baudRate) == nullptr)
                                     return false;
-                                index       = QSerialPort().metaObject()->indexOfEnumerator(DATABITS);
-                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
-                                a = (set.dataBits == (QSerialPort::DataBits)metaEnum.value(0));
-                                if (!a)
+                                else a = Utils::getindexFromValue(metaEnum, set.baudRate);
+                                metaEnum = Utils::enumeratorSP(PARITY);
+                                if (metaEnum.valueToKey(set.parity) == nullptr)
                                     return false;
-                                index       = QSerialPort().metaObject()->indexOfEnumerator(STOPBITS);
-                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
-                                a = (set.stopBits == (QSerialPort::StopBits)metaEnum.value(0));
-                                if (!a)
+                                else a += Utils::getindexFromValue(metaEnum, set.parity);
+                                metaEnum    = Utils::enumeratorSP(DATABITS);
+                                if (metaEnum.valueToKey(set.dataBits) == nullptr)
                                     return false;
-                                index       = QSerialPort().metaObject()->indexOfEnumerator(FLOWCONTROL);
-                                metaEnum    = QSerialPort().metaObject()->enumerator(index);
-                                a = (set.flowControl == (QSerialPort::FlowControl)metaEnum.value(0));
-                                if (!a)
+                                else a += Utils::getindexFromValue(metaEnum, set.dataBits);
+                                metaEnum    = Utils::enumeratorSP(STOPBITS);
+                                if (metaEnum.valueToKey(set.stopBits) == nullptr)
                                     return false;
-                                return a;
+                                else a += Utils::getindexFromValue(metaEnum, set.stopBits);
+                                metaEnum    = Utils::enumeratorSP(FLOWCONTROL);
+                                if (metaEnum.valueToKey(set.flowControl) == nullptr)
+                                    return false;
+                                else a += Utils::getindexFromValue(metaEnum, set.flowControl);
+                                return a>0;
                             };
-    bool                    ReglePortAutoref();
-    bool                    ReglePortFronto();
-    bool                    ReglePortRefracteur();
-    bool                    ReglePortTonometre();
+    void                    ReglePortAutoref();
+    void                    ReglePortFronto();
+    void                    ReglePortRefracteur();
+    void                    ReglePortTonometre();
 
 public:
     enum TypeTextFile {
@@ -526,6 +524,10 @@ public:
                 Tonometre   = 0x8,
                 };  Q_ENUM(TypeAppareil)
     Q_DECLARE_FLAGS(TypesAppareils, TypeAppareil)
+    TypesAppareils devicesCOM() { return m_devicesCOM;}
+    TypesAppareils devicesLAN() { return m_devicesLAN;}
+    void setdevicesCOM(TypesAppareils devices) { m_devicesCOM = devices;}
+    void setdevicesLAN(TypesAppareils devices) { m_devicesLAN = devices;}
 
 signals:
     void                    NouvMesure(GenericProtocol::TypeMesure);     //! signal de mise à jour des fiches rufus.ccp et dlg_reraction.cpp
@@ -547,10 +549,14 @@ public:
         if (m_mapports == QMap<QString,QString> {{"-1","-1"}})
             m_mapports = Utils::ReconstruitMapPortsCOM();
         return m_mapports;
-    };   QSerialPort*            PortAutoref();
+    };
+    void                    setSerialPortValueFromQSettings(Utils::SerialSettings &comset, QString prop, QString idxstring, Procedures::TypeAppareil typ);   /*! set SerialPort value from index in QserialPort metaobject metaenum */
+    bool                    setSerialPortSettingsValueFromIndex(QString prop, QString &idxstring, TypeAppareil typ);                   /*! set SerialPort value in QSettings from index in QserialPort metaobject metaenum */
+    QSerialPort*            PortAutoref();
     QSerialPort*            PortFronto();
     QSerialPort*            PortRefracteur();
     QSerialPort*            PortTono();
+
     bool                    LANAutoref()       {return m_LANAutoref;};
     bool                    LANFronto()        {return m_LANFronto;};
     bool                    LANRefracteur()    {return m_LANRefracteur;};
@@ -570,8 +576,11 @@ public:
     static GenericProtocol::TypeMesure       ConvertMesure(QString Mesure);
     static QString                           ConvertMesure(GenericProtocol::TypeMesure Mesure);
 
-    // LES PORTS COM ------------------------------------------------
-    void RegleSerialSettings(TypeAppareil appareil, QMap<QString, int> map);        /*! règle les datas du port série pour l'appareil passé en paramètre */
+    // LES PORTS COM - LE RESEAU ------------------------------------------------
+    void                    RegleSerialSettings(TypeAppareil appareil, QMap<QString, QString> map);        /*! règle les datas du port série pour l'appareil passé en paramètre */
+    bool                    Ouverture_Ports_Series(QWidget *parent = Q_NULLPTR);
+                                                                                    //! ouvre les ports séries des appareils connectés en  port COM
+    bool                    Ouverture_Fichiers_Echange(QWidget *parent = Q_NULLPTR);//! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
 
 private:
     QString                 m_mesureSerie;
@@ -595,10 +604,9 @@ private:
 
     GenericProtocol::TypeMesure              m_typemesureRefraction;                                 //! le type de mesure effectuée: Fronto, Autoref ou Refracteur
     GenericProtocol::TypesMesures            m_flagreglagerefracteurNidek = GenericProtocol::MesureNone;
+    TypesAppareils                           m_devicesCOM, m_devicesLAN;
     QString                 CalculeFormule(MesureRefraction *ref, QString Cote);    //! calcule la forumle de réfraction à partir des data sphere, cylindre, axe, addVP
     void                    Ouverture_Appareils_Refraction();
-    bool                    Ouverture_Ports_Series(TypesAppareils appareils);       //! ouvre les ports séries des appareils connectés en  port COM
-    bool                    Ouverture_Fichiers_Echange(TypesAppareils appareils);   //! ouvre le système de lecture de fichiers d d'échange des appreils de réfraction qui communiquent par ce moyen
     void                    logmesure(QString mesure)  { Logs::LogToFile("refraction.txt", mesure); }
 
     //LE FRONTO ----------------------------------------------------

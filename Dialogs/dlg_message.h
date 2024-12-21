@@ -47,7 +47,8 @@ class ShowMessage : public QObject
 {
     Q_OBJECT
 private:
-    qintptr         idprioritymessage;
+    qintptr         yprioritymessage = 0;
+    qintptr         ysplashmessage = 0;
     QWidget         *m_parent = Q_NULLPTR;
     static ShowMessage *instance;
     ShowMessage();

@@ -68,6 +68,7 @@ Datas::Datas()
     mesurekerato        = new Keratometrie();
     mesuretono          = new Tonometrie();
     mesurepachy         = new Pachymetrie();
+    refractiondevices   = new RefractionDevices();
 }
 
 

@@ -22,7 +22,9 @@ public:
 
     //! PORT COM
     QByteArray  OKtoReceive(QString mesure);
+    bool        isOKtoReceive(QString messsage, QString typemesure);
     QByteArray  RequestToSend();
+    bool        isRequestToSend(QString messsage);
 
     void        LectureDonneesCOMAutoref(QString Mesure, QString nameARK);
     void        LectureDonneesCOMFronto(QString Mesure);

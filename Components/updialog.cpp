@@ -81,15 +81,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         RecordButton        ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
         wdg_buttonslayout   ->addWidget(RecordButton);
     }
-    if (Button.testFlag(ButtonCancel))
-    {
-        CancelButton        = new UpSmallButton();
-        CancelButton        ->setShortcut(QKeySequence(Qt::Key_F12));
-        CancelButton        ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-        wdg_buttonslayout   ->addWidget(CancelButton);
-        connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
-    }
-    if (Button.testFlag(ButtonPrint))
+     if (Button.testFlag(ButtonPrint))
     {
         PrintButton         = new UpSmallButton();
         PrintButton         ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
@@ -111,6 +103,12 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         EditButton          = new UpSmallButton();
         EditButton          ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
         wdg_buttonslayout   ->addWidget(EditButton);
+    }
+    if (Button.testFlag(ButtonOups))
+    {
+        OupsButton         = new UpSmallButton();
+        OupsButton         ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
+        wdg_buttonslayout   ->addWidget(OupsButton);
     }
     if (Button.testFlag(ButtonOK))
     {
@@ -134,13 +132,15 @@ void UpDialog::AjouteLayButtons(Buttons Button)
 #endif
         wdg_buttonslayout   ->addWidget(CloseButton);
     }
-    if (Button.testFlag(ButtonOups))
+    if (Button.testFlag(ButtonCancel))
     {
-        CloseButton         = new UpSmallButton();
-        CloseButton         ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
-        wdg_buttonslayout   ->addWidget(CloseButton);
+        CancelButton        = new UpSmallButton();
+        CancelButton        ->setShortcut(QKeySequence(Qt::Key_F12));
+        CancelButton        ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
+        wdg_buttonslayout   ->insertWidget(0, CancelButton);
+        connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }
-    UpdateTabOrder();
+     UpdateTabOrder();
     setStageCount(1);
 }
 

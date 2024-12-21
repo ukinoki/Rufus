@@ -14,6 +14,7 @@ SOURCES += $$PWD/cls_correspondants.cpp \
     $$PWD/cls_motscles.cpp \
         $$PWD/cls_patients.cpp \
     $$PWD/cls_postesconnectes.cpp \
+    $$PWD/cls_refractiondevices.cpp \
     $$PWD/cls_refractions.cpp \
     $$PWD/cls_sessions.cpp \
         $$PWD/cls_users.cpp \
@@ -46,6 +47,7 @@ HEADERS += $$PWD/cls_correspondants.h \
     $$PWD/cls_motscles.h \
         $$PWD/cls_patients.h \
     $$PWD/cls_postesconnectes.h \
+    $$PWD/cls_refractiondevices.h \
     $$PWD/cls_refractions.h \
     $$PWD/cls_sessions.h \
         $$PWD/cls_users.h \

@@ -67,6 +67,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_lignecompte.h"
 #include "cls_parametressysteme.h"
 #include "cls_donneesophtapatient.h"
+#include "cls_refractiondevice.h"
 
 #include "log.h"
 #include "utils.h"
@@ -494,6 +495,12 @@ private:
     QJsonObject             loadSessionData(QVariantList refdata);                  //! attribue la liste des datas d'une session
 public:
     Session*                loadSessionById(int idsession);                         //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
+
+    /*!
+     * Appareils Refractions
+    */
+public:
+    QList<RefractionDevice*>          loadrefractionDevices();                       //! load alla refraction devices from table Rufus.AppareilsRefraction
 
 };
 

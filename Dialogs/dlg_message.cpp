@@ -26,7 +26,6 @@ ShowMessage* ShowMessage::I()
 }
 ShowMessage::ShowMessage()
 {
-    idprioritymessage = 0;
 }
 
 void ShowMessage::SplashMessage(QString msg, int duree)
@@ -102,18 +101,20 @@ void ShowMessage::SplashMessage(QString msg, int duree)
         ty= sz.height();
     }
 
-    dlg                 ->move(xx - tx, yy - ty);
+    dlg                 ->move(xx - tx, yy - ty -ysplashmessage);
     dlg                 ->show();
-    QTimer::singleShot(duree, dlg, &QDialog::close);
+    ysplashmessage += ty;
+    QTimer::singleShot(duree, dlg, [=] {
+        ysplashmessage -= ty;
+        dlg->close();
+    });
 }
 
 void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidget *parent)
 {
-    idprioritymessage ++;
-    idmessage           = idprioritymessage;
+    yprioritymessage ++;
+    idmessage           = yprioritymessage;
     QDialog             *prioritydlg = new QDialog(parent);
-    prioritydlg         ->setAttribute(Qt::WA_DeleteOnClose);
-    prioritydlg         ->setSizeGripEnabled(false);
 
     QLabel *imglbl     = new QLabel(prioritydlg);
     imglbl              ->setPixmap(Icons::pxDetente().scaled(45,45)); //WARNING : icon scaled : pxDetente 45,45
@@ -169,7 +170,8 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
 
     int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
     int xx              = QGuiApplication::primaryScreen()->availableGeometry().width();
-    prioritydlg         ->move(xx/2 - w/2 - marge - lay->spacing()-15, yy/2 - (int(hauteurligne)*nlignes)/2 - marge);
+    int height = hauteurligne*nlignes - marge;
+    prioritydlg         ->move(xx/2 - w/2 - marge - lay->spacing()-15, yy/2 - (height/2)*yprioritymessage);
     prioritydlg         ->show();
     if (parent != Q_NULLPTR)
         parent->setEnabled(false);
@@ -181,6 +183,7 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
             if (prioritydlg->parent() != Q_NULLPTR)
                 qobject_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
             prioritydlg->reject();
+            delete prioritydlg;
         }
         });
     if (duree > 0)

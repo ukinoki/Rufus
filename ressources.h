@@ -11,6 +11,7 @@ class Ressources : public QObject
 private:
     Ressources();
     static Ressources *instance;
+    QString m_head;
 
 public:
     static Ressources*   I();
@@ -19,7 +20,6 @@ public:
     QString HeaderOrdoALD();
 
     QString HeaderOrdoWithBarCode();
-    QString HeaderOrdoALDWithBarCode();
 
     QString BodyOrdo();
     QString BodyOrdoALD();

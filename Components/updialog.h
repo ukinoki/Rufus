@@ -73,7 +73,7 @@ private:
     UpLineEdit      *wdg_chercheuplineedit;
 
 public:
-    UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton;
+    UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton, *OupsButton;
     void            setEnregPosition(bool);
     void            addSearchLine();
     void            AjouteLayButtons(Buttons Button=ButtonOK);

@@ -297,9 +297,6 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             Etat_textEdit   ->setText(textcorps);
             TextPrinter *TexteAImprimer = new TextPrinter();
             TexteAImprimer  ->setHeaderSize(docmt->isALD()? proc->TailleEnTeteALD() : proc->TailleEnTete());
-            User * usr = Datas::I()->users->getById(docmt->iduser());
-            if (usr != Q_NULLPTR)
-                TexteAImprimer  ->setmapBarcodes(usr->mapBarCodes());
             TexteAImprimer  ->setHeaderText(textentete);
             TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? proc->TaillePieddePageOrdoLunettes() : proc->TaillePieddePage());
             TexteAImprimer  ->setFooterText(textpied);
@@ -866,7 +863,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     QTextEdit   *Etat_textEdit  = new QTextEdit;
     bool        aa;
     bool        ALD             = (docmt->isALD());
-    bool        Prescription    = (docmt->format() == PRESCRIPTION || docmt->format() == PRESCRIPTIONLUNETTES);
+    bool        Prescription    = docmt->isprescription();
 
     if (currentuser() == Q_NULLPTR)
     {
@@ -910,7 +907,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                                && docmt->typedoc() == PRESCRIPTION);
 
     User *usr = Q_NULLPTR;
-    if (docmt->isprescription())
+    if (Prescription)
         usr = Datas::I()->users->getById(docmt->iduser());
 
     aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
@@ -921,6 +918,9 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     if (aa)
     {
         Utils::nettoieHTML(textcorps, 9);
+        QByteArray ba = QByteArray();
+        if (usr != Q_NULLPTR)
+            ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, usr);
 
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES]        = currentuser()->id();
@@ -938,6 +938,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_ALD_DOCSEXTERNES]           = (ALD? "1" : QVariant(QMetaType::fromType<QString>()));
         listbinds[CP_IDEMETTEUR_DOCSEXTERNES]    = currentuser()->id();
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = docmt->importance();
+        listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
         DocExterne * doc = m_docsexternes->CreationDocumentExterne(listbinds);
         if (doc != Q_NULLPTR)
         {

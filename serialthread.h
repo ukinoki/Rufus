@@ -61,7 +61,7 @@ private:
     QByteArray      reponseData;
     QSerialPort     *Port;
     QString         m_nomapp = "";
-    void            LitPort();
+    void            readData();
 };
 #endif
 #endif // SERIALTHREAD_H

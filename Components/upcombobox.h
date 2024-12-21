@@ -52,6 +52,7 @@ public:
     void        insertItemsRespectCurrent(QStringList listitems = QStringList());
 
     int         idxavant() const;
+    QStringList listitems();
 
 private:
     QLineEdit   *line;

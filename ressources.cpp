@@ -1,7 +1,5 @@
 #include "ressources.h"
 
-Ressources::Ressources() {}
-
 Ressources* Ressources::instance = Q_NULLPTR;
 
 Ressources* Ressources::I()
@@ -11,60 +9,8 @@ Ressources* Ressources::I()
     return instance;
 }
 
-QString Ressources::HeaderOrdo()
-{
-QString  HeadOrdo =
-"<html>"
-    "<head>"
-    "<meta name=\"qrichtext\" content=\"1\">"
-    "<style type=\"text/css\">"
-        "p {margin-top:0px; margin-bottom:0px;margin-left: 0px; font-size:9pt},li { white-space: pre-wrap; }"
-    "</style>"
-"</head>"
-"<body style=\"font-family:{{POLICE}}; font-size:9pt; font-style:italic;\">"
-    "<table style=\"float:left;\">"
-        "<tr>"
-            "<td width=\"{{LARGEURG}}\">"
-                "<p>"
-                    "<span style=\"font-size:10pt; font-weight:600;\">"
-                        "{{TITREUSER}}<br />"
-                    "</span>"
-                    "<span style=\"font-size:8pt;\">"
-                        "{{SPECIALITE}}<br />"
-                        "{{ADRESSE}}<br />"
-                        "{{CPVILLE}}<br />{{TEL}}<br />"
-                    "</span>"
-                    "<span style=\"font-size:5pt;\">"
-                        "{{NUMSS}}"
-                    "</span>"
-                "</p>"
-            "</td>"
-        "</tr>"
-    "</table>"
-    "<table style=\"float:right;\">"
-        "<tr>"
-            "<td width=\"{{LARGEURD}}\">"
-                "<p align=\"right\">"
-                    "<span style=\"font-size:10pt;\">"
-                        "<!--date-->{{DATE}}<!--date--><br /><br />"
-                        "{{TITRE1}}<br />"
-                        "{{TITRE}}<br />"
-                        "{{PRENOM PATIENT}} {{NOM PATIENT}}<br />"
-                        "{{DDN}}"
-                    "</span>"
-                "</p>"
-            "</td>"
-        "</tr>"
-    "</table>"
-"</body>"
-"</html>";
-    return HeadOrdo;
-}
-
-QString Ressources::HeaderOrdoWithBarCode()
-{
-    QString  HeadOrdo =
-"<html>"
+Ressources::Ressources() {
+m_head =
 "<head>"
     "<meta name=\"qrichtext\" content=\"1\">"
     "<style type=\"text/css\">"
@@ -133,7 +79,14 @@ QString Ressources::HeaderOrdoWithBarCode()
                     "float:left;"
                 "}"
     "</style>"
-"</head>"
+"</head>";
+}
+
+QString Ressources::HeaderOrdo()
+{
+    QString  HeadOrdo =
+"<html>" +
+    m_head +
 "<body style=\"font-family:{{POLICE}}; font-size:9pt; font-style:italic;\">"
 "<div class=\"column\">"
     "<table class=\"tableR\">"
@@ -142,17 +95,21 @@ QString Ressources::HeaderOrdoWithBarCode()
                 "<td style=\"font-size:10pt; font-weight:600; colspan:2;\">"
                     "{{TITREUSER}}"
                 "</td>"
-            "<tr>"
-                "<td style=\"font-size:10pt\";>{{SPECIALITE}}</td>"
             "</tr>"
             "<tr>"
-                "<td style=\"font-size:10pt\";>{{ADRESSE}}</td>"
+                "<td style=\"font-size:8pt\";>{{SPECIALITE}}</td>"
             "</tr>"
             "<tr>"
-                "<td style=\"font-size:10pt\";>{{CPVILLE}}</td>"
+                "<td style=\"font-size:8pt\";>{{ADRESSE}}</td>"
             "</tr>"
             "<tr>"
-                "<td style=\"font-size:10pt\";>{{TEL}}</td>"
+                "<td style=\"font-size:8pt\";>{{CPVILLE}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td style=\"font-size:8pt\";>{{TEL}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td style=\"font-size:5pt\";>{{NUMSS}}</td>"
             "</tr>"
         "</tbody>"
     "</table>"
@@ -164,6 +121,62 @@ QString Ressources::HeaderOrdoWithBarCode()
                 "<td class = \"alignR\">"
                     "<!--date-->{{DATE}}<!--date-->"
                 "</td>"
+            "</tr>"
+            "<tr>"
+                "<td class = \"alignR\">{{TITRE1}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td class = \"alignR\">{{TITRE}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td class = \"alignR\">{{PRENOM PATIENT}} {{NOM PATIENT}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td class = \"alignR\">{{DDN}}</td>"
+            "</tr>"
+        "</tbody>"
+    "</table>"
+"</div>"
+"</body>"
+"</html>";
+    return HeadOrdo;
+
+}
+
+QString Ressources::HeaderOrdoWithBarCode()
+{
+    QString  HeadOrdo =
+"html" +
+   m_head +
+"<body style=\"font-family:{{POLICE}}; font-size:9pt; font-style:italic;\">"
+"<div class=\"column\">"
+    "<table class=\"tableR\">"
+        "<tbody>"
+            "<tr>"
+                "<td style=\"font-size:10pt; font-weight:600; colspan:2;\">"
+                    "{{TITREUSER}}"
+                "</td>"
+            "</tr>"
+            "<tr>"
+                "<td style=\"font-size:8pt\">{{SPECIALITE}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td style=\"font-size:8pt\">{{ADRESSE}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td style=\"font-size:8pt\">{{CPVILLE}}</td>"
+            "</tr>"
+            "<tr>"
+                "<td style=\"font-size:8pt\">{{TEL}}</td>"
+            "</tr>"
+        "</tbody>"
+    "</table>"
+"</div>"
+"<div class=\"column\">"
+    "<table class=\"tableL\">"
+        "<tbody>"
+            "<tr>"
+                "<td class = \"alignR\";>""<!--date-->{{DATE}}<!--date-->""</td>"
             "</tr>"
             "<tr>"
                 "<td class = \"alignR\">{{TITRE1}}</td>"
@@ -211,82 +224,14 @@ QString  HeadOrdoALD =
                 "{{SPECIALITE}}""<br />"
                 "{{ADRESSE}}<br />"
                 "{{CPVILLE}}<br />"
-                "{{TEL}}<br />"
-            "</span>"
-            "<span style=\"font-size:5pt; color:black;\">"
-                "{{NUMSS}}"
+                "{{TEL}}"
             "</span>"
         "</td>"
         "<td valign=\"middle\" align=\"right\" width=\"" HTML_LARGEUR_ENTETE_DROITE_ALD "\" style=\"font-size:7pt; color:blue;\">"
             "l'étiquette du patient est à coller ici"
         "</td>"
     "</tr>"
-    "<tr>"
-        "<td align=\"left\">"
-            "<br />"
-            "{{PRENOM PATIENT}} {{NOM PATIENT}}"
-        "</td>"
-        "<td align=\"right\">"
-            "<br />"
-            "<!--date-->"
-                "{{DATE}}"
-            "<!--date-->"
-        "</td>"
-    "</tr>"
 "</body>"
-"</html>";
-    return HeadOrdoALD;
-}
-
-QString Ressources::HeaderOrdoALDWithBarCode()
-{
-    QString  HeadOrdoALD =
-"<html>"
-"<head>"
-    "<meta name=\"qrichtext\" content=\"1\" />"
-    "<meta charset=\"utf-8\" />"
-    "<style type=\"text/css\">"
-    "</style>"
-"</head>"
-    "<body style=\"font-family:{{POLICE}}; font-size:9pt; font-weight:400; font-style:italic;\">"
-        "<table cellpadding=\"0px\" cellspacing=\"10px\" style= \"text-align:center;\">"
-            "<CAPTION ALIGN=top>"
-                "<span style=\"font-size:16pt;color:blue; font-style:normal;\">Ordonnance Bizone</span><br />"
-                "<span style=\"font-size:5pt; color:blue;\">Articles L. 322-3, 3° et 4°, L. 324-1 et R. 161-45 du Code de la sécurité sociale.</span>"
-            "</CAPTION>"
-            "<tr>"
-                "<td align=\"left\" width=\"" HTML_LARGEUR_ENTETE_DROITE_ALD "\" style=\"font-size:8pt; font-weight:400;\">"
-                    "<br />"
-                    "<span style=\"font-size:9pt; font-weight:600;\">"
-                        "{{TITREUSER}}<br />"
-                    "</span>"
-                    "<span style=\"color:black;\">"
-                        "{{SPECIALITE}}""<br />"
-                        "{{ADRESSE}}<br />"
-                        "{{CPVILLE}}<br />"
-                        "{{TEL}}<br />"
-                    "</span>"
-                    "<span style=\"font-size:5pt; color:black;\">"
-                        "{{NUMSS}}"
-                    "</span>"
-                "</td>"
-                "<td valign=\"middle\" align=\"right\" width=\"" HTML_LARGEUR_ENTETE_DROITE_ALD "\" style=\"font-size:7pt; color:blue;\">"
-                    "l'étiquette du patient est à coller ici"
-                "</td>"
-            "</tr>"
-            "<tr>"
-                "<td align=\"left\">"
-                    "<br />"
-                    "{{PRENOM PATIENT}} {{NOM PATIENT}}"
-                "</td>"
-                "<td align=\"right\">"
-                    "<br />"
-                    "<!--date-->"
-                    "{{DATE}}"
-                    "<!--date-->"
-                "</td>"
-            "</tr>"
-    "</body>"
 "</html>";
     return HeadOrdoALD;
 }
@@ -312,18 +257,37 @@ QString Ressources::BodyOrdo()
 QString Ressources::BodyOrdoALD()
 {
     QString BodyOrdoALD =
-"<html>"
-"<head>"
-    "<meta name=\"qrichtext\" content=\"1\" />"
-    "<meta charset=\"utf-8\" />"
-"</head>"
-"<body style=\" font-family:'Comic Sans MS'; font-size:11pt; font-style:italic;\">"
-    "<table width = \"100%\" border = \"1\" style=\"clear:both;\">"
+"<html>" +
+    m_head +
+"<body style==\"font-family:{{POLICE}}; font-size:9pt; font-weight:400; font-style:italic;\";>"
+"<div class=\"column\";>"
+    "<table class=\"tableR\";>"
+        "<tbody>"
+            "<tr>"
+                "<td style=\"font-size:9pt\">"
+                    "{{PRENOM PATIENT}} {{NOM PATIENT}}<br />"
+                "</td>"
+            "</tr>"
+        "</tbody>"
+    "</table>"
+"</div>"
+"<div class=\"column\";>"
+    "<table class=\"tableL\";>"
+        "<tbody>"
+            "<tr>"
+                "<td class = \"alignR\" style=\"font-size:9pt\">"
+                    "<!--date-->{{DATE}}<!--date-->"
+                "</td>"
+            "</tr>"
+        "</tbody>"
+    "</table>"
+"</div>"
+    "<table width = \"100%\" border = \"1\" style=\"clear:both\">"
         "<tr>"
             "<td>"
                 "<div align = \"center\">"
                     "<p>"
-                        "<span style=\"font-size:8pt; font-style:normal;text-align:center; color:blue;\">"
+                        "<span style=\"font-size:8pt; font-style:normal;text-align:center; color:blue;\";>"
                             "Prescriptions relatives au traitement de l'affection de longue durée reconnue (liste ou hors liste)<br />"
                             "(AFFECTION EXONERANTE)"
                         "</span>"

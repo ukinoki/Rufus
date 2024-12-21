@@ -1045,7 +1045,7 @@ void DataBase::NettoieTableUsers()
 
 QList<User*> DataBase::loadUsers()
 {
-    QList<User*> users;
+    QList<User*> users = QList<User*>();
     QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
             CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
             CP_IDSPECIALITE_USR ", " CP_NUMCO_USR ", " CP_IDCOMPTEPARDEFAUT_USR ", " CP_ENREGHONORAIRES_USR ", " CP_MDP_USR ", "                        // 10,11,12,13,14
@@ -1153,7 +1153,7 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
 
 QList<PosteConnecte*> DataBase::loadPostesConnectes()
 {
-    QList<PosteConnecte*> postes;
+    QList<PosteConnecte*> postes = QList<PosteConnecte*>();
     QString req = "select " CP_IDUSER_USRCONNECT ", " CP_NOMPOSTE_USRCONNECT ", " CP_MACADRESS_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
                   CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
                   CP_IDPATENCOURS_USRCONNECT ", " CP_IPADRESS_USRCONNECT
@@ -1202,7 +1202,7 @@ QList<QString> DataBase::loadStringIdPostesConnectes()
 */
 QList<Correspondant*> DataBase::loadCorrespondants()                             //! tous les correspondants
 {
-    QList<Correspondant*> correspondants;
+    QList<Correspondant*> correspondants = QList<Correspondant*>();
     QString req =   "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite, nomspecialite as metier FROM " TBL_CORRESPONDANTS ", " TBL_SPECIALITES
                     " where cormedecin = 1 and corspecialite = idspecialite"
                     " union "
@@ -1232,7 +1232,7 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
 
 QList<Correspondant*> DataBase::loadCorrespondantsALL()                             //! tous les correspondants avec plus de renseignements
 {
-    QList<Correspondant*> correspondants;
+    QList<Correspondant*> correspondants = QList<Correspondant*>();
     QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1,"
                         " CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone,"
                         " CorSexe, cormedecin, corspecialite"
@@ -1324,7 +1324,7 @@ QJsonObject DataBase::loadCorrespondantData(int idcor)                          
 */
 QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 {
-    QList<DocExterne*> docsexternes;
+    QList<DocExterne*> docsexternes = QList<DocExterne*>();
     if (pat == Q_NULLPTR)
         return QList<DocExterne*>();
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_TITRE_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ","
@@ -1426,7 +1426,7 @@ QJsonObject DataBase::loadImpressionData(QVariantList impressionlist)
 
 QList<Impression*> DataBase::loadImpressions()
 {
-    QList<Impression*> impressions;
+    QList<Impression*> impressions = QList<Impression*>();
     QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
                   CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
                   " WHERE (" CP_IDUSER_IMPRESSIONS " = " + QString::number(m_iduserConnected) + " Or (" CP_DOCPUBLIC_IMPRESSIONS " = 1 and " CP_IDUSER_IMPRESSIONS " <> " + QString::number(m_iduserConnected) + "))"
@@ -1728,7 +1728,7 @@ QJsonObject DataBase::loadLigneCompteDataById(int id)
 */
 QList<Depense*> DataBase::loadDepensesByUser(int idUser)
 {
-    QList<Depense*> depenses;
+    QList<Depense*> depenses = QList<Depense*>();
     QString req = "SELECT " CP_ID_DEPENSES ", " CP_DATE_DEPENSES " , dep." CP_REFFISCALE_DEPENSES ", " CP_OBJET_DEPENSES ", " CP_MONTANT_DEPENSES ","
                         " dep." CP_FAMILLEFISCALE_DEPENSES ", " CP_MONNAIE_DEPENSES ", " CP_IDRECETTE_DEPENSES ", " CP_MODEPAIEMENT_DEPENSES ", " CP_COMPTE_DEPENSES ","
                           CP_NUMCHEQUE_DEPENSES ", dep." CP_IDFACTURE_DEPENSES ", " CP_LIENFICHIER_FACTURES ", " CP_ECHEANCIER_FACTURES ", " CP_INTITULE_FACTURES ","
@@ -1845,7 +1845,7 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
 */
 QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int intervalle)
 {
-    QList<Archive*> archives;
+    QList<Archive*> archives = QList<Archive*>();
     QString req = "select " CP_ID_ARCHIVESCPT ", " CP_IDCOMPTE_ARCHIVESCPT ", " CP_IDDEP_ARCHIVESCPT ", " CP_IDREC_ARCHIVESCPT ", " CP_IDRECSPEC_ARCHIVESCPT ", " CP_IDREMCHEQ_ARCHIVESCPT ", "
                             CP_DATE_ARCHIVESCPT ", " CP_LIBELLE_ARCHIVESCPT " , " CP_MONTANT_ARCHIVESCPT ","
                             CP_DEBITCREDIT_ARCHIVESCPT ", " CP_TYPEOPERATION_ARCHIVESCPT ", " CP_DATECONSOLIDE_ARCHIVESCPT ", " CP_IDARCHIVE_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE
@@ -1883,7 +1883,7 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
 */
 QList<Banque*> DataBase::loadBanques()
 {
-    QList<Banque*> banques;
+    QList<Banque*> banques = QList<Banque*>();
     QString req = "SELECT " CP_ID_BANQUES ", " CP_NOMABREGE_BANQUES ", " CP_NOMBANQUE_BANQUES ", " CP_CODE_BANQUES " FROM " TBL_BANQUES " order by " CP_NOMBANQUE_BANQUES;
     QList<QVariantList> banqlist = StandardSelectSQL(req,ok);
     if(!ok || banqlist.size()==0)
@@ -1907,7 +1907,7 @@ QList<Banque*> DataBase::loadBanques()
 */
 QList<Tiers*> DataBase::loadTiersPayants()
 {
-    QList<Tiers*> listetiers;
+    QList<Tiers*> listetiers = QList<Tiers*>();
     QString req = "SELECT " CP_ID_TIERS ", " CP_NOM_TIERS ", " CP_ADRESSE1_TIERS ", " CP_ADRESSE2_TIERS ", " CP_ADRESSE3_TIERS ", "
                             CP_CODEPOSTAL_TIERS ", " CP_VILLE_TIERS ", " CP_TELEPHONE_TIERS ", " CP_FAX_TIERS ", " CP_MAIL_TIERS ", " CP_WEB_TIERS " from " TBL_TIERS;
     QList<QVariantList> tierslist = StandardSelectSQL(req,ok);
@@ -1957,7 +1957,7 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 */
 QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
 {
-    QList<Recette*> listerecettes;
+    QList<Recette*> listerecettes = QList<Recette*>();
         //---------------------------------------------- Tous les actes effectués par tout le monde durant la période, sauf les impayés et les gratuits
         QString req =
         "select "
@@ -2141,7 +2141,7 @@ RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
 */
 QList<PaiementTiers*> DataBase::loadPaiementTiersByUser(User* usr)
 {
-    QList<PaiementTiers*> listepaiements;
+    QList<PaiementTiers*> listepaiements = QList<PaiementTiers*>();
     if (usr == Q_NULLPTR)
         return listepaiements;
     QString req =   "SELECT "
@@ -2202,7 +2202,7 @@ QList<PaiementTiers*> DataBase::loadPaiementTiersByUser(User* usr)
 */
 QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
 {
-    QList<LignePaiement*> listepaiements;
+    QList<LignePaiement*> listepaiements = QList<LignePaiement*>();
     if (pat == Q_NULLPTR)
         return listepaiements;
     bool ok;
@@ -2303,7 +2303,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
 
 QStringList DataBase::loadTypesCotations()
 {
-    QStringList listcotations;    
+    QStringList listcotations = QStringList();
     QString req = "select distinct " CP_TYPEACTE_COTATIONS " as code from " TBL_COTATIONS
                   " union "
                   " select " CP_CODECCAM_CCAM " as code from " TBL_CCAM
@@ -2321,7 +2321,7 @@ QStringList DataBase::loadTypesCotations()
 */
 QList<Motif*> DataBase::loadMotifs()
 {
-    QList<Motif*> motifs;
+    QList<Motif*> motifs = QList<Motif*>();
     QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  TBL_MOTIFSRDV " ORDER BY NoOrdre";
     QList<QVariantList> mtflist = StandardSelectSQL(req,ok);
     if(!ok || mtflist.size()==0)
@@ -2376,7 +2376,7 @@ QList<int> DataBase::loadidSitesByUser(int idUser)
 
 QList<Site*> DataBase::loadSites()
 {
-    QList<Site*> list;
+    QList<Site*> list = QList<Site*>();
     QString req = "select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
           CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
           " from " TBL_LIEUXEXERCICE;
@@ -2414,7 +2414,7 @@ Site* DataBase::loadSiteById(int id)
 */
 QList<Ville*> DataBase::loadVilles()
 {
-    QList<Ville*> villes;
+    QList<Ville*> villes = QList<Ville*>();
 
     QString req = "select " CP_ID_VILLES "," CP_CP_VILLES ", " CP_NOM_VILLES
                   " from " TBL_VILLES;
@@ -2436,7 +2436,7 @@ QList<Ville*> DataBase::loadVilles()
 
 QList<Ville*> DataBase::loadAutresVilles()
 {
-    QList<Ville*> villes;
+    QList<Ville*> villes = QList<Ville*>();
 
     QString req = "select " CP_ID_AUTRESVILLES "," CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
                   " from " TBL_AUTRESVILLES;
@@ -2536,7 +2536,7 @@ QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
 
 QList<PatientEnCours *> DataBase::loadPatientsenCoursAll()
 {
-    QList<PatientEnCours*> listpat;
+    QList<PatientEnCours*> listpat = QList<PatientEnCours*>();
     QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
                   CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
                   CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT ", " CP_MESSAGERETOUR_SALDAT ", " CP_DATERDV_SALDAT " FROM " TBL_SALLEDATTENTE;
@@ -2682,7 +2682,7 @@ qint64 DataBase::countPatientsAll(QString nom, QString prenom)
 
 QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
 {
-    QList<Patient*> listpatients;
+    QList<Patient*> listpatients = QList<Patient*>();
     QString clausewhere ("");
     QString like = (filtre? "like" : "=");
     QString orderby = " order by " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS;
@@ -2761,7 +2761,7 @@ QList<Patient*> DataBase::loadPatientsByListId(QList<int> listid)
 
 QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 {
-    QList<Patient*> listpatients;
+    QList<Patient*> listpatients = QList<Patient*>();
     QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " TBL_PATIENTS
                   " WHERE PatDDN = '" + DDN.toString("yyyy-MM-dd") + "'";
     //qDebug() << req;
@@ -2874,7 +2874,7 @@ QJsonObject DataBase::loadActeAllData(int idActe)
 
 QList<Acte *> DataBase::loadActesByPat(Patient *pat)
 {
-    QList<Acte*> list;
+    QList<Acte*> list = QList<Acte*>();
     if( pat == Q_NULLPTR )
         return list;
     QString req = "SELECT act." CP_ID_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
@@ -2903,7 +2903,7 @@ QList<Acte *> DataBase::loadActesByPat(Patient *pat)
 
 QList<Acte *> DataBase::loadIdActesByPat(Patient *pat)
 {
-    QList<Acte*> list;
+    QList<Acte*> list = QList<Acte*>();
     if( pat == Q_NULLPTR )
         return list;
     QString req = "SELECT idActe FROM " TBL_ACTES
@@ -3213,7 +3213,7 @@ QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)             
 
 QList<QPair<int, int>> DataBase::loadIdInterventionsByPatientId(int id)                  //! charge toutes les Interventions d'un patient
 {
-    QList<QPair<int, int>> listpair;
+    QList<QPair<int, int>> listpair = QList<QPair<int, int>>();
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE
                     " FROM " TBL_LIGNESPRGOPERATOIRES " prog left outer join " TBL_SESSIONSOPERATOIRES " sess "
                     " ON prog." CP_IDSESSION_LIGNPRGOPERATOIRE " = sess." CP_ID_SESSIONOPERATOIRE
@@ -3411,7 +3411,6 @@ QJsonObject DataBase::loadIOLdataById(int idiol)                   //! charge un
                      " or " CP_IDMANUFACTURER_IOLS " is null or " CP_IDMANUFACTURER_IOLS " not in (select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS ")";
     //qDebug() << reqdel;
     StandardSQL(reqdel, "");
-    IOL *iol = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_IDIOLCON_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", "          // 0-1-2-3-4
                     CP_DIAALL_IOLS ", " CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", "                               // 5-6-7-8-9
                     CP_MINCYL_IOLS ", " CP_MAXCYL_IOLS ", " CP_CYLSTEP_IOLS ", " CP_ADDINTERMEDIATE_IOLS ", " CP_ADDNEAR_IOLS ", "                  // 10-11-12-13-14
@@ -3880,5 +3879,37 @@ Session* DataBase::loadSessionById(int idsession)                           //! 
     QJsonObject data = loadSessionOpData(sessiondata);
     session= new Session(data);
     return session;
+}
+
+/*!
+ * Refraction Devices
+*/
+
+QList<RefractionDevice*> DataBase::loadrefractionDevices()
+{
+    QList<RefractionDevice*> refractiondevices = QList<RefractionDevice*>();
+    QString req = "select " CP_ID_REF ", " CP_BRAND_REF ", " CP_MODEL_REF ", " CP_TYPE_REF ", " CP_LIKEDEVICE_REF
+                  ", " CP_SERIAL_REF ", " CP_LAN_REF ", " CP_IMPLEMENTE_REF ", " CP_COMMENT_REF
+                  " from " TBL_APPAREILSREFRACTION " ORDER BY " CP_BRAND_REF ", " CP_MODEL_REF;
+    QList<QVariantList> devlist = StandardSelectSQL(req, ok);
+    if(!ok || devlist.size()==0)
+        return refractiondevices;
+    for (int i=0; i<devlist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData[CP_ID_REF]    = devlist.at(i).at(0).toInt();
+        jData[CP_BRAND_REF]        = devlist.at(i).at(1).toString();
+        jData[CP_MODEL_REF]        = devlist.at(i).at(2).toString();
+        jData[CP_TYPE_REF]          = devlist.at(i).at(3).toString();
+        jData[CP_LIKEDEVICE_REF]    = devlist.at(i).at(4).toInt();
+        jData[CP_SERIAL_REF]        = (devlist.at(i).at(5).toInt() == 1);
+        jData[CP_LAN_REF]           = (devlist.at(i).at(6).toInt() == 1);
+        jData[CP_IMPLEMENTE_REF]    = (devlist.at(i).at(7).toInt() == 1);
+        jData[CP_COMMENT_REF]       = devlist.at(i).at(8).toString();
+        RefractionDevice *rd = new RefractionDevice(jData);
+        if (rd != Q_NULLPTR)
+            refractiondevices << rd;
+    }
+    return refractiondevices;
 }
 

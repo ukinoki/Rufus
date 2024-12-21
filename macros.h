@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 // Les versions de la base et des ressources
 #define VERSION_BASE                          80  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
+#define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
 
 // Les bases
@@ -173,10 +174,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_TEXTIMPORTANT_ACTES                          "CommentPointImportant"
 #define CP_NOCOTATION_ACTES                             "SansCotation"
 
-                            //! Table Rufus.appareilsconnectescentre
-#define CP_IDAPPAREIL_APPAREILS                         "idAppareil"
-#define CP_IDLIEU_APPAREILS                             "idLieu"
+                            //! Table Rufus.AppareilsRefraction
+#define CP_ID_REF                                       "idAppareil"
+#define CP_BRAND_REF                                    "Marque"
+#define CP_MODEL_REF                                    "Modele"
+#define CP_TYPE_REF                                     "Type"
+#define CP_LIKEDEVICE_REF                               "SimilaireA"
+#define CP_SERIAL_REF                                   "Serie"
+#define CP_LAN_REF                                      "LAN"
+#define CP_IMPLEMENTE_REF                               "Implemente"
+#define CP_COMMENT_REF                                  "Commentaire"
 
+                            //! Table Rufus.appareilsconnectescentre
+#define CP_ID_APP                                       "idAppareil"
+#define CP_IDLIEU_APP                                   "idLieu"
                             //! Table Rufus.Courriers
 #define CP_ID_IMPRESSIONS                               "idDocument"
 #define CP_TEXTE_IMPRESSIONS                            "TextDocument"
@@ -335,6 +346,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define CP_VILLES_PARAMSYSTEME                          "VillesFrance"
 #define CP_COTATIONS_PARAMSYSTEME                       "CotationsFrance"
 #define CP_COMPTA_PARAMSYSTEME                          "ComptaFrance"
+
                             //! Table Rufus.salledattente
 #define CP_IDPAT_SALDAT                                 "idPat"
 #define CP_IDUSERSUPERVISEUR_SALDAT                     "idUser"
@@ -1152,16 +1164,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define YESimport               "YES"
 #define PrioritaireGestionDocs  "/PrioritaireGestionDocs"
 
+#define FRONTO                                          "Fronto"
+#define AUTOREF                                         "Autoref"
+#define REFRACTEUR                                      "Refracteur"
+#define TONOMETRE                                       "Tonometre"
+
 //QSettings
-#define Param_Poste_PortFronto                          "Param_Poste/PortFronto"
-#define Param_Poste_PortAutoref                         "Param_Poste/PortAutoref"
-#define Param_Poste_PortTono                            "Param_Poste/PortTonometre"
-#define Param_Poste_PortRefracteur                      "Param_Poste/PortRefracteur"
+#define Param_Poste                                     "Param_Poste"
+#define Param_Poste_PortFronto                          Param_Poste "/PortFronto"
+#define Param_Poste_PortAutoref                         Param_Poste "/PortAutoref"
+#define Param_Poste_PortTono                            Param_Poste "/PortTonometre"
+#define Param_Poste_PortRefracteur                      Param_Poste "/PortRefracteur"
 #define Param_Poste_PortFronto_DossierEchange           Param_Poste_PortFronto "/Reseau"
 #define Param_Poste_PortAutoref_DossierEchange          Param_Poste_PortAutoref "/Reseau"
 #define Param_Poste_PortTono_DossierEchange             Param_Poste_PortTono "/Reseau"
 #define Param_Poste_PortRefracteur_DossierEchange       Param_Poste_PortRefracteur "/Reseau"
-#define Param_Poste_PortRefracteur_DossierEchange_Autoref Param_Poste_PortRefracteur_DossierEchange "AdressAutoref"
+#define Param_Poste_PortRefracteur_DossierEchange_Autoref Param_Poste_PortRefracteur_DossierEchange "/AdressAutoref"
 #define Param_Poste_PortRefracteur_DossierEchange_Fronto  Param_Poste_PortRefracteur_DossierEchange "/AdressFronto"
 #define Param_Poste_PortFronto_COM_baudrate             Param_Poste_PortFronto "/baudRate"
 #define Param_Poste_PortFronto_COM_databits             Param_Poste_PortFronto "/dataBits"
@@ -1183,10 +1201,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_Poste_PortTono_COM_parity                 Param_Poste_PortTono "/parity"
 #define Param_Poste_PortTono_COM_stopBits               Param_Poste_PortTono "/stopBits"
 #define Param_Poste_PortTono_COM_flowControl            Param_Poste_PortTono "/flowControl"
-#define Param_Poste_Fronto                              "Param_Poste/Fronto"
-#define Param_Poste_Autoref                             "Param_Poste/Autoref"
-#define Param_Poste_Tono                                "Param_Poste/Tonometre"
-#define Param_Poste_Refracteur                          "Param_Poste/Refracteur"
+#define Param_Poste_Fronto                              Param_Poste "/Fronto"
+#define Param_Poste_Autoref                             Param_Poste "/Autoref"
+#define Param_Poste_Tono                                Param_Poste "/Tonometre"
+#define Param_Poste_Refracteur                          Param_Poste "/Refracteur"
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
 #define Dossier_Imagerie                                "/DossierImagerie"
@@ -1197,7 +1215,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Param_SSL                                       "/SSL"
 #define Param_Serveur                                   "/Serveur"
 #define Param_Port                                      "/Port"
-#define Param_SQLExecutable                             "Param_Poste/DirSQLExecutable"
+#define Param_SQLExecutable                             Param_Poste "/DirSQLExecutable"
 #define Param_Active                                    "/Active"
 
 #define Imprimante_TailleEnTete                         "Param_Imprimante/TailleEnTete"
@@ -1208,8 +1226,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define Imprimante_ApercuAvantImpression                "Param_Imprimante/ApercuAvantImpression"
 #define Imprimante_OrdoAvecDupli                        "Param_Imprimante/OrdoAvecDupli"
 
-#define Ville_Defaut                                    "Param_Poste/VilleParDefaut"
-#define CodePostal_Defaut                               "Param_Poste/CodePostalParDefaut"
+#define Ville_Defaut                                    Param_Poste "/VilleParDefaut"
+#define CodePostal_Defaut                               Param_Poste "/CodePostalParDefaut"
 
 #define Position_Fiche                                  "PositionsFiches/Position"
 #define Nom_fiche_ActesPrecedents                       "ActesPrec"

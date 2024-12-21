@@ -1528,38 +1528,6 @@ void Utils::writeBinaryFile (QByteArray data, QString fileName)
     }
 }
 
-void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms)
-{
-    qint32 baud = port->baudRate();
-    if (timetowaitms == 0)
-    {
-        timetowaitms= int (datas.size()*8*1000 / baud);
-        timetowaitms += 10;
-    }
-    //qDebug() << msgdebug << "timetowaitms" << timetowaitms;
-    port->write(datas);
-    port->flush();
-    port->waitForBytesWritten(timetowaitms);
-}
-
-
-bool Utils::isSerialPort( QString name )
-{
-  if (name.contains("usbserial"))
-  {
-      return true;
-  }
-  if (name.contains("ttyUSB"))
-  {
-      return true;
-  }
-  if (name.contains("COM"))
-  {
-      return true;
-  }
-  return false;
-}
-
 void Utils::playAlarm(QString sound)
 {
     QSoundEffect se = QSoundEffect();
@@ -1962,4 +1930,87 @@ QString Utils::XMLfirstElementValueByTagNameNS(QDomElement parent, QString nsURI
 {
     return XMLfirstElementValueByTagName(parent, nsURI+":"+tagName);
 }
+
+void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms)
+{
+    qint32 baud = port->baudRate();
+    if (timetowaitms == 0)
+    {
+        timetowaitms= int (datas.size()*8*1000 / baud);
+        timetowaitms += 10;
+    }   
+    //qDebug() << msgdebug << "timetowaitms" << timetowaitms;
+    port->write(datas);
+    port->flush();
+    port->waitForBytesWritten(timetowaitms);
+    qDebug() <<QString::fromLocal8Bit(cleanByteArray(datas));
+    //Logs::LogToFile("serial.txt", "write / " + port->portName());
+    //Logs::LogToFile("serial.txt", "write / " + QString::fromLocal8Bit(cleanByteArray(datas)));
+}
+
+bool Utils::isSerialPort( QString name )
+{
+    if (name.contains("usbserial"))
+    {
+        return true;
+    }
+    if (name.contains("ttyUSB"))
+    {
+        return true;
+    }
+    if (name.contains("COM"))
+    {
+        return true;
+    }
+    return false;
+}
+
+/*!
+ * \brief Utils::enumeratorSP
+ * \param prop
+ * \return renvoie enum for property prop in QSerialPort
+ */
+/*! */QMetaEnum Utils::enumeratorSP(QString prop)
+{
+    int idx = QSerialPort().metaObject()->indexOfEnumerator(prop.toLocal8Bit().data());
+    return QSerialPort().metaObject()->enumerator(idx);
+}
+
+QStringList Utils::listKeyEnumeratorSP(QString prop)
+{
+
+    /*! +++++ On ne peut PAS utiliser Utils::listporpertiesSerialPort()
+     *  parce que dans le premier cas on parle de propriétés du QSerialPort ->property.name()
+     *  et dans la deuxième du nom de l'enum des valeurs correspondant à cette propriété
+     *  Ce sont 2 choses différentes.
+     *  Les noms des propriétés différent des valeurs de l'enum
+     *  "baudRate" dans la liste des propriétés de QSerialPort
+     *  "BaudRate" le nom de l'enum correspondant */
+
+
+    QStringList items = QStringList();
+    QMetaEnum metaEnum = enumeratorSP(prop);
+    for(int i=0; i< metaEnum.keyCount(); i++){
+        items << QString(metaEnum.key(i)).toLocal8Bit();
+    };
+    return items;
+}
+
+QString  Utils::stringKeyFromEnumIndexSP(QString prop, int idx)                                       /*! return string value of key from index for property in QserialPort metaobject metaenum */
+{
+    /*! Sur les anciennes versions de Rufus, l'index decl'enum était enregistré dans le rufus.ini
+        A partir du 15.12.2024, c'est
+            . la valeur en clair de la key dans l'enum (ex-> "Baud8600", "NoFlowControl")
+            . et pas la valeur ("9600", "2" ) de l'enum
+        qui est enregistrée,
+        cette méthode retrouve la valeur en clair de la key à partir de son index dans l'enum
+        avant de l'enregistrer dans le Rufus.ini
+    */
+    QStringList items = listKeyEnumeratorSP(prop);
+    if (items .size() > idx)
+        return items.at(idx);
+    return QString();
+}
+
+
 

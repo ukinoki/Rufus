@@ -80,16 +80,18 @@ void SerialThread::transaction()
 
 void SerialThread::run()
 {
-    connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
-    connect(Port,   &QSerialPort::errorOccurred, this, [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
+    //connect(Port,   &QSerialPort::requestToSendChanged, this,   [=] (bool a) {Port->setDataTerminalReady(a);});
+    connect(Port,   &QSerialPort::readyRead,            this,   &SerialThread::readData);
+    connect(Port,   &QSerialPort::errorOccurred,        this,   [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
 }
 
-void SerialThread::LitPort()
+void SerialThread::readData()
 {
     QByteArray reponseData = Port->readAll();
-    while (Port->waitForReadyRead(100))
+    while (Port->waitForReadyRead(300))
         reponseData += Port->readAll();
     QString ReponsePort(Utils::cleanByteArray(reponseData));
+    qDebug() << Port->portName() << ReponsePort;
     if (ReponsePort != "")
     {
         emit newdatacom(ReponsePort);

@@ -425,12 +425,12 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         doc.drawContents(painter, clip);
         painter->restore();
 
-        painter->save();
 
         /*! - BARCODES ----------------------------------------------------------------------------------------------------------------------------------- */
 
         if (m_mapBarCodes.size() > 0)
         {
+            painter->save();
             painter->translate(0, rect.bottom()
                                       - headerlinepenwidth_ * NPixlsFor1point
                                       - m_BarCodesHeight);
@@ -525,7 +525,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
     QRectF clip(0, (pagenum-1) * rect.height(), rect.width(), rect.height());
     tempdoc_->drawContents(painter, clip);
     painter->restore();
-
+    painter->end();
 }
 
 

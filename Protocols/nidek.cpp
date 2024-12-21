@@ -2457,13 +2457,35 @@ QByteArray Nidek::OKtoReceive(QString mesure)
     DTRbuff.append(Utils::StringToArray("SD"));     //SD
     DTRbuff.append(ETB);                            //ETB -> end of text block  -> fin RTS
     DTRbuff.append(EOT);                            //EOT -> end of transmission
-    //QByteArray reponse = QString(DTRbuff).toLocal8Bit();
-    //reponse += "\r";                                    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
-    DTRbuff.append(CR);                             // \r = CR
-    DTRbuff.replace("""","");
+    /*! +++ il faut rajouter \r à la séquence SendDataNIDEK("CRL") sinon ça ne marche pas .... */
+    //DTRbuff.append(CR);                             // \r = CR
     //qDebug() << "SendDataNidek = " << QString(DTRbuff).toLocal8Bit();
-    //return reponse;
     return DTRbuff;
+
+    /*!
+    QByteArray DTSbuff;
+    DTSbuff.append(QByteArray::fromHex("1"));           //SOH -> start of header
+    DTSbuff.append(QString("C**").toLocal8Bit());       //C**
+    DTSbuff.append(QByteArray::fromHex("2"));           //STX -> start of text
+    DTSbuff.append("RS");                               //RS
+    DTSbuff.append(QByteArray::fromHex("17"));          //ETB -> end of text block  -> fin RTS
+    DTSbuff.append(QByteArray::fromHex("4"));           //EOT -> end of transmission
+    qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
+    return  QString("\001C**\002RS\017\004").toLocal8Bit();*/
+}
+
+bool Nidek::isOKtoReceive(QString message, QString typemesure)
+{
+    QString okto = Utils::cleanByteArray(OKtoReceive(typemesure));
+    if (message == okto)
+        return true;
+    /*! il faut ajouter un carriage return parce que
+            le RT5100 envoie ce CR contrairement aux autres appareils NIDEK
+            * ce n'est pas mentionné dans le mode d'emploi...*/
+    okto = Utils::cleanByteArray(OKtoReceive(typemesure).append(CR));
+    if (message == okto)
+        return true;
+    return false;
 }
 
 QByteArray Nidek::RequestToSend()
@@ -2472,6 +2494,7 @@ QByteArray Nidek::RequestToSend()
      * Si l'appareil cible est OK, il émet la réponse SendDataNIDEK() = "\001CRL\002SD\027\004\r"
      * pour signifier qu'il est prêt à recevoir les données
      * Dans Rufus, cette demande d'envoi est créée à l'ouverture d'un dossier patient et permet de régler le refracteur sur les données de ce patient */
+
     QByteArray DTSbuff;
     DTSbuff.append(SOH);                            //SOH -> start of header
     DTSbuff.append(Utils::StringToArray("C**"));    //C**
@@ -2479,9 +2502,12 @@ QByteArray Nidek::RequestToSend()
     DTSbuff.append(Utils::StringToArray("RS"));     //RS
     DTSbuff.append(ETB);                            //ETB -> end of text block  -> fin RTS
     DTSbuff.append(EOT);                            //EOT -> end of transmission
-    //qDebug() << "RequestToSendNIDEK() = " << QString(DTSbuff).toLocal8Bit();
-    //return  QString(DTSbuff).toLocal8Bit();
     return DTSbuff;
+}
+
+bool Nidek::isRequestToSend(QString message)
+{
+    return message == Utils::cleanByteArray(RequestToSend());
 }
 
 void Nidek::LectureDonneesCOMAutoref(QString Mesure, QString nameARK)
@@ -2877,7 +2903,7 @@ void Nidek::LectureDonneesCOMRefracteur(QString Mesure, TypesMesures flag)
 */
 
     //! Données du FRONTO ---------------------------------------------------------------------------------------------------------------------
-    if (flag.testFlag(MesureFronto))             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+    if (flag.testFlag(MesureFronto))                //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
     {
         MesureRefraction        *oldMesureFronto = new MesureRefraction();
         oldMesureFronto         ->setdatas(Datas::I()->mesurefronto);
@@ -2918,7 +2944,7 @@ void Nidek::LectureDonneesCOMRefracteur(QString Mesure, TypesMesures flag)
     }
 
     //! Données de l'AUTOREF - REFRACTION et KERATOMETRIE ----------------------------------------------------------------------------------------------
-    if (flag.testFlag(MesureKerato))                 //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+    if (flag.testFlag(MesureKerato))                //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
     {
         Keratometrie  *oldMesureKerato = new Keratometrie();
         oldMesureKerato->setdatas(Datas::I()->mesurekerato);
@@ -2964,7 +2990,7 @@ void Nidek::LectureDonneesCOMRefracteur(QString Mesure, TypesMesures flag)
             emit newmesure(MesureKerato);
         delete oldMesureKerato;
     }
-    if (flag.testFlag(MesureAutoref))                 //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+    if (flag.testFlag(MesureAutoref))               //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
     {
         MesureRefraction        *oldMesureAutoref = new MesureRefraction();
         oldMesureAutoref        ->setdatas(Datas::I()->mesureautoref);
@@ -3001,7 +3027,7 @@ void Nidek::LectureDonneesCOMRefracteur(QString Mesure, TypesMesures flag)
     }
 
     //! Données du REFRACTEUR --------------------------------------------------------------------------------------------------------------------
-    if (flag.testFlag(MesureRefracteur))                 //=> il y a une mesure de refraction
+    if (flag.testFlag(MesureRefracteur))            //!=> il y a une mesure de refraction
     {
         idx                         = Mesure.indexOf("@RT");
         QString SectionRefracteur   = Mesure.right(Mesure.length()-idx);
@@ -3105,7 +3131,7 @@ void Nidek::LectureDonneesCOMRefracteur(QString Mesure, TypesMesures flag)
     }
 
     //! Données de TONOMETRIE --------------------------------------------------------------------------------------------------------
-    if (flag.testFlag(MesureTono))                 //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
+    if (flag.testFlag(MesureTono))                  //!=> il y a une mesure de tonometrie et l'autoref est branché sur la box du refracteur
     {
         Datas::I()->mesuretono->cleandatas();
         idx                     = Mesure.indexOf("@NT");

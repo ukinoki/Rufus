@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("09-12-2024/1");
+    qApp->setApplicationVersion("20-12-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -33,6 +33,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 #endif
     qApp->setStyleSheet(Styles::StyleAppli());
     QToolTip::setPalette(QPalette(Qt::yellow));
+
+    proc = Procedures::I();     //! Pas déclaré dans le .h pour que les StyleSheet soient appliqués avant l'instanciation de Procedures
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
@@ -54,6 +56,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             a = proc->Connexion_A_La_Base();
         }
     }
+    proc->CleanIniFile();
     m_parametres = db->parametres();
     RecalcCurrentDateTime();
 
@@ -305,7 +308,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         ShowMessage::I()->PriorityMessage("<font color=\"red\"><b>" + QObject::tr("Problème Autoref Huvitz") + "</b></font><br/>" +
                 "<br/>" + tr("Des problémes techniques de collaboration avec la société Essilor") +
-                "<br/>" + tr("ne nous permettent plus de maintenir de façon fiable l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
+                "<br/>" + tr("ne nous permettent plus de maintenir l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
                 "<br/>" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
                 "<br/>" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"),
                 z,8000);
@@ -2022,6 +2025,13 @@ void Rufus::GestionComptes()
     delete Dlg_Cmpt;
 }
 
+/*! exporte les documents d'imagerie inscrits dans la base par les postes distants
+ *  pour les archiver en fichiers standards sur le HD du serveur
+ *  les fichiers d'imagerie ou les factures enregistrés par des utilisateurs distants sont stockés
+ *  dans les champs pdf ou jpg de la table Rufus.Impressions pour les imageries et ComptaMedicale.Factures pour les factures.
+ *  Cette fonction, appelée par le timer t_timerUserConnecte ou par le bouton ui->ExportImagespushButton,
+ *  permet de récupérer le contenu blob de ces fichiers
+ *  et de recréer un fichier d'imagerie stocké dans le système de fichiers du serveur */
 void Rufus::ExporteDocs()
 {
     if (!isPosteImport())
@@ -2086,7 +2096,10 @@ void Rufus::ExporteDocs()
     //-----------------------------------------------------------------------------------------------------------------------------------------
     //              LES JPG
     //-----------------------------------------------------------------------------------------------------------------------------------------
-    QString req = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES " FROM " TBL_DOCSEXTERNES " where " CP_JPG_DOCSEXTERNES " is not null";
+    QString req = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ","
+                            CP_LIENFICHIER_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES
+                            " FROM " TBL_DOCSEXTERNES
+                            " where " CP_JPG_DOCSEXTERNES " is not null";
     //qDebug() << req;
     QList<QVariantList> listexportjpg = db->StandardSelectSQL(req, m_ok );
     if (m_ok)
@@ -6064,7 +6077,8 @@ void Rufus::VerifLastVersion()
                 if (!m_MAJBaseCompatibiltyWithPrec)
                     text += "<br/>" + QObject::tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle versionr");
                 else
-                    text += "<br/>" + QObject::tr("Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus");
+                    text += "<br/>" + QObject::tr("Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus") + "\n" +
+                                      QObject::tr ("Les postes utilisant la version actuelle de Rufs restent compatibles avec cette nouvelle version");
             }
             else
                 text += "<br/>" + QObject::tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
@@ -6078,15 +6092,16 @@ void Rufus::VerifLastVersion()
 
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request;
+    //request.setUrl(QUrl("~/RufusQt6/build_tools/RufusLastVersionTest.xml"));
     request.setUrl(QUrl(LIEN_XML_RUFUSLASTVERSION));
     QNetworkReply *reply = manager->get(request);
 
     connect(manager, &QNetworkAccessManager::finished,
             this, [=]
     {
-        QByteArray data;
         if(reply->error() == QNetworkReply::NoError)
         {
+            QByteArray data;
             m_os = QSysInfo::productType();
             if (m_os == "osx")
                 m_os = "macos";
@@ -6226,7 +6241,7 @@ void Rufus::VerifDossiersImagerie()
                              * Le code pour le QFileSystemWatcher a été conservé au cas où le problème serait résolu */
 
         QString req =   "select distinct list." CP_TITREEXAMEN_APPAREIL ", list." CP_NOMAPPAREIL_APPAREIL " from " TBL_APPAREILSCONNECTESCENTRE " appcon, " TBL_LISTEAPPAREILS " list"
-                        " where list." CP_ID_APPAREIL " = appcon." CP_IDAPPAREIL_APPAREILS " and " CP_IDLIEU_APPAREILS " = " + QString::number(Datas::I()->sites->idcurrentsite());
+                        " where list." CP_ID_APPAREIL " = appcon." CP_ID_APP " and " CP_IDLIEU_APP " = " + QString::number(Datas::I()->sites->idcurrentsite());
         //qDebug()<< req;
         QList<QVariantList> listdocs = db->StandardSelectSQL(req, m_ok);
         if (m_ok && listdocs.size()>0)

@@ -53,6 +53,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_mesuredivers.h"
 #include "cls_lignescomptes.h"
 #include "cls_sessions.h"
+#include "cls_refractiondevices.h"
 
 class Datas : public QObject
 {
@@ -95,6 +96,7 @@ public:
     TypesTiers *typestiers;                 //!< tous les types tiers payants
     Users *users;                           //!< Les users
     PostesConnectes *postesconnectes;       //!< Les postesconnectes
+    RefractionDevices *refractiondevices;   //!< all refraction devices
     PosteConnecte   *ceposte;               //!< Ce poste
     Villes *villes;                         //!< toutes les villes
     QMap<int, Cotations*> *listecotations;  //!< la liste des cotations par iduser
