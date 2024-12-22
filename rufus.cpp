@@ -28,13 +28,15 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
     srand(static_cast<uint>(time(Q_NULLPTR)));
+
 #ifdef Q_OS_WINDOWS
     qApp->setStyle(QStyleFactory::create("Fusion"));
 #endif
     qApp->setStyleSheet(Styles::StyleAppli());
     QToolTip::setPalette(QPalette(Qt::yellow));
 
-    proc = Procedures::I();     //! Pas déclaré dans le .h pour que les StyleSheet soient appliqués avant l'instanciation de Procedures
+
+    proc = Procedures::I();     //! déclaré dans le .h et ici sinon on a des problèmes de police .... et pas seulement dans le .h pour que les StyleSheet soient appliqués avant l'instanciation de Procedures
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
@@ -6075,10 +6077,10 @@ void Rufus::VerifLastVersion()
             {
                 text += "<br/>" + QObject::tr("Cette nouvelle version impose une mise à jour de la base de données");
                 if (!m_MAJBaseCompatibiltyWithPrec)
-                    text += "<br/>" + QObject::tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle versionr");
+                    text += "<br/>" + QObject::tr("Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle version");
                 else
                     text += "<br/>" + QObject::tr("Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus") + "\n" +
-                                      QObject::tr ("Les postes utilisant la version actuelle de Rufs restent compatibles avec cette nouvelle version");
+                                      QObject::tr ("Les postes utilisant la version actuelle de Rufus continuent de fonctionner avec cette nouvelle version");
             }
             else
                 text += "<br/>" + QObject::tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");

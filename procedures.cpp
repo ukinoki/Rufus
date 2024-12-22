@@ -107,7 +107,6 @@ Procedures::Procedures(QObject *parent) :
 
     m_nomImprimante  = "";
 
-    mapPortsCOM();
     Ouverture_Appareils_Refraction();
     ReconstruitListeModesAcces();
     m_typemesureRefraction               = GenericProtocol::MesureNone;

@@ -65,6 +65,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <dlg_salledattente.h>
 #include <ui_dlg_salledattente.h>
 
+#include "macros.h"
 #include <upcombobox.h>
 #include <updoublevalidator.h>
 #include <upstandarditem.h>
@@ -140,8 +141,7 @@ public:
 
 private:
     bool                            UtiliserTcpSocket = false;
-
-    Procedures                      *proc;
+    Procedures                      *proc = Procedures::I();
     DataBase                        *db = DataBase::I();
     ParametresSysteme               *m_parametres;
     UpLabel                         *wdg_nomlbl;
