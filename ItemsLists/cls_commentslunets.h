@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class CommentsLunets : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, CommentLunet*> *map_all = Q_NULLPTR;    //!< la liste des comments
 

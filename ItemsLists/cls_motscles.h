@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class MotsCles : ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, MotCle*> *map_all = Q_NULLPTR;    //!< la liste des motcles
     QCompleter *m_completer= new QCompleter();

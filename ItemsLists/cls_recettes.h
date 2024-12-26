@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Recettes : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Recette*> *map_recettes = Q_NULLPTR; //!< la liste des recettes
 

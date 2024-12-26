@@ -27,6 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  */
 class Users : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, User*> *map_all = Q_NULLPTR;             //!< map de tous les users
     QMap<int, User*> *map_actifs = Q_NULLPTR;          //!< map de tous les users actifs

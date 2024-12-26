@@ -50,17 +50,17 @@ Procedures::Procedures(QObject *parent) :
         bool a = false;
         while (!a)
         {
-            QString msg =       tr("Le fichier d'initialisation de l'application est absent");
-            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + PATH_FILE_INI "\"\n" + tr("n'existe pas.\n"
-                                "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
-                                "Cette absence est normale si vous démarrez l'application pour la première fois.\n"
-                                "Si c'est le cas, choisissez l'option \"Premier démarrage de Rufus\"\n\n"
-                                "Si le logiciel fonctionnait déjà sur ce poste et que le fichier a été effacé par erreur:\n"
-                                "1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"\n"
-                                "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\n"
-                                " Il vous faudra alors compléter de nouveau\n"
-                                " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après\n"
-                                " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
+            QString msg =       QObject::tr("Le fichier d'initialisation de l'application est absent");
+            QString msgInfo =   QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\"\n" + tr("n'existe pas.") + "\n"
+                                + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
+                                + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois.") + "\n"
+                                + QObject::tr("Si c'est le cas, choisissez l'option \"Premier démarrage de Rufus\"") + "\n\n"
+                                + QObject::tr("Si le logiciel fonctionnait déjà sur ce poste et que le fichier a été effacé par erreur:") + "\n"
+                                + QObject::tr("1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"") + "\n"
+                                + QObject::tr("2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\"") + "\n"
+                                + QObject::tr("Il vous faudra alors compléter de nouveau") + "\n"
+                                + QObject::tr("les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après") + "\n"
+                                + QObject::tr("le démarrage complet du logiciel (Menu Edition/Paramètres).") + "\n";
             m_connexionbaseOK = a;
             a = VerifIni(msg, msgInfo, true, true, true, true);
         }
@@ -90,16 +90,16 @@ Procedures::Procedures(QObject *parent) :
     {
         while (!k)
         {
-            QString msg =       tr("Le fichier d'initialisation de l'application est corrompu\n");
-            QString msgInfo =   tr("Le fichier d'initialisation\n\"") + PATH_FILE_INI "\"\n" +
-                    tr("ne contient pas de renseignement valide\n"
-                       "permettant la connexion à la base de données.\n\n"
-                       "Ce fichier est indispensable au bon fonctionnement de l'application.\n\n"
-                       "1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"\n"
-                       "2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\n"
-                       " Il vous faudra alors compléter de nouveau\n"
-                       " les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après\n"
-                       " le démarrage complet du logiciel (Menu Edition/Paramètres).\n");
+            QString msg =       QObject::tr("Le fichier d'initialisation de l'application est corrompu") + "\n";
+            QString msgInfo =   QObject::tr("Le fichier d'initialisation")+ "\n" + PATH_FILE_INI "\n"
+                    + QObject::tr("ne contient pas de renseignement valide") + "\n"
+                    + QObject::tr("permettant la connexion à la base de données.") + "\n\n"
+                    + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
+                    + QObject::tr("1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"") + "\n"
+                    + QObject::tr("2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.") + "\n"
+                    + QObject::tr("Il vous faudra alors compléter de nouveau") + "\n"
+                    + QObject::tr("les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après") + "\n"
+                    + QObject::tr("le démarrage complet du logiciel (Menu Edition/Paramètres).")+ "\n";
             m_connexionbaseOK = k;
             k = VerifIni(msg, msgInfo, false, true, true, false);
         }
@@ -246,8 +246,8 @@ bool Procedures::AutresPostesConnectes(bool msg)
             if (msg)
                 UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
                                          tr("Vous ne pouvez pas effectuer d'opération de sauvegarde/restauration sur la base de données"
-                                         " si vous n'êtes pas le seul poste connecté.\n"
-                                         "Le poste ") + post->nomposte() + tr(" est aussi connecté"));
+                                         " si vous n'êtes pas le seul poste connecté.") + "\n" +
+                                         tr("Le poste ") + post->nomposte() + tr(" est aussi connecté"));
             return true;
         }
     }
@@ -806,8 +806,9 @@ void Procedures::setDirSSLKeys()
         bool a = urlkeys.isValid();
         if (!a)
             UpMessageBox::Information(Q_NULLPTR,
-                                      tr("le chemin par défaut (") + dirkeys + ") n'est pas valide"),
-                                      tr("Choisissez un dossier valide dans la boîte de dialogue suivante");
+                                      tr("le chemin par défaut")
+                                      + " \"" + dirkeys + "\" " + tr("n'est pas valide"),
+                                      tr("Choisissez un dossier valide dans la boîte de dialogue suivante"));
         while (!a)
         {
             urlkeys = QFileDialog::getExistingDirectory(Q_NULLPTR,
@@ -816,7 +817,7 @@ void Procedures::setDirSSLKeys()
             if (urlkeys == QUrl())
             {
                 if (UpMessageBox::Question(Q_NULLPTR,
-                                           tr("le chemin choisi (") + urlkeys.path() + tr(") n'est pas valide"),
+                                           tr("le chemin choisi") + " \"" + urlkeys.path() + "\" " + tr("n'est pas valide"),
                                            tr("Voulez vous annuler?") + "\n" +tr("Si vous annulez, la fonction demandée ne pourra pas s'éxécuter!"),
                                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                            QStringList() << tr("Annuler") << tr("Reprendre"))
@@ -893,7 +894,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
 
             if (dumpProcess.error() == QProcess::FailedToStart)
             {
-                Logs::ERROR(tr("Impossible de lancer le processus de chargement de la base de données à partir du fichier \"%1\"").arg(path));
+                Logs::ERROR(tr("Impossible de lancer le processus de chargement de la base de données à partir du fichier ") + QString("\"%1\"").arg(path));
                 a = 99;
                 break;
             }
@@ -901,7 +902,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
                 a = dumpProcess.exitCode();
             else
             {
-                Logs::ERROR(tr("Le processus de chargement de la base de données à partir du fichier \"%1\" a échoué").arg(path));
+                Logs::ERROR(tr("Echec du processus de chargement de la base de données à partir du fichier ") + QString("\"%1\"").arg(path));
                 break;
             }
 
@@ -938,11 +939,7 @@ bool Procedures::ImmediateBackup(QString dirdestination, bool verifposteconnecte
     bool OKImages   = false;
     bool OKVideos   = false;
     bool OKFactures = false;
-    QString DirImagery = "";
-    if (db->ModeAccesDataBase() == Utils::Poste)
-        DirImagery = db->dirimagerie();
-    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)
-        DirImagery = settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+    QString DirImagery = db->dirimagerie();
     if (full)
     {
         OKbase = true;
@@ -1971,7 +1968,7 @@ QString Procedures::SessionStatus()
 
     if (soignant)
     {
-        txtstatut += "\n" + tr("Responsabilité des actes :\t\t");
+        txtstatut += "\n" + tr("Responsabilité des actes :") + "\t\t";
         if (responsable)
             txtstatut += tr("toujours responsable");
         else if (responsableles2)
@@ -1981,7 +1978,7 @@ QString Procedures::SessionStatus()
     }
 
     if (soigntnonassistant && currentuser()->NumPS() > 0)
-        txtstatut += "\n" + tr("RPPS :\t\t\t") + QString::number(currentuser()->NumPS());
+        txtstatut += "\n" + tr("RPPS :") + "\t\t\t" + QString::number(currentuser()->NumPS());
     if (medecin && ! assistant &&  currentuser()->numOrdre() !="")
         txtstatut += "\nADELI :\t\t\t" + currentuser()->numOrdre();
     User *employeur = Datas::I()->users->getById(currentuser()->idemployeur());
@@ -2011,7 +2008,7 @@ QString Procedures::SessionStatus()
         Compte * cptencaissement = Datas::I()->comptes->getById(currentuser()->idcompteencaissementhonoraires());
         if (cptencaissement)
         {
-            txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :\t") + cptencaissement->nomabrege();
+            txtliberal +=  "\n" + tr("Honoraires encaissés sur le compte :") + "\t" + cptencaissement->nomabrege();
             if (Datas::I()->users->getById(currentuser()->idcomptableactes()) != Q_NULLPTR)
                 txtliberal += tr("de") + " " + Datas::I()->users->getById(currentuser()->idcomptableactes())->login();
         }
@@ -2024,16 +2021,16 @@ QString Procedures::SessionStatus()
             Compte *cptemployeur = Datas::I()->comptes->getById(employeur->idcompteencaissementhonoraires());
             if (cptemployeur)
             {
-                txtstatut += "\n" + tr("Honoraires encaissés sur le compte :\t");
+                txtstatut += "\n" + tr("Honoraires encaissés sur le compte :") + "\t";
                 txtstatut += cptemployeur->nomabrege() + " ";
                 txtstatut += tr("de") + " " + employeur->login();
             }
         }
     }
     else if (remplacant)
-        txtstatut += "\n" + tr("Statut :\t\t\t") + tr("remplaçant");
+        txtstatut += "\n" + tr("Statut :") + "\t\t\t" + tr("remplaçant");
     if (soigntnonassistant && cotation)
-        txtstatut += "\n" + tr("Cotation des actes :\t\t") + (cotation? tr("Oui") : tr("Sans"));
+        txtstatut += "\n" + tr("Cotation des actes :") + "\t\t" + (cotation? tr("Oui") : tr("Sans"));
     if (medecin && cotation && db->parametres()->cotationsfrance())
     {
         QString secteur ("");
@@ -2044,8 +2041,8 @@ QString Procedures::SessionStatus()
         default:
             break;
         }
-        txtstatut += "\n" + tr("Secteur conventionnel :\t\t") + secteur;
-        txtstatut += "\n" + tr("OPTAM :\t\t\t") + (currentuser()->isOPTAM() ? "Oui": "Non");
+        txtstatut += "\n" + tr("Secteur conventionnel :") + "\t\t" + secteur;
+        txtstatut += "\n" + tr("OPTAM :") + "\t\t\t" + (currentuser()->isOPTAM() ? "Oui": "Non");
     }
     if (respliberal || soccomptable)
     {
@@ -2055,13 +2052,13 @@ QString Procedures::SessionStatus()
         {
             User *usrcptble = Datas::I()->users->getById(cpt->idUser());
             cptabledefaut = tr("de") + " " + (usrcptble? usrcptble->login() : "null");
-            txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :\t")
+            txtstatut += "\n" + tr("Comptabilité enregistrée sur compte :") + "\t"
                          + cpt->nomabrege() + " "
                          + cptabledefaut;
         }
     }
     if (respliberal && db->parametres()->comptafrance())
-        txtstatut += "\n" + tr("Membre d'une AGA :\t\t") + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
+        txtstatut += "\n" + tr("Membre d'une AGA :") + "\t\t" + (currentuser()->isAGA() ? tr("Oui") : tr("Sans"));
     return txtstatut;
 }
 
@@ -3111,7 +3108,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     enum Villes::TownsFrom from;
     if (UpMessageBox::Question(Q_NULLPTR,
                                tr("Base de données des villes et codes postaux"),
-                               tr("Voulez-vous utiliser la base de données des villes françaises?)"),
+                               tr("Voulez-vous utiliser la base de données des villes françaises?"),
                                UpDialog::ButtonCancel | UpDialog::ButtonOK,
                                QStringList() << tr("Non") << tr("Utiliser les codes postaux français"))
             == UpSmallButton::STARTBUTTON)
@@ -3130,7 +3127,7 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
 
     bool a = (UpMessageBox::Question(Q_NULLPTR,
                             tr("Cotations françaises"),
-                            tr("Voulez-vous utiliser le système français de cotation des actes médicaux?)"),
+                            tr("Voulez-vous utiliser le système français de cotation des actes médicaux?"),
                             UpDialog::ButtonCancel | UpDialog::ButtonOK,
                             QStringList() << tr("Non") << tr("Utiliser les cotations françaises"))
         == UpSmallButton::STARTBUTTON);
@@ -3353,17 +3350,13 @@ QString Procedures::AbsolutePathDirImagerie()
     if (m_dirimagerie != QString())
         return m_dirimagerie;
     switch (db->ModeAccesDataBase()) {
-    case Utils::Poste:
-        m_dirimagerie = db->dirimagerie();
-        break;
-    case Utils::ReseauLocal:
-        m_dirimagerie = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Imagerie).toString();
-        break;
     case Utils::Distant:
         m_dirimagerie = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
         if (!QDir(m_dirimagerie).exists())
             Utils::mkpath(m_dirimagerie);
         break;
+    default:
+        m_dirimagerie = db->dirimagerie();
     }
     return m_dirimagerie;
 }
@@ -4911,9 +4904,9 @@ QMap<QString, QString>  Procedures::DefaultSerialSettings(QString nameDevice)
     {
         qintptr z = 0;
         ShowMessage::I()->PriorityMessage("<font color=\"red\"><b>" + QObject::tr("Réglages par défaut inconnus pour l'appareil") + " " + nameDevice + "</b></font><br/>" +
-                                          tr("Utilisation de réglages génériques") + "<br/>" +
-                                          tr("Il faudra probablement revoir les réglages") + "<br/>" +
-                                          tr("en fonction des caractéristiques du") + " " + nameDevice, z, 6000);
+                                          QObject::tr("Utilisation de réglages génériques") + "<br/>" +
+                                          QObject::tr("Il faudra probablement revoir les réglages") + "<br/>" +
+                                          QObject::tr("en fonction des caractéristiques du") + " " + nameDevice, z, 6000);
         baud            = "Baud9600";
         databits        = "Data8";
         parity          = "EvenParity";
@@ -5073,11 +5066,9 @@ bool Procedures::setSerialPortSettingsValueFromIndex(QString prop, QString &idxs
     QString value = Utils::stringKeyFromEnumIndexSP(prop, idxstring.toInt());
     auto setValue = [=](QString setkey, QString val){
         if (val == QString())
-        {
             m_settings->remove(setkey);
-            return false;
-        }
-        m_settings->setValue(setkey, val);
+        else
+            m_settings->setValue(setkey, val);
     };
     if (prop == BAUDRATE)
     {

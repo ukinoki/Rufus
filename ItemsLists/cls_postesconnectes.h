@@ -27,6 +27,7 @@ class PostesConnectes : public ItemsList
      * un utilisateur peut-être connecté sur plusieurs postes en même temps dans la même session
      * la clé n'du QMap des userconnectés est l'adresse mac du poste sur lequel le user est connecté,
      */
+    Q_OBJECT
 public:
     QMap<QString, PosteConnecte*> *map_postesconnectes = Q_NULLPTR;  //!< la liste de tous les postesconnectes
 

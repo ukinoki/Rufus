@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Banques : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Banque*> *map_banques = Q_NULLPTR; //!< la liste des Banques
 

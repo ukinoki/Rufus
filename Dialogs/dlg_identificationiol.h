@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_identificationIOL : public UpDialog
 {
+    Q_OBJECT
 public:
     enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
     explicit                    dlg_identificationIOL(IOL *iol = Q_NULLPTR, QWidget *parent = Q_NULLPTR);
@@ -35,6 +36,7 @@ public:
     void                        setNomIOL(QString nom)  { wdg_nomiolline->setText(nom); }
     int                         idcurrentIOL() const    { return (m_currentIOL? m_currentIOL->id() : 0); }
     bool                        initok() const          { return m_initok; }
+    enum                TypeConstant {Nominal, Ulib, Optimized, None};    Q_ENUM(TypeConstant)
 
 private:
     QRegularExpression  rgx_csteA               = QRegularExpression("1[1-2][0-9]" + QString(QLocale().decimalPoint()) + "[0-9]{0,2}");
@@ -69,7 +71,6 @@ private:
     UpCheckBox          *wdg_nominalrb          = new UpCheckBox("nominal");
     UpCheckBox          *wdg_ulibrb             = new UpCheckBox("ulib");
     UpCheckBox          *wdg_optimizedrb        = new UpCheckBox("optimized (iolcon.org)");
-    enum                TypeConstant {Nominal, Ulib, Optimized, None};    Q_ENUM(TypeConstant)
     TypeConstant        m_typcste               = Nominal;
     UpSmallButton       *wdg_modifButton        = new UpSmallButton;
     void                switchDisplayConstant(TypeConstant typcst);

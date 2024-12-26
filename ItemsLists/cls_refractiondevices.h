@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class RefractionDevices : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, RefractionDevice*> *map_RefractionDevices = Q_NULLPTR; //!< la liste des RefractionDevices
 

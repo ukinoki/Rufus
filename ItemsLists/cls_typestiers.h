@@ -31,6 +31,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class TypesTiers : public ItemsList
 {
+    Q_OBJECT
 private:
     QList<TypeTiers *> *m_typestiers; //!< la liste des types de tiers payants
     bool add(TypeTiers *Tiers);

@@ -225,7 +225,7 @@ void dlg_docsvideo::ValideFiche()
     if (!QDir(NomDirStockageImagerie).exists())
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
-        QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet \"ce poste\"/Onglet \"") + NomOnglet + "\"";
+        QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet ") + NomOnglet + "\"";
         UpMessageBox::Watch(this,msg, msg2);
         return;
     }

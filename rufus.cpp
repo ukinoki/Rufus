@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("20-12-2024/1");
+    qApp->setApplicationVersion("25-12-2024/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -32,9 +32,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 #ifdef Q_OS_WINDOWS
     qApp->setStyle(QStyleFactory::create("Fusion"));
 #endif
-    qApp->setStyleSheet(Styles::StyleAppli());
+    qApp->setStyleSheet(Styles::StyleAppli().replace("widthscrollbar", QString::number(WIDTH_SCROLLBAR)));
     QToolTip::setPalette(QPalette(Qt::yellow));
-
 
     proc = Procedures::I();     //! déclaré dans le .h et ici sinon on a des problèmes de police .... et pas seulement dans le .h pour que les StyleSheet soient appliqués avant l'instanciation de Procedures
 
@@ -309,10 +308,10 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (nameARK == "HUVITZ HTR-1A")
     {
         ShowMessage::I()->PriorityMessage("<font color=\"red\"><b>" + QObject::tr("Problème Autoref Huvitz") + "</b></font><br/>" +
-                "<br/>" + tr("Des problémes techniques de collaboration avec la société Essilor") +
-                "<br/>" + tr("ne nous permettent plus de maintenir l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
-                "<br/>" + tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
-                "<br/>" + tr("nous vous invitons à nous contacter pour avoir plus d'informations"),
+                "<br/>" + QObject::tr("Des problémes techniques de collaboration avec la société Essilor") +
+                "<br/>" + QObject::tr("ne nous permettent plus de maintenir l'implémentation de l'autoref HUVITZ HTR-1A pour le moment") +
+                "<br/>" + QObject::tr("nous espérons que ce problème indépendant de l'équipe de développement pourra se résoudre rapidement") +
+                "<br/>" + QObject::tr("nous vous invitons à nous contacter pour avoir plus d'informations"),
                 z,8000);
     }
 }
@@ -2120,12 +2119,15 @@ void Rufus::ExporteDocs()
             QDate datetransfer    = listexportjpg.at(i).at(3).toDate();
             QString CheminOKTransfrDirImg    = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
             if (!QDir(CheminOKTransfrDirImg).exists())
+            {
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
                     ShowMessage::I()->SplashMessage(msg, 3000);
                     return;
                 }
+            }
+            Utils::setDirPermissions(CheminOKTransfrDirImg);
             QString NomFileDoc = listexportjpg.at(i).at(1).toString() + "_" + listexportjpg.at(i).at(6).toString() + "-"
                     + listexportjpg.at(i).at(2).toString().replace("/",".") + "_"
                     + listexportjpg.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
@@ -2201,12 +2203,16 @@ void Rufus::ExporteDocs()
             QDate datetransfer    = listexportpdf.at(i).at(3).toDate();
             QString CheminOKTransfrDirImg      = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
             if (!QDir(CheminOKTransfrDirImg).exists())
+            {
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
                     QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
                     ShowMessage::I()->SplashMessage(msg, 3000);
                     return;
                 }
+            }
+            Utils::setDirPermissions(CheminOKTransfrDirImg);
+
             QString NomFileDoc = listexportpdf.at(i).at(1).toString() + "_" + listexportpdf.at(i).at(7).toString() + "-"
                     + listexportpdf.at(i).at(2).toString().replace("/",".") + "_"
                     + listexportpdf.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
@@ -3086,7 +3092,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
             return false;
         Datas::I()->patientsencours->CreationPatient(pat->id(),                                                 //! idPat
                                                 Datas::I()->users->getById(rdv->idsuperviseur()),               //! User
-                                                ARRIVE,                                                         //! Statut
+                                                ARRIVE,                                                     //! Statut
                                                 QTime(),                                                        //! heureStatut
                                                 rdv->heurerdv(),                                                //! heureRDV
                                                 db->ServerDateTime().time(),                                    //! heureArrivee
@@ -3432,7 +3438,7 @@ void Rufus::AfficheCourriersAFaire()
     dlg_listPatients->AjouteWidgetLayButtons(lbl, false);
 
     dlg_listPatients->setSizeGripEnabled(false);
-    dlg_listPatients->setWindowTitle(tr("Liste des courriers en attene"));
+    dlg_listPatients->setWindowTitle(tr("Liste des courriers en attente"));
 
     tabCourriers->verticalHeader()->setVisible(false);
     tabCourriers->horizontalHeader()->setVisible(false);
@@ -3556,7 +3562,7 @@ void Rufus::ImprimeListPatients(QVariant var)
     textentete.replace("{{NOM PATIENT}}"       , "");
     textentete.replace("{{TITRE}}"             , titre);
     textentete.replace("{{DDN}}"               , "<font color = \"" COULEUR_TITRES "\">" + QString::number(gtotalNbreDossiers)
-                   + " " + (gtotalNbreDossiers>1? tr("dossiers") : tr("dosssier")) + "</font>");
+                   + " " + (gtotalNbreDossiers>1? tr("dossiers") : tr("dossier")) + "</font>");
     // création du pied
     QString textpied = proc->CalcPiedImpression(userEntete);
     if (textpied == "") return;

@@ -198,16 +198,21 @@ QString DataBase::dirimagerie()
 {
     if (m_dirimagerie == QString())
     {
-        dirsecure_file_priv();
-        if (m_dirsecurefilepriv == QString())
-            return m_dirsecurefilepriv;
-        QString dirdata = m_dirsecurefilepriv;
-        while (dirdata.endsWith("/"))
-            dirdata.remove(dirdata.size()-1,1);
-        if (dirdata.endsWith("/Rufus"))
-            m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
+        if (ModeAccesDataBase() == Utils::ReseauLocal)
+            m_dirimagerie = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
         else
-            m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+        {
+            dirsecure_file_priv();
+            if (m_dirsecurefilepriv == QString())
+                return m_dirsecurefilepriv;
+            QString dirdata = m_dirsecurefilepriv;
+            while (dirdata.endsWith("/"))
+                dirdata.remove(dirdata.size()-1,1);
+            if (dirdata.endsWith("/Rufus"))
+                m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
+            else
+                m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+        }
     }
     return m_dirimagerie;
 }

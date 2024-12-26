@@ -128,7 +128,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     OKButton                    ->setEnabled(false);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    setWindowTitle(m_typeacte == Association? (m_cotationsfrance? "Association de codes CCAM ou autres types d'acte" : tr("Actes remoursés")): "Acte hors nomenclature");
+    setWindowTitle(m_typeacte == Association? (m_cotationsfrance? "Association de codes CCAM ou autres types d'acte" : tr("Actes remboursés")): "Acte hors nomenclature");
 
     connect(OKButton,           &QPushButton::clicked,  this,   [=] {if (VerifFiche()) accept();});
     connect(CancelButton,       &QPushButton::clicked,  this,   [=] {reject();});

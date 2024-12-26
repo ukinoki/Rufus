@@ -26,8 +26,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upstandarditem.h"
 
 class Actes: public ItemsList
-
 {
+    Q_OBJECT
 private:
     QMap<int, Acte*>        *map_actes = Q_NULLPTR;                                         //!< une liste d'actes
     Acte                    *m_currentacte = Q_NULLPTR;                                     //! l'acte en cours

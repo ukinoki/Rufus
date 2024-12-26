@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STYLES_H
 #define STYLES_H
 #include <QString>
-#include "macros.h"
+#include <QObject>
 // définit les styles de l'application
 
 #define STYLE_UPGROUBOXINACTIVE     "UpGroupBox {font: bold; border: 1px solid rgb(164,164,164); border-radius: 10px;}"
@@ -27,8 +27,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define STYLE_UPPUSHBUTTON          "UpPushButton {border: 1px solid gray; border-radius: 5px; margin-left: 5px; margin-right: 5px;  margin-top: 3px; margin-bottom: 3px; padding-left: 8px; padding-right: 8px; padding-top: 3px; padding-bottom: 3px; qproperty-iconSize: 30px 30px; qproperty-flat: false; color : #000000; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde);} UpPushButton:focus {color : #000000; border: 2px solid rgb(164, 205, 255); border-radius: 5px;} UpPushButton:pressed {color : gray; background-color: rgb(175, 175, 175);} UpPushButton:!enabled {color : gray;}"
 #define STYLE_UPSWITCH              "UpSwitch {border-radius: 10px; background-color:rgba(50,200,105,145);}"
 
-class Styles
+class Styles: public QObject
 {
+    Q_OBJECT
 public:
     static QString StyleAppli() {
         QString border = "border-image: url(://wallpaper.jpg)";
@@ -40,7 +41,7 @@ public:
                 "QRadioButton::indicator {width: 18px; height: 18px;}"
                 "QRadioButton::indicator::checked {image: url(://blueball.png);}"
                 "QScrollArea {background-color:rgb(237, 237, 237); border: 1px solid rgb(150,150,150);}"
-                                              "QScrollBar:vertical {width: " + QString::number(WIDTH_SCROLLBAR) + "px;}"
+                                              "QScrollBar:vertical {width: widthscrollbarpx;}"
                 "QTabBar::tab:selected {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #fafafa, stop: 1.0 rgb(164, 205, 255));"
                                         "border-color: #9B9B9B;"
                                         "border-bottom-color: #C2C7CB;}"

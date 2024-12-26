@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class LignesPaiements : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<QString, LignePaiement*> *map_lignespaiements; /*! la liste des lignes de paiements
                                                         * on utilise un QString pour la key du QMap parce qu'il n'y a pas de champ id

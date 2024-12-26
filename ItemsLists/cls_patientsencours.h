@@ -24,7 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class PatientsEnCours : public ItemsList
 {
-
+    Q_OBJECT
 public:
     explicit PatientsEnCours(QObject *parent = Q_NULLPTR);
 

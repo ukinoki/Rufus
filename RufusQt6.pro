@@ -117,7 +117,8 @@ win32 {
 LIBS += -lUser32
 }
 
-TRANSLATIONS    = rufus_fr.ts
+TRANSLATIONS += rufus_fr.ts \
+                rufus_en.ts
 
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \

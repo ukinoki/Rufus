@@ -15,10 +15,15 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "qglobal.h"
 #ifndef MACROS_H
 #define MACROS_H
+#include <QObject>
 
+class Macros: public QObject
+{
+    Q_OBJECT
+
+public:
 // Les versions de la base et des ressources
 #define VERSION_BASE                          80  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
@@ -1262,5 +1267,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #define WIDTH_SCROLLBAR              10
+
+};
 
 #endif // MACROS_H

@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class LignesComptes : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, LigneCompte*> *map_lignes = Q_NULLPTR;  //!< la liste de toutes les lignes
 

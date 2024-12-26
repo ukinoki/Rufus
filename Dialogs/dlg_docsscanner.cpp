@@ -45,7 +45,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     if (!QDir(m_pathdirstockageimagerie).exists())
     {
         QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + m_pathdirstockageimagerie + "</b></font>" + tr(" n'existe pas");
-        msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet \"ce poste\" /Onglet \"") + NomOnglet + "</b></font>";
+        msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet ") + NomOnglet + "</b></font>";
         ShowMessage::I()->SplashMessage(msg, 6000);
         m_initok = false;
         return;
@@ -169,7 +169,7 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
     QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
         UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + m_docpath,
-                             tr("Vous devez scanner les documents au format pdf ou jpg."));
+                             tr("Vous devez scanner les documents au format pdf, png ou jpg."));
         return;
     }
     int idx = listfich.indexOf(m_nomfichierimageencours);

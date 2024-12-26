@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Cotations : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Cotation*> *map_cotations;    //!< la liste des cotations pratiquées par un utilisateur
     int m_iduser;                           //!< l'id du user concerné par la liste de cotations

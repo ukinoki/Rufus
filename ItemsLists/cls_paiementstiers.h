@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class PaiementsTiers : public ItemsList
 {
-
+    Q_OBJECT
 private:
     QMap<int, PaiementTiers*> *map_paiementstiers; //!< la liste des paiements par tiers
 

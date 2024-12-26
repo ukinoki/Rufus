@@ -32,7 +32,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \param man
  * \param parent
  */
-dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item *itm, QWidget *parent) :
+dlg_identificationcommercial::dlg_identificationcommercial(Mode mode, Item *itm, QWidget *parent) :
     UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentCOMMERCIAL", parent)
 {
     setWindowModality(Qt::WindowModal);
@@ -194,6 +194,10 @@ dlg_identificationcommercial::dlg_identificationcommercial(enum Mode mode, Item 
     CancelButton->setText(tr("Annuler"));
     setStageCount(1);
     installEventFilter(this);
+}
+
+dlg_identificationcommercial::~dlg_identificationcommercial()
+{
 }
 
 bool dlg_identificationcommercial::eventFilter(QObject *obj, QEvent *event)

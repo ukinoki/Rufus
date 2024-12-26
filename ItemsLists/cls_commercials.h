@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Commercials : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Commercial*> *map_all = Q_NULLPTR;      //!< la liste de tous les commerciaux
 

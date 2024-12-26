@@ -1601,10 +1601,10 @@ void Nidek::RegleRefracteurXML(TypesMesures flag, QString nameRF)
                 version.appendChild(LMxml.createTextNode("NIDEK_V1.01"));
                 QDomElement date = LMxml.createElement("Date");
                 Common.appendChild(date);
-                date.appendChild(LMxml.createTextNode(QDate::currentDate().toString(tr("yyyy/MM/dd"))));
+                date.appendChild(LMxml.createTextNode(QDate::currentDate().toString("yyyy/MM/dd")));
                 QDomElement time = LMxml.createElement("Time");
                 Common.appendChild(time);
-                time.appendChild(LMxml.createTextNode(QTime::currentTime().toString(tr("HH:mm:ss"))));
+                time.appendChild(LMxml.createTextNode(QTime::currentTime().toString("HH:mm:ss")));
                 QDomElement patient = LMxml.createElement("Patient");
                 Common.appendChild(patient);
                 {
@@ -1881,13 +1881,13 @@ void Nidek::RegleRefracteurXML(TypesMesures flag, QString nameRF)
         QDomElement date = ARxml.createElement("Date");
         Data.appendChild(date);
         {
-            QDomText w = ARxml.createTextNode(QDate::currentDate().toString(tr("yyyy/MM/dd")));
+            QDomText w = ARxml.createTextNode(QDate::currentDate().toString("yyyy/MM/dd"));
             date.appendChild(w);
         }
         QDomElement time = ARxml.createElement("Time");
         Data.appendChild(time);
         {
-            QDomText x = ARxml.createTextNode(QTime::currentTime().toString(tr("HH:mm:ss")));
+            QDomText x = ARxml.createTextNode(QTime::currentTime().toString("HH:mm:ss"));
             time.appendChild(x);
         }
         QDomElement patient = ARxml.createElement("Patient");

@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Sites : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Site*> *map_all;                        //!<Collection de tous les sites sans exception, généralistes ou pas
     Site*           m_currentsite = Q_NULLPTR;          //!> le site en cours

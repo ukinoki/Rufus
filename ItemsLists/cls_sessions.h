@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Sessions: public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Session*>         *map_sessions = Q_NULLPTR;                                      //!< une liste de sessions
     Session                     *m_currentsession = Q_NULLPTR;                                  //!> la session en cours

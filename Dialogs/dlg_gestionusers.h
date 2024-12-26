@@ -117,7 +117,7 @@ private:
     void                    RegleAffichage();
     void                    SupprUser();
 
-    void                    changeBarCode();
+    void                    changeLogo();
     void                    delLogo();
 
 };

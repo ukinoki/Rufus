@@ -26,10 +26,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_identificationcommercial : public UpDialog
 {
+    Q_OBJECT
 public:
-    enum                        Mode {Creation, Modification};    Q_ENUM(Mode)
+    enum                        Mode {Creation, Modification};    Q_ENUM(Mode);
     explicit                    dlg_identificationcommercial(enum Mode mode, Item *itm, QWidget *parent = Q_NULLPTR);
-    dlg_identificationcommercial();
+    ~dlg_identificationcommercial();
     void                        setNomcommercial(QString nom)   {wdg_nomcommercialline->setText(nom);}
     int                         idcurrentcommercial() const     { return (m_currentcommercial? m_currentcommercial->id() : 0); }
 

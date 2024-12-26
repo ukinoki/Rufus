@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Impressions : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Impression*> *map_all = Q_NULLPTR;      //!< la liste des impressions
     bool m_isfull = false;
@@ -43,6 +44,7 @@ public:
 
 class DossiersImpressions : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, DossierImpression*> *map_all = Q_NULLPTR;      //!< la liste des dossiers d'impressions
     bool m_isfull = false;

@@ -123,7 +123,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
 
     connect(CloseButton,                        &QPushButton::clicked,                  this,   &dlg_gestionusers::FermeFiche);
     connect(wdg_buttonframe,                    &WidgetButtonFrame::choix,              this,   &dlg_gestionusers::ChoixButtonFrame);
-    connect(ui->LogoupPushButton,               &QPushButton::clicked,                  this,   &dlg_gestionusers::changeBarCode);
+    connect(ui->LogoupPushButton,               &QPushButton::clicked,                  this,   &dlg_gestionusers::changeLogo);
     QList<UpLineEdit*> listline  = findChildren<UpLineEdit*>();
     for (int i=0; i<listline.size(); i++)
         connect(listline.at(i),                 &QLineEdit::textEdited,                 this,   [=] {ui->OKupSmallButton->setEnabled(true);});
@@ -261,8 +261,8 @@ void dlg_gestionusers::Annulation()
 void dlg_gestionusers::menuChangeUserLogo()
 {
     QMenu m_menuContextuel;
-    QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Modifier le code barre"));
-    connect (pAction_ChangeImage,  &QAction::triggered,    this, &dlg_gestionusers::changeBarCode);
+    QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Modifier le logo"));
+    connect (pAction_ChangeImage,  &QAction::triggered,    this, &dlg_gestionusers::changeLogo);
         if (m_userencours->logoimg() != QImage())
         {
             QAction *pAction_ChangeImage = m_menuContextuel.addAction(tr("Supprimer le logo"));
@@ -354,9 +354,9 @@ void dlg_gestionusers::CreerUser()
     dlg_ask = Q_NULLPTR;
 }
 
-void dlg_gestionusers::changeBarCode()
+void dlg_gestionusers::changeLogo()
 {
-    UpMessageBox::Watch(this, tr("Choix d'un code barre"),tr("Dans la boîte de dialogue suivante") + "\n" + tr("choisissez un fichier image au format .jpg, .jpeg ou .png"));
+    UpMessageBox::Watch(this, tr("Choix d'un logo"),tr("Dans la boîte de dialogue suivante") + "\n" + tr("choisissez un fichier image au format .jpg, .jpeg ou .png"));
     QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
     QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images) (*.jpg *.jpeg *.png)"));
     if (path_file_origin != "")
@@ -864,7 +864,7 @@ void dlg_gestionusers::FermeFiche()
     {
         UpMessageBox msgbox(this);
         UpSmallButton OKBouton(tr("Enregistrer les modifications"));
-        UpSmallButton AnnulBouton(tr("Annnuler"));
+        UpSmallButton AnnulBouton(tr("Annuler"));
         msgbox.setText(tr("Modification des données"));
         msgbox.setInformativeText(tr("Vous avez modifié les données de ") + ui->LoginuplineEdit->text() + ".\n"
                                   + tr("Voulez-vous enregistrer ces modifications?") + "\n");

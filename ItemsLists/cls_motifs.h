@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class Motifs : public ItemsList
 {
+    Q_OBJECT
 private:
     QMap<int, Motif*> *map_all; //!< la liste des Motifs
 
