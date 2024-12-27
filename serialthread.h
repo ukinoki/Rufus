@@ -22,7 +22,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSerialPort>
 #include <utils.h>
 
-#ifdef Q_OS_WIN
 class SerialThread : public QObject
 {
     Q_OBJECT
@@ -33,6 +32,7 @@ public:
 
 signals:
     void            newdatacom(const QString &s);
+    void            finished();
 
 private:
     QByteArray      reponseData;
@@ -44,25 +44,5 @@ private:
     void            readTimer();
 };
 
-#else
-class SerialThread : public QThread
-{
-    Q_OBJECT
-
-public:
-    explicit        SerialThread(QSerialPort *PortProc, QString NomApp = "");
-    void            transaction();
-    void            run() Q_DECL_OVERRIDE;
-
-signals:
-    void            newdatacom(const QString &s);
-
-private:
-    QByteArray      reponseData;
-    QSerialPort     *Port;
-    QString         m_nomapp = "";
-    void            readData();
-};
-#endif
 #endif // SERIALTHREAD_H
 

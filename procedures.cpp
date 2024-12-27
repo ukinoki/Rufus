@@ -4604,7 +4604,6 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             {
                 if (sp_portFronto->open(QIODevice::ReadWrite))
                 {
-                    sp_portFronto->setDataTerminalReady(true);
                     if (t_threadFronto != Q_NULLPTR)
                         delete t_threadFronto;
                     t_threadFronto = new SerialThread(sp_portFronto, FRONTO);
@@ -4627,11 +4626,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portFronto != Q_NULLPTR)
     {
         if (t_threadFronto != Q_NULLPTR)
-        {
-            disconnect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
-            delete t_threadFronto;
-            t_threadFronto = Q_NULLPTR;
-        }
+            t_threadFronto->finished();
         delete sp_portFronto;
         sp_portFronto = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortFronto_COM_baudrate);
@@ -4651,16 +4646,12 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
         else
         {
             if (sp_portRefracteur != Q_NULLPTR)
-            {
-                sp_portRefracteur->close();
-                delete sp_portRefracteur;
-            }
+                t_threadRefracteur->finished();
             sp_portRefracteur = loadserialsettings(Refracteur);
             if (sp_portRefracteur != Q_NULLPTR)
             {
                 if (sp_portRefracteur->open(QIODevice::ReadWrite))
                 {
-                    sp_portRefracteur->setDataTerminalReady(true);
                     if (t_threadRefracteur != Q_NULLPTR)
                         delete t_threadRefracteur;
                     t_threadRefracteur = new SerialThread(sp_portRefracteur, REFRACTEUR);
@@ -4683,11 +4674,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portRefracteur != Q_NULLPTR)
     {
         if (t_threadRefracteur != Q_NULLPTR)
-        {
-            disconnect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
-            delete t_threadRefracteur;
-            t_threadRefracteur = Q_NULLPTR;
-        }
+            t_threadRefracteur->finished();
         delete sp_portRefracteur;
         sp_portRefracteur = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortRefracteur_COM_baudrate);
@@ -4716,9 +4703,8 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             {
                 if (sp_portAutoref->open(QIODevice::ReadWrite))
                 {
-                    sp_portAutoref->setDataTerminalReady(true);
                     if (t_threadAutoref != Q_NULLPTR)
-                        delete t_threadAutoref;
+                        t_threadAutoref->finished();
                     t_threadAutoref = new SerialThread(sp_portAutoref, AUTOREF);
                     t_threadAutoref->transaction();
                     connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
@@ -4739,11 +4725,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portAutoref != Q_NULLPTR)
     {
         if (t_threadAutoref != Q_NULLPTR)
-        {
-            disconnect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
-            delete t_threadAutoref;
-            t_threadAutoref = Q_NULLPTR;
-        }
+            t_threadAutoref->finished();
         delete sp_portAutoref;
         sp_portAutoref = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortAutoref_COM_baudrate);
@@ -4771,9 +4753,8 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
             {
                 if (sp_portTono->open(QIODevice::ReadWrite))
                 {
-                    sp_portTono->setDataTerminalReady(true);
                     if (t_threadTono != Q_NULLPTR)
-                        delete t_threadTono;
+                        t_threadTono->finished();
                     t_threadTono = new SerialThread(sp_portTono, TONOMETRE);
                     t_threadTono->transaction();
                     connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
@@ -4794,11 +4775,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portTono != Q_NULLPTR)
     {
         if (t_threadTono != Q_NULLPTR)
-        {
-            disconnect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
-            delete t_threadTono;
-            t_threadTono = Q_NULLPTR;
-        }
+            t_threadTono->finished();
         delete sp_portTono;
         sp_portTono = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortTono_COM_baudrate);
@@ -5282,7 +5259,7 @@ void Procedures::RegleRefracteurCOM(GenericProtocol::TypesMesures flag)
     {
         DTRbuff = Nidek::I()->RegleRefracteurCOM(flag);
         if (DTRbuff != QByteArray())
-            Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);
+            Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ");
     }
 
     // TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
@@ -5565,7 +5542,7 @@ SOH*PC_SND_EEOT                 -> end block
                         + QDateTime().toString("dd-MM-yyyy HH:mm:ss")
                         + (nompat != ""? " - " : "") + nompat);
         */
-        Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ", 1000);    }
+        Utils::writeDatasSerialPort(PortRefracteur(), DTRbuff, " DTRbuff - Refracteur = ");    }
     // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 =======================================================================================================================================
 }
 
@@ -6985,7 +6962,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             cmd = (autorefhaskerato? "CRK" : "CRM");     //! CRK ou CRM suivant que les appareils peuvent ou non envoyer la keratométrie
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
             //qDebug() << "cmd" << Nidek::I()->OKtoReceive(cmd);
-            Utils::writeDatasSerialPort(PortAutoref(), Nidek::I()->OKtoReceive(cmd), " SendDataNIDEK(cmd) - Autoref = ");//,500);
+            Utils::writeDatasSerialPort(PortAutoref(), Nidek::I()->OKtoReceive(cmd), " SendDataNIDEK(cmd) - Autoref = ");
             //sp_portAutoref->setDataTerminalReady(true);
            return;
         }

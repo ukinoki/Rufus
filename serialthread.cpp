@@ -17,20 +17,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "serialthread.h"
 
-#ifdef Q_OS_WIN
-
 SerialThread::SerialThread(QSerialPort *PortProc, QString NomApp)
 {
     Port = PortProc;
     m_nomapp        = NomApp;
     m_thread = new QThread(this);
     moveToThread(m_thread);
-    connect(m_thread, &QThread::started, this, [&]{
-                                connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
-                                connect(Port,   &QSerialPort::errorOccurred, this, [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
-                                });
-
-    t_timer = new QTimer(0);
+    connect(m_thread,   &QThread::started,          this, [&]{
+                                                                connect(Port,   &QSerialPort::readyRead, this, &SerialThread::LitPort);
+                                                                connect(Port,   &QSerialPort::errorOccurred, this, [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
+                                                              });
+    connect(this,       &SerialThread::finished,    m_thread,   &QThread::quit);
+    connect(this,       &SerialThread::finished,    this,       &QObject::deleteLater);
+    connect(m_thread,   &QThread::finished,         m_thread,   &QThread::deleteLater);
+    QTimer *t_timer = new QTimer(0);
     t_timer->setInterval(100);
     t_timer->moveToThread(m_thread);
     connect(t_timer,&QTimer::timeout, this, &SerialThread::readTimer);
@@ -44,9 +44,9 @@ void SerialThread::readTimer()
     if (numRead == 0)
     {
         QByteArray b(Utils::cleanByteArray(reponseData));
+        qDebug() << "reception" << QString::fromLocal8Bit(b);
         emit newdatacom(QString::fromLocal8Bit(b));
         t_timer->stop();
-        //Utils::writeDataToFileDateTime(reponseData, "Received.bin","c:/outils/log");
     }
     else
         reponseData += Port->readAll();
@@ -63,39 +63,3 @@ void SerialThread::transaction()
         m_thread->start();
 }
 
-#else
-QT_USE_NAMESPACE
-
-SerialThread::SerialThread(QSerialPort *PortProc, QString NomApp)
-{
-    Port            = PortProc;
-    m_nomapp        = NomApp;
-}
-
-void SerialThread::transaction()
-{
-    if (!isRunning())
-        start();
-}
-
-void SerialThread::run()
-{
-    //connect(Port,   &QSerialPort::requestToSendChanged, this,   [=] (bool a) {Port->setDataTerminalReady(a);});
-    connect(Port,   &QSerialPort::readyRead,            this,   &SerialThread::readData);
-    connect(Port,   &QSerialPort::errorOccurred,        this,   [&] (QSerialPort::SerialPortError error){qDebug() << "erreur portCOM " + m_nomapp << Utils::EnumDescription(QMetaEnum::fromType<QSerialPort::SerialPortError>(), error);});
-}
-
-void SerialThread::readData()
-{
-    QByteArray reponseData = Port->readAll();
-    while (Port->waitForReadyRead(300))
-        reponseData += Port->readAll();
-    QString ReponsePort(Utils::cleanByteArray(reponseData));
-    qDebug() << Port->portName() << ReponsePort;
-    if (ReponsePort != "")
-    {
-        emit newdatacom(ReponsePort);
-        Port->clear();
-    }
-}
-#endif

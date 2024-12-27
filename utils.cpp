@@ -1931,19 +1931,19 @@ QString Utils::XMLfirstElementValueByTagNameNS(QDomElement parent, QString nsURI
     return XMLfirstElementValueByTagName(parent, nsURI+":"+tagName);
 }
 
-void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms)
+void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug)
 {
-    qint32 baud = port->baudRate();
+    /*qint32 baud = port->baudRate();
     if (timetowaitms == 0)
     {
         timetowaitms= int (datas.size()*8*1000 / baud);
         timetowaitms += 10;
     }   
-    //qDebug() << msgdebug << "timetowaitms" << timetowaitms;
+    qDebug() << msgdebug << "timetowaitms" << timetowaitms;*/
+    qDebug() << "envoi" << QString::fromLocal8Bit(cleanByteArray(datas));
     port->write(datas);
-    port->flush();
-    port->waitForBytesWritten(timetowaitms);
-    qDebug() <<QString::fromLocal8Bit(cleanByteArray(datas));
+    //port->flush();
+    //port->waitForBytesWritten(timetowaitms);
     //Logs::LogToFile("serial.txt", "write / " + port->portName());
     //Logs::LogToFile("serial.txt", "write / " + QString::fromLocal8Bit(cleanByteArray(datas)));
 }

@@ -300,7 +300,7 @@ public:
     static QImage imageFromjsonVal(const QJsonValue &val);
 
     //! écriture sur un port série d'un qByteArray
-    static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug, int timetowaitms = 0);
+    static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug);
     static void writeDataToFileDateTime (QByteArray datas, QString file, QString path);
     static void writeBinaryFile (QByteArray data, QString fileName);
 
