@@ -4605,7 +4605,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                 if (sp_portFronto->open(QIODevice::ReadWrite))
                 {
                     if (t_threadFronto != Q_NULLPTR)
-                        delete t_threadFronto;
+                        emit t_threadFronto->finished();
                     t_threadFronto = new SerialThread(sp_portFronto, FRONTO);
                     t_threadFronto->transaction();
                     connect(t_threadFronto,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Fronto);
@@ -4626,7 +4626,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portFronto != Q_NULLPTR)
     {
         if (t_threadFronto != Q_NULLPTR)
-            t_threadFronto->finished();
+            emit t_threadFronto->finished();
         delete sp_portFronto;
         sp_portFronto = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortFronto_COM_baudrate);
@@ -4646,14 +4646,14 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
         else
         {
             if (sp_portRefracteur != Q_NULLPTR)
-                t_threadRefracteur->finished();
+                emit t_threadRefracteur->finished();
             sp_portRefracteur = loadserialsettings(Refracteur);
             if (sp_portRefracteur != Q_NULLPTR)
             {
                 if (sp_portRefracteur->open(QIODevice::ReadWrite))
                 {
                     if (t_threadRefracteur != Q_NULLPTR)
-                        delete t_threadRefracteur;
+                        emit t_threadRefracteur->finished();
                     t_threadRefracteur = new SerialThread(sp_portRefracteur, REFRACTEUR);
                     t_threadRefracteur->transaction();
                     connect(t_threadRefracteur,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Refracteur);
@@ -4674,7 +4674,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portRefracteur != Q_NULLPTR)
     {
         if (t_threadRefracteur != Q_NULLPTR)
-            t_threadRefracteur->finished();
+            emit t_threadRefracteur->finished();
         delete sp_portRefracteur;
         sp_portRefracteur = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortRefracteur_COM_baudrate);
@@ -4704,7 +4704,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                 if (sp_portAutoref->open(QIODevice::ReadWrite))
                 {
                     if (t_threadAutoref != Q_NULLPTR)
-                        t_threadAutoref->finished();
+                        emit t_threadAutoref->finished();
                     t_threadAutoref = new SerialThread(sp_portAutoref, AUTOREF);
                     t_threadAutoref->transaction();
                     connect(t_threadAutoref,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Autoref);
@@ -4725,7 +4725,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portAutoref != Q_NULLPTR)
     {
         if (t_threadAutoref != Q_NULLPTR)
-            t_threadAutoref->finished();
+            emit t_threadAutoref->finished();
         delete sp_portAutoref;
         sp_portAutoref = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortAutoref_COM_baudrate);
@@ -4754,7 +4754,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
                 if (sp_portTono->open(QIODevice::ReadWrite))
                 {
                     if (t_threadTono != Q_NULLPTR)
-                        t_threadTono->finished();
+                        emit t_threadTono->finished();
                     t_threadTono = new SerialThread(sp_portTono, TONOMETRE);
                     t_threadTono->transaction();
                     connect(t_threadTono,  &SerialThread::newdatacom,     this, &Procedures::ReponsePortSerie_Tono);
@@ -4775,7 +4775,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     else if (sp_portTono != Q_NULLPTR)
     {
         if (t_threadTono != Q_NULLPTR)
-            t_threadTono->finished();
+            emit t_threadTono->finished();
         delete sp_portTono;
         sp_portTono = Q_NULLPTR;
         m_settings->remove(Param_Poste_PortTono_COM_baudrate);
