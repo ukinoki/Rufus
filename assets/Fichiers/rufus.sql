@@ -405,7 +405,6 @@ CREATE TABLE `ParametresSysteme` (
   `SansCompta` int(1) DEFAULT NULL COMMENT '0 = AvecCompta\n1 = SansCompta et sans cotation\n2 = Sans compta mais avec cotation\n3 = Avec compta mais sans cotation',
   `AdresseServeurLocal` varchar(45) DEFAULT NULL,
   `AdresseServeurDistant` varchar(45) DEFAULT NULL,
-  `DirImagerie` varchar(250) DEFAULT NULL,
   `LundiBkup` int(1) DEFAULT NULL,
   `MardiBkup` int(1) DEFAULT NULL,
   `MercrediBkup` int(1) DEFAULT NULL,
@@ -427,7 +426,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,80,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,81,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 

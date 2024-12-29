@@ -25,7 +25,7 @@ class Macros: public QObject
 
 public:
 // Les versions de la base et des ressources
-#define VERSION_BASE                          80  // version de la base de données
+#define VERSION_BASE                          81  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
@@ -734,49 +734,51 @@ public:
 #define CP_DUREE_TYPINTERVENTION                        "DureeIntervention"
 
                             //! Table Ophtalmologie.Refractions
-#define CP_ID_REFRACTIONS                              "idRefraction"
-#define CP_IDPAT_REFRACTIONS                           "idPat"
-#define CP_IDACTE_REFRACTIONS                          "idActe"
-#define CP_DATE_REFRACTIONS                            "DateRefraction"
-#define CP_TYPEMESURE_REFRACTIONS                      "QuelleMesure"
-#define CP_DISTANCEMESURE_REFRACTIONS                  "QuelleDistance"
-#define CP_CYCLOPLEGIE_REFRACTIONS                     "Cycloplegie"
-#define CP_ODMESURE_REFRACTIONS                        "ODcoche"
-#define CP_SPHEREOD_REFRACTIONS                        "SphereOD"
-#define CP_CYLINDREOD_REFRACTIONS                      "CylindreOD"
-#define CP_AXECYLOD_REFRACTIONS                        "AxeCylindreOD"
-#define CP_AVLOD_REFRACTIONS                           "AVLOD"
-#define CP_ADDVPOD_REFRACTIONS                         "AddVPOD"
-#define CP_AVPOD_REFRACTIONS                           "AVPOD"
-#define CP_PRISMEOD_REFRACTIONS                        "PrismeOD"
-#define CP_BASEPRISMEOD_REFRACTIONS                    "BasePrismeOD"
-#define CP_BASEPRISMETEXTOD_REFRACTIONS                "BasePrismeTextOD"
-#define CP_PRESSONOD_REFRACTIONS                       "PressOnOD"
-#define CP_DEPOLIOD_REFRACTIONS                        "DepoliOD"
-#define CP_PLANOD_REFRACTIONS                          "PlanOD"
-#define CP_RYSEROD_REFRACTIONS                         "RyserOD"
-#define CP_FORMULEOD_REFRACTIONS                       "FormuleOD"
-#define CP_OGMESURE_REFRACTIONS                        "OGcoche"
-#define CP_SPHEREOG_REFRACTIONS                        "SphereOG"
-#define CP_CYLINDREOG_REFRACTIONS                      "CylindreOG"
-#define CP_AXECYLOG_REFRACTIONS                        "AxeCylindreOG"
-#define CP_AVLOG_REFRACTIONS                           "AVLOG"
-#define CP_ADDVPOG_REFRACTIONS                         "AddVPOG"
-#define CP_AVPOG_REFRACTIONS                           "AVPOG"
-#define CP_PRISMEOG_REFRACTIONS                        "PrismeOG"
-#define CP_BASEPRISMEOG_REFRACTIONS                    "BasePrismeOG"
-#define CP_BASEPRISMETEXTOG_REFRACTIONS                "BasePrismeTextOG"
-#define CP_PRESSONOG_REFRACTIONS                       "PressOnOG"
-#define CP_DEPOLIOG_REFRACTIONS                        "DepoliOG"
-#define CP_PLANOG_REFRACTIONS                          "PlanOG"
-#define CP_RYSEROG_REFRACTIONS                         "RyserOG"
-#define CP_FORMULEOG_REFRACTIONS                       "FormuleOG"
-#define CP_COMMENTAIREORDO_REFRACTIONS                 "CommentaireOrdoLunettes"
-#define CP_TYPEVERRES_REFRACTIONS                      "QuelsVerres"
-#define CP_OEIL_REFRACTIONS                            "QuelOeil"
-#define CP_MONTURE_REFRACTIONS                         "Monture"
-#define CP_VERRETEINTE_REFRACTIONS                     "VerreTeinte"
-#define CP_PD_REFRACTIONS                              "PD"
+#define CP_ID_REFRACTIONS                              "idRefraction"               //0
+#define CP_IDPAT_REFRACTIONS                           "idPat"                      //1
+#define CP_IDACTE_REFRACTIONS                          "idActe"                     //2
+#define CP_DATE_REFRACTIONS                            "DateRefraction"             //3
+#define CP_TYPEMESURE_REFRACTIONS                      "QuelleMesure"               //4
+#define CP_DISTANCEMESURE_REFRACTIONS                  "QuelleDistance"             //5
+#define CP_CYCLOPLEGIE_REFRACTIONS                     "Cycloplegie"                //6
+#define CP_ODMESURE_REFRACTIONS                        "ODcoche"                    //7
+#define CP_SPHEREOD_REFRACTIONS                        "SphereOD"                   //8
+#define CP_CYLINDREOD_REFRACTIONS                      "CylindreOD"                 //9
+#define CP_AXECYLOD_REFRACTIONS                        "AxeCylindreOD"              //10
+#define CP_AVLOD_REFRACTIONS                           "AVLOD"                      //11
+#define CP_ADDVPOD_REFRACTIONS                         "AddVPOD"                    //12
+#define CP_AVPOD_REFRACTIONS                           "AVPOD"                      //13
+#define CP_PRISMEOD_REFRACTIONS                        "PrismeOD"                   //14
+#define CP_BASEPRISMEOD_REFRACTIONS                    "BasePrismeOD"               //15
+#define CP_BASEPRISMETEXTOD_REFRACTIONS                "BasePrismeTextOD"           //16
+#define CP_PRESSONOD_REFRACTIONS                       "PressOnOD"                  //17
+#define CP_DEPOLIOD_REFRACTIONS                        "DepoliOD"                   //18
+#define CP_PLANOD_REFRACTIONS                          "PlanOD"                     //19
+#define CP_RYSEROD_REFRACTIONS                         "RyserOD"                    //20
+#define CP_FORMULEOD_REFRACTIONS                       "FormuleOD"                  //21
+#define CP_OGMESURE_REFRACTIONS                        "OGcoche"                    //22
+#define CP_SPHEREOG_REFRACTIONS                        "SphereOG"                   //23
+#define CP_CYLINDREOG_REFRACTIONS                      "CylindreOG"                 //24
+#define CP_AXECYLOG_REFRACTIONS                        "AxeCylindreOG"              //25
+#define CP_AVLOG_REFRACTIONS                           "AVLOG"                      //26
+#define CP_ADDVPOG_REFRACTIONS                         "AddVPOG"                    //27
+#define CP_AVPOG_REFRACTIONS                           "AVPOG"                      //28
+#define CP_PRISMEOG_REFRACTIONS                        "PrismeOG"                   //29
+#define CP_BASEPRISMEOG_REFRACTIONS                    "BasePrismeOG"               //30
+#define CP_BASEPRISMETEXTOG_REFRACTIONS                "BasePrismeTextOG"           //31
+#define CP_PRESSONOG_REFRACTIONS                       "PressOnOG"                  //32
+#define CP_DEPOLIOG_REFRACTIONS                        "DepoliOG"                   //33
+#define CP_PLANOG_REFRACTIONS                          "PlanOG"                     //34
+#define CP_RYSEROG_REFRACTIONS                         "RyserOG"                    //35
+#define CP_FORMULEOG_REFRACTIONS                       "FormuleOG"                  //36
+#define CP_COMMENTAIREORDO_REFRACTIONS                 "CommentaireOrdoLunettes"    //37
+#define CP_TYPEVERRES_REFRACTIONS                      "QuelsVerres"                //38
+#define CP_OEIL_REFRACTIONS                            "QuelOeil"                   //39
+#define CP_MONTURE_REFRACTIONS                         "Monture"                    //40
+#define CP_VERRETEINTE_REFRACTIONS                     "VerreTeinte"                //41
+#define CP_PD_REFRACTIONS                              "PD"                         //42
+#define CP_QUICKOD_REFRACTIONS                         "QuickOD"                    //43
+#define CP_QUICKOG_REFRACTIONS                         "QuickOG"                    //44
 
                             //! Table Ophtalmologie.commentaireslunettes
 #define CP_ID_COMLUN                                    "idCommentLunet"
@@ -979,6 +981,7 @@ public:
 
 // la largeur de la formule de réfraction dans le champ ActeTexte
 #define LARGEUR_FORMULE                         "310"
+#define BIG_LARGEUR_FORMULE                     "350"
 
 // la couleur des titres
 #define COULEUR_TITRES                          "blue"

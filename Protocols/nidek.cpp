@@ -184,8 +184,8 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                              || nameARK == "NIDEK ARK-30");
     bool autorefhastonopachy = (nameARK == "NIDEK TONOREF III");
     bool autorefhasipmesure = (nameARK != "NIDEK HandyRef-K"
-                               || nameARK != "NIDEK ARK-30"
-                               || nameARK != "NIDEK AR-20");
+                               && nameARK != "NIDEK ARK-30"
+                               && nameARK != "NIDEK AR-20");
     bool istonorefIII = (nameARK == "NIDEK TONOREF III");
     QDomElement xml = docxml.documentElement();
     for (int i=0; i<xml.childNodes().size(); i++)
@@ -212,6 +212,8 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                     Datas::I()->mesureautoref->setcylindreOD(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                 if (childARmednode.tagName() == "Axis")
                                     Datas::I()->mesureautoref->setaxecylindreOD(Utils::roundToNearestFive(childARmednode.text().toInt()));
+                                if (childARmednode.tagName() == "ConfidenceIndex")
+                                    Datas::I()->mesureautoref->setisquickOD(childARmednode.text()=="QUICK");
                             }
                         }
                     }
@@ -239,6 +241,8 @@ void Nidek::LectureDonneesXMLAutoref(QDomDocument docxml, QString nameARK)
                                     Datas::I()->mesureautoref->setcylindreOG(Utils::roundToNearestPointTwentyFive(childARmednode.text().toDouble()));
                                 if (childARmednode.tagName() == "Axis")
                                     Datas::I()->mesureautoref->setaxecylindreOG(Utils::roundToNearestFive(childARmednode.text().toInt()));
+                                if (childARmednode.tagName() == "ConfidenceIndex")
+                                    Datas::I()->mesureautoref->setisquickOG(childARmednode.text()=="QUICK");
                             }
                         }
                     }

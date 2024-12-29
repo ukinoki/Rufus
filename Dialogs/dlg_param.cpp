@@ -2974,7 +2974,9 @@ void dlg_param::ReglePortCOM_dlg(Procedures::TypeAppareil appareil)
         map[STOPBITS]   = combostopbits     ->currentText();
         map[FLOWCONTROL]= comboflowcontrol  ->currentText();
         proc->RegleSerialSettings(appareil, map);
-        proc->Ouverture_Ports_Series(this);
+        //proc->Ouverture_Ports_Series(this); -> provoque un plantage à cause du Qthread
+        qintptr z = 0;
+        ShowMessage::I()->PriorityMessage(tr("Si vous avez modifié des paramètres, ces changements ne prendront effet qu'après le redémarrage de Rufus"),z);
         proc->Ouverture_Fichiers_Echange(this);
         if (appareil == Procedures::Fronto)
             ui->PortFrontoupComboBox->setImmediateToolTip(ToolTipPortCOM(appareil));

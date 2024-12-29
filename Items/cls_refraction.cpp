@@ -82,11 +82,13 @@ void Refraction::setData(QJsonObject data)
     setDataInt(data, CP_RYSEROG_REFRACTIONS, m_ryserOG);                        //!> puissance Ryser OG
     setDataString(data, CP_FORMULEOG_REFRACTIONS, m_formuleOG);                 //!> formule de réfraction OG
     setDataString(data, CP_COMMENTAIREORDO_REFRACTIONS, m_commentaireordo);     //!> commentaire de l'ordonnace de verres
-    m_typeverres = ConvertDistance(data[CP_TYPEVERRES_REFRACTIONS].toString());        //!> la distance d'utilisation des verres
-    m_oeil = Item::ConvertCote(data[CP_OEIL_REFRACTIONS].toString());                 //!> l'oeil pour lequel les verres sont prescrits
+    m_typeverres = ConvertDistance(data[CP_TYPEVERRES_REFRACTIONS].toString()); //!> la distance d'utilisation des verres
+    m_oeil = Item::ConvertCote(data[CP_OEIL_REFRACTIONS].toString());           //!> l'oeil pour lequel les verres sont prescrits
     setDataInt(data, CP_MONTURE_REFRACTIONS, m_monture);                        //!> le nombre de montures
     setDataBool(data, CP_VERRETEINTE_REFRACTIONS, m_isverreteinte);             //!> les verres sont teintés
     setDataInt(data, CP_PD_REFRACTIONS, m_ecartIP);                             //!> ecart interpuppilaire
+    setDataBool(data, CP_QUICKOD_REFRACTIONS, m_isquickOD);                     //!> la mesure d'autoref OD a été faite en mode quick
+    setDataBool(data, CP_QUICKOG_REFRACTIONS, m_isquickOG);                     //!> la mesure d'autoref OG a été faite en mode quick
     setDataBool(data, "isODmesure", m_isODmesure);
     setDataBool(data, "isOGmesure", m_isOGmesure);
 

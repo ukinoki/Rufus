@@ -59,6 +59,8 @@ private:
     bool m_hasdepoliOG = false;     //!> un dépoli est utilisé sur l'OG
     bool m_hasplanOG = false;       //!> un verre plan est utilisé sur l'OG
     int m_ryserOG = 0;              //!> puissance Ryser OG
+    bool m_isquickOD = false;       //!> mesure autoref OD en mode quick
+    bool m_isquickOG = false;       //!> mesure autoref OG en mode quick
 
 public:
     Refraction::Mesure typemesure() const { return m_typemesure; }    //!> le type de mesure effectuée : frontofocometre, autorefractomètre, acuité ou prescription
@@ -81,6 +83,8 @@ public:
     int baseprismeOG() const { return m_baseprismeOG; }               //!> base prisme OG en degré
     QString formuleOG() const { return m_formuleOG; }                 //!> formule de réfraction OG
     int ecartIP() const { return m_ecartIP; }                         //!> ecart interpuppilaire
+    bool isquickOD() { return m_isquickOD; }                          //!> la mesure d'autoref OD a été faite en mode quick
+    bool isquickOG() { return m_isquickOG; }                          //!> la mesure d'autoref OG a été faite en mode quick
 
     void settypemesure(Refraction::Mesure mesure)   { m_typemesure = mesure; }                                          //!> ne sert que pour le debug - le type de mesure effectuée : frontofocometre, autorfractomètre, acuité ou prescription
     void setsphereOD(double val)                { m_sphereOD = val; m_cleandatas = false; m_isnullOD = false; }         //!> sphere OD
@@ -102,6 +106,8 @@ public:
     void setbaseprismeOG(int base)              { m_baseprismeOG = base; m_cleandatas = false; m_isnullOG = false; }    //!> base prisme OG en degré
     void setformuleOG(QString txt)              { m_formuleOG = txt; m_cleandatas = false; m_isnullOG = false; }        //!> formule de réfraction OG
     void setecartIP(int val)                    { m_ecartIP = val; m_cleandatas = false; }                              //!> ecart interpuppilaire
+    void setisquickOD(bool logic)               { m_isquickOD = logic; m_cleandatas = false; }                          //!> la mesure d'autoref OD a été faite en mode quick ou non
+    void setisquickOG(bool logic)               { m_isquickOG = logic; m_cleandatas = false; }                          //!> la mesure d'autoref OD a été faite en mode quick ou non
 
     void cleandatas(Item::Cote cote = Item::Les2)
     {

@@ -77,6 +77,8 @@ private:
     int m_monture;                  //!> le nombre de montures
     bool m_isverreteinte;           //!> les verres sont teintés
     int m_ecartIP = 0;              //!> ecart interpuppilaire
+    bool m_isquickOD = false;       //!> mesure autoref OD en mode quick
+    bool m_isquickOG = false;       //!> mesure autoref OG en mode quick
 
 public:
     int idpat() { return m_idpat; }                             //!> l'id du patient
@@ -121,6 +123,8 @@ public:
     int monture() { return m_monture; }                         //!> le nombre de montures
     bool isverreteinte() { return m_isverreteinte; }            //!> les verres sont teintés
     int ecartIP() { return m_ecartIP; }                         //!> ecart interpuppilaire
+    bool isquickOD() { return m_isquickOD; }                    //!> la mesure d'autoref OD a été faite en mode quick
+    bool isquickOG() { return m_isquickOG; }                    //!> la mesure d'autoref OG a été faite en mode quick
 
     void setidpat(int id)                   { m_idpat = id;
                                               m_data[CP_IDPAT_REFRACTIONS] = id; }
@@ -206,6 +210,10 @@ public:
                                               m_data[CP_VERRETEINTE_REFRACTIONS] = logic; }
     void setecartIP(int val)                { m_ecartIP = val;
                                               m_data[CP_PD_REFRACTIONS] = val; }
+    void setisquickOD(bool logic)           { m_isquickOD = logic;
+                                              m_data[CP_QUICKOD_REFRACTIONS] = logic; }
+    void setisquickOG(bool logic)           { m_isquickOG = logic;
+                                              m_data[CP_QUICKOG_REFRACTIONS] = logic; }
 
     void setdataclean(Refraction::Mesure mesure = Refraction::NoMesure);
 

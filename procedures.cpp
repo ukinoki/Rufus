@@ -7299,6 +7299,7 @@ QString Procedures::HtmlAutoref()
     QString ResultatOD("");
     QString ResultatOG("");
     QString Reponse = "";
+    QString quick = "";
 
     // détermination OD
     if (!autoref->isnullLOD())
@@ -7346,8 +7347,16 @@ QString Procedures::HtmlAutoref()
     }
     else
         Reponse = ResultatOD + " / " + ResultatOG;
+    if (autoref->isquickOD() && autoref->isquickOG())
+        quick = "quick ODG";
+    else if (autoref->isquickOD() && !autoref->isquickOG())
+        quick = "quick OD";
+    else if (!autoref->isquickOD() && autoref->isquickOG())
+        quick = "quick OG";
+    if (quick != "")
+        Reponse += " <font color=\"red\"><b>" + quick + "</b></font>";
     Reponse = HTML_RETOURLIGNE "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
-                           + tr("Autoref") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + Reponse + "</td>";
+                           + tr("Autoref") + ":</b></font></td><td width=\"" BIG_LARGEUR_FORMULE "\">" + Reponse + "</td>";
     if (autoref->ecartIP() >0)
         Reponse += "<td width=\"60\"><font color = " COULEUR_TITRES "><b>"
                 + tr("EIP") + ":</b></font></td><td width=\"" LARGEUR_FORMULE "\">" + QString::number(autoref->ecartIP()) + "mm</td>";
@@ -7722,10 +7731,12 @@ void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
         listbinds[CP_AXECYLOG_REFRACTIONS]              = Datas::I()->mesureautoref->axecylindreOG();
         listbinds[CP_FORMULEOG_REFRACTIONS]             = CalculeFormule(Datas::I()->mesureautoref,"G");
         listbinds[CP_PD_REFRACTIONS]                    = Datas::I()->mesureautoref->ecartIP();
+        listbinds[CP_QUICKOD_REFRACTIONS]               = Datas::I()->mesureautoref->isquickOD();
+        listbinds[CP_QUICKOG_REFRACTIONS]               = Datas::I()->mesureautoref->isquickOG();
         listbinds[CP_OGMESURE_REFRACTIONS]              = 1;
         Datas::I()->refractions->CreationRefraction(listbinds);
 
-        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and QuelleMesure = '" + ConvertMesure(typemesure) + "'";
+        QString requete = "select " CP_IDPATIENT_DATAOPHTA " from " TBL_DONNEES_OPHTA_PATIENTS " where " CP_IDPATIENT_DATAOPHTA " = " + QString::number(idPatient) + " and " CP_MESURE_DATAOPHTA " = '" + ConvertMesure(typemesure) + "'";
         QVariantList patdata = db->getFirstRecordFromStandardSelectSQL(requete, m_ok);
         if (!m_ok)
             return;

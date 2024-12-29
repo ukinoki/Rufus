@@ -2971,47 +2971,58 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
     data[CP_IDACTE_REFRACTIONS]             = refdata.at(2).toInt();
     data[CP_DATE_REFRACTIONS]               = refdata.at(3).toDate().toString("yyyy-MM-dd");
     data[CP_TYPEMESURE_REFRACTIONS]         = refdata.at(4).toString();
+
     data[CP_DISTANCEMESURE_REFRACTIONS]     = refdata.at(5).toString();
     if (refdata.at(6) != QVariant())
         data[CP_CYCLOPLEGIE_REFRACTIONS]    = (refdata.at(6).toInt() == 1);
     data[CP_ODMESURE_REFRACTIONS]           = (refdata.at(7).toInt() == 1);
     data[CP_SPHEREOD_REFRACTIONS]           = refdata.at(8).toDouble();
     data[CP_CYLINDREOD_REFRACTIONS]         = refdata.at(9).toDouble();
+
     data[CP_AXECYLOD_REFRACTIONS]           = refdata.at(10).toInt();
     data[CP_AVLOD_REFRACTIONS]              = refdata.at(11).toString();
     data[CP_ADDVPOD_REFRACTIONS]            = refdata.at(12).toDouble();
     data[CP_AVPOD_REFRACTIONS]              = refdata.at(13).toString();
     data[CP_PRISMEOD_REFRACTIONS]           = refdata.at(14).toDouble();
+
     data[CP_BASEPRISMEOD_REFRACTIONS]       = refdata.at(15).toInt();
     data[CP_BASEPRISMETEXTOD_REFRACTIONS]   = refdata.at(16).toString();
     if (refdata.at(17) != QVariant())
         data[CP_PRESSONOD_REFRACTIONS]      = (refdata.at(17).toInt() == 1);
     data[CP_DEPOLIOD_REFRACTIONS]           = (refdata.at(18).toInt() == 1);
     data[CP_PLANOD_REFRACTIONS]             = (refdata.at(19).toInt() == 1);
+
     data[CP_RYSEROD_REFRACTIONS]            = refdata.at(20).toInt();
     data[CP_FORMULEOD_REFRACTIONS]          = refdata.at(21).toString();
     data[CP_OGMESURE_REFRACTIONS]           = (refdata.at(22).toInt() == 1);
     data[CP_SPHEREOG_REFRACTIONS]           = refdata.at(23).toDouble();
     data[CP_CYLINDREOG_REFRACTIONS]         = refdata.at(24).toDouble();
+
     data[CP_AXECYLOG_REFRACTIONS]           = refdata.at(25).toInt();
     data[CP_AVLOG_REFRACTIONS]              = refdata.at(26).toString();
     data[CP_ADDVPOG_REFRACTIONS]            = refdata.at(27).toDouble();
     data[CP_AVPOG_REFRACTIONS]              = refdata.at(28).toString();
     data[CP_PRISMEOG_REFRACTIONS]           = refdata.at(29).toDouble();
+
     data[CP_BASEPRISMEOG_REFRACTIONS]       = refdata.at(30).toInt();
     data[CP_BASEPRISMETEXTOG_REFRACTIONS]   = refdata.at(31).toString();
     if (refdata.at(32) != QVariant())
         data[CP_PRESSONOG_REFRACTIONS]      = (refdata.at(32).toInt() == 1);
     data[CP_DEPOLIOG_REFRACTIONS]           = (refdata.at(33).toInt() == 1);
     data[CP_PLANOG_REFRACTIONS]             = (refdata.at(34).toInt() == 1);
+
     data[CP_RYSEROG_REFRACTIONS]            = refdata.at(35).toInt();
     data[CP_FORMULEOG_REFRACTIONS]          = refdata.at(36).toString();
     data[CP_COMMENTAIREORDO_REFRACTIONS]    = refdata.at(37).toString();
     data[CP_TYPEVERRES_REFRACTIONS]         = refdata.at(38).toString();
     data[CP_OEIL_REFRACTIONS]               = refdata.at(39).toString();
+
     data[CP_MONTURE_REFRACTIONS]            = refdata.at(40).toString();
     data[CP_VERRETEINTE_REFRACTIONS]        = (refdata.at(41).toInt() == 1);
     data[CP_PD_REFRACTIONS]                 = refdata.at(42).toInt();
+    data[CP_QUICKOD_REFRACTIONS]            = refdata.at(43).toInt() == 1;
+    data[CP_QUICKOD_REFRACTIONS]            = refdata.at(44).toInt() == 1;
+
     data["isODmesure"]                      = (refdata.at(8) != QVariant());
     data["isOGmesure"]                      = (refdata.at(23) != QVariant());
     return data;
@@ -3020,16 +3031,18 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
 QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //! charge toutes les refractions d'un patient
 {
     QList<Refraction*> list = QList<Refraction*> ();
-    QString req = "SELECT  idRefraction, idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4-5
-        " Cycloplegie, ODcoche, SphereOD, CylindreOD, AxeCylindreOD, AVLOD, "                   // 6-7-8-9-10-11
-        " AddVPOD, AVPOD, PrismeOD, BasePrismeOD, BasePrismeTextOD, PressOnOD,"                 // 12-13-14-15-16-17
-        " DepoliOD, PlanOD, RyserOD, FormuleOD, OGcoche, SphereOG, CylindreOG,"                 // 18-19-20-21-22-23-24
-        " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 25-26-27-28-29-30
-        " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 31-32-34-35-36
-        " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PD"             // 37-38-39-40-41-42
+    QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
+        CP_DISTANCEMESURE_REFRACTIONS ", " CP_CYCLOPLEGIE_REFRACTIONS ", " CP_ODMESURE_REFRACTIONS ", " CP_SPHEREOD_REFRACTIONS ", " CP_CYLINDREOD_REFRACTIONS ", "      // 5-6-7-8-9
+        CP_AXECYLOD_REFRACTIONS ", " CP_AVLOD_REFRACTIONS ", " CP_ADDVPOD_REFRACTIONS ", " CP_AVPOD_REFRACTIONS ", " CP_PRISMEOD_REFRACTIONS ", "                        // 10-11-12-13-14
+        CP_BASEPRISMEOD_REFRACTIONS ", "  CP_BASEPRISMETEXTOD_REFRACTIONS ", " CP_PRESSONOD_REFRACTIONS ", " CP_DEPOLIOD_REFRACTIONS ", " CP_PLANOD_REFRACTIONS ", "     // 15-16-17-18-19
+        CP_RYSEROD_REFRACTIONS ", " CP_FORMULEOD_REFRACTIONS ", " CP_OGMESURE_REFRACTIONS ", " CP_SPHEREOG_REFRACTIONS ", " CP_CYLINDREOG_REFRACTIONS ", "               // 20-21-22-23-24
+        CP_AXECYLOG_REFRACTIONS ", " CP_AVLOG_REFRACTIONS ", " CP_ADDVPOG_REFRACTIONS ", " CP_AVPOG_REFRACTIONS ", " CP_PRISMEOG_REFRACTIONS ", "                        // 25-26-27-28-29
+        CP_BASEPRISMEOG_REFRACTIONS ", " CP_BASEPRISMETEXTOG_REFRACTIONS ", " CP_PRESSONOG_REFRACTIONS ", " CP_DEPOLIOG_REFRACTIONS ", " CP_PLANOG_REFRACTIONS ", "      // 30-31-32-33-34
+        CP_RYSEROG_REFRACTIONS ", " CP_FORMULEOG_REFRACTIONS ", " CP_COMMENTAIREORDO_REFRACTIONS ", " CP_TYPEVERRES_REFRACTIONS ", " CP_OEIL_REFRACTIONS ", "            // 35-36-37-38-39
+        CP_MONTURE_REFRACTIONS "," CP_VERRETEINTE_REFRACTIONS ", " CP_PD_REFRACTIONS ", " CP_QUICKOD_REFRACTIONS ", " CP_QUICKOG_REFRACTIONS                             // 40-41-42-43-44
         " FROM " TBL_REFRACTIONS ;
-    req += " WHERE  IdPat = " + QString::number(id) ;
-    req += " order by idrefraction desc";
+    req += " WHERE " CP_IDPAT_REFRACTIONS " = " + QString::number(id) ;
+    req += " order by " CP_ID_REFRACTIONS " desc";
     QList<QVariantList> reflist = StandardSelectSQL(req,ok);
     if(!ok || reflist.size()==0)
         return list;
@@ -3049,15 +3062,17 @@ QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //!
 Refraction* DataBase::loadRefractionById(int idref)                   //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 {
     Refraction *ref = Q_NULLPTR;
-    QString req = "SELECT idRefraction, idPat, idActe, DateRefraction, QuelleMesure, QuelleDistance, "           // 0-1-2-3-4-5
-        " Cycloplegie, ODcoche, SphereOD, CylindreOD, AxeCylindreOD, AVLOD, "                   // 6-7-8-9-10-11
-        " AddVPOD, AVPOD, PrismeOD, BasePrismeOD, BasePrismeTextOD, PressOnOD,"                 // 12-13-14-15-16-17
-        " DepoliOD, PlanOD, RyserOD, FormuleOD, OGcoche, SphereOG, CylindreOG,"                 // 18-19-20-21-22-23-24
-        " AxeCylindreOG, AVLOG, AddVPOG, AVPOG, PrismeOG, BasePrismeOG, "                       // 25-26-27-28-29-30
-        " BasePrismeTextOG, PressOnOG, DepoliOG, PlanOG, RyserOG, FormuleOG, "                  // 31-32-34-35-36
-        " CommentaireOrdoLunettes, QuelsVerres, QuelOeil, Monture, VerreTeinte, PD"             // 37-38-39-40-41-42
+    QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
+        CP_DISTANCEMESURE_REFRACTIONS ", " CP_CYCLOPLEGIE_REFRACTIONS ", " CP_ODMESURE_REFRACTIONS ", " CP_SPHEREOD_REFRACTIONS ", " CP_CYLINDREOD_REFRACTIONS ", "      // 5-6-7-8-9
+        CP_AXECYLOD_REFRACTIONS ", " CP_AVLOD_REFRACTIONS ", " CP_ADDVPOD_REFRACTIONS ", " CP_AVPOD_REFRACTIONS ", " CP_PRISMEOD_REFRACTIONS ", "                        // 10-11-12-13-14
+        CP_BASEPRISMEOD_REFRACTIONS ", "  CP_BASEPRISMETEXTOD_REFRACTIONS ", " CP_PRESSONOD_REFRACTIONS ", " CP_DEPOLIOD_REFRACTIONS ", " CP_PLANOD_REFRACTIONS ", "     // 15-16-17-18-19
+        CP_RYSEROD_REFRACTIONS ", " CP_FORMULEOD_REFRACTIONS ", " CP_OGMESURE_REFRACTIONS ", " CP_SPHEREOG_REFRACTIONS ", " CP_CYLINDREOG_REFRACTIONS ", "               // 20-21-22-23-24
+        CP_AXECYLOG_REFRACTIONS ", " CP_AVLOG_REFRACTIONS ", " CP_ADDVPOG_REFRACTIONS ", " CP_AVPOG_REFRACTIONS ", " CP_PRISMEOG_REFRACTIONS ", "                        // 25-26-27-28-29
+        CP_BASEPRISMEOG_REFRACTIONS ", " CP_BASEPRISMETEXTOG_REFRACTIONS ", " CP_PRESSONOG_REFRACTIONS ", " CP_DEPOLIOG_REFRACTIONS ", " CP_PLANOG_REFRACTIONS ", "      // 30-31-32-33-34
+        CP_BASEPRISMETEXTOD_REFRACTIONS ", " CP_FORMULEOG_REFRACTIONS ", " CP_COMMENTAIREORDO_REFRACTIONS ", " CP_TYPEVERRES_REFRACTIONS ", " CP_OEIL_REFRACTIONS ", "   // 35-36-37-38-39
+        CP_MONTURE_REFRACTIONS "," CP_VERRETEINTE_REFRACTIONS ", " CP_PD_REFRACTIONS ", " CP_QUICKOD_REFRACTIONS ", " CP_QUICKOG_REFRACTIONS                             // 40-41-42-43-44
         " FROM " TBL_REFRACTIONS ;
-    req += " WHERE  IdRefraction = " + QString::number(idref) ;
+    req += " WHERE " CP_ID_REFRACTIONS " = " + QString::number(idref) ;
     QVariantList refdata = getFirstRecordFromStandardSelectSQL(req,ok);
     if(!ok || refdata.size()==0)
         return ref;

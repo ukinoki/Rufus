@@ -1742,9 +1742,9 @@ QString dlg_refraction::CommentaireObligatoire()
 void dlg_refraction::InsertDonneesOphtaPatient()
 {
    QHash<QString, QVariant> listbinds;
-   listbinds["idPat"]           = Datas::I()->patients->currentpatient()->id();
-   listbinds["QuelleMesure"]    = Refraction::ConvertMesure(m_mode);
-   listbinds["QuelleDistance"]  = QuelleDistance();
+   listbinds[CP_IDPATIENT_DATAOPHTA] = Datas::I()->patients->currentpatient()->id();
+   listbinds[CP_MESURE_DATAOPHTA]    = Refraction::ConvertMesure(m_mode);
+   listbinds[CP_DISTANCE_DATAOPHTA]  = QuelleDistance();
    if (m_mode == Refraction::Autoref && m_modeouverture == Manuel)
    {
        double K1OD = QLocale().toDouble(ui->K1OD->text());
@@ -1752,9 +1752,9 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        bool okOD = (K1OD >= m_val->bottom() && K1OD <= m_val->top() && K2OD >= m_val->bottom() && K2OD <= m_val->top());
        if (okOD && ui->ODCheckBox->isChecked()) // 16-07-2014
        {
-           listbinds["K1OD"]        = K1OD;
-           listbinds["K2OD"]        = K2OD;
-           listbinds["AxeKOD"]      = ui->AxeKOD->text();
+           listbinds[CP_K1OD_DATAOPHTA]        = K1OD;
+           listbinds[CP_K2OD_DATAOPHTA]        = K2OD;
+           listbinds[CP_AXEKOD_DATAOPHTA]      = ui->AxeKOD->text();
            Datas::I()->mesurekerato->setK1OD(K1OD);
            Datas::I()->mesurekerato->setK2OD(K2OD);
            Datas::I()->mesurekerato->setaxeKOD(ui->AxeKOD->text().toInt());
@@ -1764,53 +1764,53 @@ void dlg_refraction::InsertDonneesOphtaPatient()
        bool okOG = (K1OG >= m_val->bottom() && K1OG <= m_val->top() && K2OG >= m_val->bottom() && K2OG <= m_val->top());
        if (okOG && ui->OGCheckBox->isChecked())  // 16-07-2014
        {
-           listbinds["K1OG"]        = K1OG;
-           listbinds["K2OG"]        = K2OG;
-           listbinds["AxeKOG"]      = ui->AxeKOG->text();
+           listbinds[CP_K1OG_DATAOPHTA]        = K1OG;
+           listbinds[CP_K2OG_DATAOPHTA]        = K2OG;
+           listbinds[CP_AXEKOG_DATAOPHTA]      = ui->AxeKOG->text();
            Datas::I()->mesurekerato->setK1OG(K1OG);
            Datas::I()->mesurekerato->setK2OG(K2OG);
            Datas::I()->mesurekerato->setaxeKOG(ui->AxeKOG->text().toInt());
        }
        if (okOD || okOG)
        {
-           listbinds["OrigineK"]     = Refraction::ConvertMesure(m_mode);
-           listbinds["DateK"]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+           listbinds[CP_MODEMESUREKERATO_DATAOPHTA]  = Refraction::ConvertMesure(m_mode);
+           listbinds[CP_DATEKERATO_DATAOPHTA]        = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
        }
    }
    if (ui->ODCheckBox->isChecked())
    {
-       listbinds["SphereOD"]        = ui->SphereOD->value();
-       listbinds["CylindreOD"]      = ui->CylindreOD->value();
-       listbinds["AxeCylindreOD"]   = ui->AxeCylindreOD->value();
+       listbinds[CP_SPHEREOD_DATAOPHTA]        = ui->SphereOD->value();
+       listbinds[CP_CYLINDREOD_DATAOPHTA]      = ui->CylindreOD->value();
+       listbinds[CP_AXECYLINDREOD_DATAOPHTA]   = ui->AxeCylindreOD->value();
        if (m_mode == Refraction::Acuite)
        {
-           listbinds["AVLOD"]       = wdg_AVLOD->text();
+           listbinds[CP_AVLOD_DATAOPHTA]       = wdg_AVLOD->text();
            if (!ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
            {
-               listbinds["AddVPOD"] = ui->AddVPOD->value();
-               listbinds["AVPOD"]   = wdg_AVPOD->text();
+               listbinds[CP_ADDVPOD_DATAOPHTA] = ui->AddVPOD->value();
+               listbinds[CP_AVPOD_DATAOPHTA]   = wdg_AVPOD->text();
            }
        }
-       listbinds["DateRefOD"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       listbinds[CP_DATEREFRACTIONOD_DATAOPHTA]= ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->OGCheckBox->isChecked())
    {
-       listbinds["SphereOG"]        = ui->SphereOG->value();
-       listbinds["CylindreOG"]      = ui->CylindreOG->value();
-       listbinds["AxeCylindreOG"]   = ui->AxeCylindreOG->value();
+       listbinds[CP_SPHEREOG_DATAOPHTA]        = ui->SphereOG->value();
+       listbinds[CP_CYLINDREOG_DATAOPHTA]      = ui->CylindreOG->value();
+       listbinds[CP_AXECYLINDREOG_DATAOPHTA]   = ui->AxeCylindreOG->value();
        if (m_mode == Refraction::Acuite)
        {
-           listbinds["AVLOG"]       = wdg_AVLOG->text();
+           listbinds[CP_AVLOG_DATAOPHTA]       = wdg_AVLOG->text();
            if (!ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
            {
-               listbinds["AddVPOG"] = ui->AddVPOG->value();
-               listbinds["AVPOG"]   = wdg_AVPOG->text();
+               listbinds[CP_ADDVPOG_DATAOPHTA] = ui->AddVPOG->value();
+               listbinds[CP_AVPOG_DATAOPHTA]   = wdg_AVPOG->text();
            }
        }
-       listbinds["DateRefOG"]   = ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
+       listbinds[CP_DATEREFRACTIONOG_DATAOPHTA]= ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss");
    }
    if (ui->EIPLabel->text().toInt() > 0 && ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked())
-       listbinds[CP_PD_REFRACTIONS] = ui->EIPLabel->text();
+       listbinds[CP_ECARTIP_DATAOPHTA]         = ui->EIPLabel->text();
    db->InsertSQLByBinds(TBL_DONNEES_OPHTA_PATIENTS, listbinds, tr("Erreur d'écriture dans ") + TBL_DONNEES_OPHTA_PATIENTS);
    Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();
 }
@@ -1999,9 +1999,9 @@ void dlg_refraction::MajDonneesOphtaPatient()
 {
     // Recherche d'un enregistrement existant
     bool ok;
-    QString MAJrequete = "SELECT   idPat FROM " TBL_DONNEES_OPHTA_PATIENTS
-              " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) +
-              " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
+    QString MAJrequete = "SELECT " CP_IDPATIENT_DATAOPHTA " FROM " TBL_DONNEES_OPHTA_PATIENTS
+              " WHERE " CP_IDPATIENT_DATAOPHTA " = " + QString::number(Datas::I()->patients->currentpatient()->id()) +
+              " AND " CP_MESURE_DATAOPHTA " = '" + Refraction::ConvertMesure(m_mode) + "'";
     QList<QVariantList> MAJDonneesOphtalist = db->StandardSelectSQL(MAJrequete, ok, tr("Impossible de se connecter à la table des Donnees biométriques!"));
     if (!ok)
         return;
@@ -3806,7 +3806,7 @@ QString dlg_refraction::ResultatObservation() const
 void dlg_refraction::UpdateDonneesOphtaPatient()
 {
     QString UpdateDOPrequete = "UPDATE  " TBL_DONNEES_OPHTA_PATIENTS
-                " SET QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
+                " SET " CP_MESURE_DATAOPHTA " = '" + Refraction::ConvertMesure(m_mode) + "'";
     if (m_mode == Refraction::Autoref && m_modeouverture == Manuel)
     {
         double K1OD = QLocale().toDouble(ui->K1OD->text());
@@ -3815,9 +3815,9 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         if (okOD && ui->ODCheckBox->isChecked())
         {
             UpdateDOPrequete +=
-                    " , K1OD = " + QString::number(QLocale().toDouble(ui->K1OD->text()),'f',2) +
-                    " , K2OD = " + QString::number(QLocale().toDouble(ui->K2OD->text()),'f',2) +
-                    " , AxeKOD = " + ui->AxeKOD->text();
+                    " , " CP_K1OD_DATAOPHTA " = " + QString::number(QLocale().toDouble(ui->K1OD->text()),'f',2) +
+                    " , " CP_K2OD_DATAOPHTA " = " + QString::number(QLocale().toDouble(ui->K2OD->text()),'f',2) +
+                    " , " CP_AXEKOD_DATAOPHTA " = " + ui->AxeKOD->text();
             Datas::I()->mesurekerato->setK1OD(K1OD);
             Datas::I()->mesurekerato->setK2OD(K2OD);
             Datas::I()->mesurekerato->setaxeKOD(ui->AxeKOD->text().toInt());
@@ -3828,9 +3828,9 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         if (okOG && ui->OGCheckBox->isChecked())
         {
             UpdateDOPrequete +=
-                    ", K1OG = " + QString::number(QLocale().toDouble(ui->K1OG->text()),'f',2) +
-                    ", K2OG = " + QString::number(QLocale().toDouble(ui->K2OG->text()),'f',2) +
-                    ", AxeKOG = " + ui->AxeKOG->text();
+                    ", " CP_K1OG_DATAOPHTA " = " + QString::number(QLocale().toDouble(ui->K1OG->text()),'f',2) +
+                    ", " CP_K2OG_DATAOPHTA " = " + QString::number(QLocale().toDouble(ui->K2OG->text()),'f',2) +
+                    ", " CP_AXEKOG_DATAOPHTA " = " + ui->AxeKOG->text();
             Datas::I()->mesurekerato->setK1OG(K1OG);
             Datas::I()->mesurekerato->setK2OG(K2OG);
             Datas::I()->mesurekerato->setaxeKOG(ui->AxeKOG->text().toInt());
@@ -3838,65 +3838,65 @@ void dlg_refraction::UpdateDonneesOphtaPatient()
         if (okOD || okOG)
         {
             UpdateDOPrequete +=
-                    ", OrigineK = 'M'"
-                    ", DateK =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+                    ", " CP_MODEMESUREKERATO_DATAOPHTA " = 'M'"
+                    ", " CP_DATEKERATO_DATAOPHTA " =  '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
         }
     }
     if (ui->ODCheckBox->isChecked())
     {
-        UpdateDOPrequete += ", SphereOD = " + QString::number(ui->SphereOD->value());
+        UpdateDOPrequete += ", " CP_SPHEREOD_DATAOPHTA " = " + QString::number(ui->SphereOD->value());
         if (ui->CylindreOD->value() == 0.0)
             UpdateDOPrequete +=
-                ", CylindreOD = 0"
-                ", AxeCylindreOD = 0";
+                ", " CP_CYLINDREOD_DATAOPHTA " = 0"
+                ", " CP_AXECYLINDREOD_DATAOPHTA " = 0";
         else
             UpdateDOPrequete +=
-                ", CylindreOD = " + QString::number(ui->CylindreOD->value()) +
-                ", AxeCylindreOD = " + QString::number(ui->AxeCylindreOD->value());
+                ", " CP_CYLINDREOD_DATAOPHTA " = " + QString::number(ui->CylindreOD->value()) +
+                ", " CP_AXECYLINDREOD_DATAOPHTA " = " + QString::number(ui->AxeCylindreOD->value());
         if (m_mode == Refraction::Acuite)
         {
-            UpdateDOPrequete += ", AVLOD = '" + wdg_AVLOD->text() + "'";
+            UpdateDOPrequete += ", " CP_AVLOD_DATAOPHTA " = '" + wdg_AVLOD->text() + "'";
             if (!ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
             {
-                UpdateDOPrequete += ", AddVPOD = " + QString::number(ui->AddVPOD->value());
-                UpdateDOPrequete += ", AVPOD = '" + wdg_AVPOD->text() + "'";
+                UpdateDOPrequete += ", " CP_ADDVPOD_DATAOPHTA " = " + QString::number(ui->AddVPOD->value());
+                UpdateDOPrequete += ", " CP_AVPOD_DATAOPHTA " = '" + wdg_AVPOD->text() + "'";
             }
             else
-            UpdateDOPrequete += ",AddVPOD = null, AVPOD = null";
+            UpdateDOPrequete += ", " CP_ADDVPOD_DATAOPHTA " = null, " CP_AVPOD_DATAOPHTA " = null";
         }
         else
-            UpdateDOPrequete += ", AVLOD = null, AddVPOD = null, AVPOD = null";
-        UpdateDOPrequete += ", DateRefOD = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+            UpdateDOPrequete += ", " CP_AVLOD_DATAOPHTA " = null, " CP_ADDVPOD_DATAOPHTA " = null, " CP_AVPOD_DATAOPHTA " = null";
+        UpdateDOPrequete += ", " CP_DATEREFRACTIONOD_DATAOPHTA " = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
     if (ui->OGCheckBox->isChecked())
     {
-        UpdateDOPrequete += ", SphereOG = " + QString::number(ui->SphereOG->value());
+        UpdateDOPrequete += ", " CP_SPHEREOG_DATAOPHTA " = " + QString::number(ui->SphereOG->value());
         if (ui->CylindreOG->value() == 0.0)
             UpdateDOPrequete +=
-                ", CylindreOG = 0"
-                ", AxeCylindreOG = 0";
+                ", " CP_CYLINDREOG_DATAOPHTA " = 0"
+                ", " CP_AXECYLINDREOG_DATAOPHTA " = 0";
         else
             UpdateDOPrequete +=
-                ", CylindreOG = " + QString::number(ui->CylindreOG->value()) +
-                ", AxeCylindreOG = " + QString::number(ui->AxeCylindreOG->value());
+                ", " CP_CYLINDREOG_DATAOPHTA " = " + QString::number(ui->CylindreOG->value()) +
+                ", " CP_AXECYLINDREOG_DATAOPHTA " = " + QString::number(ui->AxeCylindreOG->value());
         if (m_mode == Refraction::Acuite)
         {
-            UpdateDOPrequete += ", AVLOG = '" + wdg_AVLOG->text() + "'";
+            UpdateDOPrequete += ", " CP_AVLOG_DATAOPHTA " = '" + wdg_AVLOG->text() + "'";
             if (!ui->CycloplegieCheckBox->isChecked() && ui->V2RadioButton->isChecked())
             {
-                UpdateDOPrequete += ", AddVPOG = " + QString::number(ui->AddVPOG->value());
-                UpdateDOPrequete += ", AVPOG = '" + wdg_AVPOG->text() + "'";
+                UpdateDOPrequete += ", " CP_ADDVPOG_DATAOPHTA " = " + QString::number(ui->AddVPOG->value());
+                UpdateDOPrequete += ", " CP_AVPOG_DATAOPHTA " = '" + wdg_AVPOG->text() + "'";
             }
             else
-            UpdateDOPrequete += ",AddVPOG = null, AVPOG = null";
+            UpdateDOPrequete += ", " CP_ADDVPOG_DATAOPHTA " = null, " CP_AVPOG_DATAOPHTA " = null";
         }
         else
-            UpdateDOPrequete += ", AVLOG = null, AddVPOG = null, AVPOG = null";
-        UpdateDOPrequete += ", DateRefOG = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
+            UpdateDOPrequete += ", " CP_AVLOG_DATAOPHTA " = null, " CP_ADDVPOG_DATAOPHTA " = null, " CP_AVPOG_DATAOPHTA " = null";
+        UpdateDOPrequete += ", " CP_DATEREFRACTIONOG_DATAOPHTA " = '" + ui->DateDateEdit->dateTime().toString("yyyy-MM-dd HH:mm:ss") + "'";
     }
     if (ui->EIPLabel->text().toInt() > 0 && ui->ODCheckBox->isChecked() && ui->OGCheckBox->isChecked())
-        UpdateDOPrequete += ", PD = '" + ui->EIPLabel->text() + "'";
-    UpdateDOPrequete +=  " WHERE idPat = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND QuelleMesure = '" + Refraction::ConvertMesure(m_mode) + "'";
+        UpdateDOPrequete += ", " CP_ECARTIP_DATAOPHTA " = '" + ui->EIPLabel->text() + "'";
+    UpdateDOPrequete +=  " WHERE " CP_IDPATIENT_DATAOPHTA " = " + QString::number(Datas::I()->patients->currentpatient()->id()) + " AND " CP_MESURE_DATAOPHTA " = '" + Refraction::ConvertMesure(m_mode) + "'";
     //proc->Edit(UpdateDOPrequete);
     db->StandardSQL(UpdateDOPrequete, tr("Erreur de MAJ dans ")+ TBL_DONNEES_OPHTA_PATIENTS);
     Datas::I()->patients->actualiseDonneesOphtaCurrentPatient();

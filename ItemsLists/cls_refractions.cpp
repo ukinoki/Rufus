@@ -128,6 +128,8 @@ Refraction* Refractions::CreationRefraction(QHash<QString, QVariant> sets)
         else if (champ == CP_MONTURE_REFRACTIONS)           data[champ] = itset.value().toString();
         else if (champ == CP_VERRETEINTE_REFRACTIONS)       data[champ] = (itset.value().toInt() == 1);
         else if (champ == CP_PD_REFRACTIONS)                data[champ] = itset.value().toInt();
+        else if (champ == CP_QUICKOD_REFRACTIONS)           data[champ] = (itset.value().toInt() == 1);
+        else if (champ == CP_QUICKOG_REFRACTIONS)           data[champ] = (itset.value().toInt() == 1);
     }
     ref = new Refraction(data);
     if (ref != Q_NULLPTR)
