@@ -4646,7 +4646,10 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
         else
         {
             if (sp_portRefracteur != Q_NULLPTR)
-                emit t_threadRefracteur->finished();
+            {
+                sp_portRefracteur->close();
+                delete sp_portRefracteur;
+            }
             sp_portRefracteur = loadserialsettings(Refracteur);
             if (sp_portRefracteur != Q_NULLPTR)
             {
