@@ -148,7 +148,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     map_champs[POLITESSEMG]     = tr("formule de politesse médecin patient");
     map_champs[PRENOMMG]        = tr("Prénom du médecin");
     map_champs[NOMMG]           = tr("Nom du médecin");
-    map_champs[REFRACT]         = tr("Refraction du patient'");
+    map_champs[REFRACT]         = tr("Refraction du patient");
     map_champs[KERATO]          = tr("Keratométrie du patient");
     map_champs[CORPAT]          = tr("Correspondant du patient");
     map_champs[ADRCORPAT]       = tr("Adresse du correspondant du patient");
@@ -2732,7 +2732,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
                 {
                     if (publicdossier && !doc->ispublic())
                     {
-                        UpMessageBox::Watch(this,tr("Creation de dossier"), tr("Vous ne pouvez pas enregistre le document") + " " + doc->resume()
+                        UpMessageBox::Watch(this,tr("Creation de dossier"), tr("Vous ne pouvez pas enregistrer le document") + " " + doc->resume()
                                             + " " + tr("dans ce dossier car ce dossier est public et pas le document"));
                         ui->DossiersupTableView->openPersistentEditor(m_dossiersmodel->index(row,1));
                         return false;

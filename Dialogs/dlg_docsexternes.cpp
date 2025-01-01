@@ -273,10 +273,10 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
 
     case Text:
         //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
-        if (docmt->pdforifgin() != QByteArray())
+        if (docmt->pdforigin() != QByteArray())
         {
             docmt           ->setimageformat(PDF);
-            docmt           ->setimageblob(docmt->pdforifgin());
+            docmt           ->setimageblob(docmt->pdforigin());
         }
         else
         {

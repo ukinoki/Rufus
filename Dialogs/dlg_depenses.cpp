@@ -1006,7 +1006,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
               if (dep->lienfacture()!="")
                   emit ui->VisuDocupTableWidget->zoom();
               else
-                  UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible)"));
+                  UpMessageBox::Watch(this, tr("La visualisation de cette facture ou échéancier n'est pas possible"));
             });
         }
         else

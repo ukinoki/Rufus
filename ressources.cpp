@@ -146,7 +146,7 @@ QString Ressources::HeaderOrdo()
 QString Ressources::HeaderOrdoWithBarCode()
 {
     QString  HeadOrdo =
-"html" +
+"<html>" +
    m_head +
 "<body style=\"font-family:{{POLICE}}; font-size:9pt; font-style:italic;\">"
 "<div class=\"column\">"

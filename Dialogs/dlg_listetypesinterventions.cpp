@@ -377,7 +377,7 @@ void dlg_listetypesinterventions::MenuContextuel()
     QAction *pAction_Modif;
     QAction *pAction_Suppr;
     QAction *pAction_Creer;
-    pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un typr d'intervention"));
+    pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un type d'intervention"));
     connect (pAction_Creer,      &QAction::triggered, this,   [&] {ChoixMenuContextuel("Creer");});
 
     QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));

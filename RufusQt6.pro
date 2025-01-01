@@ -66,7 +66,6 @@ SOURCES += main.cpp\
     procedures.cpp \
     pyxinterf.cpp \
     conversionbase.cpp \
-    serialthread.cpp \
     importdocsexternesthread.cpp \
     utils.cpp \
     gbl_datas.cpp \
@@ -78,7 +77,6 @@ HEADERS += rufus.h \
     pyxinterf.h \
     ressources.h \
     conversionbase.h \
-    serialthread.h \
     importdocsexternesthread.h \
     macros.h \
     timerthread.h \

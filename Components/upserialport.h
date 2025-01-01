@@ -1,4 +1,4 @@
-/* (C) 2020 LAINE SERGE
+/* (C) 2024 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -15,34 +15,28 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SERIALTHREAD_H
-#define SERIALTHREAD_H
+#ifndef UPSERIALPORT_H
+#define UPSERIALPORT_H
 
-#include <QThread>
 #include <QSerialPort>
 #include <utils.h>
 
-class SerialThread : public QObject
+class upSerialPort : public QSerialPort
 {
     Q_OBJECT
-
 public:
-    explicit        SerialThread(QSerialPort *PortProc, QString NomApp = "");
-    void            transaction();
+    explicit    upSerialPort(QString portname, QString NomApp, QObject *parent = nullptr);
+    void        writeDatas(QByteArray datas, QString msgdebug = "");
 
 signals:
-    void            newdatacom(const QString &s);
-    void            finished();
+    void        newdatacom(const QString &s);
 
 private:
-    QByteArray      reponseData;
-    QSerialPort     *Port;
-    QString         m_nomapp = "";
-    void            LitPort();
-    QThread         *m_thread;
-    QTimer          *t_timer;
-    void            readTimer();
+    QString     m_nomapp = "";
+    QString     m_repons = "";
+    QTimer      *t_timer = Q_NULLPTR;;
+    void        readDataPort();
+    void        readdatas();
 };
 
-#endif // SERIALTHREAD_H
-
+#endif // UPSERIALPORT_H

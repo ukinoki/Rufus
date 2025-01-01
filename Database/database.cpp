@@ -3030,6 +3030,17 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
 
 QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //! charge toutes les refractions d'un patient
 {
+    QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
+                                                    "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+                                                    "WHERE TABLE_NAME = 'refractions' AND COLUMN_NAME = 'QuickOD') as chp;", ok);
+    if (ok)
+        if (listc.at(0).at(0).toInt() == 0)
+        {
+            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOD` INT NULL DEFAULT 0 AFTER `AVPOD`;");
+            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOG` INT NULL DEFAULT 0 AFTER `AVPOG`;");
+            StandardSQL("UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 81;");
+        }
+
     QList<Refraction*> list = QList<Refraction*> ();
     QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
         CP_DISTANCEMESURE_REFRACTIONS ", " CP_CYCLOPLEGIE_REFRACTIONS ", " CP_ODMESURE_REFRACTIONS ", " CP_SPHEREOD_REFRACTIONS ", " CP_CYLINDREOD_REFRACTIONS ", "      // 5-6-7-8-9
@@ -3061,6 +3072,17 @@ QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //!
 
 Refraction* DataBase::loadRefractionById(int idref)                   //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 {
+    QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
+                                                  "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+                                                  "WHERE TABLE_NAME = 'refractions' AND COLUMN_NAME = 'QuickOD') as chp;", ok);
+    if (ok)
+        if (listc.at(0).at(0).toInt() == 0)
+        {
+            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOD` INT NULL DEFAULT 0 AFTER `AVPOD`;");
+            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOG` INT NULL DEFAULT 0 AFTER `AVPOG`;");
+            StandardSQL("UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 81;");
+        }
+
     Refraction *ref = Q_NULLPTR;
     QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
         CP_DISTANCEMESURE_REFRACTIONS ", " CP_CYCLOPLEGIE_REFRACTIONS ", " CP_ODMESURE_REFRACTIONS ", " CP_SPHEREOD_REFRACTIONS ", " CP_CYLINDREOD_REFRACTIONS ", "      // 5-6-7-8-9

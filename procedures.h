@@ -53,7 +53,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidgetItem>
 
 #include <textprinter.h>
-#include <serialthread.h>
 #include <ostask.h>
 #include <dlg_paramconnexion.h>
 #include <ui_dlg_paramconnexion.h>
@@ -71,6 +70,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <upmessagebox.h>
 #include "ressources.h"
 #include <uppushbutton.h>
+#include "upserialport.h"
 #include <upcheckbox.h>
 #include <timerthread.h>
 #include <tomey.h>
@@ -460,12 +460,8 @@ private:
     bool                    m_dlgrefractionouverte;
     QString                 m_portAutoref, m_portFronto, m_portRefracteur, m_portTono;
     QMap<QString,QString>   m_mapports{{"-1","-1"}};
-    QSerialPort             *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
+    upSerialPort            *sp_portAutoref = Q_NULLPTR, *sp_portRefracteur = Q_NULLPTR, *sp_portTono = Q_NULLPTR, *sp_portFronto = Q_NULLPTR;
     bool                    m_LANAutoref = false,  m_LANFronto = false, m_LANRefracteur = false, m_LANTono = false;
-    SerialThread            *t_threadFronto = Q_NULLPTR;
-    SerialThread            *t_threadTono = Q_NULLPTR;
-    SerialThread            *t_threadRefracteur = Q_NULLPTR;
-    SerialThread            *t_threadAutoref = Q_NULLPTR;
     bool                    m_hasappareilrefractionconnecte = false;
     void                    ResetSerialSettings(Utils::SerialSettings &set)                                            /*! reset settings of the serial port defined for a device */
                             {
@@ -552,10 +548,10 @@ public:
     };
     void                    setSerialPortValueFromQSettings(Utils::SerialSettings &comset, QString prop, QString idxstring, Procedures::TypeAppareil typ);   /*! set SerialPort value from index in QserialPort metaobject metaenum */
     bool                    setSerialPortSettingsValueFromIndex(QString prop, QString &idxstring, TypeAppareil typ);                   /*! set SerialPort value in QSettings from index in QserialPort metaobject metaenum */
-    QSerialPort*            PortAutoref();
-    QSerialPort*            PortFronto();
-    QSerialPort*            PortRefracteur();
-    QSerialPort*            PortTono();
+    upSerialPort*            PortAutoref();
+    upSerialPort*            PortFronto();
+    upSerialPort*            PortRefracteur();
+    upSerialPort*            PortTono();
 
     bool                    LANAutoref()       {return m_LANAutoref;};
     bool                    LANFronto()        {return m_LANFronto;};

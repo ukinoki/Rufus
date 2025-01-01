@@ -94,7 +94,7 @@ public:
     QString format() const;
     int importance() const;
     int compression() const;
-    QByteArray pdforifgin() const { return m_pdforigin;} ;
+    QByteArray pdforigin() const { return m_pdforigin;} ;
     QList<QImage> pagelist() const;
     QByteArray imageblob() const;
     QString imageformat() const;

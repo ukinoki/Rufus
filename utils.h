@@ -299,8 +299,7 @@ public:
     static QJsonValue jsonValFromImage(const QImage &p);
     static QImage imageFromjsonVal(const QJsonValue &val);
 
-    //! écriture sur un port série d'un qByteArray
-    static void writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug);
+    //! écriture d'un qByteArray
     static void writeDataToFileDateTime (QByteArray datas, QString file, QString path);
     static void writeBinaryFile (QByteArray data, QString fileName);
 

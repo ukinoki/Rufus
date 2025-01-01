@@ -2484,7 +2484,7 @@ bool Nidek::isOKtoReceive(QString message, QString typemesure)
     if (message == okto)
         return true;
     /*! il faut ajouter un carriage return parce que
-            le RT5100 envoie ce CR contrairement aux autres appareils NIDEK
+            les appareils NIDEK envoient ce CR quand ils sont réglés sur I/F MODE = NIDEK, pas sur I/F MODE = NCP 10
             * ce n'est pas mentionné dans le mode d'emploi...*/
     okto = Utils::cleanByteArray(OKtoReceive(typemesure).append(CR));
     if (message == okto)

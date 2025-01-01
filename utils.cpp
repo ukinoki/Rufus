@@ -1450,34 +1450,271 @@ QMap<QString, QString> Utils::ReconstruitMapPortsCOM()
     QList<QSerialPortInfo> availableports = QSerialPortInfo::availablePorts();
     if (availableports.size() == 0)
         return mapports;
+    bool com1 =false;
+    bool com2 =false;
+    bool com3 =false;
+    bool com4 =false;
+    bool com5 =false;
+    bool com6 =false;
+    bool com7 =false;
+    bool com8 =false;
     for (int i=0; i<availableports.size(); i++)
     {
         QString nomgeneriqueduport = availableports.at(i).portName();
         if (nomgeneriqueduport.contains("usbserial"))
         {
             QString lastchar = nomgeneriqueduport.right(1);
-            QString firstchar = nomgeneriqueduport.split("-").at(1).left(1);
+
+            QString firstchar("");
+            if (nomgeneriqueduport.split("-").size()>1)
+                firstchar = nomgeneriqueduport.split("-").at(1).left(1);
             /*!
           * nom des ports sous BigSur  = "usbserial-F******" + no 0,1,2 ou 3
           * on peut aussi avoir un truc du genre "usbserial-A906IXA8" avec certaines clés
           * nom des ports sous driver FTDI (Startech) = "usbserial-FT0G2WCR" + lettre A,B,C ou D
+          * et on peut aussi avoir un truc du genre "usbserial-FT0G2WCR" + lettre A,B,C ou D + "usbserial-F******" + no 0,1,2 ou 3 - soit 8 ports au total déclarés mais 4 qui ne fontionnent pas
+          * Il faut donc les tester un par un
          */
-            if (lastchar == "0" ||  lastchar == "A" || firstchar == "A")
-                mapports.insert(COM1, nomgeneriqueduport);
-            else if (lastchar == "1" ||  lastchar == "B" || firstchar == "B")
-                mapports.insert(COM2, nomgeneriqueduport);
-            else if (lastchar == "2" ||  lastchar == "C" || firstchar == "C")
-                mapports.insert(COM3, nomgeneriqueduport);
-             else if (lastchar == "3" ||  lastchar == "D" || firstchar == "D")
-                mapports.insert(COM4, nomgeneriqueduport);
-            else if (lastchar == "4" ||  lastchar == "E" || firstchar == "E")
-                mapports.insert(COM5, nomgeneriqueduport);
-            else if (lastchar == "5" ||  lastchar == "F")
-                mapports.insert(COM6, nomgeneriqueduport);
-            else if (lastchar == "6" ||  lastchar == "G")
-                mapports.insert(COM7, nomgeneriqueduport);
-            else if (lastchar == "7" ||  lastchar == "H")
-                mapports.insert(COM8, nomgeneriqueduport);
+            QSerialPort *testPort;
+            /*! COM1 */
+            if (lastchar == "0")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM1, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com1 = true;
+                }
+            }
+            if (lastchar == "A" && !com1)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM1, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com1 = true;
+                }
+            }
+            if (firstchar == "A" && !com1)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM1, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com1 = true;
+                }
+            }
+            /*! COM2 */
+            if (lastchar == "1")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM2, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com2 = true;
+                }
+            }
+            if (lastchar == "B" && !com2)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM2, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com2 = true;
+                }
+            }
+            if (firstchar == "B" && !com2)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM2, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com2 = true;
+                }
+            }
+            /*! COM3 */
+            if (lastchar == "2")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM3, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com3 = true;
+                }
+            }
+            if (lastchar == "C" && !com3)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM3, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com3 = true;
+                }
+            }
+            if (firstchar == "C" && !com3)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM3, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com3 = true;
+                }
+            }
+            /*! COM4 */
+            if (lastchar == "3")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM4, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com4 = true;
+                }
+            }
+            if (lastchar == "D" && !com4)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM4, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com4 = true;
+                }
+            }
+            if (firstchar == "D" && !com4)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM4, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com4 = true;
+                }
+            }
+            /*! COM5 */
+            if (lastchar == "4")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM5, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com5 = true;
+                }
+            }
+            if (lastchar == "E" && !com5)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM5, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com5 = true;
+                }
+            }
+            if (firstchar == "E" && !com5)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM5, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com5 = true;
+                }
+            }
+            /*! COM6 */
+            if (lastchar == "5")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM6, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com6 = true;
+                }
+            }
+            if (lastchar == "F" && !com6)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM6, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com6 = true;
+                }
+            }
+            /*! COM7 */
+            if (lastchar == "6")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM7, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com7 = true;
+                }
+            }
+            if (lastchar == "G" && !com7)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM7, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com7 = true;
+                }
+            }
+            /*! COM8 */
+            if (lastchar == "7")
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM8, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com8 = true;
+                }
+            }
+            if (lastchar == "H" && !com8)
+            {
+                testPort= new QSerialPort(nomgeneriqueduport);
+                if (testPort->open(QIODevice::ReadWrite))
+                {
+                    mapports.insert(COM8, nomgeneriqueduport);
+                    testPort->close();
+                    delete testPort;
+                    com8 = true;
+                }
+            }
         }
         else if (nomgeneriqueduport.contains("ttyUSB"))
         {
@@ -1504,6 +1741,8 @@ QMap<QString, QString> Utils::ReconstruitMapPortsCOM()
             mapports.insert(nomgeneriqueduport, nomgeneriqueduport);
 #endif
     }
+    for (auto it = mapports.begin(); it != mapports.end(); ++it)
+        qDebug() <<it.key() << it.value();
     return mapports;
 }
 
@@ -1929,23 +2168,6 @@ QDomElement Utils::XMLfirstElementByTagNameNS(QDomElement parent, QString nsURI,
 QString Utils::XMLfirstElementValueByTagNameNS(QDomElement parent, QString nsURI, QString tagName)
 {
     return XMLfirstElementValueByTagName(parent, nsURI+":"+tagName);
-}
-
-void Utils::writeDatasSerialPort (QSerialPort *port, QByteArray datas, QString msgdebug)
-{
-    /*qint32 baud = port->baudRate();
-    if (timetowaitms == 0)
-    {
-        timetowaitms= int (datas.size()*8*1000 / baud);
-        timetowaitms += 10;
-    }   
-    qDebug() << msgdebug << "timetowaitms" << timetowaitms;*/
-    qDebug() << "envoi" << QString::fromLocal8Bit(cleanByteArray(datas));
-    port->write(datas);
-    //port->flush();
-    //port->waitForBytesWritten(timetowaitms);
-    //Logs::LogToFile("serial.txt", "write / " + port->portName());
-    //Logs::LogToFile("serial.txt", "write / " + QString::fromLocal8Bit(cleanByteArray(datas)));
 }
 
 bool Utils::isSerialPort( QString name )

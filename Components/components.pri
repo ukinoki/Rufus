@@ -16,6 +16,7 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/upprogressdialog.cpp \
     $$PWD/uppushbutton.cpp \
     $$PWD/upradiobutton.cpp \
+    $$PWD/upserialport.cpp \
     $$PWD/upsmallbutton.cpp \
     $$PWD/upspinbox.cpp \
     $$PWD/upstandarditemmodel.cpp \
@@ -42,6 +43,7 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/upprogressdialog.h \
     $$PWD/uppushbutton.h \
     $$PWD/upradiobutton.h \
+    $$PWD/upserialport.h \
     $$PWD/upsmallbutton.h \
     $$PWD/upspinbox.h \
     $$PWD/upstandarditemmodel.h \
