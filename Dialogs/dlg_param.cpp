@@ -1007,7 +1007,7 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
             UpMessageBox::Watch(this,tr("L'accès distant fonctionne obligatoirement "
                                          "avec un cryptage de données SSL."
                                          "Si vous voulez utiliser l'accès distant "
-                                         "sur ce poste, il faut vous assurer aue:\n"
+                                         "sur ce poste, il faut vous assurer que:\n"
                                          "1. le serveur MySQL est configuré pour le cryptage\n"
                                          "2. que les clés clientes SSL sont installées sur ce poste.\n\n"
                                          "Sinon, ça ne marchera pas.\n\n"

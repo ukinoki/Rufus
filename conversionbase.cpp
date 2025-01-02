@@ -710,7 +710,7 @@ void conversionbase::conversionbaseoplus()
                 nom += listnom.at(i) + " ";
             nom = Utils::trim(nom);
         }
-        qDebug() << i+1 << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << nom + prenom;
+        //qDebug() << i+1 << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << nom + prenom;
         QString strgidpat = QString::number(idpat);
 
         sexe = "";
@@ -779,7 +779,7 @@ void conversionbase::conversionbaseoplus()
     {
         ++l;
         int idpat =  it.key();
-        qDebug() << l << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << it.value();
+        //qDebug() << l << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << it.value();
         //if (idpat < 30000 || idpat > 30030) continue;
         QString strgidpat = QString::number(idpat);
 

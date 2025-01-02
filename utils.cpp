@@ -1741,8 +1741,8 @@ QMap<QString, QString> Utils::ReconstruitMapPortsCOM()
             mapports.insert(nomgeneriqueduport, nomgeneriqueduport);
 #endif
     }
-    for (auto it = mapports.begin(); it != mapports.end(); ++it)
-        qDebug() <<it.key() << it.value();
+    //for (auto it = mapports.begin(); it != mapports.end(); ++it)
+    //    qDebug() <<it.key() << it.value();
     return mapports;
 }
 

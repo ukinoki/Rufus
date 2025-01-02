@@ -64,7 +64,7 @@ void upSerialPort::writeDatas(QByteArray datas, QString msgdebug)
         timetowaitms += 10;
     }
     qDebug() << msgdebug << "timetowaitms" << timetowaitms;*/
-    qDebug() << "envoi" << QString::fromLocal8Bit(Utils::cleanByteArray(datas));
+    //qDebug() << "envoi" << QString::fromLocal8Bit(Utils::cleanByteArray(datas));
     write(datas);
     //flush();
     //waitForBytesWritten(timetowaitms);

@@ -1474,7 +1474,7 @@ void dlg_docsexternes::RemplirTreeView()
 
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
-        QString date = doc->datetimeimpression().toString(tr("dd-MM-yyyy"));
+        QString date = doc->datetimeimpression().toString("dd-MM-yyyy");
         //qDebug() << date << doc->titre();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));

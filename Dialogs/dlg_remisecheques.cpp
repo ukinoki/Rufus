@@ -844,7 +844,7 @@ bool dlg_remisecheques::VoirNouvelleRemise()
         ui->AnnulupPushButton               ->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Small);
         ui->ImprimeupPushButton             ->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Small);
         ui->ImprimeupPushButton             ->setIcon(Icons::icImprimer());
-        ui->ImprimeupPushButton             ->setText("Imprimer");
+        ui->ImprimeupPushButton             ->setText(tr("Imprimer"));
         ui->ImprimeupPushButton             ->setShortcut(QKeySequence("Meta+Return"));
         ui->RemisePrecsupComboBox           ->setVisible(false);
         ui->RemisesPrecsPushButton          ->setText(tr("Remises\nprécédentes"));

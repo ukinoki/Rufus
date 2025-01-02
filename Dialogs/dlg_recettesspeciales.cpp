@@ -333,7 +333,7 @@ void dlg_recettesspeciales::EnregistreRecette()
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'un virement ou d'un dépôt d'espèces
     if (Paiement == VIREMENT)
     {
-        Paiement = tr("Virement crébiteur");
+        Paiement = tr("Virement créditeur");
         int a = db->getIdMaxTableComptesTableArchives();
         if (!db->StandardSQL("insert into " TBL_LIGNESCOMPTES "("
                              CP_ID_LIGNCOMPTES ", "
@@ -1144,7 +1144,7 @@ bool dlg_recettesspeciales::VerifSaisie()
         if (ui->BanqChequpComboBox->currentText()=="")
             Erreur = tr("la banque émettrice du chèque");
         if (ui->TireurlineEdit->text()=="")
-            Erreur = tr("l'a banque émettrice'émetteur du chèque");
+            Erreur = tr("l'émetteur du chèque");
     }
 
     if (Erreur != "")
@@ -1162,7 +1162,7 @@ bool dlg_recettesspeciales::VerifSaisie()
             ui->ComptesupComboBox->setFocus();
         else if (Erreur == tr("la banque émettrice du chèque"))
             ui->BanqChequpComboBox->setFocus();
-        else if (Erreur == tr("l'a banque émettrice'émetteur du chèque"))
+        else if (Erreur == tr("l'émetteur du chèque"))
             ui->TireurlineEdit->setFocus();
         return false;
     }

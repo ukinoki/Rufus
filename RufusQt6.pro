@@ -116,7 +116,9 @@ LIBS += -lUser32
 }
 
 TRANSLATIONS += rufus_fr.ts \
-                rufus_en.ts
+                rufus_en.ts\
+                rufus_es.ts\
+                rufus_en.qm
 
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \
@@ -128,4 +130,5 @@ ICON += \
 
 DISTFILES += \
     assets/Licenses/License.rtf \
-    assets/Licenses/LICENSE
+    assets/Licenses/LICENSE \
+    rufus_en.qm

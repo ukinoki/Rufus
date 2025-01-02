@@ -693,7 +693,7 @@ requete = </source>
     <message>
         <location filename="procedures.cpp" line="450"/>
         <location filename="procedures.cpp" line="2383"/>
-        <location filename="procedures.cpp" line="2489"/>
+        <location filename="procedures.cpp" line="2491"/>
         <source>Saisissez le mot de passe Administrateur</source>
         <translation type="unfinished"></translation>
     </message>
@@ -712,12 +712,12 @@ requete = </source>
         <location filename="procedures.cpp" line="477"/>
         <location filename="procedures.cpp" line="2436"/>
         <location filename="procedures.cpp" line="2447"/>
-        <location filename="procedures.cpp" line="2609"/>
-        <location filename="procedures.cpp" line="2615"/>
-        <location filename="procedures.cpp" line="2637"/>
-        <location filename="procedures.cpp" line="2653"/>
-        <location filename="procedures.cpp" line="2682"/>
-        <location filename="procedures.cpp" line="2711"/>
+        <location filename="procedures.cpp" line="2611"/>
+        <location filename="procedures.cpp" line="2617"/>
+        <location filename="procedures.cpp" line="2639"/>
+        <location filename="procedures.cpp" line="2655"/>
+        <location filename="procedures.cpp" line="2684"/>
+        <location filename="procedures.cpp" line="2713"/>
         <source>Messages</source>
         <translation type="unfinished"></translation>
     </message>
@@ -803,10 +803,10 @@ requete = </source>
         <location filename="procedures.cpp" line="1479"/>
         <location filename="procedures.cpp" line="2248"/>
         <location filename="procedures.cpp" line="2374"/>
-        <location filename="procedures.cpp" line="2563"/>
-        <location filename="procedures.cpp" line="2897"/>
-        <location filename="procedures.cpp" line="3311"/>
-        <location filename="procedures.cpp" line="4291"/>
+        <location filename="procedures.cpp" line="2565"/>
+        <location filename="procedures.cpp" line="2899"/>
+        <location filename="procedures.cpp" line="3313"/>
+        <location filename="procedures.cpp" line="4293"/>
         <source>Annuler</source>
         <translation type="unfinished"></translation>
     </message>
@@ -854,7 +854,7 @@ requete = </source>
     </message>
     <message>
         <location filename="procedures.cpp" line="1198"/>
-        <location filename="procedures.cpp" line="3572"/>
+        <location filename="procedures.cpp" line="3574"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation type="unfinished"></translation>
     </message>
@@ -987,7 +987,7 @@ requete = </source>
     </message>
     <message>
         <location filename="procedures.cpp" line="1961"/>
-        <location filename="procedures.cpp" line="3207"/>
+        <location filename="procedures.cpp" line="3209"/>
         <source>Ophtalmologiste</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1190,35 +1190,35 @@ Confirmez-vous la suppression des anciennes données?
     <message>
         <location filename="procedures.cpp" line="2415"/>
         <location filename="procedures.cpp" line="2417"/>
-        <location filename="procedures.cpp" line="2595"/>
         <location filename="procedures.cpp" line="2597"/>
+        <location filename="procedures.cpp" line="2599"/>
         <source>Echec de la restauration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2415"/>
         <location filename="procedures.cpp" line="2417"/>
-        <location filename="procedures.cpp" line="2595"/>
         <location filename="procedures.cpp" line="2597"/>
+        <location filename="procedures.cpp" line="2599"/>
         <source>Le fichier </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2415"/>
-        <location filename="procedures.cpp" line="2595"/>
+        <location filename="procedures.cpp" line="2597"/>
         <source> n&apos;a pas été trouvé!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2417"/>
-        <location filename="procedures.cpp" line="2597"/>
+        <location filename="procedures.cpp" line="2599"/>
         <source> est vide!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2421"/>
-        <location filename="procedures.cpp" line="2578"/>
-        <location filename="procedures.cpp" line="2601"/>
+        <location filename="procedures.cpp" line="2580"/>
+        <location filename="procedures.cpp" line="2603"/>
         <source>Base non restaurée</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1229,13 +1229,13 @@ Confirmez-vous la suppression des anciennes données?
     </message>
     <message>
         <location filename="procedures.cpp" line="2435"/>
-        <location filename="procedures.cpp" line="2608"/>
+        <location filename="procedures.cpp" line="2610"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2447"/>
-        <location filename="procedures.cpp" line="2615"/>
+        <location filename="procedures.cpp" line="2617"/>
         <source>Incident pendant la restauration</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1260,400 +1260,400 @@ Confirmez-vous la suppression des anciennes données?
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2481"/>
+        <location filename="procedures.cpp" line="2483"/>
         <source>Chemin invalide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2481"/>
+        <location filename="procedures.cpp" line="2483"/>
         <source>Le chemin </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2482"/>
+        <location filename="procedures.cpp" line="2484"/>
         <source> contient des espaces et ne permettra pas de faire une restauration!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2564"/>
+        <location filename="procedures.cpp" line="2566"/>
         <source>J&apos;ai compris
 Je confirme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2567"/>
+        <location filename="procedures.cpp" line="2569"/>
         <source>Attention</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2568"/>
+        <location filename="procedures.cpp" line="2570"/>
         <source>Vous avez choisi de restaurer la base à partir du dosssier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2570"/>
+        <location filename="procedures.cpp" line="2572"/>
         <source>Si une base de données Rufus existe sur ce serveur, elle sera définitivement effacée pour être remplacée par cette sauvegarde.
 Confirmez-vous la suppression des anciennes données?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2583"/>
+        <location filename="procedures.cpp" line="2585"/>
         <source>Restauration de la base en cours</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2617"/>
+        <location filename="procedures.cpp" line="2619"/>
         <source>Base de données Rufus restaurée
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2636"/>
+        <location filename="procedures.cpp" line="2638"/>
         <source>Fichier de paramétrage Rufus.ini restauré
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2637"/>
+        <location filename="procedures.cpp" line="2639"/>
         <source>Fichier de paramétrage Rufus.ini restauré</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2652"/>
+        <location filename="procedures.cpp" line="2654"/>
         <source>le dossier de destination de l&apos;imagerie n&apos;existe pas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2663"/>
+        <location filename="procedures.cpp" line="2665"/>
         <source>Restauration des fichiers d&apos;imagerie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2665"/>
+        <location filename="procedures.cpp" line="2667"/>
         <source>Fichiers d&apos;imagerie restaurés
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2681"/>
+        <location filename="procedures.cpp" line="2683"/>
         <source>le dossier de destination des factures n&apos;existe pas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2692"/>
+        <location filename="procedures.cpp" line="2694"/>
         <source>Restauration des factures</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2694"/>
+        <location filename="procedures.cpp" line="2696"/>
         <source>Fichiers factures restaurés
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2710"/>
+        <location filename="procedures.cpp" line="2712"/>
         <source>le dossier de destination des videos n&apos;existe pas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2721"/>
+        <location filename="procedures.cpp" line="2723"/>
         <source>Restauration des videos</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2723"/>
+        <location filename="procedures.cpp" line="2725"/>
         <source>Fichiers video restaurés
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2732"/>
+        <location filename="procedures.cpp" line="2734"/>
         <source>Restauration terminée</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2742"/>
+        <location filename="procedures.cpp" line="2744"/>
         <source>Impossible de mettre à jour la base de données
 Sortie du programme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2760"/>
+        <location filename="procedures.cpp" line="2762"/>
         <source>Mise à jour de la base nécessaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2761"/>
+        <location filename="procedures.cpp" line="2763"/>
         <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2763"/>
+        <location filename="procedures.cpp" line="2765"/>
         <source>et une sauvegarde de la base actuelle est fortement conseillée</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2768"/>
+        <location filename="procedures.cpp" line="2770"/>
         <source>Pousuivre, la sauvegarde a été faite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2769"/>
+        <location filename="procedures.cpp" line="2771"/>
         <source>OK, je vais sauvegarder la base d&apos;abord</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2770"/>
+        <location filename="procedures.cpp" line="2772"/>
         <source>Annuler et fermer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2786"/>
+        <location filename="procedures.cpp" line="2788"/>
         <source>RufusAdmin présent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2786"/>
+        <location filename="procedures.cpp" line="2788"/>
         <source>Après la mise à jour de la base</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2787"/>
+        <location filename="procedures.cpp" line="2789"/>
         <source>Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2788"/>
+        <location filename="procedures.cpp" line="2790"/>
         <source>Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2790"/>
+        <location filename="procedures.cpp" line="2792"/>
         <source>Mise à jour de la base vers la version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2816"/>
+        <location filename="procedures.cpp" line="2818"/>
         <source>Mise à jour effectuée de la base vers la version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2822"/>
+        <location filename="procedures.cpp" line="2824"/>
         <source>Echec de la mise à jour vers la version </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2822"/>
+        <location filename="procedures.cpp" line="2824"/>
         <source>Le programme de mise à jour n&apos;a pas pu effectuer la tâche!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2862"/>
+        <location filename="procedures.cpp" line="2864"/>
         <source>actuellement installée sur ce poste</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2866"/>
+        <location filename="procedures.cpp" line="2868"/>
         <source>Version de Rufus trop ancienne</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2895"/>
+        <location filename="procedures.cpp" line="2897"/>
         <source>Quelle base de données souhaitez-vous utiliser?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2898"/>
+        <location filename="procedures.cpp" line="2900"/>
         <source>Locale, sur ce réseau</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2899"/>
+        <location filename="procedures.cpp" line="2901"/>
         <source>Distante, par internet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2900"/>
+        <location filename="procedures.cpp" line="2902"/>
         <source>Sur cette machine</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2953"/>
-        <location filename="procedures.cpp" line="2954"/>
-        <location filename="procedures.cpp" line="4153"/>
+        <location filename="procedures.cpp" line="2955"/>
+        <location filename="procedures.cpp" line="2956"/>
+        <location filename="procedures.cpp" line="4155"/>
         <source>Impossible de trouver l&apos;exécutable MySQL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2954"/>
-        <location filename="procedures.cpp" line="4153"/>
+        <location filename="procedures.cpp" line="2956"/>
+        <location filename="procedures.cpp" line="4155"/>
         <source>Erreur de connexion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2954"/>
+        <location filename="procedures.cpp" line="2956"/>
         <source>Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2972"/>
-        <location filename="procedures.cpp" line="3951"/>
+        <location filename="procedures.cpp" line="2974"/>
+        <location filename="procedures.cpp" line="3953"/>
         <source>Pas d&apos;adresse spécifiée</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2972"/>
-        <location filename="procedures.cpp" line="3951"/>
+        <location filename="procedures.cpp" line="2974"/>
+        <location filename="procedures.cpp" line="3953"/>
         <source>Vous n&apos;avez précisé aucun lieu d&apos;exercice!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3002"/>
+        <location filename="procedures.cpp" line="3004"/>
         <source>D&apos;où vous connectez-vous?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3041"/>
-        <location filename="procedures.cpp" line="3046"/>
-        <location filename="procedures.cpp" line="3068"/>
+        <location filename="procedures.cpp" line="3043"/>
+        <location filename="procedures.cpp" line="3048"/>
+        <location filename="procedures.cpp" line="3070"/>
         <source>Impossible de créer l&apos;utilisateur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3041"/>
+        <location filename="procedures.cpp" line="3043"/>
         <source>Login manquant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3046"/>
+        <location filename="procedures.cpp" line="3048"/>
         <source>Mot de passe manquant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3068"/>
+        <location filename="procedures.cpp" line="3070"/>
         <source>Erreur de création de l&apos;utilisateur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3086"/>
+        <location filename="procedures.cpp" line="3088"/>
         <source>Un compte utilisateur a été créé</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3087"/>
+        <location filename="procedures.cpp" line="3089"/>
         <source>Un compte utilisateur factice a été créé
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3090"/>
+        <location filename="procedures.cpp" line="3092"/>
         <source>avec le login </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3090"/>
+        <location filename="procedures.cpp" line="3092"/>
         <source>et le mot de passe que vous avez fourni</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3091"/>
+        <location filename="procedures.cpp" line="3093"/>
         <source>Voulez-vous conserver ces données pour le moment ou les modifier?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3092"/>
+        <location filename="procedures.cpp" line="3094"/>
         <source>Vous pourrez les modifier par la suite</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3094"/>
+        <location filename="procedures.cpp" line="3096"/>
         <source>Une liste arbitraires de cotations a été créée</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3095"/>
+        <location filename="procedures.cpp" line="3097"/>
         <source>Vous pourrez la modifier par la suite dans le menu Edition/Paramètres
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3096"/>
+        <location filename="procedures.cpp" line="3098"/>
         <source>Modifier les données</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3096"/>
+        <location filename="procedures.cpp" line="3098"/>
         <source>Conserver les données</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3101"/>
+        <location filename="procedures.cpp" line="3103"/>
         <source>Enregistrement de l&apos;utilisateur </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3117"/>
+        <location filename="procedures.cpp" line="3119"/>
         <source>Base de données des villes et codes postaux</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3118"/>
+        <location filename="procedures.cpp" line="3120"/>
         <source>Voulez-vous utiliser la base de données des villes françaises?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3120"/>
-        <location filename="procedures.cpp" line="3139"/>
+        <location filename="procedures.cpp" line="3122"/>
+        <location filename="procedures.cpp" line="3141"/>
         <source>Non</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3120"/>
+        <location filename="procedures.cpp" line="3122"/>
         <source>Utiliser les codes postaux français</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3136"/>
+        <location filename="procedures.cpp" line="3138"/>
         <source>Cotations françaises</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3137"/>
+        <location filename="procedures.cpp" line="3139"/>
         <source>Voulez-vous utiliser le système français de cotation des actes médicaux?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3139"/>
+        <location filename="procedures.cpp" line="3141"/>
         <source>Utiliser les cotations françaises</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3205"/>
+        <location filename="procedures.cpp" line="3207"/>
         <source>Docteur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3206"/>
+        <location filename="procedures.cpp" line="3208"/>
         <source>Médecin</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3312"/>
+        <location filename="procedures.cpp" line="3314"/>
         <source>Restaurer la base depuis une sauvegarde</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3313"/>
+        <location filename="procedures.cpp" line="3315"/>
         <source>Nouvelle base patients vierge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3316"/>
+        <location filename="procedures.cpp" line="3318"/>
         <source>Base de données endommagée!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3317"/>
+        <location filename="procedures.cpp" line="3319"/>
         <source>La base de données semble endommagée.
 Voulez-vous la reconstruire à partir d&apos;une sauvegarde ou recréer une base vierge?
 
@@ -1661,106 +1661,106 @@ Voulez-vous la reconstruire à partir d&apos;une sauvegarde ou recréer une base
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3329"/>
-        <location filename="procedures.cpp" line="4108"/>
+        <location filename="procedures.cpp" line="3331"/>
+        <location filename="procedures.cpp" line="4110"/>
         <source>Le programme va se fermer pour que certaines données puissent être prises en compte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3339"/>
+        <location filename="procedures.cpp" line="3341"/>
         <source>Le programme va se fermer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3339"/>
+        <location filename="procedures.cpp" line="3341"/>
         <source>Relancez-le pour que certaines données puissent être prises en compte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3383"/>
+        <location filename="procedures.cpp" line="3385"/>
         <source>Quel est votre rôle dans cette session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3390"/>
+        <location filename="procedures.cpp" line="3392"/>
         <source>Qui supervise votre activité pour cette session?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3397"/>
+        <location filename="procedures.cpp" line="3399"/>
         <source>Qui enregistre les honoraires de vos actes?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3441"/>
+        <location filename="procedures.cpp" line="3443"/>
         <source>Responsable de mes actes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3447"/>
+        <location filename="procedures.cpp" line="3449"/>
         <source>Assistant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3463"/>
+        <location filename="procedures.cpp" line="3465"/>
         <source>Vous ne pourrez pas vous connecter en tant qu&apos;assistant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3464"/>
+        <location filename="procedures.cpp" line="3466"/>
         <source>Vous étes enregistré comme pouvant être assistant
 mais il n&apos;y a aucun utilisateur susceptible de superviser
 vos actes enregistré dans la base de données</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3524"/>
-        <location filename="procedures.cpp" line="3609"/>
+        <location filename="procedures.cpp" line="3526"/>
+        <location filename="procedures.cpp" line="3611"/>
         <source>Aucun superviseur valide n&apos;a été défini pour vos actes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3524"/>
-        <location filename="procedures.cpp" line="3609"/>
-        <location filename="procedures.cpp" line="3637"/>
+        <location filename="procedures.cpp" line="3526"/>
+        <location filename="procedures.cpp" line="3611"/>
+        <location filename="procedures.cpp" line="3639"/>
         <source>Impossible de continuer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3637"/>
+        <location filename="procedures.cpp" line="3639"/>
         <source>Aucun parent valide n&apos;a été défini pour vos actes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3766"/>
+        <location filename="procedures.cpp" line="3768"/>
         <source>Tout le monde</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3887"/>
+        <location filename="procedures.cpp" line="3889"/>
         <source>Retour
 au menu d&apos;accueil</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3888"/>
+        <location filename="procedures.cpp" line="3890"/>
         <source>Nouvelle base
 patients vierge</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3889"/>
+        <location filename="procedures.cpp" line="3891"/>
         <source>Base patients existante
 sur le serveur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3891"/>
+        <location filename="procedures.cpp" line="3893"/>
         <source>Premier démarrage de Rufus!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3892"/>
+        <location filename="procedures.cpp" line="3894"/>
         <source>Cette étape va vous permettre de configurer le logiciel en quelques secondes.
 
 Cette installation ne peut aboutir si vous n&apos;avez pas de serveur MySQL installé.
@@ -1774,398 +1774,398 @@ Commencez par choisir la situation qui décrit le mieux votre installation de Ru
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3923"/>
-        <location filename="procedures.cpp" line="3937"/>
+        <location filename="procedures.cpp" line="3925"/>
+        <location filename="procedures.cpp" line="3939"/>
         <source>Connexion réussie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3924"/>
+        <location filename="procedures.cpp" line="3926"/>
         <source>Bien, la connexion au serveur MySQL fonctionne,
 le login </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3925"/>
+        <location filename="procedures.cpp" line="3927"/>
         <source> est reconnu</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3926"/>
+        <location filename="procedures.cpp" line="3928"/>
         <source>Le programme va se fermer pour que les modifications</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3927"/>
+        <location filename="procedures.cpp" line="3929"/>
         <source>puissent être prises en compte
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3938"/>
+        <location filename="procedures.cpp" line="3940"/>
         <source>Bien, la connexion au serveur MySQL fonctionne et le programme va maintenant créer une base de données patients vierge de tout enregistrement.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3952"/>
+        <location filename="procedures.cpp" line="3954"/>
         <source>Redémarrage nécessaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3953"/>
+        <location filename="procedures.cpp" line="3955"/>
         <source>Le programme va se fermer pour que les modifications de la base Rufus
 puissent être prises en compte
 </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4055"/>
+        <location filename="procedures.cpp" line="4057"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4056"/>
+        <location filename="procedures.cpp" line="4058"/>
         <source>Restaurer le fichier d&apos;initialisation
 à partir d&apos;une sauvegarde</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4057"/>
+        <location filename="procedures.cpp" line="4059"/>
         <source>Reconstruire le fichier
 d&apos;initialisation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4058"/>
+        <location filename="procedures.cpp" line="4060"/>
         <source>Premier démarrage
 de Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4079"/>
+        <location filename="procedures.cpp" line="4081"/>
         <source>Choisir le fichier d&apos;initialisation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4108"/>
+        <location filename="procedures.cpp" line="4110"/>
         <source>Le fichier Rufus.ini a été reconstruit</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4123"/>
+        <location filename="procedures.cpp" line="4125"/>
         <source>Entrez les paramètres de connexion au serveur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4153"/>
+        <location filename="procedures.cpp" line="4155"/>
         <source>Le programme ne pourra pas s&apos;intialiser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4215"/>
+        <location filename="procedures.cpp" line="4217"/>
         <source>Erreur connexion série</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4216"/>
+        <location filename="procedures.cpp" line="4218"/>
         <source>Des connexions série sont paramétrées pour certains appareils du poste de réfraction.
 Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4248"/>
+        <location filename="procedures.cpp" line="4250"/>
         <source>le frontofocomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4249"/>
+        <location filename="procedures.cpp" line="4251"/>
         <source>l&apos;autorefractomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4250"/>
+        <location filename="procedures.cpp" line="4252"/>
         <source>le refracteur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4251"/>
-        <location filename="procedures.cpp" line="4285"/>
+        <location filename="procedures.cpp" line="4253"/>
+        <location filename="procedures.cpp" line="4287"/>
         <source>le tonomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4288"/>
+        <location filename="procedures.cpp" line="4290"/>
         <source>Une mesure vient d&apos;être émise par </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4288"/>
+        <location filename="procedures.cpp" line="4290"/>
         <source> mais la date de l&apos;acte actuellement affiché n&apos;est pas celle d&apos;aujourd&apos;hui.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4290"/>
+        <location filename="procedures.cpp" line="4292"/>
         <source>Voulez-vous quand même enregistrer cette mesure?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4291"/>
+        <location filename="procedures.cpp" line="4293"/>
         <source>Enregistrer la mesure</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4329"/>
-        <location filename="procedures.cpp" line="4352"/>
-        <location filename="procedures.cpp" line="4376"/>
-        <location filename="procedures.cpp" line="4400"/>
+        <location filename="procedures.cpp" line="4331"/>
+        <location filename="procedures.cpp" line="4354"/>
+        <location filename="procedures.cpp" line="4378"/>
+        <location filename="procedures.cpp" line="4402"/>
         <source>Connexion</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4330"/>
-        <location filename="procedures.cpp" line="4333"/>
-        <location filename="procedures.cpp" line="4353"/>
-        <location filename="procedures.cpp" line="4356"/>
-        <location filename="procedures.cpp" line="4377"/>
-        <location filename="procedures.cpp" line="4380"/>
-        <location filename="procedures.cpp" line="4401"/>
-        <location filename="procedures.cpp" line="4404"/>
-        <location filename="procedures.cpp" line="4617"/>
-        <location filename="procedures.cpp" line="4662"/>
-        <location filename="procedures.cpp" line="4707"/>
-        <location filename="procedures.cpp" line="4751"/>
+        <location filename="procedures.cpp" line="4332"/>
+        <location filename="procedures.cpp" line="4335"/>
+        <location filename="procedures.cpp" line="4355"/>
+        <location filename="procedures.cpp" line="4358"/>
+        <location filename="procedures.cpp" line="4379"/>
+        <location filename="procedures.cpp" line="4382"/>
+        <location filename="procedures.cpp" line="4403"/>
+        <location filename="procedures.cpp" line="4406"/>
+        <location filename="procedures.cpp" line="4619"/>
+        <location filename="procedures.cpp" line="4664"/>
+        <location filename="procedures.cpp" line="4709"/>
+        <location filename="procedures.cpp" line="4753"/>
         <source>sur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4333"/>
-        <location filename="procedures.cpp" line="4356"/>
-        <location filename="procedures.cpp" line="4380"/>
-        <location filename="procedures.cpp" line="4404"/>
+        <location filename="procedures.cpp" line="4335"/>
+        <location filename="procedures.cpp" line="4358"/>
+        <location filename="procedures.cpp" line="4382"/>
+        <location filename="procedures.cpp" line="4406"/>
         <source>Impossible de connecter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4560"/>
+        <location filename="procedures.cpp" line="4562"/>
         <source>Fronto</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4562"/>
+        <location filename="procedures.cpp" line="4564"/>
         <source>Refracteur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4563"/>
+        <location filename="procedures.cpp" line="4565"/>
         <source>Tono</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4586"/>
+        <location filename="procedures.cpp" line="4588"/>
         <source>Liste des ports disponibles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4588"/>
+        <location filename="procedures.cpp" line="4590"/>
         <source>Aucun port COM disponible sur le système</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4603"/>
+        <location filename="procedures.cpp" line="4605"/>
         <source>Erreur paramètrage connexion frontofocomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4603"/>
-        <location filename="procedures.cpp" line="4648"/>
-        <location filename="procedures.cpp" line="4693"/>
-        <location filename="procedures.cpp" line="4737"/>
+        <location filename="procedures.cpp" line="4605"/>
+        <location filename="procedures.cpp" line="4650"/>
+        <location filename="procedures.cpp" line="4695"/>
+        <location filename="procedures.cpp" line="4739"/>
         <source>le port de comunication n&apos;est pas configuré</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4617"/>
+        <location filename="procedures.cpp" line="4619"/>
         <source>Connexion frontocomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4621"/>
-        <location filename="procedures.cpp" line="4622"/>
-        <location filename="procedures.cpp" line="4628"/>
+        <location filename="procedures.cpp" line="4623"/>
+        <location filename="procedures.cpp" line="4624"/>
+        <location filename="procedures.cpp" line="4630"/>
         <source>Impossible de connecter le frontocomètre sur </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4648"/>
+        <location filename="procedures.cpp" line="4650"/>
         <source>Erreur paramètrage connexion refracteur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4662"/>
+        <location filename="procedures.cpp" line="4664"/>
         <source>Connexion refracteur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4666"/>
-        <location filename="procedures.cpp" line="4667"/>
-        <location filename="procedures.cpp" line="4673"/>
+        <location filename="procedures.cpp" line="4668"/>
+        <location filename="procedures.cpp" line="4669"/>
+        <location filename="procedures.cpp" line="4675"/>
         <source>Impossible de connecter le refracteur sur </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4693"/>
+        <location filename="procedures.cpp" line="4695"/>
         <source>Erreur paramètrage connexion autorefractomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4707"/>
+        <location filename="procedures.cpp" line="4709"/>
         <source>Connexion autorefractomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4711"/>
-        <location filename="procedures.cpp" line="4712"/>
-        <location filename="procedures.cpp" line="4718"/>
+        <location filename="procedures.cpp" line="4713"/>
+        <location filename="procedures.cpp" line="4714"/>
+        <location filename="procedures.cpp" line="4720"/>
         <source>Impossible de connecter l&apos;autorefractomètre sur </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4737"/>
+        <location filename="procedures.cpp" line="4739"/>
         <source>Erreur paramètrage connexion tonomomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4751"/>
+        <location filename="procedures.cpp" line="4753"/>
         <source>Connexion tonomètre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4755"/>
-        <location filename="procedures.cpp" line="4756"/>
-        <location filename="procedures.cpp" line="4762"/>
+        <location filename="procedures.cpp" line="4757"/>
+        <location filename="procedures.cpp" line="4758"/>
+        <location filename="procedures.cpp" line="4764"/>
         <source>Impossible de connecter le tonomètre sur </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5569"/>
+        <location filename="procedures.cpp" line="5571"/>
         <source>utilisateur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5577"/>
+        <location filename="procedures.cpp" line="5579"/>
         <source>tout le monde</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5579"/>
-        <location filename="procedures.cpp" line="5589"/>
+        <location filename="procedures.cpp" line="5581"/>
         <location filename="procedures.cpp" line="5591"/>
-        <location filename="procedures.cpp" line="5601"/>
+        <location filename="procedures.cpp" line="5593"/>
         <location filename="procedures.cpp" line="5603"/>
+        <location filename="procedures.cpp" line="5605"/>
         <source>sans objet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5581"/>
-        <location filename="procedures.cpp" line="5593"/>
-        <location filename="procedures.cpp" line="5605"/>
+        <location filename="procedures.cpp" line="5583"/>
+        <location filename="procedures.cpp" line="5595"/>
+        <location filename="procedures.cpp" line="5607"/>
         <source>indéterminé</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5584"/>
+        <location filename="procedures.cpp" line="5586"/>
         <source>superviseur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5596"/>
+        <location filename="procedures.cpp" line="5598"/>
         <source>parent</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5608"/>
+        <location filename="procedures.cpp" line="5610"/>
         <source>comptable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5612"/>
+        <location filename="procedures.cpp" line="5614"/>
         <source>cpte banque</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6318"/>
-        <location filename="procedures.cpp" line="6322"/>
-        <location filename="procedures.cpp" line="6337"/>
-        <location filename="procedures.cpp" line="6341"/>
-        <location filename="procedures.cpp" line="6688"/>
-        <location filename="procedures.cpp" line="6692"/>
-        <location filename="procedures.cpp" line="6704"/>
-        <location filename="procedures.cpp" line="6708"/>
-        <location filename="procedures.cpp" line="7299"/>
-        <location filename="procedures.cpp" line="7303"/>
-        <location filename="procedures.cpp" line="7314"/>
-        <location filename="procedures.cpp" line="7318"/>
-        <location filename="procedures.cpp" line="7375"/>
-        <location filename="procedures.cpp" line="7378"/>
-        <location filename="procedures.cpp" line="7394"/>
-        <location filename="procedures.cpp" line="7397"/>
+        <location filename="procedures.cpp" line="6320"/>
+        <location filename="procedures.cpp" line="6324"/>
+        <location filename="procedures.cpp" line="6339"/>
+        <location filename="procedures.cpp" line="6343"/>
+        <location filename="procedures.cpp" line="6690"/>
+        <location filename="procedures.cpp" line="6694"/>
+        <location filename="procedures.cpp" line="6706"/>
+        <location filename="procedures.cpp" line="6710"/>
+        <location filename="procedures.cpp" line="7301"/>
+        <location filename="procedures.cpp" line="7305"/>
+        <location filename="procedures.cpp" line="7316"/>
+        <location filename="procedures.cpp" line="7320"/>
+        <location filename="procedures.cpp" line="7377"/>
+        <location filename="procedures.cpp" line="7380"/>
+        <location filename="procedures.cpp" line="7396"/>
+        <location filename="procedures.cpp" line="7399"/>
         <source> à </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6324"/>
-        <location filename="procedures.cpp" line="6329"/>
-        <location filename="procedures.cpp" line="6343"/>
-        <location filename="procedures.cpp" line="6348"/>
-        <location filename="procedures.cpp" line="6694"/>
-        <location filename="procedures.cpp" line="6710"/>
-        <location filename="procedures.cpp" line="7305"/>
-        <location filename="procedures.cpp" line="7320"/>
+        <location filename="procedures.cpp" line="6326"/>
+        <location filename="procedures.cpp" line="6331"/>
+        <location filename="procedures.cpp" line="6345"/>
+        <location filename="procedures.cpp" line="6350"/>
+        <location filename="procedures.cpp" line="6696"/>
+        <location filename="procedures.cpp" line="6712"/>
+        <location filename="procedures.cpp" line="7307"/>
+        <location filename="procedures.cpp" line="7322"/>
         <source>plan</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6389"/>
-        <location filename="procedures.cpp" line="6392"/>
-        <location filename="procedures.cpp" line="6397"/>
-        <location filename="procedures.cpp" line="6402"/>
-        <location filename="procedures.cpp" line="6405"/>
-        <location filename="procedures.cpp" line="6410"/>
-        <location filename="procedures.cpp" line="6423"/>
-        <location filename="procedures.cpp" line="6426"/>
-        <location filename="procedures.cpp" line="7334"/>
+        <location filename="procedures.cpp" line="6391"/>
+        <location filename="procedures.cpp" line="6394"/>
+        <location filename="procedures.cpp" line="6399"/>
+        <location filename="procedures.cpp" line="6404"/>
+        <location filename="procedures.cpp" line="6407"/>
+        <location filename="procedures.cpp" line="6412"/>
+        <location filename="procedures.cpp" line="6425"/>
+        <location filename="procedures.cpp" line="6428"/>
+        <location filename="procedures.cpp" line="7336"/>
         <source>OD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6394"/>
-        <location filename="procedures.cpp" line="6399"/>
-        <location filename="procedures.cpp" line="6407"/>
-        <location filename="procedures.cpp" line="6412"/>
-        <location filename="procedures.cpp" line="6415"/>
-        <location filename="procedures.cpp" line="6418"/>
-        <location filename="procedures.cpp" line="6428"/>
-        <location filename="procedures.cpp" line="6431"/>
-        <location filename="procedures.cpp" line="7332"/>
+        <location filename="procedures.cpp" line="6396"/>
+        <location filename="procedures.cpp" line="6401"/>
+        <location filename="procedures.cpp" line="6409"/>
+        <location filename="procedures.cpp" line="6414"/>
+        <location filename="procedures.cpp" line="6417"/>
+        <location filename="procedures.cpp" line="6420"/>
+        <location filename="procedures.cpp" line="6430"/>
+        <location filename="procedures.cpp" line="6433"/>
+        <location filename="procedures.cpp" line="7334"/>
         <source>OG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6720"/>
         <location filename="procedures.cpp" line="6722"/>
-        <location filename="procedures.cpp" line="7327"/>
+        <location filename="procedures.cpp" line="6724"/>
+        <location filename="procedures.cpp" line="7329"/>
         <source>ODG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6726"/>
+        <location filename="procedures.cpp" line="6728"/>
         <source>Porte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4561"/>
-        <location filename="procedures.cpp" line="7347"/>
+        <location filename="procedures.cpp" line="4563"/>
+        <location filename="procedures.cpp" line="7349"/>
         <source>Autoref</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2190,111 +2190,111 @@ Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7350"/>
+        <location filename="procedures.cpp" line="7352"/>
         <source>EIP</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7373"/>
-        <location filename="procedures.cpp" line="7377"/>
+        <location filename="procedures.cpp" line="7375"/>
+        <location filename="procedures.cpp" line="7379"/>
         <source>KOD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7392"/>
-        <location filename="procedures.cpp" line="7396"/>
+        <location filename="procedures.cpp" line="7394"/>
+        <location filename="procedures.cpp" line="7398"/>
         <source>KOG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7428"/>
-        <location filename="procedures.cpp" line="7443"/>
-        <location filename="procedures.cpp" line="7458"/>
-        <location filename="procedures.cpp" line="7479"/>
+        <location filename="procedures.cpp" line="7430"/>
+        <location filename="procedures.cpp" line="7445"/>
+        <location filename="procedures.cpp" line="7460"/>
+        <location filename="procedures.cpp" line="7481"/>
         <source>corr.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7430"/>
+        <location filename="procedures.cpp" line="7432"/>
         <source>TOG:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7431"/>
-        <location filename="procedures.cpp" line="7446"/>
-        <location filename="procedures.cpp" line="7461"/>
-        <location filename="procedures.cpp" line="7481"/>
+        <location filename="procedures.cpp" line="7433"/>
+        <location filename="procedures.cpp" line="7448"/>
+        <location filename="procedures.cpp" line="7463"/>
+        <location filename="procedures.cpp" line="7483"/>
         <source>à</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7445"/>
+        <location filename="procedures.cpp" line="7447"/>
         <source>TOD:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7460"/>
+        <location filename="procedures.cpp" line="7462"/>
         <source>TODG:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7472"/>
+        <location filename="procedures.cpp" line="7474"/>
         <source>TO:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7506"/>
+        <location filename="procedures.cpp" line="7508"/>
         <source>pachy OG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7508"/>
+        <location filename="procedures.cpp" line="7510"/>
         <source>pachy OD</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7512"/>
+        <location filename="procedures.cpp" line="7514"/>
         <source>pachy ODG</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7514"/>
+        <location filename="procedures.cpp" line="7516"/>
         <source>pachy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7749"/>
+        <location filename="procedures.cpp" line="7751"/>
         <source>Erreur de création de données autoref dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7766"/>
+        <location filename="procedures.cpp" line="7768"/>
         <source>Erreur de mise à jour de données autoref dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7797"/>
+        <location filename="procedures.cpp" line="7799"/>
         <source>Erreur de création de données de kératométrie  dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7829"/>
+        <location filename="procedures.cpp" line="7831"/>
         <source>Erreur de modification de données de kératométrie dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7935"/>
+        <location filename="procedures.cpp" line="7937"/>
         <source>Erreur création de données de refraction dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7959"/>
+        <location filename="procedures.cpp" line="7961"/>
         <source>Erreur de mise à jour de données de refraction dans </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7971"/>
-        <location filename="procedures.cpp" line="7985"/>
+        <location filename="procedures.cpp" line="7973"/>
+        <location filename="procedures.cpp" line="7987"/>
         <source>Impossible de sauvegarder la mesure!</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2408,63 +2408,63 @@ Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2861"/>
+        <location filename="procedures.cpp" line="2863"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2861"/>
+        <location filename="procedures.cpp" line="2863"/>
         <source>de la base de données</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2862"/>
+        <location filename="procedures.cpp" line="2864"/>
         <source>Cette version est peut-être incompatible avec la version</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2863"/>
+        <location filename="procedures.cpp" line="2865"/>
         <source>Il est fortement conseillé de faire une mise à jour de Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2864"/>
+        <location filename="procedures.cpp" line="2866"/>
         <source>pour éviter des dysfonctionnements ou une altération de votre base de données Rufus</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2865"/>
+        <location filename="procedures.cpp" line="2867"/>
         <source>Vous pouvez télécharger la dernière version sur la page Téléchargements du site</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4871"/>
+        <location filename="procedures.cpp" line="4873"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4872"/>
+        <location filename="procedures.cpp" line="4874"/>
         <source>Utilisation de réglages génériques</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4873"/>
+        <location filename="procedures.cpp" line="4875"/>
         <source>Il faudra probablement revoir les réglages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4874"/>
+        <location filename="procedures.cpp" line="4876"/>
         <source>en fonction des caractéristiques du</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7575"/>
-        <location filename="procedures.cpp" line="7579"/>
+        <location filename="procedures.cpp" line="7577"/>
+        <location filename="procedures.cpp" line="7581"/>
         <source> à </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7581"/>
+        <location filename="procedures.cpp" line="7583"/>
         <source>plan</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5589,7 +5589,9 @@ alternée</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_bilanortho.ui" line="999"/>
-        <source>Sacccades</source>
+        <location filename="Dialogs/dlg_bilanortho.cpp" line="1714"/>
+        <source>Saccades</source>
+        <oldsource>Sacccades</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5899,11 +5901,6 @@ alternée</source>
     <message>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1456"/>
         <source>Ecran vertic.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_bilanortho.cpp" line="1714"/>
-        <source>Saccades</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7359,11 +7356,6 @@ la date d&apos;aujourd&apos;hui</source>
     <message>
         <location filename="Dialogs/dlg_docsexternes.cpp" line="1097"/>
         <source>Etes vous certain de vouloir supprimer ce document?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="1477"/>
-        <source>dd-MM-yyyy</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -12316,6 +12308,12 @@ paiements par tiers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="Dialogs/dlg_paiementtiers.ui" line="1092"/>
+        <source>Enregistrer un
+tiers payant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="Dialogs/dlg_paiementtiers.ui" line="1131"/>
         <source>Supprimer</source>
         <translation type="unfinished"></translation>
@@ -13339,7 +13337,7 @@ des organismes bancaires</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="1007"/>
-        <source>L&apos;accès distant fonctionne obligatoirement avec un cryptage de données SSL.Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut vous assurer aue:
+        <source>L&apos;accès distant fonctionne obligatoirement avec un cryptage de données SSL.Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut vous assurer que:
 1. le serveur MySQL est configuré pour le cryptage
 2. que les clés clientes SSL sont installées sur ce poste.
 
@@ -13348,6 +13346,15 @@ Sinon, ça ne marchera pas.
 Reportez vous à la page internet
 http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html
 pour savoir comment faire</source>
+        <oldsource>L&apos;accès distant fonctionne obligatoirement avec un cryptage de données SSL.Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut vous assurer aue:
+1. le serveur MySQL est configuré pour le cryptage
+2. que les clés clientes SSL sont installées sur ce poste.
+
+Sinon, ça ne marchera pas.
+
+Reportez vous à la page internet
+http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html
+pour savoir comment faire</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13798,8 +13805,8 @@ Si cela ne marche toujours pas, revoyez la configuration du serveur.
         <source>Pour d&apos;évidentes raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données openSSL sur 2048 bits.
 
 Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:
-1. le serveur MySQL soit configuré pour le cryptage (modification du fichier /etc/my.cnf et présence des clés serveur dans le répertoire /etc/mysql/)
-2. et que sur ce poste les clés clientes SSL soient installées dans le répertoire /etc/mysql/.
+1. le serveur MySQL soit configuré pour le cryptage (modification du fichier my.cnf sous macOS Linux ou my.ini sous Windows et présence des clés serveur dans le dossier spécifié dans my.cnf/my.ini)
+2. et que sur ce poste les clés clientes SSL soient installées dans un dossier.
 
 Sinon, ça ne marchera pas
 
@@ -13807,6 +13814,18 @@ Reportez vous à la page internet
 http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html
 pour savoir comment modifier la configuration du serveur et générer des clés de cryptage
 </source>
+        <oldsource>Pour d&apos;évidentes raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données openSSL sur 2048 bits.
+
+Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:
+1. le serveur MySQL soit configuré pour le cryptage (modification du fichier my.cnf sous macOS Linux ou my.ini sous Windows et présence des clés serveur dans le dossier spécifié dans my.cnf/my.ini)
+2. et que sur ce poste les clés clientes SSL soient installées dans un dossier sur le poste client.
+
+Sinon, ça ne marchera pas
+
+Reportez vous à la page internet
+http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html
+pour savoir comment modifier la configuration du serveur et générer des clés de cryptage
+</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14543,7 +14562,8 @@ Aucun compte bancaire n&apos;est enregistré.</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_recettesspeciales.cpp" line="336"/>
-        <source>Virement crébiteur</source>
+        <source>Virement créditeur</source>
+        <oldsource>Virement crébiteur</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14654,7 +14674,7 @@ Aucun compte bancaire n&apos;est enregistré.</source>
     <message>
         <location filename="Dialogs/dlg_recettesspeciales.cpp" line="1147"/>
         <location filename="Dialogs/dlg_recettesspeciales.cpp" line="1165"/>
-        <source>l&apos;a banque émettrice&apos;émetteur du chèque</source>
+        <source>l&apos;émetteur du chèque</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -14852,6 +14872,16 @@ Aucun compte bancaire n&apos;est enregistré.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="Dialogs/dlg_refraction.ui" line="1062"/>
+        <source>Résumé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_refraction.ui" line="1091"/>
+        <source>Reprendre</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="Dialogs/dlg_refraction.ui" line="1144"/>
         <source>Vision de Près</source>
         <translation type="unfinished"></translation>
@@ -14916,7 +14946,7 @@ et fermer</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_refraction.ui" line="1448"/>
-        <source>K1</source>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;K1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -15738,6 +15768,7 @@ prédéfini</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_remisecheques.ui" line="165"/>
+        <location filename="Dialogs/dlg_remisecheques.cpp" line="847"/>
         <source>Imprimer</source>
         <translation type="unfinished"></translation>
     </message>

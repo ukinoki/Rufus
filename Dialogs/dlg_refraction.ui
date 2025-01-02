@@ -1059,7 +1059,7 @@
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
-       <string notr="true">Résumé</string>
+       <string>Résumé</string>
       </property>
       <property name="icon">
        <iconset resource="../assets/Images/images.qrc">
@@ -1088,7 +1088,7 @@
        <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
-       <string notr="true">Reprendre</string>
+       <string>Reprendre</string>
       </property>
       <property name="icon">
        <iconset resource="../assets/Images/images.qrc">
@@ -1445,7 +1445,7 @@ et fermer</string>
         </rect>
        </property>
        <property name="text">
-        <string>K1</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;K1&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
@@ -1747,7 +1747,7 @@ prédéfini</string>
       </property>
       <property name="dateTime">
        <datetime>
-        <hour>0</hour>
+        <hour>22</hour>
         <minute>0</minute>
         <second>0</second>
         <year>2014</year>
@@ -1935,14 +1935,14 @@ prédéfini</string>
    <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpGroupBox</class>

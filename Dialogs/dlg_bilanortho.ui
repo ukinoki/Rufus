@@ -996,7 +996,7 @@ alternée</string>
     </rect>
    </property>
    <property name="text">
-    <string>Sacccades</string>
+    <string>Saccades</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">

@@ -1089,7 +1089,7 @@ paiements par tiers</string>
            <enum>Qt::NoFocus</enum>
           </property>
           <property name="text">
-           <string notr="true">Enregistrer un
+           <string>Enregistrer un
 tiers payant</string>
           </property>
           <property name="icon">
@@ -1525,14 +1525,14 @@ tiers payant</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>UpLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>uplineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpPushButton</class>
    <extends>QPushButton</extends>
    <header>uppushbutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>uplineedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpComboBox</class>
