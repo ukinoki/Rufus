@@ -43,8 +43,9 @@ int main(int argc, char *argv[])
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
     dirloc.cdUp();
     locale = dirloc.absolutePath() + "/Locale/rufus_" + locale;
+
     // for debugging quickly
-    //QString dirloc = QDir::homePath() + "/RufusQt6/rufus_en";
+    //locale = QDir::homePath() + "/RufusQt6/rufus_en";
     QTranslator translator;
     if( translator.load(locale) )
         app.installTranslator(&translator);

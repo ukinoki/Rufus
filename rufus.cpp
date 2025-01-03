@@ -7917,6 +7917,8 @@ void Rufus::CreerMenu()
 
 
 // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /*QMenuBar *menubar = menuBar();
+    menubar->setNativeMenuBar(false);*/
     menuDossier         = menuBar()->addMenu(tr("Dossier"));
     menuEdition         = menuBar()->addMenu(tr("Edition"));
     if (currentuser()->isSoignant())

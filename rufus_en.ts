@@ -4012,7 +4012,7 @@ on a folder to open it</translation>
         <location filename="rufus.cpp" line="4378"/>
         <location filename="rufus.cpp" line="7849"/>
         <source>Paramètres</source>
-        <translation>Settings</translation>
+        <translation>General Settings</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4686"/>
@@ -7511,8 +7511,8 @@ including those of minor importance</translation>
     <message>
         <location filename="Dialogs/dlg_docsexternes.cpp" line="438"/>
         <source>Renseignez un dossier valide dans Editions/Paramètres/Onglet </source>
-        <oldsource>Renseignez un dossier valide dans Editions/Paramètres/Onglet &quot;ce poste&quot;/Onglet &quot;</oldsource>
-        <translation>Enter a valid folder in Edit/Settings/Tab </translation>
+        <oldsource>Renseignez un dossier valide dans Editions/Paramètres généraux/Onglet </oldsource>
+        <translation>Enter a valid folder in Edit/General Settings/Tab </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_docsexternes.cpp" line="446"/>
@@ -7671,7 +7671,11 @@ as of today&apos;s date</translation>
     <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="48"/>
         <source>Editions/Paramètres/Onglet </source>
-        <translation>Edit/Settings/Tab </translation>
+        <translation>Edit/General Settings/Tab </translation>
+    </message>
+    <message>
+        <source>Editions/Paramètres généraux/Onglet </source>
+        <translation type="vanished">Edit/General Settings/Tab </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="65"/>
@@ -7952,8 +7956,8 @@ as of today&apos;s date</translation>
     <message>
         <location filename="Dialogs/dlg_docsvideo.cpp" line="228"/>
         <source>Renseignez un dossier valide dans Editions/Paramètres/Onglet </source>
-        <oldsource>Renseignez un dossier valide dans Editions/Paramètres/Onglet &quot;ce poste&quot;/Onglet &quot;</oldsource>
-        <translation>Enter a valid folder in Edit/Settings/Tab </translation>
+        <oldsource>Renseignez un dossier valide dans Editions/Paramètres généraux/Onglet </oldsource>
+        <translation>Enter a valid folder in Edit/General Settings/Tab </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_docsvideo.cpp" line="238"/>
@@ -8395,7 +8399,8 @@ Would you like to automatically fill in the fields with dummy details?.
         <location filename="Dialogs/dlg_gestionusers.ui" line="476"/>
         <source>Gestion des
 lieux d&apos;activité</source>
-        <translation>Adtivity location management</translation>
+        <translation>Sites of activity
+management</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="584"/>
@@ -8501,14 +8506,14 @@ lieux d&apos;activité</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1042"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="474"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="476"/>
         <source>Ophtalmologiste</source>
         <translation>Ophtalmologist</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1061"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="521"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="522"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="523"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="524"/>
         <source>Orthoptiste</source>
         <translation>Orthoptist</translation>
     </message>
@@ -8519,7 +8524,7 @@ lieux d&apos;activité</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1099"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="661"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="663"/>
         <source>Secrétaire</source>
         <translation>Secretary</translation>
     </message>
@@ -8535,7 +8540,7 @@ lieux d&apos;activité</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1176"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="473"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="475"/>
         <source>Médecin</source>
         <translation>Doctor</translation>
     </message>
@@ -8617,57 +8622,57 @@ users</translation>
         <translation>register your logo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="78"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="79"/>
         <source>votre logo
 clic droit pour modifier</source>
         <translation>Your logo
 right-click to modify</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="82"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="83"/>
         <source>Docteur</source>
         <translation>Doctor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="82"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="83"/>
         <source>Professeur</source>
         <translation>Professor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="88"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="867"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="89"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="869"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="90"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="91"/>
         <source>Enregistrer</source>
         <translation>Register</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="93"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="95"/>
         <source>Modifier le mot de passe</source>
         <translation>Modify the passxord</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="158"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="160"/>
         <source>Fonction indisponible
 pour le moment</source>
         <translation>Function currently unavailable</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="264"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="266"/>
         <source>Modifier le logo</source>
         <oldsource>Modifier le code barre</oldsource>
         <translation>Modify the logo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="268"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="270"/>
         <source>Supprimer le logo</source>
         <translation>Delete the logo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="331"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="333"/>
         <source>Choisissez un login pour le nouvel utilisateur
 - mini 5 maxi 15 caractères -
 - pas de caractères spéciaux ou accentués -</source>
@@ -8676,7 +8681,7 @@ pour le moment</source>
 - no special or accented characters -</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="332"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="334"/>
         <source>Choisissez un mot de passe
 - mini 5 maxi 12 caractères -
 - pas de caractères spéciaux ou accentués -</source>
@@ -8685,76 +8690,76 @@ pour le moment</source>
 - no special or accented characters -</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="333"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="335"/>
         <source>Confirmez le mot de passe</source>
         <translation>Confirm password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="359"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
         <source>Choix d&apos;un logo</source>
         <oldsource>Choix d&apos;un code barre</oldsource>
         <translation></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="359"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
         <source>Dans la boîte de dialogue suivante</source>
         <translation>In the following dialog box</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="359"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
         <source>choisissez un fichier image au format .jpg, .jpeg ou .png</source>
         <translation>choose an image file in .jpg, .jpeg or .png format</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="363"/>
         <source>Choisir un fichier</source>
         <translation>Choose a file</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="363"/>
         <source>Images) (*.jpg *.jpeg *.png)</source>
         <translation>Images) (*.jpg *.jpeg *.png)</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="369"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="371"/>
         <source>Fichier trop volumineux</source>
         <translation>File is too big</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="369"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="371"/>
         <source>Le fichier doit pouvoir être comprimé en dessous de </source>
         <translation>The file must be able to be compressed below </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="386"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="388"/>
         <source>Suppression de votre logo</source>
         <translation>deletion of your logo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="387"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="389"/>
         <source>Confirmez-vous la suppression du logo</source>
         <translation>Do you confirm the logo&apos;s deletion</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="404"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="836"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="406"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="838"/>
         <source>Erreur</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="415"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="417"/>
         <source>Ancien mot de passe requis</source>
         <translation>Old password required</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="423"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="425"/>
         <source>Le mot de passe que vous voulez modifier n&apos;est pas bon
 </source>
         <translation>The password you want to modify is not valid
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="432"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="434"/>
         <source>Le nouveau mot de passe n&apos;est pas conforme
 (au moins 5 caractères - chiffres ou lettres non accentuées -
 </source>
@@ -8763,108 +8768,108 @@ pour le moment</source>
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="445"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="447"/>
         <source>Modifications enregistrées</source>
         <translation>Recorded changes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="446"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="448"/>
         <source>Le nouveau mot de passe a été enregistré avec succès</source>
         <translation>The new password has been registered</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="662"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="664"/>
         <source>Secrétaire médicale</source>
         <translation>Medical secretary</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="676"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="677"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="678"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="679"/>
         <source>Société</source>
         <translation>Firm</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="786"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="788"/>
         <source>Vous avez oublié d&apos;indiquer le login</source>
         <translation>You forgot to enter the login</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="792"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="794"/>
         <source>Vous avez oublié d&apos;indiquer le mot de passe</source>
         <translation>you forgot to enter the password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="800"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="802"/>
         <source>Ce login est réservé</source>
         <translation>This login is reserved</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="810"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="812"/>
         <source>Ce login est déjà utilisé</source>
         <translation>This login is already in use</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="821"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="823"/>
         <source>Le mot de passe n&apos;est pas conforme.</source>
         <translation>The password is not valid.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="822"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="824"/>
         <source>Au moins 5 caractères - uniquement des chifres ou des lettres - max. 12 caractères.</source>
         <translation>at least 5 characters - digits or unaccented letters - max 12 characters).</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="828"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="830"/>
         <source>Les mots de passe ne correspondent pas</source>
         <translation>Passwords doesn&apos;t match</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="866"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="868"/>
         <source>Enregistrer les modifications</source>
         <translation>Register changes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="868"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="870"/>
         <source>Modification des données</source>
         <translation>Datas modification</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="869"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="871"/>
         <source>Vous avez modifié les données de </source>
         <translation>You have modify the datas from </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="870"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="872"/>
         <source>Voulez-vous enregistrer ces modifications?</source>
         <translation>Would you like to save these changes?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="939"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="941"/>
         <source>Saisissez le mot de passe Administrateur</source>
         <translation>Enter Administrator password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="973"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="975"/>
         <source>Confirmez le nouveau mot de passe</source>
         <translation>Confirm new password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="983"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="985"/>
         <source>Entrez le nouveau mot de passe</source>
         <translation>Enter new password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="993"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="995"/>
         <source>Ancien mot de passe</source>
         <translation>Old password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1002"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1004"/>
         <source>Mot de passe utilisateur</source>
         <translation>user password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1047"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1049"/>
         <source>Vous ne pouvez pas déclarer cet utilisateur en tant qu&apos;employé
 parce qu&apos;il n&apos;y a aucun utilisateur susceptible d&apos;être employeur
 enregistré dans la base.</source>
@@ -8873,162 +8878,162 @@ because there are no users registered as employers
 in the database.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1083"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1085"/>
         <source>Impossible de supprimer </source>
         <translation>Unable to delete </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1084"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1086"/>
         <source> parce que c&apos;est le seul soignant enregistré dans la base. Vous devez d&apos;abord créer un autre utilisateur avant de pouvoir supprimer </source>
         <translation> because it&apos;s the only caregiver registered in the database. You must first create another user before you can delete it </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1093"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1095"/>
         <source>Impossible de supprimer ce compte d&apos;utilisateur!</source>
         <translation>Unable to delete this user account!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1093"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1095"/>
         <source>cet utilisateur est enregistré comme employeur d&apos;autres utilisateurs</source>
         <translation>this user is registered as employer of other users</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1104"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1106"/>
         <source>êtes vous bien sûr de vouloir faire ça?
 Si vous le faites, le programme se fermera immédiatement après votre disparition</source>
         <translation>Are you sure you want to do this?
 If you do, the program will close immediately after your suicide</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1108"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1110"/>
         <source>Non, vous avez raison, je vais rester encore un peu</source>
         <translation>No, you&apos;re right, I&apos;ll stay a little longer</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1109"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1111"/>
         <source>Oui, je veux partir</source>
         <translation>Yes, I&apos;m tired. I want to leave</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1113"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1115"/>
         <source>Suppression d&apos;un utilisateur</source>
         <translation>User deletion</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1114"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1116"/>
         <source>Etes vous bien sûr de vouloir supprimer </source>
         <translation>Are you sure you want to delete </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1117"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1119"/>
         <source>Garder </source>
         <translation>Keep </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1118"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1120"/>
         <source>Oui, supprimer </source>
         <translation>Yes, delete </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1145"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1147"/>
         <source>Cool </source>
         <translation>Cool </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1145"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1147"/>
         <source>Votre suicide s&apos;est parfaitement déroulé et le programme va maintenant se fermer</source>
         <translation>Your suicide went perfectly and the program will now close</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1461"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1463"/>
         <source>Utilisateurs</source>
         <translation>Users</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1497"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1499"/>
         <source>Cochez les utilisateurs
 que vous souhaitez réactiver</source>
         <translation>Check the users
 you wish to reactivate</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1501"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1503"/>
         <source>Utilisateurs inactifs</source>
         <translation>Inactive users</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1540"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1542"/>
         <source>Liste des lieux d&apos;exercice</source>
         <translation>List of practice locations</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1664"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1666"/>
         <source>Vous n&apos;avez pas spécifié de login!</source>
         <translation>You didn&apos;t specify a login!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1670"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1672"/>
         <source>Vous n&apos;avez pas spécifié de mot de passe!</source>
         <translation>You didn&apos;t specify a password!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1676"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1678"/>
         <source>Vous n&apos;avez pas spécifié le titre!</source>
         <translation>You didn&apos;t specify the title!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1682"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1684"/>
         <source>Vous n&apos;avez pas spécifié de nom!</source>
         <translation>You didn&apos;t specify a name!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1688"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1690"/>
         <source>Vous n&apos;avez pas spécifié de prénom!</source>
         <translation>You didn&apos;t specify a first name!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1702"/>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1759"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1704"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1761"/>
         <source>Vous n&apos;avez pas spécifié la fonction!</source>
         <translation>You didn&apos;t specify a function!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1715"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1717"/>
         <source>Vous n&apos;avez spécifié aucun lieu d&apos;exercice!</source>
         <translation>You haven&apos;t specified a practice location!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1731"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1733"/>
         <source>Vous n&apos;avez pas spécifié le mode d&apos;exercice!</source>
         <translation>You haven&apos;t specified the mode of exercise!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1747"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1749"/>
         <source>Vous n&apos;avez pas spécifié les renseignements comptables!</source>
         <translation>You haven&apos;t specified the accounting informations!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1753"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1755"/>
         <source>Vous n&apos;avez pas spécifié le n° de l&apos;Ordre!</source>
         <translation>You didn&apos;t specify your medcial number!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1765"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1767"/>
         <source>Vous n&apos;avez pas spécifié le RPPS!</source>
         <translation>You didn&apos;t specify the RPPS number!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1781"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1783"/>
         <source>Vous n&apos;avez pas spécifié le secteur conventionnel!</source>
         <translation>You didn&apos;t specify the conventional sector!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1788"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1790"/>
         <source>Vous avez oublié de spécifier un compte bancaire pour l&apos;enregistrement de la comptabilité!</source>
         <translation>You forgot to specify a bank account for accounting purposes!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_gestionusers.cpp" line="1794"/>
+        <location filename="Dialogs/dlg_gestionusers.cpp" line="1796"/>
         <source>Vous avez oublié de spécifier un employeur pour cet utilisateur non libéral!</source>
         <translation>You forgot to specify an employer for this non-liberal user!</translation>
     </message>
@@ -13443,7 +13448,7 @@ les données</source>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="3252"/>
         <location filename="Dialogs/dlg_param.cpp" line="526"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1617"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1618"/>
         <source>Appareils connectés au réseau</source>
         <translation>Devices connected to network</translation>
     </message>
@@ -13656,9 +13661,9 @@ des organismes bancaires</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="600"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1318"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1467"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1585"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1319"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1468"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1586"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
@@ -13698,7 +13703,6 @@ des organismes bancaires</source>
         <translation>Enter Administrator password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1007"/>
         <source>L&apos;accès distant fonctionne obligatoirement avec un cryptage de données SSL.Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut vous assurer que:
 1. le serveur MySQL est configuré pour le cryptage
 2. que les clés clientes SSL sont installées sur ce poste.
@@ -13717,7 +13721,7 @@ Sinon, ça ne marchera pas.
 Reportez vous à la page internet
 http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html
 pour savoir comment faire</oldsource>
-        <translation>Remote access requires SSL data encryption. If you want to use remote access on this workstation, you need to make sure that:
+        <translation type="vanished">Remote access requires SSL data encryption. If you want to use remote access on this workstation, you need to make sure that:
 1. the MySQL server is configured for encryption
 2. the SSL client keys are installed on this workstation.
 Otherwise, it won&apos;t work.
@@ -13725,12 +13729,42 @@ See http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance-
 for instructions on how to do this</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1088"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1007"/>
+        <source>Configuration pour un accès distant</source>
+        <translation>Remote access configuration</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="1008"/>
+        <source>L&apos;accès distant fonctionne obligatoirement avec un cryptage de données SSL.</source>
+        <translation>Remote access requires SSL data encryption.</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="1010"/>
+        <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut vous assurer que:</source>
+        <translation>If you want to use remote access on this workstation, you need to make sure that:</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="1012"/>
+        <source>1. le serveur MySQL est configuré pour le cryptage</source>
+        <translation>1. the MySQL server is configured for encryption</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="1013"/>
+        <source>2. que les clés clientes SSL sont installées sur ce poste.</source>
+        <translation>2. the SSL client keys are installed on this workstation.</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="1014"/>
+        <source>Reportez vous à la page internet</source>
+        <translation>Please refer to the webpage</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="1089"/>
         <source>Données utilisateurs modifiées?</source>
         <translation>User data changed?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1089"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1090"/>
         <source>Si vous avez modifié des données d&apos;utilisateurs actuellement connectés,
 chacun de ces utilisateurs doit relancer le programme
 pour pouvoir prendre en compte les modifications apportées!</source>
@@ -13739,180 +13773,180 @@ each of these users must restart the program
 in order to take account of the changes you have made!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1123"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1124"/>
         <source>Liste des lieux d&apos;exercice</source>
         <translation>List of practice locations</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1184"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1185"/>
         <source>Choisissez un appareil</source>
         <translation>Choose a device</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1212"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1897"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1213"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1898"/>
         <source>Choisissez le dossier dans lequel vous voulez sauvegarder la base
 Le nom de dossier ne doit pas contenir d&apos;espace</source>
         <translation>Choose the folder in which you want to save the database
 The folder name must not contain spaces</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1314"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1670"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1709"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1315"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1671"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1710"/>
         <source>Suppression de cotation</source>
         <translation>Deletion of quotation</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1315"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1316"/>
         <source>Vous étiez le seul à utiliser cette cotation</source>
         <translation>You were the only one to use this quotation</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1316"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1317"/>
         <source>Voulez-vous la supprimer définitvement?</source>
         <translation>Do you want to delete it permanently?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1318"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1319"/>
         <source>Supprimer la cotation</source>
         <translation>Delete this quotation</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1462"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1463"/>
         <source>Suppression d&apos;un appareil!</source>
         <translation>Deletion of a device!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1463"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1464"/>
         <source>Voulez vous vraiment supprimer l&apos;appareil</source>
         <translation>Do you really want to delete the device</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1466"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1467"/>
         <source>Supprimer</source>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1581"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1582"/>
         <source>Reset des paramètres imprimante!</source>
         <translation>Reset printer settings!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1582"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1583"/>
         <source>Restaurer les valeurs par défaut?</source>
         <translation>Restore default settings?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1584"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1585"/>
         <source>Restaurer</source>
         <translation>Restore</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1664"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1665"/>
         <source>Suppression refusée</source>
         <translation>Deletion refused</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1665"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1666"/>
         <source>La cotation</source>
         <translation>The quotation</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1666"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1667"/>
         <source>est utilisée par d&apos;autres utilisateurs</source>
         <translation>is used by other users</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1670"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1709"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1671"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1710"/>
         <source>Confirmez la suppression de la cotation </source>
         <translation>Confirm deletion of the quotation </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1732"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1733"/>
         <source>Confirmez le nouveau mot de passe</source>
         <translation>Confirm new password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1744"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1745"/>
         <source>Entrez le nouveau mot de passe</source>
         <translation>Enter new password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1755"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1756"/>
         <source>Entrez votre mot de passe</source>
         <translation>Enter your password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1765"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1766"/>
         <source>Mot de passe administrateur</source>
         <translation>Administrator password</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1775"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1776"/>
         <source>Motifs de consultations</source>
         <translation>Consultations reasons</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1920"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1998"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1921"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1999"/>
         <source>Choisissez le dossier d&apos;enregistrement provisoire des mesures de l&apos;appareil
 Le nom de dossier ne doit pas contenir d&apos;espace</source>
         <translation>Select the folder for temporary storage of device measurements
 The folder name must not contain spaces</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2152"/>
-        <location filename="Dialogs/dlg_param.cpp" line="2180"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2153"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2181"/>
         <source>Vous n&apos;avez pas spécifié de dossier de stockage valide pour les documents d&apos;imagerie !</source>
         <translation>You have not specified a valid storage folder for imaging documents!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2195"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2196"/>
         <source>Le programme va se fermer pour que certaines données puissent être prises en compte</source>
         <translation>The program will close so that certain data can be taken into account</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2208"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2209"/>
         <source>Pas de poste paramétré</source>
         <translation>No workstation set</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2216"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2217"/>
         <source>Administrateur</source>
         <translation>Administrator</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2218"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2219"/>
         <source>prioritaire</source>
         <translation>preferred</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2218"/>
-        <location filename="Dialogs/dlg_param.cpp" line="2223"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2219"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2224"/>
         <source>non prioritaire</source>
         <translation>not  preferred</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2775"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2776"/>
         <source>Erreur</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2787"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2788"/>
         <source>Ancien mot de passe requis</source>
         <translation>Old password required</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2795"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2796"/>
         <source>Le mot de passe que vous voulez modifier n&apos;est pas le bon
 </source>
         <translation>The password you want to change is not the right one
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2803"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2804"/>
         <source>Le nouveau mot de passe n&apos;est pas conforme
 (au moins 5 caractères - chiffres ou lettres non accentuées -
 </source>
@@ -13921,161 +13955,161 @@ The folder name must not contain spaces</translation>
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2816"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2817"/>
         <source>Modifications enregistrées</source>
         <translation>Recorded changes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2817"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2818"/>
         <source>Le nouveau mot de passe a été enregistré avec succès</source>
         <translation>The new password has been registered</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2878"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2879"/>
         <source>Débit</source>
         <translation>Debit</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2879"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2880"/>
         <source>Bits de donnés</source>
         <translation>DataBits</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2880"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2881"/>
         <source>Parité</source>
         <translation>Parity</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2881"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2882"/>
         <source>Bits d&apos;arrêt</source>
         <translation>StopBits</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2882"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2883"/>
         <source>Contrôle de flux</source>
         <translation>FlowControl</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2933"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2934"/>
         <source>Revenir aux réglages
 par défaut pour cet appareil</source>
         <translation>Return to default settings for this device</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3053"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3062"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3071"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3080"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3089"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3054"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3063"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3072"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3081"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3090"/>
         <source>Invalide</source>
         <translation>Invalid</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3101"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3102"/>
         <source>Réglé sur</source>
         <translation>Set to</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3262"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3263"/>
         <source>Cotation</source>
         <translation>Quotation</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3263"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3264"/>
         <source>Montant</source>
         <translation>Amount</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3264"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3265"/>
         <source>Pratiqué</source>
         <translation>Usual</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3685"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3686"/>
         <source>Un même port COM est affecté à plusieurs appareils différents!</source>
         <translation>The same COM port is assigned to several different devices!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3692"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3693"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour l&apos;autorefractomètre </source>
         <translation>You have not specified a communication port for the autorefractometer </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3693"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3722"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3751"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3780"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3694"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3723"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3752"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3781"/>
         <source>Voulez-vous le garder quand même?</source>
         <translation>Would you like to keep it anyway?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3695"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3724"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3753"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3782"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3696"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3725"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3754"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3783"/>
         <source>Confirmer</source>
         <translation>Confirm</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3695"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3724"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3753"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3782"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3696"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3725"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3754"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3783"/>
         <source>Corriger</source>
         <translation>Correct</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3705"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3706"/>
         <source>Vous avez spécifié un port COM pour l&apos;autorefractomètre sans sélectionner de machine !</source>
         <translation>You have specified a COM port for the autorefractometer without selecting a device!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3712"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3713"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour l&apos;autorefractomètre</source>
         <translation>You have not specified a valid network folder for the autorefractometer</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3721"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3722"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour le frontofocomètre </source>
         <translation>You have not specified a communication port for the lensmeter </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3734"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3735"/>
         <source>Vous avez spécifié un port COM pour le frontofocotomètre sans sélectionner de machine !</source>
         <translation>You have specified a COM port for the lensmeter without selecting a device!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3741"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3742"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour le frontofocomètre</source>
         <translation>You have not specified a valid network folder for the lensmeter</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3750"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3751"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour le refracteur </source>
         <translation>You have not specified a communication port for the phoropter </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3763"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3764"/>
         <source>Vous avez spécifié un port COM pour le réfracteur sans sélectionner de machine !</source>
         <translation>You have specified a COM port for the phoropter without selecting a device!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3770"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3771"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour le refracteur</source>
         <translation>You have not specified a valid network folder for the phoropter</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3779"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3780"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour le tonomètre </source>
         <translation>You have not specified a communication port for the tonometer </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3792"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3793"/>
         <source>Vous avez spécifié un port COM pour le tonomètre sans sélectionner de machine !</source>
         <translation>You have specified a COM port for the tonometer without selecting a device!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3799"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3800"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour le tonomètre</source>
         <translation>You have not specified a valid network folder for the tonometer</translation>
     </message>
@@ -16389,12 +16423,12 @@ to put this cheque on hold</translation>
     <message>
         <location filename="pyxinterf.cpp" line="321"/>
         <source>La connexion à Pxyvital (serveur) a échoué.&lt;br&gt;&lt;br&gt;Veuillez vérifier les paramètres dans Pyxvital.ini.&lt;br&gt;- Nom serveur = </source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="323"/>
         <source>&lt;br&gt;- Port = </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br&gt;- Port = </translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="323"/>

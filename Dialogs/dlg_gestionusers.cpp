@@ -69,9 +69,10 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->RPPSupLineEdit          ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{12}"),this));
     ui->NumCOupLineEdit         ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
 
-    ui->LogoupPushButton     ->setStyleSheet(Utils::nullmargingstyle());
-    QString Logo = tr("Cliquez sur ce bouton pour") + "\n" + tr("enregistrer votre logo") + " ";
-    ui->LogoupPushButton     ->setImmediateToolTip(Logo);
+    ui->LogoupPushButton        ->setStyleSheet(Utils::nullmargingstyle());
+    QString Logo                = tr("Cliquez sur ce bouton pour") + "\n" + tr("enregistrer votre logo") + " ";
+    ui->LogoupPushButton        ->setImmediateToolTip(Logo);
+    ui->LogoupPushButton        ->setVisible(false);
 
     ui->Logolabel               ->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -89,6 +90,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->OKupSmallButton             ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
     ui->OKupSmallButton             ->setText(tr("Enregistrer"));
     ui->InactifspushButton          ->setEnabled(Datas::I()->users->inactifs()->size()>0);
+
 
     ui->ModifMDPUserupLabel->setToolTip(tr("Modifier le mot de passe"));
 

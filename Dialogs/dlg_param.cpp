@@ -1004,16 +1004,17 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
     else if (box == ui->DistantServcheckBox)
     {
         if (a)
-            UpMessageBox::Watch(this,tr("L'accès distant fonctionne obligatoirement "
-                                         "avec un cryptage de données SSL."
-                                         "Si vous voulez utiliser l'accès distant "
-                                         "sur ce poste, il faut vous assurer que:\n"
-                                         "1. le serveur MySQL est configuré pour le cryptage\n"
-                                         "2. que les clés clientes SSL sont installées sur ce poste.\n\n"
-                                         "Sinon, ça ne marchera pas.\n\n"
-                                         "Reportez vous à la page internet\n"
-                                         "http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html\n"
-                                         "pour savoir comment faire"));
+            UpMessageBox::Watch(this,tr("Configuration pour un accès distant"),
+                                     tr("L'accès distant fonctionne obligatoirement "
+                                         "avec un cryptage de données SSL.") + "<br/>" +
+                                     tr("Si vous voulez utiliser l'accès distant "
+                                         "sur ce poste, il faut vous assurer que:") + "<br/>" +
+                                     tr("1. le serveur MySQL est configuré pour le cryptage") + "<br/>" +
+                                     tr("2. que les clés clientes SSL sont installées sur ce poste.") + "<br/><br/>" +
+                                     tr("Reportez vous à la page internet") + "<br/>" +
+                                        "<a href=\'https://www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html\'>www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html</a><br/>",
+                                     UpDialog::ButtonOK, "www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html"
+                                    );
         ui->Distantframe                ->setVisible(a);
         ui->Distantframe                ->setEnabled(a);
         ui->DistantConnexionupLabel     ->setVisible(a);

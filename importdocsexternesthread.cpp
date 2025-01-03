@@ -120,6 +120,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     }
     else if (Appareil == "TOPCON MAESTRO")
     {
+        //572_20250102_153647_OCTReport_L_001.jpg
         if (nomfiledoc.split("_").size()>1)
         {
             datestring  = nomfiledoc.split("_").at(1);
@@ -129,7 +130,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
             datestring      = m_currentdate.toString("yyyyMMdd");
         if (nomfiledoc.split("_").size()>4)
         {
-            cote = nomfiledoc.split("-").at(4);
+            cote = nomfiledoc.split("_").at(4);
             if (cote =="R")
                 cote = R;
             else if (cote == "L")

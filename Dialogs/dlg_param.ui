@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -149,7 +149,7 @@
              <property name="geometry">
               <rect>
                <x>60</x>
-               <y>290</y>
+               <y>320</y>
                <width>480</width>
                <height>3</height>
               </rect>
@@ -173,9 +173,9 @@
             <widget class="UpLineEdit" name="NomuplineEdit">
              <property name="geometry">
               <rect>
-               <x>410</x>
+               <x>230</x>
                <y>63</y>
-               <width>160</width>
+               <width>281</width>
                <height>21</height>
               </rect>
              </property>
@@ -193,7 +193,7 @@
              <property name="geometry">
               <rect>
                <x>270</x>
-               <y>90</y>
+               <y>120</y>
                <width>301</width>
                <height>21</height>
               </rect>
@@ -211,9 +211,9 @@
             <widget class="QLabel" name="Prenomlabel">
              <property name="geometry">
               <rect>
-               <x>137</x>
-               <y>65</y>
-               <width>63</width>
+               <x>138</x>
+               <y>92</y>
+               <width>71</width>
                <height>16</height>
               </rect>
              </property>
@@ -228,7 +228,7 @@
              <property name="geometry">
               <rect>
                <x>240</x>
-               <y>94</y>
+               <y>124</y>
                <width>35</width>
                <height>16</height>
               </rect>
@@ -243,9 +243,9 @@
             <widget class="UpLineEdit" name="PrenomuplineEdit">
              <property name="geometry">
               <rect>
-               <x>200</x>
-               <y>63</y>
-               <width>160</width>
+               <x>230</x>
+               <y>90</y>
+               <width>281</width>
                <height>21</height>
               </rect>
              </property>
@@ -263,7 +263,7 @@
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>94</y>
+               <y>124</y>
                <width>76</width>
                <height>16</height>
               </rect>
@@ -278,9 +278,9 @@
             <widget class="QLabel" name="Nomlabel">
              <property name="geometry">
               <rect>
-               <x>370</x>
+               <x>140</x>
                <y>65</y>
-               <width>45</width>
+               <width>81</width>
                <height>16</height>
               </rect>
              </property>
@@ -295,7 +295,7 @@
              <property name="geometry">
               <rect>
                <x>70</x>
-               <y>90</y>
+               <y>120</y>
                <width>150</width>
                <height>21</height>
               </rect>
@@ -488,9 +488,9 @@
              <property name="geometry">
               <rect>
                <x>50</x>
-               <y>310</y>
+               <y>340</y>
                <width>507</width>
-               <height>421</height>
+               <height>391</height>
               </rect>
              </property>
              <property name="focusPolicy">
@@ -501,7 +501,7 @@
              <property name="geometry">
               <rect>
                <x>28</x>
-               <y>130</y>
+               <y>160</y>
                <width>530</width>
                <height>145</height>
               </rect>
