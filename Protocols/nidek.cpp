@@ -3258,44 +3258,6 @@ QByteArray Nidek::RegleRefracteurCOM(TypesMesures flag)
     }
     DTRbuff.append(EOT);                                    //EOT -> end of transmission
 
-    /*! réglage du fronto */
-    if (flag.testFlag(MesureFronto) && !Datas::I()->mesurefronto->isdataclean())
-    {
-        initvariables();
-
-        convertaxeNIDEK(AxeOD, Utils::roundToNearestFive(Datas::I()->mesurefronto->axecylindreOD()));
-        convertaxeNIDEK(AxeOG, Utils::roundToNearestFive(Datas::I()->mesurefronto->axecylindreOG()));
-        convertdioptriesNIDEK(SphereOD, Datas::I()->mesurefronto->sphereOD());
-        convertdioptriesNIDEK(SphereOG, Datas::I()->mesurefronto->sphereOG());
-        convertdioptriesNIDEK(CylindreOD, Datas::I()->mesurefronto->cylindreOD());
-        convertdioptriesNIDEK(CylindreOG, Datas::I()->mesurefronto->cylindreOG());
-
-        SCAOD       = SphereOD + CylindreOD + AxeOD;
-        SCAOG       = SphereOG + CylindreOG + AxeOG;
-        SCAOD.replace("+0","+ ");
-        SCAOD.replace("-0","- ");
-        SCAOG.replace("+0","+ ");
-        SCAOG.replace("-0","- ");
-        AddOD       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOD(),'f',2);
-        AddOG       = "+ " + QString::number(Datas::I()->mesurefronto->addVPOG(),'f',2);
-        DTRbuff.append(Utils::StringToArray("DLM"));        //section fronto
-        DTRbuff.append(STX);                                //STX -> start of text
-        DTRbuff.append(Utils::StringToArray(" R"+ SCAOD));  //SD
-        DTRbuff.append(ETB);                                //ETB -> end of text block
-        DTRbuff.append(Utils::StringToArray(" L"+ SCAOG));  //SD
-        DTRbuff.append(ETB);                                //ETB -> end of text block
-        DTRbuff.append(Utils::StringToArray("AR" + AddOD)); //SD
-        DTRbuff.append(ETB);                                //ETB -> end of text block
-        DTRbuff.append(Utils::StringToArray("AL" + AddOG)); //SD
-        DTRbuff.append(ETB);                                //ETB -> end of text block
-        if (Datas::I()->mesurefronto->ecartIP() > 0)
-        {
-            DTRbuff.append(Utils::StringToArray("PD"+ QString::number(Datas::I()->mesurefronto->ecartIP())));   //SD
-            DTRbuff.append(ETB);                            //ETB -> end of text block
-        }
-    }
-    DTRbuff.append(EOT);                                    //EOT -> end of transmission
-
     /*!
         qDebug() << "RegleRefracteur() - DTRBuff = " << QString(DTRbuff).toLocal8Bit() << "RegleRefracteur() - DTRBuff.size() = " << QString(DTRbuff).toLocal8Bit().size();
         QString nompat = "";

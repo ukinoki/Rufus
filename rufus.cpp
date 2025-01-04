@@ -7917,8 +7917,8 @@ void Rufus::CreerMenu()
 
 
 // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    /*QMenuBar *menubar = menuBar();
-    menubar->setNativeMenuBar(false);*/
+    QMenuBar *menubar = menuBar();
+    menubar->setNativeMenuBar(false);
     menuDossier         = menuBar()->addMenu(tr("Dossier"));
     menuEdition         = menuBar()->addMenu(tr("Edition"));
     if (currentuser()->isSoignant())
@@ -7939,15 +7939,9 @@ void Rufus::CreerMenu()
     menuDossier->addAction(actionRechercheParMotCle);
     menuDossier->addAction(actionRechercheParID);
 
-#ifdef Q_OS_MACOS
-    menuBar()   ->addAction(actionApropos);
-    menuBar()   ->addAction(actionQuit);
-#endif
-#if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     menuAide    = menuBar()->addMenu(tr("Aide"));
     menuAide    ->addAction(actionApropos);
     menuDossier ->addAction(actionQuit);
-#endif
 
     menuEdition->addAction(tr("Copier"));
     menuEdition->addAction(tr("Couper"));

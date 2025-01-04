@@ -4012,7 +4012,7 @@ on a folder to open it</translation>
         <location filename="rufus.cpp" line="4378"/>
         <location filename="rufus.cpp" line="7849"/>
         <source>Paramètres</source>
-        <translation>General Settings</translation>
+        <translation>Settings</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4686"/>
@@ -7512,7 +7512,7 @@ including those of minor importance</translation>
         <location filename="Dialogs/dlg_docsexternes.cpp" line="438"/>
         <source>Renseignez un dossier valide dans Editions/Paramètres/Onglet </source>
         <oldsource>Renseignez un dossier valide dans Editions/Paramètres généraux/Onglet </oldsource>
-        <translation>Enter a valid folder in Edit/General Settings/Tab </translation>
+        <translation>Enter a valid folder in Edit/Settings/Tab </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_docsexternes.cpp" line="446"/>
@@ -7671,7 +7671,7 @@ as of today&apos;s date</translation>
     <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="48"/>
         <source>Editions/Paramètres/Onglet </source>
-        <translation>Edit/General Settings/Tab </translation>
+        <translation>Edit/Settings/Tab </translation>
     </message>
     <message>
         <source>Editions/Paramètres généraux/Onglet </source>
@@ -7957,7 +7957,7 @@ as of today&apos;s date</translation>
         <location filename="Dialogs/dlg_docsvideo.cpp" line="228"/>
         <source>Renseignez un dossier valide dans Editions/Paramètres/Onglet </source>
         <oldsource>Renseignez un dossier valide dans Editions/Paramètres généraux/Onglet </oldsource>
-        <translation>Enter a valid folder in Edit/General Settings/Tab </translation>
+        <translation>Enter a valid folder in Edit/Settings/Tab </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_docsvideo.cpp" line="238"/>

@@ -6093,6 +6093,19 @@ SOH*PC_RCV_EEOT                 -> end block
         }
     }
     // FIN TOMEY TAP-2000 et Rodenstock Phoromat 2000 ==========================================================================================================================}
+    else if (nameRF =="SHIN-NIPPON DR-900")
+    {
+        GenericProtocol::TypesMesures flag = GenericProtocol::MesureNone;
+        if (Mesure.contains("LM") && PortFronto() == Q_NULLPTR && !m_LANFronto)             //!=> il y a une mesure pour le fronto et le fronto est directement branché sur la box du refracteur
+            flag.setFlag(GenericProtocol::MesureFronto);
+        if (Mesure.contains("KM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de keratométrie et l'autoref est connecté directement à la box du refraacteur
+            flag.setFlag(GenericProtocol::MesureKerato);
+        if (Mesure.contains("RM") && PortAutoref() == Q_NULLPTR && !m_LANAutoref)           //!=> il y a une mesure de refractometrie et l'autoref est directement branché sur la box du refracteur
+            flag.setFlag(GenericProtocol::MesureAutoref);
+        if (Mesure.contains("RT"))                                                          //!=> il y a une mesure de refraction
+            flag.setFlag(GenericProtocol::MesureRefracteur);
+        ShinNippon::I()->LectureDonneesCOMRefracteur(Mesure, flag);
+    }
 }
 
 void Procedures::LectureDonneesXMLRefracteur(QDomDocument docxml)
@@ -6953,8 +6966,7 @@ void Procedures::ReponsePortSerie_Autoref(const QString &s)
             //!> le PC simule la réponse du refracteur et répond par SendDataNIDEK() pour recevoir les data
             //qDebug() << "cmd" << Nidek::I()->OKtoReceive(cmd);
             PortAutoref()->writeDatas(Nidek::I()->OKtoReceive(cmd), " SendDataNIDEK(cmd) - Autoref = ");
-            //sp_portAutoref->setDataTerminalReady(true);
-           return;
+            return;
         }
     }
 
