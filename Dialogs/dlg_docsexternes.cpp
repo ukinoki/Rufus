@@ -1006,6 +1006,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     dlg->setWindowTitle(tr("Modifier la date"));
     dateedit->setDate(docmt->datetimeimpression().date());
     dateedit->setSelectedSection(QDateTimeEdit::DaySection);
+    dateedit->setDisplayFormat(tr("dd/MM/yyyy"));
 
     connect(dlg->OKButton,   &QPushButton::clicked, this,   [=]
     {
@@ -1454,7 +1455,7 @@ void dlg_docsexternes::RemplirTreeView()
     std::sort(listdates.begin(), listdates.end());
     for (int i=0; i<listdates.size(); ++i)
     {
-        QString datestring = listdates.at(i).toString("dd-MM-yyyy");
+        QString datestring = listdates.at(i).toString(tr("dd-MM-yyyy"));
         dateitem    = new QStandardItem(datestring);
         dateitem    ->setForeground(QBrush(QColor(Qt::red)));
         dateitem    ->setEditable(false);
@@ -1471,10 +1472,9 @@ void dlg_docsexternes::RemplirTreeView()
         typitem     ->setIcon(Icons::icSortirDossier());
         rootNodeType->appendRow(typitem);
     }
-
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
-        QString date = doc->datetimeimpression().toString("dd-MM-yyyy");
+        QString date = doc->datetimeimpression().toString(tr("dd-MM-yyyy"));
         //qDebug() << date << doc->titre();
         pitemdate           = new QStandardItem(CalcTitre(doc));
         pitemtype           = new QStandardItem(CalcTitre(doc));

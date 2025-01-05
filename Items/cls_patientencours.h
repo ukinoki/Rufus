@@ -92,6 +92,18 @@ public:
                                           m_data[CP_IDUSERENCOURSEXAM_SALDAT] = id; }
     void setidsaldat(int id)            { m_idsaldat = id;
                                           m_data[CP_IDSALDAT_SALDAT] = id; }
+    QString statuttotr()                { if (m_statut == ARRIVE) return tr("Arrivé");
+        else if (m_statut == ENCOURS)               return tr("En cours");
+        else if (m_statut == ENATTENTENOUVELEXAMEN) return tr("En attente de nouvel examen par ");
+        else if (m_statut == RETOURACCUEIL)         return tr("Retour accueil");
+        else if (m_statut == ENCOURSEXAMEN)         return tr("En cours de consultation avec ");
+        else return "";}
+    static QString statutfromtr(QString statut) { if (statut == tr("Arrivé")) return ARRIVE;
+                else if (statut == tr("En cours"))                            return ENCOURS;
+                else if (statut == tr("En attente de nouvel examen par "))    return ENATTENTENOUVELEXAMEN;
+                else if (statut == tr("Retour accueil"))                      return RETOURACCUEIL;
+                else if (statut == tr("En cours de consultation avec "))      return ENCOURSEXAMEN;
+                else return "";}
 };
 
 #endif // CLS_PATIENTENCOURS_H

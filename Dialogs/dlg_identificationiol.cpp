@@ -136,16 +136,16 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         IOL* iol = Datas::I()->iols->getById(it.key());
         if (iol)
         {
-            if (!listopticmaterials.contains(iol->opticalmaterial()) && iol->opticalmaterial() != "")
-                listopticmaterials << iol->opticalmaterial();
+            if (!listopticmaterials.contains(iol->opticalMaterialtotr()) && iol->opticalMaterialtotr() != "")
+                listopticmaterials << iol->opticalMaterialtotr();
             if (!listhapticmaterials.contains(iol->hapticalmaterial()) && iol->hapticalmaterial() != "")
                 listhapticmaterials << iol->hapticalmaterial();
-            if (!listhydrofily.contains(iol->hydrofily()) && iol->hydrofily() != "")
-                listhydrofily << iol->hydrofily();
+            if (!listhydrofily.contains(iol->hydrofilytotr()) && iol->hydrofilytotr() != "")
+                listhydrofily << iol->hydrofilytotr();
         }
 
     }
-    listtypes << IOL_CP << IOL_CA << IOL_ADDON << IOL_IRIEN << IOL_CAREFRACTIF << IOL_AUTRE;
+    listtypes << IOL::typeStringtotr(IOL_CP) << IOL::typeStringtotr(IOL_CA) << IOL::typeStringtotr(IOL_ADDON) << IOL::typeStringtotr(IOL_IRIEN) << IOL::typeStringtotr(IOL_CAREFRACTIF) << IOL::typeStringtotr(IOL_AUTRE);
     listhydrofily << "";
 
     QHBoxLayout *TypeLay        = new QHBoxLayout();
@@ -1175,13 +1175,13 @@ void dlg_identificationIOL::AfficheDatasIOL(IOL *iol)
 
         wdg_puissancemaxspin->setValuewithPrefix(m_currentIOL->pwrmax());
         wdg_puissanceminspin->setValuewithPrefix(m_currentIOL->pwrmin());
-        if (m_currentIOL->opticalmaterial() != "")
-            wdg_materiaubox ->setCurrentText(m_currentIOL->opticalmaterial());
+        if (m_currentIOL->opticalMaterialtotr() != "")
+            wdg_materiaubox ->setCurrentText(m_currentIOL->opticalMaterialtotr());
         else
             wdg_materiaubox ->setCurrentIndex(-1);
-        wdg_hydrofilybox ->setCurrentIndex(wdg_hydrofilybox->findText(m_currentIOL->hydrofily()));
+        wdg_hydrofilybox ->setCurrentIndex(wdg_hydrofilybox->findText(m_currentIOL->hydrofilytotr()));
         if (m_currentIOL->typeString() != "")
-            wdg_typebox     ->setCurrentText(m_currentIOL->typeString());
+            wdg_typebox     ->setCurrentText(m_currentIOL->typeStringtotr());
         else
             wdg_typebox     ->setCurrentIndex(-1);
         wdg_remarquetxt     ->setPlainText(m_currentIOL->remarque());
@@ -1521,8 +1521,8 @@ bool dlg_identificationIOL::EnregistreIOL()
     m_listbinds[CP_BARRETTDF_IOLS]      = (QLocale().toDouble(wdg_barrettDFline->text()) != 0.0?    QLocale().toDouble(wdg_barrettDFline->text())   : QVariant());
     m_listbinds[CP_BARRETTLF_IOLS]      = (QLocale().toDouble(wdg_barrettLFline->text()) != 0.0?    QLocale().toDouble(wdg_barrettLFline->text())   : QVariant());
     m_listbinds[CP_OLSEN_IOLS]          = (QLocale().toDouble(wdg_olsenline->text()) != 0.0?        QLocale().toDouble(wdg_olsenline->text())       : QVariant());
-    m_listbinds[CP_OPTICMATERIAU_IOLS]  = wdg_materiaubox->currentText();
-    m_listbinds[CP_HYDROFILY_IOLS]      = wdg_hydrofilybox->currentText();
+    m_listbinds[CP_OPTICMATERIAU_IOLS]  = IOL::opticalMaterialfromtr(wdg_materiaubox->currentText());
+    m_listbinds[CP_HYDROFILY_IOLS]      = IOL::hydrofilyfromtr(wdg_hydrofilybox->currentText());
     m_listbinds[CP_HAPTICMATERIAU_IOLS] = wdg_hapticmateriaubox->currentText();
     m_listbinds[CP_REMARQUE_IOLS]       = wdg_remarquetxt->toPlainText();
     m_listbinds[CP_DIAALL_IOLS]         = (QLocale().toDouble(wdg_diaht->text()) >0.0?              QLocale().toDouble(wdg_diaht->text())           : QVariant());
@@ -1538,7 +1538,7 @@ bool dlg_identificationIOL::EnregistreIOL()
     m_listbinds[CP_MINCYL_IOLS]         = (wdg_toricchk->checkState() == Qt::Checked?               wdg_cylindreminspin->value()                    : QVariant());
     m_listbinds[CP_JAUNE_IOLS]          = (wdg_jaunechk->isChecked()?                               "1"                                             : QVariant());
     m_listbinds[CP_MULTIFOCAL_IOLS]     = (wdg_multifocalchk->isChecked()?                          "1"                                             : QVariant());
-    m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?                             "1"                                             : QVariant());
+    m_listbinds[CP_INACTIF_IOLS]        = (wdg_inactifchk->isChecked()?                             QVariant()                                      : 1);
     m_listbinds[CP_EDOF_IOLS]           = (wdg_edofchk->isChecked()?                                "1"                                             : QVariant());
     m_listbinds[CP_TORIC_IOLS]          = (wdg_toricchk->isChecked()?                               "1"                                             : QVariant());
     m_listbinds[CP_TYP_IOLS]            = (wdg_typebox->currentIndex()>-1?                          QString::number(wdg_typebox->currentIndex()+1)  : QVariant());
@@ -1566,6 +1566,9 @@ bool dlg_identificationIOL::EnregistreIOL()
     {
         DataBase::I()->UpDateImgIOL(m_currentIOL->id(), m_listbinds);
         Datas::I()->iols->getById(m_currentIOL->id(), true);
+        for (auto it = m_listbinds.begin(); it != m_listbinds.end(); ++it)
+            ItemsList::update(m_currentIOL,it.key(), it.value());
+
     }
     RecordButton->setEnabled(false);
     return true;

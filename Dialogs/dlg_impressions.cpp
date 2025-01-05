@@ -39,13 +39,13 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Documents).toByteArray());
 
     ui->PrescriptioncheckBox->setVisible(currentuser()->isSoignant());
-    wdg_docsbuttonframe     = new WidgetButtonFrame(ui->DocsupTableView);
-    wdg_docsbuttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
-    wdg_docsbuttonframe     ->addSearchLine();
-    wdg_dossiersbuttonframe = new WidgetButtonFrame(ui->DossiersupTableView);
-    wdg_dossiersbuttonframe ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
-
-    ui->DocsPublicscheckBox->setImmediateToolTip(tr("Cocher cette case pour visualiser les dossiers et documents rendus publics par leurs créateurs\n"
+    wdg_docsbuttonframe         = new WidgetButtonFrame(ui->DocsupTableView);
+    wdg_docsbuttonframe         ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
+    wdg_docsbuttonframe         ->addSearchLine();
+    wdg_dossiersbuttonframe     = new WidgetButtonFrame(ui->DossiersupTableView);
+    wdg_dossiersbuttonframe     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
+    ui->dateImpressiondateEdit  ->setDisplayFormat(tr("dd/MM/yyyy"));
+    ui->DocsPublicscheckBox     ->setImmediateToolTip(tr("Cocher cette case pour visualiser les dossiers et documents rendus publics par leurs créateurs\n"
                                                     "Ces dossiers et documents sont affichés en caractères italiques bleus"));
 
     ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
@@ -1338,6 +1338,7 @@ void dlg_impressions::OKpushButtonClicked()
                 else if (listtypeQuestions.at(m)  == "DATE")
                 {
                     QDateEdit *Date = new QDateEdit();
+                    Date->setDisplayFormat(tr("dd/MM/yyyy"));
                     Date->setCalendarPopup(false); //si on met ce paramètre à true et qu'on utilise le calendarpopup,
                                                    //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
                     Date->setContentsMargins(0,0,0,0);
@@ -1450,6 +1451,7 @@ void dlg_impressions::OKpushButtonClicked()
                 else if (listtypeQuestions.at(m)  == DATEINTERVENTION)
                 {
                     QDateEdit *Date = new QDateEdit();
+                    Date->setDisplayFormat(tr("dd/MM/yyyy"));
                     Date->setCalendarPopup(false); //si on met ce paramètre à true et qu'on utilise le calendarpopup,
                                                    //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
                     Date->setContentsMargins(0,0,0,0);

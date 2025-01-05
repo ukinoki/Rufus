@@ -431,6 +431,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
     QDateEdit *dateedit = new QDateEdit(m_currentdate);
     dateedit        ->setFixedSize(QSize(120,24));
     dateedit        ->setCalendarPopup(true);
+    dateedit        ->setDisplayFormat(tr("dd/MM/yyyy"));
     choixdateLay    ->addWidget(lbldate);
     choixdateLay    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding,QSizePolicy::Expanding));
     choixdateLay    ->addWidget(dateedit);
@@ -696,7 +697,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
                         {
                             QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), db->ServerDate());
                             QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
-                                    + " " + pat->datedenaissance().toString("dd-MM-yyyy")
+                                                 + " " + pat->datedenaissance().toString(tr("dd-MM-yyyy"))
                                     + " - " + mapage["toString"].toString();
                             if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
                             {
@@ -964,7 +965,7 @@ void dlg_programmationinterventions::RemplirTreeInterventions(Intervention* inte
                 }
                 QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), db->ServerDate());
                 QString sexeddntel = (pat->sexe() == "M"? tr("Né le") : tr("Née le"))                                                           //! date de naissance - sexe - telephone
-                        + " " + pat->datedenaissance().toString("dd-MM-yyyy")
+                                     + " " + pat->datedenaissance().toString(tr("dd-MM-yyyy"))
                         + " - " + mapage["toString"].toString();
                 if (pat->telephone() != "" || pat->portable() != "")                                                                            //! telephone
                 {

@@ -327,7 +327,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
                                 "<td width=\"14%\">" + couleur + "<span style=\"font-size:8pt\"><div align=\"right\">"
                                 + QLocale().toString(rec->encaissementautrerecette(), 'f',2) + "</div></span></font></td>"               //! montant
                                 "<td width=\"14%\">" + couleur + "<span style=\"font-size:8pt\">"
-                                + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                             //! mode de paiement
+                                + Utils::ModePaiementtotr(rec->modepaiement()) + "</span></font></td>";                             //! mode de paiement
                     }
                     else if (rec->montant()==0.0 && !rec->isapportpraticien())          //! ----   c'est un tiers payant
                     {
@@ -336,7 +336,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
                                 "<td width=\"33%\"><span style=\"font-size:8pt\">" + rec->payeur() + "</span></td>"                                                                         //! nom prenom ou libelle si recette speciale
                                 "<td width=\"22%\"><span style=\"font-size:8pt\">-</span></td>";                                                                                            //! vide (on est obligé de mettre un "-" parce que sinon la hauteur de ligne est fausse)
                         textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\"><div align=\"right\">" + QLocale().toString(rec->encaissement(), 'f', 2) + "</div></span></td>";      //! montant
-                        textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\">" + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                        //! mode de paiement
+                        textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\">" + Utils::ModePaiementtotr(rec->modepaiement()) + "</span></font></td>";                        //! mode de paiement
 
                     }
                     else                                                                 //! ----   c'est une recette
@@ -352,7 +352,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
                             textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\"><div align=\"right\">" + QLocale().toString(rec->encaissementautrerecette(), 'f', 2) + "</div></span></td>";
                         else
                             textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\"><div align=\"right\">" + QLocale().toString(rec->encaissement(), 'f', 2) + "</div></span></td>";  //! montant
-                        textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\">" + Utils::ConvertitModePaiement(rec->modepaiement()) + "</span></font></td>";                        //! mode de paiement
+                        textcorps += "<td width=\"14%\"><span style=\"font-size:8pt\">" + Utils::ModePaiementtotr(rec->modepaiement()) + "</span></font></td>";                        //! mode de paiement
                     }
                     row++;
                 }
@@ -471,7 +471,7 @@ void dlg_bilanrecettes::CalculeTotal()
             }
             wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" actes ") : tr(" acte ")) + QLocale().toString(m_totalmontant,'f',2));
             wdg_totalrecetteslbl     ->setText(tr("Total reçu ") + QLocale().toString(m_totalrecu,'f',2)
-                                        + "\n(" + tr(ESPECES) + ": " + QLocale().toString(m_totalrecuespeces,'f',2) + " - "
+                                        + "\n(" + Utils::ConvertitModePaiementtotr(ESPECES) + ": " + QLocale().toString(m_totalrecuespeces,'f',2) + " - "
                                         + tr("Banque")  + ": " + QLocale().toString(m_totalrecubanque,'f',2) + ")");
         }
         if (m_mode == COMPTABLE)
@@ -509,7 +509,7 @@ void dlg_bilanrecettes::CalculeTotal()
             m_grandtotalespeces  = m_totalrecuespeces + m_totalautresrecettesespeces;
             wdg_totalmontantlbl ->setText(tr("Total ") + QString::number(nbreActes) + (nbreActes>1? tr(" lignes ") : tr(" ligne ")));
             wdg_totalrecetteslbl     ->setText(tr("Total recettes ") + QLocale().toString(m_totalrecu,'f',2)
-                                        + "\n(" + tr(ESPECES) + ": " + QLocale().toString(m_totalrecuespeces,'f',2) + " - "
+                                        + "\n(" + Utils::ConvertitModePaiementtotr(ESPECES) + ": " + QLocale().toString(m_totalrecuespeces,'f',2) + " - "
                                         + tr("Banque")  + ": " + QLocale().toString(m_totalrecubanque,'f',2) + ")");
             wdg_totalapportslbl      ->setVisible(m_totalapport>0.0);
             wdg_grandtotallbl       ->setVisible(m_totalautresrecettes>0.0);
@@ -519,7 +519,7 @@ void dlg_bilanrecettes::CalculeTotal()
             {
                 wdg_grandtotallbl->setText(tr("Total autres recettes ") + QLocale().toString(m_totalautresrecettes,'f',2)
                                        + "\n" + tr("Total général recettes ") + QLocale().toString(m_totalautresrecettes + m_totalrecu,'f',2)
-                                       + "\n(" + tr(ESPECES) + ": " + QLocale().toString(m_grandtotalespeces,'f',2) + " - "
+                                       + "\n(" + Utils::ConvertitModePaiementtotr(ESPECES) + ": " + QLocale().toString(m_grandtotalespeces,'f',2) + " - "
                                        + tr("Banque")  + ": " + QLocale().toString(m_grandtotalbanqu,'f',2) + ")");
             }
         }
@@ -574,7 +574,7 @@ void dlg_bilanrecettes::ExportTable()
             ExportEtat.append(rec->cotationacte() + sep);                                                   // Cotation
             ExportEtat.append(QString::number(rec->montant()) + sep);                                       // Montant
             QString A = (rec->modepaiement() == TRS? rec->typetiers() : rec->modepaiement());               // Mode de paiement
-            ExportEtat.append(Utils::ConvertitModePaiement(A) + sep);
+            ExportEtat.append(Utils::ModePaiementtotr(A) + sep);
             ExportEtat.append(QString::number(rec->encaissement()) + sep);                                  // Reçu
             double diversrec = (rec->isautrerecette()? rec->encaissementautrerecette() : 0.0);
             ExportEtat.append(QString::number(diversrec) + sep);                                            // divers et eutres recettes
@@ -650,7 +650,7 @@ void dlg_bilanrecettes::RemplitLaTable()
         pitem3->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);
 
         A = (rec->modepaiement() == TRS? rec->typetiers() : rec->modepaiement());                   // Mode de paiement - col = 4
-        pitem4 = new UpStandardItem(Utils::ConvertitModePaiement(A), rec);
+        pitem4 = new UpStandardItem(Utils::ModePaiementtotr(A), rec);
 
         double C = rec->encaissement();                                                             // Reçu- col = 5
         pitem5 = new UpStandardItem(QLocale().toString(C,'f',2), rec);

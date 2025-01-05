@@ -81,6 +81,7 @@ dlg_recettesspeciales::dlg_recettesspeciales(QWidget *parent) :
     m_listemoyensdepaiement << VIREMENT;
     ui->PaiementcomboBox->insertItems(0,m_listemoyensdepaiement );
     ui->PaiementcomboBox->setCurrentText(m_listemoyensdepaiement.at(0));
+    ui->DateRecdateEdit     ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     QDoubleValidator *val= new QDoubleValidator(this);
     val->setDecimals(2);

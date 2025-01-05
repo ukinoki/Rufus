@@ -32,25 +32,25 @@ public:
     enum AuxArchives {NoLoSo, Oui, Non};    Q_ENUM(AuxArchives)
 private: //Données de la dépense
 
-    int m_iduser;               //!< id du user qui a fait la dépense (ce user est comptable)
-    QDate m_datedepepense;      //!< date le la dépense
-    QString m_rubriquefiscale;  //!< la rubriquee fiscale 2035 de la dépense
-    int m_idrubriquefiscale;    //!< l'id de la rubrique fiscale 2035 de la dépense
-    QString m_objetdepense;     //!< l'objet de la dépense
-    double m_montant;           //!> le montant de la dépense
-    QString m_famillefiscale;   //!< la famille de la référence fiscale de la dépense
-    QString m_monnaie;          //!< monnaie utilisée (F ou €)
-    int m_idRec;                //!< Ce champ sert à stocker l’idRec de LignesRecettes d’une commission sur la recette IdRec. Si on veut supprimer la recette idRec, on retrouve ainsi sans pb la commission Depensee.
-    QString m_modepaiement;     //!< mode de paiement: V virement, C chèque, P prélèvement, T TIP, B carte de crédit, E espèces
-    int m_compte;               //!< le compte bancaire concerné
-    int m_nocheque;             //!< le no du chèque
-    int m_idfacture;            //!< l'id de la facture ou de l'échéancier correspondant dans la table Facture
-    QString m_lienfacture;      //!< l'emplacement de la facture ou de l'échéancier correspondant sur le disque dur
-    bool m_echeancier;          //!< bool -> true = echeancier - false = facture
-    AuxArchives m_auxarchives;  //!< depense par operation bancaire et dont l'operation bancaire est consolidée
-    QString m_objetecheancier;  //!< l'intitule de l'échéancier correspondant sur le disque dur
-    QString m_formatfacture;    //!< la facture est un jpg ou un pdf
-    QByteArray m_blob;          //!< le contenu du fichier image de la facture
+    int m_iduser;                           //!< id du user qui a fait la dépense (ce user est comptable)
+    QDate m_datedepepense;                  //!< date le la dépense
+    QString m_rubriquefiscale;              //!< la rubriquee fiscale 2035 de la dépense
+    int m_idrubriquefiscale;                //!< l'id de la rubrique fiscale 2035 de la dépense
+    QString m_objetdepense;                 //!< l'objet de la dépense
+    double m_montant;                       //!> le montant de la dépense
+    QString m_famillefiscale;               //!< la famille de la référence fiscale de la dépense
+    QString m_monnaie;                      //!< monnaie utilisée (F ou €)
+    int m_idRec;                            //!< Ce champ sert à stocker l’idRec de LignesRecettes d’une commission sur la recette IdRec. Si on veut supprimer la recette idRec, on retrouve ainsi sans pb la commission Depensee.
+    QString m_modepaiement;                 //!< mode de paiement: V virement, C chèque, P prélèvement, T TIP, B carte de crédit, E espèces
+    int m_compte;                           //!< le compte bancaire concerné
+    int m_nocheque;                         //!< le no du chèque
+    int m_idfacture;                        //!< l'id de la facture ou de l'échéancier correspondant dans la table Facture
+    QString m_lienfacture;                  //!< l'emplacement de la facture ou de l'échéancier correspondant sur le disque dur
+    bool m_echeancier;                      //!< bool -> true = echeancier - false = facture
+    AuxArchives m_auxarchives;              //!< depense par operation bancaire et dont l'operation bancaire est consolidée
+    QString m_objetecheancier;              //!< l'intitule de l'échéancier correspondant sur le disque dur
+    QString m_formatfacture;                //!< la facture est un jpg ou un pdf
+    QByteArray m_blob = QByteArray();       //!< le contenu du fichier image de la facture
 
 public:
     //GETTER | SETTER

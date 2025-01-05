@@ -901,11 +901,11 @@ public:
 #define TCPMSG_OKConnexion                          "OKConnexion"                                       /*! fin du message de confirmation de la connexion */
 
 // Constantes de statut salle d'attente  //+++++ATTENTION ces constantes servent dans des requêtes SQL - NE PAS METTRE DE CARACTERES SPECIAUX
-#define ARRIVE                                  tr("Arrivé")
-#define ENCOURS                                 tr("En cours")
-#define ENATTENTENOUVELEXAMEN                   tr("En attente de nouvel examen par ")
-#define RETOURACCUEIL                           tr("Retour accueil")
-#define ENCOURSEXAMEN                           tr("En cours de consultation avec ")
+#define ARRIVE                                  "Arrivé"
+#define ENCOURS                                 "En cours"
+#define ENATTENTENOUVELEXAMEN                   "En attente de nouvel examen par "
+#define RETOURACCUEIL                           "Retour accueil"
+#define ENCOURSEXAMEN                           "En cours de consultation avec "
 
 // Les fichiers et répertoires divers
 #define NOM_DIR_RUFUS                           "/Rufus"

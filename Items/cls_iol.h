@@ -195,6 +195,59 @@ public:
         else                       return "";
     }
     int type() const                            { return m_typeInt; }
+
+    QString typeStringtotr() { return typeStringtotr(typeString()); }
+    static QString typeStringtotr(QString type)
+    {
+        if (type == IOL_CP)                 return tr("Chambre postérieure");
+        else if (type == IOL_CA)            return tr("Chambre antérieure");
+        else if (type == IOL_ADDON)         return tr("Add-on");
+        else if (type == IOL_IRIEN)         return tr("Support irien");
+        else if (type == IOL_CAREFRACTIF)   return tr("Refractif CA");
+        else if (type == IOL_AUTRE)         return tr("Autre");
+        else return "type";
+    }
+    static QString typeStringfromtr(QString type)
+    {
+        if (type == tr("Chambre postérieure"))      return IOL_CP;
+        else if (type == tr("Chambre antérieure"))  return IOL_CA;
+        else if (type == tr("Add-on"))              return IOL_ADDON;
+        else if (type == tr("Support irien"))       return IOL_IRIEN;
+        else if (type == tr("Refractif CA"))        return IOL_CAREFRACTIF;
+        else if (type == tr("Autre"))               return IOL_AUTRE;
+        else return "type";
+    }
+
+    QString opticalMaterialtotr() const
+    {
+        if (m_opticmaterial == "acrylique")            return tr("acrylique");
+        else if (m_opticmaterial == "PMMA")            return tr("PMMA");
+        else if (m_opticmaterial == "silicone")        return tr("silicone");
+        else if (m_opticmaterial == "copolymère")      return tr("copolymère");
+        else return m_opticmaterial;
+    }
+    static QString opticalMaterialfromtr(QString material)
+    {
+        if (material == tr("acrylique"))        return "acrylique";
+        else if (material == tr("PMMA"))        return "PMMA";
+        else if (material == tr("silicone"))    return "silicone";
+        else if (material == tr("copolymère"))  return "copolymère";
+        else return material;
+    }
+
+    QString hydrofilytotr() const
+    {
+        if (m_hydrofily == "hydrophile")           return tr("hydrophile");
+        else if (m_hydrofily == "hydrophobe")      return tr("hydrophobe");
+        else return m_hydrofily;
+    }
+    static QString hydrofilyfromtr(QString Hydrofily)
+    {
+        if (Hydrofily == tr("hydrophile"))          return "hydrophile";
+        else if (Hydrofily == tr("hydrophile"))     return "hydrophile";
+        else return Hydrofily;
+    }
+
     QString tooltip(bool avecimage = false) const;
 
 

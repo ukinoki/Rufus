@@ -121,12 +121,14 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ui->RefFiscalecomboBox->insertItems(0,ListeRubriques);
     ui->RefFiscalecomboBox->setCurrentText(ListeRubriques.at(0));
 
-    m_listemoyensdepaiement << tr(CARTECREDIT);
-    m_listemoyensdepaiement << tr(CHEQUE);
-    m_listemoyensdepaiement << tr(ESPECES);
-    m_listemoyensdepaiement << tr(PRELEVEMENT);
-    m_listemoyensdepaiement << tr(VIREMENT);
-    m_listemoyensdepaiement << tr(TIP);
+    ui->DateDepdateEdit     ->setDisplayFormat(tr("dd/MM/yyyy"));
+
+    m_listemoyensdepaiement << Utils::ConvertitModePaiementtotr(CARTECREDIT);
+    m_listemoyensdepaiement << Utils::ConvertitModePaiementtotr(CHEQUE);
+    m_listemoyensdepaiement << Utils::ConvertitModePaiementtotr(ESPECES);
+    m_listemoyensdepaiement << Utils::ConvertitModePaiementtotr(PRELEVEMENT);
+    m_listemoyensdepaiement << Utils::ConvertitModePaiementtotr(VIREMENT);
+    m_listemoyensdepaiement << Utils::ConvertitModePaiementtotr(TIP);
     ui->PaiementcomboBox->insertItems(0,m_listemoyensdepaiement );
     ui->PaiementcomboBox->setCurrentText(m_listemoyensdepaiement.at(0));
 
@@ -220,7 +222,7 @@ void dlg_depenses::ExportTable()
                 ExportEtat.append(dep->objet() + sep);                                                                      // Libelle - col = 2
                 ExportEtat.append(QString::number(dep->idrubriquefiscale()) + sep);                                         // id Rubrique 2035
                 ExportEtat.append(QString::number(dep->montant()) + sep);                                                   // Montant - col = 3
-                ExportEtat.append(Utils::ConvertitModePaiement(dep->modepaiement()) + sep);                                 // Mode de paiement - col = 4
+                ExportEtat.append(Utils::ModePaiementtotr(dep->modepaiement()) + sep);                                 // Mode de paiement - col = 4
                 ExportEtat.append(dep->rubriquefiscale() + sep);                                                            // Rubrique 2035 - col = 5
                 ExportEtat.append(dep->famillefiscale());                                                                   // Famille fiscale - col = 6
                 ExportEtat.append("\n");
@@ -238,7 +240,7 @@ void dlg_depenses::ExportTable()
                 ExportEtat.append(dep->objet() + sep);                                                                      // Libelle - col = 2
                 ExportEtat.append(QString::number(dep->idrubriquefiscale()) + sep);                                         // id Rubrique 2035
                 ExportEtat.append(QString::number(dep->montant()) + sep);                                                   // Montant - col = 3
-                ExportEtat.append(Utils::ConvertitModePaiement(dep->modepaiement()) + sep);                                 // Mode de paiement - col = 4
+                ExportEtat.append(Utils::ModePaiementtotr(dep->modepaiement()) + sep);                                 // Mode de paiement - col = 4
                 ExportEtat.append(dep->rubriquefiscale() + sep);                                                            // Rubrique 2035 - col = 5
                 ExportEtat.append(dep->famillefiscale());                                                                   // Famille fiscale - col = 6
                 ExportEtat.append("\n");
@@ -313,7 +315,7 @@ void dlg_depenses::PrintReport(bool pdf)
                          "<td width=\"34%\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                                             //! Libelle
                          "<td width=\"34%\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                                   //! rubrique fiscale
                          "<td width=\"9%\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale().toString(dep->montant(),'f',2) + "</div></span></td>"                       //! montant
-                         "<td width=\"13%\"><span style=\"font-size:6pt\">" + Utils::ConvertitModePaiement(dep->modepaiement()) + "</span></td>"                                        //! mode de paiement
+                         "<td width=\"13%\"><span style=\"font-size:6pt\">" + Utils::ModePaiementtotr(dep->modepaiement()) + "</span></td>"                                        //! mode de paiement
                          "</tr>";
              }
         }
@@ -330,7 +332,7 @@ void dlg_depenses::PrintReport(bool pdf)
                          "<td width=\"34%\"><span style=\"font-size:6pt\">" + dep->objet() + "</span></td>"                                                             //! Libelle
                          "<td width=\"34%\"><span style=\"font-size:6pt\">" + dep->rubriquefiscale() + "</span></td>"                                                   //! rubrique fiscale
                          "<td width=\"9%\"><span style=\"font-size:6pt\"><div align=\"right\">" + QLocale().toString(dep->montant(),'f',2) + "</div></span></td>"      //! montant
-                         "<td width=\"13%\"><span style=\"font-size:6pt\">" + Utils::ConvertitModePaiement(dep->modepaiement()) + "</span></td>"                         //! mode de paiement
+                         "<td width=\"13%\"><span style=\"font-size:6pt\">" + Utils::ModePaiementtotr(dep->modepaiement()) + "</span></td>"                         //! mode de paiement
                          "</tr>";
              }
         }
@@ -481,7 +483,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         ui->DateDepdateEdit     ->setDate(m_currentdate);
         ui->ObjetlineEdit       ->setText("");
         ui->MontantlineEdit     ->setText("0,00");
-        ui->ComptesupComboBox   ->setVisible(!(ui->PaiementcomboBox->currentText() == tr(ESPECES) || ui->PaiementcomboBox->currentText() == ""));
+        ui->ComptesupComboBox   ->setVisible(!(ui->PaiementcomboBox->currentText() == Utils::ConvertitModePaiementtotr(ESPECES) || ui->PaiementcomboBox->currentText() == ""));
         ui->RefFiscalecomboBox  ->setCurrentText("");
         wdg_enreguppushbutton       ->setText(tr("Enregistrer"));
         ui->OKupPushButton      ->setShortcut(QKeySequence());
@@ -623,7 +625,7 @@ void dlg_depenses::EnregistreDepense()
         Erreur = tr("le mode de paiement");
     else if (ui->RefFiscalecomboBox->currentText() == "")
         Erreur = tr("la rubrique fiscale");
-    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr(ESPECES))
+    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= Utils::ConvertitModePaiementtotr(ESPECES))
         Erreur = tr("le compte bancaire");
 
     if (Erreur != "")
@@ -690,12 +692,12 @@ void dlg_depenses::EnregistreDepense()
     // Insertion de l'écriture dans la table depenses
     QString Paiement, m;
     Paiement = ui->PaiementcomboBox->currentText();
-    if (Paiement == tr(ESPECES))              m = ESP;
-    else if (Paiement == tr(VIREMENT))        m = VRMT;
-    else if (Paiement == tr(CARTECREDIT))     m = CB;
-    else if (Paiement == tr(CHEQUE))          m = CHQ;
-    else if (Paiement == tr(PRELEVEMENT))     m = PLVMT;
-    else if (Paiement == tr(TIP))             m = TP;
+    if (Paiement == Utils::ConvertitModePaiementtotr(ESPECES))              m = ESP;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(VIREMENT))        m = VRMT;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(CARTECREDIT))     m = CB;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(CHEQUE))          m = CHQ;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(PRELEVEMENT))     m = PLVMT;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(TIP))             m = TP;
 
     bool ok = true;
     QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << CP_FAMFISCALE_2035,
@@ -719,7 +721,7 @@ void dlg_depenses::EnregistreDepense()
     // insertion de l'écriture dans la table lignescomptes quand il s'agit d'une opération bancaire
     if (m != ESP)
     {
-        if (Paiement == tr(VIREMENT)) Paiement = tr("Virement débiteur");
+        if (Paiement == Utils::ConvertitModePaiementtotr(VIREMENT)) Paiement = tr("Virement débiteur");
         int a = db->getIdMaxTableComptesTableArchives();
         QHash<QString, QString> listsets;
         listsets.insert(CP_ID_LIGNCOMPTES,              QString::number(a));
@@ -942,7 +944,7 @@ void dlg_depenses::AfficheDetailsDepenses()
                 }
             }
     Total += HTML_RETOURLIGNE "<td width=\"" + tdwidth + "\"><font color = " COULEUR_TITRES "><b>"
-            + tr(ESPECES)
+            + Utils::ConvertitModePaiementtotr(ESPECES)
             + " :</b></font></td><td align=\"right\" width=\"" + tdwidth + "\">" + QLocale().toString(TotalEspeces,'f',2) + "</td>";
     Global += TotalEspeces;
     for (auto it = listcomptes.begin(); it != listcomptes.end(); ++it)
@@ -1014,6 +1016,18 @@ void dlg_depenses::AfficheFacture(Depense *dep)
             QMap<QString,QVariant> doc;
             if (m_depenseencours->factureformat() == "" && m_depenseencours->factureblob() == QByteArray())
                 CalcImageFacture(dep);
+            if (m_depenseencours->factureblob() == QByteArray())
+            {
+               if (UpMessageBox::Question(this,tr("Facture introuvable!"), tr("Le lien enregistré vers la facture de cette dépense est corrompu!") + "\n" + tr("Voulez-vous le supprimer?")) == UpSmallButton::STARTBUTTON)
+               {
+                    SupprimeFacture(m_depenseencours);
+                    /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/
+                    ui->VisuDocupTableWidget->clear();
+                    ui->FactureupPushButton     ->setVisible(true);
+                    ui->EcheancierupPushButton  ->setVisible(true);
+                    ui->VisuDocupTableWidget    ->setVisible(false);
+               }
+            }
             doc.insert("ba", m_depenseencours->factureblob());
             doc.insert("type", m_depenseencours->factureformat());
             m_listeimages =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
@@ -1169,7 +1183,7 @@ void dlg_depenses::MetAJourFiche()
         ui->MontantlineEdit->setText(QLocale().toString(m_depenseencours->montant(),'f',2));
         QString A = m_depenseencours->modepaiement();                                                         // Mode de paiement - col = 4
         QString B = "";
-        if (A == ESP)           A = tr(ESPECES);
+        if (A == ESP)           A = Utils::ConvertitModePaiementtotr(ESPECES);
         else
         {
             int idx = m_userencours->listecomptesbancaires(true).indexOf(m_depenseencours->comptebancaire());
@@ -1178,7 +1192,7 @@ void dlg_depenses::MetAJourFiche()
                 //ATTENTION ERROR
             }
             B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
-            A = Utils::ConvertitModePaiement(A);
+            A = Utils::ModePaiementtotr(A);
         }
         ui->PaiementcomboBox    ->setCurrentText(A);
         ui->ComptesupComboBox   ->setCurrentIndex(ui->ComptesupComboBox->findText(B));
@@ -1228,7 +1242,7 @@ void dlg_depenses::ModifierDepense()
         Erreur = tr("le mode de paiement");
     else if (ui->RefFiscalecomboBox->currentText() == "")
         Erreur = tr("la rubrique fiscale");
-    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= tr(ESPECES))
+    else if (ui->ComptesupComboBox->currentIndex()==-1 && ui->PaiementcomboBox->currentText()!= Utils::ConvertitModePaiementtotr(ESPECES))
         Erreur = tr("le compte bancaire");
 
     if (Erreur != "")
@@ -1300,12 +1314,12 @@ void dlg_depenses::ModifierDepense()
     // Correction de l'écriture dans la table depenses
     QString Paiement, m;
     Paiement = ui->PaiementcomboBox->currentText();
-    if (Paiement == tr(ESPECES))              m = ESP;
-    else if (Paiement == tr(VIREMENT))        m = VRMT;
-    else if (Paiement == tr(CARTECREDIT))     m = CB;
-    else if (Paiement == tr(CHEQUE))          m = CHQ;
-    else if (Paiement == tr(PRELEVEMENT))     m = PLVMT;
-    else if (Paiement == tr(TIP))             m = TP;
+    if (Paiement == Utils::ConvertitModePaiementtotr(ESPECES))              m = ESP;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(VIREMENT))        m = VRMT;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(CARTECREDIT))     m = CB;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(CHEQUE))          m = CHQ;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(PRELEVEMENT))     m = PLVMT;
+    else if (Paiement == Utils::ConvertitModePaiementtotr(TIP))             m = TP;
     bool ok = true;
     QList<QVariantList> listfamfiscale = db->SelectRecordsFromTable(QStringList() << CP_FAMFISCALE_2035,
                                                                        TBL_RUBRIQUES2035, ok,
@@ -1323,12 +1337,12 @@ void dlg_depenses::ModifierDepense()
     }
     
     // Correction de l'écriture dans la table lignescomptes
-    if (Paiement == tr(ESPECES))
+    if (Paiement == Utils::ConvertitModePaiementtotr(ESPECES))
         db->SupprRecordFromTable(dep->id(), CP_IDDEP_LIGNCOMPTES, TBL_LIGNESCOMPTES);
     else
     {
         Paiement = ui->PaiementcomboBox->currentText();
-        if (Paiement == tr(VIREMENT)) Paiement = tr("Virement débiteur");
+        if (Paiement == Utils::ConvertitModePaiementtotr(VIREMENT)) Paiement = tr("Virement débiteur");
 
         // on recherche si l'écriture existe dans lignescomptes et si c'est le cas, on la modifie
         QList<QVariantList> listlignescomptes = db->SelectRecordsFromTable(QStringList() << CP_ID_LIGNCOMPTES,
@@ -1423,7 +1437,7 @@ void dlg_depenses::ModifierDepense()
         A = dep->modepaiement();                                                                                                // Mode de paiement - col = 4
         QString B = "";
         QString C = "";
-        if (A == ESP)  A = tr(ESPECES);
+        if (A == ESP)  A = Utils::ConvertitModePaiementtotr(ESPECES);
         else
         {
             int idx = m_userencours->listecomptesbancaires(true).indexOf(dep->comptebancaire());
@@ -1432,8 +1446,8 @@ void dlg_depenses::ModifierDepense()
                 //ATTENTION ERROR
             }
             B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
-            A = Utils::ConvertitModePaiement(A);
-            if (A == tr(CHEQUE))
+            A = Utils::ModePaiementtotr(A);
+            if (A == Utils::ConvertitModePaiementtotr(CHEQUE))
                 if (dep->nocheque() > 0)
                     C += " " + QString::number(dep->nocheque());
         }
@@ -2044,7 +2058,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     A = dep->modepaiement();                                                                    // Mode de paiement - col = 4
     QString B = "";
     QString C = "";
-    QString mode = Utils::ConvertitModePaiement(A);
+    QString mode = Utils::ModePaiementtotr(A);
     if (A != ESP)
     {
         int idx = m_userencours->listecomptesbancaires(true).indexOf(dep->comptebancaire());
@@ -2053,7 +2067,7 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
             //ATTENTION ERROR
         }
         B = (Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx)) != Q_NULLPTR? Datas::I()->comptes->getById(m_userencours->listecomptesbancaires(true).at(idx))->nomabrege() : "");
-        if (A == tr(CHEQUE))
+        if (A == Utils::ConvertitModePaiementtotr(CHEQUE))
             if (dep->nocheque() > 0)
                 C += " " + QString::number(dep->nocheque());
     }

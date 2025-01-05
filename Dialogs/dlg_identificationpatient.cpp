@@ -49,6 +49,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     buttonslayout()         ->insertLayout(0, vlay);
     dlglayout()             ->setSizeConstraint(QLayout::SetFixedSize);
     QDate                   m_currentdate = db->ServerDate();
+    ui->DDNdateEdit         ->setDisplayFormat(tr("dd/MM/yyyy"));
     ui->DDNdateEdit         ->setDateRange(m_currentdate.addYears(-105),m_currentdate);
     QFont font = qApp->font();
     font.setBold(true);
@@ -510,7 +511,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->DDNdateEdit->setEnabled(false);
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
         QString textcreateur (tr("Créé le ") + (m_currentpatient->datecreationdossier().isValid()?
-                                                   m_currentpatient->datecreationdossier().toString("d-M-yyyy"):"???"));
+                                                   m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")):"???"));
         if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
             textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
         ui->Createurlabel->setText(textcreateur);
@@ -541,7 +542,7 @@ void dlg_identificationpatient::AfficheDossierAlOuverture()
         ui->FradioButton->setChecked(m_currentpatient->sexe() == "F");
         ui->idPatientlabel->setText(tr("Dossier n° ") + QString::number(m_currentpatient->id()));
         QString textcreateur (tr("Créé le ") + (m_currentpatient->datecreationdossier().isValid()?
-                                                   m_currentpatient->datecreationdossier().toString("d-M-yyyy"):"???"));
+                                                   m_currentpatient->datecreationdossier().toString(tr("d-M-yyyy")):"???"));
         if (Datas::I()->users->getById(m_currentpatient->idcreateur()) != Q_NULLPTR)
             textcreateur += "\n" + tr("par ") + Datas::I()->users->getById(m_currentpatient->idcreateur())->login();
         ui->Createurlabel->setText(textcreateur);

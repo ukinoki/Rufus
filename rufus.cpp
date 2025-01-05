@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("02-01-2025/1");
+    qApp->setApplicationVersion("04-01-2025/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -243,7 +243,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
             ui->ActeCotationcomboBox->lineEdit()->completer()->disconnect();
             delete ui->ActeCotationcomboBox->lineEdit()->completer();
         }
-        QCompleter *comp = new QCompleter(QStringList() << tr(GRATUIT) << db->loadTypesCotations());
+        QCompleter *comp = new QCompleter(QStringList() << Utils::ConvertitModePaiementtotr(GRATUIT) << db->loadTypesCotations());
         comp->setCaseSensitivity(Qt::CaseInsensitive);
         comp->popup()->setFont(ui->ActeMontantlineEdit->font());
         comp->setMaxVisibleItems(5);
@@ -1107,14 +1107,14 @@ void Rufus::MAJPatientsVus()
         label0->setText(" " + zw);                                                          // Heure acte
         label1->setText(" " + NomPrenom);                                                   // Nom + Prénom
         QString P=patlist.at(i).at(9).toString();
-        if (P == ESP)           P = ESPECES;
-        else if (P == CHQ)      P = CHEQUE;
-        else if (P == IMP)      P = IMPAYE;
-        else if (P == GRAT)     P = "Gratuit";
+        if (P == ESP)           P = Utils::ConvertitModePaiementtotr(ESPECES);
+        else if (P == CHQ)      P = Utils::ConvertitModePaiementtotr(CHEQUE);
+        else if (P == IMP)      P = Utils::ConvertitModePaiementtotr(IMPAYE);
+        else if (P == GRAT)     P = Utils::ConvertitModePaiementtotr(GRATUIT);
         else if (P == TRS)
         {
             P = patlist.at(i).at(10).toString();
-            if (P == "CB")      P = "Carte";
+            if (P == "CB")      P = tr("Carte");
         }
         label2->setText(" " + P);                                                           // Mode de paiement
         label3->setText(" " + patlist.at(i).at(6).toString());                              // Cotation
@@ -3092,7 +3092,7 @@ bool Rufus::InscritEnSalDat(Patient *pat)
             return false;
         Datas::I()->patientsencours->CreationPatient(pat->id(),                                                 //! idPat
                                                 Datas::I()->users->getById(rdv->idsuperviseur()),               //! User
-                                                ARRIVE,                                                     //! Statut
+                                                ARRIVE,                                                         //! Statut
                                                 QTime(),                                                        //! heureStatut
                                                 rdv->heurerdv(),                                                //! heureRDV
                                                 db->ServerDateTime().time(),                                    //! heureArrivee
@@ -3844,7 +3844,7 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
         UpLabel *StatutClicked = qobject_cast<UpLabel *> (ui->SalleDAttenteupTableWidget->cellWidget(row,1));
         if (StatutClicked != Q_NULLPTR)
         {
-            if (StatutClicked->text() == ARRIVE)
+            if (PatientEnCours::statutfromtr(StatutClicked->text()) == ARRIVE)
             {
                 QAction *pAction_RetirerDossier = m_menuContextuel->addAction(tr("Retirer ce dossier de la salle d'attente"));
                 connect (pAction_RetirerDossier, &QAction::triggered,   this,    [=] {ChoixMenuContextuelSalDat(idpat, "Retirer");});
@@ -4583,7 +4583,7 @@ void Rufus::RetrouveMontantActe()
     QString MontantActe = "0.00";
     QString cotation = ui->ActeCotationcomboBox->currentText();
     ui->EnregistrePaiementpushButton->setEnabled(cotation!="");
-    if (cotation == GRATUIT)
+    if (cotation == Utils::ConvertitModePaiementtotr(GRATUIT))
         ui->ActeMontantlineEdit->setText(MontantActe);
     else
     {
@@ -4775,6 +4775,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     UpCheckBox      *checkpat, *checktask, *checkurg;
     UpTextEdit      *MsgText;
     QDateEdit       *limitdate;
+    limitdate       ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     dlg_sendMessage->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
@@ -6924,9 +6925,9 @@ void Rufus::AfficheActeCompta(Acte *acte)
 
     if (acte->paiementType() == TRS  && acte->paiementTiers() != "CB") ui->PaiementlineEdit->setText(acte->paiementTiers());
 
-    QString txtpaiement = Utils::ConvertitModePaiement(acte->paiementType());
+    QString txtpaiement = Utils::ModePaiementtotr(acte->paiementType());
     if (acte->paiementType() == TRS
-            && acte->paiementTiers() == "CB") txtpaiement = tr(CARTECREDIT);
+            && acte->paiementTiers() == "CB") txtpaiement = Utils::ConvertitModePaiementtotr(CARTECREDIT);
      else if (acte->paiementType() == TRS) txtpaiement = acte->paiementTiers();
     ui->PaiementlineEdit->setText(txtpaiement);
 
@@ -7349,7 +7350,7 @@ void Rufus::SortieAppli()
         if (IlResteDesPostesConnectesAvecCeUser)
             for (int i = 0; i < saldatlist.size() ; i++)  // il reste des patients pour cet utilisateur dans le centre
             {
-                QString Statut = saldatlist.at(i).at(0).toString();
+                QString Statut = PatientEnCours::statutfromtr(saldatlist.at(i).at(0).toString());
                 QString blabla = ENATTENTENOUVELEXAMEN;
                 if (Statut == ENCOURS
                         || Statut == ARRIVE
@@ -7600,7 +7601,7 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
                         && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != Utils::hostName().left(60))))
                 {
                     UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
-                                        tr("Ce patient est") + "\n" + patcrs->statut().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
+                                        tr("Ce patient est") + "\n" + patcrs->statuttotr().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
                     return;
                 }
             }
@@ -7775,7 +7776,7 @@ void Rufus::CreerDossier()
         QHash<QString, QVariant> listbinds;
         listbinds[CP_NOM_PATIENTS]          = PatNom;
         listbinds[CP_PRENOM_PATIENTS]       = PatPrenom;
-        listbinds[CP_DDN_PATIENTS]          = ui->CreerDDNdateEdit->date().toString("yyyy-MM-dd");
+        listbinds[CP_DDN_PATIENTS]          = PatDDN;
         Patient *pat  = Patients::CreationPatient(listbinds);
         if (pat == Q_NULLPTR)
             return;
@@ -8439,6 +8440,7 @@ void Rufus::InitWidgets()
     ui->CreerPrenomlineEdit->setValidator(new QRegularExpressionValidator(Utils::rgx_rx,this));
     ui->tabWidget->setTabText(0,tr("Liste des patients"));
 
+    ui->CreerDDNdateEdit->setDisplayFormat(tr("dd/MM/yyyy"));
     ui->ActeMontantlineEdit->setAlignment(Qt::AlignRight);
     ui->PayelineEdit->setAlignment(Qt::AlignRight);
     ui->CreerDDNdateEdit->setDate(m_datepardefaut);
@@ -8579,7 +8581,7 @@ void Rufus::InitWidgets()
     ui->AccueilupTableWidget        ->FixLargeurTotale();
     ui->PatientsVusupTableWidget    ->FixLargeurTotale();
 
-    ui->GratuitpushButton->setImmediateToolTip(tr(GRATUIT));
+    ui->GratuitpushButton->setImmediateToolTip(Utils::ConvertitModePaiementtotr(GRATUIT));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -9144,7 +9146,7 @@ void    Rufus::ReconstruitListesCotations(User *usr)
     // il faut d'abord reconstruire la table des cotations
     ui->ActeCotationcomboBox->clear();
 
-    ui->ActeCotationcomboBox->addItem(tr(GRATUIT),QStringList() << "0.00" << "0.00" << tr(GRATUIT));
+    ui->ActeCotationcomboBox->addItem(Utils::ConvertitModePaiementtotr(GRATUIT),QStringList() << "0.00" << "0.00" << Utils::ConvertitModePaiementtotr(GRATUIT));
     if (cots != Q_NULLPTR)
         for (auto it = cots->cotations()->constBegin(); it != cots->cotations()->constEnd(); ++it)
         {
@@ -9449,17 +9451,17 @@ bool Rufus::Remplir_ListePatients_TableView()
         pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                   // id                           -> utilisé pour le drop event
         pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                   // Nom + Prénom
         pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);            // date de naissance
-        pitem3  = new UpStandardItem(pat->datedenaissance().toString(tr("yyyyMMdd")), pat);              // date de naissance inversée   -> utilisé pour le tri
+        pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                  // date de naissance inversée   -> utilisé pour le tri => pas de tr()
         pitem4  = new UpStandardItem(pat->nom(), pat);                                                   // Nom                          -> utilisé pour le tri
         pitem5  = new UpStandardItem(pat->prenom(), pat);                                                // Prénom                       -> utilisé pour le tri
         m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
     }
     QStandardItem *itnom = new QStandardItem();
-    itnom->setText("Nom");
+    itnom->setText(tr("Nom"));
     itnom->setTextAlignment(Qt::AlignLeft);
     m_listepatientsmodel->setHorizontalHeaderItem(1,itnom);
     QStandardItem *itDDN = new QStandardItem();
-    itDDN->setText("Date de naissance");
+    itDDN->setText(tr("Date de naissance"));
     itDDN->setTextAlignment(Qt::AlignLeft);
     m_listepatientsmodel->setHorizontalHeaderItem(2,itDDN);
 
@@ -9600,7 +9602,7 @@ void Rufus::Remplir_SalDat()
         QString Msg = patencours->message();
         NomPrenom   = " " + pat->nom().toUpper() + " " + pat->prenom();
         label0      ->setText(NomPrenom);                                                   // Nom + Prénom
-        label1      ->setText(patencours->statut());                                        // Statut
+        label1      ->setText(patencours->statuttotr());                                    // Statut
         label4      ->setText(patencours->motif());                                         // Motif
         if (Msg != "")
             label2  ->setPixmap(Icons::pxApres().scaled(10,10));                            //WARNING : icon scaled : pxApres 10,10
@@ -10822,7 +10824,7 @@ void Rufus::TraiteTCPMessage(QString msg)
             m_listepatientsmodel->item(row,0)->setText(QString::number(pat->id()));                                   // id                           -> utilisé pour le drop event
             m_listepatientsmodel->item(row,1)->setText(pat->nom().toUpper() + " " + pat->prenom());                   // Nom + Prénom
             m_listepatientsmodel->item(row,2)->setText(pat->datedenaissance().toString(tr("dd-MM-yyyy")));            // date de naissance
-            m_listepatientsmodel->item(row,3)->setText(pat->datedenaissance().toString(tr("yyyyMMdd")));              // date de naissance inversée   -> utilisé pour le tri
+            m_listepatientsmodel->item(row,3)->setText(pat->datedenaissance().toString("yyyyMMdd"));              // date de naissance inversée   -> utilisé pour le tri
             m_listepatientsmodel->item(row,4)->setText(pat->nom());                                                   // Nom                          -> utilisé pour le tri
             m_listepatientsmodel->item(row,5)->setText(pat->prenom());                                                // Prénom                       -> utilisé pour le tri
         }

@@ -1174,16 +1174,29 @@ QString Utils::PrefixePlus(double Dioptr)                          // convertit 
     return (Dioptr > 0.0 ? "+" : "") + QLocale().toString(Dioptr,'f',2);
 }
 
-QString Utils::ConvertitModePaiement(QString mode)
+QString Utils::ConvertitModePaiementtotr(QString mode)
 {
-    if (mode == ESP)        mode = QObject::tr(ESPECES);
-    else if (mode == CB)    mode = QObject::tr(CARTECREDIT);
-    else if (mode == TP)    mode = QObject::tr(TIP);
-    else if (mode == VRMT)  mode = QObject::tr(VIREMENT);
-    else if (mode == PLVMT) mode = QObject::tr(PRELEVEMENT);
-    else if (mode == CHQ)   mode = QObject::tr(CHEQUE);
-    else if (mode == GRAT)  mode = QObject::tr(GRATUIT);
-    else if (mode == IMP)   mode = QObject::tr(IMPAYE);
+    if (mode == ESPECES)            mode = QObject::tr("Espèces");
+    else if (mode == CARTECREDIT)   mode = QObject::tr("Carte de crédit");
+    else if (mode == TIP)           mode = QObject::tr("TIP");
+    else if (mode == VIREMENT)      mode = QObject::tr("Virement");
+    else if (mode == PRELEVEMENT)   mode = QObject::tr("Prélèvement");
+    else if (mode == CHEQUE)        mode = QObject::tr("Chèque");
+    else if (mode == GRATUIT)       mode = QObject::tr("Gratuit");
+    else if (mode == IMPAYE)        mode = QObject::tr("Impayé");
+    return mode;
+}
+
+QString Utils::ModePaiementtotr(QString mode)
+{
+    if (mode == ESP)            mode = QObject::tr("Espèces");
+    else if (mode == CB)        mode = QObject::tr("Carte de crédit");
+    else if (mode == TP)        mode = QObject::tr("TIP");
+    else if (mode == VRMT)      mode = QObject::tr("Virement");
+    else if (mode == PLVMT)     mode = QObject::tr("Prélèvement");
+    else if (mode == CHQ)       mode = QObject::tr("Chèque");
+    else if (mode == GRAT)      mode = QObject::tr("Gratuit");
+    else if (mode == IMP)       mode = QObject::tr("Impayé");
     return mode;
 }
 

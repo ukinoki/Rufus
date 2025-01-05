@@ -47,6 +47,8 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     titrelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
     titrelay                    ->addWidget(searchlbl);
     titrelay                    ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
+    UpLabel* Manufacturerlbl    = new UpLabel;
+    Manufacturerlbl             ->setText(tr("Fabricant"));
     wdg_manufacturerscombo = new UpComboBox();
     wdg_manufacturerscombo->setEditable(false);
     wdg_manufacturerscombo->setFixedSize(250,30);
@@ -59,7 +61,8 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     Typelbl                     ->setText(tr("Type"));
     wdg_typebox                 = new UpComboBox;
     wdg_typebox                 ->setEditable(false);
-    wdg_typebox                 ->addItems(QStringList() << tr("Tous") << IOL_CP << IOL_CA << IOL_ADDON << IOL_IRIEN << IOL_CAREFRACTIF << IOL_AUTRE);
+    wdg_typebox                 ->addItems(QStringList() << tr("Tous") << IOL::typeStringtotr(IOL_CP) << IOL::typeStringtotr(IOL_CA) << IOL::typeStringtotr(IOL_ADDON)
+                                        << IOL::typeStringtotr(IOL_IRIEN) << IOL::typeStringtotr(IOL_CAREFRACTIF) << IOL::typeStringtotr(IOL_AUTRE));
     wdg_typebox                 ->setFixedWidth(180);
     wdg_prechargechk            = new UpCheckBox(tr("Prechargé"));
     wdg_jaunechk                = new UpCheckBox(tr("Jaune"));
@@ -128,6 +131,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     QHBoxLayout *globallay  = new QHBoxLayout();
     QVBoxLayout *searchLay  = new QVBoxLayout();
     searchLay               ->addLayout(titrelay);
+    searchLay               ->addWidget(Manufacturerlbl);
     searchLay               ->addLayout(manufacturerlay);
     searchLay               ->addWidget(Typelbl);
     searchLay               ->addWidget(wdg_typebox);
@@ -140,7 +144,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     searchLay               ->addWidget(wdg_annulfiltresbut);
     searchLay               ->addWidget(m_IOLtotalcount);
     searchLay               ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Fixed,QSizePolicy::Expanding));
-    searchLay               ->setSpacing(10);
+    searchLay               ->setSpacing(9);
     globallay               ->addLayout(searchLay);
     globallay               ->addWidget(wdg_buttonframe->widgButtonParent());
 
@@ -507,9 +511,9 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
             optmaterial = split.split(" ").at(0).toLower();
         }
         if (optmaterial == "acrylic" || optmaterial == "hydrophobic")
-            optmaterial = tr("acrylique");
+            optmaterial ="acrylique";
         else if (optmaterial == "copolymer")
-            optmaterial = tr("copolymère");
+            optmaterial = "copolymère";
         ItemsList::update(iol, CP_OPTICMATERIAU_IOLS,optmaterial);
         ItemsList::update(iol, CP_HYDROFILY_IOLS, Hydrof);
         if (!iol->isedof() && !iol->ismultifocal())
@@ -634,11 +638,11 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                         {
                             QString optmaterial = Specsnode.text();
                             if (optmaterial == "acrylic")
-                                iol.setOpticalMaterial(tr("acrylique"));
+                                iol.setOpticalMaterial("acrylique");
                             else if (optmaterial == "copolymer")
-                                iol.setOpticalMaterial(tr("copolymère"));
+                                iol.setOpticalMaterial("copolymère");
                             else if (optmaterial == "silicone")
-                                iol.setOpticalMaterial(tr("silicone"));
+                                iol.setOpticalMaterial("silicone");
                             else
                                 iol.setOpticalMaterial(optmaterial);
                             //if (!listitem.contains(Specsnode.text()))
@@ -652,9 +656,9 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                         {
                             QString Hydrofily = Specsnode.text();
                             if (Hydrofily == "hydrophilic")
-                                iol.setHydrofily(tr("hydrophile"));
+                                iol.setHydrofily("hydrophile");
                             else if (Hydrofily == "hydrophobic")
-                                iol.setHydrofily(tr("hydrophobe"));
+                                iol.setHydrofily("hydrophobe");
                             else
                                 iol.setHydrofily(Hydrofily);
                         }

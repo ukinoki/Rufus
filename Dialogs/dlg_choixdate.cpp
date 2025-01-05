@@ -38,6 +38,8 @@ dlg_choixdate::dlg_choixdate(QDate date, QWidget *parent) :
     ui->MoinsDateFinpushButton      ->setVisible(false);
     ui->PlusDebutPeriodepushButton  ->setVisible(false);
     ui->MoinsFinPeriodepushButton   ->setVisible(false);
+    ui->JusquAdateEdit              ->setDisplayFormat(tr("dd/MM/yyyy"));
+    ui->DepuisdateEdit              ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=] {Fermefiche();});
     connect(ui->AnnulupPushButton,              &QPushButton::clicked,  this,    [=] {reject();});

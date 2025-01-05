@@ -46,6 +46,7 @@ dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
     ui->SphereOD->setFocus();
     ui->SphereOD->selectAll();
     ui->OupsPushButton->setIcon(Icons::icOups());
+    ui->DateDateEdit->setDisplayFormat(tr("dd/MM/yyyy"));
     InitEventFilters();
 }
 
@@ -2362,7 +2363,7 @@ QString dlg_refraction::RechercheVerres()
             TypeMesure =  tr("Prescription");
         else
             TypeMesure =  tr("Verres portés");
-        zdate = ref->daterefraction().toString("dd-MM-yyyy");
+        zdate = ref->daterefraction().toString(tr("dd-MM-yyyy"));
         // calcul Formule
         Formule = ref->formuleOD();
         if (Formule.length() > 0)

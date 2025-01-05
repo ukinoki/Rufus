@@ -60,6 +60,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
     lbldate     ->setText(tr("Date du document"));
+    wdg_editdate    ->setDisplayFormat(tr("dd/MM/yyyy"));
     wdg_editdate    ->setDate(m_currentdate);
 
     typeLay     ->addWidget(lbltype);

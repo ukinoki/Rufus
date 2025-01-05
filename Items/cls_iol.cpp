@@ -112,7 +112,7 @@ QString IOL::tooltip(bool avecimage) const
 {
     QString message = modele();
     if (typeString() != "")
-        message += "<br>" + typeString();
+        message += "<br>" + typeStringtotr(typeString());
     if (m_toric)
         message += "<br>" + tr("Torique");
     if (m_edof)
@@ -133,16 +133,16 @@ QString IOL::tooltip(bool avecimage) const
         message += "<br>" + tr("csteA opt") + " " + QString::number(m_csteAopt_nominal, 'f', 1);
     if (m_singlepiece && m_opticmaterial != "")
     {
-        message += "<br>" + m_opticmaterial;
+        message += "<br>" + opticalMaterialtotr();
         if (m_opticmaterial != "" && m_hydrofily != "")
-            message += " " + m_hydrofily;
+            message += " " + hydrofilytotr();
     }
     if (!m_singlepiece)
     {
         if (m_opticmaterial != "")
-            message += "<br>" + tr("optique") + " " + m_opticmaterial;
+            message += "<br>" + tr("optique") + " " + opticalMaterialtotr();
         if (m_opticmaterial != "" && m_hydrofily != "")
-            message += " " + m_hydrofily;
+            message += " " + hydrofilytotr();
         if (m_hapticmaterial != "")
             message += "<br>" + tr("haptique") + " " + m_hapticmaterial;
     }

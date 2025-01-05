@@ -54,6 +54,8 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     ui->Commissionwidget      ->setMaximumHeight(maxheight);
     ui->CompteCreditewidget   ->setMaximumHeight(maxheight);
 
+    ui->dateEdit                ->setDisplayFormat(tr("dd/MM/yyy"));
+
     m_fermealafin = (m_listidactes.size() > 0);
 
     restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Paiement).toByteArray());

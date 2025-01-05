@@ -370,9 +370,9 @@ void dlg_actesprecedents::ActesPrecsAfficheActe()
         ui->PaiementlineEdit->setVisible(true);
 
         //2. on recheche ensuite le type de paiement : espèces, chèque, tiers, cb, impayé, gratuit
-        QString txtpaiement = Utils::ConvertitModePaiement(acte->paiementType());
+        QString txtpaiement = Utils::ModePaiementtotr(acte->paiementType());
         if (acte->paiementType() == TRS
-                && acte->paiementTiers() == "CB") txtpaiement = tr(CARTECREDIT);
+                && acte->paiementTiers() == "CB") txtpaiement = Utils::ConvertitModePaiementtotr(CARTECREDIT);
          else if (acte->paiementType() == TRS) txtpaiement = acte->paiementTiers();
         ui->PaiementlineEdit->setText(txtpaiement);
 

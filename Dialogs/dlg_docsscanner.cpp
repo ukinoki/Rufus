@@ -58,6 +58,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     wdg_inflabel        = new QLabel(wdg_uptable);
     wdg_linetitre       = new UpLineEdit(this);
     wdg_editdate        = new QDateEdit(this);
+    wdg_editdate        ->setDisplayFormat(tr("dd/MM/yyyy"));
     wdg_typedoccombobx  = new UpComboBox(this);
     switch ( m_mode) {
     case Document:
