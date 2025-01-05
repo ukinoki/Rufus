@@ -2782,7 +2782,7 @@ Unfortunately, none of these connections seem to work.</translation>
     <message>
         <location filename="rufus.ui" line="281"/>
         <source>créer un nouveau dossier</source>
-        <translation>Create new folder</translation>
+        <translation>create new folder</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="287"/>
@@ -2971,7 +2971,7 @@ correspondents</translation>
     <message>
         <location filename="rufus.ui" line="2743"/>
         <source>Créer un bilan orthoptique</source>
-        <translation>Create  orthoptic check-up</translation>
+        <translation>Create orthoptic check-up</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2793"/>
@@ -3489,7 +3489,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2069"/>
         <source>Cette procédure devrait durer environ </source>
-        <translation>Cette procédure devrait durer environ </translation>
+        <translation>This procedure should take about </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2070"/>
@@ -4378,7 +4378,7 @@ on a folder to open it</translation>
     <message>
         <location filename="rufus.cpp" line="7537"/>
         <source>aucun dossier pour ces critères</source>
-        <translation>No file for these criteria</translation>
+        <translation>no file for these criteria</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7602"/>
@@ -4554,7 +4554,7 @@ in waiting room</translation>
     <message>
         <location filename="rufus.cpp" line="7855"/>
         <source>Document simple</source>
-        <translation>Simple dicument</translation>
+        <translation>Simple document</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7856"/>
@@ -8733,7 +8733,7 @@ pour le moment</source>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="388"/>
         <source>Suppression de votre logo</source>
-        <translation>deletion of your logo</translation>
+        <translation>Deletion of your logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="389"/>

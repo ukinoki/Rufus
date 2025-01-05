@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="es_ES" sourcelanguage="fr">
+<TS version="2.1" language="es_ES" sourcelanguage="fr_FR">
 <context>
     <name>Actes</name>
     <message>
         <location filename="ItemsLists/cls_actes.cpp" line="180"/>
         <source>Impossible de créer cette consultation dans </source>
-        <translation>Imposible crear esta consulta en </translation>
+        <translation>No se puede crear esta consulta en </translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_actes.cpp" line="185"/>
         <source>Impossible de retrouver l&apos;acte qui vient d&apos;être créé</source>
-        <translation>Imposible encontrar el acto que se acaba de crear</translation>
+        <translation>No se puede encontrar el acto que se acaba de crear</translation>
     </message>
 </context>
 <context>
@@ -19,12 +19,12 @@
     <message>
         <location filename="ItemsLists/cls_banques.cpp" line="64"/>
         <source>Impossible de créer cette banque</source>
-        <translation>Imposible crear este banco</translation>
+        <translation>No se puede crear este banco</translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_banques.cpp" line="72"/>
         <source>Impossible de sélectionner les enregistrements</source>
-        <translation>No se pueden seleccionar grabaciones</translation>
+        <translation>No se pueden seleccionar las grabaciones</translation>
     </message>
 </context>
 <context>
@@ -48,7 +48,7 @@
     <message>
         <location filename="ItemsLists/cls_commercials.cpp" line="91"/>
         <source>Impossible d&apos;enregistrer ce fabricant dans la base!</source>
-        <translation>Imposible registrar este fabricante en la base de datos!</translation>
+        <translation>Imposible guardar este fabricante en la base de datos!</translation>
     </message>
 </context>
 <context>
@@ -99,7 +99,7 @@
     <message>
         <location filename="Database/database.cpp" line="72"/>
         <source>port        </source>
-        <translation>port        </translation>
+        <translation>puerto        </translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="97"/>
@@ -122,81 +122,81 @@ consulta = </translation>
     <message>
         <location filename="Database/database.cpp" line="523"/>
         <source>Messages</source>
-        <translation type="unfinished"></translation>
+        <translation>Mensajes</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="523"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminación de la antigua base Rufus en proceso</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="547"/>
         <location filename="Database/database.cpp" line="578"/>
         <location filename="Database/database.cpp" line="595"/>
         <source>Impossible de retrouver les paramètres du système</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pueden encontrar los parámetros del sistema</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="787"/>
         <location filename="Database/database.cpp" line="864"/>
         <source>Impossible de retrouver les données opthalmologiques du patient</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pueden encontrar los datos oftalmológicos del paciente</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="824"/>
         <source>Impossible de retrouver les données ophtalmologiques du patient</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pueden encontrar los datos oftalmológicos del paciente</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="990"/>
         <location filename="Database/database.cpp" line="1296"/>
         <source>Impossible de retrouver les données de l&apos;utilisateur</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pueden encontrar los datos del usuario</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="1037"/>
         <source>Impossible de retrouver les données de l&apos;administrateur</source>
-        <translation type="unfinished"></translation>
+        <translation>No se pueden encontrar los datos del administrador</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="1121"/>
         <source>Impossible de modifier le logo de l&apos;utilisateur</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede modificar el logo del usuario</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="2085"/>
         <source>Apport praticien</source>
-        <translation type="unfinished"></translation>
+        <translation>Aportaciones de profesionales</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="2086"/>
         <source>Divers et autres recettes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingresos varios y otros</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="2473"/>
         <source>Ville déjà enregistrée</source>
-        <translation type="unfinished"></translation>
+        <translation>Localidad ya registrada</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="2474"/>
         <source>La localité </source>
-        <translation type="unfinished"></translation>
+        <translation>La localidad </translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="2474"/>
         <source> est déjà enregistrée dans la base avec le code postal </source>
-        <translation type="unfinished"></translation>
+        <translation> ya está registrada en la base con el código postal </translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="2955"/>
         <source>Impossible de retrouver un acte correspondant</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede encontrar un acto correspondiente</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="3481"/>
         <source>Impossible de modifier l&apos;IOL</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede modificar el IOL</translation>
     </message>
 </context>
 <context>
@@ -204,12 +204,12 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_depenses.cpp" line="120"/>
         <source>Impossible d&apos;enregistrer cette dépense</source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede grabar este gasto</translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_depenses.cpp" line="128"/>
         <source>Impossible de sélectionner les enregistrements</source>
-        <translation type="unfinished">No se pueden seleccionar grabaciones</translation>
+        <translation>No se pueden seleccionar las grabaciones</translation>
     </message>
 </context>
 <context>
@@ -217,7 +217,7 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_docsexternes.cpp" line="142"/>
         <source>Impossible d&apos;enregistrer ce document dans la base!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No se puede grabar este documento en la base!</translation>
     </message>
 </context>
 <context>
@@ -225,7 +225,7 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_impressions.cpp" line="203"/>
         <source>Impossible d&apos;enregistrer ce document d&apos;impression dans la base!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No se puede grabar este documento de impresión en la base!</translation>
     </message>
 </context>
 <context>
@@ -233,57 +233,57 @@ consulta = </translation>
     <message>
         <location filename="Items/cls_iol.cpp" line="117"/>
         <source>Torique</source>
-        <translation type="unfinished"></translation>
+        <translation>Tórica</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="119"/>
         <source>EDOF</source>
-        <translation type="unfinished"></translation>
+        <translation>EDOF</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="121"/>
         <source>Multifocal</source>
-        <translation type="unfinished"></translation>
+        <translation>Multifiocal</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="123"/>
         <source>Monofocal</source>
-        <translation type="unfinished"></translation>
+        <translation>Monofocal</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="125"/>
         <source>Préchargé</source>
-        <translation type="unfinished"></translation>
+        <translation>Precargada</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="127"/>
         <source>Jaune</source>
-        <translation type="unfinished"></translation>
+        <translation>Amarillo</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="129"/>
         <source>diamètre hors tout</source>
-        <translation type="unfinished"></translation>
+        <translation>diámetro exterior</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="131"/>
         <source>incision</source>
-        <translation type="unfinished"></translation>
+        <translation>incisión</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="133"/>
         <source>csteA opt</source>
-        <translation type="unfinished"></translation>
+        <translation>csteA opt</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="143"/>
         <source>optique</source>
-        <translation type="unfinished"></translation>
+        <translation>óptico</translation>
     </message>
     <message>
         <location filename="Items/cls_iol.cpp" line="147"/>
         <source>haptique</source>
-        <translation type="unfinished"></translation>
+        <translation>háptico</translation>
     </message>
 </context>
 <context>
@@ -291,7 +291,7 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_iols.cpp" line="93"/>
         <source>Impossible d&apos;enregistrer cet implant dans la base!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No se puede grabar este implante en la base!</translation>
     </message>
 </context>
 <context>
@@ -2578,20 +2578,23 @@ Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
     <message>
         <location filename="rufus.ui" line="281"/>
         <source>créer un nouveau dossier</source>
-        <translation type="unfinished"></translation>
+        <translation>crear un expediente nuevo</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="287"/>
         <source>Créer un 
 dossier - F6</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un 
+expediente - F6</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="311"/>
         <source>créer un dossier à partir d&apos;un parent
 l&apos;adresse et les antécédents familiaux
 seront recopiés automatiquement</source>
-        <translation type="unfinished"></translation>
+        <translation>crear un expediente a partir de un pariente
+la dirección y antecedentes familiares
+se copiarán automáticamente</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="316"/>
@@ -2623,7 +2626,7 @@ patients - F5</source>
     <message>
         <location filename="rufus.ui" line="541"/>
         <source>Date de naissance</source>
-        <translation type="unfinished"></translation>
+        <translation>Fecha de nacimiento</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="613"/>
@@ -2635,14 +2638,16 @@ patients - F5</source>
         <location filename="rufus.cpp" line="9013"/>
         <source>Créer
 le dossier</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear
+el expediente</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="665"/>
         <location filename="rufus.cpp" line="8962"/>
         <source>Chercher avec la
 date de naissance</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar por la
+fecha de nacimiento</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="793"/>
@@ -2677,12 +2682,12 @@ d&apos;attente </source>
     <message>
         <location filename="rufus.ui" line="1189"/>
         <source>Bureaux</source>
-        <translation type="unfinished"></translation>
+        <translation>Oficinas</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="1342"/>
         <source>Accueil</source>
-        <translation type="unfinished"></translation>
+        <translation>Recepción</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="1405"/>
@@ -2694,7 +2699,7 @@ aujourd&apos;hui</source>
     <message>
         <location filename="rufus.ui" line="1928"/>
         <source>Antécédents personnels</source>
-        <translation type="unfinished"></translation>
+        <translation>Antecedentes personales</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="1935"/>
@@ -2704,12 +2709,12 @@ aujourd&apos;hui</source>
     <message>
         <location filename="rufus.ui" line="1986"/>
         <source>Antécédents familiaux</source>
-        <translation type="unfinished"></translation>
+        <translation>antecedentes familiares</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="1993"/>
         <source>Autres</source>
-        <translation type="unfinished"></translation>
+        <translation>Otros</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2083"/>
@@ -2720,7 +2725,8 @@ aujourd&apos;hui</source>
         <location filename="rufus.ui" line="2205"/>
         <source>Autres
 correspondants</source>
-        <translation type="unfinished"></translation>
+        <translation>Otros
+corresponsales</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2219"/>
@@ -2730,7 +2736,7 @@ correspondants</source>
     <message>
         <location filename="rufus.ui" line="2353"/>
         <source>Créé le</source>
-        <translation type="unfinished"></translation>
+        <translation>Creado el</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2379"/>
@@ -2755,18 +2761,18 @@ correspondants</source>
     <message>
         <location filename="rufus.ui" line="2617"/>
         <source>Créer un dossier</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un expediente</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2743"/>
         <source>Créer un bilan orthoptique</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear una evaluación ortóptica</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2793"/>
         <location filename="rufus.ui" line="3778"/>
         <source>Créer un nouvel acte</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un acto nuevo</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="2915"/>
@@ -2787,13 +2793,14 @@ correspondants</source>
         <location filename="rufus.ui" line="3153"/>
         <source>Consultation
 suivante</source>
-        <translation type="unfinished"></translation>
+        <translation>Siguiente consulta</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3186"/>
         <source>Consultation
 précédente</source>
-        <translation type="unfinished"></translation>
+        <translation>Consulta
+anterior</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3282"/>
@@ -2805,7 +2812,8 @@ acte</source>
         <location filename="rufus.ui" line="3315"/>
         <source>Dernier
 acte</source>
-        <translation type="unfinished"></translation>
+        <translation>Último
+acto</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3348"/>
@@ -2825,7 +2833,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="3451"/>
         <source>Courrier à faire</source>
-        <translation type="unfinished"></translation>
+        <translation>Enviar correo</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3486"/>
@@ -2852,7 +2860,7 @@ acte</source>
         <location filename="rufus.ui" line="3623"/>
         <location filename="rufus.cpp" line="8539"/>
         <source>Cotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Presupuesto</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3636"/>
@@ -2865,12 +2873,12 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="3700"/>
         <source>...</source>
-        <translation type="unfinished"></translation>
+        <translation>...</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3716"/>
         <source>CCAM...</source>
-        <translation type="unfinished"></translation>
+        <translation>CCAM...</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3761"/>
@@ -2880,7 +2888,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="3804"/>
         <source>Créer un acte</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un acto</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3833"/>
@@ -2890,7 +2898,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="3859"/>
         <source>Actes précédents</source>
-        <translation type="unfinished"></translation>
+        <translation>Actos anteriores</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3888"/>
@@ -2910,7 +2918,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="3982"/>
         <source>Conclusion</source>
-        <translation type="unfinished"></translation>
+        <translation>Conclusión</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4021"/>
@@ -2921,12 +2929,12 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="4037"/>
         <source>Bilan orthoptique</source>
-        <translation type="unfinished"></translation>
+        <translation>Evaluación ortóptica</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4063"/>
         <source>bilan orthoptique</source>
-        <translation type="unfinished"></translation>
+        <translation>evaluación ortóptica</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4089"/>
@@ -2938,7 +2946,7 @@ acte</source>
         <location filename="rufus.cpp" line="2984"/>
         <location filename="rufus.cpp" line="7923"/>
         <source>Acte</source>
-        <translation type="unfinished"></translation>
+        <translation>Acto</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4169"/>
@@ -2950,7 +2958,7 @@ acte</source>
         <location filename="rufus.cpp" line="7926"/>
         <location filename="rufus.cpp" line="8922"/>
         <source>Documents</source>
-        <translation type="unfinished"></translation>
+        <translation>Documentos</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4263"/>
@@ -2960,7 +2968,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="4319"/>
         <source>Ajouter au programme opératoire</source>
-        <translation type="unfinished"></translation>
+        <translation>Añadir al programa operatorio</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4345"/>
@@ -2970,7 +2978,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="4394"/>
         <source>Antécédents ophtalmologiques</source>
-        <translation type="unfinished"></translation>
+        <translation>Antecedentes oftalmológicos</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4488"/>
@@ -2985,7 +2993,8 @@ acte</source>
     <message>
         <location filename="rufus.cpp" line="44"/>
         <source>Aucun paramétrage valide de connexion retrouvé</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>No se ha encontrado nigún ajuste de conexión válido</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="44"/>
@@ -3011,7 +3020,7 @@ Sortie du programme</source>
     <message>
         <location filename="rufus.cpp" line="111"/>
         <source>Aucun serveur TCP enregistré dans la base</source>
-        <translation type="unfinished"></translation>
+        <translation>No hay ningún servidor TCP en la base de datos</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="113"/>
@@ -3037,7 +3046,7 @@ Sortie du programme</source>
     <message>
         <location filename="rufus.cpp" line="122"/>
         <source>Connexion TCP OK</source>
-        <translation type="unfinished"></translation>
+        <translation>Conexión TCP OK</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="130"/>
@@ -3052,7 +3061,7 @@ Sortie du programme</source>
     <message>
         <location filename="rufus.cpp" line="142"/>
         <source>Connexion distante - pas d&apos;utilisation de TCP</source>
-        <translation type="unfinished"></translation>
+        <translation>Conexión remote . no se puede usar TCP</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="296"/>
@@ -3118,7 +3127,7 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location filename="rufus.cpp" line="1319"/>
         <location filename="rufus.cpp" line="7259"/>
         <source>Consultation gratuite</source>
-        <translation type="unfinished"></translation>
+        <translation>Consulta gratuita</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1320"/>
@@ -3143,7 +3152,7 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location filename="rufus.cpp" line="10318"/>
         <location filename="rufus.cpp" line="10517"/>
         <source>Annuler</source>
-        <translation type="unfinished"></translation>
+        <translation>Anular</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1331"/>
@@ -3159,7 +3168,7 @@ sont déjà en cours d&apos;enregistrement!</source>
     <message>
         <location filename="rufus.cpp" line="1458"/>
         <source>Autre Dossier</source>
-        <translation type="unfinished"></translation>
+        <translation>Otro Expediente</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1477"/>
@@ -3183,7 +3192,8 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location filename="rufus.cpp" line="1644"/>
         <source>Créer un nouveau
 bilan orthoptique</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear una nueva
+evaluación ortóptica</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1647"/>
@@ -3255,12 +3265,12 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2068"/>
         <source> documents à convertir.</source>
-        <translation type="unfinished"></translation>
+        <translation> documentos a convertir.</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2069"/>
         <source>Cette procédure devrait durer environ </source>
-        <translation type="unfinished"></translation>
+        <translation>Este proceso debería durar alrededor de </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2070"/>
@@ -3281,12 +3291,12 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2290"/>
         <source> documents exportés en </source>
-        <translation type="unfinished"></translation>
+        <translation> documentos exportados en </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2290"/>
         <source> document exporté en </source>
-        <translation type="unfinished"></translation>
+        <translation> documento exportado en </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2511"/>
@@ -3296,12 +3306,12 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2559"/>
         <source> documents comptables exportés en </source>
-        <translation type="unfinished"></translation>
+        <translation> documentos contables exportados en </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2559"/>
         <source> document comptable exporté en </source>
-        <translation type="unfinished"></translation>
+        <translation> documento contable exportado en </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2602"/>
@@ -3311,7 +3321,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2666"/>
         <source>depuis le</source>
-        <translation type="unfinished"></translation>
+        <translation>desde el</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2674"/>
@@ -3326,7 +3336,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2680"/>
         <source>acte en cours</source>
-        <translation type="unfinished"></translation>
+        <translation>acto en curso</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2688"/>
@@ -3340,7 +3350,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
         <location filename="rufus.cpp" line="2955"/>
         <location filename="rufus.cpp" line="7454"/>
         <source>d MMM yyyy</source>
-        <translation type="unfinished"></translation>
+        <translation>d MMM yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2765"/>
@@ -3369,7 +3379,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2782"/>
         <source>Antécédents ophtalmologiques: </source>
-        <translation type="unfinished"></translation>
+        <translation>Antecedentes oftalmológicos: </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2790"/>
@@ -3379,7 +3389,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2798"/>
         <source>Antécédents généraux: </source>
-        <translation type="unfinished"></translation>
+        <translation>Antecedentes generales: </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2806"/>
@@ -3394,7 +3404,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2836"/>
         <source>d MMMM yyyy</source>
-        <translation type="unfinished"></translation>
+        <translation>d MMMM yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2843"/>
@@ -3409,7 +3419,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2856"/>
         <source>Conclusion:</source>
-        <translation type="unfinished"></translation>
+        <translation>Conclusión:</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2864"/>
@@ -3429,22 +3439,22 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2947"/>
         <source>COMPTE RENDU DE DOSSIER</source>
-        <translation type="unfinished"></translation>
+        <translation>INFORME DE EXPEDIENTE</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2949"/>
         <source>Actes du</source>
-        <translation type="unfinished"></translation>
+        <translation>Actos del</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2949"/>
         <source>au</source>
-        <translation type="unfinished"></translation>
+        <translation>al</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2951"/>
         <source>Acte du</source>
-        <translation type="unfinished"></translation>
+        <translation>Acto de</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2983"/>
@@ -3454,12 +3464,12 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2983"/>
         <source>dans le dossier </source>
-        <translation type="unfinished"></translation>
+        <translation>en el expediente </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2984"/>
         <source>Actes</source>
-        <translation type="unfinished"></translation>
+        <translation>Actos</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2984"/>
@@ -3469,7 +3479,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="2984"/>
         <source> au </source>
-        <translation type="unfinished"></translation>
+        <translation> al </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="2985"/>
@@ -3519,7 +3529,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
         <location filename="rufus.cpp" line="3009"/>
         <location filename="rufus.cpp" line="3010"/>
         <source>actes</source>
-        <translation type="unfinished"></translation>
+        <translation>actos</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3020"/>
@@ -3559,7 +3569,7 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="3259"/>
         <source>Aucun mot clé défini dans la base</source>
-        <translation type="unfinished"></translation>
+        <translation>Ningúna palabra clave definida en la base</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3259"/>
@@ -3580,14 +3590,14 @@ ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
     <message>
         <location filename="rufus.cpp" line="3362"/>
         <source>Aucun patient retrouvé pour ces critères</source>
-        <translation type="unfinished"></translation>
+        <translation>No s eha encontrado ningún paciente con esos criterios</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3393"/>
         <location filename="rufus.cpp" line="3462"/>
         <location filename="rufus.cpp" line="3585"/>
         <source>dd-MMM-yyyy</source>
-        <translation type="unfinished"></translation>
+        <translation>dd-MMM-yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3426"/>
@@ -3639,7 +3649,7 @@ sur un dossier pour l&apos;ouvrir</source>
         <location filename="rufus.cpp" line="3863"/>
         <location filename="rufus.cpp" line="7843"/>
         <source>Créer un dossier de la même famille</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un expediente de la misma familia</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3671"/>
@@ -3740,7 +3750,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="4185"/>
         <source>ANTÉCÉDENTS GÉNÉRAUX</source>
-        <translation type="unfinished"></translation>
+        <translation>ANTECEDENTES GENERALES</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4190"/>
@@ -3750,12 +3760,12 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="4195"/>
         <source>ATCDTS OPHTALMOLOGIQUES FAMILIAUX</source>
-        <translation type="unfinished"></translation>
+        <translation>A. OFTALMOLÓGICOS FAMILIARES</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4204"/>
         <source>AUTRES</source>
-        <translation type="unfinished"></translation>
+        <translation>OTROS</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4208"/>
@@ -3775,7 +3785,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="4287"/>
         <source> cig/j</source>
-        <translation type="unfinished"></translation>
+        <translation> cig/d</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4378"/>
@@ -3803,12 +3813,12 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="4800"/>
         <source>A propos de </source>
-        <translation type="unfinished"></translation>
+        <translation>A cerca de </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4819"/>
         <source>Destinataire</source>
-        <translation type="unfinished"></translation>
+        <translation>Destinatario</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4821"/>
@@ -3839,12 +3849,12 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="4951"/>
         <source>accès distant - connexion </source>
-        <translation type="unfinished"></translation>
+        <translation>acceso remoto - conexión </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4953"/>
         <source>cryptée (SSL)</source>
-        <translation type="unfinished"></translation>
+        <translation>cifrado (SSL)</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4955"/>
@@ -3879,7 +3889,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="5150"/>
         <source>A propos de RufusVision</source>
-        <translation type="unfinished"></translation>
+        <translation>Acerca de RufusVision</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5171"/>
@@ -3903,12 +3913,12 @@ sur un dossier pour l&apos;ouvrir</source>
         <location filename="rufus.cpp" line="5450"/>
         <location filename="rufus.cpp" line="5496"/>
         <source>d-MMM-yy</source>
-        <translation type="unfinished"></translation>
+        <translation>d-MMM-yy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5301"/>
         <source> de </source>
-        <translation type="unfinished"></translation>
+        <translation> de </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5307"/>
@@ -3925,7 +3935,7 @@ sur un dossier pour l&apos;ouvrir</source>
         <location filename="rufus.cpp" line="5354"/>
         <location filename="rufus.cpp" line="5496"/>
         <source>A effectuer avant le </source>
-        <translation type="unfinished"></translation>
+        <translation>Completar antes del </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5367"/>
@@ -3967,7 +3977,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="5636"/>
         <source>à propos de </source>
-        <translation type="unfinished"></translation>
+        <translation>acerca de </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5647"/>
@@ -4009,7 +4019,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="5788"/>
         <source> dont 1 nouveau</source>
-        <translation type="unfinished"></translation>
+        <translation> uno es nuevo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5791"/>
@@ -4026,7 +4036,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="6049"/>
         <source>administrateur</source>
-        <translation type="unfinished"></translation>
+        <translation>administrador</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6066"/>
@@ -4036,7 +4046,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="6066"/>
         <source> a été retiré de la liste des postes connectés actuellement au serveur</source>
-        <translation type="unfinished"></translation>
+        <translation> ha sido retirado de la lista de puestos conectados actuelmante al servidor</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6554"/>
@@ -4046,17 +4056,17 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="6777"/>
         <source>Créé par </source>
-        <translation type="unfinished"></translation>
+        <translation>Creado por </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6831"/>
         <source>Créer un nouvel acte pour </source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un acto nuevo para </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6832"/>
         <source>Créer un bilan orthoptique pour </source>
-        <translation type="unfinished"></translation>
+        <translation>Crear una evaluación ortóptica para </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6877"/>
@@ -4071,7 +4081,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="7159"/>
         <source> dont le sexe n&apos;est pas précisé.</source>
-        <translation type="unfinished"></translation>
+        <translation> sin el sexo especificado.</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7159"/>
@@ -4081,7 +4091,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="7162"/>
         <source>Convertir </source>
-        <translation type="unfinished"></translation>
+        <translation>Convertir </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7165"/>
@@ -4106,7 +4116,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="7224"/>
         <source>Consultation incomplète</source>
-        <translation type="unfinished"></translation>
+        <translation>Consulta incompleta</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7248"/>
@@ -4147,7 +4157,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="7537"/>
         <source>aucun dossier pour ces critères</source>
-        <translation type="unfinished"></translation>
+        <translation>no hay expedientes para estos criterios</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7602"/>
@@ -4157,7 +4167,7 @@ sur un dossier pour l&apos;ouvrir</source>
     <message>
         <location filename="rufus.cpp" line="7603"/>
         <source>Ce patient est</source>
-        <translation type="unfinished"></translation>
+        <translation>Este paciente es</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7603"/>
@@ -4168,7 +4178,8 @@ sur un dossier pour l&apos;ouvrir</source>
         <location filename="rufus.cpp" line="7669"/>
         <source>Chercher avec
 nom et prénom</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscar por
+apellido y nombre</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7697"/>
@@ -4188,17 +4199,17 @@ nom et prénom</source>
     <message>
         <location filename="rufus.cpp" line="7716"/>
         <source>Confirmez vous la date de naissance?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Confirma la fecha de nacimiento?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7716"/>
         <source>d-MMM-yyyy</source>
-        <translation type="unfinished"></translation>
+        <translation>d-MMM-yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7731"/>
         <source>Ce patient est déjà venu!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Este paciente ya ha venido!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7737"/>
@@ -4236,7 +4247,7 @@ Le créer quand meme?</source>
     <message>
         <location filename="rufus.cpp" line="7762"/>
         <source>Créer le dossier</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear el expediente</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7796"/>
@@ -4247,7 +4258,7 @@ Le créer quand meme?</source>
     <message>
         <location filename="rufus.cpp" line="7796"/>
         <source> créé</source>
-        <translation type="unfinished"></translation>
+        <translation> creado</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7797"/>
@@ -4272,12 +4283,12 @@ en salle d&apos;attente</source>
         <location filename="rufus.cpp" line="7838"/>
         <location filename="rufus.cpp" line="7852"/>
         <source>Créer</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7839"/>
         <source>Créer un nouveau dossier</source>
-        <translation type="unfinished"></translation>
+        <translation>Crear un expediente nuevo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7840"/>
@@ -4313,13 +4324,6 @@ en salle d&apos;attente</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4378"/>
-        <location filename="rufus.cpp" line="7849"/>
-        <source>Paramètres</source>
-        <oldsource>Paramètres généraux</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="rufus.cpp" line="7850"/>
         <source>Voir le statut</source>
         <translation type="unfinished"></translation>
@@ -4327,7 +4331,7 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="7855"/>
         <source>Document simple</source>
-        <translation type="unfinished"></translation>
+        <translation>Documento sencillo</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7856"/>
@@ -4342,7 +4346,7 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="7860"/>
         <source>Afficher les courriers à faire</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar los correos para hacer</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7861"/>
@@ -4372,7 +4376,7 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="7868"/>
         <source>Bilan des recettes</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuenta de resultados</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7869"/>
@@ -4397,7 +4401,7 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="7874"/>
         <source>A propos</source>
-        <translation type="unfinished"></translation>
+        <translation>Acerca</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7875"/>
@@ -4428,27 +4432,27 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="7928"/>
         <source>Comptabilité</source>
-        <translation type="unfinished"></translation>
+        <translation>Contabilidad</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7945"/>
         <source>Aide</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayuda</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7950"/>
         <source>Copier</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7951"/>
         <source>Couper</source>
-        <translation type="unfinished"></translation>
+        <translation>Cortar</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7952"/>
         <source>Coller</source>
-        <translation type="unfinished"></translation>
+        <translation>Pegar</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8088"/>
@@ -4458,17 +4462,17 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="8125"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et un document d&apos;imagerie</source>
-        <translation type="unfinished"></translation>
+        <translation>Este expediente contiene el contenido del acto en curso y un documento gráfico</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8127"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et </source>
-        <translation type="unfinished"></translation>
+        <translation>Este expediente contiene el contenido del acto en curso y </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8127"/>
         <source> documents d&apos;imagerie</source>
-        <translation type="unfinished"></translation>
+        <translation> imágenes</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8129"/>
@@ -4483,7 +4487,7 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="8131"/>
         <source> a été créé sur le bureau</source>
-        <translation type="unfinished"></translation>
+        <translation> ha sido creado en el escritorio</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8169"/>
@@ -4512,7 +4516,7 @@ le dossier</source>
         <location filename="rufus.cpp" line="9455"/>
         <location filename="rufus.cpp" line="10828"/>
         <source>dd-MM-yyyy</source>
-        <translation type="unfinished"></translation>
+        <translation>dd-MM-yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8284"/>
@@ -4567,7 +4571,7 @@ le dossier</source>
     <message>
         <location filename="rufus.cpp" line="8765"/>
         <source>Correspondant inconnu! Souhaitez-vous l&apos;enregistrer?</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Corresponsal desconocido! ¿Desea grabarlo?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8767"/>
@@ -4582,12 +4586,12 @@ le dossier</source>
     <message>
         <location filename="rufus.cpp" line="8911"/>
         <source>Aucun émetteur n&apos;est précisé pour l&apos;impression</source>
-        <translation type="unfinished"></translation>
+        <translation>No se ha especificado ningún remitente para la impresión</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="9062"/>
         <source>Aucun dossier sélectionné!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Ningún expediente seleccionado!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="9062"/>
@@ -4618,7 +4622,7 @@ le dossier</source>
     <message>
         <location filename="rufus.cpp" line="10070"/>
         <source>Administrateur</source>
-        <translation type="unfinished"></translation>
+        <translation>Administrador</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10072"/>
@@ -4648,7 +4652,7 @@ le dossier</source>
     <message>
         <location filename="rufus.cpp" line="10096"/>
         <source>Consultation incomplète!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Consulta incompleta!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10142"/>
@@ -4736,7 +4740,7 @@ Vous devez modifier l&apos;écriture correspondante pour pouvoir supprimer l&apo
         <location filename="rufus.cpp" line="10479"/>
         <location filename="rufus.cpp" line="10480"/>
         <source>€</source>
-        <translation type="unfinished"></translation>
+        <translation>€</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10480"/>
@@ -4746,22 +4750,22 @@ Vous devez modifier l&apos;écriture correspondante pour pouvoir supprimer l&apo
     <message>
         <location filename="rufus.cpp" line="10480"/>
         <source>déjà enregistrés pour cet acte</source>
-        <translation type="unfinished"></translation>
+        <translation>ya grabados para este acto</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10513"/>
         <source>Cet acte a déjà été enregistré comme acte gratuit !</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Este acto ya ha estado registrado como gratuito!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10514"/>
         <source>Annuler et considérer comme acte payant?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Anular y considerar como acto de pago?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10516"/>
         <source>Considérer comme payant</source>
-        <translation type="unfinished"></translation>
+        <translation>Considerar como de pago</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10626"/>
@@ -8070,680 +8074,697 @@ Voulez vous remplir automatiquement les champs avec des coordonnées factices?.
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="106"/>
         <source>Mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="122"/>
         <source>Nom *</source>
-        <translation type="unfinished"></translation>
+        <translation>Apellido *</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="138"/>
         <source>Portable</source>
-        <translation type="unfinished"></translation>
+        <translation>Móvil</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="160"/>
         <source>Snowden</source>
-        <translation type="unfinished"></translation>
+        <translation>Nevado</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="198"/>
         <source>Adresse mail</source>
-        <translation type="unfinished"></translation>
+        <translation>Dirección e-mail</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="214"/>
         <source>Prénom *</source>
-        <translation type="unfinished"></translation>
+        <translation>Nombre *</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="255"/>
         <source>Login</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuario</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="312"/>
         <source>Edward</source>
-        <translation type="unfinished"></translation>
+        <translation>Eduardo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="353"/>
         <source>Titre</source>
-        <translation type="unfinished"></translation>
+        <translation>Título</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="410"/>
         <source>idUser</source>
-        <translation type="unfinished"></translation>
+        <translation>idUser</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="476"/>
         <source>Gestion des
 lieux d&apos;activité</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestión de
+sitios de actividad</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="584"/>
         <source>Comptabilité des actes</source>
-        <translation type="unfinished"></translation>
+        <translation>Contabilidad de los actos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="605"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="60"/>
         <source>Activité libérale</source>
-        <translation type="unfinished"></translation>
+        <translation>Autónomo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="624"/>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1230"/>
         <source>Cochez cette case si vous effectuez des actes et qu&apos;ils sont comptabilisés sur le compte d&apos;un autre soignant (Médecin collaborateur d&apos;un cabinet libéral, remplaçant, orthoptiste...etc...)</source>
-        <translation type="unfinished"></translation>
+        <translation>Marque esta casilla si efectúa actos que se contabilizan con la cuenta de otro cuidador (Médico colaborador de un consultorio autónomo, sustituto, ortoptists, etc.)</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="627"/>
         <source>Remplaçant</source>
-        <translation type="unfinished"></translation>
+        <translation>Sustituto</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="649"/>
         <source>Pas d&apos;activité libérale</source>
-        <translation type="unfinished"></translation>
+        <translation>Asalariado</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="668"/>
         <source>Activité libérale en SEL</source>
-        <translation type="unfinished"></translation>
+        <translation>Autónomo en SEL</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="688"/>
         <source>Membre d&apos;une AGA</source>
-        <translation type="unfinished"></translation>
+        <translation>Miembro de una AGA</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="720"/>
         <source>Compte bancaire utilisé pour la comptabilité</source>
-        <translation type="unfinished"></translation>
+        <translation>Cuenta bancaria usada para la contabilidad</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="740"/>
         <source>Gérer les comptes bancaires</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestionar las cuentas bancarias</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="775"/>
         <source>Employeur</source>
-        <translation type="unfinished"></translation>
+        <translation>Empleador</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="799"/>
         <source>00 0 00000 0 0 00 0</source>
-        <translation type="unfinished"></translation>
+        <translation>00 0 00000 0 0 00 0</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="815"/>
         <source>ADELI</source>
-        <translation type="unfinished"></translation>
+        <translation>ADELI</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="878"/>
         <source>000000000</source>
-        <translation type="unfinished"></translation>
+        <translation>000000000</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="913"/>
         <source>Cotation des actes</source>
-        <translation type="unfinished"></translation>
+        <translation>Coste de los actos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="929"/>
         <source>RPPS</source>
-        <translation type="unfinished"></translation>
+        <translation>RPPS</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="948"/>
         <source>Secteur</source>
-        <translation type="unfinished"></translation>
+        <translation>Sector</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="966"/>
         <source>1</source>
-        <translation type="unfinished"></translation>
+        <translation>1</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="985"/>
         <source>2 </source>
-        <translation type="unfinished"></translation>
+        <translation>2 </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1004"/>
         <source>3</source>
-        <translation type="unfinished"></translation>
+        <translation>3</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1024"/>
         <source>Fonction</source>
-        <translation type="unfinished"></translation>
+        <translation>Función</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1042"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="476"/>
         <source>Ophtalmologiste</source>
-        <translation type="unfinished"></translation>
+        <translation>Oftalmólogo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1061"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="523"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="524"/>
         <source>Orthoptiste</source>
-        <translation type="unfinished"></translation>
+        <translation>Ortoptista</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1080"/>
         <source>Autre soignant</source>
-        <translation type="unfinished"></translation>
+        <translation>Otro cuidador</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1099"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="663"/>
         <source>Secrétaire</source>
-        <translation type="unfinished"></translation>
+        <translation>Secretaria</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1118"/>
         <source>Autre fonction</source>
-        <translation type="unfinished"></translation>
+        <translation>Otra función</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1163"/>
         <source>Société comptable</source>
-        <translation type="unfinished"></translation>
+        <translation>Sociedad contable</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1176"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="475"/>
         <source>Médecin</source>
-        <translation type="unfinished"></translation>
+        <translation>Médico</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1195"/>
         <source>Neutre</source>
-        <translation type="unfinished"></translation>
+        <translation>Neutro</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1212"/>
         <source>Mode d&apos;exercice</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de actividad</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1233"/>
         <source>Alterne les 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Alterna las dos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1252"/>
         <source>Responsable</source>
-        <translation type="unfinished"></translation>
+        <translation></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1271"/>
         <source>Cochez cette case si vous n&apos;efectuez pas de comptabilité de vos actes</source>
-        <translation type="unfinished"></translation>
+        <translation>MArque esta casilla si no realiza contabilidad de sus actos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1274"/>
         <source>Assistant</source>
-        <translation type="unfinished"></translation>
+        <translation>Asistente</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1297"/>
         <source>OPTAM</source>
-        <translation type="unfinished"></translation>
+        <translation>OPTAM</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1328"/>
         <source>Utilisateur désactivé</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuario desactivado</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1354"/>
         <source>Annul</source>
-        <translation type="unfinished"></translation>
+        <translation>Anular</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1367"/>
         <source>OK</source>
-        <translation type="unfinished"></translation>
+        <translation>OK</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="1428"/>
         <source>Utilisateurs
 inactifs</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuarios
+inactivos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="28"/>
         <source>Gestion des utilisateurs</source>
-        <translation type="unfinished"></translation>
+        <translation>Gestión de usuarios</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="61"/>
         <source>Activité non libérale</source>
-        <translation type="unfinished"></translation>
+        <translation>Asalariado</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="73"/>
         <source>Cliquez sur ce bouton pour</source>
-        <translation type="unfinished"></translation>
+        <translation>Pulse el botón para</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="73"/>
         <source>enregistrer votre logo</source>
-        <translation type="unfinished"></translation>
+        <translation>grabar vuestro logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="79"/>
         <source>votre logo
 clic droit pour modifier</source>
-        <translation type="unfinished"></translation>
+        <translation>su logo
+botón derecho para modificar</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="83"/>
         <source>Docteur</source>
-        <translation type="unfinished"></translation>
+        <translation>Doctor</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="83"/>
         <source>Professeur</source>
-        <translation type="unfinished"></translation>
+        <translation>Profesor</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="89"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="869"/>
         <source>Annuler</source>
-        <translation type="unfinished"></translation>
+        <translation>Anular</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="91"/>
         <source>Enregistrer</source>
-        <translation type="unfinished"></translation>
+        <translation>Grabar</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="95"/>
         <source>Modifier le mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificar contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="160"/>
         <source>Fonction indisponible
 pour le moment</source>
-        <translation type="unfinished"></translation>
+        <translation>Función no disponible
+de momento</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="266"/>
         <source>Modifier le logo</source>
         <oldsource>Modifier le code barre</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Modificar el logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="270"/>
         <source>Supprimer le logo</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrar logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="333"/>
         <source>Choisissez un login pour le nouvel utilisateur
 - mini 5 maxi 15 caractères -
 - pas de caractères spéciaux ou accentués -</source>
-        <translation type="unfinished"></translation>
+        <translation>Elija un nombre para el nuevo usuario
+- entre 5 y 12 caracteres
+- sin caracteres especiales o acentuados -</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="334"/>
         <source>Choisissez un mot de passe
 - mini 5 maxi 12 caractères -
 - pas de caractères spéciaux ou accentués -</source>
-        <translation type="unfinished"></translation>
+        <translation>Elija una contraseña
+- entre 5 y 12 caracteres
+- sin caracteres especiales o acentuados -</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="335"/>
         <source>Confirmez le mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirme la contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
         <source>Choix d&apos;un logo</source>
         <oldsource>Choix d&apos;un code barre</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Elección de un logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
         <source>Dans la boîte de dialogue suivante</source>
-        <translation type="unfinished"></translation>
+        <translation>En el diálogo siguiente</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="361"/>
         <source>choisissez un fichier image au format .jpg, .jpeg ou .png</source>
-        <translation type="unfinished"></translation>
+        <translation>elija un fichero de imagen con formato .jpg,. jpeg o .png</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="363"/>
         <source>Choisir un fichier</source>
-        <translation type="unfinished"></translation>
+        <translation>Elija un fichero</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="363"/>
         <source>Images) (*.jpg *.jpeg *.png)</source>
-        <translation type="unfinished"></translation>
+        <translation>Imágenes) (*.jpg *.jpeg *.png)</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="371"/>
         <source>Fichier trop volumineux</source>
-        <translation type="unfinished"></translation>
+        <translation>Fichero demasiado grande</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="371"/>
         <source>Le fichier doit pouvoir être comprimé en dessous de </source>
-        <translation type="unfinished"></translation>
+        <translation>El fichero se debe poder comprimir en menos de </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="388"/>
         <source>Suppression de votre logo</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrado de su logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="389"/>
         <source>Confirmez-vous la suppression du logo</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Confirma la supresión del logo</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="406"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="838"/>
         <source>Erreur</source>
-        <translation type="unfinished"></translation>
+        <translation>Error</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="417"/>
         <source>Ancien mot de passe requis</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Se requiere la contraseña anterior</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="425"/>
         <source>Le mot de passe que vous voulez modifier n&apos;est pas bon
 </source>
-        <translation type="unfinished"></translation>
+        <translation>La contraseña que desea modificar no es válida
+</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="434"/>
         <source>Le nouveau mot de passe n&apos;est pas conforme
 (au moins 5 caractères - chiffres ou lettres non accentuées -
 </source>
-        <translation type="unfinished"></translation>
+        <translation>La nueva contraseña no cumple los requisitos
+(entre 5 y 12 caracteres - cifras o letras no acentuadas -
+</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="447"/>
         <source>Modifications enregistrées</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificaciones grabadas</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="448"/>
         <source>Le nouveau mot de passe a été enregistré avec succès</source>
-        <translation type="unfinished"></translation>
+        <translation>La nueva contraseña ha sido grabada correctamente</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="664"/>
         <source>Secrétaire médicale</source>
-        <translation type="unfinished"></translation>
+        <translation>Secretaria médica</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="678"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="679"/>
         <source>Société</source>
-        <translation type="unfinished"></translation>
+        <translation>Sociedad</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="788"/>
         <source>Vous avez oublié d&apos;indiquer le login</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha olvidado indicar el usuario</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="794"/>
         <source>Vous avez oublié d&apos;indiquer le mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Ha olvidado indicar la contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="802"/>
         <source>Ce login est réservé</source>
-        <translation type="unfinished"></translation>
+        <translation>Este es un usuario reservado</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="812"/>
         <source>Ce login est déjà utilisé</source>
-        <translation type="unfinished"></translation>
+        <translation>Este usuario ya existe</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="823"/>
         <source>Le mot de passe n&apos;est pas conforme.</source>
-        <translation type="unfinished"></translation>
+        <translation>La contraseña no es válida.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="824"/>
         <source>Au moins 5 caractères - uniquement des chifres ou des lettres - max. 12 caractères.</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>mínimo 5 caracteres - solamente cifras o letras - max. 12 caracteres.</translatorcomment>
+        <translation></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="830"/>
         <source>Les mots de passe ne correspondent pas</source>
-        <translation type="unfinished"></translation>
+        <translation>Las contraseñas no son iguales</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="868"/>
         <source>Enregistrer les modifications</source>
-        <translation type="unfinished"></translation>
+        <translation>Grabar las modificaciones</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="870"/>
         <source>Modification des données</source>
-        <translation type="unfinished"></translation>
+        <translation>Modificación de los datos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="871"/>
         <source>Vous avez modifié les données de </source>
-        <translation type="unfinished"></translation>
+        <translation>Ha modificado los daots de </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="872"/>
         <source>Voulez-vous enregistrer ces modifications?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Quiere grabar las modificaciones?</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="941"/>
         <source>Saisissez le mot de passe Administrateur</source>
-        <translation type="unfinished"></translation>
+        <translation>Escriba la contraseña del Administrador</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="975"/>
         <source>Confirmez le nouveau mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirme la nueva contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="985"/>
         <source>Entrez le nouveau mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduzca la nueva contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="995"/>
         <source>Ancien mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Contraseña anterior</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1004"/>
         <source>Mot de passe utilisateur</source>
-        <translation type="unfinished"></translation>
+        <translation>Contraseña del usuario</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1049"/>
         <source>Vous ne pouvez pas déclarer cet utilisateur en tant qu&apos;employé
 parce qu&apos;il n&apos;y a aucun utilisateur susceptible d&apos;être employeur
 enregistré dans la base.</source>
-        <translation type="unfinished"></translation>
+        <translation>No puede declarar a este usuario como empleado
+porque no hay ningún usuario de ser empleador
+grabado en la base.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1085"/>
         <source>Impossible de supprimer </source>
-        <translation type="unfinished"></translation>
+        <translation>No se puede suprimir </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1086"/>
         <source> parce que c&apos;est le seul soignant enregistré dans la base. Vous devez d&apos;abord créer un autre utilisateur avant de pouvoir supprimer </source>
-        <translation type="unfinished"></translation>
+        <translation> porque es el único cuidador en la base. Debe crear primero otro usuario para poder eliminar a </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1095"/>
         <source>Impossible de supprimer ce compte d&apos;utilisateur!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No se puede suprimir esta cuenta de usuario!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1095"/>
         <source>cet utilisateur est enregistré comme employeur d&apos;autres utilisateurs</source>
-        <translation type="unfinished"></translation>
+        <translation>este usuario está registrado como empleado de otros</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1106"/>
         <source>êtes vous bien sûr de vouloir faire ça?
 Si vous le faites, le programme se fermera immédiatement après votre disparition</source>
-        <translation type="unfinished"></translation>
+        <translation>está seguro de querer hacer eso?
+Si lo hace, el programa se cerrará inmediatamente tras su desaparición</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1110"/>
         <source>Non, vous avez raison, je vais rester encore un peu</source>
-        <translation type="unfinished"></translation>
+        <translation>No, tiene razón, me voy a quedar un poco</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1111"/>
         <source>Oui, je veux partir</source>
-        <translation type="unfinished"></translation>
+        <translation>Sí, quiero salir</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1115"/>
         <source>Suppression d&apos;un utilisateur</source>
-        <translation type="unfinished"></translation>
+        <translation>Borrado de un usuario</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1116"/>
         <source>Etes vous bien sûr de vouloir supprimer </source>
-        <translation type="unfinished"></translation>
+        <translation>¿Está seguro de querer suprimir </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1119"/>
         <source>Garder </source>
-        <translation type="unfinished"></translation>
+        <translation>Guardar </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1120"/>
         <source>Oui, supprimer </source>
-        <translation type="unfinished"></translation>
+        <translation>Sí, eliminar </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1147"/>
         <source>Cool </source>
-        <translation type="unfinished"></translation>
+        <translation>Guay </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1147"/>
         <source>Votre suicide s&apos;est parfaitement déroulé et le programme va maintenant se fermer</source>
-        <translation type="unfinished"></translation>
+        <translation>Su suicidio se ha completado estupendamente y el programa se cerrará ahora</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1463"/>
         <source>Utilisateurs</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuarios</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1499"/>
         <source>Cochez les utilisateurs
 que vous souhaitez réactiver</source>
-        <translation type="unfinished"></translation>
+        <translation>Marque los usuarios
+que desea reactivar</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1503"/>
         <source>Utilisateurs inactifs</source>
-        <translation type="unfinished"></translation>
+        <translation>Usuarios inactivos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1542"/>
         <source>Liste des lieux d&apos;exercice</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista de sitios de actividad</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1666"/>
         <source>Vous n&apos;avez pas spécifié de login!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el usuario!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1672"/>
         <source>Vous n&apos;avez pas spécifié de mot de passe!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado la contraseña!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1678"/>
         <source>Vous n&apos;avez pas spécifié le titre!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el título!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1684"/>
         <source>Vous n&apos;avez pas spécifié de nom!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el apellido!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1690"/>
         <source>Vous n&apos;avez pas spécifié de prénom!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el nombre!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1704"/>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1761"/>
         <source>Vous n&apos;avez pas spécifié la fonction!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado la función!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1717"/>
         <source>Vous n&apos;avez spécifié aucun lieu d&apos;exercice!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado ningún lugar de ejercicio!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1733"/>
         <source>Vous n&apos;avez pas spécifié le mode d&apos;exercice!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el tipo de ejercicio!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1749"/>
         <source>Vous n&apos;avez pas spécifié les renseignements comptables!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado la información contable!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1755"/>
         <source>Vous n&apos;avez pas spécifié le n° de l&apos;Ordre!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el nº de la Orden!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1767"/>
         <source>Vous n&apos;avez pas spécifié le RPPS!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el RPPS!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1783"/>
         <source>Vous n&apos;avez pas spécifié le secteur conventionnel!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡No ha especificado el sector convencional!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1790"/>
         <source>Vous avez oublié de spécifier un compte bancaire pour l&apos;enregistrement de la comptabilité!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Ha olvidado especificar una cuenta bancaria para grabar la contabilidad!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1796"/>
         <source>Vous avez oublié de spécifier un employeur pour cet utilisateur non libéral!</source>
-        <translation type="unfinished"></translation>
+        <translation>¡Ha olvidado especificar un empleador para este usuario asalariado!</translation>
     </message>
 </context>
 <context>
