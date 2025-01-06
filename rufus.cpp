@@ -7835,152 +7835,117 @@ void Rufus::CreerDossier()
 
 void Rufus::CreerMenu()
 {
-//1. DEFINITION DES ACTIONS DE MENU -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    actionCreerDossier              = new QAction(tr("Créer"));
-    actionCreerDossier              ->setStatusTip(tr("Créer un nouveau dossier"));
-    actionOuvrirDossier             = new QAction(tr("Ouvrir"));
-    actionOuvrirDossier             ->setStatusTip(tr("Ouvrir un dossier existant"));
-    actionRecopierDossier           = new QAction(tr("Recopier"));
-    actionRecopierDossier           ->setStatusTip(tr("Créer un dossier de la même famille"));
-    actionSupprimerDossier          = new QAction(tr("Supprimer"));
-    actionSupprimerDossier          ->setStatusTip(tr("Supprimer un dossier"));
-    actionRechercheParMotCle        = new QAction(tr("Recherche par mot clé"));
-    actionRechercheParID            = new QAction(tr("Recherche par ID patient"));
+    //1. DEFINITION DES ACTIONS DE MENU -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    actionParametres                = new QAction(tr("Paramètres"));
-    actionResumeStatut              = new QAction(tr("Voir le statut"));
+        retranslateActions();
 
-    actionCreerActe                 = new QAction(tr("Créer"));
-    actionSupprimerActe             = new QAction(tr("Supprimer"));
+        // Les connect des actions --------------------------------------------------------------------------------------------------
+        connect (actionQuit,                        &QAction::triggered,        this,                   &Rufus::close);
+        connect (actionApropos,                     &QAction::triggered,        this,                   &Rufus::Apropos);
+        connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::ModeCreationDossier);
+        connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::ModeSelectDepuisListe);
+        connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] { SupprimerDossier(currentpatient()); });
+        connect (actionRechercheParMotCle,          &QAction::triggered,        this,                   &Rufus::RechercheParMotCle);
+        connect (actionRechercheParID,              &QAction::triggered,        this,                   &Rufus::RechercheParID);
+        connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(currentpatient());});
 
-    actionEmettreDocument           = new QAction(tr("Document simple"));
-    actionDossierPatient            = new QAction(tr("Dossier patient"));
-    actionExportActe                = new QAction(tr("Exporter l'acte en cours"));
-    actionEnregistrerDocScanner     = new QAction(tr("Enregistrer un document scanné"));
-    actionEnregistrerVideo          = new QAction(tr("Enregistrer une video"));
-    actionRechercheCourrier         = new QAction(tr("Afficher les courriers à faire"));
-    actionCorrespondants            = new QAction(tr("Liste des correspondants"));
-    actionFabricants                = new QAction(tr("Liste des fabricants"));
-    actionIOLs                      = new QAction(tr("Liste des implants"));
-    actionTiers                     = new QAction(tr("Liste des tiers payants"));
-
-    actionPaiementDirect            = new QAction(tr("Gestion des paiements directs"));
-    actionPaiementTiers             = new QAction(tr("Gestion des tiers payants"));
-    actionBilanRecettes             = new QAction(tr("Bilan des recettes"));
-    actionRecettesSpeciales         = new QAction(tr("Enregistrement des recettes spéciales"));
-    actionJournalDepenses           = new QAction(tr("Journal des dépenses"));
-    actionGestionComptesBancaires   = new QAction(tr("Gestion des comptes bancaires"));
-    actionRemiseCheques             = new QAction(tr("Effectuer une remise de chèques"));
-
-    actionApropos                   = new QAction(tr("A propos"));
-    actionQuit                      = new QAction(tr("Quitter"));
-    actionQuit                      ->setMenuRole(QAction::PreferencesRole);
-    // Les connect des actions --------------------------------------------------------------------------------------------------
-    connect (actionQuit,                        &QAction::triggered,        this,                   &Rufus::close);
-    connect (actionApropos,                     &QAction::triggered,        this,                   &Rufus::Apropos);
-    connect (actionCreerDossier,                &QAction::triggered,        this,                   &Rufus::ModeCreationDossier);
-    connect (actionOuvrirDossier,               &QAction::triggered,        this,                   &Rufus::ModeSelectDepuisListe);
-    connect (actionSupprimerDossier,            &QAction::triggered,        this,                   [=] { SupprimerDossier(currentpatient()); });
-    connect (actionRechercheParMotCle,          &QAction::triggered,        this,                   &Rufus::RechercheParMotCle);
-    connect (actionRechercheParID,              &QAction::triggered,        this,                   &Rufus::RechercheParID);
-    connect (actionCreerActe,                   &QAction::triggered,        this,                   [=] {CreerActe(currentpatient());});
-
-    connect (actionParametres,                  &QAction::triggered,        this,                   &Rufus::OuvrirParametres);
-    connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
-                                                                                                            if (m_utiliseTCP)
-                                                                                                                envoieTCPMessage(TCPMSG_AskListeStringId);
-                                                                                                            else
-                                                                                                            {
-                                                                                                                ResumeStatut();
-                                                                                                                proc->Edit(m_resumeStatut, tr("Information statut"), false, true );
-                                                                                                            }
-                                                                                                        });
-    connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(currentacte());});
-    // Documents
-    connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {ImprimeDocument(currentpatient());});
-    connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
-    connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
-    connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
-    connect (actionIOLs,                        &QAction::triggered,        this,                   &Rufus::ListeIOLs);
-    connect (actionTiers,                       &QAction::triggered,        this,                   &Rufus::ListeTiersPayants);
-    connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
-    connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo(currentpatient());});
-    connect (actionExportActe,                  &QAction::triggered,        this,                   [=] {ExporteActe(currentacte());});
-    connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
-    // Comptabilité
-    connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
-    connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=] {AppelPaiementDirect(Menu);});
-    connect (actionPaiementTiers,               &QAction::triggered,        this,                   &Rufus::AppelPaiementTiers);
-    connect (actionRecettesSpeciales,           &QAction::triggered,        this,                   &Rufus::RecettesSpeciales);
-    connect (actionBilanRecettes,               &QAction::triggered,        this,                   &Rufus::BilanRecettes);
-    connect (actionJournalDepenses,             &QAction::triggered,        this,                   &Rufus::OuvrirJournalDepenses);
-    connect (actionRemiseCheques,               &QAction::triggered,        this,                   &Rufus::RemiseCheques);
+        connect (actionParametres,                  &QAction::triggered,        this,                   &Rufus::OuvrirParametres);
+        connect (actionResumeStatut,                &QAction::triggered,        this,                   [=] {
+                                                                                                                if (m_utiliseTCP)
+                                                                                                                    envoieTCPMessage(TCPMSG_AskListeStringId);
+                                                                                                                else
+                                                                                                                {
+                                                                                                                    ResumeStatut();
+                                                                                                                    proc->Edit(m_resumeStatut, tr("Information statut"), false, true );
+                                                                                                                }
+                                                                                                            });
+        connect (actionSupprimerActe,               &QAction::triggered,        this,                   [=] {SupprimerActe(currentacte());});
+        // Documents
+        connect (actionEmettreDocument,             &QAction::triggered,        this,                   [=] {ImprimeDocument(currentpatient());});
+        connect (actionDossierPatient,              &QAction::triggered,        this,                   [=] {ImprimeDossier(currentpatient());});
+        connect (actionCorrespondants,              &QAction::triggered,        this,                   &Rufus::ListeCorrespondants);
+        connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
+        connect (actionIOLs,                        &QAction::triggered,        this,                   &Rufus::ListeIOLs);
+        connect (actionTiers,                       &QAction::triggered,        this,                   &Rufus::ListeTiersPayants);
+        connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
+        connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo(currentpatient());});
+        connect (actionExportActe,                  &QAction::triggered,        this,                   [=] {ExporteActe(currentacte());});
+        connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
+        // Comptabilité
+        connect (actionGestionComptesBancaires,     &QAction::triggered,        this,                   &Rufus::GestionComptes);
+        connect (actionPaiementDirect,              &QAction::triggered,        this,                   [=] {AppelPaiementDirect(Menu);});
+        connect (actionPaiementTiers,               &QAction::triggered,        this,                   &Rufus::AppelPaiementTiers);
+        connect (actionRecettesSpeciales,           &QAction::triggered,        this,                   &Rufus::RecettesSpeciales);
+        connect (actionBilanRecettes,               &QAction::triggered,        this,                   &Rufus::BilanRecettes);
+        connect (actionJournalDepenses,             &QAction::triggered,        this,                   &Rufus::OuvrirJournalDepenses);
+        connect (actionRemiseCheques,               &QAction::triggered,        this,                   &Rufus::RemiseCheques);
+        // Language
+        connect (actionFrench,                      &QAction::triggered,        this,                   [=] {switchTranslator("fr");});
+        connect (actionEnglish,                     &QAction::triggered,        this,                   [=] {switchTranslator("en");});
+        connect (actionSpanish,                     &QAction::triggered,        this,                   [=] {switchTranslator("es");});
 
 
-// 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-    QMenuBar *menubar = menuBar();
-    menubar->setNativeMenuBar(false);
-    menuDossier         = menuBar()->addMenu(tr("Dossier"));
-    menuEdition         = menuBar()->addMenu(tr("Edition"));
-    if (currentuser()->isSoignant())
-        menuActe        = menuBar()->addMenu(tr("Acte"));
-    else
-        menuActe        = Q_NULLPTR;
-    menuDocuments       = menuBar()->addMenu(tr("Documents"));
-    menuEmettre         = menuDocuments->addMenu(tr("Emettre"));
-    menuComptabilite    = menuBar()->addMenu(tr("Comptabilité"));
+    // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        QMenuBar *menubar = menuBar();
+        menubar->setNativeMenuBar(false);
 
-    menuDossier->addAction(actionCreerDossier);
-    menuDossier->addAction(actionOuvrirDossier);
-    menuDossier->addSeparator();
-    menuDossier->addAction(actionRecopierDossier);
-    menuDossier->addSeparator();
-    menuDossier->addAction(actionSupprimerDossier);
-    menuDossier->addSeparator();
-    menuDossier->addAction(actionRechercheParMotCle);
-    menuDossier->addAction(actionRechercheParID);
+        retranslateMenus();
 
-    menuAide    = menuBar()->addMenu(tr("Aide"));
-    menuAide    ->addAction(actionApropos);
-    menuDossier ->addAction(actionQuit);
 
-    menuEdition->addAction(tr("Copier"));
-    menuEdition->addAction(tr("Couper"));
-    menuEdition->addAction(tr("Coller"));
-    menuEdition->addSeparator();
-    menuEdition->addAction(actionParametres);
-    menuEdition->addAction(actionResumeStatut);
+        menuDossier->addAction(actionCreerDossier);
+        menuDossier->addAction(actionOuvrirDossier);
+        menuDossier->addSeparator();
+        menuDossier->addAction(actionRecopierDossier);
+        menuDossier->addSeparator();
+        menuDossier->addAction(actionSupprimerDossier);
+        menuDossier->addSeparator();
+        menuDossier->addAction(actionRechercheParMotCle);
+        menuDossier->addAction(actionRechercheParID);
 
-    if (menuActe != Q_NULLPTR) {
-        menuActe    ->addAction(actionCreerActe);
-        menuActe    ->addAction(actionSupprimerActe);
+        menuLanguage->addAction(actionFrench);
+        menuLanguage->addAction(actionEnglish);
+        menuLanguage->addAction(actionSpanish);
+
+        menuAide    ->addAction(actionApropos);
+        menuDossier ->addAction(actionQuit);
+
+        menuEdition->addAction(tr("Copier"));
+        menuEdition->addAction(tr("Couper"));
+        menuEdition->addAction(tr("Coller"));
+        menuEdition->addSeparator();
+        menuEdition->addAction(actionParametres);
+        menuEdition->addAction(actionResumeStatut);
+
+        if (menuActe != Q_NULLPTR) {
+            menuActe    ->addAction(actionCreerActe);
+            menuActe    ->addAction(actionSupprimerActe);
+        }
+
+        menuEmettre ->addAction(actionEmettreDocument);
+        menuEmettre ->addAction(actionExportActe);
+        menuEmettre ->addAction(actionDossierPatient);
+
+        menuComptabilite->addAction(actionPaiementDirect);
+        menuComptabilite->addAction(actionPaiementTiers);
+        menuComptabilite->addAction(actionBilanRecettes);
+        menuComptabilite->addAction(actionRecettesSpeciales);
+        menuComptabilite->addSeparator();
+        menuComptabilite->addAction(actionJournalDepenses);
+        menuComptabilite->addSeparator();
+        menuComptabilite->addAction(actionGestionComptesBancaires);
+        menuComptabilite->addAction(actionRemiseCheques);
+        menuComptabilite->addAction(actionTiers);
+
+        // Les connect des menus --------------------------------------------------------------------------------------------------
+        if(menuActe != Q_NULLPTR)
+            connect (menuActe,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
+        if(menuAide != Q_NULLPTR)
+            connect (menuAide,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuAide);});
+        connect (menuEdition,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuEdition);});
+        connect (menuDocuments,                     &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDocuments);});
+        connect (menuDossier,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDossier);});
+        connect (menuComptabilite,                  &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuComptabilite);});
     }
-
-    menuEmettre ->addAction(actionEmettreDocument);
-    menuEmettre ->addAction(actionExportActe);
-    menuEmettre ->addAction(actionDossierPatient);
-
-    menuComptabilite->addAction(actionPaiementDirect);
-    menuComptabilite->addAction(actionPaiementTiers);
-    menuComptabilite->addAction(actionBilanRecettes);
-    menuComptabilite->addAction(actionRecettesSpeciales);
-    menuComptabilite->addSeparator();
-    menuComptabilite->addAction(actionJournalDepenses);
-    menuComptabilite->addSeparator();
-    menuComptabilite->addAction(actionGestionComptesBancaires);
-    menuComptabilite->addAction(actionRemiseCheques);
-    menuComptabilite->addAction(actionTiers);
-
-    // Les connect des menus --------------------------------------------------------------------------------------------------
-    if(menuActe != Q_NULLPTR)
-        connect (menuActe,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuActe);});
-    if(menuAide != Q_NULLPTR)
-        connect (menuAide,                      &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuAide);});
-    connect (menuEdition,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuEdition);});
-    connect (menuDocuments,                     &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDocuments);});
-    connect (menuDossier,                       &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuDossier);});
-    connect (menuComptabilite,                  &QMenu::aboutToShow,        this,                   [=] {AfficheMenu(menuComptabilite);});
-}
 
 // ------------------------------------------------------------------------------------------
 // Descend une ligne dans la table
@@ -10891,3 +10856,103 @@ void Rufus::envoieTCPMessageA(QList<int> listidusr)
     TcPConnect->envoieMessage(msg);
 }
 
+void Rufus::switchTranslator(const QString lang) {
+    // remove the old translator
+    app->removeTranslator(translator);
+
+    // load the new translator
+    QString path = QApplication::applicationDirPath();
+    path.append("/locale/");
+    if(translator->load(path + "rufus_" + lang + ".qm")){ //Here Path and Filename has to be entered because the system didn't find the QM Files else}
+        qApp->installTranslator(translator);
+    }
+    retranslateUi();
+}
+
+QAction *Rufus::retranslateAction(QAction *action, QString title, QString tip) {
+    if(action == Q_NULLPTR) {
+        action = new QAction("void");
+    }
+    if(action != Q_NULLPTR) {
+        action->setText(title);
+        if(tip != "") {
+            action->setStatusTip(tip);
+        }
+    }
+    return action;
+}
+
+void Rufus::retranslateActions() {
+    actionCreerDossier = retranslateAction(actionCreerDossier, tr("Créer"), tr("Créer un nouveau dossier"));
+    actionOuvrirDossier = retranslateAction(actionOuvrirDossier, tr("Ouvrir"), tr("Ouvrir un dossier existant"));
+    actionRecopierDossier = retranslateAction(actionRecopierDossier, tr("Recopier"), tr("Créer un dossier de la même famille"));
+    actionSupprimerDossier = retranslateAction(actionSupprimerDossier, tr("Supprimer"), tr("Supprimer un dossier"));
+    actionRechercheParMotCle = retranslateAction(actionRechercheParMotCle, tr("Recherche par mot clé"));
+    actionRechercheParID = retranslateAction(actionRechercheParID, tr("Recherche par ID patient"));
+    actionParametres = retranslateAction(actionParametres, tr("Paramètres"));
+    actionResumeStatut = retranslateAction(actionResumeStatut, tr("Voir le statut"));
+    actionCreerActe = retranslateAction(actionCreerActe, tr("Créer"));
+    actionSupprimerActe = retranslateAction(actionSupprimerActe, tr("Supprimer"));
+    actionEmettreDocument = retranslateAction(actionEmettreDocument, tr("Document simple"));
+    actionDossierPatient = retranslateAction(actionDossierPatient, tr("Dossier patient"));
+    actionExportActe = retranslateAction(actionExportActe, tr("Exporter l'acte en cours"));
+    actionEnregistrerDocScanner = retranslateAction(actionEnregistrerDocScanner, tr("Enregistrer un document scanné"));
+    actionEnregistrerVideo = retranslateAction(actionEnregistrerVideo, tr("Enregistrer une video"));
+    actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers à faire"));
+    actionCorrespondants = retranslateAction(actionCorrespondants, tr("Liste des correspondants"));
+    actionFabricants = retranslateAction(actionFabricants, tr("Liste des fabricants"));
+    actionIOLs = retranslateAction(actionIOLs, tr("Liste des implants"));
+    actionTiers = retranslateAction(actionTiers, tr("Liste des tiers payants"));
+    actionPaiementDirect = retranslateAction(actionPaiementDirect, tr("Gestion des paiements directs"));
+    actionPaiementTiers = retranslateAction(actionPaiementTiers, tr("Gestion des tiers payants"));
+    actionBilanRecettes = retranslateAction(actionBilanRecettes, tr("Bilan des recettes"));
+    actionRecettesSpeciales = retranslateAction(actionRecettesSpeciales, tr("Enregistrement des recettes spéciales"));
+    actionJournalDepenses = retranslateAction(actionJournalDepenses, tr("Journal des dépenses"));
+    actionGestionComptesBancaires = retranslateAction(actionGestionComptesBancaires, tr("Gestion des comptes bancaires"));
+    actionRemiseCheques = retranslateAction(actionRemiseCheques, tr("Effectuer une remise de chèques"));
+    actionApropos = retranslateAction(actionApropos, tr("A propos"));
+
+    actionFrench = retranslateAction(actionFrench, tr("Français"));
+    actionEnglish = retranslateAction(actionEnglish, tr("English"));
+    actionSpanish = retranslateAction(actionSpanish, tr("Español"));
+
+    actionQuit = retranslateAction(actionQuit, tr("Quitter"));
+    actionQuit->setMenuRole(QAction::PreferencesRole);
+}
+
+QMenu *Rufus::retranslateMenu(QMenu *parent, QMenu *menu, QString title){
+    if(menu == Q_NULLPTR) {
+        if(parent == Q_NULLPTR) {
+            menu = menuBar()->addMenu(title);
+        } else {
+            menu = parent->addMenu(title);
+        }
+    }
+    if(menu != Q_NULLPTR) {
+        menu->setTitle(title);
+    }
+    return menu;
+}
+
+void Rufus::retranslateMenus() {
+    QMenu *noParent = Q_NULLPTR;
+    menuDossier = retranslateMenu(noParent, menuDossier, tr("Dossier"));
+    menuEdition = retranslateMenu(noParent, menuEdition, tr("Edition"));
+    if (currentuser()->isSoignant())
+        menuActe = retranslateMenu(noParent, menuActe, tr("Acte"));
+    else
+        menuActe        = Q_NULLPTR;
+    menuDocuments = retranslateMenu(noParent, menuDocuments, tr("Documents"));
+    menuComptabilite = retranslateMenu(noParent, menuComptabilite, tr("Comptabilité"));
+
+    menuLanguage = retranslateMenu(noParent, menuLanguage, tr("Langue"));
+    menuAide = retranslateMenu(noParent, menuAide, tr("Aide"));
+
+    menuEmettre = retranslateMenu(menuDocuments, menuEmettre, tr("Emettre"));
+}
+
+void Rufus::retranslateUi() {
+    ui->retranslateUi(this);
+    retranslateActions();
+    retranslateMenus();
+}

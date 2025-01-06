@@ -90,6 +90,10 @@ HEADERS += rufus.h \
 FORMS += \
     rufus.ui
 
+TRANSLATIONS += rufus_fr.ts \
+                rufus_en.ts \
+                rufus_es.ts
+
 #--------------------
 # INCLUDE
 #--------------------

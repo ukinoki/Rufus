@@ -2951,7 +2951,7 @@ will be copied automatically</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="316"/>
-        <location filename="rufus.cpp" line="7843"/>
+        <location filename="rufus.cpp" line="10888"/>
         <source>Recopier</source>
         <translation>Recopy</translation>
     </message>
@@ -2973,13 +2973,13 @@ patients - F5</source>
     </message>
     <message>
         <location filename="rufus.ui" line="516"/>
-        <location filename="rufus.cpp" line="9460"/>
+        <location filename="rufus.cpp" line="9425"/>
         <source>Nom</source>
         <translation>Last name</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="541"/>
-        <location filename="rufus.cpp" line="9464"/>
+        <location filename="rufus.cpp" line="9429"/>
         <source>Date de naissance</source>
         <translation>Birth date</translation>
     </message>
@@ -2990,14 +2990,14 @@ patients - F5</source>
     </message>
     <message>
         <location filename="rufus.ui" line="635"/>
-        <location filename="rufus.cpp" line="9011"/>
+        <location filename="rufus.cpp" line="8976"/>
         <source>Créer
 le dossier</source>
         <translation>Create file</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="665"/>
-        <location filename="rufus.cpp" line="8960"/>
+        <location filename="rufus.cpp" line="8925"/>
         <source>Chercher avec la
 date de naissance</source>
         <translation>Search with
@@ -3212,7 +3212,7 @@ acte</source>
     </message>
     <message>
         <location filename="rufus.ui" line="3623"/>
-        <location filename="rufus.cpp" line="8537"/>
+        <location filename="rufus.cpp" line="8502"/>
         <source>Cotation</source>
         <translation>Quotation</translation>
     </message>
@@ -3220,7 +3220,7 @@ acte</source>
         <location filename="rufus.ui" line="3636"/>
         <location filename="rufus.cpp" line="6806"/>
         <location filename="rufus.cpp" line="6810"/>
-        <location filename="rufus.cpp" line="8538"/>
+        <location filename="rufus.cpp" line="8503"/>
         <source>Montant</source>
         <translation>Amount</translation>
     </message>
@@ -3298,7 +3298,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="4133"/>
         <location filename="rufus.cpp" line="2984"/>
-        <location filename="rufus.cpp" line="7926"/>
+        <location filename="rufus.cpp" line="10942"/>
         <source>Acte</source>
         <translation>Act</translation>
     </message>
@@ -3309,8 +3309,8 @@ acte</source>
     </message>
     <message>
         <location filename="rufus.ui" line="4195"/>
-        <location filename="rufus.cpp" line="7929"/>
-        <location filename="rufus.cpp" line="8920"/>
+        <location filename="rufus.cpp" line="8885"/>
+        <location filename="rufus.cpp" line="10945"/>
         <source>Documents</source>
         <translation>Documents</translation>
     </message>
@@ -3393,7 +3393,7 @@ Program exit</translation>
         <location filename="rufus.cpp" line="5609"/>
         <location filename="rufus.cpp" line="5802"/>
         <location filename="rufus.cpp" line="6067"/>
-        <location filename="rufus.cpp" line="10799"/>
+        <location filename="rufus.cpp" line="10764"/>
         <source>Messages</source>
         <translation>Messages</translation>
     </message>
@@ -3470,7 +3470,7 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location filename="rufus.cpp" line="1294"/>
         <location filename="rufus.cpp" line="7213"/>
         <location filename="rufus.cpp" line="7226"/>
-        <location filename="rufus.cpp" line="10096"/>
+        <location filename="rufus.cpp" line="10061"/>
         <source>Il manque la cotation!</source>
         <translation>The quotation is missing!</translation>
     </message>
@@ -3479,7 +3479,7 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location filename="rufus.cpp" line="7215"/>
         <location filename="rufus.cpp" line="7231"/>
         <location filename="rufus.cpp" line="7289"/>
-        <location filename="rufus.cpp" line="10096"/>
+        <location filename="rufus.cpp" line="10061"/>
         <source>Il manque le montant!</source>
         <translation>The amount is missing!</translation>
     </message>
@@ -3521,11 +3521,11 @@ sont déjà en cours d&apos;enregistrement!</source>
         <location filename="rufus.cpp" line="7170"/>
         <location filename="rufus.cpp" line="7715"/>
         <location filename="rufus.cpp" line="7764"/>
-        <location filename="rufus.cpp" line="8172"/>
-        <location filename="rufus.cpp" line="8766"/>
-        <location filename="rufus.cpp" line="10162"/>
-        <location filename="rufus.cpp" line="10316"/>
-        <location filename="rufus.cpp" line="10515"/>
+        <location filename="rufus.cpp" line="8137"/>
+        <location filename="rufus.cpp" line="8731"/>
+        <location filename="rufus.cpp" line="10127"/>
+        <location filename="rufus.cpp" line="10281"/>
+        <location filename="rufus.cpp" line="10480"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
@@ -3536,7 +3536,7 @@ sont déjà en cours d&apos;enregistrement!</source>
     </message>
     <message>
         <location filename="rufus.cpp" line="1439"/>
-        <location filename="rufus.cpp" line="7868"/>
+        <location filename="rufus.cpp" line="10907"/>
         <source>Gestion des tiers payants</source>
         <translation>Third-party payment management</translation>
     </message>
@@ -3548,13 +3548,13 @@ sont déjà en cours d&apos;enregistrement!</source>
     <message>
         <location filename="rufus.cpp" line="1477"/>
         <location filename="rufus.cpp" line="4572"/>
-        <location filename="rufus.cpp" line="10555"/>
+        <location filename="rufus.cpp" line="10520"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Returning to the conventional rate</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="1482"/>
-        <location filename="rufus.cpp" line="10553"/>
+        <location filename="rufus.cpp" line="10518"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Return to the usual rate</translation>
     </message>
@@ -4024,7 +4024,7 @@ on a folder to open it</translation>
     <message>
         <location filename="rufus.cpp" line="3660"/>
         <location filename="rufus.cpp" line="3863"/>
-        <location filename="rufus.cpp" line="7844"/>
+        <location filename="rufus.cpp" line="10888"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Create a file of same family</translation>
     </message>
@@ -4053,13 +4053,13 @@ on a folder to open it</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3689"/>
-        <location filename="rufus.cpp" line="7859"/>
+        <location filename="rufus.cpp" line="10899"/>
         <source>Enregistrer un document scanné</source>
         <translation>Save a scanned document</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="3692"/>
-        <location filename="rufus.cpp" line="7860"/>
+        <location filename="rufus.cpp" line="10900"/>
         <source>Enregistrer une video</source>
         <translation>Save a video</translation>
     </message>
@@ -4166,7 +4166,7 @@ on a folder to open it</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4378"/>
-        <location filename="rufus.cpp" line="7850"/>
+        <location filename="rufus.cpp" line="10892"/>
         <source>Paramètres</source>
         <translation>Settings</translation>
     </message>
@@ -4189,7 +4189,7 @@ on a folder to open it</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4778"/>
-        <location filename="rufus.cpp" line="8443"/>
+        <location filename="rufus.cpp" line="8408"/>
         <source>dd/MM/yyyy</source>
         <translation>MM/dd/yyyy</translation>
     </message>
@@ -4205,7 +4205,7 @@ on a folder to open it</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="4822"/>
-        <location filename="rufus.cpp" line="9726"/>
+        <location filename="rufus.cpp" line="9691"/>
         <source>Tout le monde</source>
         <translation>Everybody</translation>
     </message>
@@ -4371,21 +4371,21 @@ on a folder to open it</translation>
         <location filename="rufus.cpp" line="5777"/>
         <location filename="rufus.cpp" line="5785"/>
         <location filename="rufus.cpp" line="5796"/>
-        <location filename="rufus.cpp" line="10793"/>
+        <location filename="rufus.cpp" line="10758"/>
         <source>Vous avez </source>
         <translation>You have </translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5777"/>
         <location filename="rufus.cpp" line="5796"/>
-        <location filename="rufus.cpp" line="10793"/>
+        <location filename="rufus.cpp" line="10758"/>
         <source> nouveaux messages</source>
         <translation> new messages</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="5779"/>
         <location filename="rufus.cpp" line="5798"/>
-        <location filename="rufus.cpp" line="10795"/>
+        <location filename="rufus.cpp" line="10760"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>You have 1 new message</translation>
     </message>
@@ -4411,8 +4411,8 @@ on a folder to open it</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6040"/>
-        <location filename="rufus.cpp" line="10023"/>
-        <location filename="rufus.cpp" line="10036"/>
+        <location filename="rufus.cpp" line="9988"/>
+        <location filename="rufus.cpp" line="10001"/>
         <source>inconnu</source>
         <translation>unknown</translation>
     </message>
@@ -4518,7 +4518,7 @@ on a folder to open it</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7276"/>
-        <location filename="rufus.cpp" line="10098"/>
+        <location filename="rufus.cpp" line="10063"/>
         <source>il manque les informations de paiement</source>
         <translation>missing payment information</translation>
     </message>
@@ -4635,7 +4635,7 @@ Le créer quand meme?</source>
     </message>
     <message>
         <location filename="rufus.cpp" line="7797"/>
-        <location filename="rufus.cpp" line="8319"/>
+        <location filename="rufus.cpp" line="8284"/>
         <source>Dossier </source>
         <translation>File </translation>
     </message>
@@ -4646,13 +4646,13 @@ Le créer quand meme?</source>
     </message>
     <message>
         <location filename="rufus.cpp" line="7798"/>
-        <location filename="rufus.cpp" line="8320"/>
+        <location filename="rufus.cpp" line="8285"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Open the file or put it in the waiting room?</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7800"/>
-        <location filename="rufus.cpp" line="8323"/>
+        <location filename="rufus.cpp" line="8288"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Register the file
@@ -4660,410 +4660,430 @@ in waiting room</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7802"/>
-        <location filename="rufus.cpp" line="8325"/>
+        <location filename="rufus.cpp" line="8290"/>
         <source>Ne rien faire</source>
         <translation>Do nothing</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7839"/>
-        <location filename="rufus.cpp" line="7853"/>
+        <location filename="rufus.cpp" line="10886"/>
+        <location filename="rufus.cpp" line="10894"/>
         <source>Créer</source>
         <translation>Create</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7840"/>
+        <location filename="rufus.cpp" line="10886"/>
         <source>Créer un nouveau dossier</source>
         <translation>Create new folder</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7841"/>
+        <location filename="rufus.cpp" line="10887"/>
         <source>Ouvrir</source>
         <translation>Open</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7842"/>
+        <location filename="rufus.cpp" line="10887"/>
         <source>Ouvrir un dossier existant</source>
         <translation>Open existing file</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7845"/>
-        <location filename="rufus.cpp" line="7854"/>
-        <location filename="rufus.cpp" line="10161"/>
-        <location filename="rufus.cpp" line="10315"/>
+        <location filename="rufus.cpp" line="10126"/>
+        <location filename="rufus.cpp" line="10280"/>
+        <location filename="rufus.cpp" line="10889"/>
+        <location filename="rufus.cpp" line="10895"/>
         <source>Supprimer</source>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7846"/>
+        <location filename="rufus.cpp" line="10889"/>
         <source>Supprimer un dossier</source>
         <translation>Delete file</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7847"/>
+        <location filename="rufus.cpp" line="10890"/>
         <source>Recherche par mot clé</source>
         <translation>Search by keyword</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7848"/>
+        <location filename="rufus.cpp" line="10891"/>
         <source>Recherche par ID patient</source>
         <translation>Search by patient iD</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7851"/>
+        <location filename="rufus.cpp" line="10893"/>
         <source>Voir le statut</source>
         <translation>View status</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7856"/>
+        <location filename="rufus.cpp" line="10896"/>
         <source>Document simple</source>
         <translation>Simple document</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7857"/>
+        <location filename="rufus.cpp" line="10897"/>
         <source>Dossier patient</source>
         <translation>Patient file</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7858"/>
+        <location filename="rufus.cpp" line="10898"/>
         <source>Exporter l&apos;acte en cours</source>
         <translation>Export current act</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7861"/>
+        <location filename="rufus.cpp" line="10901"/>
         <source>Afficher les courriers à faire</source>
         <translation>View to-do mails</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7862"/>
+        <location filename="rufus.cpp" line="10902"/>
         <source>Liste des correspondants</source>
         <translation>Correspondent list</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7863"/>
+        <location filename="rufus.cpp" line="10903"/>
         <source>Liste des fabricants</source>
         <translation>Manufacturer list</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7864"/>
+        <location filename="rufus.cpp" line="10904"/>
         <source>Liste des implants</source>
         <translation>IOL list</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7865"/>
+        <location filename="rufus.cpp" line="10905"/>
         <source>Liste des tiers payants</source>
         <translation>Third-party list</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7867"/>
+        <location filename="rufus.cpp" line="10906"/>
         <source>Gestion des paiements directs</source>
         <translation>Managing direct payments</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7869"/>
+        <location filename="rufus.cpp" line="10908"/>
         <source>Bilan des recettes</source>
         <translation>Income statement</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7870"/>
+        <location filename="rufus.cpp" line="10909"/>
         <source>Enregistrement des recettes spéciales</source>
         <translation>Recording special recipes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7871"/>
+        <location filename="rufus.cpp" line="10910"/>
         <source>Journal des dépenses</source>
         <translation>Expense journal</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7872"/>
+        <location filename="rufus.cpp" line="10911"/>
         <source>Gestion des comptes bancaires</source>
         <translation>Bank account management</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7873"/>
+        <location filename="rufus.cpp" line="10912"/>
         <source>Effectuer une remise de chèques</source>
         <translation>Cheque deposit</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7875"/>
+        <location filename="rufus.cpp" line="10913"/>
         <source>A propos</source>
         <translation>About</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7876"/>
+        <location filename="rufus.cpp" line="10915"/>
+        <source>Français</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="10916"/>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="10917"/>
+        <source>Español</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="10919"/>
         <source>Quitter</source>
         <translation>Quit</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7895"/>
-        <location filename="rufus.cpp" line="10857"/>
+        <location filename="rufus.cpp" line="7859"/>
+        <location filename="rufus.cpp" line="10822"/>
         <source>Information statut</source>
         <translation>Status information</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7923"/>
+        <location filename="rufus.cpp" line="10939"/>
         <source>Dossier</source>
         <translation>File</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7924"/>
+        <location filename="rufus.cpp" line="10940"/>
         <source>Edition</source>
         <translation>Edition</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7930"/>
+        <location filename="rufus.cpp" line="10948"/>
+        <source>Langue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="10951"/>
         <source>Emettre</source>
         <translation>Issuing</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7931"/>
+        <location filename="rufus.cpp" line="10946"/>
         <source>Comptabilité</source>
         <translation>Accounting</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7943"/>
+        <location filename="rufus.cpp" line="10949"/>
         <source>Aide</source>
         <translation>Help</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7947"/>
+        <location filename="rufus.cpp" line="7912"/>
         <source>Copier</source>
         <translation>Copy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7948"/>
+        <location filename="rufus.cpp" line="7913"/>
         <source>Couper</source>
         <translation>Cut</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7949"/>
+        <location filename="rufus.cpp" line="7914"/>
         <source>Coller</source>
         <translation>Paste</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8085"/>
+        <location filename="rufus.cpp" line="8050"/>
         <source>Impossible d&apos;accéder à la table </source>
         <translation>Unable to access to table </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8122"/>
+        <location filename="rufus.cpp" line="8087"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et un document d&apos;imagerie</source>
         <translation>This file contains the contents of the current act and an imaging document</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8124"/>
+        <location filename="rufus.cpp" line="8089"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et </source>
         <translation>This file contains the contents of the current act and </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8124"/>
+        <location filename="rufus.cpp" line="8089"/>
         <source> documents d&apos;imagerie</source>
         <translation> imaging documents</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8126"/>
+        <location filename="rufus.cpp" line="8091"/>
         <source>Export d&apos;acte effectué</source>
         <translation>act export performed</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8127"/>
+        <location filename="rufus.cpp" line="8092"/>
         <source>Le dossier </source>
         <translation>The file </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8128"/>
+        <location filename="rufus.cpp" line="8093"/>
         <source> a été créé sur le bureau</source>
         <translation> has been created on desktop</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8166"/>
+        <location filename="rufus.cpp" line="8131"/>
         <source>Garder le dossier en salle d&apos;attente?</source>
         <translation>Keep file in waiting room?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8167"/>
+        <location filename="rufus.cpp" line="8132"/>
         <source>Fermeture du dossier de </source>
         <translation>Closing the file </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8171"/>
+        <location filename="rufus.cpp" line="8136"/>
         <source>Garder le dossier
 en salle d&apos;attente</source>
         <translation>Keep file in
 waiting room</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8173"/>
+        <location filename="rufus.cpp" line="8138"/>
         <source>Fermer
 le dossier</source>
         <translation>Close file</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8279"/>
-        <location filename="rufus.cpp" line="9453"/>
-        <location filename="rufus.cpp" line="10826"/>
+        <location filename="rufus.cpp" line="8244"/>
+        <location filename="rufus.cpp" line="9418"/>
+        <location filename="rufus.cpp" line="10791"/>
         <source>dd-MM-yyyy</source>
         <translation>MM-dd-yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8281"/>
+        <location filename="rufus.cpp" line="8246"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8324"/>
+        <location filename="rufus.cpp" line="8289"/>
         <source>Ouvrir
  le dossier</source>
         <translation>Open
 the file</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8441"/>
+        <location filename="rufus.cpp" line="8406"/>
         <source>Liste des patients</source>
         <translation>Patient list</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8464"/>
+        <location filename="rufus.cpp" line="8429"/>
         <source>Voir les messages</source>
         <translation>View messages</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8534"/>
+        <location filename="rufus.cpp" line="8499"/>
         <source>Heure</source>
         <translation>Hour</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8535"/>
+        <location filename="rufus.cpp" line="8500"/>
         <source>Nom Prénom</source>
         <translation>Last name-First name</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8536"/>
+        <location filename="rufus.cpp" line="8501"/>
         <source>Soignant</source>
         <translation>Caregiver</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8576"/>
+        <location filename="rufus.cpp" line="8541"/>
         <source>Paiement</source>
         <translation>Payment</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8714"/>
-        <location filename="rufus.cpp" line="8971"/>
+        <location filename="rufus.cpp" line="8679"/>
+        <location filename="rufus.cpp" line="8936"/>
         <source>Ouvrir
 le dossier</source>
         <translation>Open
 the file</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8763"/>
+        <location filename="rufus.cpp" line="8728"/>
         <source>Correspondant inconnu! Souhaitez-vous l&apos;enregistrer?</source>
         <translation>Unknown correspondent! Would you like to register him?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8765"/>
+        <location filename="rufus.cpp" line="8730"/>
         <source>Enregistrer</source>
         <translation>Register</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8909"/>
+        <location filename="rufus.cpp" line="8874"/>
         <source>Impossible d&apos;imprimer</source>
         <translation>Unable to print</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8909"/>
+        <location filename="rufus.cpp" line="8874"/>
         <source>Aucun émetteur n&apos;est précisé pour l&apos;impression</source>
         <translation>No sender is specified for printing</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9060"/>
+        <location filename="rufus.cpp" line="9025"/>
         <source>Aucun dossier sélectionné!</source>
         <translation>No file selected!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9060"/>
+        <location filename="rufus.cpp" line="9025"/>
         <source>Sélectionnez d&apos;abord un dossier à recopier.</source>
         <translation>First select a file to copy.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10014"/>
+        <location filename="rufus.cpp" line="9979"/>
         <source>ServeurTCP</source>
         <translation>TCPServer</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10024"/>
-        <location filename="rufus.cpp" line="10042"/>
+        <location filename="rufus.cpp" line="9989"/>
+        <location filename="rufus.cpp" line="10007"/>
         <source>Postes connectés</source>
         <translation>Workstations connected</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10060"/>
+        <location filename="rufus.cpp" line="10025"/>
         <source>Poste importateur des documents</source>
         <translation>Document import workstation</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10063"/>
+        <location filename="rufus.cpp" line="10028"/>
         <source>Pas de poste paramétré</source>
         <translation>No workstation set</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10068"/>
+        <location filename="rufus.cpp" line="10033"/>
         <source>Administrateur</source>
         <translation>Administrator</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10070"/>
+        <location filename="rufus.cpp" line="10035"/>
         <source>prioritaire</source>
         <translation>preferred</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10070"/>
+        <location filename="rufus.cpp" line="10035"/>
         <source>non prioritaire</source>
         <translation>not  preferred</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10077"/>
+        <location filename="rufus.cpp" line="10042"/>
         <source>Version de Rufus </source>
         <translation>Rufus version </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10078"/>
+        <location filename="rufus.cpp" line="10043"/>
         <source>Version de la base </source>
         <translation>Database version </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10080"/>
+        <location filename="rufus.cpp" line="10045"/>
         <source>inconnue</source>
         <translation>Unknown</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10094"/>
+        <location filename="rufus.cpp" line="10059"/>
         <source>Consultation incomplète!</source>
         <translation>Incomplete consultation!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10140"/>
+        <location filename="rufus.cpp" line="10105"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des versements enregistrés.</source>
         <translation>I&apos;m afraid I can&apos;t delete this act
 There are registered payments.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10141"/>
+        <location filename="rufus.cpp" line="10106"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par carte de crédit enregistrés.</source>
         <translation>I&apos;m afraid I can&apos;t delete this act
 There are credit card registered payments.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10142"/>
-        <location filename="rufus.cpp" line="10298"/>
+        <location filename="rufus.cpp" line="10107"/>
+        <location filename="rufus.cpp" line="10263"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par chèque enregistrés.</source>
         <translation>I&apos;m afraid I can&apos;t delete this act
 There are check registered payments.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10143"/>
+        <location filename="rufus.cpp" line="10108"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par chèque enregistrés.
 Ce ou ces chèques ne sont pas encaissés.
@@ -5074,31 +5094,31 @@ These cheques have not been cashed.
 You need to modify the corresponding entry to be able to delete the act.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10159"/>
+        <location filename="rufus.cpp" line="10124"/>
         <source>Etes vous sûr de vouloir supprimer cet acte?</source>
         <translation>Are you sure you want to delete this act?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10173"/>
+        <location filename="rufus.cpp" line="10138"/>
         <source>Impossible de retrouver les données de l&apos;acte</source>
         <translation>Unable to retrieve datas for this act</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10294"/>
+        <location filename="rufus.cpp" line="10259"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des versements enregistrés.</source>
         <translation>I&apos;m afraid I can&apos;t delete this file
 There are registered payments.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10296"/>
+        <location filename="rufus.cpp" line="10261"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des paiements par carte de crédit enregistrés.</source>
         <translation>I&apos;m afraid I can&apos;t delete this file
 There are credit card registered payments.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10300"/>
+        <location filename="rufus.cpp" line="10265"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des paiements par chèque enregistrés.
 Ce ou ces chèques ne sont pas encaissés.
@@ -5109,93 +5129,93 @@ These cheques have not been cashed.
 You need to modify the corresponding entry to be able to delete the act.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10313"/>
+        <location filename="rufus.cpp" line="10278"/>
         <source>Etes vous sûr de vouloir supprimer le dossier de </source>
         <translation>Are you sure you want to delete the file for </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10401"/>
+        <location filename="rufus.cpp" line="10366"/>
         <source>Pachymétrie - </source>
         <translation>Pachymetry - </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10447"/>
+        <location filename="rufus.cpp" line="10412"/>
         <source>Tonométrie - </source>
         <translation>Tonometry - </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10476"/>
+        <location filename="rufus.cpp" line="10441"/>
         <source>Saisie de montant refusée !</source>
         <translation>Amount enter refused!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10477"/>
+        <location filename="rufus.cpp" line="10442"/>
         <source>Le montant que vous souhaitez enregistrer</source>
         <translation>The amount you want to register</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10477"/>
-        <location filename="rufus.cpp" line="10478"/>
+        <location filename="rufus.cpp" line="10442"/>
+        <location filename="rufus.cpp" line="10443"/>
         <source>€</source>
         <translation>$</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10478"/>
+        <location filename="rufus.cpp" line="10443"/>
         <source>est inférieur à la somme des paiements</source>
         <translation>is less than the sum of the payments</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10478"/>
+        <location filename="rufus.cpp" line="10443"/>
         <source>déjà enregistrés pour cet acte</source>
         <translation>already registered for this act</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10511"/>
+        <location filename="rufus.cpp" line="10476"/>
         <source>Cet acte a déjà été enregistré comme acte gratuit !</source>
         <translation>This act has already been registered as a free act!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10512"/>
+        <location filename="rufus.cpp" line="10477"/>
         <source>Annuler et considérer comme acte payant?</source>
         <translation>Cancel and treat as a chargeable act?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10514"/>
+        <location filename="rufus.cpp" line="10479"/>
         <source>Considérer comme payant</source>
         <translation>Conside as chargeable act</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10624"/>
+        <location filename="rufus.cpp" line="10589"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
         <translation>Unable to open Utilisateurs table</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10758"/>
+        <location filename="rufus.cpp" line="10723"/>
         <source>Tarification/Total_AMC</source>
         <translation>Tarification/Total_AMC</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10759"/>
+        <location filename="rufus.cpp" line="10724"/>
         <source>Tarification/Total_AMO</source>
         <translation>Tarification/Total_AMO</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10760"/>
+        <location filename="rufus.cpp" line="10725"/>
         <source>Tarification/Base_remboursement</source>
         <translation>Tarification/Base_remboursement</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10761"/>
+        <location filename="rufus.cpp" line="10726"/>
         <source>Tarification/Total_assure</source>
         <translation>Tarification/Total_assure</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10762"/>
+        <location filename="rufus.cpp" line="10727"/>
         <source>Prestation/Code</source>
         <translation>Prestation/Code</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10763"/>
+        <location filename="rufus.cpp" line="10728"/>
         <source>Prestation/Code_CCAM</source>
         <translation>Prestation/Code_CCAM</translation>
     </message>
@@ -7824,7 +7844,7 @@ as of today&apos;s date</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_docsexternes.cpp" line="1458"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="1478"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1477"/>
         <source>dd-MM-yyyy</source>
         <translation>MM-dd-yyyy</translation>
     </message>

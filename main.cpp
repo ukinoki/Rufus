@@ -42,7 +42,7 @@ int main(int argc, char *argv[])
     QString locale = QLocale::system().name().section('_', 0, 0);
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
     dirloc.cdUp();
-    locale = dirloc.absolutePath() + "/Locale/rufus_" + locale;
+    locale = dirloc.absolutePath() + "/Locale/rufus_" + locale + ".qm";
 
     // for debugging quickly
     //locale = QDir::homePath() + "/RufusQt6/rufus_en";
@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
     delete splash;
 
     Rufus w;
+    w.setApp(&app, &translator); // For dynamic translations
     w.show();
 
     return app.exec();

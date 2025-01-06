@@ -30,6 +30,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPdfDocument>
 #include <QMovie>
 #include <QStyleFactory>
+#include <QApplication>
+#include <QTranslator>
 
 #include <dlg_actesprecedents.h>
 #include <dlg_autresmesures.h>
@@ -138,6 +140,8 @@ public:
     ~Rufus();
     Ui::Rufus                       *ui;
     enum Origin {BoutonPaiement, Accueil, Menu};    Q_ENUM(Origin)
+    void setApp(QApplication *pApp, QTranslator *pTranslator) {app=pApp; translator=pTranslator;};
+    void retranslateUi();
 
 private:
     bool                            UtiliserTcpSocket = false;
@@ -165,6 +169,9 @@ private:
     QFileSystemWatcher              m_filewatcher;                  /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
 
     pyxinterf                       *m_pyxi;     // CZ001
+    QApplication *app;
+    QTranslator *translator;
+    void switchTranslator(const QString lang);
 
 private:
     void        ActeGratuit();
@@ -429,6 +436,11 @@ private:
     void                TesteConnexion();
     QString             m_resumeStatut;
 
+    QAction             *retranslateAction(QAction *action, QString title, QString tip = "");
+    void                retranslateActions();
+    QMenu               *retranslateMenu(QMenu *parent, QMenu *menu, QString title);
+    void                retranslateMenus();
+
     // Les menus
     QMenu           *menuActe                       = Q_NULLPTR;
     QMenu           *menuComptabilite               = Q_NULLPTR;
@@ -437,6 +449,7 @@ private:
     QMenu           *menuDossier                    = Q_NULLPTR;
     QMenu           *menuEmettre                    = Q_NULLPTR;
     QMenu           *menuPrecedentsActes            = Q_NULLPTR;
+    QMenu           *menuLanguage                   = Q_NULLPTR;
     QMenu           *menuAide                       = Q_NULLPTR;
     QAction         *actionCreerDossier             = Q_NULLPTR;
     QAction         *actionCreerActe                = Q_NULLPTR;
@@ -464,6 +477,9 @@ private:
     QAction         *actionRemiseCheques            = Q_NULLPTR;
     QAction         *actionApropos                  = Q_NULLPTR;
     QAction         *actionQuit                     = Q_NULLPTR;
+    QAction         *actionFrench                   = Q_NULLPTR;
+    QAction         *actionEnglish                  = Q_NULLPTR;
+    QAction         *actionSpanish                  = Q_NULLPTR;
     QMenu           *m_trayIconMenu                 = new QMenu();
     QSystemTrayIcon *ict_messageIcon                = new QSystemTrayIcon(this);};
 
