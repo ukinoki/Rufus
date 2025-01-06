@@ -3061,7 +3061,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="4133"/>
         <location filename="rufus.cpp" line="2984"/>
-        <location filename="rufus.cpp" line="10942"/>
+        <location filename="rufus.cpp" line="10945"/>
         <source>Acte</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3073,7 +3073,7 @@ acte</source>
     <message>
         <location filename="rufus.ui" line="4195"/>
         <location filename="rufus.cpp" line="8885"/>
-        <location filename="rufus.cpp" line="10945"/>
+        <location filename="rufus.cpp" line="10948"/>
         <source>Documents</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4544,7 +4544,7 @@ en salle d&apos;attente</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10919"/>
+        <location filename="rufus.cpp" line="10922"/>
         <source>Quitter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4555,32 +4555,32 @@ en salle d&apos;attente</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10939"/>
+        <location filename="rufus.cpp" line="10942"/>
         <source>Dossier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10940"/>
+        <location filename="rufus.cpp" line="10943"/>
         <source>Edition</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10948"/>
+        <location filename="rufus.cpp" line="10951"/>
         <source>Langue</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10951"/>
+        <location filename="rufus.cpp" line="10954"/>
         <source>Emettre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10946"/>
+        <location filename="rufus.cpp" line="10949"/>
         <source>Comptabilité</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10949"/>
+        <location filename="rufus.cpp" line="10952"/>
         <source>Aide</source>
         <translation type="unfinished"></translation>
     </message>

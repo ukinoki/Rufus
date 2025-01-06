@@ -10915,6 +10915,9 @@ void Rufus::retranslateActions() {
     actionFrench = retranslateAction(actionFrench, tr("Français"));
     actionEnglish = retranslateAction(actionEnglish, tr("English"));
     actionSpanish = retranslateAction(actionSpanish, tr("Español"));
+    actionFrench->setIcon( QPixmap("://France.ico") );
+    actionEnglish->setIcon( QPixmap("://United-kingdom.ico") );
+    actionSpanish->setIcon( QPixmap("://Spain.ico") );
 
     actionQuit = retranslateAction(actionQuit, tr("Quitter"));
     actionQuit->setMenuRole(QAction::PreferencesRole);
@@ -10955,4 +10958,5 @@ void Rufus::retranslateUi() {
     ui->retranslateUi(this);
     retranslateActions();
     retranslateMenus();
+    Flags::I()->MAJFlagSalleDAttente();
 }

@@ -3071,7 +3071,7 @@ acto</translation>
     <message>
         <location filename="rufus.ui" line="4133"/>
         <location filename="rufus.cpp" line="2984"/>
-        <location filename="rufus.cpp" line="10942"/>
+        <location filename="rufus.cpp" line="10945"/>
         <source>Acte</source>
         <translation>Acto</translation>
     </message>
@@ -3083,7 +3083,7 @@ acto</translation>
     <message>
         <location filename="rufus.ui" line="4195"/>
         <location filename="rufus.cpp" line="8885"/>
-        <location filename="rufus.cpp" line="10945"/>
+        <location filename="rufus.cpp" line="10948"/>
         <source>Documents</source>
         <translation>Documentos</translation>
     </message>
@@ -4544,20 +4544,22 @@ en salle d&apos;attente</source>
     <message>
         <location filename="rufus.cpp" line="10915"/>
         <source>Français</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>No se traduce</translatorcomment>
+        <translation type="unfinished">Français</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10916"/>
         <source>English</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>No se traduce</translatorcomment>
+        <translation>English</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10917"/>
         <source>Español</source>
-        <translation type="unfinished"></translation>
+        <translation>Español</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10919"/>
+        <location filename="rufus.cpp" line="10922"/>
         <source>Quitter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4568,32 +4570,32 @@ en salle d&apos;attente</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10939"/>
+        <location filename="rufus.cpp" line="10942"/>
         <source>Dossier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10940"/>
+        <location filename="rufus.cpp" line="10943"/>
         <source>Edition</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="rufus.cpp" line="10948"/>
-        <source>Langue</source>
-        <translation type="unfinished"></translation>
+        <translation>Edición</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10951"/>
+        <source>Langue</source>
+        <translation>Idioma</translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="10954"/>
         <source>Emettre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10946"/>
+        <location filename="rufus.cpp" line="10949"/>
         <source>Comptabilité</source>
         <translation>Contabilidad</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10949"/>
+        <location filename="rufus.cpp" line="10952"/>
         <source>Aide</source>
         <translation>Ayuda</translation>
     </message>
@@ -4926,7 +4928,7 @@ Vous devez modifier l&apos;écriture correspondante pour pouvoir supprimer l&apo
     <message>
         <location filename="rufus.cpp" line="10589"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrie la tabla Utilisateurs</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10723"/>
@@ -5732,7 +5734,7 @@ alternée</source>
     <message>
         <location filename="Dialogs/dlg_bilanortho.ui" line="837"/>
         <source>Meta+Return</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+Return</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_bilanortho.ui" line="905"/>
@@ -6879,7 +6881,7 @@ dépense</source>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="1022"/>
         <source>Meta+Return</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+Return</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="28"/>
@@ -11981,7 +11983,7 @@ un paiement</source>
     <message>
         <location filename="Dialogs/dlg_paiementdirect.ui" line="1369"/>
         <source>Meta+Return</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+Return</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementdirect.ui" line="1431"/>
@@ -12574,7 +12576,7 @@ tiers payant</source>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.ui" line="1233"/>
         <source>Meta+Return</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+Return</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.ui" line="1295"/>
@@ -14092,61 +14094,61 @@ pour savoir comment modifier la configuration du serveur et générer des clés 
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="204"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="248"/>
         <source>Vous n&apos;avez pas précisé votre identifiant!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¡No ha especificado el usuario!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="205"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="249"/>
         <source>Vous n&apos;avez pas précisé votre mot de passe!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">¡No ha escrito la contraseña!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="216"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="258"/>
         <source>Erreur sur le serveur MySQL</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error del servidor MySQL</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="217"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="259"/>
         <source>Impossible de se connecter au serveur avec le login </source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede conectar el servidor con el usuario </translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="218"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="260"/>
         <source> et ce mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"> y esta contraseña</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="219"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="261"/>
         <source>Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Revise la configuración de los parámetos de conexión en el fichero rufus.ini.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="228"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="268"/>
         <source>Erreur sur la base patients</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error en la base de pacientes</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="229"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="269"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">No se puede abrie la tabla Utilisateurs</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="234"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="274"/>
         <source>Erreur sur le compte utilisateur</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Error en la cuenta de usuario</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="235"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="275"/>
         <source>Identifiant ou mot de passe incorrect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Usuario o contraseña incorrectos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="250"/>
@@ -14725,7 +14727,7 @@ pour savoir comment modifier la configuration du serveur et générer des clés 
         <location filename="Dialogs/dlg_recettesspeciales.ui" line="1136"/>
         <location filename="Dialogs/dlg_recettesspeciales.ui" line="1214"/>
         <source>Meta+Return</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Meta+Return</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_recettesspeciales.ui" line="1201"/>

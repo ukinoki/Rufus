@@ -202,5 +202,8 @@
         <file>eye-color-icon.png</file>
         <file>surgeon.ico</file>
         <file>barcode.png</file>
+        <file>Spain.ico</file>
+        <file>France.ico</file>
+        <file>United-kingdom.ico</file>
     </qresource>
 </RCC>
