@@ -24,7 +24,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     m_currentpatient = pat;
     setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
 
-    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
+    m_docpath = proc->settings()->value(Param_Poste Dossier_Videos).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_visuvideowdg    = new QVideoWidget(this);
@@ -148,6 +148,7 @@ void dlg_docsvideo::ChangeFile()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
     if (fileName != "")
     {
+        bool pathhaschanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
         m_docpath = QFileInfo(fileName).dir().absolutePath();
         QString fichierencours = QFileInfo(fileName).fileName();
         QStringList filters;
@@ -159,7 +160,8 @@ void dlg_docsvideo::ChangeFile()
         wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
         wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
-        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos, m_docpath);
+        if (pathhaschanged)
+            proc->settings()->setValue(Param_Poste Dossier_Videos, m_docpath);
     }
 }
 

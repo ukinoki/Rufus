@@ -3278,7 +3278,7 @@ bool Procedures::IdentificationUser()
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);
 
-        m_dirimagerie = db->dirimagerie();
+        AbsolutePathDirImagerie();
         if (DefinitRoleUser()) //NOTE : User Role
         {
             /*! definit les iduser pour lequel le user travaille
@@ -3351,16 +3351,35 @@ bool Procedures::IdentificationUser()
     return (currentuser() != Q_NULLPTR);
 }
 
-/*--------------------------------------------------------------------------------------------------------------------------------------
-    -- renvoie le chemin du dossier où est stockée l'imagerie -----------------------------------------------------------
+/*! --------------------------------------------------------------------------------------------------------------------------------------
+Renvoie le chemin du dossier où est stockée l'imagerie, tel qu'il est vu en accès monoposte ou en accès distant
+ce chemin correspond à:
+1.  En accès monoposte c'est secure_file_priv + "/ Rufus" + "/Imagerie" , sur le serveur, et n'est donc pas stocké mais simplement calculé par Rufus
+2.  En réseau local, c'est le chemin vers ce dossier sur le serveur soit adresse duserveur + secure_file_priv + "/ Rufus" + "/Imagerie"
+    La variable correspondant à ce chemin est stockée dans rufus.ini "[BDD_LOCAL]/DossierImagerie"
+3.  Ce chemin n'a pas de sens en accès distant mais on l'utilise pour stocker le chemin vers l'emplacement des copies des originaux d'imagerie
+    La variable correspondant à ce chemin est stockée dans rufus.ini "[BDD_DISTANT]/DossierImagerie"
+
+Returns the path of the folder where the imagery is stored, as seen in single-user or remote access.
+this path corresponds to:
+1.  In single-user access it is secure_file_priv + “/ Rufus” + “/Imaging” , on the server, and is therefore not stored but simply calculated by Rufus
+2.  On a local network, it is the path to this folder on the server, i.e. server address + secure_file_priv + “/ Rufus” + “/Imagerie”.
+    The variable corresponding to this path is stored in rufus.ini “[BDD_LOCAL]/DossierImagerie”.
+3.  This path has no meaning in remote access, but is used to store the path to the location of copies of imaging originals.
+    The variable corresponding to this path is stored in rufus.ini “[BDD_DISTANT]/DossierImagerie”.
+
+Translated with www.DeepL.com/Translator (free version)
     ------------------------------------------------------------------------------------------------------------------------------------*/
+
 QString Procedures::AbsolutePathDirImagerie()
 {
     if (m_dirimagerie != QString())
         return m_dirimagerie;
     switch (db->ModeAccesDataBase()) {
     case Utils::Distant:
-        m_dirimagerie = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
+        m_dirimagerie = settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
+        if (m_dirimagerie == "")
+            m_dirimagerie = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
         if (!QDir(m_dirimagerie).exists())
             Utils::mkpath(m_dirimagerie);
         break;

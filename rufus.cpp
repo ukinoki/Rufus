@@ -10861,8 +10861,10 @@ void Rufus::switchTranslator(const QString lang) {
     app->removeTranslator(translator);
 
     // load the new translator
-    QString path = QApplication::applicationDirPath();
-    path.append("/locale/");
+    QDir dirloc = QDir(QCoreApplication::applicationDirPath());
+    dirloc.cdUp();
+    QString path = dirloc.absolutePath();
+    path.append("/Locale/");
     if(translator->load(path + "rufus_" + lang + ".qm")){ //Here Path and Filename has to be entered because the system didn't find the QM Files else}
         qApp->installTranslator(translator);
     }

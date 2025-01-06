@@ -51,7 +51,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         return;
     }
 
-    m_docpath = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_DocsScannes).toString();
+    m_docpath = proc->settings()->value(Param_Poste Dossier_DocsScannes).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_uptable         = new UpTableWidget(this);
@@ -216,6 +216,7 @@ void dlg_docsscanner::ChangeFile()
     QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
     if (fileName != "")
     {
+        bool pathhaschanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
         m_docpath = QFileInfo(fileName).dir().absolutePath();
         m_nomfichierimageencours = QFileInfo(fileName).fileName();
         QStringList filters;
@@ -244,7 +245,8 @@ void dlg_docsscanner::ChangeFile()
         font.setPointSize(12);
         wdg_inflabel->setFont(font);
         wdg_inflabel    ->setGeometry(10,wdg_uptable->viewport()->height()-40,350,25);
-        proc->settings()->setValue(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_DocsScannes, m_docpath);
+        if (pathhaschanged)
+            proc->settings()->setValue(Param_Poste Dossier_DocsScannes, m_docpath);
     }
 }
 
