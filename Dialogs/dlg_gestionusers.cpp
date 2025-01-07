@@ -1113,10 +1113,10 @@ void dlg_gestionusers::SupprUser()
     else
     {
         msgbox.setText(tr("Suppression d'un utilisateur"));
-        msgbox.setInformativeText(tr("Etes vous bien sûr de vouloir supprimer ")
-                                  + vamourir + "?");
+        msgbox.setInformativeText("Humm... " + Datas::I()->users->userconnected()->login() + "\n" + tr("Etes vous bien sûr de vouloir supprimer l'utilisateur")
+                                  + "\n" + vamourir + " ?");
         msgbox.setIconPixmap(Icons::pxKiller().scaledToWidth(150)); //WARNING : icon scaled : pxKiller w150
-        OKBouton.setText(tr("Garder ") + vamourir);
+        OKBouton.setText(tr("OK, garder ") + vamourir);
         AnnulBouton.setText(tr("Oui, supprimer ") + vamourir);
     }
     msgbox.addButton(&AnnulBouton);

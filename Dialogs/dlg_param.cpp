@@ -420,13 +420,17 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->ParamtabWidget->setCurrentIndex(0);
 
-    ui->EntetespinBox->setValue(proc->settings()->value(Imprimante_TailleEnTete).toInt());
-    ui->EnteteALDspinBox->setValue(proc->settings()->value(Imprimante_TailleEnTeteALD).toInt());
-    ui->PiedDePagespinBox->setValue(proc->settings()->value(Imprimante_TaillePieddePage).toInt());
-    ui->PiedDePageOrdoLunettesspinBox->setValue(proc->settings()->value(Imprimante_TaillePieddePageOrdoLunettes).toInt());
-    ui->TopMargespinBox->setValue(proc->settings()->value(Imprimante_TailleTopMarge).toInt());
-    ui->ApercuImpressioncheckBox->setChecked(proc->settings()->value(Imprimante_ApercuAvantImpression).toString() ==  "YES");
-    ui->OrdoAvecDuplicheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() ==  "YES");
+    ui->EntetespinBox                   ->setValue(proc->settings()->value(Imprimante_TailleEnTete).toInt());
+    ui->EnteteALDspinBox                ->setValue(proc->settings()->value(Imprimante_TailleEnTeteALD).toInt());
+    ui->PiedDePagespinBox               ->setValue(proc->settings()->value(Imprimante_TaillePieddePage).toInt());
+    ui->PiedDePageOrdoLunettesspinBox   ->setValue(proc->settings()->value(Imprimante_TaillePieddePageOrdoLunettes).toInt());
+    ui->TopMargespinBox                 ->setValue(proc->settings()->value(Imprimante_TailleTopMarge).toInt());
+    ui->ApercuImpressioncheckBox        ->setChecked(proc->settings()->value(Imprimante_ApercuAvantImpression).toString() ==  "YES");
+    ui->OrdoAvecDuplicheckBox           ->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() ==  "YES");
+    ui->Imprimanteframe                 ->setToolTip(tr("Evitez de modifier les réglages de l'imprimante") + "\n"
+                                                     + tr("Les résultats peuvent être assez surprenants!") + "\n"
+                                                     + tr("Cliquez sur le bouton Oups! pour revenir aux réglages par défaut"));
+
     QString A = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs).toString();
     if (A==YESimport)
         ui->PrioritaireImportDocscheckBox->setChecked(true);
@@ -3830,24 +3834,22 @@ bool dlg_param::Valide_Modifications()
         else
             proc->settings()->setValue(Base + Param_Serveur, ui->EmplacementDistantuplineEdit->text());
         db->setadresseserveurdistant(ui->EmplacementDistantuplineEdit->text());
-        proc->settings()->setValue(Base + Param_Port,ui->SQLPortDistantcomboBox->currentText());
-        proc->settings()->setValue(Imprimante_TailleEnTete,ui->EntetespinBox->value());
-        proc->settings()->setValue(Imprimante_TailleEnTeteALD,ui->EnteteALDspinBox->value());
-        proc->settings()->setValue(Imprimante_TaillePieddePage,ui->PiedDePagespinBox->value());
-        proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes,ui->PiedDePageOrdoLunettesspinBox->value());
-        proc->settings()->setValue(Imprimante_ApercuAvantImpression, (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO"));
-        proc->settings()->setValue(Imprimante_OrdoAvecDupli,(ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO"));
+
+        proc->settings()->setValue(Base + Param_Port,                       ui->SQLPortDistantcomboBox->currentText());
+        proc->settings()->setValue(Imprimante_TailleEnTete,                 ui->EntetespinBox->value());
+        proc->settings()->setValue(Imprimante_TailleEnTeteALD,              ui->EnteteALDspinBox->value());
+        proc->settings()->setValue(Imprimante_TaillePieddePage,             ui->PiedDePagespinBox->value());
+        proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes, ui->PiedDePageOrdoLunettesspinBox->value());
+        proc->settings()->setValue(Imprimante_TailleTopMarge,               ui->TopMargespinBox->value());
+        proc->settings()->setValue(Imprimante_ApercuAvantImpression,        (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO"));
+        proc->settings()->setValue(Imprimante_OrdoAvecDupli,                (ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO"));
+
         if (ui->PrioritaireImportDocscheckBox->isChecked())
             proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,YESimport);
         else if (ui->NonImportDocscheckBox->isChecked())
             proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NOimport);
         else
             proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NORMimport);
-        proc->settings()->setValue(Imprimante_TailleEnTete,ui->EntetespinBox->text());
-        proc->settings()->setValue(Imprimante_TailleEnTeteALD,ui->EnteteALDspinBox->text());
-        proc->settings()->setValue(Imprimante_TaillePieddePage,ui->PiedDePagespinBox->text());
-        proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes,ui->PiedDePageOrdoLunettesspinBox->text());
-        proc->settings()->setValue(Imprimante_TailleTopMarge,ui->TopMargespinBox->text());
 
         if (ui->FrontoupComboBox->currentText() == N_NULL)
         {

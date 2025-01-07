@@ -357,10 +357,10 @@ void TextPrinter::printToDevice(QPagedPaintDevice *device)
 {
     if (!device || !tempdoc_) return;
 
-    QPainter painter(device);
+    QPainter *painter = new QPainter(device);
     tempdoc_        ->setUseDesignMetrics(true);
     tempdoc_        ->documentLayout()->setPaintDevice(device);
-    QSizeF sizeCr   = adjustedContentRect(&painter).size();
+    QSizeF sizeCr   = adjustedContentRect(painter).size();
     tempdoc_        ->setPageSize(sizeCr);
     // dump existing margin (if any)
     QTextFrameFormat fmt =  tempdoc_->rootFrame()->frameFormat();
@@ -371,18 +371,19 @@ void TextPrinter::printToDevice(QPagedPaintDevice *device)
     int    lastpage = tempdoc_->pageCount();
 
     // loop through and print pages
-    painter.setRenderHints(QPainter::Antialiasing |
+    painter->setRenderHints(QPainter::Antialiasing |
                            QPainter::TextAntialiasing |
                            QPainter::SmoothPixmapTransform, true);
     int pagenum = firstpage;
     while(true)
     {
         // print page
-        paintPage(&painter, pagenum, lastpage);
+        paintPage(painter, pagenum, lastpage);
         if (pagenum == lastpage) break;
         pagenum+=1;
         device->newPage();
     }
+    delete painter;
 }
 
 /*!
@@ -525,7 +526,6 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
     QRectF clip(0, (pagenum-1) * rect.height(), rect.width(), rect.height());
     tempdoc_->drawContents(painter, clip);
     painter->restore();
-    painter->end();
 }
 
 
