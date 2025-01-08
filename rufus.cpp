@@ -4774,7 +4774,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     QGroupBox       *UsrGroupBox;
     UpCheckBox      *checkpat, *checktask, *checkurg;
     UpTextEdit      *MsgText;
-    QDateEdit       *limitdate;
+    QDateEdit       *limitdate      = new QDateEdit();
     limitdate       ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     dlg_sendMessage->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
