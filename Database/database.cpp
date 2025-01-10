@@ -196,15 +196,41 @@ bool DataBase::dirsecure_file_priv()
 
 QString DataBase::dirimagerie()
 {
+    auto error = [=]{
+
+            QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + m_dirimagerie + "</b></font>" + tr(" n'existe pas");
+            QString msg2 = "", NomOnglet = "";
+            if (ModeAccesDataBase() == Utils::Poste)
+                msg2 = tr("Il y a un problème avec la localisation de la variable MySQL \"secure_file_priv\"");
+            if (ModeAccesDataBase() == Utils::ReseauLocal)
+            {
+                NomOnglet = tr("Réseau local");
+                msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet ") + NomOnglet + "\"";
+            }
+            ShowMessage::I()->SplashMessage(msg + "<br/>" + msg2, 4000);
+            return;
+    };
+
     if (m_dirimagerie == QString())
     {
         if (ModeAccesDataBase() == Utils::ReseauLocal)
             m_dirimagerie = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+        if (!QDir(m_dirimagerie).exists())
+        {
+            if (!Utils::mkpath(m_dirimagerie))
+            {
+                error();
+                return QString();
+            }
+        }
         else
         {
             dirsecure_file_priv();
             if (m_dirsecurefilepriv == QString())
-                return m_dirsecurefilepriv;
+            {
+                error();
+                return QString();
+            }
             QString dirdata = m_dirsecurefilepriv;
             while (dirdata.endsWith("/"))
                 dirdata.remove(dirdata.size()-1,1);
@@ -212,6 +238,14 @@ QString DataBase::dirimagerie()
                 m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
             else
                 m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
+            if (!QDir(m_dirimagerie).exists())
+            {
+                if (!Utils::mkpath(m_dirimagerie))
+                {
+                    error();
+                    return QString();
+                }
+            }
         }
     }
     return m_dirimagerie;

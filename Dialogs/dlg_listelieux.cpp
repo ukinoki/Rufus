@@ -79,7 +79,7 @@ void dlg_listelieux::AfficheDetails(QModelIndex idx, QModelIndex)
     wdg_adressuplbl->setText(sit->coordonnees());
     wdg_adressuplbl->setStyleSheet("color:#" + (sit->couleur() != ""? sit->couleur() : "000000b"));
     QString ttip = "";
-    int nlieux = db->StandardSelectSQL("select iduser from " TBL_JOINTURESLIEUX " where idlieu = " + QString::number(sit->id()), m_ok).size();
+    int nlieux = db->StandardSelectSQL("select " CP_IDUSER_JOINTSITE " from " TBL_JOINTURESLIEUX " where " CP_IDLIEU_JOINTSITE " = " + QString::number(sit->id()), m_ok).size();
     if (nlieux == 0)
         nlieux = db->StandardSelectSQL("select " CP_IDLIEU_ACTES " from " TBL_ACTES " where " CP_IDLIEU_ACTES " = " + QString::number(sit->id()), m_ok).size();
     if (nlieux == 0)
@@ -150,7 +150,7 @@ void dlg_listelieux::enregNouvLieu()
 {
     if (ValidationFiche())
     {
-        m_listbinds[CP_NOM_SITE]          = Utils::trimcapitilize(wdg_nomlineedit->text(), true);
+        m_listbinds[CP_NOM_SITE]          = wdg_nomlineedit->text();
         m_listbinds[CP_ADRESSE1_SITE]     = Utils::trimcapitilize(wdg_adress1lineedit->text().toUpper(),true);
         m_listbinds[CP_ADRESSE2_SITE]     = Utils::trimcapitilize(wdg_adress2lineedit->text(),true);
         m_listbinds[CP_ADRESSE3_SITE]     = Utils::trimcapitilize(wdg_adress3lineedit->text(),true);
@@ -358,7 +358,7 @@ void dlg_listelieux::enregModifLieu()
         return;
     if (ValidationFiche())
     {
-        m_listbinds[CP_NOM_SITE]          = Utils::trimcapitilize(wdg_nomlineedit->text(), true);
+        m_listbinds[CP_NOM_SITE]          = wdg_nomlineedit->text();
         m_listbinds[CP_ADRESSE1_SITE]     = Utils::trimcapitilize(wdg_adress1lineedit->text().toUpper(),true);
         m_listbinds[CP_ADRESSE2_SITE]     = Utils::trimcapitilize(wdg_adress2lineedit->text(),true);
         m_listbinds[CP_ADRESSE3_SITE]     = Utils::trimcapitilize(wdg_adress3lineedit->text(),true);

@@ -1898,7 +1898,7 @@ void dlg_param::ModifDirBackup()
         return;
     QString dirsauvorigin   = ui->DirBackupuplineEdit->text();
     if (dirsauvorigin == "" || !QDir(dirsauvorigin).exists())
-        dirsauvorigin = proc->AbsolutePathDirImagerie();
+        dirsauvorigin = db->dirimagerie();
     QUrl url = Utils::getExistingDirectoryUrl(this, tr("Choisissez le dossier dans lequel vous voulez sauvegarder la base\n"
                                                        "Le nom de dossier ne doit pas contenir d'espace"), QUrl::fromLocalFile(dirsauvorigin));
     if (dirsauvorigin == url.path() || url == QUrl())

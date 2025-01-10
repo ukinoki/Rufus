@@ -50,6 +50,7 @@ void upSerialPort::readdatas()
     {
         t_timer->stop();
         t_timer->disconnect();
+        qDebug() << "respons" << m_repons;
         emit newdatacom(m_repons);
         clear();
     }
@@ -57,15 +58,12 @@ void upSerialPort::readdatas()
 
 void upSerialPort::writeDatas(QByteArray datas, QString msgdebug)
 {
-    /*qint32 baud = port->baudRate();
-    if (timetowaitms == 0)
-    {
-        timetowaitms= int (datas.size()*8*1000 / baud);
-        timetowaitms += 10;
-    }
-    qDebug() << msgdebug << "timetowaitms" << timetowaitms;*/
-    //qDebug() << "envoi" << QString::fromLocal8Bit(Utils::cleanByteArray(datas));
+    qDebug() << "envoi" << QString::fromLocal8Bit(Utils::cleanByteArray(datas)) << msgdebug;
     write(datas);
-    //flush();
-    //waitForBytesWritten(timetowaitms);
+    flush();
+    #ifdef Q_OS_WIN
+    int timetowaitms = int (datas.size()*8*1000 / baudRate());
+    timetowaitms += 10;
+    waitForBytesWritten(timetowaitms);
+    #endif
 }

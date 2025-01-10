@@ -25,31 +25,12 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         m_iditem = qobject_cast<Patient*>(item)->id();
     else
         m_iditem = qobject_cast<Depense*>(item)->id();
-    QString         NomOnglet;
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-
-    Utils::ModeAcces mod = db->ModeAccesDataBase();
-    if (mod == Utils::Poste)
-        NomOnglet = tr("Monoposte");
-    else if (mod == Utils::Distant)
-        NomOnglet = tr("Accès distant");
-    else if (mod == Utils::ReseauLocal)
-        NomOnglet = tr("Réseau local");
 
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);*/
     m_accesdistant = (db->ModeAccesDataBase()==Utils::Distant);
-    m_pathdirstockageimagerie = proc->AbsolutePathDirImagerie();
-
-    if (!QDir(m_pathdirstockageimagerie).exists())
-    {
-        QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + m_pathdirstockageimagerie + "</b></font>" + tr(" n'existe pas");
-        msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet ") + NomOnglet + "</b></font>";
-        ShowMessage::I()->SplashMessage(msg, 6000);
-        m_initok = false;
-        return;
-    }
 
     m_docpath = proc->settings()->value(Param_Poste Dossier_DocsScannes).toString();
     if (!QDir(m_docpath).exists())
@@ -73,7 +54,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
                         << tr("Topographie")
                         << tr("Hess-Weiss")
                         << tr("CRO")
-                        << tr("Autre");
+                        << tr("Autre Imagerie");
         break;
     case Facture:
         m_listtypesexamen   << FACTURE;
@@ -322,7 +303,7 @@ void dlg_docsscanner::ValideFiche()
     //! création du dossier d'enregistrement du document renommé et compressé en mode monoposte ou réseau local
     if (!m_accesdistant)
     {
-        QString CheminOKTransfrDir  = proc->AbsolutePathDirImagerie()
+        QString CheminOKTransfrDir  = db->dirimagerie()
                                     + ( m_mode == Document? NOM_DIR_IMAGES "/" + datetransfer : NOM_DIR_FACTURES "/" + user) ;
         if (!Utils::mkpath(CheminOKTransfrDir))
         {
@@ -439,7 +420,7 @@ void dlg_docsscanner::ValideFiche()
     }
     else if (!m_accesdistant)
     {
-        QString CheminOKTransfrDoc = m_pathdirstockageimagerie + ( m_mode == Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + lien;
+        QString CheminOKTransfrDoc = db->dirimagerie() + ( m_mode == Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + lien;
         if (suffixe == JPG)
         {
             QFile CF(filename);

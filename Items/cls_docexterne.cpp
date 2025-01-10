@@ -122,3 +122,4 @@ void DocExterne::setimageblob(QByteArray blob)
         m_imagelist << image;
     }
 }
+

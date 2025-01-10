@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("04-01-2025/1");
+    qApp->setApplicationVersion("10-01-2025/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -2027,9 +2027,9 @@ void Rufus::GestionComptes()
 }
 
 /*! exporte les documents d'imagerie inscrits dans la base par les postes distants
- *  pour les archiver en fichiers standards sur le HD du serveur
- *  les fichiers d'imagerie ou les factures enregistrés par des utilisateurs distants sont stockés
- *  dans les champs pdf ou jpg de la table Rufus.Impressions pour les imageries et ComptaMedicale.Factures pour les factures.
+ *  pour les archiver en fichiers standards sur le disque dur du serveur
+ *  les fichiers d'imagerie ou les factures enregistrés par des utilisateurs distants sont stockés dans des champs blob
+ *  "pdf" ou "jpg" de la table Rufus.Impressions pour les imageries et ComptaMedicale.Factures pour les factures.
  *  Cette fonction, appelée par le timer t_timerUserConnecte ou par le bouton ui->ExportImagespushButton,
  *  permet de récupérer le contenu blob de ces fichiers
  *  et de recréer un fichier d'imagerie stocké dans le système de fichiers du serveur */
@@ -2039,16 +2039,8 @@ void Rufus::ExporteDocs()
         return;
     if (m_pasDExportPourLeMoment)
         return;
-    QString pathDirImagerie = proc->AbsolutePathDirImagerie();
+    QString pathDirImagerie = db->dirimagerie();
     RecalcCurrentDateTime();
-
-    if (!QDir(pathDirImagerie).exists() || pathDirImagerie == "")
-    {
-        QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + pathDirImagerie + "</b></font>" + tr(" n'existe pas");
-        msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Emplacement de stockage des documents archivés") + "</b></font>";
-        ShowMessage::I()->SplashMessage(msg, 6000);
-        return;
-    }
     QString CheminEchecTransfrDir   = pathDirImagerie + NOM_DIR_ECHECSTRANSFERTS;
     if (!Utils::mkpath(CheminEchecTransfrDir))
     {
@@ -4774,7 +4766,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     QGroupBox       *UsrGroupBox;
     UpCheckBox      *checkpat, *checktask, *checkurg;
     UpTextEdit      *MsgText;
-    QDateEdit       *limitdate;
+    QDateEdit       *limitdate      = new QDateEdit();
     limitdate       ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     dlg_sendMessage->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -5157,7 +5149,7 @@ void Rufus::Apropos()
 
 void Rufus::SupprimerDocsEtFactures()
 {
-    QString NomDirStockageImagerie = proc->AbsolutePathDirImagerie();
+    QString NomDirStockageImagerie = db->dirimagerie();
 
     /* Supprimer les documents en attente de suppression*/
     QString req = "delete from " TBL_DOCSASUPPRIMER " where " CP_FILEPATH_DOCSASUPPR " is null or " CP_FILEPATH_DOCSASUPPR " = \"\"" ;
@@ -6789,9 +6781,7 @@ void Rufus::AfficheActe(Acte* acte)
     ui->ActeDatedateEdit        ->setDate(acte->date());
     ui->ActeDatedateEdit        ->setEnabled(false);
     ui->ActeMotiftextEdit       ->setText(acte->motif());
-    QString path = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + "/" + acte->date().toString("yyyy-MM-dd");
-    if (Utils::mkpath(path))
-        ui->ActeTextetextEdit   ->document()->setBaseUrl("file://" + path);
+
     ui->ActeTextetextEdit       ->setText(acte->texte());
     ui->ActeConclusiontextEdit  ->setText(acte->conclusion());
     ui->idActelineEdit          ->setText(QString::number(acte->id()));
@@ -7902,6 +7892,7 @@ void Rufus::CreerMenu()
         menuDossier->addAction(actionRechercheParMotCle);
         menuDossier->addAction(actionRechercheParID);
 
+
         menuLanguage->addAction(actionFrench);
         menuLanguage->addAction(actionEnglish);
         menuLanguage->addAction(actionSpanish);
@@ -8021,7 +8012,7 @@ void Rufus::ExporteActe(Acte *act)
             {
                 if (db->ModeAccesDataBase() != Utils::Distant)
                 {
-                    QString fileorigin = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
+                    QString fileorigin = db->dirimagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
                     QFile origin(fileorigin);
                     Utils::copyWithPermissions(origin, nomdossier + "/" + filedest + "." + QFileInfo(origin).suffix().toLower());
                 }

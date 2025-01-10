@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "textprinter.h"
 #include <uppushbutton.h>
 #include <upcheckbox.h>
+#include "dlg_imageviewer.h"
 
 class PlayerControls;
 class UpPushButton;
@@ -137,6 +138,8 @@ private:
     bool                    ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin);
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
+
+    void                    OpenMultiImageViewer();
 
     void                    ReImprimeDoc(DocExterne *docmt);
     void                    RemplirTreeView();

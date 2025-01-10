@@ -1101,7 +1101,7 @@ void dlg_gestionusers::SupprUser()
     QString vamourir = ui->ListUserstableWidget->selectedItems().at(1)->text();
     if (m_userencours == Datas::I()->users->userconnected())
     {
-        msgbox.setText("Tentative de suicide");
+        msgbox.setText(tr("Tentative de suicide"));
         msgbox.setInformativeText("Hum " + vamourir
                                   + ", " + tr("êtes vous bien sûr de vouloir faire ça?\n"
                                     "Si vous le faites, le programme se fermera immédiatement après votre disparition"));

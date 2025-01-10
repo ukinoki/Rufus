@@ -558,7 +558,7 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
 
         if(db->StandardSQL(req))
         {
-            QString pathDocFinal = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + "/" + m_datetransfer + "/" + NomFileFinal;
+            QString pathDocFinal = db->dirimagerie() + NOM_DIR_IMAGES + "/" + m_datetransfer + "/" + NomFileFinal;
             Utils::copyWithPermissions(file_origin,pathDocFinal);
             if (jnaltrsferfile.open(QIODevice::Append))
             {

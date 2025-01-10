@@ -45,3 +45,20 @@ Item* UpStandardItem::item() const
 {
     return m_item;
 }
+
+QList<int> UpStandardItem::listids() const
+{
+    return m_listids;
+}
+
+void UpStandardItem::setListids(const QList<int> &newListids)
+{
+    m_listids = newListids;
+}
+
+
+bool UpStandardItem::hascheckBox()
+{
+    QVariant value = data(Qt::CheckStateRole);
+    return value.isValid();
+}

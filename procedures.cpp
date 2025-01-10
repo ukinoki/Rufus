@@ -515,7 +515,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     {
         QString dirNomSource;
         QString dirNomDest;
-        QString DirImagery = AbsolutePathDirImagerie();
+        QString DirImagery = db->dirimagerie();
         if (!QDir(DirImagery).exists())
             return false;
 
@@ -1171,8 +1171,8 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
         else
         {
             // si le user rplct à imprimer n'est pas le superviseur du user courant, on cherche son parent
-            QString reqrp = "select userparent from " TBL_USERSCONNECTES
-                            " where usersuperviseur = " + QString::number(user->id());
+            QString reqrp = "select " CP_IDUSERPARENT_USRCONNECT " from " TBL_USERSCONNECTES
+                            " where " CP_IDUSERSUPERVISEUR_USRCONNECT " = " + QString::number(user->id());
             QVariantList userdata = db->getFirstRecordFromStandardSelectSQL(reqrp, m_ok);
             if (userdata.size()>0)                // le user est connecté, on cherche qui il remplace - son parent
                 idparent = userdata.at(0).toInt();
@@ -2527,16 +2527,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 3 - détermination de l'emplacement de destination des fichiers d'imagerie */
+        QString dirimagerie = db->dirimagerie();
         if (OKImages || OKVideos || OKFactures)
         {
-            m_dirimagerie = db->dirimagerie();
-            if (m_dirimagerie == QString())
-            {
-                OKImages    = false;
-                OKFactures  = false;
-                OKVideos    = false;
-            }
-            else if (!QDir(m_dirimagerie).exists())
+            if (dirimagerie == QString())
             {
                 OKImages    = false;
                 OKFactures  = false;
@@ -2545,7 +2539,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         }
 
         /*! 4 - choix des éléments à restaurer */
-        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), m_dirimagerie, OKini, OKImages, OKVideos, OKFactures);
+        AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures);
         int result = dlg_buprestore->exec();
         if (result > 0)
         {
@@ -2644,7 +2638,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationimg   = m_dirimagerie + NOM_DIR_IMAGES;
+                        QString dirdestinationimg   = dirimagerie + NOM_DIR_IMAGES;
                         QDir DirDestImg(dirdestinationimg);
                         if (DirDestImg.exists())
                             DirDestImg.removeRecursively();
@@ -2673,7 +2667,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationfact  = m_dirimagerie + NOM_DIR_FACTURES;
+                        QString dirdestinationfact  = dirimagerie + NOM_DIR_FACTURES;
                         QDir DirDestFact(dirdestinationfact);
                         if (DirDestFact.exists())
                             DirDestFact.removeRecursively();
@@ -2702,7 +2696,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                 {
                     if (chk->isChecked())
                     {
-                        QString dirdestinationvid   =  m_dirimagerie + NOM_DIR_VIDEOS;
+                        QString dirdestinationvid   =  dirimagerie + NOM_DIR_VIDEOS;
                         QDir DirDestVid(dirdestinationvid);
                         if (DirDestVid.exists())
                             DirDestVid.removeRecursively();
@@ -3355,7 +3349,7 @@ bool Procedures::IdentificationUser()
 Renvoie le chemin du dossier où est stockée l'imagerie, tel qu'il est vu en accès monoposte ou en accès distant
 ce chemin correspond à:
 1.  En accès monoposte c'est secure_file_priv + "/ Rufus" + "/Imagerie" , sur le serveur, et n'est donc pas stocké mais simplement calculé par Rufus
-2.  En réseau local, c'est le chemin vers ce dossier sur le serveur soit adresse duserveur + secure_file_priv + "/ Rufus" + "/Imagerie"
+2.  En réseau local, c'est le chemin vers ce dossier sur le serveur soit -> adresse du serveur + secure_file_priv + "/ Rufus" + "/Imagerie"
     La variable correspondant à ce chemin est stockée dans rufus.ini "[BDD_LOCAL]/DossierImagerie"
 3.  Ce chemin n'a pas de sens en accès distant mais on l'utilise pour stocker le chemin vers l'emplacement des copies des originaux d'imagerie
     La variable correspondant à ce chemin est stockée dans rufus.ini "[BDD_DISTANT]/DossierImagerie"
@@ -3363,7 +3357,7 @@ ce chemin correspond à:
 Returns the path of the folder where the imagery is stored, as seen in single-user or remote access.
 this path corresponds to:
 1.  In single-user access it is secure_file_priv + “/ Rufus” + “/Imaging” , on the server, and is therefore not stored but simply calculated by Rufus
-2.  On a local network, it is the path to this folder on the server, i.e. server address + secure_file_priv + “/ Rufus” + “/Imagerie”.
+2.  On a local network, it is the path to this folder on the server, i.e. -> server address + secure_file_priv + “/ Rufus” + “/Imagerie”.
     The variable corresponding to this path is stored in rufus.ini “[BDD_LOCAL]/DossierImagerie”.
 3.  This path has no meaning in remote access, but is used to store the path to the location of copies of imaging originals.
     The variable corresponding to this path is stored in rufus.ini “[BDD_DISTANT]/DossierImagerie”.
@@ -3373,20 +3367,46 @@ Translated with www.DeepL.com/Translator (free version)
 
 QString Procedures::AbsolutePathDirImagerie()
 {
-    if (m_dirimagerie != QString())
-        return m_dirimagerie;
+    QString dirimagerie = QString();
+    if (dirimagerie != QString())
+        return dirimagerie;
     switch (db->ModeAccesDataBase()) {
     case Utils::Distant:
-        m_dirimagerie = settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
-        if (m_dirimagerie == "")
-            m_dirimagerie = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
-        if (!QDir(m_dirimagerie).exists())
-            Utils::mkpath(m_dirimagerie);
+    {
+        bool okcorrectionmsg = false;
+        dirimagerie = settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
+        if (dirimagerie == "")
+        {
+            okcorrectionmsg = true;
+            dirimagerie = PATH_DIR_RUFUS NOM_DIR_IMAGERIE;
+        }
+        if (!QDir(dirimagerie).exists())
+        {
+            if (!Utils::mkpath(dirimagerie))
+            {
+                QString msg = tr("Le dossier de sauvegarde d'imagerie") + " <font color=\"red\"><b>" + dirimagerie + "</b></font>" + tr(" n'existe pas");
+                msg += "<br />" + tr("Renseignez un dossier valide dans") + " <font color=\"green\"><b>" + tr("Editions/Paramètres/Onglet ") + tr("Réseau local") + "</b></font>";
+                ShowMessage::I()->SplashMessage(msg, 6000);
+                dirimagerie = "";
+                okcorrectionmsg = false;
+            }
+            else
+                okcorrectionmsg = true;
+        }
+        if (okcorrectionmsg)
+        {
+            QString msg = tr("Le dossier de sauvegarde d'imagerie enregistré dans les paramètres était invalide");
+            msg += "<br />" + tr("Il a été remplacé par ") + "<font color=\"green\"><b>" + dirimagerie + "</b></font>" +
+                    tr(" et enregistré dans ") + "<font color=\"red\"><b>" + tr("Editions/Paramètres/Onglet/Réseau local") + "</b></font>";
+            ShowMessage::I()->SplashMessage(msg, 6000);
+            settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, dirimagerie);
+        }
         break;
-    default:
-        m_dirimagerie = db->dirimagerie();
     }
-    return m_dirimagerie;
+    default:
+        dirimagerie = db->dirimagerie();
+    }
+    return dirimagerie;
 }
 
 bool Procedures::DefinitRoleUser() //NOTE : User Role Function
@@ -4045,14 +4065,15 @@ void Procedures::PremierParametrageMateriel()
 
     if (protoc == BaseVierge)
     {
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_IMAGES);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_DOSSIERECHANGEIMAGERIE);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_ECHECSTRANSFERTS);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_FACTURES);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_FACTURESSANSLIEN);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_ORIGINAUX NOM_DIR_FACTURES);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_ORIGINAUX NOM_DIR_IMAGES);
-        Utils::mkpath(db->dirimagerie() + NOM_DIR_VIDEOS);
+        QString dirimagerie = db->dirimagerie();
+        Utils::mkpath(dirimagerie + NOM_DIR_IMAGES);
+        Utils::mkpath(dirimagerie + NOM_DIR_DOSSIERECHANGEIMAGERIE);
+        Utils::mkpath(dirimagerie + NOM_DIR_ECHECSTRANSFERTS);
+        Utils::mkpath(dirimagerie + NOM_DIR_FACTURES);
+        Utils::mkpath(dirimagerie + NOM_DIR_FACTURESSANSLIEN);
+        Utils::mkpath(dirimagerie + NOM_DIR_ORIGINAUX NOM_DIR_FACTURES);
+        Utils::mkpath(dirimagerie + NOM_DIR_ORIGINAUX NOM_DIR_IMAGES);
+        Utils::mkpath(dirimagerie + NOM_DIR_VIDEOS);
     }
 
     Utils::mkpath(PATH_DIR_REFRACTEUR_IN NOM_DIR_AUTOREF);

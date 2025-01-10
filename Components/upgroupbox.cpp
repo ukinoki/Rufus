@@ -28,7 +28,7 @@ bool UpGroupBox::eventFilter(QObject *obj, QEvent *event)           //!> ce code
     if (event->type() == QEvent::ChildAdded || event->type() == QEvent::ChildRemoved)
     {
         foreach (QWidget* widg, this->findChildren<QWidget*>())
-            widg->installEventFilter(this);
+            widg->installEventFilter(widg->parentWidget());
     }
     else if (event->type() == QEvent::FocusIn )
     {

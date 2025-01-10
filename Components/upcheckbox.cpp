@@ -63,6 +63,16 @@ void UpCheckBox::setImmediateToolTip(QString Msg)
 {
     m_tooltipmsg = Msg;
 }
+
+int UpCheckBox::columntable() const
+{
+    return m_columntable;
+}
+
+void UpCheckBox::setColumntable(int newColumntable)
+{
+    m_columntable = newColumntable;
+}
 void UpCheckBox::setRowTable(int val)
 {
     m_rowtable    = val;

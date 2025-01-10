@@ -25,7 +25,7 @@ class UpStandardItemModel : public QStandardItemModel
 {
 public:
     UpStandardItemModel(QObject *parent = Q_NULLPTR);
-    int getRowFromItem(Item* itm);
+    int         getRowFromItem(Item* itm);
 };
 
 #endif // UPSTANDARTITEMMODEL_H

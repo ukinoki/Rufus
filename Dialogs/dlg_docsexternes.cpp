@@ -84,7 +84,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
     wdg_upswitch        = new UpSwitch(this);
     AjouteWidgetLayButtons(wdg_upswitch, false);
-    AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
+    AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonEdit);
+    EditButton->setVisible(false);
     //setStageCount(1);
 
     m_hdelta            = 0;
@@ -104,6 +105,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
                                                                                                                         });
     connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
+    connect (EditButton,                        &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
 
     if (!UtiliseTCP)
     {
@@ -250,8 +252,7 @@ void dlg_docsexternes::CalcImageDocument(DocExterne *docmt, const typeDoc typedo
             else return;
             if (db->ModeAccesDataBase() != Utils::Distant)
             {
-                QString DirImagery = proc->AbsolutePathDirImagerie();
-                QFile fileimg(DirImagery + NOM_DIR_IMAGES + filename);
+                QFile fileimg(db->dirimagerie() + NOM_DIR_IMAGES + filename);
                 if (fileimg.open(QIODevice::ReadOnly))
                 {
                     ba = fileimg.readAll();
@@ -426,24 +427,12 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
             return;
         }
-        QString NomOnglet, NomDirStockageImagerie;
-        if (DataBase::I()->ModeAccesDataBase() == Utils::Poste)
-            NomOnglet = tr("Monoposte");
-        if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
-            NomOnglet = tr("Réseau local");
-        NomDirStockageImagerie  = proc->AbsolutePathDirImagerie();
-        if (!QDir(NomDirStockageImagerie).exists())
-        {
-            QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
-            QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet ") + NomOnglet + "\"";
-            UpMessageBox::Watch(this,msg, msg2);
-            return;
-        }
-        QString filename = NomDirStockageImagerie + NOM_DIR_VIDEOS "/" + docmt->lienversfichier();
+        QString filename = db->dirimagerie() + NOM_DIR_VIDEOS "/" + docmt->lienversfichier();
         QFile   qFile(filename);
         if (!qFile.open(QIODevice::ReadOnly))
         {
-            UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
+            QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
+            UpMessageBox::Watch(this,msg);
             return;
         }
 
@@ -727,7 +716,7 @@ void dlg_docsexternes::ActualiseDocsExternes()
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 {
-    QString filename = proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
+    QString filename = db->dirimagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
     QFile img(filename);
     if (!img.open(QIODevice::ReadOnly))
     {
@@ -1070,6 +1059,12 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     dlg->setWindowModality(Qt::WindowModal);
     dlg->exec();
     delete dlg;
+}
+
+void dlg_docsexternes::OpenMultiImageViewer()
+{
+    dlg_imageviewer *viewer = new dlg_imageviewer(m_docsexternes, this);
+    viewer->exec();
 }
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)

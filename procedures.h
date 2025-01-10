@@ -89,7 +89,6 @@ private:
     QSettings               *m_settings = Q_NULLPTR;
     ParametresSysteme       *m_parametres;
     OsTask                  m_ostask;
-    QString                 m_dirimagerie = QString();
 
 public:
     static Procedures       *I();

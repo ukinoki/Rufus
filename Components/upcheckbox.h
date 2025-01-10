@@ -41,12 +41,16 @@ public:
     bool    Toggleable() const;
     void    setImmediateToolTip(QString);
 
+    int columntable() const;
+    void setColumntable(int newColumntable);
+
 signals:
     void    uptoggled(bool check);
             // ce signal ne sera émis que si la propriété Toggleabble est true et permet de se départir des comportements implicites du signal toggled()
 
 private:
-    int     m_rowtable, m_id;
+    int     m_rowtable = -1, m_id = -1;
+    int     m_columntable = -1;
     bool    m_toggleable;
     QString m_tooltipmsg;
     bool    eventFilter(QObject *obj, QEvent *event)  ;

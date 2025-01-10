@@ -34,8 +34,13 @@ public:
     bool    hasitem() const     { return m_item != Q_NULLPTR; }
     bool    ischecked() const   { return checkState() == Qt::Checked; }
 
+    QList<int> listids() const;
+    void setListids(const QList<int> &newListids);
+    bool        hascheckBox();
+
 private:
     Item*   m_item = Q_NULLPTR;
+    QList<int> m_listids = QList<int>();
 };
 
 #endif // UPSTANDARDITEM_H

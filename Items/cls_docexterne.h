@@ -121,5 +121,22 @@ public:
     bool isPDF()    {return m_formatimage == PDF;};
     int cote() const;
     void setCote(int newCote);
+
+    bool isMedicalImagery() { return m_typedoc == tr("CV")
+                                 || m_typedoc == tr("Orthoptie")
+                                 || m_typedoc == tr("ANGIO")
+                                 || m_typedoc == tr("OCT")
+                                 || m_typedoc == tr("Biométrie")
+                                 || m_typedoc == tr("RNM")
+                                 || m_typedoc == tr("Speculaire")
+                                 || m_typedoc == tr("Topographie")
+                                 || m_typedoc == tr("Hess-Weiss")
+                                 || m_typedoc == tr("Autre Imagerie");}
+    QDate date() { return datetimeimpression().date(); }
+
+    static QStringList listtypedocs() { return QStringList() <<tr("OCT") << tr("RNM") << tr("CV") << tr("Topographie")
+                                                             << tr("Orthoptie") << tr("Hess-Weiss") << tr("Biométrie")
+                                                             << tr("Speculaire") << tr("Autre Imagerie") << tr("ANGIO"); }
+
 };
 #endif // CLS_DOCEXTERNE_H

@@ -221,19 +221,8 @@ void dlg_docsvideo::ValideFiche()
         return;
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
-    QString NomOnglet;
-    if (db->ModeAccesDataBase() == Utils::Poste)                NomOnglet = tr("Monoposte");
-    else if (db->ModeAccesDataBase() == Utils::ReseauLocal)     NomOnglet = tr("Réseau local");
-    QString NomDirStockageImagerie = Procedures::I()->AbsolutePathDirImagerie();
-    if (!QDir(NomDirStockageImagerie).exists())
-    {
-        QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + NomDirStockageImagerie + "</b></font>" + tr(" n'existe pas");
-        QString msg2 = tr("Renseignez un dossier valide dans Editions/Paramètres/Onglet ") + NomOnglet + "\"";
-        UpMessageBox::Watch(this,msg, msg2);
-        return;
-    }
     // on vérifie que le dossier de stockage des videos existe sinon on le crée
-    QString CheminVideoDir      = NomDirStockageImagerie + NOM_DIR_VIDEOS;
+    QString CheminVideoDir      = db->dirimagerie() + NOM_DIR_VIDEOS;
     QDir VideoDir;
     if (!QDir(CheminVideoDir).exists())
         if (!VideoDir.mkdir(CheminVideoDir))

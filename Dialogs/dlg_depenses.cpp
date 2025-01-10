@@ -528,8 +528,7 @@ void dlg_depenses::CalcImageFacture(Depense *dep)
             return;
         if (db->ModeAccesDataBase() != Utils::Distant)
         {
-            QString dossierimagerie = proc->AbsolutePathDirImagerie();
-            QFile fileimg(dossierimagerie + NOM_DIR_FACTURES + filename);
+            QFile fileimg(db->dirimagerie() + NOM_DIR_FACTURES + filename);
             if (fileimg.open(QIODevice::ReadOnly))
             {
                 ba = fileimg.readAll();
@@ -1904,8 +1903,8 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                                                                             QString req         = "update " TBL_FACTURES " set " CP_LIENFICHIER_FACTURES " = '" + newlien + "', " CP_INTITULE_FACTURES " = '" + item->text() + "' "
                                                                                                   " where " CP_ID_FACTURES " = " + QString::number(idech);
                                                                             DataBase::I()       ->StandardSQL(req);
-                                                                            QString newfilename = Procedures::I()->AbsolutePathDirImagerie() +  NOM_DIR_FACTURES + newlien;
-                                                                            QString oldfilename = Procedures::I()->AbsolutePathDirImagerie() +  NOM_DIR_FACTURES + oldlien;
+                                                                            QString newfilename = db->dirimagerie() +  NOM_DIR_FACTURES + newlien;
+                                                                            QString oldfilename = db->dirimagerie() +  NOM_DIR_FACTURES + oldlien;
                                                                             QFile(oldfilename)  .rename(newfilename);
                                                                             foreach (Depense *depacorriger, *Datas::I()->depenses->depenses())
                                                                             {
