@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-01-2025/1");
+    qApp->setApplicationVersion("12-01-2025/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -7892,10 +7892,11 @@ void Rufus::CreerMenu()
         menuDossier->addAction(actionRechercheParMotCle);
         menuDossier->addAction(actionRechercheParID);
 
-
+        /*!
         menuLanguage->addAction(actionFrench);
         menuLanguage->addAction(actionEnglish);
         menuLanguage->addAction(actionSpanish);
+        */
 
         menuAide    ->addAction(actionApropos);
         menuDossier ->addAction(actionQuit);
@@ -10941,7 +10942,7 @@ void Rufus::retranslateMenus() {
     menuDocuments = retranslateMenu(noParent, menuDocuments, tr("Documents"));
     menuComptabilite = retranslateMenu(noParent, menuComptabilite, tr("Comptabilité"));
 
-    menuLanguage = retranslateMenu(noParent, menuLanguage, tr("Langue"));
+    //menuLanguage = retranslateMenu(noParent, menuLanguage, tr("Langue"));
     menuAide = retranslateMenu(noParent, menuAide, tr("Aide"));
 
     menuEmettre = retranslateMenu(menuDocuments, menuEmettre, tr("Emettre"));

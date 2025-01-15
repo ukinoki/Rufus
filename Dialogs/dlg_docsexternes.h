@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <uppushbutton.h>
 #include <upcheckbox.h>
 #include "dlg_imageviewer.h"
+#include <QGraphicsOpacityEffect>
 
 class PlayerControls;
 class UpPushButton;
@@ -44,7 +45,6 @@ public:
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
-    enum typeDoc            {Text, Image};                                      Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
     Mode                    mode()   {return m_mode;}
     DocsExternes*           docsexternes() { return m_docsexternes;}
 
@@ -55,20 +55,20 @@ private:
     User*                   currentuser()   { return Datas::I()->users->userconnected(); }
     QDate                   m_currentdate   = db->ServerDate();
 
-    DocsExternes            *m_docsexternes;
+    DocsExternes            *m_docsexternes;    //! tous les docsexternes
+    DocsExternes            *m_docsimagery;     //! les docsexternes qui correspondent à des documenst d'imagerie
+    DocExterne              *m_currentdocument = Q_NULLPTR;
 
 /*! la classe dlg_docsexternes affiche les documents pdf, jpg ou video dans une fiche Updialog
  *  Les intitulés des documents sont affichés à gauche dans un QTreeView *wdg_listdocstreewiew
  *  et les documents eux-mêmes sont affichés à droite dans
- *      . un UpTablWidget *wdg_scrolltablewidget
+ *      . un UpTablWidget *wdg_scrolltablewidget pour les pdf ou un QGraphicsVieuw wdg_graphview pour les videos et les jpg
  */
     QTreeView               *wdg_listdocstreewiew       = Q_NULLPTR;
     UpTableWidget           *wdg_scrolltablewidget      = Q_NULLPTR;
+    QHBoxLayout *m_lay    = new QHBoxLayout();
 
-
-    /*! les video et les jpg sont affichés via une QGraphicsScene *obj_graphicscene dans un QGraphicsView *wdg_graphview
-     *  le Qgraphicswiew est inséré dans la cellule (0,0) de la UpTablWidget *wdg_scrolltablewidget
-    */
+    /*! les video et les jpg sont affichés via une QGraphicsScene *obj_graphicscene dans un QGraphicsView *wdg_graphview    */
     QGraphicsView           *wdg_graphview              = Q_NULLPTR;
     QGraphicsScene          *obj_graphicscene           = Q_NULLPTR;
         /*! Le QGraphicsScene *obj_graphicscene affiche
@@ -76,6 +76,7 @@ private:
          *     . les jpg dans un QPixmap créé à la volée
         */
         QGraphicsVideoItem      *obj_videoitem          = Q_NULLPTR;
+
             /*! le QGraphicsVideoItem *obj_videoitem est alimenté par un QMediaPlayer *medplay_player
              *  contrôlé parcontrôlé par le PlayerControls *wdg_playctrl
             */
@@ -110,7 +111,6 @@ private:
     double                  m_idealproportion;
     int                     m_hdelta , m_wdelta;
     int                     m_hdeltaframe, m_wdeltaframe;
-    QString                 m_typedoc;
     Mode                    m_mode;
     ModeTri                 m_modetri;
     ModeFiltre              m_modefiltre;
@@ -123,8 +123,6 @@ private:
     void                    AfficheDoc(QModelIndex idx);
     void                    BasculeTriListe(dlg_docsexternes::ModeTri mode);
 
-    QString                 CalcTitre(DocExterne *docmt);
-    void                    CalcImageDocument(DocExterne *docmt, const typeDoc typedoc);
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
     void                    EnregistreImage(DocExterne* docmt);
     void                    EnregistreVideo();

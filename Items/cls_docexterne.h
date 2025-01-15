@@ -121,6 +121,11 @@ public:
     bool isPDF()    {return m_formatimage == PDF;};
     int cote() const;
     void setCote(int newCote);
+    QString stringCote() {
+        if (m_cote == 1) return "R";
+        else if (m_cote == 2) return "L";
+        else return "";
+    }
 
     bool isMedicalImagery() { return m_typedoc == tr("CV")
                                  || m_typedoc == tr("Orthoptie")
@@ -132,11 +137,34 @@ public:
                                  || m_typedoc == tr("Topographie")
                                  || m_typedoc == tr("Hess-Weiss")
                                  || m_typedoc == tr("Autre Imagerie");}
-    QDate date() { return datetimeimpression().date(); }
+    QDate date()            { return datetimeimpression().date(); }
+    bool isImage()          { return m_formatdoc == IMAGERIE || m_formatdoc == DOCUMENTRECU; }
+    bool isVideo()          { return m_formatdoc == VIDEO; }
+    bool isText()           { return !isImage() && !isVideo();}
+
+    QString titrelong()
+    {
+        QString a;
+        if (format() == IMAGERIE || format() == VIDEO)
+            a = typedoc() + " ";
+        if (soustypedoc() != "")
+            a += soustypedoc();
+        else if (titre() != "")
+        {
+            QTextEdit text;
+            text.setHtml(titre());
+            a += text.toPlainText();
+        }
+        return a;
+    }
+
 
     static QStringList listtypedocs() { return QStringList() <<tr("OCT") << tr("RNM") << tr("CV") << tr("Topographie")
                                                              << tr("Orthoptie") << tr("Hess-Weiss") << tr("Biométrie")
-                                                             << tr("Speculaire") << tr("Autre Imagerie") << tr("ANGIO"); }
+                                                             << tr("Speculaire") << tr("Autre Imagerie") << tr("ANGIO")
+                                                             << tr("Video Chirurgie")
+                                                             << tr("Video LAF")
+                                                             << tr("Video Autre"); }
 
 };
 #endif // CLS_DOCEXTERNE_H

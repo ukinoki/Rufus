@@ -843,16 +843,17 @@ public:
 #define JPEG                                        "jpeg"
 #define PNG                                         "png"
 
+//! les 8 formats de document
 #define BILANORTHOPTIQUE                            "BO"
-#define CORRECTION                                  "Correction"
 #define COURRIER                                    "Courrier"
 #define DOCUMENTRECU                                "DocRecu"
 #define IMAGERIE                                    "Imagerie"
-#define ORHTOPTIE                                   "Orthoptie"
 #define PRESCRIPTION                                "Prescription"
 #define PRESCRIPTIONLUNETTES                        "PrescrLun"
 #define COURRIERADMINISTRATIF                       "DocAdmin"
 #define VIDEO                                       "Video"
+
+#define CORRECTION                                  "Correction"
 #define FACTURE                                     "Facture"
 #define ECHEANCIER                                  "Echéancier"
 

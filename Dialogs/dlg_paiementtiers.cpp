@@ -70,7 +70,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
         return;
     }
 
-    ui->dateEdit                ->setDisplayFormat(tr("dd/MM/yyy"));
+    ui->dateEdit                ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     // On reconstruit le combobox des utilisateurs avec la liste des utilisateurs qui encaissent des honoraires et qui travaillent encore
     foreach (User *usr, *map_comptables)

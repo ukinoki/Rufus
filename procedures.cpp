@@ -8046,3 +8046,98 @@ void Procedures::InsertMesure(GenericProtocol::TypeMesure typemesure)
     //! emit NouvMesure() sert à afficher, dans la fiche active (rufus.cpp ou dlg_refraction.cpp), la mesure qui vient d'être effectuées
     emit NouvMesure(typemesure);
 }
+
+/*! * \brief dlg_docsexternes::CalcImageDocument
+      Cette fonction sert à calculer les propriétés m_blob et m_formatimage
+        * des documents d'imagerie
+        * des courriers émis par le logiciel
+      pour les afficher ou les imprimer
+    * \param docmt
+    * \param typedoc = Text  -> Le document est un document texte (ordo, certificat...etc).
+                                Il est déjà dans la table impressions sous la forme de 3 champs html (entete, corps et pied)
+                                Ces champs vont être utilisés pour l'impression vers un QByteArray via textprinter::getPDFByteArray
+                                Le bytearray sera constitué par le contenu de ce fichier et affiché à l'écran.
+             typedoc = Image -> le document est un document d'imagerie stocké sur un fichier. On va le transformer en bytearray
+*/
+void Procedures::CalcImageDocument(DocExterne *docmt)
+{
+    if (docmt == Q_NULLPTR )
+        return;
+    if (docmt->isVideo())
+        return;
+    QByteArray ba = QByteArray();
+    QString filename = "";
+    if (docmt->isImage())
+    {
+        filename = docmt->lienversfichier();
+        if (filename != "")
+        {
+            QString fileformat;
+            if (filename.contains("."))
+            {
+                QStringList lst = filename.split(".");
+                fileformat      = lst.at(lst.size()-1);
+            }
+            if (fileformat == PDF || fileformat == JPG)
+                docmt->setimageformat(fileformat);
+            else return;
+            if (db->ModeAccesDataBase() != Utils::Distant)
+            {
+                QFile fileimg(db->dirimagerie() + NOM_DIR_IMAGES + filename);
+                if (fileimg.open(QIODevice::ReadOnly))
+                {
+                    ba = fileimg.readAll();
+                    docmt->setimageblob(ba);
+                    return;
+                }
+            }
+            else
+            {
+                QString fullFilename = Utils::correctquoteSQL(db->dirimagerie()) + NOM_DIR_IMAGES + Utils::correctquoteSQL(filename);
+                ba = getFileFromServer(fullFilename);
+            }
+        }
+        if (ba.size()==0)    //! le document n'est pas enregistré sur le disque, on va le chercher dans la table impressions
+            ba = getFileFromSQL(docmt);
+        if (ba.size())
+            docmt->setimageblob(ba);
+    }
+    else if (docmt->isText())
+    {
+        //!> il s'agit d'un document écrit, on le traduit en pdf et on l'affiche
+        if (docmt->pdforigin() != QByteArray())
+        {
+            docmt           ->setimageformat(PDF);
+            docmt           ->setimageblob(docmt->pdforigin());
+        }
+        else
+        {
+            QString textentete  = docmt->textentete();
+
+            //! Toute la suite sert à nettoyer le code html des entête, pied de page et corps des premières versions de Rufus
+            if (Utils::epureFontFamily(textentete) || Utils::corrigeErreurHtmlEntete(textentete, docmt->isALD()))
+                ItemsList::update(docmt, CP_TEXTENTETE_DOCSEXTERNES, textentete);
+            QString textcorps   = docmt->textcorps();
+            if (Utils::epureFontFamily(textcorps))
+                ItemsList::update(docmt, CP_TEXTCORPS_DOCSEXTERNES, textcorps);
+            QString textpied    = docmt->textpied();
+            if (Utils::epureFontFamily(textpied))
+                ItemsList::update(docmt, CP_TEXTPIED_DOCSEXTERNES, textpied);
+
+            //! émission du pdf
+            QTextEdit   *Etat_textEdit = new UpTextEdit;
+            Etat_textEdit   ->setText(textcorps);
+            TextPrinter *TexteAImprimer = new TextPrinter();
+            TexteAImprimer  ->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
+            TexteAImprimer  ->setHeaderText(textentete);
+            TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? TaillePieddePageOrdoLunettes() : TaillePieddePage());
+            TexteAImprimer  ->setFooterText(textpied);
+            TexteAImprimer  ->setTopMargin(TailleTopMarge());
+            ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());
+            docmt           ->setimageformat(PDF);
+            docmt           ->setimageblob(ba);
+            delete Etat_textEdit;
+            delete TexteAImprimer;
+        }
+    }
+}

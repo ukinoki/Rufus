@@ -30,14 +30,15 @@ PlayerControls::PlayerControls(QWidget *parent)
     wdg_stopButton->setEnabled(false);
 
     wdg_slider      = new QSlider(Qt::Horizontal,this);
-    wdg_slider      ->setFixedWidth(250);
+    wdg_slider      ->setMaximumWidth(250);
     wdg_slider      ->setEnabled(true);
     wdg_slider      ->setRange(0, Utils::MaxInt());
     wdg_labelDuration    = new QLabel(this);
     wdg_labelDuration   ->setAlignment(Qt::AlignRight);
 
     QBoxLayout *layout = new QHBoxLayout;
-    layout->setContentsMargins(QMargins()); //Change setMargins(0)
+    layout->setContentsMargins(5,5,5,5); //Change setMargins(0)
+    layout->setSpacing(5);
     layout->addWidget(wdg_stopButton);
     layout->addWidget(wdg_playButton);
     layout->addWidget(wdg_slider);
@@ -48,7 +49,7 @@ PlayerControls::PlayerControls(QWidget *parent)
 
     connect(wdg_playButton, &QAbstractButton::clicked, this,    &PlayerControls::playClicked);
     connect(wdg_stopButton, &QAbstractButton::clicked, this,    &PlayerControls::stopClicked);
-    setFixedWidth(450);
+    //setFixedWidth(450);
 }
 
 PlayerControls::~PlayerControls()

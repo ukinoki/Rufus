@@ -222,6 +222,7 @@ private:
 public:
     QString dirnamepdf() const;
     void setDirnamepdf(const QString &newDirnamepdf);
+    void                    CalcImageDocument(DocExterne *docmt);
 
     QPrinter*               printer() {return m_printer;}
     bool                    Print(QList<QImage> listimage);

@@ -54,7 +54,7 @@ dlg_paiementdirect::dlg_paiementdirect(QList<int> ListidActeAPasser, QWidget *pa
     ui->Commissionwidget      ->setMaximumHeight(maxheight);
     ui->CompteCreditewidget   ->setMaximumHeight(maxheight);
 
-    ui->dateEdit                ->setDisplayFormat(tr("dd/MM/yyy"));
+    ui->dateEdit                ->setDisplayFormat(tr("dd/MM/yyyy"));
 
     m_fermealafin = (m_listidactes.size() > 0);
 
