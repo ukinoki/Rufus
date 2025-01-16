@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listetiers.h"
 
 dlg_listetiers::dlg_listetiers(QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/ListeTiers",parent)
+    UpDialog(Nom_fiche_ListeTiers,parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des tiers payants"));

@@ -468,7 +468,7 @@ void dlg_comptes::RemplirTableArchives()
 }
 void dlg_comptes::VoirArchives()
 {
-    dlg_archives            = new UpDialog(PATH_FILE_INI, Position_Fiche Nom_fiche_Archives, this);
+    dlg_archives            = new UpDialog(Nom_fiche_Archives, this);
     wdg_tablearchives       = new UpTableWidget();
     wdg_listarchivescombo   = new QComboBox();
     wdg_lbltitre            = new UpLabel();

@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QHBoxLayout>
 #include <QSettings>
+#include <QtCore/qdir.h>
 #include "macros.h"
 #include "icons.h"
 
@@ -39,7 +40,7 @@ class UpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UpDialog(QString NomSettings, QString NomPosition, QWidget *parent = Q_NULLPTR);
+    explicit UpDialog(QString NomFiche, QWidget *parent = Q_NULLPTR);
     explicit UpDialog(QWidget *parent = Q_NULLPTR);
     enum Button {
                 NoButton                = 0x0,
@@ -59,10 +60,8 @@ public:
 
 private:
     bool            m_enregistreposition;
-    QString         m_position;
     Mode            m_mode;
     QString         m_nomfichierini;
-    QSettings       *m_settings;
     QHBoxLayout     *wdg_buttonslayout;
     QWidget         *wdg_buttonswidget;
     void            AjouteLay();

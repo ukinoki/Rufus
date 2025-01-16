@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationtiers.h"
 
 dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentTIERS", parent),
+    UpDialog(Nom_fiche_IdentTiers, parent),
     ui(new Ui::dlg_identificationtiers)
 {
     ui->setupUi(this);

@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listeiols.h"
 
 dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/ListeIOLs",parent)
+    UpDialog(Nom_fiche_ListeIOLs,parent)
 {
     m_onlyactifs = onlyactifs;
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);

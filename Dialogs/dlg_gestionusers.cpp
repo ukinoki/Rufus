@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui/qpainter.h>
 
 dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionGestionUsers", parent),
+    UpDialog(Nom_fiche_GestionUsers, parent),
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);

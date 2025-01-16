@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listelieux.h"
 
 dlg_listelieux::dlg_listelieux(QWidget *parent)
-    : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionLieux", parent)
+    : UpDialog(Nom_fiche_GestionLieux, parent)
 {
     setWindowModality(Qt::WindowModal);
     db              = DataBase::I();

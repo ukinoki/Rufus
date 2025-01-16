@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_listevilles::dlg_listevilles(QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionVilles", parent)
+    UpDialog(Nom_fiche_ListeVilles, parent)
 {
     Datas::I()->villes->initListe(Villes::CUSTOM);
     m_mapvilles= Datas::I()->villes->villes();

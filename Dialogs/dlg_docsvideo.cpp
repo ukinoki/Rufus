@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsvideo.h"
 
 dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionDocsVideo", parent)
+    UpDialog(Nom_fiche_DocsVideo, parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     m_currentpatient = pat;

@@ -33,7 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \param parent
  */
 dlg_identificationcommercial::dlg_identificationcommercial(Mode mode, Item *itm, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentCOMMERCIAL", parent)
+    UpDialog(Nom_fiche_IdentCommercial, parent)
 {
     setWindowModality(Qt::WindowModal);
     m_mode = mode;

@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationmanufacturer.h"
 
 dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufacturer *man, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionIdentManuFacturer", parent),
+    UpDialog(Nom_fiche_IdentManufacturer, parent),
     ui(new Ui::dlg_identificationmanufacturer)
 {
     ui->setupUi(this);

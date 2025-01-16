@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listetypesinterventions.h"
 
 dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, QWidget *parent) :
-    UpDialog(PATH_FILE_INI, "PositionsFiches/PositionTypesInterventions", parent)
+    UpDialog(Nom_fiche_TypesInterventions, parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowModality(Qt::WindowModal);

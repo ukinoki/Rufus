@@ -1,7 +1,7 @@
 #include "dlg_imageviewer.h"
 #include <QtWidgets/qheaderview.h>
 
-dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionViewer", parent)
+dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
 {
     m_docs                      = Docs;
     m_formatdate                = tr("dd-MM-yyyy");

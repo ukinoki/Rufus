@@ -62,12 +62,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     RecalcCurrentDateTime();
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
-    if (proc->settings()->value("PositionsFiches/Rufus") != QVariant())
-    {
-        restoreGeometry(proc->settings()->value("PositionsFiches/Rufus").toByteArray());
-        proc->settings()->remove("PositionsFiches/Rufus");
-    }
-    else
+    if (proc->settings()->value(Position_Fiche Nom_fiche_Rufus) != QVariant())
         restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Rufus).toByteArray());
     setWindowIcon(Icons::icSunglasses());
 

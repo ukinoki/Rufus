@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_programmationinterventions.h"
 
-dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Acte *act, QWidget *parent) : UpDialog(PATH_FILE_INI, "PositionsFiches/PositionProgramIntervention",parent)
+dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Acte *act, QWidget *parent) : UpDialog(Nom_fiche_ProgramIntervention, parent)
 {
     setcurrentsession(Q_NULLPTR);
     setcurrentintervention(Q_NULLPTR);

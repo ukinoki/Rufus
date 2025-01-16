@@ -18,8 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_fontdialog.h"
 #include "icons.h"
 
-dlg_fontdialog::dlg_fontdialog(QString nomSettings, QString Position, QWidget *parent) :
-    UpDialog(nomSettings, Position, parent)
+dlg_fontdialog::dlg_fontdialog(QWidget *parent) :
+    UpDialog(Nom_fiche_FontDialog, parent)
 {
     setWindowModality(Qt::WindowModal);
     setFixedWidth(280);

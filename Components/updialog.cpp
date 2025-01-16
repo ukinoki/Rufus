@@ -16,20 +16,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "updialog.h"
+#include <QtCore/qdir.h>
 
-UpDialog::UpDialog(QString NomSettings, QString NomPosition, QWidget *parent) : QDialog(parent)
+UpDialog::UpDialog(QString NomFiche, QWidget *parent) : QDialog(parent)
 {
     m_enregistreposition    = true;
-    m_position              = NomPosition;
-    m_nomfichierini         = NomSettings;
-    m_settings              = new QSettings(m_nomfichierini, QSettings::IniFormat, this);
-    restoreGeometry(m_settings->value(m_position).toByteArray());
+    restoreGeometry(QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Position_Fiche + NomFiche).toByteArray());
     setFont(qApp->font());
     AjouteLay();
     setStageCount(0);
     m_mode           = NullMode;    
     connect(this, &QDialog::finished, this, [=]{if (m_enregistreposition)
-                                                          m_settings->setValue(m_position, saveGeometry());});}
+                                                          QSettings(PATH_FILE_INI, QSettings::IniFormat).setValue(Position_Fiche + NomFiche, saveGeometry());});}
 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {
