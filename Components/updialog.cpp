@@ -25,9 +25,14 @@ UpDialog::UpDialog(QString NomFiche, QWidget *parent) : QDialog(parent)
     setFont(qApp->font());
     AjouteLay();
     setStageCount(0);
-    m_mode           = NullMode;    
+    m_mode           = NullMode;
     connect(this, &QDialog::finished, this, [=]{if (m_enregistreposition)
-                                                          QSettings(PATH_FILE_INI, QSettings::IniFormat).setValue(Position_Fiche + NomFiche, saveGeometry());});}
+        {
+            QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+            sets.setValue(Position_Fiche + NomFiche, saveGeometry());
+        }
+    });
+}
 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {

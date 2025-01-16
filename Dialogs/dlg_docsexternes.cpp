@@ -270,7 +270,7 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
         }
     };
 
-    int imp;
+    int imp = 0;
     switch (imptce) {
     case Min:   imp = 0; break;
     case Norm:  imp = 1; break;

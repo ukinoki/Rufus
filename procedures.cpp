@@ -4596,7 +4596,7 @@ bool Procedures::Ouverture_Ports_Series(QWidget *parent)
     {
         QString PortCom = "";
         QString DeviceName = "";
-        Utils::SerialSettings sparamportserie;
+        Utils::SerialSettings sparamportserie = s_paramPortSerieFronto;
         upSerialPort *serialport = Q_NULLPTR;
         switch (appareil) {
         case Fronto:        sparamportserie = s_paramPortSerieFronto;       PortCom = m_portFronto;     DeviceName = tr("Fronto");      break;
