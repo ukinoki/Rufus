@@ -2021,18 +2021,31 @@ void Rufus::GestionComptes()
     delete Dlg_Cmpt;
 }
 
-/*! exporte les documents d'imagerie inscrits dans la base par les postes distants
+
+/*!
+ *  exporte les documents d'imagerie inscrits dans la base par les postes distants
  *  pour les archiver en fichiers standards sur le disque dur du serveur
  *  les fichiers d'imagerie ou les factures enregistrés par des utilisateurs distants sont stockés dans des champs blob
  *  "pdf" ou "jpg" de la table Rufus.Impressions pour les imageries et ComptaMedicale.Factures pour les factures.
- *  Cette fonction, appelée par le timer t_timerUserConnecte ou par le bouton ui->ExportImagespushButton,
- *  permet de récupérer le contenu blob de ces fichiers
- *  et de recréer un fichier d'imagerie stocké dans le système de fichiers du serveur */
+ *  Cette fonction est appelée par le timer t_timerExportDocs
+ */
+
 void Rufus::ExporteDocs()
-{
+{    
+    auto stopexport = [=](QString title, QString msg, QString errormsg) {
+        if (UpMessageBox::Question(this, title, msg)
+                                   !=UpSmallButton::STARTBUTTON)
+        {
+            t_timerExportDocs->disconnect();
+             QString msg = tr("Le processus d'importation automatique des images a été stoppé en raison de l'erreur") +
+                    "<br/><font color=\"red\"><b>" + errormsg + "</b></font><br/>" +
+                    tr("Il vous faut relancer le programme pour qu'il reprenne");
+            ShowMessage::I()->SplashMessage(msg, 6000);
+            return true;
+        }
+            else return false;
+    };
     if (!isPosteImport())
-        return;
-    if (m_pasDExportPourLeMoment)
         return;
     QString pathDirImagerie = db->dirimagerie();
     RecalcCurrentDateTime();
@@ -2051,22 +2064,20 @@ void Rufus::ExporteDocs()
         int hour = min/60;
         min = min - (hour*60);
         QString tps = QTime(hour,min).toString("H'H'mm'mn'");
-        if (UpMessageBox::Question(this, tr("Nombreux documents à convertir"),
-                                   tr("Il y a ") + QString::number(total) + tr(" documents à convertir.") +"\n" +
-                                   tr("Cette procédure devrait durer environ ") + tps + "\n" +
-                                   tr("et figera l'éxécution du programme durant ce temps") + tps + "\n" +
-                                   tr("Voulez vous le faire maintenant?"))
-                                   !=UpSmallButton::STARTBUTTON)
-        {
-            t_timerExportDocs->disconnect();
-            m_pasDExportPourLeMoment = true;
+        QString title = tr("Nombreux documents à convertir");
+        QString msg = tr("Il y a ") + QString::number(total) + tr(" documents à convertir.") +"\n" +
+                tr("Cette procédure devrait durer environ ") + tps + "\n" +
+                tr("et figera l'éxécution du programme durant ce temps") + tps + "\n" +
+                tr("Voulez vous le faire maintenant?");
+        QString errormsg = tr("Trop de documents à rapatrier");
+        if (stopexport(title, msg, errormsg))
             return;
-        }
     }
     if (total==0)
         return;
 
-/* LES DOCUMENTS  ============================================*/
+/*! MEDICAL IMAGES  ============================================*/
+
     int faits = 0;
     QTime debut = QTime::currentTime();
     QStringList listmsg;
@@ -2081,19 +2092,20 @@ void Rufus::ExporteDocs()
             return;
         }
 
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    //              LES JPG
-    //-----------------------------------------------------------------------------------------------------------------------------------------
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
+    //!              IMAGES JPG
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
+
     QString req = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_JPG_DOCSEXTERNES ","
                             CP_LIENFICHIER_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES
                             " FROM " TBL_DOCSEXTERNES
                             " where " CP_JPG_DOCSEXTERNES " is not null";
-    //qDebug() << req;
+
     QList<QVariantList> listexportjpg = db->StandardSelectSQL(req, m_ok );
     if (m_ok)
         for (int i=0; i<listexportjpg.size(); i++)
         {
-            /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
+            /*! si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
             if (listexportjpg.at(i).at(5).toString() != "")
             {
                 QString CheminFichier = pathDirImagerie + NOM_DIR_IMAGES + listexportjpg.at(i).at(5).toString();
@@ -2103,27 +2115,31 @@ void Rufus::ExporteDocs()
                     continue;
                 }
             }
+
+            /*! Création dossier d'accueil pour le fichier */
             QDate datetransfer    = listexportjpg.at(i).at(3).toDate();
             QString CheminOKTransfrDirImg    = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
             if (!QDir(CheminOKTransfrDirImg).exists())
             {
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
-                    ShowMessage::I()->SplashMessage(msg, 3000);
-                    return;
+                    QString title = tr("pas de dossier de sauvegarde");
+                    QString msg = tr("Impossible de créer le dossier de sauvegarde ") +
+                            "<br/><font color=\"red\"><b>" + CheminOKTransfrDirImg +
+                            "</b></font><br/>" + tr(" pour enregistrer les fichiers image de la base") +
+                            tr("Voulez vous stopper le processus d'importation?");
+                    if (stopexport(title, msg, title))
+                        return;
                 }
             }
             Utils::setDirPermissions(CheminOKTransfrDirImg);
+
+            /*! Création du nom de fichier */
             QString NomFileDoc = listexportjpg.at(i).at(1).toString() + "_" + listexportjpg.at(i).at(6).toString() + "-"
                     + listexportjpg.at(i).at(2).toString().replace("/",".") + "_"
                     + listexportjpg.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
                     + "-" + listexportjpg.at(i).at(0).toString()  + ".jpg";
             QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc + "." JPG;
-            QString CheminOKTransfrProv = CheminOKTransfrDirImg + "/" + NomFileDoc + "prov." JPG;
-            QByteArray ba = listexportjpg.at(i).at(4).toByteArray();
-            QPixmap pix;
-            pix.loadFromData(ba);
             /*
              * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
              * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
@@ -2134,28 +2150,47 @@ void Rufus::ExporteDocs()
                     out << ba;
                 }
             */
-            if (!pix.save(CheminOKTransfrProv, "jpeg"))
+
+            /*! Ecriture du fichier sur le disque et compression du fichier */
+            QByteArray ba = listexportjpg.at(i).at(4).toByteArray();
+            QPixmap pix;
+            pix.loadFromData(ba);
+            if (!pix.save(CheminOKTransfrDoc, "jpeg"))
             {
-                //qDebug() << "erreur";
-                return;
+                QString title = tr("pas de fichier de sauvegarde");
+                QString msg = tr("Impossible d'enregistrer le fichier ") +
+                        "<br/><font color=\"red\"><b>" + CheminOKTransfrDoc +
+                        "</b></font><br/>" + tr(" pour enregistrer les fichiers image de la base") + "<br/>" +
+                        tr("Voulez vous stopper le processus d'importation?");
+                if (stopexport(title, msg, title))
+                    return;
             }
-            if (!Utils::CompressFileToJPG(CheminOKTransfrProv))
+            QString title = tr("problème de compression du fichier");
+            QString msg = "Triumph Rocket3 GT";
+            if (!Utils::CompressFileToJPG(CheminOKTransfrDoc, msg))
             {
-                db->SupprRecordFromTable(listexportjpg.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
-                continue;
+                msg += "<br/>" +
+                        tr("Voulez vous stopper le processus d'importation?");
+                if (stopexport(title, msg, title))
+                    return;
             }
-            QFile prov(CheminOKTransfrProv);
-            if (prov.open(QIODevice::ReadWrite))
-            {
-                Utils::copyWithPermissions(prov, CheminOKTransfrDoc);
-                Utils::removeWithoutPermissions(prov);
-            }
-            else
-                return;
+            QFile CC(CheminOKTransfrDoc);
+            CC.open(QIODevice::ReadWrite);
+            CC.setPermissions( QFileDevice::ReadOther
+                              | QFileDevice::ReadGroup
+                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+            CC.close();
+
+            /*! Si l'enregistrement et la compression du fichier ont réussi,
+                *  effacement du champs blob de la table
+                *  enregistrement du lien vers le fichier sauvegardé
+             */
             db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_JPG_DOCSEXTERNES " = null,"
                             CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG
                             "' where " CP_ID_DOCSEXTERNES " = " + listexportjpg.at(i).at(0).toString() );
             faits ++;
+
             int nsec = debut.secsTo(QTime::currentTime());
             int min = nsec/60;
             int hour = min/60;
@@ -2170,14 +2205,20 @@ void Rufus::ExporteDocs()
             UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 10);
         }
 
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    //              LES PDF
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    QString reqpdf = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_PDF_DOCSEXTERNES ", " CP_LIENFICHIER_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES " FROM " TBL_DOCSEXTERNES " where " CP_PDF_DOCSEXTERNES " is not null";
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
+    //!              LES PDF
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
+
+    QString reqpdf = "SELECT " CP_ID_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ", " CP_DATE_DOCSEXTERNES ", " CP_PDF_DOCSEXTERNES ", "
+                    CP_LIENFICHIER_DOCSEXTERNES ", " CP_COMPRESSION_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES
+                    " FROM " TBL_DOCSEXTERNES
+                    " where " CP_PDF_DOCSEXTERNES " is not null";
+
     QList<QVariantList> listexportpdf = db->StandardSelectSQL(reqpdf, m_ok );
     if (m_ok)
         for (int i=0; i<listexportpdf.size(); i++)
         {
+            /*! si le lien vers le fichier est valide, on efface le champ pdf et on passe à la réponse suivante*/
             if (listexportpdf.at(i).at(5).toString() != "")
             {
                 QString CheminFichier = pathDirImagerie + NOM_DIR_IMAGES + listexportpdf.at(i).at(5).toString();
@@ -2187,28 +2228,35 @@ void Rufus::ExporteDocs()
                     continue;
                 }
             }
+
+            /*! Création du dossier d'accueil pour le fichier */
             QDate datetransfer    = listexportpdf.at(i).at(3).toDate();
             QString CheminOKTransfrDirImg      = CheminOKTransfrDir + "/" + datetransfer.toString("yyyy-MM-dd");
             if (!QDir(CheminOKTransfrDirImg).exists())
             {
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
-                    ShowMessage::I()->SplashMessage(msg, 3000);
-                    return;
+                    QString title = tr("pas de dossier de sauvegarde");
+                    QString msg = tr("Impossible de créer le dossier de sauvegarde ") +
+                            "<br/><font color=\"red\"><b>" + CheminOKTransfrDirImg +
+                            "</b></font><br/>" + tr(" pour enregistrer les fichiers image de la base") +
+                            tr("Voulez vous stopper le processus d'importation?");
+                    if (stopexport(title, msg, title))
+                        return;
                 }
             }
             Utils::setDirPermissions(CheminOKTransfrDirImg);
 
+            /*! Création du nom de fichier */
             QString NomFileDoc = listexportpdf.at(i).at(1).toString() + "_" + listexportpdf.at(i).at(7).toString() + "-"
                     + listexportpdf.at(i).at(2).toString().replace("/",".") + "_"
                     + listexportpdf.at(i).at(3).toDate().toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
                     + "-" + listexportpdf.at(i).at(0).toString()  + ".pdf";
             QString CheminOKTransfrDoc = CheminOKTransfrDirImg + "/" + NomFileDoc;
 
+            /*! Ecriture du fichier sur le disque */
             QByteArray bapdf;
             bapdf.append(listexportpdf.at(i).at(4).toByteArray());
-
             QBuffer buf(&bapdf);
             buf.open(QIODevice::ReadWrite);
             QPdfDocument document;
@@ -2239,13 +2287,12 @@ void Rufus::ExporteDocs()
                         out << bapdf;
                     }
                 }
+                /*! le fichier image est invalide, on le supprime */
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 continue;
             }
-
-#if !defined(Q_OS_WIN)
             QFile CC(CheminOKTransfrDoc);
             CC.open(QIODevice::ReadWrite);
             CC.setPermissions( QFileDevice::ReadOther
@@ -2253,7 +2300,11 @@ void Rufus::ExporteDocs()
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
-#endif
+
+            /*! Si l'enregistrement et la compression du fichier ont réussi,
+                *  effacement du champs blob de la table
+                *  enregistrement du lien vers le fichier sauvegardé
+             */
             db->StandardSQL("update " TBL_DOCSEXTERNES " set " CP_PDF_DOCSEXTERNES " = null, " CP_COMPRESSION_DOCSEXTERNES " = null,"
                             CP_LIENFICHIER_DOCSEXTERNES " = '/" + datetransfer.toString("yyyy-MM-dd") + "/" + Utils::correctquoteSQL(NomFileDoc)  + "'"
                             " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString());
@@ -2281,7 +2332,7 @@ void Rufus::ExporteDocs()
 
 
 
-/* LES FACTURES  ============================================*/
+/*! INVOICES  ============================================*/
 
     faits = 0;
     debut = QTime::currentTime();
@@ -2296,9 +2347,9 @@ void Rufus::ExporteDocs()
             return;
         }
 
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    //              LES JPG
-    //-----------------------------------------------------------------------------------------------------------------------------------------
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
+    //!              INVOICES JPG
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
     req = "SELECT "
             CP_ID_FACTURES ", "
             CP_DATEFACTURE_FACTURES ", "
@@ -2309,12 +2360,12 @@ void Rufus::ExporteDocs()
             CP_JPG_FACTURES
             " FROM " TBL_FACTURES
             " where " CP_JPG_FACTURES " is not null";
-    //qDebug() << req;
+
     QList<QVariantList> listexportjpgfact = db->StandardSelectSQL(req, m_ok);
     if (m_ok)
         for (int i=0; i<listexportjpgfact.size(); i++)
         {
-            /* si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
+            /*! si le lien vers le fichier est valide, on efface le champ jpg et on passe à la réponse suivante*/
             if (listexportjpgfact.at(i).at(2).toString() != "")
             {
                 QString CheminFichier = pathDirImagerie + NOM_DIR_FACTURES + listexportjpgfact.at(i).at(2).toString();
@@ -2324,9 +2375,9 @@ void Rufus::ExporteDocs()
                     continue;
                 }
             }
-            /* nommage d'un fichier facture
-         * idFacture + "_" + "ECHEANCIER ou FACTURE" + "_" + Intitule + "_" + DateFacture + ( + "_" + iddepense si facture et pas échéancier)
-         */
+            /*! nommage du fichier facture
+                * idFacture + "_" + "ECHEANCIER ou FACTURE" + "_" + Intitule + "_" + DateFacture + ( + "_" + iddepense si facture et pas échéancier)
+            */
             QDate datetransfer  = listexportjpgfact.at(i).at(1).toDate();
             QString user;
 
@@ -2334,8 +2385,9 @@ void Rufus::ExporteDocs()
                     + (listexportjpgfact.at(i).at(4).toInt()==1? ECHEANCIER : FACTURE) + "-"
                     + listexportjpgfact.at(i).at(3).toString().replace("/",".") + "_"
                     + datetransfer.toString("yyyyMMdd");
-            // on recherche le user à l'origine de cette facture
-            QList<QVariantList> Listeusr;
+
+            //! on recherche la dépense à l'origine de cette facture
+            QList<QVariantList> Listedep;
             if (listexportjpgfact.at(i).at(4).toInt()==1)          // c'est un échéancier
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
                                                                                                               " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
@@ -2344,58 +2396,79 @@ void Rufus::ExporteDocs()
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
                                                                                                               " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
                                                                                                               " and " CP_ID_DEPENSES " = " + listexportjpgfact.at(i).at(5).toString();
-            Listeusr = db->StandardSelectSQL(req, m_ok);
-            if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
+            Listedep = db->StandardSelectSQL(req, m_ok);
+
+            //! il n'y a aucune depense enregistrée pour cette facture, on la détruit
+            if (Listedep.size()==0)
             {
                 db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
             }
-            user = Listeusr.at(0).at(1).toString();
+            user = Listedep.at(0).at(1).toString();
             if (listexportjpgfact.at(i).at(4).toInt()!=1)
                 NomFileDoc += "-"+listexportjpgfact.at(i).at(5).toString();
 
+            /*! Creation du dossier d'accueil pour le fichier */
             QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user;
             if (!QDir(CheminOKTransfrDirImg).exists())
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
-                    ShowMessage::I()->SplashMessage(msg, 3000);
-                    return;
+                    QString title = tr("pas de dossier de sauvegarde");
+                    QString msg = tr("Impossible de créer le dossier de sauvegarde ") +
+                            "<br/><font color=\"red\"><b>" + CheminOKTransfrDirImg +
+                            "</b></font><br/>" + tr(" pour enregistrer les fichiers image de la base") +
+                            tr("Voulez vous stopper le processus d'importation?");
+                    if (stopexport(title, msg, title))
+                        return;
                 }
 
+            /*! Création du nom de fichier */
             QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc + "." JPG;
-            QString CheminOKTransfrProv = CheminOKTransfrDirImg + "/" + NomFileDoc + "prov." JPG;
+            /*
+            * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
+            * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
+            * QFile prov (CheminOKTransfrProv);
+                if (prov.open(QIODevice::Append))
+                {
+                    QTextStream out(&prov);
+                    out << ba;
+                }
+            */
+            /*! Ecriture du fichier sur le disque et compression */
             QByteArray ba = listexportjpgfact.at(i).at(6).toByteArray();
             QPixmap pix;
             pix.loadFromData(ba);
-            /*!
-         * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-         * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
-         * QFile prov (CheminOKTransfrProv);
-            if (prov.open(QIODevice::Append))
+            if (!pix.save(CheminOKTransfrDoc, "jpeg"))
             {
-                QTextStream out(&prov);
-                out << ba;
+                QString title = tr("pas de fichier de sauvegarde");
+                QString msg = tr("Impossible d'enregistrer le fichier ") +
+                        "<br/><font color=\"red\"><b>" + CheminOKTransfrDoc +
+                        "</b></font><br/>" + tr(" pour enregistrer les fichiers image de la base") + "<br/>" +
+                        tr("Voulez vous stopper le processus d'importation?");
+                if (stopexport(title, msg, title))
+                    return;
             }
-        */
-            if (!pix.save(CheminOKTransfrProv, "jpeg"))
+            QString title = tr("problème de compression du fichier");
+            QString msg = "Triumph Rocket3 GT";
+            if (!Utils::CompressFileToJPG(CheminOKTransfrDoc, msg))
             {
-                //qDebug() << "erreur";
-                return;
+                msg += "<br/>" +
+                        tr("Voulez vous stopper le processus d'importation?");
+                if (stopexport(title, msg, title))
+                    return;
             }
-            if (!Utils::CompressFileToJPG(CheminOKTransfrProv))
-            {
-                db->SupprRecordFromTable(listexportjpgfact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
-                continue;
-            }
-            QFile prov(CheminOKTransfrProv);
-            if (prov.open(QIODevice::ReadWrite))
-            {
-                Utils::copyWithPermissions(prov, CheminOKTransfrDoc);
-                Utils::removeWithoutPermissions(prov);
-            }
-            else
-                return;
+            QFile CC(CheminOKTransfrDoc);
+            CC.open(QIODevice::ReadWrite);
+            CC.setPermissions( QFileDevice::ReadOther
+                              | QFileDevice::ReadGroup
+                              | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
+                              | QFileDevice::ReadUser   | QFileDevice::WriteUser);
+            CC.close();
+
+            /*! Si l'enregistrement et la compression du fichier ont réussi,
+                *  effacement du champs blob de la table factures
+                *  enregistrement du lien vers le fichier sauvegardé
+             */
             db->StandardSQL("update " TBL_FACTURES " set " CP_JPG_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc) + "." JPG "'"
                             " where " CP_ID_FACTURES " = " + listexportjpgfact.at(i).at(0).toString());
             faits ++;
@@ -2413,9 +2486,9 @@ void Rufus::ExporteDocs()
             UpSystemTrayIcon::I()->showMessages(tr("Messages"), listmsg, Icons::icSunglasses(), 10);
         }
 
-    //-----------------------------------------------------------------------------------------------------------------------------------------
-    //              LES PDF
-    //-----------------------------------------------------------------------------------------------------------------------------------------
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
+    //!              INVOICES PDF
+    //!-----------------------------------------------------------------------------------------------------------------------------------------
     reqpdf = "SELECT "
             CP_ID_FACTURES ", "
             CP_DATEFACTURE_FACTURES ", "
@@ -2430,6 +2503,7 @@ void Rufus::ExporteDocs()
     if (m_ok)
         for (int i=0; i<listexportpdffact.size(); i++)
         {
+            /*! si le lien vers le fichier est valide, on efface le champ pdf et on passe à la réponse suivante*/
             if (listexportpdffact.at(i).at(2).toString() != "")
             {
                 QString CheminFichier = pathDirImagerie + NOM_DIR_FACTURES + listexportpdffact.at(i).at(2).toString();
@@ -2439,8 +2513,13 @@ void Rufus::ExporteDocs()
                     continue;
                 }
             }
+
+            /*! nommage du fichier facture
+                * idFacture + "_" + "ECHEANCIER ou FACTURE" + "_" + Intitule + "_" + DateFacture + ( + "_" + iddepense si facture et pas échéancier)
+            */
             QDate datetransfer  = listexportpdffact.at(i).at(1).toDate();
             QString user;
+            int iddepense = listexportpdffact.at(i).at(5).toInt();
 
             QString NomFileDoc = listexportpdffact.at(i).at(0).toString() + "_"
                     + (listexportpdffact.at(i).at(4).toInt()==1? ECHEANCIER : FACTURE) + "-"
@@ -2455,9 +2534,11 @@ void Rufus::ExporteDocs()
             else                                                // c'est une facture, l'iduser est dans la table
                 req = "select dep." CP_IDUSER_DEPENSES ", " CP_LOGIN_USR " from " TBL_DEPENSES " dep, " TBL_UTILISATEURS " usr"
                                                                                                               " where dep." CP_IDUSER_DEPENSES "  = usr." CP_ID_USR
-                                                                                                              " and " CP_ID_DEPENSES " = " + listexportpdffact.at(i).at(5).toString();
+                                                                                                              " and " CP_ID_DEPENSES " = " + QString::number(iddepense);
             Listeusr = db->StandardSelectSQL(req, m_ok);
-            if (Listeusr.size()==0) // il n'y a aucune depense enregistrée pour cette facture, on la détruit
+
+            //! il n'y a aucune depense enregistrée pour cette facture, on la détruit
+            if (Listeusr.size()==0)
             {
                 db->SupprRecordFromTable(listexportpdffact.at(i).at(0).toInt(), CP_ID_FACTURES, TBL_FACTURES);
                 continue;
@@ -2466,19 +2547,26 @@ void Rufus::ExporteDocs()
             if (listexportpdffact.at(i).at(4).toInt()!=1)
                 NomFileDoc += "-"+listexportpdffact.at(i).at(5).toString();
 
+            /*! Creation du dossier d'accueil pour le fichier */
             QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user;
             if (!QDir(CheminOKTransfrDirImg).exists())
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
-                    QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDirImg + "</b></font>" + tr(" invalide");
-                    ShowMessage::I()->SplashMessage(msg, 3000);
+                    QString title = tr("pas de dossier de sauvegarde");
+                    QString msg = tr("Impossible de créer le dossier de sauvegarde ") +
+                            "<br/><font color=\"red\"><b>" + CheminOKTransfrDirImg +
+                            "</b></font><br/>" + tr(" pour enregistrer les fichiers image de la base") +
+                            tr("Voulez vous stopper le processus d'importation?");
+                    if (stopexport(title, msg, title))
                     return;
                 }
+
+            /*! Création du nom de fichier */
             QString CheminOKTransfrDoc      = CheminOKTransfrDirImg + "/" + NomFileDoc + "." PDF;
 
+            /*! Ecriture du fichier sur le disque */
             QByteArray bapdf;
             bapdf.append(listexportpdffact.at(i).at(6).toByteArray());
-
             QBuffer buf(&bapdf);
             buf.open(QIODevice::ReadWrite);
             QPdfDocument document;
@@ -2511,12 +2599,15 @@ void Rufus::ExporteDocs()
                         out << bapdf;
                     }
                 }
-                QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + listexportpdf.at(i).at(0).toString();
+                /*! le fichier facture est invalide, on le supprime */
+                QString delreq = "delete from  " TBL_FACTURES " where " CP_ID_FACTURES " = " + listexportpdf.at(i).at(0).toString();
                 //qDebug() << delreq;
                 db->StandardSQL(delreq);
+                QString delfact = "update " TBL_DEPENSES " set " CP_IDFACTURE_DEPENSES " = null where " CP_ID_DEPENSES " = " + QString::number(iddepense);
+                //qDebug() << delreq;
+                db->StandardSQL(delfact);
                 continue;
             }
-
             QFile CC(CheminOKTransfrDoc);
             CC.open(QIODevice::ReadWrite);
             CC.setPermissions(QFileDevice::ReadOther
@@ -2524,6 +2615,11 @@ void Rufus::ExporteDocs()
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                               | QFileDevice::ReadUser   | QFileDevice::WriteUser);
             CC.close();
+
+            /*! Si l'enregistrement et la compression du fichier ont réussi,
+                *  effacement du champs blob de la table factures
+                *  enregistrement du lien vers le fichier sauvegardé
+             */
             db->StandardSQL("update " TBL_FACTURES " set " CP_PDF_FACTURES " = null, " CP_LIENFICHIER_FACTURES " = '/" + user + "/" + Utils::correctquoteSQL(NomFileDoc)  + "." PDF "'"
                             " where " CP_ID_FACTURES " = " + listexportpdffact.at(i).at(0).toString());
             faits ++;

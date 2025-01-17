@@ -134,6 +134,7 @@ private:
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
     QByteArray m_logo= QByteArray();//! le code barre RPPS
     QImage m_logoimg = QImage();
+    QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(); //! identifiants pour les codes barre
 
     int m_soignant;
     qlonglong m_numPS;

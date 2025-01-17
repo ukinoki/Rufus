@@ -341,7 +341,6 @@ private:
     ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;
     bool                    isPosteImport();
     bool                    m_isposteImport = false;
-    bool                    m_pasDExportPourLeMoment = false;
     UpSmallButton           *wdg_modifIdentificationupSmallButton;
 
 private:

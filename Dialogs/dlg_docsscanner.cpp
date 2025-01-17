@@ -317,7 +317,8 @@ void dlg_docsscanner::ValideFiche()
     QString suffixe = QFileInfo(file_origin).suffix().toLower();
     if (suffixe == JPG ||suffixe == PNG || suffixe == JPEG)
     {
-        if (!Utils::CompressFileToJPG(filename))
+        QString msg = "";
+        if (!Utils::CompressFileToJPG(filename, msg))
             return;
         suffixe = JPG;
         file_origin.setFileName(filename);

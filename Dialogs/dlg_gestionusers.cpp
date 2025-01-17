@@ -363,7 +363,8 @@ void dlg_gestionusers::changeLogo()
     QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images) (*.jpg *.jpeg *.png)"));
     if (path_file_origin != "")
     {
-        if (!Utils::CompressFileToJPG(path_file_origin, false, SIZEMAXILOGO))
+        QString msg = "";
+        if (!Utils::CompressFileToJPG(path_file_origin, msg, false, SIZEMAXILOGO))
             return;
         QFile       file_origin(path_file_origin);
         if (file_origin.size() > SIZEMAXILOGO)

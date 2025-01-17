@@ -1286,8 +1286,9 @@ void dlg_identificationIOL::changeImage()
     {
         QString formatdoc = QFileInfo(path_file_origin).suffix().toLower();
         // Contenu du document------------------------------------------------------------------------------------------------------------------------------------------------
+        QString msg = "";
         if ((formatdoc == JPG || formatdoc == JPEG || formatdoc == PNG))
-            if (!Utils::CompressFileToJPG(path_file_origin, false, SIZEMAXIMGIOL))
+            if (!Utils::CompressFileToJPG(path_file_origin, msg, false, SIZEMAXIMGIOL))
                 return;
         QFile       file_origin(path_file_origin);
         file_origin                         .open(QIODevice::ReadOnly);

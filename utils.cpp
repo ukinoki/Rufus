@@ -490,8 +490,9 @@ bool Utils::isFormatRecognized(QFile &fileimg)
     * le fichier d'origine est ajouté dans ce même répertoire
  */
 
-bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsizeimg)
+bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError, int maxsizeimg)
 {
+    bool displaymsg = (msg == "") ;
     qint64                  szorigin, szfinal;
     QFile                   file_origin(pathfile);
     QString                 EchecPath   = EchecDir();
@@ -505,16 +506,18 @@ bool Utils::CompressFileToJPG(QString &pathfile, bool withRecordError, int maxsi
     {
         if (EchecPath == "")
         {
-            QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + EchecPath + "</b></font>" + QObject::tr(" invalide");
-            ShowMessage::I()->SplashMessage(msg, 3000);
+            msg = QObject::tr("Dossier de sauvegarde des erreurs ") + "<font color=\"red\"><b>" + EchecPath + "</b></font>" + QObject::tr(" invalide");
+            if (displaymsg)
+                ShowMessage::I()->SplashMessage(msg, 3000);
             return false;
         }
     }
     /*! on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin */
     if (ProvPath == "")
     {
-        QString msg = QObject::tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + ProvPath + "</b></font>" + QObject::tr(" invalide");
-        ShowMessage::I()->SplashMessage(msg, 3000);
+        msg = QObject::tr("Dossier de sauvegarde provisoire ") + "<font color=\"red\"><b>" + ProvPath + "</b></font>" + QObject::tr(" invalide");
+        if (displaymsg)
+            ShowMessage::I()->SplashMessage(msg, 3000);
         return false;
     }
 

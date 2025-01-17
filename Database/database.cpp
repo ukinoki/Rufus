@@ -214,13 +214,15 @@ QString DataBase::dirimagerie()
     if (m_dirimagerie == QString())
     {
         if (ModeAccesDataBase() == Utils::ReseauLocal)
-            m_dirimagerie = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
-        if (!QDir(m_dirimagerie).exists())
         {
-            if (!Utils::mkpath(m_dirimagerie))
+            m_dirimagerie = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+            if (!QDir(m_dirimagerie).exists())
             {
-                error();
-                return QString();
+                if (!Utils::mkpath(m_dirimagerie))
+                {
+                    error();
+                    return QString();
+                }
             }
         }
         else
@@ -238,12 +240,15 @@ QString DataBase::dirimagerie()
                 m_dirimagerie = dirdata + NOM_DIR_IMAGERIE;
             else
                 m_dirimagerie = dirdata + NOM_DIR_RUFUS NOM_DIR_IMAGERIE;
-            if (!QDir(m_dirimagerie).exists())
+            if (ModeAccesDataBase() == Utils::Poste)
             {
-                if (!Utils::mkpath(m_dirimagerie))
+                if (!QDir(m_dirimagerie).exists())
                 {
-                    error();
-                    return QString();
+                    if (!Utils::mkpath(m_dirimagerie))
+                    {
+                        error();
+                        return QString();
+                    }
                 }
             }
         }

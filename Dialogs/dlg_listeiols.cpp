@@ -1205,7 +1205,8 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
     if (!pix.save(nomfichresize, "jpeg"))
         return;
 
-    if (Utils::CompressFileToJPG(nomfichresize, false, maxsizeimg))
+    QString msg = "";
+    if (Utils::CompressFileToJPG(nomfichresize, msg, false, maxsizeimg))
     {
         QFile file_image(nomfichresize);
         file_image.setFileName(nomfichresize);
