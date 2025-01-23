@@ -25,7 +25,7 @@ class Macros: public QObject
 
 public:
 // Les versions de la base et des ressources
-#define VERSION_BASE                          81  // version de la base de données
+#define VERSION_BASE                          82  // version de la base de données
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
@@ -246,6 +246,7 @@ public:
                             //! Table Rufus.jointuresLieux
 #define CP_IDUSER_JOINTSITE                             "idUser"
 #define CP_IDLIEU_JOINTSITE                             "idLieu"
+#define CP_AMNUMBER_JOINTSITE                           "AMnumber"
 
                             //! Table Rufus.Manufacturers
 #define CP_ID_MANUFACTURER                              "idManufacturer"
@@ -429,6 +430,7 @@ public:
 #define CP_USERLOGO_USR                                 "UserLogo"
 #define CP_AFFICHEDOCSPUBLICS_USR                       "AfficheDocsPublics"
 #define CP_AFFICHECOMMENTSPUBLICS_USR                   "AfficheCommentsPublics"
+#define CP_USENUM_USR                                   "UseNum"
 
                             //! Table Rufus.correspondants
 #define CP_ID_CORRESP                                   "idCor"

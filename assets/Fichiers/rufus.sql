@@ -426,7 +426,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,81,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,82,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -787,7 +787,8 @@ DROP TABLE IF EXISTS `jointuresLieux`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `jointuresLieux` (
   `idUser` int(11) DEFAULT NULL,
-  `idLieu` int(11) DEFAULT NULL
+  `idLieu` int(11) DEFAULT NULL,
+  `AMnumber` BIGINT DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -1014,6 +1015,7 @@ CREATE TABLE `utilisateurs` (
   `UserLogo` BLOB DEFAULT NULL,
   `AfficheDocsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les documents rendus publics par leur createur dans la fiche Impressions',
   `AfficheCommentsPublics` TINYINT(1) DEFAULT 1 COMMENT 'Affiche les commentaires de lunettes rendus publics par leur createur dans la fiche commentaires lunettes',
+  `UseNum` tinyint(1) DEFAULT 1,
   PRIMARY KEY (`idUser`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

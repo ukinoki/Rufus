@@ -116,28 +116,29 @@ private:
 
     //!< m_id = Id de l'utilisateur en base
 
-    QString m_login = "";               //!< Identifiant de l'utilisateur
-    QString m_password = "";            //!> mot de passe de l'utilisateur
-    QString m_prenom = "";              //!< prénom de l'utilisateur
-    QString m_nom = "";                 //!< nom de l'utilisateur
-    QString m_droits = "";              //!> les droits de l'utilisateur - correspond à l'enum METIER -> Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
-    QString m_mail = "";                //!> le mail
-    QString m_titre = "";               //!< titre, ex: Docteur
-    QString m_fonction = "";            //!< la fonction précise de l'utilisateur
-    QString m_specialite = "";          //!> la spécialité
-    QString m_numCO = "";               //!> le no du conseil de l'ordre
-    QString m_portable = "";            //!> le no de téléphone portable
-    QString m_memo = "";                //!> memo sur l'utilisateur
-    QString m_policeEcran = "";         //!> le choix de police d'écran de l'utilisateur
-    QString m_policeAttribut = "";      //!> le choix d'attribut de la police d'écran
-    bool m_affichedocspublics = true;   //!> affiche les docs publics des autres utilisateurs dans la fiche impressions
+    QString m_login = "";                           //!< Identifiant de l'utilisateur
+    QString m_password = "";                        //!> mot de passe de l'utilisateur
+    QString m_prenom = "";                          //!< prénom de l'utilisateur
+    QString m_nom = "";                             //!< nom de l'utilisateur
+    QString m_droits = "";                          //!> les droits de l'utilisateur - correspond à l'enum METIER -> Ophtalmo, Orthoptiste, AutreSoignant, NonSoignant, SocieteComptable, NoMetier
+    QString m_mail = "";                            //!> le mail
+    QString m_titre = "";                           //!< titre, ex: Docteur
+    QString m_fonction = "";                        //!< la fonction précise de l'utilisateur
+    QString m_specialite = "";                      //!> la spécialité
+    QString m_portable = "";                        //!> le no de téléphone portable
+    QString m_memo = "";                            //!> memo sur l'utilisateur
+    QString m_policeEcran = "";                     //!> le choix de police d'écran de l'utilisateur
+    QString m_policeAttribut = "";                  //!> le choix d'attribut de la police d'écran
+    bool m_affichedocspublics = true;               //!> affiche les docs publics des autres utilisateurs dans la fiche impressions
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
-    QByteArray m_logo= QByteArray();//! le code barre RPPS
+    QByteArray m_logo = QByteArray();               //! le logo de l'utilistaeur
     QImage m_logoimg = QImage();
-    QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(); //! identifiants pour les codes barre
+    QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>();              //! identifiants pour les codes barre
+    QMap<int,qlonglong> m_mapidSiteAM   = QMap<int,qlonglong>();                //! identifiants ADELI pour chaque site d'exercice key() = id du site value() = numero AM
 
     int m_soignant;
-    qlonglong m_numPS;
+    qlonglong m_numPS       = 0;
+    int m_idsite = 0;
     int m_noSpecialite;
 
     int m_employeur;
@@ -150,6 +151,7 @@ private:
     bool m_desactive = false;
     bool m_OPTAM = true;
     bool m_cotationactes = true;
+    bool m_usenum = true;
 
     bool m_useCompta;
     int m_responsableActes; //!< 0 : pas responsable
@@ -192,7 +194,7 @@ private:
                                                             //!< son id s'il est une sociétécomptable
                                                             //!< sinon ROLE_VIDE
     RESPONSABLE responsableactes() const;
-
+    QString m_numCO = "";                           //!> le no ADELI OU AM enregistré dans la table utilisateurs
 
     /*! concernant tout le monde */
     ModeCompta m_modecompta = ComptaLess;
@@ -258,6 +260,7 @@ public:
     /*! ne concernant que les soignants */
     qlonglong NumPS() const;
     QString numOrdre() const;
+    qlonglong m_numAM() { return m_numCO.replace(" ", "").left(9).toLong(); }
     QString titre() const;
     int numspecialite() const;
     QString specialite() const;
@@ -277,6 +280,9 @@ public:
     bool isAlterneResponsableEtAssistant();
     bool isAssistant();
     QMap<QString,QString> mapBarCodes();
+    QMap<int,qlonglong> mapUserSites() { return m_mapidSiteAM; }
+    void setmapUserSites(QMap<int,qlonglong> map) { m_mapidSiteAM = map; }
+    void setRPPSnumber(qlonglong rpps) {m_numPS = rpps; }
 
     /*! concernant les non soignants */
     bool isSecretaire();
@@ -322,17 +328,27 @@ public:
      * les données susceptibles de varier d'une session à l'autre - ne concerne que le user current ======================================================================================================================
      */
 
-    int idsuperviseur() const                     { return m_idSuperviseur; }
-    void setidsuperviseur(int idusr)              { m_idSuperviseur = idusr; }
-    bool ishisownsupervisor()                     { return (m_idSuperviseur == m_id); }
+    int idsuperviseur() const                   { return m_idSuperviseur; }
+    void setidsuperviseur(int idusr)            { m_idSuperviseur = idusr; }
+    bool ishisownsupervisor()                   { return (m_idSuperviseur == m_id); }
 
-    int idparent() const                          { return m_idParent; }
-    void setidparent(int idusr)                   { m_idParent = idusr; }
+    int idparent() const                        { return m_idParent; }
+    void setidparent(int idusr)                 { m_idParent = idusr; }
 
-    int idcomptableactes() const                       { return m_idComptableActes; }
-    void setidcomptableactes(int idusr)                { m_idComptableActes = idusr; }
+    int idcomptableactes() const                { return m_idComptableActes; }
+    void setidcomptableactes(int idusr)         { m_idComptableActes = idusr; }
     QByteArray logo() const;
     void setLogo(const QByteArray &newLogo);
+    qlonglong AMnumberforSite(int id) {
+        qlonglong amnumber = 0;
+        auto it = m_mapidSiteAM.find(id);
+        if (it != m_mapidSiteAM.end())
+            amnumber = it.value();
+        return amnumber;
+    }
+    void setidSite(int id) { m_idsite = id; }
+    bool usenum() const;
+    void setusenum(bool usenum);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(User::ModeCompta)

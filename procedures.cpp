@@ -1273,9 +1273,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
         Site *sit = Datas::I()->sites->currentsite();
         if (user != currentuser())
         {
-            QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
-            if (listsites.size()>0)
-                sit = listsites.first(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adresse
+            QMap<Site*,qlonglong> mapsites = Datas::I()->sites->initListeByUser(user->id());
+            if (mapsites.size()>0)
+                sit = mapsites.firstKey(); //TODO ça ne va pas parce qu'on prend arbitrairement la première adresse
             else {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'imprimer"), tr("Pas de site de travail référencé pour l'utilisateur ") + user->nom());
                 return EnteteMap;
@@ -1416,8 +1416,24 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     return ba;
 }
 
+
+/*!
+ * \brief Procedures::Imprime_Etat
+ * \param parent
+ * \param textcorps
+ * \param textentete
+ * \param textpied
+ * \param TaillePieddePage
+ * \param TailleEnTete
+ * \param TailleTopMarge
+ * \param m_mapbarcodes                   si un m_mapbarcodes est précisé les barcodes de cet utilisateur seront imprimés
+ * \param AvecDupli
+ * \param AvecNumPage
+ * \param AvecChoixImprimante
+ * \return
+ */
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge, User *usr,
+                              int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString, QString> mapbarcodes,
                               bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
@@ -1436,8 +1452,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
-    if (usr != Q_NULLPTR)
-        TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
+    TexteAImprimer->setmapBarcodes(mapbarcodes);
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
 
@@ -1816,7 +1831,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         int tailleEnTete = TailleEnTete();
         if (ALD) tailleEnTete = TailleEnTeteALD();
         aa = Imprime_Etat(parent, textcorps, textentete, textpied,
-                            TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user : Q_NULLPTR),
+                            TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
                             AvecDupli, AvecNumPage, AvecChoixImprimante);
     }
 
@@ -2978,53 +2993,198 @@ bool Procedures::Connexion_A_La_Base()
     ----------------------------------------------------------------------------------------------------------------- */
 void Procedures::CalcLieuExercice()
 {
-    QList<Site*> listEtab = Datas::I()->sites->initListeByUser(currentuser()->id());
-    if (listEtab.size() == 0)
-        return;
-    else if (listEtab.size() == 1)
-    {
-        Datas::I()->sites->setcurrentsite(listEtab.first());
-        return;
-    }
+    /*! Si le user est remplaçant, la liste des sites utilisés est celle du user remplacé */
+    QMap<Site*,qlonglong> mapEtab = Datas::I()->sites->initListeByUser(currentuser()->id());
+    QMap<int,qlonglong> mapid = QMap<int,qlonglong>();
 
-    /* Cas ou le praticien travaille dans plusieur centres
-     * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
-    */
-    UpDialog *gAskLieux     = new UpDialog();
-    gAskLieux               ->AjouteLayButtons();
-    QGroupBox*boxlieux      = new QGroupBox();
-    gAskLieux->dlglayout()  ->insertWidget(0,boxlieux);
-    boxlieux                ->setObjectName("Parent");
-    boxlieux                ->setTitle(tr("D'où vous connectez-vous?"));
-    QFontMetrics fm         = QFontMetrics(qApp->font());
-    int hauteurligne        = int(fm.height()*1.6);
-    boxlieux                ->setFixedHeight(((listEtab.size() + 1)*hauteurligne)+5);
-    QVBoxLayout *vbox       = new QVBoxLayout;
-    bool isFirst = true;
-    foreach (Site *etab, listEtab)
+    for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
     {
-        UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
-        pradiobutt->setText(etab->nom());
-        pradiobutt->setitem(etab);
-        pradiobutt->setImmediateToolTip(etab->coordonnees());
-        pradiobutt->setChecked(isFirst);
-        vbox      ->addWidget(pradiobutt);
-        isFirst = false;
+        Site *sit = qobject_cast<Site*>(it.key());
+        if (sit != Q_NULLPTR)
+            mapid.insert(sit->id(), it.value());
     }
-    vbox                    ->setContentsMargins(8,0,8,0);
-    boxlieux                ->setLayout(vbox);
-    gAskLieux               ->setModal(true);
-    gAskLieux->dlglayout()  ->setSizeConstraint(QLayout::SetFixedSize);
-    connect(gAskLieux->OKButton,   &QPushButton::clicked,  gAskLieux, &UpDialog::accept);
-    gAskLieux->exec();
-    foreach (UpRadioButton * rb, boxlieux->findChildren<UpRadioButton*>())
-        if( rb->isChecked() )
+    currentuser()->setmapUserSites(mapid);
+
+    if (mapEtab.size() == 0)
+        return;
+    else if (mapEtab.size() == 1)
+        Datas::I()->sites->setcurrentsite(mapEtab.firstKey());
+    else
+    {
+        /*! Cas ou le praticien travaille dans plusieur centres
+        * on lui demande de sélectionner le centre où il se trouve au moment de la connexion
+        */
+        UpDialog *gAskLieux     = new UpDialog();
+        gAskLieux               ->AjouteLayButtons();
+        QGroupBox*boxlieux      = new QGroupBox();
+        gAskLieux->dlglayout()  ->insertWidget(0,boxlieux);
+        boxlieux                ->setObjectName("Parent");
+        boxlieux                ->setTitle(tr("D'où vous connectez-vous?"));
+        QFontMetrics fm         = QFontMetrics(qApp->font());
+        int hauteurligne        = int(fm.height()*1.6);
+        boxlieux                ->setFixedHeight(((mapEtab.size() + 1)*hauteurligne)+5);
+        QVBoxLayout *vbox       = new QVBoxLayout;
+        bool isFirst = true;
+        for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
         {
-            Datas::I()->sites->setcurrentsite(qobject_cast<Site*>(rb->item()));
-            break;
+            Site *sit = qobject_cast<Site*>(it.key());
+            if (sit != Q_NULLPTR)
+            {
+                UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
+                pradiobutt->setText(sit->nom());
+                pradiobutt->setitem(sit);
+                pradiobutt->setImmediateToolTip(sit->coordonnees());
+                pradiobutt->setChecked(isFirst);
+                vbox      ->addWidget(pradiobutt);
+                isFirst = false;
+            }
         }
-    delete gAskLieux;
+        vbox                    ->setContentsMargins(8,0,8,0);
+        boxlieux                ->setLayout(vbox);
+        gAskLieux               ->setModal(true);
+        gAskLieux->dlglayout()  ->setSizeConstraint(QLayout::SetFixedSize);
+        connect(gAskLieux->OKButton,   &QPushButton::clicked,  gAskLieux, &UpDialog::accept);
+        gAskLieux->exec();
+        foreach (UpRadioButton * rb, boxlieux->findChildren<UpRadioButton*>())
+            if( rb->isChecked() )
+            {
+                Datas::I()->sites->setcurrentsite(qobject_cast<Site*>(rb->item()));
+                break;
+            }
+        delete gAskLieux;
+    }
+    if (currentuser()->isSoignant())
+    {
+        if (currentuser()->isRemplacant())
+        {
+            User *usr = Datas::I()->users->getById(currentuser()->idparent());
+            if (usr != Q_NULLPTR)
+            {
+                currentuser()->setusenum(usr->usenum());
+                if (usr->usenum())
+                    VerifnumAM();
+            }
+        }
+        else if (currentuser()->usenum())
+            VerifnumAM();
+    }
 }
+
+void Procedures::VerifnumAM()
+{
+    /*! On a déterminé le site de travail, on cherche le n° AM du user pour ce site de travail"
+        Si le user est remplaçant, le n° AM sera celui du user remplacé */
+
+    if (!db->parametres()->cotationsfrance())
+        return;
+    if(!m_currentuser->isSoignant())
+        return;
+    QMap<int,qlonglong> mapid = currentuser()->mapUserSites();
+    if (mapid == QMap<int,qlonglong>() || mapid.size() == 0)
+        return;
+
+    int idsite = 0;
+    if (Datas::I()->sites->currentsite() != Q_NULLPTR)
+    {
+        idsite = Datas::I()->sites->currentsite()->id();
+        currentuser()->setidSite(idsite);
+    }
+    else return;
+    if (currentuser()->isRemplacant())
+    {
+        User* usr = Datas::I()->users->getById(currentuser()->idparent());
+        if (usr != Q_NULLPTR)
+        {
+            currentuser()->setRPPSnumber(usr->NumPS());
+            QMap<Site*,qlonglong> mapEtab = Datas::I()->sites->initListeByUser(usr->id());
+            QMap<int,qlonglong> mapidparent = QMap<int,qlonglong>();
+            for (auto it = mapEtab.cbegin(); it != mapEtab.cend(); ++it)
+            {
+                Site *sit = qobject_cast<Site*>(it.key());
+                if (sit != Q_NULLPTR)
+                    mapidparent.insert(sit->id(), it.value());
+            }
+            QMap<int,qlonglong>::Iterator itr = mapidparent.find(Datas::I()->sites->currentsite()->id());
+            if (itr != mapidparent.end())
+            {
+                mapid.insert(Datas::I()->sites->currentsite()->id(), itr.value());
+                currentuser()->setmapUserSites(mapidparent);
+            }
+        }
+    }
+    else if (currentuser()->AMnumberforSite(idsite) == 0)
+    {
+        if (currentuser()->m_numAM() >0 && mapid.size() == 1)
+        {
+            mapid.insert(Datas::I()->sites->currentsite()->id(), currentuser()->m_numAM());
+            currentuser()->setmapUserSites(mapid);
+            //! enregistre la valeur de AMnumber dans jointuresLieux
+            db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(currentuser()->AMnumberforSite(idsite)) +
+                            " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(idsite));
+        }
+        else
+        {
+            qlonglong AMnumber = 0;
+            UpMessageBox::Watch(Q_NULLPTR, tr("Vous n'avez pas de  numéro AM enregistré pour ce site"),
+                                tr("Enregistrez le numéro AM correspondant à") +
+                                "<br/><font color=\"blue\"><b>" + Datas::I()->sites->currentsite()->nom() + "</b></font><br/>" +
+                                tr("dans la boîte de dialogue suivante"));
+            UpDialog* dlg_ask               = new UpDialog();
+            int w = 240;
+            UpLabel         *lbldebut       = new UpLabel;
+            lbldebut        ->setText(tr("Enregistrez le numéro AM (9 chiffres) correspondant à") +
+                                      "<br/><font color=\"blue\"><b>" + Datas::I()->sites->currentsite()->nom() + "</b></font>");
+            lbldebut->setAlignment(Qt::AlignCenter);
+            QHBoxLayout *hlay = new QHBoxLayout;
+            hlay->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
+
+            QStringList listnumAM = QStringList();
+            for (auto it = mapid.cbegin(); it != mapid.cend(); ++it)
+                if (it.value() >0)
+                    if (!listnumAM.contains(QString::number(it.value())))
+                        listnumAM << QString::number(it.value());
+            if (currentuser()->m_numAM() >0)
+                if (!listnumAM.contains(QString::number(currentuser()->m_numAM())))
+                    listnumAM << QString::number(currentuser()->m_numAM());
+            std::sort(listnumAM.begin(), listnumAM.end());
+
+            UpComboBox *combo   = new UpComboBox;
+            combo               ->setFixedWidth(w);
+            QLineEdit *line     = new QLineEdit;
+            QCompleter *comp    = new QCompleter(listnumAM);
+            comp                ->setCompletionMode(QCompleter::InlineCompletion);
+            line                ->setCompleter(comp);
+            line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), Q_NULLPTR));
+            combo               ->addItems(listnumAM);
+            combo               ->setLineEdit(line);
+            combo               ->setEditable(true);
+            combo               ->setCurrentText("");
+
+            hlay                ->addWidget(combo);
+            hlay                ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
+            dlg_ask->dlglayout()->insertWidget(0,lbldebut);
+            dlg_ask->dlglayout()->insertLayout(1,hlay);
+            dlg_ask             ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            dlg_ask             ->setWindowTitle(tr("Enregistrement numéro AM"));
+            dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+            connect(dlg_ask->OKButton,  &QPushButton::clicked,  dlg_ask,    [&] {AMnumber = combo->currentText().toLongLong();
+                dlg_ask->accept();});
+            if (dlg_ask->exec() == QDialog::Accepted)
+            {
+                if (AMnumber>0)
+                {
+                    mapid.insert(Datas::I()->sites->currentsite()->id(), AMnumber);
+                    currentuser()->setmapUserSites(mapid);
+                    db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(currentuser()->AMnumberforSite(idsite)) +
+                                    " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(idsite));
+                }
+            }
+            delete dlg_ask;
+        }
+    }
+}
+
+
 
 /*-----------------------------------------------------------------------------------------------------------------
     -- Création d'un utilisateur -------------------------------------------------------------
@@ -3213,6 +3373,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
             CP_COTATION_USR " = 1,\n"
             CP_ISAGA_USR " = 1,\n"
             CP_SECTEUR_USR " = 1,\n"
+            CP_USENUM_USR " = 1,\n"
             CP_ISOPTAM_USR " = 1\n"
             " where " CP_ID_USR " = " + QString::number(idusr);
     //Edit(req);

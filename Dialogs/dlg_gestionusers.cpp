@@ -122,6 +122,10 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->Secteur2upRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->Secteur3upRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->GestLieuxpushButton,            &QPushButton::clicked,                  this,   &dlg_gestionusers::GestLieux);
+    connect(ui->NoUseNumupRadioButton,          &QRadioButton::clicked,                 this,   [=] (bool a)  { ui->NumCOlabel      ->setEnabled(!a);
+                                                                                                                ui->NumCOupLineEdit ->setEnabled(!a);
+                                                                                                                ui->RPPSlabel       ->setEnabled(!a);
+                                                                                                                ui->RPPSupLineEdit  ->setEnabled(!a);});
 
     connect(CloseButton,                        &QPushButton::clicked,                  this,   &dlg_gestionusers::FermeFiche);
     connect(wdg_buttonframe,                    &WidgetButtonFrame::choix,              this,   &dlg_gestionusers::ChoixButtonFrame);
@@ -482,6 +486,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_NUMPS_USR " = "       + ((ui->RPPSupLineEdit->text().toLong()==0 || !db->parametres()->cotationsfrance())?
                                                 "null" :
                                                 QString::number(ui->RPPSupLineEdit->text().toLong())) + ",\n"
+               CP_USENUM_USR " = " + (ui->NoUseNumupRadioButton->isChecked()? "null" : "1") + ",\n"
                CP_RESPONSABLEACTES_USR " = 1,\n";
         if (ui->ComptaLiberalupRadioButton->isChecked())
         {
@@ -526,8 +531,9 @@ void dlg_gestionusers::EnregistreUser()
                CP_IDSPECIALITE_USR " = null,\n"
                CP_SOIGNANTSTATUS_USR " = 2,\n"
                CP_ISMEDECIN_USR " = null,\n"
-               CP_NUMCO_USR " = null,\n "
+               CP_NUMCO_USR " = '"      + Utils::correctquoteSQL(ui->NumCOupLineEdit->text()) +"',\n"
                CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toLong()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toLong())) + ",\n"
+               CP_USENUM_USR " = " + (ui->NoUseNumupRadioButton->isChecked()? "null" : "1") + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -591,6 +597,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_ISMEDECIN_USR " = " + (ui->MedecincheckBox->isChecked()? "1" : "null") + ",\n"
                CP_NUMCO_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NumCOupLineEdit->text()==""? "null" : "'" + ui->NumCOupLineEdit->text() + "'") : "null") + ",\n "
                CP_NUMPS_USR " = " + ((ui->RPPSupLineEdit->text().toLong()==0 || !db->parametres()->cotationsfrance())? "null" : QString::number(ui->RPPSupLineEdit->text().toLong())) + ",\n"
+               CP_USENUM_USR " = " + (ui->MedecincheckBox->isChecked()? (ui->NoUseNumupRadioButton->isChecked()? "null" : "1") : "null") + ",\n"
                CP_RESPONSABLEACTES_USR " = ";
         if (ui->MedecincheckBox->isChecked() || ui->ResponsableupRadioButton->isChecked())
             req += "1,\n";
@@ -1030,8 +1037,9 @@ void dlg_gestionusers::RegleAffichage()
     ui->CotationupRadioButton       ->setVisible(m_soignantnonremplacant);
     ui->SecteurgroupBox             ->setVisible(m_medecin && m_soignantnonremplacant && db->parametres()->cotationsfrance());
     ui->OPTAMupRadioButton          ->setVisible(m_medecin && m_soignantnonremplacant && (ui->Secteur1upRadioButton->isChecked() || ui->Secteur2upRadioButton->isChecked()) && db->parametres()->cotationsfrance());
-    ui->NumCOlabel                  ->setVisible(m_medecin);
-    ui->NumCOupLineEdit             ->setVisible(m_medecin);
+    ui->NumCOlabel                  ->setVisible(m_medecin || m_orthoptist);
+    ui->NumCOupLineEdit             ->setVisible(m_medecin || m_orthoptist);
+    ui->NoUseNumupRadioButton       ->setVisible(m_medecin || m_orthoptist);
     ui->Logolabel                   ->setVisible(true);
     ui->TitreupcomboBox             ->setVisible(m_medecin);
     ui->Titrelabel                  ->setVisible(m_medecin);
@@ -1146,6 +1154,7 @@ void dlg_gestionusers::SupprUser()
         if (m_userencours == Datas::I()->users->userconnected())
         {
             UpMessageBox::Watch(this, tr("Cool ") + vamourir + "...", tr("Votre suicide s'est parfaitement déroulé et le programme va maintenant se fermer"));
+            DataBase::I()->SupprRecordFromTable(m_userencours->id(), CP_IDUSER_USRCONNECT, TBL_USERSCONNECTES);
             Datas::I()->users->SupprimeUser(m_userencours);
             exit(0);
         }
@@ -1236,8 +1245,9 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->RPPSupLineEdit              ->setVisible(soignant && !assistant && db->parametres()->cotationsfrance());
     ui->ModeExercicegroupBox        ->setVisible(soignant);
     ui->CotationupRadioButton       ->setVisible(soignant && !assistant && !remplacant);
-    ui->NumCOlabel                  ->setVisible(medecin);
-    ui->NumCOupLineEdit             ->setVisible(medecin);
+    ui->NumCOlabel                  ->setVisible(medecin || orthoptist);
+    ui->NumCOupLineEdit             ->setVisible(medecin || orthoptist);
+    ui->NoUseNumupRadioButton       ->setVisible(medecin || orthoptist);
     ui->SecteurgroupBox             ->setVisible(medecin && !assistant && !remplacant && cotation && db->parametres()->cotationsfrance());
     ui->OPTAMupRadioButton          ->setVisible(medecin && !assistant && !remplacant && cotation && (m_userencours->secteurconventionnel() == 1 || m_userencours->secteurconventionnel() == 2) && db->parametres()->cotationsfrance());
     ui->TitreupcomboBox             ->setVisible(medecin);
@@ -1281,6 +1291,11 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     ui->MailuplineEdit              ->setText(m_userencours->mail());
     ui->RPPSupLineEdit              ->setText(QString::number(m_userencours->NumPS()));
     ui->NumCOupLineEdit             ->setText(m_userencours->numOrdre());
+    ui->NoUseNumupRadioButton       ->setChecked(!m_userencours->usenum());
+    ui->NumCOlabel                  ->setEnabled(m_userencours->usenum());
+    ui->NumCOupLineEdit             ->setEnabled(m_userencours->usenum());
+    ui->RPPSlabel                   ->setEnabled(m_userencours->usenum());
+    ui->RPPSupLineEdit              ->setEnabled(m_userencours->usenum());
     ui->InactivUsercheckBox         ->setChecked(m_userencours->isDesactive());
 
     ui->CotationupRadioButton         ->setChecked(true);

@@ -400,7 +400,7 @@ void dlg_bilanrecettes::PrintReport(bool pdf)
         bool AvecDupli   = false;
         bool AvecNumPage = false;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
 }

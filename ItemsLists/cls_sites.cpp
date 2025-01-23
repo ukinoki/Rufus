@@ -84,14 +84,14 @@ void Sites::initListe()
  * \brief Sites::initListeByUser sites
  * Charge l'ensemble des sites utilisés par un utilisateur
  */
-QList<Site*> Sites::initListeByUser(int idusr)
+QMap<Site*,qlonglong> Sites::initListeByUser(int idusr)
 {
-    QList<Site*> listsites = QList<Site*>();
-    QList<int> listid = DataBase::I()->loadidSitesByUser(idusr);
-    foreach (int id, listid)
-        if (getById(id) != Q_NULLPTR)
-            listsites << getById(id);
-    return listsites;
+    QMap<Site*,qlonglong> mapsites = QMap<Site*,qlonglong>();
+    QMap<int,qlonglong> mapid = DataBase::I()->loadidSitesByUser(idusr);
+    for (auto it = mapid.cbegin(); it != mapid.cend(); ++it)
+        if (getById(it.key()) != Q_NULLPTR)
+            mapsites.insert(getById(it.key()), it.value());
+    return mapsites;
 }
 
 void Sites::SupprimeSite(Site* man)

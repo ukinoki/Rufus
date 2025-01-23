@@ -1018,7 +1018,7 @@ QJsonObject DataBase::loadUserData(int idUser)
             CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
             CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                    // 20,21,22,23,24
             CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
-            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERLOGO_USR                                                           // 30,31,32
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERLOGO_USR ", " CP_USENUM_USR                                     // 30,31,32,33
             " from " TBL_UTILISATEURS
             " where " CP_ID_USR " = " + QString::number(idUser);
 
@@ -1066,6 +1066,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
     userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
     userData[CP_USERLOGO_USR]                       = QLatin1String(usrdata.at(32).toByteArray().toBase64());
+    userData[CP_USENUM_USR]                         = (usrdata.at(33).toInt() == 1);
     return userData;
 }
 
@@ -1096,7 +1097,7 @@ QList<User*> DataBase::loadUsers()
             CP_PORTABLE_USR ", " CP_MEMO_USR ", " CP_ISDESACTIVE_USR "," CP_POLICEECRAN_USR ", " CP_POLICEATTRIBUT_USR ", "                             // 15,16,17,18,19
             CP_SECTEUR_USR ", " CP_SOIGNANTSTATUS_USR ", " CP_RESPONSABLEACTES_USR ", " CP_COTATION_USR ", " CP_IDEMPLOYEUR_USR ", "                    // 20,21,22,23,24
             CP_DATEDERNIERECONNEXION_USR ", " CP_ISMEDECIN_USR ", " CP_ISOPTAM_USR ", " CP_ID_USR ", " CP_DATECREATIONMDP_USR ", "                      // 25,26,27,28,29
-            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERLOGO_USR                                                           // 30,31,32
+            CP_AFFICHEDOCSPUBLICS_USR ", " CP_AFFICHECOMMENTSPUBLICS_USR ", " CP_USERLOGO_USR ", " CP_USENUM_USR                                        // 30,31,32,33
             " from " TBL_UTILISATEURS;
     //qDebug() << req;
     QList<QVariantList> usrlist = StandardSelectSQL(req, ok);
@@ -1149,6 +1150,7 @@ QList<User*> DataBase::loadUsers()
         userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
         userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
         userData[CP_USERLOGO_USR]                       = QLatin1String(usrdata.at(32).toByteArray().toBase64());
+        userData[CP_USENUM_USR]                         = (usrdata.at(33).toInt() == 1);
         User *usr = new User(userData);
         users << usr;
     }
@@ -2407,15 +2409,16 @@ QJsonObject DataBase::loadSiteData(QVariantList sitdata)         //! attribue la
     return data;
 }
 
-QList<int> DataBase::loadidSitesByUser(int idUser)
+QMap<int,qlonglong> DataBase::loadidSitesByUser(int idUser)
 {
-    QList<int> listid = QList<int>();
-    QString req = "select " CP_IDLIEU_JOINTSITE " from " TBL_JOINTURESLIEUX " where " CP_IDUSER_JOINTSITE " = " + QString::number(idUser);
-    QList<QVariantList> listidsites = StandardSelectSQL(req, ok);
-    if (ok && listidsites.size()>0)
-        for (int i=0; i<listidsites.size(); ++i)
-            listid << listidsites.at(i).at(0).toInt();
-    return listid;
+    QMap<int,qlonglong> mapid = QMap<int,qlonglong>();
+    QString req = "select " CP_IDLIEU_JOINTSITE ", " CP_AMNUMBER_JOINTSITE " from " TBL_JOINTURESLIEUX " where " CP_IDUSER_JOINTSITE " = " + QString::number(idUser) + " order by " CP_IDLIEU_JOINTSITE;
+    //qDebug() << req;
+    QList<QVariantList> listsites = StandardSelectSQL(req, ok);
+    if (ok && listsites.size()>0)
+        for (int i=0; i<listsites.size(); ++i)
+            mapid.insert(listsites.at(i).at(0).toInt(),listsites.at(i).at(1).toLongLong());
+    return mapid;
 }
 
 QList<Site*> DataBase::loadSites()

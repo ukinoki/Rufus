@@ -536,10 +536,6 @@ bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordEr
     }
     pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
 
-    /*! on efface le fichier origine */
-    removeWithoutPermissions(file_origin);
-
-
     QString filename        = QFileInfo(pathfile).completeBaseName() + "." JPG;
     QString nomfichresize   = ProvPath + "/" + filename;
     QFile                   fileresize(nomfichresize);
@@ -563,6 +559,8 @@ bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordEr
                 out << file_origin.fileName() << "\n" ;
                 echectrsfer.close();
                 copyWithPermissions(file_origin, EchecDir() + "/" + filename);
+                /*! on efface le fichier origine */
+                removeWithoutPermissions(file_origin);
             }
         }
         if (QFileInfo(file_origin).absolutePath() != ProvPath)
@@ -578,6 +576,9 @@ bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordEr
         pixmap.save(nomfichresize, "jpeg",tauxcompress);
         szfinal = fileresize.size();
     }
+
+    /*! on efface le fichier origine */
+    removeWithoutPermissions(file_origin);
 
     /*! on recopie le fichier compressé et exporté en jpg à sa place d'origine */
     pathfile = QFileInfo(pathfile).absolutePath() + "/" + filename;

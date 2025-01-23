@@ -95,7 +95,6 @@ public:
     QSettings*              settings() const { return m_settings; }
     enum typeDoc {Text, Image}; Q_ENUM(typeDoc)   //! les 2 types de documents utilisés par Rufus: image (jpg ou pdf) ou texte
 
-
 /*! --------------------------------------------------------------------------------------------------------
 * opérations sur la base de données, le système et les datas
 * -------------------------------------------------------------------------------------------------------- */
@@ -181,6 +180,7 @@ private:
                                                                          * suivie de l'initialisation de tout
                                                                          * et de la définition du rôle de l'utilisateur */
     void                    CalcLieuExercice();
+    void                    VerifnumAM();                               /*! Vérifie et enregistre le numéro AM correspondant au lieu d'exercice */
     void                    CalcUserParent();
     void                    CalcUserSuperviseur();
     bool                    DefinitRoleUser();                          /*! definit les iduser pour lequel le user travaille
@@ -243,7 +243,7 @@ public:
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
     QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
-                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge, User *usr = Q_NULLPTR,
+                      int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(),
                       bool AvecDupli = false, bool AvecNumPage = false,
                       bool AvecChoixImprimante = true);
             /*! b - Création d'un pdf */

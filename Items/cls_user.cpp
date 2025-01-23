@@ -22,6 +22,16 @@ int User::ROLE_NON_RENSEIGNE = -1;
 int User::ROLE_VIDE = -2;
 int User::ROLE_INDETERMINE = -3;
 
+bool User::usenum() const
+{
+    return m_usenum;
+}
+
+void User::setusenum(bool usenum)
+{
+    m_usenum = !usenum;
+}
+
 User::User(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
@@ -76,6 +86,7 @@ void User::setData(QJsonObject data)
     setDataBool(data, CP_AFFICHECOMMENTSPUBLICS_USR, m_affichecommentslunettespublics);
 
     setDataByteArray(data, CP_USERLOGO_USR, m_logo);
+    setDataBool(data, CP_USENUM_USR, m_usenum);
     if (m_logo.size())
         m_logoimg.loadFromData(m_logo);
 
@@ -173,20 +184,18 @@ bool User::isAssistant()                            { return isSoignant() && res
 
 QMap<QString, QString> User::mapBarCodes()
 {
-    if (m_mapbarcodes != QMap<QString,QString>())
-        return m_mapbarcodes;
-    if (m_numCO != "")
+    if (!m_usenum)
+        m_mapbarcodes = QMap<QString,QString>();
+    else
     {
-        QString numss = m_numCO;
-        numss.replace(" ", "");
-        if (numss.size() > 9)
-            numss = numss.left(9);
-        m_mapbarcodes.insert("AM", numss);
+        if (AMnumberforSite(m_idsite) >0)
+            m_mapbarcodes.insert("AM", QString::number(AMnumberforSite(m_idsite)));
+        if (m_numPS > 0)
+            m_mapbarcodes.insert("RPPS", QString::number(m_numPS));
     }
-    if (m_numPS > 0)
-        m_mapbarcodes.insert("RPPS", QString::number(m_numPS));
     return m_mapbarcodes;
 }
+
 bool User::isDesactive()                            { return m_desactive; }
 
 

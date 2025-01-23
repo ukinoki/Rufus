@@ -325,7 +325,7 @@ private:
 public:
     QList<Site*>            loadSites();                                //! charge tous les sites de travail
     Site*                   loadSiteById(int id);                       //! charge un sites de travail à partir son id
-    QList<int>              loadidSitesByUser(int idUser);              //! élabore la requête qui charge tous les sites de travail utilisés par un user
+    QMap<int, qlonglong>    loadidSitesByUser(int idUser);              //! charge tous les sites de travail utilisés par un user avec le numero AMutilisé pour ce site s'il s'agit d'un soignant
 
 public:
     /*

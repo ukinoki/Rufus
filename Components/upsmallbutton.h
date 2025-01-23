@@ -50,7 +50,7 @@ private:
     StyleBouton m_style;
     QVariant    m_luggage;
     void        AfficheToolTip();
-    bool        AfficheToolTipMemeSiDisabled = false;
+    bool        AfficheToolTipMemeSiDisabled    = false;
     QString     m_tooltipmsg;
 
 signals:

@@ -438,7 +438,6 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
             int it = 0;
             for (auto i = m_mapBarCodes.cbegin(), end = m_mapBarCodes.cend(); i != end; ++i)
             {
-                qDebug() << i.key() << i.value();
                 QString BCText      = i.value();
                 Code128::BarCode BCcode = Code128::encode(BCText);
                 int BCheight        = m_BarCodesHeight;

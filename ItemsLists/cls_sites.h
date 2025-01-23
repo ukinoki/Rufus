@@ -34,16 +34,16 @@ public:
 
     Sites(QObject *parent = Q_NULLPTR);
 
-    Site*           getById(int id, bool reload = false);
-    void            initListe();
-    QList<Site*>    initListeByUser(int idusr);
-    Site*           currentsite() const             { return m_currentsite; }
-    void            setcurrentsite(Site* site)      { m_currentsite = site; }
-    int             idcurrentsite() const           { return (m_currentsite != Q_NULLPTR? m_currentsite->id() : -1); }
+    Site*                   getById(int id, bool reload = false);
+    void                    initListe();
+    QMap<Site *, qlonglong> initListeByUser(int idusr);
+    Site*                   currentsite() const             { return m_currentsite; }
+    void                    setcurrentsite(Site* site)      { m_currentsite = site; }
+    int                     idcurrentsite() const           { return (m_currentsite != Q_NULLPTR? m_currentsite->id() : -1); }
 
     //!> actions sur les enregistrements
-    void            SupprimeSite(Site *sit);
-    Site*           CreationSite(QHash<QString, QVariant> sets);
+    void                    SupprimeSite(Site *sit);
+    Site*                   CreationSite(QHash<QString, QVariant> sets);
 };
 
 #endif // SITES_H

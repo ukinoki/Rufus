@@ -755,6 +755,12 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());
     txt                     = (modifiable?                              proc->Edit(txtautiliser)        : txtautiliser);
     textcorps               = (docmt->typedoc() == PRESCRIPTION?        proc->CalcCorpsImpression(txt,ALD)  : proc->CalcCorpsImpression(txt));
+    if (ALD)
+    {
+        textcorps.replace("{{PRENOM PATIENT}}", m_docsexternes->patient()->prenom());
+        textcorps.replace("{{NOM PATIENT}}"   , m_docsexternes->patient()->nom().toUpper());
+        textcorps.replace("{{DATE}}", tr("le ") + QLocale::system().toString(QDate::currentDate(),tr("d MMMM yyyy")));
+    }
     Etat_textEdit           ->setHtml(textcorps);
     if (Etat_textEdit->toPlainText() == "" || txt == "")
     {
@@ -768,12 +774,15 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool AvecDupli          = (proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES"
                                && docmt->typedoc() == PRESCRIPTION);
 
+    QMap<QString,QString> mapbarcodes = QMap<QString,QString>();
     User *usr = Q_NULLPTR;
     if (Prescription)
         usr = Datas::I()->users->getById(docmt->iduser());
+    if (usr != Q_NULLPTR)
+        mapbarcodes = usr->mapBarCodes();
 
     aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                            proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), usr,
+                            proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
                             AvecDupli);
 
     // stockage du document dans la base de donnees - table impressions

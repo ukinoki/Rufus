@@ -606,8 +606,9 @@ void dlg_programmationinterventions::ImprimeRapportIncident(bool pdf)
     {
         bool AvecDupli   = false;
         bool AvecNumPage = true;
+
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
 }
@@ -776,7 +777,7 @@ void dlg_programmationinterventions::ImprimeSession(bool pdf)
         bool AvecDupli   = false;
         bool AvecNumPage = true;
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
 }
@@ -2087,7 +2088,7 @@ void dlg_programmationinterventions::ImprimeListeIOLsSession(bool pdf)
             bool AvecDupli   = false;
             bool AvecNumPage = true;
             proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
+                           proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                            AvecDupli, AvecNumPage);
         }
     }

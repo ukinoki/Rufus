@@ -157,6 +157,6 @@ private:
     void                ModifDirBackup();
                         /*! modifie le dossier de destination du backup automatique et relance ParamAutoBackup() */
     void                startImmediateBackup();
-
+    void                fixAMnumberforSite(UpPushButton* AMnumberButton, QMap<Site*,qlonglong> mapsites);
 };
 #endif // DLG_PARAM_H

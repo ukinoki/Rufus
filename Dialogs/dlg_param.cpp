@@ -1109,7 +1109,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     /*-------------------- GESTION DES LIEUX D'EXERCICE-------------------------------------------------------*/
     ui->AdressupTableWidget->clear();
     ui->EmplacementServeurupComboBox->clear();
-    int             ColCount = 3;
+    int             ColCount = 4;
 
     ui->AdressupTableWidget->setColumnCount(ColCount);
     ui->AdressupTableWidget->verticalHeader()->setVisible(false);
@@ -1120,7 +1120,11 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     ui->AdressupTableWidget->setColumnWidth(li,180);                                              // ville
     li++;
     ui->AdressupTableWidget->setColumnWidth(li,110);                                              // téléphone
+    li++;
+    ui->AdressupTableWidget->setColumnWidth(li,30);                                              // téléphone
     ui->AdressupTableWidget->FixLargeurTotale();
+    if ((!currentuser()->isMedecin()&& !currentuser()->isOrthoptist()) || currentuser()->isRemplacant() || !currentuser()->usenum())
+        ui->AdressupTableWidget->setColumnHidden(3,true);
 
     UpHeaderView *upheader = new UpHeaderView(ui->AdressupTableWidget->horizontalHeader());
     upheader->setVisible(true);
@@ -1129,38 +1133,127 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     QStandardItemModel *mod = new QStandardItemModel(this);
     mod->setHorizontalHeaderLabels(list);
     upheader->setModel(mod);
-    upheader->reDim(0,0,2);
+    upheader->reDim(0,0,ui->AdressupTableWidget->columnCount()-1);
 
-    QList<Site*> listsites = Datas::I()->sites->initListeByUser(user->id());
-    ui->AdressupTableWidget->setRowCount(listsites.size());
+    QMap<Site*,qlonglong> mapsites = Datas::I()->sites->initListeByUser(user->id());
+    ui->AdressupTableWidget->setRowCount(mapsites.size());
     int i = 0;
-    foreach (Site *sit, listsites)
+    for (auto it = mapsites.cbegin(); it != mapsites.cend(); ++it)
     {
-        QTableWidgetItem *pitem1, *pitem2, *pitem3;
-        pitem1 = new QTableWidgetItem();
-        pitem2 = new QTableWidgetItem();
-        pitem3 = new QTableWidgetItem();
-        pitem1->setText(sit->nom());
-        pitem2->setText(sit->ville());
-        pitem3->setText(sit->telephone());
-        ui->AdressupTableWidget->setItem(i,0,pitem1);
-        ui->AdressupTableWidget->setItem(i,1,pitem2);
-        ui->AdressupTableWidget->setItem(i,2,pitem3);
-        pitem1->setToolTip(sit->coordonnees());
-        pitem2->setToolTip(sit->coordonnees());
-        pitem3->setToolTip(sit->coordonnees());
-        if (sit->couleur() != "")
+        Site *sit = qobject_cast<Site*>(it.key());
+        if (sit != Q_NULLPTR)
         {
-            pitem1->setForeground(QColor("#" + sit->couleur()));
-            pitem2->setForeground(QColor("#" + sit->couleur()));
-            pitem3->setForeground(QColor("#" + sit->couleur()));
+            QTableWidgetItem *pitem1, *pitem2, *pitem3;
+            UpPushButton        *AMnumberbutton = new UpPushButton;
+            pitem1 = new QTableWidgetItem();
+            pitem2 = new QTableWidgetItem();
+            pitem3 = new QTableWidgetItem();
+            pitem1->setText(sit->nom());
+            pitem2->setText(sit->ville());
+            pitem3->setText(sit->telephone());
+            AMnumberbutton->setIcon(Icons::icSortirDossier());
+            AMnumberbutton->setIconSize(QSize(15,15));
+            AMnumberbutton->setiD(currentuser()->AMnumberforSite(sit->id()));
+            AMnumberbutton->setFixedSize(15,15);
+            AMnumberbutton->setFlat(true);
+            AMnumberbutton->setFocusPolicy(Qt::NoFocus);
+            AMnumberbutton->setData(sit->id());
+            QWidget *widg = new QWidget;
+            QHBoxLayout *l = new QHBoxLayout();
+            l->setAlignment( Qt::AlignCenter );
+            l->setContentsMargins(0,0,0,0);
+            l->addWidget(AMnumberbutton);
+            widg->setLayout(l);
+            ui->AdressupTableWidget->setItem(i,0,pitem1);
+            ui->AdressupTableWidget->setItem(i,1,pitem2);
+            ui->AdressupTableWidget->setItem(i,2,pitem3);
+            ui->AdressupTableWidget->setCellWidget(i,3,widg);
+            pitem1->setToolTip(sit->coordonnees());
+            pitem2->setToolTip(sit->coordonnees());
+            pitem3->setToolTip(sit->coordonnees());
+            QString tooltiptxt = (AMnumberbutton->iD()>0?
+                        tr("Numero AM ") + QString::number(AMnumberbutton->iD()) :
+                        tr("Pas de numéro AM enregistré pour ce site")) + "\n" +
+                        tr("Cliquez sur le bouton pour modifier le numéro");
+            AMnumberbutton->setImmediateToolTip(tooltiptxt);
+            if (sit->couleur() != "")
+            {
+                pitem1->setForeground(QColor("#" + sit->couleur()));
+                pitem2->setForeground(QColor("#" + sit->couleur()));
+                pitem3->setForeground(QColor("#" + sit->couleur()));
+            }
+            ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
+            ui->AdressupTableWidget->FixLargeurTotale(0);
+            connect(AMnumberbutton,     &QPushButton::clicked,  this,   [=] {fixAMnumberforSite(AMnumberbutton, mapsites);});
+            i++;
         }
-        ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
-        ++i;
     }
-    ReconstruitListeLieuxExerciceAllusers();
-    /*-------------------- GESTION DES LIEUX D'EXRCICE-------------------------------------------------------*/
 }
+
+void dlg_param::fixAMnumberforSite(UpPushButton *AMnumberButton, QMap<Site *, qlonglong> mapsites)
+{
+    qlonglong AMnumber = 0;
+    UpDialog* dlg_ask               = new UpDialog(this);
+    int w = 240;
+    UpLabel         *lbldebut       = new UpLabel;
+    lbldebut        ->setText(tr("Enregistrez le numéro AM (9 chiffres) correspondant à") +
+                              "<br/><font color=\"blue\"><b>" + Datas::I()->sites->getById(AMnumberButton->data())->nom() + "</b></font>");
+    lbldebut->setAlignment(Qt::AlignCenter);
+    QHBoxLayout *hlay = new QHBoxLayout;
+    hlay->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
+
+    QStringList listnumAM = QStringList();
+    for (auto it = mapsites.cbegin(); it != mapsites.cend(); ++it)
+        if (it.value() >0)
+            if (!listnumAM.contains(QString::number(it.value())))
+                listnumAM << QString::number(it.value());
+    if (currentuser()->m_numAM() >0)
+        if (!listnumAM.contains(QString::number(currentuser()->m_numAM())))
+            listnumAM << QString::number(currentuser()->m_numAM());
+    std::sort(listnumAM.begin(), listnumAM.end());
+
+    UpComboBox *combo   = new UpComboBox;
+    combo               ->setFixedWidth(w);
+    QLineEdit *line     = new QLineEdit;
+    QCompleter *comp    = new QCompleter(listnumAM);
+    comp                ->setCompletionMode(QCompleter::InlineCompletion);
+    line                ->setCompleter(comp);
+    line                ->setValidator(new QRegularExpressionValidator(QRegularExpression("[0-9]{9}"), Q_NULLPTR));
+    combo               ->addItems(listnumAM);
+    combo               ->setLineEdit(line);
+    combo               ->setEditable(true);
+    combo               ->setCurrentText("");
+
+    hlay                ->addWidget(combo);
+    hlay                ->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
+    dlg_ask->dlglayout()->insertWidget(0,lbldebut);
+    dlg_ask->dlglayout()->insertLayout(1,hlay);
+    dlg_ask             ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_ask             ->setWindowTitle(tr("Enregistrement numéro AM"));
+    dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    connect(dlg_ask->OKButton,  &QPushButton::clicked,  dlg_ask,    [&] {AMnumber = combo->currentText().toLongLong();
+        dlg_ask->accept();});
+    if (dlg_ask->exec() == QDialog::Accepted)
+    {
+        if (AMnumber>0)
+        {
+            mapsites.insert(Datas::I()->sites->getById(AMnumberButton->data()), AMnumber);
+            QMap<int, qlonglong> mapid = QMap<int, qlonglong>();
+            for (auto it = mapsites.begin(); it != mapsites.end(); ++it)
+                mapid.insert(it.key()->id(), it.value());
+            currentuser()->setmapUserSites(mapid);
+            db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(currentuser()->AMnumberforSite(Datas::I()->sites->currentsite()->id())) +
+                            " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(Datas::I()->sites->currentsite()->id()));
+            AMnumberButton->setiD(AMnumber);
+            AMnumberButton->setImmediateToolTip(tr("Numero AM ") + QString::number(AMnumberButton->iD()));
+        }
+    }
+    delete dlg_ask;
+}
+
+
+/*! ReconstruitListeLieuxExerciceAllusers();
+*-------------------- GESTION DES LIEUX D'EXRCICE-------------------------------------------------------*/
 
 void dlg_param::ReconstruitListeLieuxExerciceAllusers()
 {

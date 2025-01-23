@@ -361,7 +361,7 @@ void dlg_depenses::PrintReport(bool pdf)
     else
     {
         proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), Q_NULLPTR,
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
                        AvecDupli, AvecNumPage);
     }
 }

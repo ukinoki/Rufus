@@ -466,9 +466,9 @@
         <widget class="UpPushButton" name="GestLieuxpushButton">
          <property name="geometry">
           <rect>
-           <x>220</x>
+           <x>260</x>
            <y>345</y>
-           <width>251</width>
+           <width>211</width>
            <height>51</height>
           </rect>
          </property>
@@ -572,7 +572,7 @@ lieux d'activité</string>
           <property name="geometry">
            <rect>
             <x>5</x>
-            <y>0</y>
+            <y>13</y>
             <width>191</width>
             <height>131</height>
            </rect>
@@ -673,7 +673,7 @@ lieux d'activité</string>
           <property name="geometry">
            <rect>
             <x>13</x>
-            <y>140</y>
+            <y>153</y>
             <width>151</width>
             <height>22</height>
            </rect>
@@ -701,7 +701,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>20</y>
+             <y>33</y>
              <width>270</width>
              <height>26</height>
             </rect>
@@ -728,7 +728,7 @@ lieux d'activité</string>
           <property name="geometry">
            <rect>
             <x>270</x>
-            <y>137</y>
+            <y>150</y>
             <width>210</width>
             <height>35</height>
            </rect>
@@ -756,7 +756,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>12</x>
-             <y>20</y>
+             <y>33</y>
              <width>270</width>
              <height>26</height>
             </rect>
@@ -766,7 +766,7 @@ lieux d'activité</string>
            <property name="geometry">
             <rect>
              <x>10</x>
-             <y>0</y>
+             <y>13</y>
              <width>271</width>
              <height>21</height>
             </rect>
@@ -781,7 +781,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>215</y>
+           <y>235</y>
            <width>145</width>
            <height>21</height>
           </rect>
@@ -803,7 +803,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>35</x>
-           <y>218</y>
+           <y>235</y>
            <width>45</width>
            <height>16</height>
           </rect>
@@ -835,7 +835,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>15</x>
-           <y>273</y>
+           <y>290</y>
            <width>458</width>
            <height>3</height>
           </rect>
@@ -860,7 +860,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>80</x>
-           <y>240</y>
+           <y>260</y>
            <width>145</width>
            <height>21</height>
           </rect>
@@ -917,7 +917,7 @@ lieux d'activité</string>
          <property name="geometry">
           <rect>
            <x>35</x>
-           <y>243</y>
+           <y>260</y>
            <width>45</width>
            <height>16</height>
           </rect>
@@ -1295,6 +1295,28 @@ lieux d'activité</string>
          </property>
          <property name="text">
           <string>OPTAM</string>
+         </property>
+        </widget>
+        <widget class="UpRadioButton" name="NoUseNumupRadioButton">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>210</y>
+           <width>251</width>
+           <height>22</height>
+          </rect>
+         </property>
+         <property name="focusPolicy">
+          <enum>Qt::StrongFocus</enum>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::NoContextMenu</enum>
+         </property>
+         <property name="toolTip">
+          <string/>
+         </property>
+         <property name="text">
+          <string>Ne souhaite pas utiliser d'identifiants</string>
          </property>
         </widget>
        </widget>
