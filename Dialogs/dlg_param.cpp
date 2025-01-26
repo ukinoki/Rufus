@@ -338,6 +338,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ImportDocsgroupBox              ->setEnabled(false);
     EnableWidgContent(ui->BackupRestoreframe,false);
     EnableWidgContent(ui->Appareilsconnectesframe,false);
+    EnableWidgContent(ui->Languagewidget, false);
     ui->ParamConnexiontabWidget         ->setEnabled(false);
     EnableWidgContent(ui->Instrmtsframe,false);
     EnableWidgContent(ui->Imprimanteframe,false);
@@ -558,6 +559,33 @@ dlg_param::dlg_param(QWidget *parent) :
                             + "<font color=\"green\"><b> " NOM_PORT_TCPSERVEUR "</b></font>");
     else
         ui->TCPlabel->setText("");
+
+    QListWidget *contents   = new QListWidget(ui->LanguagecomboBox);
+    contents                ->hide();
+    ui->LanguagecomboBox    ->setModel(contents->model());
+    QListWidgetItem *frwidg = new QListWidgetItem (QPixmap("://France.ico"), "Français");
+    frwidg                  ->setData(Qt::UserRole, "FR");
+    contents                ->addItem(frwidg);
+    QListWidgetItem *enwidg = new QListWidgetItem (QPixmap("://United-kingdom.ico"), "English");
+    enwidg                  ->setData(Qt::UserRole, "EN");
+    contents                ->addItem(enwidg);
+    QListWidgetItem *eswidg = new QListWidgetItem (QPixmap("://Spain.ico"), "Español");
+    eswidg                  ->setData(Qt::UserRole, "ES");
+    eswidg                  ->setFlags(eswidg->flags() & ~Qt::ItemIsEnabled);
+    contents                ->addItem(eswidg);
+    QList<QListWidgetItem*> listwidg = QList<QListWidgetItem*>() << enwidg << frwidg << eswidg;
+    foreach (QListWidgetItem *item, listwidg) {
+        if (item->data(Qt::UserRole).toString() == m_parametres->version())
+        {
+            contents->setCurrentItem(item);
+            break;
+        }
+    }
+    ui->LanguagecomboBox->setCurrentIndex(contents->currentRow());
+    connect (ui->LanguagecomboBox, &QComboBox::currentIndexChanged, this, [=](int idx) {db->setVersion(contents->item(idx)->data(Qt::UserRole).toString());
+                                                                                        proc->settings()->setValue(Param_Poste_Version, contents->item(idx)->data(Qt::UserRole));
+                                                                                        ShowMessage::I()->SplashMessage(tr("Le changement de version ne prendra effet qu'après redémarrage du logiciel"),6000);});
+
     Remplir_Tables();
     ConnectSignals();
 }
@@ -970,6 +998,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->GestionBanquespushButton        ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
         EnableWidgContent(ui->BackupRestoreframe, db->ModeAccesDataBase() != Utils::Distant && a);
+        EnableWidgContent(ui->Languagewidget, a);
     }
 }
 

@@ -46,6 +46,7 @@ private:
     bool m_villesfrance = true;             //!> utilise la base de données des villes françaises
     bool m_cotationsfrance = true;          //!> utilise les cotations d'actes françaises (CMU, ALD, CCAM, secteur conventionnel, OPTAM...etc...)
     bool m_comptafrance = true;             //!> utilise la comptabilité française
+    QString m_version = "FR";               //!> la version du logiciel
 
 public:
     explicit ParametresSysteme(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
@@ -67,6 +68,7 @@ public:
     bool villesfrance() const;
     bool cotationsfrance() const;
     bool comptafrance() const;
+    QString version()                       { return m_version; }
 
     void setmdpadmin(QString mdp);
     void setnumcentre(int id);
@@ -83,6 +85,7 @@ public:
     void setvillesfrance(bool one);
     void setcotationsfrance(bool one);
     void setcomptafrance(bool one);
+    void setversion(QString version)         { m_version = version; }
 };
 
 #endif // CLS_PARAMETRESSYSTEME_H

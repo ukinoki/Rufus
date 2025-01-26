@@ -47,6 +47,41 @@ Procedures::Procedures(QObject *parent) :
     m_connexionbaseOK           = false;
     if (!FichierIni.exists())
     {
+        UpDialog *versiondlg        = new UpDialog;
+        QGroupBox *gbox             = new QGroupBox;
+        QRadioButton *frbutt        = new QRadioButton("Version française");
+        QRadioButton *enbutt        = new QRadioButton("English version");
+        QRadioButton *esbutt        = new QRadioButton("Versión española");
+        QVBoxLayout *version_Lay    = new QVBoxLayout();
+        version_Lay                 ->addWidget(frbutt);
+        version_Lay                 ->addWidget(enbutt);
+        version_Lay                 ->addWidget(esbutt);
+        esbutt                      ->setEnabled(false);
+        gbox                        ->setLayout(version_Lay);
+        versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+        versiondlg                  ->setWindowFlags(Qt::Popup);
+        versiondlg                  ->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+        versiondlg->dlglayout()     ->insertWidget(0,gbox);
+        connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
+        connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
+            if (frbutt->isChecked())
+                    m_version = "FR";
+            else if (enbutt->isChecked())
+                    m_version = "EN";
+            else if (esbutt->isChecked())
+                    m_version = "ES";
+            else
+                return;
+            versiondlg->accept();
+        });
+        versiondlg->exec();
+        QDir dirloc = QDir(QCoreApplication::applicationDirPath());
+        dirloc.cdUp();
+        QString locale = dirloc.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm";
+        QTranslator translator;
+        if( translator.load(locale) )
+            QCoreApplication::installTranslator(&translator);
+
         bool a = false;
         while (!a)
         {
@@ -65,8 +100,8 @@ Procedures::Procedures(QObject *parent) :
             a = VerifIni(msg, msgInfo, true, true, true, true);
         }
     }
-    m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-
+    if (m_settings == Q_NULLPTR)
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     QList<int> lports ={ 3306 , 3307};
     QSet<int> ports =QSet<int>(lports.constBegin(), lports.constEnd());
     bool k =    (
@@ -244,10 +279,10 @@ bool Procedures::AutresPostesConnectes(bool msg)
         if (post->stringid() != stringid)
         {
             if (msg)
-                UpMessageBox::Information(Q_NULLPTR, tr("Autres postes connectés!"),
+                ShowMessage::I()->SplashMessage("<font color=\"red\"><b>"+ tr("Autres postes connectés!") + "</b></font><br/>" +
                                          tr("Vous ne pouvez pas effectuer d'opération de sauvegarde/restauration sur la base de données"
-                                         " si vous n'êtes pas le seul poste connecté.") + "\n" +
-                                         tr("Le poste ") + post->nomposte() + tr(" est aussi connecté"));
+                                         " si vous n'êtes pas le seul poste connecté.") + "<br/>" +
+                                         tr("Le poste ") + post->nomposte() + tr(" est aussi connecté"), 6000);
             return true;
         }
     }
@@ -307,7 +342,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
         labelini->setFixedSize(labelsize, labelsize);
         layini->addWidget(labelini);
         UpCheckBox *Inichk  = new UpCheckBox();
-        Inichk->setText("fichier de paramètrage Rufus.ini");
+        Inichk->setText(tr("Fichier de paramètrage Rufus.ini"));
         Inichk->setEnabled(OKini);
         Inichk->setChecked(OKini);
         Inichk->setObjectName("ini");
@@ -332,7 +367,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             labeVideos->setFixedSize(labelsize, labelsize);
             layVideos->addWidget(labeVideos);
             UpCheckBox *Videoschk  = new UpCheckBox();
-            Videoschk->setText("Videos");
+            Videoschk->setText(tr("Videos"));
             Videoschk->setEnabled(OKvideos || op == BackupOp);
             Videoschk->setChecked(OKvideos || op == BackupOp);
             Videoschk->setObjectName("videos");
@@ -358,7 +393,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             labelmges->setFixedSize(labelsize, labelsize);
             layImges->addWidget(labelmges);
             UpCheckBox *Imgeschk  = new UpCheckBox();
-            Imgeschk->setText("Images");
+            Imgeschk->setText(tr("Images"));
             Imgeschk->setEnabled(OKimages || op == BackupOp);
             Imgeschk->setChecked(OKimages || op == BackupOp);
             Imgeschk->setObjectName("images");
@@ -384,7 +419,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             labelmges->setFixedSize(labelsize, labelsize);
             layFctures->addWidget(labelmges);
             UpCheckBox *Fctureschk  = new UpCheckBox();
-            Fctureschk->setText("Factures");
+            Fctureschk->setText(tr("Factures"));
             Fctureschk->setEnabled(OKfactures || op == BackupOp);
             Fctureschk->setChecked(OKfactures || op == BackupOp);
             Fctureschk->setObjectName("factures");
@@ -404,7 +439,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     labelBDD->setFixedSize(labelsize, labelsize);
     layBDD->addWidget(labelBDD);
     UpCheckBox *BDDchk  = new UpCheckBox();
-    BDDchk->setText("base de données");
+    BDDchk->setText(tr("Base de données"));
     BDDchk->setChecked(true);
     BDDchk->setObjectName("base");
     layBDD->addWidget(BDDchk);
@@ -611,13 +646,16 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
 #endif
     // élaboration du script de backup
     // Sauvegarde des 4 bases de Rufus
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
+    QString host = "";
+    if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
+        host = " -h " + DataBase::I()->dbase().hostName();
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
     scriptbackup += CRLF;
     // Sauvegarde de la table des utilisateurs
     scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
@@ -2224,8 +2262,8 @@ QString Procedures::PosteImportDocs()
     QString rep = "";
     QString req = "";
     bool isMysql8 = false;
-    if (db->version().split(".").size() > 0)
-        isMysql8 = (db->version().split(".").at(0).toInt() == 8);
+    if (db->versionMySQL().split(".").size() > 0)
+        isMysql8 = (db->versionMySQL().split(".").at(0).toInt() == 8);
     //qDebug() << "Mysql = " << db->version() << " - Mysql version = " << db->version().split(".").at(0).toInt();
 
     /*! Il n'y pas de variables utilisateur globale dans MySQL, on est donc obligé serge    gaxt78iy
@@ -2387,7 +2425,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                                      "elle sera définitivement effacée pour être remplacée par cette base vierge.\n"
                                      "Confirmez-vous la suppression des anciennes données?\n"));
         AnnulBouton.setText(tr("Annuler"));
-        OKBouton.setText("J'ai compris\nJe confirme");
+        OKBouton.setText(tr("J'ai compris\nJe confirme"));
         msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
         msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
         msgbox.exec();
@@ -3112,14 +3150,14 @@ void Procedures::VerifnumAM()
             }
         }
     }
-    else if (currentuser()->AMnumberforSite(idsite) == 0)
+    else if (currentuser()->currentAMnumber() == 0)
     {
         if (currentuser()->m_numAM() >0 && mapid.size() == 1)
         {
             mapid.insert(Datas::I()->sites->currentsite()->id(), currentuser()->m_numAM());
             currentuser()->setmapUserSites(mapid);
             //! enregistre la valeur de AMnumber dans jointuresLieux
-            db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(currentuser()->AMnumberforSite(idsite)) +
+            db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " + (currentuser()->currentAMnumber()== 0? "null": QString::number(m_currentuser->currentAMnumber())) +
                             " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(idsite));
         }
         else
@@ -3175,7 +3213,7 @@ void Procedures::VerifnumAM()
                 {
                     mapid.insert(Datas::I()->sites->currentsite()->id(), AMnumber);
                     currentuser()->setmapUserSites(mapid);
-                    db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(currentuser()->AMnumberforSite(idsite)) +
+                    db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  (currentuser()->currentAMnumber()== 0? "null": QString::number(m_currentuser->currentAMnumber())) +
                                     " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(idsite));
                 }
             }
@@ -3297,8 +3335,6 @@ bool Procedures::CreerPremierUser(QString Login, QString MDP)
     db->setcotationsfrance(a);
 
     m_connexionbaseOK = true;
-    // On paramètre les dossiers, l'imprimante et les fichiers ressources
-    PremierParametrageMateriel();
     return true;
 }
 
@@ -3410,7 +3446,10 @@ bool Procedures::IdentificationUser()
     if (dlg_IdentUser->exec() == QDialog::Accepted)
     {
         VerifVersionBase();
-        m_parametres = db->parametres();        
+        m_parametres = db->parametres();
+        m_settings->setValue(Param_Poste_Version, m_parametres->version()); //! si la version de la langue a été changée,
+                                                                            //! le programme doit pouvoir prendre en compte ce changement avant la connexion à la base
+                                                                            //! pour afficher les premières boîtes de dialogue dans la langue correspondante
         enum Villes::TownsFrom from;
         if (m_parametres->villesfrance())
             from = Villes::DATABASE;
@@ -4147,6 +4186,7 @@ bool Procedures::PremierDemarrage()
 
              // Création de l'utilisateur
              m_connexionbaseOK = CreerPremierUser(login, MDP);
+             PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
              Datas::I()->sites->initListe();
              CalcLieuExercice();
              if (Datas::I()->sites->currentsite() == Q_NULLPTR)
@@ -4155,6 +4195,7 @@ bool Procedures::PremierDemarrage()
                                    tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
                                       "puissent être prises en compte\n"));
              Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+             db->setVersion(m_version);
              exit(0);
         }
     }
@@ -4182,6 +4223,7 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue(Param_Poste_PortFronto,"-");
     m_settings->setValue(Param_Poste_PortTono,"-");
     m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + PrioritaireGestionDocs,NOimport);
+    m_settings->setValue(Param_Poste_Version, m_version);
 
     // Création des dossiers
     //!    on server

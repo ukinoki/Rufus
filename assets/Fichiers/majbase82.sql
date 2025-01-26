@@ -33,7 +33,27 @@ BEGIN
                 ALTER TABLE `rufus`.`jointuresLieux`
                 ADD COLUMN `AMnumber` BIGINT NULL DEFAULT NULL AFTER `idLieu`;
         END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT * 
+        FROM information_schema.statistics 
+		WHERE TABLE_NAME = 'appareilsconnectescentre' AND COLUMN_NAME = 'idAppareil') as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`appareilsconnectescentre`
+                CHANGE COLUMN `idAppareil` `idAppareil` INT NOT NULL ,
+                DROP PRIMARY KEY;
+        END IF;
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'Version') as chp;
+        IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                ADD COLUMN `Version` VARCHAR(2) NULL DEFAULT NULL AFTER `ComptaFrance`;
+        END IF;
     UPDATE `rufus`.`utilisateurs` SET UseNum = 1;
+    UPDATE `rufus`.`ParametresSysteme` SET Version = 'FR';
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 82;
 END|
 CALL MAJ82();

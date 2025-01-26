@@ -65,7 +65,7 @@
       <enum>Qt::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -2777,8 +2777,8 @@ un serveur hébergé sur le réseau local</string>
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>984</width>
-         <height>846</height>
+         <width>887</width>
+         <height>841</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="GeneralLayout">
@@ -3255,7 +3255,7 @@ les données</string>
             <widget class="QGroupBox" name="VillesgroupBox">
              <property name="geometry">
               <rect>
-               <x>20</x>
+               <x>10</x>
                <y>420</y>
                <width>360</width>
                <height>60</height>
@@ -3312,15 +3312,15 @@ les données</string>
             <widget class="UpPushButton" name="ModifListVillesupPushButton">
              <property name="geometry">
               <rect>
-               <x>372</x>
+               <x>382</x>
                <y>421</y>
-               <width>185</width>
+               <width>175</width>
                <height>60</height>
               </rect>
              </property>
              <property name="minimumSize">
               <size>
-               <width>185</width>
+               <width>175</width>
                <height>0</height>
               </size>
              </property>
@@ -3348,7 +3348,7 @@ liste des villes</string>
             <widget class="QGroupBox" name="CotationssgroupBox_2">
              <property name="geometry">
               <rect>
-               <x>20</x>
+               <x>10</x>
                <y>375</y>
                <width>360</width>
                <height>40</height>
@@ -3389,7 +3389,7 @@ liste des villes</string>
             <widget class="QGroupBox" name="ComptagroupBox">
              <property name="geometry">
               <rect>
-               <x>20</x>
+               <x>10</x>
                <y>289</y>
                <width>360</width>
                <height>81</height>
@@ -3789,6 +3789,62 @@ des organismes bancaires</string>
           <property name="bottomMargin">
            <number>5</number>
           </property>
+          <item>
+           <widget class="QWidget" name="Languagewidget" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>200</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>200</width>
+              <height>16777215</height>
+             </size>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_14" stretch="40,60">
+             <property name="spacing">
+              <number>5</number>
+             </property>
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>5</number>
+             </property>
+             <property name="bottomMargin">
+              <number>5</number>
+             </property>
+             <item>
+              <widget class="QLabel" name="Languagelabel">
+               <property name="maximumSize">
+                <size>
+                 <width>68</width>
+                 <height>16777215</height>
+                </size>
+               </property>
+               <property name="text">
+                <string>Version</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QComboBox" name="LanguagecomboBox">
+               <property name="minimumSize">
+                <size>
+                 <width>150</width>
+                 <height>0</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
           <item>
            <spacer name="horizontalSpacer_2">
             <property name="orientation">

@@ -89,6 +89,7 @@ private:
     QSettings               *m_settings = Q_NULLPTR;
     ParametresSysteme       *m_parametres;
     OsTask                  m_ostask;
+    QString                 m_version = ""; //! la version du  programme
 
 public:
     static Procedures       *I();

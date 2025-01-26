@@ -94,9 +94,10 @@ QMap<Site*,qlonglong> Sites::initListeByUser(int idusr)
     return mapsites;
 }
 
-void Sites::SupprimeSite(Site* man)
+void Sites::SupprimeSite(Site* sit)
 {
-    Supprime(map_all, man);
+    DataBase::I()->StandardSQL("delete from " TBL_APPAREILSCONNECTESCENTRE " where " CP_IDLIEU_APP " = " + QString::number(sit->id()));
+    Supprime(map_all, sit);
 }
 
 Site* Sites::CreationSite(QHash<QString, QVariant> sets)

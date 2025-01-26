@@ -947,7 +947,7 @@ QString Utils::calcSHA1(QString mdp)
     else
     {
         QInputDialog quest(parent);
-        quest.setCancelButtonText("Annuler");
+        quest.setCancelButtonText(tr("Annuler"));
         quest.setLabelText(Msg);
         quest.setInputMode(QInputDialog::TextInput);
         quest.setTextEchoMode(QLineEdit::Password);

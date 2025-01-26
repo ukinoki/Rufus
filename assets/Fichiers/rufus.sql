@@ -416,7 +416,8 @@ CREATE TABLE `ParametresSysteme` (
   `DirBkup` varchar(250) DEFAULT NULL,
   `VillesFrance` int(1) DEFAULT NULL,
   `CotationsFrance` int(1) DEFAULT NULL,
-  `ComptaFrance` int(1) DEFAULT NULL
+  `ComptaFrance` int(1) DEFAULT NULL,
+  `Version` varchar(2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -426,7 +427,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,82,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1);
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,82,1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1,'FR');
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 

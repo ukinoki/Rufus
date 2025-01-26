@@ -208,8 +208,8 @@ private:
     void                    PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist);
 
     QMap<QString,QString>   m_mapBarCodes = QMap<QString,QString>();
-    int                     m_BarCodesWidth = 1250;
-    int                     m_BarCodesHeight = 400;
+    int                     m_BarCodesWidth = 1800;
+    int                     m_BarCodesHeight = 500;
     int                     m_BarCodesFontSize = 6;
     int                     m_BarCodesInterval = 400;
 

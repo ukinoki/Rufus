@@ -60,6 +60,14 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->CleanIniFile();
     m_parametres = db->parametres();
     RecalcCurrentDateTime();
+    QDir dirloc = QDir(QCoreApplication::applicationDirPath());
+    dirloc.cdUp();
+    QString locale = dirloc.absolutePath() + "/Locale/rufus_" + m_parametres->version().toLower() + ".qm";
+    QTranslator translator;
+    if( translator.load(locale) )
+        QCoreApplication::installTranslator(&translator);
+    //proc->setLanguage(m_parametres->version());   ne marche  pas???
+    proc->settings()->setValue(Param_Poste_Version, m_parametres->version());
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     if (proc->settings()->value(Position_Fiche Nom_fiche_Rufus) != QVariant())
@@ -1234,10 +1242,8 @@ void Rufus::AfficheMenu(QMenu *menu)
         {
             menuDocuments       ->addMenu(menuEmettre);
             menuDocuments       ->addAction(actionEnregistrerDocScanner);
-#ifdef Q_OS_MACOS
             if (db->ModeAccesDataBase() != Utils::Distant)
                 menuDocuments   ->addAction(actionEnregistrerVideo);
-#endif
             menuDocuments       ->addSeparator();
             actionExportActe    ->setVisible(ui->Acteframe->isVisible());
         }

@@ -106,7 +106,7 @@ void dlg_paramconnexion::HelpMsg()
 {
     QMessageBox msgbox;
     UpSmallButton OKBouton("OK");
-    msgbox.setText("Paramètrage de MySQL");
+    msgbox.setText(tr("Paramètrage de MySQL"));
     msgbox.setInformativeText(tr("Si vous venez d'installer MySQL sur ce poste et que vous voulez vous connecter,\n\n"
                               "Utilisez\n"
                               "1. le login de connexion que vous avez créé en paramètrant MySQL dans la fenêtre login,\n"

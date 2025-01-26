@@ -101,6 +101,7 @@ private:
 
 public:
     static DataBase*        I();
+    QSqlDatabase dbase() { return m_db; }
 
     /*
      * SQL
@@ -118,7 +119,7 @@ public:
     void                    InfosConnexionSQL();                /*! les infos de connexions SQL : host, database, login, mdp */
     int                     idUserConnected() const             { return m_iduserConnected; }
 
-    QString                 version();                          /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
+    QString                 versionMySQL();                     /*! renvoie la version du serveur (MySQL, MariaDB...etc...  */
     QString                 connectToDataBase(QString basename, QString login = LOGIN_SQL, QString password = MDP_SQL);   //!> idem
     bool                    verifglobalvariablesSQL();          /*! vérifie les variales Sql_mode et secure_file_priv */
     bool                    dirsecure_file_priv();              /*! reads dir secure-file-priv registered on server */
@@ -212,6 +213,7 @@ public:
     void setvillesfrance(bool one = true);
     void setcotationsfrance(bool one = true);
     void setcomptafrance(bool one= true);
+    void setVersion (QString newversion);
     double versionbaseiol();
 
     /*

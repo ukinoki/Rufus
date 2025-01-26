@@ -39,11 +39,15 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 #endif
 
-    QString locale = QLocale::system().name().section('_', 0, 0);
+    /*QString locale = QLocale::system().name().section('_', 0, 0);
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
     dirloc.cdUp();
-    locale = dirloc.absolutePath() + "/Locale/rufus_" + locale + ".qm";
+    locale = dirloc.absolutePath() + "/Locale/rufus_" + locale + ".qm";*/
 
+    QSettings settings(PATH_FILE_INI, QSettings::IniFormat);
+    QDir dirloc = QDir(QCoreApplication::applicationDirPath());
+    dirloc.cdUp();
+    QString locale = dirloc.absolutePath() + "/Locale/rufus_" + settings.value(Param_Poste_Version).toString().toLower() + ".qm";
     // for debugging quickly
     //locale = QDir::homePath() + "/RufusQt6/rufus_en";
     QTranslator translator;

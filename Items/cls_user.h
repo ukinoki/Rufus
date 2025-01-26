@@ -346,6 +346,7 @@ public:
             amnumber = it.value();
         return amnumber;
     }
+    qlonglong currentAMnumber()                { return AMnumberforSite(m_idsite); }
     void setidSite(int id) { m_idsite = id; }
     bool usenum() const;
     void setusenum(bool usenum);

@@ -100,7 +100,7 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
     return false;
 }
 
-QString DataBase::version()
+QString DataBase::versionMySQL()
 {
     bool ok;
     QString version = "";
@@ -637,6 +637,21 @@ void DataBase::initParametresSysteme()
         paramData[CP_VERSIONBASEIOL_PARAMSYSTEME]         = (paramdata.at(0).toDouble());
         m_parametres->setData(paramData);
     }
+
+    //! from versionbase 82
+    req = "SELECT COUNT(*) FROM "
+          "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+          "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VERSION_PARAMSYSTEME "') as chp;";
+    listquery = getFirstRecordFromStandardSelectSQL(req,ok);
+    if (listquery.size() > 0)
+    {
+        req = "select " CP_VERSION_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
+        paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver la version utilisée"));
+        if(!ok || paramdata.size() == 0)
+            return ;
+        paramData[CP_VERSION_PARAMSYSTEME]         = (paramdata.at(0).toString());
+        m_parametres->setData(paramData);
+    }
 }
 
 ParametresSysteme* DataBase::parametres()
@@ -792,6 +807,14 @@ void DataBase::setcomptafrance(bool one)
     QString a = (one? "'1'" : "null");
     StandardSQL("update " TBL_PARAMSYSTEME " set " CP_COMPTA_PARAMSYSTEME " = " + a);
     parametres()->setcomptafrance(one);
+}
+
+void DataBase::setVersion (QString newversion)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSION_PARAMSYSTEME " = '" + newversion + "'");
+    parametres()->setversion(newversion);
 }
 
 /*

@@ -352,6 +352,7 @@ public:
 #define CP_VILLES_PARAMSYSTEME                          "VillesFrance"
 #define CP_COTATIONS_PARAMSYSTEME                       "CotationsFrance"
 #define CP_COMPTA_PARAMSYSTEME                          "ComptaFrance"
+#define CP_VERSION_PARAMSYSTEME                         "Version"
 
                             //! Table Rufus.salledattente
 #define CP_IDPAT_SALDAT                                 "idPat"
@@ -1216,6 +1217,7 @@ public:
 #define Param_Poste_Autoref                             Param_Poste "/Autoref"
 #define Param_Poste_Tono                                Param_Poste "/Tonometre"
 #define Param_Poste_Refracteur                          Param_Poste "/Refracteur"
+#define Param_Poste_Version                             Param_Poste "/Version"
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
 #define Dossier_Imagerie                                "/DossierImagerie"

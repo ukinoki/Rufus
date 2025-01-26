@@ -47,6 +47,7 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataBool(data, CP_VILLES_PARAMSYSTEME, m_villesfrance);
     setDataBool(data, CP_COMPTA_PARAMSYSTEME, m_comptafrance);
     setDataBool(data, CP_COTATIONS_PARAMSYSTEME, m_cotationsfrance);
+    setDataString(data, CP_VERSION_PARAMSYSTEME, m_version);
     m_data = data;
 }
 

@@ -13,6 +13,8 @@ ShinNippon::ShinNippon() {}
 
 void ShinNippon::LectureDonneesCOMRefracteur(QString Mesure, TypesMesures flag)
 {
+    Logs::LogToFile("MesuresRefracteur" + QDateTime::currentDateTime().toString("yyyyMMdd HH:mm:ss") + ".txt", Mesure);
+
     QString mSphereOD   = "+00.00";
     QString mCylOD      = "+00.00";
     QString mAxeOD      = "000";
@@ -321,7 +323,7 @@ Additionnez toutes les données du début (« * ») à la fin (« @ ») et calcu
 La valeur calculée est convertie en code ASCII, soit 4 octets.
 On considère que la transmission des données est terminée par l'envoi du code de saut de ligne après la somme de contrôle.
 
-Le phoroptère automatique ne comprend pas le code du début à la fin
+Le refracteur ne comprend pas le code du début à la fin
  si le code de détection d'erreur n'est pas envoyé,
  si le code ne correspond pas
  ou si le code de saut de ligne après le code de détection d'erreur n'est pas envoyé.
