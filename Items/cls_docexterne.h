@@ -159,7 +159,7 @@ public:
     }
 
 
-    static QStringList listtypedocs() { return QStringList() <<tr("OCT") << tr("RNM") << tr("CV") << tr("Topographie")
+    static QStringList listtypedocs() { return QStringList() << tr("RNM") << tr("OCT") << tr("CV") << tr("Topographie")
                                                              << tr("Orthoptie") << tr("Hess-Weiss") << tr("Biométrie")
                                                              << tr("Speculaire") << tr("Autre Imagerie") << tr("ANGIO")
                                                              << tr("Video Chirurgie")

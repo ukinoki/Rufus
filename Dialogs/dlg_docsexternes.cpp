@@ -74,9 +74,10 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_lay                 ->setSpacing(10);
     dlglayout()           ->insertLayout(0,m_lay);
 
-    UpSmallButton *EditButton = new UpSmallButton();
-    EditButton          ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
-    AjouteWidgetLayButtons(EditButton);
+    UpSmallButton *ViewerButton = new UpSmallButton();
+    ViewerButton                ->setIcon(Icons::icViewer());
+    ViewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
+    AjouteWidgetLayButtons(ViewerButton);
 
     wdg_playctrl            = new PlayerControls();
     wdg_playctrl            ->setWindowOpacity(0.4);
@@ -103,7 +104,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
             if (doc->isMedicalImagery() || doc->isVideo())
                 m_docsimagery->docsexternes()->insert(it.key(),it.value());
     }
-    EditButton->setVisible(m_docsimagery->docsexternes()->size()>0);
+    ViewerButton->setVisible(m_docsimagery->docsexternes()->size()>0);
     //setStageCount(1);
 
     m_hdelta            = 0;
@@ -123,7 +124,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
                                                                                                                         });
     connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
-    connect (EditButton,                        &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
+    connect (ViewerButton,                        &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
 
     if (!UtiliseTCP)
     {

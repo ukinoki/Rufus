@@ -34,20 +34,22 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog
     QVBoxLayout *tablelay       = new QVBoxLayout;
     tablelay                    ->addWidget(wdg_table);
     tablelay                    ->setSizeConstraint(QLayout::SetFixedSize);
-    QGridLayout *gridlay        = new QGridLayout;
-    gridlay                     ->addWidget(new QWidget(),0,0);
-    gridlay                     ->addLayout(tablelay, 1,0);
-    gridlay                     ->addLayout(boxODG_Lay, 0,1);
-    gridlay                     ->addWidget(wdg_treeview,1,1);
-    gridlay                     ->setColumnStretch(0,2);
-    gridlay                     ->setColumnStretch(1,10);
-    gridlay                     ->setRowStretch(0,2);
-    gridlay                     ->setRowStretch(1,15);
+    m_gridlay                   ->addWidget(new QWidget(),0,0);
+    m_gridlay                   ->addLayout(tablelay, 1,0);
+    m_gridlay                   ->addLayout(boxODG_Lay, 0,1);
+    m_gridlay                   ->addWidget(wdg_treeview,1,1);
+    m_gridlay                   ->setColumnStretch(0,2);
+    m_gridlay                   ->setColumnStretch(1,10);
+    m_gridlay                   ->setRowStretch(0,2);
+    m_gridlay                   ->setRowStretch(1,15);
 
-    dlglayout()->insertLayout(0,gridlay);
+    wdg_treeview                ->setHeaderHidden(true);
+
+    dlglayout()->insertLayout(0,m_gridlay);
     connect(OKButton,           &QPushButton::clicked,  this,   &QDialog::close);
 
     UpdateTables(Docs);
+    installEventFilter(this);
 }
 
 void dlg_imageviewer::UpdateTables(DocsExternes* docs)
@@ -211,7 +213,11 @@ UpStandardItem* dlg_imageviewer::itemfromIndex(QModelIndex idx)
     return dynamic_cast<UpStandardItem *>(m_tblmodel->itemFromIndex(idx));
 }
 
-QList<UpStandardItem*> dlg_imageviewer::listitems()
+/*!
+ * \brief dlg_imageviewer::listcheckabledItems
+ * \return list des items pouvant être cochés
+*/
+QList<UpStandardItem*> dlg_imageviewer::listcheckabledItems()
 {
     QList<UpStandardItem*> listitems = QList<UpStandardItem*>();
     for (int i = 0; i<m_tblmodel->rowCount(); i++)
@@ -223,10 +229,24 @@ QList<UpStandardItem*> dlg_imageviewer::listitems()
             {
                 QVariant value = item->data(Qt::CheckStateRole);
                 if (value.isValid())
-                    listitems << item;
+                        listitems << item;
             }
         }
     }
+    return listitems;
+}
+
+/*!
+ * \brief dlg_imageviewer::listcheckabledItems
+ * \return list des items cochés
+*/
+QList<UpStandardItem*> dlg_imageviewer::listcheckedItems()
+{
+    QList<UpStandardItem*> listitemstocheck = listcheckabledItems();
+    QList<UpStandardItem*> listitems = QList<UpStandardItem*>();
+    for  (int i =0; i<listitemstocheck.size(); ++i )
+        if (listitemstocheck.at(i)->checkState() == Qt::Checked || listitemstocheck.at(i)->checkState() == Qt::PartiallyChecked)
+            listitems << listitemstocheck.at(i);
     return listitems;
 }
 
@@ -238,7 +258,7 @@ void dlg_imageviewer::checkHorizontalHeader(int idx)
     m_tblmodel->setHeaderData(idx, Qt::Horizontal,
                         unchek? Icons::pxCheck() : Icons::pxunCheck(),
                         Qt::DecorationRole);
-    QList<UpStandardItem*> litems = listitems();
+    QList<UpStandardItem*> litems = listcheckabledItems();
     for  (int i =0; i<litems.size(); ++i )
         if (litems.at(i)->column() == idx)
                 litems.at(i)->setCheckState(unchek? Qt::Checked : Qt::Unchecked);
@@ -253,7 +273,7 @@ void dlg_imageviewer::checkVerticalHeader(int idx)
     m_tblmodel->setHeaderData(idx, Qt::Vertical,
                                unchek? Icons::pxCheck() :Icons::pxunCheck(),
                                Qt::DecorationRole);
-    QList<UpStandardItem*> litems = listitems();
+    QList<UpStandardItem*> litems = listcheckabledItems();
     for  (int i =0; i<litems.size(); ++i )
         if (litems.at(i)->row() == idx)
             litems.at(i)->setCheckState(unchek? Qt::Checked : Qt::Unchecked);
@@ -264,7 +284,7 @@ void dlg_imageviewer::checkVerticalHeader(int idx)
  \brief dlg_imageviewer::controlChecks
  After a check on un uptstandarditem, correct headers icons
  */
-void dlg_imageviewer::controlChecks() //! After a check on un uptstandarditem, correct headers icons
+void dlg_imageviewer::controlChecks() //! After a check on an upstandarditem, correct headers icons
 {
     // ctrl for rows
     for (int i=0; i < m_tblmodel->rowCount(); i++)
@@ -336,13 +356,14 @@ void dlg_imageviewer::controlChecks() //! After a check on un uptstandarditem, c
     }
     m_listdocsToDisplay = listdocsToDisplay();
     checkEyes();
-    fillTreeWidg(m_listdocsToDisplay);
+    m_listitems = listcheckedItems();
+    fillTreeWidg();
 }
 
 QList<DocExterne*> dlg_imageviewer::listdocsToDisplay()
 {
     QList<DocExterne*> listdocs = QList<DocExterne*>();
-        QList<UpStandardItem*> litems = listitems();
+    QList<UpStandardItem*> litems = listcheckabledItems();
     for  (int i =0; i<litems.size(); ++i )
     {
         if (litems.at(i)->checkState() == Qt::Checked)
@@ -382,8 +403,148 @@ void dlg_imageviewer::checkEyes()
     BothchkBox->setEnabled(checkBoth);
 }
 
-void dlg_imageviewer::fillTreeWidg(QList<DocExterne*> listdocs)
+QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
 {
+    QList<QWidget *> listwidg = QList<QWidget *>();
+    foreach (DocExterne* doc, listdocs)
+    {
+        if (doc == Q_NULLPTR)
+        {
+            QWidget *wdg = new QWidget;
+            listwidg << wdg;
+        }
+        else
+        {
+            Procedures::I()->CalcImageDocument(doc);
+            QList<QPixmap> listpixmp;
+
+            if (doc->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
+            {
+                if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+                {
+                    UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
+                    return Q_NULLPTR;
+                }
+                QString filename = DataBase::I()->dirimagerie() + NOM_DIR_VIDEOS "/" + doc->lienversfichier();
+                QFile   qFile(filename);
+                if (!qFile.open(QIODevice::ReadOnly))
+                {
+                    QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
+                    UpMessageBox::Watch(this,msg);
+                    return Q_NULLPTR;
+                }
+                QGraphicsScene *obj_graphicscene    = new QGraphicsScene();
+                QGraphicsVideoItem *obj_videoitem   = new QGraphicsVideoItem;
+                obj_graphicscene                    ->addItem(obj_videoitem);
+                QMediaPlayer *medplay_player        = new QMediaPlayer;
+                medplay_player                      ->setSource( QUrl::fromLocalFile(filename));
+                medplay_player                      ->setVideoOutput(obj_videoitem);
+
+                QGraphicsView *wdg_graphview       = new QGraphicsView(obj_graphicscene);                // utilisé pour afficher les jpg et les video
+                wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                wdg_graphview       ->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+
+                obj_videoitem       ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
+                obj_videoitem       ->setSize(sizeforunit());
+                int x               = obj_videoitem->size().width();
+                int y               = obj_videoitem->size().height();
+                obj_graphicscene    ->setSceneRect(0,0,x,y);
+                wdg_graphview       ->resize(x,y);
+                medplay_player->play();
+
+                QWidget *wdg = new QWidget;
+                QHBoxLayout * lay = new QHBoxLayout();
+                lay->addWidget(wdg_graphview);
+                lay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
+                wdg->setLayout(lay);
+                listwidg << wdg;
+            }
+            else if (doc->imageformat() == JPG)     // le document est un JPG
+            {
+                QImage image;
+                if (!image.loadFromData(doc->imageblob()))
+                {
+                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                    return Q_NULLPTR;
+                }
+                QPixmap pix     = QPixmap::fromImage(image).scaled(sizeforunit(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+                UpLabel * lab   = new UpLabel;
+                lab             ->setPixmap(pix);
+                lab             ->setStyleSheet("border: 2px solid rgb(164, 205, 255);border-radius: 10px;");
+                lab             ->setitem(doc);
+                listwidg        << lab;
+            }
+            else if (doc->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
+            {
+                QList<QImage> listimg;
+                listimg = doc->pagelist();
+
+                if (listimg.size())
+                {
+                    UpTableWidget *tblwdg = new UpTableWidget();                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
+                    tblwdg->horizontalHeader() ->setVisible(false);
+                    tblwdg->verticalHeader()   ->setVisible(false);
+                    tblwdg      ->setFocusPolicy(Qt::NoFocus);
+                    tblwdg      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+                    tblwdg      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+                    tblwdg      ->setColumnCount(1);
+                    tblwdg      ->setRowCount(listimg.size());
+                    tblwdg      ->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+                    for (int i=0; i<listimg.size();++i)
+                    {
+                        QImage image = listimg.at(i);
+                        QPixmap pix     = QPixmap();
+                        listpixmp << pix;
+                        pix     = QPixmap::fromImage(image).scaled(sizeforunit(),
+                                                               Qt::KeepAspectRatioByExpanding,
+                                                               Qt::SmoothTransformation);
+                        UpLabel *lab            = new UpLabel();
+                        lab                     ->resize(pix.width(),pix.height());
+                        lab                     ->setPixmap(pix);
+                        int x = pix.width();
+                        int y = pix.height();
+                        tblwdg   ->setColumnWidth(i,x);
+                        tblwdg   ->setRowHeight(i,y);
+                        tblwdg   ->setFixedSize(x,y);
+                        tblwdg   ->setCellWidget(i,0,lab);
+                    }
+                    listwidg << tblwdg;
+                }
+            }
+        }
+    }
+    QWidget * widg = Q_NULLPTR;
+    if (listwidg.size() == 0 || listwidg.size() >2)
+        return widg;
+    else {
+        widg                = new QWidget();
+        QHBoxLayout *hlay   = new QHBoxLayout();
+        hlay                ->setContentsMargins(m_marg);
+        hlay                ->setSpacing(m_spacing);
+        if (listwidg.size() == 1)
+        {
+            hlay->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Expanding));
+            hlay->addWidget(listwidg.at(0));
+            hlay->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Expanding));
+            widg->setLayout(hlay);
+        }
+        else if (listwidg.size() == 2)
+        {
+            hlay->addWidget(listwidg.at(0));
+            hlay->addWidget(listwidg.at(1));
+            hlay->setSpacing(5);
+            widg->setLayout(hlay);
+        }
+    }
+    return widg;
+}
+
+void dlg_imageviewer::fillTreeWidg()
+{
+    auto sstypdoc = [=] (DocExterne* doc) {
+        return doc->soustypedoc().replace("OD","").replace("OG","");
+    };
     QList<QDate> listdates =  QList<QDate>();
     for (int i=0;  i < m_tblmodel->rowCount(); i++)
     {
@@ -399,7 +560,6 @@ void dlg_imageviewer::fillTreeWidg(QList<DocExterne*> listdocs)
     wdg_treeview->setModel(m_treemodel);
     delete m;
 
-    QStandardItem * rootNodeDate = m_treemodel->invisibleRootItem();
     for (int i=0; i<listdates.size(); ++i)
     {
         QString datestring = listdates.at(i).toString(m_formatdate);
@@ -407,137 +567,125 @@ void dlg_imageviewer::fillTreeWidg(QList<DocExterne*> listdocs)
         dateitem    ->setForeground(QBrush(QColor(Qt::red)));
         dateitem    ->setEditable(false);
         dateitem    ->setIcon(Icons::icDate());
-        rootNodeDate->appendRow(dateitem);
+        m_treemodel ->appendRow(dateitem);
     }
-    foreach (DocExterne *doc, listdocs)
+    foreach (UpStandardItem *item, m_listitems)
     {
-        QStandardItem *item = new QStandardItem;
-        QWidget *widg = DocWidget(doc);
-        QStandardItem *pitemtridated       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));
-        QString date = doc->date().toString(m_formatdate);
-        QList<QStandardItem *> listitemsdate = m_treemodel->findItems(date);
-        if (listitemsdate.size()>0)
+        QList<int> ids = QList<int>();
+        QList<DocExterne*> listdocssided = QList<DocExterne*>();
+        QList<DocExterne*> listdocsboth = QList<DocExterne*>();
+        int row = item->row();
+        QString datestring = m_tblmodel->headerData(row, Qt::Vertical, Qt::DisplayRole).toString();
+        QDate date = QDate::fromString(datestring).fromString(m_formatdate);
+
+        if (item->listids().size() >0)
         {
-            listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << item << pitemtridated);
-            listitemsdate.at(0)->sortChildren(1);
-        }
-        wdg_treeview->setIndexWidget(item->index(), widg);
-    }
-
-    wdg_treeview->setSelectionModel(new QItemSelectionModel(m_treemodel));
-    wdg_treeview->expandAll();
-}
-
-QWidget* dlg_imageviewer::DocWidget(DocExterne *doc)
-{
-    Procedures::I()->CalcImageDocument(doc);
-    QList<QPixmap> listpixmp;
-    QSize size = QSize(360,240);
-    if (doc->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
-    {
-        if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
-        {
-            UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
-            return Q_NULLPTR;
-        }
-        QString filename = DataBase::I()->dirimagerie() + NOM_DIR_VIDEOS "/" + doc->lienversfichier();
-        QFile   qFile(filename);
-        if (!qFile.open(QIODevice::ReadOnly))
-        {
-            QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
-            UpMessageBox::Watch(this,msg);
-            return Q_NULLPTR;
-        }
-        QGraphicsScene *obj_graphicscene    = new QGraphicsScene();
-        QGraphicsVideoItem *obj_videoitem   = new QGraphicsVideoItem;
-        obj_graphicscene                    ->addItem(obj_videoitem);
-        QMediaPlayer *medplay_player        = new QMediaPlayer;
-        medplay_player                      ->setSource( QUrl::fromLocalFile(filename));
-        medplay_player                      ->setVideoOutput(obj_videoitem);
-
-        QGraphicsView *wdg_graphview       = new QGraphicsView(obj_graphicscene);                // utilisé pour afficher les jpg et les video
-        wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        wdg_graphview       ->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-        obj_videoitem       ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
-        obj_videoitem       ->setSize(size);
-        int x               = obj_videoitem->size().width();
-        int y               = obj_videoitem->size().height();
-        obj_graphicscene    ->setSceneRect(0,0,x,y);
-        wdg_graphview       ->resize(x,y);
-        medplay_player->play();
-
-        QWidget *wdg = new QWidget;
-        QHBoxLayout * lay = new QHBoxLayout();
-        lay->addWidget(wdg_graphview);
-        lay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-        wdg->setLayout(lay);
-        return wdg;
-    }
-    else if (doc->imageformat() == JPG)     // le document est un JPG
-    {
-        QImage image;
-        if (!image.loadFromData(doc->imageblob()))
-        {
-            UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-            return Q_NULLPTR;
-        }
-        QGraphicsScene *obj_graphicscene    = new QGraphicsScene();
-        QGraphicsView *wdg_graphview       = new QGraphicsView(obj_graphicscene);                      // utilisé pour afficher les jpg et les video
-        wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        wdg_graphview       ->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-
-        QPixmap pix         = QPixmap::fromImage(image).scaled(size,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-        int x = pix.width();
-        int y = pix.height();
-        obj_graphicscene        ->addPixmap(pix);
-        obj_graphicscene        ->setSceneRect(0,0,x,y);
-        wdg_graphview           ->resize(x,y);
-        QWidget *wdg = new QWidget;
-        QHBoxLayout * lay = new QHBoxLayout();
-        lay->addWidget(wdg_graphview);
-        lay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-        wdg->setLayout(lay);
-        return wdg;
-    }
-    else if (doc->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
-    {
-        QList<QImage> listimg;
-        listimg = doc->pagelist();
-
-        if (listimg.size())
-        {
-            UpTableWidget *tblwdg = new UpTableWidget();                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
-            tblwdg->horizontalHeader() ->setVisible(false);
-            tblwdg->verticalHeader()   ->setVisible(false);
-            tblwdg      ->setFocusPolicy(Qt::NoFocus);
-            tblwdg      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-            tblwdg      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-            tblwdg      ->setColumnCount(1);
-            tblwdg      ->setRowCount(listimg.size());
-            tblwdg      ->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-            for (int i=0; i<listimg.size();++i)
-            {
-                QImage image = listimg.at(i);
-                QPixmap pix     = QPixmap();
-                listpixmp << pix;
-                pix     = QPixmap::fromImage(image).scaled(size,
-                                                       Qt::KeepAspectRatioByExpanding,
-                                                       Qt::SmoothTransformation);
-                UpLabel *lab            = new UpLabel();
-                lab                     ->resize(pix.width(),pix.height());
-                lab                     ->setPixmap(pix);
-                int x = pix.width();
-                int y = pix.height();
-                tblwdg   ->setColumnWidth(i,x);
-                tblwdg   ->setRowHeight(i,y);
-                tblwdg   ->setFixedSize(x,y);
-                tblwdg   ->setCellWidget(i,0,lab);
-                return tblwdg;
+            foreach (int id, item->listids()) {
+                if (!ids.contains(id))
+                    ids << id;
             }
         }
+
+        //! group by sided or not
+        for (int j=0; j <ids.size(); j++)
+        {
+            DocExterne *doc = m_docs->getById(ids.at(j));
+            if (doc != Q_NULLPTR)
+            {
+                if (doc->cote()>0)
+                {
+                    if (!listdocssided.contains(doc))
+                        listdocssided << doc;
+                }
+                else if (!listdocsboth.contains(doc))
+                    listdocsboth << doc;
+            }
+        }
+
+//!-----sided docs -> group by ss-type
+        QStringList listsstype = QStringList();
+        foreach (DocExterne* doc, listdocssided)
+        {
+            QString sstype = sstypdoc(doc);
+            if (!listsstype.contains(sstypdoc(doc)))
+                listsstype << sstype;
+        }
+
+        //! create a gridlayout for each sstype od docs sided
+        foreach (QString sstype, listsstype)
+        {
+            QList<DocExterne*> listdocsR = QList<DocExterne*>();
+            QList<DocExterne*> listdocsL = QList<DocExterne*>();
+            int nr(0), nl(0), nrows(0);
+            foreach (DocExterne* doc, listdocssided)
+            {
+                if (sstypdoc(doc) == sstype)
+                {
+                    doc->cote() == 1? ++nr : ++nl;
+                    doc->cote() == 1? listdocsR << doc : listdocsL << doc;
+                }
+            }
+
+            QGridLayout *grid = new QGridLayout;
+            grid->setSpacing(5);
+            nrows = std::max(nr,nl);
+            for (int i = 0; i< nrows; ++i)
+            {
+                QList<DocExterne*> listrow = QList<DocExterne*>();
+                if (listdocsR.size() >0)
+                    listrow  << listdocsR.takeFirst();
+                else
+                    listrow  << Q_NULLPTR;
+                if (listdocsL.size() >0)
+                    listrow  << listdocsL.takeFirst();
+                else
+                    listrow  << Q_NULLPTR;
+                QStandardItem *item                     = new QStandardItem;
+                QStandardItem *pitemsortdate            = new QStandardItem(date.toString("yyyyMMddHHmmss"));
+                QList<QStandardItem *> listitemsdate    = m_treemodel->findItems(datestring);
+                if (listitemsdate.size()>0)
+                {
+                    listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << item << pitemsortdate);
+                    listitemsdate.at(0)->sortChildren(1);
+                }
+                wdg_treeview->setIndexWidget(item->index(), DocWidget(listrow));
+            }
+        }
+
+//!-----not sided docs
+        while (listdocsboth.size() > 0)
+        {
+            DocExterne *firstdoc    = Q_NULLPTR;
+            DocExterne *scnddoc     = Q_NULLPTR;
+            firstdoc = listdocsboth.takeFirst();
+            if (listdocsboth.size() >0)
+                scnddoc = listdocsboth.takeFirst();
+            QStandardItem *item                     = new QStandardItem;
+            QStandardItem *pitemsortdate            = new QStandardItem(date.toString("yyyyMMddHHmmss"));
+            QList<QStandardItem *> listitemsdate    = m_treemodel->findItems(datestring);
+            if (listitemsdate.size()>0)
+            {
+                listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << item << pitemsortdate);
+                listitemsdate.at(0)->sortChildren(1);
+            }
+            QList<DocExterne*> listdcs = QList<DocExterne*>();
+            listdcs << firstdoc;
+            if (scnddoc != Q_NULLPTR)
+                listdcs << scnddoc;
+            wdg_treeview->setIndexWidget(item->index(), DocWidget(listdcs));
+        }
     }
-    return Q_NULLPTR;
+    wdg_treeview->setSelectionModel(new QItemSelectionModel(m_treemodel));
+    wdg_treeview->expandAll();
+    wdg_treeview->setItemsExpandable(false);
 }
+
+bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
+{
+    QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
+    if (rszevent != Q_NULLPTR)
+        fillTreeWidg();
+
+    return QWidget::eventFilter(obj, event);
+}
+

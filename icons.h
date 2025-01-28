@@ -282,9 +282,10 @@ public:
     static QIcon icTownn() { return foundIC("icTown", "://nature.png"); }
     static QIcon icTri() { return foundIC("icTri", "://tri.png"); }
 
-    static QIcon icValide(QSize size = QSize()) { return foundIC("icValide", "://Valide2.jpg", size); } //25
-    static QIcon icVitale(QSize size = QSize()) { return foundIC("icVitale", "://Vitale.jpg", size); }
     static QIcon icUpdate(QSize size = QSize()) { return foundIC("icUpdate", "://update.png", size); } //20
+    static QIcon icValide(QSize size = QSize()) { return foundIC("icValide", "://Valide2.jpg", size); } //25
+    static QIcon icViewer() { return foundIC("icMultiview", "://grid.png"); }
+    static QIcon icVitale(QSize size = QSize()) { return foundIC("icVitale", "://Vitale.jpg", size); }
 
     static bool CompareQIcon(const QIcon icon1, const QIcon icon2)
     {

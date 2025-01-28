@@ -38,18 +38,37 @@ private:
     QTreeView               *wdg_treeview       = new QTreeView();
     QList<DocExterne*>      m_listdocsToDisplay;
     QString                 m_formatdate;
-    QWidget*                DocWidget(DocExterne *doc);
+    QList<UpStandardItem*>  m_listitems         = QList<UpStandardItem*>();
+    QGridLayout             *m_gridlay          = new QGridLayout;
+    QMargins                m_marg              = QMargins(5,5,5,5);
+    int                     m_spacing           = 5;
+    QWidget*                DocWidget(QList<DocExterne *> listdocs);
+    bool                    eventFilter(QObject *, QEvent *);
 
 
     QList<DocExterne*>      getListDocsfromIndex(QModelIndex idx);
     void                    gettoolTipFromCursorPositionInTable();
     UpStandardItem*         itemfromIndex(QModelIndex idx);
-    QList<UpStandardItem*>  listitems();
+    QList<UpStandardItem*>  listcheckabledItems();
+    QList<UpStandardItem*>  listcheckedItems();
     void                    checkHorizontalHeader(int idx);
     void                    checkVerticalHeader(int idx);
     void                    checkEyes();
     void                    controlChecks();
-    QList<DocExterne *> listdocsToDisplay();
-    void                    fillTreeWidg(QList<DocExterne*> listdocs);
+    QList<DocExterne *>     listdocsToDisplay();
+    void                    fillTreeWidg();
+    QSize                   sizeforunit() {
+        int width = geometry().width() - wdg_table->width()
+                    - m_gridlay->spacing()
+                    - m_gridlay->contentsMargins().left()
+                    - m_gridlay->contentsMargins().right()
+                    - dlglayout()->contentsMargins().left()
+                    - dlglayout()->contentsMargins().right()
+                    - wdg_treeview->indentation()
+                    - m_spacing
+                    - m_marg.left()
+                    - m_marg.right();
+        return QSize(width/2,width/2);
+    }
 };
 #endif // DLG_IMAGEVIEWER_H
