@@ -92,17 +92,18 @@ public:
                                           m_data[CP_IDUSERENCOURSEXAM_SALDAT] = id; }
     void setidsaldat(int id)            { m_idsaldat = id;
                                           m_data[CP_IDSALDAT_SALDAT] = id; }
-    QString statuttotr()                { if (m_statut == ARRIVE) return tr("Arrivé");
-        else if (m_statut == ENCOURS)               return tr("En cours");
-        else if (m_statut == ENATTENTENOUVELEXAMEN) return tr("En attente de nouvel examen par ");
-        else if (m_statut == RETOURACCUEIL)         return tr("Retour accueil");
-        else if (m_statut == ENCOURSEXAMEN)         return tr("En cours de consultation avec ");
+    QString statuttotr()                {
+        if (m_statut == ARRIVE)                             return tr("Arrivé");
+        else if (m_statut == ENCOURS)                       return tr("En cours");
+        else if (m_statut.contains(ENATTENTENOUVELEXAMEN))  return tr("En attente de nouvel examen par ") + m_statut.replace(ENATTENTENOUVELEXAMEN,"");
+        else if (m_statut == RETOURACCUEIL)                 return tr("Retour accueil");
+        else if (m_statut.contains(ENCOURSEXAMEN))          return tr("En cours de consultation avec ") + m_statut.replace(ENCOURSEXAMEN,"");
         else return "";}
-    static QString statutfromtr(QString statut) { if (statut == tr("Arrivé")) return ARRIVE;
-                else if (statut == tr("En cours"))                            return ENCOURS;
-                else if (statut == tr("En attente de nouvel examen par "))    return ENATTENTENOUVELEXAMEN;
-                else if (statut == tr("Retour accueil"))                      return RETOURACCUEIL;
-                else if (statut == tr("En cours de consultation avec "))      return ENCOURSEXAMEN;
+    static QString statutfromtr(QString statut) { if (statut == tr("Arrivé"))       return ARRIVE;
+                else if (statut == tr("En cours"))                                  return ENCOURS;
+                else if (statut.contains(tr("En attente de nouvel examen par ")))   return ENATTENTENOUVELEXAMEN + statut.replace(tr("En attente de nouvel examen par "), "");
+                else if (statut == tr("Retour accueil"))                            return RETOURACCUEIL;
+                else if (statut.contains(tr("En cours de consultation avec ")))     return ENCOURSEXAMEN + statut.replace(tr("En cours de consultation avec "), "");
                 else return "";}
 };
 
