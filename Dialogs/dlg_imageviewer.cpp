@@ -602,7 +602,7 @@ void dlg_imageviewer::fillTreeWidg()
             }
         }
 
-//!-----sided docs -> group by ss-type
+//!-----sided docs -> group by ss-type : one row by sstype with image for right eye and for left eye
         QStringList listsstype = QStringList();
         foreach (DocExterne* doc, listdocssided)
         {
@@ -611,7 +611,8 @@ void dlg_imageviewer::fillTreeWidg()
                 listsstype << sstype;
         }
 
-        //! create a gridlayout for each sstype od docs sided
+        //! sometimes it's possible to get 3 or more picts for 1 sstype
+        //! if number is odd all right pics stay on right side and all left on left side
         foreach (QString sstype, listsstype)
         {
             QList<DocExterne*> listdocsR = QList<DocExterne*>();
@@ -625,9 +626,6 @@ void dlg_imageviewer::fillTreeWidg()
                     doc->cote() == 1? listdocsR << doc : listdocsL << doc;
                 }
             }
-
-            QGridLayout *grid = new QGridLayout;
-            grid->setSpacing(5);
             nrows = std::max(nr,nl);
             for (int i = 0; i< nrows; ++i)
             {
@@ -652,7 +650,7 @@ void dlg_imageviewer::fillTreeWidg()
             }
         }
 
-//!-----not sided docs
+//!-----not sided docs -> 2 images by row and the last center if number of pics is odd
         while (listdocsboth.size() > 0)
         {
             DocExterne *firstdoc    = Q_NULLPTR;
