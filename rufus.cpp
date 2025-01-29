@@ -2427,9 +2427,10 @@ void Rufus::ExporteDocs()
             }
             if (typefacture == FACTURE)
                 NomFileDoc += "-" + QString::number(iddepense);
+            NomFileDoc += "." JPG;
 
             /*! Creation du dossier d'accueil pour le fichier */
-            QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user->login() + "." JPG;
+            QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user->login();
             if (!QDir(CheminOKTransfrDirImg).exists())
                 if (!DirTrsferOK.mkdir(CheminOKTransfrDirImg))
                 {
@@ -2570,7 +2571,8 @@ void Rufus::ExporteDocs()
                 continue;
             }
             if (typefacture == FACTURE)
-                NomFileDoc += "-" + QString::number(iddepense) + "." PDF;
+                NomFileDoc += "-" + QString::number(iddepense);
+            NomFileDoc += "." PDF;
 
             /*! Creation du dossier d'accueil pour le fichier */
             QString CheminOKTransfrDirImg  = CheminOKTransfrDir + "/" + user->login();

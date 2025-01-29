@@ -43,6 +43,10 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog
     m_gridlay                   ->setRowStretch(0,2);
     m_gridlay                   ->setRowStretch(1,15);
 
+    wdg_table                   ->setSelectionMode(QAbstractItemView::NoSelection);
+    wdg_table                   ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+    wdg_treeview                ->setSelectionMode(QAbstractItemView::NoSelection);
+    wdg_treeview                ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     wdg_treeview                ->setHeaderHidden(true);
 
     dlglayout()->insertLayout(0,m_gridlay);
@@ -145,8 +149,6 @@ void dlg_imageviewer::UpdateTables(DocsExternes* docs)
     wdg_table                   ->setFixedWidth(wdg_table->verticalHeader()->width() + colwidth * m_tblmodel->columnCount());
     for (int i=0;  i != m_tblmodel->columnCount(); i++)
         wdg_table               ->setColumnWidth(i,colwidth);
-    wdg_table                   ->setSelectionMode(QAbstractItemView::NoSelection);
-    wdg_treeview                ->setSelectionMode(QAbstractItemView::NoSelection);
 
     UpStandardItem *item = Q_NULLPTR;
     for (int i= 0; i < m_tblmodel->columnCount(); i++)
