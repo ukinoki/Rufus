@@ -764,32 +764,32 @@ query = </translation>
 <context>
     <name>PatientEnCours</name>
     <message>
-        <location filename="Items/cls_patientencours.h" line="95"/>
-        <location filename="Items/cls_patientencours.h" line="101"/>
+        <location filename="Items/cls_patientencours.h" line="96"/>
+        <location filename="Items/cls_patientencours.h" line="102"/>
         <source>Arrivé</source>
         <translation>Arrived</translation>
     </message>
     <message>
-        <location filename="Items/cls_patientencours.h" line="96"/>
-        <location filename="Items/cls_patientencours.h" line="102"/>
+        <location filename="Items/cls_patientencours.h" line="97"/>
+        <location filename="Items/cls_patientencours.h" line="103"/>
         <source>En cours</source>
         <translation>In progress</translation>
     </message>
     <message>
-        <location filename="Items/cls_patientencours.h" line="97"/>
-        <location filename="Items/cls_patientencours.h" line="103"/>
+        <location filename="Items/cls_patientencours.h" line="98"/>
+        <location filename="Items/cls_patientencours.h" line="104"/>
         <source>En attente de nouvel examen par </source>
         <translation>Pending further examination by by </translation>
     </message>
     <message>
-        <location filename="Items/cls_patientencours.h" line="98"/>
-        <location filename="Items/cls_patientencours.h" line="104"/>
+        <location filename="Items/cls_patientencours.h" line="99"/>
+        <location filename="Items/cls_patientencours.h" line="105"/>
         <source>Retour accueil</source>
         <translation>Back to reception</translation>
     </message>
     <message>
-        <location filename="Items/cls_patientencours.h" line="99"/>
-        <location filename="Items/cls_patientencours.h" line="105"/>
+        <location filename="Items/cls_patientencours.h" line="100"/>
+        <location filename="Items/cls_patientencours.h" line="106"/>
         <source>En cours de consultation avec </source>
         <translation>In examination with </translation>
     </message>
@@ -7877,90 +7877,95 @@ schedule</translation>
         <translation>Documents of </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="85"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="79"/>
+        <source>Afficher l&apos;imagerie</source>
+        <translation>Display medical pictures</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="86"/>
         <source>Tous</source>
         <translation>all</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="86"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="87"/>
         <source>Importants</source>
         <translation>Important</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="87"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="88"/>
         <source>Afficher tous les documents
 y compris les documents d&apos;importance minime</source>
         <translation>Display all documents,
 including those of minor importance</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="88"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="89"/>
         <source>N&apos;afficher que les documents marqués importants</source>
         <translation>Display only documents marked important</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="153"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="154"/>
         <source>Importance faible</source>
         <translation>Weak importance</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="154"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="155"/>
         <source>Importance normale</source>
         <translation>Normal importance</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="155"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="156"/>
         <source>Importance forte</source>
         <translation>Strong importance</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="156"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="157"/>
         <source>Le titre</source>
         <translation>The title</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="157"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="158"/>
         <source>La date</source>
         <translation>The date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="172"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="173"/>
         <source>Modifier</source>
         <translation>Modify</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="186"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="187"/>
         <source>Imprimer</source>
         <translation>Print</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="189"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="190"/>
         <source>Réimprimer</source>
         <translation>Reprint</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="190"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="191"/>
         <source>Modifier et réimprimer</source>
         <translation>Modify and reprint</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="191"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="192"/>
         <source>Modifier et réimprimer à la date d&apos;aujourd&apos;hui</source>
         <translation>Modify and print as of today&apos;s date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="192"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="193"/>
         <source>Réimprimer à la date d&apos;aujourd&apos;hui</source>
         <translation>Reprint as of today&apos;s date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="214"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="967"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="215"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="968"/>
         <source>Supprimer</source>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="338"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="339"/>
         <source>Video non accessible en accès distant</source>
         <translation>Video not accessible via remote access</translation>
     </message>
@@ -7986,139 +7991,139 @@ including those of minor importance</translation>
         <translation type="vanished">Enter a valid folder in Edit/Settings/Tab </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="345"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="596"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="346"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="597"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>File access error:</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="375"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="376"/>
         <source>d-M-yyyy</source>
         <translation>M-d-yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="383"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="384"/>
         <source>Impossible de charger le document</source>
         <translation>Unable to load document</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="599"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="612"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="600"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="613"/>
         <source>Enregistrer un fichier</source>
         <translation>Save a file</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="676"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="677"/>
         <source>Réimprimer
 le document</source>
         <translation>Reprint
 the document</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="677"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="678"/>
         <source>Modifier
 et imprimer</source>
         <translation>Modify
 and reprint</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="678"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="679"/>
         <source>Réimprimer à
 la date d&apos;aujourd&apos;hui</source>
         <translation>Reprint as of
 today&apos;s date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="679"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="968"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="680"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="969"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="680"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="681"/>
         <source>Réimprimer un document</source>
         <translation>Reprint a document</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="699"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="700"/>
         <source>Modifier et imprimer
 à la date d&apos;aujourd&apos;hui</source>
         <translation>Modify and print
 as of today&apos;s date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="732"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="733"/>
         <source>Impossible de retrouver les données de l&apos;en-tête</source>
         <translation>Unable to retrieve header datas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="732"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="733"/>
         <source>Annulation de l&apos;impression</source>
         <translation>Cancel printing</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="762"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="763"/>
         <source>le </source>
         <translation>on  </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="762"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="763"/>
         <source>d MMMM yyyy</source>
         <translation>MMMM d yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="768"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="769"/>
         <source>Rien à imprimer</source>
         <translation>Nothing to print</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="872"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="873"/>
         <source>Modifier la date</source>
         <translation>Modify the date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="875"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="876"/>
         <source>dd/MM/yyyy</source>
         <translation>MM/dd/yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="888"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="889"/>
         <source>Vous devez entrer une date valide</source>
         <translation>You must enter a valid date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="892"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="893"/>
         <source>Entrez la date du document</source>
         <translation>Enter document&apos;s date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="929"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="930"/>
         <source>Vous devez entrer du texte</source>
         <translation>You must enter text</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="933"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="934"/>
         <source>Entrez le titre du document</source>
         <translation>Enter document&apos;s title</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="960"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="961"/>
         <source>Suppression refusée</source>
         <translation>Deletion refused</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="960"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="961"/>
         <source>Vous ne pouvez pas supprimer un document dont vous n&apos;êtes pas l&apos;auteur</source>
         <translation>You cannot delete a document of which you are not the author</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="970"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="971"/>
         <source>Etes vous certain de vouloir supprimer ce document?</source>
         <translation>Are you sure you want to delete this document?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="1311"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="1330"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1312"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1331"/>
         <source>dd-MM-yyyy</source>
         <translation>MM-dd-yyyy</translation>
     </message>
@@ -10632,17 +10637,17 @@ to find out how to modify this secure-file-priv variable in your server configur
         <translation>MM-dd-yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="440"/>
+        <location filename="Dialogs/dlg_imageviewer.cpp" line="425"/>
         <source>Video non accessible en accès distant</source>
         <translation>Video not accessible via remote access</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="447"/>
+        <location filename="Dialogs/dlg_imageviewer.cpp" line="432"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>File access error:</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="483"/>
+        <location filename="Dialogs/dlg_imageviewer.cpp" line="468"/>
         <source>Impossible de charger le document</source>
         <translation>Unable to load document</translation>
     </message>

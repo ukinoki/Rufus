@@ -42,6 +42,8 @@ private:
     QGridLayout             *m_gridlay          = new QGridLayout;
     QMargins                m_marg              = QMargins(5,5,5,5);
     int                     m_spacing           = 5;
+    QList<UpStandardItem*>  m_listcheckedItems  = QList<UpStandardItem*>();
+
     QWidget*                DocWidget(QList<DocExterne *> listdocs);
     bool                    eventFilter(QObject *, QEvent *);
 

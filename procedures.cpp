@@ -3128,7 +3128,7 @@ void Procedures::VerifnumAM()
         currentuser()->setidSite(idsite);
     }
     else return;
-    if (currentuser()->isRemplacant())
+    if (currentuser()->isRemplacant() || !m_currentuser->ishisownsupervisor())
     {
         User* usr = Datas::I()->users->getById(currentuser()->idparent());
         if (usr != Q_NULLPTR)
@@ -3494,7 +3494,6 @@ bool Procedures::IdentificationUser()
                     . -2 sans objet (personnel non soignant)
 
            */
-
             m_idcentre = m_parametres->numcentre();
         }
     }

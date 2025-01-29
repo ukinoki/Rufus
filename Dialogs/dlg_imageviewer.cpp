@@ -139,12 +139,14 @@ void dlg_imageviewer::UpdateTables(DocsExternes* docs)
             m_tblmodel->setItem(i,j, item);
         }
     }
-    wdg_table                    ->setModel(m_tblmodel);
-    wdg_table                    ->setItemDelegate(new UpchkDelegate);
-    int colwidth = 60;
-    wdg_table->setFixedWidth(wdg_table->verticalHeader()->width() + colwidth * m_tblmodel->columnCount());
+    wdg_table                   ->setModel(m_tblmodel);
+    wdg_table                   ->setItemDelegate(new UpchkDelegate);
+    int colwidth                = 60;
+    wdg_table                   ->setFixedWidth(wdg_table->verticalHeader()->width() + colwidth * m_tblmodel->columnCount());
     for (int i=0;  i != m_tblmodel->columnCount(); i++)
-        wdg_table->setColumnWidth(i,colwidth);
+        wdg_table               ->setColumnWidth(i,colwidth);
+    wdg_table                   ->setSelectionMode(QAbstractItemView::NoSelection);
+    wdg_treeview                ->setSelectionMode(QAbstractItemView::NoSelection);
 
     UpStandardItem *item = Q_NULLPTR;
     for (int i= 0; i < m_tblmodel->columnCount(); i++)
@@ -356,7 +358,7 @@ void dlg_imageviewer::controlChecks() //! After a check on an upstandarditem, co
     }
     m_listdocsToDisplay = listdocsToDisplay();
     checkEyes();
-    m_listitems = listcheckedItems();
+    m_listcheckedItems = listcheckedItems();
     fillTreeWidg();
 }
 
@@ -405,13 +407,28 @@ void dlg_imageviewer::checkEyes()
 
 QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
 {
-    QList<QWidget *> listwidg = QList<QWidget *>();
+    /*!
+    * if sided pics
+        * the function has recevived two elements, one document and one nullptr, or two documents. The docwidget will be created with two elements
+            * it the function has received two documents, the docwidget is created with two picts
+            * if the function has received one document an a nullptr, a QSpacerItem for the nullotr and one pict for the documents
+    * if not sided pics
+        * the function has received one or two documents and the dock widget will be created with two or three elements
+            * it the function has received two documents, the docwidget is created with two picts
+            * if the function has received one document, the docwidget is created with one pict surrounded by two QSpacerItems
+    */
+
+    QWidget * widg = Q_NULLPTR;
+    if (listdocs.size() == 0 || listdocs.size() >2)
+        return widg;
+    QHBoxLayout *hlay   = new QHBoxLayout();
+    hlay                ->setContentsMargins(m_marg);
+    hlay                ->setSpacing(m_spacing);
     foreach (DocExterne* doc, listdocs)
     {
         if (doc == Q_NULLPTR)
         {
-            QWidget *wdg = new QWidget;
-            listwidg << wdg;
+            hlay->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
         }
         else
         {
@@ -443,22 +460,23 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 QGraphicsView *wdg_graphview       = new QGraphicsView(obj_graphicscene);                // utilisé pour afficher les jpg et les video
                 wdg_graphview       ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
                 wdg_graphview       ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-                wdg_graphview       ->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+                wdg_graphview       ->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
 
-                obj_videoitem       ->setAspectRatioMode(Qt::KeepAspectRatioByExpanding);
+                obj_videoitem       ->setAspectRatioMode(Qt::KeepAspectRatio);
                 obj_videoitem       ->setSize(sizeforunit());
                 int x               = obj_videoitem->size().width();
                 int y               = obj_videoitem->size().height();
                 obj_graphicscene    ->setSceneRect(0,0,x,y);
                 wdg_graphview       ->resize(x,y);
                 medplay_player->play();
-
+                wdg_graphview             ->setStyleSheet("border: 2px solid rgb(164, 205, 255);border-radius: 10px;");
+/*
                 QWidget *wdg = new QWidget;
                 QHBoxLayout * lay = new QHBoxLayout();
                 lay->addWidget(wdg_graphview);
-                lay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
-                wdg->setLayout(lay);
-                listwidg << wdg;
+                //lay->addSpacerItem(new QSpacerItem(10, 10, QSizePolicy::Expanding));
+                wdg->setLayout(lay);*/
+                hlay->addWidget(wdg_graphview);
             }
             else if (doc->imageformat() == JPG)     // le document est un JPG
             {
@@ -472,8 +490,7 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 UpLabel * lab   = new UpLabel;
                 lab             ->setPixmap(pix);
                 lab             ->setStyleSheet("border: 2px solid rgb(164, 205, 255);border-radius: 10px;");
-                lab             ->setitem(doc);
-                listwidg        << lab;
+                hlay->addWidget(lab);
             }
             else if (doc->imageformat() == PDF)     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
             {
@@ -509,42 +526,51 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                         tblwdg   ->setFixedSize(x,y);
                         tblwdg   ->setCellWidget(i,0,lab);
                     }
-                    listwidg << tblwdg;
+                    hlay->addWidget(tblwdg);
                 }
             }
         }
     }
-    QWidget * widg = Q_NULLPTR;
-    if (listwidg.size() == 0 || listwidg.size() >2)
-        return widg;
-    else {
-        widg                = new QWidget();
-        QHBoxLayout *hlay   = new QHBoxLayout();
-        hlay                ->setContentsMargins(m_marg);
-        hlay                ->setSpacing(m_spacing);
-        if (listwidg.size() == 1)
+        widg = new QWidget();
+        if (listdocs.size() == 1)
         {
-            hlay->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Expanding));
-            hlay->addWidget(listwidg.at(0));
+            hlay->insertSpacerItem(0,new QSpacerItem(5,5, QSizePolicy::Expanding));
             hlay->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Expanding));
             widg->setLayout(hlay);
         }
-        else if (listwidg.size() == 2)
+        else if (listdocs.size() == 2)
         {
-            hlay->addWidget(listwidg.at(0));
-            hlay->addWidget(listwidg.at(1));
-            hlay->setSpacing(5);
             widg->setLayout(hlay);
         }
-    }
+        hlay->setSpacing(5);
+        hlay->setStretch(10,10);
     return widg;
 }
 
 void dlg_imageviewer::fillTreeWidg()
 {
+    /*!
+     * There are twot types of documents: sided or not sided
+        * sided means than the document is explicitly assigned to one eye, right or left
+        * not sided, the document assignment is unknown or for the two eyes
+    * The goal is to create row of two elements that will be inserted in treeview, sorted by date decreasing
+    * each row contains one or two elements, built with DocWidget() function
+        * for sided docs
+            * two pics, one for right eye and one for left eye
+                                    * -> DocWidget is called with the two documents
+            * if there is only one pic rright or left
+                                    * -> DocWidget is called with one document and one null pointer for the missing eye, in order to set the picts on right or left size of the docwidget.
+        * for not sided docs
+            * two pics, side by side ih the number of docs is 2
+                                    * -> DocWidget is called with the two documents
+            * one pic centered if ther is only one document
+                                    * ->  DocWidget is called with only one document
+    */
+
     auto sstypdoc = [=] (DocExterne* doc) {
         return doc->soustypedoc().replace("OD","").replace("OG","");
     };
+
     QList<QDate> listdates =  QList<QDate>();
     for (int i=0;  i < m_tblmodel->rowCount(); i++)
     {
@@ -556,27 +582,27 @@ void dlg_imageviewer::fillTreeWidg()
     if (m_treemodel != Q_NULLPTR)
         delete m_treemodel;
     m_treemodel             = new UpStandardItemModel();
-    QItemSelectionModel *m = wdg_treeview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-    wdg_treeview->setModel(m_treemodel);
+    QItemSelectionModel *m  = wdg_treeview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
+    wdg_treeview            ->setModel(m_treemodel);
     delete m;
 
     for (int i=0; i<listdates.size(); ++i)
     {
-        QString datestring = listdates.at(i).toString(m_formatdate);
-        QStandardItem *dateitem    = new QStandardItem(datestring);
-        dateitem    ->setForeground(QBrush(QColor(Qt::red)));
-        dateitem    ->setEditable(false);
-        dateitem    ->setIcon(Icons::icDate());
-        m_treemodel ->appendRow(dateitem);
+        QString datestring      = listdates.at(i).toString(m_formatdate);
+        QStandardItem *dateitem = new QStandardItem(datestring);
+        dateitem                ->setForeground(QBrush(QColor(Qt::red)));
+        dateitem                ->setEditable(false);
+        dateitem                ->setIcon(Icons::icDate());
+        m_treemodel             ->appendRow(dateitem);
     }
-    foreach (UpStandardItem *item, m_listitems)
+    foreach (UpStandardItem *item, m_listcheckedItems)
     {
-        QList<int> ids = QList<int>();
-        QList<DocExterne*> listdocssided = QList<DocExterne*>();
-        QList<DocExterne*> listdocsboth = QList<DocExterne*>();
-        int row = item->row();
-        QString datestring = m_tblmodel->headerData(row, Qt::Vertical, Qt::DisplayRole).toString();
-        QDate date = QDate::fromString(datestring).fromString(m_formatdate);
+        QList<int> ids                      = QList<int>();
+        QList<DocExterne*> listdocssided    = QList<DocExterne*>();
+        QList<DocExterne*> listdocsboth     = QList<DocExterne*>();
+        int row                             = item->row();
+        QString datestring                  = m_tblmodel->headerData(row, Qt::Vertical, Qt::DisplayRole).toString();
+        QDate date                          = QDate::fromString(datestring).fromString(m_formatdate);
 
         if (item->listids().size() >0)
         {
@@ -602,7 +628,7 @@ void dlg_imageviewer::fillTreeWidg()
             }
         }
 
-//!-----sided docs -> group by ss-type : one row by sstype with image for right eye and for left eye
+//!-----sided docs -> group by ss-type : one row by sstype with image for right eye on right side and for those for left eye on left side
         QStringList listsstype = QStringList();
         foreach (DocExterne* doc, listdocssided)
         {
@@ -613,6 +639,7 @@ void dlg_imageviewer::fillTreeWidg()
 
         //! sometimes it's possible to get 3 or more picts for 1 sstype
         //! if number is odd all right pics stay on right side and all left on left side
+        //! create rows for each sstype of docs sided
         foreach (QString sstype, listsstype)
         {
             QList<DocExterne*> listdocsR = QList<DocExterne*>();
@@ -626,6 +653,7 @@ void dlg_imageviewer::fillTreeWidg()
                     doc->cote() == 1? listdocsR << doc : listdocsL << doc;
                 }
             }
+
             nrows = std::max(nr,nl);
             for (int i = 0; i< nrows; ++i)
             {
