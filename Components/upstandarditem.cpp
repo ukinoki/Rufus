@@ -62,3 +62,23 @@ bool UpStandardItem::hascheckBox()
     QVariant value = data(Qt::CheckStateRole);
     return value.isValid();
 }
+
+QDate UpStandardItem::date() const
+{
+    return m_date;
+}
+
+void UpStandardItem::setDate(const QDate &newDate)
+{
+    m_date = newDate;
+}
+
+QString UpStandardItem::dataType() const
+{
+    return m_datatype;
+}
+
+void UpStandardItem::setdataType(const QString &newType)
+{
+    m_datatype = newType;
+}

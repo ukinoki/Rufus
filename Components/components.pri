@@ -27,7 +27,8 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/uptoolbar.cpp \
     $$PWD/upheaderview.cpp \
     $$PWD/upstandarditem.cpp \
-    $$PWD/uptableview.cpp
+    $$PWD/uptableview.cpp \
+    $$PWD/uptreeview.cpp
 
 HEADERS += $$PWD/upcheckbox.h \
     $$PWD/rangeslider.h \
@@ -54,5 +55,6 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/uptoolbar.h \
     $$PWD/upheaderview.h \
     $$PWD/upstandarditem.h \
-    $$PWD/uptableview.h
+    $$PWD/uptableview.h \
+    $$PWD/uptreeview.h
 

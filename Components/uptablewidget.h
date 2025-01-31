@@ -46,8 +46,12 @@ public:
     void            selectRow(int row);
     QByteArray      dropData();
 
+    QList<QImage> listimg() const;
+    void setListimg(const QList<QImage> &newListimg);
+
 private:
     QByteArray      m_encodedData;
+    QList<QImage>   m_listimg = QList<QImage>();
 
 protected:
     void            dropEvent(QDropEvent *) Q_DECL_OVERRIDE;

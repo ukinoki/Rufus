@@ -100,6 +100,16 @@ QByteArray UpTableWidget::dropData()
     return m_encodedData;
 }
 
+QList<QImage> UpTableWidget::listimg() const
+{
+    return m_listimg;
+}
+
+void UpTableWidget::setListimg(const QList<QImage> &newListimg)
+{
+    m_listimg = newListimg;
+}
+
 void UpTableWidget::clearSelection()
 {
     setRangeSelected(QTableWidgetSelectionRange(0,0,rowCount()-1,columnCount()-1),false);

@@ -75,6 +75,16 @@ bool UpLabel::eventFilter(QObject *obj, QEvent *event)
    return QWidget::eventFilter(obj, event);
 }
 
+QImage UpLabel::image() const
+{
+    return m_image;
+}
+
+void UpLabel::setImage(const QImage &newImage)
+{
+    m_image = newImage;
+}
+
 void UpLabel::setdatas(QMap<QString, QVariant> data)
 {
     m_datas = data;

@@ -2,17 +2,15 @@
 #define DLG_IMAGEVIEWER_H
 
 #include <QObject>
-#include <QGraphicsScene>
-#include <QGraphicsVideoItem>
-#include <QGraphicsView>
-#include <QGroupBox>
 #include <QMediaPlayer>
-#include <QTreeWidget>
-#include <updialog.h>
-#include <cls_docsexternes.h>
+#include <QVideoSink>
+#include <QVideoWidget>
+#include "updialog.h"
+#include "cls_docsexternes.h"
 #include "upcheckbox.h"
 #include "updelegate.h"
 #include "uptableview.h"
+#include "uptreeview.h"
 #include "upstandarditemmodel.h"
 #include "upstandarditem.h"
 #include "procedures.h"
@@ -23,19 +21,19 @@ class dlg_imageviewer : public UpDialog
 public:
     dlg_imageviewer(DocsExternes* Docs, QWidget *parent = Q_NULLPTR);
     ~dlg_imageviewer();
-    void                    UpdateTables(DocsExternes *docs);
+    void                    FillXTable(DocsExternes *docs);
 
 private:
     DocsExternes            *m_docs             = Q_NULLPTR;
     UpTableView             *wdg_table;
     QStringList             m_listtypedocs      = QStringList();
     QList<QDate>            m_listdates         = QList<QDate>();
-    UpStandardItemModel     *m_tblmodel         = Q_NULLPTR;
+    UpStandardItemModel     *m_Xmodel         = Q_NULLPTR;
     UpStandardItemModel     *m_treemodel        = Q_NULLPTR;
     UpCheckBox              *ODchkBox           = new UpCheckBox(tr("ŒIL DROIT"));
     UpCheckBox              *OGchkBox           = new UpCheckBox(tr("ŒIL GAUCHE"));
     UpCheckBox              *BothchkBox         = new UpCheckBox(tr("LES 2"));
-    QTreeView               *wdg_treeview       = new QTreeView();
+    UpTreeView              *wdg_treeview       = new UpTreeView();
     QList<DocExterne*>      m_listdocsToDisplay;
     QString                 m_formatdate;
     QList<UpStandardItem*>  m_listitems         = QList<UpStandardItem*>();
@@ -48,6 +46,8 @@ private:
     bool                    eventFilter(QObject *, QEvent *);
 
 
+    void                    addItemsToTreeWidget(QList<UpStandardItem *> listupitems);
+    void                    removeItemsFromtTreeWidget(QList<UpStandardItem *> listupitems);
     QList<DocExterne*>      getListDocsfromIndex(QModelIndex idx);
     void                    gettoolTipFromCursorPositionInTable();
     UpStandardItem*         itemfromIndex(QModelIndex idx);
@@ -58,19 +58,23 @@ private:
     void                    checkEyes();
     void                    controlChecks();
     QList<DocExterne *>     listdocsToDisplay();
-    void                    fillTreeWidg();
     QSize                   sizeforunit() {
+        int w = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent); //width of scrollbar in qApp
         int width = geometry().width() - wdg_table->width()
                     - m_gridlay->spacing()
                     - m_gridlay->contentsMargins().left()
                     - m_gridlay->contentsMargins().right()
                     - dlglayout()->contentsMargins().left()
                     - dlglayout()->contentsMargins().right()
+                    - dlglayout()->spacing()
                     - wdg_treeview->indentation()
+                    - w
                     - m_spacing
                     - m_marg.left()
-                    - m_marg.right();
+                    - m_marg.right();      //!estimated width for one pic in a row
+
         return QSize(width/2,width/2);
     }
+    void                    ZoomDoc(QWidget *widg);
 };
 #endif // DLG_IMAGEVIEWER_H

@@ -1372,9 +1372,9 @@ QColor Utils::SelectCouleur(QColor colordep, QWidget *parent)
     return  colorfin;
 }
 
-void Utils::EnChantier(bool avecMsg)
+void Utils::EnChantier(QWidget* parent, bool avecMsg)
 {
-    UtilsMessageBox msgbox;
+    UtilsMessageBox msgbox(parent);
     msgbox.setIconPixmap(Icons::pxWorkInProgress());
     UpSmallButton OKBouton;
     if (avecMsg)

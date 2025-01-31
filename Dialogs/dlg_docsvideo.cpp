@@ -113,7 +113,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
 
 void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
 {
-    QString fichencours = wdg_visuvideowdg->accessibleDescription();
+    QString fichencours = wdg_visuvideowdg->property(M_FILE).toString();
     QStringList filters;
     filters << "*.mp4" << "*.mpg" << "*.m4v";
     QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
@@ -167,7 +167,7 @@ void dlg_docsvideo::ChangeFile()
 
 void dlg_docsvideo::AfficheVideo(QString filebut)
 {
-    wdg_visuvideowdg     ->setAccessibleDescription(filebut);
+    wdg_visuvideowdg     ->setProperty(M_FILE, filebut);
     QDir        dirpict = QDir(m_docpath);
     wdg_inflabel    ->setText("<font color='magenta'>" + filebut + "</font>");
 

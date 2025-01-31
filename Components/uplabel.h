@@ -45,12 +45,16 @@ public:
     Item*                   item() const        { return m_item; }
     bool                    hasitem() const     { return m_item != Q_NULLPTR; }
 
+    QImage image() const;
+    void setImage(const QImage &newImage);
+
 private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
     int                     m_id;
     int                     m_row;
     QString                 m_tooltipmsg;
     QMap<QString, QVariant> m_datas;
+    QImage                  m_image = QImage();
     void                    AfficheToolTip();
     Item*                   m_item;
 

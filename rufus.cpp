@@ -3500,9 +3500,9 @@ void Rufus::AfficheDossiersRechercheParMotCle()
         pitem   = new QStandardItem(listpats.at(i).at(1).toString() + " " + listpats.at(i).at(2).toString());
         pitem1  = new QStandardItem(QLocale::system().toString(listpats.at(i).at(3).toDate(),tr("dd-MMM-yyyy")));
         pitem2  = new QStandardItem(listpats.at(i).at(4).toString());
-        pitem   ->setAccessibleDescription(listpats.at(i).at(0).toString());
-        pitem1  ->setAccessibleDescription(listpats.at(i).at(0).toString());
-        pitem2  ->setAccessibleDescription(listpats.at(i).at(0).toString());
+        pitem   ->setData(listpats.at(i).at(0));
+        pitem1  ->setData(listpats.at(i).at(0));
+        pitem2  ->setData(listpats.at(i).at(0));
         QList <QStandardItem*> listitems;
         listitems << pitem << pitem1 << pitem2;
         modele  ->appendRow(listitems);
@@ -3569,8 +3569,8 @@ void Rufus::AfficheCourriersAFaire()
         pitem   = new QStandardItem(listcourriers.at(i).at(2).toString().toUpper() + " " + listcourriers.at(i).at(3).toString());       // Nom Prenom
         pitem1  = new QStandardItem(QLocale::system().toString(listcourriers.at(i).at(4).toDate(),tr("dd-MMM-yyyy")));                  // Date de l'acte
         pitem2  = new QStandardItem(listcourriers.at(i).at(1).toString());                                                  // idPat
-        pitem   ->setAccessibleDescription(listcourriers.at(i).at(0).toString());                                           // idActe
-        pitem1  ->setAccessibleDescription(listcourriers.at(i).at(0).toString());                                           // idActe
+        pitem   ->setData(listcourriers.at(i).at(0));                                           // idActe
+        pitem1  ->setData(listcourriers.at(i).at(0));                                           // idActe
         QList <QStandardItem*> listitems;
         listitems << pitem << pitem1 << pitem2;
         modele  ->appendRow(listitems);
@@ -3595,7 +3595,7 @@ void Rufus::AfficheCourriersAFaire()
         QAction *pAction_OuvrirDossier = m_menuContextuel->addAction("Ouvrir le dossier " + patient) ;
         connect (pAction_OuvrirDossier, &QAction::triggered, this, [=]
         {
-            int idacte      = modele->itemFromIndex(idx)->accessibleDescription().toInt();
+            int idacte      = modele->itemFromIndex(idx)->data().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
             OuvrirDossier(Datas::I()->patients->getById(idPat), idacte);
             dlg_listPatients->close();
@@ -3611,7 +3611,7 @@ void Rufus::AfficheCourriersAFaire()
         if(mdlist.size()>0)
         {
             QModelIndex idx = mdlist.at(0);
-            int idacte      = modele->itemFromIndex(idx)->accessibleDescription().toInt();
+            int idacte      = modele->itemFromIndex(idx)->data().toInt();
             int idPat       = modele->item(modele->itemFromIndex(idx)->row(),2)->text().toInt();
             OuvrirDossier(Datas::I()->patients->getById(idPat), idacte);
             dlg_listPatients->close();

@@ -38,9 +38,17 @@ public:
     void setListids(const QList<int> &newListids);
     bool        hascheckBox();
 
+    QDate date() const;
+    void setDate(const QDate &newDate);
+
+    QString dataType() const;
+    void setdataType(const QString &newType);
+
 private:
-    Item*   m_item = Q_NULLPTR;
-    QList<int> m_listids = QList<int>();
+    Item*       m_item      = Q_NULLPTR;
+    QList<int>  m_listids   = QList<int>();
+    QDate       m_date      = QDate();
+    QString     m_datatype  = QString();
 };
 
 #endif // UPSTANDARDITEM_H

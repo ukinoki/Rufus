@@ -286,7 +286,7 @@ public:
     static double roundToNearestPointFifty(double number)  { return static_cast<double>(std::round(number*2)) / 2; }
 
     //! affiche la fiche enchantier
-    static void EnChantier(bool avecMsg = false);
+    static void EnChantier(QWidget *parent = Q_NULLPTR, bool avecMsg = false);
 
     //! renvoie chaque page d'un pdf comme une image
     static QList<QImage> calcImagefromPdf(QByteArray pdf);

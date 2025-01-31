@@ -1300,6 +1300,10 @@ public:
 
 #define WIDTH_SCROLLBAR              10
 
+//! QObject dynamic properties
+#define M_DATE "date"
+#define M_TYPE "type"
+#define M_FILE "file"
 };
 
 #endif // MACROS_H
