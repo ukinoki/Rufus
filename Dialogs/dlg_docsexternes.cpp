@@ -79,7 +79,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_alldocsupcheckbox               ->setChecked(true);
 
     wdg_updatetypebox       = new UpComboBox(this);
-    wdg_updatetypebox       ->insertItems(0,QStringList() << tr("Date") << tr("Tyoe"));
+    wdg_updatetypebox       ->insertItems(0,QStringList() << tr("Date") << tr("Type"));
     wdg_updatetypebox       ->setFixedWidth(80);
     AjouteWidgetLayButtons(wdg_updatetypebox, false);
 
