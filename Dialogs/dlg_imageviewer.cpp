@@ -449,20 +449,32 @@ void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupi
             QStandardItem* dateitem = m_treemodel->item(i);
             if(dateitem->data(Qt::UserRole).toDate() == item->data(Qt::UserRole).toDate() && m_treemodel->item(i)->hasChildren())
             {
-
                 for (int j=0; j < dateitem->rowCount();)
                 {
                     QStandardItem* wdgitem = dateitem->child(j,0);
                     if (wdgitem)
                     {
                         QWidget * widg = wdg_treeview->indexWidget(wdgitem->index());
-                        if (widg->property(M_DATE).toDate() == item->data(Qt::UserRole).toDate() && widg->property(M_TYPE).toString() == item->dataType())
+                        if (widg)
                         {
-                            QList<QStandardItem*> lisdelit = dateitem->takeRow(j);
-                            foreach (QStandardItem *itm, lisdelit)
-                                if (itm != Q_NULLPTR) delete itm;
+                            if (widg->property(M_DATE).toDate() == item->data(Qt::UserRole).toDate() && widg->property(M_TYPE).toString() == item->dataType())
+                            {
+                                QList<QStandardItem*> lisdelit = dateitem->takeRow(j);
+                                foreach (QStandardItem *itm, lisdelit)
+                                    if (itm != Q_NULLPTR) delete itm;
+                                j--;
+                            }
+                        }
+                        else
+                        {
+                            dateitem->takeRow(j);
                             j--;
                         }
+                    }
+                    else
+                    {
+                        dateitem->takeRow(j);
+                        j--;
                     }
                     j++;
                 }
