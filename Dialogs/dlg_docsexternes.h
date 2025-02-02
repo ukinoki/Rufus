@@ -15,8 +15,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSEXTERNES_H
 #define DLG_DOCSEXTERNES_H
 
-#include <QGraphicsVideoItem>
-#include <QGraphicsView>
+#include <QVideoSink>
+#include <QVideoWidget>
 
 #include "procedures.h"
 #include "upswitch.h"
@@ -62,44 +62,34 @@ private:
 /*! la classe dlg_docsexternes affiche les documents pdf, jpg ou video dans une fiche Updialog
  *  Les intitulés des documents sont affichés à gauche dans un QTreeView *wdg_listdocstreewiew
  *  et les documents eux-mêmes sont affichés à droite dans
- *      . un UpTablWidget *wdg_scrolltablewidget pour les pdf ou un QGraphicsVieuw wdg_graphview pour les videos et les jpg
- */
-    QTreeView               *wdg_listdocstreewiew       = Q_NULLPTR;
-    UpTableWidget           *wdg_scrolltablewidget      = Q_NULLPTR;
-    QHBoxLayout *m_lay    = new QHBoxLayout();
+ *      . un UpTablWidget *wdg_pdftbl pour les pdf,
+ *      . un QVideoWidget wdg_video pour les videos
+ *      . ou un UpLabel wdg_jpglbl pour les jpg */
 
-    /*! les video et les jpg sont affichés via une QGraphicsScene *obj_graphicscene dans un QGraphicsView *wdg_graphview    */
-    QGraphicsView           *wdg_graphview              = Q_NULLPTR;
-    QGraphicsScene          *obj_graphicscene           = Q_NULLPTR;
-        /*! Le QGraphicsScene *obj_graphicscene affiche
-         *     . les video dans un QGraphicsVideoItem  *obj_videoitem
-         *     . les jpg dans un QPixmap créé à la volée
-        */
-        QGraphicsVideoItem      *obj_videoitem          = Q_NULLPTR;
+    QScrollArea             *mainscroll = new QScrollArea();
 
-            /*! le QGraphicsVideoItem *obj_videoitem est alimenté par un QMediaPlayer *medplay_player
-             *  contrôlé parcontrôlé par le PlayerControls *wdg_playctrl
-            */
-                QMediaPlayer            *medplay_player = Q_NULLPTR;
-                PlayerControls          *wdg_playctrl   = Q_NULLPTR;
+    QTreeView               *wdg_listdocstreewiew   = new QTreeView();
+    int                     m_treeviewwidth         = 185;
+    int                     m_spacing               = 10;
+    QMargins                m_margins               = QMargins (0,0,0,0);
+    QHBoxLayout             *m_lay                  = new QHBoxLayout();
 
-    /*! les pdf sont affichés via des QLabel dans la UpTableWidget *wdg_scrolltablewidget.
-     *  Le pdf est transformé en liste d'images QList<QImage> m_imagelist via la fonction pagelist() de cls_docexterne.h
-     *  chaque image est transformée en QPixmap puis insérée dans un QLabel, inséré lui-même dans une cellule du scrolltablewidget
-     */
-    QList<QImage>           m_imagelist;
+    /*! les pdf sont affichées via un UpTableWidget *wdg_pdftbl    */
+    UpTableWidget           *wdg_pdftbl             = Q_NULLPTR;
 
-    /*! pour l'affichage des jpg comme des pdf, une listde QPixmap est créée QList<QPixmap> m_listpixmp;
-     *  pour gérer le redimensionnement en mode zoom en redimensionnement
-     *  cette liste est effacée à chaque changement de document.
-     *  Pour les jpg, elle ne contient qu'un seul Pixmap
-     */
+    /*! les video sont affichées via un QVideoWidget *wdg_graphview    */
+    QVideoWidget            *wdg_video              = Q_NULLPTR;
+    QMediaPlayer            *medplay_player         = new QMediaPlayer();
+    PlayerControls          *wdg_playctrl           = new PlayerControls(this);
 
-    QList<QPixmap>          m_listpixmp;
+    /*! lesjpg sont affichés via un UpLabel *wdg_jpglbl    */
+    UpLabel                 *wdg_jpglbl             = Q_NULLPTR;
+
+
 
     UpCheckBox              *wdg_alldocsupcheckbox    = Q_NULLPTR;
     UpCheckBox              *wdg_onlyimportantsdocsupcheckbox    = Q_NULLPTR;
-    UpSwitch                *wdg_upswitch       = Q_NULLPTR;
+    UpComboBox              *wdg_updatetypebox  = Q_NULLPTR;
     QLabel                  *wdg_inflabel       = Q_NULLPTR;
 
     QStandardItemModel      *m_model            = Q_NULLPTR;
@@ -108,9 +98,8 @@ private:
     QPoint                  m_positionorigin;
     QSize                   m_sizeorigin;
 
-    double                  m_idealproportion;
-    int                     m_hdelta , m_wdelta;
-    int                     m_hdeltaframe, m_wdeltaframe;
+    double                  m_vidorimgratio = 1;
+    int                     m_hdelta = 0, m_wdelta = 0;
     Mode                    m_mode;
     ModeTri                 m_modetri;
     ModeFiltre              m_modefiltre;
@@ -137,12 +126,24 @@ private:
     void                    ModifierDate(QModelIndex idx);
     void                    ModifierItem(QModelIndex idx);
 
-    void                    OpenMultiImageViewer();
+    void                    OpenMultiImageViewer(int iddoc = 0);
 
     void                    ReImprimeDoc(DocExterne *docmt);
     void                    RemplirTreeView();
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
-    void                    ZoomDoc();
+    void                    ZoomDoc(bool changemode = true);
+    QSize                   sizeforunit() {
+        int w = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent); //width of scrollbar in qApp
+        int width = frameGeometry().width()
+                    - m_treeviewwidth
+                    - dlglayout()->contentsMargins().left()
+                    - dlglayout()->contentsMargins().right()
+                    - m_margins.left()
+                    - m_margins.right()
+                    - m_spacing;      //!estimated width for one pic in a row
+
+        return QSize(width,width);
+    }
 };
 
 #endif // DLG_DOCSEXTERNES_H

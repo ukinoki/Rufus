@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMimeData>
 #include <QScrollArea>
 
+#include "uplabel.h"
 #include "upmessagebox.h"
 
 class UpMessageBox;
@@ -45,6 +46,9 @@ public:
     void            setAllRowHeight(int h);
     void            selectRow(int row);
     QByteArray      dropData();
+    QList<UpLabel*> calcSizeForDisplay(QSize szavailable, QSize &szfinal);
+    void            resizetofit(QSize sz, QSize &szfinal);
+
 
     QList<QImage> listimg() const;
     void setListimg(const QList<QImage> &newListimg);

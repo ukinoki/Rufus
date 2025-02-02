@@ -100,6 +100,64 @@ QByteArray UpTableWidget::dropData()
     return m_encodedData;
 }
 
+QList<UpLabel *> UpTableWidget::calcSizeForDisplay(QSize szavailable, QSize &szfinal)
+{
+    QList<UpLabel *> listlabels = QList<UpLabel *>();
+    int maxw(0), maxh(0);
+    int x(0), y(0);
+    for (int i=0; i<m_listimg.size();++i)
+    {
+        QImage image = m_listimg.at(i);
+        QPixmap pix     = QPixmap::fromImage(image).scaled(szavailable,
+                                                       Qt::KeepAspectRatioByExpanding,
+                                                       Qt::SmoothTransformation);
+        x = pix.width();
+        y = pix.height();
+        UpLabel *lab            = new UpLabel();
+        lab                     ->resize(x,y);
+        lab                     ->setPixmap(pix);
+        lab                     ->setContextMenuPolicy(Qt::CustomContextMenu);
+        listlabels << lab;
+        setRowHeight(i,pix.height());
+        setCellWidget(i,0,lab);
+        if (x>maxw) maxw = x;
+        if (y>maxh) maxh = y;
+    }
+    if (maxw >0 && maxh >0)
+    {
+        szfinal = QSize(maxw,maxh);
+        setColumnWidth(0, szfinal.width());
+    }
+    return listlabels;
+}
+
+void UpTableWidget::resizetofit(QSize sz, QSize &szfinal)
+{
+    int maxw(0), maxh(0);
+    for (int i=0; i <rowCount(); i++)
+    {
+        UpLabel *lbl = qobject_cast<UpLabel*>(cellWidget(i,0));
+        if (lbl != Q_NULLPTR)
+        {
+            QImage img = listimg().at(i);
+            QPixmap pix = QPixmap::fromImage(img).scaled(sz.width(), sz.height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
+            lbl->setPixmap(pix);
+            int x = pix.width();
+            int y = pix.height();
+            setRowHeight(i,y);
+            setColumnWidth(i,x);
+            if (x>maxw) maxw = x;
+            if (y>maxh) maxh = y;
+        }
+    }
+    if (maxw >0 && maxh >0)
+    {
+        szfinal = QSize(maxw,maxh);
+        setColumnWidth(0,szfinal.width());
+        setFixedSize(szfinal);
+    }
+}
+
 QList<QImage> UpTableWidget::listimg() const
 {
     return m_listimg;
@@ -108,6 +166,7 @@ QList<QImage> UpTableWidget::listimg() const
 void UpTableWidget::setListimg(const QList<QImage> &newListimg)
 {
     m_listimg = newListimg;
+    setRowCount(m_listimg.size());
 }
 
 void UpTableWidget::clearSelection()

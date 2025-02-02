@@ -19,12 +19,13 @@ class dlg_imageviewer : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_imageviewer(DocsExternes* Docs, QWidget *parent = Q_NULLPTR);
+    dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc = 0, QWidget *parent = Q_NULLPTR);
     ~dlg_imageviewer();
     void                    FillXTable(DocsExternes *docs);
 
 private:
     DocsExternes            *m_docs             = Q_NULLPTR;
+    int                     m_idcurrentdoc      = 0;
     UpTableView             *wdg_table;
     QStringList             m_listtypedocs      = QStringList();
     QList<QDate>            m_listdates         = QList<QDate>();
@@ -37,7 +38,7 @@ private:
     QList<DocExterne*>      m_listdocsToDisplay;
     QString                 m_formatdate;
     QList<UpStandardItem*>  m_listitems         = QList<UpStandardItem*>();
-    QGridLayout             *m_gridlay          = new QGridLayout;
+    QHBoxLayout             *m_hlay          = new QHBoxLayout;
     QMargins                m_marg              = QMargins(5,5,5,5);
     int                     m_spacing           = 5;
     QList<UpStandardItem*>  m_listcheckedItems  = QList<UpStandardItem*>();
@@ -55,15 +56,16 @@ private:
     QList<UpStandardItem*>  listcheckedItems();
     void                    checkHorizontalHeader(int idx);
     void                    checkVerticalHeader(int idx);
-    void                    checkEyes();
     void                    controlChecks();
+    void                    scrollTreeViewToDocument(DocExterne* doc);
     QList<DocExterne *>     listdocsToDisplay();
     QSize                   sizeforunit() {
         int w = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent); //width of scrollbar in qApp
-        int width = geometry().width() - wdg_table->width()
-                    - m_gridlay->spacing()
-                    - m_gridlay->contentsMargins().left()
-                    - m_gridlay->contentsMargins().right()
+        int width = frameGeometry().width()
+                    - wdg_table->width()
+                    - m_hlay->spacing()
+                    - m_hlay->contentsMargins().left()
+                    - m_hlay->contentsMargins().right()
                     - dlglayout()->contentsMargins().left()
                     - dlglayout()->contentsMargins().right()
                     - dlglayout()->spacing()

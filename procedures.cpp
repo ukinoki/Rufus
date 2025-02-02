@@ -3441,9 +3441,22 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::IdentificationUser()
 {
+    bool ok = false;
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
-    if (dlg_IdentUser->exec() == QDialog::Accepted)
+    QFile sha = QFile(PATH_DIR_RUFUS + "/sha1.txt");
+    if (sha.open(QIODevice::ReadOnly))
+    {
+        QTextStream  ts(&sha);
+        QString filecontents;
+        filecontents.append(ts.readAll());
+        if (db->connectToDataBase(DB_RUFUS) .size())
+            ok = false;
+        ok = db->calcidUserConnected(filecontents.split("!!!!").at(0),filecontents.split("!!!!").at(1)) == DataBase::OK;
+    }
+    if (!ok)
+        ok = dlg_IdentUser->exec() == QDialog::Accepted;
+    if (ok)
     {
         VerifVersionBase();
         m_parametres = db->parametres();

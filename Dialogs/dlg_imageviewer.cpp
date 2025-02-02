@@ -1,8 +1,9 @@
 #include "dlg_imageviewer.h"
 #include <QtWidgets/qheaderview.h>
 
-dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
+dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
 {
+    m_idcurrentdoc              = idcurrentdoc;
     m_docs                      = Docs;
     m_formatdate                = tr("dd-MM-yyyy");
     AjouteLayButtons(UpDialog::ButtonOK);
@@ -14,34 +15,9 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog
     wdg_table                   ->setMouseTracking(true);
     wdg_table->verticalHeader() ->setVisible(true);
 
-    QHBoxLayout *boxODG_Lay     = new QHBoxLayout();
-    int width                   = 120;
-    QString stylechk            = "font: bold;";
-    ODchkBox                    ->setFixedWidth(width);
-    OGchkBox                    ->setFixedWidth(width);
-    BothchkBox                  ->setFixedWidth(width);
-    ODchkBox                    ->setStyleSheet(stylechk);
-    OGchkBox                    ->setStyleSheet(stylechk);
-    BothchkBox                  ->setStyleSheet(stylechk);
-    boxODG_Lay                  ->addLayout(new QHBoxLayout);
-    boxODG_Lay                  ->addWidget(ODchkBox);
-    boxODG_Lay                  ->addLayout(new QHBoxLayout);
-    boxODG_Lay                  ->addWidget(BothchkBox);
-    boxODG_Lay                  ->addLayout(new QHBoxLayout);
-    boxODG_Lay                  ->addWidget(OGchkBox);
-    boxODG_Lay                  ->addLayout(new QHBoxLayout);
-
-    QVBoxLayout *tablelay       = new QVBoxLayout;
-    tablelay                    ->addWidget(wdg_table);
-    tablelay                    ->setSizeConstraint(QLayout::SetFixedSize);
-    m_gridlay                   ->addWidget(new QWidget(),0,0);
-    m_gridlay                   ->addLayout(tablelay, 1,0);
-    m_gridlay                   ->addLayout(boxODG_Lay, 0,1);
-    m_gridlay                   ->addWidget(wdg_treeview,1,1);
-    m_gridlay                   ->setColumnStretch(0,2);
-    m_gridlay                   ->setColumnStretch(1,10);
-    m_gridlay                   ->setRowStretch(0,2);
-    m_gridlay                   ->setRowStretch(1,15);
+    m_hlay                      ->addWidget(wdg_table);
+    m_hlay                      ->addWidget(wdg_treeview);
+    m_hlay                      ->setStretch(2,10);
 
     wdg_table                   ->setSelectionMode(QAbstractItemView::NoSelection);
     wdg_table                   ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
@@ -49,41 +25,86 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, QWidget *parent) : UpDialog
     wdg_treeview                ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     wdg_treeview                ->setHeaderHidden(true);
 
-    dlglayout()->insertLayout(0,m_gridlay);
+    dlglayout()->insertLayout(0,m_hlay);
     connect(OKButton,           &QPushButton::clicked,  this,   &QDialog::close);
 
     FillXTable(Docs);
 
     //! check XTable first row
     UpStandardItem *item = Q_NULLPTR;
-    for (int i= 0; i < m_Xmodel->columnCount(); i++)
+    if (m_idcurrentdoc == 0)
     {
-        item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(0,i));
-        if (item != Q_NULLPTR)
-            if (item->hascheckBox())
-            {
-                QModelIndex idx = item->index();                                        // l'index de ce dernier item
-                wdg_table->scrollTo(idx, QAbstractItemView::PositionAtTop);
-                wdg_table->setCurrentIndex(idx);
-                checkVerticalHeader(item->row());
-                break;
-            }
+        QList<int> listid = QList<int>();
+        for (int i= 0; i < m_Xmodel->columnCount(); i++)
+        {
+            item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(0,i));
+            if (item != Q_NULLPTR)
+                if (item->hascheckBox())
+                {
+                    QModelIndex idx = item->index();                                        //! index of first item
+                    wdg_table->scrollTo(idx, QAbstractItemView::PositionAtTop);
+                    wdg_table->setCurrentIndex(idx);
+                    checkVerticalHeader(item->row());
+                    break;
+                }
+        }
+        m_listcheckedItems = listcheckedItems();
+        addItemsToTreeWidget(m_listcheckedItems);
+        if (item)
+            if (item->listids().size())
+                scrollTreeViewToDocument(m_docs->getById(item->listids().at(0)));
     }
-
-    controlChecks();
-    m_listcheckedItems = listcheckedItems();
-    addItemsToTreeWidget(m_listcheckedItems);
+    else
+    {
+        DocExterne *doc = m_docs->getById(m_idcurrentdoc);
+        int row(0), col(0);
+        if (doc)
+        {
+            QDate datedoc = doc->date();
+            QString typedoc = doc->typedoc();
+            for (int i= 0; i < m_Xmodel->rowCount(); i++)
+            {
+                 if (m_Xmodel->headerData(i, Qt::Vertical,Qt::DisplayRole).toString() == datedoc.toString(m_formatdate))
+                {
+                    row = i;
+                    i = m_Xmodel->rowCount();
+                    for (int j= 0; j < m_Xmodel->columnCount(); j++)
+                    {
+                        if (m_Xmodel->headerData(j, Qt::Horizontal,Qt::DisplayRole).toString() == typedoc)
+                        {
+                            col = j;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        UpStandardItem *item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(row, col));
+        item->setCheckState(Qt::Checked);
+        QModelIndex idx = item->index();
+        wdg_table->scrollTo(idx);
+        wdg_table->setCurrentIndex(idx);
+        addItemsToTreeWidget(QList<UpStandardItem*>() << item);
+        scrollTreeViewToDocument(doc);
+    }
 
     installEventFilter(this);
 
     connect (wdg_table,                     &QTableView::entered,               this,   &dlg_imageviewer::gettoolTipFromCursorPositionInTable);
     connect (wdg_table,                     &QTableView::clicked,               this,   [=] (QModelIndex idx) {
-        controlChecks();
         UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
         if (upitem == Q_NULLPTR)
             return;
         if (upitem->checkState() == Qt::Checked  || upitem->checkState() == Qt::PartiallyChecked)
+        {
             addItemsToTreeWidget(QList<UpStandardItem *>() << upitem);
+            if(upitem->listids().size())
+            {
+                DocExterne *doc = m_docs->getById(upitem->listids().at(0));
+                if (doc)
+                    scrollTreeViewToDocument(doc);
+            }
+        }
         else
             removeItemsFromtTreeWidget(QList<UpStandardItem *>() << upitem);
     });
@@ -262,7 +283,7 @@ QList<UpStandardItem*> dlg_imageviewer::listcheckabledItems()
 }
 
 /*!
- * \brief dlg_imageviewer::listcheckabledItems
+ * \brief dlg_imageviewer::listcheckedItems
  * \return list des items cochés
 */
 QList<UpStandardItem*> dlg_imageviewer::listcheckedItems()
@@ -274,57 +295,72 @@ QList<UpStandardItem*> dlg_imageviewer::listcheckedItems()
             listitems << listitemstocheck.at(i);
     return listitems;
 }
-
 void dlg_imageviewer::checkHorizontalHeader(int idx)
 {
-    QVariant variant = m_Xmodel->headerData(idx, Qt::Horizontal, Qt::DecorationRole);
-    QImage image = variant.value<QImage>();
-    bool uncheck = image == Icons::pxunCheck().toImage();
-    m_Xmodel->setHeaderData(idx, Qt::Horizontal,
-                        uncheck? Icons::pxCheck() : Icons::pxunCheck(),
-                        Qt::DecorationRole);
-    QList<UpStandardItem*> litsitems =QList<UpStandardItem*>();
-    QList<UpStandardItem*> litems = listcheckabledItems();
-    for  (int i =0; i<litems.size(); ++i )
-        if (litems.at(i)->column() == idx)
-        {
-            if (litems.at(i)->checkState() == Qt::Checked && uncheck)
-                litsitems << litems.at(i);
-            else if (litems.at(i)->checkState() != Qt::Checked && !uncheck)
-                litsitems << litems.at(i);
-            litems.at(i)->setCheckState(uncheck? Qt::Checked : Qt::Unchecked);
-        }
-    controlChecks();
-    if (!uncheck)
-        addItemsToTreeWidget(litsitems);
+    QVariant variant                = m_Xmodel->headerData(idx, Qt::Horizontal, Qt::DecorationRole);
+    QImage image                    = variant.value<QImage>();
+    QList<UpStandardItem*> litems   = listcheckabledItems();
+    bool check                      = image == Icons::pxunCheck().toImage();
+    if (!check)
+    {
+        QList<UpStandardItem*> litemstouncheck = QList<UpStandardItem*>();
+        for  (int i =0; i<litems.size(); ++i )
+            if (litems.at(i)->column() == idx)
+                if (litems.at(i)->checkState() == Qt::Checked)
+                {
+                    litemstouncheck << litems.at(i);
+                    litems.at(i)->setCheckState(Qt::Unchecked);
+                }
+        m_Xmodel->setHeaderData(idx, Qt::Horizontal, Icons::pxunCheck(), Qt::DecorationRole);
+        removeItemsFromtTreeWidget(litemstouncheck);
+    }
     else
-        removeItemsFromtTreeWidget(litsitems);
+    {
+        QList<UpStandardItem*> litemstocheck = QList<UpStandardItem*>();
+        for  (int i =0; i<litems.size(); ++i )
+            if (litems.at(i)->column() == idx)
+                if (litems.at(i)->checkState() != Qt::Checked)
+                {
+                    litemstocheck << litems.at(i);
+                    litems.at(i)->setCheckState(Qt::Checked);
+                }
+        m_Xmodel->setHeaderData(idx, Qt::Horizontal, Icons::pxCheck(), Qt::DecorationRole);
+        addItemsToTreeWidget(litemstocheck);
+    }
 }
 
 void dlg_imageviewer::checkVerticalHeader(int idx)
 {
-    QVariant variant = m_Xmodel->headerData(idx, Qt::Vertical, Qt::DecorationRole);
-    QImage image = variant.value<QImage>();
-    bool uncheck = image == Icons::pxunCheck().toImage();
-    m_Xmodel->setHeaderData(idx, Qt::Vertical,
-                               uncheck? Icons::pxCheck() :Icons::pxunCheck(),
-                               Qt::DecorationRole);
-    QList<UpStandardItem*> litsitems =QList<UpStandardItem*>();
-    QList<UpStandardItem*> litems = listcheckabledItems();
-    for  (int i =0; i<litems.size(); ++i )
-        if (litems.at(i)->row() == idx)
-        {
-            if (litems.at(i)->checkState() == Qt::Checked && uncheck)
-                litsitems << litems.at(i);
-            else if (litems.at(i)->checkState() != Qt::Checked && !uncheck)
-                litsitems << litems.at(i);
-            litems.at(i)->setCheckState(uncheck? Qt::Checked : Qt::Unchecked);
-        }
-    controlChecks();
-    if (!uncheck)
-        addItemsToTreeWidget(litsitems);
+    QVariant variant                    = m_Xmodel->headerData(idx, Qt::Vertical, Qt::DecorationRole);
+    QImage image                        = variant.value<QImage>();
+    bool check                          = image == Icons::pxunCheck().toImage();
+    QList<UpStandardItem*> litems       = listcheckabledItems();
+    if (!check)
+    {
+        QList<UpStandardItem*> litemstouncheck = QList<UpStandardItem*>();
+        for  (int i =0; i<litems.size(); ++i )
+            if (litems.at(i)->row() == idx)
+                if (litems.at(i)->checkState() == Qt::Checked)
+                {
+                    litemstouncheck << litems.at(i);
+                    litems.at(i)->setCheckState(Qt::Unchecked);
+                }
+        m_Xmodel->setHeaderData(idx, Qt::Vertical, Icons::pxunCheck(), Qt::DecorationRole);
+        removeItemsFromtTreeWidget(litemstouncheck);
+    }
     else
-        removeItemsFromtTreeWidget(litsitems);
+    {
+        QList<UpStandardItem*> litemstocheck = QList<UpStandardItem*>();
+        for  (int i =0; i<litems.size(); ++i )
+            if (litems.at(i)->row() == idx)
+                if (litems.at(i)->checkState() != Qt::Checked)
+                {
+                    litemstocheck << litems.at(i);
+                    litems.at(i)->setCheckState(Qt::Checked);
+                }
+        m_Xmodel->setHeaderData(idx, Qt::Vertical, Icons::pxCheck(), Qt::DecorationRole);
+        addItemsToTreeWidget(litemstocheck);
+    }
 }
 
 /*!
@@ -402,11 +438,11 @@ void dlg_imageviewer::controlChecks() //! After a check on an upstandarditem, co
                                    Qt::DecorationRole);
     }
     m_listdocsToDisplay = listdocsToDisplay();
-    checkEyes();
 }
 
 void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupitems)
 {
+    controlChecks();
     foreach (UpStandardItem* item, listupitems) {
         for (int i=0; i < m_treemodel->rowCount();)
         {
@@ -441,15 +477,6 @@ void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupi
             i++;
         }
     }
-    /*
-    if (m_treemodel != Q_NULLPTR)
-        delete m_treemodel;
-    m_treemodel             = new UpStandardItemModel();
-    QItemSelectionModel *m  = wdg_treeview->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-    wdg_treeview            ->setModel(m_treemodel);
-    delete m;
-    m_listcheckedItems = listcheckedItems();
-    addItemsToTreeWidget(m_listcheckedItems);*/
 }
 
 QList<DocExterne*> dlg_imageviewer::listdocsToDisplay()
@@ -473,27 +500,6 @@ QList<DocExterne*> dlg_imageviewer::listdocsToDisplay()
     return listdocs;
 }
 
-void dlg_imageviewer::checkEyes()
-{
-    bool checkOD = false;
-    bool checkOG = false;
-    bool checkBoth = false;
-    for (int i=0; i < m_listdocsToDisplay.size(); i++)
-    {
-        if (m_listdocsToDisplay.at(i)->stringCote() == "R") checkOD = true;
-        else if (m_listdocsToDisplay.at(i)->stringCote() == "L") checkOG = true;
-        else if (m_listdocsToDisplay.at(i)->stringCote() == "") checkBoth = true;
-    }
-    if (checkOD)
-        ODchkBox->setCheckState(checkOD? Qt::Checked : Qt::Unchecked);
-    ODchkBox->setEnabled(checkOD);
-    if (checkOG)
-        OGchkBox->setCheckState(checkOG? Qt::Checked : Qt::Unchecked);
-    OGchkBox->setEnabled(checkOG);
-    if (checkBoth)
-        BothchkBox->setCheckState(checkBoth? Qt::Checked : Qt::Unchecked);
-    BothchkBox->setEnabled(checkBoth);
-}
 
 QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
 {
@@ -583,36 +589,21 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 if (listimg.size())
                 {
                     UpTableWidget *tblwdg = new UpTableWidget();                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
-                    tblwdg      ->setListimg(listimg);
+                    tblwdg          ->setListimg(listimg);
                     tblwdg->horizontalHeader() ->setVisible(false);
                     tblwdg->verticalHeader()   ->setVisible(false);
-                    tblwdg      ->setFocusPolicy(Qt::NoFocus);
-                    tblwdg      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-                    tblwdg      ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-                    tblwdg      ->setColumnCount(1);
-                    tblwdg      ->setRowCount(listimg.size());
-                    int maxw(0), maxh(0);
-                    for (int i=0; i<listimg.size();++i)
-                    {
-                        QImage image = listimg.at(i);
-                        QPixmap pix     = QPixmap();
-                        listpixmp << pix;
-                        pix     = QPixmap::fromImage(image).scaled(sizeforunit(),
-                                                               Qt::KeepAspectRatioByExpanding,
-                                                               Qt::SmoothTransformation);
-                        UpLabel *lab            = new UpLabel();
-                        lab                     ->resize(pix.width(),pix.height());
-                        lab                     ->setPixmap(pix);
-                        int x = pix.width();
-                        int y = pix.height();
-                        tblwdg   ->setColumnWidth(i,x);
-                        tblwdg   ->setRowHeight(i,y);
-                        tblwdg   ->setCellWidget(i,0,lab);
-                        if (x>maxw) maxw = x;
-                        if (y>maxh) maxh = y;
-                    }
-                    tblwdg  ->setFixedSize(maxw,maxh);
-                    glay    ->addWidget(tblwdg,0,it);
+                    tblwdg          ->setFocusPolicy(Qt::NoFocus);
+                    tblwdg          ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+                    tblwdg          ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+                    tblwdg          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+                    tblwdg          ->setColumnCount(1);
+                    tblwdg          ->setListimg(listimg);
+                    QSize szfinal   = QSize();
+                    tblwdg          ->calcSizeForDisplay(sizeforunit(), szfinal);
+                    double w        = szfinal.width();
+                    double h        = szfinal.height();
+                    tblwdg          ->setFixedSize(szfinal);
+                    glay            ->addWidget(tblwdg,0,it);
                 }
             }
         }
@@ -628,7 +619,56 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
         widg->setLayout(glay);
     widg->setProperty(M_DATE, date);
     widg->setProperty(M_TYPE, type);
+    //! I know, the following is ugly
+    QString listid = "";
+    if (listdocs.at(0) != Q_NULLPTR)
+        listid += QString::number(listdocs.at(0)->id());
+    if (listdocs.size() > 1)
+        if (listdocs.at(1) != Q_NULLPTR)
+        {
+            if (listid != "")
+                listid += M_DELIMITER;
+            listid += QString::number(listdocs.at(1)->id());
+        }
+    widg->setProperty(M_LISTID, listid);
     return widg;
+}
+
+void dlg_imageviewer::scrollTreeViewToDocument(DocExterne* doc)
+{
+    if (doc == Q_NULLPTR)
+        return;
+    QDate datedoc = doc->date();
+    QString typedoc = doc->typedoc();
+    QList<QStandardItem*> litems = m_treemodel->findItems(datedoc.toString(m_formatdate));
+    if (litems.size() == 0)
+        return;
+    QStandardItem *citem = litems.at(0);
+    if (citem)
+        for (int r=0; r < citem->rowCount(); r++ )
+        {
+            QStandardItem* it = citem->child(r);
+            if (it)
+            {
+                QWidget * widg = dynamic_cast<QWidget*>(wdg_treeview->indexWidget(it->index()));
+                if (widg)
+                {
+                    QString listid = widg->property(M_LISTID).toString();
+                    if (listid != "")
+                    {
+                        int fid = listid.split(M_DELIMITER).at(0).toInt();
+                        int sid(0);
+                        if (listid.split(M_DELIMITER).size()>1)
+                            sid = listid.split(M_DELIMITER).at(1).toInt();
+                        if (doc->id() == fid || doc->id() == sid)
+                        {
+                            wdg_treeview->scrollTo(it->index());
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 }
 
 void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
@@ -654,7 +694,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
     auto sstypdoc = [=] (DocExterne* doc) {
         return doc->soustypedoc().replace("OD","").replace("OG","");
     };
-
+    controlChecks();
     QList<QDate> listdates =  QList<QDate>();
     for (int i=0;  i < m_Xmodel->rowCount(); i++)
     {
@@ -831,7 +871,7 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                                         if (lab)
                                         {
                                             QImage img = lab->image();
-                                            QPixmap pix = QPixmap::fromImage(lab->image()).scaled(size, Qt::KeepAspectRatio);
+                                            QPixmap pix = QPixmap::fromImage(img).scaled(size, Qt::KeepAspectRatio);
                                             lab->setPixmap(pix);
                                         }
                                         else
@@ -853,27 +893,8 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                                                 UpTableWidget* tbl = dynamic_cast<UpTableWidget*>(widg);
                                                 if (tbl)
                                                 {
-                                                    for (int l=0; l < tbl->rowCount(); l++)
-                                                    {
-                                                        int maxw(0), maxh(0);
-                                                        UpLabel *lbl = qobject_cast<UpLabel*>(tbl->cellWidget(l,0));
-                                                        if (lbl != Q_NULLPTR)
-                                                        {
-                                                            QImage image = tbl->listimg().at(l);
-                                                            QPixmap pix = QPixmap::fromImage(image).scaled(size,
-                                                                                                           Qt::KeepAspectRatioByExpanding,
-                                                                                                           Qt::SmoothTransformation);
-                                                            lbl->resize(pix.width(),pix.height());
-                                                            lbl->setPixmap(pix);
-                                                            int x = pix.width();
-                                                            int y = pix.height();
-                                                            tbl   ->setColumnWidth(l,x);
-                                                            tbl   ->setRowHeight(l,y);
-                                                            if (x>maxw) maxw = x;
-                                                            if (y>maxh) maxh = y;
-                                                        }
-                                                        tbl   ->setFixedSize(maxw,maxh);
-                                                    }
+                                                    QSize szfinal   = QSize();
+                                                    tbl             ->resizetofit(sizeforunit(), szfinal);
                                                 }
                                                 else
                                                 //! item is nor jpg, nor pdf, nor video -> removing item and replace by QSPacerItem

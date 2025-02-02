@@ -1301,9 +1301,13 @@ public:
 #define WIDTH_SCROLLBAR              10
 
 //! QObject dynamic properties
-#define M_DATE "date"
-#define M_TYPE "type"
-#define M_FILE "file"
+#define M_DATE      "date"
+#define M_TYPE      "type"
+#define M_FILE      "file"
+#define M_LISTID    "listid"
+
+
+#define M_DELIMITER "Triumph Scrambler 400X"
 };
 
 #endif // MACROS_H
