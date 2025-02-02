@@ -30,11 +30,10 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
 
     FillXTable(Docs);
 
-    //! check XTable first row
     UpStandardItem *item = Q_NULLPTR;
     if (m_idcurrentdoc == 0)
     {
-        QList<int> listid = QList<int>();
+        //! check XTable first row
         for (int i= 0; i < m_Xmodel->columnCount(); i++)
         {
             item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(0,i));
@@ -49,7 +48,6 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
                 }
         }
         m_listcheckedItems = listcheckedItems();
-        addItemsToTreeWidget(m_listcheckedItems);
         if (item)
             if (item->listids().size())
                 scrollTreeViewToDocument(m_docs->getById(item->listids().at(0)));
