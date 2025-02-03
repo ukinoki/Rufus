@@ -44,11 +44,17 @@ public:
     QString dataType() const;
     void setdataType(const QString &newType);
 
+    bool beforeCheckState();
+    void setBeforeCheckState(bool newBeforeCheckState);
+
 private:
     Item*       m_item      = Q_NULLPTR;
     QList<int>  m_listids   = QList<int>();
     QDate       m_date      = QDate();
     QString     m_datatype  = QString();
+    bool        m_beforeCheckState = false;   /*! when you click an item outside the checkbox, the signal clicked is emitted  but the checkstate doesn't change
+                                                  - so, you need to compare the state before the cilcked signal with this afte to know ik checkstate has changed
+                                                by this way, you can check if checkstate has changed; */
 };
 
 #endif // UPSTANDARDITEM_H

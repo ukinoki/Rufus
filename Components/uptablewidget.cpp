@@ -100,9 +100,9 @@ QByteArray UpTableWidget::dropData()
     return m_encodedData;
 }
 
-QList<UpLabel *> UpTableWidget::calcSizeForDisplay(QSize szavailable, QSize &szfinal)
+QSize UpTableWidget::calcSizeForDisplay(QSize szavailable)
 {
-    QList<UpLabel *> listlabels = QList<UpLabel *>();
+    QSize szfinal = QSize();
     int maxw(0), maxh(0);
     int x(0), y(0);
     for (int i=0; i<m_listimg.size();++i)
@@ -117,7 +117,7 @@ QList<UpLabel *> UpTableWidget::calcSizeForDisplay(QSize szavailable, QSize &szf
         lab                     ->resize(x,y);
         lab                     ->setPixmap(pix);
         lab                     ->setContextMenuPolicy(Qt::CustomContextMenu);
-        listlabels << lab;
+        m_labels << lab;
         setRowHeight(i,pix.height());
         setCellWidget(i,0,lab);
         if (x>maxw) maxw = x;
@@ -128,11 +128,17 @@ QList<UpLabel *> UpTableWidget::calcSizeForDisplay(QSize szavailable, QSize &szf
         szfinal = QSize(maxw,maxh);
         setColumnWidth(0, szfinal.width());
     }
-    return listlabels;
+    return szfinal;
 }
 
-void UpTableWidget::resizetofit(QSize sz, QSize &szfinal)
+QList<UpLabel *> UpTableWidget::labels() const
 {
+    return m_labels;
+}
+
+QSize UpTableWidget::resizetofit(QSize sz)
+{
+    QSize szfinal = QSize();
     int maxw(0), maxh(0);
     for (int i=0; i <rowCount(); i++)
     {
@@ -156,6 +162,7 @@ void UpTableWidget::resizetofit(QSize sz, QSize &szfinal)
         setColumnWidth(0,szfinal.width());
         setFixedSize(szfinal);
     }
+    return szfinal;
 }
 
 QList<QImage> UpTableWidget::listimg() const

@@ -78,10 +78,11 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
             }
         }
         UpStandardItem *item = dynamic_cast<UpStandardItem*>(m_Xmodel->item(row, col));
-        item->setCheckState(Qt::Checked);
+        item            ->setCheckState(Qt::Checked);
+        item            ->setBeforeCheckState(true);
         QModelIndex idx = item->index();
-        wdg_table->scrollTo(idx);
-        wdg_table->setCurrentIndex(idx);
+        wdg_table       ->scrollTo(idx);
+        wdg_table       ->setCurrentIndex(idx);
         addItemsToTreeWidget(QList<UpStandardItem*>() << item);
         scrollTreeViewToDocument(doc);
     }
@@ -93,8 +94,9 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
         UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
         if (upitem == Q_NULLPTR)
             return;
-        if (upitem->checkState() == Qt::Checked  || upitem->checkState() == Qt::PartiallyChecked)
+        if ((upitem->checkState() == Qt::Checked  || upitem->checkState() == Qt::PartiallyChecked) && !upitem->beforeCheckState())
         {
+            upitem->setBeforeCheckState(true);
             addItemsToTreeWidget(QList<UpStandardItem *>() << upitem);
             if(upitem->listids().size())
             {
@@ -103,8 +105,11 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
                     scrollTreeViewToDocument(doc);
             }
         }
-        else
+        else if (upitem->checkState() == Qt::Unchecked && upitem->beforeCheckState())
+        {
+            upitem->setBeforeCheckState(false);
             removeItemsFromtTreeWidget(QList<UpStandardItem *>() << upitem);
+        }
     });
     connect (wdg_table->horizontalHeader(), &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkHorizontalHeader(idx);} );
     connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkVerticalHeader(idx);} );
@@ -194,6 +199,7 @@ void dlg_imageviewer::FillXTable(DocsExternes* docs)
                 item->setTextAlignment(Qt::AlignCenter);
                 item->setListids(listiddocs);
                 item->setCheckState(Qt::Unchecked);
+                item->setBeforeCheckState(false);
                 item->setAutoTristate(listiddocs.size() >1);
                 item->setCheckable(true);
                 item->setdataType(m_listtypedocs.at(j));
@@ -307,7 +313,8 @@ void dlg_imageviewer::checkHorizontalHeader(int idx)
                 if (litems.at(i)->checkState() == Qt::Checked)
                 {
                     litemstouncheck << litems.at(i);
-                    litems.at(i)->setCheckState(Qt::Unchecked);
+                    litems.at(i)    ->setCheckState(Qt::Unchecked);
+                    litems.at(i)    ->setBeforeCheckState(false);
                 }
         m_Xmodel->setHeaderData(idx, Qt::Horizontal, Icons::pxunCheck(), Qt::DecorationRole);
         removeItemsFromtTreeWidget(litemstouncheck);
@@ -319,9 +326,10 @@ void dlg_imageviewer::checkHorizontalHeader(int idx)
             if (litems.at(i)->column() == idx)
                 if (litems.at(i)->checkState() != Qt::Checked)
                 {
-                    litemstocheck << litems.at(i);
-                    litems.at(i)->setCheckState(Qt::Checked);
-                }
+                    litemstocheck   << litems.at(i);
+                    litems.at(i)    ->setCheckState(Qt::Checked);
+                    litems.at(i)    ->setBeforeCheckState(true);
+               }
         m_Xmodel->setHeaderData(idx, Qt::Horizontal, Icons::pxCheck(), Qt::DecorationRole);
         addItemsToTreeWidget(litemstocheck);
     }
@@ -341,7 +349,8 @@ void dlg_imageviewer::checkVerticalHeader(int idx)
                 if (litems.at(i)->checkState() == Qt::Checked)
                 {
                     litemstouncheck << litems.at(i);
-                    litems.at(i)->setCheckState(Qt::Unchecked);
+                    litems.at(i)    ->setCheckState(Qt::Unchecked);
+                    litems.at(i)    ->setBeforeCheckState(false);
                 }
         m_Xmodel->setHeaderData(idx, Qt::Vertical, Icons::pxunCheck(), Qt::DecorationRole);
         removeItemsFromtTreeWidget(litemstouncheck);
@@ -353,8 +362,9 @@ void dlg_imageviewer::checkVerticalHeader(int idx)
             if (litems.at(i)->row() == idx)
                 if (litems.at(i)->checkState() != Qt::Checked)
                 {
-                    litemstocheck << litems.at(i);
-                    litems.at(i)->setCheckState(Qt::Checked);
+                    litemstocheck   << litems.at(i);
+                    litems.at(i)    ->setCheckState(Qt::Checked);
+                    litems.at(i)    ->setBeforeCheckState(true);
                 }
         m_Xmodel->setHeaderData(idx, Qt::Vertical, Icons::pxCheck(), Qt::DecorationRole);
         addItemsToTreeWidget(litemstocheck);
@@ -574,8 +584,9 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 double ny                           = size.height();
                 int h                               = int(w*ny/nx);
                 wdg_video                           ->setFixedSize(w,h);
-                //wdg_video                           ->installEventFilter(this);
-                glay->addWidget(wdg_video,0,it);
+                wdg_video                           ->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(wdg_video, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
+                glay                                ->addWidget(wdg_video,0,it);
             }
             else if (doc->imageformat() == JPG)     // le document est un JPG
             {
@@ -589,6 +600,9 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 lab             ->setImage(image);
                 QPixmap pix     = QPixmap::fromImage(image).scaled(sizeforunit(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
                 lab             ->setPixmap(pix);
+                lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
+                connect(lab, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
+
                 glay->addWidget(lab,0,it);
             }
             else if (doc->imageformat() == PDF)     // doc is pdf
@@ -600,6 +614,8 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 {
                     UpTableWidget *tblwdg = new UpTableWidget();                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
                     tblwdg          ->setListimg(listimg);
+                    tblwdg             ->setContextMenuPolicy(Qt::CustomContextMenu);
+                    connect(tblwdg, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
                     tblwdg->horizontalHeader() ->setVisible(false);
                     tblwdg->verticalHeader()   ->setVisible(false);
                     tblwdg          ->setFocusPolicy(Qt::NoFocus);
@@ -608,8 +624,8 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     tblwdg          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
                     tblwdg          ->setColumnCount(1);
                     tblwdg          ->setListimg(listimg);
-                    QSize szfinal   = QSize();
-                    tblwdg          ->calcSizeForDisplay(sizeforunit(), szfinal);
+                    tblwdg          ->setSelectionMode(QAbstractItemView::NoSelection);
+                    QSize szfinal   = tblwdg->calcSizeForDisplay(sizeforunit());
                     double w        = szfinal.width();
                     double h        = szfinal.height();
                     tblwdg          ->setFixedSize(szfinal);
@@ -861,60 +877,56 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
             if ( m_treemodel->item(i)->hasChildren())
                 for (int j = 0; j< m_treemodel->item(i)->rowCount() ; ++j)
                 {
-                    QStandardItem* item = m_treemodel->item(i)->child(j,0);
+                    QStandardItem* item = m_treemodel->item(i)->child(j,0);                                                     //! -> search for childitem
                     if (item != Q_NULLPTR)
                     {
-                        QWidget * rwidg = wdg_treeview->indexWidget(item->index());
+                        QWidget * rwidg = wdg_treeview->indexWidget(item->index());                                             //! -> search if childitem is DocWidget
                         if (rwidg != Q_NULLPTR)
                         {
-                            QGridLayout *glay = qobject_cast<QGridLayout*>(rwidg->layout());
+                            QGridLayout *glay = qobject_cast<QGridLayout*>(rwidg->layout());                                    //! -> search for layout of DocWidget
                             if (glay != Q_NULLPTR)
                             {
                                 for (int k= 0; k < glay->columnCount(); k++)
                                 {
-                                    QWidget* widg = glay->itemAtPosition(0,k)->widget();
-                                    if (widg != Q_NULLPTR)
+                                    QLayoutItem* layit = glay->itemAtPosition(0,k);                                             //! -> search for QLayoutitem of DocWidget
+                                    if (layit)
                                     {
-                                        QSize size = sizeforunit();
-                                        //! item is jpg pict -> searching an UpLabel and resize the pixmap
-                                        UpLabel* lab = dynamic_cast<UpLabel*>(widg);
-                                        if (lab)
+                                        QWidget* widg = layit->widget();                                                        //! -> search for QWidget of QLayoutItem of DocWidget
+                                        if (widg != Q_NULLPTR)
                                         {
-                                            QImage img = lab->image();
-                                            QPixmap pix = QPixmap::fromImage(img).scaled(size, Qt::KeepAspectRatio);
-                                            lab->setPixmap(pix);
-                                        }
-                                        else
-                                        {
-                                            QVideoWidget *gvdeo = dynamic_cast<QVideoWidget*>(widg);
-                                            if (gvdeo)
+                                            QSize size = sizeforunit();
+                                            UpLabel* lab = dynamic_cast<UpLabel*>(widg);                                        //! widget is UpLabel => jpg pict -> resize the pixmap
+                                            if (lab)
                                             {
-                                                //! item is video? -> searching a QGraphicsView and resize the QGraphicsVideoItem
-                                                QSize size  = gvdeo->videoSink()->videoSize();
-                                                int w       = sizeforunit().width();
-                                                double nx   = size.width();
-                                                double ny   = size.height();
-                                                int h       = int(w*ny/nx);
-                                                gvdeo       ->setFixedSize(w,h);
+                                                QImage img = lab->image();
+                                                QPixmap pix = QPixmap::fromImage(img).scaled(size, Qt::KeepAspectRatio);
+                                                lab->setPixmap(pix);
                                             }
                                             else
                                             {
-                                                //! item is pdf? -> searching an UpTableWidget and resize the UpLabel in each cell
-                                                UpTableWidget* tbl = dynamic_cast<UpTableWidget*>(widg);
-                                                if (tbl)
+                                                QVideoWidget *gvdeo = dynamic_cast<QVideoWidget*>(widg);                        //! widget is QVideoWidget => video -> resize the QVideoWidget
+                                                if (gvdeo)
                                                 {
-                                                    QSize szfinal   = QSize();
-                                                    tbl             ->resizetofit(sizeforunit(), szfinal);
+                                                    QSize size  = gvdeo->videoSink()->videoSize();
+                                                    int w       = sizeforunit().width();
+                                                    double nx   = size.width();
+                                                    double ny   = size.height();
+                                                    int h       = int(w*ny/nx);
+                                                    gvdeo       ->setFixedSize(w,h);
                                                 }
                                                 else
-                                                //! item is nor jpg, nor pdf, nor video -> removing item and replace by QSPacerItem
                                                 {
-                                                    QLayoutItem* layit = glay->itemAtPosition(0, k);
-                                                    if (layit)
-                                                        delete layit;
-                                                    glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding),0, k);
+                                                    UpTableWidget* tbl = dynamic_cast<UpTableWidget*>(widg);                    //! widget is UpTableWidget=> is pdf -> resize each cell in UptableWidget
+                                                    if (tbl)
+                                                        tbl->resizetofit(sizeforunit());
+                                                    else                                                                        //! item is nor jpg, nor pdf, nor video -> removing item and replace by QSPacerItem
+                                                    {
+                                                        QLayoutItem* layit = glay->itemAtPosition(0, k);
+                                                        if (layit)
+                                                            delete layit;
+                                                        glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding),0, k);
+                                                    }
                                                 }
-
                                             }
                                         }
                                     }
@@ -925,12 +937,6 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    else if (event->type() == QEvent::MouseButtonPress)
-    {
-        QVideoWidget *vwidg = dynamic_cast<QVideoWidget*>(obj);
-        if (vwidg)
-            Utils::EnChantier(this);
-     }
     return QWidget::eventFilter(obj, event);
 }
 

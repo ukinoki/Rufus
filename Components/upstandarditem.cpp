@@ -82,3 +82,14 @@ void UpStandardItem::setdataType(const QString &newType)
 {
     m_datatype = newType;
 }
+
+bool UpStandardItem::beforeCheckState()
+{
+    return m_beforeCheckState;
+}
+
+void UpStandardItem::setBeforeCheckState(bool newBeforeCheckState)
+{
+    setData(newBeforeCheckState, Qt::UserRole + Qt::CheckStateRole);
+    m_beforeCheckState = newBeforeCheckState;
+}

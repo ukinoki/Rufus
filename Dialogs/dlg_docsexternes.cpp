@@ -90,7 +90,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     {
         DocExterne *doc = qobject_cast<DocExterne*>(it.value());
         if (doc != Q_NULLPTR)
-            if (doc->isMedicalImagery() || doc->isVideo())
+            if (doc->isMedicalImagery() || (doc->isVideo() && DataBase::I()->ModeAccesDataBase() != Utils::Distant))
                 m_docsimagery->docsexternes()->insert(it.key(),it.value());
     }
     ViewerButton->setVisible(m_docsimagery->docsexternes()->size()>0);
@@ -320,7 +320,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     if (docmt->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
         wdg_video = new QVideoWidget;
-
         mainscroll->setWidget(wdg_video);
         if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         {
@@ -417,8 +416,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             if (listimg.size())
             {
                 wdg_pdftbl                  ->setListimg(listimg);
-                QSize szfinal               = QSize();
-                QList<UpLabel *> pdflabels  = wdg_pdftbl->calcSizeForDisplay(sizeforunit(), szfinal);
+                QSize szfinal               = wdg_pdftbl->calcSizeForDisplay(sizeforunit());
+                QList<UpLabel *> pdflabels  = wdg_pdftbl->labels();
                 double w                    = szfinal.width();
                 double h                    = szfinal.height();
                 m_vidorimgratio             = w/h;
@@ -985,8 +984,7 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         if (m_currentdocument->isPDF())
         {
             wdg_pdftbl      ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-            QSize szfinal   = QSize();
-            wdg_pdftbl      ->resizetofit(szavailable, szfinal);
+            QSize szfinal   = wdg_pdftbl->resizetofit(szavailable);
             int hf          = std::min(szfinal.height(), wdg_listdocstreewiew->height());
             mainscroll      ->resize(szfinal.width(),hf);
         }
@@ -1016,8 +1014,7 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         if (m_currentdocument->isPDF())
         {
             wdg_pdftbl      ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-            QSize szfinal   = QSize();
-            wdg_pdftbl      ->resizetofit(QSize(worigin,horigin), szfinal);
+            QSize szfinal   = wdg_pdftbl->resizetofit(QSize(worigin,horigin));
             int hf          = std::min(szfinal.height(), wdg_listdocstreewiew->height());
             mainscroll      ->resize(szfinal.width(),hf);
         }
@@ -1045,8 +1042,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
     {
         if (m_currentdocument->isPDF())
         {
-            QSize szfinal   = QSize();
-            wdg_pdftbl      ->resizetofit(sizeforunit(), szfinal);
+            QSize szfinal   = wdg_pdftbl->resizetofit(sizeforunit());
             int hf          = std::min(szfinal.height(), wdg_listdocstreewiew->height());
             mainscroll      ->resize(szfinal.width(),hf);
         }

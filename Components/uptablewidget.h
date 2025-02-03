@@ -46,12 +46,15 @@ public:
     void            setAllRowHeight(int h);
     void            selectRow(int row);
     QByteArray      dropData();
-    QList<UpLabel*> calcSizeForDisplay(QSize szavailable, QSize &szfinal);
-    void            resizetofit(QSize sz, QSize &szfinal);
+    QSize           calcSizeForDisplay(QSize szavailable);
+    QList<UpLabel*> m_labels = QList<UpLabel*>();
+    QSize           resizetofit(QSize sz);
 
 
     QList<QImage> listimg() const;
     void setListimg(const QList<QImage> &newListimg);
+
+    QList<UpLabel *> labels() const;
 
 private:
     QByteArray      m_encodedData;
