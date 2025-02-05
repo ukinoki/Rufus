@@ -27,7 +27,7 @@ public:
     UpTreeView(QWidget *parent = Q_NULLPTR);
 
 protected:
-    void            resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
+    void resizeEvent(QResizeEvent *) Q_DECL_OVERRIDE;
 };
 
 #endif // UPTREEVIEW_H

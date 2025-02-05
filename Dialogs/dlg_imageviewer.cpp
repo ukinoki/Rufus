@@ -130,7 +130,9 @@ void dlg_imageviewer::FillXTable()
                 m_listtypedocs  << doc->typedoc();
         }
     }
-    std::reverse(m_listdates.begin(), m_listdates.end());
+
+    std::sort(m_listdates.begin(), m_listdates.end(), std::greater<>());
+    /*! +++++ std::reverse gives errors */
 
     //! sort mtypedocs with OCT, RNM, Biometry first
     QStringList listtypes = DocExterne::listtypedocs();
@@ -453,7 +455,8 @@ void dlg_imageviewer::controlChecks() //! After a check on an upstandarditem, co
 void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupitems)
 {
     controlChecks();
-    foreach (UpStandardItem* item, listupitems) {
+    foreach (UpStandardItem* item, listupitems)
+    {
         for (int i=0; i < m_treemodel->rowCount();)
         {
             QStandardItem* dateitem = m_treemodel->item(i);
@@ -539,16 +542,18 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
     QWidget * widg = Q_NULLPTR;
     if (listdocs.size() == 0 || listdocs.size() >2)
         return widg;
-    QGridLayout *glay   = new QGridLayout();
+    QHBoxLayout *glay   = new QHBoxLayout();
     glay                ->setContentsMargins(m_marg);
     glay                ->setSpacing(m_spacing);
     QDate date = QDate();
     QString type = QString();
+    if (listdocs.size() == 1)
+        glay->addItem(new QSpacerItem(5,5, QSizePolicy::Expanding));
     for (int it = 0; it < listdocs.size() ; ++it)
     {
         DocExterne * doc = listdocs.at(it);
         if (doc == Q_NULLPTR)
-            glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding),0, it);
+            glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding));
         else
         {
             if (date == QDate())
@@ -639,15 +644,12 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     glaywidg        = tblwdg;
                 }
             }
-            glay    ->addWidget(glaywidg,0,it);
+            glay    ->addWidget(glaywidg);
         }
     }
     widg = new QWidget();
     if (listdocs.size() == 1)
-    {
-        glay->addItem(new QSpacerItem(5,5, QSizePolicy::Expanding),0,0);
-        glay->addItem(new QSpacerItem(5,5, QSizePolicy::Expanding),0,2);
-    }
+        glay->addItem(new QSpacerItem(5,5, QSizePolicy::Expanding));
     widg->setLayout(glay);
 
     //! I know, the following is ugly
@@ -890,12 +892,12 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                         QWidget * rwidg = wdg_treeview->indexWidget(item->index());                                             //! -> search if childitem is DocWidget
                         if (rwidg != Q_NULLPTR)
                         {
-                            QGridLayout *glay = qobject_cast<QGridLayout*>(rwidg->layout());                                    //! -> search for layout of DocWidget
+                            QHBoxLayout *glay = qobject_cast<QHBoxLayout*>(rwidg->layout());                                    //! -> search for layout of DocWidget
                             if (glay != Q_NULLPTR)
                             {
-                                for (int k= 0; k < glay->columnCount(); k++)
+                                for (int k= 0; k < glay->count(); k++)
                                 {
-                                    QLayoutItem* layit = glay->itemAtPosition(0,k);                                             //! -> search for QLayoutitem of DocWidget
+                                    QLayoutItem* layit = glay->itemAt(k);                                             //! -> search for QLayoutitem of DocWidget
                                     if (layit)
                                     {
                                         QWidget* widg = layit->widget();                                                        //! -> search for QWidget of QLayoutItem of DocWidget
@@ -926,13 +928,6 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                                                     UpTableWidget* tbl = dynamic_cast<UpTableWidget*>(widg);                    //! widget is UpTableWidget=> is pdf -> resize each cell in UptableWidget
                                                     if (tbl)
                                                         tbl->resizetofit(sizeforunit());
-                                                    else                                                                        //! item is nor jpg, nor pdf, nor video -> removing item and replace by QSPacerItem
-                                                    {
-                                                        QLayoutItem* layit = glay->itemAtPosition(0, k);
-                                                        if (layit)
-                                                            delete layit;
-                                                        glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding),0, k);
-                                                    }
                                                 }
                                             }
                                         }

@@ -90,7 +90,8 @@ void PlayerControls::playClicked()
     if (m_player->playbackState() == QMediaPlayer::PlayingState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        emit ctrl(Pause);}
+        emit ctrl(Pause);
+    }
     else if (m_player->playbackState() == QMediaPlayer::PausedState || m_player->playbackState() == QMediaPlayer::StoppedState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
