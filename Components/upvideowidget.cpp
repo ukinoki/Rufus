@@ -1,4 +1,4 @@
-/* (C) 2020 LAINE SERGE
+/* (C) 2025 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -15,13 +15,29 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "widgfolderselect.h"
+#include "upvideowidget.h"
 
-WidgFolderSelect::WidgFolderSelect(QWidget *parent) : QWidget(parent)
+UpVideoWidget::UpVideoWidget(QString filename, QWidget *parent) : QVideoWidget(parent)
 {
-
+    m_filename                  = filename;
 }
 
-WidgFolderSelect::~WidgFolderSelect()
+QString UpVideoWidget::filename() const
 {
+    return m_filename;
+}
+
+void UpVideoWidget::setFilename(const QString &newFilename)
+{
+    m_filename = newFilename;
+}
+
+QMediaPlayer *UpVideoWidget::player() const
+{
+    return m_player;
+}
+
+void UpVideoWidget::setPlayer(QMediaPlayer *newPlayer)
+{
+    m_player = newPlayer;
 }

@@ -20,7 +20,6 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/upsmallbutton.cpp \
     $$PWD/upspinbox.cpp \
     $$PWD/upstandarditemmodel.cpp \
-    $$PWD/upswitch.cpp \
     $$PWD/upsystemtrayicon.cpp \
     $$PWD/uptablewidget.cpp \
     $$PWD/uptextedit.cpp \
@@ -28,7 +27,8 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/upheaderview.cpp \
     $$PWD/upstandarditem.cpp \
     $$PWD/uptableview.cpp \
-    $$PWD/uptreeview.cpp
+    $$PWD/uptreeview.cpp \
+    $$PWD/upvideowidget.cpp
 
 HEADERS += $$PWD/upcheckbox.h \
     $$PWD/rangeslider.h \
@@ -48,7 +48,6 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/upsmallbutton.h \
     $$PWD/upspinbox.h \
     $$PWD/upstandarditemmodel.h \
-    $$PWD/upswitch.h \
     $$PWD/upsystemtrayicon.h \
     $$PWD/uptablewidget.h \
     $$PWD/uptextedit.h \
@@ -56,5 +55,6 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/upheaderview.h \
     $$PWD/upstandarditem.h \
     $$PWD/uptableview.h \
-    $$PWD/uptreeview.h
+    $$PWD/uptreeview.h \
+    $$PWD/upvideowidget.h
 

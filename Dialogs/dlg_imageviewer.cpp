@@ -1,10 +1,10 @@
 #include "dlg_imageviewer.h"
 #include <QtWidgets/qheaderview.h>
 
-dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
+dlg_imageviewer::dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
 {
     m_idcurrentdoc              = idcurrentdoc;
-    m_docs                      = Docs;
+    m_listiddocs                = listiddocs;
     m_formatdate                = tr("dd-MM-yyyy");
     AjouteLayButtons(UpDialog::ButtonOK);
     wdg_table                   = new UpTableView();
@@ -24,11 +24,12 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
     wdg_treeview                ->setSelectionMode(QAbstractItemView::NoSelection);
     wdg_treeview                ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     wdg_treeview                ->setHeaderHidden(true);
+    wdg_treeview                ->setFocusPolicy(Qt::NoFocus); //! si on ne met pas ça, le UpVideoWidget disparait quand on clique dessus
 
     dlglayout()->insertLayout(0,m_hlay);
     connect(OKButton,           &QPushButton::clicked,  this,   &QDialog::close);
 
-    FillXTable(Docs);
+    FillXTable();
 
     UpStandardItem *item = Q_NULLPTR;
     if (m_idcurrentdoc == 0)
@@ -50,11 +51,11 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
         m_listcheckedItems = listcheckedItems();
         if (item)
             if (item->listids().size())
-                scrollTreeViewToDocument(m_docs->getById(item->listids().at(0)));
+                scrollTreeViewToDocument(Datas::I()->docsexternes->getById(item->listids().at(0)));
     }
     else
     {
-        DocExterne *doc = m_docs->getById(m_idcurrentdoc);
+        DocExterne *doc = Datas::I()->docsexternes->getById(m_idcurrentdoc);
         int row(0), col(0);
         if (doc)
         {
@@ -100,7 +101,7 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
             addItemsToTreeWidget(QList<UpStandardItem *>() << upitem);
             if(upitem->listids().size())
             {
-                DocExterne *doc = m_docs->getById(upitem->listids().at(0));
+                DocExterne *doc = Datas::I()->docsexternes->getById(upitem->listids().at(0));
                 if (doc)
                     scrollTreeViewToDocument(doc);
             }
@@ -113,13 +114,14 @@ dlg_imageviewer::dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc, QWidget *
     });
     connect (wdg_table->horizontalHeader(), &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkHorizontalHeader(idx);} );
     connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkVerticalHeader(idx);} );
+    //connect (qApp, &QApplication::focusChanged, this, [&](QWidget *old, QWidget *now){        qDebug() << old->metaObject()->className() << now->metaObject()->className(); });
 }
 
-void dlg_imageviewer::FillXTable(DocsExternes* docs)
+void dlg_imageviewer::FillXTable()
 {
-    for (auto it = m_docs->docsexternes()->begin(); it  != m_docs->docsexternes()->end(); ++it)
+    for (int it = 0; it < m_listiddocs.size(); ++it)
     {
-        DocExterne *doc = qobject_cast<DocExterne*>(it.value());
+        DocExterne *doc = Datas::I()->docsexternes->getById(m_listiddocs.at(it));
         if (doc != Q_NULLPTR)
         {
             if (!m_listdates.contains(doc->date()))
@@ -172,9 +174,9 @@ void dlg_imageviewer::FillXTable(DocsExternes* docs)
         {
             //! ------------------------------------------------------------- search all docs for this date
             QMap<int, DocExterne*> mapdocs = QMap<int, DocExterne*>();
-            for (auto it = docs->docsexternes()->begin(); it  != docs->docsexternes()->end(); ++it)
+            for (int it = 0; it < m_listiddocs.size(); ++it)
             {
-                DocExterne *doc = qobject_cast<DocExterne*>(it.value());
+                DocExterne *doc = Datas::I()->docsexternes->getById(m_listiddocs.at(it));
                 if (doc != Q_NULLPTR)
                     if (doc->date() == m_listdates.at(i))
                         mapdocs.insert(doc->id(), doc);
@@ -251,7 +253,7 @@ QList<DocExterne*> dlg_imageviewer::getListDocsfromIndex(QModelIndex idx)
         QString msg;
         for (int i = 0; i < upitem->listids().size(); ++i)
         {
-            DocExterne *doc = m_docs->getById(upitem->listids().at(i));
+            DocExterne *doc = Datas::I()->docsexternes->getById(upitem->listids().at(i));
             listdocs << doc;
         }
     }
@@ -510,7 +512,7 @@ QList<DocExterne*> dlg_imageviewer::listdocsToDisplay()
             QList<int> ids = litems.at(i)->listids();
             for (int j=0; j <ids.size(); j++)
             {
-                DocExterne *doc = m_docs->getById(ids.at(j));
+                DocExterne *doc = Datas::I()->docsexternes->getById(ids.at(j));
                 if (doc != Q_NULLPTR)
                     if (!listdocs.contains(doc))
                         listdocs << doc;
@@ -546,9 +548,7 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
     {
         DocExterne * doc = listdocs.at(it);
         if (doc == Q_NULLPTR)
-        {
             glay->addItem(new QSpacerItem(5,5,QSizePolicy::Expanding),0, it);
-        }
         else
         {
             if (date == QDate())
@@ -557,7 +557,7 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 type = doc->typedoc();
             Procedures::I()->CalcImageDocument(doc);
             QList<QPixmap> listpixmp;
-
+            QWidget *glaywidg = Q_NULLPTR;
             if (doc->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
                 if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
@@ -573,11 +573,12 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     UpMessageBox::Watch(this,msg);
                     return Q_NULLPTR;
                 }
-                QVideoWidget *wdg_video             = new QVideoWidget();
-                QMediaPlayer *medplay_player        = new QMediaPlayer;
-                medplay_player                      ->setSource( QUrl::fromLocalFile(filename));
-                medplay_player                      ->setVideoOutput(wdg_video);
-                medplay_player                      ->play();
+                UpVideoWidget *wdg_video            = new UpVideoWidget(filename);
+                QMediaPlayer *player                = new QMediaPlayer;
+                wdg_video                           ->setPlayer(player);
+                player                              ->setSource( QUrl::fromLocalFile(filename));
+                player                              ->setVideoOutput(wdg_video);
+                player                              ->play();
                 QSize size                          = wdg_video->videoSink()->videoSize();
                 int w                               = sizeforunit().width();
                 double nx                           = size.width();
@@ -586,7 +587,8 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 wdg_video                           ->setFixedSize(w,h);
                 wdg_video                           ->setContextMenuPolicy(Qt::CustomContextMenu);
                 connect(wdg_video, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-                glay                                ->addWidget(wdg_video,0,it);
+                wdg_video                           ->installEventFilter(this);
+                glaywidg = wdg_video;
             }
             else if (doc->imageformat() == JPG)     // le document est un JPG
             {
@@ -602,8 +604,8 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 lab             ->setPixmap(pix);
                 lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
                 connect(lab, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-
-                glay->addWidget(lab,0,it);
+                lab             ->installEventFilter(this);
+                glaywidg = lab;
             }
             else if (doc->imageformat() == PDF)     // doc is pdf
             {
@@ -614,8 +616,6 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 {
                     UpTableWidget *tblwdg = new UpTableWidget();                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
                     tblwdg          ->setListimg(listimg);
-                    tblwdg             ->setContextMenuPolicy(Qt::CustomContextMenu);
-                    connect(tblwdg, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
                     tblwdg->horizontalHeader() ->setVisible(false);
                     tblwdg->verticalHeader()   ->setVisible(false);
                     tblwdg          ->setFocusPolicy(Qt::NoFocus);
@@ -623,15 +623,23 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     tblwdg          ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
                     tblwdg          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
                     tblwdg          ->setColumnCount(1);
-                    tblwdg          ->setListimg(listimg);
                     tblwdg          ->setSelectionMode(QAbstractItemView::NoSelection);
                     QSize szfinal   = tblwdg->calcSizeForDisplay(sizeforunit());
+                    QList<UpLabel*> pdflabels = tblwdg->labels();
+                    foreach (UpLabel* lab, pdflabels)
+                    {
+                        lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
+                        connect(lab, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
+                        lab             ->installEventFilter(this);
+                    }
+
                     double w        = szfinal.width();
                     double h        = szfinal.height();
                     tblwdg          ->setFixedSize(szfinal);
-                    glay            ->addWidget(tblwdg,0,it);
+                    glaywidg        = tblwdg;
                 }
             }
+            glay    ->addWidget(glaywidg,0,it);
         }
     }
     widg = new QWidget();
@@ -639,12 +647,9 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
     {
         glay->addItem(new QSpacerItem(5,5, QSizePolicy::Expanding),0,0);
         glay->addItem(new QSpacerItem(5,5, QSizePolicy::Expanding),0,2);
-        widg->setLayout(glay);
     }
-    else
-        widg->setLayout(glay);
-    widg->setProperty(M_DATE, date);
-    widg->setProperty(M_TYPE, type);
+    widg->setLayout(glay);
+
     //! I know, the following is ugly
     QString listid = "";
     if (listdocs.at(0) != Q_NULLPTR)
@@ -656,6 +661,8 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 listid += M_DELIMITER;
             listid += QString::number(listdocs.at(1)->id());
         }
+    widg->setProperty(M_DATE, date);
+    widg->setProperty(M_TYPE, type);
     widg->setProperty(M_LISTID, listid);
     return widg;
 }
@@ -774,7 +781,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
         //! group by sided or not
         for (int j=0; j <ids.size(); j++)
         {
-            DocExterne *doc = m_docs->getById(ids.at(j));
+            DocExterne *doc = Datas::I()->docsexternes->getById(ids.at(j));
             if (doc != Q_NULLPTR)
             {
                 if (doc->cote()>0)
@@ -904,7 +911,7 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                                             }
                                             else
                                             {
-                                                QVideoWidget *gvdeo = dynamic_cast<QVideoWidget*>(widg);                        //! widget is QVideoWidget => video -> resize the QVideoWidget
+                                                UpVideoWidget *gvdeo = dynamic_cast<UpVideoWidget*>(widg);                        //! widget is UpVideoWidget => video -> resize the UpVideoWidget
                                                 if (gvdeo)
                                                 {
                                                     QSize size  = gvdeo->videoSink()->videoSize();
@@ -937,38 +944,19 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
+    if (event->type() == QEvent::MouseButtonDblClick)
+    {
+        if (dynamic_cast<UpLabel*>(obj) != Q_NULLPTR)
+            ZoomDoc(dynamic_cast<QWidget*>(obj));
+        else if (dynamic_cast<UpVideoWidget*>(obj) != Q_NULLPTR)
+            ZoomDoc(dynamic_cast<QWidget*>(obj));
+    }
     return QWidget::eventFilter(obj, event);
 }
 
 void dlg_imageviewer::ZoomDoc(QWidget *widg)
 {
-    /*! screen resolution */
-    double wscroll  = 0;
-    double hscroll  = 0;
-    double screenratio = 1;
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size())
-    {
-        wscroll  = listscreens.first()->geometry().width();
-        hscroll  = listscreens.first()->geometry().height();
-        screenratio = wscroll/hscroll;
-    }
-
-    QVideoWidget *vwidg = dynamic_cast<QVideoWidget*>(widg);
-    if (vwidg)
-    {
-        int finalh (0), finalw(0);
-        double videoratio = vwidg->videoSink()->videoSize().width() / vwidg->videoSink()->videoSize().height();
-        /*! if screenration > videoratio  => screenheight is used for max height else screenwidthfor max width */
-        if (screenratio > videoratio)
-        {
-            finalh = int(hscroll * 0.9);
-            finalw = int(finalh * videoratio);
-        }
-        else
-        {
-            finalw = int(wscroll * 0.9);
-            finalh = int(finalw / videoratio);
-        }
-    }
+    ImageZoom *imgzoom = new ImageZoom(widg, this);
+    imgzoom->exec();
+    delete imgzoom;
 }

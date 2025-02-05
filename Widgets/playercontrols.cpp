@@ -17,17 +17,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "playercontrols.h"
 
-PlayerControls::PlayerControls(QWidget *parent)
-    : QWidget(parent)
-    , wdg_playButton(Q_NULLPTR)
-    , wdg_stopButton(Q_NULLPTR)
+PlayerControls::PlayerControls(QWidget *parent) : QWidget(parent)
 {
-    wdg_playButton = new QToolButton(this);
-    wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    wdg_playButton  = new QToolButton(this);
+    wdg_playButton  ->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
 
-    wdg_stopButton = new QToolButton(this);
-    wdg_stopButton->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
-    wdg_stopButton->setEnabled(false);
+    wdg_stopButton  = new QToolButton(this);
+    wdg_stopButton  ->setIcon(style()->standardIcon(QStyle::SP_MediaStop));
+    wdg_stopButton  ->setEnabled(false);
 
     wdg_slider      = new QSlider(Qt::Horizontal,this);
     wdg_slider      ->setMaximumWidth(250);
@@ -45,11 +42,9 @@ PlayerControls::PlayerControls(QWidget *parent)
     layout->addWidget(wdg_labelDuration);
     setLayout(layout);
 
-    m_player = Q_NULLPTR;
-
-    connect(wdg_playButton, &QAbstractButton::clicked, this,    &PlayerControls::playClicked);
-    connect(wdg_stopButton, &QAbstractButton::clicked, this,    &PlayerControls::stopClicked);
-    //setFixedWidth(450);
+    connect(wdg_playButton,     &QAbstractButton::clicked, this,    &PlayerControls::playClicked);
+    connect(wdg_stopButton,     &QAbstractButton::clicked, this,    &PlayerControls::stopClicked);
+    setFixedWidth(450);
 }
 
 PlayerControls::~PlayerControls()
@@ -66,34 +61,38 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
 {
     if (md == Q_NULLPTR)
         return;
-    m_player->disconnect();
-    wdg_slider->disconnect();
-    m_player = md;
-    connect(m_player, &QMediaPlayer::positionChanged,   this, &PlayerControls::positionChanged);
-    connect(wdg_slider, &QSlider::sliderMoved,          this, &PlayerControls::playSeek);
+    m_player    = md;
+    m_player    ->disconnect();
+    wdg_slider  ->disconnect();
+    connect(m_player,   &QMediaPlayer::positionChanged,     this, &PlayerControls::positionChanged);
+    connect(wdg_slider, &QSlider::sliderMoved,              this, &PlayerControls::playSeek);
+    connect (this,      &PlayerControls::ctrl,              this, [=] (PlayerControls::State  state)
+            {
+                switch (state){
+                case PlayerControls::Stop:  m_player->stop();     break;
+                case PlayerControls::Pause: m_player->pause();    break;
+                case PlayerControls::Play:  m_player->play();
+                }
+            });
     wdg_labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(m_player)) + " / " + QTime(0,0,0).toString(format(m_player))));
 }
 
 void PlayerControls::startplay()
 {
     emit ctrl(Play);
-}
-
-void PlayerControls::stateChanged(QMediaPlayer::PlaybackState state)
-{
-    m_state = state;
+    wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
+    wdg_stopButton->setEnabled(true);
 }
 
 void PlayerControls::playClicked()
 {
     wdg_stopButton->setEnabled(true);
-
-    if (m_state == QMediaPlayer::PlayingState)
+    if (m_player->playbackState() == QMediaPlayer::PlayingState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
         emit ctrl(Pause);
     }
-    else
+    else if (m_player->playbackState() == QMediaPlayer::PausedState || m_player->playbackState() == QMediaPlayer::StoppedState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
         emit ctrl(Play);
@@ -102,11 +101,11 @@ void PlayerControls::playClicked()
 
 void PlayerControls::stopClicked()
 {
-    if (m_state != QMediaPlayer::StoppedState)
+    if (m_player->playbackState() != QMediaPlayer::StoppedState)
     {
-        wdg_stopButton->setEnabled(false);
-        wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        m_player->setPosition(0);
+        wdg_stopButton  ->setEnabled(false);
+        wdg_playButton  ->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
+        m_player        ->setPosition(0);
         emit ctrl(Stop);
     }
 }
@@ -117,6 +116,14 @@ void PlayerControls::playSeek(int progress)
     if (position > m_player->duration())
         position = m_player->duration();
     m_player->setPosition(qint64(position));
+}
+
+void PlayerControls::setposition(qint64 progress)
+{
+    double position = (progress < 1? 0 : (double(progress)/Utils::MaxInt())*m_player->duration());
+    if (position > m_player->duration())
+        position = m_player->duration();
+    wdg_slider->setValue(int(position));
 }
 
 void PlayerControls::positionChanged(qint64 progress)

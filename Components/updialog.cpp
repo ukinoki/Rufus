@@ -143,7 +143,7 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         wdg_buttonslayout   ->insertWidget(0, CancelButton);
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }
-     UpdateTabOrder();
+    UpdateTabOrder();
     setStageCount(1);
 }
 

@@ -1,30 +1,20 @@
 #ifndef DLG_IMAGEVIEWER_H
 #define DLG_IMAGEVIEWER_H
 
-#include <QObject>
-#include <QMediaPlayer>
-#include <QVideoSink>
-#include <QVideoWidget>
-#include "updialog.h"
-#include "cls_docsexternes.h"
-#include "upcheckbox.h"
+#include "dlg_imagezoom.h"
 #include "updelegate.h"
-#include "uptableview.h"
 #include "uptreeview.h"
-#include "upstandarditemmodel.h"
-#include "upstandarditem.h"
 #include "procedures.h"
 
 class dlg_imageviewer : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_imageviewer(DocsExternes* Docs, int idcurrentdoc = 0, QWidget *parent = Q_NULLPTR);
+    dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc = 0, QWidget *parent = Q_NULLPTR);
     ~dlg_imageviewer();
-    void                    FillXTable(DocsExternes *docs);
 
 private:
-    DocsExternes            *m_docs             = Q_NULLPTR;
+    QList<int>              m_listiddocs;
     int                     m_idcurrentdoc      = 0;
     UpTableView             *wdg_table;
     QStringList             m_listtypedocs      = QStringList();
@@ -49,6 +39,7 @@ private:
 
     void                    addItemsToTreeWidget(QList<UpStandardItem *> listupitems);
     void                    removeItemsFromtTreeWidget(QList<UpStandardItem *> listupitems);
+    void                    FillXTable();
     QList<DocExterne*>      getListDocsfromIndex(QModelIndex idx);
     void                    gettoolTipFromCursorPositionInTable();
     UpStandardItem*         itemfromIndex(QModelIndex idx);

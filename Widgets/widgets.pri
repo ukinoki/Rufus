@@ -12,7 +12,6 @@ HEADERS += \
     $$PWD/playercontrols.h \
     $$PWD/villecpwidget.h \
     $$PWD/widgetbuttonframe.h \
-    $$PWD/widgfolderselect.h \
     $$PWD/widgpachy.h \
     $$PWD/widgtono.h
 
@@ -20,6 +19,5 @@ SOURCES += \
     $$PWD/playercontrols.cpp \
     $$PWD/villecpwidget.cpp \
     $$PWD/widgetbuttonframe.cpp \
-    $$PWD/widgfolderselect.cpp \
     $$PWD/widgpachy.cpp \
     $$PWD/widgtono.cpp

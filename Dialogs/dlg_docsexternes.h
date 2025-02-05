@@ -15,24 +15,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSEXTERNES_H
 #define DLG_DOCSEXTERNES_H
 
-#include <QVideoSink>
-#include <QVideoWidget>
-
-#include "procedures.h"
-#include "upswitch.h"
-#include "playercontrols.h"
-#include "textprinter.h"
-#include <uppushbutton.h>
-#include <upcheckbox.h>
 #include "dlg_imageviewer.h"
-#include <QGraphicsOpacityEffect>
-
-class PlayerControls;
-class UpPushButton;
-class UpCheckBox;
-class TextPrinter;
-class UpSwitch;
-
 
 class dlg_docsexternes : public UpDialog
 {
@@ -56,7 +39,7 @@ private:
     QDate                   m_currentdate   = db->ServerDate();
 
     DocsExternes            *m_docsexternes;    //! tous les docsexternes
-    DocsExternes            *m_docsimagery;     //! les docsexternes qui correspondent à des documenst d'imagerie
+    QList<int>              m_listiddocsimagery = QList<int>();    //! les id des docsexternes qui correspondent à des documenst d'imagerie
     DocExterne              *m_currentdocument = Q_NULLPTR;
 
 /*! la classe dlg_docsexternes affiche les documents pdf, jpg ou video dans une fiche Updialog
@@ -79,8 +62,8 @@ private:
 
     /*! les video sont affichées via un QVideoWidget *wdg_graphview    */
     QVideoWidget            *wdg_video              = Q_NULLPTR;
-    QMediaPlayer            *medplay_player         = new QMediaPlayer();
-    PlayerControls          *wdg_playctrl           = new PlayerControls(this);
+    QMediaPlayer            *medplay_player         = Q_NULLPTR;
+    PlayerControls          *wdg_playctrl           = new PlayerControls;
 
     /*! lesjpg sont affichés via un UpLabel *wdg_jpglbl    */
     UpLabel                 *wdg_jpglbl             = Q_NULLPTR;
@@ -138,6 +121,7 @@ private:
                     - m_treeviewwidth
                     - dlglayout()->contentsMargins().left()
                     - dlglayout()->contentsMargins().right()
+                    - w
                     - m_margins.left()
                     - m_margins.right()
                     - m_spacing;      //!estimated width for one pic in a row

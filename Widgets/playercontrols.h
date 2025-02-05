@@ -19,15 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define PLAYERCONTROLS_H
 
 #include <QMediaPlayer>
-#include <QLabel>
-#include <QWidget>
-#include <QBoxLayout>
 #include <QSlider>
 #include <QStyle>
-#include <QTime>
 #include <QToolButton>
-#include <QComboBox>
-#include <QAudio>
 #include "utils.h"
 
 class PlayerControls : public QWidget
@@ -39,26 +33,25 @@ public:
     ~PlayerControls();
     void        setPlayer(QMediaPlayer*);
     void        startplay();
+    void        setposition(int pos);
     enum State {Pause, Stop, Play}; Q_ENUM(State)
+    void        setposition(qint64 progres);
 
 signals:
     void ctrl(PlayerControls::State);
 
 private:
-    QMediaPlayer    *m_player;
-    QAbstractButton *wdg_playButton;
-    QAbstractButton *wdg_stopButton;
-    QSlider         *wdg_slider;
-    QLabel          *wdg_labelDuration;
+    QMediaPlayer    *m_player           = Q_NULLPTR;
+    QAbstractButton *wdg_playButton     = Q_NULLPTR;
+    QAbstractButton *wdg_stopButton     = Q_NULLPTR;
+    QSlider         *wdg_slider         = Q_NULLPTR;
+    QLabel          *wdg_labelDuration  = Q_NULLPTR;
     QString format(QMediaPlayer *plyr);
     void    playClicked();
     void    playSeek(int);
     void    positionChanged(qint64 progress);
     void    stopClicked();
     void    updateDurationInfo(qint64 progress);
-
-    void    stateChanged(QMediaPlayer::PlaybackState state);
-    QMediaPlayer::PlaybackState m_state;
 };
 
 #endif // PLAYERCONTROLS_H

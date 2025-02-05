@@ -116,6 +116,7 @@ QSize UpTableWidget::calcSizeForDisplay(QSize szavailable)
         UpLabel *lab            = new UpLabel();
         lab                     ->resize(x,y);
         lab                     ->setPixmap(pix);
+        lab                     ->setImage(image);
         lab                     ->setContextMenuPolicy(Qt::CustomContextMenu);
         m_labels << lab;
         setRowHeight(i,pix.height());
@@ -148,6 +149,7 @@ QSize UpTableWidget::resizetofit(QSize sz)
             QImage img = listimg().at(i);
             QPixmap pix = QPixmap::fromImage(img).scaled(sz.width(), sz.height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             lbl->setPixmap(pix);
+            lbl->setImage(img);
             int x = pix.width();
             int y = pix.height();
             setRowHeight(i,y);

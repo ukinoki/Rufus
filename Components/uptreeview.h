@@ -1,4 +1,4 @@
-/* (C) 2020 LAINE SERGE
+/* (C) 2025 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify

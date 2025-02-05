@@ -85,27 +85,20 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
     AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
 
-    m_docsimagery = new DocsExternes();
     for (auto it = m_docsexternes->docsexternes()->begin(); it  != m_docsexternes->docsexternes()->end(); ++it)
     {
         DocExterne *doc = qobject_cast<DocExterne*>(it.value());
         if (doc != Q_NULLPTR)
             if (doc->isMedicalImagery() || (doc->isVideo() && DataBase::I()->ModeAccesDataBase() != Utils::Distant))
-                m_docsimagery->docsexternes()->insert(it.key(),it.value());
+                m_listiddocsimagery << it.key();
     }
-    ViewerButton->setVisible(m_docsimagery->docsexternes()->size()>0);
+    ViewerButton->setVisible(m_listiddocsimagery.size()>0);
     //setStageCount(1);
 
     connect (wdg_updatetypebox,                 &UpComboBox::currentTextChanged,             this,   [=] (QString text) {BasculeTriListe(text == tr("Date")?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_alldocsupcheckbox);});
     connect (wdg_onlyimportantsdocsupcheckbox,  &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
-    connect (wdg_playctrl,                      &PlayerControls::ctrl,          this,   [=] (PlayerControls::State  state) {    switch (state){
-                                                                                                                                case PlayerControls::Stop:  medplay_player->stop();     break;
-                                                                                                                                case PlayerControls::Pause: medplay_player->pause();    break;
-                                                                                                                                case PlayerControls::Play:  medplay_player->play();
-                                                                                                                                }
-                                                                                                                        });
     connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
     connect (ViewerButton,                      &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
@@ -128,7 +121,6 @@ dlg_docsexternes::~dlg_docsexternes()
 {
     delete m_tripardatemodel;
     delete m_tripartypemodel;
-    delete m_docsimagery;
 }
 
 void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
@@ -319,8 +311,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
     if (docmt->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
-        wdg_video = new QVideoWidget;
-        mainscroll->setWidget(wdg_video);
         if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         {
             UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
@@ -334,6 +324,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg);
             return;
         }
+        wdg_video       = new QVideoWidget;
+        mainscroll      ->setWidget(wdg_video);
+        medplay_player  = new QMediaPlayer;
         medplay_player  ->setSource(QUrl::fromLocalFile(filename));
         medplay_player  ->setVideoOutput(wdg_video);
         wdg_playctrl    ->setPlayer(medplay_player);
@@ -350,9 +343,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
         wdg_video       ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         wdg_video       ->setContextMenuPolicy(Qt::CustomContextMenu);
+        wdg_video       ->installEventFilter(this);
         connect(wdg_video,      &QWidget::customContextMenuRequested,   this,   [=] {AfficheCustomMenu(docmt);});
         connect (RecordButton,  &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
-        wdg_playctrl    ->move(20, 20);//sizeforunit().height()-40);
         PrintButton     ->setVisible(false);
         wdg_playctrl    ->startplay();
         wdg_inflabel    ->setText("");
@@ -383,7 +376,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             wdg_jpglbl          ->setPixmap(pix);
             wdg_jpglbl          ->setImage(image);
             wdg_jpglbl          ->setContextMenuPolicy(Qt::CustomContextMenu);
-            connect(wdg_jpglbl,    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode== Normal?
+            connect(wdg_jpglbl,    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode == Normal?
                                                                                         OpenMultiImageViewer(docmt->id()) :
                                                                                         ZoomDoc();});
             connect(wdg_jpglbl,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
@@ -423,7 +416,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 m_vidorimgratio             = w/h;
                 for (int i=0; i<pdflabels.size(); i++)
                 {
-                    connect(pdflabels.at(i),    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode== Normal?
+                    connect(pdflabels.at(i),    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode == Normal?
                                                                                                     OpenMultiImageViewer(docmt->id()) :
                                                                                                     ZoomDoc();});
                     connect(pdflabels.at(i),    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
@@ -857,7 +850,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 
 void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
 {
-    dlg_imageviewer *viewer = new dlg_imageviewer(m_docsimagery, iddoc, this);
+    dlg_imageviewer *viewer = new dlg_imageviewer(m_listiddocsimagery, iddoc, this);
     viewer->exec();
 }
 
@@ -964,9 +957,9 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
             screenratio = wscroll/hscroll;
         }
 
-        /*! if screenration > videoratio  => screenheight is used for max height else screenwidthfor max width */
+        /*! if screenration >= videoratio  => screenheight is used for max height else screenwidthfor max width */
         int finalh (0), finalw(0);
-        if (screenratio > m_vidorimgratio)
+        if (screenratio >= m_vidorimgratio)
         {
             finalh = int(hscroll * 0.9);
             double hd = finalh - m_hdelta;    //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
@@ -1058,22 +1051,24 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         }
         else if (m_currentdocument->isVideo())
         {
-            QSize size  = wdg_video->videoSink()->videoSize();
-            int w       = sizeforunit().width();
-            double nx   = size.width();
-            double ny   = size.height();
-            int h       = int(w*ny/nx);
-            wdg_video   ->setFixedSize(w,h);
-            int hf      = std::min(h, wdg_listdocstreewiew->height());
-            mainscroll  ->resize(w,hf);
+            if (wdg_video)
+            {
+                QSize size  = wdg_video->videoSink()->videoSize();
+                int w       = sizeforunit().width();
+                double nx   = size.width();
+                double ny   = size.height();
+                int h       = int(w*ny/nx);
+                wdg_video   ->setFixedSize(w,h);
+                int hf      = std::min(h, wdg_listdocstreewiew->height());
+                mainscroll  ->resize(w,hf);
+            }
         }
         wdg_inflabel    ->setGeometry(20, mainscroll->height()-35, 500, 25);
     }
-    if (event)
-        if (obj == wdg_video)
-            if (event->type() == QEvent::MouseButtonPress)
-                if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
-                    ZoomDoc();
+    if (obj == wdg_video)
+        if (event->type() == QEvent::MouseButtonPress)
+            if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+                ZoomDoc();
 
     return QWidget::eventFilter(obj, event);
 }
@@ -1326,15 +1321,6 @@ void dlg_docsexternes::RemplirTreeView()
     QModelIndex idx = item->index();                                                // l'index de ce dernier item
     if (idimpraretrouver != "")
     {
-        // la suite ne marche pas et provoque des plantages ????
-        //        QMap<int, DocExterne*>::const_iterator itdoc = m_docsexternes->docsexternes()->find(idimpraretrouver.toInt());
-        //        if (itdoc != m_docsexternes->docsexternes()->constEnd())
-        //        {
-        //            qDebug() << itdoc.key();
-        //            DocExterne *doc = itdoc.value();
-        //            if (getItemFromDocument(doc) != Q_NULLPTR)
-        //                idx = getItemFromDocument(doc)->index();
-        //        }
         QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
         if (indx.isValid())
             idx = indx;
