@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_DOCSEXTERNES_H
 
 #include "dlg_imageviewer.h"
+#include "imagewidget.h"
 
 class dlg_docsexternes : public UpDialog
 {
@@ -66,7 +67,7 @@ private:
     PlayerControls          *wdg_playctrl           = new PlayerControls;
 
     /*! lesjpg sont affichés via un UpLabel *wdg_jpglbl    */
-    UpLabel                 *wdg_jpglbl             = Q_NULLPTR;
+    ImageWidget             *wdg_jpglbl             = Q_NULLPTR;
 
 
 

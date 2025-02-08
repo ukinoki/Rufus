@@ -26,6 +26,8 @@ dlg_imageviewer::dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc, QWidge
     wdg_treeview                ->setHeaderHidden(true);
     wdg_treeview                ->setFocusPolicy(Qt::NoFocus); //! si on ne met pas ça, le UpVideoWidget disparait quand on clique dessus
 
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+
     dlglayout()->insertLayout(0,m_hlay);
     connect(OKButton,           &QPushButton::clicked,  this,   &QDialog::close);
 
