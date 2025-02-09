@@ -26,6 +26,11 @@ UpTableWidget::UpTableWidget(QWidget *parent) : QTableWidget(parent)
     setFont(qApp->font());
 }
 
+UpTableWidget::UpTableWidget(Item *rufusitem, QWidget *parent) : UpTableWidget(parent)
+{
+    m_rufusitem = rufusitem;
+}
+
 void UpTableWidget::dropEvent(QDropEvent *drop)
 {
     m_encodedData = drop->mimeData()->data("application/x-qabstractitemmodeldatalist");
@@ -42,57 +47,40 @@ void UpTableWidget::dropEvent(QDropEvent *drop)
  * renvoie le Qlist<QImage> des images affichées dans la QTableWidget dans leurs tailles d'origine
  */
 
-QList<QImage> UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom)
+void UpTableWidget::AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom)
 {
-    QList<QImage> listimage = QList<QImage>();
+    QList<QImage> listimg = QList<QImage>();
     QPixmap     pix;
-    QByteArray ba = doc.value("ba").toByteArray();
+    QByteArray ba = doc.value(M_BA).toByteArray();
+    int maxw (0);
 
-    clear();
-    setColumnCount(1);
-    setColumnWidth(0,width()-2);
-    horizontalHeader()->setVisible(false);
-    verticalHeader()->setVisible(false);
-    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-    if (doc.value("type").toString() == PDF)
-    {
-        QList<QImage> listimg = Utils::calcImagefromPdf(ba);
-        if (listimg.size())
-        {
-            setRowCount(listimg.size());
-            for (int i=0; i<listimg.size();++i)
-            {
-                QImage image = listimg.at(i);
-                pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-                listimage << image;
-                setRowHeight(i,pix.height());
-                UpLabel *lab = new UpLabel(this);
-                lab->resize(pix.width(),pix.height());
-                lab->setPixmap(pix);
-                if (aveczoom)
-                    connect(lab, &UpLabel::clicked, this, &UpTableWidget::zoom);
-                setCellWidget(i,0,lab);
-            }
-        }
-    }
-    else if (doc.value("type").toString() == JPG || doc.value("type").toString() == PNG || doc.value("type").toString() == JPEG)
+    if (doc.value(M_TYPE).toString() == PDF)
+        listimg = Utils::calcImagefromPdf(ba);
+    else if (doc.value(M_TYPE).toString() == JPG || doc.value(M_TYPE).toString() == PNG || doc.value(M_TYPE).toString() == JPEG)
     {
         QImage image;
         if (!image.loadFromData(ba))
             UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-        pix = QPixmap::fromImage(image).scaled(width()-2,height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-        listimage << image;
-        UpLabel* lab     = new UpLabel(this);
-        lab->setPixmap(pix);
+        listimg << image;
+    }
+
+    setListimages(listimg);
+    for (int i=0; i<listimg.size();++i)
+    {
+        QImage image    = listimg.at(i);
+        pix             = QPixmap::fromImage(image).scaled(width(),height(),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
+        UpLabel *lab    = new UpLabel(m_rufusitem, "", this);
+        lab             ->resize(pix.width(),pix.height());
+        lab             ->setPixmap(pix);
+        lab             ->setPagepdf(i);
         if (aveczoom)
             connect(lab, &UpLabel::clicked, this, &UpTableWidget::zoom);
-        setRowCount(1);
-        setRowHeight(0,pix.height());
-        setCellWidget(0,0,lab);
+        setRowHeight(i,pix.height());
+        setCellWidget(i,0,lab);
+        if (pix.width() > maxw)
+            maxw = pix.width();
     }
-    return listimage;
+    setColumnWidth(0, maxw);
 }
 
 QByteArray UpTableWidget::dropData()
@@ -107,17 +95,18 @@ QSize UpTableWidget::calcSizeForDisplay(QSize szavailable)
     int x(0), y(0);
     for (int i=0; i<m_listimg.size();++i)
     {
-        QImage image = m_listimg.at(i);
+        QImage image    = m_listimg.at(i);
         QPixmap pix     = QPixmap::fromImage(image).scaled(szavailable,
                                                        Qt::KeepAspectRatioByExpanding,
                                                        Qt::SmoothTransformation);
         x = pix.width();
         y = pix.height();
-        UpLabel *lab            = new UpLabel();
+        UpLabel *lab            = new UpLabel(m_rufusitem, "", this);
         lab                     ->resize(x,y);
         lab                     ->setPixmap(pix);
         lab                     ->setImage(image);
         lab                     ->setContextMenuPolicy(Qt::CustomContextMenu);
+        lab                     ->setPagepdf(i);
         m_labels << lab;
         setRowHeight(i,pix.height());
         setCellWidget(i,0,lab);
@@ -149,7 +138,6 @@ QSize UpTableWidget::resizetofit(QSize sz)
             QImage img = listimg().at(i);
             QPixmap pix = QPixmap::fromImage(img).scaled(sz.width(), sz.height(), Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
             lbl->setPixmap(pix);
-            lbl->setImage(img);
             int x = pix.width();
             int y = pix.height();
             setRowHeight(i,y);
@@ -162,7 +150,6 @@ QSize UpTableWidget::resizetofit(QSize sz)
     {
         szfinal = QSize(maxw,maxh);
         setColumnWidth(0,szfinal.width());
-        setFixedSize(szfinal);
     }
     return szfinal;
 }
@@ -172,8 +159,15 @@ QList<QImage> UpTableWidget::listimg() const
     return m_listimg;
 }
 
-void UpTableWidget::setListimg(const QList<QImage> &newListimg)
+void UpTableWidget::setListimages(const QList<QImage> &newListimg)
 {
+    setColumnCount(1);
+    setColumnWidth(0,width());
+    horizontalHeader()     ->setVisible(false);
+    verticalHeader()    ->setVisible(false);
+    setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
+    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_listimg = newListimg;
     setRowCount(m_listimg.size());
 }

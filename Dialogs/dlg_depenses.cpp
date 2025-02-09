@@ -997,8 +997,8 @@ void dlg_depenses::AfficheFacture(Depense *dep)
             UpLabel* lab = new UpLabel(widg);
             lab->setText(tr("Voir") + "\n" + (dep->isecheancier()? tr("l'échéancier"): tr("la facture")));
             lab->setAlignment(Qt::AlignCenter);
-            QGridLayout *lay = new QGridLayout(widg);
-            lay->addWidget(lab,0,0,Qt::AlignCenter);
+            QVBoxLayout *lay = new QVBoxLayout(widg);
+            lay->addWidget(lab);
             lab->setFocusPolicy(Qt::ClickFocus);
             ui->VisuDocupTableWidget->setCellWidget(0,0,widg);
             connect(lab, &UpLabel::clicked, this,
@@ -1027,9 +1027,9 @@ void dlg_depenses::AfficheFacture(Depense *dep)
                     ui->VisuDocupTableWidget    ->setVisible(false);
                }
             }
-            doc.insert("ba", m_depenseencours->factureblob());
-            doc.insert("type", m_depenseencours->factureformat());
-            m_listeimages =  ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+            doc.insert(M_BA, m_depenseencours->factureblob());
+            doc.insert(M_TYPE, m_depenseencours->factureformat());
+            ui->VisuDocupTableWidget->AfficheDoc(doc, true);
         }
     }
 }
@@ -1073,12 +1073,15 @@ void dlg_depenses::ZoomDoc()
     disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     connect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     QMap<QString,QVariant> doc;
-    doc.insert("ba", m_depenseencours->factureblob());
-    doc.insert("type", m_depenseencours->factureformat());
+    doc.insert(M_BA, m_depenseencours->factureblob());
+    doc.insert(M_TYPE, m_depenseencours->factureformat());
+    dlg_imagezoom *zoomimg = new dlg_imagezoom(doc);
+    zoomimg->exec();
+    delete zoomimg;/*
     proc->EditDocument(doc,
                     (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
                     (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
-                    UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK, this);
+                    UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK, this);*/
 }
 
 void dlg_depenses::EffaceFacture()
@@ -1727,7 +1730,7 @@ void dlg_depenses::RechercheValeur()
             QModelIndex idx = box->model()->index(box->currentIndex(),0);
             UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(model->itemFromIndex(idx));
             if (upitem != Q_NULLPTR) {
-                Depense *dep = Datas::I()->depenses->getById(upitem->item()->id());
+                Depense *dep = Datas::I()->depenses->getById(upitem->rufusitem()->id());
                 if (dep != Q_NULLPTR)
                 {
                     if (dep->annee() != ui->AnneecomboBox->currentText().toInt())
@@ -1943,9 +1946,9 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                 ui->VisuDocupTableWidget    ->setVisible(true);
                 CalcImageFacture(m_depenseencours);
                 QMap<QString,QVariant> doc;
-                doc.insert("ba", m_depenseencours->factureblob());
-                doc.insert("type", m_depenseencours->factureformat());
-                m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+                doc.insert(M_BA, m_depenseencours->factureblob());
+                doc.insert(M_TYPE, m_depenseencours->factureformat());
+                ui->VisuDocupTableWidget->AfficheDoc(doc, true);
                 SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
             }
             delete model;
@@ -1978,9 +1981,9 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
                 ui->VisuDocupTableWidget    ->setVisible(true);
                 CalcImageFacture(m_depenseencours);
                 QMap<QString,QVariant> doc;
-                doc.insert("ba", m_depenseencours->factureblob());
-                doc.insert("type", m_depenseencours->factureformat());
-                m_listeimages = ui->VisuDocupTableWidget->AfficheDoc(doc, true);
+                doc.insert(M_BA, m_depenseencours->factureblob());
+                doc.insert(M_TYPE, m_depenseencours->factureformat());
+                ui->VisuDocupTableWidget->AfficheDoc(doc, true);
                 SetDepenseToRow(m_depenseencours,wdg_bigtable->currentRow());
             }
         }

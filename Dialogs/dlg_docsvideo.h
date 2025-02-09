@@ -18,11 +18,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSVIDEO_H
 #define DLG_DOCSVIDEO_H
 
-#include "procedures.h"
-#include "uptablewidget.h"
-#include <QVideoWidget>
+#include <QDateEdit>
 #include <QMediaPlayer>
 #include <QMediaRecorder>
+#include <QVideoWidget>
+#include "gbl_datas.h"
+#include "upcombobox.h"
+#include "updialog.h"
+#include "uptoolbar.h"
 
 
 class dlg_docsvideo : public UpDialog
@@ -34,7 +37,6 @@ public:
 
 private:
     DataBase            *db = DataBase::I();
-    Procedures          *proc = Procedures::I();
     Patient             *m_currentpatient;
     QList<QPixmap>      m_listpixmaps;
     QStringList         m_listtypesexamen;

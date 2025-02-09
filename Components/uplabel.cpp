@@ -27,21 +27,14 @@ UpLabel::UpLabel(QWidget *parent, QString txt) : QLabel(txt, parent)  //je ne sa
     setFont(qApp->font());
 }
 
-UpLabel::UpLabel(Item *item, QString txt, QWidget *parent) : QLabel(txt, parent)
+UpLabel::UpLabel(Item *item, QString txt, QWidget *parent) : UpLabel(parent, txt)
 {
-    m_item = item;
-    m_item->setParent(this);
-    installEventFilter(this);
-    setContextMenuPolicy(Qt::NoContextMenu);
-    setFont(qApp->font());
+    m_rufusitem = item;
 }
 
-UpLabel::UpLabel(int id, QString txt, QWidget *parent) : QLabel(txt, parent)
+UpLabel::UpLabel(int id, QString txt, QWidget *parent) : UpLabel(parent, txt)
 {
     m_id = id;
-    installEventFilter(this);
-    setContextMenuPolicy(Qt::NoContextMenu);
-    setFont(qApp->font());
 }
 
 UpLabel::~UpLabel()
@@ -58,21 +51,27 @@ bool UpLabel::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::Enter)
     {
-        emit enter(iD());
+        emit enter(id());
         AfficheToolTip();
-        return true;
     }
-    if (event->type() == QEvent::MouseButtonDblClick)
+    else if (event->type() == QEvent::MouseButtonDblClick)
     {
-        emit dblclick(iD());
-        return true;
+        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            emit dblclick(id());
     }
-    if (event->type() == QEvent::MouseButtonRelease)
-    {
-        emit clicked(iD());
-        return true;
-    }
+    else if (event->type() == QEvent::MouseButtonRelease)
+        emit clicked(id());
    return QWidget::eventFilter(obj, event);
+}
+
+int UpLabel::pagepdf() const
+{
+    return m_pagepdf;
+}
+
+void UpLabel::setPagepdf(int newPagepdf)
+{
+    m_pagepdf = newPagepdf;
 }
 
 QImage UpLabel::image() const
@@ -85,22 +84,12 @@ void UpLabel::setImage(const QImage &newImage)
     m_image = newImage;
 }
 
-void UpLabel::setdatas(QMap<QString, QVariant> data)
-{
-    m_datas = data;
-}
-
-QMap<QString, QVariant> UpLabel::datas() const
-{
-    return m_datas;
-}
-
 void UpLabel::setiD(int idadef)
 {
     m_id = idadef;
 }
 
-int UpLabel::iD() const
+int UpLabel::id() const
 {
     return m_id;
 }

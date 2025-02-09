@@ -162,7 +162,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
         if (itm)
         {
-            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
+            Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
             if (man)
                 wdg_manufacturerscombo->addItem(man->nom(), man->id());
         }
@@ -444,7 +444,7 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_IOLsmodel->itemFromIndex(idx));
     if (it != Q_NULLPTR)
-        return qobject_cast<IOL *>(it->item());
+        return qobject_cast<IOL *>(it->rufusitem());
     else
         return Q_NULLPTR;
 }
@@ -1144,7 +1144,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
         if (itm)
         {
-            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
+            Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
             if (man)
                 wdg_manufacturerscombo->addItem(man->nom(), man->id());
         }
@@ -1236,9 +1236,9 @@ void dlg_listeiols::scrollToIOL(IOL *iol)
                     {
                         UpStandardItem *childitm = dynamic_cast<UpStandardItem *>(itm->child(j));
                         if (childitm)
-                            if (childitm->item())
+                            if (childitm->rufusitem())
                             {
-                                IOL *siol = qobject_cast<IOL*>(childitm->item());
+                                IOL *siol = qobject_cast<IOL*>(childitm->rufusitem());
                                 if (siol)
                                 {
                                     if (siol->id() == iol->id())
@@ -1343,7 +1343,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
         if (itm != Q_NULLPTR)
         {
-            Manufacturer *man = qobject_cast<Manufacturer*>(itm->item());
+            Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
             if (man != Q_NULLPTR)
             {
                 if (idman == 0)                                                                 //! tous les fabricants

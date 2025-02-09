@@ -67,7 +67,8 @@ private:
     PlayerControls          *wdg_playctrl           = new PlayerControls;
 
     /*! lesjpg sont affichés via un UpLabel *wdg_jpglbl    */
-    ImageWidget             *wdg_jpglbl             = Q_NULLPTR;
+    UpLabel                 *wdg_jpglbl             = Q_NULLPTR;
+    ImageWidget             *wdg_imgwdg             = Q_NULLPTR;
 
 
 
@@ -117,17 +118,13 @@ private:
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
     void                    ZoomDoc(bool changemode = true);
     QSize                   sizeforunit() {
-        int w = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent); //width of scrollbar in qApp
-        int width = frameGeometry().width()
+        int width = sizefordisplay().width()
                     - m_treeviewwidth
-                    - dlglayout()->contentsMargins().left()
-                    - dlglayout()->contentsMargins().right()
-                    - w
                     - m_margins.left()
                     - m_margins.right()
                     - m_spacing;      //!estimated width for one pic in a row
-
-        return QSize(width,width);
+        int height = sizefordisplay().height();
+        return QSize(width,height);
     }
 };
 

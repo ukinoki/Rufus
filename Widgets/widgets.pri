@@ -9,6 +9,7 @@ FORMS += \
     $$PWD/widgtono.ui
 
 HEADERS += \
+    $$PWD/imagewidget.h \
     $$PWD/playercontrols.h \
     $$PWD/villecpwidget.h \
     $$PWD/widgetbuttonframe.h \
@@ -16,6 +17,7 @@ HEADERS += \
     $$PWD/widgtono.h
 
 SOURCES += \
+    $$PWD/imagewidget.cpp \
     $$PWD/playercontrols.cpp \
     $$PWD/villecpwidget.cpp \
     $$PWD/widgetbuttonframe.cpp \

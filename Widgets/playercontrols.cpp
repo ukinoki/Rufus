@@ -30,11 +30,16 @@ PlayerControls::PlayerControls(QWidget *parent) : QWidget(parent)
     wdg_slider      ->setMaximumWidth(250);
     wdg_slider      ->setEnabled(true);
     wdg_slider      ->setRange(0, Utils::MaxInt());
+    wdg_slider      ->setStyleSheet("QSlider::sub-page:Horizontal { background-color: #9F2425; }"
+                             "QSlider::add-page:Horizontal { background-color: #333333; }"
+                             "QSlider::groove:Horizontal { background: transparent; height:0px; }"
+                             "QSlider::handle:Horizontal { width:8px; border-radius:4px; background:#9F2425; margin: -5px 0px -5px 0px; }");
     wdg_labelDuration    = new QLabel(this);
     wdg_labelDuration   ->setAlignment(Qt::AlignRight);
 
     QBoxLayout *layout = new QHBoxLayout;
-    layout->setContentsMargins(5,5,5,5); //Change setMargins(0)
+    int marge = 0;
+    layout->setContentsMargins(marge,marge,marge,marge);
     layout->setSpacing(5);
     layout->addWidget(wdg_stopButton);
     layout->addWidget(wdg_playButton);
@@ -44,12 +49,12 @@ PlayerControls::PlayerControls(QWidget *parent) : QWidget(parent)
 
     connect(wdg_playButton,     &QAbstractButton::clicked, this,    &PlayerControls::playClicked);
     connect(wdg_stopButton,     &QAbstractButton::clicked, this,    &PlayerControls::stopClicked);
-    setFixedWidth(450);
+    setFixedWidth(250);
 }
 
 PlayerControls::~PlayerControls()
 {
-    delete m_player;
+    delete m_ctrlplayer;
 }
 
 QString PlayerControls::format(QMediaPlayer *plyr)
@@ -61,20 +66,20 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
 {
     if (md == Q_NULLPTR)
         return;
-    m_player    = md;
-    m_player    ->disconnect();
+    m_ctrlplayer    = md;
+    m_ctrlplayer    ->disconnect();
     wdg_slider  ->disconnect();
-    connect(m_player,   &QMediaPlayer::positionChanged,     this, &PlayerControls::positionChanged);
+    connect(m_ctrlplayer,   &QMediaPlayer::positionChanged,     this, &PlayerControls::positionChanged);
     connect(wdg_slider, &QSlider::sliderMoved,              this, &PlayerControls::playSeek);
     connect (this,      &PlayerControls::ctrl,              this, [=] (PlayerControls::State  state)
             {
                 switch (state){
-                case PlayerControls::Stop:  m_player->stop();     break;
-                case PlayerControls::Pause: m_player->pause();    break;
-                case PlayerControls::Play:  m_player->play();
+                case PlayerControls::Stop:  m_ctrlplayer->stop();     break;
+                case PlayerControls::Pause: m_ctrlplayer->pause();    break;
+                case PlayerControls::Play:  m_ctrlplayer->play();
                 }
             });
-    wdg_labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(m_player)) + " / " + QTime(0,0,0).toString(format(m_player))));
+    wdg_labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(m_ctrlplayer)) + " / " + QTime(0,0,0).toString(format(m_ctrlplayer))));
 }
 
 void PlayerControls::startplay()
@@ -87,12 +92,12 @@ void PlayerControls::startplay()
 void PlayerControls::playClicked()
 {
     wdg_stopButton->setEnabled(true);
-    if (m_player->playbackState() == QMediaPlayer::PlayingState)
+    if (m_ctrlplayer->playbackState() == QMediaPlayer::PlayingState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
         emit ctrl(Pause);
     }
-    else if (m_player->playbackState() == QMediaPlayer::PausedState || m_player->playbackState() == QMediaPlayer::StoppedState)
+    else if (m_ctrlplayer->playbackState() == QMediaPlayer::PausedState || m_ctrlplayer->playbackState() == QMediaPlayer::StoppedState)
     {
         wdg_playButton->setIcon(style()->standardIcon(QStyle::SP_MediaPause));
         emit ctrl(Play);
@@ -101,28 +106,32 @@ void PlayerControls::playClicked()
 
 void PlayerControls::stopClicked()
 {
-    if (m_player->playbackState() != QMediaPlayer::StoppedState)
+    if (m_ctrlplayer->playbackState() != QMediaPlayer::StoppedState)
     {
         wdg_stopButton  ->setEnabled(false);
         wdg_playButton  ->setIcon(style()->standardIcon(QStyle::SP_MediaPlay));
-        m_player        ->setPosition(0);
+        m_ctrlplayer        ->setPosition(0);
         emit ctrl(Stop);
     }
 }
 
 void PlayerControls::playSeek(int progress)
 {
-    double position = (progress < 1? 0 : (double(progress)/Utils::MaxInt())*m_player->duration());
-    if (position > m_player->duration())
-        position = m_player->duration();
-    m_player->setPosition(qint64(position));
+    double position = (progress < 1?
+                           0 :
+                           (double(progress)/Utils::MaxInt())*m_ctrlplayer->duration());
+    if (position > m_ctrlplayer->duration())
+        position = m_ctrlplayer->duration();
+    m_ctrlplayer->setPosition(qint64(position));
 }
 
 void PlayerControls::setposition(qint64 progress)
 {
-    double position = (progress < 1? 0 : (double(progress)/Utils::MaxInt())*m_player->duration());
-    if (position > m_player->duration())
-        position = m_player->duration();
+    double position = (progress < 1?
+                           0 :
+                           (double(progress)/Utils::MaxInt())*m_ctrlplayer->duration());
+    if (position > m_ctrlplayer->duration())
+        position = m_ctrlplayer->duration();
     wdg_slider->setValue(int(position));
 }
 
@@ -130,26 +139,26 @@ void PlayerControls::positionChanged(qint64 progress)
 {
     if (!wdg_slider->isSliderDown())
     {
-        double position = progress*(double(Utils::MaxInt())/m_player->duration());
+        double position = progress*(double(Utils::MaxInt())/m_ctrlplayer->duration());
         if (position > Utils::MaxInt())
             position = Utils::MaxInt();
         wdg_slider->setValue(int(position));
     }
     updateDurationInfo(progress);
-    if (progress == m_player->duration())
+    if (progress == m_ctrlplayer->duration())
         stopClicked();
 }
 
 void PlayerControls::updateDurationInfo(qint64 progress)
 {
-    qint64 duration = m_player->duration();
+    qint64 duration = m_ctrlplayer->duration();
     QString tStr;
     if (progress>-1) {
         progress = progress/1000;
         duration = duration/1000;
         QTime currentTime(  (progress / 3600) % 60,  (progress / 60) % 60,    progress % 60);
         QTime totalTime(    (duration / 3600) % 60,  (duration / 60) % 60,    duration % 60);
-        tStr = currentTime.toString(format(m_player)) + " / " + totalTime.toString(format(m_player));
+        tStr = currentTime.toString(format(m_ctrlplayer)) + " / " + totalTime.toString(format(m_ctrlplayer));
     }
     wdg_labelDuration->setText(tStr);
 }

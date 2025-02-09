@@ -27,12 +27,12 @@ class UpStandardItem : public QStandardItem
 {
 public:
     UpStandardItem();
-    UpStandardItem(QString txt, Item* item = Q_NULLPTR);
-    UpStandardItem(const QIcon &icon, const QString &text, Item* item = Q_NULLPTR);
-    void    setitem(Item* item);
-    Item*   item() const;
-    bool    hasitem() const     { return m_item != Q_NULLPTR; }
-    bool    ischecked() const   { return checkState() == Qt::Checked; }
+    UpStandardItem(QString txt, Item* rufusitem = Q_NULLPTR);
+    UpStandardItem(const QIcon &icon, const QString &text, Item* rufusitem = Q_NULLPTR);
+    void    setrufusitem(Item* rufusitem);
+    Item*   rufusitem() const;
+    bool    hasrufusitem() const    { return m_rufusitem != Q_NULLPTR; }
+    bool    ischecked() const       { return checkState() == Qt::Checked; }
 
     QList<int> listids() const;
     void setListids(const QList<int> &newListids);
@@ -48,7 +48,7 @@ public:
     void setBeforeCheckState(bool newBeforeCheckState);
 
 private:
-    Item*       m_item      = Q_NULLPTR;
+    Item*       m_rufusitem = Q_NULLPTR;
     QList<int>  m_listids   = QList<int>();
     QDate       m_date      = QDate();
     QString     m_datatype  = QString();

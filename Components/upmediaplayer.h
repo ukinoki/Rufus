@@ -1,4 +1,4 @@
-/* (C) 2020 LAINE SERGE
+/* (C) 2025 LAINE SERGE
 This file is part of RufusAdmin or Rufus.
 
 RufusAdmin and Rufus are free software: you can redistribute it and/or modify
@@ -15,31 +15,24 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "upstandarditemmodel.h"
+#ifndef UPMEDIAPLAYER_H
+#define UPMEDIAPLAYER_H
 
+#include <QMediaPlayer>
+#include <QMediaMetaData>
+#include <QEventLoop>
+#include <QObject>
+#include <QSize>
 
-UpStandardItemModel::UpStandardItemModel(QObject *parent) : QStandardItemModel(parent)
+class UpMediaPlayer : public QMediaPlayer
 {
+public:
+    explicit UpMediaPlayer(QString filename, QObject *parent = nullptr);
+    QSize videoresolution() const;
 
-}
+private:
+    QString                 m_filename = QString();
+    QSize                   m_videoresolution = QSize();
+};
 
-int UpStandardItemModel::getRowFromItem(Item *itm)
-{
-    int row = -1;
-    if (!itm)
-        return row;
-    for (int i=0; i<rowCount(); i++)
-    {
-        UpStandardItem *sitm = dynamic_cast<UpStandardItem*>(item(i));
-        if (sitm)
-        {
-            Item *its = sitm->rufusitem();
-            if (its == itm)
-            {
-                row = i;
-                i = rowCount();
-            }
-        }
-    }
-    return row;
-}
+#endif // UPMEDIAPLAYER_H

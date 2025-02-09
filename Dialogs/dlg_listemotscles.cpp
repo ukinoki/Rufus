@@ -137,7 +137,7 @@ bool dlg_listemotscles::ChercheDoublon(QString str, int row)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
             if (itm)
             {
-                MotCle *com = qobject_cast<MotCle*>(itm->item());
+                MotCle *com = qobject_cast<MotCle*>(itm->rufusitem());
                 if (com)
                 {
                     if (com->motcle().toUpper() == str.toUpper() && i != row)
@@ -226,7 +226,7 @@ void dlg_listemotscles::ConfigMode(Mode mode, MotCle *mc)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i,0));
             if (itm)
             {
-                MotCle *mcs = qobject_cast<MotCle*>(itm->item());
+                MotCle *mcs = qobject_cast<MotCle*>(itm->rufusitem());
                 if (mcs)
                     if (mcs == mc)
                     {
@@ -357,7 +357,7 @@ MotCle* dlg_listemotscles::getMotCleFromIndex(QModelIndex idx)
     int row = idx.row();
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (itm)
-        return qobject_cast<MotCle*>(itm->item());
+        return qobject_cast<MotCle*>(itm->rufusitem());
     else
         return Q_NULLPTR;
 }
@@ -512,7 +512,7 @@ void dlg_listemotscles::selectcurrentMotCle(MotCle *mc, QAbstractItemView::Scrol
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
-            MotCle *mcs = qobject_cast<MotCle*>(itm->item());
+            MotCle *mcs = qobject_cast<MotCle*>(itm->rufusitem());
             if (mcs)
                 if (mcs == m_currentmotcle)
                 {

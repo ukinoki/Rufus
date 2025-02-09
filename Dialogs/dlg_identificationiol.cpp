@@ -1600,7 +1600,7 @@ void dlg_identificationIOL::reconstruitListeIOLs(Manufacturer *man)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_IOLsmodel->item(i));
         if (itm)
         {
-            IOL* iol = qobject_cast<IOL*>(itm->item());
+            IOL* iol = qobject_cast<IOL*>(itm->rufusitem());
             if (iol)
                 m_listeidIOLs << iol->id();
         }

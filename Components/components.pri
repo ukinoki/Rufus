@@ -12,6 +12,7 @@ SOURCES += $$PWD/upcheckbox.cpp \
     $$PWD/upgroupbox.cpp \
     $$PWD/uplabel.cpp \
     $$PWD/uplineedit.cpp \
+    $$PWD/upmediaplayer.cpp \
     $$PWD/upmessagebox.cpp \
     $$PWD/upprogressdialog.cpp \
     $$PWD/uppushbutton.cpp \
@@ -40,6 +41,7 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/upgroupbox.h \
     $$PWD/uplabel.h \
     $$PWD/uplineedit.h \
+    $$PWD/upmediaplayer.h \
     $$PWD/upmessagebox.h \
     $$PWD/upprogressdialog.h \
     $$PWD/uppushbutton.h \

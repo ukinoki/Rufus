@@ -137,7 +137,7 @@ bool dlg_listetypesinterventions::ChercheDoublon(QString str, int row)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
             if (itm)
             {
-                TypeIntervention *typ = qobject_cast<TypeIntervention*>(itm->item());
+                TypeIntervention *typ = qobject_cast<TypeIntervention*>(itm->rufusitem());
                 if (typ)
                 {
                     if (typ->typeintervention().toUpper() == str.toUpper() && i != row)
@@ -224,7 +224,7 @@ void dlg_listetypesinterventions::ConfigMode(Mode mode, TypeIntervention *typ)
             UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i,0));
             if (itm)
             {
-                TypeIntervention *mcs = qobject_cast<TypeIntervention*>(itm->item());
+                TypeIntervention *mcs = qobject_cast<TypeIntervention*>(itm->rufusitem());
                 if (mcs)
                     if (mcs == typ)
                     {
@@ -361,7 +361,7 @@ TypeIntervention* dlg_listetypesinterventions::getTypeFromIndex(QModelIndex idx)
     int row = idx.row();
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(row));
     if (itm)
-        return qobject_cast<TypeIntervention*>(itm->item());
+        return qobject_cast<TypeIntervention*>(itm->rufusitem());
     else
         return Q_NULLPTR;
 }
@@ -497,7 +497,7 @@ void dlg_listetypesinterventions::selectcurrenttype(TypeIntervention *typ, QAbst
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if (itm)
         {
-            TypeIntervention *mcs = qobject_cast<TypeIntervention*>(itm->item());
+            TypeIntervention *mcs = qobject_cast<TypeIntervention*>(itm->rufusitem());
             if (mcs)
                 if (mcs == m_currenttype)
                 {

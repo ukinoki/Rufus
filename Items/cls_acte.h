@@ -36,13 +36,13 @@ class Acte : public Item
     Q_OBJECT
 private:
 
-    int m_idPatient;            //!< id du Patient correspondant à l'acte
-    int m_idSuperviseur;        //!< id du User superviseur de l'acte
-    int m_idCreatedBy;          //!< id du User qui a créé l'acte
-    int m_idParent;             //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
-    int m_idComptable;          //!< id du User qui comptabilise l'acte
-    int m_numCentre;            //!< id du lieu où se trouve le serveur
-    int m_idsite;               //!< id du lieu où l'acte est effectué
+    int m_idPatient = 0;        //!< id du Patient correspondant à l'acte
+    int m_idSuperviseur = 0;    //!< id du User superviseur de l'acte
+    int m_idCreatedBy = 0;      //!< id du User qui a créé l'acte
+    int m_idParent = 0;         //!< id du User remplacé si le user est remplaçant ( = iduser si pas remplacé)
+    int m_idComptable = 0;      //!< id du User qui comptabilise l'acte
+    int m_numCentre = 0;        //!< id du lieu où se trouve le serveur
+    int m_idsite = 0;           //!< id du lieu où l'acte est effectué
     int m_idintervention = 0;   //!< l'id de l'intervention quand l'acte correspond à une intervention - utilisé pour la gestion des programmes opératoires
     bool m_remplacant;          //!> le superviseur de l'acte est remplaçant au moment de la réalisation de l'acte
 

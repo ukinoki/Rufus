@@ -131,7 +131,7 @@ Manufacturer* dlg_listemanufacturers::getmanufacturerFromIndex(QModelIndex idx )
 {
     UpStandardItem *it = dynamic_cast<UpStandardItem*>(m_model->itemFromIndex(idx));
     if (it != Q_NULLPTR)
-        return qobject_cast<Manufacturer *>(it->item());
+        return qobject_cast<Manufacturer *>(it->rufusitem());
     else
         return Q_NULLPTR;
 }
@@ -171,9 +171,9 @@ void dlg_listemanufacturers::scrollToManufacturer(Manufacturer *man)
             UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_model->item(i));
             if (itm)
             {
-                if (itm->item() != Q_NULLPTR)
+                if (itm->rufusitem() != Q_NULLPTR)
                 {
-                    if (itm->item()->id() == id)
+                    if (itm->rufusitem()->id() == id)
                     {
                         wdg_itemstree->scrollTo(itm->index(), QAbstractItemView::PositionAtCenter);
                         wdg_itemstree->selectionModel()->select(itm->index(),QItemSelectionModel::Rows | QItemSelectionModel::Select);

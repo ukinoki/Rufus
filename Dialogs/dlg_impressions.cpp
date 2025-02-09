@@ -518,7 +518,7 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
                     UpStandardItem *titm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,1));
                     if (!titm)
                         continue;
-                    Impression *doc = qobject_cast<Impression*>(titm->item());
+                    Impression *doc = qobject_cast<Impression*>(titm->rufusitem());
                     if (!doc)
                         continue;
                     if(itm->ischecked())
@@ -1692,7 +1692,7 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     // on effectue les corrections de chacun des documents
                     QMap<DATASAIMPRIMER,QString>  datasdocaimprimer;
-                    Impression *doc = qobject_cast<Impression*>(itm->item());
+                    Impression *doc = qobject_cast<Impression*>(itm->rufusitem());
                     if (!itm)
                         continue;
                     QString textAimprimer = doc->texte();
@@ -1977,7 +1977,7 @@ void dlg_impressions::CocheLesDocs(int iddoss, bool A)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(k,0));
         if (itm)
         {
-            Impression *doc = qobject_cast<Impression*>(itm->item());
+            Impression *doc = qobject_cast<Impression*>(itm->rufusitem());
             if (doc)
             {
                 if (listiddocs.contains(doc->id()))
@@ -2466,7 +2466,7 @@ Impression* dlg_impressions::getDocumentFromIndex(QModelIndex idx)
         return Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(row,0));
     if (itm != Q_NULLPTR)
-        return qobject_cast<Impression*>(itm->item());
+        return qobject_cast<Impression*>(itm->rufusitem());
     else
         return Q_NULLPTR;
 }
@@ -2478,7 +2478,7 @@ DossierImpression* dlg_impressions::getDossierFromIndex(QModelIndex idx)
         return Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(row,0));
     if (itm != Q_NULLPTR)
-        return qobject_cast<DossierImpression*>(itm->item());
+        return qobject_cast<DossierImpression*>(itm->rufusitem());
     else
         return Q_NULLPTR;
 }
@@ -2729,7 +2729,7 @@ bool dlg_impressions::EnregistreDossier(DossierImpression  *dossier)
         if (itm)
             if (itm->ischecked())
             {
-                Impression *doc= qobject_cast<Impression*>(itm->item());
+                Impression *doc= qobject_cast<Impression*>(itm->rufusitem());
                 if (doc)
                 {
                     if (publicdossier && !doc->ispublic())
@@ -3200,7 +3200,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
     for (int i=0; i<listcor.size(); i++)
     {
         pitem       = new UpStandardItem(listcor.at(i)->prenom() + " " + listcor.at(i)->nom());
-        pitem       ->setitem(listcor.at(i));
+        pitem       ->setrufusitem(listcor.at(i));
         pitem       ->setEditable(false);
         pitem       ->setCheckable(true);
         pitem       ->setCheckState(Qt::Unchecked);
@@ -3239,7 +3239,7 @@ void dlg_impressions::ListidCor()
         if (Item != Q_NULLPTR)
             if (Item->checkState() == Qt::Checked)
             {
-                Correspondant * cor = qobject_cast<Correspondant*>(Item->item());
+                Correspondant * cor = qobject_cast<Correspondant*>(Item->rufusitem());
                 if (cor != Q_NULLPTR)
                     m_listedestinataires << cor;
             }
@@ -3347,7 +3347,7 @@ void dlg_impressions::Remplir_TableView()
                                                                                                             {
                                                                                                                 bool a = itm->ischecked();
                                                                                                                 int row = itm->row();
-                                                                                                                Impression *doc = qobject_cast<Impression*>(itm->item());
+                                                                                                                Impression *doc = qobject_cast<Impression*>(itm->rufusitem());
                                                                                                                 if(doc)
                                                                                                                     m_docsmodel->item(row,5)->setText((a?"0":"1") + doc->resume());
                                                                                                                 EnableOKPushButton(idx);
@@ -3470,7 +3470,7 @@ void dlg_impressions::selectcurrentDocument(Impression *doc, QAbstractItemView::
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i));
         if (itm)
         {
-            Impression *sdoc = qobject_cast<Impression*>(itm->item());
+            Impression *sdoc = qobject_cast<Impression*>(itm->rufusitem());
             if (sdoc)
                 if (m_currentdocument == sdoc)
                 {
@@ -3497,7 +3497,7 @@ void dlg_impressions::selectcurrentDossier(DossierImpression *dossier, QAbstract
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_dossiersmodel->item(i));
         if (itm)
         {
-            DossierImpression *sdossier = qobject_cast<DossierImpression*>(itm->item());
+            DossierImpression *sdossier = qobject_cast<DossierImpression*>(itm->rufusitem());
             if (sdossier)
                 if (m_currentdossier == sdossier)
                 {
@@ -3523,7 +3523,7 @@ void dlg_impressions::SetDocumentToRow(Impression*doc, int row, bool resizecolum
     disabledFont.setItalic(true);
 
     UpStandardItem *pitem0 = new UpStandardItem("");
-    pitem0       ->setitem(doc);
+    pitem0       ->setrufusitem(doc);
     pitem0       ->setEditable(false);
     pitem0      ->setEnabled(true);
     pitem0       ->setCheckable(true);
@@ -3741,7 +3741,7 @@ void dlg_impressions::VerifDossiers()
         {
             if (itm->checkState() == Qt::Checked)
             {
-                DossierImpression *dossier = qobject_cast<DossierImpression*>(itm->item());
+                DossierImpression *dossier = qobject_cast<DossierImpression*>(itm->rufusitem());
                 if (dossier)
                 {
                     bool a = false;

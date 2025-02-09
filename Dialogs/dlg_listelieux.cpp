@@ -100,7 +100,7 @@ Site* dlg_listelieux::getSiteFromIndex(QModelIndex idx)
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
     if (upitem == Q_NULLPTR)
         return Q_NULLPTR;
-    Site *sit = qobject_cast<Site *>(upitem->item());
+    Site *sit = qobject_cast<Site *>(upitem->rufusitem());
     return sit;
 }
 
@@ -112,7 +112,7 @@ int dlg_listelieux::getRowFromSite(Site *sit)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(i));
         if(itm)
         {
-            Site* sits = qobject_cast<Site*>(itm->item());
+            Site* sits = qobject_cast<Site*>(itm->rufusitem());
             if (sit->id() == sits->id())
             {
                 row = i;

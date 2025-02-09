@@ -103,7 +103,7 @@ void dlg_refractionlistemesures::Validation()
             {
                 UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_model->item(wdg_bigtable->selectionModel()->selectedRows().at(i).row(),0));
                 if (itm != Q_NULLPTR)
-                    DetruireLaMesure(Datas::I()->refractions->getById(itm->item()->id()));
+                    DetruireLaMesure(Datas::I()->refractions->getById(itm->rufusitem()->id()));
             }
             accept();
         }
@@ -129,7 +129,7 @@ void dlg_refractionlistemesures::ItemClicked(QModelIndex mod)
                 if (m_model->item(i,0)->checkState() == Qt::Checked && i != pitem->row())
                     m_model->item(i,0)->setCheckState(Qt::Unchecked);
             }
-            m_refselectionne = qobject_cast<Refraction*>(pitem->item());
+            m_refselectionne = qobject_cast<Refraction*>(pitem->rufusitem());
         }
         OKButton->setEnabled(Nombre_Mesure_Selected() > 0);
     }

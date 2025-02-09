@@ -1454,7 +1454,7 @@ void dlg_gestionusers::Inactifs()
         {
             UpStandardItem * item = dynamic_cast<UpStandardItem*>(model->item(i));
             if (item->checkState() == Qt::Checked)
-                listuser << qobject_cast<User*>(item->item());
+                listuser << qobject_cast<User*>(item->rufusitem());
         }
         if (listuser.size() > 0)
         {

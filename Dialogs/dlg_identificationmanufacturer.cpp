@@ -146,7 +146,7 @@ Commercial* dlg_identificationmanufacturer::getCommercialFromIndex(QModelIndex i
     Commercial *com = Q_NULLPTR;
     UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_commodel->itemFromIndex(idx));
     if(itm)
-        com = qobject_cast<Commercial*>(itm->item());
+        com = qobject_cast<Commercial*>(itm->rufusitem());
     return com;
 }
 
@@ -314,9 +314,9 @@ void dlg_identificationmanufacturer::EnregistreNouveauCommercial()
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_commodel->item(i));
             if (itm)
-                if (itm->item())
+                if (itm->rufusitem())
                 {
-                    Commercial *scom = qobject_cast<Commercial*>(itm->item());
+                    Commercial *scom = qobject_cast<Commercial*>(itm->rufusitem());
                     if (scom)
                         if (scom->id() == id)
                         {
@@ -348,9 +348,9 @@ void dlg_identificationmanufacturer::ModifieCommercial(Commercial *com)
         {
             UpStandardItem *itm = dynamic_cast<UpStandardItem *>(m_commodel->item(i));
             if (itm)
-                if (itm->item())
+                if (itm->rufusitem())
                 {
-                    Commercial *scom = qobject_cast<Commercial*>(itm->item());
+                    Commercial *scom = qobject_cast<Commercial*>(itm->rufusitem());
                     if (scom)
                     {
                         if (scom->id() == id)

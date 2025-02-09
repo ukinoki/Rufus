@@ -27,6 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "uplabel.h"
 #include "upmessagebox.h"
+#include "cls_item.h"
 
 class UpMessageBox;
 
@@ -35,8 +36,9 @@ class UpTableWidget : public QTableWidget
     Q_OBJECT
 public:
     explicit        UpTableWidget(QWidget *parent = Q_NULLPTR);
+    explicit        UpTableWidget(Item *rufusitem, QWidget *parent = Q_NULLPTR);
 
-    QList<QImage>   AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
+    void            AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
     void            clearSelection();
     void            clearAllRowsExceptHeader();                 //! supprime toutes les rangées d'une table (clearContents() vide le contenu des rangées mais ne supprime pas les rangées)
     int             FixLargeurTotale(int larg = WIDTH_SCROLLBAR);
@@ -51,14 +53,19 @@ public:
     QSize           resizetofit(QSize sz);
 
 
-    QList<QImage> listimg() const;
-    void setListimg(const QList<QImage> &newListimg);
+    QList<QImage>           listimg() const;
+    void                    setListimages(const QList<QImage> &newListimg);
 
-    QList<UpLabel *> labels() const;
+    QList<UpLabel *>        labels() const;
+
+    void                    setrufusitem(Item* item) { m_rufusitem = item; }
+    Item*                   rufusitem() const        { return m_rufusitem; }
+    bool                    hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
 
 private:
-    QByteArray      m_encodedData;
-    QList<QImage>   m_listimg = QList<QImage>();
+    QByteArray      m_encodedData       = QByteArray();
+    QList<QImage>   m_listimg           = QList<QImage>();
+    Item            *m_rufusitem        = Q_NULLPTR;
 
 protected:
     void            dropEvent(QDropEvent *) Q_DECL_OVERRIDE;

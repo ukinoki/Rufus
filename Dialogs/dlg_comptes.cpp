@@ -633,7 +633,7 @@ int dlg_comptes::getRowFromLigneCompte(LigneCompte *lign)
         UpLabel *lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(i,0));
         if (lbl == Q_NULLPTR)
             continue;
-        if (lbl->iD() == lign->id())
+        if (lbl->id() == lign->id())
         {
             row = i;
             break;
@@ -834,7 +834,7 @@ void dlg_comptes::RemplitLaTable(int idcompte)
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(listlign->item(i));
         if (itm != Q_NULLPTR)
         {
-            LigneCompte *lign = qobject_cast<LigneCompte*>(itm->item());
+            LigneCompte *lign = qobject_cast<LigneCompte*>(itm->rufusitem());
             if (lign != Q_NULLPTR)
                 SetLigneCompteToRow(lign, i);
             delete itm;
@@ -850,7 +850,7 @@ LigneCompte* dlg_comptes::getLigneCompteFromRow(int row)
     UpLabel *lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
     if (lbl == Q_NULLPTR)
         return Q_NULLPTR;
-    idcompte = lbl->iD();
+    idcompte = lbl->id();
     return Datas::I()->lignescomptes->getById(idcompte);
 }
 

@@ -41,7 +41,7 @@ signals:
     void ctrl(PlayerControls::State);
 
 private:
-    QMediaPlayer    *m_player           = Q_NULLPTR;
+    QMediaPlayer    *m_ctrlplayer           = Q_NULLPTR;
     QAbstractButton *wdg_playButton     = Q_NULLPTR;
     QAbstractButton *wdg_stopButton     = Q_NULLPTR;
     QSlider         *wdg_slider         = Q_NULLPTR;

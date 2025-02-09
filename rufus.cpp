@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("05-02-2025/1");
+    qApp->setApplicationVersion("09-02-2025/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -33,6 +33,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setStyle(QStyleFactory::create("Fusion"));
 #endif
     qApp->setStyleSheet(Styles::StyleAppli().replace("widthscrollbar", QString::number(WIDTH_SCROLLBAR)));
+    qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);                                                     //! since Qt 6.7 this variable is true by default
     QToolTip::setPalette(QPalette(Qt::yellow));
 
     proc = Procedures::I();     //! déclaré dans le .h et ici sinon on a des problèmes de police .... et pas seulement dans le .h pour que les StyleSheet soient appliqués avant l'instanciation de Procedures
@@ -463,14 +464,20 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                             }
                         }
                         else
+                        {
                             ListDialogDocs.at(i)->close();
+                            delete ListDialogDocs.at(i);
+                        }
                     }
                     if (founddlg)
                         return;
                 }
             }
             else if (!ListDialogDocs.at(i)->isModal())
-                    ListDialogDocs.at(i)->close();
+            {
+                ListDialogDocs.at(i)->close();
+                delete ListDialogDocs.at(i);
+            }
         }
     if (docs->docsexternes()->size()>0)
     {
@@ -994,7 +1001,7 @@ void Rufus::ActeMontantModifie()
 void Rufus::AfficheMotif(UpLabel *lbl)
 {
     QString Msg("");
-    int id = lbl->iD();
+    int id = lbl->id();
     PatientEnCours *patcrs = Q_NULLPTR;
     for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
@@ -1241,7 +1248,7 @@ void Rufus::AfficheMenu(QMenu *menu)
         if (ui->tabWidget->currentWidget() == ui->tabDossier)
         {
             menuDocuments       ->addMenu(menuEmettre);
-            menuDocuments       ->addAction(actionEnregistrerDocScanner);
+            menuDocuments       ->addAction(actionEnregistrerDocument);
             if (db->ModeAccesDataBase() != Utils::Distant)
                 menuDocuments   ->addAction(actionEnregistrerVideo);
             menuDocuments       ->addSeparator();
@@ -2175,7 +2182,7 @@ void Rufus::ExporteDocs()
                     return;
             }
             QString title = tr("problème de compression du fichier");
-            QString msg = "Triumph Rocket3 GT";
+            QString msg = M_DELIMITER;
             if (!Utils::CompressFileToJPG(CheminOKTransfrDoc, msg))
             {
                 msg += "<br/>" +
@@ -2469,7 +2476,7 @@ void Rufus::ExporteDocs()
                     return;
             }
             QString title = tr("problème de compression du fichier");
-            QString msg = "Triumph Rocket3 GT";
+            QString msg = M_DELIMITER;
             if (!Utils::CompressFileToJPG(CheminOKTransfrDoc, msg))
             {
                 msg += "<br/>" +
@@ -3443,7 +3450,7 @@ void Rufus::AfficheDossiersRechercheParMotCle()
             UpStandardItem *pitem = dynamic_cast<UpStandardItem*>(model->item(i,0));
             if (pitem)
             {
-                MotCle *mc = qobject_cast<MotCle*>(pitem->item());
+                MotCle *mc = qobject_cast<MotCle*>(pitem->rufusitem());
                 if (mc)
                     listidMc << mc->id();
             }
@@ -3940,7 +3947,7 @@ void Rufus::MenuContextuelSalDat(UpLabel *labelClicked)
         return;
     int idpat (0);
     if (labelClicked == Q_NULLPTR) return;
-    idpat = labelClicked->iD();
+    idpat = labelClicked->id();
     int row = labelClicked->Row();
 
     if (m_menuContextuel != Q_NULLPTR)
@@ -3991,7 +3998,7 @@ void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
      QList<QTableWidgetSelectionRange> listRange = ui->AccueilupTableWidget->selectedRanges();
     if (labelClicked == Q_NULLPTR)
         return;
-    int idpat = labelClicked->iD();
+    int idpat = labelClicked->id();
     PatientEnCours *pat = Q_NULLPTR;
     for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
@@ -4027,7 +4034,7 @@ void Rufus::MenuContextuelAccueil(UpLabel *labelClicked)
             connect (pAction_PrgIntervention,  &QAction::triggered,    this,    [=] {ChoixMenuContextuelSalDat(idpat, "Intervention");});
         }
     }
-    if (currentuser()->isSecretaire() || labelClicked->datas().value("idComptable").toInt() == currentuser()->idcomptableactes())
+    if (currentuser()->isSecretaire() || labelClicked->property("idComptable").toInt() == currentuser()->idcomptableactes())
     {
         QAction *pAction_EnregistrePaiement = m_menuContextuel->addAction(tr("Enregistrer le paiement"));
         connect (pAction_EnregistrePaiement,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelSalDat(idpat, "Payer");});
@@ -5077,7 +5084,7 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     QString backgroundsurbrill = "background:#B2D7FF";
     if (lab==Q_NULLPTR)
         return;
-    int id = lab->iD();
+    int id = lab->id();
     PatientEnCours *pat = Q_NULLPTR;
     for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
@@ -5277,8 +5284,8 @@ void Rufus::SupprimerDocsEtFactures()
     {
         QString CheminFichier = NomDirStockageImagerie + ListeDocs.at(i).at(0).toString();
         QFile file(CheminFichier);
-        if (!Utils::removeWithoutPermissions(file))
-            UpMessageBox::Watch(this, tr("Fichier introuvable!"), CheminFichier);
+        if (file.exists())
+            Utils::removeWithoutPermissions(file);
         db->StandardSQL("delete from " TBL_DOCSASUPPRIMER " where " CP_FILEPATH_DOCSASUPPR " = '" + Utils::correctquoteSQL(ListeDocs.at(i).at(0).toString()) + "'");
     }
 
@@ -5287,7 +5294,7 @@ void Rufus::SupprimerDocsEtFactures()
     if (!Utils::mkpath(CheminOKTransfrDir))
     {
         QString msg = tr("Dossier de sauvegarde ") + "<font color=\"red\"><b>" + CheminOKTransfrDir + "</b></font>" + tr(" invalide");
-        ShowMessage::I()->SplashMessage(msg, 3000);
+        ShowMessage::I()->SplashMessage(msg, 6000);
         return;
     }
     req = "delete from " TBL_FACTURESASUPPRIMER " where " CP_LIENFICHIER_FACTASUPPR " is null or " CP_LIENFICHIER_FACTASUPPR " = \"\"" ;
@@ -5435,7 +5442,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
                 Respondlbl->setiD(msg->id());
                 Respondlbl->setPixmap(Icons::pxConversation().scaled(20,20)); //WARNING : icon scaled : pxConversation 20,20
                 Respondlbl->setImmediateToolTip(tr("Répondre"));
-                connect(Respondlbl,     QOverload<int>::of(&UpLabel::clicked), this, [=] {MsgResp(Respondlbl->iD());});
+                connect(Respondlbl,     QOverload<int>::of(&UpLabel::clicked), this, [=] {MsgResp(Respondlbl->id());});
                 Respondlbl->setFixedWidth(25);
                 Droplay->addWidget(Respondlbl);
             }
@@ -5445,7 +5452,7 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
             Dellbl->setMinimumWidth(25);
-            connect(Dellbl,             QOverload<int>::of(&UpLabel::clicked),  this, [=] {SupprimerMessageRecu(Dellbl->iD());});
+            connect(Dellbl,             QOverload<int>::of(&UpLabel::clicked),  this, [=] {SupprimerMessageRecu(Dellbl->id());});
             Droplay->addWidget(Dellbl);
 
             Msglay->addLayout(Droplay);
@@ -5580,14 +5587,14 @@ QTabWidget* Rufus::Remplir_MsgTabWidget()
             Modiflbl->setPixmap(Icons::pxEditer().scaled(20,20)); //WARNING : icon scaled : pxEditer 20,20
             Modiflbl->setImmediateToolTip(tr("Modifier"));
             Modiflbl->setFixedWidth(25);
-            connect(Modiflbl, QOverload<int>::of(&UpLabel::clicked),    this,  [=] {MsgModif(Modiflbl->iD());});
+            connect(Modiflbl, QOverload<int>::of(&UpLabel::clicked),    this,  [=] {MsgModif(Modiflbl->id());});
             Droplay->addWidget(Modiflbl);
 
             UpLabel *Dellbl = new UpLabel();
             Dellbl->setiD(msg->id());
             Dellbl->setPixmap(Icons::pxPoubelle().scaled(20,20)); //WARNING : icon scaled : pxPoubelle 20,20
             Dellbl->setFixedWidth(25);
-            connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  this,  [=] {SupprimerMessageEmis(Dellbl->iD());});
+            connect(Dellbl,     QOverload<int>::of(&UpLabel::clicked),  this,  [=] {SupprimerMessageEmis(Dellbl->id());});
             Droplay->addWidget(Dellbl);
             Msglay->addLayout(Droplay);
 
@@ -6564,9 +6571,9 @@ Patient* Rufus::getPatientFromIndex(QModelIndex idx)
     UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_listepatientsmodel->itemFromIndex(pindx));
     if (upitem == Q_NULLPTR)
         return Q_NULLPTR;
-    if (upitem->item() == Q_NULLPTR)
+    if (upitem->rufusitem() == Q_NULLPTR)
         return Q_NULLPTR;
-    Patient *pat = qobject_cast<Patient *>(upitem->item());
+    Patient *pat = qobject_cast<Patient *>(upitem->rufusitem());
     return pat;
 }
 
@@ -7974,7 +7981,7 @@ void Rufus::CreerMenu()
         connect (actionFabricants,                  &QAction::triggered,        this,                   &Rufus::ListeManufacturers);
         connect (actionIOLs,                        &QAction::triggered,        this,                   &Rufus::ListeIOLs);
         connect (actionTiers,                       &QAction::triggered,        this,                   &Rufus::ListeTiersPayants);
-        connect (actionEnregistrerDocScanner,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
+        connect (actionEnregistrerDocument,       &QAction::triggered,        this,                   [=] {EnregistreDocScanner(currentpatient());});
         connect (actionEnregistrerVideo,            &QAction::triggered,        this,                   [=] {EnregistreVideo(currentpatient());});
         connect (actionExportActe,                  &QAction::triggered,        this,                   [=] {ExporteActe(currentacte());});
         connect (actionRechercheCourrier,           &QAction::triggered,        this,                   &Rufus::AfficheCourriersAFaire);
@@ -8222,6 +8229,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
             if (ListDialogDocs.at(n)->mode() == dlg_docsexternes::Normal)
                 proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
+        delete ListDialogDocs.at(n);
     }
     if (currentpatient() != Q_NULLPTR)
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());
@@ -9595,7 +9603,7 @@ void Rufus::Remplir_SalDat()
         QList<QStandardItem *> items;
         listidpat << patencrs->id();
         UpStandardItem *itempat = new UpStandardItem(QString::number(patencrs->id()));
-        itempat->setitem(patencrs);
+        itempat->setrufusitem(patencrs);
         items << new UpStandardItem(patencrs->heurerdv().toString("HHmm"))
               << itempat;
         m_listepatientsencoursmodel->appendRow(items);
@@ -9609,7 +9617,7 @@ void Rufus::Remplir_SalDat()
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_listepatientsencoursmodel->item(i,1));
         if (itm != Q_NULLPTR)
         {
-            PatientEnCours *pat = qobject_cast<PatientEnCours*>(itm->item());
+            PatientEnCours *pat = qobject_cast<PatientEnCours*>(itm->rufusitem());
             if (pat != Q_NULLPTR)
             {
                 //qDebug() << Datas::I()->patients->getById(pat->id())->nom() + " " + Datas::I()->patients->getById(pat->id())->prenom() + " " + pat->statut();
@@ -9970,23 +9978,26 @@ void Rufus::Remplir_SalDat()
         label4->setContextMenuPolicy(Qt::CustomContextMenu);
         label5->setContextMenuPolicy(Qt::CustomContextMenu);
 
-        NomPrenom = pat->nom().toUpper() + " " + pat->prenom();
-        zw = actapayer->heure().toString("HH:mm");
-        int idparent = actapayer->idParent();
-        int idsuperviseur = actapayer->idUserSuperviseur();
-        label0->setText(" " + zw);                                                              // Heure acte
-        label1->setText(" " + NomPrenom);                                                       // Nom + Prénom
-        QString Soignant = superviseurlogin;
-        if (patencours->idusersuperviseur() != idparent)
-            Soignant +=  " / " +  (Datas::I()->users->getById(idparent) != Q_NULLPTR? Datas::I()->users->getById(idparent)->login() : "null");
-        label2->setText(" " + superviseurlogin);       // Soignant
-        label3->setText(" " + actapayer->cotation());                                           // Cotation
-        label4->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
-        label5->setText(QString::number(idsuperviseur));                                             // Parent
-        QString typpaiement = "";
-        if (actapayer->montant() == 0.0)
-            typpaiement = "Gratuit";
-        label4->setAlignment(Qt::AlignRight);
+        NomPrenom           = pat->nom().toUpper() + " " + pat->prenom();
+        zw                  = actapayer->heure().toString("HH:mm");
+        int idsuperviseur   = actapayer->idUserSuperviseur();
+
+        label0              ->setText(" " + zw);                                                              // Heure acte
+        label1              ->setText(" " + NomPrenom);                                                       // Nom + Prénom
+        label2              ->setText(" " + superviseurlogin);                                                // Soignant
+        label3              ->setText(" " + actapayer->cotation());                                           // Cotation
+        label4              ->setText(QLocale().toString(actapayer->montant(),'f',2) + " ");                  // Montant
+        label5              ->setText(QString::number(idsuperviseur));                                        // Parent
+
+        label0              ->setProperty("idComptable", actapayer->idComptable());
+        label1              ->setProperty("idComptable", actapayer->idComptable());
+        label2              ->setProperty("idComptable", actapayer->idComptable());
+        label3              ->setProperty("idComptable", actapayer->idComptable());
+        label4              ->setProperty("idComptable", actapayer->idComptable());
+        label5              ->setProperty("idComptable", actapayer->idComptable());
+
+        label4              ->setAlignment(Qt::AlignRight);
+
         if (patencours->messageretour()!="" || patencours->message()!="")
         {
             QString color = "color:green";
@@ -11007,7 +11018,7 @@ void Rufus::retranslateActions() {
     actionEmettreDocument = retranslateAction(actionEmettreDocument, tr("Document simple"));
     actionDossierPatient = retranslateAction(actionDossierPatient, tr("Dossier patient"));
     actionExportActe = retranslateAction(actionExportActe, tr("Exporter l'acte en cours"));
-    actionEnregistrerDocScanner = retranslateAction(actionEnregistrerDocScanner, tr("Enregistrer un document scanné"));
+    actionEnregistrerDocument = retranslateAction(actionEnregistrerDocument, tr("Enregistrer un document"));
     actionEnregistrerVideo = retranslateAction(actionEnregistrerVideo, tr("Enregistrer une video"));
     actionRechercheCourrier = retranslateAction(actionRechercheCourrier, tr("Afficher les courriers à faire"));
     actionCorrespondants = retranslateAction(actionCorrespondants, tr("Liste des correspondants"));

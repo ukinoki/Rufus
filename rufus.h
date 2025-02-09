@@ -462,7 +462,7 @@ private:
     QAction         *actionRechercheParID           = Q_NULLPTR;
     QAction         *actionDossierPatient           = Q_NULLPTR;
     QAction         *actionCorrespondants           = Q_NULLPTR;
-    QAction         *actionEnregistrerDocScanner    = Q_NULLPTR;
+    QAction         *actionEnregistrerDocument    = Q_NULLPTR;
     QAction         *actionEnregistrerVideo         = Q_NULLPTR;
     QAction         *actionRechercheCourrier        = Q_NULLPTR;
     QAction         *actionExportActe               = Q_NULLPTR;

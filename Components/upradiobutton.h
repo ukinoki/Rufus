@@ -38,14 +38,14 @@ public:
     bool        Toggleable() const;
     void        setiD(int val);
     int         iD() const;
-    void        setitem(Item* item);
-    Item*       item() const;
+    void        setrufusitem(Item* rufusitem);
+    Item*       rufusitem() const;
 
 
 private:
-    Item        *m_item;
-    int         m_id;
-    QString     m_tooltipmsg;
+    Item        *m_rufusitem = Q_NULLPTR;
+    int         m_id         = 0;
+    QString     m_tooltipmsg = "";
     bool        eventFilter(QObject *obj, QEvent *event)  ;
     void        AfficheToolTip();
     bool        m_toggleable;

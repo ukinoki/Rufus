@@ -61,7 +61,6 @@ linux-g++ {
 }
 
 SOURCES += main.cpp\
-    imagewidget.cpp \
     ressources.cpp \
     rufus.cpp \
     procedures.cpp \
@@ -73,7 +72,6 @@ SOURCES += main.cpp\
     flags.cpp
 
 HEADERS += rufus.h \
-    imagewidget.h \
     ostask.h \
     procedures.h \
     pyxinterf.h \

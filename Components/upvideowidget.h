@@ -20,6 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMediaPlayer>
 #include <QVideoWidget>
+#include "cls_item.h"
 
 class UpVideoWidget : public QVideoWidget
 {
@@ -32,9 +33,17 @@ public:
     QMediaPlayer *player() const;
     void setPlayer(QMediaPlayer *newPlayer);
 
+    void                    setrufusitem(Item* item)    { m_rufusitem = item; }
+    Item*                   rufusitem() const           { return m_rufusitem; }
+    bool                    hasrufusitem() const        { return m_rufusitem != Q_NULLPTR; }
+    int                     id() const                  { return m_id; }
+    void                    setId(int id)               { m_id = id; }
+
 private:
-    QString m_filename = "";
-    QMediaPlayer *m_player = Q_NULLPTR;
+    QString m_filename          = "";
+    QMediaPlayer *m_player      = Q_NULLPTR;
+    Item         *m_rufusitem   = Q_NULLPTR;
+    int          m_id           = -1;
 };
 
 #endif // UPVIDEOWIDGET_H

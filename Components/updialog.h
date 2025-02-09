@@ -66,7 +66,11 @@ private:
     QWidget         *wdg_buttonswidget;
     void            AjouteLay();
     void            UpdateTabOrder();
-    double          m_stageheight = 35;
+    int             m_stageheight = 40;
+    int             m_nstages   = 1;
+    int             m_spacing = 5;
+    int             m_marge = 10;
+    QMargins        m_marges = QMargins(m_marge,m_marge,m_marge,m_marge);
     QObject*        obj_data;
     UpLabel         *wdg_label;
     UpLineEdit      *wdg_chercheuplineedit;
@@ -84,9 +88,20 @@ public:
     QHBoxLayout*    buttonslayout() const;
     QWidget*        widgetbuttons() const;
     UpLineEdit*     searchline() const { return wdg_chercheuplineedit; }
-    void            setStageCount(double stage =  0);
+    void            setStageCount(int stage =  1);
     QObject*        data() const { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
+    QSize                   sizefordisplay() {
+        int width = frameGeometry().width()
+                    - dlglayout()->contentsMargins().left()
+                    - dlglayout()->contentsMargins().right();
+        int height = frameGeometry().height()
+                     - dlglayout()->contentsMargins().top()
+                     - dlglayout()->contentsMargins().bottom()
+                     - dlglayout()->spacing()
+                     - (m_stageheight*m_nstages);
+        return QSize(width,height);
+    }
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

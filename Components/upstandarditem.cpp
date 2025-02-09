@@ -22,28 +22,26 @@ UpStandardItem::UpStandardItem()
     setFont(qApp->font());
 }
 
-UpStandardItem::UpStandardItem(QString txt, Item *item) : QStandardItem(txt)
+UpStandardItem::UpStandardItem(QString txt, Item *rufusitem) : QStandardItem(txt)
 {
-    if (item != Q_NULLPTR)
-        setitem(item);
+    m_rufusitem = rufusitem;
     setFont(qApp->font());
 }
 
-UpStandardItem::UpStandardItem(const QIcon &icon, const QString &txt, Item *item) : QStandardItem(icon, txt)
+UpStandardItem::UpStandardItem(const QIcon &icon, const QString &txt, Item *rufusitem) : QStandardItem(icon, txt)
 {
-    if (item != Q_NULLPTR)
-        setitem(item);
+    m_rufusitem = rufusitem;
     setFont(qApp->font());
 }
 
-void UpStandardItem::setitem(Item* item)
+void UpStandardItem::setrufusitem(Item* rufusitem)
 {
-    m_item = item;
+    m_rufusitem = rufusitem;
 }
 
-Item* UpStandardItem::item() const
+Item* UpStandardItem::rufusitem() const
 {
-    return m_item;
+    return m_rufusitem;
 }
 
 QList<int> UpStandardItem::listids() const

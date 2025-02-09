@@ -24,7 +24,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     m_currentpatient = pat;
     setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
 
-    m_docpath = proc->settings()->value(Param_Poste Dossier_Videos).toString();
+    m_docpath = QSettings(PATH_FILE_INI).value(Param_Poste Dossier_Videos).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
     wdg_visuvideowdg    = new QVideoWidget(this);
@@ -102,7 +102,6 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
     buttonslayout()->insertLayout(0, dirVlay);
-    wdg_visuvideowdg->resize(wdg_visuvideowdg->sizeHint());
     setMinimumWidth(650);
     setStageCount(2);
     int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
@@ -161,7 +160,7 @@ void dlg_docsvideo::ChangeFile()
         wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
         AfficheVideo(fichierencours);
         if (pathhaschanged)
-            proc->settings()->setValue(Param_Poste Dossier_Videos, m_docpath);
+            QSettings(PATH_FILE_INI).setValue(Param_Poste Dossier_Videos, m_docpath);
     }
 }
 
@@ -175,8 +174,6 @@ void dlg_docsvideo::AfficheVideo(QString filebut)
     player->setVideoOutput(wdg_visuvideowdg);
     player->setSource(QUrl::fromLocalFile(dirpict.filePath(filebut)));
     player->play();
-
-    //QMediaRecorder *rec = new QMediaRecorder(player);
 }
 
 void dlg_docsvideo::ValideFiche()

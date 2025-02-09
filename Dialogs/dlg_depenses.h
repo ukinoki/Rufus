@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_comptes.h"
 #include "dlg_docsscanner.h"
+#include "dlg_imagezoom.h"
 #include "gbl_datas.h"
 #include "updelegate.h"
 #include "ui_dlg_depenses.h"
@@ -50,7 +51,6 @@ private:
     QString                     m_msgretour = "";
     Depense                     *m_depenseencours;
     QDate                       m_currentdate = db->ServerDate();
-    QList<QImage>               m_listeimages;
     QStringList                 m_listemoyensdepaiement;
     Mode                        m_mode;
 

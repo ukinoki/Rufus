@@ -22,9 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QToolTip>
 #include <QApplication>
-
 #include "cls_item.h"
-class Item;
 
 class UpLabel : public QLabel
 {
@@ -35,28 +33,31 @@ public:
     explicit                UpLabel(int id, QString txt = QString(), QWidget* parent = Q_NULLPTR);
     ~UpLabel();
     void                    setiD(int m_id);
-    int                     iD() const;
-    void                    setdatas(QMap<QString, QVariant> datas);
-    QMap<QString, QVariant> datas() const;
+    int                     id() const;
     void                    setRow(int m_id);
     void                    setImmediateToolTip(QString);
     int                     Row() const;
-    void                    setitem(Item* item) { m_item = item; m_item->setParent(this);}
-    Item*                   item() const        { return m_item; }
-    bool                    hasitem() const     { return m_item != Q_NULLPTR; }
+    void                    setrufusitem(Item *item) { m_rufusitem = item; }
+    Item*                   rufusitem() const        { return m_rufusitem; }
+    bool                    hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
 
-    QImage image() const;
-    void setImage(const QImage &newImage);
+    QImage                  image() const;                                  //! Qimage used by label
+    void                    setImage(const QImage &newImage);
+
+    int                     pagepdf() const;                                //! page number used when Uplanel are used as CellWidget inside UptableWidget
+    void                    setPagepdf(int newPagepdf);
 
 private:
     bool                    eventFilter(QObject *obj, QEvent *event)  ;
-    int                     m_id;
-    int                     m_row;
-    QString                 m_tooltipmsg;
-    QMap<QString, QVariant> m_datas;
-    QImage                  m_image = QImage();
+
+    int                     m_id            = 0;
+    int                     m_pagepdf       = 0;
+    int                     m_row           = -1;
+    QString                 m_tooltipmsg    = "";
+    QImage                  m_image         = QImage();
+    Item                    *m_rufusitem    = Q_NULLPTR;
+
     void                    AfficheToolTip();
-    Item*                   m_item;
 
 signals:
     void                    clicked(int a);

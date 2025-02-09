@@ -1675,114 +1675,6 @@ void Procedures::EditHtml(QString txt)
     delete gAsk;
 }
 
-/*!
- * \brief Procedures::EditDocument
- * \abstract affiche le contenu d'un fichier image pdf ou jpg dans une fenêtre à la taille maximale pouvant être contenue dans l'écran, sans dépasser les 2/3 en largeur
- * \param doc QMap<QString,QVariant>contient 2 éléments
-    . \arg doc["ba"] = le QByteArray correspondant au contenu du fichier   = QFile(emplacementdufichier)->readAll())
-    . \arg doc["type"] = "jpg" ou "pdf" correspondant au type du fichier   = QFileInfo(emplacementdufichier)->suffix();
- * \param label le label de l'image affiché dans un QLabel magenta en bas à gauche de l'image
- * \param titre le titre de la fiche
- * \param Buttons, les boutons affichés en dessous de l'image, OKButton par défaut
- * \param parent
- * si le bouton PrintButton est utilisé il permet d'imprimer l'image en appelant la fonction PrintDocument(QMap<QString,QVariant> doc)
- */
-void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString titre, UpDialog::Buttons Button, QWidget *parent)
-{
-    gEditDocumentDialog         = new UpDialog(parent);
-    wdg_tablewidget             = new UpTableWidget(gEditDocumentDialog);
-    wdg_inflabel                = new UpLabel(wdg_tablewidget);
-    m_listeimages               = wdg_tablewidget->AfficheDoc(doc);
-    wdg_tablewidget ->installEventFilter(this);
-    gEditDocumentDialog->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    gEditDocumentDialog->setWindowTitle(titre);
-    gEditDocumentDialog->setWindowModality(Qt::WindowModal);
-    gEditDocumentDialog->dlglayout()->insertWidget(0,wdg_tablewidget);
-    wdg_tablewidget->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-    wdg_tablewidget->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-
-    gEditDocumentDialog->AjouteLayButtons(Button);
-    connect(gEditDocumentDialog->OKButton, &QPushButton::clicked, this, [=] {gEditDocumentDialog->accept();});
-    if (Button.testFlag(UpDialog::ButtonPrint))
-    {
-        gEditDocumentDialog->PrintButton->setdata(doc);
-        connect(gEditDocumentDialog->PrintButton, &UpSmallButton::clickedvar, this, [=](QVariant) {PrintDocument(doc);});
-    }
-    if (Button.testFlag(UpDialog::ButtonSuppr))
-        connect(gEditDocumentDialog->SupprButton, &QPushButton::clicked, this, [=] {emit DelImage();});
-
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    int x = 0;
-    int y = 0;
-    if (listscreens.size())
-    {
-        x = listscreens.first()->geometry().width();
-        y = listscreens.first()->geometry().height();
-    }
-    gEditDocumentDialog->setMaximumWidth(x);
-    gEditDocumentDialog->setMaximumHeight(y);
-    int topmarge    = gEditDocumentDialog->dlglayout()->contentsMargins().top();
-    int bottommarge = gEditDocumentDialog->dlglayout()->contentsMargins().bottom();
-    int leftmarge   = gEditDocumentDialog->dlglayout()->contentsMargins().left();
-    int rightmarge  = gEditDocumentDialog->dlglayout()->contentsMargins().right();
-    int spacing     = gEditDocumentDialog->dlglayout()->spacing();
-    int hdeltaframe = 60;//gAsk->frameGeometry().height() - gAsk->height();
-                            // on a un problème avec ce calcul sous mac puisque qt ne connait pas la hauteur du dock
-    int wdeltaframe = gEditDocumentDialog->frameGeometry().width() - gEditDocumentDialog->width();
-
-    int hdelta = topmarge + bottommarge + spacing + gEditDocumentDialog->widgetbuttons()->height();
-        // la différence totale entre le hauteur de la fiche et la hauteur de la table
-    int wdelta = leftmarge + rightmarge + spacing;
-        // la différence totale entre la largeur de la fiche et la largeur de la table
-
-    // les dimensions maxi de la zone de visu
-    const double maxwscroll  = x*2/3 - wdelta - wdeltaframe;
-    const double maxhscroll  = y - hdelta - hdeltaframe;
-    // les dimensions calculées de la zone de visu
-    int wtable(0), htable(0);
-
-    const double proportion = maxwscroll/maxhscroll;
-    QPixmap pix = QPixmap::fromImage(m_listeimages.at(0).scaled(QSize(x,y),
-                                           Qt::KeepAspectRatioByExpanding,
-                                           Qt::SmoothTransformation));
-    const double pw = pix.size().width();
-    const double ph = pix.size().height();
-    const double idealproportion = pw/ph;
-
-    if (idealproportion > proportion)
-    {   wtable  = int(maxwscroll);   htable  = int(wtable / idealproportion); }
-    else
-    {   htable  = int(maxhscroll);   wtable  = int(htable * idealproportion); }
-    int w = wtable + wdelta;
-    int h = htable + hdelta;
-    gEditDocumentDialog->resize(w, h);
-    wdg_tablewidget->resize(wtable, htable);
-    int delta = 0;
-    for (int i=0; i < wdg_tablewidget->rowCount(); i++)
-    {
-        UpLabel *lbl = qobject_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
-        if (lbl != Q_NULLPTR)
-        {
-            pix = pix.scaled(wtable- delta, htable - delta, Qt::KeepAspectRatioByExpanding, Qt::SmoothTransformation);
-            lbl->setPixmap(pix);
-            wdg_tablewidget->setRowHeight(i,htable-delta);
-            wdg_tablewidget->setColumnWidth(0,wtable-delta);
-        }
-    }
-
-    if (w > (x - gEditDocumentDialog->x()))
-        gEditDocumentDialog->move(x - w, 0);
-
-    wdg_inflabel    ->setText("<font color='magenta'>" + label + "</font>");
-    QFont font = qApp->font();
-    font.setPointSize(12);
-    wdg_inflabel->setFont(font);
-    wdg_inflabel->setGeometry(10,htable-40,350,25);
-
-    gEditDocumentDialog->exec();
-    delete gEditDocumentDialog;
-    gEditDocumentDialog = Q_NULLPTR;
-}
 
 /*!
  * \brief Procedures::PrintDocument
@@ -1793,11 +1685,11 @@ void Procedures::EditDocument(QMap<QString,QVariant> doc, QString label, QString
  */
 bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
 {
-    QByteArray ba = doc.value("ba").toByteArray();
+    QByteArray ba = doc.value(M_BA).toByteArray();
     QList<QImage> listimg;
-    if (doc.value("type").toString() == PDF)     // le document est un pdf
+    if (doc.value(M_TYPE).toString() == PDF)     // le document est un pdf
         listimg = Utils::calcImagefromPdf(ba);
-    else if (doc.value("type").toString() == JPG)     // le document est un jpg
+    else if (doc.value(M_TYPE).toString() == JPG)     // le document est un jpg
     {
         QPixmap pix;
         pix.loadFromData(ba);
@@ -2133,32 +2025,6 @@ void Procedures::setFicheRefractionOuverte(bool a)
 bool Procedures::FicheRefractionOuverte()
 {
     return m_dlgrefractionouverte;
-}
-
-bool Procedures::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj==wdg_tablewidget)
-    {
-        QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-        if (rszevent != Q_NULLPTR)
-        {
-            for (int i=0; i < wdg_tablewidget->rowCount(); i++)
-            {
-                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_tablewidget->cellWidget(i,0));
-                if (lbl != Q_NULLPTR)
-                {
-                    QPixmap pix = QPixmap::fromImage(m_listeimages.at(i).scaled(wdg_tablewidget->width(), wdg_tablewidget->height(),
-                                                           Qt::KeepAspectRatioByExpanding,
-                                                           Qt::SmoothTransformation));
-                    lbl->setPixmap(pix);
-                    wdg_tablewidget->setRowHeight(i,lbl->pixmap().height());
-                    wdg_tablewidget->setColumnWidth(i,lbl->pixmap().width());
-                }
-            }
-            wdg_inflabel    ->move(10,wdg_tablewidget->height()-40);
-        }
-    }
-    return true;
 }
 
 void Procedures::ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT typ)
@@ -3070,7 +2936,7 @@ void Procedures::CalcLieuExercice()
             {
                 UpRadioButton *pradiobutt = new UpRadioButton(boxlieux);
                 pradiobutt->setText(sit->nom());
-                pradiobutt->setitem(sit);
+                pradiobutt->setrufusitem(sit);
                 pradiobutt->setImmediateToolTip(sit->coordonnees());
                 pradiobutt->setChecked(isFirst);
                 vbox      ->addWidget(pradiobutt);
@@ -3086,7 +2952,7 @@ void Procedures::CalcLieuExercice()
         foreach (UpRadioButton * rb, boxlieux->findChildren<UpRadioButton*>())
             if( rb->isChecked() )
             {
-                Datas::I()->sites->setcurrentsite(qobject_cast<Site*>(rb->item()));
+                Datas::I()->sites->setcurrentsite(qobject_cast<Site*>(rb->rufusitem()));
                 break;
             }
         delete gAskLieux;

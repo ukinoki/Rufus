@@ -129,13 +129,9 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
     buttonslayout()->insertLayout(0, dirVlay);
-    wdg_uptable->resize(wdg_uptable->sizeHint());
     wdg_uptable->installEventFilter(this);
     setMinimumWidth(650);
     setStageCount(2);
-    int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
-    int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
-    wdg_uptable->resize(w, y);
     m_initok = true;
     NavigueVers(UpToolBar::_last);
 }
@@ -180,15 +176,13 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
         QByteArray bapdf = qFile.readAll();
         QString suffixe = QFileInfo(qFile).suffix().toLower();
         qFile.close ();
-        doc["ba"]   = bapdf   ;
-        doc["type"] = suffixe;
-        m_listimages = wdg_uptable->AfficheDoc(doc);
+        doc[M_BA]   = bapdf   ;
+        doc[M_TYPE] = suffixe;
+        wdg_uptable->AfficheDoc(doc);
         wdg_inflabel    ->setText("<font color='magenta'>" + m_nomfichierimageencours + "</font>");
         QFont font = qApp->font();
         font.setPointSize(12);
         wdg_inflabel->setFont(font);
-        Utils::Pause(10);  //force la maj de l'affichage sinon le calcul de la hauteur pour le placement du qlabel est faux
-        wdg_inflabel    ->setGeometry(10,wdg_uptable->height()-40,350,25);
     }
 }
 
@@ -218,14 +212,13 @@ void dlg_docsscanner::ChangeFile()
         QByteArray bapdf = qFile.readAll();
         QString suffixe = QFileInfo(qFile).suffix().toLower();
         qFile.close ();
-        doc["ba"]   = bapdf   ;
-        doc["type"] = suffixe;
-        m_listimages = wdg_uptable->AfficheDoc(doc);
+        doc[M_BA]   = bapdf   ;
+        doc[M_TYPE] = suffixe;
+        wdg_uptable->AfficheDoc(doc);
         wdg_inflabel    ->setText("<font color='magenta'>" + m_nomfichierimageencours + "</font>");
         QFont font = qApp->font();
         font.setPointSize(12);
         wdg_inflabel->setFont(font);
-        wdg_inflabel    ->setGeometry(10,wdg_uptable->viewport()->height()-40,350,25);
         if (pathhaschanged)
             proc->settings()->setValue(Param_Poste Dossier_DocsScannes, m_docpath);
     }
@@ -448,15 +441,8 @@ bool dlg_docsscanner::eventFilter(QObject *obj, QEvent *event)
         QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
         if (rszevent != Q_NULLPTR)
         {
-            wdg_uptable->setColumnWidth(0,wdg_uptable->width()-2);
-            for (int i=0; i < wdg_uptable->rowCount(); i++)
-            {
-                UpLabel *lbl = qobject_cast<UpLabel*>(wdg_uptable->cellWidget(i,0));
-                QPixmap  pix = QPixmap::fromImage(m_listimages.at(i).scaled(wdg_uptable->width()-2,wdg_uptable->height()-2,Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation));
-                lbl->setPixmap(pix);
-                wdg_uptable->setRowHeight(i,pix.height());
-            }
-            wdg_inflabel    ->move(10,wdg_uptable->viewport()->height()-40);
+            wdg_uptable     ->resizetofit(sizefordisplay());
+            wdg_inflabel    ->setGeometry(10,wdg_uptable->height()-40,350,25);
         }
     }
     return QWidget::eventFilter(obj, event);
