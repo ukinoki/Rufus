@@ -987,6 +987,7 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
             wdg_video   ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         if (listscreens.size())
             move (listscreens.first()->geometry().width() - width(), 0);
+        mainscroll      ->resize(sizeforunit().width(), wdg_listdocstreewiew->height());
     }
     else if (m_mode == Zoom)
     {
@@ -1000,7 +1001,6 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
             wdg_video   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         m_mode           = Normal;
     }
-    Utils::Pause(10);
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
     setEnregPosition(m_mode == Normal);
