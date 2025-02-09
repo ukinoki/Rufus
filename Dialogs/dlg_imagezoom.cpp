@@ -1,60 +1,21 @@
+/* (C) 2025 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "dlg_imagezoom.h"
-
-dlg_imagezoom::dlg_imagezoom(QWidget * wdg, QWidget *parent) : UpDialog(parent)
-{
-    double h = 1.0;
-    double w = 1.0;
-    m_vdwdg = dynamic_cast<UpVideoWidget*>(wdg);
-    if (m_vdwdg)
-    {
-        h = m_vdwdg->videoSink()->videoSize().height();
-        w = m_vdwdg->videoSink()->videoSize().width();
-    }
-    else
-    {
-        m_labwdg = dynamic_cast<UpLabel*>(wdg);
-        if (m_labwdg){
-            if (m_labwdg)
-            {
-                h = m_labwdg->height();
-                w = m_labwdg->width();
-            }
-        }
-    }
-    if (m_labwdg == Q_NULLPTR && m_vdwdg == Q_NULLPTR)
-        return;
-    setSizeAvailable(QSize(w,h), this, m_sizeform, m_sizewidget);
-    setAttribute(Qt::WA_ShowWithoutActivating, true);
-    AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonPrint | UpDialog::ButtonRecord);
-
-    if (m_labwdg)
-    {
-        RecordButton            ->setVisible(false);
-        UpLabel *lab            = new UpLabel;
-        lab                     ->setImage(m_labwdg->image());
-        QPixmap pix             = QPixmap::fromImage(m_labwdg->image()).scaled(m_sizewidget,Qt::KeepAspectRatio,Qt::SmoothTransformation);
-        lab                     ->setPixmap(pix);
-        lab                     ->setAutoFillBackground(false);
-        dlglayout()             ->insertWidget(0,lab);
-    }
-    else if (m_vdwdg)
-    {
-        PrintButton                     ->setVisible(false);
-        m_controlplayer                 = new PlayerControls(this);
-        AjouteWidgetLayButtons(m_controlplayer, false);
-        UpVideoWidget* vid              = new UpVideoWidget(m_vdwdg->filename());
-        m_player                        = new UpMediaPlayer(m_vdwdg->filename());
-        m_player                        ->setSource( QUrl::fromLocalFile(vid->filename()));
-        m_player                        ->setVideoOutput(m_vdwdg);
-        m_player                        ->play();
-        m_player                        ->setPosition(m_vdwdg->player()->position());
-        vid                             ->setFixedSize(m_sizewidget);
-        dlglayout()                     ->insertWidget(0,vid);
-        m_controlplayer                 ->setPlayer(m_player);
-    }
-    connect(OKButton, &QPushButton::clicked, this, &QDialog::close);
-    move(0,0);
-}
 
 dlg_imagezoom::dlg_imagezoom(DocExterne *doc, int pagepdf, QWidget *parent) : UpDialog(parent)
 {
@@ -69,10 +30,12 @@ dlg_imagezoom::dlg_imagezoom(DocExterne *doc, int pagepdf, QWidget *parent) : Up
             m_player            = new UpMediaPlayer(filename, this);
             vid                 ->setPlayer(m_player);
             m_player            ->setVideoOutput(vid);
-            size                = m_player->videoresolution();
+            size                = m_player->videosize();
             delete vid;
             delete m_player;
-            setSizeAvailable(size, this, m_sizeform, m_sizewidget);
+            double maxw = size.width();
+            double maxh = size.height();
+            setSizes(maxw / maxh, this, m_sizeform, m_sizewidget);
             setAttribute(Qt::WA_ShowWithoutActivating, true);
             PlayVideo(filename);
         }
@@ -86,7 +49,7 @@ dlg_imagezoom::dlg_imagezoom(DocExterne *doc, int pagepdf, QWidget *parent) : Up
             listimg = doc->pagelist();
         if (listimg.size() > 0)
         {
-            int maxw(0), maxh(0);
+            double maxw(0), maxh(0);
             for (int i=0; i < listimg.size(); i++)
             {
                 QPixmap pix = QPixmap::fromImage(listimg.at(i));
@@ -95,7 +58,7 @@ dlg_imagezoom::dlg_imagezoom(DocExterne *doc, int pagepdf, QWidget *parent) : Up
                 if (pix.height() > maxh)
                     maxh = pix.height();
             }
-            setSizeAvailable(QSize(maxw, maxh), this, m_sizeform, m_sizewidget);
+            setSizes(maxw / maxh, this, m_sizeform, m_sizewidget);
             setAttribute(Qt::WA_ShowWithoutActivating, true);
             Display(listimg, doc->titre(), pagepdf);
         }
@@ -117,7 +80,7 @@ dlg_imagezoom::dlg_imagezoom(QMap<QString,QVariant> doc, int pagepdf, QWidget *p
     }
     if (listimg.size() > 0)
     {
-        int maxw(0), maxh(0);
+        double maxw(0), maxh(0);
         for (int i=0; i < listimg.size(); i++)
         {
             QPixmap pix = QPixmap::fromImage(listimg.at(i));
@@ -126,7 +89,7 @@ dlg_imagezoom::dlg_imagezoom(QMap<QString,QVariant> doc, int pagepdf, QWidget *p
             if (pix.height() > maxh)
                 maxh = pix.height();
         }
-        setSizeAvailable(QSize(maxw, maxh), this, m_sizeform, m_sizewidget);
+        setSizes(maxw / maxh, this, m_sizeform, m_sizewidget);
         setAttribute(Qt::WA_ShowWithoutActivating, true);
         Display(listimg, "", pagepdf);
     }
@@ -134,14 +97,14 @@ dlg_imagezoom::dlg_imagezoom(QMap<QString,QVariant> doc, int pagepdf, QWidget *p
 
 
 /*!
- *  \brief      dlg_imagezoom::setSizeAvailable
+ *  \brief      dlg_imagezoom::setSizes
  *  \abstract   calc the right size for maximum size view respect with screen resolution depending on item resolution to display and screen resolution
  *  \param      size =  actual size of item in order toi cal frameration
  *  \return
     *  m_sizeform = final size for QDialog
     *  m_sizewidget = size available inside form for widget to display
 */
-void dlg_imagezoom::setSizeAvailable(QSize size, UpDialog *dlg, QSize &sizeform, QSize &sizewidget)
+void dlg_imagezoom::setSizes(double ratioimgorigine, UpDialog *dlg, QSize &sizeform, QSize &sizewidget, int correctionwidth)
 {
     /*! screen resolution */
     double          wscroll  = 0;
@@ -155,29 +118,26 @@ void dlg_imagezoom::setSizeAvailable(QSize size, UpDialog *dlg, QSize &sizeform,
         screenratio = wscroll/hscroll;
     }
 
-    double          wdgratio = 1;
-    double          w = size.width();
-    double          h = size.height();
-    wdgratio        = w/h;
 
-    dlg->resize(size.width(),size.height()); //! uses only for "fix" the form in order to calculate hdelta & wdelta
 
-    int wdelta    = dlg->geometry().width() -dlg->sizefordisplay().width();
+    dlg->resize(1000,1000); //! uses only for "fix" the form in order to calculate hdelta & wdelta
+
+    int wdelta    = dlg->geometry().width() - dlg->sizefordisplay().width() + correctionwidth;
     int hdelta    = dlg->geometry().height() - dlg->sizefordisplay().height();
 
     /*! if screenration >= videoratio  => screenheight is used for max height else screenwidthfor max width */
     int finalh (0), finalw(0);
-    if (screenratio >= wdgratio)
+    if (screenratio >= ratioimgorigine)
     {
         finalh = int(hscroll * 0.98);
         double hd = finalh - hdelta;    //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
-        finalw = int(hd * wdgratio) + wdelta;
+        finalw = int(hd * ratioimgorigine) + wdelta;
     }
     else
     {
         finalw = int(wscroll);
         double wd = finalw - wdelta;     //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
-        finalh = int(wd / wdgratio) + wdelta;
+        finalh = int(wd / ratioimgorigine) + wdelta;
     }
     sizeform      = QSize(finalw, finalh);
     sizewidget    = QSize(finalw - wdelta, finalh - hdelta);

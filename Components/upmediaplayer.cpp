@@ -20,7 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 UpMediaPlayer::UpMediaPlayer(QString filename, QObject *parent) : QMediaPlayer{parent}
 {
     setSource( QUrl::fromLocalFile(filename));
-    //! this sequenvce is used to determie the video size
+
+    //! the following sequenvce is used to determie the video size
     bool StopVideo = false;
     connect(this, &QMediaPlayer::metaDataChanged, this, [&] { StopVideo = true; });
     QEventLoop loop;
@@ -32,7 +33,7 @@ UpMediaPlayer::UpMediaPlayer(QString filename, QObject *parent) : QMediaPlayer{p
     disconnect();
 }
 
-QSize UpMediaPlayer::videoresolution() const
+QSize UpMediaPlayer::videosize() const
 {
     return m_videoresolution;
 }

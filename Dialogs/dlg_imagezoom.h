@@ -1,3 +1,20 @@
+/* (C) 2025 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #ifndef DLG_IMAGEZOOM_H
 #define DLG_IMAGEZOOM_H
 
@@ -13,13 +30,12 @@
 class dlg_imagezoom : public UpDialog
 {
 public:
-    dlg_imagezoom(QWidget * wdg, QWidget *parent = Q_NULLPTR);
     dlg_imagezoom(DocExterne *doc, int pagepdf = 0, QWidget *parent = Q_NULLPTR);
     dlg_imagezoom(QMap<QString,QVariant> doc, int pagepdf = 0, QWidget *parent = Q_NULLPTR);
 
-    QMediaPlayer            *player() const;
-    void                    setPlayer(QMediaPlayer *newPlayer);
-    static void             setSizeAvailable(QSize size, UpDialog *dlg, QSize &sizeform, QSize &sizewidget);
+    UpMediaPlayer*          player() const;
+    void                    setPlayer(UpMediaPlayer *newPlayer);            //! set sizes to maximum for QDialog & displaywidg depending on display widget ratio & screen resolution ratio
+    static void             setSizes(double ratio, UpDialog *dlg, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
 
 private:
     bool                    eventFilter(QObject *, QEvent *);

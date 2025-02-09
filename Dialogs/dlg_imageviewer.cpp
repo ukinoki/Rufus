@@ -582,7 +582,7 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 UpMediaPlayer *player               = new UpMediaPlayer(filename, wdg_video);
                 wdg_video                           ->setPlayer(player);
                 player                              ->setVideoOutput(wdg_video);
-                QSize size                          = player->videoresolution();
+                QSize size                          = player->videosize();
                 //! -----------------------------------------------------------------
                 player->play();
                 double w                            = sizeforunit().width();

@@ -24,11 +24,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QSize>
 
+/*! Upmediaplayer is used for only one reason: get the videoresolution as QMediaMetaData doesn't give any result in very iften cases if the video is not read */
+
 class UpMediaPlayer : public QMediaPlayer
 {
 public:
     explicit UpMediaPlayer(QString filename, QObject *parent = nullptr);
-    QSize videoresolution() const;
+    QSize videosize() const;
 
 private:
     QString                 m_filename = QString();

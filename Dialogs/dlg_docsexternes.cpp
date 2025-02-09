@@ -305,8 +305,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton        ->setVisible(j);
     RecordButton        ->disconnect();
-    double x;
-    double y;
+    double w;
+    double h;
     wdg_inflabel        ->setVisible(!docmt->isVideo());
     wdg_playctrl        ->setVisible(docmt->isVideo());
 
@@ -327,16 +327,13 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         wdg_video       = new QVideoWidget;
         mainscroll      ->setWidget(wdg_video);
-        medplay_player  = new QMediaPlayer;
-        medplay_player  ->setSource(QUrl::fromLocalFile(filename));
+        medplay_player  = new UpMediaPlayer(filename);
+        QSize size      = medplay_player->videosize();
+        w               = size.width();
+        h               = size.height();
+        m_vidorimgratio = w/h;
         medplay_player  ->setVideoOutput(wdg_video);
         wdg_playctrl    ->setPlayer(medplay_player);
-        QSize size      = wdg_video->videoSink()->videoSize();
-        int w           = sizeforunit().width();
-        double nx       = size.width();
-        double ny       = size.height();
-        int h           = int(w*ny/nx);
-        m_vidorimgratio = nx/ny;
         wdg_video       ->setFixedSize(w,h);
 
         wdg_video       ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
@@ -367,9 +364,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             wdg_jpglbl          ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
             mainscroll          ->setWidget(wdg_jpglbl);
             QPixmap pix         = QPixmap::fromImage(image).scaled(sizeforunit(),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-            x                   = pix.width();
-            y                   = pix.height();
-            m_vidorimgratio     = x/y;
+            w                   = pix.width();
+            h                   = pix.height();
+            m_vidorimgratio     = w/h;
             wdg_jpglbl          ->setPixmap(pix);
             wdg_jpglbl          ->setImage(image);
             wdg_jpglbl          ->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -406,8 +403,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 wdg_pdftbl                  ->setListimages(listimg);
                 QSize szfinal               = wdg_pdftbl->calcSizeForDisplay(sizeforunit());
                 QList<UpLabel *> pdflabels  = wdg_pdftbl->labels();
-                double w                    = szfinal.width();
-                double h                    = szfinal.height();
+                w                           = szfinal.width();
+                h                           = szfinal.height();
                 m_vidorimgratio             = w/h;
                 for (int i=0; i<pdflabels.size(); i++)
                 {
@@ -930,64 +927,28 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         }
         m_mode       = Zoom;
 
-        if (m_hdelta == 0)
-            m_hdelta = height() - wdg_listdocstreewiew->height();
-        if (m_wdelta == 0)
-        {
-            if (m_currentdocument->isPDF())         m_wdelta  = width() - wdg_pdftbl->width();
-            else if (m_currentdocument->isJPG())    m_wdelta  = width() - wdg_jpglbl->width();
-            else if (m_currentdocument->isVideo())  m_wdelta  = width() - wdg_video->width();
-        }
+        //! set dimensions to max
+        QSize finalsize     = QSize();
+        QSize wdgfinalsize  = QSize();
+        QWidget *wdg        = wdg_pdftbl;
+        if (m_currentdocument->isJPG())
+            wdg             = wdg_jpglbl;
+        else if (m_currentdocument->isVideo())
+            wdg             = wdg_video;
 
-        //! max dimensions zone visu
-        /*!
-        QSize finalsize = QSize();
-        QSize wdgfinalsize = QSize();
-        QWidget *wdg = wdg_pdftbl;
-        if (m_currentdocument->isJPG()) wdg = wdg_jpglbl;
-        else if (m_currentdocument->isVideo()) wdg = wdg_video;
-        //! max dimensions zone visu
-        dlg_imagezoom::setSizeAvailable(QSize(wdg->width(), wdg_listdocstreewiew->height()), this, finalsize, wdgfinalsize);
-        wdg->resize(wdgfinalsize);
+        int correction      = m_lay->contentsMargins().left() + m_lay->spacing() + m_lay->contentsMargins().right() + m_treeviewwidth;
+        dlg_imagezoom::setSizes(m_vidorimgratio, this, finalsize, wdgfinalsize, correction);
+        wdg                 ->resize(wdgfinalsize);
         move (0, 0);
-        */
-
-        double wscroll  = 0;
-        double hscroll  = 0;
-        double screenratio = 1;
-        QList<QScreen*> listscreens = QGuiApplication::screens();
-        if (listscreens.size())
-        {
-            wscroll  = listscreens.first()->geometry().width();
-            hscroll  = listscreens.first()->geometry().height();
-            screenratio = wscroll/hscroll;
-        }
-
-        /*! if screenration >= videoratio  => screenheight is used for max height else screenwidthfor max width */
-        int finalh (0), finalw(0);
-        if (screenratio >= m_vidorimgratio)
-        {
-            finalh = int(hscroll * 0.9);
-            double hd = finalh - m_hdelta;    //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
-            finalw = int(hd * m_vidorimgratio) + m_wdelta;
-        }
-        else
-        {
-            finalw = int(wscroll * 0.9);
-            double wd = finalw - m_wdelta;     //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
-            finalh = int(wd / m_vidorimgratio) + m_wdelta;
-        }
-        resize(finalw, finalh);
 
         if (m_currentdocument->isPDF())
-            wdg_pdftbl  ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+            wdg_pdftbl      ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         else if (m_currentdocument->isJPG())
-            wdg_jpglbl  ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+            wdg_jpglbl      ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         else if (m_currentdocument->isVideo())
-            wdg_video   ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        if (listscreens.size())
-            move (listscreens.first()->geometry().width() - width(), 0);
-        mainscroll      ->resize(sizeforunit().width(), wdg_listdocstreewiew->height());
+            wdg_video       ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+        mainscroll          ->resize(sizeforunit().width(), wdg_listdocstreewiew->height());
+        move (0,0);
     }
     else if (m_mode == Zoom)
     {

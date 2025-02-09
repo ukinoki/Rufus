@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_DOCSEXTERNES_H
 
 #include "dlg_imageviewer.h"
+#include "upmediaplayer.h"
 #include "imagewidget.h"
 
 class dlg_docsexternes : public UpDialog
@@ -63,7 +64,7 @@ private:
 
     /*! les video sont affichées via un QVideoWidget *wdg_graphview    */
     QVideoWidget            *wdg_video              = Q_NULLPTR;
-    QMediaPlayer            *medplay_player         = Q_NULLPTR;
+    UpMediaPlayer           *medplay_player         = Q_NULLPTR;
     PlayerControls          *wdg_playctrl           = new PlayerControls;
 
     /*! lesjpg sont affichés via un UpLabel *wdg_jpglbl    */
@@ -84,7 +85,6 @@ private:
     QSize                   m_sizeorigin;
 
     double                  m_vidorimgratio = 1;
-    int                     m_hdelta = 0, m_wdelta = 0;
     Mode                    m_mode;
     ModeTri                 m_modetri;
     ModeFiltre              m_modefiltre;
