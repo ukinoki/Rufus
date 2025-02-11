@@ -21,16 +21,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 UpDialog::UpDialog(QString NomFiche, QWidget *parent) : QDialog(parent)
 {
     m_enregistreposition    = true;
-    restoreGeometry(QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Position_Fiche + NomFiche).toByteArray());
     setFont(qApp->font());
     AjouteLay();
     m_mode           = NullMode;
-    connect(this, &QDialog::finished, this, [=]{if (m_enregistreposition)
-        {
-            QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
-            sets.setValue(Position_Fiche + NomFiche, saveGeometry());
-        }
-    });
+    setSaveGeometry(NomFiche);
 }
 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
@@ -40,6 +34,17 @@ UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
     m_enregistreposition   = false;
 }
 
+void UpDialog::setSaveGeometry(QString nomsavegeometry)
+{
+    restoreGeometry(QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Position_Fiche + nomsavegeometry).toByteArray());
+    connect(this, &QDialog::finished, this, [=]{if (m_enregistreposition)
+        {
+            QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+            sets.setValue(Position_Fiche + nomsavegeometry, saveGeometry());
+        }
+    });
+
+}
 void UpDialog::AjouteLay()
 {
     wdg_buttonswidget   = new QWidget();
@@ -191,6 +196,16 @@ void UpDialog::UpdateTabOrder()
             setTabOrder(wdg_buttonslayout->findChildren<UpSmallButton*>().at(i),wdg_buttonslayout->findChildren<UpSmallButton*>().at(i+1));
 }
 
+int UpDialog::buttonsstagecount() const
+{
+    return m_nstages;
+}
+
+int UpDialog::stageheight() const
+{
+    return m_stageheight;
+}
+
 void UpDialog::AjouteWidgetLayButtons(QWidget *widg, bool ALaFin)
 {
     if (ALaFin)
@@ -274,5 +289,54 @@ void UpDialog::TuneSize(bool fixh, bool fixw)
         setFixedWidth(larg);
     else
         resize(larg, haut);
+}
+
+
+/*!
+ *  \brief      UpDialog::setSizes
+ *  \abstract   calc the right size for maximum size view respect with screen resolution depending on item resolution to display and screen resolution
+ *  \param      size =  actual size of item in order toi cal frameration
+ *  \return
+    *  m_sizeform = final size for QDialog
+    *  m_sizewidget = size available inside form for widget to display
+*/
+void UpDialog::setSizes(double ratioimgorigine, UpDialog *dlg, QSize &sizeform, QSize &sizewidget, int correctionwidth)
+{
+    /*! screen resolution */
+    double          wscroll  = 0;
+    double          hscroll  = 0;
+    double          screenratio = 1;
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    if (listscreens.size())
+    {
+        wscroll     = listscreens.first()->availableGeometry().width();
+        hscroll     = listscreens.first()->availableGeometry().height();
+        screenratio = wscroll/hscroll;
+    }
+
+    int wdelta   = dlg  ->dlglayout()       ->contentsMargins().left()
+                 + dlg  ->dlglayout()       ->contentsMargins().right();
+    //qDebug() << dlg->stageheight() << dlg->buttonsstagecount() << dlg->widgetbuttons()->height();
+    int hdelta   = dlg  ->geometry()    .height()
+                 - dlg->sizefordisplay().height();
+
+    /*! if screenration >= videoratio  => screenheight is used for max heighth */
+    int finalh (0), finalw(0);
+    if (screenratio >= ratioimgorigine)
+    {
+        finalh = int(hscroll * 0.98);
+        double hd = finalh - hdelta;    //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
+        finalw = int(hd * ratioimgorigine) + wdelta;
+    }
+    /*! if screenration < videoratio  => screenwidth is used for max width */
+    else
+    {
+        finalw = int(wscroll);
+        double wd = finalw - wdelta;     //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
+        finalh = int(wd / ratioimgorigine) + hdelta;
+    }
+    sizeform      = QSize(finalw, finalh);
+    sizewidget    = QSize(finalw - wdelta, finalh - hdelta);
+    dlg->resize(sizeform);
 }
 

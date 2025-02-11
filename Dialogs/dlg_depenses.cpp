@@ -40,7 +40,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
         return;
     }
 
-     foreach (User * user, *map_usersdepenses)
+    foreach (User * user, *map_usersdepenses)
     {
         ui->UserscomboBox->addItem(user->login(), QString::number(user->id()) );
         if( !foundUser )
@@ -1070,23 +1070,21 @@ void dlg_depenses::GestionComptes()
 
 void dlg_depenses::ZoomDoc()
 {
-    disconnect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
-    connect (proc, &Procedures::DelImage, this, &dlg_depenses::EffaceFacture);
     QMap<QString,QVariant> doc;
-    doc.insert(M_BA, m_depenseencours->factureblob());
-    doc.insert(M_TYPE, m_depenseencours->factureformat());
-    dlg_imagezoom *zoomimg = new dlg_imagezoom(doc);
-    zoomimg->exec();
-    delete zoomimg;/*
-    proc->EditDocument(doc,
-                    (m_depenseencours->isecheancier()? m_depenseencours->objetecheancier() : m_depenseencours->objet()),
-                    (m_depenseencours->isecheancier()? tr("Echéancier") : tr("Facture")),
-                    UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK, this);*/
+    doc                             .insert(M_BA, m_depenseencours->factureblob());
+    doc                             .insert(M_TYPE, m_depenseencours->factureformat());
+    dlg_zoomimg                     = new dlg_imagezoom(doc);
+    dlg_zoomimg                     ->AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
+    connect(dlg_zoomimg->PrintButton, &UpSmallButton::clicked, this, [=]{proc->PrintDocument(doc);});
+    connect(dlg_zoomimg->SupprButton, &UpSmallButton::clicked, this, &dlg_depenses::EffaceFacture);
+    connect(dlg_zoomimg->OKButton,    &UpSmallButton::clicked, dlg_zoomimg, &dlg_imagezoom::close);
+    dlg_zoomimg                     ->exec();
+    delete dlg_zoomimg;
 }
 
 void dlg_depenses::EffaceFacture()
 {
-    if (UpMessageBox::Question(proc->EditDocumentDialog(),
+    if (UpMessageBox::Question(dlg_zoomimg,
                            (m_depenseencours->isecheancier()? tr("Suppression d'échéancier") : tr("Suppression de facture")),
                            (m_depenseencours->isecheancier()? tr ("Confirmez la suppression du lien vers ") + "\n" + m_depenseencours->objetecheancier() : tr ("Confirmez la suppression de la facture ") + "\n" +  m_depenseencours->objet()),
                            UpDialog::ButtonCancel | UpDialog::ButtonOK,
@@ -1098,7 +1096,6 @@ void dlg_depenses::EffaceFacture()
          * on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier
          */
     /* on ferme la fiche d'édition de la facture*/
-    proc->EditDocumentDialog()->accept();
     SupprimeFacture(m_depenseencours);
     /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/
     ui->VisuDocupTableWidget->clear();
@@ -1966,7 +1963,7 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
         return;
     dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
     if (Dlg_DocsScan->initOK())
-        if (Dlg_DocsScan->exec() == QDialog::Accepted)
+        if (Dlg_DocsScan->dialog()->exec() == QDialog::Accepted)
         {
             QMap<QString, QVariant> map = Dlg_DocsScan->getdataFacture();
             int idfact = map.value("idfacture").toInt();

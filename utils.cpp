@@ -1383,6 +1383,13 @@ void Utils::EnChantier(QWidget* parent, bool avecMsg)
     msgbox.exec();
 }
 
+double Utils::sizeratio(QSize size)
+{
+    double ws           = size.width();
+    double hs           = size.height();
+    double vidratio     = ws/hs;
+    return vidratio;
+}
 
 QList<QImage> Utils::calcImagefromPdf(QString filename)
 {

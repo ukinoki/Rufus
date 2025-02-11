@@ -19,8 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_DOCSSCANNER_H
 
 #include "procedures.h"
+#include "dlg_imagezoom.h"
 
-class dlg_docsscanner : public UpDialog
+class dlg_docsscanner : public QObject
 {
     Q_OBJECT
 public:
@@ -32,31 +33,33 @@ public:
     void                    NavigueVers(UpToolBar::Choix choix);
     QMap<QString, QVariant> getdataFacture();
 
+    dlg_imagezoom*          dialog() const;
+
 private:
-    DataBase                *db = DataBase::I();
-    Procedures              *proc = Procedures::I();
+    DataBase                *db             = DataBase::I();
+    Procedures              *proc           = Procedures::I();
+    dlg_imagezoom           *dlg_imgzoom    = Q_NULLPTR;
     bool                    m_accesdistant;
     QString                 m_pathdirstockageimagerie;
-    QDate                   m_currentdate = db->ServerDate();
+    QDate                   m_currentdate   = db->ServerDate();
     int                     m_iditem;
-    bool                    m_initok;
+    bool                    m_initok        = false;
     QStringList             m_listtypesexamen;
     QString                 m_docpath;
-    QString                 m_nomfichierimageencours;
+    QString                 m_currentImagefile;
     QMap<QString, QVariant> map_datafacture;
     QList<QImage>           m_listimages;
+    QStringList             m_filters       = QStringList() << "*." JPG << "*." PDF << "*." PNG << "*." JPEG;
 
     UpLineEdit              *wdg_linetitre;
     QDateEdit               *wdg_editdate;
     UpComboBox              *wdg_typedoccombobx;
-    UpTableWidget           *wdg_uptable;
     UpToolBar               *wdg_toolbar;
     UpPushButton            *wdg_dirsearchbutton;
-    QLabel                  *wdg_inflabel;
 
-    bool                    eventFilter(QObject *, QEvent *);
     void                    ValideFiche();
     void                    ChangeFile();
+    bool                    searchDir(bool &pathchanged);
 };
 
 #endif // DLG_DOCSSCANNER_H

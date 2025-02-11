@@ -17,30 +17,45 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_docsvideo.h"
 
-dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
-    UpDialog(Nom_fiche_DocsVideo, parent)
+dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
 {
-    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    m_docpath = proc->settings()->value(Param_Poste Dossier_Videos).toString();
+    if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
+    {
+        bool pathchanged;
+        if (!searchDir(pathchanged))
+        {
+            UpMessageBox::Watch(parent, tr("Dossier vidde"), tr("il n'y a aucun fichier video dans le dossier par défaut ") + m_docpath);
+            return;
+        }
+    }
     m_currentpatient = pat;
-    setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
 
-    m_docpath = QSettings(PATH_FILE_INI).value(Param_Poste Dossier_Videos).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
-    wdg_visuvideowdg    = new QVideoWidget(this);
-    wdg_inflabel        = new UpLabel(this);
-    wdg_linetitre       = new UpLineEdit(this);
-    wdg_editdate        = new QDateEdit(this);
-    wdg_typedoccombobx  = new UpComboBox(this);
+
+    dlg_imgzoom         = new dlg_imagezoom();
+    dlg_imgzoom         ->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
+    dlg_imgzoom         ->setSaveGeometry(Nom_fiche_DocsVideo);
+    dlg_imgzoom         ->setAttribute(Qt::WA_DeleteOnClose, true);
+    m_docpath           = proc->settings()->value(Param_Poste Dossier_Videos).toString();
+
+    wdg_linetitre       = new UpLineEdit();
+    wdg_editdate        = new QDateEdit();
+    wdg_typedoccombobx  = new UpComboBox();
+    int maxlength       = 200;
+    wdg_linetitre       ->setMaximumWidth(maxlength);
+    wdg_typedoccombobx  ->setMaximumWidth(maxlength + 10);
+    wdg_editdate        ->setMaximumWidth(100);
     m_listtypesexamen   << tr("Video Chirurgie")
                         << tr("Video LAF")
                         << tr("Video Autre");
     wdg_toolbar         = new UpToolBar();
     wdg_dirsearchbutton = new UpPushButton();
 
-    UpLabel         *lbltitre       = new UpLabel(this);
-    UpLabel         *lbldate        = new UpLabel(this);
-    UpLabel         *lbltype        = new UpLabel(this);
+    UpLabel         *lbltitre       = new UpLabel();
+    UpLabel         *lbldate        = new UpLabel();
+    UpLabel         *lbltype        = new UpLabel();
     QVBoxLayout     *rsgnmtVlay     = new QVBoxLayout();
     QVBoxLayout     *dirVlay        = new QVBoxLayout();
     QHBoxLayout     *dateLay        = new QHBoxLayout();
@@ -49,13 +64,13 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
 
     connect(wdg_toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(wdg_toolbar->choix());});
 
-    wdg_toolbar     ->setMinimumHeight(30);
-    wdg_dirsearchbutton->setFixedHeight(30);
-    wdg_dirsearchbutton->setText(tr("Chercher un fichier"));
+    wdg_toolbar         ->setMinimumHeight(30);
+    wdg_dirsearchbutton ->setFixedHeight(30);
+    wdg_dirsearchbutton ->setText(tr("Chercher un fichier"));
 
-    wdg_typedoccombobx->insertItems(0,m_listtypesexamen);
-    wdg_typedoccombobx->setEditable(false);
-    wdg_linetitre->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
+    wdg_typedoccombobx  ->insertItems(0,m_listtypesexamen);
+    wdg_typedoccombobx  ->setEditable(false);
+    wdg_linetitre       ->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
@@ -73,7 +88,9 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     rsgnmtVlay  ->addLayout(titreLay);
     rsgnmtVlay  ->addLayout(dateLay);
     rsgnmtVlay  ->setSpacing(2);
-    dirVlay     ->addWidget(wdg_inflabel);
+    QWidget *rsgnmtwidg = new QWidget();
+    rsgnmtwidg  ->setLayout(rsgnmtVlay);
+    rsgnmtwidg  ->setMaximumWidth(400);
     dirVlay     ->addWidget(wdg_toolbar);
     dirVlay     ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
     dirVlay     ->addWidget(wdg_dirsearchbutton);
@@ -86,41 +103,28 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) :
     titreLay    ->setContentsMargins(0,0,0,0);
     dateLay     ->setContentsMargins(0,0,0,0);
 
-    dlglayout()   ->insertWidget(0,wdg_visuvideowdg);
+    dlg_imgzoom ->buttonslayout()->insertWidget(0,rsgnmtwidg);
+    dlg_imgzoom ->buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    dlg_imgzoom ->buttonslayout()->insertLayout(0, dirVlay);
+    dlg_imgzoom ->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
+    dlg_imgzoom ->setMinimumWidth(650);
 
-    QFont font = qApp->font();
-    font.setPointSize(12);
-    wdg_inflabel->setFont(font);
-
-    AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    setStageCount(2);
-    connect(OKButton,           &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
+    connect(dlg_imgzoom->OKButton,  &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
     connect(wdg_dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsvideo::ChangeFile);
 
-    buttonslayout()->insertLayout(0,rsgnmtVlay);
-
-    buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
-
-    buttonslayout()->insertLayout(0, dirVlay);
-    setMinimumWidth(650);
-    setStageCount(2);
-    int w = width() - dlglayout()->contentsMargins().left() - dlglayout()->contentsMargins().right();
-    int y = height() - dlglayout()->contentsMargins().top() - dlglayout()->contentsMargins().bottom() - dlglayout()->spacing()  - widgetbuttons()->height();
-    wdg_visuvideowdg->resize(w, y);
     NavigueVers(UpToolBar::_last);
+    m_initOK = true;
 }
 
 void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
 {
-    QString fichencours = wdg_visuvideowdg->property(M_FILE).toString();
-    QStringList filters;
-    filters << "*.mp4" << "*.mpg" << "*.m4v";
-    QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
+    QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
-        UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + m_docpath);
+        UpMessageBox::Watch(dlg_imgzoom,tr("Il n'y a aucun document dans le dossier ") + m_docpath);
+        dlg_imgzoom->setStageCount(2);
         return;
     }
-    int idx = listfich.indexOf(fichencours);
+    int idx = listfich.indexOf(m_currentvideofile);
     if (choix == UpToolBar::_last)
         idx = listfich.size()-1;
     else if (choix == UpToolBar::_first)
@@ -135,65 +139,66 @@ void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
     if (idx>-1)
     {
-        QString filebut = listfich.at(idx);
-        //for (int i = 0; i<listfich.size();i++)
-        //    qDebug() << listfich.at(i) + " - index = " + QString::number(i) + "/" + QString::number(listfich.size());
-        AfficheVideo(filebut);
+        m_currentvideofile = listfich.at(idx);
+        dlg_imgzoom->setVideofile(m_docpath + "/" + m_currentvideofile);
     }
+}
+
+dlg_imagezoom *dlg_docsvideo::dialog() const
+{
+    return dlg_imgzoom;
 }
 
 void dlg_docsvideo::ChangeFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
-    if (fileName != "")
-    {
-        bool pathhaschanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
-        m_docpath = QFileInfo(fileName).dir().absolutePath();
-        QString fichierencours = QFileInfo(fileName).fileName();
-        QStringList filters;
-        filters << "*.mp4" << "*.mpg" << "*.m4v";
-        QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
-        int idx = listfich.indexOf(fichierencours);
-        wdg_toolbar->First()    ->setEnabled(idx>0);
-        wdg_toolbar->Prec()     ->setEnabled(idx>0);
-        wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
-        wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
-        AfficheVideo(fichierencours);
-        if (pathhaschanged)
-            QSettings(PATH_FILE_INI).setValue(Param_Poste Dossier_Videos, m_docpath);
-    }
+    bool pathchanged;
+    if (!searchDir(pathchanged))
+        if (!pathchanged)
+            return;
+    QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
+    int idx                 = listfich.indexOf(m_currentvideofile);
+    wdg_toolbar->First()    ->setEnabled(idx>0);
+    wdg_toolbar->Prec()     ->setEnabled(idx>0);
+    wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
+    wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
+    dlg_imgzoom             ->setVideofile(m_docpath + "/" + m_currentvideofile);
 }
 
-void dlg_docsvideo::AfficheVideo(QString filebut)
+bool dlg_docsvideo::searchDir(bool &pathchanged)
 {
-    wdg_visuvideowdg     ->setProperty(M_FILE, filebut);
-    QDir        dirpict = QDir(m_docpath);
-    wdg_inflabel    ->setText("<font color='magenta'>" + filebut + "</font>");
-
-    QMediaPlayer *player = new QMediaPlayer;
-    player->setVideoOutput(wdg_visuvideowdg);
-    player->setSource(QUrl::fromLocalFile(dirpict.filePath(filebut)));
-    player->play();
+    QString fileName = QFileDialog::getOpenFileName(dlg_imgzoom, tr("Choisir un fichier"), m_docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
+    if (fileName != "")
+    {
+        pathchanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
+        m_currentvideofile = QFileInfo(fileName).fileName();
+        if (m_docpath != QFileInfo(fileName).dir().absolutePath())
+            m_docpath = QFileInfo(fileName).dir().absolutePath();
+        if (pathchanged)
+            proc->settings()->setValue(Param_Poste Dossier_Videos, m_docpath);
+    }
+    if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
+        return false;
+    return true;
 }
 
 void dlg_docsvideo::ValideFiche()
 {
     if (wdg_typedoccombobx->currentText() == "")
     {
-        UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier le type de document"));
+        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier le type de document"));
         wdg_typedoccombobx->setFocus();
         return;
     }
     if (wdg_linetitre->text() == "")
     {
-        UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un nom pour le document"));
+        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier un nom pour le document"));
         wdg_linetitre->setFocus();
         return;
     }
     if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
-        UpMessageBox msgbox(this);
+        UpMessageBox msgbox(dlg_imgzoom);
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour cette video"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
@@ -208,13 +213,11 @@ void dlg_docsvideo::ValideFiche()
         }
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
-    QTextEdit txtedit;
-    txtedit.setHtml(wdg_inflabel->text());
-    QString filename = m_docpath + "/" + txtedit.toPlainText();
+    QString filename = m_docpath + "/" + m_currentvideofile;
     QFile   qFile(filename);
     if (!qFile.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(dlg_imgzoom, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
@@ -225,7 +228,7 @@ void dlg_docsvideo::ValideFiche()
         if (!VideoDir.mkdir(CheminVideoDir))
         {
             QString msg = tr("Dossier de sauvegarde des videos ") + "<font color=\"red\"><b>" + CheminVideoDir + "</b></font>" + tr(" invalide");
-            UpMessageBox::Watch(this,msg);
+            UpMessageBox::Watch(dlg_imgzoom,msg);
             return;
         }
     QString sstypedoc = wdg_linetitre->text();
@@ -260,7 +263,7 @@ void dlg_docsvideo::ValideFiche()
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
             Utils::removeWithoutPermissions(qFile);
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Video ") + sstypedoc +  tr(" enregistrée"), Icons::icSunglasses(), 1000);
-        close();
+        dlg_imgzoom ->close();
     }
 }
 

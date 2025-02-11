@@ -286,7 +286,6 @@ public:
 private:
     QFont                   m_applicationfont;
     UpDialog                *dlg_askLogin, *dlg_askUser;
-    UpDialog*               gEditDocumentDialog = Q_NULLPTR;
 
 public:
     void                    ab(int i = 1);
@@ -296,7 +295,6 @@ public:
     QMap<Utils::Period, QDate> ChoixDate(QWidget *parent=Q_NULLPTR);
     QString                 Edit(QString txt, QString titre = "", bool editable = true, bool ConnectAuSignal = false, QWidget *parent = Q_NULLPTR);
     void                    EditHtml(QString txt);
-    UpDialog*               EditDocumentDialog() { return gEditDocumentDialog; };
     void                    ModifTailleFont(QWidget *widg, int siz, QFont font=qApp->font());
     static void             ReconstruitComboCorrespondants(QComboBox* box, Correspondants::TYPECORRESPONDANT type = Correspondants::TousLesCorrespondants);
 
@@ -304,11 +302,8 @@ signals:
     void                    UpdDocsExternes();
     void                    ModifEdit(QString txt);
     void                    ConnectTimers(bool connect);
-    void                    DelImage();
 
 /*! fin en vrac -------------------------------------------------------------------------------------------------------- */
-
-
 
 
 

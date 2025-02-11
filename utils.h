@@ -288,6 +288,9 @@ public:
     //! affiche la fiche enchantier
     static void EnChantier(QWidget *parent = Q_NULLPTR, bool avecMsg = false);
 
+    //! ratio w/h of QSize
+    static double sizeratio(QSize);
+
     //! renvoie chaque page d'un pdf comme une image
     static QList<QImage> calcImagefromPdf(QByteArray pdf);
     static QList<QImage> calcImagefromPdf(QString filename);

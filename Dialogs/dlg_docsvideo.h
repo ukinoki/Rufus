@@ -19,41 +19,44 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_DOCSVIDEO_H
 
 #include <QDateEdit>
-#include <QMediaPlayer>
-#include <QMediaRecorder>
-#include <QVideoWidget>
 #include "gbl_datas.h"
 #include "upcombobox.h"
-#include "updialog.h"
 #include "uptoolbar.h"
+#include "dlg_imagezoom.h"
+#include "procedures.h"
 
 
-class dlg_docsvideo : public UpDialog
+class dlg_docsvideo : public QObject
 {
     Q_OBJECT
 public:
     dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
     void                NavigueVers(UpToolBar::Choix choix);
 
+    dlg_imagezoom       *dialog() const;
+    bool                initOK() { return m_initOK; }
+
 private:
-    DataBase            *db = DataBase::I();
-    Patient             *m_currentpatient;
-    QList<QPixmap>      m_listpixmaps;
-    QStringList         m_listtypesexamen;
-    QString             m_docpath;
-    QDate               m_currentdate = db->ServerDate();
+    DataBase            *db                 = DataBase::I();
+    Procedures          *proc               = Procedures::I();
+    Patient             *m_currentpatient   = Q_NULLPTR;
+    QStringList         m_listtypesexamen   = QStringList();
+    QString             m_docpath           = QString();
+    QDate               m_currentdate       = db->ServerDate();
+    QString             m_currentvideofile  = QString();
 
-    UpLabel             *wdg_inflabel;
-    UpLineEdit          *wdg_linetitre;
-    QDateEdit           *wdg_editdate;
-    UpComboBox          *wdg_typedoccombobx;
-    QVideoWidget        *wdg_visuvideowdg;
-    UpToolBar           *wdg_toolbar;
-    UpPushButton        *wdg_dirsearchbutton;
+    UpLineEdit          *wdg_linetitre          = Q_NULLPTR;
+    QDateEdit           *wdg_editdate           = Q_NULLPTR;
+    UpComboBox          *wdg_typedoccombobx     = Q_NULLPTR;
+    UpToolBar           *wdg_toolbar            = Q_NULLPTR;
+    UpPushButton        *wdg_dirsearchbutton    = Q_NULLPTR;
+    dlg_imagezoom       *dlg_imgzoom            = Q_NULLPTR;
+    bool                m_initOK                = false;
+    QStringList         m_filters               = QStringList() << "*.mp4" << "*.mpg" << "*.m4v";
 
-    void                AfficheVideo(QString filebut);
     void                ChangeFile();
     void                ValideFiche();
+    bool                searchDir(bool &pathchanged);
 };
 
 #endif // DLG_DOCSVIDEO_H

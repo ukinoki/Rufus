@@ -579,19 +579,12 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     return Q_NULLPTR;
                 }
                 UpVideoWidget *wdg_video            = new UpVideoWidget(filename);
-                UpMediaPlayer *player               = new UpMediaPlayer(filename, wdg_video);
-                wdg_video                           ->setPlayer(player);
-                player                              ->setVideoOutput(wdg_video);
-                QSize size                          = player->videosize();
+                QSize size                          = wdg_video->player()->videosize();
                 //! -----------------------------------------------------------------
-                player->play();
+                wdg_video->player()                 ->play();
                 double w                            = sizeforunit().width();
-                double nw                           = size.width();
-                double nh                           = size.height();
-                double vidratio = nw/nh;
-                double h                            = w/vidratio;
                 //wdg_video             ->setStyleSheet("padding: 0px;");
-                wdg_video                           ->setFixedSize(int(w),int(h));
+                wdg_video                           ->setFixedSize(w,w/Utils::sizeratio(size));
                 wdg_video                           ->setContextMenuPolicy(Qt::CustomContextMenu);
                 connect(wdg_video, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
                 wdg_video                           ->installEventFilter(this);
@@ -914,12 +907,9 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                                                 UpVideoWidget *gvdeo = dynamic_cast<UpVideoWidget*>(widg);                        //! widget is UpVideoWidget => video -> resize the UpVideoWidget
                                                 if (gvdeo)
                                                 {
-                                                    QSize size  = gvdeo->videoSink()->videoSize();
-                                                    int w       = sizeforunit().width();
-                                                    double nx   = size.width();
-                                                    double ny   = size.height();
-                                                    int h       = int(w*ny/nx);
-                                                    gvdeo       ->setFixedSize(w,h);
+                                                    QSize size          = gvdeo->player()->videosize();
+                                                    double w            = sizeforunit().width();
+                                                    gvdeo               ->setFixedSize(w,w/Utils::sizeratio(size));
                                                 }
                                                 else
                                                 {
@@ -955,14 +945,22 @@ void dlg_imageviewer::ZoomDoc(QWidget *widg)
         UpVideoWidget *vid = dynamic_cast<UpVideoWidget*>(widg);
         DocExterne *doc = qobject_cast<DocExterne*>(vid->rufusitem());
         if (doc)
+        {
             imgzoom = new dlg_imagezoom(doc);
+            imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
+            connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_imagezoom::close);
+        }
     }
     else if (dynamic_cast<UpLabel*>(widg) != Q_NULLPTR)
     {
         UpLabel *lbl = dynamic_cast<UpLabel*>(widg);
         DocExterne *doc = qobject_cast<DocExterne*>(lbl->rufusitem());
         if (doc)
+        {
             imgzoom = new dlg_imagezoom(doc);
+            imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
+            connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_imagezoom::close);
+        }
     }
     if (imgzoom)
     {

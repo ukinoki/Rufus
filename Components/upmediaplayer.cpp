@@ -21,7 +21,7 @@ UpMediaPlayer::UpMediaPlayer(QString filename, QObject *parent) : QMediaPlayer{p
 {
     setSource( QUrl::fromLocalFile(filename));
 
-    //! the following sequenvce is used to determie the video size
+    //! the following sequence is used to determie the video size
     bool StopVideo = false;
     connect(this, &QMediaPlayer::metaDataChanged, this, [&] { StopVideo = true; });
     QEventLoop loop;

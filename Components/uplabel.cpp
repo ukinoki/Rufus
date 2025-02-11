@@ -41,6 +41,7 @@ UpLabel::~UpLabel()
 {
 
 }
+
 void UpLabel::AfficheToolTip()
 {
     if (m_tooltipmsg != "" && isEnabled())
@@ -60,7 +61,8 @@ bool UpLabel::eventFilter(QObject *obj, QEvent *event)
             emit dblclick(id());
     }
     else if (event->type() == QEvent::MouseButtonRelease)
-        emit clicked(id());
+        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            emit clicked(id());
    return QWidget::eventFilter(obj, event);
 }
 

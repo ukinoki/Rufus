@@ -54,7 +54,6 @@ PlayerControls::PlayerControls(QWidget *parent) : QWidget(parent)
 
 PlayerControls::~PlayerControls()
 {
-    delete m_ctrlplayer;
 }
 
 QString PlayerControls::format(QMediaPlayer *plyr)

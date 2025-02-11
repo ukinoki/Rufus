@@ -18,14 +18,27 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_docsscanner.h"
 
 dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *parent) :
-    UpDialog(Nom_fiche_DocsScanner, parent)
+    QObject(parent)
 {
+    m_docpath = proc->settings()->value(Param_Poste Dossier_DocsScannes).toString();
+    if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
+    {
+        bool pathchanged;
+        if (!searchDir(pathchanged))
+        {
+            UpMessageBox::Watch(parent, tr("Dossier vidde"), tr("il n'y a aucun fichier video dans le dossier par défaut ") + m_docpath);
+            return;
+        }
+    }
     m_mode           = mode;
     if ( m_mode == Document)
         m_iditem = qobject_cast<Patient*>(item)->id();
     else
         m_iditem = qobject_cast<Depense*>(item)->id();
-    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    dlg_imgzoom     = new dlg_imagezoom(parent);
+    dlg_imgzoom     ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    dlg_imgzoom     ->setSaveGeometry(Nom_fiche_DocsScanner);
+    dlg_imgzoom     ->setAttribute(Qt::WA_DeleteOnClose, true);
 
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
@@ -35,12 +48,11 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     m_docpath = proc->settings()->value(Param_Poste Dossier_DocsScannes).toString();
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
-    wdg_uptable         = new UpTableWidget(this);
-    wdg_inflabel        = new QLabel(wdg_uptable);
-    wdg_linetitre       = new UpLineEdit(this);
-    wdg_editdate        = new QDateEdit(this);
+
+    wdg_linetitre       = new UpLineEdit();
+    wdg_editdate        = new QDateEdit();
     wdg_editdate        ->setDisplayFormat(tr("dd/MM/yyyy"));
-    wdg_typedoccombobx  = new UpComboBox(this);
+    wdg_typedoccombobx  = new UpComboBox();
     switch ( m_mode) {
     case Document:
         m_listtypesexamen   << COURRIER
@@ -63,32 +75,39 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         m_listtypesexamen   << ECHEANCIER;
         break;
     }
+    /*wdg_typedoccombobx->addItem(tr("Courrier")  , COURRIER);
+    wdg_typedoccombobx->addItem(tr("CV")        , CV);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);
+    wdg_typedoccombobx->addItem(tr("Courrier"), COURRIER);*/
     wdg_toolbar         = new UpToolBar();
     wdg_dirsearchbutton = new UpPushButton();
 
-    UpLabel         *lbltitre       = new UpLabel(this);
-    UpLabel         *lbldate        = new UpLabel(this);
-    UpLabel         *lbltype        = new UpLabel(this);
+    UpLabel         *lbltitre       = new UpLabel();
+    UpLabel         *lbldate        = new UpLabel();
+    UpLabel         *lbltype        = new UpLabel();
     QVBoxLayout     *rsgnmtVlay     = new QVBoxLayout();
     QVBoxLayout     *dirVlay        = new QVBoxLayout();
     QHBoxLayout     *dateLay        = new QHBoxLayout();
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(wdg_toolbar,    &UpToolBar::TBSignal, this, [=] {NavigueVers(wdg_toolbar->choix());});
+    connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=] {NavigueVers(wdg_toolbar->choix());});
 
-    wdg_uptable     ->setColumnCount(1);
-    wdg_uptable     ->horizontalHeader()->setVisible(false);
-    wdg_uptable     ->verticalHeader()->setVisible(false);
-    wdg_uptable     ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical
-    wdg_uptable     ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    wdg_toolbar     ->setMinimumHeight(30);
-    wdg_dirsearchbutton->setFixedHeight(30);
-    wdg_dirsearchbutton->setText(tr("Chercher un fichier"));
+    wdg_toolbar         ->setMinimumHeight(30);
+    wdg_dirsearchbutton ->setFixedHeight(30);
+    wdg_dirsearchbutton ->setText(tr("Chercher un fichier"));
 
-    wdg_typedoccombobx->insertItems(0,m_listtypesexamen);
-    wdg_typedoccombobx->setEditable(false);
-    wdg_linetitre->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
+    wdg_typedoccombobx  ->insertItems(0,m_listtypesexamen);
+    wdg_typedoccombobx  ->setEditable(false);
+    wdg_linetitre       ->setValidator(new QRegularExpressionValidator(Utils::rgx_intitulecompta));
 
     lbltype     ->setText(tr("Type de document"));
     lbltitre    ->setText(tr("Titre du document"));
@@ -118,21 +137,19 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     titreLay    ->setContentsMargins(0,0,0,0);
     dateLay     ->setContentsMargins(0,0,0,0);
 
-    dlglayout()   ->insertWidget(0,wdg_uptable);
 
-    AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    connect(OKButton,           &QPushButton::clicked, this,   &dlg_docsscanner::ValideFiche);
+    dlg_imgzoom     ->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
+    connect(dlg_imgzoom->OKButton,  &QPushButton::clicked, this,   &dlg_docsscanner::ValideFiche);
     connect(wdg_dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsscanner::ChangeFile);
 
-    buttonslayout()->insertLayout(0,rsgnmtVlay);
+    dlg_imgzoom     ->buttonslayout()->insertLayout(0,rsgnmtVlay);
 
-    buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    dlg_imgzoom     ->buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
-    buttonslayout()->insertLayout(0, dirVlay);
-    wdg_uptable->installEventFilter(this);
-    setMinimumWidth(650);
-    setStageCount(2);
-    m_initok = true;
+    dlg_imgzoom     ->buttonslayout()->insertLayout(0, dirVlay);
+    dlg_imgzoom     ->setMinimumWidth(650);
+    dlg_imgzoom     ->setStageCount(2);
+    m_initok        = true;
     NavigueVers(UpToolBar::_last);
 }
 
@@ -142,15 +159,13 @@ dlg_docsscanner::~dlg_docsscanner()
 
 void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
 {
-    QStringList filters;
-    filters << "*.pdf" << "*.jpg" << "*.jpeg" << ".png";
-    QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
+    QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
-        UpMessageBox::Watch(this,tr("Il n'y a aucun document dans le dossier ") + m_docpath,
+        UpMessageBox::Watch(dlg_imgzoom,tr("Il n'y a aucun document dans le dossier ") + m_docpath,
                              tr("Vous devez scanner les documents au format pdf, png ou jpg."));
         return;
     }
-    int idx = listfich.indexOf(m_nomfichierimageencours);
+    int idx = listfich.indexOf(m_currentImagefile);
     if (choix == UpToolBar::_last)
         idx = listfich.size()-1;
     else if (choix == UpToolBar::_first)
@@ -165,68 +180,75 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
     if (idx>-1)
     {
-        m_nomfichierimageencours = listfich.at(idx);
+        m_currentImagefile = listfich.at(idx);
         QMap<QString,QVariant> doc;
-        QFile       qFile(m_docpath + "/" + m_nomfichierimageencours);
+        QFile       qFile(m_docpath + "/" + m_currentImagefile);
         if (!qFile.open( QIODevice::ReadOnly ))
         {
-            UpMessageBox::Watch(this,  tr("Erreur d'accès au fichier"), qFile.fileName());
+            UpMessageBox::Watch(dlg_imgzoom,  tr("Erreur d'accès au fichier"), qFile.fileName());
             return;
         }
         QByteArray bapdf = qFile.readAll();
         QString suffixe = QFileInfo(qFile).suffix().toLower();
         qFile.close ();
-        doc[M_BA]   = bapdf   ;
+        doc[M_BA]   = bapdf;
         doc[M_TYPE] = suffixe;
-        wdg_uptable->AfficheDoc(doc);
-        wdg_inflabel    ->setText("<font color='magenta'>" + m_nomfichierimageencours + "</font>");
-        QFont font = qApp->font();
-        font.setPointSize(12);
-        wdg_inflabel->setFont(font);
+        dlg_imgzoom->setMapimg(doc);
     }
 }
 
 void dlg_docsscanner::ChangeFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
+    bool pathchanged;
+    if (!searchDir(pathchanged))
+        if (!pathchanged)
+            return;
+    QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
+    int idx = listfich.indexOf(m_currentImagefile);
+    wdg_toolbar->First()    ->setEnabled(idx>0);
+    wdg_toolbar->Prec()     ->setEnabled(idx>0);
+    wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
+    wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
+    QMap<QString,QVariant> doc;
+    QFile       qFile(m_docpath + "/" + m_currentImagefile);
+    if (!qFile.open( QIODevice::ReadOnly ))
+    {
+        UpMessageBox::Watch(dlg_imgzoom,  tr("Erreur d'accès au fichier"), qFile.fileName());
+        return;
+    }
+    QByteArray bapdf = qFile.readAll();
+    QString suffixe = QFileInfo(qFile).suffix().toLower();
+    qFile.close ();
+    doc[M_BA]   = bapdf   ;
+    doc[M_TYPE] = suffixe;
+    dlg_imgzoom->setMapimg(doc);
+}
+
+bool dlg_docsscanner::searchDir(bool &pathchanged)
+{
+    QString fileName = QFileDialog::getOpenFileName(dlg_imgzoom, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
     if (fileName != "")
     {
-        bool pathhaschanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
-        m_docpath = QFileInfo(fileName).dir().absolutePath();
-        m_nomfichierimageencours = QFileInfo(fileName).fileName();
-        QStringList filters;
-        filters << "*.pdf" << "*.jpg" << "*.png" << "*.jpeg" ;
-        QStringList listfich = QDir(m_docpath).entryList(filters,QDir::Files,QDir::Time | QDir::Reversed);
-        int idx = listfich.indexOf(m_nomfichierimageencours);
-        wdg_toolbar->First()    ->setEnabled(idx>0);
-        wdg_toolbar->Prec()     ->setEnabled(idx>0);
-        wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
-        wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
-        QMap<QString,QVariant> doc;
-        QFile       qFile(m_docpath + "/" + m_nomfichierimageencours);
-        if (!qFile.open( QIODevice::ReadOnly ))
-        {
-            UpMessageBox::Watch(this,  tr("Erreur d'accès au fichier"), qFile.fileName());
-            return;
-        }
-        QByteArray bapdf = qFile.readAll();
-        QString suffixe = QFileInfo(qFile).suffix().toLower();
-        qFile.close ();
-        doc[M_BA]   = bapdf   ;
-        doc[M_TYPE] = suffixe;
-        wdg_uptable->AfficheDoc(doc);
-        wdg_inflabel    ->setText("<font color='magenta'>" + m_nomfichierimageencours + "</font>");
-        QFont font = qApp->font();
-        font.setPointSize(12);
-        wdg_inflabel->setFont(font);
-        if (pathhaschanged)
-            proc->settings()->setValue(Param_Poste Dossier_DocsScannes, m_docpath);
+        pathchanged         = (m_docpath != QFileInfo(fileName).dir().absolutePath());
+        m_currentImagefile  = QFileInfo(fileName).fileName();
+        if (m_docpath       != QFileInfo(fileName).dir().absolutePath())
+            m_docpath       = QFileInfo(fileName).dir().absolutePath();
+        if (pathchanged)
+            proc->settings()->setValue(Param_Poste Dossier_Videos, m_docpath);
     }
+    if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
+        return false;
+    return true;
 }
 
 QMap<QString, QVariant> dlg_docsscanner::getdataFacture()
 {
     return map_datafacture;
+}
+
+dlg_imagezoom *dlg_docsscanner::dialog() const
+{
+    return dlg_imgzoom;
 }
 
 bool dlg_docsscanner::initOK() const
@@ -238,20 +260,20 @@ void dlg_docsscanner::ValideFiche()
 {
     if (wdg_typedoccombobx->currentText() == "")
     {
-        UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier le type de document"));
+        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier le type de document"));
         wdg_typedoccombobx->setFocus();
         return;
     }
     if (wdg_linetitre->text() == "")
     {
-        UpMessageBox::Watch(this,tr("Vous avez oublié de spécifier un nom pour le document"));
+        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier un nom pour le document"));
         wdg_linetitre->setFocus();
         return;
     }
     if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
-        UpMessageBox msgbox(this);
+        UpMessageBox msgbox(dlg_imgzoom);
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour ce document"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
@@ -266,11 +288,11 @@ void dlg_docsscanner::ValideFiche()
     }
 
     // enregistrement du document ----------------------------------------------------------------------------------------------------------------------------------------------
-    QString filename = m_docpath + "/" + m_nomfichierimageencours;
+    QString filename = m_docpath + "/" + m_currentImagefile;
     QFile   file_origin(filename);
     if (!file_origin.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(dlg_imgzoom, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
     QByteArray ba = file_origin.readAll();
@@ -291,7 +313,7 @@ void dlg_docsscanner::ValideFiche()
     QString CheminBackup = proc->AbsolutePathDirImagerie() + NOM_DIR_ORIGINAUX
                          + ( m_mode==Document? NOM_DIR_IMAGES : NOM_DIR_FACTURES) + "/" + ( m_mode==Document? datetransfer : user);
     Utils::mkpath(CheminBackup);
-    Utils::copyWithPermissions(file_origin, CheminBackup + "/" + m_nomfichierimageencours);
+    Utils::copyWithPermissions(file_origin, CheminBackup + "/" + m_currentImagefile);
 
     //! création du dossier d'enregistrement du document renommé et compressé en mode monoposte ou réseau local
     if (!m_accesdistant)
@@ -401,7 +423,7 @@ void dlg_docsscanner::ValideFiche()
         }
         b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);
         if(!b)
-            UpMessageBox::Watch(this,tr("Impossible d'enregistrer ce document dans la base!"));
+            UpMessageBox::Watch(dlg_imgzoom,tr("Impossible d'enregistrer ce document dans la base!"));
         map_datafacture["idfacture"] = idimpr;
         map_datafacture["echeancier"] = ( m_mode == Echeancier);
         map_datafacture["objetecheancier"] = ( m_mode == Echeancier? sstypedoc : "");
@@ -409,7 +431,7 @@ void dlg_docsscanner::ValideFiche()
     if(!b)
     {
         file_origin.close ();
-        reject();
+        dlg_imgzoom->reject();
         return;
     }
     else if (!m_accesdistant)
@@ -431,20 +453,6 @@ void dlg_docsscanner::ValideFiche()
     case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;
     }
     UpSystemTrayIcon::I()->showMessage(tr("Messages"), msg, Icons::icSunglasses(), 1000);
-    accept();
+    dlg_imgzoom->accept();
+    return;
 }
-
-bool dlg_docsscanner::eventFilter(QObject *obj, QEvent *event)
-{
-    if (obj==wdg_uptable)
-    {
-        QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-        if (rszevent != Q_NULLPTR)
-        {
-            wdg_uptable     ->resizetofit(sizefordisplay());
-            wdg_inflabel    ->setGeometry(10,wdg_uptable->height()-40,350,25);
-        }
-    }
-    return QWidget::eventFilter(obj, event);
-}
-

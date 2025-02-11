@@ -60,6 +60,7 @@ private:
     UpPushButton                *wdg_modifieruppushbutton;
     UpPushButton                *wdg_supprimeruppushbutton;
     QHBoxLayout                 *wdg_boxbuttlayout;
+    dlg_imagezoom               *dlg_zoomimg = Q_NULLPTR;
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );

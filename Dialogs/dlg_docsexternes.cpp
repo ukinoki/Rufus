@@ -13,6 +13,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_docsexternes.h"
+#include "dlg_imageviewer.h"
 #include "gbl_datas.h"
 #include "icons.h"
 
@@ -22,9 +23,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_docsexternes  = Docs;
 
     setAttribute(Qt::WA_ShowWithoutActivating, true);
-    //setAttribute(Qt::WA_DeleteOnClose, true);
-    //setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
+    setAttribute(Qt::WA_DeleteOnClose, true);
+    setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
     /*
     QList<QScreen*> listscreens = QGuiApplication::screens();
     if (listscreens.size()>0)
@@ -95,7 +95,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
                 m_listiddocsimagery << it.key();
     }
     ViewerButton->setVisible(m_listiddocsimagery.size()>0);
-    //setStageCount(1);
 
     connect (wdg_updatetypebox,                 &UpComboBox::currentTextChanged,             this,   [=] (QString text) {BasculeTriListe(text == tr("Date")?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
@@ -120,8 +119,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
 dlg_docsexternes::~dlg_docsexternes()
 {
-    delete m_tripardatemodel;
-    delete m_tripartypemodel;
 }
 
 void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
@@ -325,15 +322,13 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg);
             return;
         }
-        wdg_video       = new QVideoWidget;
+        wdg_video       = new UpVideoWidget;
         mainscroll      ->setWidget(wdg_video);
-        medplay_player  = new UpMediaPlayer(filename);
-        QSize size      = medplay_player->videosize();
+        QSize size      = wdg_video->player()->videosize();
         w               = size.width();
         h               = size.height();
         m_vidorimgratio = w/h;
-        medplay_player  ->setVideoOutput(wdg_video);
-        wdg_playctrl    ->setPlayer(medplay_player);
+        wdg_playctrl    ->setPlayer(wdg_video->player());
         wdg_video       ->setFixedSize(w,h);
 
         wdg_video       ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
@@ -403,9 +398,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 wdg_pdftbl                  ->setListimages(listimg);
                 QSize szfinal               = wdg_pdftbl->calcSizeForDisplay(sizeforunit());
                 QList<UpLabel *> pdflabels  = wdg_pdftbl->labels();
-                w                           = szfinal.width();
-                h                           = szfinal.height();
-                m_vidorimgratio             = w/h;
+                m_vidorimgratio             = Utils::sizeratio(szfinal);
                 for (int i=0; i<pdflabels.size(); i++)
                 {
                     connect(pdflabels.at(i),    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode == Normal?
@@ -508,14 +501,14 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 
 void dlg_docsexternes::EnregistreVideo()
 {
-    QString filename = medplay_player->source().path();
+    QString filename = wdg_video->player()->source().path();
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
     if (dialog.exec() == QDialog::Accepted)
     {
         QDir dockdir = dialog.directory();
-        QFile(filename).copy(dockdir.path() + "/" + medplay_player->source().fileName());
+        QFile(filename).copy(dockdir.path() + "/" + wdg_video->player()->source().fileName());
     }
 }
 
@@ -842,6 +835,7 @@ void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
 {
     dlg_imageviewer *viewer = new dlg_imageviewer(m_listiddocsimagery, iddoc, this);
     viewer->exec();
+    delete viewer;
 }
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
@@ -937,7 +931,7 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
             wdg             = wdg_video;
 
         int correction      = m_lay->contentsMargins().left() + m_lay->spacing() + m_lay->contentsMargins().right() + m_treeviewwidth;
-        dlg_imagezoom::setSizes(m_vidorimgratio, this, finalsize, wdgfinalsize, correction);
+        setSizes(m_vidorimgratio, this, finalsize, wdgfinalsize, correction);
         wdg                 ->resize(wdgfinalsize);
         move (0, 0);
 
@@ -976,7 +970,7 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         if (m_currentdocument->isPDF())
         {
             wdg_pdftbl  ->resizetofit(sizeforunit());
-            wdg_pdftbl  ->setFixedSize(sizeforunit());//.width(), wdg_listdocstreewiew->height());
+            wdg_pdftbl  ->setFixedSize(sizeforunit());
         }
         else if (m_currentdocument->isJPG())
         {
@@ -989,24 +983,13 @@ bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
         {
             if (wdg_video)
             {
-                if (wdg_video->videoSink())
-                {
-                    QSize size  = wdg_video->videoSink()->videoSize();
-                    int w       = sizeforunit().width();
-                    double nx   = size.width();
-                    double ny   = size.height();
-                    int h       = int(w*ny/nx);
-                    wdg_video   ->setFixedSize(sizeforunit().width(), wdg_listdocstreewiew->height());
-                }
+                    QSize size          = wdg_video->player()->videosize();
+                    double w            = sizeforunit().width();
+                    wdg_video           ->setFixedSize(w,w/Utils::sizeratio(size));
             }
         }
         wdg_inflabel    ->setGeometry(20, mainscroll->height()-35, 500, 25);
     }
-    if (obj == wdg_video)
-        if (event->type() == QEvent::MouseButtonPress)
-            if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
-                ZoomDoc();
-
     return QWidget::eventFilter(obj, event);
 }
 

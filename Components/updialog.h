@@ -91,7 +91,7 @@ public:
     void            setStageCount(int stage =  1);
     QObject*        data() const { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
-    QSize                   sizefordisplay() {
+    QSize           sizefordisplay() {
         int width = frameGeometry().width()
                     - dlglayout()->contentsMargins().left()
                     - dlglayout()->contentsMargins().right();
@@ -99,9 +99,15 @@ public:
                      - dlglayout()->contentsMargins().top()
                      - dlglayout()->contentsMargins().bottom()
                      - dlglayout()->spacing()
-                     - (m_stageheight*m_nstages);
+                     - wdg_buttonslayout->contentsMargins().top()
+                     - wdg_buttonslayout->contentsMargins().bottom()
+                     - m_stageheight * m_nstages;
         return QSize(width,height);
     }
+    void            setSizes(double ratioimgorigine, UpDialog *dlg, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
+    void            setSaveGeometry(QString nomsageometry);
+    int stageheight() const;
+    int buttonsstagecount() const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

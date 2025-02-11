@@ -456,7 +456,10 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                         if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
                         {
                             if (docs->docsexternes()->size()==0)
+                            {
                                 ListDialogDocs.at(i)->close();
+                                //delete ListDialogDocs.at(i);
+                            }
                             else
                             {
                                 ListDialogDocs.at(i)->setVisible(true);
@@ -466,7 +469,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                         else
                         {
                             ListDialogDocs.at(i)->close();
-                            delete ListDialogDocs.at(i);
+                            //delete ListDialogDocs.at(i);
                         }
                     }
                     if (founddlg)
@@ -476,7 +479,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
             else if (!ListDialogDocs.at(i)->isModal())
             {
                 ListDialogDocs.at(i)->close();
-                delete ListDialogDocs.at(i);
+                //delete ListDialogDocs.at(i);
             }
         }
     if (docs->docsexternes()->size()>0)
@@ -1961,8 +1964,8 @@ void Rufus::EnregistreDocScanner(Patient *pat)
     dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "", this);
     if (Dlg_DocsScan->initOK())
     {
-        Dlg_DocsScan->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
-        Dlg_DocsScan->exec();
+        Dlg_DocsScan->dialog()->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
+        Dlg_DocsScan->dialog()->exec();
     }
     delete  Dlg_DocsScan;
     if (currentpatient() != Q_NULLPTR)
@@ -1974,9 +1977,11 @@ void Rufus::EnregistreVideo(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    dlg_docsvideo *Dlg_DocsVideo = new dlg_docsvideo(pat, this);
-    Dlg_DocsVideo->exec();
-    delete Dlg_DocsVideo;
+    dlg_docsvideo *DocsVideo = new dlg_docsvideo(pat, this);
+    if (!DocsVideo->initOK())
+        return;
+    DocsVideo->dialog()->exec();
+    delete DocsVideo;
     if (currentpatient() != Q_NULLPTR)
         if (pat == currentpatient())
             MAJDocsExternes();          //EnregistreVideo()
@@ -8229,7 +8234,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
             if (ListDialogDocs.at(n)->mode() == dlg_docsexternes::Normal)
                 proc->settings()->setValue(Position_Fiche Nom_fiche_DocsExternes, ListDialogDocs.at(n)->saveGeometry());
         ListDialogDocs.at(n)->close();
-        delete ListDialogDocs.at(n);
+//        delete ListDialogDocs.at(n);
     }
     if (currentpatient() != Q_NULLPTR)
         ui->OuvreDocsExternespushButton->setEnabled(!Datas::I()->docsexternes->docsexternes()->isEmpty());

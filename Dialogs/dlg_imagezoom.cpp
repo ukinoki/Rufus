@@ -17,26 +17,24 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_imagezoom.h"
 
+dlg_imagezoom::dlg_imagezoom(QWidget *parent) : UpDialog(parent)
+{
+    setAttribute(Qt::WA_ShowWithoutActivating, true);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+}
 dlg_imagezoom::dlg_imagezoom(DocExterne *doc, int pagepdf, QWidget *parent) : UpDialog(parent)
 {
-    QSize size  = QSize();
+    setAttribute(Qt::WA_ShowWithoutActivating, true);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+
     QList<QImage> listimg = QList<QImage>();
+    m_pagepdf   = pagepdf;
     if (doc)
     {
         if (doc->isVideo())
         {
             QString filename    = DataBase::I()->dirimagerie() + NOM_DIR_VIDEOS "/" + doc->lienversfichier();
-            UpVideoWidget* vid  = new UpVideoWidget(filename);
-            m_player            = new UpMediaPlayer(filename, this);
-            vid                 ->setPlayer(m_player);
-            m_player            ->setVideoOutput(vid);
-            size                = m_player->videosize();
-            delete vid;
-            delete m_player;
-            double maxw = size.width();
-            double maxh = size.height();
-            setSizes(maxw / maxh, this, m_sizeform, m_sizewidget);
-            setAttribute(Qt::WA_ShowWithoutActivating, true);
+            setVideofile(filename);
             PlayVideo(filename);
         }
         else if (doc->isJPG())     // le document est un JPG
@@ -59,23 +57,101 @@ dlg_imagezoom::dlg_imagezoom(DocExterne *doc, int pagepdf, QWidget *parent) : Up
                     maxh = pix.height();
             }
             setSizes(maxw / maxh, this, m_sizeform, m_sizewidget);
-            setAttribute(Qt::WA_ShowWithoutActivating, true);
-            Display(listimg, doc->titre(), pagepdf);
+            Display(listimg, doc->titre());
         }
     }
 }
 
-
 dlg_imagezoom::dlg_imagezoom(QMap<QString,QVariant> doc, int pagepdf, QWidget *parent) : UpDialog(parent)
 {
-    QList<QImage> listimg = QList<QImage>();
+    setAttribute(Qt::WA_ShowWithoutActivating, true);
+    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    m_pagepdf = pagepdf;
+    setMapimg(doc);
+}
 
-    if (doc.value(M_TYPE).toString() == PDF)
-        listimg = Utils::calcImagefromPdf(doc.value(M_BA).toByteArray());
+void dlg_imagezoom::setVideofile(QString filename)
+{
+    if (m_vdwdg != Q_NULLPTR)
+        delete m_vdwdg;
+    m_vdwdg             = new UpVideoWidget(filename);
+
+    QSize size          = m_vdwdg->player()->videosize();
+    setStageCount(2);
+    setSizes(Utils::sizeratio(size), this, m_sizeform, m_sizewidget);
+    PlayVideo(filename);
+}
+
+void dlg_imagezoom::Display(QList<QImage> listimage, QString nomdoc)
+{
+    if (m_tblwdg == Q_NULLPTR)
+    {
+        m_tblwdg            = new UpTableWidget();
+        dlglayout()         ->insertWidget(0,m_tblwdg);
+        m_tblwdg            ->installEventFilter(this);
+    }
+    if (m_labinfowdg ==Q_NULLPTR)
+    {
+        m_labinfowdg        = new UpLabel(m_tblwdg);
+        QFont font          = qApp->font();
+        font                .setPointSize(12);
+        m_labinfowdg        ->setFont(font);
+    }
+
+    m_tblwdg            ->clearContents();
+    m_labinfowdg        ->setText("<font color='magenta'>" + nomdoc + "</font>");
+
+    setMaximumHeight(m_sizeform.height());
+    resize(m_sizeform.width(), m_sizeform.height());
+
+    m_tblwdg            ->setListimages(listimage);
+    m_tblwdg            ->calcSizeForDisplay(m_sizewidget);
+
+    move(0, 0);
+}
+
+void dlg_imagezoom::PlayVideo(QString filepath)
+{
+    if (m_controlplayer == Q_NULLPTR)
+    {
+        m_controlplayer     = new PlayerControls(this);
+        buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-2 : 0,m_controlplayer);
+    }
+    if (m_labinfowdg == Q_NULLPTR)
+    {
+        m_labinfowdg        = new UpLabel();
+        QFont font          = qApp->font();
+        font                .setPointSize(12);
+        m_labinfowdg        ->setFont(font);
+        buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
+        buttonslayout()     ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    }
+    dlglayout()             ->insertWidget(0,m_vdwdg);
+
+    setMaximumHeight(m_sizeform.height());
+    m_vdwdg                 ->resize(m_sizeform);
+
+    m_labinfowdg            ->setText("<font color='magenta'>" + filepath + "</font>");
+
+    m_controlplayer         ->setFixedWidth(500);
+    m_controlplayer         ->setPlayer(m_vdwdg->player());
+    m_controlplayer         ->startplay();
+
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    if (listscreens.size())
+        move((listscreens.first()->geometry().width() - width())/2, 0);
+}
+
+void dlg_imagezoom::setMapimg(const QMap<QString,QVariant> &newMapimg)
+{
+    m_mapimg = newMapimg;
+    QList<QImage> listimg = QList<QImage>();
+    if (m_mapimg.value(M_TYPE).toString() == PDF)
+        listimg = Utils::calcImagefromPdf(m_mapimg.value(M_BA).toByteArray());
     else
     {
         QImage image;
-        image.loadFromData(doc.value(M_BA).toByteArray());
+        image.loadFromData(m_mapimg.value(M_BA).toByteArray());
         listimg << image;
     }
     if (listimg.size() > 0)
@@ -89,127 +165,15 @@ dlg_imagezoom::dlg_imagezoom(QMap<QString,QVariant> doc, int pagepdf, QWidget *p
             if (pix.height() > maxh)
                 maxh = pix.height();
         }
+        setStageCount(2);
         setSizes(maxw / maxh, this, m_sizeform, m_sizewidget);
-        setAttribute(Qt::WA_ShowWithoutActivating, true);
-        Display(listimg, "", pagepdf);
+        Display(listimg);
     }
 }
 
-
-/*!
- *  \brief      dlg_imagezoom::setSizes
- *  \abstract   calc the right size for maximum size view respect with screen resolution depending on item resolution to display and screen resolution
- *  \param      size =  actual size of item in order toi cal frameration
- *  \return
-    *  m_sizeform = final size for QDialog
-    *  m_sizewidget = size available inside form for widget to display
-*/
-void dlg_imagezoom::setSizes(double ratioimgorigine, UpDialog *dlg, QSize &sizeform, QSize &sizewidget, int correctionwidth)
+QMap<QString,QVariant> dlg_imagezoom::mapimg() const
 {
-    /*! screen resolution */
-    double          wscroll  = 0;
-    double          hscroll  = 0;
-    double          screenratio = 1;
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size())
-    {
-        wscroll     = listscreens.first()->availableGeometry().width();
-        hscroll     = listscreens.first()->availableGeometry().height();
-        screenratio = wscroll/hscroll;
-    }
-
-
-
-    dlg->resize(1000,1000); //! uses only for "fix" the form in order to calculate hdelta & wdelta
-
-    int wdelta    = dlg->geometry().width() - dlg->sizefordisplay().width() + correctionwidth;
-    int hdelta    = dlg->geometry().height() - dlg->sizefordisplay().height();
-
-    /*! if screenration >= videoratio  => screenheight is used for max height else screenwidthfor max width */
-    int finalh (0), finalw(0);
-    if (screenratio >= ratioimgorigine)
-    {
-        finalh = int(hscroll * 0.98);
-        double hd = finalh - hdelta;    //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
-        finalw = int(hd * ratioimgorigine) + wdelta;
-    }
-    else
-    {
-        finalw = int(wscroll);
-        double wd = finalw - wdelta;     //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
-        finalh = int(wd / ratioimgorigine) + wdelta;
-    }
-    sizeform      = QSize(finalw, finalh);
-    sizewidget    = QSize(finalw - wdelta, finalh - hdelta);
-    dlg->resize(sizeform);
-}
-
-
-void dlg_imagezoom::Display(QList<QImage> listimage, QString nomdoc, int pagepdf)
-{
-    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    m_tblwdg            = new UpTableWidget();
-    m_labinfowdg        = new UpLabel(m_tblwdg);
-    m_tblwdg             ->installEventFilter(this);
-
-    dlglayout()          ->insertWidget(0,m_tblwdg);
-    QFont font          = qApp->font();
-    font                .setPointSize(12);
-    m_labinfowdg        ->setFont(font);
-    m_labinfowdg        ->setText("<font color='magenta'>" + nomdoc + "</font>");
-
-    AjouteLayButtons(UpDialog::ButtonOK);
-    connect(OKButton,       &QPushButton::clicked,  this,   &dlg_imagezoom::close);
-    //setMaximumWidth(m_sizeform.width());
-    setMaximumHeight(m_sizeform.height());
-    resize(m_sizeform.width(), m_sizeform.height());
-
-    m_tblwdg            ->setListimages(listimage);
-    m_tblwdg            ->calcSizeForDisplay(m_sizewidget);
-
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size())
-        move(0, 0);
-    //move((listscreens.first()->geometry().width() - width())/2, 0);
-}
-
-void dlg_imagezoom::PlayVideo(QString filepath)
-{
-    setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    m_labinfowdg        = new UpLabel(this);
-    m_vdwdg             = new UpVideoWidget();
-    m_vdwdg             ->installEventFilter(this);
-
-    dlglayout()         ->insertWidget(0,m_vdwdg);
-
-    QFont font          = qApp->font();
-    font                .setPointSize(12);
-    m_labinfowdg        ->setFont(font);
-
-    m_controlplayer     = new PlayerControls;
-    AjouteWidgetLayButtons(m_controlplayer);
-    AjouteLayButtons(UpDialog::ButtonOK);
-    setStageCount(2);
-    connect(OKButton,       &QPushButton::clicked,  this,   &dlg_imagezoom::close);
-
-    setMinimumWidth(650);
-    //setMaximumWidth(m_sizeform.width());
-    setMaximumHeight(m_sizeform.height());
-    m_vdwdg                 ->resize(m_sizeform);
-
-    m_labinfowdg            ->setText("<font color='magenta'>" + filepath + "</font>");
-
-    QMediaPlayer *player    = new QMediaPlayer;
-    player                  ->setSource(QUrl::fromLocalFile(filepath));
-    player                  ->setVideoOutput(m_vdwdg);
-
-    m_controlplayer         ->setFixedWidth(500);
-    m_controlplayer         ->setPlayer(player);
-    m_controlplayer         ->startplay();
-
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size())
-        move((listscreens.first()->geometry().width() - width())/2, 0);//, m_size.width(), m_size.height());
+    return m_mapimg;
 }
 
 bool dlg_imagezoom::eventFilter(QObject *obj, QEvent *event)
@@ -232,10 +196,8 @@ bool dlg_imagezoom::eventFilter(QObject *obj, QEvent *event)
                     m_tblwdg->setColumnWidth(i,lbl->pixmap().width());
                 }
             }
-        }
-        if (obj==m_tblwdg || obj == m_vdwdg)
             m_labinfowdg    ->setGeometry(20, height() - widgetbuttons()->height(), 500, 25);
+        }
     }
     return QWidget::eventFilter(obj, event);
 }
-
