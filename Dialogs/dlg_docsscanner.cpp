@@ -26,7 +26,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         bool pathchanged;
         if (!searchDir(pathchanged))
         {
-            UpMessageBox::Watch(parent, tr("Dossier vidde"), tr("il n'y a aucun fichier video dans le dossier par défaut ") + m_docpath);
+            UpMessageBox::Watch(parent, tr("Dossier vide"), tr("il n'y a aucun fichier image dans le dossier par défaut ") + m_docpath);
             return;
         }
     }
@@ -53,6 +53,10 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     wdg_editdate        = new QDateEdit();
     wdg_editdate        ->setDisplayFormat(tr("dd/MM/yyyy"));
     wdg_typedoccombobx  = new UpComboBox();
+    int maxlength       = 200;
+    wdg_linetitre       ->setMaximumWidth(maxlength);
+    wdg_typedoccombobx  ->setMaximumWidth(maxlength + 10);
+    wdg_editdate        ->setMaximumWidth(100);
     switch ( m_mode) {
     case Document:
         m_listtypesexamen   << COURRIER
@@ -231,10 +235,11 @@ bool dlg_docsscanner::searchDir(bool &pathchanged)
     {
         pathchanged         = (m_docpath != QFileInfo(fileName).dir().absolutePath());
         m_currentImagefile  = QFileInfo(fileName).fileName();
-        if (m_docpath       != QFileInfo(fileName).dir().absolutePath())
-            m_docpath       = QFileInfo(fileName).dir().absolutePath();
         if (pathchanged)
-            proc->settings()->setValue(Param_Poste Dossier_Videos, m_docpath);
+        {
+            m_docpath       = QFileInfo(fileName).dir().absolutePath();
+            proc->settings()->setValue(Param_Poste Dossier_DocsScannes, m_docpath);
+        }
     }
     if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
         return false;

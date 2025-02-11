@@ -8217,52 +8217,52 @@ as of today&apos;s date</translation>
         <translation>MM/dd/yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="59"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="63"/>
         <source>CV</source>
         <translation>VF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="60"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="64"/>
         <source>Orthoptie</source>
         <translation>Orthoptics</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="61"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="65"/>
         <source>ANGIO</source>
         <translation>ANGIO</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="62"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="66"/>
         <source>OCT</source>
         <translation>OCT</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="63"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="67"/>
         <source>Biométrie</source>
         <translation>Biometry</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="64"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="68"/>
         <source>RNM</source>
         <translation>NMR</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="65"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="69"/>
         <source>Speculaire</source>
         <translation>Specular</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="66"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="70"/>
         <source>Topographie</source>
         <translation>Topography</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="67"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="71"/>
         <source>Hess-Weiss</source>
         <translation>Hess-Weiss</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="68"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="72"/>
         <source>CRO</source>
         <translation>Surgical report</translation>
     </message>
@@ -8281,130 +8281,134 @@ as of today&apos;s date</translation>
         <translation type="vanished">There are no video files in the default folder </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="29"/>
         <source>il n&apos;y a aucun fichier d&apos;imagerie dans le dossier par défaut </source>
-        <translation>there are no imaging files in the default folder </translation>
+        <translation type="vanished">there are no imaging files in the default folder </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="69"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="29"/>
+        <source>il n&apos;y a aucun fichier image dans le dossier par défaut </source>
+        <translation>There are no imagery files in the default folder </translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="73"/>
         <source>Autre Imagerie</source>
         <translation></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="106"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="110"/>
         <source>Chercher un fichier</source>
         <translation>Search for a file</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="112"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="116"/>
         <source>Type de document</source>
         <translation>Document type</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="113"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="117"/>
         <source>Titre du document</source>
         <translation>Document title</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="114"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="118"/>
         <source>Date du document</source>
         <translation>Document date</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="164"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="168"/>
         <source>Il n&apos;y a aucun document dans le dossier </source>
         <translation>There are no documents in the folder </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="165"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="169"/>
         <source>Vous devez scanner les documents au format pdf, png ou jpg.</source>
         <oldsource>Vous devez scanner les documents au format pdf ou jpg.</oldsource>
         <translation>Documents must be scanned in pdf, png or jpg format.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="188"/>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="216"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="192"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="220"/>
         <source>Erreur d&apos;accès au fichier</source>
         <translation>File access error</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="229"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="233"/>
         <source>Choisir un fichier</source>
         <translation>Choose a file</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="229"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="233"/>
         <source>Images (*.pdf *.jpg *.jpeg *.png)</source>
         <translation>Images (*.pdf *.jpg *.jpeg *.png)</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="263"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="268"/>
         <source>Vous avez oublié de spécifier le type de document</source>
         <translation>You forgot to specify the document type</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="269"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="274"/>
         <source>Vous avez oublié de spécifier un nom pour le document</source>
         <translation>You forgot to specify a name for the document</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="277"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="282"/>
         <source>Confirmez la date d&apos;aujourd&apos;hui pour ce document</source>
         <translation>Confirm today&apos;s date for this document</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="282"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="287"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="295"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="300"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>File access error:</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="325"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="330"/>
         <source>Dossier de sauvegarde </source>
         <translation>Backup folder </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="325"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="330"/>
         <source> invalide</source>
         <translation> invalid</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="426"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="431"/>
         <source>Impossible d&apos;enregistrer ce document dans la base!</source>
         <translation>Unable to register this document in the database!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="451"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="456"/>
         <source>Document </source>
         <translation>Document </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="451"/>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="453"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="456"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="458"/>
         <source> enregistré</source>
         <translation> registered</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="452"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="457"/>
         <source>Facture </source>
         <translation>Invoice </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="452"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="457"/>
         <source> enregistrée</source>
         <translation> registered</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="453"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="458"/>
         <source>Echeancier </source>
         <translation>Timetable </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="455"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="460"/>
         <source>Messages</source>
         <translation>Messages</translation>
     </message>
@@ -8483,27 +8487,27 @@ as of today&apos;s date</translation>
         <translation>Video (*.mp4 *.mpg *.m4v)</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="188"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="189"/>
         <source>Vous avez oublié de spécifier le type de document</source>
         <translation>You forgot to specify the video type</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="194"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="195"/>
         <source>Vous avez oublié de spécifier un nom pour le document</source>
         <translation>You forgot to specify a name for the video</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="202"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="203"/>
         <source>Confirmez la date d&apos;aujourd&apos;hui pour cette video</source>
         <translation>Confirm today&apos;s date for this video</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="207"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="208"/>
         <source>Annuler</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="220"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="221"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>File access error:</translation>
     </message>
@@ -8516,7 +8520,7 @@ as of today&apos;s date</translation>
         <translation type="vanished">Local network</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="230"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="231"/>
         <source>Dossier de sauvegarde des videos </source>
         <oldsource>Le dossier de sauvegarde d&apos;imagerie </oldsource>
         <translation>Video backup folder </translation>
@@ -8531,22 +8535,22 @@ as of today&apos;s date</translation>
         <translation type="vanished">Enter a valid folder in Edit/Settings/Tab </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="230"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="231"/>
         <source> invalide</source>
         <translation> invalid</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="265"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="266"/>
         <source>Messages</source>
         <translation>Messages</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="265"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="266"/>
         <source>Video </source>
         <translation>Video </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="265"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="266"/>
         <source> enregistrée</source>
         <translation> registered</translation>
     </message>

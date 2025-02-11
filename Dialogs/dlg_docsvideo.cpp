@@ -25,7 +25,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
         bool pathchanged;
         if (!searchDir(pathchanged))
         {
-            UpMessageBox::Watch(parent, tr("Dossier vidde"), tr("il n'y a aucun fichier video dans le dossier par défaut ") + m_docpath);
+            UpMessageBox::Watch(parent, tr("Dossier vide"), tr("il n'y a aucun fichier video dans le dossier par défaut ") + m_docpath);
             return;
         }
     }
@@ -171,10 +171,11 @@ bool dlg_docsvideo::searchDir(bool &pathchanged)
     {
         pathchanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
         m_currentvideofile = QFileInfo(fileName).fileName();
-        if (m_docpath != QFileInfo(fileName).dir().absolutePath())
-            m_docpath = QFileInfo(fileName).dir().absolutePath();
         if (pathchanged)
+        {
+            m_docpath = QFileInfo(fileName).dir().absolutePath();
             proc->settings()->setValue(Param_Poste Dossier_Videos, m_docpath);
+        }
     }
     if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
         return false;
