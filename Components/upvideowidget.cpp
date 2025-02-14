@@ -17,11 +17,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "upvideowidget.h"
 
-UpVideoWidget::UpVideoWidget(QString filename, QWidget *parent) : QVideoWidget(parent)
+UpVideoWidget::UpVideoWidget(QWidget *parent) : QVideoWidget(parent)
 {
-    m_filename  = filename;
-    m_player    = new UpMediaPlayer(m_filename, this);
-    m_player    ->setVideoOutput(this);
 }
 
 QString UpVideoWidget::filename() const
@@ -31,7 +28,9 @@ QString UpVideoWidget::filename() const
 
 void UpVideoWidget::setFilename(const QString &newFilename)
 {
-    m_filename = newFilename;
+    m_filename  = newFilename;
+    m_player    = new UpMediaPlayer(m_filename, this);
+    m_player    ->setVideoOutput(this);
 }
 
 UpMediaPlayer *UpVideoWidget::player() const

@@ -1,6 +1,6 @@
-#include "dlg_imageviewer.h"
+#include "dlg_multiimageviewer.h"
 
-dlg_imageviewer::dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
+dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentdoc, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
 {
     m_idcurrentdoc              = idcurrentdoc;
     m_listiddocs                = listiddocs;
@@ -25,7 +25,7 @@ dlg_imageviewer::dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc, QWidge
     wdg_treeview                ->setSelectionMode(QAbstractItemView::NoSelection);
     wdg_treeview                ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
     wdg_treeview                ->setHeaderHidden(true);
-    wdg_treeview                ->setFocusPolicy(Qt::NoFocus); //! si on ne met pas ça, le UpVideoWidget disparait quand on clique dessus
+    wdg_treeview                ->setFocusPolicy(Qt::NoFocus);                              //! without this, UpVideoWidget disappears on mouse clic...
 
     dlglayout()->insertLayout(0,m_hlay);
     connect(OKButton,           &QPushButton::clicked,  this,   &QDialog::close);
@@ -91,7 +91,7 @@ dlg_imageviewer::dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc, QWidge
 
     installEventFilter(this);
 
-    connect (wdg_table,                     &QTableView::entered,               this,   &dlg_imageviewer::gettoolTipFromCursorPositionInTable);
+    connect (wdg_table,                     &QTableView::entered,               this,   &dlg_multiimageviewer::gettoolTipFromCursorPositionInTable);
     connect (wdg_table,                     &QTableView::clicked,               this,   [=] (QModelIndex idx) {
         UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
         if (upitem == Q_NULLPTR)
@@ -117,7 +117,7 @@ dlg_imageviewer::dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc, QWidge
     connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkVerticalHeader(idx);} );
 }
 
-void dlg_imageviewer::FillXTable()
+void dlg_multiimageviewer::FillXTable()
 {
     for (int it = 0; it < m_listiddocs.size(); ++it)
     {
@@ -221,11 +221,16 @@ void dlg_imageviewer::FillXTable()
         wdg_table               ->setColumnWidth(i,colwidth);
 }
 
-dlg_imageviewer::~dlg_imageviewer()
+dlg_multiimageviewer::~dlg_multiimageviewer()
 {
 }
 
-void dlg_imageviewer::gettoolTipFromCursorPositionInTable()
+void dlg_multiimageviewer::Actualize()
+{
+    ShowMessage::I()->SplashMessage(tr("De nouveaux documents sont arrivé"), 6000);
+}
+
+void dlg_multiimageviewer::gettoolTipFromCursorPositionInTable()
 {
     QModelIndex pindx   = wdg_table->indexAt(wdg_table->viewport()->mapFromGlobal(cursor().pos()));
     QString msg;
@@ -242,7 +247,7 @@ void dlg_imageviewer::gettoolTipFromCursorPositionInTable()
     QToolTip::showText(cursor().pos(),msg);
 }
 
-QList<DocExterne*> dlg_imageviewer::getListDocsfromIndexInTableView(QModelIndex idx)
+QList<DocExterne*> dlg_multiimageviewer::getListDocsfromIndexInTableView(QModelIndex idx)
 {
     QList<DocExterne*>listdocs  = QList<DocExterne*>();
     UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
@@ -262,16 +267,16 @@ QList<DocExterne*> dlg_imageviewer::getListDocsfromIndexInTableView(QModelIndex 
     return listdocs;
 }
 
-UpStandardItem* dlg_imageviewer::itemfromIndex(QModelIndex idx)
+UpStandardItem* dlg_multiimageviewer::itemfromIndex(QModelIndex idx)
 {
     return dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
 }
 
 /*!
- * \brief dlg_imageviewer::listcheckabledItems
+ * \brief dlg_multiimageviewer::listcheckabledItems
  * \return list des items pouvant être cochés
 */
-QList<UpStandardItem*> dlg_imageviewer::listcheckabledItems()
+QList<UpStandardItem*> dlg_multiimageviewer::listcheckabledItems()
 {
     QList<UpStandardItem*> listitems = QList<UpStandardItem*>();
     for (int i = 0; i<m_Xmodel->rowCount(); i++)
@@ -291,10 +296,10 @@ QList<UpStandardItem*> dlg_imageviewer::listcheckabledItems()
 }
 
 /*!
- * \brief dlg_imageviewer::listcheckedItems
+ * \brief dlg_multiimageviewer::listcheckedItems
  * \return list des items cochés
 */
-QList<UpStandardItem*> dlg_imageviewer::listcheckedItems()
+QList<UpStandardItem*> dlg_multiimageviewer::listcheckedItems()
 {
     QList<UpStandardItem*> listitemstocheck = listcheckabledItems();
     QList<UpStandardItem*> listitems = QList<UpStandardItem*>();
@@ -303,7 +308,7 @@ QList<UpStandardItem*> dlg_imageviewer::listcheckedItems()
             listitems << listitemstocheck.at(i);
     return listitems;
 }
-void dlg_imageviewer::checkHorizontalHeader(int idx)
+void dlg_multiimageviewer::checkHorizontalHeader(int idx)
 {
     QVariant variant                = m_Xmodel->headerData(idx, Qt::Horizontal, Qt::DecorationRole);
     QImage image                    = variant.value<QImage>();
@@ -339,7 +344,7 @@ void dlg_imageviewer::checkHorizontalHeader(int idx)
     }
 }
 
-void dlg_imageviewer::checkVerticalHeader(int idx)
+void dlg_multiimageviewer::checkVerticalHeader(int idx)
 {
     QVariant variant                    = m_Xmodel->headerData(idx, Qt::Vertical, Qt::DecorationRole);
     QImage image                        = variant.value<QImage>();
@@ -376,10 +381,10 @@ void dlg_imageviewer::checkVerticalHeader(int idx)
 }
 
 /*!
- \brief dlg_imageviewer::controlChecks
+ \brief dlg_multiimageviewer::controlChecks
  After a check on un uptstandarditem, correct headers icons
  */
-void dlg_imageviewer::controlChecks() //! After a check on an upstandarditem, correct headers icons
+void dlg_multiimageviewer::controlChecks() //! After a check on an upstandarditem, correct headers icons
 {
     // ctrl for rows
     for (int i=0; i < m_Xmodel->rowCount(); i++)
@@ -452,7 +457,7 @@ void dlg_imageviewer::controlChecks() //! After a check on an upstandarditem, co
     m_listdocsToDisplay = listdocsToDisplay();
 }
 
-void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupitems)
+void dlg_multiimageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupitems)
 {
     controlChecks();
     foreach (UpStandardItem* XtblItem, listupitems)
@@ -464,21 +469,21 @@ void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupi
             {
                 for (int j=0; j < dateitem->rowCount();)
                 {
-                    QStandardItem* docwidgetitem = dateitem->child(j,0);                                                       //! QStandardItem for docwidget
-                    if (docwidgetitem)
+                    QStandardItem* dockwidgetitem = dateitem->child(j,0);                                                       //! QStandardItem for dockwidget
+                    if (dockwidgetitem)
                     {
-                        QWidget * docwidget = wdg_treeview->indexWidget(docwidgetitem->index());                                //! DocWidget
-                        if (docwidget)
+                        QWidget * dockwidget = wdg_treeview->indexWidget(dockwidgetitem->index());                              //! DockWidget
+                        if (dockwidget)
                         {
-                            if (docwidget->property(M_DATE).toDate()
-                                == XtblItem->data(Qt::UserRole).toDate() && docwidget->property(M_TYPE).toString() == XtblItem->dataType())
+                            if (dockwidget->property(M_DATE).toDate()
+                                == XtblItem->data(Qt::UserRole).toDate() && dockwidget->property(M_TYPE).toString() == XtblItem->dataType())
                             {
-                                delete docwidget;
-                                dateitem->takeRow(j);                                                                           //! remove QstandardItem that contains DocWidget
+                                delete dockwidget;
+                                dateitem->takeRow(j);                                                                           //! remove QstandardItem that contains DokcWidget
                                 j--;
                             }
                         }
-                        else                                                                                                    //! take row of QStandardItem it there's no DocWidget inside
+                        else                                                                                                    //! take row of QStandardItem it there's no DockWidget inside
                         {
                             dateitem->takeRow(j);
                             j--;
@@ -504,7 +509,7 @@ void dlg_imageviewer::removeItemsFromtTreeWidget(QList<UpStandardItem *> listupi
     }
 }
 
-QList<DocExterne*> dlg_imageviewer::listdocsToDisplay()
+QList<DocExterne*> dlg_multiimageviewer::listdocsToDisplay()
 {
     QList<DocExterne*> listdocs = QList<DocExterne*>();
     QList<UpStandardItem*> litems = listcheckabledItems();
@@ -526,17 +531,17 @@ QList<DocExterne*> dlg_imageviewer::listdocsToDisplay()
 }
 
 
-QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
+QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
 {
     /*!
     * if sided pics
-        * the function has received two elements: one document and one nullptr, or two documents. The docwidget will be created with two elements
-            * it the function has received two documents, the docwidget is created with two pics
+        * the function has received two elements: one document and one nullptr, or two documents. The dockwidget will be created with two elements:
+            * it the function has received two documents, the dockwidget is created with two pics
             * if the function has received one document and a nullptr, a QSpacerItem for the nullptr and one pict for the documents
     * if not sided pics
         * the function has received one or two documents and the dock widget will be created with two or three elements
-            * it the function has received two documents, the docwidget is created with two picts
-            * if the function has received one document, the docwidget is created with one pict surrounded by two QSpacerItems
+            * it the function has received two documents, the dockwidget is created with two picts
+            * if the function has received one document, the dockwidget is created with one pict surrounded by two QSpacerItems
     */
 
     QWidget * widg = Q_NULLPTR;
@@ -561,7 +566,6 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
             if (type == QString())
                 type = doc->typedoc();
             Procedures::I()->CalcImageDocument(doc);
-            QList<QPixmap> listpixmp;
             QWidget *glaywidg = Q_NULLPTR;
             if (doc->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
@@ -578,7 +582,8 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     UpMessageBox::Watch(this,msg);
                     return Q_NULLPTR;
                 }
-                UpVideoWidget *wdg_video            = new UpVideoWidget(filename);
+                UpVideoWidget *wdg_video            = new UpVideoWidget();
+                wdg_video                           ->setFilename(filename);
                 QSize size                          = wdg_video->player()->videosize();
                 //! -----------------------------------------------------------------
                 wdg_video->player()                 ->play();
@@ -601,7 +606,7 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                 }
                 UpLabel *lab    = new UpLabel(doc);
                 lab             ->setImage(image);
-                QPixmap pix     = QPixmap::fromImage(image).scaled(sizeforunit(),Qt::KeepAspectRatio,Qt::SmoothTransformation);
+                QPixmap pix     = QPixmap::fromImage(image).scaledToWidth(sizeforunit().width(), Qt::SmoothTransformation);
                 lab             ->setPixmap(pix);
                 lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
                 //lab             ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;");
@@ -626,8 +631,7 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
                     tblwdg          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
                     tblwdg          ->setColumnCount(1);
                     tblwdg          ->setSelectionMode(QAbstractItemView::NoSelection);
-                    tblwdg          ->setListimages(listimg);
-                    QSize szfinal   = tblwdg->calcSizeForDisplay(sizeforunit());
+                    QSize szfinal   = tblwdg->setListimages(listimg, sizeforunit());
                     for (int i=0; i<tblwdg->labels().size(); i++)
                     {
                         UpLabel* lab    = tblwdg->labels().at(i);
@@ -660,12 +664,11 @@ QWidget* dlg_imageviewer::DocWidget(QList<DocExterne *> listdocs)
     return widg;
 }
 
-void dlg_imageviewer::scrollTreeViewToDocument(DocExterne* doc)
+void dlg_multiimageviewer::scrollTreeViewToDocument(DocExterne* doc)
 {
     if (doc == Q_NULLPTR)
         return;
     QDate datedoc = doc->date();
-    QString typedoc = doc->typedoc();
     QList<QStandardItem*> litems = m_treemodel->findItems(datedoc.toString(m_formatdate));
     if (litems.size() == 0)
         return;
@@ -697,24 +700,24 @@ void dlg_imageviewer::scrollTreeViewToDocument(DocExterne* doc)
         }
 }
 
-void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
+void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
 {
     /*!
      * There are two types of documents: sided or not sided
         * sided means than the document is explicitly assigned to one eye, right or left
         * not sided, the document assignment is unknown or for the two eyes
     * The goal is to create row of two elements that will be inserted in treeview, sorted by date decreasing
-    * each row contains one or two elements, built with DocWidget() function
+    * each row contains one or two elements, built with DockWidget() function
         * for sided docs
             * two pics, one for right eye and one for left eye
-                                    * -> DocWidget is called with the two documents
+                                    * -> DockWidget is called with the two documents
             * if there is only one pic rright or left
-                                    * -> DocWidget is called with one document and one null pointer for the missing eye, in order to set the picts on right or left size of the docwidget.
+                                    * -> DockWidget is called with one document and one null pointer for the missing eye, in order to set the picts on right or left size of the dockwidget.
         * for not sided docs
             * two pics, side by side ih the number of docs is 2
-                                    * -> DocWidget is called with the two documents
+                                    * -> DockWidget is called with the two documents
             * one pic centered if ther is only one document
-                                    * ->  DocWidget is called with only one document
+                                    * ->  DockWidget is called with only one document
     */
 
     auto sstypdoc = [=] (DocExterne* doc) {
@@ -787,7 +790,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
             }
         }
 
-//!-----sided docs -> group by ss-type : one row by sstype with image for right eye on right side and for those for left eye on left side
+//!-----sided docs -> group by ss-type : one row by sstype with image for right eye on left side of the screen and those for left eye on right side of the screen
         QStringList listsstype = QStringList();
         foreach (DocExterne* doc, listdocssided)
         {
@@ -797,7 +800,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
         }
 
         //! sometimes it's possible to get 3 or more pics for 1 sstype
-        //! if number is odd all right pics stay on right side and all left on left side
+        //! if number is odd all right pics stay on left side and all left on right side
         //! create rows for each sstype of docs sided
         foreach (QString sstype, listsstype)
         {
@@ -835,7 +838,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
                     listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << item << pitemsortdate);
                     listitemsdate.at(0)->sortChildren(1);
                 }
-                wdg_treeview->setIndexWidget(item->index(), DocWidget(listrow));
+                wdg_treeview->setIndexWidget(item->index(), DockWidget(listrow));
             }
         }
 
@@ -859,7 +862,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
             listdcs << firstdoc;
             if (scnddoc != Q_NULLPTR)
                 listdcs << scnddoc;
-            wdg_treeview->setIndexWidget(item->index(), DocWidget(listdcs));
+            wdg_treeview->setIndexWidget(item->index(), DockWidget(listdcs));
         }
     }
     wdg_treeview->setSelectionModel(new QItemSelectionModel(m_treemodel));
@@ -867,7 +870,7 @@ void dlg_imageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupitems)
     wdg_treeview->setItemsExpandable(false);
 }
 
-bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
+bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
 {
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
     if (rszevent != Q_NULLPTR)
@@ -880,18 +883,18 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
                     QStandardItem* item = m_treemodel->item(i)->child(j,0);                                                     //! -> search for childitem
                     if (item != Q_NULLPTR)
                     {
-                        QWidget * rwidg = wdg_treeview->indexWidget(item->index());                                             //! -> search if childitem is DocWidget
+                        QWidget * rwidg = wdg_treeview->indexWidget(item->index());                                             //! -> search if childitem is DockWidget
                         if (rwidg != Q_NULLPTR)
                         {
-                            QHBoxLayout *glay = qobject_cast<QHBoxLayout*>(rwidg->layout());                                    //! -> search for layout of DocWidget
+                            QHBoxLayout *glay = qobject_cast<QHBoxLayout*>(rwidg->layout());                                    //! -> search for layout of DockWidget
                             if (glay != Q_NULLPTR)
                             {
                                 for (int k= 0; k < glay->count(); k++)
                                 {
-                                    QLayoutItem* layit = glay->itemAt(k);                                             //! -> search for QLayoutitem of DocWidget
+                                    QLayoutItem* layit = glay->itemAt(k);                                             //! -> search for QLayoutitem of DockWidget
                                     if (layit)
                                     {
-                                        QWidget* widg = layit->widget();                                                        //! -> search for QWidget of QLayoutItem of DocWidget
+                                        QWidget* widg = layit->widget();                                                        //! -> search for QWidget of QLayoutItem of DockWidget
                                         if (widg != Q_NULLPTR)
                                         {
                                             QSize size = sizeforunit();
@@ -937,33 +940,26 @@ bool dlg_imageviewer::eventFilter(QObject *obj, QEvent *event)
     return QWidget::eventFilter(obj, event);
 }
 
-void dlg_imageviewer::ZoomDoc(QWidget *widg)
+void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
 {
-    dlg_imagezoom *imgzoom = Q_NULLPTR;
+    dlg_singleimageviewer *imgzoom = Q_NULLPTR;
+    DocExterne *doc = Q_NULLPTR;
     if (dynamic_cast<UpVideoWidget*>(widg) != Q_NULLPTR)
     {
         UpVideoWidget *vid = dynamic_cast<UpVideoWidget*>(widg);
-        DocExterne *doc = qobject_cast<DocExterne*>(vid->rufusitem());
-        if (doc)
-        {
-            imgzoom = new dlg_imagezoom(doc);
-            imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
-            connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_imagezoom::close);
-        }
+        doc = qobject_cast<DocExterne*>(vid->rufusitem());
     }
     else if (dynamic_cast<UpLabel*>(widg) != Q_NULLPTR)
     {
         UpLabel *lbl = dynamic_cast<UpLabel*>(widg);
-        DocExterne *doc = qobject_cast<DocExterne*>(lbl->rufusitem());
-        if (doc)
-        {
-            imgzoom = new dlg_imagezoom(doc);
-            imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
-            connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_imagezoom::close);
-        }
+        doc = qobject_cast<DocExterne*>(lbl->rufusitem());
     }
-    if (imgzoom)
+    if (doc)
     {
+        imgzoom = new dlg_singleimageviewer();
+        imgzoom->setDocument(doc);
+        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
+        connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
         imgzoom->exec();
         delete imgzoom;
     }

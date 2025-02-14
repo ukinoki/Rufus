@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class UpVideoWidget : public QVideoWidget
 {
 public:
-    UpVideoWidget(QString filename = "", QWidget *parent = Q_NULLPTR);
+    UpVideoWidget(QWidget *parent = Q_NULLPTR);
 
     QString filename() const;
     void setFilename(const QString &newFilename);

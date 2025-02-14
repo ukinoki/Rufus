@@ -34,10 +34,11 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
 
-    dlg_imgzoom         = new dlg_imagezoom();
-    dlg_imgzoom         ->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
-    dlg_imgzoom         ->setSaveGeometry(Nom_fiche_DocsVideo);
-    dlg_imgzoom         ->setAttribute(Qt::WA_DeleteOnClose, true);
+    dlg_imgviewer         = new dlg_singleimageviewer();
+    dlg_imgviewer         ->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
+    dlg_imgviewer         ->setSaveGeometry(Nom_fiche_DocsVideo);
+    dlg_imgviewer         ->setAttribute(Qt::WA_DeleteOnClose, true);
+    dlg_imgviewer         ->setMode(dlg_singleimageviewer::Normal);
     m_docpath           = proc->settings()->value(Param_Poste Dossier_Videos).toString();
 
     wdg_linetitre       = new UpLineEdit();
@@ -103,13 +104,14 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     titreLay    ->setContentsMargins(0,0,0,0);
     dateLay     ->setContentsMargins(0,0,0,0);
 
-    dlg_imgzoom ->buttonslayout()->insertWidget(0,rsgnmtwidg);
-    dlg_imgzoom ->buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
-    dlg_imgzoom ->buttonslayout()->insertLayout(0, dirVlay);
-    dlg_imgzoom ->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    dlg_imgzoom ->setMinimumWidth(650);
+    dlg_imgviewer ->buttonslayout()->insertWidget(0,rsgnmtwidg);
+    dlg_imgviewer ->buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    dlg_imgviewer ->buttonslayout()->insertLayout(0, dirVlay);
+    dlg_imgviewer ->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
+    dlg_imgviewer ->setMinimumWidth(650);
+    dlg_imgviewer ->setStageCount(2);
 
-    connect(dlg_imgzoom->OKButton,  &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
+    connect(dlg_imgviewer->OKButton,  &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
     connect(wdg_dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsvideo::ChangeFile);
 
     NavigueVers(UpToolBar::_last);
@@ -120,8 +122,8 @@ void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
 {
     QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
-        UpMessageBox::Watch(dlg_imgzoom,tr("Il n'y a aucun document dans le dossier ") + m_docpath);
-        dlg_imgzoom->setStageCount(2);
+        UpMessageBox::Watch(dlg_imgviewer,tr("Il n'y a aucun document dans le dossier ") + m_docpath);
+        dlg_imgviewer->setStageCount(2);
         return;
     }
     int idx = listfich.indexOf(m_currentvideofile);
@@ -139,34 +141,34 @@ void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
     if (idx>-1)
     {
-        m_currentvideofile = listfich.at(idx);
-        dlg_imgzoom->setVideofile(m_docpath + "/" + m_currentvideofile);
+        m_currentvideofile  = listfich.at(idx);
+        dlg_imgviewer         ->setVideofile(m_docpath + "/" + m_currentvideofile);
     }
 }
 
-dlg_imagezoom *dlg_docsvideo::dialog() const
+dlg_singleimageviewer *dlg_docsvideo::dialog() const
 {
-    return dlg_imgzoom;
+    return dlg_imgviewer;
 }
 
 void dlg_docsvideo::ChangeFile()
 {
-    bool pathchanged;
+    bool pathchanged = true;
     if (!searchDir(pathchanged))
         if (!pathchanged)
             return;
-    QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
+    QStringList listfich    = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     int idx                 = listfich.indexOf(m_currentvideofile);
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);
     wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
-    dlg_imgzoom             ->setVideofile(m_docpath + "/" + m_currentvideofile);
+    dlg_imgviewer           ->setVideofile(m_docpath + "/" + m_currentvideofile);
 }
 
 bool dlg_docsvideo::searchDir(bool &pathchanged)
 {
-    QString fileName = QFileDialog::getOpenFileName(dlg_imgzoom, tr("Choisir un fichier"), m_docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
+    QString fileName = QFileDialog::getOpenFileName(dlg_imgviewer, tr("Choisir un fichier"), m_docpath,  tr("Video (*.mp4 *.mpg *.m4v)"));
     if (fileName != "")
     {
         pathchanged = (m_docpath != QFileInfo(fileName).dir().absolutePath());
@@ -186,20 +188,20 @@ void dlg_docsvideo::ValideFiche()
 {
     if (wdg_typedoccombobx->currentText() == "")
     {
-        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier le type de document"));
+        UpMessageBox::Watch(dlg_imgviewer,tr("Vous avez oublié de spécifier le type de document"));
         wdg_typedoccombobx->setFocus();
         return;
     }
     if (wdg_linetitre->text() == "")
     {
-        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier un nom pour le document"));
+        UpMessageBox::Watch(dlg_imgviewer,tr("Vous avez oublié de spécifier un nom pour le document"));
         wdg_linetitre->setFocus();
         return;
     }
     if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
-        UpMessageBox msgbox(dlg_imgzoom);
+        UpMessageBox msgbox(dlg_imgviewer);
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour cette video"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
@@ -218,7 +220,7 @@ void dlg_docsvideo::ValideFiche()
     QFile   qFile(filename);
     if (!qFile.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(dlg_imgzoom, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(dlg_imgviewer, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
@@ -229,7 +231,7 @@ void dlg_docsvideo::ValideFiche()
         if (!VideoDir.mkdir(CheminVideoDir))
         {
             QString msg = tr("Dossier de sauvegarde des videos ") + "<font color=\"red\"><b>" + CheminVideoDir + "</b></font>" + tr(" invalide");
-            UpMessageBox::Watch(dlg_imgzoom,msg);
+            UpMessageBox::Watch(dlg_imgviewer,msg);
             return;
         }
     QString sstypedoc = wdg_linetitre->text();
@@ -264,7 +266,7 @@ void dlg_docsvideo::ValideFiche()
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
             Utils::removeWithoutPermissions(qFile);
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Video ") + sstypedoc +  tr(" enregistrée"), Icons::icSunglasses(), 1000);
-        dlg_imgzoom ->close();
+        dlg_imgviewer ->close();
     }
 }
 

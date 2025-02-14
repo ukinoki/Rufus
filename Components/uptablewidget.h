@@ -38,7 +38,7 @@ public:
     explicit        UpTableWidget(QWidget *parent = Q_NULLPTR);
     explicit        UpTableWidget(Item *rufusitem, QWidget *parent = Q_NULLPTR);
 
-    void            AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom = false);
+    void            AfficheDoc(QMap<QString,QVariant> doc, bool aveczoom);
     void            clearSelection();
     void            clearAllRowsExceptHeader();                 //! supprime toutes les rangées d'une table (clearContents() vide le contenu des rangées mais ne supprime pas les rangées)
     int             FixLargeurTotale(int larg = WIDTH_SCROLLBAR);
@@ -48,13 +48,11 @@ public:
     void            setAllRowHeight(int h);
     void            selectRow(int row);
     QByteArray      dropData();
-    QSize           calcSizeForDisplay(QSize szavailable);
-    QList<UpLabel*> m_labels = QList<UpLabel*>();
     QSize           resizetofit(QSize sz);
 
 
     QList<QImage>           listimg() const;
-    void                    setListimages(const QList<QImage> &newListimg);
+    QSize                   setListimages(const QList<QImage> &newListimg, QSize szavailable);
 
     QList<UpLabel *>        labels() const;
 
@@ -66,6 +64,7 @@ private:
     QByteArray      m_encodedData       = QByteArray();
     QList<QImage>   m_listimg           = QList<QImage>();
     Item            *m_rufusitem        = Q_NULLPTR;
+    QList<UpLabel*> m_labels = QList<UpLabel*>();
 
 protected:
     void            dropEvent(QDropEvent *) Q_DECL_OVERRIDE;

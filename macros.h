@@ -1243,6 +1243,7 @@ public:
 #define CodePostal_Defaut                               Param_Poste "/CodePostalParDefaut"
 
 #define Position_Fiche                                  "PositionsFiches/"
+#define DialogGeometry                                        "Geometry/"
 #define Nom_fiche_ActesPrecedents                       "ActesPrec"
 #define Nom_fiche_Archives                              "Archives"
 #define Nom_fiche_AutreDossier                          "AutreDossier"

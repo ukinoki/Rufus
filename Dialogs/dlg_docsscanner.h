@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define DLG_DOCSSCANNER_H
 
 #include "procedures.h"
-#include "dlg_imagezoom.h"
+#include "dlg_singleimageviewer.h"
 
 class dlg_docsscanner : public QObject
 {
@@ -33,12 +33,12 @@ public:
     void                    NavigueVers(UpToolBar::Choix choix);
     QMap<QString, QVariant> getdataFacture();
 
-    dlg_imagezoom*          dialog() const;
+    dlg_singleimageviewer*          dialog() const;
 
 private:
     DataBase                *db             = DataBase::I();
     Procedures              *proc           = Procedures::I();
-    dlg_imagezoom           *dlg_imgzoom    = Q_NULLPTR;
+    dlg_singleimageviewer           *dlg_imgviewer    = Q_NULLPTR;
     bool                    m_accesdistant;
     QString                 m_pathdirstockageimagerie;
     QDate                   m_currentdate   = db->ServerDate();

@@ -1670,7 +1670,7 @@ void dlg_paiementtiers::MAJTiers(UpComboBox *box)
             msgbox.setInformativeText(tr("Tiers payant inconnu! Souhaitez-vous l'enregistrer?"));
             msgbox.setIcon(UpMessageBox::Warning);
             UpSmallButton OKBouton(tr("Enregistrer"));
-            UpSmallButton NoBouton(tr("Ne pas enregister"));
+            UpSmallButton NoBouton(tr("Ne pas enregistrer"));
             msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
             msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
             msgbox.exec();

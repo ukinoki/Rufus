@@ -18,6 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLAYERCONTROLS_H
 #define PLAYERCONTROLS_H
 
+#include <QAudioOutput>
+#include <QDial>
 #include <QMediaPlayer>
 #include <QSlider>
 #include <QStyle>
@@ -41,11 +43,13 @@ signals:
     void ctrl(PlayerControls::State);
 
 private:
-    QMediaPlayer    *m_ctrlplayer           = Q_NULLPTR;
+    QMediaPlayer    *m_ctrlplayer       = Q_NULLPTR;
     QAbstractButton *wdg_playButton     = Q_NULLPTR;
     QAbstractButton *wdg_stopButton     = Q_NULLPTR;
     QSlider         *wdg_slider         = Q_NULLPTR;
     QLabel          *wdg_labelDuration  = Q_NULLPTR;
+    QBoxLayout      *m_layout             = new QHBoxLayout;
+
     QString format(QMediaPlayer *plyr);
     void    playClicked();
     void    playSeek(int);

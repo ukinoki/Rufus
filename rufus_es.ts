@@ -7036,7 +7036,7 @@ consolidations</source>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="95"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1561"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1563"/>
         <source>Rubrique 2035</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7068,7 +7068,7 @@ consolidations</source>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="365"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1557"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1559"/>
         <source>Date</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7080,14 +7080,14 @@ consolidations</source>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="450"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1559"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1561"/>
         <source>Montant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="504"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1560"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1562"/>
         <source>Mode de paiement</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7159,7 +7159,7 @@ dépense</source>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="85"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="874"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1091"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1093"/>
         <source>Supprimer</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7193,7 +7193,7 @@ dépense</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1558"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1560"/>
         <source>Dépense</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7302,65 +7302,65 @@ Aucun compte bancaire n&apos;est enregistré.</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="620"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1237"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1239"/>
         <source>l&apos;objet de la dépense</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="622"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="635"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1239"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1252"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1241"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1254"/>
         <source>le montant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="624"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="637"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1241"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1254"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1243"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1256"/>
         <source>le mode de paiement</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="626"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="639"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1243"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1256"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1245"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1258"/>
         <source>la rubrique fiscale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="628"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="641"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1245"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1258"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1247"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1260"/>
         <source>le compte bancaire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="632"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1249"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1251"/>
         <source>vous avez oublié de renseigner </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="633"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1250"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1252"/>
         <source>le motif</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="656"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1273"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1305"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1310"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1275"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1307"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1312"/>
         <source>Elle a déjà été saisie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="663"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1282"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1284"/>
         <source>Elle date de plus de 3 mois</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7371,13 +7371,13 @@ Aucun compte bancaire n&apos;est enregistré.</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="679"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1302"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1304"/>
         <source>Il y a un problème avec cette dépense!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="680"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1303"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1305"/>
         <source>Confirmer la saisie?</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7388,7 +7388,7 @@ Aucun compte bancaire n&apos;est enregistré.</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="723"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1344"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1346"/>
         <source>Virement débiteur</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7480,89 +7480,89 @@ Aucun compte bancaire n&apos;est enregistré.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1088"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1090"/>
         <source>Suppression d&apos;échéancier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1088"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1090"/>
         <source>Suppression de facture</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1089"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1091"/>
         <source>Confirmez la suppression du lien vers </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1089"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1091"/>
         <source>Confirmez la suppression de la facture </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1295"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1297"/>
         <source>Une dépense semblable a été saisie
 le </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1305"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1307"/>
         <source>Oui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1306"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1308"/>
         <source>Non</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1427"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="2038"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1429"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="2040"/>
         <source>d MMM yyyy</source>
         <translation type="unfinished">d MMM yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1562"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1564"/>
         <source>Famille rubrique</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1563"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1565"/>
         <source>Classement par date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1687"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1689"/>
         <source>Entrez le montant à rechercher</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1708"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1710"/>
         <source>Recherche de montant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1790"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1792"/>
         <source>&lt;Aucun&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1867"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1869"/>
         <source>Choisissez un échéancier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1894"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1896"/>
         <source>Nom déja utilisé</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1894"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1896"/>
         <source>Le nom</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1894"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1896"/>
         <source>est déja utilisé</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7570,264 +7570,264 @@ le </source>
 <context>
     <name>dlg_docsexternes</name>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="33"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="31"/>
         <source>Documents de </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="70"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="59"/>
         <source>Afficher l&apos;imagerie</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="75"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="64"/>
         <source>Tous</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="76"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="65"/>
         <source>Importants</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="77"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="66"/>
         <source>Afficher tous les documents
 y compris les documents d&apos;importance minime</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="78"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="67"/>
         <source>N&apos;afficher que les documents marqués importants</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="84"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="99"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="73"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="88"/>
         <source>Date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="84"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="73"/>
         <source>Type</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="128"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="116"/>
         <source>Le titre</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="129"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="117"/>
         <source>La date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="130"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="118"/>
         <source>Réduire</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="130"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="118"/>
         <source>Agrandir</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="135"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="123"/>
         <source>Ouvrir dans le visualisateur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="139"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="127"/>
         <source>Importance</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="140"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="128"/>
         <source>Faible</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="141"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="129"/>
         <source>Normale</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="142"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="130"/>
         <source>Forte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="159"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="147"/>
         <source>Modifier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="172"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="160"/>
         <source>Imprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="175"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="163"/>
         <source>Réimprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="176"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="164"/>
         <source>Modifier et réimprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="177"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="165"/>
         <source>Modifier et réimprimer à la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="178"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="166"/>
         <source>Réimprimer à la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="200"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="861"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="188"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="816"/>
         <source>Supprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="314"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="300"/>
         <source>Video non accessible en accès distant</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="321"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="489"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="307"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="444"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="347"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="323"/>
         <source>d-M-yyyy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="355"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="379"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="331"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="349"/>
         <source>Impossible de charger le document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="492"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="505"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="447"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="460"/>
         <source>Enregistrer un fichier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="569"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="524"/>
         <source>Réimprimer
 le document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="570"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="525"/>
         <source>Modifier
 et imprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="571"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="526"/>
         <source>Réimprimer à
 la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="572"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="862"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="527"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="817"/>
         <source>Annuler</source>
         <translation type="unfinished">Anular</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="573"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="528"/>
         <source>Réimprimer un document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="592"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="547"/>
         <source>Modifier et imprimer
 à la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="625"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="580"/>
         <source>Impossible de retrouver les données de l&apos;en-tête</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="625"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="580"/>
         <source>Annulation de l&apos;impression</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="655"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="610"/>
         <source>le </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="655"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="610"/>
         <source>d MMMM yyyy</source>
         <translation type="unfinished">d MMMM yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="661"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="616"/>
         <source>Rien à imprimer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="765"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="720"/>
         <source>Modifier la date</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="768"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="723"/>
         <source>dd/MM/yyyy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="781"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="736"/>
         <source>Vous devez entrer une date valide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="785"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="740"/>
         <source>Entrez la date du document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="822"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="777"/>
         <source>Vous devez entrer du texte</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="826"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="781"/>
         <source>Entrez le titre du document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="854"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="809"/>
         <source>Suppression refusée</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="854"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="809"/>
         <source>Vous ne pouvez pas supprimer un document dont vous n&apos;êtes pas l&apos;auteur</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="864"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="819"/>
         <source>Etes vous certain de vouloir supprimer le document </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="1108"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="1127"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1005"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1024"/>
         <source>dd-MM-yyyy</source>
         <translation type="unfinished">dd-MM-yyyy</translation>
     </message>
@@ -7925,99 +7925,99 @@ la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="168"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="170"/>
         <source>Il n&apos;y a aucun document dans le dossier </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="169"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="171"/>
         <source>Vous devez scanner les documents au format pdf, png ou jpg.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="192"/>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="220"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="194"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="222"/>
         <source>Erreur d&apos;accès au fichier</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="233"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="235"/>
         <source>Choisir un fichier</source>
         <translation type="unfinished">Elija un fichero</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="233"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="235"/>
         <source>Images (*.pdf *.jpg *.jpeg *.png)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="268"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="270"/>
         <source>Vous avez oublié de spécifier le type de document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="274"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="276"/>
         <source>Vous avez oublié de spécifier un nom pour le document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="282"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="284"/>
         <source>Confirmez la date d&apos;aujourd&apos;hui pour ce document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="287"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="289"/>
         <source>Annuler</source>
         <translation type="unfinished">Anular</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="300"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="302"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="330"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="332"/>
         <source>Dossier de sauvegarde </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="330"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="332"/>
         <source> invalide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="431"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="433"/>
         <source>Impossible d&apos;enregistrer ce document dans la base!</source>
         <translation type="unfinished">¡No se puede grabar este documento en la base!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="456"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="458"/>
         <source>Document </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="456"/>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="458"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="460"/>
         <source> enregistré</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="457"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="459"/>
         <source>Facture </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="457"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="459"/>
         <source> enregistrée</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="458"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="460"/>
         <source>Echeancier </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsscanner.cpp" line="460"/>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="462"/>
         <source>Messages</source>
         <translation type="unfinished">Mensajes</translation>
     </message>
@@ -8080,68 +8080,68 @@ la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="123"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="124"/>
         <source>Il n&apos;y a aucun document dans le dossier </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="169"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="170"/>
         <source>Choisir un fichier</source>
         <translation type="unfinished">Elija un fichero</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="169"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="170"/>
         <source>Video (*.mp4 *.mpg *.m4v)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="189"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="190"/>
         <source>Vous avez oublié de spécifier le type de document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="195"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="196"/>
         <source>Vous avez oublié de spécifier un nom pour le document</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="203"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="204"/>
         <source>Confirmez la date d&apos;aujourd&apos;hui pour cette video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="208"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="209"/>
         <source>Annuler</source>
         <translation type="unfinished">Anular</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="221"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="222"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="231"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="232"/>
         <source>Dossier de sauvegarde des videos </source>
         <oldsource>Le dossier de sauvegarde d&apos;imagerie </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="231"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="232"/>
         <source> invalide</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="266"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="267"/>
         <source>Messages</source>
         <translation type="unfinished">Mensajes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="266"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="267"/>
         <source>Video </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsvideo.cpp" line="266"/>
+        <location filename="Dialogs/dlg_docsvideo.cpp" line="267"/>
         <source> enregistrée</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10290,39 +10290,8 @@ pour savoir comment modifier cette variabe secure-file-priv dans la configuratio
 <context>
     <name>dlg_imageviewer</name>
     <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="7"/>
         <source>dd-MM-yyyy</source>
-        <translation type="unfinished">dd-MM-yyyy</translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="570"/>
-        <source>Video non accessible en accès distant</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="577"/>
-        <source>Erreur d&apos;accès au fichier:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_imageviewer.cpp" line="599"/>
-        <source>Impossible de charger le document</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_imageviewer.h" line="25"/>
-        <source>ŒIL DROIT</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_imageviewer.h" line="26"/>
-        <source>ŒIL GAUCHE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_imageviewer.h" line="27"/>
-        <source>LES 2</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">dd-MM-yyyy</translation>
     </message>
 </context>
 <context>
@@ -12101,6 +12070,44 @@ les modifications</source>
     </message>
 </context>
 <context>
+    <name>dlg_multiimageviewer</name>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.cpp" line="7"/>
+        <source>dd-MM-yyyy</source>
+        <translation type="unfinished">dd-MM-yyyy</translation>
+    </message>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.cpp" line="570"/>
+        <source>Video non accessible en accès distant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.cpp" line="577"/>
+        <source>Erreur d&apos;accès au fichier:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.cpp" line="600"/>
+        <source>Impossible de charger le document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.h" line="25"/>
+        <source>ŒIL DROIT</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.h" line="26"/>
+        <source>ŒIL GAUCHE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ImageViewer/dlg_multiimageviewer.h" line="27"/>
+        <source>LES 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>dlg_paiementdirect</name>
     <message>
         <location filename="Dialogs/dlg_paiementdirect.ui" line="29"/>
@@ -13072,7 +13079,9 @@ et fermer</source>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="1673"/>
-        <source>Ne pas enregister</source>
+        <location filename="Dialogs/dlg_paiementtiers.cpp" line="2913"/>
+        <source>Ne pas enregistrer</source>
+        <oldsource>Ne pas enregister</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13164,11 +13173,6 @@ Voulez vous l&apos;enregistrer?</source>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="2909"/>
         <source>Banque inconnue!</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_paiementtiers.cpp" line="2913"/>
-        <source>Ne pas enregistrer</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -17,6 +17,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "cls_docsexternes.h"
 
+QList<DocExterne *> DocsExternes::newdocuments() const
+{
+    return m_newdocuments;
+}
+
 DocsExternes::DocsExternes(QObject *parent) : ItemsList(parent)
 {
     map_docsexternes    = new QMap<int, DocExterne*>();
@@ -77,12 +82,16 @@ void DocsExternes::setNouveauDocumentExterneFalse()
 
 void DocsExternes::addList(QList<DocExterne*> listdocs)
 {
+    m_newdocuments.clear();
     foreach (DocExterne* doc, listdocs)
     {
         if (doc == Q_NULLPTR)
             continue;;
         if(!map_docsexternes->contains(doc->id()))
+        {
             m_nouveaudocument = true;
+            m_newdocuments << doc;
+        }
         add(map_docsexternes, doc);
     }
 }

@@ -27,8 +27,9 @@ class DocsExternes : public ItemsList
     Q_OBJECT
 private:
     QMap<int, DocExterne*> *map_docsexternes = Q_NULLPTR; //!< la liste des DocExternes pour un patient donné
-    bool m_nouveaudocument;
-    Patient *m_patient;
+    bool                        m_nouveaudocument;
+    Patient                     *m_patient;
+    QList<DocExterne *>         m_newdocuments = QList<DocExterne *>();
 
 public:
     explicit                    DocsExternes(QObject *parent = Q_NULLPTR);
@@ -47,5 +48,6 @@ public:
     void                        SupprimeDocumentExterne(DocExterne *doc);
     static DocExterne*          CreationDocumentExterne(QHash<QString, QVariant> sets);
 
+    QList<DocExterne *> newdocuments() const;
 };
 #endif // CLS_DOCSEXTERNES_H

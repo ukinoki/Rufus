@@ -218,6 +218,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
         for (int i=0; i<listidiols.size(); ++i)
             m_listidiolsutilises << listidiols.at(i).at(0).toInt();
     HasNewVersion();
+    setStageCount(1);
 }
 
 dlg_listeiols::~dlg_listeiols()

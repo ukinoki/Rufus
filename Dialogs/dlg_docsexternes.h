@@ -15,23 +15,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_DOCSEXTERNES_H
 #define DLG_DOCSEXTERNES_H
 
-#include "dlg_imageviewer.h"
+#include "dlg_multiimageviewer.h"
 #include "upmediaplayer.h"
 #include "upvideowidget.h"
-#include "imagewidget.h"
 
-class dlg_docsexternes : public UpDialog
+class dlg_docsexternes : public dlg_singleimageviewer
 {
     Q_OBJECT
 public:
     explicit dlg_docsexternes(DocsExternes* Docs, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
     ~dlg_docsexternes();
     Patient*                currentpatient() const { return m_docsexternes->patient(); } //!> renseigne le patient en cours d'affichage
-    enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
-    Mode                    mode()   {return m_mode;}
     DocsExternes*           docsexternes() { return m_docsexternes;}
 
 private:
@@ -52,45 +49,23 @@ private:
  *      . un QVideoWidget wdg_video pour les videos
  *      . ou un UpLabel wdg_jpglbl pour les jpg */
 
-    QScrollArea             *mainscroll = new QScrollArea();
-
     QTreeView               *wdg_listdocstreewiew   = new QTreeView();
-    int                     m_treeviewwidth         = 185;
-    int                     m_spacing               = 10;
-    QMargins                m_margins               = QMargins (0,0,0,0);
-    QHBoxLayout             *m_lay                  = new QHBoxLayout();
+    PlayerControls*         m_controlplayer         = new PlayerControls();
 
-    /*! les pdf sont affichées via un UpTableWidget *wdg_pdftbl    */
-    UpTableWidget           *wdg_pdftbl             = Q_NULLPTR;
-
-    /*! les video sont affichées via un QVideoWidget *wdg_viedo    */
-    UpVideoWidget           *wdg_video              = Q_NULLPTR;
-    PlayerControls          *wdg_playctrl           = new PlayerControls;
-
-    /*! lesjpg sont affichés via un UpLabel *wdg_jpglbl    */
-    UpLabel                 *wdg_jpglbl             = Q_NULLPTR;
-    ImageWidget             *wdg_imgwdg             = Q_NULLPTR;
-
-
-
-    UpCheckBox              *wdg_alldocsupcheckbox    = Q_NULLPTR;
+    UpCheckBox              *wdg_alldocsupcheckbox  = Q_NULLPTR;
     UpCheckBox              *wdg_onlyimportantsdocsupcheckbox    = Q_NULLPTR;
-    UpComboBox              *wdg_updatetypebox  = Q_NULLPTR;
-    QLabel                  *wdg_inflabel       = Q_NULLPTR;
+    UpComboBox              *wdg_updatetypebox      = Q_NULLPTR;
 
-    QStandardItemModel      *m_model            = Q_NULLPTR;
-    QStandardItemModel      *m_tripardatemodel  = Q_NULLPTR;
-    QStandardItemModel      *m_tripartypemodel  = Q_NULLPTR;
+    QStandardItemModel      *m_model                = Q_NULLPTR;
+    QStandardItemModel      *m_tripardatemodel      = Q_NULLPTR;
+    QStandardItemModel      *m_tripartypemodel      = Q_NULLPTR;
     QPoint                  m_positionorigin;
     QSize                   m_sizeorigin;
+    int                     m_treeviewwidth = 180;
 
-    double                  m_vidorimgratio = 1;
-    Mode                    m_mode;
     ModeTri                 m_modetri;
     ModeFiltre              m_modefiltre;
 
-
-    bool                    eventFilter(QObject *, QEvent *);
 
     void                    ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
@@ -117,15 +92,9 @@ private:
     void                    RemplirTreeView();
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
     void                    ZoomDoc(bool changemode = true);
-    QSize                   sizeforunit() {
-        int width = sizefordisplay().width()
-                    - m_treeviewwidth
-                    - m_margins.left()
-                    - m_margins.right()
-                    - m_spacing;      //!estimated width for one pic in a row
-        int height = sizefordisplay().height();
-        return QSize(width,height);
-    }
+
+signals:
+    void                    Actualize();
 };
 
 #endif // DLG_DOCSEXTERNES_H

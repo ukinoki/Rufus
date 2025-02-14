@@ -35,10 +35,11 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         m_iditem = qobject_cast<Patient*>(item)->id();
     else
         m_iditem = qobject_cast<Depense*>(item)->id();
-    dlg_imgzoom     = new dlg_imagezoom(parent);
-    dlg_imgzoom     ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    dlg_imgzoom     ->setSaveGeometry(Nom_fiche_DocsScanner);
-    dlg_imgzoom     ->setAttribute(Qt::WA_DeleteOnClose, true);
+    dlg_imgviewer     = new dlg_singleimageviewer(parent);
+    dlg_imgviewer     ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    dlg_imgviewer     ->setSaveGeometry(Nom_fiche_DocsScanner);
+    dlg_imgviewer     ->setAttribute(Qt::WA_DeleteOnClose, true);
+    dlg_imgviewer     ->setMode(dlg_singleimageviewer::Normal);
 
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
@@ -142,17 +143,19 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     dateLay     ->setContentsMargins(0,0,0,0);
 
 
-    dlg_imgzoom     ->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
-    connect(dlg_imgzoom->OKButton,  &QPushButton::clicked, this,   &dlg_docsscanner::ValideFiche);
+    dlg_imgviewer     ->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
+    connect(dlg_imgviewer->OKButton,  &QPushButton::clicked, this,   &dlg_docsscanner::ValideFiche);
     connect(wdg_dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsscanner::ChangeFile);
 
-    dlg_imgzoom     ->buttonslayout()->insertLayout(0,rsgnmtVlay);
+    dlg_imgviewer     ->buttonslayout()->insertLayout(0,rsgnmtVlay);
 
-    dlg_imgzoom     ->buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    dlg_imgviewer     ->buttonslayout()->insertSpacerItem(0,new QSpacerItem(10,10,QSizePolicy::Expanding));
 
-    dlg_imgzoom     ->buttonslayout()->insertLayout(0, dirVlay);
-    dlg_imgzoom     ->setMinimumWidth(650);
-    dlg_imgzoom     ->setStageCount(2);
+    dlg_imgviewer     ->buttonslayout()->insertLayout(0, dirVlay);
+    dlg_imgviewer     ->setStageCount(2);
+
+    dlg_imgviewer     ->setMinimumWidth(650);
+    dlg_imgviewer     ->setStageCount(2);
     m_initok        = true;
     NavigueVers(UpToolBar::_last);
 }
@@ -165,7 +168,7 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
 {
     QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
-        UpMessageBox::Watch(dlg_imgzoom,tr("Il n'y a aucun document dans le dossier ") + m_docpath,
+        UpMessageBox::Watch(dlg_imgviewer,tr("Il n'y a aucun document dans le dossier ") + m_docpath,
                              tr("Vous devez scanner les documents au format pdf, png ou jpg."));
         return;
     }
@@ -189,7 +192,7 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
         QFile       qFile(m_docpath + "/" + m_currentImagefile);
         if (!qFile.open( QIODevice::ReadOnly ))
         {
-            UpMessageBox::Watch(dlg_imgzoom,  tr("Erreur d'accès au fichier"), qFile.fileName());
+            UpMessageBox::Watch(dlg_imgviewer,  tr("Erreur d'accès au fichier"), qFile.fileName());
             return;
         }
         QByteArray bapdf = qFile.readAll();
@@ -197,13 +200,13 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
         qFile.close ();
         doc[M_BA]   = bapdf;
         doc[M_TYPE] = suffixe;
-        dlg_imgzoom->setMapimg(doc);
+        dlg_imgviewer->setMapimg(doc);
     }
 }
 
 void dlg_docsscanner::ChangeFile()
 {
-    bool pathchanged;
+    bool pathchanged = true;
     if (!searchDir(pathchanged))
         if (!pathchanged)
             return;
@@ -217,7 +220,7 @@ void dlg_docsscanner::ChangeFile()
     QFile       qFile(m_docpath + "/" + m_currentImagefile);
     if (!qFile.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(dlg_imgzoom,  tr("Erreur d'accès au fichier"), qFile.fileName());
+        UpMessageBox::Watch(dlg_imgviewer,  tr("Erreur d'accès au fichier"), qFile.fileName());
         return;
     }
     QByteArray bapdf = qFile.readAll();
@@ -225,12 +228,12 @@ void dlg_docsscanner::ChangeFile()
     qFile.close ();
     doc[M_BA]   = bapdf   ;
     doc[M_TYPE] = suffixe;
-    dlg_imgzoom->setMapimg(doc);
+    dlg_imgviewer->setMapimg(doc);
 }
 
 bool dlg_docsscanner::searchDir(bool &pathchanged)
 {
-    QString fileName = QFileDialog::getOpenFileName(dlg_imgzoom, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
+    QString fileName = QFileDialog::getOpenFileName(dlg_imgviewer, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
     if (fileName != "")
     {
         pathchanged         = (m_docpath != QFileInfo(fileName).dir().absolutePath());
@@ -251,9 +254,9 @@ QMap<QString, QVariant> dlg_docsscanner::getdataFacture()
     return map_datafacture;
 }
 
-dlg_imagezoom *dlg_docsscanner::dialog() const
+dlg_singleimageviewer *dlg_docsscanner::dialog() const
 {
-    return dlg_imgzoom;
+    return dlg_imgviewer;
 }
 
 bool dlg_docsscanner::initOK() const
@@ -265,20 +268,20 @@ void dlg_docsscanner::ValideFiche()
 {
     if (wdg_typedoccombobx->currentText() == "")
     {
-        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier le type de document"));
+        UpMessageBox::Watch(dlg_imgviewer,tr("Vous avez oublié de spécifier le type de document"));
         wdg_typedoccombobx->setFocus();
         return;
     }
     if (wdg_linetitre->text() == "")
     {
-        UpMessageBox::Watch(dlg_imgzoom,tr("Vous avez oublié de spécifier un nom pour le document"));
+        UpMessageBox::Watch(dlg_imgviewer,tr("Vous avez oublié de spécifier un nom pour le document"));
         wdg_linetitre->setFocus();
         return;
     }
     if (wdg_editdate->date() == m_currentdate)
     {
         wdg_editdate->setFocus();
-        UpMessageBox msgbox(dlg_imgzoom);
+        UpMessageBox msgbox(dlg_imgviewer);
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour ce document"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
@@ -297,7 +300,7 @@ void dlg_docsscanner::ValideFiche()
     QFile   file_origin(filename);
     if (!file_origin.open( QIODevice::ReadOnly ))
     {
-        UpMessageBox::Watch(dlg_imgzoom, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(dlg_imgviewer, tr("Erreur d'accès au fichier:"), filename);
         return;
     }
     QByteArray ba = file_origin.readAll();
@@ -428,7 +431,7 @@ void dlg_docsscanner::ValideFiche()
         }
         b = db->InsertSQLByBinds(TBL_FACTURES, listbinds);
         if(!b)
-            UpMessageBox::Watch(dlg_imgzoom,tr("Impossible d'enregistrer ce document dans la base!"));
+            UpMessageBox::Watch(dlg_imgviewer,tr("Impossible d'enregistrer ce document dans la base!"));
         map_datafacture["idfacture"] = idimpr;
         map_datafacture["echeancier"] = ( m_mode == Echeancier);
         map_datafacture["objetecheancier"] = ( m_mode == Echeancier? sstypedoc : "");
@@ -436,7 +439,7 @@ void dlg_docsscanner::ValideFiche()
     if(!b)
     {
         file_origin.close ();
-        dlg_imgzoom->reject();
+        dlg_imgviewer->reject();
         return;
     }
     else if (!m_accesdistant)
@@ -458,6 +461,6 @@ void dlg_docsscanner::ValideFiche()
     case Echeancier:    msg = tr("Echeancier ") + sstypedoc +  tr(" enregistré");   break;
     }
     UpSystemTrayIcon::I()->showMessage(tr("Messages"), msg, Icons::icSunglasses(), 1000);
-    dlg_imgzoom->accept();
+    dlg_imgviewer->accept();
     return;
 }

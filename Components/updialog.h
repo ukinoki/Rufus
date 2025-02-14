@@ -66,14 +66,15 @@ private:
     QWidget         *wdg_buttonswidget;
     void            AjouteLay();
     void            UpdateTabOrder();
-    int             m_stageheight = 40;
-    int             m_nstages   = 1;
-    int             m_spacing = 5;
-    int             m_marge = 10;
-    QMargins        m_marges = QMargins(m_marge,m_marge,m_marge,m_marge);
+    int             m_stageheight   = 40;
+    double          m_nstages       = 1;
+    int             m_spacing       = 5;
+    int             m_marge         = 10;
+    QMargins        m_marges        = QMargins(m_marge,m_marge,m_marge,m_marge);
     QObject*        obj_data;
     UpLabel         *wdg_label;
     UpLineEdit      *wdg_chercheuplineedit;
+    QRect           m_originalgeometry    = QRect();
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton, *OupsButton;
@@ -88,26 +89,16 @@ public:
     QHBoxLayout*    buttonslayout() const;
     QWidget*        widgetbuttons() const;
     UpLineEdit*     searchline() const { return wdg_chercheuplineedit; }
-    void            setStageCount(int stage =  1);
+    void            setStageCount(double stage =  1);
     QObject*        data() const { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
-    QSize           sizefordisplay() {
-        int width = frameGeometry().width()
-                    - dlglayout()->contentsMargins().left()
-                    - dlglayout()->contentsMargins().right();
-        int height = frameGeometry().height()
-                     - dlglayout()->contentsMargins().top()
-                     - dlglayout()->contentsMargins().bottom()
-                     - dlglayout()->spacing()
-                     - wdg_buttonslayout->contentsMargins().top()
-                     - wdg_buttonslayout->contentsMargins().bottom()
-                     - m_stageheight * m_nstages;
-        return QSize(width,height);
-    }
-    void            setSizes(double ratioimgorigine, UpDialog *dlg, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
-    void            setSaveGeometry(QString nomsageometry);
-    int stageheight() const;
-    int buttonsstagecount() const;
+    int             stageheight() const;
+
+    QSize           sizefordisplay();
+    const QRect     originalgeometry()                  { return m_originalgeometry; }
+    void            setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
+    void            setOriginalSizes(QSize size, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
+    void            setSaveGeometry(QString geometryname);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "upcombobox.h"
 #include "uptoolbar.h"
-#include "dlg_imagezoom.h"
+#include "dlg_singleimageviewer.h"
 #include "procedures.h"
 
 
@@ -33,7 +33,7 @@ public:
     dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
     void                NavigueVers(UpToolBar::Choix choix);
 
-    dlg_imagezoom       *dialog() const;
+    dlg_singleimageviewer       *dialog() const;
     bool                initOK() { return m_initOK; }
 
 private:
@@ -50,7 +50,7 @@ private:
     UpComboBox          *wdg_typedoccombobx     = Q_NULLPTR;
     UpToolBar           *wdg_toolbar            = Q_NULLPTR;
     UpPushButton        *wdg_dirsearchbutton    = Q_NULLPTR;
-    dlg_imagezoom       *dlg_imgzoom            = Q_NULLPTR;
+    dlg_singleimageviewer       *dlg_imgviewer            = Q_NULLPTR;
     bool                m_initOK                = false;
     QStringList         m_filters               = QStringList() << "*.mp4" << "*.mpg" << "*.m4v";
 

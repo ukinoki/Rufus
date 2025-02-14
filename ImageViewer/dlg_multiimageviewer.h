@@ -1,18 +1,19 @@
-#ifndef DLG_IMAGEVIEWER_H
-#define DLG_IMAGEVIEWER_H
+#ifndef DLG_MULTIIMAGEVIEWER_H
+#define DLG_MULTIIMAGEVIEWER_H
 
-#include "dlg_imagezoom.h"
+#include "dlg_singleimageviewer.h"
 #include "updelegate.h"
 #include "upmediaplayer.h"
 #include "uptreeview.h"
 #include "procedures.h"
 
-class dlg_imageviewer : public UpDialog
+class dlg_multiimageviewer : public UpDialog
 {
     Q_OBJECT
 public:
-    dlg_imageviewer(QList<int> listiddocs, int idcurrentdoc = 0, QWidget *parent = Q_NULLPTR);
-    ~dlg_imageviewer();
+    dlg_multiimageviewer(QList<int> listiddocs, int idcurrentdoc = 0, QWidget *parent = Q_NULLPTR);
+    ~dlg_multiimageviewer();
+    void                    Actualize();
 
 private:
     QList<int>              m_listiddocs;
@@ -20,7 +21,7 @@ private:
     UpTableView             *wdg_table;
     QStringList             m_listtypedocs      = QStringList();
     QList<QDate>            m_listdates         = QList<QDate>();
-    UpStandardItemModel     *m_Xmodel         = Q_NULLPTR;
+    UpStandardItemModel     *m_Xmodel           = Q_NULLPTR;
     UpStandardItemModel     *m_treemodel        = Q_NULLPTR;
     UpCheckBox              *ODchkBox           = new UpCheckBox(tr("ŒIL DROIT"));
     UpCheckBox              *OGchkBox           = new UpCheckBox(tr("ŒIL GAUCHE"));
@@ -34,7 +35,7 @@ private:
     int                     m_spacing           = 5;
     QList<UpStandardItem*>  m_listcheckedItems  = QList<UpStandardItem*>();
 
-    QWidget*                DocWidget(QList<DocExterne *> listdocs);
+    QWidget*                DockWidget(QList<DocExterne *> listdocs);
     bool                    eventFilter(QObject *, QEvent *);
 
 
@@ -70,4 +71,4 @@ private:
     }
     void                    ZoomDoc(QWidget *widg);
 };
-#endif // DLG_IMAGEVIEWER_H
+#endif // DLG_MULTIIMAGEVIEWER_H

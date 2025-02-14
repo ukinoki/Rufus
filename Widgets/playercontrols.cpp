@@ -37,15 +37,14 @@ PlayerControls::PlayerControls(QWidget *parent) : QWidget(parent)
     wdg_labelDuration    = new QLabel(this);
     wdg_labelDuration   ->setAlignment(Qt::AlignRight);
 
-    QBoxLayout *layout = new QHBoxLayout;
     int marge = 0;
-    layout->setContentsMargins(marge,marge,marge,marge);
-    layout->setSpacing(5);
-    layout->addWidget(wdg_stopButton);
-    layout->addWidget(wdg_playButton);
-    layout->addWidget(wdg_slider);
-    layout->addWidget(wdg_labelDuration);
-    setLayout(layout);
+    m_layout->setContentsMargins(marge,marge,marge,marge);
+    m_layout->setSpacing(5);
+    m_layout->addWidget(wdg_stopButton);
+    m_layout->addWidget(wdg_playButton);
+    m_layout->addWidget(wdg_slider);
+    m_layout->addWidget(wdg_labelDuration);
+    setLayout(m_layout);
 
     connect(wdg_playButton,     &QAbstractButton::clicked, this,    &PlayerControls::playClicked);
     connect(wdg_stopButton,     &QAbstractButton::clicked, this,    &PlayerControls::stopClicked);
@@ -69,8 +68,8 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
     m_ctrlplayer    ->disconnect();
     wdg_slider  ->disconnect();
     connect(m_ctrlplayer,   &QMediaPlayer::positionChanged,     this, &PlayerControls::positionChanged);
-    connect(wdg_slider, &QSlider::sliderMoved,              this, &PlayerControls::playSeek);
-    connect (this,      &PlayerControls::ctrl,              this, [=] (PlayerControls::State  state)
+    connect(wdg_slider,     &QSlider::sliderMoved,              this, &PlayerControls::playSeek);
+    connect (this,          &PlayerControls::ctrl,              this, [=] (PlayerControls::State  state)
             {
                 switch (state){
                 case PlayerControls::Stop:  m_ctrlplayer->stop();     break;
@@ -79,6 +78,21 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
                 }
             });
     wdg_labelDuration->setFixedSize(Utils::CalcSize(QTime(0,0,0).toString(format(m_ctrlplayer)) + " / " + QTime(0,0,0).toString(format(m_ctrlplayer))));
+    if (m_ctrlplayer->hasAudio())
+    {
+        QDial           *dial           = new QDial();
+        m_layout        ->addWidget(dial);
+        QAudioOutput    *audioOutput    = new QAudioOutput();
+        connect(dial,   &QDial::valueChanged,   this, [=] (int val) {
+            float vol = val;
+            audioOutput->setVolume(vol/100);
+        });
+        dial            ->setMinimum(0);
+        dial            ->setMaximum(100);
+        m_ctrlplayer    ->setAudioOutput(audioOutput);
+        dial            ->setValue(50);
+        //audioOutput->setVolume(50);
+    }
 }
 
 void PlayerControls::startplay()

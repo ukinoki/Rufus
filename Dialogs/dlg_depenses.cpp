@@ -1070,21 +1070,26 @@ void dlg_depenses::GestionComptes()
 
 void dlg_depenses::ZoomDoc()
 {
-    QMap<QString,QVariant> doc;
-    doc                             .insert(M_BA, m_depenseencours->factureblob());
-    doc                             .insert(M_TYPE, m_depenseencours->factureformat());
-    dlg_zoomimg                     = new dlg_imagezoom(doc);
-    dlg_zoomimg                     ->AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
-    connect(dlg_zoomimg->PrintButton, &UpSmallButton::clicked, this, [=]{proc->PrintDocument(doc);});
-    connect(dlg_zoomimg->SupprButton, &UpSmallButton::clicked, this, &dlg_depenses::EffaceFacture);
-    connect(dlg_zoomimg->OKButton,    &UpSmallButton::clicked, dlg_zoomimg, &dlg_imagezoom::close);
-    dlg_zoomimg                     ->exec();
-    delete dlg_zoomimg;
+    dlg_imgviewer                   = new dlg_singleimageviewer(this);
+    dlg_imgviewer                   ->AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
+    dlg_imgviewer                   ->setDepense(m_depenseencours);
+    dlg_imgviewer                   ->setStageCount(1);
+    dlg_imgviewer                   ->setMode(dlg_singleimageviewer::Normal);
+    connect(dlg_imgviewer->PrintButton, &UpSmallButton::clicked, this, [=]  {
+                                                                                QMap<QString,QVariant> doc;
+                                                                                doc.insert(M_BA, m_depenseencours->factureblob());
+                                                                                doc.insert(M_TYPE, m_depenseencours->factureformat());
+                                                                                proc->PrintDocument(doc);
+                                                                            });
+    connect(dlg_imgviewer->SupprButton, &UpSmallButton::clicked, this, &dlg_depenses::EffaceFacture);
+    connect(dlg_imgviewer->OKButton,    &UpSmallButton::clicked, dlg_imgviewer, &dlg_singleimageviewer::close);
+    dlg_imgviewer                   ->exec();
+    delete dlg_imgviewer;
 }
 
 void dlg_depenses::EffaceFacture()
 {
-    if (UpMessageBox::Question(dlg_zoomimg,
+    if (UpMessageBox::Question(dlg_imgviewer,
                            (m_depenseencours->isecheancier()? tr("Suppression d'échéancier") : tr("Suppression de facture")),
                            (m_depenseencours->isecheancier()? tr ("Confirmez la suppression du lien vers ") + "\n" + m_depenseencours->objetecheancier() : tr ("Confirmez la suppression de la facture ") + "\n" +  m_depenseencours->objet()),
                            UpDialog::ButtonCancel | UpDialog::ButtonOK,

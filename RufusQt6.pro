@@ -107,6 +107,7 @@ include(TcpSocket/tcpsocket.pri)
 include(Widgets/widgets.pri)
 include(Protocols/protocols.pri)
 include(TextPrinter/textprinter.pri)
+include(ImageViewer/imageviewer.pri)
 
 
 unix|win32{

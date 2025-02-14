@@ -21,7 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_comptes.h"
 #include "dlg_docsscanner.h"
-#include "dlg_imagezoom.h"
+#include "dlg_singleimageviewer.h"
 #include "gbl_datas.h"
 #include "updelegate.h"
 #include "ui_dlg_depenses.h"
@@ -60,7 +60,7 @@ private:
     UpPushButton                *wdg_modifieruppushbutton;
     UpPushButton                *wdg_supprimeruppushbutton;
     QHBoxLayout                 *wdg_boxbuttlayout;
-    dlg_imagezoom               *dlg_zoomimg = Q_NULLPTR;
+    dlg_singleimageviewer               *dlg_imgviewer = Q_NULLPTR;
 
     void                        closeEvent(QCloseEvent *event);
     void                        keyPressEvent ( QKeyEvent * event );

@@ -13,16 +13,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_docsexternes.h"
-#include "dlg_imageviewer.h"
+#include "dlg_multiimageviewer.h"
 #include "gbl_datas.h"
 #include "icons.h"
 
-dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) :
-    UpDialog(Nom_fiche_DocsExternes, parent)
+dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) : dlg_singleimageviewer(parent, Nom_fiche_DocsExternes)
 {
     m_docsexternes  = Docs;
 
-    setAttribute(Qt::WA_ShowWithoutActivating, true);
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
     /*
@@ -38,7 +36,9 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 #ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
     d=2;
 #endif
-    m_font              .setPointSize(m_font.pointSize()-d);
+    m_font                  .setPointSize(m_font.pointSize()-d);
+    mainlayout()            ->setSpacing(10);
+    setMode(dlg_singleimageviewer::Normal);
 
     wdg_listdocstreewiew    ->setFixedWidth(m_treeviewwidth);
     wdg_listdocstreewiew    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -50,27 +50,15 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_listdocstreewiew    ->setIndentation(6);
     wdg_listdocstreewiew    ->header()->setVisible(false);
 
-    mainscroll              ->setWidgetResizable(true);
-    mainscroll              ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    mainscroll              ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    mainscroll              ->setMouseTracking(true);
-    mainscroll              ->installEventFilter(this);
-
-    wdg_inflabel        = new QLabel(mainscroll);
-    wdg_inflabel        ->setFont(m_font);
-
-    m_lay               ->addWidget(wdg_listdocstreewiew,2);
-    m_lay               ->addWidget(mainscroll,10);
-    m_lay               ->setSpacing(m_spacing);
-    m_lay               ->setContentsMargins(m_margins);
-    dlglayout()         ->insertLayout(0,m_lay);
+    mainlayout()            ->addWidget(wdg_listdocstreewiew);
+    setCorrectionwidget(wdg_listdocstreewiew);
 
     UpSmallButton *ViewerButton = new UpSmallButton();
     ViewerButton                ->setIcon(Icons::icViewer());
     ViewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
     AjouteWidgetLayButtons(ViewerButton, false);
 
-    AjouteWidgetLayButtons(wdg_playctrl);
+    AjouteWidgetLayButtons(m_controlplayer);
 
     wdg_alldocsupcheckbox               = new UpCheckBox(tr("Tous"));
     wdg_onlyimportantsdocsupcheckbox    = new UpCheckBox(tr("Importants"));
@@ -95,7 +83,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
                 m_listiddocsimagery << it.key();
     }
     ViewerButton->setVisible(m_listiddocsimagery.size()>0);
-
+    setStageCount(1);
     connect (wdg_updatetypebox,                 &UpComboBox::currentTextChanged,             this,   [=] (QString text) {BasculeTriListe(text == tr("Date")?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
     connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_alldocsupcheckbox);});
@@ -111,10 +99,10 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
         connect (TimerActualiseDocsExternes,    &QTimer::timeout,               this,   &dlg_docsexternes::ActualiseDocsExternes);
     }
 
-    m_mode          = Normal;
     m_modetri       = parDate;
     m_docsexternes  ->setNouveauDocumentExterneFalse();
     RemplirTreeView();
+    move(originalgeometry().left(), originalgeometry().top());
 }
 
 dlg_docsexternes::~dlg_docsexternes()
@@ -127,7 +115,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     QMenu *menu = new QMenu(this);
     QAction *paction_Modifier       = new QAction(Icons::icEditer(), tr("Le titre"));
     QAction *paction_ModifierDate   = new QAction(Icons::icDate(), tr("La date"));
-    QAction *paction_Zoom           = new QAction(m_mode == Zoom? Icons::pxZoomOut() : Icons::pxZoomIn(), m_mode == Zoom?  tr("Réduire") : tr("Agrandir"));
+    QAction *paction_Zoom           = new QAction(mode() == dlg_singleimageviewer::Zoom? Icons::pxZoomOut() : Icons::pxZoomIn(), mode() == dlg_singleimageviewer::Zoom?  tr("Réduire") : tr("Agrandir"));
     if (currentuser()->isSoignant())
     {
         if  (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU || docmt->isVideo())
@@ -302,12 +290,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton        ->setVisible(j);
     RecordButton        ->disconnect();
-    double w;
-    double h;
-    wdg_inflabel        ->setVisible(!docmt->isVideo());
-    wdg_playctrl        ->setVisible(docmt->isVideo());
+    //labinfowidget()     ->setVisible(!docmt->isVideo());
+    m_controlplayer     ->setVisible(docmt->isVideo());
 
-    if (docmt->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
+    if (docmt->isVideo())                   //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
         if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         {
@@ -322,32 +308,23 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg);
             return;
         }
-        wdg_video       = new UpVideoWidget;
-        mainscroll      ->setWidget(wdg_video);
-        QSize size      = wdg_video->player()->videosize();
-        w               = size.width();
-        h               = size.height();
-        m_vidorimgratio = w/h;
-        wdg_playctrl    ->setPlayer(wdg_video->player());
-        wdg_video       ->setFixedSize(w,h);
-
-        wdg_video       ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        wdg_video       ->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(wdg_video,      &QWidget::customContextMenuRequested,   this,   [=] {AfficheCustomMenu(docmt);});
+        setVideofile(filename);
+        connect(videoWidget(),      &QWidget::customContextMenuRequested,   this,   [=] {AfficheCustomMenu(docmt);});
         connect (RecordButton,  &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
         PrintButton     ->setVisible(false);
-        wdg_playctrl    ->startplay();
-        wdg_inflabel    ->setText("");
+        m_controlplayer ->startplay();
+        labinfowidget() ->setText("");
     }
-    else                                    // le document est une image ou un document écrit (ordonnance, certificat...)
+    else                                    //! le document est une image ou un document écrit (ordonnance, certificat...)
     {
         proc            ->CalcImageDocument(docmt);
         QString sstitre = "";
         if  (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
             sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
-        wdg_inflabel    ->setText(sstitre);
+        labinfowidget()         ->setText(sstitre);
         connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
-        if (docmt->isJPG())     // le document est un JPG
+
+        if (docmt->isJPG())             //! le document est un JPG
         {
             QImage image;
             if (!image.loadFromData(docmt->imageblob()))
@@ -355,22 +332,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 return;
             }
-            wdg_jpglbl          = new UpLabel();
-            wdg_jpglbl          ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-            mainscroll          ->setWidget(wdg_jpglbl);
-            QPixmap pix         = QPixmap::fromImage(image).scaled(sizeforunit(),Qt::KeepAspectRatioByExpanding,Qt::SmoothTransformation);
-            w                   = pix.width();
-            h                   = pix.height();
-            m_vidorimgratio     = w/h;
-            wdg_jpglbl          ->setPixmap(pix);
-            wdg_jpglbl          ->setImage(image);
-            wdg_jpglbl          ->setContextMenuPolicy(Qt::CustomContextMenu);
-            connect(wdg_jpglbl,    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode == Normal?
-                                                                                        OpenMultiImageViewer(docmt->id()) :
-                                                                                        ZoomDoc();});
-            connect(wdg_jpglbl,    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
         }
-        else if (docmt->isPDF())     // le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
+        else if (docmt->isPDF())        //! le document est un pdf (document d'imagerie ou document écrit transformé en pdf par CalcImage)
         {
             QList<QImage> listimg;
             listimg         = docmt->pagelist();
@@ -379,42 +342,19 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                 UpMessageBox::Watch(this,tr("Impossible de charger le document"));
                 return;
             }
-
-            wdg_pdftbl      = new UpTableWidget(docmt);
-            wdg_pdftbl->horizontalHeader() ->setVisible(false);
-            wdg_pdftbl->verticalHeader()   ->setVisible(false);
-            wdg_pdftbl      ->setFocusPolicy(Qt::NoFocus);
-            wdg_pdftbl      ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); //! sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-            wdg_pdftbl      ->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-            wdg_pdftbl      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-            wdg_pdftbl      ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));      // WARNING : icon scaled : pxZoomIn 30,30
-            wdg_pdftbl      ->setColumnCount(1);
-            wdg_pdftbl      ->setSelectionMode(QAbstractItemView::NoSelection);
-            wdg_pdftbl      ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-
-            mainscroll      ->setWidget(wdg_pdftbl);
-            if (listimg.size())
-            {
-                wdg_pdftbl                  ->setListimages(listimg);
-                QSize szfinal               = wdg_pdftbl->calcSizeForDisplay(sizeforunit());
-                QList<UpLabel *> pdflabels  = wdg_pdftbl->labels();
-                m_vidorimgratio             = Utils::sizeratio(szfinal);
-                for (int i=0; i<pdflabels.size(); i++)
-                {
-                    connect(pdflabels.at(i),    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && m_mode == Normal?
-                                                                                                    OpenMultiImageViewer(docmt->id()) :
-                                                                                                    ZoomDoc();});
-                    connect(pdflabels.at(i),    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
-                }
-                wdg_pdftbl  ->setFixedSize(szfinal);
-            }
         }
         else return;
+        setDocument(docmt);
+        for (int i=0; i<labels().size(); i++)
+        {
+            connect(labels().at(i),    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && mode() == dlg_singleimageviewer::Normal?
+                                                                                            OpenMultiImageViewer(docmt->id()) :
+                                                                                            ZoomDoc();});
+            connect(labels().at(i),    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
+        }
     }
-    if (m_mode == Zoom)
-    {
+    if (mode() == dlg_singleimageviewer::Zoom)
         ZoomDoc(false);
-    }
 }
 
 void dlg_docsexternes::BasculeTriListe(ModeTri mode)
@@ -477,6 +417,7 @@ void dlg_docsexternes::ActualiseDocsExternes()
     {
         m_docsexternes->setNouveauDocumentExterneFalse();
         RemplirTreeView();
+        emit Actualize();
     }
 }
 
@@ -501,14 +442,14 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 
 void dlg_docsexternes::EnregistreVideo()
 {
-    QString filename = wdg_video->player()->source().path();
+    QString filename = videoWidget()->player()->source().path();
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
     if (dialog.exec() == QDialog::Accepted)
     {
         QDir dockdir = dialog.directory();
-        QFile(filename).copy(dockdir.path() + "/" + wdg_video->player()->source().fileName());
+        QFile(filename).copy(dockdir.path() + "/" + videoWidget()->player()->source().fileName());
     }
 }
 
@@ -833,7 +774,8 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 
 void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
 {
-    dlg_imageviewer *viewer = new dlg_imageviewer(m_listiddocsimagery, iddoc, this);
+    dlg_multiimageviewer *viewer = new dlg_multiimageviewer(m_listiddocsimagery, iddoc, this);
+    connect(this, &dlg_docsexternes::Actualize, viewer, &dlg_multiimageviewer::Actualize);
     viewer->exec();
     delete viewer;
 }
@@ -911,86 +853,29 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
 {
     QModelIndex idx = wdg_listdocstreewiew->currentIndex();
     if (!changemode)
-        m_mode = (m_mode == Zoom? Normal : Zoom);
-    if (m_mode == Normal)
+        setMode(mode() == dlg_singleimageviewer::Zoom? dlg_singleimageviewer::Normal : dlg_singleimageviewer::Zoom);
+    if (mode() == dlg_singleimageviewer::Normal)
     {
         if (changemode)
         {
             m_positionorigin = pos();
             m_sizeorigin     = size();
         }
-        m_mode       = Zoom;
-
         //! set dimensions to max
-        QSize finalsize     = QSize();
-        QSize wdgfinalsize  = QSize();
-        QWidget *wdg        = wdg_pdftbl;
-        if (m_currentdocument->isJPG())
-            wdg             = wdg_jpglbl;
-        else if (m_currentdocument->isVideo())
-            wdg             = wdg_video;
-
-        int correction      = m_lay->contentsMargins().left() + m_lay->spacing() + m_lay->contentsMargins().right() + m_treeviewwidth;
-        setSizes(m_vidorimgratio, this, finalsize, wdgfinalsize, correction);
-        wdg                 ->resize(wdgfinalsize);
-        move (0, 0);
-
-        if (m_currentdocument->isPDF())
-            wdg_pdftbl      ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        else if (m_currentdocument->isJPG())
-            wdg_jpglbl      ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        else if (m_currentdocument->isVideo())
-            wdg_video       ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        mainscroll          ->resize(sizeforunit().width(), wdg_listdocstreewiew->height());
+        changeMode(dlg_singleimageviewer::Zoom);
         move (0,0);
+        currentwidget() ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
     }
-    else if (m_mode == Zoom)
+    else if (mode() == dlg_singleimageviewer::Zoom)
     {
         move(m_positionorigin);
         resize(m_sizeorigin);
-        if (m_currentdocument->isPDF())
-            wdg_pdftbl  ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        else if (m_currentdocument->isJPG())
-            wdg_jpglbl  ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        else if (m_currentdocument->isVideo())
-            wdg_video   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
-        m_mode           = Normal;
+        currentwidget() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+        changeMode(dlg_singleimageviewer::Normal);
     }
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
-    setEnregPosition(m_mode == Normal);
-}
-
-bool dlg_docsexternes::eventFilter(QObject *obj, QEvent *event)
-{
-    QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-    if (rszevent != Q_NULLPTR)
-    {
-        mainscroll      ->resize(sizeforunit().width(), wdg_listdocstreewiew->height());
-        if (m_currentdocument->isPDF())
-        {
-            wdg_pdftbl  ->resizetofit(sizeforunit());
-            wdg_pdftbl  ->setFixedSize(sizeforunit());
-        }
-        else if (m_currentdocument->isJPG())
-        {
-            QImage img  = wdg_jpglbl->image();
-            QPixmap pix = QPixmap::fromImage(img).scaled(sizeforunit(), Qt::KeepAspectRatioByExpanding);
-            wdg_jpglbl  ->setPixmap(pix);
-            wdg_jpglbl  ->setFixedSize(sizeforunit().width(), wdg_listdocstreewiew->height());
-        }
-        else if (m_currentdocument->isVideo())
-        {
-            if (wdg_video)
-            {
-                    QSize size          = wdg_video->player()->videosize();
-                    double w            = sizeforunit().width();
-                    wdg_video           ->setFixedSize(w,w/Utils::sizeratio(size));
-            }
-        }
-        wdg_inflabel    ->setGeometry(20, mainscroll->height()-35, 500, 25);
-    }
-    return QWidget::eventFilter(obj, event);
+    setEnregPosition(mode() == dlg_singleimageviewer::Normal);
 }
 
 void dlg_docsexternes::RemplirTreeView()
@@ -1087,9 +972,8 @@ void dlg_docsexternes::RemplirTreeView()
     wdg_onlyimportantsdocsupcheckbox->setEnabled(listdatesimportants.size() > 0);
     if (m_modefiltre == ImportantFiltre && listdatesimportants.size() == 0)
     {
-        wdg_jpglbl->setVisible(false);
-        wdg_pdftbl->setVisible(false);
-        wdg_video->setVisible(false);
+        tableWidget()->setVisible(false);
+        videoWidget()->setVisible(false);
     }
 
     QList<QDate> listdates;
