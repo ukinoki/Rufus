@@ -24,6 +24,8 @@ UpDialog::UpDialog(QString NomFiche, QWidget *parent) : QDialog(parent)
     setFont(qApp->font());
     AjouteLay();
     m_mode           = NullMode;
+    m_globallay->setContentsMargins(m_marges);
+    m_globallay->setSpacing(m_marge);
     setSaveGeometry(NomFiche);
 }
 
@@ -31,6 +33,8 @@ UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {
     AjouteLay();
     setFont(qApp->font());
+    m_globallay->setContentsMargins(m_marges);
+    m_globallay->setSpacing(m_marge);
     m_enregistreposition   = false;
 }
 
@@ -55,9 +59,9 @@ void UpDialog::AjouteLay()
     wdg_buttonslayout   ->setContentsMargins(0,10,0,10);
     wdg_buttonslayout   ->setSpacing(10);
     wdg_buttonswidget   ->setLayout(wdg_buttonslayout);
-    int n               = dlglayout()->count();
-    dlglayout()         ->insertWidget(n,wdg_buttonswidget);
-    setStageCount(m_nstages);
+    int n               = m_globallay->count();
+    m_globallay         ->insertWidget(n,wdg_buttonswidget);
+    setStageCount(0.7);
 }
 
 void UpDialog::addSearchLine()
@@ -150,19 +154,11 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         wdg_buttonslayout   ->addWidget(OKButton);
     }
     UpdateTabOrder();
-    setStageCount(1);
 }
 
-QVBoxLayout* UpDialog::dlglayout()
+QVBoxLayout* UpDialog::dlglayout() const
 {
-    QVBoxLayout *globallay = qobject_cast<QVBoxLayout*>(this->layout());
-    if (globallay == Q_NULLPTR)
-    {
-        globallay   = new QVBoxLayout(this);
-        globallay   ->setContentsMargins(m_marges);
-        globallay   ->setSpacing(m_spacing);
-    }
-    return globallay;
+    return m_globallay;
 }
 
 QHBoxLayout* UpDialog::buttonslayout() const
@@ -316,11 +312,8 @@ void UpDialog::setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, Q
         screenratio = wscroll/hscroll;
     }
 
-    int wdelta   = geometry()        .width()
-                 - sizefordisplay()  .width()
-                 + correctionwidth;
-    int hdelta   = geometry()        .height()
-                 - sizefordisplay()  .height();
+    int wdelta   = deltas(correctionwidth).width();
+    int hdelta   = deltas(correctionwidth).height();
 
     /*! if screenration >= videoratio  => screenheight is used for max heighth */
     int finalh (0), finalw(0);
@@ -342,12 +335,22 @@ void UpDialog::setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, Q
 }
 
 
+QSize UpDialog::deltas(int correctionwidth)              //! difference between geometry size and all widget's size
+{
+    int wdelta   = geometry()               .width()
+                 - sizeForMainWidgetDisplay(correctionwidth)  .width();
+    int hdelta   = geometry()        .height()
+                 - sizeForMainWidgetDisplay(correctionwidth)  .height();
+    return QSize(wdelta, hdelta);
+}
+
+
+
 /*!
  *  \brief      UpDialog::setOriginalSizes
  *  \abstract   calc the original size for form and main widget according to ini file
  *  \param
     *  size = original size registered in ini file
-    *  correctionwidth = correcton neede if other widgets are included inside a QHboxLayout inside dlglayout()
  *  \return
     *  m_sizeform = final size for QDialog
     *  m_sizewidget = size available inside form for widget to display
@@ -355,42 +358,28 @@ void UpDialog::setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, Q
 void UpDialog::setOriginalSizes(QSize size, QSize &sizeform, QSize &sizewidget, int correctionwidth)
 {
     sizeform = size;
-    int wdelta   = geometry()        .width()
-                 - sizefordisplay()  .width()
-                 + correctionwidth;
-    int hdelta   = geometry()        .height()
-                 - sizefordisplay()  .height();
-    sizewidget   = QSize(size.width() - wdelta, size.height() - hdelta);
+    sizewidget   = QSize(size.width() - deltas(correctionwidth).width(), size.height() - deltas(correctionwidth).height());
 }
 
-QSize UpDialog::sizefordisplay()
+QSize UpDialog::sizeForMainWidgetDisplay(int correctionwidth)
 {
-    int             correctionwidth     = 0;
-    int             correctionheight    = 0;
+    int             claywidth     = 0;
     QHBoxLayout *hlay = dynamic_cast<QHBoxLayout*>(dlglayout()->itemAt(0));
     if (hlay)
-    {
-        correctionwidth = hlay->spacing()*(hlay->count()-1) + hlay->contentsMargins().left() + hlay->contentsMargins().right();
-        //qDebug() << "correctionwidth =" <<  correctionwidth;
-    }
-    QVBoxLayout *vlay = dynamic_cast<QVBoxLayout*>(dlglayout()->itemAt(0));
-    if (vlay)
-    {
-        correctionheight = vlay->spacing()*(vlay->count()-1) + vlay->contentsMargins().top() + vlay->contentsMargins().bottom();
-        //qDebug() << "correctionheight =" <<  correctionheight;
-    }
-    int width = frameGeometry()     .width()
-                - dlglayout()       ->contentsMargins().left()
-                - dlglayout()       ->contentsMargins().right()
-                - correctionwidth;
-    int height = frameGeometry()    .height()
-                 - dlglayout()      ->contentsMargins().top()
-                 - dlglayout()      ->contentsMargins().bottom()
-                 - dlglayout()      ->spacing()
+        claywidth = hlay->spacing()*(hlay->count()-1) + hlay->contentsMargins().left() + hlay->contentsMargins().right();
+
+    int width = geometry()          .width()
+                - m_globallay       ->contentsMargins().left()
+                - m_globallay       ->contentsMargins().right()
+                - correctionwidth
+                - claywidth;
+    int height = geometry()         .height()
+                 - m_globallay      ->contentsMargins().top()
+                 - m_globallay      ->contentsMargins().bottom()
+                 - m_globallay      ->spacing()
                  - wdg_buttonslayout->contentsMargins().top()
                  - wdg_buttonslayout->contentsMargins().bottom()
-                 - m_stageheight * m_nstages
-                 - correctionheight;
+                 - m_stageheight * m_nstages;
     return QSize(width,height);
 }
 

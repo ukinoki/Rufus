@@ -1517,6 +1517,7 @@ void dlg_gestionusers::Inactifs()
     dlg_listinactifs->setFixedWidth(wdg_bigtable->width() + dlglayout()->contentsMargins().left()*2);
     dlg_listinactifs->setSizeGripEnabled(false);
     dlg_listinactifs->setWindowTitle(tr("Utilisateurs inactifs"));
+    dlg_listinactifs->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     connect(dlg_listinactifs->OKButton, &QPushButton::clicked, dlg_listinactifs, [=] {  calclistusers(m_model);
                                                                                         dlg_listinactifs->accept();

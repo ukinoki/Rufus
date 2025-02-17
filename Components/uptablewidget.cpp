@@ -145,7 +145,6 @@ QSize UpTableWidget::resizetofit(QSize sz)
             int x = pix.width();
             int y = pix.height();
             setRowHeight(i,y);
-            setColumnWidth(i,x);
             if (x>maxw) maxw = x;
             if (y>maxh) maxh = y;
         }
@@ -166,7 +165,7 @@ void UpTableWidget::clearSelection()
 void UpTableWidget::clearAllRowsExceptHeader()
 {
     for (int i =0; i<rowCount(); i++)
-        removeRow(i);
+        removeRow(0);
 }
 
 int UpTableWidget::FixLargeurTotale(int larg)

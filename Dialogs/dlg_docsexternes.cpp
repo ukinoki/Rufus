@@ -23,11 +23,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
     setAttribute(Qt::WA_DeleteOnClose, true);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
-    /*
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size()>0)
-        setMaximumHeight(listscreens.first()->geometry().height());
-    */
     setWindowTitle(tr("Documents de ") + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom());
 
     QFont font  = qApp->font();
@@ -189,8 +184,8 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
     if (currentuser()->isSoignant())
         menu->addAction(paction_Poubelle);
-
     menu->exec(cursor().pos());
+    menu->close();
 }
 
 void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance imptce)
@@ -275,6 +270,9 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
 
 void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 {
+    if (mode() == dlg_singleimageviewer::Normal)
+        setOriginalgeometry(geometry());
+
     DocExterne *docmt = getDocumentFromIndex(idx);              //! load all details from document
     m_currentdocument = docmt;
     if (docmt == Q_NULLPTR)
@@ -290,7 +288,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton        ->setVisible(j);
     RecordButton        ->disconnect();
-    //labinfowidget()     ->setVisible(!docmt->isVideo());
+    labinfowidget()     ->setVisible(!docmt->isVideo());
     m_controlplayer     ->setVisible(docmt->isVideo());
 
     if (docmt->isVideo())                   //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
@@ -345,13 +343,12 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else return;
         setDocument(docmt);
-        for (int i=0; i<labels().size(); i++)
-        {
-            connect(labels().at(i),    &UpLabel::clicked,                      this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && mode() == dlg_singleimageviewer::Normal?
-                                                                                            OpenMultiImageViewer(docmt->id()) :
-                                                                                            ZoomDoc();});
-            connect(labels().at(i),    &UpLabel::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
-        }
+        imagewidget()->disconnect();
+        connect(imagewidget(),  &ImageWidget::clicked,                  this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && mode() == dlg_singleimageviewer::Normal?
+                                                                                        OpenMultiImageViewer(docmt->id()) :
+                                                                                        ZoomDoc();});
+        connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
+        imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
     }
     if (mode() == dlg_singleimageviewer::Zoom)
         ZoomDoc(false);
@@ -693,15 +690,15 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
 {
     DocExterne *docmt = getDocumentFromIndex(idx);
     UpDialog * dlg              = new UpDialog();
-    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    dlg                         ->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     QDateEdit   *dateedit       = new QDateEdit(dlg);
     UpLabel     *label          = new UpLabel(dlg);
     dlg->dlglayout()->insertWidget(0,dateedit);
     dlg->dlglayout()->insertWidget(0,label);
     dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
 
-    dlg->setWindowModality(Qt::WindowModal);
-    dlg->setFixedSize(200,100);
+    dlg->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlg->setStageCount(0.6);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     dlg->setWindowTitle(tr("Modifier la date"));
     dateedit->setDate(docmt->datetimeimpression().date());
@@ -732,15 +729,14 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 {
     DocExterne *docmt = getDocumentFromIndex(idx);
     UpDialog * dlg              = new UpDialog();
-    dlg                         ->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    dlg                         ->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
     UpLineEdit  *Line           = new UpLineEdit(dlg);
     UpLabel     *label          = new UpLabel(dlg);
     dlg->dlglayout()->insertWidget(0,Line);
     dlg->dlglayout()->insertWidget(0,label);
     dlg->AjouteLayButtons(UpDialog::ButtonCancel|UpDialog::ButtonOK);
 
-    dlg->setWindowModality(Qt::WindowModal);
-    dlg->setFixedSize(270,100);
+    dlg->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     dlg->move(QPoint(x()+width()/2,y()+height()/2));
     Line->setText(docmt->soustypedoc());
     Line->selectAll();
@@ -767,7 +763,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     label->setText(tr("Entrez le titre du document"));
     Line->setValidator(new QRegularExpressionValidator(Utils::rgx_adresse,this));
     Line->setMaxLength(60);
-    dlg->setWindowModality(Qt::WindowModal);
+    dlg->setStageCount(0.6);
     dlg->exec();
     delete dlg;
 }
@@ -864,7 +860,12 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         //! set dimensions to max
         changeMode(dlg_singleimageviewer::Zoom);
         move (0,0);
-        currentwidget() ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
+        currentwidget() ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
+        if (imagewidget())
+        {
+            imagewidget()->setOKwheelzoom(true);
+            imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
+        }
     }
     else if (mode() == dlg_singleimageviewer::Zoom)
     {
@@ -872,6 +873,10 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         resize(m_sizeorigin);
         currentwidget() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         changeMode(dlg_singleimageviewer::Normal);
+        {
+            imagewidget()->setOKwheelzoom(false);
+            imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
+        }
     }
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
@@ -972,7 +977,7 @@ void dlg_docsexternes::RemplirTreeView()
     wdg_onlyimportantsdocsupcheckbox->setEnabled(listdatesimportants.size() > 0);
     if (m_modefiltre == ImportantFiltre && listdatesimportants.size() == 0)
     {
-        tableWidget()->setVisible(false);
+        imagewidget()->setVisible(false);
         videoWidget()->setVisible(false);
     }
 

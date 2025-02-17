@@ -18,14 +18,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DLG_SINGLEIMAGEVIEWER_H
 #define DLG_SINGLEIMAGEVIEWER_H
 
-#include "database.h"
-#include "playercontrols.h"
+
 #include <QAudioOutput>
 #include <QTreeView>
+#include "playercontrols.h"
+#include "imagewidget.h"
 #include "uptablewidget.h"
 #include "upvideowidget.h"
-#include "cls_docexterne.h"
-#include "cls_depense.h"
+#include "procedures.h"
 
 class dlg_singleimageviewer : public UpDialog
 {
@@ -44,31 +44,17 @@ public:
     void                    setVideofile (QString filename);
 
     UpVideoWidget*          videoWidget() const;
-    UpTableWidget*          tableWidget() const;
-    int                     correctionwidth() {
-        if (m_correctionwidget!= Q_NULLPTR)
-            return m_correctionwidget->width();
-        return 0;
-    }
-
     dlg_singleimageviewer::Mode     mode() const;
     void                    setMode(Mode newMode);
     void                    changeMode(Mode newMode);
-    QSize                   normalWidgetsize()  {   int wdelta  = originalgeometry().size().width()
-                                                                - sizefordisplay()  .width();
-                                                    int hdelta  = originalgeometry().size().height()
-                                                                - sizefordisplay()  .height();
-                                                    if (m_correctionwidget!= Q_NULLPTR)
-                                                        wdelta += m_correctionwidget->width();
-                                                    return QSize(originalgeometry().size().width()-wdelta, originalgeometry().size().height()-hdelta);
-                                                }
 
     QWidget                 *currentwidget() const;
     UpLabel                 *labinfowidget() const;
     QHBoxLayout             *mainlayout() const;
-    QList<UpLabel *>        labels() const { return m_labels; }
 
     void                    setCorrectionwidget(QWidget *newCorrectionwidget);
+
+    ImageWidget*            imagewidget() const;
 
 private:
     bool                    eventFilter(QObject *, QEvent *);
@@ -76,12 +62,14 @@ private:
     void                    DisplayImage(QList<QImage> listimg, QString nomdoc = QString());
     void                    DisplayVideo(QString filepath);
     void                    InitDisplay(TypeDoc typ);
+    int                     widgetcorrectionwidth() const;
     Mode                    m_mode;
 
     UpVideoWidget*          m_vdwdg             = Q_NULLPTR;
     UpLabel*                m_labwdg            = Q_NULLPTR;
-    UpTableWidget*          m_tblwdg            = Q_NULLPTR;
     UpLabel*                m_labinfowdg        = new UpLabel();
+    QGraphicsScene          *m_scene            = Q_NULLPTR;
+    ImageWidget             *m_imgwdg           = Q_NULLPTR;
     QWidget*                m_parent            = Q_NULLPTR;
     QWidget*                m_currentwidget     = Q_NULLPTR;
     QWidget*                m_correctionwidget  = Q_NULLPTR;
@@ -89,7 +77,6 @@ private:
     PlayerControls*         m_controlplayer     = Q_NULLPTR;
 
     QMap<QString,QVariant>  m_mapimg            = QMap<QString,QVariant>();
-    QList<UpLabel*>         m_labels            = QList<UpLabel*>();
     QString                 m_videofile         = QString();
 
     bool                    m_resizeable        = true;
@@ -101,7 +88,6 @@ private:
     QSize                   m_normalwidgetsize  = QSize();
 
     double                  m_wdgratio          = 0;
-
 };
 
 #endif // DLG_SINGLEIMAGEVIEWER_H

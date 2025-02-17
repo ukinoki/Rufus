@@ -577,37 +577,39 @@ void dlg_comptes::VoirArchives()
 
 void dlg_comptes::ModifMontant(LigneCompte *lign)
 {
-    UpDialog *dlg_montant = new UpDialog(this);
-    dlg_montant     ->setWindowModality(Qt::WindowModal);
-    QString txtlbl = (tr("Vous avez choisi de modifier le montant de l'écriture") + "\n" +
-                      lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "\n\n" +
-                      tr("Cette modification est définitive mais ne supprimera") + "\n" +
-                      tr("pas l'opération de recette/dépense correspondante.") + "\n" +
-                      tr("Modifier le montant d'une ligne du compte bancaire") + "\n" +
-                      tr("sert en général à équilibrer le compte pour le rendre") + "\n" +
-                      tr("conforme au relevé") + ".\n\n" +
-                      tr("Entrez le nouveau montant") + ".\n");
+    UpDialog *dlg_montant   = new UpDialog(this);
+    QString txtlbl          = (tr("Vous avez choisi de modifier le montant de l'écriture") + "\n" +
+                                lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "\n\n" +
+                                tr("Cette modification est définitive mais ne supprimera") + "\n" +
+                                tr("pas l'opération de recette/dépense correspondante.") + "\n" +
+                                tr("Modifier le montant d'une ligne du compte bancaire") + "\n" +
+                                tr("sert en général à équilibrer le compte pour le rendre") + "\n" +
+                                tr("conforme au relevé") + ".\n\n" +
+                                tr("Entrez le nouveau montant") + ".");
 
-    UpLineEdit *line = new UpLineEdit(dlg_montant);
-    line->setMaxLength(10);
-    line->setFixedWidth(100);
-    line->setText(QString::number(lign->montant(), 'f', 2));
-    line->setAlignment(Qt::AlignRight);
-    QDoubleValidator *val = new QDoubleValidator(this);
-    val->setDecimals(2);
-    line->setValidator(val);
-    QHBoxLayout *linelay = new QHBoxLayout();
-    linelay     ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    linelay     ->addWidget(line);
-    linelay     ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
-    linelay     ->setContentsMargins(0,0,0,0);
+    UpLineEdit *line        = new UpLineEdit(dlg_montant);
+    line                    ->setMaxLength(10);
+    line                    ->setFixedWidth(100);
+    line                    ->setText(QString::number(lign->montant(), 'f', 2));
+    line                    ->setAlignment(Qt::AlignRight);
+    QDoubleValidator *val   = new QDoubleValidator(this);
+    val                     ->setDecimals(2);
+    line                    ->setValidator(val);
+    QHBoxLayout *linelay    = new QHBoxLayout();
+    linelay                 ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    linelay                 ->addWidget(line);
+    linelay                 ->addSpacerItem(new QSpacerItem(5,5, QSizePolicy::Minimum, QSizePolicy::Expanding));
+    linelay                 ->setContentsMargins(0,0,0,0);
     dlg_montant->dlglayout()->insertLayout(0,linelay);
-    UpLabel *lbl = new UpLabel();
-    lbl->setText(txtlbl);
+    UpLabel *lbl            = new UpLabel();
+    lbl                     ->setText(txtlbl);
     dlg_montant->dlglayout()->insertWidget(0,lbl);
+    dlg_montant->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_montant->setStageCount(0.8);
+    dlg_montant->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
     line->setFocus();
 
-    dlg_montant->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(dlg_montant->OKButton, &QPushButton::clicked, this, [=]
     {
         int row = getRowFromLigneCompte(lign);
@@ -619,7 +621,6 @@ void dlg_comptes::ModifMontant(LigneCompte *lign)
         dlg_montant->accept();
     });
     connect(dlg_montant->CancelButton,  &QPushButton::clicked, dlg_montant, &QDialog::reject);
-    dlg_montant->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
     dlg_montant->exec();
     delete dlg_montant;

@@ -592,8 +592,8 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 wdg_video                           ->setFixedSize(w,w/Utils::sizeratio(size));
                 wdg_video                           ->setContextMenuPolicy(Qt::CustomContextMenu);
                 connect(wdg_video, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-                wdg_video                           ->installEventFilter(this);
                 wdg_video                           ->setrufusitem(doc);
+                wdg_video                           ->installEventFilter(this);
                 glaywidg = wdg_video;
             }
             else if (doc->imageformat() == JPG)     // le document est un JPG
@@ -623,23 +623,16 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 if (listimg.size())
                 {
                     UpTableWidget *tblwdg = new UpTableWidget(doc);                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
-                    tblwdg->horizontalHeader() ->setVisible(false);
-                    tblwdg->verticalHeader()   ->setVisible(false);
                     tblwdg          ->setFocusPolicy(Qt::NoFocus);
-                    tblwdg          ->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel); // sinon on n'a pas de scrollbar vertical vu qu'il n'y a qu'une seule ligne affichée
-                    tblwdg          ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-                    tblwdg          ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-                    tblwdg          ->setColumnCount(1);
-                    tblwdg          ->setSelectionMode(QAbstractItemView::NoSelection);
                     QSize szfinal   = tblwdg->setListimages(listimg, sizeforunit());
                     for (int i=0; i<tblwdg->labels().size(); i++)
                     {
                         UpLabel* lab    = tblwdg->labels().at(i);
                         lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
                         connect(lab, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-                        lab             ->installEventFilter(this);
                         lab             ->setrufusitem(doc);
                         lab             ->setPagepdf(i);
+                        lab             ->installEventFilter(this);
                     }
                     tblwdg          ->setFixedSize(szfinal);
                     glaywidg        = tblwdg;
@@ -875,6 +868,7 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
     if (rszevent != Q_NULLPTR)
     {
+        if (obj == this)
         for (int i = 0; i < m_treemodel->rowCount(); ++i)
         {
             if ( m_treemodel->item(i)->hasChildren())
@@ -918,7 +912,11 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                                                 {
                                                     UpTableWidget* tbl = dynamic_cast<UpTableWidget*>(widg);                    //! widget is UpTableWidget=> is pdf -> resize each cell in UptableWidget
                                                     if (tbl)
-                                                        tbl->resizetofit(sizeforunit());
+                                                    {
+                                                        QSize sz = (tbl->resizetofit(sizeforunit()));
+                                                        tbl          ->setFixedSize(sz);
+
+                                                    }
                                                 }
                                             }
                                         }
@@ -960,6 +958,7 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
         imgzoom->setDocument(doc);
         imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
         connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
+        imgzoom->imagewidget()->setOKwheelzoom(true);
         imgzoom->exec();
         delete imgzoom;
     }

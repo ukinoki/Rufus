@@ -5,7 +5,6 @@
 #include "updelegate.h"
 #include "upmediaplayer.h"
 #include "uptreeview.h"
-#include "procedures.h"
 
 class dlg_multiimageviewer : public UpDialog
 {
@@ -54,18 +53,18 @@ private:
     QList<DocExterne *>     listdocsToDisplay();
     QSize                   sizeforunit() {
 //        int w = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent); //width of scrollbar in qApp
-        int width = sizefordisplay().width()
-                    - wdg_table->width()
-            // inside m_hlay inside dlglayout()
-                    - m_spacing
-                    - m_hlay->contentsMargins().left()
-                    - m_hlay->contentsMargins().right()
-            // wdg_treeview->indentation()
-                    - wdg_treeview->indentation()
-            // inside glay (DocWidget)
-                    - m_spacing
-                    - m_marg.left()
-                    - m_marg.right();      //! width for one pic in a row
+        int width = sizeForMainWidgetDisplay(
+                    wdg_table->width()
+            //! inside m_hlay inside dlglayout()
+                    + m_spacing
+                    + m_hlay->contentsMargins().left()
+                    + m_hlay->contentsMargins().right()
+            //! wdg_treeview->indentation()
+                    + wdg_treeview->indentation()
+            //! inside glay (DocWidget)
+                    + m_spacing
+                    + m_marg.left()
+                    + m_marg.right()).width();      //! width for one pic in a row
 
         return QSize(width/2,width/2);
     }

@@ -37,6 +37,7 @@ UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
     wdg_textlayout      ->setContentsMargins(0,0,0,0);
     dlglayout()     ->insertLayout(0,wdg_infolayout);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+    setStageCount(1);
     setWindowFlags(Qt::Dialog | Qt::FramelessWindowHint);
     setWindowModality(Qt::WindowModal);
     setFont(qApp->font());

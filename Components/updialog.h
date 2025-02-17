@@ -66,15 +66,17 @@ private:
     QWidget         *wdg_buttonswidget;
     void            AjouteLay();
     void            UpdateTabOrder();
-    int             m_stageheight   = 40;
-    double          m_nstages       = 1;
-    int             m_spacing       = 5;
-    int             m_marge         = 10;
-    QMargins        m_marges        = QMargins(m_marge,m_marge,m_marge,m_marge);
+    int             m_stageheight       = 40;
+    double          m_nstages           = 1;
+    int             m_spacing           = 5;
+    int             m_marge             = 10;
+    int             m_correctionwith    = 0;
+    QMargins        m_marges            = QMargins(m_marge,m_marge,m_marge,m_marge);
     QObject*        obj_data;
+    QVBoxLayout     *m_globallay        = new QVBoxLayout(this);
     UpLabel         *wdg_label;
     UpLineEdit      *wdg_chercheuplineedit;
-    QRect           m_originalgeometry    = QRect();
+    QRect           m_originalgeometry  = QRect();
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton, *OupsButton;
@@ -85,20 +87,32 @@ public:
     void            setMode(Mode mode);
     void            TuneSize(bool fixh = true, bool fixw = true);
     Mode            mode() const;
-    QVBoxLayout*    dlglayout();
+    QVBoxLayout*    dlglayout() const;
     QHBoxLayout*    buttonslayout() const;
     QWidget*        widgetbuttons() const;
-    UpLineEdit*     searchline() const { return wdg_chercheuplineedit; }
+    UpLineEdit*     searchline() const                                  { return wdg_chercheuplineedit; }
     void            setStageCount(double stage =  1);
-    QObject*        data() const { return obj_data; }
+    QObject*        data() const                                        { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
     int             stageheight() const;
 
-    QSize           sizefordisplay();
-    const QRect     originalgeometry()                  { return m_originalgeometry; }
-    void            setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
-    void            setOriginalSizes(QSize size, QSize &sizeform, QSize &sizewidget, int correctionwidth = 0);
+
+    //! resize() & geometry() talks about geometry(), excluding frameGeometry()
+    //! move() talks about widget framePosition
+    QRect           originalgeometry() const                            { return m_originalgeometry; }
+    void            setOriginalgeometry(const QRect &geometry)          { m_originalgeometry = geometry; }
+    QPoint          framePosition(QRect rectgeometry) const             { return QPoint(rectgeometry.left() + frameGeometry().left() - geometry().left(),
+                                                                                        rectgeometry.top() + frameGeometry().top() - geometry().top()); }
+
+    void            setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, QSize &sizewidget, int correctionwidth);
+    void            setOriginalSizes(QSize size, QSize &sizeform, QSize &sizewidget, int correctionwidth);
+    QSize           sizeForMainWidgetDisplay(int correctionwidth);
+
     void            setSaveGeometry(QString geometryname);
+
+    //! difference between geometry size and all widget's size   --> contentsmargins and spacings + correctionwidth (= width of allwidgets excluding this of MainWidget)
+    QSize           deltas(int correctionwidth);
+    void            setCorrectionWidth(const int &correctionwidth)      { m_correctionwith = correctionwidth; }
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

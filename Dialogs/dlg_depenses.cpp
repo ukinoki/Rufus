@@ -1684,39 +1684,36 @@ void dlg_depenses::RechercheValeur()
             listmontant->appendRow(item);
         }
     }
-    listmontant->sort(0);
+    listmontant             ->sort(0);
     QCompleter *compMOntantDepenses = new QCompleter(listmontant);
-    compMOntantDepenses->setCompletionMode(QCompleter::InlineCompletion);
-    line->setCompleter(compMOntantDepenses);
-    dlg_ask     ->setWindowModality(Qt::WindowModal);
-    label       ->setText(tr("Entrez le montant à rechercher"));
-    int labelwidth = Utils::CalcSize(label->text()).width();
-    label       ->setFixedWidth(labelwidth);
-    line        ->setAlignment(Qt::AlignRight);
-    line        ->setMaxLength(9);
-    line        ->setValidator(m_val);
-    int linewidth = Utils::CalcSize("000000000").width();
-    line        ->setFixedWidth(linewidth);
+    compMOntantDepenses     ->setCompletionMode(QCompleter::InlineCompletion);
+    line                    ->setCompleter(compMOntantDepenses);
+    label                   ->setText(tr("Entrez le montant à rechercher"));
+    int labelwidth          = Utils::CalcSize(label->text()).width();
+    label                   ->setFixedWidth(labelwidth);
+    line                    ->setAlignment(Qt::AlignRight);
+    line                    ->setMaxLength(9);
+    line                    ->setValidator(m_val);
+    int linewidth           = Utils::CalcSize("000000000").width();
+    line                    ->setFixedWidth(linewidth);
     connect(line, &QLineEdit::textEdited, line, [=]{completebox(dlg_ask, box,QLocale().toDouble(line->text()));});
-    QHBoxLayout *hlay = new QHBoxLayout();
-    hlay        ->insertSpacerItem(0, new QSpacerItem(5,5, QSizePolicy::Expanding));
-    hlay        ->insertWidget(1,line);
-    hlay        ->setSizeConstraint(QLayout::SetFixedSize);
-    dlg_ask     ->dlglayout()->insertWidget(0,label);
-    dlg_ask     ->dlglayout()->insertItem(1,hlay);
-    dlg_ask     ->dlglayout()->insertWidget(2,box);
-    box         ->setVisible(false);
-    line        ->setFocus();
+    QHBoxLayout *hlay       = new QHBoxLayout();
+    hlay                    ->insertSpacerItem(0, new QSpacerItem(5,5, QSizePolicy::Expanding));
+    hlay                    ->insertWidget(1,line);
+    hlay                    ->setSizeConstraint(QLayout::SetFixedSize);
+    dlg_ask->dlglayout()    ->insertWidget(0,label);
+    dlg_ask->dlglayout()    ->insertItem(1,hlay);
+    dlg_ask->dlglayout()    ->insertWidget(2,box);
+    box                     ->setVisible(false);
+    line                    ->setFocus();
 
-    dlg_ask     ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    dlg_ask     ->dlglayout()->setSpacing(5);
-    dlg_ask     ->setWindowTitle(tr("Recherche de montant"));
+    dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    dlg_ask                 ->dlglayout()->setSpacing(5);
+    dlg_ask                 ->setWindowTitle(tr("Recherche de montant"));
     connect(dlg_ask->OKButton,    &QPushButton::clicked, dlg_ask, &QDialog::accept);
-    dlg_ask     ->OKButton->setEnabled(false);
-    //dlg_ask->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-
-    dlg_ask     ->setFixedWidth(labelwidth + 10);
-    dlg_ask     ->setMaximumHeight(150);
+    dlg_ask                 ->OKButton->setEnabled(false);
+    dlg_ask                 ->setFixedWidth(labelwidth + 10);
+    dlg_ask->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
     if (dlg_ask->exec() == QDialog::Accepted)
     {
         if (box->count() == 0)
@@ -1863,28 +1860,29 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
         {
             UpDialog *dlg_ask               = new UpDialog(this);
             QListView   *listview           = new QListView(dlg_ask);
-            listview->setMinimumWidth(200);
-            listview->setMinimumHeight(150);
+            listview                        ->setMinimumWidth(200);
+            listview                        ->setMinimumHeight(150);
             UpSmallButton *creerecheancier  = new UpSmallButton();
-            creerecheancier->setIcon(Icons::icAjouter());
-            dlg_ask->dlglayout()->insertWidget(0,listview);
-            dlg_ask      ->AjouteLayButtons(UpDialog::ButtonEdit | UpDialog::ButtonCancel | UpDialog::ButtonOK);
-            dlg_ask      ->setWindowTitle(tr("Choisissez un échéancier"));
-            dlg_ask      ->AjouteWidgetLayButtons(creerecheancier, false);
-            dlg_ask->OKButton->setEnabled(false);
-            dlg_ask->EditButton->setEnabled(false);
+            creerecheancier                 ->setIcon(Icons::icAjouter());
+            dlg_ask->dlglayout()            ->insertWidget(0,listview);
+            dlg_ask                         ->AjouteLayButtons(UpDialog::ButtonEdit | UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            dlg_ask                         ->setWindowTitle(tr("Choisissez un échéancier"));
+            dlg_ask                         ->AjouteWidgetLayButtons(creerecheancier, false);
+            dlg_ask->OKButton               ->setEnabled(false);
+            dlg_ask->EditButton             ->setEnabled(false);
+            dlg_ask->dlglayout()            ->setSizeConstraint(QLayout::SetFixedSize);
 
-            QStandardItemModel *model = new QStandardItemModel(this);
+            QStandardItemModel *model       = new QStandardItemModel(this);
             for (int i=0; i< ListeEch.size(); ++i)
             {
                 model->setItem(i,0, new QStandardItem(ListeEch.at(i).at(0).toString()));    //! idfacture
                 model->setItem(i,1, new QStandardItem(ListeEch.at(i).at(1).toString()));    //! Intitule
                 model->setItem(i,2, new QStandardItem(ListeEch.at(i).at(2).toString()));    //! LienFichier
             }
-            listview->setModel(model);
-            UpLineDelegate *linedeleg = new UpLineDelegate();
-            listview->setModelColumn(1);
-            listview->setItemDelegate(linedeleg);
+            listview                        ->setModel(model);
+            UpLineDelegate *linedeleg       = new UpLineDelegate();
+            listview                        ->setModelColumn(1);
+            listview                        ->setItemDelegate(linedeleg);
             if (db->ModeAccesDataBase() != Utils::Distant)
             {
                 connect(linedeleg, &UpLineDelegate::editingFinished, this, [=] {

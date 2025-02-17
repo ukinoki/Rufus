@@ -25,6 +25,7 @@ dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent, QString positionfi
     m_mainlayout->setContentsMargins(m_marges);
     m_mainlayout->setSpacing(m_spacing);
     setStageCount(1);
+    installEventFilter(this);
 }
 
 void dlg_singleimageviewer::setDocument(DocExterne *docmt)
@@ -93,25 +94,8 @@ void dlg_singleimageviewer::setMapimg(const QMap<QString,QVariant> &newMapimg)
 
 void dlg_singleimageviewer::setVideofile(QString filename)
 {
-    if (m_tblwdg != Q_NULLPTR)
-    {
-        delete m_tblwdg;
-        m_tblwdg    = Q_NULLPTR;
-    }
-    if (m_vdwdg == Q_NULLPTR)
-    {
-        m_vdwdg     = new UpVideoWidget();
-        dlglayout() ->insertWidget(0,m_vdwdg);
-        m_vdwdg     ->installEventFilter(this);
-    }
+    InitDisplay(Video);
     m_vdwdg         ->setFilename(filename);
-
-    QSize size      = m_vdwdg->player()->videosize();
-    m_wdgratio      = size.width() / size.height();
-    if (m_mode == Zoom)
-        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, correctionwidth());
-    else
-        setOriginalSizes(originalgeometry().size(), m_sizeform, m_sizewidget, correctionwidth());
     DisplayVideo(filename);
 }
 
@@ -134,21 +118,14 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     InitDisplay(Image);
     calcWidgetRatio(listimage);
     if (m_mode == Zoom)
-        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, correctionwidth());
+        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, widgetcorrectionwidth());
     else
-        setOriginalSizes(originalgeometry().size(), m_sizeform, m_sizewidget, correctionwidth());
-    if (m_labinfowdg == Q_NULLPTR)
-    {
-        m_labinfowdg        = new UpLabel(this);
-        QFont font          = qApp->font();
-        font                .setPointSize(12);
-        m_labinfowdg        ->setFont(font);
-    }
+        setOriginalSizes(originalgeometry().size(), m_sizeform, m_sizewidget, widgetcorrectionwidth());
 
-    m_tblwdg            ->clearContents();
-    m_tblwdg            ->setListimages(listimage, m_sizewidget);
-    m_labels            = m_tblwdg->labels();
-    m_labinfowdg        ->setText("<font color='magenta'>" + nomdoc + "</font>");
+    m_imgwdg        ->setImage(listimage.at(0), m_sizewidget);
+    //m_imgwdg        ->setListimg(listimage, m_sizewidget);
+
+    m_labinfowdg    ->setText("<font color='magenta'>" + nomdoc + "</font>");
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -157,25 +134,32 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
 
-    m_currentwidget     = m_tblwdg;
-    if (m_mode == Zoom)
-        resize(m_sizeform.width(), m_sizeform.height());
+    m_currentwidget     = m_imgwdg;
+    //if (m_mode == Zoom)
+    resize(m_sizeform.width()-1, m_sizeform.height()-1);
 
     if (m_mode == Zoom)
         move(0, 0);
     else
-        move(originalgeometry().left(), originalgeometry().top());
+        move(framePosition(originalgeometry()));
 }
 
 void dlg_singleimageviewer::DisplayVideo(QString filepath)
 {
-    InitDisplay(Video);
+    QSize size      = m_vdwdg->player()->videosize();
+    m_wdgratio      = size.width() / size.height();
+    if (m_mode == Zoom)
+        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, widgetcorrectionwidth());
+    else
+        setOriginalSizes(originalgeometry().size(), m_sizeform, m_sizewidget, widgetcorrectionwidth());
+
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
     if (listscreens.size())
         hscroll  = listscreens.first()->availableGeometry().height();
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
+
     m_currentwidget         = m_vdwdg;
     if (m_mode == Zoom)
         resize(m_sizeform.width(), m_sizeform.height());
@@ -193,33 +177,55 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
             move((listscreens.first()->geometry().width() - width())/2, 0);
     }
     else
-        move(originalgeometry().left(), originalgeometry().top());
+        move(framePosition(originalgeometry()));
 }
 
 void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
 {
-    switch (typ) {
+    if (m_labinfowdg == Q_NULLPTR)
+    {
+        m_labinfowdg        = new UpLabel();
+        QFont font          = qApp->font();
+        font                .setPointSize(14);
+        m_labinfowdg        ->setFont(font);
+        buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
+        buttonslayout()     ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    }
+    switch (typ)
+    {
     case  Video:
     {
+        if (m_vdwdg == Q_NULLPTR)
+        {
+            m_vdwdg     = new UpVideoWidget();
+            m_mainlayout->insertWidget(m_mainlayout->count(),m_vdwdg);
+        }
+        m_labinfowdg->setParent(m_vdwdg);
+        if (m_imgwdg != Q_NULLPTR)
+        {
+            delete m_imgwdg;
+            m_imgwdg    = Q_NULLPTR;
+        }
         if (m_controlplayer == Q_NULLPTR)
         {
             m_controlplayer     = new PlayerControls(this);
             buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-2 : 0,m_controlplayer);
         }
-        if (m_labinfowdg == Q_NULLPTR)
-        {
-            m_labinfowdg        = new UpLabel();
-            QFont font          = qApp->font();
-            font                .setPointSize(14);
-            m_labinfowdg        ->setFont(font);
-            buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
-            buttonslayout()     ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
-        }
-        m_mainlayout             ->insertWidget(m_mainlayout->count(),m_vdwdg);
         break;
     }
     case (Image):
     {
+        if (m_imgwdg == Q_NULLPTR)
+        {
+            m_imgwdg     = new ImageWidget();//(QList<QImage>());
+            m_mainlayout->insertWidget(m_mainlayout->count(),m_imgwdg);
+        }
+        m_labinfowdg->setParent(m_imgwdg);
+        if (m_vdwdg != Q_NULLPTR)
+        {
+            delete m_vdwdg;
+            m_vdwdg    = Q_NULLPTR;
+        }
         if (m_controlplayer != Q_NULLPTR)
         {
             delete m_controlplayer;
@@ -230,15 +236,15 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
             delete m_vdwdg;
             m_vdwdg = Q_NULLPTR;
         }
-        if (m_tblwdg == Q_NULLPTR)
-        {
-            m_tblwdg            = new UpTableWidget();
-            m_mainlayout        ->insertWidget(m_mainlayout->count(),m_tblwdg);
-            m_tblwdg            ->installEventFilter(this);
-        }
     }
     }
 }
+
+ImageWidget *dlg_singleimageviewer::imagewidget() const
+{
+    return m_imgwdg;
+}
+
 void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
 {
     m_correctionwidget = newCorrectionwidget;
@@ -274,20 +280,15 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
     m_mode = newMode;
     if (m_mode == Zoom)
     {
-        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, correctionwidth());
+        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, widgetcorrectionwidth());
         resize(m_sizeform);
         move (0,0);
     }
     else
     {
         resize(originalgeometry().size());
-        move(originalgeometry().left(), originalgeometry().top());
+        move(framePosition(originalgeometry()));
     }
-}
-
-UpTableWidget *dlg_singleimageviewer::tableWidget() const
-{
-    return m_tblwdg;
 }
 
 UpVideoWidget *dlg_singleimageviewer::videoWidget() const
@@ -300,26 +301,23 @@ QMap<QString,QVariant> dlg_singleimageviewer::mapimg() const
     return m_mapimg;
 }
 
+int dlg_singleimageviewer::widgetcorrectionwidth() const
+{
+    int correctionwidth = 0;
+    if (m_correctionwidget != Q_NULLPTR)
+    {
+        QFrame *frame = dynamic_cast<QFrame*>(m_correctionwidget);
+        if (frame)
+            correctionwidth += frame->lineWidth() *2 + frame->midLineWidth() *2;
+        correctionwidth += m_correctionwidget->width();
+    }
+    return correctionwidth;
+}
+
 bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)
 {
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
     if (rszevent != Q_NULLPTR)
-    {
-        if (obj==m_tblwdg)
-        {
-            for (int i=0; i < m_tblwdg->rowCount(); i++)
-            {
-                UpLabel *lbl = qobject_cast<UpLabel*>(m_tblwdg->cellWidget(i,0));
-                if (lbl != Q_NULLPTR)
-                {
-                    QPixmap pix = QPixmap::fromImage(lbl->image()).scaledToWidth(m_tblwdg->width(), Qt::SmoothTransformation);
-                    lbl->setPixmap(pix);
-                    m_tblwdg->setRowHeight(i,pix.height());
-                }
-            }
-            m_tblwdg        ->setColumnWidth(0,m_tblwdg->width());
-            m_labinfowdg    ->setGeometry(20, height() - widgetbuttons()->height(), 500, 25);
-        }
-    }
+        setOriginalgeometry(geometry());
     return QWidget::eventFilter(obj, event);
 }
