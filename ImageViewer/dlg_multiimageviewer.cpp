@@ -958,7 +958,8 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
         imgzoom->setDocument(doc);
         imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
         connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
-        imgzoom->imagewidget()->setOKwheelzoom(true);
+        if (!doc->isVideo())
+            imgzoom->imagewidget()->setOKwheelzoom(true);
         imgzoom->exec();
         delete imgzoom;
     }
