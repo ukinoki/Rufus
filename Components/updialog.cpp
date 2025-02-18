@@ -51,6 +51,7 @@ void UpDialog::setSaveGeometry(QString geometryname)
                                                     });
 
 }
+
 void UpDialog::AjouteLay()
 {
     wdg_buttonswidget   = new QWidget();

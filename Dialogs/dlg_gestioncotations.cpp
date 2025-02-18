@@ -126,7 +126,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()                 ->addWidget(widgetbuttons());
     OKButton                    ->setEnabled(false);
-    dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    dlglayout()                 ->setSizeConstraint(QLayout::SetFixedSize);
 
     setWindowTitle(m_typeacte == Association? (m_cotationsfrance? "Association de codes CCAM ou autres types d'acte" : tr("Actes remboursés")): "Acte hors nomenclature");
 

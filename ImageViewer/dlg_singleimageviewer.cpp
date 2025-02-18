@@ -25,6 +25,11 @@ dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent, QString positionfi
     m_mainlayout->setContentsMargins(m_marges);
     m_mainlayout->setSpacing(m_spacing);
     setStageCount(1);
+    QFont font          = qApp->font();
+    font                .setPointSize(14);
+    m_labinfowdg        ->setFont(font);
+    buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
+    buttonslayout()     ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
     installEventFilter(this);
 }
 
@@ -136,7 +141,7 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
 
     m_currentwidget     = m_imgwdg;
     //if (m_mode == Zoom)
-    resize(m_sizeform.width()-1, m_sizeform.height()-1);
+    resize(m_sizeform.width(), m_sizeform.height());
 
     if (m_mode == Zoom)
         move(0, 0);
@@ -182,29 +187,20 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
 
 void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
 {
-    if (m_labinfowdg == Q_NULLPTR)
-    {
-        m_labinfowdg        = new UpLabel();
-        QFont font          = qApp->font();
-        font                .setPointSize(14);
-        m_labinfowdg        ->setFont(font);
-        buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
-        buttonslayout()     ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
-    }
+
     switch (typ)
     {
     case  Video:
     {
-        if (m_vdwdg == Q_NULLPTR)
-        {
-            m_vdwdg     = new UpVideoWidget();
-            m_mainlayout->insertWidget(m_mainlayout->count(),m_vdwdg);
-        }
-        m_labinfowdg->setParent(m_vdwdg);
         if (m_imgwdg != Q_NULLPTR)
         {
             delete m_imgwdg;
             m_imgwdg    = Q_NULLPTR;
+        }
+        if (m_vdwdg == Q_NULLPTR)
+        {
+            m_vdwdg     = new UpVideoWidget();
+            m_mainlayout->insertWidget(m_mainlayout->count(),m_vdwdg);
         }
         if (m_controlplayer == Q_NULLPTR)
         {
@@ -215,12 +211,6 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
     }
     case (Image):
     {
-        if (m_imgwdg == Q_NULLPTR)
-        {
-            m_imgwdg     = new ImageWidget();//(QList<QImage>());
-            m_mainlayout->insertWidget(m_mainlayout->count(),m_imgwdg);
-        }
-        m_labinfowdg->setParent(m_imgwdg);
         if (m_vdwdg != Q_NULLPTR)
         {
             delete m_vdwdg;
@@ -231,10 +221,10 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
             delete m_controlplayer;
             m_controlplayer = Q_NULLPTR;
         }
-        if (m_vdwdg != Q_NULLPTR)
+        if (m_imgwdg == Q_NULLPTR)
         {
-            delete m_vdwdg;
-            m_vdwdg = Q_NULLPTR;
+            m_imgwdg     = new ImageWidget();//(QList<QImage>());
+            m_mainlayout->insertWidget(m_mainlayout->count(),m_imgwdg);
         }
     }
     }
@@ -243,6 +233,11 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
 ImageWidget *dlg_singleimageviewer::imagewidget() const
 {
     return m_imgwdg;
+}
+
+UpVideoWidget *dlg_singleimageviewer::videoWidget() const
+{
+    return m_vdwdg;
 }
 
 void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
@@ -291,11 +286,6 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
     }
 }
 
-UpVideoWidget *dlg_singleimageviewer::videoWidget() const
-{
-    return m_vdwdg;
-}
-
 QMap<QString,QVariant> dlg_singleimageviewer::mapimg() const
 {
     return m_mapimg;
@@ -308,7 +298,7 @@ int dlg_singleimageviewer::widgetcorrectionwidth() const
     {
         QFrame *frame = dynamic_cast<QFrame*>(m_correctionwidget);
         if (frame)
-            correctionwidth += frame->lineWidth() *2 + frame->midLineWidth() *2;
+            correctionwidth += frame->lineWidth() *2;
         correctionwidth += m_correctionwidget->width();
     }
     return correctionwidth;

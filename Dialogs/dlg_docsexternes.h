@@ -50,7 +50,6 @@ private:
  *      . ou un UpLabel wdg_jpglbl pour les jpg */
 
     QTreeView               *wdg_listdocstreewiew   = new QTreeView();
-    PlayerControls*         m_controlplayer         = new PlayerControls();
 
     UpCheckBox              *wdg_alldocsupcheckbox  = Q_NULLPTR;
     UpCheckBox              *wdg_onlyimportantsdocsupcheckbox    = Q_NULLPTR;

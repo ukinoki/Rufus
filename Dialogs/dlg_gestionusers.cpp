@@ -972,46 +972,51 @@ void dlg_gestionusers::ModifMDP()
     gAskMDP    ->setWindowModality(Qt::WindowModal);
     gAskMDP    ->move(QPoint(x()+width()/2,y()+height()/2));
 
-    UpLineEdit *ConfirmMDP = new UpLineEdit(gAskMDP);
-    ConfirmMDP->setEchoMode(QLineEdit::Password);
-    ConfirmMDP->setObjectName(gConfirmMDP);
-    ConfirmMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
-    ConfirmMDP->setAlignment(Qt::AlignCenter);
-    ConfirmMDP->setMaxLength(12);
-    gAskMDP->dlglayout()->insertWidget(0,ConfirmMDP);
-    UpLabel *labelConfirmMDP = new UpLabel();
-    labelConfirmMDP->setText(tr("Confirmez le nouveau mot de passe"));
-    gAskMDP->dlglayout()->insertWidget(0,labelConfirmMDP);
-    UpLineEdit *NouvMDP = new UpLineEdit(gAskMDP);
-    NouvMDP->setEchoMode(QLineEdit::Password);
-    NouvMDP->setObjectName(gNouvMDP);
-    NouvMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
-    NouvMDP->setAlignment(Qt::AlignCenter);
-    NouvMDP->setMaxLength(12);
-    gAskMDP->dlglayout()->insertWidget(0,NouvMDP);
-    UpLabel *labelNewMDP = new UpLabel();
-    labelNewMDP->setText(tr("Entrez le nouveau mot de passe"));
-    gAskMDP->dlglayout()->insertWidget(0,labelNewMDP);
-    UpLineEdit *AncMDP = new UpLineEdit(gAskMDP);
-    AncMDP->setEchoMode(QLineEdit::Password);
-    AncMDP->setAlignment(Qt::AlignCenter);
-    AncMDP->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_3_12,this));
-    AncMDP->setObjectName(gAncMDP);
-    AncMDP->setMaxLength(12);
-    gAskMDP->dlglayout()->insertWidget(0,AncMDP);
-    UpLabel *labelOldMDP = new UpLabel();
-    labelOldMDP->setText(tr("Ancien mot de passe"));
-    gAskMDP->dlglayout()->insertWidget(0,labelOldMDP);
-    AncMDP->setFocus();
+    UpLineEdit *ConfirmMDP  = new UpLineEdit(gAskMDP);
+    ConfirmMDP              ->setEchoMode(QLineEdit::Password);
+    ConfirmMDP              ->setObjectName(gConfirmMDP);
+    ConfirmMDP              ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    ConfirmMDP              ->setAlignment(Qt::AlignCenter);
+    ConfirmMDP              ->setMaxLength(12);
+    gAskMDP->dlglayout()    ->insertWidget(0,ConfirmMDP);
 
-    gAskMDP->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    UpLabel *labelConfirmMDP= new UpLabel();
+    labelConfirmMDP         ->setText(tr("Confirmez le nouveau mot de passe"));
+    gAskMDP->dlglayout()    ->insertWidget(0,labelConfirmMDP);
+
+    UpLineEdit *NouvMDP     = new UpLineEdit(gAskMDP);
+    NouvMDP                 ->setEchoMode(QLineEdit::Password);
+    NouvMDP                 ->setObjectName(gNouvMDP);
+    NouvMDP                 ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    NouvMDP                 ->setAlignment(Qt::AlignCenter);
+    NouvMDP                 ->setMaxLength(12);
+    gAskMDP->dlglayout()    ->insertWidget(0,NouvMDP);
+
+    UpLabel *labelNewMDP    = new UpLabel();
+    labelNewMDP             ->setText(tr("Entrez le nouveau mot de passe"));
+    gAskMDP->dlglayout()    ->insertWidget(0,labelNewMDP);
+
+    UpLineEdit *AncMDP      = new UpLineEdit(gAskMDP);
+    AncMDP                  ->setEchoMode(QLineEdit::Password);
+    AncMDP                  ->setAlignment(Qt::AlignCenter);
+    AncMDP                  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_3_12,this));
+    AncMDP                  ->setObjectName(gAncMDP);
+    AncMDP                  ->setMaxLength(12);
+    gAskMDP->dlglayout()    ->insertWidget(0,AncMDP);
+
+    UpLabel *labelOldMDP    = new UpLabel();
+    labelOldMDP             ->setText(tr("Ancien mot de passe"));
+    gAskMDP->dlglayout()    ->insertWidget(0,labelOldMDP);
+    AncMDP                  ->setFocus();
+
+    gAskMDP                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QList <QWidget*> ListTab;
     ListTab << AncMDP << NouvMDP << ConfirmMDP << gAskMDP->OKButton;
     for (int i = 0; i<ListTab.size()-1 ; i++ )
-        gAskMDP->setTabOrder(ListTab.at(i), ListTab.at(i+1));
-    gAskMDP    ->setWindowTitle(tr("Mot de passe utilisateur"));
+        gAskMDP             ->setTabOrder(ListTab.at(i), ListTab.at(i+1));
+    gAskMDP                 ->setWindowTitle(tr("Mot de passe utilisateur"));
     connect(gAskMDP->OKButton,    &QPushButton::clicked, this, &dlg_gestionusers::EnregistreNouvMDP);
-    gAskMDP->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    gAskMDP->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
 
     gAskMDP->exec();
 }

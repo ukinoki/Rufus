@@ -97,12 +97,15 @@ public:
     int             stageheight() const;
 
 
-    //! resize() & geometry() talks about geometry(), excluding frameGeometry()
-    //! move() talks about widget framePosition
+    //! resize(), size(), width() & geometry() makes reference to geometry() excluding frameGeometry()
+    //! move(), pos() makes reference to geometry() including framePosition
     QRect           originalgeometry() const                            { return m_originalgeometry; }
     void            setOriginalgeometry(const QRect &geometry)          { m_originalgeometry = geometry; }
+
+    //!position of framegeometry for a Dialog whose geometry() would be rectgeometry
     QPoint          framePosition(QRect rectgeometry) const             { return QPoint(rectgeometry.left() + frameGeometry().left() - geometry().left(),
                                                                                         rectgeometry.top() + frameGeometry().top() - geometry().top()); }
+
 
     void            setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, QSize &sizewidget, int correctionwidth);
     void            setOriginalSizes(QSize size, QSize &sizeform, QSize &sizewidget, int correctionwidth);

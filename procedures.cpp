@@ -59,9 +59,13 @@ Procedures::Procedures(QObject *parent) :
         esbutt                      ->setEnabled(false);
         gbox                        ->setLayout(version_Lay);
         versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-        versiondlg                  ->setWindowFlags(Qt::Popup);
-        versiondlg                  ->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+        versiondlg                  ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
         versiondlg->dlglayout()     ->insertWidget(0,gbox);
+        versiondlg->dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+        versiondlg->OKButton        ->setEnabled(false);
+        connect(frbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+        connect(enbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+        connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
         connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
         connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
             if (frbutt->isChecked())
@@ -74,7 +78,8 @@ Procedures::Procedures(QObject *parent) :
                 return;
             versiondlg->accept();
         });
-        versiondlg->exec();
+        if (versiondlg->exec() != QDialog::Accepted)
+            exit(0);
         QDir dirloc = QDir(QCoreApplication::applicationDirPath());
         dirloc.cdUp();
         QString locale = dirloc.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm";

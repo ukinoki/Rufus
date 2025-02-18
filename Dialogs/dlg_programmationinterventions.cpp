@@ -1146,7 +1146,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     dlg_incident->dlglayout()   ->insertWidget(0, incidenttxtedit);
     dlg_incident->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_incident->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_incident->OKButton, &QPushButton::clicked, dlg_incident, [&]
+    connect(dlg_incident->OKButton, &QPushButton::clicked, dlg_incident, [=]
     {
         QString incident = incidenttxtedit->text();
         if (mode == "intervention")
@@ -1351,7 +1351,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
     connect(wdg_IOLchk, &QCheckBox::stateChanged,       dlg_intervention,   [&](int state) {if (state == Qt::Checked) ReconstruitListeManufacturers();});
-    connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [&]{
+    connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [=]{
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
                 if (Dlg_ListIOLs->exec() == QDialog::Accepted)

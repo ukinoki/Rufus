@@ -227,7 +227,7 @@ dlg_multiimageviewer::~dlg_multiimageviewer()
 
 void dlg_multiimageviewer::Actualize()
 {
-    ShowMessage::I()->SplashMessage(tr("De nouveaux documents sont arrivé"), 6000);
+    ShowMessage::I()->SplashMessage(tr("De nouveaux documents sont arrivés"), 6000);
 }
 
 void dlg_multiimageviewer::gettoolTipFromCursorPositionInTable()

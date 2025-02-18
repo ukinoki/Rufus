@@ -62,6 +62,7 @@ private:
     void                    DisplayImage(QList<QImage> listimg, QString nomdoc = QString());
     void                    DisplayVideo(QString filepath);
     void                    InitDisplay(TypeDoc typ);
+
     int                     widgetcorrectionwidth() const;
     Mode                    m_mode;
 

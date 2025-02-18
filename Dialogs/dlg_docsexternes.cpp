@@ -53,8 +53,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     ViewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
     AjouteWidgetLayButtons(ViewerButton, false);
 
-    AjouteWidgetLayButtons(m_controlplayer);
-
     wdg_alldocsupcheckbox               = new UpCheckBox(tr("Tous"));
     wdg_onlyimportantsdocsupcheckbox    = new UpCheckBox(tr("Importants"));
     wdg_alldocsupcheckbox               ->setImmediateToolTip(tr("Afficher tous les documents\ny compris les documents d'importance minime"));
@@ -97,7 +95,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_modetri       = parDate;
     m_docsexternes  ->setNouveauDocumentExterneFalse();
     RemplirTreeView();
-    move(originalgeometry().left(), originalgeometry().top());
 }
 
 dlg_docsexternes::~dlg_docsexternes()
@@ -289,7 +286,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     RecordButton        ->setVisible(j);
     RecordButton        ->disconnect();
     labinfowidget()     ->setVisible(!docmt->isVideo());
-    m_controlplayer     ->setVisible(docmt->isVideo());
 
     if (docmt->isVideo())                   //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
@@ -310,7 +306,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         connect(videoWidget(),      &QWidget::customContextMenuRequested,   this,   [=] {AfficheCustomMenu(docmt);});
         connect (RecordButton,  &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
         PrintButton     ->setVisible(false);
-        m_controlplayer ->startplay();
         labinfowidget() ->setText("");
     }
     else                                    //! le document est une image ou un document écrit (ordonnance, certificat...)
@@ -873,6 +868,7 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         resize(m_sizeorigin);
         currentwidget() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         changeMode(dlg_singleimageviewer::Normal);
+        if (imagewidget())
         {
             imagewidget()->setOKwheelzoom(false);
             imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
