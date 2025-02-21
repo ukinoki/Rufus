@@ -66,7 +66,7 @@ void ImageWidget::setListimg(const QList<QImage> &newListimg, QSize size)
         item->setPixmap(pix);
         item->setPos(0,h);
         m_scene.addItem(item);
-        qDebug() << h;
+        //qDebug() << h;
         h += pix.height();
     }
     m_scene.setSceneRect(0,0, size.width(),h);

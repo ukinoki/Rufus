@@ -53,7 +53,7 @@ private:
     QList<DocExterne *>     listdocsToDisplay();
     QSize                   sizeforunit() {
 //        int w = qApp->style()->pixelMetric(QStyle::PM_ScrollBarExtent); //width of scrollbar in qApp
-        int width = sizeForMainWidgetDisplay(
+        setCorrectionWidth(
                     wdg_table->width()
             //! inside m_hlay inside dlglayout()
                     + m_spacing
@@ -64,8 +64,8 @@ private:
             //! inside glay (DocWidget)
                     + m_spacing
                     + m_marg.left()
-                    + m_marg.right()).width();      //! width for one pic in a row
-
+                    + m_marg.right());      //! width for one pic in a row
+        int width = sizeForMainWidgetDisplay().width();
         return QSize(width/2,width/2);
     }
     void                    ZoomDoc(QWidget *widg);

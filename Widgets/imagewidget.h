@@ -4,6 +4,7 @@
 #include <QSplitter>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include "procedures.h"
 
 
 class ImageWidget : public QGraphicsView {

@@ -123,12 +123,15 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     InitDisplay(Image);
     calcWidgetRatio(listimage);
     if (m_mode == Zoom)
-        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, widgetcorrectionwidth());
-    else
-        setOriginalSizes(originalgeometry().size(), m_sizeform, m_sizewidget, widgetcorrectionwidth());
+    {
+        setOptimalSizesForZoom(m_wdgratio);
+        resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
+    }
 
-    m_imgwdg        ->setImage(listimage.at(0), m_sizewidget);
+    m_imgwdg        ->setImage(listimage.at(0), sizeForMainWidgetDisplay());
     //m_imgwdg        ->setListimg(listimage, m_sizewidget);
+    m_currentwidget     = m_imgwdg;
+    m_imgwdg            ->resize(sizeForMainWidgetDisplay());
 
     m_labinfowdg    ->setText("<font color='magenta'>" + nomdoc + "</font>");
 
@@ -138,10 +141,6 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
         hscroll  = listscreens.first()->availableGeometry().height();
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
-
-    m_currentwidget     = m_imgwdg;
-    //if (m_mode == Zoom)
-    resize(m_sizeform.width(), m_sizeform.height());
 
     if (m_mode == Zoom)
         move(0, 0);
@@ -154,9 +153,10 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     QSize size      = m_vdwdg->player()->videosize();
     m_wdgratio      = size.width() / size.height();
     if (m_mode == Zoom)
-        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, widgetcorrectionwidth());
-    else
-        setOriginalSizes(originalgeometry().size(), m_sizeform, m_sizewidget, widgetcorrectionwidth());
+    {
+        setOptimalSizesForZoom(m_wdgratio);
+        resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
+    }
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -166,9 +166,7 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     setMaximumHeight(int(finalh));
 
     m_currentwidget         = m_vdwdg;
-    if (m_mode == Zoom)
-        resize(m_sizeform.width(), m_sizeform.height());
-    m_vdwdg                 ->resize(m_sizewidget);
+    m_vdwdg                 ->resize(sizeForMainWidgetDisplay());
 
     m_labinfowdg            ->setText("<font color='magenta'>" + filepath + "</font>");
 
@@ -243,6 +241,15 @@ UpVideoWidget *dlg_singleimageviewer::videoWidget() const
 void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
 {
     m_correctionwidget = newCorrectionwidget;
+    int correctionframewidth = 0;
+    if (m_correctionwidget != Q_NULLPTR)
+    {
+        QFrame *frame = dynamic_cast<QFrame*>(m_correctionwidget);
+        if (frame)
+            correctionframewidth += frame->lineWidth() *2;
+        correctionframewidth += m_correctionwidget->width();
+        setCorrectionWidth(m_correctionwidget->width() + correctionframewidth);
+    }
 }
 
 QHBoxLayout *dlg_singleimageviewer::mainlayout() const
@@ -275,8 +282,8 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
     m_mode = newMode;
     if (m_mode == Zoom)
     {
-        setOptimalSizesForZoom(m_wdgratio, m_sizeform, m_sizewidget, widgetcorrectionwidth());
-        resize(m_sizeform);
+        setOptimalSizesForZoom(m_wdgratio);
+        resize(optimalgeometryforzoom().size());
         move (0,0);
     }
     else
@@ -289,19 +296,6 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
 QMap<QString,QVariant> dlg_singleimageviewer::mapimg() const
 {
     return m_mapimg;
-}
-
-int dlg_singleimageviewer::widgetcorrectionwidth() const
-{
-    int correctionwidth = 0;
-    if (m_correctionwidget != Q_NULLPTR)
-    {
-        QFrame *frame = dynamic_cast<QFrame*>(m_correctionwidget);
-        if (frame)
-            correctionwidth += frame->lineWidth() *2;
-        correctionwidth += m_correctionwidget->width();
-    }
-    return correctionwidth;
 }
 
 bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)

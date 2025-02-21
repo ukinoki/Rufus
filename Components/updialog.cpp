@@ -299,7 +299,7 @@ void UpDialog::TuneSize(bool fixh, bool fixw)
     *  m_sizeform = final size for QDialog
     *  m_sizewidget = size available inside form for widget to display
 */
-void UpDialog::setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, QSize &sizewidget, int correctionwidth)
+void UpDialog::setOptimalSizesForZoom(double ratioimgorigine)
 {
     /*! screen resolution */
     double          wscroll  = 0;
@@ -313,8 +313,8 @@ void UpDialog::setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, Q
         screenratio = wscroll/hscroll;
     }
 
-    int wdelta   = deltas(correctionwidth).width();
-    int hdelta   = deltas(correctionwidth).height();
+    int wdelta   = deltas().width();
+    int hdelta   = deltas().height();
 
     /*! if screenration >= videoratio  => screenheight is used for max heighth */
     int finalh (0), finalw(0);
@@ -331,38 +331,20 @@ void UpDialog::setOptimalSizesForZoom(double ratioimgorigine, QSize &sizeform, Q
         double wd = finalw - wdelta;     //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
         finalh = int(wd / ratioimgorigine) + hdelta;
     }
-    sizeform      = QSize(finalw, finalh);
-    sizewidget    = QSize(finalw - wdelta, finalh - hdelta);
+    m_optimalgeometryforzoom      = QRect(0,0,finalw, finalh);
 }
 
 
-QSize UpDialog::deltas(int correctionwidth)              //! difference between geometry size and all widget's size
+QSize UpDialog::deltas() const              //! difference between geometry size and all widget's size
 {
-    int wdelta   = geometry()               .width()
-                 - sizeForMainWidgetDisplay(correctionwidth)  .width();
-    int hdelta   = geometry()        .height()
-                 - sizeForMainWidgetDisplay(correctionwidth)  .height();
+    QSize sz = sizeForMainWidgetDisplay();
+    int wdelta   = geometry().width()  - sz.width();
+    int hdelta   = geometry().height() - sz.height();
     return QSize(wdelta, hdelta);
 }
 
 
-
-/*!
- *  \brief      UpDialog::setOriginalSizes
- *  \abstract   calc the original size for form and main widget according to ini file
- *  \param
-    *  size = original size registered in ini file
- *  \return
-    *  m_sizeform = final size for QDialog
-    *  m_sizewidget = size available inside form for widget to display
-*/
-void UpDialog::setOriginalSizes(QSize size, QSize &sizeform, QSize &sizewidget, int correctionwidth)
-{
-    sizeform = size;
-    sizewidget   = QSize(size.width() - deltas(correctionwidth).width(), size.height() - deltas(correctionwidth).height());
-}
-
-QSize UpDialog::sizeForMainWidgetDisplay(int correctionwidth)
+QSize UpDialog::sizeForMainWidgetDisplay() const
 {
     int             claywidth     = 0;
     QHBoxLayout *hlay = dynamic_cast<QHBoxLayout*>(dlglayout()->itemAt(0));
@@ -372,7 +354,7 @@ QSize UpDialog::sizeForMainWidgetDisplay(int correctionwidth)
     int width = geometry()          .width()
                 - m_globallay       ->contentsMargins().left()
                 - m_globallay       ->contentsMargins().right()
-                - correctionwidth
+                - m_correctionwidth
                 - claywidth;
     int height = geometry()         .height()
                  - m_globallay      ->contentsMargins().top()

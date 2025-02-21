@@ -23,9 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeView>
 #include "playercontrols.h"
 #include "imagewidget.h"
-#include "uptablewidget.h"
 #include "upvideowidget.h"
-#include "procedures.h"
 
 class dlg_singleimageviewer : public UpDialog
 {
@@ -63,7 +61,6 @@ private:
     void                    DisplayVideo(QString filepath);
     void                    InitDisplay(TypeDoc typ);
 
-    int                     widgetcorrectionwidth() const;
     Mode                    m_mode;
 
     UpVideoWidget*          m_vdwdg             = Q_NULLPTR;
@@ -81,8 +78,6 @@ private:
     QString                 m_videofile         = QString();
 
     bool                    m_resizeable        = true;
-    QSize                   m_sizewidget        = QSize();
-    QSize                   m_sizeform          = QSize();
     int                     m_spacing           = 0;
     int                     m_marge             = 0;
     QMargins                m_marges            = QMargins(m_marge,m_marge,m_marge,m_marge);
