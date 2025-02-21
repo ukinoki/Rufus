@@ -321,28 +321,26 @@ void UpDialog::setOptimalSizesForZoom(double ratioimgorigine)
     if (screenratio >= ratioimgorigine)
     {
         finalh = int(hscroll * 0.98);
-        double hd = finalh - hdelta;    //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
+        double hd = finalh - hdelta;        //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
         finalw = int(hd * ratioimgorigine) + wdelta;
     }
     /*! if screenration < videoratio  => screenwidth is used for max width */
     else
     {
         finalw = int(wscroll);
-        double wd = finalw - wdelta;     //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
+        double wd = finalw - wdelta;        //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
         finalh = int(wd / ratioimgorigine) + hdelta;
     }
     m_optimalgeometryforzoom      = QRect(0,0,finalw, finalh);
 }
 
-
-QSize UpDialog::deltas() const              //! difference between geometry size and all widget's size
+QSize UpDialog::deltas() const              //! difference between geometry size and all widget's size except mainwidget
 {
     QSize sz = sizeForMainWidgetDisplay();
     int wdelta   = geometry().width()  - sz.width();
     int hdelta   = geometry().height() - sz.height();
     return QSize(wdelta, hdelta);
 }
-
 
 QSize UpDialog::sizeForMainWidgetDisplay() const
 {

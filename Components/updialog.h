@@ -70,7 +70,7 @@ private:
     double          m_nstages               = 1;
     int             m_spacing               = 5;
     int             m_marge                 = 10;
-    int             m_correctionwidth        = 0;
+    int             m_correctionwidth       = 0;
     QMargins        m_marges                = QMargins(m_marge,m_marge,m_marge,m_marge);
     QObject*        obj_data;
     QVBoxLayout     *m_globallay            = new QVBoxLayout(this);
@@ -107,9 +107,13 @@ public:
     void            setOptimalgeometryforzoom(const QRect &geometry)    { m_optimalgeometryforzoom = geometry; }
 
     //!position of framegeometry for a Dialog whose geometry() would be rectgeometry
-    QPoint          framePosition(QRect rectgeometry) const             { return QPoint(rectgeometry.left() + frameGeometry().left() - geometry().left(),
-                                                                                        rectgeometry.top() + frameGeometry().top() - geometry().top()); }
-
+    QPoint          framePosition(QRect rectgeometry) const
+    {
+        QPoint p(rectgeometry.left() + frameGeometry().left() - geometry().left(),
+                rectgeometry.top() + frameGeometry().top() - geometry().top());
+        qDebug() << p;
+        return p;
+    }
 
     void            setOptimalSizesForZoom(double ratioimgorigine);
     QSize           sizeForMainWidgetDisplay() const;

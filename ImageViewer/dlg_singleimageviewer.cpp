@@ -39,7 +39,7 @@ void dlg_singleimageviewer::setDocument(DocExterne *docmt)
     {
         if (docmt->isVideo())
         {
-            QString filename = DataBase::I()->dirimagerie() + NOM_DIR_VIDEOS "/" + docmt->lienversfichier();
+            QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + docmt->lienversfichier();
             setVideofile(filename);
             DisplayVideo(filename);
         }
@@ -128,12 +128,12 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
     }
 
-    m_imgwdg        ->setImage(listimage.at(0), sizeForMainWidgetDisplay());
+    m_imgwdg            ->setImage(listimage.at(0), sizeForMainWidgetDisplay());
     //m_imgwdg        ->setListimg(listimage, m_sizewidget);
     m_currentwidget     = m_imgwdg;
     m_imgwdg            ->resize(sizeForMainWidgetDisplay());
 
-    m_labinfowdg    ->setText("<font color='magenta'>" + nomdoc + "</font>");
+    m_labinfowdg        ->setText("<font color='magenta'>" + nomdoc + "</font>");
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -141,6 +141,8 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
         hscroll  = listscreens.first()->availableGeometry().height();
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
+
+    m_currentwidget     = m_imgwdg;
 
     if (m_mode == Zoom)
         move(0, 0);
@@ -170,7 +172,7 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
 
     m_labinfowdg            ->setText("<font color='magenta'>" + filepath + "</font>");
 
-    m_controlplayer         ->setFixedWidth(500);
+    m_controlplayer         ->setMinimumWidth(250);
     m_controlplayer         ->setPlayer(m_vdwdg->player());
     m_controlplayer         ->startplay();
 
@@ -249,8 +251,7 @@ void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
             correctionframewidth += frame->lineWidth() *2;
         correctionframewidth += m_correctionwidget->width();
         setCorrectionWidth(m_correctionwidget->width() + correctionframewidth);
-    }
-}
+    }}
 
 QHBoxLayout *dlg_singleimageviewer::mainlayout() const
 {
@@ -283,8 +284,8 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
     if (m_mode == Zoom)
     {
         setOptimalSizesForZoom(m_wdgratio);
-        resize(optimalgeometryforzoom().size());
-        move (0,0);
+        resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
+        move(0,0);
     }
     else
     {

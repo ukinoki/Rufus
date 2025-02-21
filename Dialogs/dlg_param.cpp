@@ -164,6 +164,10 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->LocalPathStockageupLabel    ->setImmediateToolTip(tip);
     ui->LocalPathStockageupLineEdit ->setImmediateToolTip(tip);
 
+    ui->PosteVideoDirupLineEdit     ->useselftextastooltip();
+    ui->LocalVideoDirupLineEdit     ->useselftextastooltip();
+    ui->DistantVideoDirupLineEdit   ->useselftextastooltip();
+
     QStringList Listapp;
     Listapp << "-" << Datas::I()->refractiondevices->listRefractionDevices(RefractionDevice::AutorefDev);
     ui->AutorefupComboBox->insertItems(0, Listapp);
@@ -357,8 +361,9 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->DossierClesSSLupLineEdit    ->useselftextastooltip();
     QString Base;
-    Base = Utils::getBaseFromMode(Utils::Poste);
-    a = (proc->settings()->value(Base + Param_Active).toString() == "YES");
+    Base                            = Utils::getBaseFromMode(Utils::Poste);
+    ui->PosteVideoDirupLineEdit     ->setText(proc->settings()->value(Base + Dossier_Videos).toString());
+    a                               = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
     ui->MonoConnexionupLabel        ->setVisible(a);
@@ -372,8 +377,9 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
         ui->PosteStockageInfoUpLabel    ->setText(QDir::toNativeSeparators(db->dirimagerie()));
     }
-    Base = Utils::getBaseFromMode(Utils::ReseauLocal);
-    b = (proc->settings()->value(Base + Param_Active).toString() == "YES");
+    Base                                = Utils::getBaseFromMode(Utils::ReseauLocal);
+    ui->LocalVideoDirupLineEdit         ->setText(proc->settings()->value(Base + Dossier_Videos).toString());
+    b                                   = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->LocalServcheckBox               ->setChecked(b);
     ui->Localframe                      ->setVisible(b);
     ui->LocalConnexionupLabel           ->setVisible(b);
@@ -388,8 +394,9 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
         ui->LocalPathStockageupLineEdit ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString());
     }
-    Base = Utils::getBaseFromMode(Utils::Distant);
-    c = (proc->settings()->value(Base + Param_Active).toString() == "YES");
+    Base                            = Utils::getBaseFromMode(Utils::Distant);
+    ui->DistantVideoDirupLineEdit   ->setText(proc->settings()->value(Base + Dossier_Videos).toString());
+    c                               = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->DistantServcheckBox         ->setChecked(c);
     ui->Distantframe                ->setVisible(c);
     ui->DistantConnexionupLabel     ->setVisible(c);
@@ -2216,14 +2223,59 @@ void dlg_param::DirDistantStockage()
     /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
      * avec la fonction static, on utilise la boîte de dialog du système
      * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
-    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos).toString();
     if (dir == "" || !QDir(dir).exists())
-        dir = PATH_DIR_RUFUS;
+        dir = PATH_DIR_IMAGERIE;
     QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList()<<m_parametres->dirbkup());
     if (url == QUrl())
         return;
     ui->DistantStockageupLineEdit->setText(url.path());
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie, url.path());
+}
+
+void dlg_param::PosteVideoDir()
+{
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Poste) + Dossier_Imagerie).toString();
+    if (dir == "" || !QDir(dir).exists())
+        dir = PATH_DIR_IMAGERIE;
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList() << dir);
+    if (url == QUrl())
+        return;
+    ui->PosteVideoDirupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Poste) + Dossier_Videos, url.path());
+}
+
+void dlg_param::LocalVideoDir()
+{
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString();
+    if (dir == "" || !QDir(dir).exists())
+        dir = PATH_DIR_IMAGERIE;
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList() << dir);
+    if (url == QUrl())
+        return;
+    ui->LocalVideoDirupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Videos, url.path());
+}
+
+void dlg_param::DistantVideoDir()
+{
+    /*! il faut utiliser la fonction static QFileDialog::getExistingDirectoryUrl() parce que la QFileDialog implémentée dans Qt ne donne pas accès aux lecteurs réseaux sous linux
+     * avec la fonction static, on utilise la boîte de dialog du système
+     * bien sûr, il faut paramétrer le fstab sous linux pour que le dossier réseau soit ouvert automatiquement au moment du boot*/
+    QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Imagerie).toString();
+    if (dir == "" || !QDir(dir).exists())
+        dir = PATH_DIR_IMAGERIE;
+    QUrl url = Utils::getExistingDirectoryUrl(this, "", QUrl::fromLocalFile(dir), QStringList() << dir);
+    if (url == QUrl())
+        return;
+    ui->DistantVideoDirupLineEdit->setText(url.path());
+    proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos, url.path());
 }
 
 void dlg_param::DossierClesSSL()
@@ -2464,6 +2516,11 @@ void dlg_param::ConnectSignals()
     connect(ui->OupspushButton,                     &QPushButton::clicked,                  this,   &dlg_param::ResetImprimante);
     connect(ui->LocalPathStockageupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::DirLocalStockage);
     connect(ui->DistantStockageupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DirDistantStockage);
+
+    connect(ui->PosteVideoDirupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::PosteVideoDir);
+    connect(ui->LocalVideoDirupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::LocalVideoDir);
+    connect(ui->DistantVideoDirupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DistantVideoDir);
+
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),

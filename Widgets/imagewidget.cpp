@@ -1,8 +1,8 @@
 #include "imagewidget.h"
 
 ImageWidget::ImageWidget(QWidget *parent) : QGraphicsView(parent) {
-    setScene(&m_scene);
-    m_scene.addItem(&m_graphicsItem);
+    setScene(m_scene);
+    m_scene->addItem(&m_graphicsItem);
     //setDragMode(QGraphicsView::ScrollHandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -12,13 +12,13 @@ ImageWidget::ImageWidget(QWidget *parent) : QGraphicsView(parent) {
 }
 
 ImageWidget::ImageWidget(QList<QImage> listimg, QWidget *parent) : QGraphicsView(parent) {
-    setScene(&m_scene);
+    setScene(m_scene);
     foreach (QImage img, listimg)
     {
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
         QPixmap pix = QPixmap::fromImage(img);
         item->setPixmap(pix);
-        m_scene.addItem(item);
+        m_scene->addItem(item);
     }
     //setDragMode(QGraphicsView::ScrollHandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -56,26 +56,29 @@ QList<QImage> ImageWidget::listimg() const
 
 void ImageWidget::setListimg(const QList<QImage> &newListimg, QSize size)
 {
-    m_scene.clear();
+    setScene(m_scene);
+    if (m_scene->items().size() >0)
+        m_scene->clear();
     m_listimg = newListimg;
     int h=0;
     foreach (QImage img, m_listimg)
     {
+        qDebug() << img;
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
         QPixmap pix = QPixmap::fromImage(img).scaledToWidth(size.width(), Qt::SmoothTransformation);
         item->setPixmap(pix);
         item->setPos(0,h);
-        m_scene.addItem(item);
+        m_scene->addItem(item);
         //qDebug() << h;
         h += pix.height();
     }
-    m_scene.setSceneRect(0,0, size.width(),h);
+    m_scene->setSceneRect(0,0, size.width(),h);
 }
 
 void ImageWidget::fitImage(){
     resetTransform();
     scale(m_ScaleFactor);
-    m_scene.setSceneRect(0, 0, m_pixmap.width(), m_pixmap.height());
+    m_scene->setSceneRect(0, 0, m_pixmap.width(), m_pixmap.height());
 }
 
 void ImageWidget::setPixmap(QPixmap pixmap, qreal w, qreal h) {

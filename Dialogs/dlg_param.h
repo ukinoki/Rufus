@@ -114,6 +114,9 @@ private:
     void                ClearPortsComboBox(UpComboBox *box, int);
     void                DirLocalStockage();
     void                DirDistantStockage();
+    void                PosteVideoDir();
+    void                LocalVideoDir();
+    void                DistantVideoDir();
     void                DossierClesSSL();
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);

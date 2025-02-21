@@ -39,7 +39,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     dlg_imgviewer         ->setSaveGeometry(Nom_fiche_DocsVideo);
     dlg_imgviewer         ->setAttribute(Qt::WA_DeleteOnClose, true);
     dlg_imgviewer         ->setMode(dlg_singleimageviewer::Normal);
-    m_docpath           = proc->settings()->value(Param_Poste Dossier_Videos).toString();
+    m_docpath           = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
 
     wdg_linetitre       = new UpLineEdit();
     wdg_editdate        = new QDateEdit();
@@ -225,7 +225,7 @@ void dlg_docsvideo::ValideFiche()
     }
     // on vérifie qu'un dossier par défaut a été enregistré pour l'imagerie
     // on vérifie que le dossier de stockage des videos existe sinon on le crée
-    QString CheminVideoDir      = db->dirimagerie() + NOM_DIR_VIDEOS;
+    QString CheminVideoDir      = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
     QDir VideoDir;
     if (!QDir(CheminVideoDir).exists())
         if (!VideoDir.mkdir(CheminVideoDir))
@@ -265,8 +265,8 @@ void dlg_docsvideo::ValideFiche()
         Utils::copyWithPermissions(qFile, CheminVideoDir + "/" + NomFileVideoDoc);
         if (QFileInfo(qFile).absoluteFilePath() != CheminVideoDir + "/" + NomFileVideoDoc)
             Utils::removeWithoutPermissions(qFile);
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Video ") + sstypedoc +  tr(" enregistrée"), Icons::icSunglasses(), 1000);
-        dlg_imgviewer ->close();
+        UpSystemTrayIcon::I()   ->showMessage(tr("Messages"), tr("Video ") + sstypedoc +  tr(" enregistrée"), Icons::icSunglasses(), 1000);
+        dlg_imgviewer           ->close();
     }
 }
 

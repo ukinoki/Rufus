@@ -65,6 +65,7 @@ private:
                     + m_spacing
                     + m_marg.left()
                     + m_marg.right());      //! width for one pic in a row
+
         int width = sizeForMainWidgetDisplay().width();
         return QSize(width/2,width/2);
     }

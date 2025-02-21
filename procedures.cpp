@@ -33,7 +33,7 @@ Procedures::Procedures(QObject *parent) :
     for (int i = 0; i<driverslist.size(); ++i)
         qDebug() << driverslist.at(i);
     //*/
-    QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
+    QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true); //! to display debug messages in console
     m_CPpardefaut    = "";
     m_Villepardefaut = "";
     db               = DataBase::I();
@@ -362,7 +362,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = Utils::dir_size(pathorigin + NOM_DIR_VIDEOS);
+        DataDir = Utils::dir_size(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString());
         m_videossize = DataDir["Size"];
         if (m_videossize> 0)
         {
@@ -584,7 +584,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             msg += tr("Fichiers imagerie sauvegardés\n");
         }
         if (OKVideos) {
-            dirNomSource = DirImagery + NOM_DIR_VIDEOS;
+            dirNomSource = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
             dirNomDest = pathdirdestination + NOM_DIR_VIDEOS;
             int t = 0;
             Utils::countFilesInDirRecursively(dirNomSource, t);
@@ -3334,6 +3334,10 @@ bool Procedures::IdentificationUser()
         m_settings->setValue(Param_Poste_Version, m_parametres->version()); //! si la version de la langue a été changée,
                                                                             //! le programme doit pouvoir prendre en compte ce changement avant la connexion à la base
                                                                             //! pour afficher les premières boîtes de dialogue dans la langue correspondante
+        if (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Dossier_Videos).toString() == "")
+            m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + Dossier_Videos, db->dirimagerie() + NOM_DIR_VIDEOS);
+        if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Videos).toString() == "")
+            m_settings->setValue(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Videos, db->dirimagerie() + NOM_DIR_VIDEOS);
         enum Villes::TownsFrom from;
         if (m_parametres->villesfrance())
             from = Villes::DATABASE;

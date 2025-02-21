@@ -289,13 +289,15 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
     if (docmt->isVideo())                   //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
     {
-        if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
-        {
-            UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
-            return;
-        }
-        QString filename = db->dirimagerie() + NOM_DIR_VIDEOS "/" + docmt->lienversfichier();
+        Utils::ModeAcces modeacces = DataBase::I()->ModeAccesDataBase();
+        QString filename = proc->settings()->value(Utils::getBaseFromMode(modeacces) + Dossier_Videos).toString() + "/" + docmt->lienversfichier();
         QFile   qFile(filename);
+        if (modeacces == Utils::Distant)
+            if (proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos).toString() == "" || !qFile.exists())
+            {
+                UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
+                return;
+            }
         if (!qFile.open(QIODevice::ReadOnly))
         {
             QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
@@ -973,8 +975,8 @@ void dlg_docsexternes::RemplirTreeView()
     wdg_onlyimportantsdocsupcheckbox->setEnabled(listdatesimportants.size() > 0);
     if (m_modefiltre == ImportantFiltre && listdatesimportants.size() == 0)
     {
-        imagewidget()->setVisible(false);
-        videoWidget()->setVisible(false);
+        if (imagewidget())  imagewidget()->setVisible(false);
+        if (videoWidget())  videoWidget()->setVisible(false);
     }
 
     QList<QDate> listdates;

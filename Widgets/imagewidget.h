@@ -10,7 +10,7 @@
 class ImageWidget : public QGraphicsView {
     Q_OBJECT
 
-    QGraphicsScene m_scene;
+    QGraphicsScene *m_scene         = new QGraphicsScene;
     QGraphicsPixmapItem m_graphicsItem;
     qreal m_ScaleFactor;
     QPixmap m_pixmap;

@@ -569,13 +569,14 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
             QWidget *glaywidg = Q_NULLPTR;
             if (doc->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
-                if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
-                {
-                    UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
-                    return Q_NULLPTR;
-                }
-                QString filename = DataBase::I()->dirimagerie() + NOM_DIR_VIDEOS "/" + doc->lienversfichier();
+                QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
                 QFile   qFile(filename);
+                if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+                    if (Procedures::I()->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos).toString() == "" || !qFile.exists())
+                    {
+                        UpMessageBox::Watch(this, tr("Video non accessible en accès distant"));
+                        return Q_NULLPTR;
+                    }
                 if (!qFile.open(QIODevice::ReadOnly))
                 {
                     QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
@@ -958,7 +959,7 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
         imgzoom->setDocument(doc);
         imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
         connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
-        if (!doc->isVideo())
+        if (imgzoom->imagewidget())
             imgzoom->imagewidget()->setOKwheelzoom(true);
         imgzoom->exec();
         delete imgzoom;
