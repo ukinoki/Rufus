@@ -19,9 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_fontdialog::dlg_fontdialog(QWidget *parent) :
-    UpDialog(Nom_fiche_FontDialog, parent)
+    UpDialog(parent)
 {
-    setWindowModality(Qt::WindowModal);
     setFixedWidth(280);
     setMaximumSize(280,1200);
     m_font = qApp->font();
@@ -96,6 +95,8 @@ dlg_fontdialog::dlg_fontdialog(QWidget *parent) :
     dlglayout()->insertWidget(0,wdg_lbl);
     dlglayout()->insertWidget(0,wdg_treewidget);
     dlglayout()->setSpacing(5);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_FontDialog);
 }
 
 dlg_fontdialog::~dlg_fontdialog()

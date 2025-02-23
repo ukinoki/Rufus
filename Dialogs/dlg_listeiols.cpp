@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listeiols.h"
 
 dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
-    UpDialog(Nom_fiche_ListeIOLs,parent)
+    UpDialog(parent)
 {
     m_onlyactifs = onlyactifs;
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -219,6 +219,8 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
             m_listidiolsutilises << listidiols.at(i).at(0).toInt();
     HasNewVersion();
     setStageCount(1);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ListeIOLs);
 }
 
 dlg_listeiols::~dlg_listeiols()

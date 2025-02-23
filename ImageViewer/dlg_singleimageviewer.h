@@ -28,7 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class dlg_singleimageviewer : public UpDialog
 {
 public:
-    dlg_singleimageviewer(QWidget *parent = Q_NULLPTR, QString positionfiche = "");
+    dlg_singleimageviewer(QWidget *parent = Q_NULLPTR);
     enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
     enum TypeDoc            {Image, Video};                                     Q_ENUM(TypeDoc)
 
@@ -61,7 +61,7 @@ private:
     void                    DisplayVideo(QString filepath);
     void                    InitDisplay(TypeDoc typ);
 
-    Mode                    m_mode;
+    Mode                    m_mode              = Normal;
 
     UpVideoWidget*          m_vdwdg             = Q_NULLPTR;
     UpLabel*                m_labwdg            = Q_NULLPTR;

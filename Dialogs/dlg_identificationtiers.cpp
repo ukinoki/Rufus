@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationtiers.h"
 
 dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget *parent) :
-    UpDialog(Nom_fiche_IdentTiers, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_identificationtiers)
 {
     ui->setupUi(this);
@@ -87,6 +87,8 @@ dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget 
     QCompleter *profcpl = new QCompleter(Datas::I()->correspondants->autresprofessions(), this);
     profcpl             ->setCaseSensitivity(Qt::CaseInsensitive);
     profcpl             ->setCompletionMode(QCompleter::InlineCompletion);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_IdentTiers);
 }
 
 dlg_identificationtiers::~dlg_identificationtiers()

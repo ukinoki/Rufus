@@ -18,42 +18,13 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "updialog.h"
 #include <QtCore/qdir.h>
 
-UpDialog::UpDialog(QString NomFiche, QWidget *parent) : QDialog(parent)
-{
-    m_enregistreposition    = true;
-    setFont(qApp->font());
-    AjouteLay();
-    m_mode           = NullMode;
-    m_globallay->setContentsMargins(m_marges);
-    m_globallay->setSpacing(m_marge);
-    setSaveGeometry(NomFiche);
-}
-
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {
-    AjouteLay();
     setFont(qApp->font());
     m_globallay->setContentsMargins(m_marges);
     m_globallay->setSpacing(m_marge);
-    m_enregistreposition   = false;
-}
-
-void UpDialog::setSaveGeometry(QString geometryname)
-{
-    QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
-    m_originalgeometry  = sets.value(DialogGeometry + geometryname).toRect();
-    setGeometry(m_originalgeometry);
-    connect(this,   &QDialog::finished, this,   [=] {   if (m_enregistreposition)
-                                                        {
-                                                            QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
-                                                            sets.setValue(DialogGeometry + geometryname, this->geometry());
-                                                        }
-                                                    });
-
-}
-
-void UpDialog::AjouteLay()
-{
+    setWindowModality(Qt::ApplicationModal);
+    setMouseTracking(true);
     wdg_buttonswidget   = new QWidget();
     wdg_buttonslayout   = new QHBoxLayout();
     wdg_buttonslayout   ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding));
@@ -63,6 +34,31 @@ void UpDialog::AjouteLay()
     int n               = m_globallay->count();
     m_globallay         ->insertWidget(n,wdg_buttonswidget);
     setStageCount(0.7);
+}
+
+void UpDialog::setSaveGeometry(QString geometryname)
+{
+    QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+    m_originalgeometry  = sets.value(DialogGeometry + geometryname).toRect();
+    if (m_originalgeometry != QRect())
+        setGeometry(m_originalgeometry);
+    connect(this,   &QDialog::finished, this,   [=] {
+            if (m_enregistreposition)
+            {
+                QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+                sets.setValue(DialogGeometry + geometryname, geometry());
+            }
+                                                    });
+
+}
+
+void UpDialog::mouseMoveEvent(QMouseEvent* event)
+{
+    /*QToolTip::showText( event->globalPosition().toPoint(),
+                        QString::number( QCursor::pos().x() ) + ", " +
+                        QString::number( QCursor::pos().y() ),
+                        this, rect() );*/
+    QWidget::mouseMoveEvent(event);
 }
 
 void UpDialog::addSearchLine()
@@ -81,19 +77,33 @@ void UpDialog::addSearchLine()
 
 void UpDialog::AjouteLayButtons(Buttons Button)
 {
-    // le Button Cancel est toujours le plus à gauche
-    // Close le plus à droite et OK juste avant Close
+    // le Button Cancel est toujours juste à gauche du bouton OK
+    // OK le plus à droite
+    if (Button.testFlag(ButtonOK))
+    {
+        OKButton            = new UpSmallButton();
+        OKButton            ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
+#ifdef Q_OS_WIN
+        OKButton            ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#else
+        OKButton            ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#endif
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count(), OKButton);
+        m_nbbuttons ++;
+    }
     if (Button.testFlag(ButtonPdf))
     {
-        PdfButton         = new UpSmallButton();
-        PdfButton         ->setUpButtonStyle(UpSmallButton::PDFBUTTON);
-        wdg_buttonslayout ->addWidget(PdfButton);
+        PdfButton           = new UpSmallButton();
+        PdfButton           ->setUpButtonStyle(UpSmallButton::PDFBUTTON);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, PdfButton);
+        m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonRecord))
     {
         RecordButton        = new UpSmallButton();
         RecordButton        ->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
-        wdg_buttonslayout   ->addWidget(RecordButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, RecordButton);
+        m_nbbuttons ++;
     }
      if (Button.testFlag(ButtonPrint))
     {
@@ -104,25 +114,29 @@ void UpDialog::AjouteLayButtons(Buttons Button)
 #else
         PrintButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_P));
 #endif
-        wdg_buttonslayout   ->addWidget(PrintButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, PrintButton);
+        m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonSuppr))
     {
         SupprButton         = new UpSmallButton();
         SupprButton         ->setUpButtonStyle(UpSmallButton::SUPPRBUTTON);
-        wdg_buttonslayout   ->addWidget(SupprButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, SupprButton);
+        m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonEdit))
     {
         EditButton          = new UpSmallButton();
         EditButton          ->setUpButtonStyle(UpSmallButton::EDITBUTTON);
-        wdg_buttonslayout   ->addWidget(EditButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, EditButton);
+        m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonOups))
     {
         OupsButton         = new UpSmallButton();
         OupsButton         ->setUpButtonStyle(UpSmallButton::OUPSBUTTON);
-        wdg_buttonslayout   ->addWidget(OupsButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, OupsButton);
+        m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonClose))
     {
@@ -133,26 +147,17 @@ void UpDialog::AjouteLayButtons(Buttons Button)
 #else
         CloseButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_C));
 #endif
-        wdg_buttonslayout   ->addWidget(CloseButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count(), CloseButton);
+        m_nbbuttons ++;
     }
     if (Button.testFlag(ButtonCancel))
     {
         CancelButton        = new UpSmallButton();
         CancelButton        ->setShortcut(QKeySequence(Qt::Key_F12));
         CancelButton        ->setUpButtonStyle(UpSmallButton::CANCELBUTTON);
-        wdg_buttonslayout   ->addWidget(CancelButton);
+        wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - 1, CancelButton);
+        m_nbbuttons ++;
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
-    }
-    if (Button.testFlag(ButtonOK))
-    {
-        OKButton            = new UpSmallButton();
-        OKButton            ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-#ifdef Q_OS_WIN
-        OKButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
-#else
-        OKButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
-#endif
-        wdg_buttonslayout   ->addWidget(OKButton);
     }
     UpdateTabOrder();
 }
@@ -194,6 +199,11 @@ void UpDialog::UpdateTabOrder()
     if (wdg_buttonslayout->findChildren<UpSmallButton*>().size()>1)
         for (int i=0; i<wdg_buttonslayout->findChildren<UpSmallButton*>().size()-1; i++)
             setTabOrder(wdg_buttonslayout->findChildren<UpSmallButton*>().at(i),wdg_buttonslayout->findChildren<UpSmallButton*>().at(i+1));
+}
+
+int UpDialog::nbbuttons() const
+{
+    return m_nbbuttons;
 }
 
 int UpDialog::stageheight() const

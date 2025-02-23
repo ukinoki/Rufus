@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
-    UpDialog(Nom_fiche_ListeManufacturers,parent)
+    UpDialog(parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des fabricants"));
@@ -54,6 +54,8 @@ dlg_listemanufacturers::dlg_listemanufacturers(QWidget *parent) :
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
     wdg_buttonframe->searchline()       ->setFocus();
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ListeManufacturers);
 }
 
 dlg_listemanufacturers::~dlg_listemanufacturers()

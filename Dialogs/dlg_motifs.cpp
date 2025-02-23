@@ -19,11 +19,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_motifs.h"
 
 dlg_motifs::dlg_motifs(QWidget *parent) :
-    UpDialog(Nom_fiche_ListeMotifs, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_motifs)
 {
     ui->setupUi(this);
-    setWindowModality(Qt::WindowModal);
     map_motifs = Datas::I()->motifs->motifs();
 
     wdg_buttonframe             = new WidgetButtonFrame(ui->MotifsupTableWidget);
@@ -70,6 +69,13 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     ui->MotifsupTableWidget ->horizontalHeader()->setVisible(true);
     ui->MotifsupTableWidget ->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignLeft);
     ui->MotifsupTableWidget ->setGridStyle(Qt::DotLine);
+    ui->MotifsupTableWidget ->setColumnHidden(0, true);
+    ui->MotifsupTableWidget ->setColumnHidden(2, true);
+    ui->MotifsupTableWidget ->setColumnHidden(3, true);
+    ui->MotifsupTableWidget ->setColumnHidden(4, true);
+    ui->MotifsupTableWidget ->setColumnHidden(5, true);
+    ui->MotifsupTableWidget ->setColumnHidden(7, true);
+    ui->MotifsupTableWidget ->setColumnHidden(8, true);
     ui->MotifsupTableWidget ->FixLargeurTotale();
 
     QVBoxLayout *vlay       = new QVBoxLayout;
@@ -106,6 +112,8 @@ dlg_motifs::dlg_motifs(QWidget *parent) :
     connect(ui->RaccourciupLineEdit,                    &QLineEdit::textEdited,                 this,   &dlg_motifs::ModifRaccouci);
     connect(wdg_buttonframe,                            &WidgetButtonFrame::choix,              this,   &dlg_motifs::ChoixButtonFrame);
     connect(ui->MotifsupTableWidget,                    &UpTableWidget::dropsignal,             this,   &dlg_motifs::DropMotif);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ListeMotifs);
 }
 
 dlg_motifs::~dlg_motifs()

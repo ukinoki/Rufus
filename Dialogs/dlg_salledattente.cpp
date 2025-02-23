@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_salledattente.h"
 
 dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
-    UpDialog(Nom_fiche_WaitingRoom, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_salledattente)
 {
     ui->setupUi(this);
@@ -93,6 +93,8 @@ dlg_salledattente::dlg_salledattente(Acte* act, QString Titre, QWidget *parent):
         ui->MsgtextEdit->setText(m_patcrs->messageretour());
     ui->Msglabel->setVisible(false);
     ui->RetourAccueilradioButton->setText(tr("Examen terminé, en attente des informations de paiement"));
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_WaitingRoom);
 }
 
 dlg_salledattente::~dlg_salledattente()

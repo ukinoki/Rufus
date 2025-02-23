@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationcorresp.h"
 
 dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedecins, Correspondant *cor, QWidget *parent) :
-    UpDialog(Nom_fiche_IdentCorrespondant, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_identificationcorresp)
 {
     ui->setupUi(this);
@@ -122,6 +122,8 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
     profcpl             ->setCaseSensitivity(Qt::CaseInsensitive);
     profcpl             ->setCompletionMode(QCompleter::InlineCompletion);
     ui->AutreupLineEdit->setCompleter(profcpl);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_IdentCorrespondant);
 }
 
 dlg_identificationcorresp::~dlg_identificationcorresp()

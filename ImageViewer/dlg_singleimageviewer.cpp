@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_singleimageviewer.h"
 
-dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent, QString positionfiche) : UpDialog(positionfiche, parent)
+dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent) : UpDialog(parent)
 {
     setAttribute(Qt::WA_ShowWithoutActivating, true);
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -276,6 +276,7 @@ dlg_singleimageviewer::Mode dlg_singleimageviewer::mode() const
 void dlg_singleimageviewer::setMode(Mode newMode)
 {
     m_mode = newMode;
+    setEnregPosition(m_mode == Normal);
 }
 
 void dlg_singleimageviewer::changeMode(Mode newMode)
@@ -286,11 +287,13 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
         setOptimalSizesForZoom(m_wdgratio);
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
         move(0,0);
+        setEnregPosition(false);
     }
     else
     {
         resize(originalgeometry().size());
         move(framePosition(originalgeometry()));
+        setEnregPosition(true);
     }
 }
 
@@ -302,7 +305,7 @@ QMap<QString,QVariant> dlg_singleimageviewer::mapimg() const
 bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)
 {
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-    if (rszevent != Q_NULLPTR)
+    if (rszevent != Q_NULLPTR && m_mode == Normal)
         setOriginalgeometry(geometry());
     return QWidget::eventFilter(obj, event);
 }

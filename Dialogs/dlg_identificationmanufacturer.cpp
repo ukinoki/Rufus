@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationmanufacturer.h"
 
 dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufacturer *man, QWidget *parent) :
-    UpDialog(Nom_fiche_IdentManufacturer, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_identificationmanufacturer)
 {
     ui->setupUi(this);
@@ -128,6 +128,8 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
 
     setStageCount(1);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_IdentManufacturer);
 }
 
 dlg_identificationmanufacturer::~dlg_identificationmanufacturer()

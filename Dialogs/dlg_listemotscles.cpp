@@ -18,7 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listemotscles.h"
 
 dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
-    UpDialog(Nom_fiche_ListeMotsCles, parent)
+    UpDialog(parent)
 {
 
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -73,6 +73,8 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     wdg_buttonframe->wdg_modifBouton->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
     wdg_buttonframe->searchline()->setFocus();
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ListeMotsCles);
 }
 
 dlg_listemotscles::~dlg_listemotscles()

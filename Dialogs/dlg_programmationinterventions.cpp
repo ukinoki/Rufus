@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_programmationinterventions.h"
 
-dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Acte *act, QWidget *parent) : UpDialog(Nom_fiche_ProgramIntervention, parent)
+dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Acte *act, QWidget *parent) : UpDialog(parent)
 {
     setcurrentsession(Q_NULLPTR);
     setcurrentintervention(Q_NULLPTR);
@@ -176,6 +176,8 @@ dlg_programmationinterventions::dlg_programmationinterventions(Patient *pat, Act
     }
     connect(wdg_sessionstreeView,       &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelSessions);
     connect(wdg_interventionstreeView,  &QWidget::customContextMenuRequested,                   this, &dlg_programmationinterventions::MenuContextuelInterventionsions);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ProgramIntervention);
 }
 
 dlg_programmationinterventions::~dlg_programmationinterventions()

@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGui/qpainter.h>
 
 dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, QWidget *parent) :
-    UpDialog(Nom_fiche_GestionUsers, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_gestionusers)
 {
     ui->setupUi(this);
@@ -164,6 +164,8 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->CotationupRadioButton       ->setImmediateToolTip(tr("Fonction indisponible\npour le moment"));
     ui->OKupSmallButton             ->setEnabled(false);
     setConfig(mode);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_GestionUsers);
 }
 
 dlg_gestionusers::~dlg_gestionusers()

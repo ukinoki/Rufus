@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dlg_identificationpatient.h"
 
 dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QWidget *parent) :
-    UpDialog(Nom_fiche_IdentPatient, parent),
+    UpDialog(parent),
     ui(new Ui::dlg_identificationpatient)
 {
     ui->setupUi(this);
@@ -148,6 +148,8 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     bool f = db->parametres()->cotationsfrance();
     ui->CMUcheckBox->setVisible(f);
     ui->ALDcheckBox->setVisible(f);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_IdentPatient);
 }
 
 dlg_identificationpatient::~dlg_identificationpatient()

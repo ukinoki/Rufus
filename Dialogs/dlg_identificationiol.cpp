@@ -33,7 +33,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \param parent
  */
 dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
-    UpDialog(Nom_fiche_IdentIOL, parent)
+    UpDialog(parent)
 {
     if (Datas::I()->manufacturers->manufacturers()->size() == 0)
     {
@@ -41,7 +41,6 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         m_initok = false;
         return;
     }
-    setWindowModality(Qt::WindowModal);
     m_currentIOL = iol;
 
     m_mode = (m_currentIOL != Q_NULLPTR? Modification : Creation);
@@ -870,6 +869,8 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     setStageCount(1);
     wdg_prechargechk->setFocus();
     AfficheDatasIOL(m_currentIOL);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_IdentIOL);
 }
 
 bool dlg_identificationIOL::eventFilter(QObject *obj, QEvent *event)

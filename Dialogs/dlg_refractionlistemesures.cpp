@@ -18,10 +18,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_refractionlistemesures.h"
 
 dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *parent) :
-    UpDialog (Nom_fiche_ListeMesures, parent)
+    UpDialog (parent)
 {
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowModality(Qt::WindowModal);
     m_mode       = mode;
 
     wdg_bigtable = new QTableView(this);
@@ -75,6 +74,8 @@ dlg_refractionlistemesures::dlg_refractionlistemesures(Mode mode, QWidget *paren
     wdg_bigtable->setMouseTracking(true);
     dlglayout()->insertWidget(0,wdg_bigtable);
     connect (wdg_bigtable,   &QAbstractItemView::clicked,  this, &dlg_refractionlistemesures::ItemClicked);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ListeMesures);
 }
 
 dlg_refractionlistemesures::~dlg_refractionlistemesures()

@@ -37,9 +37,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
         m_iditem = qobject_cast<Depense*>(item)->id();
     dlg_imgviewer     = new dlg_singleimageviewer(parent);
     dlg_imgviewer     ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    dlg_imgviewer     ->setSaveGeometry(Nom_fiche_DocsScanner);
     dlg_imgviewer     ->setAttribute(Qt::WA_DeleteOnClose, true);
-    dlg_imgviewer     ->setMode(dlg_singleimageviewer::Normal);
 
     /* utilisé pour les tests en simulant un accès distant
     AccesDistant = true;
@@ -158,6 +156,8 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     dlg_imgviewer     ->setStageCount(2);
     m_initok        = true;
     NavigueVers(UpToolBar::_last);
+    dlg_imgviewer     ->setEnregPosition(true);
+    dlg_imgviewer     ->setSaveGeometry(Nom_fiche_DocsScanner);
 }
 
 dlg_docsscanner::~dlg_docsscanner()

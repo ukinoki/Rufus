@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "icons.h"
 
-dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) : dlg_singleimageviewer(parent, Nom_fiche_DocsExternes)
+dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) : dlg_singleimageviewer(parent)
 {
     m_docsexternes  = Docs;
 
@@ -33,7 +33,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 #endif
     m_font                  .setPointSize(m_font.pointSize()-d);
     mainlayout()            ->setSpacing(10);
-    setMode(dlg_singleimageviewer::Normal);
 
     wdg_listdocstreewiew    ->setFixedWidth(m_treeviewwidth);
     wdg_listdocstreewiew    ->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
@@ -51,7 +50,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     UpSmallButton *ViewerButton = new UpSmallButton();
     ViewerButton                ->setIcon(Icons::icViewer());
     ViewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
-    AjouteWidgetLayButtons(ViewerButton, false);
+    buttonslayout()             ->insertWidget(buttonslayout()->count() - nbbuttons(), ViewerButton);
 
     wdg_alldocsupcheckbox               = new UpCheckBox(tr("Tous"));
     wdg_onlyimportantsdocsupcheckbox    = new UpCheckBox(tr("Importants"));
@@ -95,6 +94,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     m_modetri       = parDate;
     m_docsexternes  ->setNouveauDocumentExterneFalse();
     RemplirTreeView();
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_DocsExternes);
 }
 
 dlg_docsexternes::~dlg_docsexternes()
@@ -767,7 +768,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
 
 void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
 {
-    dlg_multiimageviewer *viewer = new dlg_multiimageviewer(m_listiddocsimagery, iddoc, this);
+    dlg_multiimageviewer *viewer = new dlg_multiimageviewer(m_listiddocsimagery, iddoc);
     connect(this, &dlg_docsexternes::Actualize, viewer, &dlg_multiimageviewer::Actualize);
     viewer->exec();
     delete viewer;
@@ -878,7 +879,6 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
     }
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
-    setEnregPosition(mode() == dlg_singleimageviewer::Normal);
 }
 
 void dlg_docsexternes::RemplirTreeView()

@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_listevilles::dlg_listevilles(QWidget *parent) :
-    UpDialog(Nom_fiche_ListeVilles, parent)
+    UpDialog(parent)
 {
     Datas::I()->villes->initListe(Villes::CUSTOM);
     m_mapvilles= Datas::I()->villes->villes();
@@ -88,6 +88,8 @@ dlg_listevilles::dlg_listevilles(QWidget *parent) :
         Ville *ville = getVilleFromIndex(m_listnomsproxymodel->index(0,0));
         selectcurrentVille(ville);
     }
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_ListeVilles);
 }
 
 dlg_listevilles::~dlg_listevilles()

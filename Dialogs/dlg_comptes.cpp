@@ -468,7 +468,7 @@ void dlg_comptes::RemplirTableArchives()
 }
 void dlg_comptes::VoirArchives()
 {
-    dlg_archives            = new UpDialog(Nom_fiche_Archives, this);
+    dlg_archives            = new UpDialog(this);
     wdg_tablearchives       = new UpTableWidget();
     wdg_listarchivescombo   = new QComboBox();
     wdg_lbltitre            = new UpLabel();
@@ -565,6 +565,9 @@ void dlg_comptes::VoirArchives()
      * d'où la suite */
     if (wdg_listarchivescombo->count() == 1)
         RemplirTableArchives();
+    dlg_archives->setEnregPosition(true);
+    dlg_archives->setSaveGeometry(Nom_fiche_Archives);
+
     dlg_archives->exec();
     m_dateencours = db->ServerDate();
     delete dlg_archives;

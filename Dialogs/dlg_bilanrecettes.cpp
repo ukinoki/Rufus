@@ -19,7 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
-    UpDialog(Nom_fiche_Recettes, parent)
+    UpDialog(parent)
 {
     CalcBilan();
     if (!m_initok)
@@ -123,6 +123,8 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
     connect(wdg_comptableradiobouton,   &UpRadioButton::clicked,                                this, [=] {ChangeMode(COMPTABLE);});
     connect(wdg_superviseurradiobouton, &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_Recettes);
 }
 
 dlg_bilanrecettes::~dlg_bilanrecettes()

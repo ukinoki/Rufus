@@ -18,10 +18,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listetypesinterventions.h"
 
 dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, QWidget *parent) :
-    UpDialog(Nom_fiche_TypesInterventions, parent)
+    UpDialog(parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    setWindowModality(Qt::WindowModal);
     wdg_tblview = new UpTableView();
     wdg_buttonframe = new WidgetButtonFrame(wdg_tblview);
     wdg_buttonframe->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
@@ -70,6 +69,8 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
     wdg_buttonframe->wdg_moinsBouton->setEnabled(false);
     wdg_buttonframe->searchline()->setFocus();
     selectcurrenttype(typ);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_TypesInterventions);
 }
 
 dlg_listetypesinterventions::~dlg_listetypesinterventions()

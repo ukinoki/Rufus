@@ -20,7 +20,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 
 dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
-    UpDialog(Nom_fiche_GestionCorrespondants,parent)
+    UpDialog(parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Liste des correspondants"));
@@ -56,6 +56,8 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     wdg_buttonframe->wdg_modifBouton    ->setEnabled(false);
     wdg_buttonframe->wdg_moinsBouton    ->setEnabled(false);
     wdg_buttonframe->searchline()       ->setFocus();
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_GestionCorrespondants);
 }
 
 dlg_listecorrespondants::~dlg_listecorrespondants()

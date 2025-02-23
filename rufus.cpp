@@ -22,7 +22,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("21-02-2025/1");
+    qApp->setApplicationVersion("23-02-2025/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -435,6 +435,17 @@ void Rufus::ConnectSignals()
     ui->MoulinettepushButton->setVisible(false);
 }
 
+QList<dlg_docsexternes*> Rufus::listdlgdocsexternes()
+{
+    QList<dlg_docsexternes *> ListDialogDocs    = QList<dlg_docsexternes*>();
+    QList<QWidget*> listwidgets                 = QApplication::topLevelWidgets();
+    foreach (QWidget *widg, listwidgets) {
+        dlg_docsexternes *docs = dynamic_cast<dlg_docsexternes*>(widg);
+        if (docs)
+            ListDialogDocs << docs;
+    }
+    return ListDialogDocs;
+}
 
 void Rufus::OuvrirDocsExternes(DocsExternes *docs)
 {
@@ -443,7 +454,8 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
     if (docs->docsexternes()->size() == 0)
         return;
      //! si la fiche est déjà ouverte, on quitte
-    QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+    QList<dlg_docsexternes *> ListDialogDocs = listdlgdocsexternes();
+
     bool founddlg = false;
     if (ListDialogDocs.size()>0)
         for (int i=0; i< ListDialogDocs.size();++i)
@@ -484,10 +496,13 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
         }
     if (docs->docsexternes()->size()>0)
     {
-        dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP, this);
+        dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP);
         ui->OuvreDocsExternespushButton->setEnabled(true);
         if (docs == Datas::I()->docsexternes)
+        {
+            Dlg_DocsExt->setWindowModality(Qt::NonModal);
             Dlg_DocsExt->show();
+        }
         else
             Dlg_DocsExt->exec();
     }
@@ -515,7 +530,7 @@ void Rufus::MAJActesPrecs()
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::MAJDocsExternes()
 {
-    QList<dlg_docsexternes *> ListDialogDocs = findChildren<dlg_docsexternes *>();
+    QList<dlg_docsexternes *> ListDialogDocs = listdlgdocsexternes();
     if (ListDialogDocs.size()>0)
     {
         for (int i=0; i< ListDialogDocs.size();++i)
@@ -532,7 +547,7 @@ void Rufus::MAJDocsExternes()
             Datas::I()->docsexternes->setNouveauDocumentExterneFalse();
         if (Datas::I()->docsexternes->docsexternes()->size()>0)
         {
-            dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP, this);
+            dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP);
             Dlg_DocsExt->show();
             ui->OuvreDocsExternespushButton->setEnabled(true);
         }
@@ -1962,7 +1977,7 @@ void Rufus::EnregistreDocScanner(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "", this);
+    dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(pat, dlg_docsscanner::Document, "");
     if (Dlg_DocsScan->initOK())
     {
         Dlg_DocsScan->dialog()->setWindowTitle(tr("Enregistrer un document issu du scanner pour ") + pat->nom().toUpper() + " " + pat->prenom());
@@ -1978,7 +1993,7 @@ void Rufus::EnregistreVideo(Patient *pat)
 {
     if (pat == Q_NULLPTR)
         return;
-    dlg_docsvideo *DocsVideo = new dlg_docsvideo(pat, this);
+    dlg_docsvideo *DocsVideo = new dlg_docsvideo(pat);
     if (!DocsVideo->initOK())
         return;
     DocsVideo->dialog()->exec();
@@ -3237,12 +3252,12 @@ void Rufus::ListeCorrespondants()
     {
         UpMessageBox::Watch(this, tr("pas de correspondant enregistré") );
         bool onlydoctors    = false;
-        dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR, this);
+        dlg_identificationcorresp *Dlg_IdentCorresp = new dlg_identificationcorresp(dlg_identificationcorresp::Creation, onlydoctors, Q_NULLPTR);
         Dlg_IdentCorresp->exec();
         delete Dlg_IdentCorresp;
         return;
     }
-    dlg_listecorrespondants *Dlg_ListCor = new dlg_listecorrespondants(this);
+    dlg_listecorrespondants *Dlg_ListCor = new dlg_listecorrespondants();
     Dlg_ListCor->exec();
     delete Dlg_ListCor;
 }
@@ -3260,12 +3275,12 @@ void Rufus::ListeManufacturers()
     if (Datas::I()->manufacturers->manufacturers()->size()==0)
     {
         UpMessageBox::Watch(this, tr("pas de fournisseur enregistré") );
-        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR, this);
+        dlg_identificationmanufacturer *Dlg_IdentManufacturer    = new dlg_identificationmanufacturer(dlg_identificationmanufacturer::Creation, Q_NULLPTR);
         Dlg_IdentManufacturer->exec();
         delete Dlg_IdentManufacturer;
         return;
     }
-    dlg_listemanufacturers *Dlg_ListManufacturers = new dlg_listemanufacturers(this);
+    dlg_listemanufacturers *Dlg_ListManufacturers = new dlg_listemanufacturers();
     Dlg_ListManufacturers->exec();
     delete Dlg_ListManufacturers;
 }
@@ -6437,7 +6452,7 @@ void Rufus::ActualiseDocsExternes()
         return;
     if (currentpatient() != Q_NULLPTR)
     {
-        QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+        QList<dlg_docsexternes *> ListDialogDocs = listdlgdocsexternes();
         if (ListDialogDocs.size()>0)
             for (int i=0; i< ListDialogDocs.size();++i)
                 if (ListDialogDocs.at(i)->currentpatient() == currentpatient())
@@ -8228,7 +8243,7 @@ void Rufus::FermeDlgActesPrecedentsEtDocsExternes()
         ListDialog.at(n)->close();
         delete ListDialog.at(n);
     }
-    QList<dlg_docsexternes *> ListDialogDocs = this->findChildren<dlg_docsexternes *>();
+    QList<dlg_docsexternes *> ListDialogDocs = listdlgdocsexternes();
     for (int n = 0; n < ListDialogDocs.size(); n++)
     {
         if (n == ListDialogDocs.size()-1)

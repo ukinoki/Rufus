@@ -1,6 +1,6 @@
 #include "dlg_multiimageviewer.h"
 
-dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentdoc, QWidget *parent) : UpDialog(Nom_fiche_Viewer, parent)
+dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentdoc, QWidget *parent) : UpDialog(parent)
 {
     m_idcurrentdoc              = idcurrentdoc;
     m_listiddocs                = listiddocs;
@@ -115,6 +115,8 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
     });
     connect (wdg_table->horizontalHeader(), &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkHorizontalHeader(idx);} );
     connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkVerticalHeader(idx);} );
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_Viewer);
 }
 
 void dlg_multiimageviewer::FillXTable()
@@ -956,8 +958,11 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
     if (doc)
     {
         imgzoom = new dlg_singleimageviewer();
+        imgzoom->setMode(dlg_singleimageviewer::Zoom);
         imgzoom->setDocument(doc);
-        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK);
+        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord);
+        if (!doc->isVideo())
+            imgzoom ->AjouteLayButtons(UpDialog::ButtonPrint);
         connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
         if (imgzoom->imagewidget())
             imgzoom->imagewidget()->setOKwheelzoom(true);

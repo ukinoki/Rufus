@@ -20,10 +20,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 dlg_listecommentaires::dlg_listecommentaires(QList<CommentLunet*> listecommentaires, QWidget *parent) :
-    UpDialog(Nom_fiche_Commentaires, parent)
+    UpDialog(parent)
 {
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint);
-    setWindowModality(Qt::WindowModal);
     wdg_tblview         = new UpTableView();
     wdg_comtxt          = new UpTextEdit();
     wdg_publicchkbox    = new UpCheckBox();
@@ -72,6 +71,8 @@ dlg_listecommentaires::dlg_listecommentaires(QList<CommentLunet*> listecommentai
         CommentLunet *com = getCommentFromIndex(m_model->index(0,0));
         selectcurrentComment(com);
     }
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_Commentaires);
 }
 
 dlg_listecommentaires::~dlg_listecommentaires()

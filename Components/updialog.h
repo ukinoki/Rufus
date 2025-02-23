@@ -40,7 +40,6 @@ class UpDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit UpDialog(QString NomFiche, QWidget *parent = Q_NULLPTR);
     explicit UpDialog(QWidget *parent = Q_NULLPTR);
     enum Button {
                 NoButton                = 0x0,
@@ -59,13 +58,14 @@ public:
     enum Mode {NullMode, Modification,  Creation}; Q_ENUM(Mode)
 
 private:
-    bool            m_enregistreposition;
+    void            mouseMoveEvent(QMouseEvent* event);
+    bool            m_enregistreposition    = false;
     Mode            m_mode;
     QString         m_nomfichierini;
     QHBoxLayout     *wdg_buttonslayout;
     QWidget         *wdg_buttonswidget;
-    void            AjouteLay();
     void            UpdateTabOrder();
+    int             m_nbbuttons             = 0;
     int             m_stageheight           = 40;
     double          m_nstages               = 1;
     int             m_spacing               = 5;
@@ -111,7 +111,7 @@ public:
     {
         QPoint p(rectgeometry.left() + frameGeometry().left() - geometry().left(),
                 rectgeometry.top() + frameGeometry().top() - geometry().top());
-        qDebug() << p;
+        //qDebug() << p;
         return p;
     }
 
@@ -123,6 +123,10 @@ public:
     //! difference between geometry size and all widget's size   --> contentsmargins and spacings + correctionwidth (= width of allwidgets excluding this of MainWidget)
     QSize           deltas() const;
     void            setCorrectionWidth(const int &correctionwidth)      { m_correctionwidth = correctionwidth; }
+
+    //! amount of buttons in buttons layout
+    int             nbbuttons() const;
+    void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

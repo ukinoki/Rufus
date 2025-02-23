@@ -18,9 +18,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listelieux.h"
 
 dlg_listelieux::dlg_listelieux(QWidget *parent)
-    : UpDialog(Nom_fiche_GestionLieux, parent)
+    : UpDialog(parent)
 {
-    setWindowModality(Qt::WindowModal);
     db              = DataBase::I();
     AjouteLayButtons(UpDialog::ButtonClose);
     connect(CloseButton, &QPushButton::clicked, this, &QDialog::reject);
@@ -62,6 +61,8 @@ dlg_listelieux::dlg_listelieux(QWidget *parent)
 
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listelieux::ChoixButtonFrame);
     connect(wdg_couleurpushbutt,    &QPushButton::clicked,      this,   &dlg_listelieux::ModifCouleur);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_GestionLieux);
 }
 
 dlg_listelieux::~dlg_listelieux()

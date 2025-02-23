@@ -36,9 +36,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
 
     dlg_imgviewer         = new dlg_singleimageviewer();
     dlg_imgviewer         ->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
-    dlg_imgviewer         ->setSaveGeometry(Nom_fiche_DocsVideo);
     dlg_imgviewer         ->setAttribute(Qt::WA_DeleteOnClose, true);
-    dlg_imgviewer         ->setMode(dlg_singleimageviewer::Normal);
     m_docpath           = proc->settings()->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString();
 
     wdg_linetitre       = new UpLineEdit();
@@ -116,6 +114,8 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
 
     NavigueVers(UpToolBar::_last);
     m_initOK = true;
+    dlg_imgviewer         ->setEnregPosition(true);
+    dlg_imgviewer         ->setSaveGeometry(Nom_fiche_DocsVideo);
 }
 
 void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)

@@ -1070,11 +1070,11 @@ void dlg_depenses::GestionComptes()
 
 void dlg_depenses::ZoomDoc()
 {
-    dlg_imgviewer                   = new dlg_singleimageviewer(this);
+    dlg_imgviewer                   = new dlg_singleimageviewer();
     dlg_imgviewer                   ->AjouteLayButtons(UpDialog::ButtonSuppr | UpDialog::ButtonPrint | UpDialog::ButtonOK);
+    dlg_imgviewer                   ->setMode(dlg_singleimageviewer::Zoom);
     dlg_imgviewer                   ->setDepense(m_depenseencours);
     dlg_imgviewer                   ->setStageCount(1);
-    dlg_imgviewer                   ->setMode(dlg_singleimageviewer::Normal);
     connect(dlg_imgviewer->PrintButton, &UpSmallButton::clicked, this, [=]  {
                                                                                 QMap<QString,QVariant> doc;
                                                                                 doc.insert(M_BA, m_depenseencours->factureblob());
@@ -1964,7 +1964,7 @@ void dlg_depenses::EnregistreDocScanne(dlg_docsscanner::Mode mode)
 {
     if (mode == dlg_docsscanner::Document)
         return;
-    dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet(), this);
+    dlg_docsscanner *Dlg_DocsScan = new dlg_docsscanner(m_depenseencours, mode, m_depenseencours->objet());
     if (Dlg_DocsScan->initOK())
         if (Dlg_DocsScan->dialog()->exec() == QDialog::Accepted)
         {

@@ -33,9 +33,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  * \param parent
  */
 dlg_identificationcommercial::dlg_identificationcommercial(Mode mode, Item *itm, QWidget *parent) :
-    UpDialog(Nom_fiche_IdentCommercial, parent)
+    UpDialog(parent)
 {
-    setWindowModality(Qt::WindowModal);
     m_mode = mode;
     switch (m_mode) {
     case Modification:
@@ -194,6 +193,8 @@ dlg_identificationcommercial::dlg_identificationcommercial(Mode mode, Item *itm,
     CancelButton->setText(tr("Annuler"));
     setStageCount(1);
     installEventFilter(this);
+    setEnregPosition(true);
+    setSaveGeometry(Nom_fiche_IdentCommercial);
 }
 
 dlg_identificationcommercial::~dlg_identificationcommercial()
