@@ -569,7 +569,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 type = doc->typedoc();
             Procedures::I()->CalcImageDocument(doc);
             QWidget *glaywidg = Q_NULLPTR;
-            if (doc->isVideo())  // le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
+            if (doc->isVideo())  //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
                 QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
                 QFile   qFile(filename);

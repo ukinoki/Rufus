@@ -2178,21 +2178,10 @@ void Rufus::ExporteDocs()
                     + datetransfer.toString("yyyyMMdd") + "-" + QTime::currentTime().toString("HHmmss")
                     + "-" + QString::number(iddoc) + "." JPG;
             QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc;
-            /*
-             * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-             * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
-             * QFile prov (CheminOKTransfrProv);
-                if (prov.open(QIODevice::Append))
-                {
-                    QTextStream out(&prov);
-                    out << ba;
-                }
-            */
 
             /*! Ecriture du fichier sur le disque et compression du fichier */
-            QPixmap pix;
-            pix.loadFromData(ba);
-            if (!pix.save(CheminOKTransfrDoc, "jpeg"))
+            bool a = Utils::writeBinaryFile(ba, CheminOKTransfrDoc);
+            if (!a)
             {
                 QString title = tr("pas de fichier de sauvegarde");
                 QString msg = tr("Impossible d'enregistrer le fichier ") +
@@ -2330,7 +2319,6 @@ void Rufus::ExporteDocs()
                 }
                 /*! le fichier image est invalide, on le supprime */
                 QString delreq = "delete from  " TBL_DOCSEXTERNES " where " CP_ID_DOCSEXTERNES " = " + QString::number(iddoc);
-                //qDebug() << delreq;
                 db->StandardSQL(delreq);
                 continue;
             }
@@ -2473,20 +2461,10 @@ void Rufus::ExporteDocs()
 
             /*! Création du nom de fichier */
             QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc;
-            /*
-            * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-            * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu et je ne sais pas pourquoi
-            * QFile prov (CheminOKTransfrProv);
-                if (prov.open(QIODevice::Append))
-                {
-                    QTextStream out(&prov);
-                    out << ba;
-                }
-            */
+
             /*! Ecriture du fichier sur le disque et compression */
-            QPixmap pix;
-            pix.loadFromData(ba);
-            if (!pix.save(CheminOKTransfrDoc, "jpeg"))
+            bool a = Utils::writeBinaryFile(ba, CheminOKTransfrDoc);
+            if (!a)
             {
                 QString title = tr("pas de fichier de sauvegarde");
                 QString msg = tr("Impossible d'enregistrer le fichier ") +

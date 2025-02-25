@@ -306,7 +306,7 @@ public:
 
     //! écriture d'un qByteArray
     static void writeDataToFileDateTime (QByteArray datas, QString file, QString path);
-    static void writeBinaryFile (QByteArray data, QString fileName);
+    static bool writeBinaryFile(QByteArray data, QString fileName);
 
     //! Savoir si un port es serial
     static bool isSerialPort( QString name );

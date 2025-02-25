@@ -418,11 +418,11 @@ void dlg_docsexternes::ActualiseDocsExternes()
 
 void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 {
-    QString filename = db->dirimagerie() + NOM_DIR_IMAGES + docmt->lienversfichier();
-    QFile img(filename);
-    if (!img.open(QIODevice::ReadOnly))
+    if (docmt->imageblob() == QByteArray())
+        proc->CalcImageDocument(docmt);
+    if (docmt->imageblob() == QByteArray())
     {
-        UpMessageBox::Watch(this, tr("Erreur d'accès au fichier:"), filename);
+        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
         return;
     }
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
@@ -430,8 +430,13 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
     dialog.setViewMode(QFileDialog::List);
     if (dialog.exec() == QDialog::Accepted)
     {
+        QString name = docmt->lienversfichier();
+        if (m_docsexternes->patient() != Q_NULLPTR)
+            name = m_docsexternes->patient()->nomcomplet() + " - " + docmt->date().toString("d-MMM-yyyy") + " - " + docmt->titrelong() +
+                   "." + docmt->imageformat();
         QDir dockdir = dialog.directory();
-        img.copy(dockdir.path() + "/" + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom() + " "+ docmt->soustypedoc() + "." + QFileInfo(img).suffix().toLower());
+        name = dockdir.path() + "/" + name;
+        Utils::writeBinaryFile(docmt->imageblob(), name);
     }
 }
 
@@ -443,8 +448,13 @@ void dlg_docsexternes::EnregistreVideo()
     dialog.setViewMode(QFileDialog::List);
     if (dialog.exec() == QDialog::Accepted)
     {
+        QString name = filename;
+        if (m_docsexternes->patient() != Q_NULLPTR)
+            if (m_currentdocument != Q_NULLPTR)
+                name = m_docsexternes->patient()->nomcomplet() + " - " + m_currentdocument->date().toString("d-MMM-yyyy") + " - " + m_currentdocument->titrelong() +
+                       QFileInfo(name).suffix().toLower();
         QDir dockdir = dialog.directory();
-        QFile(filename).copy(dockdir.path() + "/" + videoWidget()->player()->source().fileName());
+        QFile(filename).copy(dockdir.path() + "/" + name);
     }
 }
 

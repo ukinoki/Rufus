@@ -1782,13 +1782,22 @@ void Utils::writeDataToFileDateTime (QByteArray data, QString name, QString path
     writeBinaryFile(data, path+"/"+now.toString("yyyyMMdd_HHmmss")+name);
 }
 
-void Utils::writeBinaryFile (QByteArray data, QString fileName)
+bool Utils::writeBinaryFile (QByteArray data, QString fileName)
 {
     QFile file(fileName);
-    if (file.open(QFile::WriteOnly)) {
-        file.write(data);
+    bool a = file.open(QFile::WriteOnly);
+    if (a) {
+        a = file.write(data) > -1;
         file.close();
     }
+    /*! or
+    {
+        QDataStream out(&file);
+        out << data;
+        file.close();
+    }
+    */
+    return a;
 }
 
 void Utils::playAlarm(QString sound)

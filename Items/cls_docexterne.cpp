@@ -51,7 +51,7 @@ QDateTime DocExterne::datetimeimpression() const    { return m_dateimpression;}
 
 int DocExterne::compression() const                 { return m_compression;}
 QString DocExterne::lienversfichier() const         { return m_lienversfichier;}
-bool DocExterne::isALD() const                      { return m_ald==1;}
+bool DocExterne::isALD() const                      { return m_ald == 1;}
 int DocExterne::useremetteur() const                { return m_useremetteur;}
 QString DocExterne::format() const                  { return m_formatdoc;}
 QByteArray DocExterne::imageblob() const            { return m_blob;}
@@ -116,7 +116,7 @@ void DocExterne::setimageblob(QByteArray blob)
     {
         m_imagelist = Utils::calcImagefromPdf(m_blob);
     }
-    else if( isJPG())
+    else if (isJPG())
     {
         QImage image = QImage::fromData(m_blob);
         m_imagelist << image;
