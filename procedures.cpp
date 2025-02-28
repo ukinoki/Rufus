@@ -1547,6 +1547,8 @@ bool Procedures::QuestionPdfOrPrint(QWidget *parent, bool &pdf)
     msgbox                          ->addButton(wdg_printbouton);
     msgbox                          ->addButton(wdg_annulbouton);
 
+    wdg_printbouton                 ->setFocus();
+
     bool initok = (msgbox->exec() == QDialog::Accepted && msgbox->clickedpushbutton() != wdg_annulbouton);
     if (initok)
         pdf = (msgbox->clickedpushbutton() == wdg_pdfbouton);

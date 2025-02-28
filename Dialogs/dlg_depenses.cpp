@@ -1081,7 +1081,10 @@ void dlg_depenses::ZoomDoc()
                                                                                 doc.insert(M_TYPE, m_depenseencours->factureformat());
                                                                                 proc->PrintDocument(doc);
                                                                             });
-    connect(dlg_imgviewer->SupprButton, &UpSmallButton::clicked, this, &dlg_depenses::EffaceFacture);
+    connect(dlg_imgviewer->SupprButton, &UpSmallButton::clicked, this, [=]  {
+                                                                                EffaceFacture();
+                                                                                dlg_imgviewer->close();
+                                                                            });
     connect(dlg_imgviewer->OKButton,    &UpSmallButton::clicked, dlg_imgviewer, &dlg_singleimageviewer::close);
     dlg_imgviewer                   ->exec();
     delete dlg_imgviewer;

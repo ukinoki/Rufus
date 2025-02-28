@@ -52,7 +52,7 @@ public:
 
     void                    setCorrectionwidget(QWidget *newCorrectionwidget);
 
-    ImageWidget*            imagewidget() const;
+    ListImageWidget*        imagewidget() const;
 
 private:
     bool                    eventFilter(QObject *, QEvent *);
@@ -67,7 +67,7 @@ private:
     UpLabel*                m_labwdg            = Q_NULLPTR;
     UpLabel*                m_labinfowdg        = new UpLabel();
     QGraphicsScene          *m_scene            = Q_NULLPTR;
-    ImageWidget             *m_imgwdg           = Q_NULLPTR;
+    ListImageWidget         *m_imgwdg           = Q_NULLPTR;
     QWidget*                m_parent            = Q_NULLPTR;
     QWidget*                m_currentwidget     = Q_NULLPTR;
     QWidget*                m_correctionwidget  = Q_NULLPTR;

@@ -195,5 +195,6 @@
         <file>France.ico</file>
         <file>United-kingdom.ico</file>
         <file>grid.png</file>
+        <file>fullscreen.png</file>
     </qresource>
 </RCC>

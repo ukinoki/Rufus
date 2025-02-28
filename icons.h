@@ -102,6 +102,8 @@ public:
     static QPixmap pxEnregistrer() { return foundPX("pxEnregistrer", "://Record.png"); }
     static QPixmap pxError() { return foundPX("pxError", "://error.png"); }
 
+    static QPixmap pxFullscreen() { return foundPX("pxFullscreen", "://fullscreen.png"); }
+
     static QPixmap pxImprimer() { return foundPX("pxImprimer", "://Imprimer.png"); }
     static QPixmap pxInformation() { return foundPX("pxInformation", "://information.png"); }
     static QPixmap pxIOL() { return foundPX("pxIol", "://IOL.png"); }

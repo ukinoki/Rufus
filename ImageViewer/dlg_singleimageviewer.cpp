@@ -54,7 +54,6 @@ void dlg_singleimageviewer::setDocument(DocExterne *docmt)
             }
             else if (docmt->isPDF())
                 listimg = docmt->pagelist();
-
             if (listimg.size() > 0)
                 DisplayImage(listimg);
         }
@@ -128,8 +127,7 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
     }
 
-    m_imgwdg            ->setImage(listimage.at(0), sizeForMainWidgetDisplay());
-    //m_imgwdg        ->setListimg(listimage, m_sizewidget);
+    m_imgwdg            ->setListimg(listimage, sizeForMainWidgetDisplay());
     m_currentwidget     = m_imgwdg;
     m_imgwdg            ->resize(sizeForMainWidgetDisplay());
 
@@ -223,14 +221,14 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
         }
         if (m_imgwdg == Q_NULLPTR)
         {
-            m_imgwdg     = new ImageWidget();//(QList<QImage>());
+            m_imgwdg     = new ListImageWidget();
             m_mainlayout->insertWidget(m_mainlayout->count(),m_imgwdg);
         }
     }
     }
 }
 
-ImageWidget *dlg_singleimageviewer::imagewidget() const
+ListImageWidget *dlg_singleimageviewer::imagewidget() const
 {
     return m_imgwdg;
 }

@@ -150,7 +150,6 @@ void TextPrinter::PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist)
         if( i > 0 ) {
             Imprimante->newPage();
         }
-        //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
         QPageSize pgSize = Imprimante->pageLayout().pageSize();
         QImage page = pagelist.at(i).scaled(pgSize.sizePixels(Imprimante->resolution()), Qt::KeepAspectRatio);
         PrintingPreView.drawImage(QPoint(0,0),page);

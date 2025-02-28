@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpVideoWidget::UpVideoWidget(QWidget *parent) : QVideoWidget(parent)
 {
+    installEventFilter(this);
 }
 
 QString UpVideoWidget::filename() const
@@ -42,4 +43,30 @@ void UpVideoWidget::setPlayer(UpMediaPlayer *newPlayer)
 {
     m_player    = newPlayer;
     m_player    ->setParent(this);
+}
+
+bool UpVideoWidget::eventFilter(QObject *obj, QEvent *event)
+{
+    if (event->type() == QEvent::Enter)
+    {
+        emit enter(id());
+    }
+    else if (event->type() == QEvent::MouseButtonDblClick)
+    {
+        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            emit dblclick(id());
+    }
+    else if (event->type() == QEvent::MouseButtonRelease)
+        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            emit clicked(id());
+    return QWidget::eventFilter(obj, event);
+}
+
+void UpVideoWidget::keyPressEvent (QKeyEvent * keyEvent )
+{
+    switch (keyEvent->key()) {
+    case Qt::Key_Escape:
+        if (isFullScreen())
+            setFullScreen(false);
+    }
 }

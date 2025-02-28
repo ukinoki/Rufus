@@ -117,6 +117,12 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
             menu->addAction(paction_Viewer);
             connect (paction_Viewer,    &QAction::triggered,    this,  [=] {OpenMultiImageViewer(docmt->id());});
         }
+        if (docmt->isVideo())
+        {
+            QAction *paction_Fullscreen         = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
+            menu->addAction(paction_Fullscreen);
+            connect (paction_Fullscreen,    &QAction::triggered,    this,  [=] {videoWidget()->setFullScreen(true);});
+        }
         QMenu *menuImportance  = menu->addMenu(tr("Importance"));
         QAction *paction_ImportantMin   = new QAction(tr("Faible"));
         QAction *paction_ImportantNorm  = new QAction(tr("Normale"));
@@ -306,10 +312,12 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             return;
         }
         setVideofile(filename);
+        videoWidget()   ->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(videoWidget(),      &QWidget::customContextMenuRequested,   this,   [=] {AfficheCustomMenu(docmt);});
-        connect (RecordButton,  &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
+        connect (RecordButton,      &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
         PrintButton     ->setVisible(false);
         labinfowidget() ->setText("");
+        videoWidget()   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
     }
     else                                    //! le document est une image ou un document écrit (ordonnance, certificat...)
     {
@@ -342,11 +350,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         else return;
         setDocument(docmt);
         imagewidget()->disconnect();
-        connect(imagewidget(),  &ImageWidget::clicked,                  this, [=] {(docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU) && mode() == dlg_singleimageviewer::Normal?
-                                                                                        OpenMultiImageViewer(docmt->id()) :
-                                                                                        ZoomDoc();});
         connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
-        imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
     }
     if (mode() == dlg_singleimageviewer::Zoom)
         ZoomDoc(false);
@@ -868,24 +872,16 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         //! set dimensions to max
         changeMode(dlg_singleimageviewer::Zoom);
         move (0,0);
-        currentwidget() ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
         if (imagewidget())
-        {
             imagewidget()->setOKwheelzoom(true);
-            imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
-        }
     }
     else if (mode() == dlg_singleimageviewer::Zoom)
     {
         move(m_positionorigin);
         resize(m_sizeorigin);
-        currentwidget() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,30
         changeMode(dlg_singleimageviewer::Normal);
         if (imagewidget())
-        {
             imagewidget()->setOKwheelzoom(false);
-            imagewidget()->viewport() ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
-        }
     }
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);

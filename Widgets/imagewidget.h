@@ -7,31 +7,27 @@
 #include "procedures.h"
 
 
-class ImageWidget : public QGraphicsView {
+
+class ListImageWidget : public QGraphicsView {
     Q_OBJECT
 
-    QGraphicsScene *m_scene         = new QGraphicsScene;
-    QGraphicsPixmapItem m_graphicsItem;
-    qreal m_ScaleFactor;
-    QPixmap m_pixmap;
-
 private:
-    QList<QImage>       m_listimg   = QList<QImage>();
-    QImage              m_image     = QImage();
-    bool                OKwheelzoom = false;
+    QGraphicsScene                  *m_scene         = new QGraphicsScene;
+    QList<QGraphicsPixmapItem*>     m_listgraphicsItem;
+    qreal                           m_ScaleFactor;
+    QList<QPixmap>                  m_listpixmap;
+    QList<QImage>                   m_listimg   = QList<QImage>();
+    bool                            OKwheelzoom = false;
     void fitImage();
-    void calcScaleFactor(qreal w, qreal h);
-    void setPixmap(QPixmap pixmap, qreal w, qreal h);
+    void calcScaleFactor(qreal w);
+    void setListPixmap(QList<QPixmap> listpixmap);
     void scale(qreal s);
     void zoomIn();
     void zoomOut();
     void checkSize();
 
 public:
-    ImageWidget(QWidget * parent = nullptr);
-    ImageWidget(QList<QImage> listimg, QWidget * parent = nullptr);
-    //ImageWidget(QWidget * parent = nullptr);
-    void setImage(const QImage &newImage, QSize size);
+    ListImageWidget(QWidget * parent = nullptr);
     void setOKwheelzoom(bool newOKwheelzoom);
 
     QList<QImage> listimg() const;
