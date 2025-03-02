@@ -47,8 +47,23 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     mainlayout()            ->addWidget(wdg_listdocstreewiew);
     setCorrectionwidget(wdg_listdocstreewiew);
 
+    int s = 25;
+    QSize szicon = QSize(s,s);
+
+    m_ZoomInButton          ->setIcon(Icons::icZoomIn());
+    m_ZoomInButton          ->setIconSize(szicon);
+    m_ZoomInButton          ->setImmediateToolTip(tr("Agrandir"));
+    buttonslayout()         ->insertWidget(buttonslayout()->count() - nbbuttons(), m_ZoomInButton);
+
+    m_ZoomOutButton         ->setIcon(Icons::icZoomOut());
+    m_ZoomOutButton         ->setIconSize(szicon);
+    m_ZoomOutButton         ->setImmediateToolTip(tr("Réduire"));
+    buttonslayout()         ->insertWidget(buttonslayout()->count() - nbbuttons(), m_ZoomOutButton);
+    m_ZoomOutButton         ->setVisible(false);
+
     UpSmallButton *ViewerButton = new UpSmallButton();
     ViewerButton                ->setIcon(Icons::icViewer());
+    ViewerButton                ->setIconSize(szicon);
     ViewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
     buttonslayout()             ->insertWidget(buttonslayout()->count() - nbbuttons(), ViewerButton);
 
@@ -83,6 +98,8 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
     connect (ViewerButton,                      &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
+    connect (m_ZoomInButton,                    &QPushButton::clicked,          this,   [=] {ZoomDoc();});
+    connect (m_ZoomOutButton,                   &QPushButton::clicked,          this,   [=] {ZoomDoc();});
 
     if (!UtiliseTCP)
     {
@@ -872,17 +889,16 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
         //! set dimensions to max
         changeMode(dlg_singleimageviewer::Zoom);
         move (0,0);
-        if (imagewidget())
-            imagewidget()->setOKwheelzoom(true);
     }
     else if (mode() == dlg_singleimageviewer::Zoom)
     {
         move(m_positionorigin);
         resize(m_sizeorigin);
         changeMode(dlg_singleimageviewer::Normal);
-        if (imagewidget())
-            imagewidget()->setOKwheelzoom(false);
     }
+    bool zoomvisible = mode() == dlg_singleimageviewer::Normal;
+    m_ZoomInButton      ->setVisible(zoomvisible);
+    m_ZoomOutButton     ->setVisible(!zoomvisible);
     wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
     wdg_listdocstreewiew->setCurrentIndex(idx);
 }

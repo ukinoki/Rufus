@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "imagewidget.h"
 #include "upvideowidget.h"
 
+
 class dlg_singleimageviewer : public UpDialog
 {
 public:

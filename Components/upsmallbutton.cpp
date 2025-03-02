@@ -60,24 +60,24 @@ void UpSmallButton::setImmediateToolTip(QString Msg, bool affichettipmemesidisab
 void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
 {
     switch (Style) {
-    case BACKBUTTON:            setIcon( Icons::icBack() );         break;
-    case CALENDARBUTTON:        setIcon( Icons::icDate() );         break;
-    case CANCELBUTTON:          setIcon( Icons::icAnnuler() );      break;
-    case CLOSEBUTTON:           setIcon( Icons::icFerme() );        break;
-    case COPYBUTTON:            setIcon( Icons::icRecopier() );     break;
-    case DONOTRECORDBUTTON:     setIcon( Icons::icDoNotRecord() );  break;
-    case EDITBUTTON:            setIcon( Icons::icEditer() );       break;
-    case HOMEBUTTON:            setIcon( Icons::icPageHome() );     break;
-    case LOUPEBUTTON:           setIcon( Icons::icLoupe() );        break;
-    case OUPSBUTTON:            setIcon( Icons::icOups() );         break;
-    case PRINTBUTTON:           setIcon( Icons::icImprimer() );     break;
-    case QWANTBUTTON:           setIcon( Icons::icQwant() );        break;
-    case RECEPTIONBUTTON:       setIcon( Icons::icReception() );    break;
-    case RECORDBUTTON:          setIcon( Icons::icSauvegarder() );  break;
-    case STARTBUTTON:           setIcon( Icons::icOK() );           break;
-    case SUPPRBUTTON:           setIcon( Icons::icPoubelle() );     break;
-    case PDFBUTTON:             setIcon( Icons::icPdf() );          break;
-    default:                                                        break;
+    case BACKBUTTON:            setIcon( Icons::icBack() );                 break;
+    case CALENDARBUTTON:        setIcon( Icons::icDate() );                 break;
+    case CANCELBUTTON:          setIcon( Icons::icAnnuler() );              break;
+    case CLOSEBUTTON:           setIcon( Icons::icFerme() );                break;
+    case COPYBUTTON:            setIcon( Icons::icRecopier() );             break;
+    case DONOTRECORDBUTTON:     setIcon( Icons::icDoNotRecord() );          break;
+    case EDITBUTTON:            setIcon( Icons::icEditer() );               break;
+    case HOMEBUTTON:            setIcon( Icons::icPageHome() );             break;
+    case LOUPEBUTTON:           setIcon( Icons::icLoupe() );                break;
+    case OUPSBUTTON:            setIcon( Icons::icOups() );                 break;
+    case PRINTBUTTON:           setIcon( Icons::icImprimer(QSize(30,30)) ); break;
+    case QWANTBUTTON:           setIcon( Icons::icQwant() );                break;
+    case RECEPTIONBUTTON:       setIcon( Icons::icReception() );            break;
+    case RECORDBUTTON:          setIcon( Icons::icSauvegarder() );          break;
+    case STARTBUTTON:           setIcon( Icons::icOK() );                   break;
+    case SUPPRBUTTON:           setIcon( Icons::icPoubelle(QSize(25,25)) ); break;
+    case PDFBUTTON:             setIcon( Icons::icPdf() );                  break;
+    default:                                                                break;
     }
     m_style = Style;
     setCursor(Qt::PointingHandCursor);

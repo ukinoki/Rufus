@@ -15,29 +15,27 @@ private:
     QGraphicsScene                  *m_scene         = new QGraphicsScene;
     QList<QGraphicsPixmapItem*>     m_listgraphicsItem;
     qreal                           m_ScaleFactor;
-    QList<QPixmap>                  m_listpixmap;
-    QList<QImage>                   m_listimg   = QList<QImage>();
     bool                            OKwheelzoom = false;
-    void fitImage();
-    void calcScaleFactor(qreal w);
-    void setListPixmap(QList<QPixmap> listpixmap);
-    void scale(qreal s);
-    void zoomIn();
-    void zoomOut();
-    void checkSize();
+    void    fitImage();
+    void    calcScaleFactor(qreal w);
+    void    setListPixmap(QList<QPixmap> listpixmap);
+    void    scale(qreal s);
+    void    zoomIn();
+    void    zoomOut();
+    void    checkSize();
+    QPixmap itempPixmap(QGraphicsPixmapItem *itm)   { return itm->data(1).value<QPixmap>(); }
+    QImage  itempImage(QGraphicsPixmapItem *itm)    { return itm->data(0).value<QImage>(); }
 
 public:
     ListImageWidget(QWidget * parent = nullptr);
     void setOKwheelzoom(bool newOKwheelzoom);
-
-    QList<QImage> listimg() const;
     void setListimg(const QList<QImage> &newListimg, QSize size);
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event) override ;
-    void wheelEvent(QWheelEvent * event) override;
-    void keyPressEvent(QKeyEvent * event) override;
-    void resizeEvent(QResizeEvent* event) override;
+    bool eventFilter(QObject *obj, QEvent *event);
+    void wheelEvent(QWheelEvent * event);
+    void keyPressEvent(QKeyEvent * event);
+    void resizeEvent(QResizeEvent* event);
 
 signals:
     void clicked();

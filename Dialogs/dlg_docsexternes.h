@@ -32,15 +32,18 @@ public:
     DocsExternes*           docsexternes() { return m_docsexternes;}
 
 private:
-    DataBase                *db             = DataBase::I();
-    Procedures              *proc           = Procedures::I();
-    QFont                   m_font          = QApplication::font();
-    User*                   currentuser()   { return Datas::I()->users->userconnected(); }
-    QDate                   m_currentdate   = db->ServerDate();
+    DataBase                *db                 = DataBase::I();
+    Procedures              *proc               = Procedures::I();
+    QFont                   m_font              = QApplication::font();
+    User*                   currentuser()       { return Datas::I()->users->userconnected(); }
+    QDate                   m_currentdate       = db->ServerDate();
 
     DocsExternes            *m_docsexternes;    //! tous les docsexternes
     QList<int>              m_listiddocsimagery = QList<int>();    //! les id des docsexternes qui correspondent à des documenst d'imagerie
-    DocExterne              *m_currentdocument = Q_NULLPTR;
+    DocExterne              *m_currentdocument  = Q_NULLPTR;
+
+    UpSmallButton           *m_ZoomInButton     = new UpSmallButton();
+    UpSmallButton           *m_ZoomOutButton    = new UpSmallButton();
 
 /*! la classe dlg_docsexternes affiche les documents pdf, jpg ou video dans une fiche Updialog
  *  Les intitulés des documents sont affichés à gauche dans un QTreeView *wdg_listdocstreewiew

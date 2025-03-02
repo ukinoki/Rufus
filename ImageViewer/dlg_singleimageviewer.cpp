@@ -105,14 +105,11 @@ void dlg_singleimageviewer::setVideofile(QString filename)
 
 void dlg_singleimageviewer::calcWidgetRatio(QList<QImage> listimg)
 {
-    double maxw(0), maxh(0);
+    qreal maxw(0), maxh(0);
     for (int i=0; i < listimg.size(); i++)
     {
-        QPixmap pix = QPixmap::fromImage(listimg.at(i));
-        if (pix.width() > maxw)
-            maxw = pix.width();
-        if (pix.height() > maxh)
-            maxh = pix.height();
+        maxw = std::max(maxw,qreal(listimg.at(i).width()));
+        maxh = std::max(maxh,qreal(listimg.at(i).height()));
     }
     m_wdgratio  = maxw / maxh;
 }

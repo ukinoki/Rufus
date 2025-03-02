@@ -3,7 +3,7 @@
 
 ListImageWidget::ListImageWidget(QWidget *parent) : QGraphicsView(parent) {
     setScene(m_scene);
-    setDragMode(QGraphicsView::ScrollHandDrag);
+    //setDragMode(QGraphicsView::RubberBandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
@@ -18,37 +18,31 @@ void ListImageWidget::setOKwheelzoom(bool newOKwheelzoom)
 
 void ListImageWidget::calcScaleFactor(qreal w)
 {
-    foreach (QPixmap pix, m_listpixmap)
+    foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
     {
-        qreal pw = pix.width();
+        qreal pw = itempPixmap(itm).width();
         qreal scaleFactorWidth = w/pw;
         m_ScaleFactor = qMax(scaleFactorWidth, m_ScaleFactor);
     }
 }
 
-QList<QImage> ListImageWidget::listimg() const
-{
-    return m_listimg;
-}
-
 void ListImageWidget::setListimg(const QList<QImage> &newListimg, QSize size)
 {
     if (m_scene->items().size() >0)
-        m_scene->clear();
+        m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
     if (m_listgraphicsItem.size() >0)
         m_listgraphicsItem.clear();
-    m_listpixmap.clear();
-    m_listimg = newListimg;
     int h=0;
-    foreach (QImage img, m_listimg)
+    foreach (QImage img, newListimg)
     {
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
         QPixmap pix = QPixmap::fromImage(img).scaledToWidth(size.width(), Qt::SmoothTransformation);
         item->setPixmap(pix);
         item->setPos(0,h);
+        item->setData(0, QVariant(img));
+        item->setData(1, pix);
         m_scene->addItem(item);
         m_listgraphicsItem << item;
-        m_listpixmap << pix;
         h += pix.height();
     }
     calcScaleFactor(size.width());
@@ -58,9 +52,9 @@ void ListImageWidget::fitImage(){
     resetTransform();
     scale(m_ScaleFactor);
     int h = 0;
-    foreach (QPixmap pix, m_listpixmap)
-        h += pix.height();
-    m_scene->setSceneRect(0, 0, m_listpixmap.at(0).width(), h);
+    foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
+        h+= itempPixmap(itm).height();
+    m_scene->setSceneRect(0, 0, itempPixmap(m_listgraphicsItem.at(0)).width(), h);
 }
 
 void ListImageWidget::scale(qreal s) {
@@ -91,6 +85,8 @@ void ListImageWidget::wheelEvent(QWheelEvent *event) {
         QPoint scrollAmount = event->angleDelta();
         scrollAmount.y() > 0 ? zoomIn() : zoomOut();
     }
+    else
+        QGraphicsView::wheelEvent(event);
 }
 
 
@@ -109,14 +105,14 @@ void ListImageWidget::keyPressEvent(QKeyEvent *event) {
 }
 
 void ListImageWidget::resizeEvent(QResizeEvent* event) {
-    m_listpixmap.clear();
     int h = 0;
-    for (int i = 0; i < m_listimg.size(); i++) {
-        QPixmap pix     = QPixmap::fromImage(m_listimg.at(i)).scaledToWidth(event->size().width(), Qt::SmoothTransformation);
+    for (int i = 0; i < m_listgraphicsItem.size(); i++) {
+        QImage img  = m_listgraphicsItem.at(i)->data(0).value<QImage>();
+        QPixmap pix = QPixmap::fromImage(img).scaledToWidth(event->size().width(), Qt::SmoothTransformation);
         m_listgraphicsItem.at(i)->resetTransform();
         m_listgraphicsItem.at(i)->setPixmap(pix);
-        m_listpixmap << pix;
         m_listgraphicsItem.at(i)->setPos(0,h);
+        m_listgraphicsItem.at(i)->setData(1,pix);
         h += pix.height();
     }
     calcScaleFactor(event->size().width());

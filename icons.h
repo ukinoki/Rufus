@@ -133,7 +133,7 @@ public:
     static QPixmap pxunCheck() { return foundPX("pxunCheck", "://unchecked.png"); }
     static QPixmap pxVerrouiller() { return foundPX("pxVerrou", "://Lock.png"); }
 
-    static QPixmap pxWorkInProgress() { return foundPX("pxWorkInPorgress", "://work-in-progress.png").scaledToWidth(150); } //TODO : ??? pourquoi scaledToWidth (Alexandre) // je ne me rappelle plus (Serge)
+    static QPixmap pxWorkInProgress() { return foundPX("pxWorkInPorgress", "://work-in-progress.png").scaledToWidth(150); }
 
     static QPixmap pxZoomIn() { return foundPX("pxZoomIn", "://Zoom-In.png"); }
     static QPixmap pxZoomOut() { return foundPX("pxZoomOut", "://Zoom-Out.png"); }
@@ -286,6 +286,9 @@ public:
     static QIcon icValide(QSize size = QSize()) { return foundIC("icValide", "://Valide2.jpg", size); } //25
     static QIcon icViewer() { return foundIC("icMultiview", "://grid.png"); }
     static QIcon icVitale(QSize size = QSize()) { return foundIC("icVitale", "://Vitale.jpg", size); }
+
+    static QIcon icZoomIn(QSize size = QSize()) { return foundIC("icZoomIn", pxZoomIn(), size); }
+    static QIcon icZoomOut(QSize size = QSize()) { return foundIC("icZoomOut", pxZoomOut(), size); }
 
     static bool CompareQIcon(const QIcon icon1, const QIcon icon2)
     {
