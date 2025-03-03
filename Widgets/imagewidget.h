@@ -25,6 +25,7 @@ private:
     void    checkSize();
     QPixmap itempPixmap(QGraphicsPixmapItem *itm)   { return itm->data(1).value<QPixmap>(); }
     QImage  itempImage(QGraphicsPixmapItem *itm)    { return itm->data(0).value<QImage>(); }
+    QSize   setPixmapSizeforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
 
 public:
     ListImageWidget(QWidget * parent = nullptr);

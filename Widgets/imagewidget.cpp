@@ -36,14 +36,12 @@ void ListImageWidget::setListimg(const QList<QImage> &newListimg, QSize size)
     foreach (QImage img, newListimg)
     {
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
-        QPixmap pix = QPixmap::fromImage(img).scaledToWidth(size.width(), Qt::SmoothTransformation);
-        item->setPixmap(pix);
+        item->setData(0, img);
+        QSize sz = setPixmapSizeforItem(item, size);
         item->setPos(0,h);
-        item->setData(0, QVariant(img));
-        item->setData(1, pix);
         m_scene->addItem(item);
         m_listgraphicsItem << item;
-        h += pix.height();
+        h += sz.height();
     }
     calcScaleFactor(size.width());
 }
@@ -79,6 +77,20 @@ void ListImageWidget::checkSize() {
     }
 }
 
+QSize ListImageWidget::setPixmapSizeforItem(QGraphicsPixmapItem *itm, QSize size)
+{
+    QSize szpix = QSize();
+    if(itm->data(0).value<QImage>() != QImage())
+    {
+        QPixmap pix = QPixmap::fromImage(itm->data(0).value<QImage>()).scaledToWidth(size.width(), Qt::SmoothTransformation);
+        itm->resetTransform();
+        itm->setPixmap(pix);
+        itm->setData(1,pix);
+        szpix = pix.size();
+    }
+    return szpix;
+}
+
 void ListImageWidget::wheelEvent(QWheelEvent *event) {
     if (OKwheelzoom)
     {
@@ -108,12 +120,9 @@ void ListImageWidget::resizeEvent(QResizeEvent* event) {
     int h = 0;
     for (int i = 0; i < m_listgraphicsItem.size(); i++) {
         QImage img  = m_listgraphicsItem.at(i)->data(0).value<QImage>();
-        QPixmap pix = QPixmap::fromImage(img).scaledToWidth(event->size().width(), Qt::SmoothTransformation);
-        m_listgraphicsItem.at(i)->resetTransform();
-        m_listgraphicsItem.at(i)->setPixmap(pix);
+        QSize sz = setPixmapSizeforItem(m_listgraphicsItem.at(i),event->size());
         m_listgraphicsItem.at(i)->setPos(0,h);
-        m_listgraphicsItem.at(i)->setData(1,pix);
-        h += pix.height();
+        h += sz.height();
     }
     calcScaleFactor(event->size().width());
     fitImage();
