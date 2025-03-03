@@ -468,10 +468,7 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                         if (ListDialogDocs.at(i)->currentpatient()->id() == currentpatient()->id())
                         {
                             if (docs->docsexternes()->size()==0)
-                            {
                                 ListDialogDocs.at(i)->close();
-                                //delete ListDialogDocs.at(i);
-                            }
                             else
                             {
                                 ListDialogDocs.at(i)->setVisible(true);
@@ -479,37 +476,24 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
                             }
                         }
                         else
-                        {
                             ListDialogDocs.at(i)->close();
-                            //delete ListDialogDocs.at(i);
-                        }
                     }
                     if (founddlg)
                         return;
                 }
             }
             else if (!ListDialogDocs.at(i)->isModal())
-            {
                 ListDialogDocs.at(i)->close();
-                //delete ListDialogDocs.at(i);
-            }
         }
-    if (docs->docsexternes()->size()>0)
+    dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP);
+    ui->OuvreDocsExternespushButton->setEnabled(true);
+    if (docs == Datas::I()->docsexternes)
     {
-        dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP);
-        ui->OuvreDocsExternespushButton->setEnabled(true);
-        if (docs == Datas::I()->docsexternes)
-        {
-            Dlg_DocsExt->setWindowModality(Qt::NonModal);
-            Dlg_DocsExt->show();
-        }
-        else
-            Dlg_DocsExt->exec();
+        Dlg_DocsExt->setWindowModality(Qt::NonModal);
+        Dlg_DocsExt->show();
     }
     else
-        if (docs->patient() == currentpatient())
-            ui->OuvreDocsExternespushButton->setEnabled(false);
-
+        Dlg_DocsExt->exec();
 }
 
 
@@ -548,6 +532,7 @@ void Rufus::MAJDocsExternes()
         if (Datas::I()->docsexternes->docsexternes()->size()>0)
         {
             dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP);
+            Dlg_DocsExt->setWindowModality(Qt::NonModal);
             Dlg_DocsExt->show();
             ui->OuvreDocsExternespushButton->setEnabled(true);
         }
@@ -6436,6 +6421,7 @@ void Rufus::ActualiseDocsExternes()
                 if (ListDialogDocs.at(i)->currentpatient() == currentpatient())
                     return;
         Datas::I()->docsexternes->initListeByPatient(currentpatient());
+        ui->OuvreDocsExternespushButton->setEnabled(Datas::I()->docsexternes->docsexternes()->size() > 0);
         OuvrirDocsExternes();
     }
 }
@@ -7177,6 +7163,7 @@ void Rufus::AfficheDossier(Patient *pat, int idacte)
     OKModifierTerrain(currentpatient(), false);
 
     Datas::I()->docsexternes->initListeByPatient(currentpatient());
+    ui->OuvreDocsExternespushButton->setEnabled(Datas::I()->docsexternes->docsexternes()->size()>0);
     FermeDlgActesPrecedentsEtDocsExternes();
 
     //3 - récupération des actes
