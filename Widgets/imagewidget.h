@@ -1,10 +1,11 @@
 #include <QApplication>
 #include <QGraphicsItem>
+#include <QGraphicsVideoItem>
 #include <QGraphicsView>
-#include <QSplitter>
 #include <QMouseEvent>
 #include <QWheelEvent>
 #include "procedures.h"
+#include "upmediaplayer.h"
 
 
 
@@ -12,12 +13,17 @@ class ListImageWidget : public QGraphicsView {
     Q_OBJECT
 
 private:
-    QGraphicsScene                  *m_scene         = new QGraphicsScene;
+    QGraphicsScene                  *m_scene            = new QGraphicsScene;
     QList<QGraphicsPixmapItem*>     m_listgraphicsItem;
+    QGraphicsVideoItem              *m_vidItem          = Q_NULLPTR;
+    UpMediaPlayer                   *m_mediaPlayer      = Q_NULLPTR;
     qreal                           m_ScaleFactor;
-    bool                            OKwheelzoom = false;
-    void    fitImage();
+    bool                            OKwheelzoom         = false;
+    void    fitImage(QSize size);
+    void    fitVideo(QSize size, QGraphicsVideoItem *itm);
     void    calcScaleFactor(qreal w);
+    void    calcVideoScaleFactor(QSize finalsize, QSize originsize);
+    qreal   sizeRatio(QSize size);
     void    setListPixmap(QList<QPixmap> listpixmap);
     void    scale(qreal s);
     void    zoomIn();
@@ -25,18 +31,24 @@ private:
     void    checkSize();
     QPixmap itempPixmap(QGraphicsPixmapItem *itm)   { return itm->data(1).value<QPixmap>(); }
     QImage  itempImage(QGraphicsPixmapItem *itm)    { return itm->data(0).value<QImage>(); }
-    QSize   setPixmapSizeforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
+    QSize   setPixmapforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
+    QSizeF  optimalSizeForVideo(QSize availablesize, qreal videoratio);
 
 public:
     ListImageWidget(QWidget * parent = nullptr);
     void setOKwheelzoom(bool newOKwheelzoom);
     void setListimg(const QList<QImage> &newListimg, QSize size);
+    void setVideo(const QString filename, QSize size);
+
+    void setText(const QString &newText);
+
+    UpMediaPlayer *mediaPlayer() const;
 
 protected:
-    bool eventFilter(QObject *obj, QEvent *event);
-    void wheelEvent(QWheelEvent * event);
-    void keyPressEvent(QKeyEvent * event);
-    void resizeEvent(QResizeEvent* event);
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    void wheelEvent(QWheelEvent * event) override;
+    void keyPressEvent(QKeyEvent * event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 signals:
     void clicked();

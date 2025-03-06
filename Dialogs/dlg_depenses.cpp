@@ -1076,10 +1076,18 @@ void dlg_depenses::ZoomDoc()
     dlg_imgviewer                   ->setDepense(m_depenseencours);
     dlg_imgviewer                   ->setStageCount(1);
     connect(dlg_imgviewer->PrintButton, &UpSmallButton::clicked, this, [=]  {
-                                                                                QMap<QString,QVariant> doc;
-                                                                                doc.insert(M_BA, m_depenseencours->factureblob());
-                                                                                doc.insert(M_TYPE, m_depenseencours->factureformat());
-                                                                                proc->PrintDocument(doc);
+                                                                                QByteArray ba = m_depenseencours->factureblob();
+                                                                                QList<QImage> listimg = QList<QImage>();
+                                                                                if (m_depenseencours->factureformat() == PDF)     // le document est un pdf
+                                                                                    listimg = Utils::calcImagefromPdf(ba);
+                                                                                else if (m_depenseencours->factureformat() == JPG)     // le document est un jpg
+                                                                                {
+                                                                                    QPixmap pix;
+                                                                                    pix.loadFromData(ba);
+                                                                                    QImage image= pix.toImage();
+                                                                                    listimg << image;
+                                                                                }
+                                                                                proc->Print(listimg);
                                                                             });
     connect(dlg_imgviewer->SupprButton, &UpSmallButton::clicked, this, [=]  {
                                                                                 EffaceFacture();

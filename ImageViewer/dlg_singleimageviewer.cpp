@@ -21,15 +21,17 @@ dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent) : UpDialog(parent)
 {
     setAttribute(Qt::WA_ShowWithoutActivating, true);
     setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    dlglayout()->insertLayout(0,m_mainlayout);
-    m_mainlayout->setContentsMargins(m_marges);
-    m_mainlayout->setSpacing(m_spacing);
+    dlglayout()     ->insertLayout(0,m_mainlayout);
+    m_mainlayout    ->setContentsMargins(m_marges);
+    m_mainlayout    ->setSpacing(m_spacing);
+    m_imgwdg        = new ListImageWidget();
+    m_mainlayout    ->addWidget(m_imgwdg);
     setStageCount(1);
-    QFont font          = qApp->font();
-    font                .setPointSize(14);
-    m_labinfowdg        ->setFont(font);
-    buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
-    buttonslayout()     ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    QFont font      = qApp->font();
+    font            .setPointSize(14);
+    m_labinfowdg    ->setFont(font);
+    buttonslayout() ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
+    buttonslayout() ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
     installEventFilter(this);
 }
 
@@ -98,8 +100,8 @@ void dlg_singleimageviewer::setMapimg(const QMap<QString,QVariant> &newMapimg)
 
 void dlg_singleimageviewer::setVideofile(QString filename)
 {
+    m_imgwdg->setVideo(filename, sizeForMainWidgetDisplay());
     InitDisplay(Video);
-    m_vdwdg         ->setFilename(filename);
     DisplayVideo(filename);
 }
 
@@ -125,7 +127,6 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     }
 
     m_imgwdg            ->setListimg(listimage, sizeForMainWidgetDisplay());
-    m_currentwidget     = m_imgwdg;
     m_imgwdg            ->resize(sizeForMainWidgetDisplay());
 
     m_labinfowdg        ->setText("<font color='magenta'>" + nomdoc + "</font>");
@@ -137,8 +138,6 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
 
-    m_currentwidget     = m_imgwdg;
-
     if (m_mode == Zoom)
         move(0, 0);
     else
@@ -147,7 +146,7 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
 
 void dlg_singleimageviewer::DisplayVideo(QString filepath)
 {
-    QSize size      = m_vdwdg->player()->videosize();
+    QSize size      = m_imgwdg->mediaPlayer()->videosize();
     m_wdgratio      = size.width() / size.height();
     if (m_mode == Zoom)
     {
@@ -162,13 +161,12 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
 
-    m_currentwidget         = m_vdwdg;
-    m_vdwdg                 ->resize(sizeForMainWidgetDisplay());
+    m_imgwdg            ->resize(sizeForMainWidgetDisplay());
 
     m_labinfowdg            ->setText("<font color='magenta'>" + filepath + "</font>");
 
     m_controlplayer         ->setMinimumWidth(250);
-    m_controlplayer         ->setPlayer(m_vdwdg->player());
+    m_controlplayer         ->setPlayer(m_imgwdg->mediaPlayer());
     m_controlplayer         ->startplay();
 
     if (m_mode == Zoom)
@@ -187,16 +185,6 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
     {
     case  Video:
     {
-        if (m_imgwdg != Q_NULLPTR)
-        {
-            delete m_imgwdg;
-            m_imgwdg    = Q_NULLPTR;
-        }
-        if (m_vdwdg == Q_NULLPTR)
-        {
-            m_vdwdg     = new UpVideoWidget();
-            m_mainlayout->insertWidget(m_mainlayout->count(),m_vdwdg);
-        }
         if (m_controlplayer == Q_NULLPTR)
         {
             m_controlplayer     = new PlayerControls(this);
@@ -206,20 +194,10 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
     }
     case (Image):
     {
-        if (m_vdwdg != Q_NULLPTR)
-        {
-            delete m_vdwdg;
-            m_vdwdg    = Q_NULLPTR;
-        }
         if (m_controlplayer != Q_NULLPTR)
         {
             delete m_controlplayer;
             m_controlplayer = Q_NULLPTR;
-        }
-        if (m_imgwdg == Q_NULLPTR)
-        {
-            m_imgwdg     = new ListImageWidget();
-            m_mainlayout->insertWidget(m_mainlayout->count(),m_imgwdg);
         }
     }
     }
@@ -228,11 +206,6 @@ void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
 ListImageWidget *dlg_singleimageviewer::imagewidget() const
 {
     return m_imgwdg;
-}
-
-UpVideoWidget *dlg_singleimageviewer::videoWidget() const
-{
-    return m_vdwdg;
 }
 
 void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
@@ -256,11 +229,6 @@ QHBoxLayout *dlg_singleimageviewer::mainlayout() const
 UpLabel *dlg_singleimageviewer::labinfowidget() const
 {
     return m_labinfowdg;
-}
-
-QWidget *dlg_singleimageviewer::currentwidget() const
-{
-    return m_currentwidget;
 }
 
 dlg_singleimageviewer::Mode dlg_singleimageviewer::mode() const

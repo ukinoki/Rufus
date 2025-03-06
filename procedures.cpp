@@ -1683,29 +1683,6 @@ void Procedures::EditHtml(QString txt)
 }
 
 
-/*!
- * \brief Procedures::PrintDocument
- * imprime le contenu d'un fichier image de type pdf ou jpg
- * argument QMap<QString,QVariant> doc contient 2 éléments
-    . ba = le QByteArray contenant les données
-    . type = jpg ou pdf
- */
-bool Procedures::PrintDocument(QMap<QString,QVariant> doc)
-{
-    QByteArray ba = doc.value(M_BA).toByteArray();
-    QList<QImage> listimg;
-    if (doc.value(M_TYPE).toString() == PDF)     // le document est un pdf
-        listimg = Utils::calcImagefromPdf(ba);
-    else if (doc.value(M_TYPE).toString() == JPG)     // le document est un jpg
-    {
-        QPixmap pix;
-        pix.loadFromData(ba);
-        QImage image= pix.toImage();
-        listimg << image;
-    }
-    return Print(listimg);
-}
-
 bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
                                    bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif)
 {

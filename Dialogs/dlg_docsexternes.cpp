@@ -44,7 +44,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_listdocstreewiew    ->setIndentation(6);
     wdg_listdocstreewiew    ->header()->setVisible(false);
 
-    mainlayout()            ->addWidget(wdg_listdocstreewiew);
+    mainlayout()            ->insertWidget(0,wdg_listdocstreewiew);
     setCorrectionwidget(wdg_listdocstreewiew);
 
     int s = 25;
@@ -138,7 +138,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         {
             QAction *paction_Fullscreen         = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
             menu->addAction(paction_Fullscreen);
-            connect (paction_Fullscreen,    &QAction::triggered,    this,  [=] {videoWidget()->setFullScreen(true);});
+            //connect (paction_Fullscreen,    &QAction::triggered,    this,  [=] {videoWidget()->setFullScreen(true);});
         }
         QMenu *menuImportance  = menu->addMenu(tr("Importance"));
         QAction *paction_ImportantMin   = new QAction(tr("Faible"));
@@ -329,12 +329,10 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             return;
         }
         setVideofile(filename);
-        videoWidget()   ->setContextMenuPolicy(Qt::CustomContextMenu);
-        connect(videoWidget(),      &QWidget::customContextMenuRequested,   this,   [=] {AfficheCustomMenu(docmt);});
-        connect (RecordButton,      &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
+
+         connect (RecordButton,      &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
         PrintButton     ->setVisible(false);
         labinfowidget() ->setText("");
-        videoWidget()   ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30))); //WARNING : icon scaled : pxZoomIn 30,
     }
     else                                    //! le document est une image ou un document écrit (ordonnance, certificat...)
     {
@@ -366,9 +364,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         else return;
         setDocument(docmt);
-        imagewidget()->disconnect();
-        connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
     }
+    imagewidget()->disconnect();
+    connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
     if (mode() == dlg_singleimageviewer::Zoom)
         ZoomDoc(false);
 }
@@ -463,7 +461,7 @@ void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
 
 void dlg_docsexternes::EnregistreVideo()
 {
-    QString filename = videoWidget()->player()->source().path();
+    QString filename = imagewidget()->mediaPlayer()->source().path();
     QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
     dialog.setFileMode(QFileDialog::Directory);
     dialog.setViewMode(QFileDialog::List);
@@ -996,10 +994,7 @@ void dlg_docsexternes::RemplirTreeView()
         accept();
     wdg_onlyimportantsdocsupcheckbox->setEnabled(listdatesimportants.size() > 0);
     if (m_modefiltre == ImportantFiltre && listdatesimportants.size() == 0)
-    {
         if (imagewidget())  imagewidget()->setVisible(false);
-        if (videoWidget())  videoWidget()->setVisible(false);
-    }
 
     QList<QDate> listdates;
     QStringList listtypes;

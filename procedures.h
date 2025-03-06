@@ -253,9 +253,6 @@ public:
             /*! d - Choice: print or pdf */
     bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
 
-  /*! 2 - Impression directe d'un jpg ou d'un pdf sans utiliser textprinter.h --------------------------*/
-    bool                    PrintDocument(QMap<QString, QVariant> doc);
-
 /*! fin impressions -------------------------------------------------------------------------------------------------------- */
 
 
