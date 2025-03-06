@@ -35,9 +35,9 @@ void ListImageWidget::calcVideoScaleFactor(QSize finalsize, QSize originsize)
     qreal finalsizewidth    = finalsize.width();
     qreal originsizewidth   = originsize.width();
     if (finalsizeratio > originsizeratio)
-        m_ScaleFactor = finalsizeheight/ originsizeheight;
-    else
         m_ScaleFactor = finalsizewidth/ originsizewidth;
+    else
+        m_ScaleFactor = finalsizeheight/ originsizeheight;
 }
 
 
@@ -82,13 +82,11 @@ void ListImageWidget::setVideo(const QString filename, QSize size)
         m_mediaPlayer           = new UpMediaPlayer(filename, this);
     m_vidItem                   = new QGraphicsVideoItem();
     m_scene                     ->addItem(m_vidItem);
-    qreal availablesizeratio    = sizeRatio(size);
-    QSizeF optimalsize          = optimalSizeForVideo(m_mediaPlayer->videosize(), availablesizeratio);
+    qreal videosizeratio        = sizeRatio(m_mediaPlayer->videosize());
+    QSizeF optimalsize          = optimalSizeForVideo(size, videosizeratio);
     m_vidItem                   ->setSize(optimalsize);
-    m_mediaPlayer             ->setVideoOutput(m_vidItem );
-    m_mediaPlayer             ->play();
-    resize(QSize(optimalsize.width(), optimalsize.height()));
-    qDebug() << "m_vidItem->size()" << m_vidItem->size() << "optimalsize" << QSize(optimalsize.width(), optimalsize.height());
+    m_mediaPlayer               ->setVideoOutput(m_vidItem );
+    m_mediaPlayer               ->play();
 }
 
 QSizeF ListImageWidget::optimalSizeForVideo(QSize availablesize, qreal videoratio)
@@ -137,7 +135,7 @@ void ListImageWidget::fitImage(QSize size){
 
 void ListImageWidget::fitVideo(QSize size, QGraphicsVideoItem *itm){
     calcVideoScaleFactor(size, QSize(itm->size().width(), itm->size().height()));
-    qDebug() << "size" << size << "m_ScaleFactor" << m_ScaleFactor;
+    //qDebug() << "size" << size << "m_ScaleFactor" << m_ScaleFactor;
     resetTransform();
     scale(m_ScaleFactor);
     m_scene->setSceneRect(0, 0, m_vidItem->size().width(), m_vidItem->size().height());
