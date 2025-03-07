@@ -184,15 +184,18 @@ ListImageWidget *dlg_singleimageviewer::imagewidget() const
 void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
 {
     m_correctionwidget = newCorrectionwidget;
-    int correctionframewidth = 0;
+
     if (m_correctionwidget != Q_NULLPTR)
     {
+        /*! following make troubles under Windows
+        int correctionframewidth = m_correctionwidget->width();
         QFrame *frame = dynamic_cast<QFrame*>(m_correctionwidget);
         if (frame)
             correctionframewidth += frame->lineWidth() *2;
-        correctionframewidth += m_correctionwidget->width();
-        setCorrectionWidth(correctionframewidth);
-    }}
+        */
+        setCorrectionWidth(m_correctionwidget->width());
+    }
+}
 
 QHBoxLayout *dlg_singleimageviewer::mainlayout() const
 {
