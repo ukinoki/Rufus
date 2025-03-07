@@ -65,7 +65,6 @@ private:
     QGraphicsScene          *m_scene            = Q_NULLPTR;
     ListImageWidget         *m_imgwdg           = Q_NULLPTR;
     QWidget*                m_parent            = Q_NULLPTR;
-    QWidget*                m_correctionwidget  = Q_NULLPTR;
     QHBoxLayout*            m_mainlayout        = new QHBoxLayout();
     PlayerControls*         m_controlplayer     = Q_NULLPTR;
 
