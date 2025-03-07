@@ -31,7 +31,6 @@ class dlg_singleimageviewer : public UpDialog
 public:
     dlg_singleimageviewer(QWidget *parent = Q_NULLPTR);
     enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)
-    enum TypeDoc            {Image, Video};                                     Q_ENUM(TypeDoc)
 
     UpMediaPlayer*          player() const;
     void                    setPlayer(UpMediaPlayer *newPlayer);            //! set sizes to maximum for QDialog & displaywidg depending on display widget ratio & screen resolution ratio
@@ -40,7 +39,7 @@ public:
     void                    setDocument (DocExterne *doc);
     void                    setDepense (Depense *dep);
     void                    setMapimg(const QMap<QString,QVariant> &newMapimg);
-    void                    setVideofile (QString filename);
+    void                    setVideofile (QString filepath);
 
     dlg_singleimageviewer::Mode     mode() const;
     void                    setMode(Mode newMode);
@@ -55,10 +54,9 @@ public:
 
 private:
     bool                    eventFilter(QObject *, QEvent *);
-    void                    calcWidgetRatio(QList<QImage> listimg);
+    qreal                   widgetRatio(QList<QImage> listimg);
     void                    DisplayImage(QList<QImage> listimg, QString nomdoc = QString());
     void                    DisplayVideo(QString filepath);
-    void                    InitDisplay(TypeDoc typ);
 
     Mode                    m_mode              = Normal;
 
@@ -80,7 +78,7 @@ private:
     QMargins                m_marges            = QMargins(m_marge,m_marge,m_marge,m_marge);
     QSize                   m_normalwidgetsize  = QSize();
 
-    double                  m_wdgratio          = 0;
+    qreal                   m_wdgratio          = 0;
 
     /*void ListImageWidget::paintEvent(QPaintEvent *event)
 {

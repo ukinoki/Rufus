@@ -21,8 +21,8 @@ private:
     bool                            OKwheelzoom         = false;
     void    fitImage(QSize size);
     void    fitVideo(QSize size, QGraphicsVideoItem *itm);
-    void    calcScaleFactor(qreal w);
-    void    calcVideoScaleFactor(QSize finalsize, QSize originsize);
+    qreal   listImageScaleFactor(qreal w);
+    qreal   videoScaleFactor(QSize finalsize, QSize originsize);
     qreal   sizeRatio(QSize size);
     void    setListPixmap(QList<QPixmap> listpixmap);
     void    scale(qreal s);

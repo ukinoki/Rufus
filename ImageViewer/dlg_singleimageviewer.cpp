@@ -47,15 +47,7 @@ void dlg_singleimageviewer::setDocument(DocExterne *docmt)
         }
         else
         {
-            QList<QImage> listimg = QList<QImage>();
-            if (docmt->isJPG())
-            {
-                QImage image;
-                image.loadFromData(docmt->imageblob());
-                listimg << image;
-            }
-            else if (docmt->isPDF())
-                listimg = docmt->pagelist();
+            QList<QImage> listimg = docmt->pagelist();
             if (listimg.size() > 0)
                 DisplayImage(listimg);
         }
@@ -98,14 +90,12 @@ void dlg_singleimageviewer::setMapimg(const QMap<QString,QVariant> &newMapimg)
         DisplayImage(listimg);
 }
 
-void dlg_singleimageviewer::setVideofile(QString filename)
+void dlg_singleimageviewer::setVideofile(QString filepath)
 {
-    m_imgwdg->setVideo(filename, sizeForMainWidgetDisplay());
-    InitDisplay(Video);
-    DisplayVideo(filename);
+    DisplayVideo(filepath);
 }
 
-void dlg_singleimageviewer::calcWidgetRatio(QList<QImage> listimg)
+qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)
 {
     qreal maxw(0), maxh(0);
     for (int i=0; i < listimg.size(); i++)
@@ -113,23 +103,26 @@ void dlg_singleimageviewer::calcWidgetRatio(QList<QImage> listimg)
         maxw = std::max(maxw,qreal(listimg.at(i).width()));
         maxh = std::max(maxh,qreal(listimg.at(i).height()));
     }
-    m_wdgratio  = maxw / maxh;
+    return maxw / maxh;
 }
 
 void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc)
 {
-    InitDisplay(Image);
-    calcWidgetRatio(listimage);
+    if (m_controlplayer != Q_NULLPTR)
+    {
+        delete m_controlplayer;
+        m_controlplayer = Q_NULLPTR;
+    }
+    m_imgwdg        ->setListimg(listimage, sizeForMainWidgetDisplay());
+    m_wdgratio = widgetRatio(listimage);
     if (m_mode == Zoom)
     {
         setOptimalSizesForZoom(m_wdgratio);
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
     }
+    else m_imgwdg    ->resize(sizeForMainWidgetDisplay());
 
-    m_imgwdg            ->setListimg(listimage, sizeForMainWidgetDisplay());
-    m_imgwdg            ->resize(sizeForMainWidgetDisplay());
-
-    m_labinfowdg        ->setText("<font color='magenta'>" + nomdoc + "</font>");
+    m_labinfowdg     ->setText("<font color='magenta'>" + nomdoc + "</font>");
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -146,6 +139,12 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
 
 void dlg_singleimageviewer::DisplayVideo(QString filepath)
 {
+    if (m_controlplayer == Q_NULLPTR)
+    {
+        m_controlplayer     = new PlayerControls(this);
+        buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-2 : 0,m_controlplayer);
+    }
+    m_imgwdg        ->setVideo(filepath, sizeForMainWidgetDisplay());
     QSize size      = m_imgwdg->mediaPlayer()->videosize();
     m_wdgratio      = size.width() / size.height();
     if (m_mode == Zoom)
@@ -153,6 +152,7 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
         setOptimalSizesForZoom(m_wdgratio);
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
     }
+    else m_imgwdg    ->resize(sizeForMainWidgetDisplay());
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -161,13 +161,11 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     double finalh = hscroll * 0.98;
     setMaximumHeight(int(finalh));
 
-    m_imgwdg            ->resize(sizeForMainWidgetDisplay());
+    m_labinfowdg        ->setText("<font color='magenta'>" + filepath + "</font>");
 
-    m_labinfowdg            ->setText("<font color='magenta'>" + filepath + "</font>");
-
-    m_controlplayer         ->setMinimumWidth(250);
-    m_controlplayer         ->setPlayer(m_imgwdg->mediaPlayer());
-    m_controlplayer         ->startplay();
+    m_controlplayer     ->setMinimumWidth(250);
+    m_controlplayer     ->setPlayer(m_imgwdg->mediaPlayer());
+    m_controlplayer     ->startplay();
 
     if (m_mode == Zoom)
     {
@@ -176,31 +174,6 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     }
     else
         move(framePosition(originalgeometry()));
-}
-
-void dlg_singleimageviewer::InitDisplay(TypeDoc typ)
-{
-
-    switch (typ)
-    {
-    case  Video:
-    {
-        if (m_controlplayer == Q_NULLPTR)
-        {
-            m_controlplayer     = new PlayerControls(this);
-            buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-2 : 0,m_controlplayer);
-        }
-        break;
-    }
-    case (Image):
-    {
-        if (m_controlplayer != Q_NULLPTR)
-        {
-            delete m_controlplayer;
-            m_controlplayer = Q_NULLPTR;
-        }
-    }
-    }
 }
 
 ListImageWidget *dlg_singleimageviewer::imagewidget() const
@@ -218,7 +191,7 @@ void dlg_singleimageviewer::setCorrectionwidget(QWidget *newCorrectionwidget)
         if (frame)
             correctionframewidth += frame->lineWidth() *2;
         correctionframewidth += m_correctionwidget->width();
-        setCorrectionWidth(m_correctionwidget->width() + correctionframewidth);
+        setCorrectionWidth(correctionframewidth);
     }}
 
 QHBoxLayout *dlg_singleimageviewer::mainlayout() const

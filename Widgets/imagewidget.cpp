@@ -16,17 +16,19 @@ void ListImageWidget::setOKwheelzoom(bool newOKwheelzoom)
     OKwheelzoom = newOKwheelzoom;
 }
 
-void ListImageWidget::calcScaleFactor(qreal w)
+qreal ListImageWidget::listImageScaleFactor(qreal w)
 {
+    qreal scale = 0;
     foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
     {
         qreal pw = itempPixmap(itm).width();
         qreal scaleFactorWidth = w/pw;
-        m_ScaleFactor = qMax(scaleFactorWidth, m_ScaleFactor);
+        scale = qMax(scaleFactorWidth, scale);
     }
+    return scale;
 }
 
-void ListImageWidget::calcVideoScaleFactor(QSize finalsize, QSize originsize)
+qreal ListImageWidget::videoScaleFactor(QSize finalsize, QSize originsize)
 {
     qreal finalsizeratio    = sizeRatio(finalsize);
     qreal originsizeratio   = sizeRatio(originsize);
@@ -35,9 +37,9 @@ void ListImageWidget::calcVideoScaleFactor(QSize finalsize, QSize originsize)
     qreal finalsizewidth    = finalsize.width();
     qreal originsizewidth   = originsize.width();
     if (finalsizeratio > originsizeratio)
-        m_ScaleFactor = finalsizewidth/ originsizewidth;
+        return finalsizewidth/ originsizewidth;
     else
-        m_ScaleFactor = finalsizeheight/ originsizeheight;
+        return finalsizeheight/ originsizeheight;
 }
 
 
@@ -86,7 +88,6 @@ void ListImageWidget::setVideo(const QString filename, QSize size)
     QSizeF optimalsize          = optimalSizeForVideo(size, videosizeratio);
     m_vidItem                   ->setSize(optimalsize);
     m_mediaPlayer               ->setVideoOutput(m_vidItem );
-    m_mediaPlayer               ->play();
 }
 
 QSizeF ListImageWidget::optimalSizeForVideo(QSize availablesize, qreal videoratio)
@@ -118,24 +119,17 @@ UpMediaPlayer *ListImageWidget::mediaPlayer() const
 }
 
 void ListImageWidget::fitImage(QSize size){
-    foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
-    {
-        qreal pw = itempPixmap(itm).width();
-        qreal scaleFactorWidth = size.width()/pw;
-        m_ScaleFactor = qMax(scaleFactorWidth, m_ScaleFactor);
-    }
-    qDebug() << "size" << size << "m_ScaleFactor" << m_ScaleFactor;
+    m_ScaleFactor = listImageScaleFactor(size.width());
     resetTransform();
     scale(m_ScaleFactor);
     int h = 0;
     foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
-        h+= itempPixmap(itm).height();
+        h += itempPixmap(itm).height();
     m_scene->setSceneRect(0, 0, itempPixmap(m_listgraphicsItem.at(0)).width(), h);
 }
 
 void ListImageWidget::fitVideo(QSize size, QGraphicsVideoItem *itm){
-    calcVideoScaleFactor(size, QSize(itm->size().width(), itm->size().height()));
-    //qDebug() << "size" << size << "m_ScaleFactor" << m_ScaleFactor;
+    m_ScaleFactor = videoScaleFactor(size, QSize(itm->size().width(), itm->size().height()));
     resetTransform();
     scale(m_ScaleFactor);
     m_scene->setSceneRect(0, 0, m_vidItem->size().width(), m_vidItem->size().height());
@@ -203,23 +197,26 @@ void ListImageWidget::keyPressEvent(QKeyEvent *event) {
 }
 
 void ListImageWidget::resizeEvent(QResizeEvent* event) {
-    QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
-    if (itm)
+    if (m_scene->items().size() >0)
     {
-        int h = 0;
-        for (int i = 0; i < m_listgraphicsItem.size(); i++) {
-            QSize sz = setPixmapforItem(m_listgraphicsItem.at(i),event->size());
-            m_listgraphicsItem.at(i)->setPos(0,h);
-            h += sz.height();
-        }
-        fitImage(event->size());
-        checkSize();
-    }
-    else
-    {
-        QGraphicsVideoItem *itm = dynamic_cast<QGraphicsVideoItem *>(m_scene->items().at(0));
+        QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
         if (itm)
-            fitVideo(event->size(),itm);
+        {
+            int h = 0;
+            for (int i = 0; i < m_listgraphicsItem.size(); i++) {
+                QSize sz = setPixmapforItem(m_listgraphicsItem.at(i),event->size());
+                m_listgraphicsItem.at(i)->setPos(0,h);
+                h += sz.height();
+            }
+            fitImage(event->size());
+            checkSize();
+        }
+        else
+        {
+            QGraphicsVideoItem *itm = dynamic_cast<QGraphicsVideoItem *>(m_scene->items().at(0));
+            if (itm)
+                fitVideo(event->size(),itm);
+        }
     }
 }
 
