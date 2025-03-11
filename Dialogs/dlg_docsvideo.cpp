@@ -109,8 +109,9 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     dlg_imgviewer ->setMinimumWidth(650);
     dlg_imgviewer ->setStageCount(2);
 
-    connect(dlg_imgviewer->OKButton,  &QPushButton::clicked, this,   &dlg_docsvideo::ValideFiche);
-    connect(wdg_dirsearchbutton,    &QPushButton::clicked, this,   &dlg_docsvideo::ChangeFile);
+    connect(dlg_imgviewer->OKButton,        &QPushButton::clicked,                  this,   &dlg_docsvideo::ValideFiche);
+    connect(wdg_dirsearchbutton,            &QPushButton::clicked,                  this,   &dlg_docsvideo::ChangeFile);
+    connect(dlg_imgviewer->imagewidget(),   &QWidget::customContextMenuRequested,   this,   &dlg_docsvideo::addFullScreenMenu);
 
     NavigueVers(UpToolBar::_last);
     m_initOK = true;
@@ -164,6 +165,23 @@ void dlg_docsvideo::ChangeFile()
     wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
     dlg_imgviewer           ->setVideofile(m_docpath + "/" + m_currentvideofile);
+}
+
+void dlg_docsvideo::addFullScreenMenu()
+{
+    if (!QFile(m_docpath + "/" + m_currentvideofile).exists())
+        return;
+    if (m_Menu != Q_NULLPTR)
+        delete m_Menu;
+    m_Menu                          = new QMenu(dlg_imgviewer->imagewidget());
+    QAction *paction_Fullscreen     = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
+    m_Menu->addAction(paction_Fullscreen);
+    connect (paction_Fullscreen,    &QAction::triggered,    dlg_imgviewer->imagewidget(),  [=] {
+        QString filepath            = m_docpath + "/" + m_currentvideofile;
+        Utils::playVideoFullScreen(filepath, dlg_imgviewer);
+    });
+    m_Menu->exec(dlg_imgviewer->imagewidget()->cursor().pos());
+    m_Menu->close();
 }
 
 bool dlg_docsvideo::searchDir(bool &pathchanged)

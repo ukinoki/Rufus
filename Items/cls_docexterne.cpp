@@ -35,6 +35,24 @@ DocExterne::DocExterne(QJsonObject data, QObject *parent) : Item(parent)
     m_data = data;
 }
 
+DocExterne::DocExterne(QString filepath, bool &initOK, QWidget *parent)
+{
+    QFile       qFile(filepath);
+    if (!qFile.open( QIODevice::ReadOnly ))
+    {
+        UtilsMessageBox::Watch(parent,  tr("Erreur d'accès au fichier"), qFile.fileName());
+        initOK = false;
+        return;
+    }
+    QByteArray bapdf = qFile.readAll();
+    QString suffixe = QFileInfo(qFile).suffix().toLower();
+    qFile.close ();
+    setimageformat(suffixe);
+    setimageblob(bapdf);
+    setsoustype(QFileInfo(filepath).fileName());
+    initOK = true;
+}
+
 bool DocExterne::isAllLoaded() const                { return m_isAllLoaded;}
 
 int DocExterne::iduser() const                      { return m_iduser;}
@@ -116,7 +134,7 @@ void DocExterne::setimageblob(QByteArray blob)
     {
         m_imagelist = Utils::calcImagefromPdf(m_blob);
     }
-    else if (isJPG())
+    else
     {
         QImage image = QImage::fromData(m_blob);
         m_imagelist << image;

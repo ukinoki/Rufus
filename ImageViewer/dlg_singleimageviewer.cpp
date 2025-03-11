@@ -30,26 +30,34 @@ dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent) : UpDialog(parent)
     QFont font      = qApp->font();
     font            .setPointSize(14);
     m_labinfowdg    ->setFont(font);
-    buttonslayout() ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,m_labinfowdg);
-    buttonslayout() ->insertSpacerItem(buttonslayout()->count()>1?buttonslayout()->count()-3 : 1,new QSpacerItem(10,10,QSizePolicy::Expanding));
+    m_labinfowdg    ->setParent(m_imgwdg);
     installEventFilter(this);
+    //AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonPrint);
 }
 
-void dlg_singleimageviewer::setDocument(DocExterne *docmt)
+void dlg_singleimageviewer::setListDocuments(QList<DocExterne *> listdocs, DocExterne *doc)
 {
-    if (docmt)
+    m_ListDocs = listdocs;
+    if (m_ListDocs.size() > 1)
     {
-        if (docmt->isVideo())
+        wdg_toolbar = new UpToolBar;
+        AjouteWidgetLayButtons(wdg_toolbar, false);
+    }
+    else
+        doc = listdocs.at(0);
+    if (doc)
+    {
+        if (doc->isVideo())
         {
-            QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + docmt->lienversfichier();
+            QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
             setVideofile(filename);
             DisplayVideo(filename);
         }
         else
         {
-            QList<QImage> listimg = docmt->pagelist();
+            QList<QImage> listimg = doc->pagelist();
             if (listimg.size() > 0)
-                DisplayImage(listimg);
+                DisplayImage(listimg, doc->soustypedoc());
         }
     }
 }
@@ -69,25 +77,8 @@ void dlg_singleimageviewer::setDepense(Depense *dep)
             listimg = Utils::calcImagefromPdf(dep->factureblob());
 
         if (listimg.size() > 0)
-            DisplayImage(listimg);
+            DisplayImage(listimg, dep->objet());
     }
-}
-
-void dlg_singleimageviewer::setMapimg(const QMap<QString,QVariant> &newMapimg)
-{
-    m_mapimg = newMapimg;
-    QList<QImage> listimg = QList<QImage>();
-    if (m_mapimg.value(M_TYPE).toString() == JPG)
-    {
-        QImage image;
-        image.loadFromData(m_mapimg.value(M_BA).toByteArray());
-        listimg << image;
-    }
-    else if (m_mapimg.value(M_TYPE).toString() == PDF)
-        listimg = Utils::calcImagefromPdf(m_mapimg.value(M_BA).toByteArray());
-
-    if (listimg.size() > 0)
-        DisplayImage(listimg);
 }
 
 void dlg_singleimageviewer::setVideofile(QString filepath)
@@ -113,6 +104,8 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
         delete m_controlplayer;
         m_controlplayer = Q_NULLPTR;
     }
+    if (buttons().testFlag(ButtonPrint))
+        PrintButton     ->setVisible(true);
     m_imgwdg        ->setListimg(listimage, sizeForMainWidgetDisplay());
     m_wdgratio = widgetRatio(listimage);
     if (m_mode == Zoom)
@@ -120,9 +113,8 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
         setOptimalSizesForZoom(m_wdgratio);
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
     }
-    else m_imgwdg    ->resize(sizeForMainWidgetDisplay());
-
-    m_labinfowdg     ->setText("<font color='magenta'>" + nomdoc + "</font>");
+    else m_imgwdg   ->resize(sizeForMainWidgetDisplay());
+    m_labinfowdg    ->setText("<font color='magenta'>" + nomdoc + "</font>");
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -144,6 +136,8 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
         m_controlplayer     = new PlayerControls(this);
         buttonslayout()     ->insertWidget(buttonslayout()->count()>1?buttonslayout()->count()-2 : 0,m_controlplayer);
     }
+    if (buttons().testFlag(ButtonPrint))
+        PrintButton     ->setVisible(false);
     m_imgwdg        ->setVideo(filepath, sizeForMainWidgetDisplay());
     QSize size      = m_imgwdg->mediaPlayer()->videosize();
     m_wdgratio      = size.width() / size.height();
@@ -152,7 +146,8 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
         setOptimalSizesForZoom(m_wdgratio);
         resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
     }
-    else m_imgwdg    ->resize(sizeForMainWidgetDisplay());
+    else m_imgwdg   ->resize(sizeForMainWidgetDisplay());
+    m_labinfowdg    ->setText(QFileInfo(filepath).fileName());
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -174,6 +169,11 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     }
     else
         move(framePosition(originalgeometry()));
+}
+
+QList<DocExterne *> dlg_singleimageviewer::ListDocs() const
+{
+    return m_ListDocs;
 }
 
 ListImageWidget *dlg_singleimageviewer::imagewidget() const
@@ -236,5 +236,8 @@ bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
     if (rszevent != Q_NULLPTR && m_mode == Normal)
         setOriginalgeometry(geometry());
+    m_labinfowdg    ->setFixedWidth(m_imgwdg->width() -10);
+    m_labinfowdg    ->move(10, m_imgwdg->viewport()->height() -30);
     return QWidget::eventFilter(obj, event);
 }
+

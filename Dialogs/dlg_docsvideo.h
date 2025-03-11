@@ -54,9 +54,11 @@ private:
     bool                m_initOK                = false;
     QStringList         m_filters               = QStringList() << "*.mp4" << "*.mpg" << "*.m4v";
 
+    void                addFullScreenMenu();
     void                ChangeFile();
     void                ValideFiche();
     bool                searchDir(bool &pathchanged);
+    QMenu               *m_Menu                 = Q_NULLPTR;
 };
 
 #endif // DLG_DOCSVIDEO_H

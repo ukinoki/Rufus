@@ -188,19 +188,10 @@ void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
     if (idx>-1)
     {
         m_currentImagefile = listfich.at(idx);
-        QMap<QString,QVariant> doc;
-        QFile       qFile(m_docpath + "/" + m_currentImagefile);
-        if (!qFile.open( QIODevice::ReadOnly ))
-        {
-            UpMessageBox::Watch(dlg_imgviewer,  tr("Erreur d'accès au fichier"), qFile.fileName());
-            return;
-        }
-        QByteArray bapdf = qFile.readAll();
-        QString suffixe = QFileInfo(qFile).suffix().toLower();
-        qFile.close ();
-        doc[M_BA]   = bapdf;
-        doc[M_TYPE] = suffixe;
-        dlg_imgviewer->setMapimg(doc);
+        bool initOK = false;
+        DocExterne docmt(m_docpath + "/" + m_currentImagefile, initOK, dlg_imgviewer);
+        if (initOK)
+            dlg_imgviewer->setListDocuments(QList<DocExterne*>() << &docmt);
     }
 }
 
@@ -216,19 +207,10 @@ void dlg_docsscanner::ChangeFile()
     wdg_toolbar->Prec()     ->setEnabled(idx>0);
     wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
-    QMap<QString,QVariant> doc;
-    QFile       qFile(m_docpath + "/" + m_currentImagefile);
-    if (!qFile.open( QIODevice::ReadOnly ))
-    {
-        UpMessageBox::Watch(dlg_imgviewer,  tr("Erreur d'accès au fichier"), qFile.fileName());
-        return;
-    }
-    QByteArray bapdf = qFile.readAll();
-    QString suffixe = QFileInfo(qFile).suffix().toLower();
-    qFile.close ();
-    doc[M_BA]   = bapdf   ;
-    doc[M_TYPE] = suffixe;
-    dlg_imgviewer->setMapimg(doc);
+    bool initOK = false;
+    DocExterne docmt(m_docpath + "/" + m_currentImagefile, initOK, dlg_imgviewer);
+    if (initOK)
+        dlg_imgviewer->setListDocuments(QList<DocExterne*>() << &docmt);
 }
 
 bool dlg_docsscanner::searchDir(bool &pathchanged)

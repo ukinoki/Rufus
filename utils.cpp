@@ -1807,6 +1807,24 @@ void Utils::playAlarm(QString sound)
     se.play();
 }
 
+void Utils::playVideoFullScreen(QString filepath, QWidget *parent)
+{
+    QFile   qFile(filepath);
+    if (!qFile.open(QIODevice::ReadOnly))
+    {
+        QString msg = tr("Erreur d'accès au fichier:") + " " + filepath;
+        UpMessageBox::Watch(parent,msg);
+        return;
+    }
+    UpVideoWidget *wdg_video    = new UpVideoWidget();
+    wdg_video                   ->setWindowModality(Qt::WindowModal);
+    wdg_video                   ->setAttribute(Qt::WA_DeleteOnClose, true);
+    wdg_video                   ->setFilename(filepath);
+    wdg_video->player()         ->play();
+    wdg_video                   ->setFullScreen(true);
+    connect(wdg_video, &QVideoWidget::fullScreenChanged, wdg_video, &QWidget::close);
+}
+
 
 //! récupérer l'index d'une valeur dans un QMetaEnum
 int Utils::getindexFromValue(const QMetaEnum & e, int value)
@@ -2253,7 +2271,7 @@ QStringList Utils::listKeyEnumeratorSP(QString prop)
 
 QString  Utils::stringKeyFromEnumIndexSP(QString prop, int idx)                                       /*! return string value of key from index for property in QserialPort metaobject metaenum */
 {
-    /*! Sur les anciennes versions de Rufus, l'index decl'enum était enregistré dans le rufus.ini
+    /*! Sur les anciennes versions de Rufus, l'index de l'enum était enregistré dans le rufus.ini
         A partir du 15.12.2024, c'est
             . la valeur en clair de la key dans l'enum (ex-> "Baud8600", "NoFlowControl")
             . et pas la valeur ("9600", "2" ) de l'enum

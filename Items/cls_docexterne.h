@@ -76,6 +76,7 @@ private:
 
 public:
     explicit DocExterne(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
+    DocExterne(QString filepath, bool &initOK, QWidget *parent);
     void setData(QJsonObject data);
 
     int idpatient() const;

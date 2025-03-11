@@ -19,6 +19,7 @@ private:
     UpMediaPlayer                   *m_mediaPlayer      = Q_NULLPTR;
     qreal                           m_ScaleFactor;
     bool                            OKwheelzoom         = false;
+    QString                         m_text              = "";
     void    fitImage(QSize size);
     void    fitVideo(QSize size, QGraphicsVideoItem *itm);
     qreal   listImageScaleFactor(qreal w);

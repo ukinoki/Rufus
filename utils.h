@@ -55,6 +55,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "updialog.h"
 #include "uptextedit.h"
+#include "upvideowidget.h"
 #include "dlg_message.h"
 
 const unsigned char SOH = 01;   //0x01
@@ -313,6 +314,9 @@ public:
 
     //! Sound Alarme
     static void playAlarm(QString sound = NOM_ALARME);
+
+    //! Play Video FullScreen
+    static void playVideoFullScreen(QString filepath, QWidget *parent);
 
     //! récupérer l'index d'une valeur dans un QMetaEnum
     static int getindexFromValue(const QMetaEnum & e, int value);

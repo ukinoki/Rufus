@@ -77,6 +77,7 @@ void UpDialog::addSearchLine()
 
 void UpDialog::AjouteLayButtons(Buttons Button)
 {
+    m_Buttons |= Button;
     // le Button Cancel est toujours juste à gauche du bouton OK
     // OK le plus à droite
     if (Button.testFlag(ButtonOK))
@@ -199,6 +200,11 @@ void UpDialog::UpdateTabOrder()
     if (wdg_buttonslayout->findChildren<UpSmallButton*>().size()>1)
         for (int i=0; i<wdg_buttonslayout->findChildren<UpSmallButton*>().size()-1; i++)
             setTabOrder(wdg_buttonslayout->findChildren<UpSmallButton*>().at(i),wdg_buttonslayout->findChildren<UpSmallButton*>().at(i+1));
+}
+
+UpDialog::Buttons UpDialog::buttons() const
+{
+    return m_Buttons;
 }
 
 int UpDialog::nbbuttons() const

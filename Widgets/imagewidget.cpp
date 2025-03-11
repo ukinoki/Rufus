@@ -9,7 +9,7 @@ ListImageWidget::ListImageWidget(QWidget *parent) : QGraphicsView(parent) {
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setContextMenuPolicy(Qt::CustomContextMenu);
     viewport()->installEventFilter(this);
-}
+ }
 
 void ListImageWidget::setOKwheelzoom(bool newOKwheelzoom)
 {
@@ -88,6 +88,21 @@ void ListImageWidget::setVideo(const QString filename, QSize size)
     QSizeF optimalsize          = optimalSizeForVideo(size, videosizeratio);
     m_vidItem                   ->setSize(optimalsize);
     m_mediaPlayer               ->setVideoOutput(m_vidItem );
+}
+
+void ListImageWidget::setText(const QString &newText)
+{
+    m_text = newText;
+    QFont font = qApp->font();
+    font.setBold(true);
+    QGraphicsTextItem *text = m_scene->addText(m_text);
+    text->setDefaultTextColor(Qt::magenta);
+    text->setPos(10, 10);
+    text->setVisible(true);
+    QPen pen(Qt::red, 0.8);
+    pen.setWidth(2);
+    QGraphicsLineItem *line = m_scene->addLine(10,10,100,5,pen);
+    line->setVisible(true);
 }
 
 QSizeF ListImageWidget::optimalSizeForVideo(QSize availablesize, qreal videoratio)
@@ -227,3 +242,4 @@ bool ListImageWidget::eventFilter(QObject *obj, QEvent *event)
             emit clicked();
     return QWidget::eventFilter(obj, event);
 }
+

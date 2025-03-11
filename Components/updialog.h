@@ -78,6 +78,7 @@ private:
     UpLineEdit      *wdg_chercheuplineedit;
     QRect           m_originalgeometry      = QRect();
     QRect           m_optimalgeometryforzoom= QRect();
+    Buttons         m_Buttons               = NoButton;
 
 public:
     UpSmallButton   *OKButton, *CancelButton, *PrintButton, *SupprButton, *CloseButton, *EditButton, *RecordButton, *PdfButton, *OupsButton;
@@ -127,6 +128,7 @@ public:
     //! amount of buttons in buttons layout
     int             nbbuttons() const;
     void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
+    Buttons         buttons() const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

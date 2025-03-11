@@ -138,7 +138,10 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         {
             QAction *paction_Fullscreen         = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
             menu->addAction(paction_Fullscreen);
-            //connect (paction_Fullscreen,    &QAction::triggered,    this,  [=] {videoWidget()->setFullScreen(true);});
+            connect (paction_Fullscreen,    &QAction::triggered,    this,  [=] {
+                QString filepath = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + m_currentdocument->lienversfichier();
+                Utils::playVideoFullScreen(filepath, this);
+            });
         }
         QMenu *menuImportance  = menu->addMenu(tr("Importance"));
         QAction *paction_ImportantMin   = new QAction(tr("Faible"));
@@ -309,6 +312,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton        ->setVisible(j);
     RecordButton        ->disconnect();
+    //PrintButton         ->setVisible(!docmt->isVideo());
     labinfowidget()     ->setVisible(!docmt->isVideo());
 
     if (docmt->isVideo())                   //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
@@ -330,8 +334,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         }
         setVideofile(filename);
 
-         connect (RecordButton,      &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
-        PrintButton     ->setVisible(false);
+        connect (RecordButton,      &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
         labinfowidget() ->setText("");
     }
     else                                    //! le document est une image ou un document écrit (ordonnance, certificat...)
@@ -363,7 +366,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             }
         }
         else return;
-        setDocument(docmt);
+        setListDocuments(QList<DocExterne*>() << docmt);
     }
     imagewidget()->disconnect();
     connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});

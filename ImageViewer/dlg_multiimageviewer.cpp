@@ -959,10 +959,8 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
     {
         imgzoom = new dlg_singleimageviewer();
         imgzoom->setMode(dlg_singleimageviewer::Zoom);
-        imgzoom->setDocument(doc);
-        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord);
-        if (!doc->isVideo())
-            imgzoom ->AjouteLayButtons(UpDialog::ButtonPrint);
+        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
+        imgzoom->setListDocuments(listdocsToDisplay(), doc);
         connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
         if (imgzoom->imagewidget())
             imgzoom->imagewidget()->setOKwheelzoom(true);

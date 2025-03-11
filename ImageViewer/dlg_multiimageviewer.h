@@ -4,6 +4,7 @@
 #include "dlg_singleimageviewer.h"
 #include "updelegate.h"
 #include "upmediaplayer.h"
+#include "uptoolbar.h"
 #include "uptreeview.h"
 
 class dlg_multiimageviewer : public UpDialog
