@@ -1033,7 +1033,7 @@ void dlg_identificationIOL::connectSignals()
     if (wdg_recopiebutton)
         connect (wdg_recopiebutton,  &UpPushButton::clicked,                                this,   &dlg_identificationIOL::creeCopieIOL);
     if (wdg_toolbar)
-        connect (wdg_toolbar,        &UpToolBar::TBSignal,                                  this,   [=] {NavigueVers(wdg_toolbar->choix());});
+        connect (wdg_toolbar,        &UpToolBar::TBSignal,                                  this,   [=] {NavigueVers(wdg_toolbar->choice());});
 }
 
 void dlg_identificationIOL::disconnectSignals()
@@ -1385,7 +1385,7 @@ void dlg_identificationIOL::EnableWidget(bool a)
                 wdg->setEnabled(a);
 }
 
-void dlg_identificationIOL::NavigueVers(UpToolBar::Choix choix)
+void dlg_identificationIOL::NavigueVers(UpToolBar::Choice choix)
 {
     int idx = m_listeidIOLs.indexOf(m_currentIOL->id());
     if (choix == UpToolBar::_last)

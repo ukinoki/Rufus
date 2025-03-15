@@ -37,27 +37,39 @@ dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent) : UpDialog(parent)
 
 void dlg_singleimageviewer::setListDocuments(QList<DocExterne *> listdocs, DocExterne *doc)
 {
-    m_ListDocs = listdocs;
+    m_ListDocs      = listdocs;
+    m_currentDoc   = doc;
     if (m_ListDocs.size() > 1)
     {
         wdg_toolbar = new UpToolBar;
         AjouteWidgetLayButtons(wdg_toolbar, false);
+        connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=] {goTo(wdg_toolbar->choice());});
+        int idx = m_ListDocs.indexOf(m_currentDoc);
+        wdg_toolbar->First()    ->setEnabled(idx>0);
+        wdg_toolbar->Prec()     ->setEnabled(idx>0);
+        wdg_toolbar->Next()     ->setEnabled(idx < m_ListDocs.size()-1);
+        wdg_toolbar->Last()     ->setEnabled(idx < m_ListDocs.size()-1);
     }
     else
-        doc = listdocs.at(0);
-    if (doc)
+        m_currentDoc = listdocs.at(0);
+    displaycurrentDocument();
+}
+
+void dlg_singleimageviewer::displaycurrentDocument()
+{
+    if (m_currentDoc)
     {
-        if (doc->isVideo())
+        if (m_currentDoc->isVideo())
         {
-            QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
+            QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + m_currentDoc->lienversfichier();
             setVideofile(filename);
             DisplayVideo(filename);
         }
         else
         {
-            QList<QImage> listimg = doc->pagelist();
+            QList<QImage> listimg = m_currentDoc->pagelist();
             if (listimg.size() > 0)
-                DisplayImage(listimg, doc->soustypedoc());
+                DisplayImage(listimg, (m_ListDocs.size()>1? QLocale::system().toString(m_currentDoc->date(), tr("dd-MMM-yyyy")) + "- " : "") + m_currentDoc->soustypedoc());
         }
     }
 }
@@ -164,8 +176,8 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
 
     if (m_mode == Zoom)
     {
-        if (listscreens.size())
-            move((listscreens.first()->geometry().width() - width())/2, 0);
+        move(0,0);
+        //if (listscreens.size())  move((listscreens.first()->geometry().width() - width())/2, 0);
     }
     else
         move(framePosition(originalgeometry()));
@@ -229,6 +241,28 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
 QMap<QString,QVariant> dlg_singleimageviewer::mapimg() const
 {
     return m_mapimg;
+}
+
+void dlg_singleimageviewer::goTo(UpToolBar::Choice choice)
+{
+    int idx = m_ListDocs.indexOf(m_currentDoc);
+    if (choice == UpToolBar::_last)
+        idx     = m_ListDocs.size()-1;
+    else if (choice == UpToolBar::_first)
+        idx     = 0;
+    else if (choice == UpToolBar::_next)
+        idx     += 1;
+    else if (choice == UpToolBar::_prec)
+        idx     -= 1;
+    wdg_toolbar->First()    ->setEnabled(idx>0);
+    wdg_toolbar->Prec()     ->setEnabled(idx>0);
+    wdg_toolbar->Next()     ->setEnabled(idx < m_ListDocs.size()-1);
+    wdg_toolbar->Last()     ->setEnabled(idx < m_ListDocs.size()-1);
+    if (idx>-1)
+    {
+        m_currentDoc = m_ListDocs.at(idx);
+        displaycurrentDocument();
+    }
 }
 
 bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)

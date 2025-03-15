@@ -31,7 +31,7 @@ class dlg_docsvideo : public QObject
     Q_OBJECT
 public:
     dlg_docsvideo(Patient *pat, QWidget *parent = Q_NULLPTR);
-    void                NavigueVers(UpToolBar::Choix choix);
+    void                NavigueVers(UpToolBar::Choice choix);
 
     dlg_singleimageviewer       *dialog() const;
     bool                initOK() { return m_initOK; }

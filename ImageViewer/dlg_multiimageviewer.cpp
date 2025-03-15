@@ -931,13 +931,15 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    if (event->type() == QEvent::MouseButtonDblClick)
-    {
-        if (dynamic_cast<UpLabel*>(obj) != Q_NULLPTR)
-            ZoomDoc(dynamic_cast<QWidget*>(obj));
-        else if (dynamic_cast<UpVideoWidget*>(obj) != Q_NULLPTR)
-            ZoomDoc(dynamic_cast<QWidget*>(obj));
-    }
+    QMouseEvent *mseevent = dynamic_cast<QMouseEvent*>(event);
+    if (mseevent)
+        if (event->type() == QEvent::MouseButtonDblClick)
+        {
+            if (dynamic_cast<UpLabel*>(obj) != Q_NULLPTR)
+                ZoomDoc(dynamic_cast<QWidget*>(obj));
+            else if (dynamic_cast<UpVideoWidget*>(obj) != Q_NULLPTR)
+                ZoomDoc(dynamic_cast<QWidget*>(obj));
+        }
     return QWidget::eventFilter(obj, event);
 }
 

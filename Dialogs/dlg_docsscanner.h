@@ -30,7 +30,7 @@ public:
     explicit dlg_docsscanner(Item *item, Mode mode = Document, QString titre = "", QWidget *parent = Q_NULLPTR);
     ~dlg_docsscanner();
     bool                    initOK() const;
-    void                    NavigueVers(UpToolBar::Choix choix);
+    void                    NavigueVers(UpToolBar::Choice choix);
     QMap<QString, QVariant> getdataFacture();
 
     dlg_singleimageviewer*          dialog() const;

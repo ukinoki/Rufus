@@ -102,7 +102,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=] {NavigueVers(wdg_toolbar->choix());});
+    connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=] {NavigueVers(wdg_toolbar->choice());});
 
     wdg_toolbar         ->setMinimumHeight(30);
     wdg_dirsearchbutton ->setFixedHeight(30);
@@ -164,7 +164,7 @@ dlg_docsscanner::~dlg_docsscanner()
 {
 }
 
-void dlg_docsscanner::NavigueVers(UpToolBar::Choix choix)
+void dlg_docsscanner::NavigueVers(UpToolBar::Choice choix)
 {
     QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {

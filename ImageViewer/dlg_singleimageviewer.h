@@ -60,10 +60,13 @@ private:
     qreal                   widgetRatio(QList<QImage> listimg);
     void                    DisplayImage(QList<QImage> listimg, QString nomdoc = QString());
     void                    DisplayVideo(QString filepath);
+    void                    goTo(UpToolBar::Choice choice);
+    void                    displaycurrentDocument();
 
     Mode                    m_mode              = Normal;
 
     QList<DocExterne*>      m_ListDocs          = QList<DocExterne*>();
+    DocExterne*             m_currentDoc       = Q_NULLPTR;
     UpLabel*                m_labwdg            = Q_NULLPTR;
     UpLabel*                m_labinfowdg        = new UpLabel();
     QGraphicsScene          *m_scene            = Q_NULLPTR;

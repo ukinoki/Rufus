@@ -18,36 +18,22 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uptoolbar.h"
 #include "icons.h"
 
-//explicit    UpToolBar(bool AvecFinDebut = true, bool AvecReload = false, QWidget *parent = Q_NULLPTR);
-UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToolBar(parent)
+UpToolBar::UpToolBar(QWidget *parent) : QToolBar(parent)
 {
-    if (AvecFinDebut)
-    {
-        debut   = new QAction(Icons::icPageAvant(),tr("Début"),this);
-        fin     = new QAction(Icons::icPageApres(),tr("Fin"),this);
-        connect(debut,  &QAction::triggered,  this, [=] {TBChoix(_first);});
-        connect(fin,    &QAction::triggered,  this, [=] {TBChoix(_last);});
-    }
-    prec    = new QAction(Icons::icAvant(),tr("Précédent"),this);
-    suiv    = new QAction(Icons::icApres(),tr("Suivant"),this);
+    beginning   = new QAction(Icons::icPageAvant(),tr("Début"),this);
+    end         = new QAction(Icons::icPageApres(),tr("Fin"),this);
+    prec        = new QAction(Icons::icAvant(),tr("Précédent"),this);
+    next        = new QAction(Icons::icApres(),tr("Suivant"),this);
 
-    connect(prec,   &QAction::triggered,  this, [=] {TBChoix(_prec);});
-    connect(suiv,   &QAction::triggered,  this, [=] {TBChoix(_next);});
+    connect(beginning,  &QAction::triggered,  this, [=] {TBChoice(_first);});
+    connect(end,        &QAction::triggered,  this, [=] {TBChoice(_last);});
+    connect(prec,       &QAction::triggered,  this, [=] {TBChoice(_prec);});
+    connect(next,       &QAction::triggered,  this, [=] {TBChoice(_next);});
 
-    if (AvecFinDebut)
-        addAction(debut);
+    addAction(beginning);
     addAction(prec);
-    addAction(suiv);
-    if (AvecFinDebut)
-        addAction(fin);
-
-    if (AvecReload)
-    {
-        reload  = new QAction(Icons::icPageRefresh(),tr("Recharger"),this);
-        connect(reload, &QAction::triggered, this, [=] {TBChoix(_reload);});
-        addSeparator();
-        addAction(reload);
-    }
+    addAction(next);
+    addAction(end);
 
     setFixedHeight(46);
     setIconSize(QSize(35,35));
@@ -56,40 +42,34 @@ UpToolBar::UpToolBar(bool AvecFinDebut, bool AvecReload, QWidget *parent) : QToo
 UpToolBar::~UpToolBar()
 {
 }
-UpToolBar::Choix UpToolBar::choix() const
+
+UpToolBar::Choice UpToolBar::choice() const
 {
-    return m_choix;
+    return m_choice;
 }
-void UpToolBar::TBChoix(Choix choix)
+
+void UpToolBar::TBChoice(Choice choice)
 {
-    m_choix = choix;
+    m_choice = choice;
     emit TBSignal();
 }
 
 QAction* UpToolBar::First() const
 {
-    return debut;
+    return beginning;
 }
 
 QAction* UpToolBar::Last() const
 {
-    return fin;
+    return end;
 }
 
 QAction* UpToolBar::Next() const
 {
-    return suiv;
+    return next;
 }
 
 QAction* UpToolBar::Prec() const
 {
     return prec;
 }
-
-QAction* UpToolBar::Reload() const
-{
-    return reload;
-}
-
-
-

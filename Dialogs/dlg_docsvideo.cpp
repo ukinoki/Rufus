@@ -61,7 +61,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(wdg_toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(wdg_toolbar->choix());});
+    connect(wdg_toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(wdg_toolbar->choice());});
 
     wdg_toolbar         ->setMinimumHeight(30);
     wdg_dirsearchbutton ->setFixedHeight(30);
@@ -119,7 +119,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     dlg_imgviewer         ->setSaveGeometry(Nom_fiche_DocsVideo);
 }
 
-void dlg_docsvideo::NavigueVers(UpToolBar::Choix choix)
+void dlg_docsvideo::NavigueVers(UpToolBar::Choice choix)
 {
     QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
     if (listfich.size() == 0)  {
