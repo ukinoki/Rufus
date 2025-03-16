@@ -24,15 +24,12 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     {
         bool pathchanged;
         if (!searchDir(pathchanged))
-        {
             UpMessageBox::Watch(parent, tr("Dossier vide"), tr("il n'y a aucun fichier video dans le dossier par défaut ") + m_docpath);
-            return;
-        }
     }
-    m_currentpatient = pat;
-
     if (!QDir(m_docpath).exists())
         m_docpath = QDir::homePath();
+    m_currentpatient = pat;
+
 
     dlg_imgviewer         = new dlg_singleimageviewer();
     dlg_imgviewer         ->setWindowTitle(tr("Enregistrer une video dans le dossier de ") + pat->nom().toUpper() + " " + pat->prenom());
@@ -143,7 +140,7 @@ void dlg_docsvideo::NavigueVers(UpToolBar::Choice choix)
     if (idx>-1)
     {
         m_currentvideofile  = listfich.at(idx);
-        dlg_imgviewer         ->setVideofile(m_docpath + "/" + m_currentvideofile);
+        dlg_imgviewer       ->setVideofile(m_docpath + "/" + m_currentvideofile);
     }
 }
 
@@ -158,7 +155,7 @@ void dlg_docsvideo::ChangeFile()
     if (!searchDir(pathchanged))
         if (!pathchanged)
             return;
-    QStringList listfich    = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
+    QStringList listfich    = QDir(m_docpath).entryList(m_filters, QDir::Files,QDir::Time | QDir::Reversed);
     int idx                 = listfich.indexOf(m_currentvideofile);
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);

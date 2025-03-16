@@ -31,9 +31,9 @@ class UpMediaPlayer : public QMediaPlayer
 public:
     explicit UpMediaPlayer(QString filename, QObject *parent = nullptr);
     QSize videosize() const;
+    void                    init(QString filename);
 
 private:
-    QString                 m_filename = QString();
     QSize                   m_videoresolution = QSize();
 };
 

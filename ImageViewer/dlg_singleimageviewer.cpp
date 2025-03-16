@@ -127,6 +127,8 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     }
     else m_imgwdg   ->resize(sizeForMainWidgetDisplay());
     m_labinfowdg    ->setText("<font color='magenta'>" + nomdoc + "</font>");
+    m_labinfowdg    ->setFixedWidth(m_imgwdg->width() -10);
+    m_labinfowdg    ->move(10, m_imgwdg->viewport()->height() -30);
 
     QList<QScreen*> listscreens = QGuiApplication::screens();
     double hscroll  = 0;
@@ -268,10 +270,13 @@ void dlg_singleimageviewer::goTo(UpToolBar::Choice choice)
 bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)
 {
     QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-    if (rszevent != Q_NULLPTR && m_mode == Normal)
-        setOriginalgeometry(geometry());
-    m_labinfowdg    ->setFixedWidth(m_imgwdg->width() -10);
-    m_labinfowdg    ->move(10, m_imgwdg->viewport()->height() -30);
+    if (rszevent != Q_NULLPTR)
+    {
+        if (m_mode == Normal)
+            setOriginalgeometry(geometry());
+        m_labinfowdg    ->setFixedWidth(m_imgwdg->width() -10);
+        m_labinfowdg    ->move(10, m_imgwdg->viewport()->height() -30);
+    }
     return QWidget::eventFilter(obj, event);
 }
 

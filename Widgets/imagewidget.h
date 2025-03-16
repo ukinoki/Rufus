@@ -21,7 +21,7 @@ private:
     bool                            OKwheelzoom         = false;
     QString                         m_text              = "";
     void    fitImage(QSize size);
-    void    fitVideo(QSize size, QGraphicsVideoItem *itm);
+    void    fitVideo(QSize size);
     qreal   listImageScaleFactor(qreal w);
     qreal   videoScaleFactor(QSize finalsize, QSize originsize);
     qreal   sizeRatio(QSize size);

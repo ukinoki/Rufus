@@ -19,6 +19,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 UpMediaPlayer::UpMediaPlayer(QString filename, QObject *parent) : QMediaPlayer{parent}
 {
+    init(filename);
+}
+
+QSize UpMediaPlayer::videosize() const
+{
+    return m_videoresolution;
+}
+
+void UpMediaPlayer::init(QString filename)
+{
     setSource( QUrl::fromLocalFile(filename));
 
     //! the following sequence is used to determie the video size
@@ -31,9 +41,4 @@ UpMediaPlayer::UpMediaPlayer(QString filename, QObject *parent) : QMediaPlayer{p
     stop();
     m_videoresolution = metaData().value(QMediaMetaData::Resolution).toSize();
     disconnect();
-}
-
-QSize UpMediaPlayer::videosize() const
-{
-    return m_videoresolution;
 }

@@ -21,15 +21,15 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     QObject(parent)
 {
     m_docpath = proc->settings()->value(Param_Poste Dossier_DocsScannes).toString();
-    if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0)
+    if (QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed).size() == 0 || !QDir(m_docpath).exists() || m_docpath == "")
     {
         bool pathchanged;
         if (!searchDir(pathchanged))
-        {
             UpMessageBox::Watch(parent, tr("Dossier vide"), tr("il n'y a aucun fichier image dans le dossier par défaut ") + m_docpath);
-            return;
-        }
     }
+    if (!QDir(m_docpath).exists())
+        m_docpath = QDir::homePath();
+
     m_mode           = mode;
     if ( m_mode == Document)
         m_iditem = qobject_cast<Patient*>(item)->id();
@@ -43,10 +43,6 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     AccesDistant = true;
     Base = Utils::getBaseFromMode(Utils::ReseauLocal);*/
     m_accesdistant = (db->ModeAccesDataBase()==Utils::Distant);
-
-    m_docpath = proc->settings()->value(Param_Poste Dossier_DocsScannes).toString();
-    if (!QDir(m_docpath).exists())
-        m_docpath = QDir::homePath();
 
     wdg_linetitre       = new UpLineEdit();
     wdg_editdate        = new QDateEdit();
@@ -201,13 +197,13 @@ void dlg_docsscanner::ChangeFile()
     if (!searchDir(pathchanged))
         if (!pathchanged)
             return;
-    QStringList listfich = QDir(m_docpath).entryList(m_filters,QDir::Files,QDir::Time | QDir::Reversed);
-    int idx = listfich.indexOf(m_currentImagefile);
+    QStringList listfich    = QDir(m_docpath).entryList(m_filters, QDir::Files,QDir::Time | QDir::Reversed);
+    int idx                 = listfich.indexOf(m_currentImagefile);
     wdg_toolbar->First()    ->setEnabled(idx>0);
     wdg_toolbar->Prec()     ->setEnabled(idx>0);
     wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
-    bool initOK = false;
+    bool initOK             = false;
     DocExterne docmt(m_docpath + "/" + m_currentImagefile, initOK, dlg_imgviewer);
     if (initOK)
         dlg_imgviewer->setListDocuments(QList<DocExterne*>() << &docmt);
@@ -215,7 +211,7 @@ void dlg_docsscanner::ChangeFile()
 
 bool dlg_docsscanner::searchDir(bool &pathchanged)
 {
-    QString fileName = QFileDialog::getOpenFileName(dlg_imgviewer, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
+    QString fileName        = QFileDialog::getOpenFileName(dlg_imgviewer, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
     if (fileName != "")
     {
         pathchanged         = (m_docpath != QFileInfo(fileName).dir().absolutePath());
