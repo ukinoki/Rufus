@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAudioOutput>
 #include <QTreeView>
 #include "playercontrols.h"
-#include "imagewidget.h"
+#include "displaywidget.h"
 #include "upvideowidget.h"
 
 
@@ -49,7 +49,7 @@ public:
 
     void                    setCorrectionwidget(QWidget *newCorrectionwidget);
 
-    ListImageWidget*        imagewidget() const;
+    DisplayWidget*        imagewidget() const;
 
     QList<DocExterne *> ListDocs() const;
 
@@ -70,7 +70,7 @@ private:
     UpLabel*                m_labwdg            = Q_NULLPTR;
     UpLabel*                m_labinfowdg        = new UpLabel();
     QGraphicsScene          *m_scene            = Q_NULLPTR;
-    ListImageWidget         *m_imgwdg           = Q_NULLPTR;
+    DisplayWidget         *m_imgwdg           = Q_NULLPTR;
     QWidget*                m_parent            = Q_NULLPTR;
     QHBoxLayout*            m_mainlayout        = new QHBoxLayout();
     PlayerControls*         m_controlplayer     = Q_NULLPTR;

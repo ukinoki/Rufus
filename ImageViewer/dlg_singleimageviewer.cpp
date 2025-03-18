@@ -24,7 +24,7 @@ dlg_singleimageviewer::dlg_singleimageviewer(QWidget *parent) : UpDialog(parent)
     dlglayout()     ->insertLayout(0,m_mainlayout);
     m_mainlayout    ->setContentsMargins(m_marges);
     m_mainlayout    ->setSpacing(m_spacing);
-    m_imgwdg        = new ListImageWidget();
+    m_imgwdg        = new DisplayWidget();
     m_mainlayout    ->addWidget(m_imgwdg);
     setStageCount(1);
     QFont font      = qApp->font();
@@ -190,7 +190,7 @@ QList<DocExterne *> dlg_singleimageviewer::ListDocs() const
     return m_ListDocs;
 }
 
-ListImageWidget *dlg_singleimageviewer::imagewidget() const
+DisplayWidget *dlg_singleimageviewer::imagewidget() const
 {
     return m_imgwdg;
 }

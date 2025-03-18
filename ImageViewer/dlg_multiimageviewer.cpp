@@ -343,6 +343,15 @@ void dlg_multiimageviewer::checkHorizontalHeader(int idx)
                }
         m_Xmodel->setHeaderData(idx, Qt::Horizontal, Icons::pxCheck(), Qt::DecorationRole);
         addItemsToTreeWidget(litemstocheck);
+        UpStandardItem *upitem      = litemstocheck.at(0);
+        if (upitem == Q_NULLPTR)
+            return;
+        if(upitem->listids().size())
+        {
+            DocExterne *doc = Datas::I()->docsexternes->getById(upitem->listids().at(0));
+            if (doc)
+                scrollTreeViewToDocument(doc);
+        }
     }
 }
 
@@ -888,7 +897,7 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                             {
                                 for (int k= 0; k < glay->count(); k++)
                                 {
-                                    QLayoutItem* layit = glay->itemAt(k);                                             //! -> search for QLayoutitem of DockWidget
+                                    QLayoutItem* layit = glay->itemAt(k);                                                       //! -> search for QLayoutitem of DockWidget
                                     if (layit)
                                     {
                                         QWidget* widg = layit->widget();                                                        //! -> search for QWidget of QLayoutItem of DockWidget
@@ -904,7 +913,7 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                                             }
                                             else
                                             {
-                                                UpVideoWidget *gvdeo = dynamic_cast<UpVideoWidget*>(widg);                        //! widget is UpVideoWidget => video -> resize the UpVideoWidget
+                                                UpVideoWidget *gvdeo = dynamic_cast<UpVideoWidget*>(widg);                      //! widget is UpVideoWidget => video -> resize the UpVideoWidget
                                                 if (gvdeo)
                                                 {
                                                     QSize size          = gvdeo->player()->videosize();

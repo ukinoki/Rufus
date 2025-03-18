@@ -1,7 +1,24 @@
-#include "imagewidget.h"
+/* (C) 2020 LAINE SERGE
+This file is part of RufusAdmin or Rufus.
+
+RufusAdmin and Rufus are free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License,
+or any later version.
+
+RufusAdmin and Rufus are distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "displaywidget.h"
 
 
-ListImageWidget::ListImageWidget(QWidget *parent) : QGraphicsView(parent) {
+DisplayWidget::DisplayWidget(QWidget *parent) : QGraphicsView(parent) {
     setScene(m_scene);
     //setDragMode(QGraphicsView::RubberBandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -11,12 +28,12 @@ ListImageWidget::ListImageWidget(QWidget *parent) : QGraphicsView(parent) {
     viewport()->installEventFilter(this);
  }
 
-void ListImageWidget::setOKwheelzoom(bool newOKwheelzoom)
+void DisplayWidget::setOKwheelzoom(bool newOKwheelzoom)
 {
     OKwheelzoom = newOKwheelzoom;
 }
 
-qreal ListImageWidget::listImageScaleFactor(qreal w)
+qreal DisplayWidget::listImageScaleFactor(qreal w)
 {
     qreal scale = 0;
     foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
@@ -28,7 +45,7 @@ qreal ListImageWidget::listImageScaleFactor(qreal w)
     return scale;
 }
 
-qreal ListImageWidget::videoScaleFactor(QSize finalsize, QSize originsize)
+qreal DisplayWidget::videoScaleFactor(QSize finalsize, QSize originsize)
 {
     qreal finalsizeratio    = sizeRatio(finalsize);
     qreal originsizeratio   = sizeRatio(originsize);
@@ -43,14 +60,14 @@ qreal ListImageWidget::videoScaleFactor(QSize finalsize, QSize originsize)
 }
 
 
-qreal ListImageWidget::sizeRatio(QSize size)
+qreal DisplayWidget::sizeRatio(QSize size)
 {
     qreal w = size.width();
     qreal h = size.height();
     return w/h;
 }
 
-void ListImageWidget::setListimg(const QList<QImage> &newListimg, QSize size)
+void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
 {
     if (m_scene->items().size() >0)
         m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
@@ -69,12 +86,14 @@ void ListImageWidget::setListimg(const QList<QImage> &newListimg, QSize size)
         QSize sz = setPixmapforItem(item, size);
         item->setPos(0,h);
         m_scene->addItem(item);
+        //QGraphicsRectItem *rect = m_scene->addRect(QRectF(10, h + 10, 10, 10));
+
         m_listgraphicsItem << item;
         h += sz.height();
     }
 }
 
-void ListImageWidget::setVideo(const QString filename, QSize size)
+void DisplayWidget::setVideo(const QString filename, QSize size)
 {
     if (m_scene->items().size() >0)
         m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
@@ -93,7 +112,7 @@ void ListImageWidget::setVideo(const QString filename, QSize size)
     m_mediaPlayer               ->setVideoOutput(m_vidItem);
 }
 
-void ListImageWidget::setText(const QString &newText)
+void DisplayWidget::setText(const QString &newText)
 {
     m_text = newText;
     QFont font = qApp->font();
@@ -108,7 +127,7 @@ void ListImageWidget::setText(const QString &newText)
     line->setVisible(true);
 }
 
-QSizeF ListImageWidget::optimalSizeForVideo(QSize availablesize, qreal videoratio)
+QSizeF DisplayWidget::optimalSizeForVideo(QSize availablesize, qreal videoratio)
 {
     /*! available resolution */
     qreal          wscroll  = availablesize.width();
@@ -131,12 +150,12 @@ QSizeF ListImageWidget::optimalSizeForVideo(QSize availablesize, qreal videorati
     return QSizeF(finalw, finalh);
 }
 
-UpMediaPlayer *ListImageWidget::mediaPlayer() const
+UpMediaPlayer *DisplayWidget::mediaPlayer() const
 {
     return m_mediaPlayer;
 }
 
-void ListImageWidget::fitImage(QSize size)
+void DisplayWidget::fitImage(QSize size)
 {
     if (m_listgraphicsItem.size() > 0)
     {
@@ -152,7 +171,7 @@ void ListImageWidget::fitImage(QSize size)
     }
 }
 
-void ListImageWidget::fitVideo(QSize size)
+void DisplayWidget::fitVideo(QSize size)
 {
     if (m_vidItem != Q_NULLPTR)
     {
@@ -163,20 +182,20 @@ void ListImageWidget::fitVideo(QSize size)
     }
 }
 
-void ListImageWidget::scale(qreal s) {
+void DisplayWidget::scale(qreal s) {
     QGraphicsView::scale(s, s);
 }
 
-void ListImageWidget::zoomIn() {
+void DisplayWidget::zoomIn() {
     scale(1.10);
 }
 
-void ListImageWidget::zoomOut() {
+void DisplayWidget::zoomOut() {
     scale(0.91);
     checkSize();
 }
 
-void ListImageWidget::checkSize() {
+void DisplayWidget::checkSize() {
     QTransform trMatrix = QGraphicsView::transform();
     qreal dx = trMatrix.m11();
     if( dx < m_ScaleFactor ) {
@@ -185,7 +204,7 @@ void ListImageWidget::checkSize() {
     }
 }
 
-QSize ListImageWidget::setPixmapforItem(QGraphicsPixmapItem *itm, QSize size)
+QSize DisplayWidget::setPixmapforItem(QGraphicsPixmapItem *itm, QSize size)
 {
     QSize szpix = QSize();
     if(itm->data(0).value<QImage>() != QImage())
@@ -199,7 +218,7 @@ QSize ListImageWidget::setPixmapforItem(QGraphicsPixmapItem *itm, QSize size)
     return szpix;
 }
 
-void ListImageWidget::wheelEvent(QWheelEvent *event) {
+void DisplayWidget::wheelEvent(QWheelEvent *event) {
     if (OKwheelzoom)
     {
         QPoint scrollAmount = event->angleDelta();
@@ -210,7 +229,7 @@ void ListImageWidget::wheelEvent(QWheelEvent *event) {
 }
 
 
-void ListImageWidget::keyPressEvent(QKeyEvent *event) {
+void DisplayWidget::keyPressEvent(QKeyEvent *event) {
     switch(event->key()) {
     case Qt::Key_Plus:
         zoomIn();
@@ -224,7 +243,7 @@ void ListImageWidget::keyPressEvent(QKeyEvent *event) {
     }
 }
 
-void ListImageWidget::resizeEvent(QResizeEvent* event) {
+void DisplayWidget::resizeEvent(QResizeEvent* event) {
     if (m_scene->items().size() >0)
     {
         QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
@@ -248,7 +267,7 @@ void ListImageWidget::resizeEvent(QResizeEvent* event) {
     }
 }
 
-bool ListImageWidget::eventFilter(QObject *obj, QEvent *event)
+bool DisplayWidget::eventFilter(QObject *obj, QEvent *event)
 {
     if (event->type() == QEvent::MouseButtonRelease)
         if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
