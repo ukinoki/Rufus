@@ -578,10 +578,11 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 type = doc->typedoc();
             Procedures::I()->CalcImageDocument(doc);
             QWidget *glaywidg = Q_NULLPTR;
+            DisplayWidget *wdg_display = new DisplayWidget;
             if (doc->isVideo())  //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
-                QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
-                QFile   qFile(filename);
+                QString filepath = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
+                QFile   qFile(filepath);
                 if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
                     if (Procedures::I()->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos).toString() == "" || !qFile.exists())
                     {
@@ -590,67 +591,48 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                     }
                 if (!qFile.open(QIODevice::ReadOnly))
                 {
-                    QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
+                    QString msg = tr("Erreur d'accès au fichier:") + " " + filepath;
                     UpMessageBox::Watch(this,msg);
                     return Q_NULLPTR;
                 }
-                UpVideoWidget *wdg_video            = new UpVideoWidget();
-                wdg_video                           ->setFilename(filename);
-                QSize size                          = wdg_video->player()->videosize();
-                //! -----------------------------------------------------------------
-                wdg_video->player()                 ->play();
-                double w                            = sizeforunit().width();
-                //wdg_video             ->setStyleSheet("padding: 0px;");
-                wdg_video                           ->setFixedSize(w,w/Utils::sizeratio(size));
-                wdg_video                           ->setContextMenuPolicy(Qt::CustomContextMenu);
-                connect(wdg_video, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-                wdg_video                           ->setrufusitem(doc);
-                wdg_video                           ->installEventFilter(this);
-                glaywidg = wdg_video;
+                wdg_display                 ->setVideo(filepath, sizeforunit());
+                wdg_display->mediaPlayer()  ->play();
             }
-            else if (doc->imageformat() == JPG)     // le document est un JPG
-            {
-                QImage image;
-                if (!image.loadFromData(doc->imageblob()))
-                {
-                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                    return Q_NULLPTR;
-                }
-                UpLabel *lab    = new UpLabel(doc);
-                lab             ->setImage(image);
-                QPixmap pix     = QPixmap::fromImage(image).scaledToWidth(sizeforunit().width(), Qt::SmoothTransformation);
-                lab             ->setPixmap(pix);
-                lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
-                //lab             ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;");
-                connect(lab, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-                lab             ->setrufusitem(doc);
-                lab             ->installEventFilter(this);
-                glaywidg = lab;
-            }
-            else if (doc->imageformat() == PDF)     // doc is pdf
+            else
             {
                 QList<QImage> listimg;
-                listimg = doc->pagelist();
-
-                if (listimg.size())
+                QSize displaysize;
+                if (doc->imageformat() == JPG)      // doc is JPG
                 {
-                    UpTableWidget *tblwdg = new UpTableWidget(doc);                                  // utilisé pour afficher les pdf qui ont parfois plusieurs pages
-                    tblwdg          ->setFocusPolicy(Qt::NoFocus);
-                    QSize szfinal   = tblwdg->setListimages(listimg, sizeforunit());
-                    for (int i=0; i<tblwdg->labels().size(); i++)
+                    QImage image;
+                    if (!image.loadFromData(doc->imageblob()))
                     {
-                        UpLabel* lab    = tblwdg->labels().at(i);
-                        lab             ->setContextMenuPolicy(Qt::CustomContextMenu);
-                        connect(lab, &QWidget::customContextMenuRequested, this, [=] { Utils::EnChantier(this);});
-                        lab             ->setrufusitem(doc);
-                        lab             ->setPagepdf(i);
-                        lab             ->installEventFilter(this);
+                        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                        delete wdg_display;
+                        return Q_NULLPTR;
                     }
-                    tblwdg          ->setFixedSize(szfinal);
-                    glaywidg        = tblwdg;
+                    displaysize = finalsize(sizeforunit().width(), image);
+                    listimg << image;
                 }
+                else if (doc->imageformat() == PDF) // doc is pdf
+                {
+                    listimg = doc->pagelist();
+                    if (listimg.size() == 0)
+                    {
+                        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                        delete wdg_display;
+                        return Q_NULLPTR;
+                    }
+                    QImage image    = listimg.at(0);
+                    displaysize     = finalsize(sizeforunit().width(), image);
+                }
+                wdg_display     ->setListimg(listimg, displaysize);
             }
-            glay    ->addWidget(glaywidg);
+            //! wdg_display     ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;"); //! for tests
+            wdg_display     ->setrufusitem(doc);
+            wdg_display     ->installEventFilter(this);
+            glaywidg        = wdg_display;
+            glay            ->addWidget(glaywidg);
         }
     }
     widg = new QWidget();
@@ -904,30 +886,26 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                                         if (widg != Q_NULLPTR)
                                         {
                                             QSize size = sizeforunit();
-                                            UpLabel* lab = dynamic_cast<UpLabel*>(widg);                                        //! widget is UpLabel => jpg pict -> resize the pixmap
-                                            if (lab)
+                                            DisplayWidget* wdgdisplay = dynamic_cast<DisplayWidget*>(widg);
+                                            if (wdgdisplay)
                                             {
-                                                QImage img = lab->image();
-                                                QPixmap pix = QPixmap::fromImage(img).scaled(size, Qt::KeepAspectRatio);
-                                                lab->setPixmap(pix);
-                                            }
-                                            else
-                                            {
-                                                UpVideoWidget *gvdeo = dynamic_cast<UpVideoWidget*>(widg);                      //! widget is UpVideoWidget => video -> resize the UpVideoWidget
-                                                if (gvdeo)
+                                                QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(wdgdisplay->scene()->items().at(0));
+                                                if (itm)
                                                 {
-                                                    QSize size          = gvdeo->player()->videosize();
-                                                    double w            = sizeforunit().width();
-                                                    gvdeo               ->setFixedSize(w,w/Utils::sizeratio(size));
+                                                    QImage img      = wdgdisplay->itemImage(itm);
+                                                    QSize imgsize   = finalsize(size.width(), img);
+                                                    wdgdisplay      ->setPixmapforItem(itm, imgsize);
+                                                    wdgdisplay      ->scene()->setSceneRect(0,0,imgsize.width(),imgsize.height());
+                                                    wdgdisplay      ->setMinimumHeight(imgsize.height());
                                                 }
                                                 else
                                                 {
-                                                    UpTableWidget* tbl = dynamic_cast<UpTableWidget*>(widg);                    //! widget is UpTableWidget=> is pdf -> resize each cell in UptableWidget
-                                                    if (tbl)
+                                                    QGraphicsVideoItem *vditm = dynamic_cast<QGraphicsVideoItem *>(wdgdisplay->scene()->items().at(0));
+                                                    if (vditm)
                                                     {
-                                                        QSize sz = (tbl->resizetofit(sizeforunit()));
-                                                        tbl          ->setFixedSize(sz);
-
+                                                        qreal videosizeratio    = wdgdisplay->sizeRatio(wdgdisplay->mediaPlayer()->videosize());
+                                                        QSizeF optimalsize      = wdgdisplay->optimalSizeForVideo(size, videosizeratio);
+                                                        wdgdisplay              ->setFixedHeight(optimalsize.height());
                                                     }
                                                 }
                                             }
@@ -944,10 +922,9 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
     if (mseevent)
         if (event->type() == QEvent::MouseButtonDblClick)
         {
-            if (dynamic_cast<UpLabel*>(obj) != Q_NULLPTR)
-                ZoomDoc(dynamic_cast<QWidget*>(obj));
-            else if (dynamic_cast<UpVideoWidget*>(obj) != Q_NULLPTR)
-                ZoomDoc(dynamic_cast<QWidget*>(obj));
+            qDebug() << "ZoomDoc";
+            if (dynamic_cast<DisplayWidget*>(obj) != Q_NULLPTR)
+                ZoomDoc(dynamic_cast<DisplayWidget*>(obj));
         }
     return QWidget::eventFilter(obj, event);
 }
@@ -956,22 +933,17 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
 {
     dlg_singleimageviewer *imgzoom = Q_NULLPTR;
     DocExterne *doc = Q_NULLPTR;
-    if (dynamic_cast<UpVideoWidget*>(widg) != Q_NULLPTR)
+    if (dynamic_cast<DisplayWidget*>(widg) != Q_NULLPTR)
     {
-        UpVideoWidget *vid = dynamic_cast<UpVideoWidget*>(widg);
-        doc = qobject_cast<DocExterne*>(vid->rufusitem());
-    }
-    else if (dynamic_cast<UpLabel*>(widg) != Q_NULLPTR)
-    {
-        UpLabel *lbl = dynamic_cast<UpLabel*>(widg);
-        doc = qobject_cast<DocExterne*>(lbl->rufusitem());
+        DisplayWidget *wdg = dynamic_cast<DisplayWidget*>(widg);
+        doc = qobject_cast<DocExterne*>(wdg->rufusitem());
     }
     if (doc)
     {
         imgzoom = new dlg_singleimageviewer();
-        imgzoom->setMode(dlg_singleimageviewer::Zoom);
+        imgzoom ->setMode(dlg_singleimageviewer::Zoom);
         imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
-        imgzoom->setListDocuments(listdocsToDisplay(), doc);
+        imgzoom ->setListDocuments(listdocsToDisplay(), doc);
         connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
         if (imgzoom->imagewidget())
             imgzoom->imagewidget()->setOKwheelzoom(true);

@@ -39,35 +39,33 @@ private:
     qreal                           m_ScaleFactor;
     bool                            OKwheelzoom         = false;
     QString                         m_text              = "";
-    void    fitImage(QSize size);
     void    fitVideo(QSize size);
     qreal   listImageScaleFactor(qreal w);
     qreal   videoScaleFactor(QSize finalsize, QSize originsize);
-    qreal   sizeRatio(QSize size);
-    void    setListPixmap(QList<QPixmap> listpixmap);
     void    scale(qreal s);
     void    zoomIn();
     void    zoomOut();
     void    checkSize();
-    QPixmap itempPixmap(QGraphicsPixmapItem *itm)   { return itm->data(1).value<QPixmap>(); }
-    QImage  itempImage(QGraphicsPixmapItem *itm)    { return itm->data(0).value<QImage>(); }
-    QSize   setPixmapforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
-    QSizeF  optimalSizeForVideo(QSize availablesize, qreal videoratio);
 
 public:
     DisplayWidget(QWidget * parent = nullptr);
-    void setOKwheelzoom(bool newOKwheelzoom);
-    void setListimg(const QList<QImage> &newListimg, QSize size);
-    void setVideo(const QString filename, QSize size);
+    QSizeF          optimalSizeForVideo(QSize availablesize, qreal videoratio);
+    void            fitImage(QSize size);
+    qreal           sizeRatio(QSize size);
+    void            setOKwheelzoom(bool newOKwheelzoom);
+    void            setListimg(const QList<QImage> &newListimg, QSize size);
+    void            setVideo(const QString filename, QSize size);
 
-    void setText(const QString &newText);
+    void            setText(const QString &newText);
 
-    UpMediaPlayer *mediaPlayer() const;
+    UpMediaPlayer*  mediaPlayer() const;
+    QSize           setPixmapforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
+    QPixmap         itemPixmap(QGraphicsPixmapItem *itm)   { return itm->data(1).value<QPixmap>(); }
+    QImage          itemImage(QGraphicsPixmapItem *itm)    { return itm->data(0).value<QImage>(); }
 
-    void                    setrufusitem(Item *item) { m_rufusitem = item; }
-    Item*                   rufusitem() const        { return m_rufusitem; }
-    bool                    hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
-
+    void            setrufusitem(Item *item) { m_rufusitem = item; }
+    Item*           rufusitem() const        { return m_rufusitem; }
+    bool            hasrufusitem() const     { return m_rufusitem != Q_NULLPTR; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

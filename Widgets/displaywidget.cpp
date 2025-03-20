@@ -38,7 +38,7 @@ qreal DisplayWidget::listImageScaleFactor(qreal w)
     qreal scale = 0;
     foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
     {
-        qreal pw = itempPixmap(itm).width();
+        qreal pw = itemPixmap(itm).width();
         qreal scaleFactorWidth = w/pw;
         scale = qMax(scaleFactorWidth, scale);
     }
@@ -165,9 +165,9 @@ void DisplayWidget::fitImage(QSize size)
         int h = 0;
         foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
             if (itm)
-                h += itempPixmap(itm).height();
+                h += itemPixmap(itm).height();
         if (m_listgraphicsItem.at(0))
-            m_scene->setSceneRect(0, 0, itempPixmap(m_listgraphicsItem.at(0)).width(), h);
+            m_scene->setSceneRect(0, 0, itemPixmap(m_listgraphicsItem.at(0)).width(), h);
     }
 }
 

@@ -69,6 +69,14 @@ private:
         int width = sizeForMainWidgetDisplay().width();
         return QSize(width/2,width/2);
     }
+    QSize finalsize(int width, QImage img)
+    {
+        qreal w = img.size().width();
+        qreal h = img.size().height();
+        qreal imgratio = w/h;
+        QSize imgsize = QSize(width, width/imgratio);
+        return imgsize;
+    }
     void                    ZoomDoc(QWidget *widg);
 };
 #endif // DLG_MULTIIMAGEVIEWER_H
