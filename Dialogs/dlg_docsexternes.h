@@ -75,8 +75,6 @@ private:
     void                    BasculeTriListe(dlg_docsexternes::ModeTri mode);
 
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
-    void                    EnregistreImage(DocExterne* docmt);
-    void                    EnregistreVideo();
 
     void                    FiltrerListe(UpCheckBox *chk);
     DocExterne*             getDocumentFromIndex(QModelIndex idx);
@@ -90,7 +88,6 @@ private:
 
     void                    OpenMultiImageViewer(int iddoc = 0);
 
-    void                    ReImprimeDoc(DocExterne *docmt);
     void                    RemplirTreeView();
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
     void                    ZoomDoc(bool changemode = true);

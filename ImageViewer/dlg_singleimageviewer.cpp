@@ -62,7 +62,6 @@ void dlg_singleimageviewer::displaycurrentDocument()
         if (m_currentDoc->isVideo())
         {
             QString filename = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + m_currentDoc->lienversfichier();
-            setVideofile(filename);
             DisplayVideo(filename);
         }
         else
@@ -91,11 +90,6 @@ void dlg_singleimageviewer::setDepense(Depense *dep)
         if (listimg.size() > 0)
             DisplayImage(listimg, dep->objet());
     }
-}
-
-void dlg_singleimageviewer::setVideofile(QString filepath)
-{
-    DisplayVideo(filepath);
 }
 
 qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)

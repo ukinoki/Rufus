@@ -578,7 +578,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 type = doc->typedoc();
             Procedures::I()->CalcImageDocument(doc);
             QWidget *glaywidg = Q_NULLPTR;
-            DisplayWidget *wdg_display = new DisplayWidget;
+            DisplayWidget *wdg_display = Q_NULLPTR;
             if (doc->isVideo())  //! le document est une video -> n'est pas stocké dans la base mais dans un fichier sur le disque
             {
                 QString filepath = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
@@ -595,37 +595,22 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                     UpMessageBox::Watch(this,msg);
                     return Q_NULLPTR;
                 }
+                wdg_display                 = new DisplayWidget;
                 wdg_display                 ->setVideo(filepath, sizeforunit());
                 wdg_display->mediaPlayer()  ->play();
             }
             else
             {
-                QList<QImage> listimg;
+                QList<QImage> listimg = doc->pagelist();
                 QSize displaysize;
-                if (doc->imageformat() == JPG)      // doc is JPG
+                if (listimg.size() == 0)
                 {
-                    QImage image;
-                    if (!image.loadFromData(doc->imageblob()))
-                    {
-                        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                        delete wdg_display;
-                        return Q_NULLPTR;
-                    }
-                    displaysize = finalsize(sizeforunit().width(), image);
-                    listimg << image;
+                    UpMessageBox::Watch(this,tr("Impossible de charger le document"));
+                    return Q_NULLPTR;
                 }
-                else if (doc->imageformat() == PDF) // doc is pdf
-                {
-                    listimg = doc->pagelist();
-                    if (listimg.size() == 0)
-                    {
-                        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-                        delete wdg_display;
-                        return Q_NULLPTR;
-                    }
-                    QImage image    = listimg.at(0);
-                    displaysize     = finalsize(sizeforunit().width(), image);
-                }
+                QImage image    = listimg.at(0);
+                displaysize     = finalsize(sizeforunit().width(), image);
+                wdg_display     = new DisplayWidget;
                 wdg_display     ->setListimg(listimg, displaysize);
             }
             //! wdg_display     ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;"); //! for tests
@@ -942,9 +927,11 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
     {
         imgzoom = new dlg_singleimageviewer();
         imgzoom ->setMode(dlg_singleimageviewer::Zoom);
-        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
+        imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonPrint);
         imgzoom ->setListDocuments(listdocsToDisplay(), doc);
-        connect(imgzoom->OKButton,    &UpSmallButton::clicked, imgzoom, &dlg_singleimageviewer::close);
+        connect(imgzoom->OKButton,      &UpSmallButton::clicked,    imgzoom,    &dlg_singleimageviewer::close);
+        connect(imgzoom->PrintButton,   &UpSmallButton::clicked,    this,       [=] {Procedures::I()->Print(doc->pagelist());});
+        connect(imgzoom->RecordButton,  &UpSmallButton::clicked,    this,       [=] {Procedures::I()->saveDocumentToFile(doc, imgzoom);});
         if (imgzoom->imagewidget())
             imgzoom->imagewidget()->setOKwheelzoom(true);
         imgzoom->exec();

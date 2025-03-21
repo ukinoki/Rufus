@@ -38,7 +38,7 @@ public:
     QMap<QString,QVariant>  mapimg() const;
     void                    setListDocuments (QList<DocExterne *> listdocs, DocExterne *doc = Q_NULLPTR);
     void                    setDepense (Depense *dep);
-    void                    setVideofile (QString filepath);
+    void                    DisplayVideo(QString filepath);
 
     dlg_singleimageviewer::Mode     mode() const;
     void                    setMode(Mode newMode);
@@ -49,7 +49,7 @@ public:
 
     void                    setCorrectionwidget(QWidget *newCorrectionwidget);
 
-    DisplayWidget*        imagewidget() const;
+    DisplayWidget*          imagewidget() const;
 
     QList<DocExterne *> ListDocs() const;
 
@@ -59,7 +59,6 @@ protected:
 private:
     qreal                   widgetRatio(QList<QImage> listimg);
     void                    DisplayImage(QList<QImage> listimg, QString nomdoc = QString());
-    void                    DisplayVideo(QString filepath);
     void                    goTo(UpToolBar::Choice choice);
     void                    displaycurrentDocument();
 

@@ -5740,6 +5740,70 @@ bool Procedures::isUserConnected(User *usr)
     return false;
 }
 
+void Procedures::saveDocumentToFile(DocExterne *doc, QWidget *parent)
+{
+    if (doc == Q_NULLPTR)
+        return;
+    Patient *pat = Datas::I()->patients->getById(doc->idpatient());
+    if (pat == Q_NULLPTR)
+    {
+        UpMessageBox::Watch(parent,  tr("Echec"), tr("Impossible de retrouver les données du patient pour ce document"));
+        return;
+    }
+    bool a = false;
+    QString name = "";
+    if (doc->isVideo())
+    {
+        Utils::ModeAcces modeacces = DataBase::I()->ModeAccesDataBase();
+        QString filename = settings()->value(Utils::getBaseFromMode(modeacces) + Dossier_Videos).toString() + "/" + doc->lienversfichier();
+        QFile   qFile(filename);
+        if (modeacces == Utils::Distant)
+            if (settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_Videos).toString() == "" || !qFile.exists())
+            {
+                UpMessageBox::Watch(parent, tr("Echec"), tr("Video non accessible en accès distant"));
+                return;
+            }
+        if (!qFile.open(QIODevice::ReadOnly))
+        {
+            QString msg = tr("Erreur d'accès au fichier:") + " " + filename;
+            UpMessageBox::Watch(parent, msg);
+            return;
+        }
+        QFileDialog dialog(parent, tr("Enregistrer un fichier"), QDir::homePath());
+        dialog.setFileMode(QFileDialog::Directory);
+        dialog.setViewMode(QFileDialog::List);
+        if (dialog.exec() == QDialog::Accepted)
+        {
+            name = pat->nomcomplet() + " - " + doc->date().toString("d-MMM-yyyy") + " - " + doc->titrelong() +
+                   "." + QFileInfo(filename).suffix().toLower();
+            name = dialog.directory().path() + "/" + name;
+            a = QFile(filename).copy(name);
+        }
+    }
+    else if (doc->isImage())
+    {
+        if (doc->imageblob() == QByteArray())
+            CalcImageDocument(doc);
+        if (doc->imageblob() == QByteArray())
+        {
+            UpMessageBox::Watch(parent, tr("Echec"), tr("Impossible de charger le document"));
+            return;
+        }
+        QFileDialog dialog(parent, tr("Enregistrer un fichier"), QDir::homePath());
+        dialog.setFileMode(QFileDialog::Directory);
+        dialog.setViewMode(QFileDialog::List);
+        if (dialog.exec() == QDialog::Accepted)
+        {
+            name = pat->nomcomplet() + " - " + doc->date().toString("d-MMM-yyyy") + " - " + doc->titrelong() +
+                    "." + doc->imageformat();
+            name = dialog.directory().path() + "/" + name;
+            a = Utils::writeBinaryFile(doc->imageblob(), name);
+        }
+    }
+    if (a)
+        UpMessageBox::Show(parent, tr("Document enregistré dans"), name);
+}
+
 QString Procedures::dirnamepdf() const
 {
     return m_dirnamepdf;

@@ -140,7 +140,7 @@ void dlg_docsvideo::NavigueVers(UpToolBar::Choice choix)
     if (idx>-1)
     {
         m_currentvideofile  = listfich.at(idx);
-        dlg_imgviewer       ->setVideofile(m_docpath + "/" + m_currentvideofile);
+        dlg_imgviewer       ->DisplayVideo(m_docpath + "/" + m_currentvideofile);
     }
 }
 
@@ -161,7 +161,7 @@ void dlg_docsvideo::ChangeFile()
     wdg_toolbar->Prec()     ->setEnabled(idx>0);
     wdg_toolbar->Next()     ->setEnabled(idx < listfich.size()-1);
     wdg_toolbar->Last()     ->setEnabled(idx < listfich.size()-1);
-    dlg_imgviewer           ->setVideofile(m_docpath + "/" + m_currentvideofile);
+    dlg_imgviewer           ->DisplayVideo(m_docpath + "/" + m_currentvideofile);
 }
 
 void dlg_docsvideo::addFullScreenMenu()

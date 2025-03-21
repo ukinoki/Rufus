@@ -183,7 +183,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=] {ReImprimeDoc(docmt);});
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=] {proc->Print(docmt->pagelist());});
         connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  true);});
         connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  false);});
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
@@ -312,6 +312,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton        ->setVisible(j);
     RecordButton        ->disconnect();
+    connect (RecordButton,  &UpSmallButton::clicked,    this,   [=] {proc->saveDocumentToFile(m_currentdocument, this);});
     //PrintButton         ->setVisible(!docmt->isVideo());
     labinfowidget()     ->setVisible(!docmt->isVideo());
 
@@ -332,9 +333,8 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
             UpMessageBox::Watch(this,msg);
             return;
         }
-        setVideofile(filename);
+        DisplayVideo(filename);
 
-        connect (RecordButton,      &QPushButton::clicked,                  this,   &dlg_docsexternes::EnregistreVideo);
         labinfowidget() ->setText("");
     }
     else                                    //! le document est une image ou un document écrit (ordonnance, certificat...)
@@ -344,8 +344,6 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         if  (docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
             sstitre = "<font color='magenta'>" + docmt->datetimeimpression().toString(tr("d-M-yyyy")) + " - " + docmt->soustypedoc() + "</font>";
         labinfowidget()         ->setText(sstitre);
-        connect (RecordButton,  &QPushButton::clicked,   this,  [=] {EnregistreImage(docmt);});
-
         if (docmt->isJPG())             //! le document est un JPG
         {
             QImage image;
@@ -438,48 +436,6 @@ void dlg_docsexternes::ActualiseDocsExternes()
     }
 }
 
-void dlg_docsexternes::EnregistreImage(DocExterne *docmt)
-{
-    if (docmt->imageblob() == QByteArray())
-        proc->CalcImageDocument(docmt);
-    if (docmt->imageblob() == QByteArray())
-    {
-        UpMessageBox::Watch(this,tr("Impossible de charger le document"));
-        return;
-    }
-    QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        QString name = docmt->lienversfichier();
-        if (m_docsexternes->patient() != Q_NULLPTR)
-            name = m_docsexternes->patient()->nomcomplet() + " - " + docmt->date().toString("d-MMM-yyyy") + " - " + docmt->titrelong() +
-                   "." + docmt->imageformat();
-        QDir dockdir = dialog.directory();
-        name = dockdir.path() + "/" + name;
-        Utils::writeBinaryFile(docmt->imageblob(), name);
-    }
-}
-
-void dlg_docsexternes::EnregistreVideo()
-{
-    QString filename = imagewidget()->mediaPlayer()->source().path();
-    QFileDialog dialog(this, tr("Enregistrer un fichier"), QDir::homePath());
-    dialog.setFileMode(QFileDialog::Directory);
-    dialog.setViewMode(QFileDialog::List);
-    if (dialog.exec() == QDialog::Accepted)
-    {
-        QString name = filename;
-        if (m_docsexternes->patient() != Q_NULLPTR)
-            if (m_currentdocument != Q_NULLPTR)
-                name = m_docsexternes->patient()->nomcomplet() + " - " + m_currentdocument->date().toString("d-MMM-yyyy") + " - " + m_currentdocument->titrelong() +
-                       QFileInfo(name).suffix().toLower();
-        QDir dockdir = dialog.directory();
-        QFile(filename).copy(dockdir.path() + "/" + name);
-    }
-}
-
 void dlg_docsexternes::FiltrerListe(UpCheckBox *chk)
 {
     if (chk == wdg_onlyimportantsdocsupcheckbox)
@@ -568,7 +524,7 @@ void dlg_docsexternes::ImprimeDoc()
 
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
         if (msgbox.clickedButton() == &ReimprBouton)
-            ReImprimeDoc(docmt);
+            proc->Print(docmt->pagelist());
 
         //Réédition d'un document - on va réimprimer le document à la date du jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
         else if (msgbox.clickedButton() == &ModifEtReimprBouton || msgbox.clickedButton() == &ImpAujourdhuiBouton)
@@ -690,30 +646,6 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         }
     }
     return true;
-}
-
-void dlg_docsexternes::ReImprimeDoc(DocExterne *docmt)
-{
-    if (docmt->imageblob() == QByteArray())
-        proc->CalcImageDocument(docmt);
-
-    //
-    // First, we fill img_list with document pages
-    //
-    QList<QImage> imglist = QList<QImage>();
-    if (docmt->imageformat() == PDF)     // le document est un pdf ou un document texte
-        imglist = docmt->pagelist();
-    else if (docmt->imageformat() == JPG)     // le document est un jpg
-    {
-        QPixmap pix;
-        pix.loadFromData(docmt->imageblob());
-        imglist << pix.toImage();
-    }
-
-    proc->Print(imglist);
-
-    if (currentpatient() != Datas::I()->patients->currentpatient())
-        close();
 }
 
 void dlg_docsexternes::ModifierDate(QModelIndex idx)
