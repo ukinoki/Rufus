@@ -101,7 +101,9 @@ private:
 
 public:
     static DataBase*        I();
-    QSqlDatabase dbase() { return m_db; }
+    QSqlDatabase            dbase() { return m_db; }
+
+    qint64                  DatabaseSize(); /*! total database size in bytes */
 
     /*
      * SQL

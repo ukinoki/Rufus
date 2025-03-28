@@ -327,7 +327,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             m_basesize += QFile(listnomsfilestorestore.at(i)).size();
     }
     else
-        m_basesize = CalcBaseSize();
+        m_basesize = db->DatabaseSize();
     m_imagessize = 0;
     m_videossize = 0;
     // espace libre sur le disque ------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2178,22 +2178,6 @@ bool Procedures::ReinitBase()
         exit(0);
     }
     return false;
-}
-
-qint64 Procedures::CalcBaseSize()
-{
-    qint64 basesize = 0;
-    QString req = "SELECT SUM(TotalSize) from "
-                      "(SELECT table_schema, round(sum(data_length+index_length),4) AS TotalSize FROM information_schema.tables"
-                      " where table_schema = '" DB_COMPTA "'"
-                      " or table_schema = '" DB_RUFUS "'"
-                      " or table_schema = '" DB_OPHTA "'"
-                      " GROUP BY table_schema)"
-                      " as bdd";
-    QVariantList basedata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-    if (m_ok && basedata.size()>0)
-        basesize = basedata.at(0).toLongLong();
-    return basesize;
 }
 
 void Procedures::CalcTimeBupRestore()

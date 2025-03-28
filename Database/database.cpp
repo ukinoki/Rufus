@@ -33,6 +33,23 @@ DataBase* DataBase::I()
 
 DataBase::DataBase() {}
 
+qint64 DataBase::DatabaseSize()
+{
+    qint64  basesize = 0;
+    bool    ok = false;
+    QString req = "SELECT SUM(TotalSize) from "
+                  "(SELECT table_schema, round(sum(data_length+index_length),4) AS TotalSize FROM information_schema.tables"
+                  " where table_schema = '" DB_COMPTA "'"
+                  " or table_schema = '" DB_RUFUS "'"
+                  " or table_schema = '" DB_OPHTA "'"
+                  " GROUP BY table_schema)"
+                  " as bdd";
+    QVariantList basedata = getFirstRecordFromStandardSelectSQL(req, ok);
+    if (ok && basedata.size()>0)
+        basesize = basedata.at(0).toLongLong();
+    return basesize;
+}
+
 void DataBase::initParametresConnexionSQL(QString Server, int Port)
 {
     m_server = Utils::calcIP(Server, false);

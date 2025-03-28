@@ -33,12 +33,12 @@ public:
     void                    NavigueVers(UpToolBar::Choice choix);
     QMap<QString, QVariant> getdataFacture();
 
-    dlg_singleimageviewer*          dialog() const;
+    dlg_singleimageviewer*  dialog() const;
 
 private:
     DataBase                *db             = DataBase::I();
     Procedures              *proc           = Procedures::I();
-    dlg_singleimageviewer           *dlg_imgviewer    = Q_NULLPTR;
+    dlg_singleimageviewer   *dlg_imgviewer  = Q_NULLPTR;
     bool                    m_accesdistant;
     QString                 m_pathdirstockageimagerie;
     QDate                   m_currentdate   = db->ServerDate();

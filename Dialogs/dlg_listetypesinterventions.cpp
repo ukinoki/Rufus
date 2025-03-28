@@ -229,11 +229,11 @@ void dlg_listetypesinterventions::ConfigMode(Mode mode, TypeIntervention *typ)
                 if (mcs)
                     if (mcs == typ)
                     {
+                        m_model->item(i,0)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                         m_model->item(i,1)->setFlags(Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable);
                         wdg_tblview->setFocus();
                         wdg_tblview->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
                         wdg_tblview->setCurrentIndex(m_model->index(i,1));
-                        wdg_tblview->openPersistentEditor(m_model->index(i,1));
                         i = m_model->rowCount();
                     }
             }
@@ -323,10 +323,23 @@ bool dlg_listetypesinterventions::EnregistreType(TypeIntervention *typ)
     if (!itm)
         return false;
     qApp->focusWidget()->clearFocus();   //permet de déclencher le focusout du delegate qui va lancer le signal commiData
-    m_model->setData(m_model->index(row,0),m_textdelegate);
-    m_model->setData(m_model->index(row,1),m_ccamdelegate);
-    QString TypeIntervention = Utils::capitilize(m_textdelegate.left(80), true);
-    QString CCAM             = Utils::capitilize(m_ccamdelegate.left(15), true);
+
+    UpStandardItem* item = dynamic_cast<UpStandardItem *>(m_model->item(row,0));
+    QString TypeIntervention = item->text();
+    QString newvalue = Utils::capitilize(m_textdelegate.left(80), true);
+    if (newvalue != "" && newvalue != TypeIntervention)
+        TypeIntervention = newvalue;
+    m_model->setData(m_model->index(row,0),TypeIntervention);
+
+    item = dynamic_cast<UpStandardItem *>(m_model->item(row,1));
+    QString CCAM = item->text();
+    newvalue = Utils::capitilize(m_ccamdelegate.left(80), true);
+    if (newvalue != CCAM)
+        CCAM = newvalue;
+    m_model->setData(m_model->index(row,1),CCAM);
+
+    //UpLineDelegate *lindeleg = qobject_cast<UpLineDelegate *>(wdg_tblview->itemDelegateForColumn(0));
+
     // recherche de l'enregistrement modifié
     // controle validate des champs
     if (ChercheDoublon(TypeIntervention,row))
@@ -481,7 +494,6 @@ void dlg_listetypesinterventions::RemplirTableView()
                                                                       });
         wdg_tblview->setItemDelegateForColumn(0,linetxt);
         wdg_tblview->setItemDelegateForColumn(1,lineccam);
-
     }
     else
         ConfigMode(Creation);
