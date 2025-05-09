@@ -176,6 +176,8 @@ QString Utils::trim(QString text, bool end, bool removereturnend)
  */
 QString Utils::capitilize(QString text, bool onlyfirst)
 {
+    if (text.size() == 0)
+        return "";
     QString newText="";
     if (onlyfirst)
     {

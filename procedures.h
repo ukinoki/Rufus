@@ -410,8 +410,6 @@ signals:
                                 * et par le timer t_timerbackup pour effectuer une sauvegarde automatique et sans choix des options dans ce cas */
         void                    BackupWakeUp();
                                 /*! déclenche le backup au moment programmé */
-        qint64                  CalcBaseSize();
-                                /*! calcule le volume de la base */
         void                    CalcTimeBupRestore();
                                 /*! calcule la durée approximative du backup */
         void                    DefinitScriptBackup(QString pathbackupbase);

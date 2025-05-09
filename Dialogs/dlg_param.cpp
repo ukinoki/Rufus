@@ -374,6 +374,10 @@ dlg_param::dlg_param(QWidget *parent) :
         bool poste = DataBase::I()->ModeAccesDataBase() == Utils::Poste;
         ui->PosteStockageupLabel        ->setVisible(poste);
         ui->PosteStockageInfoUpLabel    ->setVisible(poste);
+        ui->PosteVideoDirupLabel        ->setVisible(poste);
+        ui->PosteVideoDirupLineEdit     ->setVisible(poste);
+        ui->PosteVideoDirupPushButton   ->setVisible(poste);
+
         ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
         ui->PosteStockageInfoUpLabel    ->setText(QDir::toNativeSeparators(db->dirimagerie()));
     }
@@ -388,6 +392,9 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->LocalPathStockageupLabel        ->setVisible(b);
     ui->LocalPathStockageupLineEdit     ->setVisible(b);
     ui->LocalPathStockageupPushButton   ->setVisible(b);
+    ui->LocalVideoDirupLabel            ->setVisible(b);
+    ui->LocalVideoDirupLineEdit         ->setVisible(b);
+    ui->LocalVideoDirupPushButton       ->setVisible(b);
     if (b)
     {
         ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + Param_Serveur).toString());
@@ -405,6 +412,9 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DistantStockageupLabel      ->setVisible(c);
     ui->DistantStockageupLineEdit   ->setVisible(c);
     ui->DistantStockageupPushButton ->setVisible(c);
+    ui->DistantVideoDirupLabel      ->setVisible(c);
+    ui->DistantVideoDirupLineEdit   ->setVisible(c);
+    ui->DistantVideoDirupPushButton ->setVisible(c);
     if (c)
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + Param_Serveur).toString());
@@ -1022,6 +1032,9 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->MonoDocupTableWidget        ->setEnabled(a);
         ui->PosteStockageupLabel        ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
         ui->PosteStockageInfoUpLabel    ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
+        ui->PosteVideoDirupLabel        ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
+        ui->PosteVideoDirupLineEdit     ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
+        ui->PosteVideoDirupPushButton   ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
     }
     else if (box == ui->LocalServcheckBox)
     {
@@ -1032,6 +1045,9 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->LocalPathStockageupLabel        ->setVisible(a);
         ui->LocalPathStockageupLineEdit     ->setVisible(a);
         ui->LocalPathStockageupPushButton   ->setVisible(a);
+        ui->LocalVideoDirupLabel            ->setVisible(a);
+        ui->LocalVideoDirupLineEdit         ->setVisible(a);
+        ui->LocalVideoDirupPushButton       ->setVisible(a);
         ui->Localframe                      ->setEnabled(a);
         ui->LocalConnexionupLabel           ->setEnabled(a);
         ui->LocalDocsExtupLabel             ->setEnabled(a);
@@ -1039,6 +1055,9 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->LocalPathStockageupLabel        ->setEnabled(a);
         ui->LocalPathStockageupLineEdit     ->setEnabled(a);
         ui->LocalPathStockageupPushButton   ->setEnabled(a);
+        ui->LocalVideoDirupLabel            ->setEnabled(a);
+        ui->LocalVideoDirupLineEdit         ->setEnabled(a);
+        ui->LocalVideoDirupPushButton       ->setEnabled(a);
     }
     else if (box == ui->DistantServcheckBox)
     {
@@ -1060,6 +1079,9 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->DistantStockageupLabel      ->setVisible(a);
         ui->DistantStockageupLineEdit   ->setVisible(a);
         ui->DistantStockageupPushButton ->setVisible(a);
+        ui->DistantVideoDirupLabel      ->setVisible(a);
+        ui->DistantVideoDirupLineEdit   ->setVisible(a);
+        ui->DistantVideoDirupPushButton ->setVisible(a);
         ui->DistantConnexionupLabel     ->setEnabled(a);
      }
 }
