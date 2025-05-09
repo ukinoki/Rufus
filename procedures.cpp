@@ -1359,18 +1359,9 @@ QMap<QString, QString> Procedures::CalcEnteteImpression(QDate date, User *user, 
 /*---------------------------------------------------------------------------------
     Retourne le pied du document à imprimer
 -----------------------------------------------------------------------------------*/
-QString Procedures::CalcPiedImpression(User *user, bool lunettes, bool ALD)
+QString Procedures::CalcPiedImpression(User *user)
 {
-    QString textpied;
-    if (ALD)
-        textpied =  Ressources::I()->FooterOrdo();
-    else
-   {
-        textpied = (lunettes? Ressources::I()->FooterOrdoLunettes() : Ressources::I()->FooterOrdo());
-        if (lunettes)
-            textpied.replace("{{METIER}}", (Datas::I()->users->userconnected()->metier()==User::Ophtalmo? tr("ophtalmologiste"):
-                                            (Datas::I()->users->userconnected()->metier()==User::Orthoptiste)? tr("orthoptiste") : tr("optométriste")));
-    }
+    QString textpied =  Ressources::I()->FooterOrdo();
     bool isaga = false;
     if (user)
     {
@@ -1703,7 +1694,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     textentete.replace("{{DDN}}"           , "");
 
     //création du pied
-    textpied = CalcPiedImpression(user, false, ALD);
+    textpied = CalcPiedImpression(user);
     if (textpied == "")
         return false;
 
@@ -2065,11 +2056,6 @@ int Procedures::TailleEnTeteALD()
 int Procedures::TaillePieddePage()
 {
     return m_settings->value(Imprimante_TaillePieddePage).toInt();
-}
-
-int Procedures::TaillePieddePageOrdoLunettes()
-{
-    return m_settings->value(Imprimante_TaillePieddePageOrdoLunettes).toInt();
 }
 
 int Procedures::TailleTopMarge()
@@ -4076,7 +4062,6 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue(Imprimante_TailleEnTete,"45");
     m_settings->setValue(Imprimante_TailleEnTeteALD,"63");
     m_settings->setValue(Imprimante_TaillePieddePage,"20");
-    m_settings->setValue(Imprimante_TaillePieddePageOrdoLunettes,"40");
     m_settings->setValue(Imprimante_TailleTopMarge,"3");
     m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
     m_settings->setValue("PyxInterf/PyxvitalPath", QDir::homePath() + "/Documents/Pyxvital");
@@ -7457,7 +7442,7 @@ void Procedures::LectureDonneesXMLFronto(QDomDocument docxml)
 {
     Logs::LogToFile("MesuresFronto.txt", docxml.toByteArray());
     QString nameLM =m_settings->value(Param_Poste_Fronto).toString();
-    if (nameLM=="NIDEK LM-1800P" || nameLM=="NIDEK LM-500" || nameLM=="NIDEK LM-7" || nameLM=="TOMEY TL-6000" || nameLM=="TOMEY TL-7000" || nameLM=="RODENSTOCK AL 6600")
+    if (nameLM=="NIDEK LM-1800PD" || nameLM=="NIDEK LM-1800P" || nameLM=="NIDEK LM-500" || nameLM=="NIDEK LM-7" || nameLM=="TOMEY TL-6000" || nameLM=="TOMEY TL-7000" || nameLM=="RODENSTOCK AL 6600")
     {
         Nidek::I()->LectureDonneesXMLFronto(docxml);
     }
@@ -8263,7 +8248,7 @@ void Procedures::CalcImageDocument(DocExterne *docmt)
             TextPrinter *TexteAImprimer = new TextPrinter();
             TexteAImprimer  ->setHeaderSize(docmt->isALD()? TailleEnTeteALD() : TailleEnTete());
             TexteAImprimer  ->setHeaderText(textentete);
-            TexteAImprimer  ->setFooterSize(docmt->format() == PRESCRIPTIONLUNETTES? TaillePieddePageOrdoLunettes() : TaillePieddePage());
+            TexteAImprimer  ->setFooterSize(TaillePieddePage());
             TexteAImprimer  ->setFooterText(textpied);
             TexteAImprimer  ->setTopMargin(TailleTopMarge());
             ba              = TexteAImprimer->getPDFByteArray(Etat_textEdit->document());

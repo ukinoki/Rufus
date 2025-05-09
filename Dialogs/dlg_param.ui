@@ -2562,7 +2562,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>130</x>
-               <y>106</y>
+               <y>83</y>
                <width>210</width>
                <height>16</height>
               </rect>
@@ -2572,22 +2572,6 @@ du dossier de stockage des videos</string>
              </property>
              <property name="text">
               <string>Marge haute</string>
-             </property>
-            </widget>
-            <widget class="QLabel" name="PiedDePageOrdoLunetteslabel">
-             <property name="geometry">
-              <rect>
-               <x>130</x>
-               <y>82</y>
-               <width>210</width>
-               <height>16</height>
-              </rect>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>Pied de page ordonnance lunettes</string>
              </property>
             </widget>
             <widget class="QSpinBox" name="EntetespinBox">
@@ -2638,27 +2622,11 @@ du dossier de stockage des videos</string>
               <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
              </property>
             </widget>
-            <widget class="QSpinBox" name="PiedDePageOrdoLunettesspinBox">
-             <property name="geometry">
-              <rect>
-               <x>350</x>
-               <y>79</y>
-               <width>59</width>
-               <height>24</height>
-              </rect>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-             </property>
-            </widget>
             <widget class="QSpinBox" name="TopMargespinBox">
              <property name="geometry">
               <rect>
                <x>350</x>
-               <y>103</y>
+               <y>80</y>
                <width>59</width>
                <height>24</height>
               </rect>
@@ -2703,7 +2671,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>130</x>
-               <y>130</y>
+               <y>105</y>
                <width>271</width>
                <height>20</height>
               </rect>
@@ -2719,7 +2687,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>130</x>
-               <y>155</y>
+               <y>130</y>
                <width>271</width>
                <height>20</height>
               </rect>

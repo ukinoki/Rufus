@@ -237,12 +237,11 @@ public:
     int                     TailleEnTete();
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
-    int                     TaillePieddePageOrdoLunettes();
     int                     TailleTopMarge();
             /*! a - Impression d'un texte */
     QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
-    QString                 CalcPiedImpression(User* user, bool lunettes = false, bool ALD = false);
+    QString                 CalcPiedImpression(User* user);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                       int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(),
                       bool AvecDupli = false, bool AvecNumPage = false,

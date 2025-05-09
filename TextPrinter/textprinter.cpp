@@ -117,9 +117,9 @@ bool TextPrinter::print(const QTextDocument *document, QString ficpdf, const QSt
                 else printer_= dialog.printer();
             }
             else if (!QPrinterInfo::defaultPrinter().isNull())
-                printer_ = new QPrinter(QPrinterInfo::defaultPrinter());
+                printer_ = new QPrinter(QPrinterInfo::defaultPrinter(), QPrinter::PrinterResolution);
             else
-                printer_ = new QPrinter(QPrinterInfo::availablePrinters().at(0));
+                printer_ = new QPrinter(QPrinterInfo::availablePrinters().at(0), QPrinter::PrinterResolution);
         }
         printer_->setOutputFormat(QPrinter::NativeFormat);
         printer_->setOutputFileName(QString());

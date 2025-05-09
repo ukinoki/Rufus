@@ -1507,7 +1507,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     textentete.replace("{{DDN}}"               , "");
 
     // création du pied
-    textpied = proc->CalcPiedImpression(userEntete, true);
+    textpied = proc->CalcPiedImpression(userEntete);
     if (textpied == "") return false;
 
     // creation du corps de l'ordonnance
@@ -1515,7 +1515,7 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     if (textcorps == "") return false;
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
-                       proc->TaillePieddePageOrdoLunettes(), proc->TailleEnTete(), proc->TailleTopMarge(), userEntete->mapBarCodes(),
+                       proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), userEntete->mapBarCodes(),
                        AvecDupli, AvecNumPage);
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)

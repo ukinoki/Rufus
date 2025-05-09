@@ -431,7 +431,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->EntetespinBox                   ->setValue(proc->settings()->value(Imprimante_TailleEnTete).toInt());
     ui->EnteteALDspinBox                ->setValue(proc->settings()->value(Imprimante_TailleEnTeteALD).toInt());
     ui->PiedDePagespinBox               ->setValue(proc->settings()->value(Imprimante_TaillePieddePage).toInt());
-    ui->PiedDePageOrdoLunettesspinBox   ->setValue(proc->settings()->value(Imprimante_TaillePieddePageOrdoLunettes).toInt());
     ui->TopMargespinBox                 ->setValue(proc->settings()->value(Imprimante_TailleTopMarge).toInt());
     ui->ApercuImpressioncheckBox        ->setChecked(proc->settings()->value(Imprimante_ApercuAvantImpression).toString() ==  "YES");
     ui->OrdoAvecDuplicheckBox           ->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() ==  "YES");
@@ -1724,7 +1723,6 @@ void dlg_param::ResetImprimante()
     ui->EntetespinBox->setValue(45);
     ui->EnteteALDspinBox->setValue(63);
     ui->PiedDePagespinBox->setValue(20);
-    ui->PiedDePageOrdoLunettesspinBox->setValue(40);
     ui->TopMargespinBox->setValue(3);
     EnableOKModifPosteButton();
 }
@@ -4018,7 +4016,6 @@ bool dlg_param::Valide_Modifications()
         proc->settings()->setValue(Imprimante_TailleEnTete,                 ui->EntetespinBox->value());
         proc->settings()->setValue(Imprimante_TailleEnTeteALD,              ui->EnteteALDspinBox->value());
         proc->settings()->setValue(Imprimante_TaillePieddePage,             ui->PiedDePagespinBox->value());
-        proc->settings()->setValue(Imprimante_TaillePieddePageOrdoLunettes, ui->PiedDePageOrdoLunettesspinBox->value());
         proc->settings()->setValue(Imprimante_TailleTopMarge,               ui->TopMargespinBox->value());
         proc->settings()->setValue(Imprimante_ApercuAvantImpression,        (ui->ApercuImpressioncheckBox->isChecked()? "YES" : "NO"));
         proc->settings()->setValue(Imprimante_OrdoAvecDupli,                (ui->OrdoAvecDuplicheckBox->isChecked()? "YES" : "NO"));

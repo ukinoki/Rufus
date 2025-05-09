@@ -135,7 +135,7 @@ void conversionbase::conversionbaseophtalogic()
             }
 
             //création du pied
-            Pied = proc->CalcPiedImpression(Datas::I()->users->getById(idUser.toInt()),false, ALDQ);
+            Pied = proc->CalcPiedImpression(Datas::I()->users->getById(idUser.toInt()));
 
             // creation du corps
             Corps = proc->CalcCorpsImpression(ordolist.at(i).at(2).toString(), ALDQ);

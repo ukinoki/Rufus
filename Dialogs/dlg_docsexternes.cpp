@@ -566,7 +566,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     textentete.replace("{{NOM PATIENT}}"   , (Prescription? m_docsexternes->patient()->nom().toUpper() : ""));
 
     //création du pied
-    textpied = proc->CalcPiedImpression(currentuser(), docmt->format() == PRESCRIPTIONLUNETTES, ALD);
+    textpied = proc->CalcPiedImpression(currentuser());
 
     // creation du corps de l'ordonnance
     QString txtautiliser    = (docmt->textorigine() == ""?              docmt->textcorps()              : docmt->textorigine());

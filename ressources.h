@@ -25,7 +25,6 @@ public:
     QString BodyOrdoALD();
 
     QString FooterOrdo();
-    QString FooterOrdoLunettes();
 };
 
 #endif // RESSOURCES_H

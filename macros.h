@@ -1234,7 +1234,6 @@ public:
 #define Imprimante_TailleEnTete                         "Param_Imprimante/TailleEnTete"
 #define Imprimante_TailleEnTeteALD                      "Param_Imprimante/TailleEnTeteALD"
 #define Imprimante_TaillePieddePage                     "Param_Imprimante/TaillePieddePage"
-#define Imprimante_TaillePieddePageOrdoLunettes         "Param_Imprimante/TaillePieddePageOrdoLunettes"
 #define Imprimante_TailleTopMarge                       "Param_Imprimante/TailleTopMarge"
 #define Imprimante_ApercuAvantImpression                "Param_Imprimante/ApercuAvantImpression"
 #define Imprimante_OrdoAvecDupli                        "Param_Imprimante/OrdoAvecDupli"
