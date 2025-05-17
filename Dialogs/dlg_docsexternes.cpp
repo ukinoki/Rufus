@@ -183,7 +183,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=] {proc->Print(docmt->pagelist());});
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());});
         connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  true);});
         connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  false);});
         connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
@@ -524,7 +524,7 @@ void dlg_docsexternes::ImprimeDoc()
 
         //Reimpression simple du document, sans réédition => pas d'action sur la BDD
         if (msgbox.clickedButton() == &ReimprBouton)
-            proc->Print(docmt->pagelist());
+            proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());
 
         //Réédition d'un document - on va réimprimer le document à la date du jour en le modifiant - ne concerne que les courriers et ordonnances émis => on enregistre le nouveau document dans la BDD
         else if (msgbox.clickedButton() == &ModifEtReimprBouton || msgbox.clickedButton() == &ImpAujourdhuiBouton)
@@ -533,6 +533,21 @@ void dlg_docsexternes::ImprimeDoc()
     }
     connect(PrintButton, &QPushButton::clicked, this, &dlg_docsexternes::ImprimeDoc);
 #endif
+}
+
+QMap<QString, QString> dlg_docsexternes:: CalcNomFilePdf()
+{
+    QMap<QString, QString>  map = QMap<QString, QString>();
+    proc->setDirnamepdf(tr("Documents") + " - " + currentuser()->prenom() + " " + currentuser()->nom() + " - " + QLocale::system().toString(QDate::currentDate(),"dd MMM yyyy"));
+    QString dirname     = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0)) + "/" + proc->dirnamepdf();
+    QString filename    = m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom()  + " - " + m_currentdocument->titre() + ".pdf";
+    QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
+                    tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
+                    proc->dirnamepdf();
+    map.insert("dir", dirname);
+    map.insert("file", filename);
+    map.insert("msg", msgOK);
+    return map;
 }
 
 bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable, bool detruirealafin)
@@ -598,7 +613,24 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     if (usr != Q_NULLPTR)
         mapbarcodes = usr->mapBarCodes();
 
-    aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
+    bool pdf = false;
+    if (!proc->QuestionPdfOrPrint(this, pdf))
+        return false;
+    if (pdf)
+    {
+        QMap<QString, QString> map = CalcNomFilePdf();
+        QString dirname     = map.value("dir");
+        QString filename    = map.value("file");
+        QString msgOK       = map.value("msg");
+        proc->Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? currentuser() : Q_NULLPTR), ALD, dirname);
+        QFile file          = QFile(dirname + "/" + filename);
+        aa                  = file.exists();
+        UpMessageBox::Watch(this,
+                            aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                            aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+    }
+    else
+        aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                             proc->TaillePieddePage(), TailleEnTete, proc->TailleTopMarge(), mapbarcodes,
                             AvecDupli);
 

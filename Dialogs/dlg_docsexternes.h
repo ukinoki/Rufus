@@ -73,6 +73,7 @@ private:
     void                    AfficheCustomMenu(DocExterne *docmt);
     void                    AfficheDoc(QModelIndex idx);
     void                    BasculeTriListe(dlg_docsexternes::ModeTri mode);
+    QMap<QString, QString>  CalcNomFilePdf();
 
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);
 

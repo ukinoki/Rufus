@@ -226,7 +226,9 @@ public:
     void                    CalcImageDocument(DocExterne *docmt);
 
     QPrinter*               printer() {return m_printer;}
+    void                    PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>());
     bool                    Print(QList<QImage> listimage);
+    bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), QWidget *parent = Q_NULLPTR);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
                                               bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true);

@@ -1352,7 +1352,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     choixManufacturerIOLLay     ->setSpacing(5);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
-    connect(wdg_IOLchk, &QCheckBox::stateChanged,       dlg_intervention,   [&](int state) {if (state == Qt::Checked) ReconstruitListeManufacturers();});
+    connect(wdg_IOLchk, &QCheckBox::checkStateChanged,       dlg_intervention,   [&](int state) {if (state == Qt::Checked) ReconstruitListeManufacturers();});
     connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [=]{
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
@@ -1422,7 +1422,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     wdg_choixcylwdg                 ->setLayout(choixCylIOLLay);
 
 
-    connect(wdg_IOLchk, &QCheckBox::stateChanged, dlg_intervention, [&] { wdg_IOL->setVisible(wdg_IOLchk->isChecked()); wdg_choixIOLbutt->setVisible(wdg_IOLchk->isChecked());});
+    connect(wdg_IOLchk, &QCheckBox::checkStateChanged, dlg_intervention, [&] { wdg_IOL->setVisible(wdg_IOLchk->isChecked()); wdg_choixIOLbutt->setVisible(wdg_IOLchk->isChecked());});
     CalcRangeBox(m_currentIOL);
 
     box_IOLlay      ->insertWidget(0, wdg_choixcylwdg);

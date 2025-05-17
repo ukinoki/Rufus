@@ -979,7 +979,8 @@ QString Utils::calcSHA1(QString mdp)
 bool Utils::mkpath(QString path)
 {
     QDir Dir;
-    return Dir.mkpath(path);
+    bool a = Dir.mkpath(path);
+    return a;
 }
 
 /*!

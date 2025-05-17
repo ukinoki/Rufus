@@ -1352,7 +1352,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setContentsMargins(0,0,0,0);
                     Time->setFixedSize(Utils::qtimeeditsize());
                     Time->setTime(QTime::currentTime());
-                    Time->setTimeSpec(Qt::LocalTime);
+                    Time->setTimeZone(QTimeZone(QTimeZone::LocalTime));
                     lay->addWidget(Time);
                 }
                 else if (listtypeQuestions.at(m)  == COTEOEIL)
@@ -1466,7 +1466,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setContentsMargins(0,0,0,0);
                     Time->setFixedSize(Utils::qtimeeditsize());
                     Time->setTime(QTime::currentTime());
-                    Time->setTimeSpec(Qt::LocalTime);
+                    Time->setTimeZone(QTimeZone(QTimeZone::LocalTime));
                     Time->setObjectName(HEUREINTERVENTION);
                     lay->addWidget(Time);
                 }

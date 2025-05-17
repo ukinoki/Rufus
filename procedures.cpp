@@ -1775,6 +1775,53 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     return aa;
 }
 
+bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map, QWidget *parent)
+{
+    auto creepdf = [=] (QPrinter &printer)
+    {
+        QPainter PrintingPreView(&printer);
+        for (int i=0; i<listimage.size();++i)
+        {
+            if( i > 0 ) {
+                printer.newPage();
+            }
+            //QPixmap pix = QPixmap::fromImage(m_imagelist.at(i)).scaledToWidth(int(m_rect.width()),Qt::SmoothTransformation);
+            QPageSize pgSize = printer.pageLayout().pageSize();
+            //QPageSize pgSize(QPageSize::A4);
+            QImage page = listimage.at(i).scaled(pgSize.sizePixels(printer.resolution()), Qt::KeepAspectRatio);
+            PrintingPreView.drawImage(QPoint(0,0),page);
+        }
+    };
+    QPrinter printer(QPrinter::HighResolution);
+    printer             .setOutputFormat(QPrinter::PdfFormat);
+    QString dirname     = map.value("dir");
+    QString filename    = map.value("file");
+    QString msgOK       = map.value("msg");
+    if (Utils::mkpath(dirname))
+    {
+        printer             .setOutputFileName(dirname + "/" + filename);
+        creepdf(printer);
+    }
+    QFile file          = QFile(dirname + "/" + filename);
+    bool aa             = file.exists();
+    UpMessageBox::Watch(parent,
+                        aa? tr("Enregistrement pdf") : tr("Echec enregistrement pdf"),
+                        aa? msgOK : tr ("Impossible d'enregistrer le fichier ") + QDir::toNativeSeparators(filename));
+    return true;
+}
+
+void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QString, QString> map)
+{
+    bool pdf = false;
+    if (QuestionPdfOrPrint(parent, pdf))
+    {
+        if (pdf)
+            createPdfFromListImage(listimage, map, parent);
+        else
+            Print(listimage);
+    }
+}
+
 bool Procedures::Print(QList<QImage> listimage)
 {
     auto print = [=]

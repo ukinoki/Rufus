@@ -310,8 +310,8 @@ void dlg_listeiols::connectFiltersSignals()
 {
     connect(wdg_manufacturerscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
     connect(wdg_typebox,            QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_prechargechk,       &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_toricchk,           &UpCheckBox::stateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_prechargechk,       &UpCheckBox::checkStateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_toricchk,           &UpCheckBox::checkStateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
     connect(wdg_edofchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
                                                                                       {
                                                                                         wdg_multifocalchk->setChecked(false);

@@ -270,7 +270,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
     ui->CotationsFrancecheckBox->setChecked(m_parametres->cotationsfrance());
-    connect (ui->CotationsFrancecheckBox, &QCheckBox::stateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});
+    connect (ui->CotationsFrancecheckBox, &QCheckBox::checkStateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
 
@@ -278,7 +278,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->UtiliseBDDVillescheckBox     ->setChecked(m_parametres->villesfrance() == true);
         ui->UtiliseCustomVillescheckBox  ->setChecked(m_parametres->villesfrance() == false);
         ui->ModifListVillesupPushButton  ->setVisible(m_parametres->villesfrance() == false);
-        connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::stateChanged, this, [=](int state){
+        connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::checkStateChanged, this, [=](int state){
                 ui->ModifListVillesupPushButton->setVisible(state == Qt::Checked);
                 enum Villes::TownsFrom from;
                 if (state == Qt::Checked)
