@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "rufus.h"
 #include "ui_rufus.h"
+#include <cstdlib>
 
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
@@ -27,7 +28,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
 
-    srand(static_cast<uint>(time(Q_NULLPTR)));
+    srand(static_cast<int>(time(Q_NULLPTR)));
 
 #ifdef Q_OS_WINDOWS
     qApp->setStyle(QStyleFactory::create("Fusion"));

@@ -92,7 +92,10 @@ FORMS += \
 
 TRANSLATIONS += rufus_fr.ts \
                 rufus_en.ts \
-                rufus_es.ts
+                rufus_es.ts \
+                rufus_pt.ts \
+                rufus_it.ts \
+                rufus_ro.ts
 
 #--------------------
 # INCLUDE
