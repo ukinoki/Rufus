@@ -9785,14 +9785,12 @@ you wish to reactivate</translation>
         <translation>a2</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationiol.cpp" line="401"/>
         <source>&lt;font color=&quot;red&quot;&gt;&lt;b&gt;a2&lt;/b&gt;&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;red&quot;&gt;&lt;b&gt;a2&lt;/b&gt;&lt;/font&gt;</translation>
+        <translation type="vanished">&lt;font color=&quot;red&quot;&gt;&lt;b&gt;a2&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationiol.cpp" line="487"/>
         <source>&lt;font color=&quot;red&quot;&gt;&lt;b&gt;Barrett&lt;/b&gt;&lt;/font&gt;</source>
-        <translation>&lt;font color=&quot;red&quot;&gt;&lt;b&gt;a2&lt;/b&gt;&lt;/font&gt;</translation>
+        <translation type="vanished">&lt;font color=&quot;red&quot;&gt;&lt;b&gt;a2&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationiol.cpp" line="636"/>

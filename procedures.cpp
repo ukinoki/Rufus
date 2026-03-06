@@ -56,7 +56,6 @@ Procedures::Procedures(QObject *parent) :
         version_Lay                 ->addWidget(frbutt);
         version_Lay                 ->addWidget(enbutt);
         version_Lay                 ->addWidget(esbutt);
-        esbutt                      ->setEnabled(false);
         gbox                        ->setLayout(version_Lay);
         versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         versiondlg                  ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);

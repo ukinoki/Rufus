@@ -9300,16 +9300,6 @@ que vous souhaitez réactiver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationiol.cpp" line="401"/>
-        <source>&lt;font color=&quot;red&quot;&gt;&lt;b&gt;a2&lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="Dialogs/dlg_identificationiol.cpp" line="487"/>
-        <source>&lt;font color=&quot;red&quot;&gt;&lt;b&gt;Barrett&lt;/b&gt;&lt;/font&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="Dialogs/dlg_identificationiol.cpp" line="636"/>
         <source>Remarque</source>
         <translation type="unfinished"></translation>

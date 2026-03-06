@@ -92,6 +92,7 @@ FORMS += \
 
 TRANSLATIONS += rufus_fr.ts \
                 rufus_en.ts \
+                rufus_ca.ts \
                 rufus_es.ts \
                 rufus_pt.ts \
                 rufus_it.ts \
@@ -139,4 +140,5 @@ ICON += \
 DISTFILES += \
     assets/Licenses/License.rtf \
     assets/Licenses/LICENSE \
-    rufus_en.qm
+    rufus_en.qm \
+    rufus_es.qm

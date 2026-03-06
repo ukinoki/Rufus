@@ -87,7 +87,7 @@
    </palette>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::ClickFocus</enum>
+   <enum>Qt::FocusPolicy::ClickFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Rufus</string>
@@ -131,7 +131,7 @@
        <bool>false</bool>
       </property>
       <property name="sizeAdjustPolicy">
-       <enum>QAbstractScrollArea::AdjustToContents</enum>
+       <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
       </property>
       <property name="widgetResizable">
        <bool>true</bool>
@@ -141,8 +141,8 @@
         <rect>
          <x>0</x>
          <y>0</y>
-         <width>1304</width>
-         <height>998</height>
+         <width>1358</width>
+         <height>1034</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_10">
@@ -161,29 +161,29 @@
            </size>
           </property>
           <property name="focusPolicy">
-           <enum>Qt::NoFocus</enum>
+           <enum>Qt::FocusPolicy::NoFocus</enum>
           </property>
           <property name="contextMenuPolicy">
-           <enum>Qt::NoContextMenu</enum>
+           <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
           </property>
           <property name="tabPosition">
-           <enum>QTabWidget::North</enum>
+           <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="tabShape">
-           <enum>QTabWidget::Triangular</enum>
+           <enum>QTabWidget::TabShape::Triangular</enum>
           </property>
           <property name="currentIndex">
            <number>0</number>
           </property>
           <property name="elideMode">
-           <enum>Qt::ElideLeft</enum>
+           <enum>Qt::TextElideMode::ElideLeft</enum>
           </property>
           <property name="tabsClosable">
            <bool>false</bool>
           </property>
           <widget class="QWidget" name="tabList">
            <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
+            <enum>Qt::FocusPolicy::NoFocus</enum>
            </property>
            <attribute name="title">
             <string/>
@@ -225,13 +225,13 @@
                </size>
               </property>
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QVBoxLayout" name="verticalLayout_7">
                <item>
@@ -272,10 +272,10 @@
                     <item>
                      <widget class="UpPushButton" name="LNouvDossierpushButton">
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="contextMenuPolicy">
-                       <enum>Qt::NoContextMenu</enum>
+                       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                       </property>
                       <property name="toolTip">
                        <string>créer un nouveau dossier</string>
@@ -302,10 +302,10 @@ dossier - F6</string>
                     <item>
                      <widget class="UpPushButton" name="LRecopierpushButton">
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="contextMenuPolicy">
-                       <enum>Qt::NoContextMenu</enum>
+                       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                       </property>
                       <property name="toolTip">
                        <string>créer un dossier à partir d'un parent
@@ -330,10 +330,10 @@ seront recopiés automatiquement</string>
                     <item>
                      <widget class="UpPushButton" name="LListepushButton">
                       <property name="focusPolicy">
-                       <enum>Qt::StrongFocus</enum>
+                       <enum>Qt::FocusPolicy::StrongFocus</enum>
                       </property>
                       <property name="contextMenuPolicy">
-                       <enum>Qt::NoContextMenu</enum>
+                       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                       </property>
                       <property name="toolTip">
                        <string>ouvrir un dossier</string>
@@ -371,10 +371,10 @@ patients - F5</string>
                      </size>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                    </widget>
                   </item>
@@ -393,20 +393,20 @@ patients - F5</string>
                      </size>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <widget class="UpPushButton" name="VitaleupPushButton">
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="toolTip">
                      <string>ouvrir ou créer un dossier à partir de la carte vitale</string>
@@ -447,16 +447,16 @@ patients - F5</string>
                   </size>
                  </property>
                  <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
+                  <enum>Qt::FocusPolicy::NoFocus</enum>
                  </property>
                  <property name="contextMenuPolicy">
-                  <enum>Qt::NoContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Box</enum>
+                  <enum>QFrame::Shape::Box</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <widget class="QDateEdit" name="CreerDDNdateEdit">
                   <property name="geometry">
@@ -468,14 +468,14 @@ patients - F5</string>
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="dateTime">
                    <datetime>
-                    <hour>13</hour>
+                    <hour>12</hour>
                     <minute>0</minute>
                     <second>0</second>
                     <year>1999</year>
@@ -510,13 +510,13 @@ patients - F5</string>
                    </size>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="text">
                    <string>Nom</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
                  <widget class="QLabel" name="DDNlabel">
@@ -535,13 +535,13 @@ patients - F5</string>
                    </size>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="text">
                    <string>Date de naissance</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
                  <widget class="QLineEdit" name="CreerNomlineEdit">
@@ -554,13 +554,13 @@ patients - F5</string>
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="inputMethodHints">
-                   <set>Qt::ImhNone</set>
+                   <set>Qt::InputMethodHint::ImhNone</set>
                   </property>
                   <property name="maxLength">
                    <number>45</number>
@@ -579,13 +579,13 @@ patients - F5</string>
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="inputMethodHints">
-                   <set>Qt::ImhLatinOnly|Qt::ImhLowercaseOnly|Qt::ImhUppercaseOnly</set>
+                   <set>Qt::InputMethodHint::ImhLatinOnly|Qt::InputMethodHint::ImhLowercaseOnly|Qt::InputMethodHint::ImhUppercaseOnly</set>
                   </property>
                   <property name="maxLength">
                    <number>45</number>
@@ -607,13 +607,13 @@ patients - F5</string>
                    </size>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="text">
                    <string>Prénom</string>
                   </property>
                   <property name="alignment">
-                   <set>Qt::AlignCenter</set>
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
                   </property>
                  </widget>
                  <widget class="UpPushButton" name="CreerDossierpushButton">
@@ -621,15 +621,15 @@ patients - F5</string>
                    <rect>
                     <x>170</x>
                     <y>75</y>
-                    <width>171</width>
+                    <width>179</width>
                     <height>48</height>
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="text">
                    <string>Créer
@@ -651,15 +651,15 @@ le dossier</string>
                    <rect>
                     <x>170</x>
                     <y>25</y>
-                    <width>171</width>
+                    <width>179</width>
                     <height>48</height>
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::NoFocus</enum>
+                   <enum>Qt::FocusPolicy::NoFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::NoContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                   </property>
                   <property name="text">
                    <string>Chercher avec la
@@ -699,37 +699,37 @@ date de naissance</string>
                   <bool>true</bool>
                  </property>
                  <property name="focusPolicy">
-                  <enum>Qt::StrongFocus</enum>
+                  <enum>Qt::FocusPolicy::StrongFocus</enum>
                  </property>
                  <property name="contextMenuPolicy">
-                  <enum>Qt::CustomContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::Box</enum>
+                  <enum>QFrame::Shape::Box</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <property name="horizontalScrollBarPolicy">
-                  <enum>Qt::ScrollBarAlwaysOff</enum>
+                  <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                  </property>
                  <property name="editTriggers">
-                  <set>QAbstractItemView::NoEditTriggers</set>
+                  <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
                  </property>
                  <property name="dragEnabled">
                   <bool>true</bool>
                  </property>
                  <property name="dragDropMode">
-                  <enum>QAbstractItemView::DragOnly</enum>
+                  <enum>QAbstractItemView::DragDropMode::DragOnly</enum>
                  </property>
                  <property name="alternatingRowColors">
                   <bool>true</bool>
                  </property>
                  <property name="selectionMode">
-                  <enum>QAbstractItemView::SingleSelection</enum>
+                  <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
                  </property>
                  <property name="selectionBehavior">
-                  <enum>QAbstractItemView::SelectRows</enum>
+                  <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
                  </property>
                  <property name="iconSize">
                   <size>
@@ -784,10 +784,10 @@ date de naissance</string>
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="toolTip">
                      <string>Envoyer un message</string>
@@ -813,7 +813,7 @@ date de naissance</string>
                   <item>
                    <spacer name="horizontalSpacer">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -829,7 +829,7 @@ date de naissance</string>
                      <bool>true</bool>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>PushButton</string>
@@ -839,20 +839,20 @@ date de naissance</string>
                   <item>
                    <widget class="QLabel" name="label_15">
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="text">
                      <string>TextLabel</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
                   <item>
                    <spacer name="horizontalSpacer_2">
                     <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
+                     <enum>Qt::Orientation::Horizontal</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -886,10 +886,10 @@ date de naissance</string>
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="toolTip">
                      <string>Fermer Rufus</string>
@@ -933,19 +933,19 @@ date de naissance</string>
                </size>
               </property>
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <property name="styleSheet">
                <string notr="true">color:rgb(164, 205, 255);</string>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Plain</enum>
+               <enum>QFrame::Shadow::Plain</enum>
               </property>
               <property name="lineWidth">
                <number>3</number>
               </property>
               <property name="orientation">
-               <enum>Qt::Vertical</enum>
+               <enum>Qt::Orientation::Vertical</enum>
               </property>
              </widget>
             </item>
@@ -964,7 +964,7 @@ date de naissance</string>
                </size>
               </property>
               <property name="contextMenuPolicy">
-               <enum>Qt::NoContextMenu</enum>
+               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
               </property>
               <layout class="QVBoxLayout" name="PatientsStatusLayout" stretch="5,2,5,5">
                <property name="spacing">
@@ -995,10 +995,10 @@ date de naissance</string>
                    <item>
                     <spacer name="verticalSpacer_10">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Orientation::Vertical</enum>
                      </property>
                      <property name="sizeType">
-                      <enum>QSizePolicy::Fixed</enum>
+                      <enum>QSizePolicy::Policy::Fixed</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -1023,14 +1023,14 @@ date de naissance</string>
                       </size>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="text">
                       <string>Salle
 d'attente </string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -1049,7 +1049,7 @@ d'attente </string>
                       </size>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="text">
                       <string/>
@@ -1058,17 +1058,17 @@ d'attente </string>
                       <bool>false</bool>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
                     <spacer name="verticalSpacer">
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Orientation::Vertical</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -1110,10 +1110,10 @@ d'attente </string>
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::ClickFocus</enum>
+                      <enum>Qt::FocusPolicy::ClickFocus</enum>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::CustomContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                      </property>
                      <property name="acceptDrops">
                       <bool>true</bool>
@@ -1122,22 +1122,22 @@ d'attente </string>
                       <bool>true</bool>
                      </property>
                      <property name="horizontalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                      </property>
                      <property name="dragDropMode">
-                      <enum>QAbstractItemView::DropOnly</enum>
+                      <enum>QAbstractItemView::DragDropMode::DropOnly</enum>
                      </property>
                      <property name="defaultDropAction">
-                      <enum>Qt::IgnoreAction</enum>
+                      <enum>Qt::DropAction::IgnoreAction</enum>
                      </property>
                      <property name="alternatingRowColors">
                       <bool>true</bool>
                      </property>
                      <property name="selectionMode">
-                      <enum>QAbstractItemView::SingleSelection</enum>
+                      <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
                      </property>
                      <property name="selectionBehavior">
-                      <enum>QAbstractItemView::SelectRows</enum>
+                      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
                      </property>
                     </widget>
                    </item>
@@ -1146,7 +1146,7 @@ d'attente </string>
                  <item>
                   <spacer name="horizontalSpacer_5">
                    <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                    <enum>Qt::Orientation::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -1183,13 +1183,13 @@ d'attente </string>
                       </size>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="text">
                       <string>Bureaux</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -1208,7 +1208,7 @@ d'attente </string>
                       </size>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="text">
                       <string/>
@@ -1217,14 +1217,14 @@ d'attente </string>
                       <bool>false</bool>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
                     <spacer name="verticalSpacer_6">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Orientation::Vertical</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -1251,19 +1251,19 @@ d'attente </string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::NoContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                    </property>
                    <property name="autoFillBackground">
                     <bool>true</bool>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::StyledPanel</enum>
+                    <enum>QFrame::Shape::StyledPanel</enum>
                    </property>
                    <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                    <property name="widgetResizable">
                     <bool>true</bool>
@@ -1274,7 +1274,7 @@ d'attente </string>
                       <x>0</x>
                       <y>0</y>
                       <width>698</width>
-                      <height>105</height>
+                      <height>108</height>
                      </rect>
                     </property>
                    </widget>
@@ -1283,7 +1283,7 @@ d'attente </string>
                  <item>
                   <spacer name="horizontalSpacer_6">
                    <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                    <enum>Qt::Orientation::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -1308,10 +1308,10 @@ d'attente </string>
                    <item>
                     <spacer name="verticalSpacer_11">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Orientation::Vertical</enum>
                      </property>
                      <property name="sizeType">
-                      <enum>QSizePolicy::Fixed</enum>
+                      <enum>QSizePolicy::Policy::Fixed</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -1336,13 +1336,13 @@ d'attente </string>
                       </size>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="text">
                       <string>Accueil</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -1361,7 +1361,7 @@ d'attente </string>
                       </size>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::NoContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                      </property>
                      <property name="text">
                       <string/>
@@ -1370,14 +1370,14 @@ d'attente </string>
                       <bool>false</bool>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
                    <item>
                     <spacer name="verticalSpacer_7">
                      <property name="orientation">
-                      <enum>Qt::Vertical</enum>
+                      <enum>Qt::Orientation::Vertical</enum>
                      </property>
                      <property name="sizeHint" stdset="0">
                       <size>
@@ -1406,7 +1406,7 @@ d'attente </string>
 aujourd'hui</string>
                      </property>
                      <property name="alignment">
-                      <set>Qt::AlignCenter</set>
+                      <set>Qt::AlignmentFlag::AlignCenter</set>
                      </property>
                     </widget>
                    </item>
@@ -1458,7 +1458,7 @@ aujourd'hui</string>
                          <string/>
                         </property>
                         <property name="alignment">
-                         <set>Qt::AlignCenter</set>
+                         <set>Qt::AlignmentFlag::AlignCenter</set>
                         </property>
                        </widget>
                       </item>
@@ -1480,14 +1480,14 @@ aujourd'hui</string>
                          <string/>
                         </property>
                         <property name="alignment">
-                         <set>Qt::AlignCenter</set>
+                         <set>Qt::AlignmentFlag::AlignCenter</set>
                         </property>
                        </widget>
                       </item>
                       <item>
                        <spacer name="horizontalSpacer_7">
                         <property name="orientation">
-                         <enum>Qt::Horizontal</enum>
+                         <enum>Qt::Orientation::Horizontal</enum>
                         </property>
                         <property name="sizeHint" stdset="0">
                          <size>
@@ -1520,31 +1520,31 @@ aujourd'hui</string>
                    <item>
                     <widget class="UpTableWidget" name="AccueilupTableWidget">
                      <property name="focusPolicy">
-                      <enum>Qt::ClickFocus</enum>
+                      <enum>Qt::FocusPolicy::ClickFocus</enum>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::CustomContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                      </property>
                      <property name="autoFillBackground">
                       <bool>true</bool>
                      </property>
                      <property name="verticalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAlwaysOn</enum>
+                      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOn</enum>
                      </property>
                      <property name="horizontalScrollBarPolicy">
-                      <enum>Qt::ScrollBarAlwaysOff</enum>
+                      <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                      </property>
                      <property name="sizeAdjustPolicy">
-                      <enum>QAbstractScrollArea::AdjustToContents</enum>
+                      <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustToContents</enum>
                      </property>
                      <property name="alternatingRowColors">
                       <bool>true</bool>
                      </property>
                      <property name="selectionMode">
-                      <enum>QAbstractItemView::SingleSelection</enum>
+                      <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
                      </property>
                      <property name="selectionBehavior">
-                      <enum>QAbstractItemView::SelectRows</enum>
+                      <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
                      </property>
                     </widget>
                    </item>
@@ -1553,7 +1553,7 @@ aujourd'hui</string>
                  <item>
                   <spacer name="horizontalSpacer_3">
                    <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
+                    <enum>Qt::Orientation::Horizontal</enum>
                    </property>
                    <property name="sizeHint" stdset="0">
                     <size>
@@ -1591,10 +1591,10 @@ aujourd'hui</string>
                     <item>
                      <spacer name="verticalSpacer_12">
                       <property name="orientation">
-                       <enum>Qt::Vertical</enum>
+                       <enum>Qt::Orientation::Vertical</enum>
                       </property>
                       <property name="sizeType">
-                       <enum>QSizePolicy::Fixed</enum>
+                       <enum>QSizePolicy::Policy::Fixed</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -1619,14 +1619,14 @@ aujourd'hui</string>
                        </size>
                       </property>
                       <property name="contextMenuPolicy">
-                       <enum>Qt::NoContextMenu</enum>
+                       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                       </property>
                       <property name="text">
                        <string>Patients vus
 aujourd'hui</string>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
@@ -1645,7 +1645,7 @@ aujourd'hui</string>
                        </size>
                       </property>
                       <property name="contextMenuPolicy">
-                       <enum>Qt::NoContextMenu</enum>
+                       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                       </property>
                       <property name="text">
                        <string/>
@@ -1654,14 +1654,14 @@ aujourd'hui</string>
                        <bool>false</bool>
                       </property>
                       <property name="alignment">
-                       <set>Qt::AlignCenter</set>
+                       <set>Qt::AlignmentFlag::AlignCenter</set>
                       </property>
                      </widget>
                     </item>
                     <item>
                      <spacer name="verticalSpacer_13">
                       <property name="orientation">
-                       <enum>Qt::Vertical</enum>
+                       <enum>Qt::Orientation::Vertical</enum>
                       </property>
                       <property name="sizeHint" stdset="0">
                        <size>
@@ -1688,28 +1688,28 @@ aujourd'hui</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::CustomContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>true</bool>
                     </property>
                     <property name="horizontalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAlwaysOff</enum>
+                     <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                     </property>
                     <property name="sizeAdjustPolicy">
-                     <enum>QAbstractScrollArea::AdjustIgnored</enum>
+                     <enum>QAbstractScrollArea::SizeAdjustPolicy::AdjustIgnored</enum>
                     </property>
                     <property name="alternatingRowColors">
                      <bool>true</bool>
                     </property>
                     <property name="selectionMode">
-                     <enum>QAbstractItemView::SingleSelection</enum>
+                     <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
                     </property>
                     <property name="selectionBehavior">
-                     <enum>QAbstractItemView::SelectRows</enum>
+                     <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
                     </property>
                     <attribute name="horizontalHeaderVisible">
                      <bool>false</bool>
@@ -1744,10 +1744,10 @@ aujourd'hui</string>
             <item>
              <widget class="QFrame" name="frmH1">
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_9">
                <item>
@@ -1777,10 +1777,10 @@ aujourd'hui</string>
                   <string notr="true"/>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
+                  <enum>QFrame::Shape::NoFrame</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <property name="lineWidth">
                   <number>0</number>
@@ -1810,10 +1810,10 @@ aujourd'hui</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::CustomContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                     </property>
                     <property name="autoFillBackground">
                      <bool>true</bool>
@@ -1822,10 +1822,10 @@ aujourd'hui</string>
                      <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::Box</enum>
+                     <enum>QFrame::Shape::Box</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
+                     <enum>QFrame::Shadow::Sunken</enum>
                     </property>
                     <property name="lineWidth">
                      <number>1</number>
@@ -1834,13 +1834,13 @@ aujourd'hui</string>
                      <number>1</number>
                     </property>
                     <property name="verticalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAsNeeded</enum>
+                     <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                     </property>
                     <property name="horizontalScrollBarPolicy">
-                     <enum>Qt::ScrollBarAlwaysOff</enum>
+                     <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                     </property>
                     <property name="textInteractionFlags">
-                     <set>Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+                     <set>Qt::TextInteractionFlag::TextSelectableByKeyboard|Qt::TextInteractionFlag::TextSelectableByMouse</set>
                     </property>
                    </widget>
                   </item>
@@ -1853,10 +1853,10 @@ aujourd'hui</string>
                      </size>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
+                     <enum>QFrame::Shape::Panel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
+                     <enum>QFrame::Shadow::Sunken</enum>
                     </property>
                     <property name="lineWidth">
                      <number>1</number>
@@ -1939,7 +1939,7 @@ aujourd'hui</string>
                         <item row="1" column="0">
                          <widget class="UpTextEdit" name="AtcdtsPersostextEdit">
                           <property name="focusPolicy">
-                           <enum>Qt::StrongFocus</enum>
+                           <enum>Qt::FocusPolicy::StrongFocus</enum>
                           </property>
                           <property name="autoFillBackground">
                            <bool>true</bool>
@@ -1948,10 +1948,10 @@ aujourd'hui</string>
                            <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
                           </property>
                           <property name="verticalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAsNeeded</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                           </property>
                           <property name="horizontalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAlwaysOff</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                           </property>
                           <property name="tabStopDistance">
                            <double>40.000000000000000</double>
@@ -1961,7 +1961,7 @@ aujourd'hui</string>
                         <item row="1" column="1">
                          <widget class="UpTextEdit" name="TtGeneraltextEdit">
                           <property name="focusPolicy">
-                           <enum>Qt::StrongFocus</enum>
+                           <enum>Qt::FocusPolicy::StrongFocus</enum>
                           </property>
                           <property name="autoFillBackground">
                            <bool>true</bool>
@@ -1970,10 +1970,10 @@ aujourd'hui</string>
                            <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
                           </property>
                           <property name="verticalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAsNeeded</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                           </property>
                           <property name="horizontalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAlwaysOff</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                           </property>
                           <property name="tabStopDistance">
                            <double>40.000000000000000</double>
@@ -1997,7 +1997,7 @@ aujourd'hui</string>
                         <item row="3" column="0">
                          <widget class="UpTextEdit" name="AtcdtsFamiliauxtextEdit">
                           <property name="focusPolicy">
-                           <enum>Qt::StrongFocus</enum>
+                           <enum>Qt::FocusPolicy::StrongFocus</enum>
                           </property>
                           <property name="autoFillBackground">
                            <bool>true</bool>
@@ -2006,10 +2006,10 @@ aujourd'hui</string>
                            <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
                           </property>
                           <property name="verticalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAsNeeded</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                           </property>
                           <property name="horizontalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAlwaysOff</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                           </property>
                           <property name="tabStopDistance">
                            <double>40.000000000000000</double>
@@ -2019,7 +2019,7 @@ aujourd'hui</string>
                         <item row="3" column="1">
                          <widget class="UpTextEdit" name="AutresToxiquestextEdit">
                           <property name="focusPolicy">
-                           <enum>Qt::StrongFocus</enum>
+                           <enum>Qt::FocusPolicy::StrongFocus</enum>
                           </property>
                           <property name="autoFillBackground">
                            <bool>true</bool>
@@ -2028,10 +2028,10 @@ aujourd'hui</string>
                            <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 200, 50));</string>
                           </property>
                           <property name="verticalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAsNeeded</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>
                           </property>
                           <property name="horizontalScrollBarPolicy">
-                           <enum>Qt::ScrollBarAlwaysOff</enum>
+                           <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                           </property>
                           <property name="tabStopDistance">
                            <double>40.000000000000000</double>
@@ -2061,7 +2061,7 @@ aujourd'hui</string>
                        <item>
                         <spacer name="horizontalSpacer_8">
                          <property name="orientation">
-                          <enum>Qt::Horizontal</enum>
+                          <enum>Qt::Orientation::Horizontal</enum>
                          </property>
                          <property name="sizeHint" stdset="0">
                           <size>
@@ -2147,10 +2147,10 @@ aujourd'hui</string>
                      <string notr="true"/>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
+                     <enum>QFrame::Shape::Panel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
+                     <enum>QFrame::Shadow::Sunken</enum>
                     </property>
                     <property name="lineWidth">
                      <number>1</number>
@@ -2171,10 +2171,10 @@ aujourd'hui</string>
                       <bool>false</bool>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::StrongFocus</enum>
+                      <enum>Qt::FocusPolicy::StrongFocus</enum>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::CustomContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                      </property>
                      <property name="autoFillBackground">
                       <bool>true</bool>
@@ -2186,7 +2186,7 @@ aujourd'hui</string>
                       <number>15</number>
                      </property>
                      <property name="insertPolicy">
-                      <enum>QComboBox::NoInsert</enum>
+                      <enum>QComboBox::InsertPolicy::NoInsert</enum>
                      </property>
                      <property name="frame">
                       <bool>true</bool>
@@ -2232,10 +2232,10 @@ correspondants</string>
                       <bool>false</bool>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::StrongFocus</enum>
+                      <enum>Qt::FocusPolicy::StrongFocus</enum>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::CustomContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                      </property>
                      <property name="autoFillBackground">
                       <bool>true</bool>
@@ -2247,7 +2247,7 @@ correspondants</string>
                       <number>15</number>
                      </property>
                      <property name="insertPolicy">
-                      <enum>QComboBox::NoInsert</enum>
+                      <enum>QComboBox::InsertPolicy::NoInsert</enum>
                      </property>
                      <property name="frame">
                       <bool>true</bool>
@@ -2266,10 +2266,10 @@ correspondants</string>
                       <bool>false</bool>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::StrongFocus</enum>
+                      <enum>Qt::FocusPolicy::StrongFocus</enum>
                      </property>
                      <property name="contextMenuPolicy">
-                      <enum>Qt::CustomContextMenu</enum>
+                      <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                      </property>
                      <property name="autoFillBackground">
                       <bool>true</bool>
@@ -2281,7 +2281,7 @@ correspondants</string>
                       <number>15</number>
                      </property>
                      <property name="insertPolicy">
-                      <enum>QComboBox::NoInsert</enum>
+                      <enum>QComboBox::InsertPolicy::NoInsert</enum>
                      </property>
                      <property name="frame">
                       <bool>true</bool>
@@ -2307,10 +2307,10 @@ correspondants</string>
                      <string notr="true"/>
                     </property>
                     <property name="frameShape">
-                     <enum>QFrame::Panel</enum>
+                     <enum>QFrame::Shape::Panel</enum>
                     </property>
                     <property name="frameShadow">
-                     <enum>QFrame::Sunken</enum>
+                     <enum>QFrame::Shadow::Sunken</enum>
                     </property>
                     <property name="lineWidth">
                      <number>1</number>
@@ -2337,7 +2337,7 @@ correspondants</string>
                      <item row="0" column="0" rowspan="2">
                       <spacer name="horizontalSpacer_9">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -2363,7 +2363,7 @@ correspondants</string>
                         </size>
                        </property>
                        <property name="focusPolicy">
-                        <enum>Qt::NoFocus</enum>
+                        <enum>Qt::FocusPolicy::NoFocus</enum>
                        </property>
                        <property name="autoFillBackground">
                         <bool>false</bool>
@@ -2389,13 +2389,13 @@ correspondants</string>
                         </size>
                        </property>
                        <property name="focusPolicy">
-                        <enum>Qt::NoFocus</enum>
+                        <enum>Qt::FocusPolicy::NoFocus</enum>
                        </property>
                        <property name="autoFillBackground">
                         <bool>false</bool>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                        <property name="readOnly">
                         <bool>true</bool>
@@ -2418,7 +2418,7 @@ correspondants</string>
                         </size>
                        </property>
                        <property name="focusPolicy">
-                        <enum>Qt::NoFocus</enum>
+                        <enum>Qt::FocusPolicy::NoFocus</enum>
                        </property>
                        <property name="autoFillBackground">
                         <bool>false</bool>
@@ -2444,13 +2444,13 @@ correspondants</string>
                         </size>
                        </property>
                        <property name="focusPolicy">
-                        <enum>Qt::NoFocus</enum>
+                        <enum>Qt::FocusPolicy::NoFocus</enum>
                        </property>
                        <property name="autoFillBackground">
                         <bool>false</bool>
                        </property>
                        <property name="alignment">
-                        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                        <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                        </property>
                        <property name="readOnly">
                         <bool>true</bool>
@@ -2460,7 +2460,7 @@ correspondants</string>
                      <item row="2" column="0">
                       <spacer name="horizontalSpacer_10">
                        <property name="orientation">
-                        <enum>Qt::Horizontal</enum>
+                        <enum>Qt::Orientation::Horizontal</enum>
                        </property>
                        <property name="sizeHint" stdset="0">
                         <size>
@@ -2494,10 +2494,10 @@ correspondants</string>
                   <bool>false</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
+                  <enum>QFrame::Shape::NoFrame</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Plain</enum>
+                  <enum>QFrame::Shadow::Plain</enum>
                  </property>
                  <property name="lineWidth">
                   <number>0</number>
@@ -2518,10 +2518,10 @@ correspondants</string>
                   <item>
                    <spacer name="verticalSpacer_4">
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                     <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
+                     <enum>QSizePolicy::Policy::Fixed</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -2558,7 +2558,7 @@ correspondants</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string>Liste des dossiers</string>
@@ -2611,7 +2611,7 @@ correspondants</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string>Créer un dossier</string>
@@ -2640,10 +2640,10 @@ correspondants</string>
                   <item>
                    <spacer name="verticalSpacer_3">
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                     <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
+                     <enum>QSizePolicy::Policy::Fixed</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -2700,7 +2700,7 @@ correspondants</string>
                   <item>
                    <spacer name="verticalSpacer_9">
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -2737,7 +2737,7 @@ correspondants</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string>Créer un bilan orthoptique</string>
@@ -2787,7 +2787,7 @@ correspondants</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string>Créer un nouvel acte</string>
@@ -2840,10 +2840,10 @@ correspondants</string>
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="contextMenuPolicy">
-                     <enum>Qt::NoContextMenu</enum>
+                     <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                     </property>
                     <property name="toolTip">
                      <string>Envoyer un message</string>
@@ -2869,10 +2869,10 @@ correspondants</string>
                   <item>
                    <spacer name="verticalSpacer_2">
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                     <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
+                     <enum>QSizePolicy::Policy::Fixed</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -2909,7 +2909,7 @@ correspondants</string>
                      </size>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string>remettre le dossier en salle d'attente</string>
@@ -2962,7 +2962,7 @@ correspondants</string>
                      <bool>true</bool>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::ClickFocus</enum>
+                     <enum>Qt::FocusPolicy::ClickFocus</enum>
                     </property>
                     <property name="toolTip">
                      <string>Fermer Rufus</string>
@@ -2988,10 +2988,10 @@ correspondants</string>
                   <item>
                    <spacer name="verticalSpacer_5">
                     <property name="orientation">
-                     <enum>Qt::Vertical</enum>
+                     <enum>Qt::Orientation::Vertical</enum>
                     </property>
                     <property name="sizeType">
-                     <enum>QSizePolicy::Fixed</enum>
+                     <enum>QSizePolicy::Policy::Fixed</enum>
                     </property>
                     <property name="sizeHint" stdset="0">
                      <size>
@@ -3016,10 +3016,10 @@ correspondants</string>
                   <bool>false</bool>
                  </property>
                  <property name="frameShape">
-                  <enum>QFrame::NoFrame</enum>
+                  <enum>QFrame::Shape::NoFrame</enum>
                  </property>
                  <property name="frameShadow">
-                  <enum>QFrame::Raised</enum>
+                  <enum>QFrame::Shadow::Raised</enum>
                  </property>
                  <widget class="QLabel" name="label_7">
                   <property name="geometry">
@@ -3044,10 +3044,10 @@ correspondants</string>
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::CustomContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                   </property>
                   <property name="autoFillBackground">
                    <bool>true</bool>
@@ -3056,10 +3056,10 @@ correspondants</string>
                    <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
                   </property>
                   <property name="verticalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="horizontalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="tabStopDistance">
                    <double>40.000000000000000</double>
@@ -3100,10 +3100,10 @@ correspondants</string>
                    <string notr="true"/>
                   </property>
                   <property name="frameShape">
-                   <enum>QFrame::NoFrame</enum>
+                   <enum>QFrame::Shape::NoFrame</enum>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Sunken</enum>
+                   <enum>QFrame::Shadow::Sunken</enum>
                   </property>
                   <property name="lineWidth">
                    <number>1</number>
@@ -3121,7 +3121,7 @@ correspondants</string>
                     </rect>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::CustomContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                    </property>
                    <property name="autoFillBackground">
                     <bool>true</bool>
@@ -3131,10 +3131,10 @@ correspondants</string>
 </string>
                    </property>
                    <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                    <property name="horizontalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                   </widget>
                   <widget class="UpSmallButton" name="ActeSuivantpushButton">
@@ -3147,7 +3147,7 @@ correspondants</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Consultation
@@ -3180,7 +3180,7 @@ suivante</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Consultation
@@ -3213,7 +3213,7 @@ précédente</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::StrongFocus</enum>
+                    <enum>Qt::FocusPolicy::StrongFocus</enum>
                    </property>
                   </widget>
                   <widget class="UpTextEdit" name="ActeMotiftextEdit">
@@ -3226,7 +3226,7 @@ précédente</string>
                     </rect>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::CustomContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                    </property>
                    <property name="autoFillBackground">
                     <bool>true</bool>
@@ -3235,10 +3235,10 @@ précédente</string>
                     <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
                    </property>
                    <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                    <property name="horizontalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                   </widget>
                   <widget class="UpTextEdit" name="ActeConclusiontextEdit">
@@ -3251,7 +3251,7 @@ précédente</string>
                     </rect>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::CustomContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                    </property>
                    <property name="autoFillBackground">
                     <bool>true</bool>
@@ -3260,10 +3260,10 @@ précédente</string>
                     <string notr="true">background-color: qlineargradient(x1: 0, y1: 0, x2: 1, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 230, 250, 50));</string>
                    </property>
                    <property name="verticalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                    <property name="horizontalScrollBarPolicy">
-                    <enum>Qt::ScrollBarAlwaysOff</enum>
+                    <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                    </property>
                   </widget>
                   <widget class="UpSmallButton" name="PremierActepushButton">
@@ -3276,7 +3276,7 @@ précédente</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Premier
@@ -3309,7 +3309,7 @@ acte</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Dernier
@@ -3342,7 +3342,7 @@ acte</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Supprimer cet acte</string>
@@ -3377,10 +3377,10 @@ acte</string>
                     </rect>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Panel</enum>
+                    <enum>QFrame::Shape::Panel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
+                    <enum>QFrame::Shadow::Raised</enum>
                    </property>
                    <widget class="QLabel" name="PaiementLabel">
                     <property name="geometry">
@@ -3418,10 +3418,10 @@ acte</string>
                      </rect>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignCenter</set>
+                     <set>Qt::AlignmentFlag::AlignCenter</set>
                     </property>
                    </widget>
                    <widget class="UpLineEdit" name="PayelineEdit">
@@ -3445,7 +3445,7 @@ acte</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="text">
                     <string>Courrier à faire</string>
@@ -3461,10 +3461,10 @@ acte</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="alignment">
-                    <set>Qt::AlignCenter</set>
+                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                    <property name="readOnly">
                     <bool>true</bool>
@@ -3480,7 +3480,7 @@ acte</string>
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Refraction</string>
@@ -3537,7 +3537,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Tonometrie</string>
@@ -3595,10 +3595,10 @@ color : gray;
                     </rect>
                    </property>
                    <property name="frameShape">
-                    <enum>QFrame::Panel</enum>
+                    <enum>QFrame::Shape::Panel</enum>
                    </property>
                    <property name="frameShadow">
-                    <enum>QFrame::Raised</enum>
+                    <enum>QFrame::Shadow::Raised</enum>
                    </property>
                    <widget class="UpLineEdit" name="ActeMontantlineEdit">
                     <property name="geometry">
@@ -3655,7 +3655,7 @@ color : gray;
                      <bool>true</bool>
                     </property>
                     <property name="insertPolicy">
-                     <enum>QComboBox::NoInsert</enum>
+                     <enum>QComboBox::InsertPolicy::NoInsert</enum>
                     </property>
                     <property name="frame">
                      <bool>false</bool>
@@ -3671,7 +3671,7 @@ color : gray;
                      </rect>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">QPushButton
@@ -3716,7 +3716,7 @@ color : gray;
                      <string>CCAM...</string>
                     </property>
                     <property name="alignment">
-                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                     </property>
                     <property name="openExternalLinks">
                      <bool>false</bool>
@@ -3732,7 +3732,7 @@ color : gray;
                      </rect>
                     </property>
                     <property name="focusPolicy">
-                     <enum>Qt::NoFocus</enum>
+                     <enum>Qt::FocusPolicy::NoFocus</enum>
                     </property>
                     <property name="styleSheet">
                      <string notr="true">QPushButton
@@ -3772,7 +3772,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Créer un nouvel acte</string>
@@ -3827,7 +3827,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Voir les consultations précédentes</string>
@@ -3882,7 +3882,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Imprimer un document</string>
@@ -3940,7 +3940,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">QPushButton
@@ -3992,7 +3992,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="styleSheet">
                     <string notr="true">QPushButton
@@ -4031,7 +4031,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Bilan orthoptique</string>
@@ -4089,7 +4089,7 @@ color : gray;
                     <string>NoActelabel</string>
                    </property>
                    <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
                    </property>
                   </widget>
                   <widget class="UpLineEdit" name="CreeParlineEdit">
@@ -4105,16 +4105,16 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::NoContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                    </property>
                    <property name="acceptDrops">
                     <bool>false</bool>
                    </property>
                    <property name="alignment">
-                    <set>Qt::AlignCenter</set>
+                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                    <property name="readOnly">
                     <bool>true</bool>
@@ -4143,7 +4143,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="text">
                     <string/>
@@ -4163,7 +4163,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Voir les documents</string>
@@ -4218,7 +4218,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="orientation">
-                    <enum>Qt::Vertical</enum>
+                    <enum>Qt::Orientation::Vertical</enum>
                    </property>
                   </widget>
                   <widget class="UpPushButton" name="PachymetriepushButton">
@@ -4231,7 +4231,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Tonometrie</string>
@@ -4288,16 +4288,16 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::FocusPolicy::NoFocus</enum>
                    </property>
                    <property name="contextMenuPolicy">
-                    <enum>Qt::NoContextMenu</enum>
+                    <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
                    </property>
                    <property name="acceptDrops">
                     <bool>false</bool>
                    </property>
                    <property name="alignment">
-                    <set>Qt::AlignCenter</set>
+                    <set>Qt::AlignmentFlag::AlignCenter</set>
                    </property>
                    <property name="readOnly">
                     <bool>true</bool>
@@ -4313,7 +4313,7 @@ color : gray;
                     </rect>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::ClickFocus</enum>
+                    <enum>Qt::FocusPolicy::ClickFocus</enum>
                    </property>
                    <property name="toolTip">
                     <string>Ajouter au programme opératoire</string>
@@ -4372,13 +4372,13 @@ color : gray;
                    <string notr="true">color:rgb(164, 205, 255);</string>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
+                   <enum>QFrame::Shadow::Plain</enum>
                   </property>
                   <property name="lineWidth">
                    <number>3</number>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                  </widget>
                  <widget class="QLabel" name="label_4">
@@ -4404,19 +4404,19 @@ color : gray;
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::CustomContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                   </property>
                   <property name="styleSheet">
                    <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
                   </property>
                   <property name="verticalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="horizontalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="tabStopDistance">
                    <double>40.000000000000000</double>
@@ -4435,13 +4435,13 @@ color : gray;
                    <string notr="true">color:rgb(164, 205, 255);</string>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
+                   <enum>QFrame::Shadow::Plain</enum>
                   </property>
                   <property name="lineWidth">
                    <number>3</number>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                  </widget>
                  <widget class="UpTextEdit" name="AtcdtsOphstextEdit">
@@ -4454,10 +4454,10 @@ color : gray;
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::CustomContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                   </property>
                   <property name="autoFillBackground">
                    <bool>true</bool>
@@ -4466,10 +4466,10 @@ color : gray;
                    <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
                   </property>
                   <property name="verticalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="horizontalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="tabStopDistance">
                    <double>40.000000000000000</double>
@@ -4501,13 +4501,13 @@ color : gray;
                    <string notr="true">color:rgb(164, 205, 255);</string>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
+                   <enum>QFrame::Shadow::Plain</enum>
                   </property>
                   <property name="lineWidth">
                    <number>4</number>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Vertical</enum>
+                   <enum>Qt::Orientation::Vertical</enum>
                   </property>
                  </widget>
                  <widget class="UpTextEdit" name="ImportanttextEdit">
@@ -4520,10 +4520,10 @@ color : gray;
                    </rect>
                   </property>
                   <property name="focusPolicy">
-                   <enum>Qt::StrongFocus</enum>
+                   <enum>Qt::FocusPolicy::StrongFocus</enum>
                   </property>
                   <property name="contextMenuPolicy">
-                   <enum>Qt::CustomContextMenu</enum>
+                   <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                   </property>
                   <property name="autoFillBackground">
                    <bool>true</bool>
@@ -4532,10 +4532,10 @@ color : gray;
                    <string notr="true">background-color: qlineargradient(x1: 1, y1: 1, x2: 0, y2: 0, stop: 0 #f6f7fa, stop: 1 rgba(200,230, 250, 50));</string>
                   </property>
                   <property name="verticalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="horizontalScrollBarPolicy">
-                   <enum>Qt::ScrollBarAlwaysOff</enum>
+                   <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
                   </property>
                   <property name="tabStopDistance">
                    <double>40.000000000000000</double>
@@ -4554,13 +4554,13 @@ color : gray;
                    <string notr="true">color:rgb(164, 205, 255);</string>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
+                   <enum>QFrame::Shadow::Plain</enum>
                   </property>
                   <property name="lineWidth">
                    <number>3</number>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                  </widget>
                  <widget class="Line" name="line_5">
@@ -4576,13 +4576,13 @@ color : gray;
                    <string notr="true">color:rgb(164, 205, 255);</string>
                   </property>
                   <property name="frameShadow">
-                   <enum>QFrame::Plain</enum>
+                   <enum>QFrame::Shadow::Plain</enum>
                   </property>
                   <property name="lineWidth">
                    <number>3</number>
                   </property>
                   <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
+                   <enum>Qt::Orientation::Horizontal</enum>
                   </property>
                  </widget>
                 </widget>
@@ -4593,10 +4593,10 @@ color : gray;
             <item>
              <widget class="QFrame" name="frmMotsCle">
               <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+               <enum>QFrame::Shape::StyledPanel</enum>
               </property>
               <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+               <enum>QFrame::Shadow::Raised</enum>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout_2">
                <item>
@@ -4640,10 +4640,10 @@ color : gray;
                   <bool>false</bool>
                  </property>
                  <property name="focusPolicy">
-                  <enum>Qt::NoFocus</enum>
+                  <enum>Qt::FocusPolicy::NoFocus</enum>
                  </property>
                  <property name="contextMenuPolicy">
-                  <enum>Qt::CustomContextMenu</enum>
+                  <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">border: 1px solid rgb(150,150,150);
@@ -4654,7 +4654,7 @@ background-color:rgb(255, 255, 255)</string>
                   <string/>
                  </property>
                  <property name="textInteractionFlags">
-                  <set>Qt::NoTextInteraction</set>
+                  <set>Qt::TextInteractionFlag::NoTextInteraction</set>
                  </property>
                 </widget>
                </item>
@@ -4662,8 +4662,6 @@ background-color:rgb(255, 255, 255)</string>
              </widget>
             </item>
            </layout>
-           <zorder>frmH1</zorder>
-           <zorder>frmMotsCle</zorder>
           </widget>
          </widget>
         </item>
@@ -4687,11 +4685,6 @@ background-color:rgb(255, 255, 255)</string>
    <header>uplabel.h</header>
   </customwidget>
   <customwidget>
-   <class>UpTextEdit</class>
-   <extends>QTextEdit</extends>
-   <header>uptextedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpLineEdit</class>
    <extends>QLineEdit</extends>
    <header>uplineedit.h</header>
@@ -4710,6 +4703,11 @@ background-color:rgb(255, 255, 255)</string>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTextEdit</class>
+   <extends>QTextEdit</extends>
+   <header>uptextedit.h</header>
   </customwidget>
   <customwidget>
    <class>UpTableView</class>

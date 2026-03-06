@@ -587,7 +587,7 @@ dlg_param::dlg_param(QWidget *parent) :
     contents                ->addItem(enwidg);
     QListWidgetItem *eswidg = new QListWidgetItem (QPixmap("://Spain.ico"), "Español");
     eswidg                  ->setData(Qt::UserRole, "ES");
-    eswidg                  ->setFlags(eswidg->flags() & ~Qt::ItemIsEnabled);
+    //eswidg                  ->setFlags(eswidg->flags() & ~Qt::ItemIsEnabled);
     contents                ->addItem(eswidg);
     QList<QListWidgetItem*> listwidg = QList<QListWidgetItem*>() << enwidg << frwidg << eswidg;
     foreach (QListWidgetItem *item, listwidg) {

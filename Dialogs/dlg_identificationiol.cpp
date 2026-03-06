@@ -398,7 +398,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
     UHaigisblbl                  ->setText("<font color=\"red\"><b>a1</b></font>");
     UHaigisblbl                  ->setFixedSize(QSize(18,28));
     UpLabel* UHaigisclbl         = new UpLabel;
-    UHaigisclbl                  ->setText(tr("<font color=\"red\"><b>a2</b></font>"));
+    UHaigisclbl                  ->setText("<font color=\"red\"><b>a2</b></font>");
     UHaigisclbl                  ->setFixedSize(QSize(18,28));
     wdg_Uhaigisaline             ->setValidator(new QRegularExpressionValidator(rgx_haigis, wdg_Uhaigisaline));
     wdg_Uhaigisaline             ->setFixedSize(QSize(60,28));
@@ -484,7 +484,7 @@ dlg_identificationIOL::dlg_identificationIOL(IOL *iol, QWidget *parent) :
         //! Ulib
     QHBoxLayout *Ubarrett_Lay   = new QHBoxLayout();
     UpLabel* Ulblbarrett_IOL    = new UpLabel;
-    Ulblbarrett_IOL             ->setText(tr("<font color=\"red\"><b>Barrett</b></font>"));
+    Ulblbarrett_IOL             ->setText("<font color=\"red\"><b>Barrett</b></font>");
     Ulblbarrett_IOL             ->setFixedSize(QSize(110,28));
     UpLabel* UlbDF_IOL          = new UpLabel;
     UlbDF_IOL                   ->setText("<font color=\"red\"><b>DF</b></font>");
