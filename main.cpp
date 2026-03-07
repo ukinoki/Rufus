@@ -46,10 +46,11 @@ int main(int argc, char *argv[])
 
     QSettings settings(PATH_FILE_INI, QSettings::IniFormat);
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
+#if defined(Q_OS_MACOS)
     dirloc.cdUp();
-    QString locale = dirloc.absolutePath() + "/Locale/rufus_" + settings.value(Param_Poste_Version).toString().toLower() + ".qm";
-    // for debugging quickly
-    //locale = QDir::homePath() + "/RufusQt6/rufus_en";
+#endif
+    QString locale = QDir::toNativeSeparators(dirloc.absolutePath() + "/Locale/rufus_" + settings.value(Param_Poste_Version).toString().toLower() + ".qm");
+
     QTranslator translator;
     if( translator.load(locale) )
         app.installTranslator(&translator);
