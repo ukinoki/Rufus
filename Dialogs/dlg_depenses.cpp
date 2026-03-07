@@ -1049,7 +1049,7 @@ void dlg_depenses::CalculTotalDepenses()
     QString TotalRemise;
     TotalRemise = QLocale().toString(Total,'f',2);
     QString AnneeRubrique2035 = tr("Total général");
-    if (ui->Rubriques2035comboBox->currentText() != "<Aucun>")
+    if (ui->Rubriques2035comboBox->currentText() != "<" + tr("Aucun") + ">")
         AnneeRubrique2035 = tr("Total ") + ui->Rubriques2035comboBox->currentText();
     ui->TotallineEdit       ->setText(AnneeRubrique2035 + " " + ui->AnneecomboBox->currentText() + " -> " + TotalRemise);
     ui->ExportupPushButton  ->setEnabled(wdg_bigtable->rowCount()>0);
@@ -1800,7 +1800,7 @@ void dlg_depenses::ReconstruitListeRubriques(int idx)
                   " where " CP_IDUSER_DEPENSES " = " + QString::number(m_userencours->id()) +
                   " ORDER BY " CP_REFFISCALE_DEPENSES;
     QList<QVariantList> ListeRubriques = db->StandardSelectSQL(req, ok);
-    ListeRubriques.insert(0, (QVariantList() << tr("<Aucun>") << -1));
+    ListeRubriques.insert(0, (QVariantList() << "<" + tr("Aucun")+ ">" << -1));
     for (int i = 0; i < ListeRubriques.size(); i++)
         ui->Rubriques2035comboBox->insertItem(i,ListeRubriques.at(i).at(0).toString(), ListeRubriques.at(i).at(1));
     ui->Rubriques2035comboBox->setCurrentIndex(idx);

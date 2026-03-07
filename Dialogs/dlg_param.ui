@@ -1045,7 +1045,7 @@
            <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
-           <number>0</number>
+           <number>1</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1591,7 +1591,7 @@ du dossier de stockage des videos</string>
               <rect>
                <x>20</x>
                <y>75</y>
-               <width>201</width>
+               <width>261</width>
                <height>21</height>
               </rect>
              </property>
@@ -2800,15 +2800,21 @@ du dossier de stockage des videos</string>
             </item>
             <item>
              <widget class="QFrame" name="VilleDefautframe">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
-                <width>441</width>
+                <width>520</width>
                 <height>71</height>
                </size>
               </property>
               <property name="maximumSize">
                <size>
-                <width>441</width>
+                <width>520</width>
                 <height>71</height>
                </size>
               </property>
@@ -3618,7 +3624,7 @@ liste des villes</string>
               <rect>
                <x>10</x>
                <y>5</y>
-               <width>241</width>
+               <width>255</width>
                <height>55</height>
               </rect>
              </property>
@@ -3670,7 +3676,7 @@ liste des villes</string>
               <rect>
                <x>10</x>
                <y>111</y>
-               <width>241</width>
+               <width>255</width>
                <height>55</height>
               </rect>
              </property>
@@ -3723,7 +3729,7 @@ les motifs de consultation</string>
               <rect>
                <x>10</x>
                <y>58</y>
-               <width>241</width>
+               <width>255</width>
                <height>55</height>
               </rect>
              </property>
@@ -3763,7 +3769,7 @@ de passe administrateur</string>
               <rect>
                <x>10</x>
                <y>164</y>
-               <width>241</width>
+               <width>255</width>
                <height>55</height>
               </rect>
              </property>
@@ -3790,7 +3796,7 @@ des organismes bancaires</string>
               <rect>
                <x>10</x>
                <y>222</y>
-               <width>241</width>
+               <width>255</width>
                <height>55</height>
               </rect>
              </property>

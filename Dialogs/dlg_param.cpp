@@ -293,17 +293,19 @@ dlg_param::dlg_param(QWidget *parent) :
                                                                                        delete dlg_listvilles;
                                                                                    });
 
-       wdg_villeCP   = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
-       wdg_CPDefautlineEdit    = wdg_villeCP->ui->CPlineEdit;
-       wdg_VilleDefautlineEdit = wdg_villeCP->ui->VillelineEdit;
-       wdg_villeCP   ->move(15,10);
-       wdg_villeCP->ui->CPlabel      ->setText(tr("Code postal par défaut"));
-       wdg_villeCP->ui->Villelabel   ->setText(tr("Ville par défaut"));
-       wdg_VilleDefautlineEdit                 ->setText(proc->settings()->value(Ville_Defaut).toString());
-       wdg_CPDefautlineEdit                    ->completer()->setCurrentRow(proc->settings()->value(CodePostal_Defaut).toInt());
+       wdg_villeCP                  = new VilleCPWidget(Datas::I()->villes, ui->VilleDefautframe);
+       wdg_CPDefautlineEdit         = wdg_villeCP->ui->CPlineEdit;
+       wdg_VilleDefautlineEdit      = wdg_villeCP->ui->VillelineEdit;
+       wdg_villeCP                  ->move(15,10);
+       wdg_villeCP->ui->CPlabel     ->setText(tr("Code postal par défaut"));
+       wdg_villeCP->ui->Villelabel  ->setText(tr("Ville par défaut"));
+       wdg_villeCP->ui->CPlabel     ->setMinimumWidth(300);
+       wdg_villeCP->ui->Villelabel  ->setMinimumWidth(300);
+       wdg_VilleDefautlineEdit      ->setText(proc->settings()->value(Ville_Defaut).toString());
+       wdg_CPDefautlineEdit         ->completer()->setCurrentRow(proc->settings()->value(CodePostal_Defaut).toInt());
        // ce micmac est nécessaire à cause d'un bug de QCompleter en mode InLineCompletion
        // il faut synchroniser à la main le QCompleter et le QlineEdit au premier affichage
-       wdg_CPDefautlineEdit                    ->setText(proc->settings()->value(CodePostal_Defaut).toString());
+       wdg_CPDefautlineEdit          ->setText(proc->settings()->value(CodePostal_Defaut).toString());
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
@@ -587,7 +589,6 @@ dlg_param::dlg_param(QWidget *parent) :
     contents                ->addItem(enwidg);
     QListWidgetItem *eswidg = new QListWidgetItem (QPixmap("://Spain.ico"), "Español");
     eswidg                  ->setData(Qt::UserRole, "ES");
-    //eswidg                  ->setFlags(eswidg->flags() & ~Qt::ItemIsEnabled);
     contents                ->addItem(eswidg);
     QList<QListWidgetItem*> listwidg = QList<QListWidgetItem*>() << enwidg << frwidg << eswidg;
     foreach (QListWidgetItem *item, listwidg) {

@@ -73,10 +73,10 @@ dlg_remisecheques::dlg_remisecheques(QWidget *parent) :
 
     QStringList         LabelTableCheques;
     LabelTableCheques << " ";
-    LabelTableCheques << "N°";
-    LabelTableCheques << "Tireur";
-    LabelTableCheques << "Banque";
-    LabelTableCheques << "Montant";
+    LabelTableCheques << tr("N°");
+    LabelTableCheques << tr("Tireur");
+    LabelTableCheques << tr("Banque");
+    LabelTableCheques << tr("Montant");
     LabelTableCheques << "";
     LabelTableCheques << "";
     ui->ListeChequesupTableWidget->setHorizontalHeaderLabels(LabelTableCheques);
