@@ -7997,6 +7997,11 @@ la date d&apos;aujourd&apos;hui</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="266"/>
+        <source>Je confirme</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="268"/>
         <source>Annuler</source>
         <translation type="unfinished"></translation>

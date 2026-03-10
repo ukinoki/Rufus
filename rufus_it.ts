@@ -7554,13 +7554,6 @@ le </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1052"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1803"/>
-        <source>Aucun</source>
-        <oldsource>&lt;Aucun&gt;</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="1880"/>
         <source>Choisissez un échéancier</source>
         <translation type="unfinished"></translation>
@@ -8001,6 +7994,11 @@ la date d&apos;aujourd&apos;hui</source>
     <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="263"/>
         <source>Confirmez la date d&apos;aujourd&apos;hui pour ce document</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="266"/>
+        <source>Je confirme</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

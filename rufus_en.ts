@@ -8437,6 +8437,11 @@ as of today&apos;s date</translation>
         <translation>Confirm today&apos;s date for this document</translation>
     </message>
     <message>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="266"/>
+        <source>Je confirme</source>
+        <translation>I confirm</translation>
+    </message>
+    <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="268"/>
         <source>Annuler</source>
         <translation>Cancel</translation>

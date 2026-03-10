@@ -505,7 +505,7 @@ requete = </translation>
         <location filename="importdocsexternesthread.cpp" line="290"/>
         <location filename="importdocsexternesthread.cpp" line="308"/>
         <source>nom invalide</source>
-        <translation>nombre inválido</translation>
+        <translation>Nombre inválido</translation>
     </message>
     <message>
         <location filename="importdocsexternesthread.cpp" line="374"/>
@@ -3027,7 +3027,7 @@ pacientes - F5</translation>
         <location filename="rufus.ui" line="516"/>
         <location filename="rufus.cpp" line="9529"/>
         <source>Nom</source>
-        <translation>Nombre</translation>
+        <translation>Apellidos</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="541"/>
@@ -3038,7 +3038,7 @@ pacientes - F5</translation>
     <message>
         <location filename="rufus.ui" line="613"/>
         <source>Prénom</source>
-        <translation>Nombre de pila</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="635"/>
@@ -4634,17 +4634,18 @@ en un expediente para abrirla</translation>
         <location filename="rufus.cpp" line="7771"/>
         <source>Chercher avec
 nom et prénom</source>
-        <translation>Buscar con nombre y apellido</translation>
+        <translation>Buscar con
+apellidos y nombre</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7799"/>
         <source>Vous devez spécifier un nom!</source>
-        <translation>Debe especificar un nombre!</translation>
+        <translation>¡Debe especificar los apellidos!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7805"/>
         <source>Vous devez spécifier un prénom!</source>
-        <translation>Debe especificar un apellido!</translation>
+        <translation>¡Debe especificar un nombre!</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="7815"/>
@@ -4849,7 +4850,7 @@ le dossier</source>
     <message>
         <location filename="rufus.cpp" line="8604"/>
         <source>Nom Prénom</source>
-        <translation>Nombre y Apellido</translation>
+        <translation>Apellidos Nombre</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="8605"/>
@@ -6689,7 +6690,7 @@ alternada</translation>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="567"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="691"/>
         <source>Nom</source>
-        <translation>Nombre</translation>
+        <translation>Apellidos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="567"/>
@@ -8091,6 +8092,11 @@ con la fecha de hoy</translation>
         <translation>Confirme la fecha de hoy para este documento</translation>
     </message>
     <message>
+        <location filename="Dialogs/dlg_docsscanner.cpp" line="266"/>
+        <source>Je confirme</source>
+        <translation>Confirmo</translation>
+    </message>
+    <message>
         <location filename="Dialogs/dlg_docsscanner.cpp" line="268"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
@@ -8642,7 +8648,7 @@ Si solo desea probarlo, el software puede rellenar los campos con datos ficticio
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="122"/>
         <source>Nom *</source>
-        <translation>Nombre *</translation>
+        <translation>Apellidos *</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="138"/>
@@ -8662,7 +8668,7 @@ Si solo desea probarlo, el software puede rellenar los campos con datos ficticio
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="214"/>
         <source>Prénom *</source>
-        <translation>Nombre de pila *</translation>
+        <translation>Nombre *</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.ui" line="255"/>
@@ -9279,12 +9285,12 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1708"/>
         <source>Vous n&apos;avez pas spécifié de nom!</source>
-        <translation>¡No ha especificado un nombre!</translation>
+        <translation>¡No ha especificado los apellidos!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1714"/>
         <source>Vous n&apos;avez pas spécifié de prénom!</source>
-        <translation>¡No ha especificado un primer nombre!</translation>
+        <translation>¡No ha especificado un nombre!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_gestionusers.cpp" line="1728"/>
@@ -9590,12 +9596,12 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationcommercial.cpp" line="93"/>
         <source>Nom</source>
-        <translation>Nombre</translation>
+        <translation>Apellidos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcommercial.cpp" line="107"/>
         <source>Prénom</source>
-        <translation>Nombre de pila</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcommercial.cpp" line="121"/>
@@ -9625,7 +9631,7 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationcommercial.cpp" line="279"/>
         <source>Vous n&apos;avez pas indiqué le nom!</source>
-        <translation>¡No ha indicado el nombre!</translation>
+        <translation>¡No ha indicado los apellidos!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcommercial.cpp" line="293"/>
@@ -9648,7 +9654,7 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.ui" line="234"/>
         <source>Prénom</source>
-        <translation>Nombre de pila</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.ui" line="247"/>
@@ -9694,7 +9700,7 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.ui" line="481"/>
         <source>Nom</source>
-        <translation>Nombre</translation>
+        <translation>Apellidos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.ui" line="508"/>
@@ -9734,12 +9740,12 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.cpp" line="169"/>
         <source>Vous devez spécifier un nom!</source>
-        <translation>¡Debes especificar un nombre!</translation>
+        <translation>¡Debes especificar los apellidos!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.cpp" line="175"/>
         <source>Vous devez spécifier un prénom!</source>
-        <translation>Debe especificar un apellido!</translation>
+        <translation>¡Debe especificar un nombre!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationcorresp.cpp" line="182"/>
@@ -9972,7 +9978,7 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.ui" line="295"/>
         <source>Prénom</source>
-        <translation>Nombre de pila</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.ui" line="308"/>
@@ -10028,7 +10034,7 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.ui" line="568"/>
         <source>Nom</source>
-        <translation>Nombre</translation>
+        <translation>Apellidos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.ui" line="610"/>
@@ -10090,12 +10096,12 @@ que desea reactivar</translation>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.cpp" line="251"/>
         <source>Vous devez spécifier un nom!</source>
-        <translation>¡Debes especificar un nombre!</translation>
+        <translation>¡Debes especificar los apellidos!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.cpp" line="257"/>
         <source>Vous devez spécifier un prénom!</source>
-        <translation>Debe especificar un apellido!</translation>
+        <translation>Debe especificar un nombre!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationpatient.cpp" line="263"/>
@@ -10506,12 +10512,12 @@ Estos expedientes y documentos se muestran en azul en negrita</translation>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="138"/>
         <source>Titre, nom et prénom de l&apos;utilisateur</source>
-        <translation>Título, nombre y apellido del usuario</translation>
+        <translation>Título,apellidos y nombre del usuario</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="139"/>
         <source>Nom du patient</source>
-        <translation>Nombre del paciente</translation>
+        <translation>Apellidos del paciente</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="140"/>
@@ -10541,7 +10547,7 @@ Estos expedientes y documentos se muestran en azul en negrita</translation>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="145"/>
         <source>Prénom du patient</source>
-        <translation>Apellido del paciente</translation>
+        <translation>Nombre del paciente</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="146"/>
@@ -10561,12 +10567,12 @@ Estos expedientes y documentos se muestran en azul en negrita</translation>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="149"/>
         <source>Prénom du médecin</source>
-        <translation>Apellido del médico</translation>
+        <translation>Nombre del médico</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="150"/>
         <source>Nom du médecin</source>
-        <translation>Nombre del médico</translation>
+        <translation>Apelliods del médico</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="151"/>
@@ -10596,12 +10602,12 @@ Estos expedientes y documentos se muestran en azul en negrita</translation>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="156"/>
         <source>Prénom du correspondant</source>
-        <translation>Apellido del representante</translation>
+        <translation>Nombre del representante</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="157"/>
         <source>Nom du correspondant</source>
-        <translation>Nombre del representante</translation>
+        <translation>Apellidos del representante</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.cpp" line="158"/>
@@ -12661,7 +12667,7 @@ y cerrar</translation>
         <location filename="Dialogs/dlg_paiementdirect.cpp" line="1856"/>
         <location filename="Dialogs/dlg_paiementdirect.cpp" line="1899"/>
         <source>Nom Prénom</source>
-        <translation>Nombre Apellido</translation>
+        <translation>Apellidos Nombre</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementdirect.cpp" line="1778"/>
@@ -12883,7 +12889,7 @@ Voulez vous l&apos;enregistrer?</source>
     <message>
         <location filename="Dialogs/dlg_paiementdirect.cpp" line="3519"/>
         <source>Il manque le nom du tireur du chèque!</source>
-        <translation>Falta el nombre del emisor del cheque!</translation>
+        <translation>Falta los apellidos del emisor del cheque!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementdirect.cpp" line="3527"/>
@@ -13207,7 +13213,7 @@ y cerrar</translation>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="1043"/>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="1108"/>
         <source>Nom Prénom</source>
-        <translation>Nombre Apellido</translation>
+        <translation>Apellidos Nombre</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="1044"/>
@@ -13363,7 +13369,7 @@ Voulez vous l&apos;enregistrer?</source>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="2942"/>
         <source>Il manque le nom du tireur du chèque!</source>
-        <translation>¡Falta el nombre del beneficiario del cheque!</translation>
+        <translation>¡Falta los apellidos del beneficiario del cheque!</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paiementtiers.cpp" line="2955"/>
@@ -13425,7 +13431,7 @@ para esta receta!
     <message>
         <location filename="Dialogs/dlg_param.ui" line="224"/>
         <source>Prénom</source>
-        <translation>Nombre de pila</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="240"/>
@@ -13440,7 +13446,7 @@ para esta receta!
     <message>
         <location filename="Dialogs/dlg_param.ui" line="291"/>
         <source>Nom</source>
-        <translation>Nombre</translation>
+        <translation>Apellidos</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="326"/>
@@ -13887,7 +13893,7 @@ entidades bancarias</translation>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="3807"/>
         <source>Gestion des lieux d&apos;activité</source>
-        <translation type="unfinished">Gestión de los
+        <translation>Gestión de los
 lugares de actividad</translation>
     </message>
     <message>

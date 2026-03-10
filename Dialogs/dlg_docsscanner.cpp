@@ -263,7 +263,7 @@ void dlg_docsscanner::ValideFiche()
         msgbox.setText(tr("Confirmez la date d'aujourd'hui pour ce document"));
         msgbox.setIcon(UpMessageBox::Warning);
         UpSmallButton OKDateBouton;
-        OKDateBouton.setText("Je confirme");
+        OKDateBouton.setText(tr("Je confirme"));
         UpSmallButton AnnulBouton;
         AnnulBouton.setText(tr("Annuler"));
         msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);

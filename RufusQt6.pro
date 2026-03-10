@@ -124,11 +124,6 @@ win32 {
 LIBS += -lUser32
 }
 
-TRANSLATIONS += rufus_fr.ts \
-                rufus_en.ts\
-                rufus_es.ts\
-                rufus_en.qm
-
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \
     assets/Images/images.qrc \
@@ -141,4 +136,5 @@ DISTFILES += \
     assets/Licenses/License.rtf \
     assets/Licenses/LICENSE \
     rufus_en.qm \
-    rufus_es.qm
+    rufus_es.qm \
+    rufus_fr.qm
