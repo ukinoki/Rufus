@@ -1158,8 +1158,6 @@ public:
 #define STR_IMPLANTINTERVENTION "IMPLANTINTERVENTION"
 #define STR_PWRIOLINTERVENTION  "PWRIMPLANTINTERVENTION"
 
-#define STR_NOCOR               "PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT"
-
 //champs de la map d'un rendez-vous
 #define RDV_MOTIF               "MOTIF"
 #define RDV_MESSAGE             "MESSAGE"

@@ -5767,7 +5767,33 @@ to the nearest conforming value!</translation>
         <translation>Folder must be different</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1384"/>
+        <location filename="utils.cpp" line="1304"/>
+        <source>jours</source>
+        <translation>days</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1307"/>
+        <source>an</source>
+        <translation>year</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1290"/>
+        <source>moispluriel</source>
+        <translation>monthes</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1291"/>
+        <source>moissingulier</source>
+        <translation>month</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1317"/>
+        <location filename="utils.cpp" line="1327"/>
+        <source>ans</source>
+        <translation>years</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1407"/>
         <source>Le code qui suit n&apos;est pas achevé et entraînera
 assez rapidement un plantage du programme
 avec un risque élevé de corruption des données</source>
@@ -5776,7 +5802,7 @@ quickly cause the program to crash,
 with a high risk of data corruption</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1818"/>
+        <location filename="utils.cpp" line="1841"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>File access error:</translation>
     </message>
@@ -11759,6 +11785,11 @@ which is a private document!</translation>
 Vous devez d&apos;abord rendre ce dossier privé!</source>
         <translation> -
 You must first make this folder private!</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_impressions.h" line="210"/>
+        <source>PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT</source>
+        <translation>NO CORRESPONDENT REGISTERED FOR THIS PATIENT</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.h" line="212"/>

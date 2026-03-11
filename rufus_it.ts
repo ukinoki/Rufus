@@ -5447,14 +5447,40 @@ valeur conforme la plus proche!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1384"/>
+        <location filename="utils.cpp" line="1304"/>
+        <source>jours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1307"/>
+        <source>an</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1290"/>
+        <source>moispluriel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1291"/>
+        <source>moissingulier</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1317"/>
+        <location filename="utils.cpp" line="1327"/>
+        <source>ans</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1407"/>
         <source>Le code qui suit n&apos;est pas achevé et entraînera
 assez rapidement un plantage du programme
 avec un risque élevé de corruption des données</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1818"/>
+        <location filename="utils.cpp" line="1841"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11200,6 +11226,11 @@ qui est un document privé!</source>
         <location filename="Dialogs/dlg_impressions.cpp" line="3723"/>
         <source> -
 Vous devez d&apos;abord rendre ce dossier privé!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_impressions.h" line="210"/>
+        <source>PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

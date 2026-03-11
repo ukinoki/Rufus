@@ -1287,21 +1287,44 @@ QMap<QString,QVariant> Utils::CalculAge(QDate datedenaissance, QDate datedujour,
     Age["annee"] = AgeAnnee;
     Age["mois"]  = AgeMois;
 
+    QString moispluriel = tr("moispluriel");
+    QString moissingulier = tr("moissingulier");
+
     // On formate l'âge pour l'affichage
     switch (AgeAnnee) {
     case 0:
-        if (datedenaissance.daysTo(datedujour) > 31)
-            Age["toString"]               = QString::number(AgeMois) + " mois";
+        if (AgeMois > 0)
+        {
+            if (AgeMois > 1)
+                Age["toString"] = QString::number(AgeMois) + " " + moispluriel;
+            else
+                Age["toString"] = QString::number(AgeMois) + " " + moissingulier;
+        }
         else
-            Age["toString"]               = QString::number(datedenaissance.daysTo(datedujour)) + " jours";
+            Age["toString"]     = QString::number(datedenaissance.daysTo(datedujour)) + " " + tr("jours");
         break;
-    case 1: case 2: case 3: case 4:
-        Age["toString"]                    = QString::number(AgeAnnee) + " an";
-        if (AgeAnnee > 1) Age["toString"]  = Age["toString"].toString() + "s";
-        if (AgeMois > 0)  Age["toString"]  = Age["toString"].toString() + " " + QString::number(AgeMois) + " mois";
+    case 1: // jusqu'à 4 ans, on compte les mois
+        Age["toString"]         = QString::number(AgeAnnee) + " " + tr("an");
+        if (AgeMois > 0)
+        {
+            if (AgeMois > 1)
+                Age["toString"] = Age["toString"].toString() + " " + QString::number(AgeMois) + " " + moispluriel;
+            else
+                Age["toString"] = Age["toString"].toString() + " " + QString::number(AgeMois) + " " + moissingulier;
+        }
+        break;
+    case 2: case 3: case 4: // jusqu'à 4 ans, on compte les mois
+        Age["toString"]         = QString::number(AgeAnnee) + " " + tr("ans");
+        if (AgeMois > 0)
+        {
+            if (AgeMois > 1)
+                Age["toString"] = Age["toString"].toString() + " " + QString::number(AgeMois) + " " + moispluriel;
+            else
+                Age["toString"] = Age["toString"].toString() + " " + QString::number(AgeMois) + " " + moissingulier;
+        }
         break;
     default:
-        Age["toString"]                    = QString::number(AgeAnnee) + " ans";
+        Age["toString"]         = QString::number(AgeAnnee) + " " + tr("ans");
         break;
     }
 

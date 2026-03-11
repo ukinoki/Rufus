@@ -28,6 +28,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 class dlg_singleimageviewer : public UpDialog
 {
+    Q_OBJECT
 public:
     dlg_singleimageviewer(QWidget *parent = Q_NULLPTR);
     enum Mode               {Zoom, Normal};                                     Q_ENUM(Mode)

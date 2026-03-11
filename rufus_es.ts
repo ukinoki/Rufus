@@ -5521,7 +5521,33 @@ al valor conforme más cercano!</translation>
         <translation>La carpeta debe ser diferente</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1384"/>
+        <location filename="utils.cpp" line="1304"/>
+        <source>jours</source>
+        <translation>días</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1307"/>
+        <source>an</source>
+        <translation>año</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1290"/>
+        <source>moispluriel</source>
+        <translation>meses</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1291"/>
+        <source>moissingulier</source>
+        <translation>mes</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1317"/>
+        <location filename="utils.cpp" line="1327"/>
+        <source>ans</source>
+        <translation>años</translation>
+    </message>
+    <message>
+        <location filename="utils.cpp" line="1407"/>
         <source>Le code qui suit n&apos;est pas achevé et entraînera
 assez rapidement un plantage du programme
 avec un risque élevé de corruption des données</source>
@@ -5530,7 +5556,7 @@ y provocará rápidamente el cierre del programa
 con un alto riesgo de corrupción de datos</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1818"/>
+        <location filename="utils.cpp" line="1841"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>Error de acceso al archivo:</translation>
     </message>
@@ -11351,6 +11377,11 @@ que es un documento privado!</translation>
 Vous devez d&apos;abord rendre ce dossier privé!</source>
         <translation> -
 ¡Debe hacer primero que este expediente privado!</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_impressions.h" line="210"/>
+        <source>PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT</source>
+        <translation>NO HAY CORRESPONSAL REFERENCIADO PARA ESTE PACIENTE</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_impressions.h" line="212"/>
