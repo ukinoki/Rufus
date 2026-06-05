@@ -13,11 +13,11 @@ private:
 public:
     static Topcon*        I();
 
-    void LectureDonneesXMLnsCommon(QDomDocument docxml);
+    //void LectureDonneesXMLnsCommon(QDomDocument docxml);
     void LectureDonneesXMLnsSBJ(QDomDocument docxml);
     void LectureDonneesXMLRefracteur(QDomDocument docxml, QString nameRF);
 
-    void RegleRefracteurXML(TypesMesures flag, QString nameRF);
+    void RegleRefracteurXML(TypesMesures flag);
     void EnregistreFileDatasXML(QDomDocument xml, TypeMesure typmesure);
 
 };

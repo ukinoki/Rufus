@@ -17,83 +17,59 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "upcheckbox.h"
 
-UpCheckBox::UpCheckBox(QWidget *parent) : QCheckBox(parent)
+UpCheckBox::UpCheckBox(QWidget *parent)
+    : QCheckBox(parent)
 {
-    m_rowtable    = -1;
-    m_id          = -1;
-    m_toggleable  = true;
+    // Les membres sont initialisés dans le header (member-initialization).
+    // Seules les initialisations non triviales restent ici.
     setContextMenuPolicy(Qt::NoContextMenu);
     setFont(qApp->font());
     installEventFilter(this);
 }
 
-UpCheckBox::UpCheckBox(QString text, QWidget *parent) : UpCheckBox(parent)
+UpCheckBox::UpCheckBox(const QString &text, QWidget *parent)
+    : UpCheckBox(parent)   // délégation : constructeur de base exécuté en entier
 {
     setText(text);
-    setFont(qApp->font());
+    // setFont() n'est pas répété : il a déjà été appelé par UpCheckBox(parent).
 }
 
-UpCheckBox::~UpCheckBox()
+// ─────────────────────────────────────────────────────────────────────────────
+void UpCheckBox::afficheToolTip()
 {
-
-}
-
-void UpCheckBox::AfficheToolTip()
-{
-    if (m_tooltipmsg != "" && isEnabled())
-        QToolTip::showText(cursor().pos(),m_tooltipmsg);
+    if (!m_tooltipmsg.isEmpty() && isEnabled())
+        QToolTip::showText(cursor().pos(), m_tooltipmsg);
 }
 
 bool UpCheckBox::eventFilter(QObject *obj, QEvent *event)
 {
-    if (event->type()==QEvent::Enter)
-    {
+    if (event->type() == QEvent::Enter) {
         emit enter();
-        AfficheToolTip();
-        return true;
+        afficheToolTip();
+        // On ne consomme pas l'événement (return false) afin que
+        // les widgets parents puissent également le recevoir.
+        return false;
     }
-    if(event->type()==QEvent::MouseButtonPress ||  event->type()==QEvent::MouseButtonDblClick)
-        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
-            if (!Toggleable())
-                return true;
+    if (event->type() == QEvent::MouseButtonPress
+     || event->type() == QEvent::MouseButtonDblClick) {
+        if (static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton
+         && !m_toggleable)
+            return true;   // consommer le clic pour bloquer le basculement
+    }
     return QWidget::eventFilter(obj, event);
 }
 
-void UpCheckBox::setImmediateToolTip(QString Msg)
+// ─────────────────────────────────────────────────────────────────────────────
+void UpCheckBox::setImmediateToolTip(const QString &msg)
 {
-    m_tooltipmsg = Msg;
+    m_tooltipmsg = msg;
 }
 
-int UpCheckBox::columntable() const
-{
-    return m_columntable;
-}
-
-void UpCheckBox::setColumntable(int newColumntable)
-{
-    m_columntable = newColumntable;
-}
-void UpCheckBox::setRowTable(int val)
-{
-    m_rowtable    = val;
-}
-int UpCheckBox::rowTable() const
-{
-    return m_rowtable;
-}
-void UpCheckBox::setiD(int val)
-{
-    m_id          = val;
-}
-int UpCheckBox::iD() const
-{
-    return m_id;
-}
-void UpCheckBox::setToggleable(bool val)
-{
-    m_toggleable = val;
-}
-bool UpCheckBox::Toggleable() const
-{
-    return m_toggleable;
-}
+int  UpCheckBox::columntable() const              { return m_columntable; }
+void UpCheckBox::setColumntable(int v)            { m_columntable = v; }
+void UpCheckBox::setRowTable(int val)             { m_rowtable = val; }
+int  UpCheckBox::rowTable() const                 { return m_rowtable; }
+void UpCheckBox::setiD(int val)                   { m_id = val; }
+int  UpCheckBox::iD() const                       { return m_id; }
+void UpCheckBox::setToggleable(bool val)          { m_toggleable = val; }
+bool UpCheckBox::Toggleable() const               { return m_toggleable; }

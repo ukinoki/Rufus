@@ -21,9 +21,10 @@ void Topcon::LectureDonneesXMLRefracteur(QDomDocument docxml, QString nameRF)
 }
 
 
+/*
 void Topcon::LectureDonneesXMLnsCommon(QDomDocument docxml)
 {
-/*
+ *
  * Sample namespace Common from Topcon CV5000PC
  *
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
@@ -52,9 +53,9 @@ void Topcon::LectureDonneesXMLnsCommon(QDomDocument docxml)
         <DateFormat>D_M_Y</DateFormat>
     </nsCommon:Common>
 </Ophthalmology>
-*/
 
-}
+
+}*/
 
 void Topcon::LectureDonneesXMLnsSBJ(QDomDocument docxml)
 {
@@ -512,7 +513,7 @@ void AddCommon(QDomDocument LMxml, QDomElement ophtalmology)
 }
 
 // Add Pupillary Distance to Measure Element
-void AddPD(QDomDocument RMxml, QDomElement elemMeasure, QString nsURI)
+/*void AddPD(QDomDocument RMxml, QDomElement elemMeasure, QString nsURI)
 {
 // doesn't work with CV5000PC
     return;
@@ -531,8 +532,7 @@ void AddPD(QDomDocument RMxml, QDomElement elemMeasure, QString nsURI)
     //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearR");
     //     CreateNode(RMxml, elePD, nsURI, "unit", "mm", "NearL");
     // }
-
-}
+}*/
 
 void AddLMVoidData(QDomDocument LMxml, QDomElement eleS, QString nsURI)
 {
@@ -773,7 +773,7 @@ void AddLM(QDomDocument LMxml, QDomElement ophtalmology)
     CreateNode(LMxml, elemRefractionData, nsURI, "unit", "mm", "VD", "12.0");
 
     // RefractionData 1 -> PD
-    AddPD(LMxml, elemExamDistance1, nsURI);
+    //AddPD(LMxml, elemExamDistance1, nsURI);
 
 
 
@@ -888,13 +888,13 @@ void AddRM(QDomDocument RMxml, QDomElement ophtalmology)
     CreateNode(RMxml, eleListL, nsURI, "ConfidenceIndex");
 
     // Measure -> PD
-    AddPD(RMxml, elemMeasure, nsURI);
+    //AddPD(RMxml, elemMeasure, nsURI);
 }
 
 
 
 
-void Topcon::RegleRefracteurXML(TypesMesures flag, QString nameRF)
+void Topcon::RegleRefracteurXML(TypesMesures flag)
 {
 /*
      QString filename = Adress + "/" + typfile + "_" + codecname + "_" + QString::number(Datas::I()->patients->currentpatient()->id()) + ".xml";

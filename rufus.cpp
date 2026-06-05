@@ -23,7 +23,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("06-03-2026/1");
+    qApp->setApplicationVersion("05-06-2026/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -36,7 +36,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     qApp->setStyleSheet(Styles::StyleAppli().replace("widthscrollbar", QString::number(WIDTH_SCROLLBAR)));
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);                                                     //! since Qt 6.7 this variable is true by default
     QToolTip::setPalette(QPalette(Qt::yellow));
-
     proc = Procedures::I();     //! déclaré dans le .h et ici sinon on a des problèmes de police .... et pas seulement dans le .h pour que les StyleSheet soient appliqués avant l'instanciation de Procedures
 
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
@@ -1981,7 +1980,10 @@ void Rufus::EnregistreVideo(Patient *pat)
         return;
     dlg_docsvideo *DocsVideo = new dlg_docsvideo(pat);
     if (!DocsVideo->initOK())
+    {
+        delete DocsVideo;
         return;
+    }
     DocsVideo->dialog()->exec();
     delete DocsVideo;
     if (currentpatient() != Q_NULLPTR)
@@ -2187,7 +2189,11 @@ void Rufus::ExporteDocs()
                     return;
             }
             QFile CC(CheminOKTransfrDoc);
-            CC.open(QIODevice::ReadWrite);
+            if (!CC.open(QIODevice::ReadWrite))
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + CheminOKTransfrDoc);
+                continue;
+            }
             CC.setPermissions( QFileDevice::ReadOther
                               | QFileDevice::ReadGroup
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
@@ -2309,7 +2315,11 @@ void Rufus::ExporteDocs()
                 continue;
             }
             QFile CC(CheminOKTransfrDoc);
-            CC.open(QIODevice::ReadWrite);
+            if (!CC.open(QIODevice::ReadWrite))
+            {
+                UpMessageBox::Watch(this, tr("Impossible d'ouvrir le fichier") + " " + CheminOKTransfrDoc);
+                continue;
+            }
             CC.setPermissions( QFileDevice::ReadOther
                               | QFileDevice::ReadGroup
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
@@ -2470,7 +2480,11 @@ void Rufus::ExporteDocs()
                     return;
             }
             QFile CC(CheminOKTransfrDoc);
-            CC.open(QIODevice::ReadWrite);
+            if (!CC.open(QIODevice::ReadWrite))
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + CheminOKTransfrDoc);
+                continue;
+            }
             CC.setPermissions( QFileDevice::ReadOther
                               | QFileDevice::ReadGroup
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
@@ -2626,7 +2640,11 @@ void Rufus::ExporteDocs()
                 continue;
             }
             QFile CC(CheminOKTransfrDoc);
-            CC.open(QIODevice::ReadWrite);
+            if (!CC.open(QIODevice::ReadWrite))
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + CheminOKTransfrDoc);
+                continue;
+            }
             CC.setPermissions(QFileDevice::ReadOther
                               | QFileDevice::ReadGroup
                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
@@ -7984,6 +8002,7 @@ void Rufus::CreerMenu()
         connect (actionFrench,                      &QAction::triggered,        this,                   [=] {switchTranslator("fr");});
         connect (actionEnglish,                     &QAction::triggered,        this,                   [=] {switchTranslator("en");});
         connect (actionSpanish,                     &QAction::triggered,        this,                   [=] {switchTranslator("es");});
+        connect (actionBrazil,                      &QAction::triggered,        this,                   [=] {switchTranslator("br");});
 
 
     // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -9519,14 +9538,14 @@ bool Rufus::Remplir_ListePatients_TableView()
         Patient *pat = const_cast<Patient*>(it.value());
         pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                   // id                           -> utilisé pour le drop event
         pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                   // Nom + Prénom
-        pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);            // date de naissance
+        pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyyEntete")), pat);      // date de naissance
         pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                  // date de naissance inversée   -> utilisé pour le tri => pas de tr()
         pitem4  = new UpStandardItem(pat->nom(), pat);                                                   // Nom                          -> utilisé pour le tri
         pitem5  = new UpStandardItem(pat->prenom(), pat);                                                // Prénom                       -> utilisé pour le tri
         m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
     }
     QStandardItem *itnom = new QStandardItem();
-    itnom->setText(tr("Nom"));
+    itnom->setText(tr("NomEntete"));
     itnom->setTextAlignment(Qt::AlignLeft);
     m_listepatientsmodel->setHorizontalHeaderItem(1,itnom);
     QStandardItem *itDDN = new QStandardItem();
@@ -11019,14 +11038,16 @@ void Rufus::retranslateActions() {
     actionJournalDepenses = retranslateAction(actionJournalDepenses, tr("Journal des dépenses"));
     actionGestionComptesBancaires = retranslateAction(actionGestionComptesBancaires, tr("Gestion des comptes bancaires"));
     actionRemiseCheques = retranslateAction(actionRemiseCheques, tr("Effectuer une remise de chèques"));
-    actionApropos = retranslateAction(actionApropos, tr("A propos"));
+    actionApropos   = retranslateAction(actionApropos, tr("A propos"));
 
-    actionFrench = retranslateAction(actionFrench, tr("Français"));
-    actionEnglish = retranslateAction(actionEnglish, tr("English"));
-    actionSpanish = retranslateAction(actionSpanish, tr("Español"));
-    actionFrench->setIcon( QPixmap("://France.ico") );
-    actionEnglish->setIcon( QPixmap("://United-kingdom.ico") );
-    actionSpanish->setIcon( QPixmap("://Spain.ico") );
+    actionFrench    = retranslateAction(actionFrench, tr("Français"));
+    actionEnglish   = retranslateAction(actionEnglish, tr("English"));
+    actionSpanish   = retranslateAction(actionSpanish, tr("Español"));
+    actionBrazil    = retranslateAction(actionBrazil, tr("Brasileiro"));
+    actionFrench    ->setIcon( QPixmap("://France.ico") );
+    actionEnglish   ->setIcon( QPixmap("://United-kingdom.ico") );
+    actionSpanish   ->setIcon( QPixmap("://Spain.ico") );
+    actionBrazil    ->setIcon( QPixmap("://Brazil.ico") );
 
     actionQuit = retranslateAction(actionQuit, tr("Quitter"));
     actionQuit->setMenuRole(QAction::PreferencesRole);

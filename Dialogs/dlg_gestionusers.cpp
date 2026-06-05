@@ -378,7 +378,11 @@ void dlg_gestionusers::changeLogo()
             UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXILOGO/1024) + "Ko");
             return;
         }
-        file_origin .open(QIODevice::ReadOnly);
+        if (!file_origin .open(QIODevice::ReadOnly))
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
+            return;
+        }
         QImage img(path_file_origin);
         m_userencours->setLogo(img);
         ui->Logolabel->setPixmap(QPixmap::fromImage(img.scaled(ui->Logolabel->width(),ui->Logolabel->height(), Qt::KeepAspectRatio)));

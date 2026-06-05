@@ -396,7 +396,11 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     if ((suffix == JPG || suffix == JPEG || suffix == PNG) && sz > SIZEMAXIMAGES)
         Utils::CompressFileToJPG(path_file_origin, msg, false);
     file_origin.setFileName(path_file_origin);
-    file_origin.open(QIODevice::ReadOnly);
+    if (!file_origin.open(QIODevice::ReadOnly))
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
+        return;
+    }
     ba = file_origin.readAll();
     file_origin.close();
     szfinal = Utils::getExpressionSize(file_origin.size());

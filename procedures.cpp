@@ -52,10 +52,12 @@ Procedures::Procedures(QObject *parent) :
         QRadioButton *frbutt        = new QRadioButton("Version française");
         QRadioButton *enbutt        = new QRadioButton("English version");
         QRadioButton *esbutt        = new QRadioButton("Versión española");
+        QRadioButton *brbutt        = new QRadioButton("Versão brasileira");
         QVBoxLayout *version_Lay    = new QVBoxLayout();
         version_Lay                 ->addWidget(frbutt);
         version_Lay                 ->addWidget(enbutt);
         version_Lay                 ->addWidget(esbutt);
+        version_Lay                 ->addWidget(brbutt);
         gbox                        ->setLayout(version_Lay);
         versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         versiondlg                  ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -65,6 +67,7 @@ Procedures::Procedures(QObject *parent) :
         connect(frbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
         connect(enbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
         connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+        connect(brbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
         connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
         connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
             if (frbutt->isChecked())
@@ -73,6 +76,8 @@ Procedures::Procedures(QObject *parent) :
                     m_version = "EN";
             else if (esbutt->isChecked())
                     m_version = "ES";
+            else if (brbutt->isChecked())
+                    m_version = "BR";
             else
                 return;
             versiondlg->accept();
@@ -3228,6 +3233,7 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     int al = 0;
     QString iban = "FR";
     srand(static_cast<uint>(time(Q_NULLPTR)));
+    al = arc4random() % 100;
     al = rand() % 100;
     while (al<10)
         al = rand() % 100;
@@ -5672,7 +5678,7 @@ void Procedures::RegleRefracteurXML(GenericProtocol::TypesMesures flag)
     QString nameRF    = m_settings->value(Param_Poste_Refracteur).toString();
     if (nameRF == "TOPCON CV-5000")
     {
-        Topcon::I()->RegleRefracteurXML(flag, nameRF);
+        Topcon::I()->RegleRefracteurXML(flag);
     }
 
     if (nameRF == "NIDEK RT-6100" || nameRF == "NIDEK Glasspop" )

@@ -1292,7 +1292,11 @@ void dlg_identificationIOL::changeImage()
             if (!Utils::CompressFileToJPG(path_file_origin, msg, false, SIZEMAXIMGIOL))
                 return;
         QFile       file_origin(path_file_origin);
-        file_origin                         .open(QIODevice::ReadOnly);
+        if (!file_origin                         .open(QIODevice::ReadOnly))
+        {
+            UpMessageBox::Watch(this, tr("Impossible d'ouvrir le fichier") + " "  + path_file_origin);
+            return;
+        }
         QByteArray  ba                      = file_origin.readAll();
         QString     suffix                  = QFileInfo(file_origin).suffix().toLower();
         suffix                              = (suffix == PDF? PDF : JPG);

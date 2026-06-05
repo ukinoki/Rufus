@@ -94,7 +94,7 @@ TRANSLATIONS += rufus_fr.ts \
                 rufus_en.ts \
                 rufus_ca.ts \
                 rufus_es.ts \
-                rufus_pt.ts \
+                rufus_br.ts \
                 rufus_it.ts \
                 rufus_ro.ts
 
@@ -137,4 +137,5 @@ DISTFILES += \
     assets/Licenses/LICENSE \
     rufus_en.qm \
     rufus_es.qm \
-    rufus_fr.qm
+    rufus_fr.qm \
+    rufus_br.qm

@@ -774,10 +774,8 @@ void conversionbase::conversionbaseoplus()
     /*! ACTES ET IMAGERIE ============================================================================================================================================
      *
      */
-    int l = 0;
     for (auto it = mappat.constBegin(); it != mappat.constEnd(); ++it)
     {
-        ++l;
         int idpat =  it.key();
         //qDebug() << l << "/" <<  mappat.size() << "idpat =" << idpat << "- patient =" << it.value();
         //if (idpat < 30000 || idpat > 30030) continue;
@@ -906,7 +904,8 @@ void conversionbase::conversionbaseoplus()
                         if (suffix == "tif") //! CONVERTIT LES TIF EN JPG
                         {
                             if (!fileorigin.open(QIODevice::ReadOnly)) {
-                                return;
+                                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + pathorigin);
+                                continue;
                             }
                             QByteArray ar(fileorigin.size(), ' ');
                             fileorigin.read(ar.data(), ar.size());
@@ -951,7 +950,11 @@ void conversionbase::conversionbaseoplus()
                         if(db->StandardSQL(req))
                         {
                             QFile CC(nomdossierdestination + "/" + nomfiledestination);
-                            CC.open(QIODevice::ReadWrite);
+                            if (!CC.open(QIODevice::ReadWrite))
+                            {
+                                UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + nomfiledestination);
+                                continue;
+                            }
                             CC.setPermissions(QFileDevice::ReadOther
                                               | QFileDevice::ReadGroup
                                               | QFileDevice::ReadOwner  | QFileDevice::WriteOwner

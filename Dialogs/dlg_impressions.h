@@ -209,14 +209,14 @@ private:
 
     QString NOCOR               = tr("PAS DE CORRESPONDANT RÉFÉRENCÉ POUR CE PATIENT");
 
-    QString TITRESURGEONINTERVENTION = tr("Chirurgien");
-    QString TITREDATEINTERVENTION    = tr("Date d'intervention");
-    QString TITREHEUREINTERVENTION   = tr("Heure d'intervention");
-    QString TITRECOTEINTERVENTION    = tr("Côté de l'intervention");
-    QString TITREANESTHINTERVENTION  = tr("Type d'anesthésie");
-    QString TITRESITEINTERVENTION    = tr("Lieu d'intervention");
-    QString TITRETYPEINTERVENTION    = tr("Type d'intervention");
-    QString TITREIMPLANTINTERVENTION = tr("Implant envisagé");
+    QString TITRESURGEONINTERVENTION = "Chirurgien";
+    QString TITREDATEINTERVENTION    = "Date d'intervention";
+    QString TITREHEUREINTERVENTION   = "Heure d'intervention";
+    QString TITRECOTEINTERVENTION    = "Côté de l'intervention";
+    QString TITREANESTHINTERVENTION  = "Type d'anesthésie";
+    QString TITRESITEINTERVENTION    = "Lieu d'intervention";
+    QString TITRETYPEINTERVENTION    = "Type d'intervention";
+    QString TITREIMPLANTINTERVENTION = "Implant envisagé";
     QString TITREPWRIOLINTERVENTION  = "PWR";
 
 };

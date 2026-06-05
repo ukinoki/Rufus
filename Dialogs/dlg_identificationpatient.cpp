@@ -46,16 +46,18 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     OKButton                ->setText(tr("Enregistrer"));
     CancelButton            ->setText(tr("Annuler"));
     setStageCount(2);
-    buttonslayout()         ->insertLayout(0, vlay);
-    dlglayout()             ->setSizeConstraint(QLayout::SetFixedSize);
-    QDate                   m_currentdate = db->ServerDate();
-    ui->DDNdateEdit         ->setDisplayFormat(tr("dd/MM/yyyy"));
-    ui->DDNdateEdit         ->setDateRange(m_currentdate.addYears(-105),m_currentdate);
+    buttonslayout()     ->insertLayout(0, vlay);
+    dlglayout()         ->setSizeConstraint(QLayout::SetFixedSize);
+
+    QDate m_currentdate = db->ServerDate();
+    ui->DDNdateEdit     ->setDisplayFormat(tr("dd/MM/yyyy"));
+    ui->DDNdateEdit     ->setDateRange(m_currentdate.addYears(-105),m_currentdate);
+
     QFont font = qApp->font();
     font.setBold(true);
-    ui->PrenomlineEdit->setFont(font);
-    ui->NomlineEdit->setFont(font);
-    ui->DDNdateEdit->setFont(font);
+    ui->PrenomlineEdit  ->setFont(font);
+    ui->NomlineEdit     ->setFont(font);
+    ui->DDNdateEdit     ->setFont(font);
 
     UpLineEdit *MGLineEdit = new UpLineEdit(this);
     MGLineEdit          ->setStyleSheet(
@@ -70,8 +72,8 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->MGupComboBox    ->setCurrentIndex(-1);
 
     wdg_villeCP         = new VilleCPWidget(Datas::I()->villes, ui->Principalframe);
-    wdg_CPlineedit          = wdg_villeCP->ui->CPlineEdit;
-    wdg_villelineedit       = wdg_villeCP->ui->VillelineEdit;
+    wdg_CPlineedit      = wdg_villeCP->ui->CPlineEdit;
+    wdg_villelineedit   = wdg_villeCP->ui->VillelineEdit;
     wdg_villeCP         ->move(10,254);
     connect(wdg_villeCP, &VilleCPWidget::villecpmodified, this, &dlg_identificationpatient::EnableOKpushButton);
 
@@ -106,14 +108,14 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     ui->MGupComboBox        ->installEventFilter(this);
     ui->MaillineEdit        ->installEventFilter(this);
     m_flagcorrespondants    = Flags::I()->flagCorrespondants();
-    t_timer                  = new QTimer(this);
-    t_timer                  ->start(5000);
+    t_timer                 = new QTimer(this);
+    t_timer                 ->start(5000);
     connect (t_timer,                        &QTimer::timeout,                           this,   &dlg_identificationpatient::VerifMGFlag);
 
-    ui->NomlineEdit->setFocus();
+    ui->NomlineEdit         ->setFocus();
 
-    OKButton    ->disconnect();
-    CancelButton->disconnect();
+    OKButton                ->disconnect();
+    CancelButton            ->disconnect();
     connect (OKButton,                      &QPushButton::clicked,                      this,   &dlg_identificationpatient::OKpushButtonClicked);
     connect (CancelButton,                  &QPushButton::clicked,                      this,   &dlg_identificationpatient::AnnulpushButtonClicked);
     connect (ui->ModifierDDNupPushButton,   &QPushButton::clicked,                      this,   &dlg_identificationpatient::ModifDDN);

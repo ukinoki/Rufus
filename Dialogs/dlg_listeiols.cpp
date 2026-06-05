@@ -183,11 +183,15 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
     connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
                                                                                         QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-                                                                                        QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop + "/ImagesIOL" ,  tr("Fichiers xml (*.xml)"));
+                                                                                        QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Fichiers xml (*.xml)"));
                                                                                         if (path_file_origin != "")
                                                                                         {
                                                                                             QFile filexml(path_file_origin);
-                                                                                            filexml.open(QIODevice::ReadOnly);
+                                                                                            if (!filexml.open(QIODevice::ReadOnly))
+                                                                                            {
+                                                                                                UpMessageBox::Watch(this, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
+                                                                                                return;
+                                                                                            }
                                                                                             QByteArray ba;
                                                                                             ba = filexml.readAll();
                                                                                             QDomDocument docxml;
@@ -1213,7 +1217,11 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
     {
         QFile file_image(nomfichresize);
         file_image.setFileName(nomfichresize);
-        file_image.open(QIODevice::ReadOnly);
+        if (!file_image.open(QIODevice::ReadOnly))
+             {
+                 UpMessageBox::Watch(this, tr("Impossible d'ouvrir le fichier") + " " + nomfichresize);
+                 return;
+             }
         QByteArray ba = file_image.readAll();
         QHash<QString, QVariant> m_listbinds;
         m_listbinds[CP_ARRAYIMG_IOLS] = ba;
