@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_identificationuser.h"
 #include "icons.h"
 #include "ui_dlg_identificationuser.h"
+#include "mysqlinstaller.h"     //! motDePasseSQL() : mdp MySQL du cabinet (repli legacy MDP_SQL)
 
 /*!
 *
@@ -121,7 +122,10 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
     QString error = "";
-    error = db->connectToDataBase(DB_RUFUS);
+    //! Connexion MySQL via le compte fixe adminrufus ; motDePasseSQL() renvoie le
+    //! mot de passe aléatoire du cabinet (clé Param_MDPSQL du rufus.ini), avec repli
+    //! automatique sur MDP_SQL pour les bases existantes non migrées.
+    error = db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
 
     if( error.size() )
     {

@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "procedures.h"
+#include "mysqlinstaller.h"
 
 Procedures* Procedures::instance =  Q_NULLPTR;
 Procedures* Procedures::I()
@@ -658,16 +659,16 @@ void Procedures::DefinitScriptBackup(QString pathbackupbase)
     QString host = "";
     if (DataBase::I()->ModeAccesDataBase() == Utils::ReseauLocal)
         host = " -h " + DataBase::I()->dbase().hostName();
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_RUFUS " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_RUFUS ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_COMPTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_COMPTA ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_IMAGES " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_IMAGES ".sql") + "\"";
     scriptbackup += CRLF;
-    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
+    scriptbackup += executabledump + host + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" --skip-lock-tables --events --databases " DB_OPHTA " > \"" + QDir::toNativeSeparators(pathbackupbase + "/" DB_OPHTA ".sql") + "\"";
     scriptbackup += CRLF;
     // Sauvegarde de la table des utilisateurs
-    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" MDP_SQL "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
+    scriptbackup += executabledump + " --force --opt --user=\"" LOGIN_SQL "\" -p\"" + MySQLInstaller::motDePasseSQL() + "\" mysql user > \"" + QDir::toNativeSeparators(pathbackupbase + "/user.sql") + "\"";
     scriptbackup += CRLF;
 
     if (QFile::exists(PATH_FILE_SCRIPTBACKUP))
@@ -911,7 +912,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
      }
      QStringList args = QStringList()
         << "-u" << login
-        << "-p" MDP_SQL
+        << ("-p" + MySQLInstaller::motDePasseSQL())
         << "-h" << host
         << "-P" << QString::number(db->port());
 #ifndef Q_OS_WIN
@@ -2359,9 +2360,9 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
             db->VideDatabases();
-            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" MDP_SQL "'");
+            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "'");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' WITH GRANT OPTION");
-            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" MDP_SQL "' REQUIRE SSL");
+            db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "' REQUIRE SSL");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
 
             //! Restauration à partir du dossier sélectionné
@@ -3322,7 +3323,7 @@ bool Procedures::IdentificationUser()
         QTextStream  ts(&sha);
         QString filecontents;
         filecontents.append(ts.readAll());
-        if (db->connectToDataBase(DB_RUFUS) .size())
+        if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL()) .size())
             ok = false;
         ok = db->calcidUserConnected(filecontents.split("!!!!").at(0),filecontents.split("!!!!").at(1)) == DataBase::OK;
     }
@@ -4060,6 +4061,15 @@ bool Procedures::PremierDemarrage()
     }
     else if (protoc == BaseVierge)
     {
+        //! Avant tout : garantir un serveur MySQL conforme aux exigences de Rufus sur
+        //! ce poste (détection ; installation + paramétrage au besoin) et création des
+        //! comptes adminrufus/adminrufusSSL avec un mot de passe aléatoire propre au
+        //! cabinet, stocké dans rufus.ini (clé Param_MDPSQL). Annulation utilisateur ou
+        //! échec → retour à l'écran de premier démarrage (Rufus ne continue pas).
+        //! cf MySQLInstaller, MySQLInstaller/NOTES_INTEGRATION_MYSQLINSTALLER.md
+        MySQLInstaller installeurMySQL;
+        if (!installeurMySQL.run())
+            return PremierDemarrage();
         bool AccesDistant = false;
         if (VerifParamConnexion(login, MDP, false, AccesDistant))
         {

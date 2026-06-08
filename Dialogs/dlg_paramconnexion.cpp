@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "dlg_paramconnexion.h"
 #include "ui_dlg_paramconnexion.h"
+#include "mysqlinstaller.h"     //! motDePasseSQL() : mdp MySQL du cabinet (repli legacy MDP_SQL)
 
 dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDistant, QWidget *parent) :
     QDialog(parent),
@@ -206,10 +207,15 @@ bool dlg_paramconnexion::TestConnexion()
         if (m_connectavecloginSQL)
         {
             Login = LOGIN_SQL;
-            Password = MDP_SQL;
+            Password = MySQLInstaller::motDePasseSQL();
         }
         QString error = "";
-        error = DataBase::I()->connectToDataBase(DB_RUFUS, Login, Password);
+        //! La connexion MySQL passe TOUJOURS par le compte fixe adminrufus
+        //! (motDePasseSQL() = mdp aléatoire du cabinet, repli legacy MDP_SQL).
+        //! Les identifiants saisis (Login/Password) sont l'identité APPLICATIVE
+        //! Rufus (table utilisateurs), pas un compte MySQL : plus de compte
+        //! temporaire. Ils restent validés par verifExistUser() ci-dessous.
+        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
 
         if( error.size() )
         {
@@ -252,7 +258,7 @@ bool dlg_paramconnexion::TestConnexion()
             if ( DirSSL.isEmpty() || !QDir(DirSSL).exists())
                             {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  ui->IPlineEdit->setFocus();    return 0;}
         QString error = "";
-        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MDP_SQL);
+        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
         if( error.size() )
         {
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
