@@ -98,14 +98,21 @@ pouvait se connecter à n'importe quelle base Rufus joignable.
 ### La solution
 - À la **création d'une base**, on génère un **mot de passe aléatoire** (24 car.
   alphanumériques, `genererMotDePasse()`), on crée `adminrufus`/`adminrufusSSL`
-  avec, et on le **stocke dans `rufus.ini`** sous la clé **`Param_MDPSQL`**
-  (`Connexion/MDPSQL`).
+  avec, et on le **stocke dans un fichier CACHÉ** `~/.rufus/.dbkey`
+  (`PATH_FILE_DBKEY`, clé `Param_MDPSQL`) — **PAS dans `rufus.ini`**.
 - À la connexion, on lit ce mot de passe via **`MySQLInstaller::motDePasseSQL()`** ;
   **s'il est absent → repli automatique sur `MDP_SQL` (`gaxt78iy`)**.
 
+> **Pourquoi un fichier caché à part, et non `rufus.ini` ?** La méthode de
+> **réinitialisation pour les tests** consiste à **supprimer `rufus.ini` puis
+> relancer**. Si le mot de passe y était, on perdrait l'accès aux comptes MySQL
+> existants (qui gardent, eux, le mot de passe aléatoire). Le fichier `~/.rufus/.dbkey`
+> vit **hors de `~/Documents/Rufus`**, survit donc à cette suppression, et est un
+> peu plus à l'abri (caché). *(Nicety future : poser l'attribut « caché » Windows.)*
+
 ### Migration sans douleur (pas de mise à jour simultanée)
 ```
-mdp = rufus.ini[Param_MDPSQL]
+mdp = (~/.rufus/.dbkey)[Param_MDPSQL]
 si mdp vide OU connexion échoue :  mdp = MDP_SQL   (repli "legacy")
 ```
 - **Base existante** (pas de clé) → repli `gaxt78iy` → **fonctionne comme avant**.

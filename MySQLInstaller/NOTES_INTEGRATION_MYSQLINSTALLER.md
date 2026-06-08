@@ -37,9 +37,15 @@ installations, donc public via GitHub**. C'est LA faille.
 Nouvelle logique :
 - À la **création d'une base**, on génère un **mot de passe aléatoire fort** (24
   caractères alphanumériques), on crée `adminrufus`/`adminrufusSSL` avec, et on le
-  stocke dans le `rufus.ini` (clé `Param_MDPSQL` = `Connexion/MDPSQL`).
+  stocke dans un **fichier CACHÉ** `~/.rufus/.dbkey` (`PATH_FILE_DBKEY`, clé
+  `Param_MDPSQL`) — **PAS dans `rufus.ini`** (voir encadré ci-dessous).
 - À la connexion, Rufus lit ce mot de passe ; **s'il est absent OU vide, repli
   automatique sur `MDP_SQL` (`gaxt78iy`)**.
+
+> **Pourquoi pas dans `rufus.ini` ?** La **réinitialisation pour tests** = supprimer
+> `rufus.ini` puis relancer. Si le mot de passe y était, on perdrait l'accès aux
+> comptes MySQL existants. Le fichier `~/.rufus/.dbkey` est **hors de
+> `~/Documents/Rufus`** → survit à la suppression de `rufus.ini`, et est caché.
 
 Pourquoi c'est sûr et non disruptif (cf. règle de migration ci-dessous).
 
@@ -52,7 +58,7 @@ version et de `rufus.ini` en même temps ». **On l'évite** en *découplant* la
 migration de la mise à jour :
 
 ```
-mdp = rufus.ini[Param_MDPSQL]                 (nouvelle clé)
+mdp = (~/.rufus/.dbkey)[Param_MDPSQL]         (fichier caché, hors ~/Documents/Rufus)
 si mdp est vide  OU  la connexion échoue :
     mdp = MDP_SQL  ("gaxt78iy")               (repli "legacy", toujours dans le code)
 se connecter avec mdp
@@ -161,7 +167,7 @@ Je n'ai **pas pu** compiler ni exécuter dans l'environnement de développement 
 2. **Tester le premier démarrage** « Nouvelle base vierge » sur une machine Ubuntu
    propre (ta cible) : détection MySQL, install apt, config (dossier partagé,
    Samba, `secure_file_priv`, PATH), création `adminrufus`/`adminrufusSSL`, écriture
-   de `Param_MDPSQL` dans `rufus.ini`, puis connexion.
+   de `Param_MDPSQL` dans le fichier caché `~/.rufus/.dbkey`, puis connexion.
 3. **Tester la non-régression** d'une base **existante** (sans `Param_MDPSQL`) :
    doit se connecter via le repli `gaxt78iy`, comme avant.
 4. Vérifier le déroulé **multi-postes** (base partagée) : un 2e poste qui se
@@ -196,7 +202,7 @@ utilisera ensuite pour se connecter au logiciel.
 
 Répartition :
 - **`MySQLInstaller` (engine)** : ne crée QUE les comptes MySQL `adminrufus` +
-  `adminrufusSSL` (mot de passe aléatoire dans `rufus.ini`). ✓ déjà le cas.
+  `adminrufusSSL` (mot de passe aléatoire dans le fichier caché `~/.rufus/.dbkey`). ✓ déjà le cas.
 - **Champs login/mdp (utilisateur Rufus)** : à **conserver** dans le parcours
   d'installation intégré. Aujourd'hui ils sont collectés par
   `dlg_paramconnexion` et `Procedures::CreerPremierUser(login, MDP)` crée déjà
@@ -214,4 +220,4 @@ Répartition :
 Dans **`ukinoki/mysqlinstaller-for-rufus`** : **supprimer** les champs login/mdp
 (`CredentialsDialog`) — l'utilitaire autonome ne crée plus que les comptes MySQL
 `adminrufus`/`adminrufusSSL` avec un mot de passe aléatoire écrit dans un
-`rufus.ini` sur la machine. (À faire dans une session sur ce dépôt.)
+fichier caché `~/.rufus/.dbkey` sur la machine. (À faire dans une session sur ce dépôt.)
