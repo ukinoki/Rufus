@@ -112,6 +112,7 @@ include(Widgets/widgets.pri)
 include(Protocols/protocols.pri)
 include(TextPrinter/textprinter.pri)
 include(ImageViewer/imageviewer.pri)
+include(MySQLInstaller/mysqlinstaller.pri)
 
 
 unix|win32{

@@ -127,10 +127,22 @@ jour de l'intégration) :
 | `procedures.cpp:661,663,665,667,670` | scripts `mysqldump` de sauvegarde | → `motDePasseSQL()` |
 | `procedures.cpp:914` | args de connexion (`-p`) | → `motDePasseSQL()` |
 | `procedures.cpp:2362,2364` | `RestaureBase` : `CREATE USER ... IDENTIFIED BY MDP_SQL` | → `motDePasseSQL()` |
-| `Database/database.h:125` | **défaut** `password = MDP_SQL` de `connectToDataBase` | **laissé en MDP_SQL** (défaut legacy ; les vrais appels passent le mdp explicitement). À revoir si un appelant critique s'appuie sur le défaut. |
+| `procedures.cpp` (~3326) | `connectToDataBase(DB_RUFUS)` (défaut) | → `connectToDataBase(DB_RUFUS, LOGIN_SQL, motDePasseSQL())` |
+| `Dialogs/dlg_identificationuser.cpp:124` | login au démarrage : `connectToDataBase(DB_RUFUS)` (défaut) | → idem (**critique** : sans ça, une base neuve ne se connecterait pas) |
+| `Dialogs/dlg_paramconnexion.cpp:213` | connexion en mode **Poste** | → connexion **toujours via `adminrufus`/`motDePasseSQL()`** (voir ci-dessous) |
+| `Database/database.h:125` | **défaut** `password = MDP_SQL` de `connectToDataBase` | **laissé en MDP_SQL** mais **plus aucun appelant ne s'appuie sur le défaut** (les 4 sites passent désormais le mdp explicitement). |
+
+> 🔑 **Changement sémantique (élimination du compte temporaire)** : la connexion
+> MySQL passe **toujours** par le compte fixe `adminrufus` (`dlg_paramconnexion.cpp:213`,
+> mode Poste). Auparavant, la branche « base vierge » se connectait avec les
+> **identifiants saisis** (l'ancien compte MySQL temporaire). Désormais ces
+> identifiants ne sont que l'**identité applicative Rufus** (table `utilisateurs`,
+> créée par `CreerPremierUser`), jamais un compte MySQL. C'est l'élimination de la
+> faille du « compte temporaire ». **À valider en priorité** (cf §7).
 
 > ⚠️ **Ces remplacements sont iso-comportement pour les bases existantes** (repli =
-> `gaxt78iy`). Le seul risque est une **erreur de compilation** — voir §7.
+> `gaxt78iy`, et `adminrufus` y existe déjà avec ce mot de passe). Le principal
+> risque est une **erreur de compilation** — voir §7.
 
 ---
 
