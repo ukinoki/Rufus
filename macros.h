@@ -887,9 +887,10 @@ public:
 //! MDP_SQL — ce qui garantit que les bases existantes (pas encore migrées)
 //! continuent de fonctionner sans rien changer. cf NOTES_INTEGRATION_MYSQLINSTALLER.md
 #define MDP_SQL                                     "gaxt78iy"
-//! Clé du rufus.ini où est stocké le mot de passe MySQL aléatoire, propre au
-//! cabinet, généré à la création de la base (cf MySQLInstaller). Une base existante
-//! n'a pas cette clé → repli automatique sur MDP_SQL.
+//! Clé sous laquelle est stocké le mot de passe MySQL aléatoire (propre au cabinet,
+//! généré à la création de la base). Stocké dans le fichier CACHÉ PATH_FILE_DBKEY
+//! (PAS dans Rufus.ini : voir ci-dessous), pour survivre à un reset par suppression
+//! de Rufus.ini. Absent → repli automatique sur MDP_SQL (base non migrée).
 #define Param_MDPSQL                                "Connexion/MDPSQL"
 
 #define MYSQL_PROC_POSTEIMPORTDOCS                  "posteimportdocs"
@@ -981,6 +982,14 @@ public:
 #define PATH_DIR_ORIGINAUX                      PATH_DIR_IMAGERIE NOM_DIR_ORIGINAUX
 
 #define PATH_FILE_INI                           PATH_DIR_RUFUS NOM_FILE_INI
+//! Mot de passe MySQL aléatoire du cabinet : stocké dans un fichier CACHÉ, HORS de
+//! ~/Documents/Rufus, afin de SURVIVRE à la suppression de Rufus.ini (méthode de
+//! réinitialisation pour les tests : supprimer Rufus.ini puis relancer) et d'être
+//! un peu plus à l'abri d'une suppression accidentelle. cf MySQLInstaller.
+#define NOM_DIR_RUFUSKEY                        "/.rufus"
+#define NOM_FILE_DBKEY                          "/.dbkey"
+#define PATH_DIR_RUFUSKEY                       QDir::homePath() + NOM_DIR_RUFUSKEY
+#define PATH_FILE_DBKEY                         PATH_DIR_RUFUSKEY NOM_FILE_DBKEY
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP
 #define PATH_FILE_SCRIPT_MACOS_PLIST            "/Library/LaunchAgents" NOM_FILE_SCRIPT_MACOS_PLIST
 #define PATH_FILE_XMLAUTOREF                    PATH_DIR_AUTOREF NOM_FILE_XMLAUTOREF

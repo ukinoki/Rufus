@@ -282,20 +282,24 @@ QString MySQLInstaller::genererMotDePasse()
     return pwd;
 }
 
-//  Lit la clé Param_MDPSQL du rufus.ini ; repli sur MDP_SQL (mot de passe
-//  historique) si la clé est absente ou vide.
+//  Lit le mot de passe MySQL dans le fichier CACHÉ PATH_FILE_DBKEY (~/.rufus/.dbkey),
+//  PAS dans Rufus.ini : il doit survivre à une réinitialisation par suppression de
+//  Rufus.ini. Repli sur MDP_SQL (mot de passe historique) si absent/vide (base non
+//  encore migrée).
 QString MySQLInstaller::motDePasseSQL()
 {
-    QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+    QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
     const QString mdp = sets.value(Param_MDPSQL).toString();
     return mdp.isEmpty() ? QString(MDP_SQL) : mdp;
 }
 
-//  Stocke le mot de passe (clé Param_MDPSQL du rufus.ini).
+//  Stocke le mot de passe dans le fichier caché PATH_FILE_DBKEY (hors ~/Documents/Rufus).
 void MySQLInstaller::stockerMotDePasse(const QString& mdp)
 {
-    QSettings sets(PATH_FILE_INI, QSettings::IniFormat);
+    QDir().mkpath(PATH_DIR_RUFUSKEY);     // dossier caché ~/.rufus (créé au besoin)
+    QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
     sets.setValue(Param_MDPSQL, mdp);
+    sets.sync();
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
