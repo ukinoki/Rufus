@@ -183,3 +183,35 @@ Je n'ai **pas pu** compiler ni exécuter dans l'environnement de développement 
 - Composants `up*` : **non modifiés** (prudence — utilisés partout). Les « erreurs
   de conception » repérées seront listées séparément pour décision, pas changées à
   l'aveugle.
+
+---
+
+## 9. Précision (à trancher) — login/mdp = utilisateur APPLICATIF Rufus
+
+Clarification de l'auteur : **les champs login/mdp restent** dans l'installeur
+intégré à Rufus — mais ils ne créent **pas** un compte MySQL. Ils servent à créer
+l'**utilisateur applicatif Rufus** qui installe la base : login + mot de passe
+stockés dans **`rufus.utilisateurs`** (mdp en **SHA1**), et que le praticien
+utilisera ensuite pour se connecter au logiciel.
+
+Répartition :
+- **`MySQLInstaller` (engine)** : ne crée QUE les comptes MySQL `adminrufus` +
+  `adminrufusSSL` (mot de passe aléatoire dans `rufus.ini`). ✓ déjà le cas.
+- **Champs login/mdp (utilisateur Rufus)** : à **conserver** dans le parcours
+  d'installation intégré. Aujourd'hui ils sont collectés par
+  `dlg_paramconnexion` et `Procedures::CreerPremierUser(login, MDP)` crée déjà
+  l'utilisateur applicatif (SHA1). **Le fond est donc en place.**
+
+> **Question ouverte (UX, à trancher)** : faut-il **déplacer** les champs login/mdp
+> *dans* le dialogue de l'installeur (`MySQLInstallerDialog`), ou les **laisser**
+> dans `dlg_paramconnexion` (qui porte aussi le choix Poste/Local/Distant) ?
+> - *Laisser dans dlg_paramconnexion* : zéro travail, déjà fonctionnel.
+> - *Déplacer dans l'installeur* : parcours plus unifié, mais il faut alors retirer
+>   la saisie login/mdp de `dlg_paramconnexion` pour la branche « base vierge » et
+>   faire remonter les valeurs jusqu'à `CreerPremierUser` (refonte du flux).
+
+### TODO dépôt autonome (hors de cette session, scope = ukinoki/rufus)
+Dans **`ukinoki/mysqlinstaller-for-rufus`** : **supprimer** les champs login/mdp
+(`CredentialsDialog`) — l'utilitaire autonome ne crée plus que les comptes MySQL
+`adminrufus`/`adminrufusSSL` avec un mot de passe aléatoire écrit dans un
+`rufus.ini` sur la machine. (À faire dans une session sur ce dépôt.)
