@@ -880,7 +880,17 @@ public:
 #define NOM_APPLI                                   "Rufus"
 
 #define LOGIN_SQL                                   "adminrufus"
+//! MDP_SQL : mot de passe historique, CODÉ EN DUR et identique pour toutes les
+//! installations (donc public via le code source). Il sert désormais de REPLI
+//! « legacy » : MySQLInstaller::motDePasseSQL() renvoie le mot de passe aléatoire
+//! propre à cette installation (clé Param_MDPSQL du rufus.ini) s'il existe, sinon
+//! MDP_SQL — ce qui garantit que les bases existantes (pas encore migrées)
+//! continuent de fonctionner sans rien changer. cf NOTES_INTEGRATION_MYSQLINSTALLER.md
 #define MDP_SQL                                     "gaxt78iy"
+//! Clé du rufus.ini où est stocké le mot de passe MySQL aléatoire, propre au
+//! cabinet, généré à la création de la base (cf MySQLInstaller). Une base existante
+//! n'a pas cette clé → repli automatique sur MDP_SQL.
+#define Param_MDPSQL                                "Connexion/MDPSQL"
 
 #define MYSQL_PROC_POSTEIMPORTDOCS                  "posteimportdocs"
 
