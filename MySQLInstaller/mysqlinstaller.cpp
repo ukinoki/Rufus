@@ -155,6 +155,16 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     if (OKButton)
         connect(OKButton, &QPushButton::clicked, this, &MySQLInstallerDialog::accept);
+
+    // Bouton « Supprimer MySQL » (mode Verify uniquement) : permet de tout remettre
+    // à zéro — désinstaller le MySQL existant pour repartir sur une base neuve.
+    // Placé à gauche (loin des boutons OK/Annuler) ; masqué par défaut, affiché par
+    // configurerVerifyAdminMySQL(). Le clic clôt exec() avec ResultSupprimerMySQL.
+    m_btnSupprMySQL = new UpSmallButton(tr("Supprimer MySQL"), this);
+    m_btnSupprMySQL->setVisible(false);
+    AjouteWidgetLayButtons(m_btnSupprMySQL, false);   // false = inséré tout à gauche
+    connect(m_btnSupprMySQL, &QPushButton::clicked, this,
+            [this]{ done(ResultSupprimerMySQL); });
 }
 
 // ── Configuration selon le contexte ──────────────────────────────────────────
@@ -168,6 +178,9 @@ void MySQLInstallerDialog::configurer(const QString& titre,
     if (m_login) m_login->clear();
     if (m_mdp)   m_mdp->clear();
     if (m_login) m_login->setFocus();
+    // « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué par défaut, ré-
+    // affiché explicitement par configurerVerifyAdminMySQL().
+    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
 
 //  Format imposé pour un identifiant Rufus à CRÉER (5-15 / 5-12 alphanumériques).
@@ -198,6 +211,8 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
     // passe non alphanumérique) → on RETIRE les validateurs.
     m_login->setValidator(nullptr);
     m_mdp  ->setValidator(nullptr);
+    // Seul contexte où l'on propose de tout réinitialiser (désinstaller MySQL).
+    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(true);
 }
 
 void MySQLInstallerDialog::configurerNewUserRufus()
@@ -770,7 +785,36 @@ bool MySQLInstaller::run()
 
     QString adminLogin, adminMdp;
     forever {
-        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+        const int res = m_dialog->exec();
+
+        // L'utilisateur veut TOUT remettre à zéro : désinstaller le MySQL existant
+        // (et ses données) pour repartir sur une installation neuve par Rufus.
+        if (res == MySQLInstallerDialog::ResultSupprimerMySQL) {
+            if (askYesNo(tr("Supprimer MySQL"),
+                    tr("Cette opération va SUPPRIMER complètement MySQL de cet "
+                       "ordinateur, ainsi que TOUTES les données qu'il contient. "
+                       "Elle est IRRÉVERSIBLE.\n\nVoulez-vous continuer ?"))) {
+                cleanupDialog();
+                MySQLProgressDialog* clean = new MySQLProgressDialog(
+                    tr("Suppression de MySQL en cours…"));
+                clean->show();
+                QApplication::processEvents();
+                uninstallMySQL();
+                clean->close();
+                delete clean;
+                UpMessageBox::Information(nullptr, tr("Désinstallation terminée"),
+                    tr("MySQL a été désinstallé de cet ordinateur.\n\nRufus va "
+                       "maintenant installer une base neuve."));
+                // MySQL absent → on rejoint le chemin de création complet.
+                return faireCreate(cfg);
+            }
+            // Annulation de la suppression : on ré-affiche la fiche Verify.
+            m_dialog->show();
+            QApplication::processEvents();
+            continue;
+        }
+
+        if (res != QDialog::Accepted) { cleanupDialog(); return false; }
         adminLogin = m_dialog->login();
         adminMdp   = m_dialog->password();
         if (!m_dialog->validerSaisie()) continue;

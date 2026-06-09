@@ -65,7 +65,16 @@ mode *Verify* (un MySQL existe déjà), ils servent d'abord à se connecter au
 `adminrufusSSL`, eux, sont créés en tâche de fond avec un mot de passe aléatoire
 (jamais affiché, stocké dans `~/.rufus/.dbkey`). Deux parcours : **Create** (pas de
 MySQL → on l'installe) et **Verify** (MySQL déjà présent → on s'y connecte avec un
-compte admin pour créer les comptes Rufus).
+compte admin pour créer les comptes Rufus). En mode *Verify*, un bouton **« Supprimer
+MySQL »** permet de **tout remettre à zéro** : après confirmation (perte de données),
+le MySQL existant est désinstallé puis Rufus bascule sur le parcours *Create* pour
+installer une base neuve.
+
+> Les connexions clientes **avec identifiants** (`mysql`/`mysqladmin`) sont forcées en
+> **TCP vers `127.0.0.1:3306`** (`LOCAL_TCP_ARGS`), comme le pilote Qt de Rufus et MySQL
+> Workbench. Cela évite qu'un compte défini pour `@'127.0.0.1'`/`@'%'` (ou masqué par un
+> compte anonyme `''@'localhost'`) soit refusé sur le socket Unix local. Seul `mysql -u
+> root` via `pkexec` (mode Create, authentification socket d'Ubuntu) reste en socket.
 
 ---
 
