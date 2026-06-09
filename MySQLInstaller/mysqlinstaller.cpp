@@ -366,16 +366,18 @@ static bool versionAtLeast(const QString& ver, const QString& minVer)
 // ═════════════════════════════════════════════════════════════════════════════
 //  Mot de passe aléatoire (helpers statiques)
 // ═════════════════════════════════════════════════════════════════════════════
-//  Mot de passe alphanumérique fort (24 caractères, [A-Za-z0-9]), tiré d'un
-//  générateur semé de façon sécurisée.
+//  Mot de passe alphanumérique fort (12 caractères, [A-Za-z0-9]), tiré d'un
+//  générateur semé de façon sécurisée. 12 car. (et non 24) pour tenir dans la
+//  contrainte de saisie 5-12 des champs login/mdp (mêmes que rufus.utilisateurs) :
+//  62^12 ≈ 3·10^21 → reste largement assez fort pour ce compte.
 QString MySQLInstaller::genererMotDePasse()
 {
     static const QString alphabet =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     QRandomGenerator gen = QRandomGenerator::securelySeeded();
     QString pwd;
-    pwd.reserve(24);
-    for (int i = 0; i < 24; ++i)
+    pwd.reserve(12);
+    for (int i = 0; i < 12; ++i)
         pwd.append(alphabet.at(int(gen.bounded(uint(alphabet.size())))));
     return pwd;
 }
