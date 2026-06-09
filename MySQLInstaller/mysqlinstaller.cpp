@@ -30,6 +30,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 #include <QRegularExpression>
+#include <QRegularExpressionValidator>
+#include <QLineEdit>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
@@ -103,22 +105,105 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
 {
     setWindowTitle(tr("Préparation de MySQL pour Rufus"));
 
-    // Titre.
-    UpLabel* title = new UpLabel(this, tr("Préparation de MySQL pour Rufus"));
-    title->setStyleSheet("font-size: 16px; font-weight: 700; color: #1C1B18;");
-    // Inséré tout en haut, AVANT le widget des boutons.
-    dlglayout()->insertWidget(0, title);
+    int row = 0;
 
-    // Les 6 cases (affichage seul) insérées entre le titre et les boutons.
+    // Titre + sous-titre (libellés pilotés par les méthodes configurer*()).
+    m_title = new UpLabel(this, tr("Préparation de MySQL pour Rufus"));
+    m_title->setStyleSheet("font-size: 16px; font-weight: 700; color: #1C1B18;");
+    m_title->setWordWrap(true);
+    dlglayout()->insertWidget(row++, m_title);
+
+    m_subtitle = new UpLabel(this, QString());
+    m_subtitle->setStyleSheet("font-size: 12px; color: #1C1B18;");
+    m_subtitle->setWordWrap(true);
+    dlglayout()->insertWidget(row++, m_subtitle);
+
+    // Saisie : identifiant + mot de passe (mêmes validateurs que dlg_paramconnexion).
+    UpLabel* loginLbl = new UpLabel(this, tr("Identifiant :"));
+    dlglayout()->insertWidget(row++, loginLbl);
+    m_login = new UpLineEdit(this);
+    m_login->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, this));
+    dlglayout()->insertWidget(row++, m_login);
+
+    UpLabel* mdpLbl = new UpLabel(this, tr("Mot de passe :"));
+    dlglayout()->insertWidget(row++, mdpLbl);
+    m_mdp = new UpLineEdit(this);
+    m_mdp->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
+    m_mdp->setEchoMode(QLineEdit::Password);
+    dlglayout()->insertWidget(row++, m_mdp);
+
+    // Les 6 cases (affichage seul) insérées entre la saisie et les boutons.
     for (int i = 0; i < 6; i++) {
         m_steps[i] = new UpCheckBox();
         m_steps[i]->setToggleable(false);   // pilotée par l'engine, non cliquable
-        dlglayout()->insertWidget(i + 1, m_steps[i]);
+        dlglayout()->insertWidget(row++, m_steps[i]);
         applyStepLabel(i);
     }
 
-    // Bouton « Annuler » (UpDialog::reject → wasCancelled()).
-    AjouteLayButtons(UpDialog::ButtonCancel);
+    // Boutons « Annuler » + « OK » (le libellé d'OK est ajusté par configurer*()).
+    // AjouteLayButtons relie déjà Annuler à reject() ; on relie OK à accept().
+    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    if (OKButton)
+        connect(OKButton, &QPushButton::clicked, this, &MySQLInstallerDialog::accept);
+}
+
+// ── Configuration selon le contexte ──────────────────────────────────────────
+void MySQLInstallerDialog::configurer(const QString& titre,
+                                      const QString& sousTitre,
+                                      const QString& okLabel)
+{
+    m_title->setText(titre);
+    m_subtitle->setText(sousTitre);
+    if (OKButton) OKButton->setText(okLabel);
+    if (m_login) m_login->clear();
+    if (m_mdp)   m_mdp->clear();
+    if (m_login) m_login->setFocus();
+}
+
+void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
+{
+    setMinVersion(minVersion);
+    configurer(tr("Création de la base Rufus"),
+               tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
+                  "dans Rufus."),
+               tr("Installer"));
+}
+
+void MySQLInstallerDialog::configurerVerifyAdminMySQL()
+{
+    configurer(tr("Connexion à MySQL"),
+               tr("Un serveur MySQL existe déjà. Saisissez l'identifiant et le mot "
+                  "de passe d'un compte MySQL administrateur (capable de créer des "
+                  "utilisateurs)."),
+               tr("Se connecter"));
+}
+
+void MySQLInstallerDialog::configurerNewUserRufus()
+{
+    configurer(tr("Compte utilisateur Rufus"),
+               tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
+                  "dans Rufus."),
+               tr("Créer le compte"));
+}
+
+QString MySQLInstallerDialog::login() const
+{
+    return m_login ? m_login->text() : QString();
+}
+
+QString MySQLInstallerDialog::password() const
+{
+    return m_mdp ? m_mdp->text() : QString();
+}
+
+bool MySQLInstallerDialog::validerSaisie()
+{
+    if (login().isEmpty() || password().isEmpty()) {
+        UpMessageBox::Watch(this, tr("Saisie incomplète"),
+            tr("Veuillez renseigner un identifiant et un mot de passe."));
+        return false;
+    }
+    return true;
 }
 
 QString MySQLInstallerDialog::baseStepLabel(int i) const
@@ -543,6 +628,15 @@ void MySQLInstaller::registerWindowsUninstaller(const QString& base,
 //  run() : point d'entrée synchrone. Phase 1 (pré-requis + détection + install
 //  éventuelle), puis phase 2 (les 6 critères). Renvoie true si MySQL conforme.
 // ═════════════════════════════════════════════════════════════════════════════
+void MySQLInstaller::cleanupDialog()
+{
+    if (m_dialog) {
+        m_dialog->close();
+        delete m_dialog;
+        m_dialog = nullptr;
+    }
+}
+
 bool MySQLInstaller::run()
 {
     // Le programme installe MySQL et modifie des emplacements système (my.cnf /
@@ -592,139 +686,183 @@ bool MySQLInstaller::run()
         return false;
     }
 
-    // ── Fenêtre « checklist » affichée AVANT le contrôle de MySQL ─────────────
-    m_dialog = new MySQLInstallerDialog();
-    m_dialog->show();
-    QApplication::processEvents();         // forcer l'affichage avant les contrôles
-
-    bool installed = isMySQLInstalled();   // passe à false après un nettoyage de MAJ
-
     // Config distante (version cible + seuil minimal). La checklist affiche le
     // seuil dans le libellé de la case « MySQL ≥ <min> installé ».
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
-    m_dialog->setMinVersion(cfg.minVersion);
 
-    // needInstall : true => (ré)installation nécessaire.
-    bool needInstall = false;
+    const bool installed = isMySQLInstalled();
 
-    if (installed) {
-        const QString ver = getMySQLVersion();
-        if (versionAtLeast(ver, cfg.minVersion)) {
-            // Version conforme : mode Verify, rien à installer.
-            m_freshInstall = false;
-            if (!isServerRunning()) startMySQL();
-        } else {
-            // Version trop ancienne : on PROPOSE un NETTOYAGE COMPLET (entre
-            // versions majeures, réinstaller par-dessus laisse un datadir absent
-            // ou incompatible). askUpdateConfirmation() avertit de la perte des
-            // données.
-            if (!askUpdateConfirmation(ver, cfg.version)) {
-                m_dialog->close(); delete m_dialog; m_dialog = nullptr;
-                return false;
-            }
-            // Nettoyage complet de l'ancienne installation.
-            MySQLProgressDialog* clean = new MySQLProgressDialog(
-                tr("Nettoyage de l'ancienne installation de MySQL…"));
-            clean->show();
-            QApplication::processEvents();
-            uninstallMySQL();
-            clean->close();
-            delete clean;
-            // Fin de désinstallation : message SANS « le programme va se fermer »
-            // (on enchaîne sur l'installation). MySQL est désormais absent → on
-            // converge vers la branche d'installation ci-dessous.
-            UpMessageBox::Information(m_dialog, tr("Désinstallation terminée"),
-                tr("MySQL a été désinstallé de cet ordinateur."));
-            installed = false;
-        }
-    }
-
+    // ════════════════════════════════════════════════════════════════════════
+    //  A. Aucun MySQL → CRÉATION complète.
+    // ════════════════════════════════════════════════════════════════════════
     if (!installed) {
-        // ── MySQL absent (jamais installé, OU désinstallé pour la mise à jour) :
-        //    demander la permission d'installer. ──
-#if defined(Q_OS_LINUX)
-        const QString installMsg =
-            tr("MySQL n'est pas installé sur cet ordinateur.\n\n"
-               "Voulez-vous installer MySQL maintenant ?");
-#else
-        const QString installMsg =
-            tr("MySQL n'est pas installé sur cet ordinateur.\n\n"
-               "Voulez-vous l'installer maintenant (version %1) ?").arg(cfg.version);
-#endif
-        if (!askYesNo(tr("Installation de MySQL"), installMsg)) {
-            m_dialog->close(); delete m_dialog; m_dialog = nullptr;
+        if (!askYesNo(tr("Installation de MySQL"),
+                tr("Pour installer Rufus, il est nécessaire d'installer une base de "
+                   "données MySQL sur cet ordinateur.\n\nVoulez-vous l'installer "
+                   "maintenant ?")))
             return false;
-        }
-        needInstall = true;
+        return faireCreate(cfg);
     }
 
-    if (needInstall) {
-        // Pré-requis réseau : sans accès WAN ou si le lien de téléchargement ne
-        // se résout pas, l'installation est impossible.
-        QString dlUrl;
-#if defined(Q_OS_WIN)
-        dlUrl = cfg.winUrl;
-#elif defined(Q_OS_MACOS)
-        dlUrl = (runCmd("uname -m 2>/dev/null").trimmed() == "arm64")
-                    ? cfg.macArm64Url : cfg.macX86Url;
-#else
-        // Linux (apt) : à défaut d'URL directe, on contrôle au moins la
-        // résolution de l'hôte officiel MySQL.
-        dlUrl = cfg.winUrl;
-#endif
-        if (!checkDownloadConnectivity(dlUrl)) {
-            m_dialog->close(); delete m_dialog; m_dialog = nullptr;
+    // ════════════════════════════════════════════════════════════════════════
+    //  MySQL présent : version conforme ?
+    // ════════════════════════════════════════════════════════════════════════
+    const QString ver = getMySQLVersion();
+    if (!versionAtLeast(ver, cfg.minVersion)) {
+        // Version trop ancienne : NETTOYAGE COMPLET (askUpdateConfirmation avertit
+        // de la perte des données) puis on rejoint le chemin de création.
+        if (!askUpdateConfirmation(ver, cfg.version))
             return false;
-        }
-
-        if (!installMySQL()) {
-            // installMySQL() affiche déjà un message détaillé en cas d'échec.
-            m_dialog->close(); delete m_dialog; m_dialog = nullptr;
-            return false;
-        }
-        m_freshInstall = true;
-        // Installation neuve → mot de passe MySQL ALÉATOIRE propre à ce cabinet
-        // (fixé AVANT createUser/prepareCreateMode* qui s'en servent ; stocké dans
-        // rufus.ini une fois les comptes créés, cf runVerifySteps()).
-        m_password     = genererMotDePasse();
-        startMySQL();
+        MySQLProgressDialog* clean = new MySQLProgressDialog(
+            tr("Nettoyage de l'ancienne installation de MySQL…"));
+        clean->show();
+        QApplication::processEvents();
+        uninstallMySQL();
+        clean->close();
+        delete clean;
+        UpMessageBox::Information(nullptr, tr("Désinstallation terminée"),
+            tr("MySQL a été désinstallé de cet ordinateur."));
+        return faireCreate(cfg);
     }
 
-    // MySQL prêt : cocher la case « MySQL ».
+    // ── B1 : une base Rufus COMPLÈTE existe déjà ? Ce n'est pas le rôle de nbp. ─
+    if (!isServerRunning()) startMySQL();
+    if (baseRufusComplete()) {
+        UpMessageBox::Information(nullptr, tr("Une base Rufus existe déjà"),
+            tr("Un serveur MySQL contient déjà une base Rufus complète sur cet "
+               "ordinateur.\n\nPour vous y connecter, utilisez « Base patients "
+               "existante sur le serveur » depuis l'écran de premier démarrage."));
+        return false;
+    }
+
+    // ── B2 : MySQL présent mais pas encore une base Rufus → demander un compte
+    //         administrateur MySQL pour créer les comptes Rufus. ──────────────
+    m_dialog = new MySQLInstallerDialog();
+    m_dialog->configurerVerifyAdminMySQL();
+    m_dialog->setMinVersion(cfg.minVersion);
+    m_dialog->show();
+    QApplication::processEvents();
+
+    QString adminLogin, adminMdp;
+    forever {
+        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+        adminLogin = m_dialog->login();
+        adminMdp   = m_dialog->password();
+        if (!m_dialog->validerSaisie()) continue;
+        if (tryConnectAs(adminLogin, adminMdp)) break;
+        UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
+            tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
+    }
+
+    // Comptes Rufus techniques : login fixe LOGIN_SQL + mot de passe aléatoire.
+    m_login    = LOGIN_SQL;
+    m_password = genererMotDePasse();
+    if (!isServerRunning()) startMySQL();
+
+    const CreateUserResult r = createUserAvecAdmin(adminLogin, adminMdp);
+    if (r == CreateUserResult::NoCreateUserRight) {
+        UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
+            tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
+               "(CREATE USER). Utilisez un compte administrateur MySQL (par ex. "
+               "root).").arg(adminLogin));
+        cleanupDialog();
+        return false;
+    }
+    if (r != CreateUserResult::Ok) {
+        UpMessageBox::Watch(m_dialog, tr("Erreur"),
+            tr("Impossible de créer les comptes Rufus."));
+        cleanupDialog();
+        return false;
+    }
+    // adminrufus/adminrufusSSL créés : on mémorise leur mot de passe aléatoire.
+    stockerMotDePasse(m_password);
+    m_comptesDejaCrees = true;
+
     m_dialog->checkStep(0);
+    if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
-    // ── Phase 2 : vérification des 6 critères ─────────────────────────────────
-    const bool ok = runVerifySteps();
+    // Saisie du futur utilisateur applicatif Rufus (2e étape).
+    m_dialog->configurerNewUserRufus();
+    forever {
+        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+        if (m_dialog->validerSaisie()) break;
+    }
+    m_loginRufus = m_dialog->login();
+    m_mdpRufus   = m_dialog->password();
 
-    m_dialog->close();
-    delete m_dialog;
-    m_dialog = nullptr;
-    return ok;
+    cleanupDialog();
+    return true;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
-//  Phase 2 : vérification des 6 critères. true si tous validés.
+//  Chemin « création » : MySQL absent (ou trop vieux après nettoyage). Saisie du
+//  futur utilisateur Rufus, installation de MySQL, création d'adminrufus
+//  (root/pkexec) puis configuration. true si la base Rufus est prête.
 // ═════════════════════════════════════════════════════════════════════════════
-bool MySQLInstaller::runVerifySteps()
+bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
-    // Comptes FIXES (aucune saisie utilisateur) : login = LOGIN_SQL.
-    m_login = LOGIN_SQL;
-    // En mode Create, m_password a déjà été fixé au mot de passe aléatoire généré
-    // (et stocké) ; en mode Verify, on lit le mot de passe de l'installation.
-    if (!m_freshInstall)
-        m_password = motDePasseSQL();
+    m_dialog = new MySQLInstallerDialog();
+    m_dialog->configurerCreateUserRufus(cfg.minVersion);
+    m_dialog->show();
+    QApplication::processEvents();
 
-    m_dialog->uncheckAllSteps();
+    // Saisie du futur utilisateur applicatif Rufus.
+    forever {
+        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+        if (m_dialog->validerSaisie()) break;
+    }
+    m_loginRufus = m_dialog->login();
+    m_mdpRufus   = m_dialog->password();
 
-    // ── Étape 1 : MySQL au seuil minimal (ou ultérieur) présent ───────────
-    const QString minVer = fetchRemoteConfig().minVersion;
-    if (!isMySQLInstalled() || !versionAtLeast(getMySQLVersion(), minVer)) {
-        UpMessageBox::Watch(m_dialog, tr("MySQL non détecté"),
-            tr("MySQL %1 (ou ultérieur) n'est pas détecté sur ce système.").arg(minVer));
+    // Comptes Rufus techniques : login fixe + mot de passe aléatoire (fixé AVANT
+    // createUser/prepareCreateMode* qui s'en servent).
+    m_login    = LOGIN_SQL;
+    m_password = genererMotDePasse();
+
+    // Pré-requis réseau : sans accès WAN ou si le lien de téléchargement ne se
+    // résout pas, l'installation est impossible.
+    QString dlUrl;
+#if defined(Q_OS_WIN)
+    dlUrl = cfg.winUrl;
+#elif defined(Q_OS_MACOS)
+    dlUrl = (runCmd("uname -m 2>/dev/null").trimmed() == "arm64")
+                ? cfg.macArm64Url : cfg.macX86Url;
+#else
+    // Linux (apt) : à défaut d'URL directe, on contrôle au moins la résolution de
+    // l'hôte officiel MySQL.
+    dlUrl = cfg.winUrl;
+#endif
+    if (!checkDownloadConnectivity(dlUrl)) { cleanupDialog(); return false; }
+
+    if (!installMySQL()) {
+        // installMySQL() affiche déjà un message détaillé en cas d'échec.
+        cleanupDialog();
         return false;
     }
-    if (m_dialog->wasCancelled()) return false;
+    m_freshInstall = true;
+    startMySQL();
     m_dialog->checkStep(0);
+
+    if (!executerEtapesConfig()) { cleanupDialog(); return false; }
+
+    // Comptes adminrufus/adminrufusSSL créés avec le mot de passe aléatoire : on le
+    // mémorise dans le fichier caché pour les connexions ultérieures.
+    stockerMotDePasse(m_password);
+
+    cleanupDialog();
+    return true;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  Étapes de configuration post-install/verify. true si toutes validées.
+//  En mode CREATE (absent) : les comptes sont créés ici par createUser()
+//  (root/pkexec). En mode VERIFY (B2) : ils l'ont déjà été par createUserAvecAdmin()
+//  → on NE recrée PAS (garde m_comptesDejaCrees).
+// ═════════════════════════════════════════════════════════════════════════════
+bool MySQLInstaller::executerEtapesConfig()
+{
+    // Login = LOGIN_SQL. m_password a déjà été fixé (aléatoire) par l'appelant.
+    m_login = LOGIN_SQL;
 
     if (!isServerRunning()) startMySQL();
 
@@ -754,16 +892,13 @@ bool MySQLInstaller::runVerifySteps()
 
     // Installation neuve : créer l'utilisateur — les étapes suivantes ont besoin
     // d'une connexion valide. (Sous Linux, createUser() court-circuite si
-    // prepareCreateModeLinux l'a créé.)
-    if (m_freshInstall && !createUser()) {
+    // prepareCreateModeLinux l'a créé.) En mode VERIFY (B2), les comptes ont déjà
+    // été créés par createUserAvecAdmin() → on ne les recrée pas.
+    if (m_freshInstall && !m_comptesDejaCrees && !createUser()) {
         UpMessageBox::Watch(m_dialog, tr("Création d'utilisateur impossible"),
             tr("Impossible de créer l'utilisateur '%1'.").arg(m_login));
         return false;
     }
-    // Comptes adminrufus/adminrufusSSL créés avec le mot de passe aléatoire : on le
-    // mémorise dans rufus.ini (clé Param_MDPSQL) pour les connexions ultérieures.
-    if (m_freshInstall)
-        stockerMotDePasse(m_password);
 
     // ── Étape 3 : le dossier partagé existe et est partagé ────────────────
     if (!setupSharedFolder()) {
@@ -828,11 +963,7 @@ bool MySQLInstaller::runVerifySteps()
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(5);
 
-    // ── Succès ─────────────────────────────────────────────────────────────
-    UpMessageBox::Information(m_dialog,
-        tr("Paramétrage MySQL validé"),
-        tr("Le paramétrage de MySQL pour l'utilisation de Rufus est correct.\n\n"
-           "Vous pouvez maintenant procéder à l'installation de Rufus."));
+    // ── Toutes les étapes de configuration sont validées ─────────────────────
     return true;
 }
 
@@ -1687,6 +1818,52 @@ bool MySQLInstaller::tryConnect()
     return out.contains("mysqld is alive");
 }
 
+//  Comme tryConnect() mais avec des identifiants arbitraires (compte admin saisi).
+bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
+{
+    const QString out = runCmdFull(
+        QString("\"%1\" -u \"%2\" -p\"%3\" ping 2>&1")
+            .arg(mysqlBin("mysqladmin"), login, mdp));
+    return out.contains("mysqld is alive");
+}
+
+//  true ssi adminrufus se connecte avec motDePasseSQL() ET la base Rufus
+//  (DB_RUFUS) existe avec au moins une table → base Rufus complète.
+bool MySQLInstaller::baseRufusComplete()
+{
+    const QString mdp = motDePasseSQL();
+
+    // adminrufus se connecte-t-il ?
+    const QString ping = runCmdFull(
+        QString("\"%1\" -u \"%2\" -p\"%3\" ping 2>&1")
+            .arg(mysqlBin("mysqladmin"), QString(LOGIN_SQL), mdp));
+    if (!ping.contains("mysqld is alive"))
+        return false;
+
+    // La base DB_RUFUS existe-t-elle ?
+    const QString dbs = runCmdFull(
+        QString("\"%1\" -u \"%2\" -p\"%3\" -N -B -e "
+                "\"SHOW DATABASES LIKE '%4';\" 2>&1")
+            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
+    bool dbFound = false;
+    for (const QString& line : dbs.split('\n', Qt::SkipEmptyParts))
+        if (line.trimmed() == QString(DB_RUFUS)) { dbFound = true; break; }
+    if (!dbFound)
+        return false;
+
+    // …et contient-elle au moins une table ?
+    const QString tables = runCmdFull(
+        QString("\"%1\" -u \"%2\" -p\"%3\" -N -B -e "
+                "\"SHOW TABLES FROM %4;\" 2>&1")
+            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
+    for (const QString& line : tables.split('\n', Qt::SkipEmptyParts)) {
+        const QString t = line.trimmed();
+        if (!t.isEmpty() && !t.startsWith("ERROR", Qt::CaseInsensitive))
+            return true;
+    }
+    return false;
+}
+
 bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
 {
     static const QStringList REQUIRED = {
@@ -1774,6 +1951,44 @@ bool MySQLInstaller::createUser()
         QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sql));
     return !out.contains("ERROR", Qt::CaseInsensitive);
 #endif
+}
+
+//  Crée adminrufus/adminrufusSSL @'%' (avec m_password) en se connectant au serveur
+//  via le compte ADMINISTRATEUR MySQL fourni (login/mdp). Sur les TROIS plateformes
+//  on passe directement par « mysql -u <admin> -p<mdp> » (pas de root/pkexec ici).
+//  Distingue l'absence du droit CREATE USER (NoCreateUserRight) des autres erreurs.
+MySQLInstaller::CreateUserResult
+MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& adminMdp)
+{
+    const QString sslLogin = QString(LOGIN_SQL "SSL");
+    const QString sql = QString(
+        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2';"
+        "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
+        "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
+        "FLUSH PRIVILEGES;").arg(m_login, m_password, sslLogin);
+
+    const QString out = runCmdFull(
+        QString("\"%1\" -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+            .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+
+    if (!out.contains("ERROR", Qt::CaseInsensitive))
+        return CreateUserResult::Ok;
+
+    // Manque du droit de créer des utilisateurs ? MySQL renvoie typiquement :
+    //   ERROR 1227 (42000): Access denied; you need (at least one of) the CREATE
+    //                       USER privilege(s) for this operation
+    //   ERROR 1044/1142 : accès refusé sur l'objet / privilège manquant.
+    const QString up = out.toUpper();
+    const bool accessDeniedCreateUser =
+        up.contains("ACCESS DENIED") && up.contains("CREATE USER");
+    if (accessDeniedCreateUser
+        || up.contains("ERROR 1227")
+        || up.contains("ERROR 1044")
+        || up.contains("ERROR 1142"))
+        return CreateUserResult::NoCreateUserRight;
+
+    return CreateUserResult::Error;
 }
 
 #if defined(Q_OS_LINUX)
@@ -2196,9 +2411,16 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
     s.close();
     runCmd("chmod +x '" + scriptPath + "'");
 
+    // Timeout LARGE (15 min) : l'invite de mot de passe administrateur est
+    // interactive. Avec le défaut de runCmdFull (30 s), si l'invite tardait à
+    // s'afficher ou que la saisie du mot de passe + l'opération dépassaient 30 s,
+    // waitProcessResponsive tuait osascript EN PLEIN MILIEU : la sortie tronquée ne
+    // contenant ni « User canceled » ni « execution error », on renvoyait « succès »
+    // à tort alors que le script (ex. désinstallation) n'avait pas fini → « MySQL
+    // toujours présent » malgré le message de confirmation (bug uninstall fantôme).
     const QString out = runCmdFull(QString(
         "osascript -e 'do shell script \"%1\" with administrator privileges' 2>&1")
-        .arg(scriptPath));
+        .arg(scriptPath), 900000);
     QFile::remove(scriptPath);
 
     // Succès = l'utilisateur n'a pas annulé l'invite et osascript n'a pas échoué.

@@ -27,8 +27,10 @@
 - **Plus de compte temporaire** : l'installeur intégré crée **directement**
   `adminrufus` + `adminrufusSSL`. La faille de l'ancien « compte temporaire jamais
   réutilisé mais toujours présent » disparaît.
-- **Maurice ne saisit AUCUN identifiant MySQL** → l'installeur n'a **pas** de
-  champ login/mot de passe (suppression des `QLineEdit` de saisie).
+- **Maurice ne saisit aucun identifiant *MySQL***. La fiche a bien des champs
+  login/mdp, mais ils servent à l'**utilisateur applicatif Rufus** (table
+  `rufus.utilisateurs`, SHA1) — sauf en mode *Verify* (B2) où ils servent à se
+  connecter au **compte administrateur MySQL existant** (voir §10).
 
 ### Mot de passe MySQL aléatoire par installation (la mesure clé)
 Aujourd'hui `MDP_SQL = "gaxt78iy"` est **codé en dur, identique pour toutes les
@@ -221,3 +223,41 @@ Dans **`ukinoki/mysqlinstaller-for-rufus`** : **supprimer** les champs login/mdp
 (`CredentialsDialog`) — l'utilitaire autonome ne crée plus que les comptes MySQL
 `adminrufus`/`adminrufusSSL` avec un mot de passe aléatoire écrit dans un
 fichier caché `~/.rufus/.dbkey` sur la machine. (À faire dans une session sur ce dépôt.)
+
+
+---
+
+## 10. Flux `run()` implémenté (create / verify) — référence
+
+Clic « Nouvelle base patients vierge » (nbp, **toujours monoposte/local**) →
+`MySQLInstaller::run()` → `bool`. `dlg_paramconnexion` **n'est plus appelé** pour
+nbp (ses effets « Poste » — mode/localhost/port/rufus.ini — sont relogés en dur
+dans `PremierDemarrage`).
+
+- **A. Pas de MySQL** → message « il faut installer MySQL, OK ? » (Non = `false`) →
+  fiche **Create** (login/mdp = futur user Rufus) → install MySQL + `adminrufus`/
+  `adminrufusSSL` (mdp aléatoire → `.dbkey`) + config → `true`.
+- **Version trop ancienne** → `askUpdateConfirmation` → désinstallation → chemin Create.
+- **B1. Base Rufus déjà complète** (`adminrufus` se connecte **+** base `rufus` avec
+  ≥ 1 table) → message « une base Rufus existe déjà » + `return false` (ce n'est pas
+  le rôle de nbp ; passer par « base existante »).
+- **B2. MySQL présent mais pas une base Rufus** → fiche **Verify** : login/mdp d'un
+  **compte admin MySQL existant**, bouton « Se connecter » → connexion → création
+  `adminrufus`/`adminrufusSSL` via ce compte (**gestion du manque de droit
+  `CREATE USER`** → message + `false`) → fiche **« Créer le compte »** (futur user
+  Rufus) → `true`.
+
+Getters `loginRufus()` / `mdpRufus()` → exposent le user applicatif ; `PremierDemarrage`
+appelle `RestaureBase(true,true)` (structure + schémas) **puis**
+`CreerPremierUser(loginRufus(), mdpRufus())` (SHA1).
+
+### Réintégré du dépôt autonome
+- `runCmdElevated` (macOS) : timeout `osascript` porté à **900000 ms** (corrige le
+  « uninstall fantôme » — `waitProcessResponsive` tuait l'élévation au défaut 30 s,
+  d'où un faux « succès »). Repris du commit `d9917a7` de mysqlinstaller-for-rufus.
+
+### TODO (plus tard)
+- Si MySQL détecté et base corrompue : *Verify* devrait proposer **« garder le
+  serveur »** ou **« tout réinitialiser »** (→ suppression complète de MySQL puis
+  bascule en mode Create). Non implémenté.
+- Reset *total* (régénérer les comptes) = supprimer aussi `~/.rufus/.dbkey`.

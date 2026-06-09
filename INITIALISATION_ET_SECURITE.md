@@ -58,8 +58,14 @@ Spécificités par OS (compilation conditionnelle) : Ubuntu (`apt`, `pkexec`,
 `osascript`). Cible principale : **Ubuntu ≥ 22.04** (compatibilité de machines
 anciennes, > 10 ans).
 
-L'installeur **ne demande aucun identifiant MySQL** : les comptes sont fixes et
-le mot de passe est géré automatiquement (voir §4).
+La fiche de l'installeur comporte des champs **login/mot de passe** : ils servent
+à créer l'**utilisateur applicatif Rufus** (table `rufus.utilisateurs`, SHA1) ; en
+mode *Verify* (un MySQL existe déjà), ils servent d'abord à se connecter au
+**compte administrateur MySQL existant**. Les comptes MySQL `adminrufus`/
+`adminrufusSSL`, eux, sont créés en tâche de fond avec un mot de passe aléatoire
+(jamais affiché, stocké dans `~/.rufus/.dbkey`). Deux parcours : **Create** (pas de
+MySQL → on l'installe) et **Verify** (MySQL déjà présent → on s'y connecte avec un
+compte admin pour créer les comptes Rufus).
 
 ---
 
