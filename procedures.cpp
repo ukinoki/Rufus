@@ -4078,7 +4078,6 @@ bool Procedures::PremierDemarrage()
         db->setModeacces(Utils::Poste);
         m_settings->setValue(BasePoste + Param_Active, "YES");
         m_settings->setValue(BasePoste + Param_Port, "3306");
-        m_connexionbaseOK = true;
         if (dirSQLExecutable() == "")
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion"),
@@ -4086,6 +4085,21 @@ bool Procedures::PremierDemarrage()
                                 tr("Le programme ne pourra pas s'intialiser"));
             exit(0);
         }
+
+        //! Ouverture de la connexion Qt à MySQL (compte adminrufus + mot de passe
+        //! aléatoire du cabinet, via motDePasseSQL()). INDISPENSABLE : RestaureBase et
+        //! CreerPremierUser passent par db->StandardSQL() ; sans cette connexion, ils
+        //! échouent silencieusement (la base est créée par le binaire mysql, mais
+        //! l'utilisateur applicatif n'est jamais inséré dans rufus.utilisateurs).
+        db->initParametresConnexionSQL("localhost", 3306);
+        QString erreurConnexion = db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+        if (!erreurConnexion.isEmpty())
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
+                                tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
+            return PremierDemarrage();
+        }
+        m_connexionbaseOK = true;
 
         //! login/mdp de l'utilisateur APPLICATIF Rufus, saisis dans l'installeur
         //! (les comptes MySQL adminrufus/adminrufusSSL, eux, ont été créés en tâche

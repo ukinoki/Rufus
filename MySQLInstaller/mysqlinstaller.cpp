@@ -754,6 +754,11 @@ bool MySQLInstaller::run()
             tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
     }
 
+    // La saisie modale a masqué la fiche : on la ré-affiche pour que la checklist
+    // se coche visiblement pendant la configuration.
+    m_dialog->show();
+    QApplication::processEvents();
+
     // Comptes Rufus techniques : login fixe LOGIN_SQL + mot de passe aléatoire.
     m_login    = LOGIN_SQL;
     m_password = genererMotDePasse();
@@ -813,6 +818,11 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     }
     m_loginRufus = m_dialog->login();
     m_mdpRufus   = m_dialog->password();
+
+    // La saisie modale (exec()) a masqué la fiche : on la ré-affiche pour que la
+    // checklist se coche visiblement pendant l'installation et la configuration.
+    m_dialog->show();
+    QApplication::processEvents();
 
     // Comptes Rufus techniques : login fixe + mot de passe aléatoire (fixé AVANT
     // createUser/prepareCreateMode* qui s'en servent).
