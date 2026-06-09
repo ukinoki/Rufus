@@ -49,6 +49,16 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #  include <windows.h>
 #endif
 
+// Arguments de transport des clients mysql/mysqladmin pour les connexions
+// AVEC IDENTIFIANTS. nbp est toujours mono-poste/local : on force TCP vers
+// 127.0.0.1:3306, exactement comme s'y connecte le pilote Qt de Rufus (et comme
+// MySQL Workbench). Sans cela, ces clients passent par le socket Unix local
+// (hôte « localhost ») : un compte défini pour 'user'@'127.0.0.1' ou masqué par
+// un compte anonyme ''@'localhost' se voit alors refusé, alors qu'il se connecte
+// très bien en TCP. (À ne PAS utiliser pour « mysql -u root » via pkexec en mode
+// Create, qui repose volontairement sur l'authentification socket d'Ubuntu.)
+#define LOCAL_TCP_ARGS "--protocol=TCP -h 127.0.0.1 -P 3306"
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  MySQLProgressDialog (porté de ProgressDialog)
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1743,12 +1753,12 @@ bool MySQLInstaller::testSharedFolderRW()
     // ── Écriture par le serveur ───────────────────────────────────────────────
     QFile::remove(file);   // INTO OUTFILE refuse un fichier existant
     runCmdFull(QString(
-        "\"%1\" -u \"%2\" -p\"%3\" -N -B -e \"SELECT '%4' INTO OUTFILE '%5';\" 2>&1")
+        "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT '%4' INTO OUTFILE '%5';\" 2>&1")
         .arg(mysqlBin("mysql"), m_login, m_password, token, file));
 
     // ── Relecture par le serveur (et non par l'app) ───────────────────────────
     const QString out = runCmdFull(QString(
-        "\"%1\" -u \"%2\" -p\"%3\" -N -B -e \"SELECT LOAD_FILE('%4');\" 2>&1")
+        "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT LOAD_FILE('%4');\" 2>&1")
         .arg(mysqlBin("mysql"), m_login, m_password, file));
 
     // ── Nettoyage ─────────────────────────────────────────────────────────────
@@ -1838,7 +1848,7 @@ bool MySQLInstaller::isServerRunning()
 bool MySQLInstaller::tryConnect()
 {
     QString out = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" ping 2>&1")
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
             .arg(mysqlBin("mysqladmin"), m_login, m_password));
     return out.contains("mysqld is alive");
 }
@@ -1847,7 +1857,7 @@ bool MySQLInstaller::tryConnect()
 bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
 {
     const QString out = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" ping 2>&1")
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
             .arg(mysqlBin("mysqladmin"), login, mdp));
     return out.contains("mysqld is alive");
 }
@@ -1860,14 +1870,14 @@ bool MySQLInstaller::baseRufusComplete()
 
     // adminrufus se connecte-t-il ?
     const QString ping = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" ping 2>&1")
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
             .arg(mysqlBin("mysqladmin"), QString(LOGIN_SQL), mdp));
     if (!ping.contains("mysqld is alive"))
         return false;
 
     // La base DB_RUFUS existe-t-elle ?
     const QString dbs = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW DATABASES LIKE '%4';\" 2>&1")
             .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
     bool dbFound = false;
@@ -1878,7 +1888,7 @@ bool MySQLInstaller::baseRufusComplete()
 
     // …et contient-elle au moins une table ?
     const QString tables = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW TABLES FROM %4;\" 2>&1")
             .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
     for (const QString& line : tables.split('\n', Qt::SkipEmptyParts)) {
@@ -1902,7 +1912,7 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
     };
 
     QString raw = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" -N -B -e "
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW GRANTS FOR '%2'@'%';\" 2>&1")
             .arg(mysqlBin("mysql"), m_login, m_password));
 
@@ -1948,10 +1958,17 @@ bool MySQLInstaller::createUser()
     //   • adminrufus       → ALL PRIVILEGES … WITH GRANT OPTION ;
     //   • adminrufusSSL    → idem + REQUIRE SSL.
     const QString sslLogin = QString(LOGIN_SQL "SSL");
+    // CREATE USER IF NOT EXISTS ne met PAS à jour le mot de passe d'un compte
+    // déjà présent : on ajoute donc un ALTER USER … IDENTIFIED BY … pour IMPOSER
+    // le mot de passe aléatoire (celui stocké dans ~/.rufus/.dbkey), que le
+    // compte existe déjà ou non — sinon adminrufus garderait un ancien mot de
+    // passe et la connexion ultérieure échouerait.
     const QString sql = QString(
         "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2';"
+        "ALTER USER '%1'@'%' IDENTIFIED BY '%2';"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
         "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
         "FLUSH PRIVILEGES;\n").arg(m_login, m_password, sslLogin);
 
@@ -1986,15 +2003,20 @@ MySQLInstaller::CreateUserResult
 MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& adminMdp)
 {
     const QString sslLogin = QString(LOGIN_SQL "SSL");
+    // ALTER USER après CREATE USER IF NOT EXISTS : impose le mot de passe même si
+    // le compte adminrufus / adminrufusSSL existait déjà (sinon il garderait son
+    // ancien mot de passe et la connexion via le mot de passe stocké échouerait).
     const QString sql = QString(
         "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2';"
+        "ALTER USER '%1'@'%' IDENTIFIED BY '%2';"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
         "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
         "FLUSH PRIVILEGES;").arg(m_login, m_password, sslLogin);
 
     const QString out = runCmdFull(
-        QString("\"%1\" -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
             .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
 
     if (!out.contains("ERROR", Qt::CaseInsensitive))
@@ -2034,12 +2056,17 @@ bool MySQLInstaller::prepareCreateModeLinux()
     // 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL),
     //    même mot de passe = $PW (placeholder printf %s rempli par "$PW"), en @'%'.
     const QString sslLogin = QString(LOGIN_SQL "SSL");
+    // ALTER USER après CREATE USER IF NOT EXISTS : impose le mot de passe même si
+    // le compte existe déjà (CREATE USER IF NOT EXISTS ne le réécrit pas). Quatre
+    // placeholders printf %s → quatre "$PW".
     const QString userSql = QString(
         "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED BY '%s'; "
+        "ALTER USER '%1'@'%%' IDENTIFIED BY '%s'; "
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%%' WITH GRANT OPTION; "
         "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED BY '%s' REQUIRE SSL; "
+        "ALTER USER '%2'@'%%' IDENTIFIED BY '%s' REQUIRE SSL; "
         "GRANT ALL PRIVILEGES ON *.* TO '%2'@'%%' WITH GRANT OPTION; "
-        "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" | mysql -u root; ")
+        "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" \"$PW\" \"$PW\" | mysql -u root; ")
         .arg(m_login, sslLogin);
 
     // 3. Copie de my.cnf en place + redémarrage du serveur.
