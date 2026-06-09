@@ -79,6 +79,10 @@ class MySQLInstallerDialog : public UpDialog {
 public:
     explicit MySQLInstallerDialog(QWidget* parent = nullptr);
 
+    //  Code de résultat de exec() quand l'utilisateur clique « Supprimer MySQL »
+    //  (mode Verify). QDialog réserve Rejected = 0 et Accepted = 1.
+    enum DialogResult { ResultSupprimerMySQL = 2 };
+
     // ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset) ─
     //  Création de la base : saisie du futur utilisateur applicatif Rufus.
     void configurerCreateUserRufus(const QString& minVersion);
@@ -110,10 +114,11 @@ private:
     void    configurer(const QString& titre, const QString& sousTitre,
                        const QString& okLabel);     // applique + vide les champs
 
-    UpLabel*    m_title    = nullptr;
-    UpLabel*    m_subtitle = nullptr;
-    UpLineEdit* m_login    = nullptr;
-    UpLineEdit* m_mdp      = nullptr;
+    UpLabel*       m_title         = nullptr;
+    UpLabel*       m_subtitle      = nullptr;
+    UpLineEdit*    m_login         = nullptr;
+    UpLineEdit*    m_mdp           = nullptr;
+    UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)
     UpCheckBox* m_steps[6];
     QString     m_stepDetail[6];
     QString     m_minVersion = "8.4.3";
