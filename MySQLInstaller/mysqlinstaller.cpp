@@ -160,6 +160,13 @@ void MySQLInstallerDialog::configurer(const QString& titre,
     if (m_login) m_login->setFocus();
 }
 
+//  Format imposé pour un identifiant Rufus à CRÉER (5-15 / 5-12 alphanumériques).
+static void appliquerValidateursRufus(UpLineEdit* login, UpLineEdit* mdp, QObject* parent)
+{
+    login->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, parent));
+    mdp  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, parent));
+}
+
 void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
 {
     setMinVersion(minVersion);
@@ -167,6 +174,7 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
                tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
                   "dans Rufus."),
                tr("Installer"));
+    appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
 }
 
 void MySQLInstallerDialog::configurerVerifyAdminMySQL()
@@ -176,6 +184,10 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
                   "de passe d'un compte MySQL administrateur (capable de créer des "
                   "utilisateurs)."),
                tr("Se connecter"));
+    // Compte MySQL EXISTANT : aucun format imposé (ex. « root » — 4 car. —, ou mot de
+    // passe non alphanumérique) → on RETIRE les validateurs.
+    m_login->setValidator(nullptr);
+    m_mdp  ->setValidator(nullptr);
 }
 
 void MySQLInstallerDialog::configurerNewUserRufus()
@@ -184,6 +196,7 @@ void MySQLInstallerDialog::configurerNewUserRufus()
                tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
                   "dans Rufus."),
                tr("Créer le compte"));
+    appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
 }
 
 QString MySQLInstallerDialog::login() const
