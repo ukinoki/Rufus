@@ -102,7 +102,7 @@ installations**, donc **public** (code open source sur GitHub). N'importe qui
 pouvait se connecter à n'importe quelle base Rufus joignable.
 
 ### La solution
-- À la **création d'une base**, on génère un **mot de passe aléatoire** (24 car.
+- À la **création d'une base**, on génère un **mot de passe aléatoire** (12 car.
   alphanumériques, `genererMotDePasse()`), on crée `adminrufus`/`adminrufusSSL`
   avec, et on le **stocke dans un fichier CACHÉ** `~/.rufus/.dbkey`
   (`PATH_FILE_DBKEY`, clé `Param_MDPSQL`) — **PAS dans `rufus.ini`**.

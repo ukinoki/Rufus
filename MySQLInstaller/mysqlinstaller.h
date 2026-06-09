@@ -141,7 +141,7 @@ public:
     QString mdpRufus()   const { return m_mdpRufus; }
 
     // ── Mot de passe aléatoire (helpers statiques) ─────────────────────────────
-    //  Génère un mot de passe alphanumérique fort (24 caractères, [A-Za-z0-9]).
+    //  Génère un mot de passe alphanumérique fort (12 caractères, [A-Za-z0-9]).
     static QString genererMotDePasse();
     //  Lit la clé Param_MDPSQL du rufus.ini ; repli sur MDP_SQL si absente/vide.
     static QString motDePasseSQL();

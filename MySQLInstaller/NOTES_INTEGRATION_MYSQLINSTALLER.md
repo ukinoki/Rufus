@@ -37,7 +37,7 @@ Aujourd'hui `MDP_SQL = "gaxt78iy"` est **codé en dur, identique pour toutes les
 installations, donc public via GitHub**. C'est LA faille.
 
 Nouvelle logique :
-- À la **création d'une base**, on génère un **mot de passe aléatoire fort** (24
+- À la **création d'une base**, on génère un **mot de passe aléatoire fort** (12
   caractères alphanumériques), on crée `adminrufus`/`adminrufusSSL` avec, et on le
   stocke dans un **fichier CACHÉ** `~/.rufus/.dbkey` (`PATH_FILE_DBKEY`, clé
   `Param_MDPSQL`) — **PAS dans `rufus.ini`** (voir encadré ci-dessous).
