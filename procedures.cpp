@@ -2360,9 +2360,14 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             QString Msg = tr("Suppression de l'ancienne base Rufus en cours");
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
             db->VideDatabases();
+            // ALTER USER après CREATE USER IF NOT EXISTS : impose le mot de passe
+            // (aléatoire du cabinet) même si le compte existait déjà — CREATE USER
+            // IF NOT EXISTS ne met PAS à jour le mot de passe d'un compte présent.
             db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "'");
+            db->StandardSQL("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "'");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "'@'%' WITH GRANT OPTION");
             db->StandardSQL("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "' REQUIRE SSL");
+            db->StandardSQL("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "' REQUIRE SSL");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
 
             //! Restauration à partir du dossier sélectionné
