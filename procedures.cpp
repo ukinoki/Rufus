@@ -4070,32 +4070,47 @@ bool Procedures::PremierDemarrage()
         MySQLInstaller installeurMySQL;
         if (!installeurMySQL.run())
             return PremierDemarrage();
-        bool AccesDistant = false;
-        if (VerifParamConnexion(login, MDP, false, AccesDistant))
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
-                                   tr("Bien, la connexion au serveur MySQL fonctionne "
-                                       "et le programme va maintenant créer une base de données patients "
-                                       "vierge de tout enregistrement."));
-            // Création de la base
-             if (!RestaureBase(true, true))
-                return false;
-             m_parametres = db->parametres();
 
-             // Création de l'utilisateur
-             m_connexionbaseOK = CreerPremierUser(login, MDP);
-             PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
-             Datas::I()->sites->initListe();
-             CalcLieuExercice();
-             if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-                 UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-             UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
-                                   tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
-                                      "puissent être prises en compte\n"));
-             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-             db->setVersion(m_version);
-             exit(0);
+        //! nbp = TOUJOURS monoposte / serveur local. On reloge ici les effets de bord
+        //! « Poste » qu'assurait dlg_paramconnexion (qu'on n'appelle plus pour nbp :
+        //! l'installeur a déjà tout — login/mdp applicatifs + serveur local).
+        QString BasePoste = Utils::getBaseFromMode(Utils::Poste);
+        db->setModeacces(Utils::Poste);
+        m_settings->setValue(BasePoste + Param_Active, "YES");
+        m_settings->setValue(BasePoste + Param_Port, "3306");
+        m_connexionbaseOK = true;
+        if (dirSQLExecutable() == "")
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion"),
+                                tr("Impossible de trouver l'exécutable MySQL") + "\n" +
+                                tr("Le programme ne pourra pas s'intialiser"));
+            exit(0);
         }
+
+        //! login/mdp de l'utilisateur APPLICATIF Rufus, saisis dans l'installeur
+        //! (les comptes MySQL adminrufus/adminrufusSSL, eux, ont été créés en tâche
+        //! de fond avec un mot de passe aléatoire stocké dans ~/.rufus/.dbkey).
+        login = installeurMySQL.loginRufus();
+        MDP   = installeurMySQL.mdpRufus();
+
+        //! Création de la base : toute la structure (tables + schémas) de Rufus.
+        if (!RestaureBase(true, true))
+            return false;
+        m_parametres = db->parametres();
+
+        //! Inscription de l'utilisateur applicatif dans rufus.utilisateurs (mdp SHA1).
+        m_connexionbaseOK = CreerPremierUser(login, MDP);
+        PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
+        Datas::I()->sites->initListe();
+        CalcLieuExercice();
+        if (Datas::I()->sites->currentsite() == Q_NULLPTR)
+            UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
+        UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
+                              tr("Le programme va se fermer pour que les modifications de la base Rufus\n"
+                                 "puissent être prises en compte\n"));
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+        db->setVersion(m_version);
+        exit(0);
     }
     return false;
 }

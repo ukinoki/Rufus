@@ -31,6 +31,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmessagebox.h"
 #include "upcheckbox.h"
 #include "uplabel.h"
+#include "uplineedit.h"
 #include "upsmallbutton.h"
 #include "macros.h"
 
@@ -63,16 +64,37 @@ private:
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  Dialogue « checklist » des 6 critères, construit à partir des composants Rufus
-//  (UpDialog + UpLabel + UpCheckBox). Affichage seul : les cases sont pilotées
-//  par l'engine (checkStep / uncheckAllSteps). Un bouton « Annuler » permet à
-//  l'utilisateur d'interrompre (wasCancelled()).
+//  Dialogue de l'installeur : titre + sous-titre, saisie d'un identifiant et d'un
+//  mot de passe (deux UpLineEdit), PUIS la checklist des 6 critères (affichage
+//  seul, pilotée par l'engine via checkStep / uncheckAllSteps). Le même dialogue
+//  est réutilisé :
+//   • en mode modal (exec()) pour la SAISIE d'identifiants (utilisateur Rufus, ou
+//     compte administrateur MySQL) ;
+//   • affiché (show()) pendant que l'engine déroule les étapes.
+//  Les méthodes configurer*() basculent le titre / sous-titre / libellé du bouton
+//  OK selon le contexte et vident les champs.
 // ─────────────────────────────────────────────────────────────────────────────
 class MySQLInstallerDialog : public UpDialog {
     Q_OBJECT
 public:
     explicit MySQLInstallerDialog(QWidget* parent = nullptr);
 
+    // ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset) ─
+    //  Création de la base : saisie du futur utilisateur applicatif Rufus.
+    void configurerCreateUserRufus(const QString& minVersion);
+    //  Vérification : un MySQL existe déjà, saisie d'un compte ADMIN MySQL.
+    void configurerVerifyAdminMySQL();
+    //  Saisie du futur utilisateur applicatif Rufus (2e étape, après config).
+    void configurerNewUserRufus();
+
+    // ── Saisie ───────────────────────────────────────────────────────────────
+    QString login() const;                          // texte courant du champ login
+    QString password() const;                       // texte courant du champ mdp
+    //  Vérifie que login ET mot de passe sont renseignés (le format est garanti par
+    //  les validateurs). Affiche un UpMessageBox::Watch et renvoie false si vide.
+    bool    validerSaisie();
+
+    // ── Checklist ──────────────────────────────────────────────────────────────
     void checkStep(int i);                          // coche la case i + processEvents
     void uncheckAllSteps();                         // décoche tout
     void setStepDetail(int i, const QString& detail);   // ajoute « : detail » au libellé
@@ -85,7 +107,13 @@ protected:
 private:
     QString baseStepLabel(int i) const;
     void    applyStepLabel(int i);
+    void    configurer(const QString& titre, const QString& sousTitre,
+                       const QString& okLabel);     // applique + vide les champs
 
+    UpLabel*    m_title    = nullptr;
+    UpLabel*    m_subtitle = nullptr;
+    UpLineEdit* m_login    = nullptr;
+    UpLineEdit* m_mdp      = nullptr;
     UpCheckBox* m_steps[6];
     QString     m_stepDetail[6];
     QString     m_minVersion = "8.4.3";
@@ -106,6 +134,12 @@ public:
     //  ou échec.
     bool    run();
 
+    //  Identifiant et mot de passe (EN CLAIR) du futur utilisateur APPLICATIF
+    //  Rufus, saisis dans le dialogue. L'appelant les écrit dans rufus.utilisateurs
+    //  (en hachant le mot de passe en SHA1). Vides si run() a échoué/annulé.
+    QString loginRufus() const { return m_loginRufus; }
+    QString mdpRufus()   const { return m_mdpRufus; }
+
     // ── Mot de passe aléatoire (helpers statiques) ─────────────────────────────
     //  Génère un mot de passe alphanumérique fort (24 caractères, [A-Za-z0-9]).
     static QString genererMotDePasse();
@@ -114,19 +148,34 @@ public:
     //  Stocke le mot de passe (clé Param_MDPSQL du rufus.ini).
     static void    stockerMotDePasse(const QString& mdp);
 
+    // Résultat de createUserAvecAdmin().
+    enum class CreateUserResult { Ok, NoCreateUserRight, Error };
+
 private:
-    QString             m_login;
-    QString             m_password;
+    QString             m_login;                 // = LOGIN_SQL (compte SQL technique)
+    QString             m_password;              // mot de passe aléatoire d'adminrufus
+    QString             m_loginRufus;            // login du futur utilisateur Rufus (saisi)
+    QString             m_mdpRufus;              // son mot de passe EN CLAIR (saisi)
     QString             m_brewPrefix;
     MySQLInstallerDialog* m_dialog = nullptr;
     bool                m_freshInstall = false;  // true = MySQL vient d'être installé
+    bool                m_comptesDejaCrees = false; // adminrufus déjà créé (mode VERIFY)
     // macOS : journal de mysqld --initialize (diagnostic si l'init du datadir échoue).
     QString             m_initLog = "/tmp/rufus_mysql_init.log";
     MySQLRemoteConfig   m_remoteConfig;          // config distante (chargée une seule fois)
     bool                m_remoteConfigLoaded = false;
 
     // ── Phases de run() ────────────────────────────────────────────────────────
-    bool    runVerifySteps();            // phase 2 : les 6 critères (true si tous OK)
+    //  Chemin « création » : MySQL absent (ou trop vieux, après nettoyage). Installe
+    //  MySQL, crée adminrufus (root/pkexec) et déroule les étapes de config. Renvoie
+    //  true si la base Rufus est prête. La saisie du futur utilisateur Rufus a déjà
+    //  été faite par run() avant l'appel.
+    bool    faireCreate(const MySQLRemoteConfig& cfg);
+    //  Étapes de configuration post-install/verify (PATH, dossier partagé,
+    //  secure_file_priv, lecture/écriture, privilèges), avec mise à jour de la
+    //  checklist. createUser() n'est invoqué que si m_freshInstall && !m_comptesDejaCrees.
+    bool    executerEtapesConfig();      // true si toutes les étapes OK
+    void    cleanupDialog();             // ferme et détruit m_dialog
 
     // ── Multi-plateforme ───────────────────────────────────────────────────────
     QString sharedFolderPath();          // /Users/Shared (macOS) | C:/Users/Public (Windows)
@@ -179,8 +228,18 @@ private:
     // ── Identifiants ───────────────────────────────────────────────────────────
     bool    isServerRunning();
     bool    tryConnect();
+    //  Comme tryConnect() mais avec des identifiants arbitraires (compte admin saisi).
+    bool    tryConnectAs(const QString& login, const QString& mdp);
+    //  true ssi adminrufus se connecte avec motDePasseSQL() ET le schéma Rufus
+    //  (base DB_RUFUS avec au moins une table) existe → base Rufus complète.
+    bool    baseRufusComplete();
     bool    checkPrivileges(QStringList& outMissing);
     bool    createUser();
+    //  Crée adminrufus/adminrufusSSL en se connectant avec le compte admin MySQL
+    //  fourni (login/mdp). Distingue le manque du droit CREATE USER des autres
+    //  erreurs.
+    CreateUserResult createUserAvecAdmin(const QString& adminLogin,
+                                         const QString& adminMdp);
 
     // ── Dossier partagé /Users/Shared ──────────────────────────────────────────
     bool    setupSharedFolder();         // existe + partagé (crée/partage sinon)
