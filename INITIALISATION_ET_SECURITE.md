@@ -3,7 +3,8 @@
 > Document de référence (durable) sur **le démarrage de Rufus**, **la création
 > d'une base patients**, et **le modèle de sécurité des accès à MySQL**.
 > Public : développeurs reprenant Rufus. Branche de référence : **`RufusQt6`**
-> (la branche `master` est obsolète et n'a plus rien de commun avec Rufus).
+> (branche principale). L'ancienne branche Qt5 est archivée sous
+> **`archive/Qt5-master`** et n'a plus rien de commun avec Rufus.
 
 ---
 
