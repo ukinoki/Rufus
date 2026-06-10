@@ -115,6 +115,11 @@ jobs:
           cp build_tools/Linux/AppRun AppDir/AppRun
           chmod +x AppDir/AppRun
 
+          # appimagetool exige l'icône à la RACINE de l'AppDir (Icon=rufus du .desktop),
+          # en plus de celle sous usr/share/icons. linuxdeployqt ne la place pas en mode
+          # -bundle-non-qt-libs (sans -appimage) → on la copie nous-mêmes.
+          cp build_tools/Linux/rufus.png AppDir/rufus.png
+
           # Empaquetage final avec appimagetool (ARCH explicite : appimagetool ne
           # sait pas la deviner depuis l'AppDir et échoue sinon).
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
