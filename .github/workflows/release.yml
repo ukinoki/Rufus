@@ -14,7 +14,7 @@ permissions:
   contents: write
 
 env:
-  QT_VERSION: '6.5.3'        # aligner si besoin sur la version utilisée localement
+  QT_VERSION: '6.10.2'       # aligné sur la version de compilation locale
 
 jobs:
   # ───────────────────────────────────────────────────────────────────────────
@@ -49,11 +49,16 @@ jobs:
           version: ${{ env.QT_VERSION }}
           modules: 'qtmultimedia qtpdf qtserialport'
 
-      - name: Dépendances système (pilote MySQL, FUSE pour AppImage, outils)
+      - name: Dépendances système (client MySQL/MariaDB, FUSE pour AppImage, outils)
         run: |
           sudo apt-get update
-          sudo apt-get install -y default-libmysqlclient-dev libfuse2 \
-            libgl1-mesa-dev libxkbcommon-dev
+          # Le plugin qsqlmysql se lie au client MariaDB OU MySQL → on installe les
+          # deux jeux de libs pour qu'il se charge au runtime, quel que soit celui
+          # contre lequel le Qt officiel a été construit. linuxdeployqt embarquera
+          # ensuite la lib utile dans l'AppImage.
+          sudo apt-get install -y \
+            default-libmysqlclient-dev libmariadb-dev libmariadb3 \
+            libfuse2 libgl1-mesa-dev libxkbcommon-dev
 
       - name: Compiler (qmake + make, Release)
         run: |
@@ -181,6 +186,9 @@ jobs:
         with:
           version: ${{ env.QT_VERSION }}
           modules: 'qtmultimedia qtpdf qtserialport'
+
+      - name: Client MariaDB/MySQL (lib du pilote qsqlmysql)
+        run: brew install mariadb-connector-c || brew install mysql-client
 
       - name: Compiler (qmake + make, Release)
         run: |

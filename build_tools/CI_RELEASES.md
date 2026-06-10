@@ -51,15 +51,29 @@ signature + notarisation Apple (macOS) pourront être ajoutées plus tard via de
 Cette première version encode le process connu ; quelques détails ne peuvent se
 valider que sur les *runners* réels :
 
-1. **Pilote SQL MySQL de Qt** (`qsqlmysql`) sur les 3 OS : c'est le point le plus
-   sensible. Le workflow installe les bibliothèques client MySQL et demande à
-   `windeployqt`/`macdeployqt`/`linuxdeployqt` d'embarquer les `sqldrivers`. À
-   vérifier que le plugin est bien présent et chargé au runtime (sinon : fournir
-   le plugin, ou installer un Qt qui l'inclut).
+1. **Pilote SQL MySQL de Qt** (`qsqlmysql`) sur les 3 OS : le point le plus
+   sensible. Stratégie **A puis B**, sans aucun binaire committé.
+   - **A (par défaut)** : on installe la **bibliothèque client** MariaDB/MySQL sur
+     chaque runner (apt `libmariadb-dev`/`default-libmysqlclient-dev`, brew
+     `mariadb-connector-c`, `choco`), et on laisse `windeployqt --sql` /
+     `macdeployqt` / `linuxdeployqt -extra-plugins=sqldrivers` embarquer le plugin
+     **fourni par le Qt officiel** (Qt 6.10 le livre généralement). À confirmer au
+     1er run que le plugin est présent et se charge.
+   - **B (repli, si A échoue)** : compiler le plugin contre le Qt installé —
+     ```sh
+     git clone --depth 1 --branch v$QT_VERSION https://code.qt.io/qt/qtbase.git
+     qt-cmake -S qtbase/src/plugins/sqldrivers -B sqlbuild \
+       -DMySQL_INCLUDE_DIR=<inc> -DMySQL_LIBRARY=<lib>
+     cmake --build sqlbuild
+     # copier le qsqlmysql produit dans <Qt>/plugins/sqldrivers/ avant le déploiement
+     ```
+     Insensible aux versions, se régénère tout seul. À activer si le 1er run montre
+     l'absence du plugin.
 2. **Nom du binaire produit** (Linux/macOS) : les scopes `OSX`/`LINUX` du `.pro`
    ne sont pas des scopes qmake standard ; le workflow localise donc le binaire /
    le `.app` dynamiquement. À confirmer.
 3. **Client MySQL Windows** (`mysql.exe`, `mysqldump.exe`, `libmysql.dll`) :
    chemin d'installation `choco` à confirmer et à copier dans `Deploy\Applications`
    comme le fait `CreateDeploy.ps1`.
-4. **Version de Qt** (`QT_VERSION`) : alignée sur 6.5.3 ; ajuster si nécessaire.
+4. **Version de Qt** (`QT_VERSION`) : alignée sur **6.10.2** (version de
+   compilation locale). À vérifier que `install-qt-action`/aqt la propose bien.
