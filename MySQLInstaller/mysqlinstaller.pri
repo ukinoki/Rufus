@@ -9,3 +9,6 @@
 INCLUDEPATH += $$PWD
 SOURCES += $$PWD/mysqlinstaller.cpp
 HEADERS += $$PWD/mysqlinstaller.h
+
+# Windows : ShellExecuteEx (élévation UAC « runas ») est fournie par shell32.
+win32: LIBS += -lShell32

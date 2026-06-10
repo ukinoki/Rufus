@@ -47,6 +47,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #  define WIN32_LEAN_AND_MEAN
 #  define NOMINMAX
 #  include <windows.h>
+#  include <shellapi.h>   // ShellExecuteEx (élévation UAC « runas »)
 #endif
 
 // Arguments de transport des clients mysql/mysqladmin pour les connexions
@@ -572,6 +573,34 @@ bool MySQLInstaller::isAdminUser()
 #endif
 }
 
+#if defined(Q_OS_WIN)
+//  Relance l'exécutable Rufus courant AVEC élévation, via le verbe « runas » de
+//  ShellExecuteEx : Windows affiche l'invite UAC. Sur un compte standard, l'invite
+//  permet de SAISIR un compte administrateur — c'est exactement le comportement
+//  demandé. true si l'instance élevée a démarré (UAC acceptée) ; false si l'utilisateur
+//  a annulé (ERROR_CANCELLED) ou en cas d'échec.
+bool MySQLInstaller::relancerEnAdministrateur()
+{
+    const QString exe = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
+    const std::wstring exeW = exe.toStdWString();
+
+    SHELLEXECUTEINFOW sei;
+    ZeroMemory(&sei, sizeof(sei));
+    sei.cbSize = sizeof(sei);
+    sei.fMask  = SEE_MASK_NOCLOSEPROCESS;
+    sei.lpVerb = L"runas";              // déclenche l'élévation UAC
+    sei.lpFile = exeW.c_str();
+    sei.nShow  = SW_SHOWNORMAL;
+
+    if (ShellExecuteExW(&sei)) {
+        if (sei.hProcess)
+            CloseHandle(sei.hProcess);
+        return true;                    // instance élevée lancée
+    }
+    return false;                       // annulation (UAC) ou échec
+}
+#endif
+
 #if defined(Q_OS_LINUX)
 //  Ubuntu 22.04 (LTS) ou ultérieure (selon /etc/os-release).
 bool MySQLInstaller::isUbuntuVersionSupported()
@@ -703,18 +732,33 @@ bool MySQLInstaller::run()
     // Le programme installe MySQL et modifie des emplacements système (my.cnf /
     // my.ini, partage, PATH, service). Il exige donc des droits administrateur.
     if (!isAdminUser()) {
+#if defined(Q_OS_WIN)
+        // Plutôt que d'imposer un relancement manuel, on propose d'élever les droits
+        // via UAC : l'utilisateur peut saisir un compte administrateur à cet instant.
+        if (askYesNo(tr("Droits administrateur requis"),
+                tr("Pour installer MySQL, Rufus a besoin des droits administrateur.\n\n"
+                   "Voulez-vous relancer Rufus en tant qu'administrateur ?\n"
+                   "Vous pourrez saisir un compte administrateur lors de l'invite "
+                   "Windows."))) {
+            if (relancerEnAdministrateur()) {
+                // L'instance élevée prend le relais : on ferme l'instance courante.
+                exit(0);
+            }
+            // UAC refusée / échec : on bascule sur la consigne manuelle.
+            UpMessageBox::Watch(nullptr, tr("Élévation refusée"),
+                tr("Rufus n'a pas pu obtenir les droits administrateur.\n\n"
+                   "Faites un clic droit sur l'application puis « Exécuter en tant "
+                   "qu'administrateur », et relancez."));
+        }
+        return false;
+#else
         UpMessageBox::Watch(nullptr,
             tr("Droits administrateur requis"),
-#if defined(Q_OS_WIN)
-            tr("Ce programme doit être exécuté en tant qu'administrateur.\n\n"
-               "Faites un clic droit sur l'application puis « Exécuter en tant "
-               "qu'administrateur », et relancez."));
-#else
             tr("Ce programme doit être lancé par un utilisateur administrateur de macOS.\n\n"
                "Connectez-vous avec un compte administrateur (ou demandez à un "
                "administrateur de l'exécuter), puis relancez."));
-#endif
         return false;
+#endif
     }
 
 #if defined(Q_OS_WIN)
