@@ -187,6 +187,11 @@ private:
 
     // ── Pré-requis ─────────────────────────────────────────────────────────────
     bool    isAdminUser();               // compte administrateur / processus élevé ?
+    //  Garantit les droits admin (requis SEULEMENT pour installer/désinstaller
+    //  MySQL) : si le processus n'est pas élevé, propose l'élévation UAC (Windows)
+    //  puis exit() au profit de l'instance élevée. true si on a les droits, false
+    //  si l'utilisateur refuse. À n'appeler QUE juste avant une (dés)installation.
+    bool    assurerDroitsAdmin();
 #if defined(Q_OS_WIN)
     bool    isVCRedist2022Installed();   // Windows : Visual C++ Redistributable 2022
     bool    installVCRedist2022();
