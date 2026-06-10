@@ -783,16 +783,15 @@ bool MySQLInstaller::run()
     }
 #endif
 
-    // ── Accès réseau requis pour tout le programme ────────────────────────────
-    if (!hasNetworkAccess()) {
-        UpMessageBox::Watch(nullptr, tr("Pas d'accès réseau"),
-            tr("Absence d'accès réseau. Le programme a besoin d'une connexion "
-               "Internet pour fonctionner.\n\nFermeture du programme."));
-        return false;
-    }
+    // NB : on ne vérifie PAS l'accès réseau ici. Il n'est nécessaire que pour
+    // TÉLÉCHARGER MySQL (mode Create), et ce cas est déjà couvert par
+    // checkDownloadConnectivity() (appelé dans faireCreate(), qui appelle lui-même
+    // hasNetworkAccess()). Vérifier le réseau dès run() bloquerait inutilement un
+    // poste hors-ligne qui a DÉJÀ MySQL (mode Verify) ou une base Rufus complète.
 
     // Config distante (version cible + seuil minimal). La checklist affiche le
     // seuil dans le libellé de la case « MySQL ≥ <min> installé ».
+    // fetchRemoteConfig() se replie sur les valeurs par défaut si le réseau manque.
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
     const bool installed = isMySQLInstalled();
