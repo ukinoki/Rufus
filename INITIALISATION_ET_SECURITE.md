@@ -214,19 +214,34 @@ Points clés :
 ### 6.3 Migration opt-in du mot de passe (conçu, non implémenté)
 
 Sécuriser un cabinet existant = remplacer `gaxt78iy` par un mot de passe aléatoire.
-C'est **explicite et volontaire** (jamais automatique), car en **multi-poste** tous
-les postes partageant la base doivent recevoir le nouveau mot de passe sous peine
-d'être bloqués.
+C'est **explicite et volontaire** (jamais automatique). La question préalable
+détermine **deux parcours bien distincts** :
 
-Parcours prévu :
+> **« Ce poste est-il le SEUL à utiliser Rufus ? »**
+
+#### Cas A — mono-poste (≈ 90 % des installations)
+
+Le cas le plus fréquent (Rufus est très souvent en strict mono-poste). Si la
+réponse est **oui**, la rotation est **triviale, immédiate, sans clé USB** :
+1. Avertir que **les versions antérieures de Rufus ne pourront plus se connecter**
+   (sans conséquence ici, mais honnête).
+2. Générer le nouveau mot de passe,
+   `ALTER USER 'adminrufus'/'adminrufusSSL' … IDENTIFIED BY '<aléatoire>'`,
+   écrire `.dbkey` localement. **Terminé.**
+
+Pas de propagation, pas de distribution : un seul `.dbkey`, sur ce poste.
+
+#### Cas B — multi-poste (≈ 10 %)
+
+Si **non** (plusieurs postes partagent la base), tous doivent recevoir le nouveau
+mot de passe sous peine d'être bloqués. Parcours :
 1. **Proposer la migration à intervalles réguliers** (tant que `.dbkey` est absent
    et que `gaxt78iy` fonctionne = migration jamais faite), en **avertissant** qu'elle
-   devra être faite sur **tous les autres postes** utilisant cette base, sinon ils
-   seront bloqués.
+   devra être faite sur **tous les autres postes**, sinon ils seront bloqués.
 2. Si l'admin accepte (derrière `MDP_ADMINISTRATEUR`) : générer le nouveau mot de
-   passe, `ALTER USER 'adminrufus'/'adminrufusSSL' … IDENTIFIED BY '<aléatoire>'`,
-   écrire `.dbkey` sur ce poste, puis demander d'**insérer une clé USB** sur laquelle
-   le nouveau mot de passe est **gravé** (vecteur de distribution aux autres postes).
+   passe, `ALTER USER … IDENTIFIED BY '<aléatoire>'`, écrire `.dbkey` sur ce poste,
+   puis demander d'**insérer une clé USB** sur laquelle le nouveau mot de passe est
+   **gravé** (vecteur de distribution aux autres postes).
 3. **Sur chaque autre poste**, tant qu'il n'a pas de `.dbkey`, un **bouton « Récupérer
    un mot de passe »** dans `dlg_param` (onglet *Général*) : au clic, Rufus demande la
    clé USB et **récupère le mot de passe** (écrit son `.dbkey`).
@@ -236,6 +251,30 @@ Parcours prévu :
 > CURRENT PASSWORD;` garde `gaxt78iy` valide pendant le déploiement USB (aucun poste
 > coupé), puis `… DISCARD OLD PASSWORD;` une fois tous les postes migrés. À retenir
 > si l'on veut une bascule **sans blocage** plutôt que le blocage assumé de l'étape 1.
+
+### 6.4 Oubli / perte du mot de passe : la trappe de secours
+
+**Discours utilisateur (à dessein un peu effrayant)** : *« Ce mot de passe est sur
+cette clé USB. Gardez-la précieusement : sans elle, les autres postes ne pourront
+plus se connecter. »* C'est un **mensonge pédagogique utile** — il pousse à la
+prudence — mais **techniquement, ce n'est jamais irréversible** :
+
+- **Les données ne sont jamais perdues.** Le mot de passe protège l'accès via
+  `adminrufus`, pas les données : qui a un accès **système** à la machine hébergeant
+  MySQL peut tout relire (`mysqldump` en root).
+- **Le mot de passe de `adminrufus` est réattribuable** par qui contrôle le serveur :
+  - **Ubuntu** : `root@localhost` via `auth_socket` → `sudo mysql` puis
+    `ALTER USER 'adminrufus'@'%' IDENTIFIED BY '<nouveau>'`. C'est **exactement** le
+    mécanisme déjà utilisé par l'installeur (`pkexec mysql -u root`, chemin
+    `createUser` Linux) ;
+  - autres OS : `mysqld --skip-grant-tables`, ou le compte root MySQL initial.
+
+→ Rufus pourrait donc offrir, **sur la machine hôte uniquement**, un bouton
+**« Réinitialiser le mot de passe MySQL »** : élévation `pkexec`, réassignation de
+`adminrufus`, réécriture du `.dbkey`. Aucune clé USB nécessaire pour récupérer *sur
+le serveur* (la USB ne sert qu'à *propager* aux autres postes). Cette trappe reste
+**réservée à l'administrateur** : on ne la met pas en avant dans l'UX courante, pour
+ne pas saper l'incitation à conserver la clé.
 
 ---
 
