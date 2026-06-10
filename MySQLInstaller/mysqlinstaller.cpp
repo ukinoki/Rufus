@@ -411,20 +411,41 @@ QString MySQLInstaller::genererMotDePasse()
 //  PAS dans Rufus.ini : il doit survivre à une réinitialisation par suppression de
 //  Rufus.ini. Repli sur MDP_SQL (mot de passe historique) si absent/vide (base non
 //  encore migrée).
+//  Le fichier ne contient QUE le mot de passe BRUT (aucune étiquette « MDPSQL= »,
+//  aucune section) : un contenu opaque ne révèle pas à quoi il sert. On garde
+//  toutefois la lecture de l'ancien format INI (« [Connexion]/MDPSQL=… ») pour
+//  rester compatible avec d'éventuels fichiers déjà écrits.
 QString MySQLInstaller::motDePasseSQL()
 {
-    QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
-    const QString mdp = sets.value(Param_MDPSQL).toString();
-    return mdp.isEmpty() ? QString(MDP_SQL) : mdp;
+    QFile f(PATH_FILE_DBKEY);
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        const QString contenu = QString::fromUtf8(f.readAll()).trimmed();
+        f.close();
+        // Ancien format QSettings/INI : détecté par la présence d'un « = » (le mot
+        // de passe aléatoire, alphanumérique, n'en contient jamais).
+        if (contenu.contains('=')) {
+            QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
+            const QString mdp = sets.value(Param_MDPSQL).toString();
+            if (!mdp.isEmpty())
+                return mdp;
+        } else if (!contenu.isEmpty()) {
+            return contenu;                   // format actuel : mot de passe brut
+        }
+    }
+    return QString(MDP_SQL);                   // absent/vide → repli legacy
 }
 
 //  Stocke le mot de passe dans le fichier caché PATH_FILE_DBKEY (hors ~/Documents/Rufus).
+//  Écriture du mot de passe BRUT, sans clé ni section (cf. motDePasseSQL).
 void MySQLInstaller::stockerMotDePasse(const QString& mdp)
 {
     QDir().mkpath(PATH_DIR_RUFUSKEY);     // dossier caché ~/.rufus (créé au besoin)
-    QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
-    sets.setValue(Param_MDPSQL, mdp);
-    sets.sync();
+    QFile f(PATH_FILE_DBKEY);
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+        f.write(mdp.toUtf8());
+        f.write("\n");
+        f.close();
+    }
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
