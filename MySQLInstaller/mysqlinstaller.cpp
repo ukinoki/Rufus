@@ -727,39 +727,48 @@ void MySQLInstaller::cleanupDialog()
     }
 }
 
+//  Garantit les droits administrateur, requis UNIQUEMENT pour installer ou
+//  désinstaller MySQL. Si le processus n'est pas élevé, propose l'élévation UAC
+//  (Windows) : l'utilisateur peut saisir un compte administrateur à cet instant ;
+//  l'instance élevée prend alors le relais (exit de l'instance courante). Renvoie
+//  true si on a (ou vient d'obtenir) les droits, false si l'utilisateur refuse.
+bool MySQLInstaller::assurerDroitsAdmin()
+{
+    if (isAdminUser())
+        return true;
+#if defined(Q_OS_WIN)
+    if (askYesNo(tr("Droits administrateur requis"),
+            tr("Pour installer ou désinstaller MySQL (le moteur de base de données "
+               "de Rufus), Windows demande les droits administrateur.\n\nRufus doit "
+               "donc être relancé en mode administrateur. Voulez-vous le faire "
+               "maintenant ?\n\nUne fenêtre Windows vous demandera alors un compte "
+               "administrateur de l'ordinateur."))) {
+        if (relancerEnAdministrateur())
+            exit(0);                    // l'instance élevée prend le relais
+        // UAC refusée / échec : on bascule sur la consigne manuelle.
+        UpMessageBox::Watch(nullptr, tr("Élévation refusée"),
+            tr("Rufus n'a pas pu obtenir les droits administrateur.\n\n"
+               "Faites un clic droit sur l'application puis « Exécuter en tant "
+               "qu'administrateur », et relancez."));
+    }
+    return false;
+#else
+    UpMessageBox::Watch(nullptr, tr("Droits administrateur requis"),
+        tr("Pour installer ou désinstaller MySQL (le moteur de base de données de "
+           "Rufus), macOS demande un compte administrateur.\n\nConnectez-vous avec "
+           "un compte administrateur (ou demandez à un administrateur de l'exécuter), "
+           "puis relancez."));
+    return false;
+#endif
+}
+
 bool MySQLInstaller::run()
 {
-    // Le programme installe MySQL et modifie des emplacements système (my.cnf /
-    // my.ini, partage, PATH, service). Il exige donc des droits administrateur.
-    if (!isAdminUser()) {
-#if defined(Q_OS_WIN)
-        // Plutôt que d'imposer un relancement manuel, on propose d'élever les droits
-        // via UAC : l'utilisateur peut saisir un compte administrateur à cet instant.
-        if (askYesNo(tr("Droits administrateur requis"),
-                tr("Pour installer MySQL, Rufus a besoin des droits administrateur.\n\n"
-                   "Voulez-vous relancer Rufus en tant qu'administrateur ?\n"
-                   "Vous pourrez saisir un compte administrateur lors de l'invite "
-                   "Windows."))) {
-            if (relancerEnAdministrateur()) {
-                // L'instance élevée prend le relais : on ferme l'instance courante.
-                exit(0);
-            }
-            // UAC refusée / échec : on bascule sur la consigne manuelle.
-            UpMessageBox::Watch(nullptr, tr("Élévation refusée"),
-                tr("Rufus n'a pas pu obtenir les droits administrateur.\n\n"
-                   "Faites un clic droit sur l'application puis « Exécuter en tant "
-                   "qu'administrateur », et relancez."));
-        }
-        return false;
-#else
-        UpMessageBox::Watch(nullptr,
-            tr("Droits administrateur requis"),
-            tr("Ce programme doit être lancé par un utilisateur administrateur de macOS.\n\n"
-               "Connectez-vous avec un compte administrateur (ou demandez à un "
-               "administrateur de l'exécuter), puis relancez."));
-        return false;
-#endif
-    }
+    // NB : on ne vérifie PAS les droits administrateur ici. Ils ne sont requis que
+    // pour INSTALLER ou DÉSINSTALLER MySQL. La vérification (et l'offre d'élévation
+    // UAC) se fait donc juste avant ces opérations, via assurerDroitsAdmin() — pas
+    // en tête de run(), sinon le mode Verify (qui ne fait que se connecter à un
+    // MySQL déjà présent) serait bloqué pour rien sur un compte non-administrateur.
 
 #if defined(Q_OS_WIN)
     // Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et
@@ -805,6 +814,8 @@ bool MySQLInstaller::run()
                    "données MySQL sur cet ordinateur.\n\nVoulez-vous l'installer "
                    "maintenant ?")))
             return false;
+        if (!assurerDroitsAdmin())   // l'installation exige les droits admin
+            return false;
         return faireCreate(cfg);
     }
 
@@ -816,6 +827,8 @@ bool MySQLInstaller::run()
         // Version trop ancienne : NETTOYAGE COMPLET (askUpdateConfirmation avertit
         // de la perte des données) puis on rejoint le chemin de création.
         if (!askUpdateConfirmation(ver, cfg.version))
+            return false;
+        if (!assurerDroitsAdmin())   // désinstallation + réinstallation = droits admin
             return false;
         MySQLProgressDialog* clean = new MySQLProgressDialog(
             tr("Nettoyage de l'ancienne installation de MySQL…"));
@@ -858,6 +871,11 @@ bool MySQLInstaller::run()
                     tr("Cette opération va SUPPRIMER complètement MySQL de cet "
                        "ordinateur, ainsi que TOUTES les données qu'il contient. "
                        "Elle est IRRÉVERSIBLE.\n\nVoulez-vous continuer ?"))) {
+                if (!assurerDroitsAdmin()) {   // la suppression exige les droits admin
+                    m_dialog->show();          // élévation refusée → retour à la fiche
+                    QApplication::processEvents();
+                    continue;
+                }
                 cleanupDialog();
                 MySQLProgressDialog* clean = new MySQLProgressDialog(
                     tr("Suppression de MySQL en cours…"));
