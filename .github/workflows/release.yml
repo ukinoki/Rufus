@@ -1,0 +1,220 @@
+name: Publication des releases (Windows / macOS / Linux)
+
+# Déclenchement :
+#   • push d'un tag « v* » (ex. v10-06-2026)  → build + publication de la Release ;
+#   • bouton « Run workflow » (workflow_dispatch) → build + artefacts, SANS Release.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+# Nécessaire pour que l'étape de publication crée/complète la Release.
+permissions:
+  contents: write
+
+env:
+  QT_VERSION: '6.5.3'        # aligner si besoin sur la version utilisée localement
+
+jobs:
+  # ───────────────────────────────────────────────────────────────────────────
+  #  Extrait la version (= date de publication) depuis rufus.cpp, source unique.
+  # ───────────────────────────────────────────────────────────────────────────
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: get
+        shell: bash
+        run: |
+          # qApp->setApplicationVersion("10-06-2026/1")  →  10-06-2026
+          V=$(grep -oP 'setApplicationVersion\("\K[^"/]+' rufus.cpp | head -n1)
+          echo "version=${V}" >> "$GITHUB_OUTPUT"
+          echo "Version détectée : ${V}"
+
+  # ───────────────────────────────────────────────────────────────────────────
+  #  LINUX → AppImage auto-installante (Rufus-<version>-x86_64.AppImage)
+  # ───────────────────────────────────────────────────────────────────────────
+  linux:
+    needs: version
+    runs-on: ubuntu-22.04      # cible « anciennes machines » : glibc raisonnable
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: 'qtmultimedia qtpdf qtserialport'
+
+      - name: Dépendances système (pilote MySQL, FUSE pour AppImage, outils)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y default-libmysqlclient-dev libfuse2 \
+            libgl1-mesa-dev libxkbcommon-dev
+
+      - name: Compiler (qmake + make, Release)
+        run: |
+          qmake RufusQt6.pro CONFIG+=release
+          make -j"$(nproc)"
+
+      - name: Construire l'AppImage
+        run: |
+          set -e
+          VER='${{ needs.version.outputs.version }}'
+          # Localiser le binaire produit (le nom exact peut varier).
+          BIN=$(find . -maxdepth 2 -type f -executable \
+                 \( -name 'Rufus*' -o -name 'RufusQt6*' \) ! -name '*.so*' | head -n1)
+          echo "Binaire : $BIN"
+
+          # Arborescence AppDir
+          mkdir -p AppDir/usr/bin \
+                   AppDir/usr/share/applications \
+                   AppDir/usr/share/icons/hicolor/256x256/apps
+          cp "$BIN" AppDir/usr/bin/Rufus
+          cp build_tools/Linux/rufus.png AppDir/usr/share/icons/hicolor/256x256/apps/rufus.png
+          cat > AppDir/usr/share/applications/rufus.desktop <<'EOF'
+          [Desktop Entry]
+          Type=Application
+          Name=Rufus
+          Exec=Rufus
+          Icon=rufus
+          Comment=Logiciel de gestion de cabinet d'Ophtalmologie
+          Categories=Office;
+          Terminal=false
+          EOF
+
+          # linuxdeployqt : embarque Qt + dépendances (sans -appimage : on garde
+          # notre AppRun auto-installant).
+          wget -q https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
+          chmod +x linuxdeployqt-continuous-x86_64.AppImage
+          ./linuxdeployqt-continuous-x86_64.AppImage \
+            AppDir/usr/share/applications/rufus.desktop \
+            -bundle-non-qt-libs -unsupported-allow-new-glibc \
+            -extra-plugins=sqldrivers || true
+
+          # Notre AppRun (fait de l'AppImage un installeur, cf. build_tools/Linux/AppRun)
+          cp build_tools/Linux/AppRun AppDir/AppRun
+          chmod +x AppDir/AppRun
+
+          # Empaquetage final avec appimagetool
+          wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
+          chmod +x appimagetool-x86_64.AppImage
+          ./appimagetool-x86_64.AppImage AppDir "Rufus-${VER}-x86_64.AppImage"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rufus-Linux-AppImage
+          path: 'Rufus-*-x86_64.AppImage'
+
+  # ───────────────────────────────────────────────────────────────────────────
+  #  WINDOWS → RufusSetup.exe (Inno Setup)
+  # ───────────────────────────────────────────────────────────────────────────
+  windows:
+    needs: version
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          arch: win64_msvc2019_64
+          modules: 'qtmultimedia qtpdf qtserialport'
+
+      - name: Environnement MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Compiler (qmake + nmake, Release)
+        shell: cmd
+        run: |
+          qmake RufusQt6.pro CONFIG+=release
+          nmake
+
+      - name: Déployer (windeployqt + assets + client MySQL)
+        shell: pwsh
+        run: |
+          $deploy = "$env:GITHUB_WORKSPACE\Deploy"
+          New-Item -ItemType Directory -Force -Path $deploy | Out-Null
+          # Localiser Rufus.exe (sortie Release)
+          $exe = Get-ChildItem -Recurse -Filter Rufus.exe |
+                 Where-Object { $_.FullName -notlike '*\Deploy\*' } | Select-Object -First 1
+          Copy-Item $exe.FullName "$deploy\Rufus.exe"
+          windeployqt --release --compiler-runtime --sql "$deploy\Rufus.exe"
+          # Assets de l'application
+          Copy-Item -Recurse -Force assets "$deploy\assets"
+          # Client MySQL (mysql.exe / mysqldump.exe + libmysql.dll) — best-effort.
+          # TODO 1er run : vérifier le chemin du client MySQL sur le runner.
+          choco install mysql --no-progress -y | Out-Null
+
+      - name: Construire RufusSetup.exe (Inno Setup)
+        shell: pwsh
+        run: |
+          choco install innosetup --no-progress -y | Out-Null
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          & $iscc /DMyAppVersion="${{ needs.version.outputs.version }}" `
+                  /DDeploySrc="$env:GITHUB_WORKSPACE\Deploy" `
+                  build_tools\Windows\RufusVision.iss
+          # ISCC produit RufusSetup.exe dans le dossier Output\ à côté du .iss.
+          Get-ChildItem -Recurse -Filter RufusSetup.exe | ForEach-Object {
+            Copy-Item $_.FullName "$env:GITHUB_WORKSPACE\Rufus-${{ needs.version.outputs.version }}-Setup.exe" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rufus-Windows-Setup
+          path: 'Rufus-*-Setup.exe'
+
+  # ───────────────────────────────────────────────────────────────────────────
+  #  macOS → Rufus-<version>.dmg
+  # ───────────────────────────────────────────────────────────────────────────
+  macos:
+    needs: version
+    runs-on: macos-13
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installer Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          modules: 'qtmultimedia qtpdf qtserialport'
+
+      - name: Compiler (qmake + make, Release)
+        run: |
+          qmake RufusQt6.pro CONFIG+=release
+          make -j"$(sysctl -n hw.ncpu)"
+
+      - name: Construire le dmg
+        run: |
+          set -e
+          chmod +x build_tools/macOS/create-rufus-dmg.sh
+          APP=$(find . -maxdepth 3 -type d -name '*.app' | head -n1)
+          echo "Bundle : $APP"
+          build_tools/macOS/create-rufus-dmg.sh "$APP" \
+            '${{ needs.version.outputs.version }}' "$GITHUB_WORKSPACE"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Rufus-macOS-dmg
+          path: 'Rufus-*.dmg'
+
+  # ───────────────────────────────────────────────────────────────────────────
+  #  Publication : uniquement sur tag « v* » → Release GitHub avec les 3 paquets.
+  # ───────────────────────────────────────────────────────────────────────────
+  release:
+    needs: [version, linux, windows, macos]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artefacts
+      - name: Publier la Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: Rufus ${{ needs.version.outputs.version }}
+          files: artefacts/**/*
+          generate_release_notes: true
