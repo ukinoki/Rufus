@@ -3239,7 +3239,6 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     int al = 0;
     QString iban = "FR";
     srand(static_cast<uint>(time(Q_NULLPTR)));
-    al = arc4random() % 100;
     al = rand() % 100;
     while (al<10)
         al = rand() % 100;
