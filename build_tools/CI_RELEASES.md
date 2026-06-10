@@ -8,7 +8,16 @@ release :
 |---|---|---|
 | Windows | `Rufus-<version>-Setup.exe` | `windeployqt` + **Inno Setup** (`build_tools/Windows/RufusVision.iss`) |
 | Linux | `Rufus-<version>-x86_64.AppImage` (auto-installante) | `linuxdeployqt` + `appimagetool` + `build_tools/Linux/AppRun` |
-| macOS | `Rufus-<version>.dmg` | `macdeployqt` + `build_tools/macOS/create-rufus-dmg.sh` |
+| macOS | `Rufus-<version>.dmg` (**universel x86_64 + arm64**) | `macdeployqt` + `build_tools/macOS/create-rufus-dmg.sh` |
+
+> **macOS — binaire universel obligatoire.** On ne fait PAS l'impasse sur les Macs
+> Intel. Le job tourne sur `macos-14` (Apple Silicon, runners bien plus disponibles
+> que `macos-13`) mais compile en **universel** via
+> `qmake … "QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64"` (Qt macOS officiel est universel ;
+> la tranche x86_64 est cross-compilée). Le `.dmg` obtenu tourne sur Intel **et**
+> Apple Silicon. **macOS est aussi le plus simple à produire à la main** (`macdeployqt`
+> + 2 lignes `codesign` via `CODESIGN_ID`, cf. `create-rufus-dmg.sh`) : si les runners
+> macOS de la CI font défaut, le faire localement n'a rien de pénalisant.
 
 ## Version
 

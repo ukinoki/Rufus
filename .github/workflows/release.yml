@@ -194,7 +194,11 @@ jobs:
   # ───────────────────────────────────────────────────────────────────────────
   macos:
     needs: version
-    runs-on: macos-13
+    # macos-14 (Apple Silicon) : runners bien plus disponibles que macos-13. On y
+    # produit malgré tout un binaire UNIVERSEL (x86_64 + arm64) — l'architecture x64
+    # ne doit PAS être abandonnée (vieux Macs Intel). Qt macOS officiel étant déjà
+    # universel, la tranche x86_64 est simplement cross-compilée (standard).
+    runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
 
@@ -207,9 +211,9 @@ jobs:
       - name: Client MariaDB/MySQL (lib du pilote qsqlmysql)
         run: brew install mariadb-connector-c || brew install mysql-client
 
-      - name: Compiler (qmake + make, Release)
+      - name: Compiler (qmake + make, Release, binaire universel)
         run: |
-          qmake RufusQt6.pro CONFIG+=release
+          qmake RufusQt6.pro CONFIG+=release "QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64"
           make -j"$(sysctl -n hw.ncpu)"
 
       - name: Construire le dmg
