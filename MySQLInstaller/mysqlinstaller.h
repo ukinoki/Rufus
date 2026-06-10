@@ -190,6 +190,11 @@ private:
 #if defined(Q_OS_WIN)
     bool    isVCRedist2022Installed();   // Windows : Visual C++ Redistributable 2022
     bool    installVCRedist2022();
+    //  Relance Rufus en tant qu'administrateur via l'invite UAC (verbe « runas ») :
+    //  l'utilisateur peut saisir un compte administrateur à cet instant, sans avoir
+    //  à relancer manuellement « Exécuter en tant qu'administrateur ». true si
+    //  l'instance élevée a été lancée (UAC acceptée), false si refus/annulation.
+    bool    relancerEnAdministrateur();
     //  Déclare MySQL dans « Applications et fonctionnalités » + script de désinstall.
     void    registerWindowsUninstaller(const QString& base,
                                        const QString& progData,
