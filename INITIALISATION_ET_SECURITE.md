@@ -166,7 +166,80 @@ restriction des privilèges/host de `adminrufus` ; chiffrement des sauvegardes
 
 ---
 
-## 6. Pointeurs dans le code
+## 6. Diagnostic « sécurité de la connexion » & migration du mot de passe
+
+> Cette section fige un raisonnement **subtil mais important**, pour ne pas avoir à
+> le reconstruire dans quelques mois. L'essentiel est **conçu, pas encore
+> implémenté** (sauf le format de `.dbkey`, §6.1, déjà en place).
+
+### 6.1 Format de `~/.rufus/.dbkey` : mot de passe BRUT, sans étiquette
+
+Le fichier ne contient **que le mot de passe**, sur une ligne, **sans clé ni
+section** (pas de `MDPSQL=`, pas de `[Connexion]`). Un fichier au contenu opaque
+ne révèle pas à quoi il sert : seuls les initiés savent que `~/.rufus/.dbkey`
+porte le mot de passe MySQL d'`adminrufus`. Lu/écrit par
+`MySQLInstaller::motDePasseSQL()` / `stockerMotDePasse()` (l'ancien format INI
+`QSettings` reste lisible par rétro-compatibilité : détecté par la présence d'un
+`=`, que le mot de passe aléatoire alphanumérique ne contient jamais).
+
+### 6.2 Diagnostic au démarrage : une machine à états à 3 signaux
+
+Plutôt que de **détecter « est-ce une mise à jour ? »** (heuristique fragile), on
+**classe l'état du poste** à partir de trois signaux. Le 3ᵉ — *une base Rufus
+joignable répond-elle ENCORE au mot de passe public ?* — est ce qui rend le
+diagnostic fiable (il distingue « ancienne version » de « clé manquante »).
+
+| `rufus.ini` | `.dbkey` | base joignable avec… | État | Action |
+|:---:|:---:|---|---|---|
+| absent | — | — | **premier démarrage** | `PremierDemarrage()` (nbp / base existante) |
+| présent | absent | `gaxt78iy` ✅ | **ancienne version, NON sécurisée** | proposer la sécurisation (bandeau / bouton) |
+| présent | présent | mdp aléatoire ✅ | **sécurisée** | rien à faire |
+| présent | absent | `gaxt78iy` ❌ mais base existe | **clé manquante** (poste désynchronisé d'un cabinet déjà sécurisé) | récupérer la clé (§6.3) |
+| présent | — | base injoignable | problème de connexion | déjà géré |
+
+Points clés :
+- Le 3ᵉ contrôle s'appuie sur `baseRufusComplete()` : quand `.dbkey` est absent,
+  il se connecte **via le repli `gaxt78iy`** ; son succès prouve donc *à la fois*
+  qu'une vraie base Rufus existe **et** qu'elle accepte encore le mot de passe public.
+- **On n'écrit JAMAIS `gaxt78iy` dans `.dbkey`.** L'état « non sécurisée » EST
+  défini par « `.dbkey` absent + `gaxt78iy` marche » : écrire `gaxt78iy` dans le
+  fichier détruirait ce signal (on ne distinguerait plus « sécurisée » de « legacy »).
+  `.dbkey` ne reçoit qu'un mot de passe **aléatoire**, et seulement à la sécurisation.
+- **Emplacement** : ce diagnostic vit sur le **chemin de démarrage normal** (après
+  la connexion `adminrufus` réussie), **pas** dans `MySQLInstaller` (qui ne tourne
+  que sur « nouvelle base vierge », donc `rufus.ini` absent).
+- La migration **logiciel seul** reste donc **silencieuse et sans friction** (le
+  repli legacy connecte tout seul) : aucune question « est-ce une mise à jour ? ».
+
+### 6.3 Migration opt-in du mot de passe (conçu, non implémenté)
+
+Sécuriser un cabinet existant = remplacer `gaxt78iy` par un mot de passe aléatoire.
+C'est **explicite et volontaire** (jamais automatique), car en **multi-poste** tous
+les postes partageant la base doivent recevoir le nouveau mot de passe sous peine
+d'être bloqués.
+
+Parcours prévu :
+1. **Proposer la migration à intervalles réguliers** (tant que `.dbkey` est absent
+   et que `gaxt78iy` fonctionne = migration jamais faite), en **avertissant** qu'elle
+   devra être faite sur **tous les autres postes** utilisant cette base, sinon ils
+   seront bloqués.
+2. Si l'admin accepte (derrière `MDP_ADMINISTRATEUR`) : générer le nouveau mot de
+   passe, `ALTER USER 'adminrufus'/'adminrufusSSL' … IDENTIFIED BY '<aléatoire>'`,
+   écrire `.dbkey` sur ce poste, puis demander d'**insérer une clé USB** sur laquelle
+   le nouveau mot de passe est **gravé** (vecteur de distribution aux autres postes).
+3. **Sur chaque autre poste**, tant qu'il n'a pas de `.dbkey`, un **bouton « Récupérer
+   un mot de passe »** dans `dlg_param` (onglet *Général*) : au clic, Rufus demande la
+   clé USB et **récupère le mot de passe** (écrit son `.dbkey`).
+
+> *Note d'implémentation (n'altère pas le parcours ci-dessus) :* MySQL 8 sait porter
+> **deux mots de passe** simultanément — `ALTER USER … IDENTIFIED BY '<new>' RETAIN
+> CURRENT PASSWORD;` garde `gaxt78iy` valide pendant le déploiement USB (aucun poste
+> coupé), puis `… DISCARD OLD PASSWORD;` une fois tous les postes migrés. À retenir
+> si l'on veut une bascule **sans blocage** plutôt que le blocage assumé de l'étape 1.
+
+---
+
+## 7. Pointeurs dans le code
 
 | Sujet | Où |
 |---|---|
