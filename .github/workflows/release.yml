@@ -5,9 +5,19 @@ name: Publication des releases (Windows / macOS / Linux)
 #   • bouton « Run workflow » (workflow_dispatch) → build + artefacts, SANS Release.
 on:
   push:
+    branches:
+      # TEMPORAIRE — rodage de la CI : permet de lancer les builds en poussant sur
+      # la branche de travail (workflow_dispatch/tags exigent la branche par défaut).
+      # À RETIRER une fois la CI au vert (ne garder que tags + workflow_dispatch).
+      - claude/wizardly-edison-f9mnax
     tags:
       - 'v*'
   workflow_dispatch:
+
+# Chaque nouveau push annule le run précédent encore en cours (économie de minutes).
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: true
 
 # Nécessaire pour que l'étape de publication crée/complète la Release.
 permissions:
