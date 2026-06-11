@@ -34,8 +34,9 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
-    QTimer t_timer;
-    t_timer                  .start(500);
+    //! Le timer est un MEMBRE (m_timerClignotement) : une variable locale serait
+    //! détruite à la fin du constructeur et le clignotement ne se ferait jamais.
+    m_timerClignotement.start(500);
     ui->LoginlineEdit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
@@ -49,7 +50,7 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     connect(ui->IPlineEdit,                 &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
     connect(ui->ClesSSLuppushButton,        &QPushButton::clicked,          this,   &dlg_paramconnexion::DossierClesSSL);
 
-    connect(&t_timer,                       &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
+    connect(&m_timerClignotement,           &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
     ui->ClesSSLLineEdit ->useselftextastooltip();
     QString dir = QDir::homePath();
     if (dir == "" || !QDir(dir).exists())
@@ -72,8 +73,8 @@ void dlg_paramconnexion::DossierClesSSL()
     if (url == QUrl())
         return;
     ui->ClesSSLLineEdit->setText(url.path());
-    QSettings m_settings    = QSettings(PATH_FILE_INI, QSettings::IniFormat);
-    m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
+    QSettings settings(PATH_FILE_INI, QSettings::IniFormat);
+    settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
     ui->ClesSSLLineEdit ->setImmediateToolTip(ui->ClesSSLLineEdit->text());
 }
 
@@ -111,7 +112,7 @@ void dlg_paramconnexion::HelpMsg()
     msgbox.setInformativeText(tr("Si vous venez d'installer MySQL sur ce poste et que vous voulez vous connecter,\n\n"
                               "Utilisez\n"
                               "1. le login de connexion que vous avez créé en paramètrant MySQL dans la fenêtre login,\n"
-                              "2. le mot de passe que vous avez créé en paramètrant MySQL"
+                              "2. le mot de passe que vous avez créé en paramètrant MySQL "
                               "dans la fenêtre mot de passe,\n"
                               "3. choisissez \"Sur ce poste\" dans la boîte \"emplacement du serveur\",\n"
                               "4. et \"3306\" dans la liste des ports.\n\n"
@@ -137,7 +138,9 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
     if (butt == ui->LocalradioButton)
     {
         QString AdressIP, MasqueReseauLocal;
-        foreach (const QHostAddress &address, QNetworkInterface::allAddresses()) {
+        //! On retient la dernière adresse IPv4 non-loopback de la machine.
+        const QList<QHostAddress> adresses = QNetworkInterface::allAddresses();
+        for (const QHostAddress &address : adresses) {
             if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
                  AdressIP = address.toString();
         }
@@ -191,7 +194,7 @@ bool dlg_paramconnexion::TestConnexion()
     if (!VerifFiche())
         return false;
 
-    Utils::ModeAcces mode= Utils::Poste;;
+    Utils::ModeAcces mode = Utils::Poste;
     if (ui->PosteradioButton->isChecked())           mode = Utils::Poste;
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
@@ -202,20 +205,19 @@ bool dlg_paramconnexion::TestConnexion()
         DataBase::I()->initParametresConnexionSQL(m_adresseserveur, ui->PortcomboBox->currentText().toInt());
         QString Login = ui->LoginlineEdit->text();
         QString Password = ui->MDPlineEdit->text();
-        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return 0;}
-        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return 0;}
+        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return false;}
+        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return false;}
         if (m_connectavecloginSQL)
         {
             Login = LOGIN_SQL;
             Password = MySQLInstaller::motDePasseSQL();
         }
-        QString error = "";
         //! La connexion MySQL passe TOUJOURS par le compte fixe adminrufus
         //! (motDePasseSQL() = mdp aléatoire du cabinet, repli legacy MDP_SQL).
         //! Les identifiants saisis (Login/Password) sont l'identité APPLICATIVE
         //! Rufus (table utilisateurs), pas un compte MySQL : plus de compte
         //! temporaire. Ils restent validés par verifExistUser() ci-dessous.
-        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+        QString error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
 
         if( error.size() )
         {
@@ -257,14 +259,13 @@ bool dlg_paramconnexion::TestConnexion()
         QString Password    = ui->MDPlineEdit->text();
         QString IP          = ui->IPlineEdit->text();
         QString DirSSL      = ui->ClesSSLLineEdit->text();
-        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));              ui->LoginlineEdit->setFocus(); return 0;}
-        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));             ui->MDPlineEdit->setFocus();   return 0;}
-        if ( IP.isEmpty() )       {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé l'adresse du serveur!"));           ui->IPlineEdit->setFocus();    return 0;}
+        if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));              ui->LoginlineEdit->setFocus(); return false;}
+        if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));             ui->MDPlineEdit->setFocus();   return false;}
+        if ( IP.isEmpty() )       {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé l'adresse du serveur!"));           ui->IPlineEdit->setFocus();    return false;}
         if (mode == Utils::Distant)
             if ( DirSSL.isEmpty() || !QDir(DirSSL).exists())
-                            {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  ui->IPlineEdit->setFocus();    return 0;}
-        QString error = "";
-        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+                            {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  ui->IPlineEdit->setFocus();    return false;}
+        QString error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
         if( error.size() )
         {
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),

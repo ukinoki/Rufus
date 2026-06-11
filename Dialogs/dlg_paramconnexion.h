@@ -36,6 +36,29 @@ namespace Ui {
 class dlg_paramconnexion;
 }
 
+/*! \brief Fenêtre de paramétrage de la connexion au serveur MySQL.
+ *
+ * Cette fiche est présentée au démarrage quand Rufus ne parvient pas à se
+ * connecter avec les paramètres enregistrés dans rufus.ini (premier lancement,
+ * fichier ini absent ou serveur injoignable). Elle existe en deux variantes
+ * (Rufus et RufusAdmin).
+ *
+ * L'utilisateur y renseigne :
+ *  - un identifiant et un mot de passe APPLICATIFS Rufus (table utilisateurs) ;
+ *  - le mode d'accès au serveur : « Sur ce poste » (monoposte / localhost),
+ *    « Réseau local » (IP du serveur du cabinet) ou « Distant » (accès par
+ *    internet, chiffrement SSL obligatoire) ;
+ *  - le port MySQL (3306 / 3307) et, en mode distant, le dossier des clés SSL.
+ *
+ * Le bouton « Tester » (Test) vérifie les paramètres sans fermer la fiche ;
+ * « OK » (Verif) les valide puis ferme la fiche si la connexion réussit. La
+ * connexion MySQL elle-même passe TOUJOURS par le compte fixe adminrufus
+ * (MySQLInstaller::motDePasseSQL) ; les identifiants saisis sont ensuite
+ * confrontés à la table utilisateurs (DataBase::verifExistUser).
+ *
+ * À la première connexion monoposte réussie, la base est sécurisée à la volée
+ * si elle est encore sur le mot de passe public (securiserBaseSiNecessaire).
+ */
 class dlg_paramconnexion : public QDialog
 {
     Q_OBJECT
@@ -45,20 +68,21 @@ public:
     Ui::dlg_paramconnexion *ui;
 
 private:
-    bool            m_visible =  true;
-    bool            m_connectavecloginSQL;
-    QString         m_IPaveczero = "";
-    QString         m_adresseserveur = "";
-    void            DossierClesSSL();
-    void            CalcIP(QString IP);
-    void            Clign();
-    void            HelpMsg();
-    void            MAJIP();
-    void            RegleAffichage(QRadioButton *butt);
-    void            Test();
-    void            Verif();
-    bool            VerifFiche();
-    bool            TestConnexion();
+    bool            m_visible =  true;              //!< état courant du clignotement de l'icône d'aide
+    bool            m_connectavecloginSQL;          //!< true : valider aussi l'identité applicative (table utilisateurs)
+    QString         m_IPaveczero = "";              //!< adresse du serveur normalisée avec des zéros de remplissage (000.000.000.000)
+    QString         m_adresseserveur = "";          //!< adresse effective utilisée pour la connexion (localhost ou IP)
+    QTimer          m_timerClignotement;            //!< fait clignoter l'icône d'aide ; membre pour survivre au constructeur
+    void            DossierClesSSL();               //!< choisit le dossier des clés SSL (accès distant) et le mémorise dans rufus.ini
+    void            CalcIP(QString IP);             //!< déduit m_adresseserveur / m_IPaveczero du mode d'accès et de l'IP saisie
+    void            Clign();                        //!< alterne l'icône d'aide (clignotement) à chaque tic du timer
+    void            HelpMsg();                       //!< affiche l'aide au paramétrage de MySQL
+    void            MAJIP();                        //!< recalcule et réaffiche l'IP normalisée après saisie
+    void            RegleAffichage(QRadioButton *butt); //!< adapte l'affichage (masque IP, messages) au mode d'accès choisi
+    void            Test();                         //!< teste les paramètres sans fermer la fiche (bouton « Tester »)
+    void            Verif();                        //!< valide les paramètres et ferme la fiche si la connexion réussit (bouton « OK »)
+    bool            VerifFiche();                   //!< contrôle que les champs obligatoires sont renseignés
+    bool            TestConnexion();                //!< tente la connexion MySQL et la validation du compte utilisateur
 };
 
 #endif // DLG_PARAMCONNEXION_H
