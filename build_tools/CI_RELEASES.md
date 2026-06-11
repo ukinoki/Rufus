@@ -8,16 +8,43 @@ release :
 |---|---|---|
 | Windows | `Rufus-<version>-Setup.exe` | `windeployqt` + **Inno Setup** (`build_tools/Windows/RufusVision.iss`) |
 | Linux | `Rufus-<version>-x86_64.AppImage` (auto-installante) | `linuxdeployqt` + `appimagetool` + `build_tools/Linux/AppRun` |
-| macOS | `Rufus-<version>.dmg` (**universel x86_64 + arm64**) | `macdeployqt` + `build_tools/macOS/create-rufus-dmg.sh` |
+| macOS | `Rufus-<version>.pkg` (**universel x86_64 + arm64**) | `macdeployqt` + `pkgbuild` + `build_tools/macOS/create-rufus-pkg.sh` |
 
-> **macOS — binaire universel obligatoire.** On ne fait PAS l'impasse sur les Macs
-> Intel. Le job tourne sur `macos-14` (Apple Silicon, runners bien plus disponibles
-> que `macos-13`) mais compile en **universel** via
+> **macOS — `.pkg` (et non `.dmg`).** On utilise un **`.pkg`** parce qu'il permet un
+> script **`preinstall`** (`build_tools/macOS/preinstall`) qui **contrôle le socle
+> MySQL AVANT toute copie** (cf. § « Pré-contrôle MySQL »). Un glisser-déposer `.dmg`
+> n'a aucun hook pré-install. *(L'ancien `create-rufus-dmg.sh` est conservé mais
+> n'est plus utilisé par la CI.)*
+>
+> **Binaire universel obligatoire** (Macs Intel **et** Apple Silicon). Le job tourne
+> sur `macos-14` (runners plus disponibles) mais compile en **universel** via
 > `qmake … "QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64"` (Qt macOS officiel est universel ;
-> la tranche x86_64 est cross-compilée). Le `.dmg` obtenu tourne sur Intel **et**
-> Apple Silicon. **macOS est aussi le plus simple à produire à la main** (`macdeployqt`
-> + 2 lignes `codesign` via `CODESIGN_ID`, cf. `create-rufus-dmg.sh`) : si les runners
-> macOS de la CI font défaut, le faire localement n'a rien de pénalisant.
+> la tranche x86_64 est cross-compilée). Signature optionnelle : `CODESIGN_ID`
+> (Developer ID **Application** → l'app) et `CODESIGN_INSTALLER_ID` (Developer ID
+> **Installer** → le `.pkg`).
+
+## Pré-contrôle MySQL (avant installation)
+
+Avant de remplacer un Rufus existant, **chaque installeur vérifie le socle MySQL**
+(≥ **8.0.14**, MariaDB exclu) — pour ne **jamais** détruire une installation qui
+marche si le serveur est trop ancien :
+
+- **Windows** : section `[Code]` d'Inno Setup (`InitializeSetup` → `Abort` si KO) ;
+- **Linux** : dans `AppRun`, avant l'intégration/lancement (zenity) ;
+- **macOS** : script `preinstall` du `.pkg` (osascript via `launchctl asuser`).
+
+Logique commune (`mysqld --version` « brutal ») :
+- réponse **≥ 8.0.14** → on continue (serveur local OK, monoposte) ;
+- réponse **< 8.0.14 / MariaDB** → message de migration (sauvegarde → upgrade →
+  restauration) → **install annulée** ;
+- **pas de réponse** (pas de MySQL local : 1ʳᵉ install ou client réseau) → **3
+  boutons** (1ʳᵉ install / « serveur ≥ 8.0.14, je certifie » / « version inconnue →
+  vérifier »). Le choix + la date sont tracés dans **`~/.rufus/.certif`** (valeur
+  légale : l'utilisateur a *attesté*).
+
+> À rôder sur installeurs réels : valeurs de retour de `TaskDialogMsgBox` (Inno),
+> affichage `osascript` depuis un script pkg (`launchctl asuser`), et chemin
+> `~/.rufus` côté installeur élevé (Windows `{userprofile}`, macOS console-user).
 
 ## Version
 

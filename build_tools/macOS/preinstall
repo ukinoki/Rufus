@@ -1,0 +1,86 @@
+#!/bin/bash
+# ─────────────────────────────────────────────────────────────────────────────
+#  preinstall du .pkg Rufus — PRÉ-CONTRÔLE du socle MySQL, AVANT toute copie.
+#  Un exit ≠ 0 annule l'installation → l'ancien Rufus n'est PAS remplacé.
+#  Règle : MySQL >= 8.0.14, MariaDB exclu. Trace dans ~/.rufus/.certif.
+#
+#  Particularité macOS : le script tourne en root dans le contexte de l'installeur
+#  (sans session graphique). On affiche les dialogues dans la session de
+#  l'utilisateur connecté via « launchctl asuser … osascript ».
+# ─────────────────────────────────────────────────────────────────────────────
+MIN_MAJOR=8; MIN_MINOR=0; MIN_PATCH=14
+
+CONSOLE_UID="$(stat -f%Su /dev/console 2>/dev/null)"
+CONSOLE_HOME="$(eval echo "~${CONSOLE_UID}" 2>/dev/null)"
+
+osa() {   # osascript dans la session de l'utilisateur connecté
+    launchctl asuser "$(id -u "${CONSOLE_UID}" 2>/dev/null)" osascript "$@" 2>/dev/null
+}
+
+ecrit_certif() {
+    local dir="${CONSOLE_HOME}/.rufus"
+    mkdir -p "${dir}" 2>/dev/null
+    printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${dir}/.certif" 2>/dev/null
+    chown -R "${CONSOLE_UID}" "${dir}" 2>/dev/null
+}
+
+# 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
+controle_mysql_local() {
+    local bin="" c out ver maj min pat
+    for c in mysqld /usr/local/mysql/bin/mysqld; do
+        if command -v "$c" >/dev/null 2>&1; then bin="$c"; break; fi
+        if [ -x "$c" ]; then bin="$c"; break; fi
+    done
+    [ -z "${bin}" ] && return 2
+    out="$("${bin}" --version 2>/dev/null)" || return 2
+    [ -z "${out}" ] && return 2
+    printf '%s' "${out}" | grep -qi mariadb && return 1
+    ver="$(printf '%s' "${out}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)"
+    [ -z "${ver}" ] && return 2
+    maj="${ver%%.*}"; min="${ver#*.}"; min="${min%%.*}"; pat="${ver##*.}"
+    [ "${maj}" -gt 8 ] && return 0
+    [ "${maj}" -lt 8 ] && return 1
+    [ "${min}" -gt 0 ] && return 0
+    [ "${pat}" -ge 14 ] && return 0
+    return 1
+}
+
+controle_mysql_local; ETAT=$?
+
+if [ "${ETAT}" -eq 0 ]; then
+    ecrit_certif "vérifié local : MySQL >= 8.0.14"
+    exit 0
+fi
+
+if [ "${ETAT}" -eq 1 ]; then
+    osa -e 'display dialog "Cette version de Rufus exige MySQL 8.0.14 ou supérieur (MariaDB non pris en charge).
+
+Votre serveur MySQL local est trop ancien.
+
+Avant d'\''installer : sauvegardez votre base (ancien Rufus) → mettez MySQL à jour vers 8.4.9 → restaurez, puis relancez cette installation." buttons {"Annuler l'\''installation"} default button 1 with title "MySQL trop ancien" with icon stop'
+    ecrit_certif "REFUS : MySQL local < 8.0.14 ou MariaDB"
+    exit 1
+fi
+
+# ETAT = 2 : pas de mysqld local → 1re install OU client réseau → 3 boutons
+CHOIX="$(osa -e 'try' \
+  -e 'set b to button returned of (display dialog "Cette version de Rufus exige un serveur MySQL >= 8.0.14 (MariaDB non pris en charge).
+
+Aucun MySQL local détecté. Quelle est votre situation ?" buttons {"Version inconnue", "Première installation", "Serveur >= 8.0.14"} default button 2 with title "Vérification du serveur MySQL")' \
+  -e 'return b' -e 'on error' -e 'return "CANCEL"' -e 'end try')"
+
+case "${CHOIX}" in
+  "Première installation")
+      ecrit_certif "1re installation (pas de MySQL local)"; exit 0 ;;
+  "Serveur >= 8.0.14")
+      ecrit_certif "CERTIFIÉ par l'utilisateur : serveur réseau >= 8.0.14"; exit 0 ;;
+  *)
+      osa -e 'display dialog "Sur le SERVEUR, vérifiez la version de MySQL :
+  •  mysqld --version
+  •  ou, dans MySQL : SELECT VERSION();
+Elle doit être >= 8.0.14 (et pas MariaDB).
+
+Relancez cette installation une fois la vérification faite. Votre version actuelle de Rufus n'\''a pas été modifiée." buttons {"OK"} default button 1 with title "Vérifiez votre serveur"'
+      ecrit_certif "ABANDON : version serveur inconnue, vérification demandée"
+      exit 1 ;;
+esac
