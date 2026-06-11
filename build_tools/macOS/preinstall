@@ -45,10 +45,14 @@ controle_mysql_local() {
     return 1
 }
 
+# Le contrôle ne se fait QU'EN cas de MISE À JOUR : si aucun Rufus n'est déjà présent
+# dans /Applications, c'est une installation NEUVE → rien à détruire → on installe.
+ls -d /Applications/Rufus*.app >/dev/null 2>&1 || exit 0
+
 controle_mysql_local; ETAT=$?
 
 if [ "${ETAT}" -eq 0 ]; then
-    ecrit_certif "vérifié local : MySQL >= 8.0.14"
+    ecrit_certif "MAJ - vérifié local : MySQL >= 8.0.14"
     exit 0
 fi
 
@@ -57,30 +61,28 @@ if [ "${ETAT}" -eq 1 ]; then
 
 Votre serveur MySQL local est trop ancien.
 
-Avant d'\''installer : sauvegardez votre base (ancien Rufus) → mettez MySQL à jour vers 8.4.9 → restaurez, puis relancez cette installation." buttons {"Annuler l'\''installation"} default button 1 with title "MySQL trop ancien" with icon stop'
-    ecrit_certif "REFUS : MySQL local < 8.0.14 ou MariaDB"
+Avant de mettre à jour : sauvegardez votre base (Rufus actuel) → mettez MySQL à jour vers 8.4.9 → restaurez, puis relancez cette mise à jour." buttons {"Annuler la mise à jour"} default button 1 with title "MySQL trop ancien" with icon stop'
+    ecrit_certif "REFUS (MAJ) : MySQL local < 8.0.14 ou MariaDB"
     exit 1
 fi
 
-# ETAT = 2 : pas de mysqld local → 1re install OU client réseau → 3 boutons
+# ETAT = 2 : pas de mysqld local → le Rufus existant est un CLIENT réseau → 2 boutons
 CHOIX="$(osa -e 'try' \
   -e 'set b to button returned of (display dialog "Cette version de Rufus exige un serveur MySQL >= 8.0.14 (MariaDB non pris en charge).
 
-Aucun MySQL local détecté. Quelle est votre situation ?" buttons {"Version inconnue", "Première installation", "Serveur >= 8.0.14"} default button 2 with title "Vérification du serveur MySQL")' \
+Aucun MySQL local détecté (ce poste se connecte à un serveur réseau). Quelle est votre situation ?" buttons {"Version inconnue", "Serveur >= 8.0.14"} default button 2 with title "Vérification du serveur MySQL")' \
   -e 'return b' -e 'on error' -e 'return "CANCEL"' -e 'end try')"
 
 case "${CHOIX}" in
-  "Première installation")
-      ecrit_certif "1re installation (pas de MySQL local)"; exit 0 ;;
   "Serveur >= 8.0.14")
-      ecrit_certif "CERTIFIÉ par l'utilisateur : serveur réseau >= 8.0.14"; exit 0 ;;
+      ecrit_certif "CERTIFIÉ par l'utilisateur (MAJ) : serveur réseau >= 8.0.14"; exit 0 ;;
   *)
       osa -e 'display dialog "Sur le SERVEUR, vérifiez la version de MySQL :
   •  mysqld --version
   •  ou, dans MySQL : SELECT VERSION();
 Elle doit être >= 8.0.14 (et pas MariaDB).
 
-Relancez cette installation une fois la vérification faite. Votre version actuelle de Rufus n'\''a pas été modifiée." buttons {"OK"} default button 1 with title "Vérifiez votre serveur"'
-      ecrit_certif "ABANDON : version serveur inconnue, vérification demandée"
+Relancez cette mise à jour une fois la vérification faite. Votre version actuelle de Rufus n'\''a pas été modifiée." buttons {"OK"} default button 1 with title "Vérifiez votre serveur"'
+      ecrit_certif "ABANDON (MAJ) : version serveur inconnue, vérification demandée"
       exit 1 ;;
 esac
