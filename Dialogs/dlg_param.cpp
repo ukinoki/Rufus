@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "icons.h"
 #include "ui_dlg_param.h"
 #include "utils.h"
+#include "mysqlinstaller.h"
 
 dlg_param::dlg_param(QWidget *parent) :
     QDialog(parent),
@@ -357,6 +358,8 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ParamMotifspushButton           ->setEnabled(false);
     ui->GestionBanquespushButton        ->setEnabled(false);
     ui->InitMDPAdminpushButton          ->setEnabled(false);
+    ui->RecupMDPMySQLpushButton         ->setEnabled(false);
+    ui->RecupMDPMySQLpushButton         ->setIcon(Icons::icPassword());
     ui->EmplacementServeurupComboBox    ->setEnabled(false);
 
     bool a,b,c;
@@ -1016,6 +1019,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ParamMotifspushButton           ->setEnabled(a);
         ui->InitMDPAdminpushButton          ->setEnabled(a);
         ui->GestionBanquespushButton        ->setEnabled(a);
+        ui->RecupMDPMySQLpushButton         ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
         EnableWidgContent(ui->BackupRestoreframe, db->ModeAccesDataBase() != Utils::Distant && a);
         EnableWidgContent(ui->Languagewidget, a);
@@ -1927,6 +1931,84 @@ void dlg_param::ModifMDPAdmin()
     dlg_askMDP->exec();
 }
 
+//! Affiche le mot de passe MySQL du cabinet pendant 30 secondes et propose de le
+//! recopier sur une clé USB. Protégé par une 2e saisie du mot de passe administrateur.
+void dlg_param::RecupererMdpMySQL()
+{
+    // 2e contrôle : on redemande le mot de passe administrateur avant de dévoiler le secret.
+    QString saisie;
+    if (!Utils::VerifMDP(proc->MDPAdmin(),
+                         tr("Confirmez le mot de passe administrateur pour afficher le mot de passe MySQL"),
+                         saisie, false, this))
+        return;
+
+    const QString mdpSQL = MySQLInstaller::motDePasseSQL();
+
+    UpDialog *dlg = new UpDialog(this);
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->setWindowModality(Qt::WindowModal);
+    dlg->setWindowTitle(tr("Mot de passe MySQL"));
+
+    UpLabel *labelInfo = new UpLabel();
+    labelInfo->setText(tr("Mot de passe de la base de données MySQL de ce cabinet.\n"
+                          "Notez-le en lieu sûr ou copiez-le sur une clé USB."));
+    dlg->dlglayout()->insertWidget(0, labelInfo);
+
+    UpLineEdit *champMDP = new UpLineEdit(dlg);
+    champMDP->setText(mdpSQL);
+    champMDP->setReadOnly(true);
+    champMDP->setAlignment(Qt::AlignCenter);
+    QFont police = champMDP->font();
+    police.setBold(true);
+    police.setPointSize(police.pointSize() + 4);
+    champMDP->setFont(police);
+    dlg->dlglayout()->insertWidget(1, champMDP);
+
+    UpLabel *labelCompte = new UpLabel();
+    dlg->dlglayout()->insertWidget(2, labelCompte);
+
+    // Bouton « Copier sur clé USB » ajouté à la rangée de boutons.
+    UpSmallButton *btnUSB = new UpSmallButton();
+    btnUSB->setText(tr("Copier sur clé USB"));
+    btnUSB->setIcon(Icons::icPassword());
+    dlg->AjouteWidgetLayButtons(btnUSB, false);
+    connect(btnUSB, &QPushButton::clicked, dlg, [=]() {
+        const QString dossier = QFileDialog::getExistingDirectory(
+                    dlg, tr("Choisissez la clé USB où copier le mot de passe"));
+        if (dossier.isEmpty())
+            return;
+        QFile f(dossier + "/rufus-mdp-mysql.txt");
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+            f.write(mdpSQL.toUtf8());
+            f.write("\n");
+            f.close();
+            UpMessageBox::Watch(dlg, tr("Mot de passe copié"),
+                                tr("Le mot de passe a été copié sur la clé USB."));
+        } else
+            UpMessageBox::Watch(dlg, tr("Échec de la copie"),
+                                tr("Impossible d'écrire sur cet emplacement."));
+    });
+
+    dlg->AjouteLayButtons(UpDialog::ButtonClose);
+
+    // Compte à rebours : la fenêtre se ferme d'elle-même au bout de 30 secondes
+    // pour ne pas laisser le secret affiché.
+    int reste = 30;
+    labelCompte->setText(tr("Cette fenêtre se fermera dans %1 secondes.").arg(reste));
+    QTimer *tic = new QTimer(dlg);
+    tic->setInterval(1000);
+    connect(tic, &QTimer::timeout, dlg, [=]() mutable {
+        if (--reste <= 0) {
+            dlg->close();
+            return;
+        }
+        labelCompte->setText(tr("Cette fenêtre se fermera dans %1 secondes.").arg(reste));
+    });
+    tic->start();
+
+    dlg->exec();
+}
+
 void dlg_param::ParamMotifs()
 {
     dlg_motifs *Dlg_motifs = new dlg_motifs(this);
@@ -2529,6 +2611,7 @@ void dlg_param::ConnectSignals()
 {
     connect(ui->FermepushButton,                    &QPushButton::clicked,                  this,   &dlg_param::FermepushButtonClicked);
     connect(ui->InitMDPAdminpushButton,             &QPushButton::clicked,                  this,   &dlg_param::ModifMDPAdmin);
+    connect(ui->RecupMDPMySQLpushButton,            &QPushButton::clicked,                  this,   &dlg_param::RecupererMdpMySQL);
     connect(ui->ChoixFontupPushButton,              &QPushButton::clicked,                  this,   &dlg_param::ChoixFontpushButtonClicked);
     connect(ui->PosteServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->PosteServcheckBox, a);});
     connect(ui->LocalServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->LocalServcheckBox, a);});
