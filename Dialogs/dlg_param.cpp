@@ -1938,7 +1938,7 @@ void dlg_param::RecupererMdpMySQL()
     // 2e contrôle : on redemande le mot de passe administrateur avant de dévoiler le secret.
     QString saisie;
     if (!Utils::VerifMDP(proc->MDPAdmin(),
-                         tr("Confirmez le mot de passe administrateur pour afficher le mot de passe MySQL"),
+                         tr("Saisissez le mot de passe administrateur"),
                          saisie, false, this))
         return;
 
@@ -1967,45 +1967,57 @@ void dlg_param::RecupererMdpMySQL()
     UpLabel *labelCompte = new UpLabel();
     dlg->dlglayout()->insertWidget(2, labelCompte);
 
+    // Compte à rebours : la fenêtre se ferme d'elle-même au bout de 30 secondes pour
+    // ne pas laisser le secret affiché. Le décompte est partagé (QSharedPointer) car
+    // le bouton USB doit pouvoir suspendre puis réarmer le timer.
+    QSharedPointer<int> reste = QSharedPointer<int>::create(30);
+    QTimer *tic = new QTimer(dlg);
+    tic->setInterval(1000);
+    auto majDecompte = [=]() { labelCompte->setText(tr("Cette fenêtre se fermera dans %1 secondes.").arg(*reste)); };
+    majDecompte();
+    connect(tic, &QTimer::timeout, dlg, [=]() {
+        if (--(*reste) <= 0) {
+            dlg->close();
+            return;
+        }
+        majDecompte();
+    });
+
     // Bouton « Copier sur clé USB » ajouté à la rangée de boutons.
     UpSmallButton *btnUSB = new UpSmallButton();
     btnUSB->setText(tr("Copier sur clé USB"));
     btnUSB->setIcon(Icons::icPassword());
     dlg->AjouteWidgetLayButtons(btnUSB, false);
     connect(btnUSB, &QPushButton::clicked, dlg, [=]() {
+        // On SUSPEND le décompte pendant le choix du dossier et l'écriture, pour
+        // éviter que la fenêtre ne se ferme en pleine copie.
+        tic->stop();
         const QString dossier = QFileDialog::getExistingDirectory(
                     dlg, tr("Choisissez la clé USB où copier le mot de passe"));
-        if (dossier.isEmpty())
-            return;
-        QFile f(dossier + "/rufus-mdp-mysql.txt");
-        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-            f.write(mdpSQL.toUtf8());
-            f.write("\n");
-            f.close();
-            UpMessageBox::Watch(dlg, tr("Mot de passe copié"),
-                                tr("Le mot de passe a été copié sur la clé USB."));
-        } else
-            UpMessageBox::Watch(dlg, tr("Échec de la copie"),
-                                tr("Impossible d'écrire sur cet emplacement."));
-    });
-
-    dlg->AjouteLayButtons(UpDialog::ButtonClose);
-
-    // Compte à rebours : la fenêtre se ferme d'elle-même au bout de 30 secondes
-    // pour ne pas laisser le secret affiché.
-    int reste = 30;
-    labelCompte->setText(tr("Cette fenêtre se fermera dans %1 secondes.").arg(reste));
-    QTimer *tic = new QTimer(dlg);
-    tic->setInterval(1000);
-    connect(tic, &QTimer::timeout, dlg, [=]() mutable {
-        if (--reste <= 0) {
-            dlg->close();
-            return;
+        if (!dossier.isEmpty()) {
+            QFile f(dossier + "/rufus-mdp-mysql.txt");
+            if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
+                f.write(mdpSQL.toUtf8());
+                f.write("\n");
+                f.close();
+                UpMessageBox::Watch(dlg, tr("Mot de passe copié"),
+                                    tr("Le mot de passe a été copié sur la clé USB."));
+            } else
+                UpMessageBox::Watch(dlg, tr("Échec de la copie"),
+                                    tr("Impossible d'écrire sur cet emplacement."));
         }
-        labelCompte->setText(tr("Cette fenêtre se fermera dans %1 secondes.").arg(reste));
+        // Copie terminée (ou annulée) : on réarme un décompte complet.
+        *reste = 30;
+        majDecompte();
+        tic->start();
     });
-    tic->start();
 
+    // Le bouton rouge de fermeture d'UpDialog n'est pas connecté par défaut
+    // (seul ButtonCancel l'est) : on le relie nous-mêmes à la fermeture.
+    dlg->AjouteLayButtons(UpDialog::ButtonClose);
+    connect(dlg->CloseButton, &QPushButton::clicked, dlg, &QDialog::accept);
+
+    tic->start();
     dlg->exec();
 }
 
