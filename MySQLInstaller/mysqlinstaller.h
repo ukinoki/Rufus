@@ -157,6 +157,16 @@ public:
     //  Stocke le mot de passe (clé Param_MDPSQL du rufus.ini).
     static void    stockerMotDePasse(const QString& mdp);
 
+    //  Sécurisation « à la volée » d'une base EXISTANTE connectée en monoposte.
+    //  Si .dbkey est absent (base encore sur le mot de passe public gaxt78iy), bascule
+    //  adminrufus/adminrufusSSL sur un mot de passe aléatoire en CONSERVANT gaxt78iy
+    //  comme 2e mot de passe (ALTER USER … RETAIN CURRENT PASSWORD) — pour ne bloquer
+    //  aucun autre poste si ce poste sert aussi de serveur —, puis écrit .dbkey.
+    //  No-op si : base déjà sécurisée (.dbkey présent), gaxt78iy inopérant, ou serveur
+    //  ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
+    //  À n'appeler qu'après une connexion MONOPOSTE réussie.
+    void    securiserBaseSiNecessaire();
+
     // Résultat de createUserAvecAdmin().
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };
 
