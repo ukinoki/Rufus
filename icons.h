@@ -256,6 +256,7 @@ public:
     static QIcon icPageHome() { return foundIC("icPageHome", "://home.png"); }
     static QIcon icPageRefresh() { return foundIC("icPageRefresh", "://button_blue_refresh.png"); }
     static QIcon icPassword() { return foundIC("icPassword", "://password.ico"); }
+    static QIcon icPasswordMySQL() { return foundIC("icPasswordMySQL", "://passwordmysql.ico"); }
     static QIcon icPdf() { return foundIC("icPdf", "://pdf.png"); }
     static QIcon icPhoto() { return foundIC("icPhoto", "://camera.png"); }
     static QIcon icPostit(QSize size = QSize()) { return foundIC("icPostit", "://Post-it.png", size); } //25

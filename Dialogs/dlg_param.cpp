@@ -359,7 +359,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->GestionBanquespushButton        ->setEnabled(false);
     ui->InitMDPAdminpushButton          ->setEnabled(false);
     ui->RecupMDPMySQLpushButton         ->setEnabled(false);
-    ui->RecupMDPMySQLpushButton         ->setIcon(Icons::icPassword());
+    ui->RecupMDPMySQLpushButton         ->setIcon(Icons::icPasswordMySQL());
     ui->EmplacementServeurupComboBox    ->setEnabled(false);
 
     bool a,b,c;
@@ -1986,7 +1986,7 @@ void dlg_param::RecupererMdpMySQL()
     // Bouton « Copier sur clé USB » ajouté à la rangée de boutons.
     UpSmallButton *btnUSB = new UpSmallButton();
     btnUSB->setText(tr("Copier sur clé USB"));
-    btnUSB->setIcon(Icons::icPassword());
+    btnUSB->setIcon(Icons::icPasswordMySQL());
     dlg->AjouteWidgetLayButtons(btnUSB, false);
     connect(btnUSB, &QPushButton::clicked, dlg, [=]() {
         // On SUSPEND le décompte pendant le choix du dossier et l'écriture, pour
