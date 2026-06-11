@@ -4052,7 +4052,7 @@ bool Procedures::PremierDemarrage()
     QString login (""), MDP("");
     if (protoc == BaseExistante)
     {
-        if (VerifParamConnexion(login, MDP, true))
+        if (VerifParamConnexion(true))
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
@@ -4277,8 +4277,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         if (m_settings != Q_NULLPTR)
             delete m_settings;
         m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        QString login(""), MDP ("");
-        if (VerifParamConnexion(login, MDP, true))
+        if (VerifParamConnexion(true))
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
             exit(0);
@@ -4292,7 +4291,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connectavecLoginSQL, bool OKAccesDistant)
+bool Procedures::VerifParamConnexion(bool connectavecLoginSQL, bool OKAccesDistant)
 {
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
@@ -4321,8 +4320,6 @@ bool Procedures::VerifParamConnexion(QString &login, QString &MDP, bool connecta
         m_settings->setValue(Base + Param_Port, Dlg_ParamConnex->ui->PortcomboBox->currentText());
 
         m_connexionbaseOK = true;
-        MDP = Dlg_ParamConnex->ui->MDPlineEdit->text();
-        login = Dlg_ParamConnex->ui->LoginlineEdit->text();
         if (dirSQLExecutable() == "")
         {
             UpMessageBox::Watch(nullptr, tr("Erreur de connexion"), tr("Impossible de trouver l'exécutable MySQL") + "\n" + tr("Le programme ne pourra pas s'intialiser"));
