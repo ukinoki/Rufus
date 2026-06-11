@@ -1988,7 +1988,7 @@ void dlg_param::RecupererMdpMySQL()
     // fenêtre. UpDialog ne connecte ni l'un ni l'autre par défaut (seul
     // ButtonCancel l'est) : on les relie nous-mêmes.
     dlg->AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonClose);
-    dlg->RecordButton->setText(tr("Copier sur clé USB"));
+    dlg->RecordButton->setImmediateToolTip(tr("Copier sur une clé USB"));
     connect(dlg->RecordButton, &QPushButton::clicked, dlg, [=]() {
         // On SUSPEND le décompte pendant le choix du dossier et l'écriture, pour
         // éviter que la fenêtre ne se ferme en pleine copie.
