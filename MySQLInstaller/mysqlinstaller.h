@@ -90,6 +90,10 @@ public:
     void configurerVerifyAdminMySQL();
     //  Saisie du futur utilisateur applicatif Rufus (2e étape, après config).
     void configurerNewUserRufus();
+    //  Bascule la fiche en mode « paramétrage en cours » : titre dédié, champs
+    //  login/mdp désactivés (déjà choisis) et boutons OK/Annuler masqués — la
+    //  séquence de configuration se déroule alors sans aucun clic à faire.
+    void passerEnConfiguration(const QString& titre, const QString& sousTitre);
 
     // ── Saisie ───────────────────────────────────────────────────────────────
     QString login() const;                          // texte courant du champ login
