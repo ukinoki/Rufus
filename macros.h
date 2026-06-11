@@ -988,8 +988,12 @@ public:
 //! un peu plus à l'abri d'une suppression accidentelle. cf MySQLInstaller.
 #define NOM_DIR_RUFUSKEY                        "/.rufus"
 #define NOM_FILE_DBKEY                          "/.dbkey"
+#define NOM_FILE_INI_BACKUP                     "/.rufus.ini"
 #define PATH_DIR_RUFUSKEY                       QDir::homePath() + NOM_DIR_RUFUSKEY
 #define PATH_FILE_DBKEY                         PATH_DIR_RUFUSKEY NOM_FILE_DBKEY
+//! Sauvegarde silencieuse de Rufus.ini, dans le dossier caché ~/.rufus (qui survit à
+//! la suppression de ~/Documents/Rufus). Écrite à chaque fermeture, restaurée par VerifIni().
+#define PATH_FILE_INI_BACKUP                   PATH_DIR_RUFUSKEY NOM_FILE_INI_BACKUP
 #define PATH_FILE_SCRIPTBACKUP                  PATH_DIR_RUFUS NOM_FILE_SCRIPTBACKUP
 #define PATH_FILE_SCRIPT_MACOS_PLIST            "/Library/LaunchAgents" NOM_FILE_SCRIPT_MACOS_PLIST
 #define PATH_FILE_XMLAUTOREF                    PATH_DIR_AUTOREF NOM_FILE_XMLAUTOREF

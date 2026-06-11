@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "rufus.h"
+#include "procedures.h"
 #include <QApplication>
 #include <QTranslator>
 
@@ -72,5 +73,7 @@ int main(int argc, char *argv[])
     w.setApp(&app, &translator); // For dynamic translations
     w.show();
 
-    return app.exec();
+    const int ret = app.exec();
+    Procedures::SauvegardeIni();   //! sauvegarde silencieuse de Rufus.ini à la fermeture (restaurable dans VerifIni)
+    return ret;
 }

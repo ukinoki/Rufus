@@ -4225,6 +4225,19 @@ void Procedures::PremierParametrageMateriel()
 /*------------------------------------------------------------------------------------------------------------------------------------
 -- Vérifie la présence et la cohérence du fchier d'initialisation et le reconstruit au besoin ----------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------*/
+//! Sauvegarde silencieuse de Rufus.ini dans le dossier caché ~/.rufus (PATH_FILE_INI_BACKUP),
+//! appelée à chaque fermeture de Rufus. Comme personne ne pense à sauvegarder ce fichier,
+//! Rufus s'en charge : VerifIni() pourra le restaurer si l'original est perdu. No-op si
+//! Rufus.ini n'existe pas (rien à sauvegarder).
+void Procedures::SauvegardeIni()
+{
+    if (!QFile::exists(PATH_FILE_INI))
+        return;
+    QDir().mkpath(PATH_DIR_RUFUSKEY);             // ~/.rufus (créé au besoin)
+    QFile::remove(PATH_FILE_INI_BACKUP);          // QFile::copy n'écrase pas une cible existante
+    QFile::copy(PATH_FILE_INI, PATH_FILE_INI_BACKUP);
+}
+
 bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
@@ -4251,21 +4264,34 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
     }
     else if (msgbox->clickedButton()==&RecupIniBouton)
     {
-        QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
-        dialog.setViewMode(QFileDialog::List);
-        dialog.setFileMode(QFileDialog::ExistingFile);
-        if (dialog.exec() == QDialog::Accepted)
+        //! Cas courant : restauration depuis la sauvegarde AUTOMATIQUE écrite à chaque
+        //! fermeture (~/.rufus/.rufus.ini). Repli : si elle n'existe pas (jamais lancé
+        //! avec cette version, ou dossier ~/.rufus effacé), on laisse choisir un fichier.
+        QString source;
+        if (QFile::exists(PATH_FILE_INI_BACKUP))
+            source = PATH_FILE_INI_BACKUP;
+        else
+        {
+            QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
+            dialog.setViewMode(QFileDialog::List);
+            dialog.setFileMode(QFileDialog::ExistingFile);
+            if (dialog.exec() == QDialog::Accepted)
+                source = dialog.selectedFiles().at(0);
+        }
+        if (!source.isEmpty())
         {
             QFile FichierIni(PATH_FILE_INI);
             if (FichierIni.exists())
                 Utils::removeWithoutPermissions(FichierIni);
-            QString fileini = dialog.selectedFiles().at(0);
-            QFile rufusini(fileini);
+            QFile rufusini(source);
             Utils::copyWithPermissions(rufusini, PATH_FILE_INI);
-            if (m_settings != Q_NULLPTR)
-                delete m_settings;
-            m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-            reponse = true;
+            //! Fichier restauré : on relance Rufus pour qu'il reparte proprement du
+            //! Rufus.ini retrouvé (l'initialisation a déjà supposé son absence).
+            UpMessageBox::Watch(Q_NULLPTR, tr("Fichier d'initialisation restauré"),
+                                tr("Le fichier d'initialisation a été restauré à partir de la sauvegarde.\n"
+                                   "Rufus va redémarrer."));
+            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+            exit(0);
         }
     }
     else if (msgbox->clickedButton()==&ReconstruitIniBouton)

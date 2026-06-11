@@ -119,6 +119,7 @@ private:
     bool                    VerifParamConnexion(bool connectavecLoginSL = false,        //! true = on utilise le login-mdp du connecteur unique pour se connecter à la base - false on utilise login-mdp du user
                                                 bool OKAccesDistant = true);            //! true =  le choix accès distant est validé ou non
 public:
+    static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque fermeture) pour pouvoir le restaurer dans VerifIni()
     void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     QString                 dirSQLExecutable();                                         /*! le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     void                    setDirSSLKeys();                                            /*! fixe le chemin vers le dossier des clés SSL */
