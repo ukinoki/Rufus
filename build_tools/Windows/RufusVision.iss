@@ -132,14 +132,32 @@ begin
     GetDateTimeString('yyyy-mm-dd hh:nn', '-', ':') + ' | ' + Ligne + #13#10, True);
 end;
 
+// Un Rufus est-il DÉJÀ installé sur ce poste ? (clé de désinstallation Inno de notre
+// AppId, ou Rufus.exe à l'emplacement par défaut). Le contrôle MySQL ne se fait QU'EN
+// cas de MAJ : en installation neuve il n'y a rien à détruire, donc rien à vérifier.
+function RufusDejaInstalle(): Boolean;
+const KEY = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{BB737C7D-1DA8-4BB2-9950-DA8781E50453}_is1';
+begin
+  Result := FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}'))
+         or RegKeyExists(HKLM64, KEY) or RegKeyExists(HKLM32, KEY)
+         or RegKeyExists(HKCU64, KEY) or RegKeyExists(HKCU32, KEY);
+end;
+
 // True = on continue l'installation ; False = on l'abandonne (ancien Rufus intact).
 function InitializeSetup(): Boolean;
 var etat, btn: Integer;
 begin
+  // Installation NEUVE (aucun Rufus préexistant) : rien à détruire → on n'importune
+  // pas l'utilisateur, on installe directement.
+  if not RufusDejaInstalle() then begin
+    Result := True; Exit;
+  end;
+
+  // MISE À JOUR d'un Rufus existant : on protège l'installation qui marche.
   etat := ControleMySQLLocal();
 
   if etat = 0 then begin
-    EcritCertif('vérifié local : MySQL >= 8.0.14');
+    EcritCertif('MAJ - vérifié local : MySQL >= 8.0.14');
     Result := True; Exit;
   end;
 
@@ -147,41 +165,40 @@ begin
     MsgBox('Cette version de Rufus exige MySQL 8.0.14 ou supérieur, et n''est pas '
       + 'compatible avec MariaDB.' + #13#10#13#10
       + 'Votre serveur MySQL local est trop ancien (ou est MariaDB).' + #13#10#13#10
-      + 'Marche à suivre AVANT d''installer cette version :' + #13#10
-      + '  1. Ouvrez votre ancien Rufus et SAUVEGARDEZ votre base ;' + #13#10
+      + 'Marche à suivre AVANT de mettre à jour :' + #13#10
+      + '  1. Ouvrez votre Rufus actuel et SAUVEGARDEZ votre base ;' + #13#10
       + '  2. mettez MySQL à jour vers 8.4.9 (ou réinstallez proprement) ;' + #13#10
-      + '  3. restaurez votre sauvegarde, puis relancez cette installation.' + #13#10#13#10
-      + 'Installation annulée : votre version actuelle de Rufus n''a pas été modifiée.',
+      + '  3. restaurez votre sauvegarde, puis relancez cette mise à jour.' + #13#10#13#10
+      + 'Mise à jour annulée : votre version actuelle de Rufus n''a pas été modifiée.',
       mbCriticalError, MB_OK);
-    EcritCertif('REFUS : MySQL local < 8.0.14 ou MariaDB');
+    EcritCertif('REFUS (MAJ) : MySQL local < 8.0.14 ou MariaDB');
     Result := False; Exit;
   end;
 
-  // etat = 2 : pas de MySQL local -> 1re install OU client réseau -> 3 boutons.
+  // etat = 2 : pas de MySQL local → le Rufus existant est un CLIENT réseau → 2 boutons.
   btn := TaskDialogMsgBox(
     'Vérification de votre serveur MySQL',
     'Cette version de Rufus exige un serveur MySQL 8.0.14 ou supérieur '
       + '(MariaDB non pris en charge).' + #13#10#13#10
-      + 'Aucun MySQL n''a été détecté sur cet ordinateur. Indiquez votre situation :',
+      + 'Aucun MySQL n''a été détecté sur cet ordinateur (ce poste se connecte donc à '
+      + 'un serveur réseau). Indiquez votre situation :',
     mbInformation, 0,
-    ['C''est normal : j''installe Rufus pour la PREMIÈRE fois',
-     'Ce poste se connecte à un SERVEUR réseau dont la version est >= 8.0.14 (je le certifie)',
-     'Connexion réseau, mais j''IGNORE la version du serveur'], 0);
+    ['Le serveur réseau est en version >= 8.0.14 (je le certifie)',
+     'J''IGNORE la version du serveur'], 0);
 
-  case btn of
-    100: begin EcritCertif('1re installation (pas de MySQL local)'); Result := True; end;
-    101: begin EcritCertif('CERTIFIÉ par l''utilisateur : serveur réseau >= 8.0.14'); Result := True; end;
-  else
-    // 102 (version inconnue) ou fenêtre fermée : on guide et on ABANDONNE.
-    MsgBox('Avant d''installer cette version, vérifiez la version de MySQL sur votre '
-      + 'SERVEUR :' + #13#10
+  if btn = 100 then begin
+    EcritCertif('CERTIFIÉ par l''utilisateur (MAJ) : serveur réseau >= 8.0.14');
+    Result := True;
+  end else begin
+    // 101 (version inconnue) ou fenêtre fermée : on guide et on ABANDONNE.
+    MsgBox('Avant de mettre à jour, vérifiez la version de MySQL sur votre SERVEUR :' + #13#10
       + '  • sur le serveur, ouvrez une invite de commandes et tapez : mysqld --version' + #13#10
       + '  • ou dans MySQL Workbench : SELECT VERSION();' + #13#10#13#10
       + 'Elle doit être >= 8.0.14 (et ne pas être MariaDB).' + #13#10#13#10
-      + 'Relancez cette installation une fois la vérification faite. '
+      + 'Relancez cette mise à jour une fois la vérification faite. '
       + 'Votre version actuelle de Rufus n''a pas été modifiée.',
       mbInformation, MB_OK);
-    EcritCertif('ABANDON : version serveur inconnue, vérification demandée');
+    EcritCertif('ABANDON (MAJ) : version serveur inconnue, vérification demandée');
     Result := False;
   end;
 end;

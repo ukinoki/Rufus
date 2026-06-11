@@ -25,15 +25,23 @@ ICONS_DIR="${HOME}/.local/share/icons/hicolor/256x256/apps"
 BIN_DIR="${HOME}/.local/bin"
 DESKTOP="${APPS_DIR}/rufus.desktop"
 
-# ── Pré-contrôle du socle MySQL ──────────────────────────────────────────────
-#  Règle : MySQL >= 8.0.14, MariaDB exclu. Fait AVANT toute intégration/lancement,
-#  donc une AppImage incompatible ne s'installe pas. Trace dans ~/.rufus/.certif.
+# ── Pré-contrôle du socle MySQL (UNIQUEMENT en cas de MISE À JOUR) ────────────
+#  Règle : MySQL >= 8.0.14, MariaDB exclu. On ne contrôle que si un Rufus PRÉEXISTE
+#  (sinon, install neuve = rien à détruire = pas de contrôle). Trace ~/.rufus/.certif.
 RUFUS_DIR="${HOME}/.rufus"
 CERTIF="${RUFUS_DIR}/.certif"
+INSTALLED_APPIMAGE="${BIN_DIR}/${APPNAME}.AppImage"
 
 ecrit_certif() {
     mkdir -p "${RUFUS_DIR}" 2>/dev/null
     printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${CERTIF}" 2>/dev/null
+}
+
+# Un Rufus est-il déjà installé/utilisé ici ? (raccourci menu, AppImage installée,
+# ou config rufus.ini d'une utilisation antérieure)
+rufus_preexistant() {
+    [ -f "${DESKTOP}" ] || [ -f "${INSTALLED_APPIMAGE}" ] \
+        || [ -f "${HOME}/Documents/Rufus/rufus.ini" ]
 }
 
 # 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
@@ -58,36 +66,36 @@ socle_mysql_ok() {
 
     controle_mysql_local; local e=$?
 
-    if [ "${e}" -eq 0 ]; then ecrit_certif "vérifié local : MySQL >= 8.0.14"; return 0; fi
+    if [ "${e}" -eq 0 ]; then ecrit_certif "MAJ - vérifié local : MySQL >= 8.0.14"; return 0; fi
 
     if [ "${e}" -eq 1 ]; then
         command -v zenity >/dev/null 2>&1 && zenity --error --no-wrap \
           --title="MySQL trop ancien" \
-          --text="Cette version de Rufus exige MySQL 8.0.14 ou supérieur (MariaDB non pris en charge).\n\nVotre serveur MySQL local est trop ancien.\n\nAvant d'installer : sauvegardez votre base (ancien Rufus) → mettez MySQL à jour vers 8.x → restaurez, puis relancez." 2>/dev/null
-        ecrit_certif "REFUS : MySQL local < 8.0.14 ou MariaDB"
+          --text="Cette version de Rufus exige MySQL 8.0.14 ou supérieur (MariaDB non pris en charge).\n\nVotre serveur MySQL local est trop ancien.\n\nAvant de mettre à jour : sauvegardez votre base (Rufus actuel) → mettez MySQL à jour vers 8.x → restaurez, puis relancez." 2>/dev/null
+        ecrit_certif "REFUS (MAJ) : MySQL local < 8.0.14 ou MariaDB"
         return 1
     fi
 
-    # e = 2 : pas de mysqld local → 1re install OU client réseau
+    # e = 2 : pas de mysqld local → le Rufus existant est un CLIENT réseau → 2 boutons
     command -v zenity >/dev/null 2>&1 || { ecrit_certif "pas de mysqld local, zenity absent : laissé passer"; return 0; }
-    local out
-    out="$(zenity --question --no-wrap --title="Vérification du serveur MySQL" \
-        --text="Cette version de Rufus exige un serveur MySQL >= 8.0.14 (MariaDB non pris en charge).\n\nAucun MySQL local détecté. Quelle est votre situation ?" \
-        --ok-label="Première installation de Rufus" \
-        --extra-button="Serveur réseau >= 8.0.14 (je certifie)" \
-        --cancel-label="Version inconnue — vérifier d'abord" 2>/dev/null)"
-    if [ $? -eq 0 ]; then ecrit_certif "1re installation (pas de MySQL local)"; return 0; fi
-    if [ "${out}" = "Serveur réseau >= 8.0.14 (je certifie)" ]; then
-        ecrit_certif "CERTIFIÉ par l'utilisateur : serveur réseau >= 8.0.14"; return 0; fi
+    if zenity --question --no-wrap --title="Vérification du serveur MySQL" \
+        --text="Cette version de Rufus exige un serveur MySQL >= 8.0.14 (MariaDB non pris en charge).\n\nAucun MySQL local détecté (ce poste se connecte donc à un serveur réseau)." \
+        --ok-label="Le serveur est en >= 8.0.14 (je certifie)" \
+        --cancel-label="J'ignore la version — vérifier d'abord" 2>/dev/null; then
+        ecrit_certif "CERTIFIÉ par l'utilisateur (MAJ) : serveur réseau >= 8.0.14"
+        return 0
+    fi
     zenity --info --no-wrap --title="Vérifiez votre serveur" \
         --text="Sur le SERVEUR, vérifiez la version de MySQL :\n  • mysqld --version\n  • ou, dans MySQL : SELECT VERSION();\nElle doit être >= 8.0.14 (et pas MariaDB).\n\nRelancez Rufus une fois la vérification faite." 2>/dev/null
-    ecrit_certif "ABANDON : version serveur inconnue, vérification demandée"
+    ecrit_certif "ABANDON (MAJ) : version serveur inconnue, vérification demandée"
     return 1
 }
 
-# On ne contrôle qu'à la « première » exécution (avant intégration au menu) : une
-# fois Rufus installé (.desktop présent), on ne ré-interroge plus à chaque lancement.
-if [ ! -f "${DESKTOP}" ] && [ -n "${APPIMAGE}" ]; then
+# On ne contrôle qu'en cas de MISE À JOUR : un Rufus préexiste ET on lance une
+# AppImage AUTRE que celle déjà installée (= une nouvelle version qu'on démarre).
+# Lancement normal depuis le menu (AppImage installée) → pas de contrôle, pas de
+# question. Installation neuve (aucun Rufus préexistant) → pas de contrôle non plus.
+if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && rufus_preexistant; then
     socle_mysql_ok || exit 1
 fi
 
