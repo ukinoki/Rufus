@@ -211,19 +211,19 @@ jobs:
           qmake RufusQt6.pro CONFIG+=release "QMAKE_APPLE_DEVICE_ARCHS=x86_64 arm64"
           make -j"$(sysctl -n hw.ncpu)"
 
-      - name: Construire le dmg
+      - name: Construire le pkg (avec pré-contrôle MySQL)
         run: |
           set -e
-          chmod +x build_tools/macOS/create-rufus-dmg.sh
+          chmod +x build_tools/macOS/create-rufus-pkg.sh build_tools/macOS/preinstall
           APP=$(find . -maxdepth 3 -type d -name '*.app' | head -n1)
           echo "Bundle : $APP"
-          build_tools/macOS/create-rufus-dmg.sh "$APP" \
+          build_tools/macOS/create-rufus-pkg.sh "$APP" \
             '${{ needs.version.outputs.version }}' "$GITHUB_WORKSPACE"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: Rufus-macOS-dmg
-          path: 'Rufus-*.dmg'
+          name: Rufus-macOS-pkg
+          path: 'Rufus-*.pkg'
 
   # ───────────────────────────────────────────────────────────────────────────
   #  Publication : uniquement sur tag « v* » → Release GitHub avec les 3 paquets.

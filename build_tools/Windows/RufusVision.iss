@@ -58,3 +58,130 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+
+; ─────────────────────────────────────────────────────────────────────────────
+;  PRÉ-CONTRÔLE MySQL (avant TOUTE installation : on ne touche pas à l'ancien
+;  Rufus tant que le socle MySQL n'est pas validé).
+;  Règle : MySQL >= 8.0.14 et PAS MariaDB. mysqld --version est « brutal » :
+;   • répond >= 8.0.14      -> serveur local OK (install/MAJ monoposte) -> on continue
+;   • répond < 8.0.14/Maria -> message de migration -> on ABANDONNE l'install
+;   • ne répond pas         -> pas de MySQL local : 1re install OU client réseau
+;                              -> 3 boutons (dont certification = trace légale .certif)
+; ─────────────────────────────────────────────────────────────────────────────
+[Code]
+const
+  MIN_MAJOR = 8; MIN_MINOR = 0; MIN_PATCH = 14;
+
+function LitSortie(const Cmd: String; var Output: String): Boolean;
+var TmpFile: String; Code: Integer; A: AnsiString;
+begin
+  Result := False; Output := '';
+  TmpFile := ExpandConstant('{tmp}\rufus_mysqld.txt');
+  if Exec(ExpandConstant('{cmd}'), '/C ' + Cmd + ' > "' + TmpFile + '" 2>&1', '',
+          SW_HIDE, ewWaitUntilTerminated, Code) then
+    if LoadStringFromFile(TmpFile, A) then begin Output := String(A); Result := True; end;
+  DeleteFile(TmpFile);
+end;
+
+// Extrait le 1er "entier.entier.entier" trouvé à partir de la position P.
+function ExtraitVersion(const S: String; var Maj, Min, Pat: Integer): Boolean;
+var i, n, val, champ: Integer; c: Char;
+begin
+  Result := False; Maj := 0; Min := 0; Pat := 0; champ := 0; val := 0; n := 0;
+  for i := 1 to Length(S) do begin
+    c := S[i];
+    if (c >= '0') and (c <= '9') then begin val := val*10 + (Ord(c)-Ord('0')); n := n+1; end
+    else if (c = '.') and (n > 0) then begin
+      if champ = 0 then Maj := val else if champ = 1 then Min := val;
+      champ := champ+1; val := 0; n := 0;
+      if champ > 2 then Break;
+    end else begin
+      if n > 0 then begin
+        if champ = 2 then begin Pat := val; Result := True; Exit; end;
+        // séquence d'entiers incomplète : on réinitialise
+        champ := 0; val := 0; n := 0;
+      end;
+    end;
+  end;
+  if (champ = 2) and (n > 0) then begin Pat := val; Result := True; end;
+end;
+
+// 0 = OK (>=8.0.14 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
+function ControleMySQLLocal(): Integer;
+var Out: String; Maj, Min, Pat: Integer;
+begin
+  Result := 2;
+  if not LitSortie('mysqld --version', Out) then Exit;
+  if Trim(Out) = '' then Exit;
+  if Pos('mariadb', Lowercase(Out)) > 0 then begin Result := 1; Exit; end;
+  if not ExtraitVersion(Out, Maj, Min, Pat) then Exit;   // version illisible -> traiter comme absent
+  if (Maj > MIN_MAJOR)
+     or ((Maj = MIN_MAJOR) and (Min > MIN_MINOR))
+     or ((Maj = MIN_MAJOR) and (Min = MIN_MINOR) and (Pat >= MIN_PATCH)) then
+    Result := 0
+  else
+    Result := 1;
+end;
+
+procedure EcritCertif(const Ligne: String);
+var Dir: String;
+begin
+  Dir := ExpandConstant('{userprofile}\.rufus');
+  ForceDirectories(Dir);
+  SaveStringToFile(Dir + '\.certif',
+    GetDateTimeString('yyyy-mm-dd hh:nn', '-', ':') + ' | ' + Ligne + #13#10, True);
+end;
+
+// True = on continue l'installation ; False = on l'abandonne (ancien Rufus intact).
+function InitializeSetup(): Boolean;
+var etat, btn: Integer;
+begin
+  etat := ControleMySQLLocal();
+
+  if etat = 0 then begin
+    EcritCertif('vérifié local : MySQL >= 8.0.14');
+    Result := True; Exit;
+  end;
+
+  if etat = 1 then begin
+    MsgBox('Cette version de Rufus exige MySQL 8.0.14 ou supérieur, et n''est pas '
+      + 'compatible avec MariaDB.' + #13#10#13#10
+      + 'Votre serveur MySQL local est trop ancien (ou est MariaDB).' + #13#10#13#10
+      + 'Marche à suivre AVANT d''installer cette version :' + #13#10
+      + '  1. Ouvrez votre ancien Rufus et SAUVEGARDEZ votre base ;' + #13#10
+      + '  2. mettez MySQL à jour vers 8.4.9 (ou réinstallez proprement) ;' + #13#10
+      + '  3. restaurez votre sauvegarde, puis relancez cette installation.' + #13#10#13#10
+      + 'Installation annulée : votre version actuelle de Rufus n''a pas été modifiée.',
+      mbCriticalError, MB_OK);
+    EcritCertif('REFUS : MySQL local < 8.0.14 ou MariaDB');
+    Result := False; Exit;
+  end;
+
+  // etat = 2 : pas de MySQL local -> 1re install OU client réseau -> 3 boutons.
+  btn := TaskDialogMsgBox(
+    'Vérification de votre serveur MySQL',
+    'Cette version de Rufus exige un serveur MySQL 8.0.14 ou supérieur '
+      + '(MariaDB non pris en charge).' + #13#10#13#10
+      + 'Aucun MySQL n''a été détecté sur cet ordinateur. Indiquez votre situation :',
+    mbInformation, 0,
+    ['C''est normal : j''installe Rufus pour la PREMIÈRE fois',
+     'Ce poste se connecte à un SERVEUR réseau dont la version est >= 8.0.14 (je le certifie)',
+     'Connexion réseau, mais j''IGNORE la version du serveur'], 0);
+
+  case btn of
+    100: begin EcritCertif('1re installation (pas de MySQL local)'); Result := True; end;
+    101: begin EcritCertif('CERTIFIÉ par l''utilisateur : serveur réseau >= 8.0.14'); Result := True; end;
+  else
+    // 102 (version inconnue) ou fenêtre fermée : on guide et on ABANDONNE.
+    MsgBox('Avant d''installer cette version, vérifiez la version de MySQL sur votre '
+      + 'SERVEUR :' + #13#10
+      + '  • sur le serveur, ouvrez une invite de commandes et tapez : mysqld --version' + #13#10
+      + '  • ou dans MySQL Workbench : SELECT VERSION();' + #13#10#13#10
+      + 'Elle doit être >= 8.0.14 (et ne pas être MariaDB).' + #13#10#13#10
+      + 'Relancez cette installation une fois la vérification faite. '
+      + 'Votre version actuelle de Rufus n''a pas été modifiée.',
+      mbInformation, MB_OK);
+    EcritCertif('ABANDON : version serveur inconnue, vérification demandée');
+    Result := False;
+  end;
+end;
