@@ -68,15 +68,11 @@ public:
     Ui::dlg_paramconnexion *ui;
 
 private:
-    bool            m_visible =  true;              //!< état courant du clignotement de l'icône d'aide
     bool            m_connectavecloginSQL;          //!< true : valider aussi l'identité applicative (table utilisateurs)
     QString         m_IPaveczero = "";              //!< adresse du serveur normalisée avec des zéros de remplissage (000.000.000.000)
     QString         m_adresseserveur = "";          //!< adresse effective utilisée pour la connexion (localhost ou IP)
-    QTimer          m_timerClignotement;            //!< fait clignoter l'icône d'aide ; membre pour survivre au constructeur
     void            DossierClesSSL();               //!< choisit le dossier des clés SSL (accès distant) et le mémorise dans rufus.ini
     void            CalcIP(QString IP);             //!< déduit m_adresseserveur / m_IPaveczero du mode d'accès et de l'IP saisie
-    void            Clign();                        //!< alterne l'icône d'aide (clignotement) à chaque tic du timer
-    void            HelpMsg();                       //!< affiche l'aide au paramétrage de MySQL
     void            MAJIP();                        //!< recalcule et réaffiche l'IP normalisée après saisie
     void            RegleAffichage(QRadioButton *butt); //!< adapte l'affichage (masque IP, messages) au mode d'accès choisi
     void            Test();                         //!< teste les paramètres sans fermer la fiche (bouton « Tester »)

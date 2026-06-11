@@ -31,17 +31,13 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     ui->DistantradioButton  ->setVisible(OKAccesDistant);
     ui->LocalradioButton    ->setVisible(OKAccesDistant);
     ui->PosteradioButton    ->setChecked(!OKAccesDistant);
-    ui->HelpupPushButton    ->setIconSize(QSize(50,50));
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
-    //! Le timer est un MEMBRE (m_timerClignotement) : une variable locale serait
-    //! détruite à la fin du constructeur et le clignotement ne se ferait jamais.
-    m_timerClignotement.start(500);
+
     ui->LoginlineEdit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
 
     connect(ui->AnnuluppushButton,          &QPushButton::clicked,          this,   &QDialog::reject);
-    connect(ui->HelpupPushButton,           &QPushButton::clicked,          this,   &dlg_paramconnexion::HelpMsg);
     connect(ui->OKuppushButton,             &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
     connect(ui->TestuppushButton,           &QPushButton::clicked,          this,   &dlg_paramconnexion::Test);
     connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->LocalradioButton);});
@@ -50,7 +46,6 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     connect(ui->IPlineEdit,                 &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
     connect(ui->ClesSSLuppushButton,        &QPushButton::clicked,          this,   &dlg_paramconnexion::DossierClesSSL);
 
-    connect(&m_timerClignotement,           &QTimer::timeout,               this,   &dlg_paramconnexion::Clign);
     ui->ClesSSLLineEdit ->useselftextastooltip();
     QString dir = QDir::homePath();
     if (dir == "" || !QDir(dir).exists())
@@ -93,35 +88,6 @@ void dlg_paramconnexion::CalcIP(QString IP)
         m_IPaveczero        = Utils::calcIP(IP, true);
         m_adresseserveur    = Utils::calcIP(IP);
     }
-}
-
-void dlg_paramconnexion::Clign()
-{
-    m_visible = !m_visible;
-    if (m_visible)
-        ui->HelpupPushButton->setIcon(Icons::icHelp());
-    else
-        ui->HelpupPushButton->setIcon(Icons::icNull());
-}
-
-void dlg_paramconnexion::HelpMsg()
-{
-    QMessageBox msgbox;
-    UpSmallButton OKBouton("OK");
-    msgbox.setText(tr("Paramètrage de MySQL"));
-    msgbox.setInformativeText(tr("Si vous venez d'installer MySQL sur ce poste et que vous voulez vous connecter,\n\n"
-                              "Utilisez\n"
-                              "1. le login de connexion que vous avez créé en paramètrant MySQL dans la fenêtre login,\n"
-                              "2. le mot de passe que vous avez créé en paramètrant MySQL "
-                              "dans la fenêtre mot de passe,\n"
-                              "3. choisissez \"Sur ce poste\" dans la boîte \"emplacement du serveur\",\n"
-                              "4. et \"3306\" dans la liste des ports.\n\n"
-                              "Cliquez sur Tester pour tester la validité de ces valeurs.\n"
-                              "Si cela ne marche pas, essayez avec le port 3307\n\n"
-                              "Si cela ne marche toujours pas, revoyez la configuration du serveur.\n"));
-    msgbox.setIcon(QMessageBox::Information);
-    msgbox.addButton(&OKBouton, QMessageBox::AcceptRole);
-    msgbox.exec();
 }
 
 void dlg_paramconnexion::MAJIP()
