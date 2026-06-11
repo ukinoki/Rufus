@@ -1369,6 +1369,59 @@ QString MySQLInstaller::getMySQLVersion()
     return m.hasMatch() ? m.captured(1) : QString();
 }
 
+//  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
+void MySQLInstaller::securiserBaseSiNecessaire()
+{
+    // 1. Base déjà sécurisée (clé présente) → rien à faire.
+    if (QFile::exists(PATH_FILE_DBKEY))
+        return;
+
+    const QString legacy = QString(MDP_SQL);          // gaxt78iy (mot de passe public)
+
+    // 2. gaxt78iy fonctionne-t-il vraiment ? Sinon : base injoignable avec nos comptes
+    //    (ou base sécurisée dont le legacy a déjà été retiré) → on ne touche à rien.
+    if (!tryConnectAs(QString(LOGIN_SQL), legacy))
+        return;
+
+    // 3. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD) ?
+    //    Requiert MySQL >= 8.0.14 et PAS MariaDB. Sinon, rotater bloquerait les autres
+    //    postes → on laisse la base telle quelle (sécurisation explicite plus tard).
+    const QString sv = runCmdFull(
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+                "\"SELECT VERSION();\" 2>&1")
+            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), legacy)).trimmed();
+    if (sv.contains("MariaDB", Qt::CaseInsensitive))
+        return;
+    QRegularExpression re(R"((\d+\.\d+\.\d+))");
+    const auto mv = re.match(sv);
+    if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), "8.0.14"))
+        return;
+
+    // 4. Sécurisation : nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL,
+    //    en CONSERVANT gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD).
+    //    NB (cas connu, rare en monoposte) : si .dbkey a été supprimé À LA MAIN d'une
+    //    base DÉJÀ sécurisée, gaxt78iy y est un mot de passe SECONDAIRE ; re-sécuriser
+    //    le chasserait (MySQL ne garde qu'un seul mdp secondaire). À affiner plus tard.
+    const QString np       = genererMotDePasse();
+    const QString sslLogin = QString(LOGIN_SQL "SSL");
+    const QString sql = QString(
+        "ALTER USER '%1'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%4' REQUIRE SSL;"
+        "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
+        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
+        "FLUSH PRIVILEGES;")
+        .arg(QString(LOGIN_SQL), np, sslLogin, legacy);
+    const QString out = runCmdFull(
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), legacy, sql));
+    if (out.contains("ERROR", Qt::CaseInsensitive))
+        return;   // échec : on NE stocke PAS .dbkey → la base reste sur gaxt78iy
+
+    // 5. Mémoriser le nouveau mot de passe : ce poste s'y connectera désormais ;
+    //    gaxt78iy reste valable pour les autres postes (2e mot de passe).
+    stockerMotDePasse(np);
+}
+
 QString MySQLInstaller::downloadOracleDmg()
 {
     const MySQLRemoteConfig cfg = fetchRemoteConfig();

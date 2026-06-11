@@ -226,6 +226,12 @@ bool dlg_paramconnexion::TestConnexion()
                                     + error);
             return false;
         }
+        //! Connexion MONOPOSTE réussie : si la base est encore sur le mot de passe
+        //! public (pas de .dbkey), on la sécurise à la volée — un mot de passe
+        //! aléatoire est posé tout en CONSERVANT gaxt78iy comme 2e mot de passe, pour
+        //! ne bloquer aucun autre poste si ce poste sert aussi de serveur. No-op si
+        //! la base est déjà sécurisée.
+        MySQLInstaller().securiserBaseSiNecessaire();
         if (m_connectavecloginSQL)
         {
             DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
