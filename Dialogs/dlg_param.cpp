@@ -1983,12 +1983,13 @@ void dlg_param::RecupererMdpMySQL()
         majDecompte();
     });
 
-    // Bouton « Copier sur clé USB » ajouté à la rangée de boutons.
-    UpSmallButton *btnUSB = new UpSmallButton();
-    btnUSB->setText(tr("Copier sur clé USB"));
-    btnUSB->setIcon(Icons::icPasswordMySQL());
-    dlg->AjouteWidgetLayButtons(btnUSB, false);
-    connect(btnUSB, &QPushButton::clicked, dlg, [=]() {
+    // Rangée de boutons : « Enregistrer » (RecordButton, icône standard de Rufus)
+    // sert à copier le mot de passe sur une clé USB ; le bouton rouge ferme la
+    // fenêtre. UpDialog ne connecte ni l'un ni l'autre par défaut (seul
+    // ButtonCancel l'est) : on les relie nous-mêmes.
+    dlg->AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonClose);
+    dlg->RecordButton->setText(tr("Copier sur clé USB"));
+    connect(dlg->RecordButton, &QPushButton::clicked, dlg, [=]() {
         // On SUSPEND le décompte pendant le choix du dossier et l'écriture, pour
         // éviter que la fenêtre ne se ferme en pleine copie.
         tic->stop();
@@ -2011,10 +2012,6 @@ void dlg_param::RecupererMdpMySQL()
         majDecompte();
         tic->start();
     });
-
-    // Le bouton rouge de fermeture d'UpDialog n'est pas connecté par défaut
-    // (seul ButtonCancel l'est) : on le relie nous-mêmes à la fermeture.
-    dlg->AjouteLayButtons(UpDialog::ButtonClose);
     connect(dlg->CloseButton, &QPushButton::clicked, dlg, &QDialog::accept);
 
     tic->start();
