@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paramconnexion.h"
 #include "ui_dlg_paramconnexion.h"
 #include "mysqlinstaller.h"     //! motDePasseSQL() : mdp MySQL du cabinet (repli legacy MDP_SQL)
+#include <QFileDialog>
 
 dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDistant, QWidget *parent) :
     QDialog(parent),
@@ -183,7 +184,7 @@ bool dlg_paramconnexion::TestConnexion()
         //! Les identifiants saisis (Login/Password) sont l'identité APPLICATIVE
         //! Rufus (table utilisateurs), pas un compte MySQL : plus de compte
         //! temporaire. Ils restent validés par verifExistUser() ci-dessous.
-        QString error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+        QString error = TenterConnexionAvecRecuperation();
 
         if( error.size() )
         {
@@ -231,7 +232,7 @@ bool dlg_paramconnexion::TestConnexion()
         if (mode == Utils::Distant)
             if ( DirSSL.isEmpty() || !QDir(DirSSL).exists())
                             {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  ui->IPlineEdit->setFocus();    return false;}
-        QString error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+        QString error = TenterConnexionAvecRecuperation();
         if( error.size() )
         {
             UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
@@ -257,6 +258,117 @@ bool dlg_paramconnexion::TestConnexion()
         return true;
     }
     }
+}
+
+//! Cascade complète. On tente les candidats ; si tous échouent SUR UN REFUS
+//! D'AUTHENTIFICATION (la base répond mais aucun mot de passe connu ne l'ouvre →
+//! base sécurisée sur un autre poste), on propose de récupérer le mot de passe puis
+//! on réessaie une fois. Un serveur injoignable (réseau/IP) n'ouvre PAS la
+//! récupération : on renvoie l'erreur telle quelle.
+QString dlg_paramconnexion::TenterConnexionAvecRecuperation()
+{
+    QString error = ConnecterAvecCandidats();
+    if (!error.isEmpty() && EstErreurAuthentification(error) && RecupererMotDePasseMySQL())
+        error = ConnecterAvecCandidats();
+    return error;
+}
+
+//! Essaie successivement les mots de passe candidats (.dbkey puis gaxt78iy).
+//! Retourne "" dès qu'un essai réussit — en mémorisant ce mot de passe comme
+//! courant —, sinon la dernière erreur rencontrée.
+QString dlg_paramconnexion::ConnecterAvecCandidats()
+{
+    QString error;
+    const QStringList candidats = MySQLInstaller::motsDePasseSQLCandidats();
+    for (const QString &mdp : candidats)
+    {
+        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp);
+        if (error.isEmpty())
+        {
+            MySQLInstaller::setMotDePasseSQL(mdp);   // ce mdp devient le mdp courant (mémoire)
+            return QString();
+        }
+    }
+    return error;
+}
+
+//! Vrai si l'erreur traduit un refus d'authentification MySQL (mauvais mot de
+//! passe), par opposition à un serveur injoignable. MySQL : erreur 1045
+//! « Access denied ».
+bool dlg_paramconnexion::EstErreurAuthentification(const QString &error)
+{
+    return error.contains("denied", Qt::CaseInsensitive)
+        || error.contains("1045");
+}
+
+//! Base sécurisée sur un autre poste : propose de récupérer le mot de passe
+//! aléatoire du cabinet, soit en important le fichier copié sur une clé USB depuis
+//! un poste qui fonctionne, soit en le saisissant. En cas de succès, l'enregistre
+//! (.dbkey + cache) et renvoie true pour signaler qu'un nouvel essai est possible.
+bool dlg_paramconnexion::RecupererMotDePasseMySQL()
+{
+    UpMessageBox msgbox(this);
+    msgbox.setText(tr("Base de données sécurisée"));
+    msgbox.setInformativeText(tr("Aucun mot de passe connu ne permet de se connecter à cette base : "
+                                 "elle a été sécurisée sur un autre poste.\n\n"
+                                 "Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB "
+                                 "depuis un poste qui fonctionne, ou le saisir si vous le connaissez."));
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton *AnnulBouton  = new UpSmallButton();
+    UpSmallButton *SaisirBouton = new UpSmallButton();
+    UpSmallButton *USBBouton    = new UpSmallButton();
+    AnnulBouton ->setText(tr("Annuler"));
+    SaisirBouton->setText(tr("Saisir le mot de passe"));
+    USBBouton   ->setText(tr("Importer depuis une clé USB"));
+    msgbox.addButton(AnnulBouton,  UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(SaisirBouton, UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(USBBouton,    UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+
+    QString mdp;
+    if (msgbox.clickedButton() == USBBouton)
+    {
+        const QString fichier = QFileDialog::getOpenFileName(
+                    this, tr("Sélectionnez le fichier du mot de passe sur la clé USB"));
+        if (fichier.isEmpty())
+            return false;
+        QFile f(fichier);
+        if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            mdp = QString::fromUtf8(f.readAll()).trimmed();
+            f.close();
+        }
+        if (mdp.isEmpty())
+        {
+            UpMessageBox::Watch(this, tr("Fichier illisible"),
+                                tr("Ce fichier ne contient pas de mot de passe valide."));
+            return false;
+        }
+    }
+    else if (msgbox.clickedButton() == SaisirBouton)
+    {
+        UpDialog dlg(this);
+        dlg.setWindowTitle(tr("Mot de passe de la base"));
+        UpLabel *lbl = new UpLabel();
+        lbl->setText(tr("Entrez le mot de passe MySQL du cabinet :"));
+        dlg.dlglayout()->insertWidget(0, lbl);
+        UpLineEdit *champ = new UpLineEdit(&dlg);
+        champ->setAlignment(Qt::AlignCenter);
+        dlg.dlglayout()->insertWidget(1, champ);
+        dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+        connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
+        champ->setFocus();
+        if (dlg.exec() != QDialog::Accepted)
+            return false;
+        mdp = champ->text().trimmed();
+        if (mdp.isEmpty())
+            return false;
+    }
+    else
+        return false;   // annulé
+
+    MySQLInstaller::stockerMotDePasse(mdp);   // écrit .dbkey + met à jour le cache
+    return true;
 }
 
 bool dlg_paramconnexion::VerifFiche()

@@ -436,8 +436,15 @@ QString MySQLInstaller::genererMotDePasse()
 //  aucune section) : un contenu opaque ne révèle pas à quoi il sert. On garde
 //  toutefois la lecture de l'ancien format INI (« [Connexion]/MDPSQL=… ») pour
 //  rester compatible avec d'éventuels fichiers déjà écrits.
+//  Cache mémoire : résolu une seule fois (lecture .dbkey), réutilisé ensuite.
+QString MySQLInstaller::s_motDePasseSQL;
+
 QString MySQLInstaller::motDePasseSQL()
 {
+    if (!s_motDePasseSQL.isEmpty())
+        return s_motDePasseSQL;               // déjà résolu en mémoire : pas d'accès disque
+
+    QString mdp;
     QFile f(PATH_FILE_DBKEY);
     if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
         const QString contenu = QString::fromUtf8(f.readAll()).trimmed();
@@ -446,14 +453,33 @@ QString MySQLInstaller::motDePasseSQL()
         // de passe aléatoire, alphanumérique, n'en contient jamais).
         if (contenu.contains('=')) {
             QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
-            const QString mdp = sets.value(Param_MDPSQL).toString();
-            if (!mdp.isEmpty())
-                return mdp;
-        } else if (!contenu.isEmpty()) {
-            return contenu;                   // format actuel : mot de passe brut
+            mdp = sets.value(Param_MDPSQL).toString();
+        } else {
+            mdp = contenu;                    // format actuel : mot de passe brut
         }
     }
-    return QString(MDP_SQL);                   // absent/vide → repli legacy
+    if (mdp.isEmpty())
+        mdp = QString(MDP_SQL);               // absent/vide → repli legacy gaxt78iy
+
+    s_motDePasseSQL = mdp;                     // on mémorise pour les appels suivants
+    return s_motDePasseSQL;
+}
+
+//  Met à jour le cache mémoire (sans toucher au disque : cf. stockerMotDePasse).
+void MySQLInstaller::setMotDePasseSQL(const QString& mdp)
+{
+    s_motDePasseSQL = mdp;
+}
+
+//  Mots de passe à essayer, dans l'ordre : celui que ce poste connaît puis gaxt78iy.
+QStringList MySQLInstaller::motsDePasseSQLCandidats()
+{
+    QStringList candidats;
+    candidats << motDePasseSQL();             // .dbkey (ou déjà gaxt78iy si pas de clé)
+    const QString legacy = QString(MDP_SQL);
+    if (!candidats.contains(legacy))
+        candidats << legacy;                  // gaxt78iy en dernier repli
+    return candidats;
 }
 
 //  Stocke le mot de passe dans le fichier caché PATH_FILE_DBKEY (hors ~/Documents/Rufus).
@@ -467,6 +493,7 @@ void MySQLInstaller::stockerMotDePasse(const QString& mdp)
         f.write("\n");
         f.close();
     }
+    setMotDePasseSQL(mdp);                // garde le cache mémoire cohérent avec le disque
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

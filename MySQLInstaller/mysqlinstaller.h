@@ -152,9 +152,19 @@ public:
     // ── Mot de passe aléatoire (helpers statiques) ─────────────────────────────
     //  Génère un mot de passe alphanumérique fort (12 caractères, [A-Za-z0-9]).
     static QString genererMotDePasse();
-    //  Lit la clé Param_MDPSQL du rufus.ini ; repli sur MDP_SQL si absente/vide.
+    //  Mot de passe MySQL que CE poste connaît (compte adminrufus). Résolu UNE
+    //  fois — lecture du fichier caché .dbkey, repli legacy gaxt78iy (MDP_SQL) —
+    //  puis gardé en cache mémoire (s_motDePasseSQL) : les appels suivants ne
+    //  retouchent pas le disque. Fonction PURE : aucune connexion, aucune UI.
     static QString motDePasseSQL();
-    //  Stocke le mot de passe (clé Param_MDPSQL du rufus.ini).
+    //  Met à jour le mot de passe courant EN MÉMOIRE (cache). À appeler quand la
+    //  couche connexion a déterminé/récupéré le mdp qui fonctionne réellement.
+    static void    setMotDePasseSQL(const QString& mdp);
+    //  Liste ORDONNÉE et dédupliquée des mots de passe à essayer pour se connecter :
+    //  [ mdp connu de ce poste (.dbkey), gaxt78iy ]. La cascade de connexion (et la
+    //  récupération en dernier ressort) vit dans la couche connexion, pas ici.
+    static QStringList motsDePasseSQLCandidats();
+    //  Stocke le mot de passe dans le fichier caché .dbkey ET met à jour le cache.
     static void    stockerMotDePasse(const QString& mdp);
 
     //  Sécurisation « à la volée » d'une base EXISTANTE connectée en monoposte.
@@ -171,6 +181,7 @@ public:
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };
 
 private:
+    static QString      s_motDePasseSQL;         // cache mémoire du mdp MySQL courant (cf motDePasseSQL)
     QString             m_login;                 // = LOGIN_SQL (compte SQL technique)
     QString             m_password;              // mot de passe aléatoire d'adminrufus
     QString             m_loginRufus;            // login du futur utilisateur Rufus (saisi)
