@@ -175,13 +175,32 @@ void MySQLInstallerDialog::configurer(const QString& titre,
 {
     m_title->setText(titre);
     m_subtitle->setText(sousTitre);
-    if (OKButton) OKButton->setText(okLabel);
-    if (m_login) m_login->clear();
-    if (m_mdp)   m_mdp->clear();
+    if (OKButton) { OKButton->setText(okLabel); OKButton->show(); }
+    if (CancelButton) CancelButton->show();
+    // Mode interactif : champs éditables (restaure l'état après un éventuel passage
+    // en « paramétrage en cours »).
+    if (m_login) { m_login->setEnabled(true); m_login->clear(); }
+    if (m_mdp)   { m_mdp->setEnabled(true);   m_mdp->clear(); }
     if (m_login) m_login->setFocus();
     // « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué par défaut, ré-
     // affiché explicitement par configurerVerifyAdminMySQL().
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
+}
+
+//  Mode « paramétrage en cours » : la fiche n'attend plus aucune saisie ni clic.
+//  Les login/mdp (déjà choisis) sont affichés mais GRISÉS, les boutons OK/Annuler
+//  (et « Supprimer MySQL ») masqués ; seule la checklist se coche en direct.
+void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
+                                                 const QString& sousTitre)
+{
+    m_title->setText(titre);
+    m_subtitle->setText(sousTitre);
+    if (m_login) m_login->setEnabled(false);
+    if (m_mdp)   m_mdp->setEnabled(false);
+    if (OKButton)        OKButton->hide();
+    if (CancelButton)    CancelButton->hide();
+    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
+    QApplication::processEvents();
 }
 
 //  Format imposé pour un identifiant Rufus à CRÉER (5-15 / 5-12 alphanumériques).
@@ -935,9 +954,14 @@ bool MySQLInstaller::run()
     m_comptesDejaCrees = true;
 
     m_dialog->checkStep(0);
+    // Plus aucune saisie pendant la configuration : fiche grisée, sans bouton OK.
+    m_dialog->passerEnConfiguration(
+        tr("Serveur MySQL prêt"),
+        tr("Paramétrage de l'installation pour Rufus en cours…"));
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
-    // Saisie du futur utilisateur applicatif Rufus (2e étape).
+    // Saisie du futur utilisateur applicatif Rufus (2e étape) : configurerNewUserRufus()
+    // (via configurer()) ré-active les champs et ré-affiche le bouton OK.
     m_dialog->configurerNewUserRufus();
     forever {
         if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
@@ -970,8 +994,14 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     m_loginRufus = m_dialog->login();
     m_mdpRufus   = m_dialog->password();
 
-    // La saisie modale (exec()) a masqué la fiche : on la ré-affiche pour que la
-    // checklist se coche visiblement pendant l'installation et la configuration.
+    // Le login/mdp Rufus est choisi : la fiche passe en « paramétrage en cours »
+    // (champs grisés, plus de bouton OK). L'installation puis la configuration se
+    // poursuivent SANS clic — seule une éventuelle saisie du code administrateur de
+    // l'ordinateur (élévation système) peut être demandée. On la ré-affiche pour que
+    // la checklist se coche visiblement.
+    m_dialog->passerEnConfiguration(
+        tr("Installation de MySQL"),
+        tr("Téléchargement et installation du serveur MySQL en cours…"));
     m_dialog->show();
     QApplication::processEvents();
 
@@ -1003,6 +1033,11 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     m_freshInstall = true;
     startMySQL();
     m_dialog->checkStep(0);
+
+    // MySQL est installé : on l'annonce et on bascule sur le libellé « paramétrage ».
+    m_dialog->passerEnConfiguration(
+        tr("Serveur MySQL installé"),
+        tr("Paramétrage de l'installation pour Rufus en cours…"));
 
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
