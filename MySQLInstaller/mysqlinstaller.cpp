@@ -231,8 +231,9 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
     // passe non alphanumérique) → on RETIRE les validateurs.
     m_login->setValidator(nullptr);
     m_mdp  ->setValidator(nullptr);
-    // Seul contexte où l'on propose de tout réinitialiser (désinstaller MySQL).
-    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(true);
+    // Le choix « réinstaller / effacer » est désormais fait en amont par la boîte
+    // « que faire de MySQL ? » : cette fiche ne sert plus qu'à saisir les identifiants.
+    if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
 
 void MySQLInstallerDialog::configurerNewUserRufus()
@@ -839,30 +840,13 @@ bool MySQLInstaller::run()
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    //  MySQL présent : version conforme ?
+    //  MySQL DÉJÀ présent → on demande à l'utilisateur quoi en faire. Plus de
+    //  « mode Verify » automatique : on reste toujours en logique Create, avec ou
+    //  sans (ré)installation de MySQL, avec ou sans effacement des données.
     // ════════════════════════════════════════════════════════════════════════
-    const QString ver = getMySQLVersion();
-    if (!versionAtLeast(ver, cfg.minVersion)) {
-        // Version trop ancienne : NETTOYAGE COMPLET (askUpdateConfirmation avertit
-        // de la perte des données) puis on rejoint le chemin de création.
-        if (!askUpdateConfirmation(ver, cfg.version))
-            return false;
-        if (!assurerDroitsAdmin())   // désinstallation + réinstallation = droits admin
-            return false;
-        MySQLProgressDialog* clean = new MySQLProgressDialog(
-            tr("Nettoyage de l'ancienne installation de MySQL…"));
-        clean->show();
-        QApplication::processEvents();
-        uninstallMySQL();
-        clean->close();
-        delete clean;
-        UpMessageBox::Information(nullptr, tr("Désinstallation terminée"),
-            tr("MySQL a été désinstallé de cet ordinateur."));
-        return faireCreate(cfg);
-    }
-
-    // ── B1 : une base Rufus COMPLÈTE existe déjà ? Ce n'est pas le rôle de nbp. ─
     if (!isServerRunning()) startMySQL();
+
+    // Une base Rufus COMPLÈTE existe déjà ? Ce n'est pas le rôle de nbp.
     if (baseRufusComplete()) {
         UpMessageBox::Information(nullptr, tr("Une base Rufus existe déjà"),
             tr("Un serveur MySQL contient déjà une base Rufus complète sur cet "
@@ -871,8 +855,149 @@ bool MySQLInstaller::run()
         return false;
     }
 
-    // ── B2 : MySQL présent mais pas encore une base Rufus → demander un compte
-    //         administrateur MySQL pour créer les comptes Rufus. ──────────────
+    // Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) :
+    // MySQL >= 8.0.14 et PAS MariaDB.
+    const QString ver = getMySQLVersion();
+    const bool compatible = versionAtLeast(ver, "8.0.14") && !isMariaDB();
+
+    forever {
+        switch (demanderQueFaireMySQL(compatible)) {
+
+        case QueFaireMySQL::Annuler:
+            return false;                       // retour au menu précédent
+
+        case QueFaireMySQL::Reinstaller: {
+            // Incompatible : on avertit (perte des données non-Rufus), l'utilisateur
+            // sauvegarde lui-même, puis on désinstalle/réinstalle MySQL 8.x.
+            offrirSauvegardeAvantEffacement();  // (quitte Rufus s'il veut sauvegarder)
+            if (!assurerDroitsAdmin()) continue;
+            MySQLProgressDialog* clean = new MySQLProgressDialog(
+                tr("Désinstallation de l'ancien MySQL…"));
+            clean->show();
+            QApplication::processEvents();
+            uninstallMySQL();
+            clean->close();
+            delete clean;
+            return faireCreate(cfg);            // installation neuve complète
+        }
+
+        case QueFaireMySQL::Effacer:
+            offrirSauvegardeAvantEffacement();
+            if (faireReutiliser(cfg, /*effacerTout=*/true)) return true;
+            break;                              // échec/annulation → retour au choix
+
+        case QueFaireMySQL::Conserver:
+            if (faireReutiliser(cfg, /*effacerTout=*/false)) return true;
+            break;                              // échec/annulation → retour au choix
+        }
+    }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  Boîte « MySQL est déjà présent… que voulez-vous faire ? »
+// ═════════════════════════════════════════════════════════════════════════════
+MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compatible)
+{
+    UpMessageBox msgbox(nullptr);
+    msgbox.setIcon(UpMessageBox::Quest);
+    msgbox.setText(tr("MySQL est déjà présent sur cet ordinateur"));
+
+    UpSmallButton* bAnnuler = new UpSmallButton(tr("Annuler (retour au menu)"));
+
+    if (compatible) {
+        msgbox.setInformativeText(tr(
+            "Cette version de MySQL est compatible avec Rufus.\n\n"
+            "Que voulez-vous faire ?"));
+        UpSmallButton* bEffacer   = new UpSmallButton(
+            tr("L'utiliser en EFFAÇANT toutes les données déjà présentes"));
+        UpSmallButton* bConserver = new UpSmallButton(
+            tr("L'utiliser en CONSERVANT les données déjà présentes"));
+        msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(bEffacer,   UpSmallButton::OUPSBUTTON);
+        msgbox.addButton(bConserver, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() == bEffacer)   return QueFaireMySQL::Effacer;
+        if (msgbox.clickedButton() == bConserver) return QueFaireMySQL::Conserver;
+        return QueFaireMySQL::Annuler;
+    }
+
+    msgbox.setInformativeText(tr(
+        "Cette version de MySQL n'est PAS compatible avec Rufus (MariaDB, ou version "
+        "antérieure à 8.0.14).\n\nQue voulez-vous faire ?"));
+    UpSmallButton* bReinstall = new UpSmallButton(
+        tr("Tout effacer et réinstaller MySQL"));
+    msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(bReinstall, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() == bReinstall) return QueFaireMySQL::Reinstaller;
+    return QueFaireMySQL::Annuler;
+}
+
+//  Le serveur MySQL local est-il MariaDB ? (incompatible : pas de RETAIN/double mdp.)
+bool MySQLInstaller::isMariaDB()
+{
+    QString out = runCmd("\"" + mysqlBin("mysqld") + "\" --version " + NUL());
+    if (out.contains("mariadb", Qt::CaseInsensitive)) return true;
+    out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL());
+    return out.contains("mariadb", Qt::CaseInsensitive);
+}
+
+//  Avertit que des données NON-Rufus vont être effacées ; propose d'arrêter Rufus
+//  pour les sauvegarder soi-même (→ exit), sinon on continue.
+void MySQLInstaller::offrirSauvegardeAvantEffacement()
+{
+    UpMessageBox msgbox(m_dialog);
+    msgbox.setIcon(UpMessageBox::Warning);
+    msgbox.setText(tr("Des données vont être effacées"));
+    msgbox.setInformativeText(tr(
+        "Cette opération va supprimer des données présentes sur ce serveur MySQL "
+        "qui ne sont PAS gérées par Rufus.\n\n"
+        "Si ces données vous importent, arrêtez Rufus pour les sauvegarder vous-même "
+        "avant de poursuivre."));
+    UpSmallButton* bArreter   = new UpSmallButton(
+        tr("Arrêter Rufus pour sauvegarder d'abord"));
+    UpSmallButton* bContinuer = new UpSmallButton(
+        tr("Continuer (effacer les données)"));
+    msgbox.addButton(bArreter,   UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(bContinuer, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() == bContinuer)
+        return;
+    exit(0);   // « Arrêter » : on quitte pour laisser l'utilisateur sauvegarder
+}
+
+//  Supprime toutes les bases NON système (les bases Rufus, elles, seront recréées
+//  vierges par RestaureBase). Utilisé pour le choix « Effacer ».
+void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
+                                                   const QString& adminMdp)
+{
+    const QString out = runCmdFull(
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+                "\"SHOW DATABASES;\" 2>&1")
+            .arg(mysqlBin("mysql"), adminLogin, adminMdp));
+    QString sql;
+    for (const QString& line : out.split('\n', Qt::SkipEmptyParts)) {
+        const QString db = line.trimmed();
+        if (db.isEmpty() || db.startsWith("ERROR", Qt::CaseInsensitive))
+            continue;
+        if (db == "mysql" || db == "information_schema"
+            || db == "performance_schema" || db == "sys")
+            continue;
+        sql += "DROP DATABASE IF EXISTS `" + db + "`;";
+    }
+    if (sql.isEmpty())
+        return;
+    runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+        .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  RÉUTILISER un MySQL existant compatible (choix Effacer/Conserver). Demande un
+//  compte admin MySQL, crée adminrufus/SSL, (option : efface les bases non-Rufus),
+//  déroule la config, puis la saisie du futur utilisateur Rufus.
+// ═════════════════════════════════════════════════════════════════════════════
+bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout)
+{
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
     m_dialog->setMinVersion(cfg.minVersion);
@@ -881,41 +1006,7 @@ bool MySQLInstaller::run()
 
     QString adminLogin, adminMdp;
     forever {
-        const int res = m_dialog->exec();
-
-        // L'utilisateur veut TOUT remettre à zéro : désinstaller le MySQL existant
-        // (et ses données) pour repartir sur une installation neuve par Rufus.
-        if (res == MySQLInstallerDialog::ResultSupprimerMySQL) {
-            if (askYesNo(tr("Supprimer MySQL"),
-                    tr("Cette opération va SUPPRIMER complètement MySQL de cet "
-                       "ordinateur, ainsi que TOUTES les données qu'il contient. "
-                       "Elle est IRRÉVERSIBLE.\n\nVoulez-vous continuer ?"))) {
-                if (!assurerDroitsAdmin()) {   // la suppression exige les droits admin
-                    m_dialog->show();          // élévation refusée → retour à la fiche
-                    QApplication::processEvents();
-                    continue;
-                }
-                cleanupDialog();
-                MySQLProgressDialog* clean = new MySQLProgressDialog(
-                    tr("Suppression de MySQL en cours…"));
-                clean->show();
-                QApplication::processEvents();
-                uninstallMySQL();
-                clean->close();
-                delete clean;
-                UpMessageBox::Information(nullptr, tr("Désinstallation terminée"),
-                    tr("MySQL a été désinstallé de cet ordinateur.\n\nRufus va "
-                       "maintenant installer une base neuve."));
-                // MySQL absent → on rejoint le chemin de création complet.
-                return faireCreate(cfg);
-            }
-            // Annulation de la suppression : on ré-affiche la fiche Verify.
-            m_dialog->show();
-            QApplication::processEvents();
-            continue;
-        }
-
-        if (res != QDialog::Accepted) { cleanupDialog(); return false; }
+        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
         adminLogin = m_dialog->login();
         adminMdp   = m_dialog->password();
         if (!m_dialog->validerSaisie()) continue;
@@ -924,12 +1015,9 @@ bool MySQLInstaller::run()
             tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
     }
 
-    // La saisie modale a masqué la fiche : on la ré-affiche pour que la checklist
-    // se coche visiblement pendant la configuration.
     m_dialog->show();
     QApplication::processEvents();
 
-    // Comptes Rufus techniques : login fixe LOGIN_SQL + mot de passe aléatoire.
     m_login    = LOGIN_SQL;
     m_password = genererMotDePasse();
     if (!isServerRunning()) startMySQL();
@@ -938,10 +1026,10 @@ bool MySQLInstaller::run()
     if (r == CreateUserResult::NoCreateUserRight) {
         UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
             tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
-               "(CREATE USER). Utilisez un compte administrateur MySQL (par ex. "
-               "root).").arg(adminLogin));
+               "(CREATE USER). Réessayez avec un compte administrateur MySQL "
+               "(par ex. root).").arg(adminLogin));
         cleanupDialog();
-        return false;
+        return false;                           // → retour à la boîte de choix
     }
     if (r != CreateUserResult::Ok) {
         UpMessageBox::Watch(m_dialog, tr("Erreur"),
@@ -953,6 +1041,12 @@ bool MySQLInstaller::run()
     stockerMotDePasse(m_password);
     m_comptesDejaCrees = true;
 
+    // EFFACER : on supprime aussi les bases NON-Rufus (données étrangères). Les bases
+    // Rufus, elles, sont (re)créées vierges par RestaureBase. CONSERVER : on n'y touche
+    // pas (les autres schémas restent).
+    if (effacerTout)
+        effacerToutesBasesUtilisateur(adminLogin, adminMdp);
+
     m_dialog->checkStep(0);
     // Plus aucune saisie pendant la configuration : fiche grisée, sans bouton OK.
     m_dialog->passerEnConfiguration(
@@ -960,8 +1054,7 @@ bool MySQLInstaller::run()
         tr("Paramétrage de l'installation pour Rufus en cours…"));
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
-    // Saisie du futur utilisateur applicatif Rufus (2e étape) : configurerNewUserRufus()
-    // (via configurer()) ré-active les champs et ré-affiche le bouton OK.
+    // Saisie du futur utilisateur applicatif Rufus (2e étape).
     m_dialog->configurerNewUserRufus();
     forever {
         if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
