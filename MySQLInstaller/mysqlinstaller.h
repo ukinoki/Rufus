@@ -190,6 +190,26 @@ private:
     //  true si la base Rufus est prête. La saisie du futur utilisateur Rufus a déjà
     //  été faite par run() avant l'appel.
     bool    faireCreate(const MySQLRemoteConfig& cfg);
+
+    //  MySQL DÉJÀ présent et compatible : que faire de l'instance existante ?
+    //  (plus de « mode Verify » automatique — on demande à l'utilisateur).
+    enum class QueFaireMySQL { Annuler, Effacer, Conserver, Reinstaller };
+    //  Boîte « MySQL est déjà présent… que voulez-vous faire ? ». Si compatible :
+    //  Effacer / Conserver / Annuler ; sinon : Réinstaller / Annuler.
+    QueFaireMySQL demanderQueFaireMySQL(bool compatible);
+    //  Le serveur MySQL local est-il MariaDB ? (incompatible : pas de double mdp.)
+    bool    isMariaDB();
+    //  Avertit que des données NON-Rufus vont être effacées et propose d'arrêter
+    //  Rufus pour les sauvegarder soi-même. Si l'utilisateur choisit d'arrêter, on
+    //  quitte le programme (exit) ; sinon la fonction rend la main (on continue).
+    void    offrirSauvegardeAvantEffacement();
+    //  RÉUTILISE un MySQL existant compatible : demande un compte admin MySQL, crée
+    //  adminrufus/SSL, (option : efface les bases non-Rufus), config, puis saisie du
+    //  futur utilisateur Rufus. true si prêt ; false (échec/annulation) → retour au choix.
+    bool    faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout);
+    //  Supprime toutes les bases NON système (données étrangères à Rufus incluses).
+    void    effacerToutesBasesUtilisateur(const QString& adminLogin, const QString& adminMdp);
+
     //  Étapes de configuration post-install/verify (PATH, dossier partagé,
     //  secure_file_priv, lecture/écriture, privilèges), avec mise à jour de la
     //  checklist. createUser() n'est invoqué que si m_freshInstall && !m_comptesDejaCrees.
