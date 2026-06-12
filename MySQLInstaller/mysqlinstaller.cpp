@@ -42,6 +42,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRandomGenerator>
+#include "database.h"          // DataBase::I()->ModeAccesDataBase() : mode de connexion courant
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -428,72 +429,119 @@ QString MySQLInstaller::genererMotDePasse()
     return pwd;
 }
 
-//  Lit le mot de passe MySQL dans le fichier CACHÉ PATH_FILE_DBKEY (~/.rufus/.dbkey),
+//  Le mot de passe MySQL est lu dans le fichier CACHÉ PATH_FILE_DBKEY (~/.rufus/.dbkey),
 //  PAS dans Rufus.ini : il doit survivre à une réinitialisation par suppression de
-//  Rufus.ini. Repli sur MDP_SQL (mot de passe historique) si absent/vide (base non
-//  encore migrée).
-//  Le fichier ne contient QUE le mot de passe BRUT (aucune étiquette « MDPSQL= »,
-//  aucune section) : un contenu opaque ne révèle pas à quoi il sert. On garde
-//  toutefois la lecture de l'ancien format INI (« [Connexion]/MDPSQL=… ») pour
-//  rester compatible avec d'éventuels fichiers déjà écrits.
-//  Cache mémoire : résolu une seule fois (lecture .dbkey), réutilisé ensuite.
-QString MySQLInstaller::s_motDePasseSQL;
+//  Rufus.ini. Un même poste peut se connecter à PLUSIEURS bases (une par mode d'accès :
+//  monoposte, réseau local, distant) ; le .dbkey contient donc une ligne par mode :
+//      MONO=xxxxxxxxxxxx
+//      LAN=yyyyyyyyyyyy
+//      WAN=zzzzzzzzzzzz
+//  (rare, mais réel : portable de test en monoposte + base du cabinet en local/distant).
+//  Rétro-compat : un .dbkey d'une seule ligne BRUTE (sans « = »), ou l'ancien format
+//  INI « [Connexion]/MDPSQL=… », est interprété comme l'entrée MONO (monoposte).
+//  Repli legacy gaxt78iy (MDP_SQL) si le mode courant n'a pas d'entrée.
 
-QString MySQLInstaller::motDePasseSQL()
+//  Cache mémoire des mots de passe, par clé de mode (MONO/LAN/WAN).
+QHash<QString,QString> MySQLInstaller::s_cacheMDP;
+
+//  Clé .dbkey correspondant à un mode d'accès.
+static QString cleDepuisMode(Utils::ModeAcces mode)
 {
-    if (!s_motDePasseSQL.isEmpty())
-        return s_motDePasseSQL;               // déjà résolu en mémoire : pas d'accès disque
+    switch (mode) {
+    case Utils::ReseauLocal: return "LAN";
+    case Utils::Distant:     return "WAN";
+    case Utils::Poste:
+    default:                 return "MONO";     // monoposte (poste itinérant) : clé fixe
+    }
+}
 
-    QString mdp;
+//  Clé du mode de connexion courant (porté par DataBase).
+static QString cleModeCourant()
+{
+    return cleDepuisMode(DataBase::I()->ModeAccesDataBase());
+}
+
+//  Lit tout le .dbkey dans une table clé→mdp (clés MONO/LAN/WAN). Gère les formats
+//  hérités (ligne brute ou « MDPSQL=… » → MONO).
+static QHash<QString,QString> lireDBKey()
+{
+    QHash<QString,QString> table;
     QFile f(PATH_FILE_DBKEY);
-    if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        const QString contenu = QString::fromUtf8(f.readAll()).trimmed();
-        f.close();
-        // Ancien format QSettings/INI : détecté par la présence d'un « = » (le mot
-        // de passe aléatoire, alphanumérique, n'en contient jamais).
-        if (contenu.contains('=')) {
-            QSettings sets(PATH_FILE_DBKEY, QSettings::IniFormat);
-            mdp = sets.value(Param_MDPSQL).toString();
-        } else {
-            mdp = contenu;                    // format actuel : mot de passe brut
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return table;
+    const QStringList lignes = QString::fromUtf8(f.readAll()).split('\n');
+    f.close();
+    for (const QString &ligne : lignes) {
+        const QString l = ligne.trimmed();
+        if (l.isEmpty() || l.startsWith('['))     // ignore lignes vides et sections INI
+            continue;
+        const int eq = l.indexOf('=');
+        if (eq > 0) {
+            QString cle = l.left(eq).trimmed().toUpper();
+            const QString val = l.mid(eq + 1).trimmed();
+            if (cle == "MDPSQL")                  // ancien format INI → monoposte
+                cle = "MONO";
+            if ((cle == "MONO" || cle == "LAN" || cle == "WAN") && !val.isEmpty())
+                table.insert(cle, val);
+        } else if (!table.contains("MONO")) {
+            table.insert("MONO", l);              // ancienne ligne brute = monoposte
         }
     }
-    if (mdp.isEmpty())
-        mdp = QString(MDP_SQL);               // absent/vide → repli legacy gaxt78iy
-
-    s_motDePasseSQL = mdp;                     // on mémorise pour les appels suivants
-    return s_motDePasseSQL;
+    return table;
 }
 
-//  Met à jour le cache mémoire (sans toucher au disque : cf. stockerMotDePasse).
+//  Mot de passe du MODE COURANT. Résolu une fois par mode (lecture .dbkey) puis mis en
+//  cache. Fonction PURE (aucune connexion, aucune UI). Repli gaxt78iy si pas d'entrée.
+QString MySQLInstaller::motDePasseSQL()
+{
+    const QString cle = cleModeCourant();
+    auto it = s_cacheMDP.constFind(cle);
+    if (it != s_cacheMDP.constEnd())
+        return it.value();                        // déjà résolu en mémoire : pas d'accès disque
+
+    QString mdp = lireDBKey().value(cle);
+    if (mdp.isEmpty())
+        mdp = QString(MDP_SQL);                   // absent → repli legacy gaxt78iy
+    s_cacheMDP.insert(cle, mdp);
+    return mdp;
+}
+
+//  Met à jour, en mémoire, le mdp du mode courant (sans toucher au disque : cf.
+//  stockerMotDePasse).
 void MySQLInstaller::setMotDePasseSQL(const QString& mdp)
 {
-    s_motDePasseSQL = mdp;
+    s_cacheMDP.insert(cleModeCourant(), mdp);
 }
 
-//  Mots de passe à essayer, dans l'ordre : celui que ce poste connaît puis gaxt78iy.
+//  Mots de passe à essayer dans le mode courant, dans l'ordre : celui que ce poste
+//  connaît (.dbkey du mode) puis gaxt78iy.
 QStringList MySQLInstaller::motsDePasseSQLCandidats()
 {
     QStringList candidats;
-    candidats << motDePasseSQL();             // .dbkey (ou déjà gaxt78iy si pas de clé)
+    candidats << motDePasseSQL();                 // .dbkey du mode (ou déjà gaxt78iy si absent)
     const QString legacy = QString(MDP_SQL);
     if (!candidats.contains(legacy))
-        candidats << legacy;                  // gaxt78iy en dernier repli
+        candidats << legacy;                      // gaxt78iy en dernier repli
     return candidats;
 }
 
-//  Stocke le mot de passe dans le fichier caché PATH_FILE_DBKEY (hors ~/Documents/Rufus).
-//  Écriture du mot de passe BRUT, sans clé ni section (cf. motDePasseSQL).
+//  Stocke le mot de passe du MODE COURANT dans le .dbkey, en PRÉSERVANT les entrées des
+//  autres modes, puis met à jour le cache.
 void MySQLInstaller::stockerMotDePasse(const QString& mdp)
 {
-    QDir().mkpath(PATH_DIR_RUFUSKEY);     // dossier caché ~/.rufus (créé au besoin)
+    const QString cle = cleModeCourant();
+    QHash<QString,QString> table = lireDBKey();   // entrées existantes (autres modes)
+    table.insert(cle, mdp);
+
+    QDir().mkpath(PATH_DIR_RUFUSKEY);             // dossier caché ~/.rufus (créé au besoin)
     QFile f(PATH_FILE_DBKEY);
     if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-        f.write(mdp.toUtf8());
-        f.write("\n");
+        for (const QString &k : { QStringLiteral("MONO"), QStringLiteral("LAN"), QStringLiteral("WAN") })
+            if (table.contains(k))
+                f.write(QString("%1=%2\n").arg(k, table.value(k)).toUtf8());
         f.close();
     }
-    setMotDePasseSQL(mdp);                // garde le cache mémoire cohérent avec le disque
+    s_cacheMDP.insert(cle, mdp);                  // garde le cache mémoire cohérent avec le disque
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
