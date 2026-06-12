@@ -1173,7 +1173,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
 {
     /*-------------------- GESTION DES LIEUX D'EXERCICE-------------------------------------------------------*/
     ui->AdressupTableWidget->clear();
-    ui->EmplacementServeurupComboBox->clear();
+    ReconstruitListeLieuxExerciceAllusers();        // (re)remplit la combobox de l'emplacement serveur
     int             ColCount = 4;
 
     ui->AdressupTableWidget->setColumnCount(ColCount);
@@ -1325,15 +1325,13 @@ void dlg_param::ReconstruitListeLieuxExerciceAllusers()
     disconnect(ui->EmplacementServeurupComboBox,    QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnregistreEmplacementServeur);
     ui->EmplacementServeurupComboBox->clear();
     foreach (Site* sit, *Datas::I()->sites->sites())
-    {
         ui->EmplacementServeurupComboBox->addItem(sit->nom() + " " + sit->ville(), sit->id());
-        if (m_parametres->idlieupardefaut()>0)
-            ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(m_parametres->idlieupardefaut()));
-        else
-        {
-            ui->EmplacementServeurupComboBox->setCurrentIndex(0);
-            EnregistreEmplacementServeur(0);
-        }
+    if (m_parametres->idlieupardefaut() > 0)
+        ui->EmplacementServeurupComboBox->setCurrentIndex(ui->EmplacementServeurupComboBox->findData(m_parametres->idlieupardefaut()));
+    else if (ui->EmplacementServeurupComboBox->count() > 0)
+    {
+        ui->EmplacementServeurupComboBox->setCurrentIndex(0);
+        EnregistreEmplacementServeur(0);
     }
     connect(ui->EmplacementServeurupComboBox,       QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnregistreEmplacementServeur);
 }
