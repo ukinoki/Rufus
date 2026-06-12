@@ -1564,9 +1564,9 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>168</y>
+              <y>156</y>
               <width>325</width>
-              <height>170</height>
+              <height>150</height>
              </rect>
             </property>
             <property name="contextMenuPolicy">
@@ -1646,7 +1646,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>229</x>
-               <y>96</y>
+               <y>89</y>
                <width>54</width>
                <height>32</height>
               </rect>
@@ -1668,7 +1668,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>75</y>
+               <y>72</y>
                <width>261</width>
                <height>21</height>
               </rect>
@@ -1684,7 +1684,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>100</y>
+               <y>92</y>
                <width>201</width>
                <height>21</height>
               </rect>
@@ -1709,7 +1709,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>20</x>
-               <y>131</y>
+               <y>124</y>
                <width>95</width>
                <height>16</height>
               </rect>
@@ -1722,7 +1722,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>120</x>
-               <y>128</y>
+               <y>121</y>
                <width>150</width>
                <height>24</height>
               </rect>
@@ -1738,7 +1738,7 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>276</x>
-               <y>128</y>
+               <y>121</y>
                <width>30</width>
                <height>24</height>
               </rect>
