@@ -27,6 +27,10 @@ dlg_param::dlg_param(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+    //! Hauteur du sous-onglet de connexion : doit loger les frames Mono/Local/Distant
+    //! agrandies par les champs mot de passe MySQL (sinon Distantframe empiète sur
+    //! Instrmtsframe). Forcé ici pour ne pas dépendre de la régénération du .ui.
+    ui->ParamConnexiontabWidget->setFixedHeight(385);
 
     QStringList ports;
     ports << "3306" << "3307";
@@ -1943,6 +1947,8 @@ void dlg_param::ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB)
     });
 
     btnUSB->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
+    btnUSB->setFixedSize(28, 24);                  // même hauteur que le MDPuplineEdit (UpSmallButton force sinon 45)
+    btnUSB->setIconSize(QSize(18, 18));
     btnUSB->setImmediateToolTip(tr("Enregistrer ce mot de passe sur une clé USB"));
     connect(btnUSB, &QPushButton::clicked, this, [=]() {
         const QString mdp = champ->text();

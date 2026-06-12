@@ -51,13 +51,9 @@ int main(int argc, char *argv[])
     dirloc.cdUp();
 #endif
     QString locale = QDir::toNativeSeparators(dirloc.absolutePath() + "/Locale/rufus_" + settings.value(Param_Poste_Version).toString().toLower() + ".qm");
-    qDebug() << "locale" << locale;
     QTranslator translator;
     if( translator.load(locale) )
-    {
-        qDebug() << "OK";
         app.installTranslator(&translator);
-    }
 
     QSplashScreen *splash;
     if (QDate::currentDate().month() != 12)
