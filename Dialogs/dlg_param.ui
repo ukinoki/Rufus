@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1045,7 +1045,7 @@
            <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
-           <number>1</number>
+           <number>2</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1058,7 +1058,7 @@
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>140</y>
+              <y>130</y>
               <width>550</width>
               <height>170</height>
              </rect>
@@ -1068,7 +1068,7 @@
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>180</y>
+              <y>170</y>
               <width>325</width>
               <height>85</height>
              </rect>
@@ -1124,11 +1124,11 @@
                <height>24</height>
               </rect>
              </property>
-             <property name="echoMode">
-              <enum>QLineEdit::EchoMode::Password</enum>
-             </property>
              <property name="maxLength">
               <number>20</number>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::EchoMode::Password</enum>
              </property>
             </widget>
             <widget class="UpSmallButton" name="MDPMonoUSBupSmallButton">
@@ -1146,7 +1146,7 @@
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>115</y>
+              <y>110</y>
               <width>281</width>
               <height>20</height>
              </rect>
@@ -1159,7 +1159,7 @@
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>150</y>
+              <y>140</y>
               <width>251</width>
               <height>16</height>
              </rect>
@@ -1172,7 +1172,7 @@
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>107</y>
+              <y>100</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1277,7 +1277,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>190</y>
+              <y>180</y>
               <width>325</width>
               <height>108</height>
              </rect>
@@ -1333,11 +1333,11 @@ du dossier de stockage des videos</string>
                <height>24</height>
               </rect>
              </property>
-             <property name="echoMode">
-              <enum>QLineEdit::EchoMode::Password</enum>
-             </property>
              <property name="maxLength">
               <number>20</number>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::EchoMode::Password</enum>
              </property>
             </widget>
             <widget class="UpSmallButton" name="MDPLocalUSBupSmallButton">
@@ -1384,7 +1384,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>110</y>
+              <y>100</y>
               <width>281</width>
               <height>41</height>
              </rect>
@@ -1398,7 +1398,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>107</y>
+              <y>100</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1411,7 +1411,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>140</y>
+              <y>130</y>
               <width>550</width>
               <height>170</height>
              </rect>
@@ -1430,7 +1430,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>160</y>
+              <y>150</y>
               <width>251</width>
               <height>16</height>
              </rect>
@@ -1564,7 +1564,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>156</y>
+              <y>150</y>
               <width>325</width>
               <height>150</height>
              </rect>
@@ -1727,11 +1727,11 @@ du dossier de stockage des videos</string>
                <height>24</height>
               </rect>
              </property>
-             <property name="echoMode">
-              <enum>QLineEdit::EchoMode::Password</enum>
-             </property>
              <property name="maxLength">
               <number>20</number>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::EchoMode::Password</enum>
              </property>
             </widget>
             <widget class="UpSmallButton" name="MDPDistantUSBupSmallButton">
@@ -1749,7 +1749,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>110</y>
+              <y>100</y>
               <width>341</width>
               <height>20</height>
              </rect>
@@ -1765,7 +1765,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>107</y>
+              <y>100</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1781,7 +1781,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>140</y>
+              <y>130</y>
               <width>550</width>
               <height>170</height>
              </rect>
@@ -1800,7 +1800,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>137</y>
+              <y>130</y>
               <width>251</width>
               <height>16</height>
              </rect>
