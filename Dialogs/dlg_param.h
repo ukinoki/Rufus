@@ -138,7 +138,7 @@ private:
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
     void                ParamMotifs();
-    void                RecupererMdpMySQL();                                                                //! affiche le mot de passe MySQL et propose de le copier sur une clé USB
+    void                ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB);                    //! ajoute l'œil (afficher/masquer) et relie le bouton d'enregistrement du mdp sur clé USB
     void                ReglePortCOM_dlg(Procedures::TypeAppareil appareil);                                //! règle les aparamètres du port COM auquel est connecté l'appareil
     QString             ToolTipPortCOM(Procedures::TypeAppareil appareil);
     void                RegleAssocBoutons(QWidget *widg);

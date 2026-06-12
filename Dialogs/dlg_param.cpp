@@ -358,8 +358,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ParamMotifspushButton           ->setEnabled(false);
     ui->GestionBanquespushButton        ->setEnabled(false);
     ui->InitMDPAdminpushButton          ->setEnabled(false);
-    ui->RecupMDPMySQLpushButton         ->setEnabled(false);
-    ui->RecupMDPMySQLpushButton         ->setIcon(Icons::icPasswordMySQL());
     ui->EmplacementServeurupComboBox    ->setEnabled(false);
 
     bool a,b,c;
@@ -1022,7 +1020,6 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ParamMotifspushButton           ->setEnabled(a);
         ui->InitMDPAdminpushButton          ->setEnabled(a);
         ui->GestionBanquespushButton        ->setEnabled(a);
-        ui->RecupMDPMySQLpushButton         ->setEnabled(a);
         ui->EmplacementServeurupComboBox    ->setEnabled(a);
         EnableWidgContent(ui->BackupRestoreframe, db->ModeAccesDataBase() != Utils::Distant && a);
         EnableWidgContent(ui->Languagewidget, a);
@@ -1932,91 +1929,44 @@ void dlg_param::ModifMDPAdmin()
     dlg_askMDP->exec();
 }
 
-//! Affiche le mot de passe MySQL du cabinet pendant 30 secondes et propose de le
-//! recopier sur une clé USB. Protégé par une 2e saisie du mot de passe administrateur.
-void dlg_param::RecupererMdpMySQL()
+//! Équipe un champ de mot de passe MySQL (onglet « Ce Poste ») : un œil pour
+//! l'afficher en clair / le remasquer, et un bouton attenant pour l'enregistrer sur
+//! une clé USB (afin de le reporter sur un autre poste).
+void dlg_param::ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB)
 {
-    // 2e contrôle : on redemande le mot de passe administrateur avant de dévoiler le secret.
-    QString saisie;
-    if (!Utils::VerifMDP(proc->MDPAdmin(),
-                         tr("Saisissez le mot de passe administrateur"),
-                         saisie, false, this))
-        return;
+    QAction *oeil = champ->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
+    oeil->setToolTip(tr("Afficher / masquer le mot de passe"));
+    connect(oeil, &QAction::triggered, this, [=]() {
+        champ->setEchoMode(champ->echoMode() == QLineEdit::Password ? QLineEdit::Normal
+                                                                    : QLineEdit::Password);
+    });
 
-    const QString mdpSQL = MySQLInstaller::motDePasseSQL();
-
-    UpDialog *dlg = new UpDialog(this);
-    dlg->setAttribute(Qt::WA_DeleteOnClose);
-    dlg->setWindowModality(Qt::WindowModal);
-    dlg->setWindowTitle(tr("Mot de passe MySQL"));
-
-    UpLabel *labelInfo = new UpLabel();
-    labelInfo->setText(tr("Mot de passe de la base de données MySQL de ce cabinet.\n"
-                          "Notez-le en lieu sûr ou copiez-le sur une clé USB."));
-    dlg->dlglayout()->insertWidget(0, labelInfo);
-
-    UpLineEdit *champMDP = new UpLineEdit(dlg);
-    champMDP->setText(mdpSQL);
-    champMDP->setReadOnly(true);
-    champMDP->setAlignment(Qt::AlignCenter);
-    QFont police = champMDP->font();
-    police.setBold(true);
-    police.setPointSize(police.pointSize() + 4);
-    champMDP->setFont(police);
-    dlg->dlglayout()->insertWidget(1, champMDP);
-
-    UpLabel *labelCompte = new UpLabel();
-    dlg->dlglayout()->insertWidget(2, labelCompte);
-
-    // Compte à rebours : la fenêtre se ferme d'elle-même au bout de 30 secondes pour
-    // ne pas laisser le secret affiché. Le décompte est partagé (QSharedPointer) car
-    // le bouton USB doit pouvoir suspendre puis réarmer le timer.
-    QSharedPointer<int> reste = QSharedPointer<int>::create(30);
-    QTimer *tic = new QTimer(dlg);
-    tic->setInterval(1000);
-    auto majDecompte = [=]() { labelCompte->setText(tr("Cette fenêtre se fermera dans %1 secondes.").arg(*reste)); };
-    majDecompte();
-    connect(tic, &QTimer::timeout, dlg, [=]() {
-        if (--(*reste) <= 0) {
-            dlg->close();
+    btnUSB->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
+    btnUSB->setImmediateToolTip(tr("Enregistrer ce mot de passe sur une clé USB"));
+    connect(btnUSB, &QPushButton::clicked, this, [=]() {
+        const QString mdp = champ->text();
+        if (mdp.isEmpty())
+        {
+            UpMessageBox::Watch(this, tr("Aucun mot de passe à enregistrer"));
             return;
         }
-        majDecompte();
-    });
-
-    // Rangée de boutons : « Enregistrer » (RecordButton, icône standard de Rufus)
-    // sert à copier le mot de passe sur une clé USB ; le bouton rouge ferme la
-    // fenêtre. UpDialog ne connecte ni l'un ni l'autre par défaut (seul
-    // ButtonCancel l'est) : on les relie nous-mêmes.
-    dlg->AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonClose);
-    dlg->RecordButton->setImmediateToolTip(tr("Copier sur une clé USB"));
-    connect(dlg->RecordButton, &QPushButton::clicked, dlg, [=]() {
-        // On SUSPEND le décompte pendant le choix du dossier et l'écriture, pour
-        // éviter que la fenêtre ne se ferme en pleine copie.
-        tic->stop();
         const QString dossier = QFileDialog::getExistingDirectory(
-                    dlg, tr("Choisissez la clé USB où copier le mot de passe"));
-        if (!dossier.isEmpty()) {
-            QFile f(dossier + "/rufus-mdp-mysql.txt");
-            if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
-                f.write(mdpSQL.toUtf8());
-                f.write("\n");
-                f.close();
-                UpMessageBox::Watch(dlg, tr("Mot de passe copié"),
-                                    tr("Le mot de passe a été copié sur la clé USB."));
-            } else
-                UpMessageBox::Watch(dlg, tr("Échec de la copie"),
-                                    tr("Impossible d'écrire sur cet emplacement."));
+                    this, tr("Choisissez la clé USB où enregistrer le mot de passe"));
+        if (dossier.isEmpty())
+            return;
+        QFile f(dossier + "/rufus-mdp-mysql.txt");
+        if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+        {
+            f.write(mdp.toUtf8());
+            f.write("\n");
+            f.close();
+            UpMessageBox::Watch(this, tr("Mot de passe enregistré"),
+                                tr("Le mot de passe a été copié sur la clé USB."));
         }
-        // Copie terminée (ou annulée) : on réarme un décompte complet.
-        *reste = 30;
-        majDecompte();
-        tic->start();
+        else
+            UpMessageBox::Watch(this, tr("Échec de l'enregistrement"),
+                                tr("Impossible d'écrire sur cet emplacement."));
     });
-    connect(dlg->CloseButton, &QPushButton::clicked, dlg, &QDialog::accept);
-
-    tic->start();
-    dlg->exec();
 }
 
 void dlg_param::ParamMotifs()
@@ -2619,9 +2569,11 @@ void dlg_param::AfficheParamUser()
 
 void dlg_param::ConnectSignals()
 {
+    ConfigureChampMDPMySQL(ui->MDPMonouplineEdit,    ui->MDPMonoUSBupSmallButton);
+    ConfigureChampMDPMySQL(ui->MDPLocaluplineEdit,   ui->MDPLocalUSBupSmallButton);
+    ConfigureChampMDPMySQL(ui->MDPDistantuplineEdit, ui->MDPDistantUSBupSmallButton);
     connect(ui->FermepushButton,                    &QPushButton::clicked,                  this,   &dlg_param::FermepushButtonClicked);
     connect(ui->InitMDPAdminpushButton,             &QPushButton::clicked,                  this,   &dlg_param::ModifMDPAdmin);
-    connect(ui->RecupMDPMySQLpushButton,            &QPushButton::clicked,                  this,   &dlg_param::RecupererMdpMySQL);
     connect(ui->ChoixFontupPushButton,              &QPushButton::clicked,                  this,   &dlg_param::ChoixFontpushButtonClicked);
     connect(ui->PosteServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->PosteServcheckBox, a);});
     connect(ui->LocalServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->LocalServcheckBox, a);});

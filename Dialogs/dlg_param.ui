@@ -1069,7 +1069,7 @@
              <rect>
               <x>10</x>
               <y>180</y>
-              <width>295</width>
+              <width>325</width>
               <height>85</height>
              </rect>
             </property>
@@ -1129,6 +1129,16 @@
              </property>
              <property name="maxLength">
               <number>20</number>
+             </property>
+            </widget>
+            <widget class="UpSmallButton" name="MDPMonoUSBupSmallButton">
+             <property name="geometry">
+              <rect>
+               <x>276</x>
+               <y>46</y>
+               <width>30</width>
+               <height>26</height>
+              </rect>
              </property>
             </widget>
            </widget>
@@ -1268,7 +1278,7 @@ du dossier de stockage des videos</string>
              <rect>
               <x>10</x>
               <y>190</y>
-              <width>295</width>
+              <width>325</width>
               <height>108</height>
              </rect>
             </property>
@@ -1328,6 +1338,16 @@ du dossier de stockage des videos</string>
              </property>
              <property name="maxLength">
               <number>20</number>
+             </property>
+            </widget>
+            <widget class="UpSmallButton" name="MDPLocalUSBupSmallButton">
+             <property name="geometry">
+              <rect>
+               <x>276</x>
+               <y>72</y>
+               <width>30</width>
+               <height>26</height>
+              </rect>
              </property>
             </widget>
             <widget class="QLabel" name="EmplacementLocallabel">
@@ -1545,7 +1565,7 @@ du dossier de stockage des videos</string>
              <rect>
               <x>10</x>
               <y>168</y>
-              <width>295</width>
+              <width>325</width>
               <height>170</height>
              </rect>
             </property>
@@ -1712,6 +1732,16 @@ du dossier de stockage des videos</string>
              </property>
              <property name="maxLength">
               <number>20</number>
+             </property>
+            </widget>
+            <widget class="UpSmallButton" name="MDPDistantUSBupSmallButton">
+             <property name="geometry">
+              <rect>
+               <x>276</x>
+               <y>127</y>
+               <width>30</width>
+               <height>26</height>
+              </rect>
              </property>
             </widget>
            </widget>
@@ -3712,7 +3742,7 @@ liste des villes</string>
                <x>10</x>
                <y>5</y>
                <width>255</width>
-               <height>44</height>
+               <height>55</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -3762,9 +3792,9 @@ liste des villes</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>95</y>
+               <y>111</y>
                <width>255</width>
-               <height>44</height>
+               <height>55</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -3815,9 +3845,9 @@ les motifs de consultation</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>50</y>
+               <y>58</y>
                <width>255</width>
-               <height>44</height>
+               <height>55</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -3855,9 +3885,9 @@ de passe administrateur</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>140</y>
+               <y>164</y>
                <width>255</width>
-               <height>44</height>
+               <height>55</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -3882,9 +3912,9 @@ des organismes bancaires</string>
              <property name="geometry">
               <rect>
                <x>10</x>
-               <y>185</y>
+               <y>222</y>
                <width>255</width>
-               <height>44</height>
+               <height>55</height>
               </rect>
              </property>
              <property name="contextMenuPolicy">
@@ -3901,29 +3931,6 @@ des organismes bancaires</string>
               <size>
                <width>35</width>
                <height>35</height>
-              </size>
-             </property>
-            </widget>
-            <widget class="UpPushButton" name="RecupMDPMySQLpushButton">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>230</y>
-               <width>255</width>
-               <height>44</height>
-              </rect>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>Récupérer le mot
-de passe MySQL</string>
-             </property>
-             <property name="iconSize">
-              <size>
-               <width>32</width>
-               <height>32</height>
               </size>
              </property>
             </widget>
