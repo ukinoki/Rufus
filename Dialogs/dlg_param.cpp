@@ -1937,8 +1937,9 @@ void dlg_param::ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB)
     QAction *oeil = champ->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
     oeil->setToolTip(tr("Afficher / masquer le mot de passe"));
     connect(oeil, &QAction::triggered, this, [=]() {
-        champ->setEchoMode(champ->echoMode() == QLineEdit::Password ? QLineEdit::Normal
-                                                                    : QLineEdit::Password);
+        const bool masque = (champ->echoMode() == QLineEdit::Password);
+        champ->setEchoMode(masque ? QLineEdit::Normal : QLineEdit::Password);
+        oeil->setIcon(masque ? Icons::icEyeBarre() : Icons::icEye());   // affiché → œil barré, masqué → œil
     });
 
     btnUSB->setUpButtonStyle(UpSmallButton::RECORDBUTTON);
