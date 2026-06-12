@@ -1029,13 +1029,13 @@
           <property name="minimumSize">
            <size>
             <width>950</width>
-            <height>350</height>
+            <height>385</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>350</height>
+            <height>385</height>
            </size>
           </property>
           <property name="contextMenuPolicy">
@@ -1135,9 +1135,9 @@
              <property name="geometry">
               <rect>
                <x>276</x>
-               <y>46</y>
+               <y>47</y>
                <width>30</width>
-               <height>26</height>
+               <height>24</height>
               </rect>
              </property>
             </widget>
@@ -1344,9 +1344,9 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>276</x>
-               <y>72</y>
+               <y>73</y>
                <width>30</width>
-               <height>26</height>
+               <height>24</height>
               </rect>
              </property>
             </widget>
@@ -1738,9 +1738,9 @@ du dossier de stockage des videos</string>
              <property name="geometry">
               <rect>
                <x>276</x>
-               <y>127</y>
+               <y>128</y>
                <width>30</width>
-               <height>26</height>
+               <height>24</height>
               </rect>
              </property>
             </widget>
