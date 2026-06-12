@@ -525,14 +525,9 @@ QStringList MySQLInstaller::motsDePasseSQLCandidats()
     return candidats;
 }
 
-//  Stocke le mot de passe du MODE COURANT dans le .dbkey, en PRÉSERVANT les entrées des
-//  autres modes, puis met à jour le cache.
-void MySQLInstaller::stockerMotDePasse(const QString& mdp)
+//  Écrit toute la table clé→mdp dans le .dbkey (une ligne CLE=mdp par mode présent).
+static void ecrireDBKey(const QHash<QString,QString>& table)
 {
-    const QString cle = cleModeCourant();
-    QHash<QString,QString> table = lireDBKey();   // entrées existantes (autres modes)
-    table.insert(cle, mdp);
-
     QDir().mkpath(PATH_DIR_RUFUSKEY);             // dossier caché ~/.rufus (créé au besoin)
     QFile f(PATH_FILE_DBKEY);
     if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
@@ -541,7 +536,41 @@ void MySQLInstaller::stockerMotDePasse(const QString& mdp)
                 f.write(QString("%1=%2\n").arg(k, table.value(k)).toUtf8());
         f.close();
     }
-    s_cacheMDP.insert(cle, mdp);                  // garde le cache mémoire cohérent avec le disque
+}
+
+//  Stocke le mot de passe du MODE COURANT (cf. stockerMotDePassePourMode).
+void MySQLInstaller::stockerMotDePasse(const QString& mdp)
+{
+    stockerMotDePassePourMode(DataBase::I()->ModeAccesDataBase(), mdp);
+}
+
+//  Valeur BRUTE stockée pour un mode (pour configurer/afficher), "" si aucune.
+QString MySQLInstaller::motDePasseStockePourMode(Utils::ModeAcces mode)
+{
+    return lireDBKey().value(cleDepuisMode(mode));
+}
+
+//  Stocke le mot de passe d'un mode explicite dans le .dbkey, en PRÉSERVANT les autres
+//  modes, puis met à jour le cache.
+void MySQLInstaller::stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp)
+{
+    const QString cle = cleDepuisMode(mode);
+    QHash<QString,QString> table = lireDBKey();   // entrées existantes (autres modes)
+    table.insert(cle, mdp);
+    ecrireDBKey(table);
+    s_cacheMDP.insert(cle, mdp);                  // garde le cache cohérent avec le disque
+}
+
+//  Retire l'entrée d'un mode du .dbkey (mode de connexion abandonné) et du cache.
+void MySQLInstaller::supprimerMotDePassePourMode(Utils::ModeAcces mode)
+{
+    const QString cle = cleDepuisMode(mode);
+    s_cacheMDP.remove(cle);
+    QHash<QString,QString> table = lireDBKey();
+    if (!table.contains(cle))
+        return;                                   // rien à retirer
+    table.remove(cle);
+    ecrireDBKey(table);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

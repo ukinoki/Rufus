@@ -384,6 +384,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->PosteVideoDirupPushButton   ->setVisible(poste);
 
         ui->SQLPortPostecomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
+        ui->MDPMonouplineEdit           ->setText(MySQLInstaller::motDePasseStockePourMode(Utils::Poste));
         ui->PosteStockageInfoUpLabel    ->setText(QDir::toNativeSeparators(db->dirimagerie()));
     }
     Base                                = Utils::getBaseFromMode(Utils::ReseauLocal);
@@ -404,6 +405,7 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         ui->EmplacementLocaluplineEdit  ->setText(proc->settings()->value(Base + Param_Serveur).toString());
         ui->SQLPortLocalcomboBox        ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
+        ui->MDPLocaluplineEdit          ->setText(MySQLInstaller::motDePasseStockePourMode(Utils::ReseauLocal));
         ui->LocalPathStockageupLineEdit ->setText(proc->settings()->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Imagerie).toString());
     }
     Base                            = Utils::getBaseFromMode(Utils::Distant);
@@ -424,6 +426,7 @@ dlg_param::dlg_param(QWidget *parent) :
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + Param_Serveur).toString());
         ui->SQLPortDistantcomboBox      ->setCurrentText(proc->settings()->value(Base + Param_Port).toString());
+        ui->MDPDistantuplineEdit        ->setText(MySQLInstaller::motDePasseStockePourMode(Utils::Distant));
         QString dir = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
         if (dir == "")
         {
@@ -4100,27 +4103,74 @@ bool dlg_param::Valide_Modifications()
             return false;
         }
 
+        //! Chaque mode de connexion coché doit avoir son mot de passe MySQL renseigné
+        //! (stocké dans .dbkey, pas dans Rufus.ini).
+        if (ui->PosteServcheckBox->isChecked() && ui->MDPMonouplineEdit->text().isEmpty())
+        {
+            UpMessageBox::Watch(this, tr("Mot de passe MySQL manquant"),
+                                tr("Indiquez le mot de passe MySQL pour le mode « Monoposte »."));
+            ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabMono);
+            ui->MDPMonouplineEdit->setFocus();
+            return false;
+        }
+        if (ui->LocalServcheckBox->isChecked() && ui->MDPLocaluplineEdit->text().isEmpty())
+        {
+            UpMessageBox::Watch(this, tr("Mot de passe MySQL manquant"),
+                                tr("Indiquez le mot de passe MySQL pour le mode « Réseau local »."));
+            ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabLocal);
+            ui->MDPLocaluplineEdit->setFocus();
+            return false;
+        }
+        if (ui->DistantServcheckBox->isChecked() && ui->MDPDistantuplineEdit->text().isEmpty())
+        {
+            UpMessageBox::Watch(this, tr("Mot de passe MySQL manquant"),
+                                tr("Indiquez le mot de passe MySQL pour le mode « Accès distant »."));
+            ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabDistant);
+            ui->MDPDistantuplineEdit->setFocus();
+            return false;
+        }
+
+        //! Mot de passe MySQL : stocké dans .dbkey si le mode est actif, retiré sinon
+        //! (mode de connexion abandonné).
         QString Base = Utils::getBaseFromMode(Utils::Poste);
         if (ui->PosteServcheckBox->isChecked())
+        {
             proc->settings()->setValue(Base + Param_Active,"YES");
+            MySQLInstaller::stockerMotDePassePourMode(Utils::Poste, ui->MDPMonouplineEdit->text());
+        }
         else
+        {
             proc->settings()->setValue(Base + Param_Active,"NO");
+            MySQLInstaller::supprimerMotDePassePourMode(Utils::Poste);
+        }
         proc->settings()->setValue(Base + Param_Port,ui->SQLPortPostecomboBox->currentText());
 
         Base = Utils::getBaseFromMode(Utils::ReseauLocal);
         if (ui->LocalServcheckBox->isChecked())
+        {
             proc->settings()->setValue(Base + Param_Active,"YES");
+            MySQLInstaller::stockerMotDePassePourMode(Utils::ReseauLocal, ui->MDPLocaluplineEdit->text());
+        }
         else
+        {
             proc->settings()->setValue(Base + Param_Active,"NO");
+            MySQLInstaller::supprimerMotDePassePourMode(Utils::ReseauLocal);
+        }
         proc->settings()->setValue(Base + Param_Serveur,Utils::calcIP(ui->EmplacementLocaluplineEdit->text(), false));
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->settings()->setValue(Base + Param_Port,ui->SQLPortLocalcomboBox->currentText());
 
         Base = Utils::getBaseFromMode(Utils::Distant);
         if (ui->DistantServcheckBox->isChecked())
+        {
             proc->settings()->setValue(Base + Param_Active,"YES");
+            MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, ui->MDPDistantuplineEdit->text());
+        }
         else
+        {
             proc->settings()->setValue(Base + Param_Active,"NO");
+            MySQLInstaller::supprimerMotDePassePourMode(Utils::Distant);
+        }
         //if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
         if (!Utils::RegularExpressionMatches(Utils::rgx_IPV4, ui->EmplacementDistantuplineEdit->text()))
             proc->settings()->setValue(Base + Param_Serveur, Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));

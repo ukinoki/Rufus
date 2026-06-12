@@ -168,6 +168,11 @@ public:
     //  Stocke le mot de passe du MODE COURANT dans le .dbkey (les autres modes sont
     //  préservés) ET met à jour le cache.
     static void    stockerMotDePasse(const QString& mdp);
+    //  Variantes par MODE EXPLICITE : pour configurer plusieurs bases (une par mode)
+    //  depuis dlg_param, indépendamment du mode de connexion courant.
+    static QString motDePasseStockePourMode(Utils::ModeAcces mode);                   // valeur brute stockée, "" si aucune
+    static void    stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp);
+    static void    supprimerMotDePassePourMode(Utils::ModeAcces mode);               // mode de connexion abandonné
 
     //  Sécurisation « à la volée » d'une base EXISTANTE connectée en monoposte.
     //  Si .dbkey est absent (base encore sur le mot de passe public gaxt78iy), bascule

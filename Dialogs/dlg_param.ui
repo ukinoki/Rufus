@@ -1070,7 +1070,7 @@
               <x>10</x>
               <y>180</y>
               <width>295</width>
-              <height>51</height>
+              <height>85</height>
              </rect>
             </property>
             <property name="frameShape">
@@ -1100,6 +1100,35 @@
                <width>104</width>
                <height>26</height>
               </rect>
+             </property>
+            </widget>
+            <widget class="QLabel" name="MDPMonolabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>50</y>
+               <width>95</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Mot de passe</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="MDPMonouplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>47</y>
+               <width>150</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::EchoMode::Password</enum>
+             </property>
+             <property name="maxLength">
+              <number>20</number>
              </property>
             </widget>
            </widget>
@@ -1240,7 +1269,7 @@ du dossier de stockage des videos</string>
               <x>10</x>
               <y>190</y>
               <width>295</width>
-              <height>81</height>
+              <height>108</height>
              </rect>
             </property>
             <property name="frameShape">
@@ -1270,6 +1299,35 @@ du dossier de stockage des videos</string>
                <width>104</width>
                <height>26</height>
               </rect>
+             </property>
+            </widget>
+            <widget class="QLabel" name="MDPLocallabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>76</y>
+               <width>95</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Mot de passe</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="MDPLocaluplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>73</y>
+               <width>150</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::EchoMode::Password</enum>
+             </property>
+             <property name="maxLength">
+              <number>20</number>
              </property>
             </widget>
             <widget class="QLabel" name="EmplacementLocallabel">
@@ -1488,7 +1546,7 @@ du dossier de stockage des videos</string>
               <x>10</x>
               <y>168</y>
               <width>295</width>
-              <height>140</height>
+              <height>170</height>
              </rect>
             </property>
             <property name="contextMenuPolicy">
@@ -1625,6 +1683,35 @@ du dossier de stockage des videos</string>
              </property>
              <property name="frame">
               <bool>true</bool>
+             </property>
+            </widget>
+            <widget class="QLabel" name="MDPDistantlabel">
+             <property name="geometry">
+              <rect>
+               <x>20</x>
+               <y>131</y>
+               <width>95</width>
+               <height>16</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Mot de passe</string>
+             </property>
+            </widget>
+            <widget class="UpLineEdit" name="MDPDistantuplineEdit">
+             <property name="geometry">
+              <rect>
+               <x>120</x>
+               <y>128</y>
+               <width>150</width>
+               <height>24</height>
+              </rect>
+             </property>
+             <property name="echoMode">
+              <enum>QLineEdit::EchoMode::Password</enum>
+             </property>
+             <property name="maxLength">
+              <number>20</number>
              </property>
             </widget>
            </widget>
