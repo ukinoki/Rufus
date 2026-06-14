@@ -1,0 +1,160 @@
+Installation de la nouvelle version de Rufus- gestion du mot de passe sécurisée et la version de la base MySQL
+
+1. la nouvelle version impose une version de la base supérieure à 84.3 sous MacOS/W11 et 8.0?.14 sous Linux
+2. Elle introduit un mot de passe de connexion MySQL  généré aleatoiremeent qui remplace le mot de passe unique utilisé jusque là, pour les 2 utilistauers MySQL Rufus, adminrufus et adminrufusSSL
+
+
+2 possibilités, après avoir téléchargé Rufus,
+1. l'utilisateur crée une nouvelle base Rufus (uniquement en monoposte)
+2. l'utilisateur se connecte à une base existante sur son poste, ou sur un poste réseau local ou distant
+
+
+
+LE FLUX
+
+1. première tache -> VÉRIFICATION DE LA VERSION DE MYSQL
+	éxecutée par l'installeur pour ne pas créer une irréversibilité
+	En l'occurrence, il ne faut pas écraser une version précédente de Rufus qui fonctionne dans le cas où la migration vers la nouvelle version entrainerait
+	un blocage parce que la version installée de MySQL ne permet pas l'usage du double mot de passe (8.4.3 sur MacOS et 8.0.14 sous Linux)
+	la version du serveur sera inscrite avec l'OS utilisé dans un fichier .verif
+	ce fichier sera créé dans le répertoire partagé de Rufus sur le serveur ()/Users/Shared/Rufus ou autre suivant l'OS)
+	la version sera inscrite sous la forme 
+	   VERSION MYSQL = 8.XX
+	   OS = UBUNTU
+	   a - ne se fait que si une version préexistante de Rufus existe sur ce poste ou si une base de données Rufus existe sur ce poste
+	   b - si la base MySQL est installée sur ce poste (lire la rubrique BDD_POSTE dans rufus.ini pour vérifier si ACTIVE=YES)
+	       si la version de la base ne remplit pas les critères 
+	   	   Message
+	        " Ce poste est le poste serveur de la base de données patients"
+	        " L'installation de cette nouvelle version de Rufus nécessite une mise à jour du gestionnaire MySQL de cette base de données"
+	        " Pour faire cette mise à jour, Rufus devra désinstaller MySQL avant de réinstaller une version plus récente."
+			" Rufus devra  donc faire une sauvegarde de votre base de données patients pour pouvoir la réinstaller"
+			" après l'installation de la nouvelle version de Rufus"
+			2 boutons
+				1. annuler
+				2. OK, on peut continuer
+	   C - si le client Rufus est utilisé en réseau (lire les rubriques BDD_LOCAL et BDD_DISTANT dans rufus.ini pour vérifier si ACTIVE=YES)
+			On installe le rpogramme sans rien signaler
+			
+2. Lancement après installation de la nouvelle version du programme
+	I - Présence d'un rufus.ini
+		On se connecte en suivant les instructions de rufus.ini
+		On recherche le mdp sur le fichier .debkey et, si on ne le trouve pas, on se connecte avec gaxt78iy
+		Si on s'est connecté avec le mdp gaxt78iy,
+			On crée un mdp aleatoire qu'on stocke sur un fichier .debkey dans le dossier partagé du serveur
+			On invite à récupérer le nouveau mdp aléatoire
+		(NOTA: créer le fichier .debkey non pas sur chaque poste mais dans le dossier partagé du serveur
+			permet de rendre accessible le mdp à tous les nouveaux postes
+			pose un pd de piratage réseau en Wifi)
+
+		En monoposte
+			On vérifie la version de MySQL
+				si la version de MySQL n'est pas conforme aux critères
+					on lance la PROCÉDURE DE MISE À JOUR DE LA BASE QUAND LES CRITÈRES NE SONT PAS REMPLIS
+				si elle est conforme aux critères
+					on tente de récupérer le mdp sur le .debkey du serveur et la date de création de ce fichier
+					si OK (le serveur a été mis à jour avec le nouveau mdp)
+						On fixe une deadline à 30 jours à partir de la date de création du ficier .debkey
+						A la date de la deadline, si le mdp gaxt78iy existe encore, on le supprime
+					Si pas OK, on teste avec gaxt78iy (le serveur n'a pas été mis à jour avec les doubles mots de passe)
+						on crée les doubles mots de passe
+						on crée les fichiers .debkey et .verif
+			Si on vient de créer les fichiers .debkey et .verif, on invite fortement,
+				à récupérer le mdp et à le garder en lieu sûr
+				si le serveur est utilisé en réseau,
+					à faire la MAJ de Rufus sur tous les autres postes du réseau car l'ancienne version ne fonctionnera plus au delà de la deadline
+					à fournir le mdp pour les utilisateurs distants
+
+		En réseau
+			on tente de récupérer le mdp sur le .debkey du serveur et la date de création de ce fichier
+			si OK (le serveur a été mis à jour avec le nouveau mdp)
+				On fixe une deadline à 30 jours à partir de la date de création du ficier .debkey
+				A la date de la deadline, si le mdp gaxt78iy existe encore, on le supprime
+			Si pas OK
+				-> on a mis à jour sur ce poste mais le serveur n'a pas été mis à jour avec les doubles mots de passe, on utilise gaxt78iy
+			
+	II - pas de rufus.ini
+		A. Nouvelle base patients vierge - en monoposte uniquement
+			1. Vérification d'une base MySQL préinstallée
+					A. oui une base MySQL est installée
+						1. Vérification si une base Rufus est installée, en tentant de se connecter avec le mdp gaxt78iy
+							a. oui - message " Une base Rufus est installée sur cet ordinateur. Voulez-vous la supprimer ou l'utiliser?"
+								Réponse la conserver -> retour au menu PremierDémarrage()
+								Réponse la supprimer - on continue
+								Réponse annuler -> retour au menu PremierDémarrage()
+							b. non, on continue
+						2. Vérification de la version de la version de MySQL
+							a. ne remplit pas les critères -> "message de confirmation" avant de supprimer MySQL et de le réinstaller
+							b. remplit les critères -> on continue
+					B. Pas base MySQL installée -> on continue
+			2. Installation et configuration de la base MySQL avec mdp aléatoire et création du fichier .verif
+			3. Sauvegarde du mdp aléatoire dans le fichier .debkey du dossier partagé du serveur 
+			4. avant dernier message de fin,
+				on invite fortement,
+					à récupérer le mdp et à le garder en lieu sûr
+					si le serveur est utilisé en réseau,
+						à faire la MAJ de Rufus sur tous les autres postes du réseau car l'ancienne version ne fonctionnera plus au delà de la deadline
+						à fournir le mdp pour les utilisateurs distantsavant celui indiquant que le programme doit se fermer
+		B. connexion à une base de données existante
+			en monoposte,
+				si la version de MySQL n'est pas conforme aux critères
+					on lance la PROCÉDURE DE MISE À JOUR DE LA BASE QUAND LES CRITÈRES NE SONT PAS REMPLIS
+				si elle est conforme aux critères
+					on tente de récupérer le mdp sur le .debkey du serveur et la date de création de ce fichier
+					si OK (le serveur a été mis à jour avec le nouveau mdp)
+						On fixe une deadline à 30 jours à partir de la date de création du ficier .debkey
+						A la date de la deadline, si le mdp gaxt78iy existe encore, on le supprime
+					Si pas OK, on teste avec gaxt78iy (le serveur n'a pas été mis à jour avec les doubles mots de passe)
+						on crée les doubles mots de passe
+						on crée les fichiers .debkey et .verif
+				Si on vient de créer les fichiers .debkey et .verif, on invite fortement,
+					à récupérer le mdp et à le garder en lieu sûr
+					si le serveur est utilisé en réseau,
+						à faire la MAJ de Rufus sur tous les autres postes du réseau car l'ancienne version ne fonctionnera plus au delà de la deadline
+						à fournir le mdp pour les utilisateurs distants
+			en réseau local
+				on tente de récupérer le mdp sur le .debkey du serveur et la date de création de ce fichier
+				si OK (le serveur a été mis à jour avec le nouveau mdp)
+					On fixe une deadline à 30 jours pour la suppression du mdp gaxt78iy
+					A la date de la deadline, si le mdp gaxt78iy existe encore, on le supprime
+				Si pas OK (le serveur n'a pas été mis à jour avec les doubles mots de passe, on utilise gaxt78iy)
+					Si la version du serveur remplit les critères
+						on crée les doubles mots de passe
+						on crée les fichiers .debkey et .verif
+				Si on vient de créer les fichiers .debkey et .verif, on invite fortement,
+					à récupérer le mdp et à le garder en lieu sûr
+					si le serveur est utilisé en réseau,
+						à faire la MAJ de Rufus sur tous les autres postes du réseau car l'ancienne version ne fonctionnera plus au delà de la deadline
+						à fournir le mdp pour les utilisateurs distants
+			en accès distant
+				on se connecte avec gaxt78iy si on n'a pas le mdp aleatoire
+				mais ça ne pose pas de gros problème de sécurité parce qu'il faut les clés SSL pour se connecter
+				On crée un fichier .debkey dans lequel on ne stocke rien.
+				On demande d'avoir accès au mdp aleatoire et on le stocke dans .rufus/.debkey
+				Les postes en accès distants sont donc les seuls à avoir un fichier .rufus/.debkey et ne cherchent pas à lire le .debkey dans le dossier partagé du serveur
+				Ils invitent donc régulièrement l'utilisateur à récupérer le mdp aleatoire tant qu'ils ne l'ont pas en leur signifiant qu'il y a une deadline  de connexion de 30jours voire moins
+				l'utilisateur en accès distant ne crée pas le mdp aléatoire.
+
+				
+				
+PROCÉDURE DE MISE À JOUR DE LA BASE QUAND LES CRITÈRES NE SONT PAS REMPLIS
+	Message
+	" L'installation de cette nouvelle version de Rufus nécessite une mise à jour de la base de données patients MySQL"
+	" Pour faire cette mise à jour, Rufus doit désinstaller MySQL avant de réinstaller une version plus récente."
+	" Il vous faut donc faire une sauvegarde de votre base de données patients pour pouvoir la réinstaller"
+	" après l'installation de la nouvelle version de Rufus"
+	" voulez-vous procéder à cette sauvegarde ou désirez-vous continuer?"
+	" si vous continuez vos données patients seront irrémédiablement perdues si vous n'avez pas fait de sauvegarde."
+		2 boutons
+	   		1. faire une sauvegarde d'abord
+	   		2. Ma sauvegarde est effectuée et testée, on peut continuer
+			Si choix = sauvegarde d'abord, se connecter à la base avec adminrufus/gaxt78iy
+			et utiliser la fonction de sauvegarde de Procedures::Backup() avec (m_parametres->dirbkup(), true, false, false, false) -> on sauvegarde uniquement la base
+			après message de confirmation si le backup s'est bien déroulé, on continue
+			(Nota: modifier la fonction Procedures::Backup() -> si le dossier de sauvegarde ne peut pas être créé, on ouvre une boîte de dialogue pour en choisir un)
+			On désinstalle MySQL puis on réinstalle la nouvelle version
+			On restaure la base
+			On crée ou on met à jour le rufus.ini
+			(Nota: vérifier les fonctions Procedures::Backup() et Procedures::RestaureBase().
+			Rajouter un paramètre dans Procedures::RestaureBase() pour lui indiquer l'emplacement du fichier de restauration sans faire intervenir un choix de l'utilisateur)
+			On crée un mdp aléatoire qu'on stocke dans .debkey sur le dossier partagé et on crée un fichier .verif avec la version du serveur
