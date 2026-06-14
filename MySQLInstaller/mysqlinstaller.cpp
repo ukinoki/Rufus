@@ -965,13 +965,45 @@ bool MySQLInstaller::run()
     // ════════════════════════════════════════════════════════════════════════
     if (!isServerRunning()) startMySQL();
 
-    // Une base Rufus COMPLÈTE existe déjà ? Ce n'est pas le rôle de nbp.
+    // Une base Rufus COMPLÈTE existe déjà ? (cf. doc II.A.1.A.1.a) On propose de la
+    // CONSERVER, la SUPPRIMER, ou ANNULER. Conserver/Annuler → retour à PremierDemarrage()
+    // (return false) ; Supprimer → on retire les bases Rufus puis on continue le flux.
     if (baseRufusComplete()) {
-        UpMessageBox::Information(nullptr, tr("Une base Rufus existe déjà"),
-            tr("Un serveur MySQL contient déjà une base Rufus complète sur cet "
-               "ordinateur.\n\nPour vous y connecter, utilisez « Base patients "
-               "existante sur le serveur » depuis l'écran de premier démarrage."));
-        return false;
+        UpMessageBox msgbox(nullptr);
+        msgbox.setIcon(UpMessageBox::Quest);
+        msgbox.setText(tr("Une base Rufus existe déjà"));
+        msgbox.setInformativeText(tr(
+            "Une base de données Rufus existe déjà sur cet ordinateur.\n\n"
+            "Pour vous y connecter, choisissez « Conserver » puis, depuis l'écran de "
+            "premier démarrage, « Base patients existante sur le serveur ».\n\n"
+            "Voulez-vous la conserver ou la supprimer ?"));
+        UpSmallButton* bAnnuler   = new UpSmallButton(tr("Annuler"));
+        UpSmallButton* bSupprimer = new UpSmallButton(tr("Supprimer la base Rufus existante"));
+        UpSmallButton* bConserver = new UpSmallButton(tr("Conserver la base existante"));
+        msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(bSupprimer, UpSmallButton::OUPSBUTTON);
+        msgbox.addButton(bConserver, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() != bSupprimer)
+            return false;                       // Conserver / Annuler → PremierDemarrage()
+
+        // Suppression : action IRRÉVERSIBLE (données patients) → confirmation explicite.
+        if (!askYesNo(tr("Supprimer la base Rufus ?"),
+                tr("Cette opération supprimera DÉFINITIVEMENT la base de données Rufus "
+                   "(patients, comptabilité, ophtalmologie, imagerie) présente sur ce "
+                   "serveur.\n\nCette action est IRRÉVERSIBLE. Voulez-vous continuer ?")))
+            return false;                       // non confirmé → PremierDemarrage()
+
+        // On retire les bases Rufus via le mot de passe qui a permis la détection
+        // (LOGIN_SQL + motDePasseSQL(), cf. baseRufusComplete), puis on continue.
+        const QString mdp = motDePasseSQL();
+        const QString dropSql =
+            "DROP DATABASE IF EXISTS " DB_RUFUS ";"
+            "DROP DATABASE IF EXISTS " DB_COMPTA ";"
+            "DROP DATABASE IF EXISTS " DB_OPHTA ";"
+            "DROP DATABASE IF EXISTS " DB_IMAGES ";";
+        runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, dropSql));
     }
 
     // Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) :
