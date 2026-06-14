@@ -2690,6 +2690,102 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
     }
 }
 
+//! Vérifie qu'une sauvegarde de base (mysqldump) dans 'dossier' est complète AVANT toute
+//! destruction : le fichier rufus.sql existe, n'est pas vide, et se termine par la marque
+//! « Dump completed » que mysqldump écrit en fin de fichier réussi.
+bool Procedures::SauvegardeBaseValide(QString dossier)
+{
+    const QString chemin = dossier + "/" DB_RUFUS ".sql";
+    QFileInfo fi(chemin);
+    if (!fi.exists() || fi.size() < 100)
+        return false;
+    QFile f(chemin);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return false;
+    const qint64 tailLen = qMin<qint64>(fi.size(), 4096);   // mysqldump écrit « -- Dump completed » à la fin
+    f.seek(fi.size() - tailLen);
+    const QString fin = QString::fromUtf8(f.read(tailLen));
+    f.close();
+    return fin.contains("Dump completed", Qt::CaseInsensitive);
+}
+
+//! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL (serveur local trop ancien, monoposte).
+//! Chronologie SÛRE : sauvegarde -> VALIDATION de la sauvegarde -> (seulement alors)
+//! désinstallation/réinstallation de MySQL -> restauration automatique -> relance.
+//! On ne désinstalle JAMAIS sans une sauvegarde validée : en cas d'échec à n'importe
+//! quelle étape, la sauvegarde est conservée et rien d'irréversible n'est tenté.
+bool Procedures::MettreAJourSocleMySQL()
+{
+    // 1. Avertissement + confirmation.
+    UpMessageBox msgbox(Q_NULLPTR);
+    msgbox.setText(tr("Mise à jour du serveur MySQL nécessaire"));
+    msgbox.setInformativeText(
+        tr("Cette version de Rufus nécessite une version plus récente du serveur MySQL.") + "\n\n" +
+        tr("Rufus va sauvegarder votre base de données, désinstaller l'ancien MySQL, "
+           "installer la nouvelle version, puis restaurer votre base.") + "\n\n" +
+        tr("La sauvegarde est faite et vérifiée AVANT toute désinstallation : "
+           "si elle échoue, rien ne sera supprimé."));
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Annuler"));
+    UpSmallButton *OKb   = new UpSmallButton(); OKb->setText(tr("Lancer la mise à jour"));
+    msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(OKb,   UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() != OKb)
+        return false;
+
+    // 2. Sauvegarde de la base SEULE, dans un dossier dédié.
+    const QString dossierMig = QString(PATH_DIR_RUFUS) + "/MigrationMySQL";
+    Utils::mkpath(dossierMig);
+    if (!Backup(dossierMig, true, false, false, false, false, Q_NULLPTR))
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
+            tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
+        return false;
+    }
+
+    // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
+    QDir d(dossierMig);
+    const QStringList sub = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
+    if (sub.isEmpty())
+        return false;
+    const QString dossierSauvegarde = dossierMig + "/" + sub.first();
+
+    // 4. VALIDER la sauvegarde AVANT toute destruction.
+    if (!SauvegardeBaseValide(dossierSauvegarde))
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
+            tr("La sauvegarde semble incomplète. La mise à jour est annulée : rien n'a été désinstallé.") + "\n" +
+            tr("Sauvegarde conservée dans :") + "\n" + dossierSauvegarde);
+        return false;
+    }
+
+    // 5. Désinstallation + réinstallation du socle MySQL (recrée adminrufus + gaxt78iy).
+    if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Réinstallation impossible"),
+            tr("La réinstallation de MySQL a échoué.") + "\n" +
+            tr("Votre sauvegarde est conservée dans :") + "\n" + dossierSauvegarde);
+        return false;
+    }
+
+    // 6. Restauration AUTOMATIQUE de la base depuis la sauvegarde validée.
+    if (!RestaureBase(false, false, false, Q_NULLPTR, dossierSauvegarde))
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Restauration impossible"),
+            tr("La base n'a pas pu être restaurée automatiquement.") + "\n" +
+            tr("Votre sauvegarde est conservée dans :") + "\n" + dossierSauvegarde);
+        return false;
+    }
+
+    // 7. Tout est OK : relance de Rufus sur le nouveau socle.
+    UpMessageBox::Watch(Q_NULLPTR, tr("Mise à jour terminée"),
+        tr("MySQL a été mis à jour et votre base restaurée. Rufus va redémarrer."));
+    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+    exit(0);
+    return true;   // jamais atteint
+}
+
 bool Procedures::VerifVersionBase(QWidget* parent)
 {
     auto erreur = [] (QWidget *parent)
@@ -3374,10 +3470,20 @@ bool Procedures::IdentificationUser()
             return false;
     }
 
-    //! Connexion établie : AVANT toute identification, on contrôle le socle MySQL et on
-    //! sécurise la base au besoin — pose d'un mot de passe aléatoire + écriture du .dbkey,
-    //! en CONSERVANT gaxt78iy comme 2e mot de passe — puis on supprime gaxt78iy si la
-    //! deadline (sécurisation + 30 j) est passée. No-op si déjà fait / serveur < 8.0.14.
+    //! ÉTAPE 2 — Contrôle du socle MySQL AVANT toute autre chose. Si la version n'est pas
+    //! conforme au seuil de l'OS (8.4.3 Win/macOS, 8.0.14 Linux) ET que ce poste HÉBERGE la
+    //! base (monoposte), on lance la PROCÉDURE DE MISE À JOUR DU SOCLE (sauvegarde validée →
+    //! réinstall → restauration → relance). Si l'utilisateur annule, la base fonctionne
+    //! encore sur l'ancien MySQL : on continue (pas de blocage).
+    if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::socleMySQLConforme())
+    {
+        if (MettreAJourSocleMySQL())
+            return false;                       // succès → Rufus a redémarré
+    }
+
+    //! ÉTAPE 3 — Sécurisation : si la base est encore sur gaxt78iy, on pose un mot de passe
+    //! aléatoire (en CONSERVANT gaxt78iy comme 2e mot de passe) et on écrit le .dbkey ; puis
+    //! on supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée. No-op si déjà fait.
     MySQLInstaller::entretienApresConnexion();
 
     bool ok = false;

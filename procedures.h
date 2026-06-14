@@ -110,6 +110,8 @@ private:
     QString                 m_dirSSLkeys = "";                                          //! le chemin vers le dossier des clés SSL
     void                    ReconstruitListeModesAcces();
     bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
+    bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
+    bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
     bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
