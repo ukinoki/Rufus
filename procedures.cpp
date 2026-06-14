@@ -618,7 +618,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             msg += tr("Fichiers video sauvegardés");
         }
     }
-    else
+    else if (!OKBase)            // ni base ni fichiers demandés → rien à sauvegarder
     {
         result(handledlg, this);
         return false;
@@ -2743,6 +2743,9 @@ bool Procedures::MettreAJourSocleMySQL()
             tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
         return false;
     }
+    //! Backup lance le dump de façon ASYNCHRONE (m_ostask) : on ATTEND sa fin avant de
+    //! valider, sinon on lirait un fichier .sql encore incomplet.
+    m_ostask.waitForFinished(-1);
 
     // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
     QDir d(dossierMig);
