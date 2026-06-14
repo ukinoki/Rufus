@@ -1253,6 +1253,71 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     return true;
 }
 
+//  Réinstallation du SOCLE MySQL pour une MIGRATION : installe le serveur puis crée
+//  adminrufus/adminrufusSSL (mot de passe aléatoire + gaxt78iy en 2e), SANS demander de
+//  nouvel utilisateur applicatif ni créer de base vierge — les bases Rufus (et leurs
+//  utilisateurs) sont restaurées ENSUITE depuis la sauvegarde par RestaureBase.
+//  C'est la section « install » de faireCreate(), sans la saisie d'utilisateur.
+bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
+{
+    m_dialog = new MySQLInstallerDialog();
+    m_dialog->configurerCreateUserRufus(cfg.minVersion);
+    m_dialog->passerEnConfiguration(
+        tr("Réinstallation de MySQL"),
+        tr("Installation du serveur MySQL en cours…"));
+    m_dialog->show();
+    QApplication::processEvents();
+
+    m_login    = LOGIN_SQL;
+    m_password = genererMotDePasse();
+
+    QString dlUrl;
+#if defined(Q_OS_WIN)
+    dlUrl = cfg.winUrl;
+#elif defined(Q_OS_MACOS)
+    dlUrl = (runCmd("uname -m 2>/dev/null").trimmed() == "arm64") ? cfg.macArm64Url : cfg.macX86Url;
+#else
+    dlUrl = cfg.winUrl;
+#endif
+    if (!checkDownloadConnectivity(dlUrl)) { cleanupDialog(); return false; }
+
+    if (!installMySQL())          { cleanupDialog(); return false; }
+    m_freshInstall = true;
+    startMySQL();
+    if (!executerEtapesConfig())  { cleanupDialog(); return false; }
+    stockerMotDePasse(m_password);
+    cleanupDialog();
+    return true;
+}
+
+//  Orchestration destructive de la migration du socle : (droits admin) -> désinstallation
+//  de l'ancien MySQL -> réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde
+//  VALIDÉE (cf. Procedures). Renvoie true si le nouveau socle est prêt.
+bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
+{
+    if (!assurerDroitsAdmin())
+        return false;
+    const MySQLRemoteConfig cfg = fetchRemoteConfig();
+    uninstallMySQL();
+    return reinstallerSocleMySQL(cfg);
+}
+
+//  true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil exigé
+//  par l'OS (cf. seuilVersionMySQL) et n'est pas MariaDB. False si trop ancien / illisible.
+bool MySQLInstaller::socleMySQLConforme()
+{
+    bool ok = false;
+    QVariantList rv = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT VERSION()", ok);
+    if (!ok || rv.isEmpty())
+        return false;
+    const QString sv = rv.at(0).toString();
+    if (sv.contains("MariaDB", Qt::CaseInsensitive))
+        return false;
+    QRegularExpression re(R"((\d+\.\d+\.\d+))");
+    const auto mv = re.match(sv);
+    return mv.hasMatch() && versionAtLeast(mv.captured(1), seuilVersionMySQL());
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  Étapes de configuration post-install/verify. true si toutes validées.
 //  En mode CREATE (absent) : les comptes sont créés ici par createUser()

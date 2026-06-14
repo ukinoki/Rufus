@@ -184,6 +184,13 @@ public:
     //  serveur ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
     void    securiserBaseSiNecessaire();
 
+    //  true si le serveur MySQL courant atteint le seuil exigé par l'OS (seuilVersionMySQL)
+    //  et n'est pas MariaDB. Sert au démarrage à décider d'une migration du socle.
+    static bool      socleMySQLConforme();
+    //  Migration DESTRUCTIVE du socle : désinstalle l'ancien MySQL puis réinstalle + crée
+    //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.
+    bool             reinstallerSocleMySQLpourMigration();
+
     //  À appeler APRÈS toute connexion réussie : sécurise la base au besoin, puis
     //  supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée.
     static void      entretienApresConnexion();
@@ -220,6 +227,7 @@ private:
     //  true si la base Rufus est prête. La saisie du futur utilisateur Rufus a déjà
     //  été faite par run() avant l'appel.
     bool    faireCreate(const MySQLRemoteConfig& cfg);
+    bool    reinstallerSocleMySQL(const MySQLRemoteConfig& cfg);   // section install de faireCreate, sans saisie d'utilisateur (migration)
 
     //  MySQL DÉJÀ présent et compatible : que faire de l'instance existante ?
     //  (plus de « mode Verify » automatique — on demande à l'utilisateur).
