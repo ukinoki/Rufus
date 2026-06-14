@@ -2396,23 +2396,28 @@ bool MySQLInstaller::createUser()
         return true;
 #endif
 
-    // Crée DEUX comptes avec le MÊME mot de passe aléatoire, en @'%' (réseau) :
+    // Crée DEUX comptes en @'%' (réseau), avec un DOUBLE mot de passe :
+    //   • mot de passe PRIMAIRE = m_password (aléatoire, stocké dans ~/.rufus/.dbkey) ;
+    //   • mot de passe SECONDAIRE = gaxt78iy (MDP_SQL), conservé via RETAIN CURRENT
+    //     PASSWORD pour qu'un futur poste réseau puisse se connecter (bootstrap) tant
+    //     que la deadline de 30 jours n'a pas supprimé gaxt78iy.
     //   • adminrufus       → ALL PRIVILEGES … WITH GRANT OPTION ;
     //   • adminrufusSSL    → idem + REQUIRE SSL.
+    // On pose d'abord gaxt78iy comme mot de passe courant (que le compte existe déjà ou
+    // non), puis on bascule sur l'aléatoire EN CONSERVANT gaxt78iy comme 2e mot de passe.
+    // (RETAIN CURRENT PASSWORD : MySQL >= 8.0.14, garanti par l'install d'un serveur 8.x.)
     const QString sslLogin = QString(LOGIN_SQL "SSL");
-    // CREATE USER IF NOT EXISTS ne met PAS à jour le mot de passe d'un compte
-    // déjà présent : on ajoute donc un ALTER USER … IDENTIFIED BY … pour IMPOSER
-    // le mot de passe aléatoire (celui stocké dans ~/.rufus/.dbkey), que le
-    // compte existe déjà ou non — sinon adminrufus garderait un ancien mot de
-    // passe et la connexion ultérieure échouerait.
+    const QString legacy   = QString(MDP_SQL);
     const QString sql = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2';"
-        "ALTER USER '%1'@'%' IDENTIFIED BY '%2';"
+        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%4';"
+        "ALTER USER '%1'@'%' IDENTIFIED BY '%4';"
+        "ALTER USER '%1'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED BY '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
-        "FLUSH PRIVILEGES;\n").arg(m_login, m_password, sslLogin);
+        "FLUSH PRIVILEGES;\n").arg(m_login, m_password, sslLogin, legacy);
 
 #if defined(Q_OS_LINUX)
     // Sur Ubuntu, root@localhost utilise auth_socket : « mysql -u root » ne

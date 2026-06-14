@@ -2294,7 +2294,7 @@ void Procedures::CalcTimeBupRestore()
     dlg_buprestore->OKButton->setEnabled(m_freespace>volume);
 }
 
-bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent)
+bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
     UpMessageBox    msgbox(parent);
     UpSmallButton   AnnulBouton;
@@ -2412,31 +2412,43 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (AutresPostesConnectes())
                  return false;
 
-        /*! 1 - choix du dossier où se situe la sauvegarde */
-        UpMessageBox::Information(parent, tr("Choix du dossier de sauvegarde"),
-                                  tr("Dans la fiche suivante, choisissez le dossier "
-                                  "contenant la sauvegarde de la base.") + "<br/><br/>" +
-                                  tr("Une fois le dossier sélectionné, "
-                                  "la sauvegarde commencera automatiquement.") + "<br/>" +
-                                  tr("Ce processus est long et peut durer plusieurs minutes (environ 1' pour 2 Go)") +
-                                  "<br/><br/><font color=\"red\"><b>" +
-                                  tr("Vous ne pouvez pas choisir un dossier dont le chemin contient des espaces") + "</b></font>");
-        QString dir = PATH_DIR_RUFUS;
-        QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir), QStringList(), false);
-        if (url.path().contains(" "))
+        QDir dirtorestore;
+        if (!cheminRestauration.isEmpty())
         {
-            QString path = url.path();
-            path.replace(" ", "<font color=\"red\">X<font color=\"blue\">");
-            UpMessageBox::Information(parent,tr("Chemin invalide"), tr("Le chemin ") + "<br/><font color=\"blue\"><b>" + path + "</b></font><br/>" +
-                                             tr(" contient des espaces et ne permettra pas de faire une restauration!"));
-            return false;
+            //! Mode AUTOMATIQUE (migration de base) : dossier imposé par l'appelant, aucune
+            //! interaction (ni choix de dossier ni saisie de mot de passe).
+            dirtorestore = QDir(cheminRestauration);
+            if (!dirtorestore.exists())
+                return false;
         }
-        if (url == QUrl())
-            return false;
-        QDir dirtorestore = QDir(url.path());
-        QString mdp("");
-        if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp))
-            return false;
+        else
+        {
+            /*! 1 - choix du dossier où se situe la sauvegarde */
+            UpMessageBox::Information(parent, tr("Choix du dossier de sauvegarde"),
+                                      tr("Dans la fiche suivante, choisissez le dossier "
+                                      "contenant la sauvegarde de la base.") + "<br/><br/>" +
+                                      tr("Une fois le dossier sélectionné, "
+                                      "la sauvegarde commencera automatiquement.") + "<br/>" +
+                                      tr("Ce processus est long et peut durer plusieurs minutes (environ 1' pour 2 Go)") +
+                                      "<br/><br/><font color=\"red\"><b>" +
+                                      tr("Vous ne pouvez pas choisir un dossier dont le chemin contient des espaces") + "</b></font>");
+            QString dir = PATH_DIR_RUFUS;
+            QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Restaurer à partir du dossier"), QUrl::fromLocalFile(dir), QStringList(), false);
+            if (url.path().contains(" "))
+            {
+                QString path = url.path();
+                path.replace(" ", "<font color=\"red\">X<font color=\"blue\">");
+                UpMessageBox::Information(parent,tr("Chemin invalide"), tr("Le chemin ") + "<br/><font color=\"blue\"><b>" + path + "</b></font><br/>" +
+                                                 tr(" contient des espaces et ne permettra pas de faire une restauration!"));
+                return false;
+            }
+            if (url == QUrl())
+                return false;
+            dirtorestore = QDir(url.path());
+            QString mdp("");
+            if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp))
+                return false;
+        }
 
 
         /*! ---------------------------------------------------------------------------------------------------------------------------------------------------------
