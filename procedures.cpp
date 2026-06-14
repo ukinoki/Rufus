@@ -3347,6 +3347,20 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::IdentificationUser()
 {
+    //! Si la connexion à la base échoue avec les paramètres enregistrés (mauvais serveur/port,
+    //! serveur éteint, mot de passe MySQL non récupéré…), on ne laisse pas l'utilisateur
+    //! bloqué : on lui propose de revoir ses paramètres de connexion. VerifParamConnexion
+    //! rétablit la connexion et réécrit rufus.ini. S'il annule, on ne peut pas continuer.
+    if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL()).size())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
+                            tr("Rufus n'a pas pu se connecter à la base de données avec les "
+                               "paramètres enregistrés.") + "\n" +
+                            tr("Vérifiez vos paramètres de connexion au serveur MySQL."));
+        if (!VerifParamConnexion(true))
+            return false;
+    }
+
     bool ok = false;
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
