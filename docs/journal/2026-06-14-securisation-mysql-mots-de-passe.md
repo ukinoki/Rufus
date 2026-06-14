@@ -172,3 +172,29 @@ PROCÉDURE DE MISE À JOUR DE LA BASE (version trop ancienne)
    Après une réinstallation complète, adminrufus est recréé avec un NOUVEAU random + gaxt78iy en 2e mot
    de passe : les postes LAN/distants qui avaient l'ancien random retombent sur gaxt78iy, voient « base
    sécurisée par un autre poste » et redemandent le nouveau random (papier/USB) avant la deadline.
+
+=====================================================================
+PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
+=====================================================================
+   Les comptes adminrufus / adminrufusSSL sont créés avec le plugin mysql_native_password,
+   PAS avec caching_sha2_password (le plugin par défaut de MySQL 8).
+
+   Pourquoi : en monoposte, le driver Qt (QMYSQL) ouvre une connexion TCP NON chiffrée vers
+   localhost, sans récupérer la clé publique RSA du serveur. Avec caching_sha2_password, dès que
+   le cache d'authentification du serveur est vide (serveur fraîchement installé, ou simplement
+   redémarré / poste rebooté), la connexion est REFUSÉE (« Authentication plugin caching_sha2_password
+   requires secure connection »). Symptôme observé : après une mise à jour du socle (réinstall +
+   restauration), Rufus ne se reconnecte plus, alors que le mot de passe du .dbkey est pourtant le bon.
+   La restauration, elle, passe : elle utilise le CLIENT mysql en ligne de commande, qui sait négocier
+   la clé publique — contrairement au driver Qt.
+
+   mysql_native_password fonctionne sur une connexion TCP en clair et survit aux redémarrages.
+   - MySQL 8.0 (Linux/apt, anciens serveurs) : plugin actif par défaut → rien à faire.
+   - MySQL 8.4 (Windows/macOS, installé par Rufus) : plugin DÉSACTIVÉ par défaut → Rufus écrit
+     « mysql_native_password=ON » dans my.ini (Windows) / my.cnf (macOS) AVANT de créer les comptes.
+   Ce réglage n'est appliqué que sur une installation NEUVE 8.4 ; on ne touche jamais le my.cnf d'un
+   serveur 8.0 préexistant (où cette option n'existe pas et empêcherait le serveur de démarrer).
+
+   Code : MySQLInstaller::createUser / createUserAvecAdmin / securiserBaseSiNecessaire (clause
+   « IDENTIFIED WITH mysql_native_password BY … »), et activation du plugin dans installMySQL (my.ini
+   Windows) et prepareCreateModeMacOS (my.cnf macOS).

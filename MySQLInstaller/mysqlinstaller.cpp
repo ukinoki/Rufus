@@ -1673,11 +1673,13 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     // 3. Sécurisation via la connexion Qt en cours (monoposte OU serveur réseau) :
     //    nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL, en CONSERVANT
     //    gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD).
+    // mysql_native_password explicite (cf. createUser) : garantit que la rotation conserve
+    // — ou rétablit — un plugin compatible avec le driver Qt en TCP non chiffré.
     const QString np = genererMotDePasse();
-    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED BY '%1' RETAIN CURRENT PASSWORD").arg(np));
-    DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '%1' REQUIRE SSL").arg(QString(MDP_SQL)));
+    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
+    DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(QString(MDP_SQL)));
     DataBase::I()->StandardSQL("GRANT ALL PRIVILEGES ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
-    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '%1' RETAIN CURRENT PASSWORD").arg(np));
+    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 
     // 4. Mémoriser le nouveau mot de passe (mode courant) : ce poste s'y connectera
@@ -2037,7 +2039,11 @@ bool MySQLInstaller::installMySQL()
         ts << "[mysqld]\n"
            << "basedir=" << base    << "\n"
            << "datadir=" << dataDir << "\n"
-           << "port=3306\n";
+           << "port=3306\n"
+           // MySQL 8.4 désactive mysql_native_password par défaut : on le réactive, car
+           // createUser() crée adminrufus dans ce plugin (le driver Qt ne sait pas
+           // authentifier caching_sha2_password en TCP non chiffré). Cf. createUser().
+           << "mysql_native_password=ON\n";
     }
 
     // 4. Initialisation du datadir (crée root@localhost SANS mot de passe).
@@ -2487,16 +2493,25 @@ bool MySQLInstaller::createUser()
     // On pose d'abord gaxt78iy comme mot de passe courant (que le compte existe déjà ou
     // non), puis on bascule sur l'aléatoire EN CONSERVANT gaxt78iy comme 2e mot de passe.
     // (RETAIN CURRENT PASSWORD : MySQL >= 8.0.14, garanti par l'install d'un serveur 8.x.)
+    //
+    // IMPORTANT — plugin d'authentification : les comptes sont créés en
+    // « mysql_native_password » et NON dans le plugin par défaut « caching_sha2_password ».
+    // Le driver Qt (QMYSQL) ouvre, en monoposte, une connexion TCP NON chiffrée et sans
+    // récupération de la clé publique du serveur : sur un serveur fraîchement installé (cache
+    // d'authentification vide), caching_sha2_password REFUSE alors la connexion (« requires
+    // secure connection »). mysql_native_password fonctionne, lui, sur TCP en clair et survit
+    // aux redémarrages du serveur. (Plugin présent et actif sur MySQL 8.0 ; sur 8.4 il est
+    // réactivé via « mysql_native_password=ON » dans my.cnf/my.ini lors de l'installation.)
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
     const QString sql = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%4';"
-        "ALTER USER '%1'@'%' IDENTIFIED BY '%4';"
-        "ALTER USER '%1'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
+        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%4';"
+        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%4';"
+        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED BY '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
         "FLUSH PRIVILEGES;\n").arg(m_login, m_password, sslLogin, legacy);
 
@@ -2534,12 +2549,14 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
     // ALTER USER après CREATE USER IF NOT EXISTS : impose le mot de passe même si
     // le compte adminrufus / adminrufusSSL existait déjà (sinon il garderait son
     // ancien mot de passe et la connexion via le mot de passe stocké échouerait).
+    // mysql_native_password : cf. createUser() — le driver Qt ne sait pas authentifier
+    // caching_sha2_password sur une connexion TCP non chiffrée vers un serveur au cache vide.
     const QString sql = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED BY '%2';"
-        "ALTER USER '%1'@'%' IDENTIFIED BY '%2';"
+        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%2';"
+        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%2';"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' REQUIRE SSL;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%2' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%2' REQUIRE SSL;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
         "FLUSH PRIVILEGES;").arg(m_login, m_password, sslLogin);
 
@@ -2587,12 +2604,14 @@ bool MySQLInstaller::prepareCreateModeLinux()
     // ALTER USER après CREATE USER IF NOT EXISTS : impose le mot de passe même si
     // le compte existe déjà (CREATE USER IF NOT EXISTS ne le réécrit pas). Quatre
     // placeholders printf %s → quatre "$PW".
+    // mysql_native_password : cf. createUser() — indispensable pour que le driver Qt
+    // (connexion TCP en clair) puisse se connecter. Actif par défaut sur le MySQL 8.0 d'apt.
     const QString userSql = QString(
-        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED BY '%s'; "
-        "ALTER USER '%1'@'%%' IDENTIFIED BY '%s'; "
+        "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
+        "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%s'; "
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%%' WITH GRANT OPTION; "
-        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED BY '%s' REQUIRE SSL; "
-        "ALTER USER '%2'@'%%' IDENTIFIED BY '%s' REQUIRE SSL; "
+        "CREATE USER IF NOT EXISTS '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
+        "ALTER USER '%2'@'%%' IDENTIFIED WITH mysql_native_password BY '%s' REQUIRE SSL; "
         "GRANT ALL PRIVILEGES ON *.* TO '%2'@'%%' WITH GRANT OPTION; "
         "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" \"$PW\" \"$PW\" | mysql -u root; ")
         .arg(m_login, sslLogin);
@@ -2677,8 +2696,14 @@ bool MySQLInstaller::prepareCreateModeMacOS()
     const QString path = sharedFolderPath();            // /Users/Shared
     QDir().mkpath(path + "/Rufus/Imagerie");
 
-    // my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv).
-    const QString cnfTmp = writeCnfToTemp(rufusCnfVars());
+    // my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv) +
+    // réactivation de mysql_native_password : sur MySQL 8.4 (installé ici sur macOS) ce
+    // plugin est DÉSACTIVÉ par défaut, or createUser() en a besoin pour que le driver Qt
+    // puisse se connecter en TCP non chiffré (cf. createUser). Sans danger : on n'écrit
+    // jamais ce my.cnf sur un serveur 8.0 préexistant (réservé à l'installation neuve 8.4).
+    QList<QPair<QString, QString>> cnfVars = rufusCnfVars();
+    cnfVars << qMakePair(QStringLiteral("mysql_native_password"), QStringLiteral("ON"));
+    const QString cnfTmp = writeCnfToTemp(cnfVars);
     const QString cnfDst = getCnfPath();                 // /etc/my.cnf (Oracle)
     if (cnfTmp.isEmpty())
         return false;
