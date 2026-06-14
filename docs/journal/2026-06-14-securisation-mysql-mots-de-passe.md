@@ -48,42 +48,47 @@ LE FLUX
 
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION
 
-  I. IL Y A UN rufus.ini
-     On se connecte selon rufus.ini.
-     On cherche le mot de passe dans .dbkey ; si on ne le trouve pas, on tente gaxt78iy.
+  I. IL Y A UN rufus.ini   (déroulé CHRONOLOGIQUE, AVANT l'écran d'identification)
 
-     ----- STRUCTURE DE CONTRÔLE (vaut pour tous les modes) -----
-     On regarde AVEC QUEL mot de passe la connexion a réussi, ET si adminrufus a déjà un 2e mot de passe.
-     (On sait détecter la présence d'un 2e mot de passe sans connaître sa valeur :
-        SELECT User_attributes->>'$.additional_password' IS NOT NULL
-        FROM mysql.user WHERE User='adminrufus' AND Host='%';   -> 1 = base déjà sécurisée )
+     1. CONNEXION à la base selon rufus.ini.
+        On essaie les mots de passe candidats : celui du .dbkey (du mode courant) PUIS gaxt78iy.
+        Si aucun ne marche -> message + VerifParamConnexion (corriger les paramètres, réécrire rufus.ini).
 
-       - Connecté avec le RANDOM (.dbkey) ............ rien à faire, ce poste a déjà le bon mot de passe.
-       - Connecté avec GAXT78IY et PAS de 2e mot de passe .... la base n'est pas sécurisée :
-             CE POSTE la sécurise (pose un random, garde gaxt78iy en 2e mot de passe avec
-             RETAIN CURRENT PASSWORD), écrit son .dbkey, et invite fortement à NOTER/SAUVER le mot de passe.
-       - Connecté avec GAXT78IY et un 2e mot de passe EXISTE .... la base est déjà sécurisée par un
-             autre poste, mais celui-ci n'a pas le random : on DEMANDE le random (saisie ou clé USB).
+     2. CONTRÔLE DE LA VERSION DE MYSQL — AVANT TOUTE AUTRE CHOSE.
+        (SELECT VERSION() sur la connexion qu'on vient d'ouvrir.)
+        - Version NON conforme (< 8.0.14, ou MariaDB) ET ce poste HÉBERGE la base (monoposte / BDD_POSTE) :
+              -> on lance la PROCÉDURE DE MISE À JOUR DE LA BASE (voir plus bas), puis on relance Rufus.
+        - Ce poste est un CLIENT réseau (BDD_LOCAL / BDD_DISTANT) : ce n'est pas lui qui gère le serveur,
+              on n'agit pas (au pire un avertissement) ; c'est le poste serveur qui migrera.
+        - Version conforme -> on continue.
 
-     Cette structure évite toute « course » entre postes : dès qu'un poste a sécurisé, les autres
-     voient « déjà sécurisé » et demandent le mot de passe au lieu d'en recréer un.
+     3. SÉCURISATION (structure de contrôle) — seulement sur une base à la version conforme.
+        On regarde AVEC QUEL mot de passe la connexion a réussi, ET si adminrufus a déjà un 2e mot de passe :
+           SELECT User_attributes->>'$.additional_password' IS NOT NULL
+           FROM mysql.user WHERE User='adminrufus' AND Host='%';   -> 1 = base déjà sécurisée
+          - Connecté avec le RANDOM (.dbkey) ............ rien à faire, ce poste a déjà le bon mot de passe.
+          - Connecté avec GAXT78IY et PAS de 2e mot de passe .... la base n'est pas sécurisée :
+                CE POSTE la sécurise (pose un random, garde gaxt78iy en 2e mot de passe avec RETAIN
+                CURRENT PASSWORD), écrit son .dbkey, et invite fortement à NOTER/SAUVER le mot de passe.
+          - Connecté avec GAXT78IY et un 2e mot de passe EXISTE .... base déjà sécurisée par un autre
+                poste, mais celui-ci n'a pas le random : on DEMANDE le random (saisie ou clé USB).
+        Cette structure évite toute « course » entre postes : dès qu'un poste a sécurisé, les autres
+        voient « déjà sécurisé » et demandent le mot de passe au lieu d'en recréer un.
 
-     ----- DEADLINE DE SUPPRESSION DE GAXT78IY -----
-     Quand la base est sécurisée, on fixe une deadline = 30 jours après la date de sécurisation.
-     Cette date est lue côté serveur, fiable et identique pour tous :
-        SELECT password_last_changed FROM mysql.user WHERE User='adminrufus' AND Host='%';
-     À la deadline, si gaxt78iy existe encore, on le supprime (DISCARD OLD PASSWORD).
-     Au-delà, un poste qui n'a pas le random ne pourra plus se connecter : il devra le récupérer.
+     4. DEADLINE DE SUPPRESSION DE GAXT78IY.
+        Quand la base est sécurisée, deadline = 30 jours après la date de sécurisation, lue côté serveur :
+           SELECT password_last_changed FROM mysql.user WHERE User='adminrufus' AND Host='%';
+        À la deadline, si gaxt78iy existe encore -> DISCARD OLD PASSWORD (UNIQUEMENT depuis un poste qui
+        détient le random, sinon il se couperait l'accès). Au-delà, un poste sans le random ne peut plus
+        se connecter : il devra le récupérer.
 
-     En MONOPOSTE en plus :
-       - on vérifie la version de MySQL ;
-         si elle ne remplit pas le critère -> PROCÉDURE DE MISE À JOUR DE LA BASE (voir plus bas).
-       - sinon on applique la structure de contrôle ci-dessus.
+     5. Si ce poste vient de sécuriser (il a créé le .dbkey), on invite fortement :
+          - à noter/sauver le mot de passe en lieu sûr (papier ou clé USB) ;
+          - si le serveur est en réseau : à mettre à jour Rufus sur TOUS les autres postes (l'ancienne
+            version ne marchera plus après la deadline) et à leur fournir le mot de passe (papier/USB).
 
-     Si ce poste vient de sécuriser (il a créé le .dbkey), on invite fortement :
-       - à noter/sauver le mot de passe en lieu sûr (papier ou clé USB) ;
-       - si le serveur est en réseau : à mettre à jour Rufus sur TOUS les autres postes (l'ancienne
-         version ne marchera plus après la deadline) et à leur fournir le mot de passe (papier/USB).
+     6. ÉCRAN D'IDENTIFICATION (dlg_identificationuser), puis ouverture de la session.
+        Le contrôle de la version de la BASE Rufus (majbase) se fait APRÈS l'identification.
 
 
   II. IL N'Y A PAS DE rufus.ini
