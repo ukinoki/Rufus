@@ -501,7 +501,24 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
     //On vide les champs blob de la table factures et la table EchangeImages
     db->StandardSQL("UPDATE " TBL_FACTURES " SET " CP_JPG_FACTURES " = null, " CP_PDF_FACTURES " = null");
     db->StandardSQL("DELETE FROM " TBL_ECHANGEIMAGES);
-    Utils::mkpath(pathdirdestination);
+
+    //! Si le dossier de sauvegarde ne peut pas être créé (droits, support absent, chemin
+    //! invalide…), on demande à l'utilisateur d'en choisir un autre plutôt que d'échouer
+    //! plus tard, en plein milieu d'une migration de base.
+    if (!Utils::mkpath(pathdirdestination))
+    {
+        QUrl url = Utils::getExistingDirectoryUrl(parent, tr("Choisissez un dossier de sauvegarde"),
+                                                  QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList(), false);
+        if (url == QUrl())
+            return false;                                   // annulé par l'utilisateur
+        pathdirdestination = url.path();
+        if (!Utils::mkpath(pathdirdestination))
+        {
+            UpMessageBox::Watch(parent, tr("Sauvegarde impossible"),
+                                tr("Impossible de créer le dossier de sauvegarde."));
+            return false;
+        }
+    }
 
     if (OKBase)
     {
