@@ -1778,7 +1778,7 @@ bool dlg_gestionusers::VerifFiche()
             return false;
         }
     }
-    if (m_medecin && ui->NumCOupLineEdit->text().isEmpty())
+    if (m_medecin && ui->NumCOupLineEdit->text().isEmpty() && !ui->NoUseNumcheckBox->isChecked())
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié le n° de l'Ordre!"));
         this->ui->NumCOupLineEdit->setFocus();
@@ -1790,7 +1790,7 @@ bool dlg_gestionusers::VerifFiche()
         this->ui->AutreFonctionuplineEdit->setFocus();
         return false;
     }
-    if (m_responsable && ui->RPPSupLineEdit->text().isEmpty() && db->parametres()->cotationsfrance())
+    if (m_responsable && ui->RPPSupLineEdit->text().isEmpty() && db->parametres()->cotationsfrance() && !ui->NoUseNumcheckBox->isChecked())
     {
         UpMessageBox::Watch(this,tr("Vous n'avez pas spécifié le RPPS!"));
         this->ui->RPPSupLineEdit->setFocus();
