@@ -2499,7 +2499,17 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
 
         /*! 4 - choix des éléments à restaurer */
         AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures);
-        int result = dlg_buprestore->exec();
+        int result;
+        if (!cheminRestauration.isEmpty())
+        {
+            //! Migration AUTOMATIQUE : on restaure UNIQUEMENT la base, sans afficher la boîte
+            //! de choix (dont le bouton OK ne s'active qu'au clic d'une case).
+            foreach (UpCheckBox *chk, dlg_buprestore->findChildren<UpCheckBox*>())
+                chk->setChecked(chk->objectName() == "base");
+            result = 1;
+        }
+        else
+            result = dlg_buprestore->exec();
         if (result > 0)
         {
             QFileDevice::Permissions permissions = QFileDevice::ReadOther  | QFileDevice::WriteOther

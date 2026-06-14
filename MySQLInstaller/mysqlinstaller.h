@@ -96,6 +96,9 @@ public:
     //  login/mdp désactivés (déjà choisis) et boutons OK/Annuler masqués — la
     //  séquence de configuration se déroule alors sans aucun clic à faire.
     void passerEnConfiguration(const QString& titre, const QString& sousTitre);
+    //  Cache la ligne de saisie identifiant/mot de passe (labels + champs) : utilisé pour
+    //  la RÉINSTALLATION lors d'une migration, où aucun nouvel utilisateur n'est saisi.
+    void masquerSaisieUtilisateur();
 
     // ── Saisie ───────────────────────────────────────────────────────────────
     QString login() const;                          // texte courant du champ login
@@ -122,6 +125,8 @@ private:
 
     UpLabel*       m_title         = nullptr;
     UpLabel*       m_subtitle      = nullptr;
+    UpLabel*       m_loginLbl      = nullptr;
+    UpLabel*       m_mdpLbl        = nullptr;
     UpLineEdit*    m_login         = nullptr;
     UpLineEdit*    m_mdp           = nullptr;
     UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)

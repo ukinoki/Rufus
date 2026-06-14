@@ -131,14 +131,14 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     dlglayout()->insertWidget(row++, m_subtitle);
 
     // Saisie : identifiant + mot de passe (mêmes validateurs que dlg_paramconnexion).
-    UpLabel* loginLbl = new UpLabel(this, tr("Identifiant :"));
-    dlglayout()->insertWidget(row++, loginLbl);
+    m_loginLbl = new UpLabel(this, tr("Identifiant :"));
+    dlglayout()->insertWidget(row++, m_loginLbl);
     m_login = new UpLineEdit(this);
     m_login->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, this));
     dlglayout()->insertWidget(row++, m_login);
 
-    UpLabel* mdpLbl = new UpLabel(this, tr("Mot de passe :"));
-    dlglayout()->insertWidget(row++, mdpLbl);
+    m_mdpLbl = new UpLabel(this, tr("Mot de passe :"));
+    dlglayout()->insertWidget(row++, m_mdpLbl);
     m_mdp = new UpLineEdit(this);
     m_mdp->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
     m_mdp->setEchoMode(QLineEdit::Password);
@@ -219,6 +219,14 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
                   "dans Rufus."),
                tr("Installer"));
     appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
+}
+
+void MySQLInstallerDialog::masquerSaisieUtilisateur()
+{
+    if (m_loginLbl) m_loginLbl->setVisible(false);
+    if (m_login)    m_login->setVisible(false);
+    if (m_mdpLbl)   m_mdpLbl->setVisible(false);
+    if (m_mdp)      m_mdp->setVisible(false);
 }
 
 void MySQLInstallerDialog::configurerVerifyAdminMySQL()
@@ -1262,6 +1270,7 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
+    m_dialog->masquerSaisieUtilisateur();   // migration : pas de saisie d'un nouvel utilisateur
     m_dialog->passerEnConfiguration(
         tr("Réinstallation de MySQL"),
         tr("Installation du serveur MySQL en cours…"));
