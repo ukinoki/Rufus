@@ -3347,11 +3347,24 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::IdentificationUser()
 {
-    //! Si la connexion à la base échoue avec les paramètres enregistrés (mauvais serveur/port,
-    //! serveur éteint, mot de passe MySQL non récupéré…), on ne laisse pas l'utilisateur
-    //! bloqué : on lui propose de revoir ses paramètres de connexion. VerifParamConnexion
-    //! rétablit la connexion et réécrit rufus.ini. S'il annule, on ne peut pas continuer.
-    if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL()).size())
+    //! Connexion à la base. On essaie les mots de passe candidats (celui du .dbkey PUIS
+    //! gaxt78iy) : un .dbkey absent ou périmé ne doit pas bloquer une base qui accepte
+    //! encore gaxt78iy. Si aucun ne marche (serveur injoignable, mauvais serveur/port,
+    //! mot de passe aléatoire non récupéré…), on propose de revoir les paramètres de
+    //! connexion plutôt que de laisser l'utilisateur bloqué (qui finissait par détruire
+    //! rufus.ini à la main). VerifParamConnexion rétablit la connexion et réécrit rufus.ini.
+    QString errConnexion;
+    const QStringList candidats = MySQLInstaller::motsDePasseSQLCandidats();
+    for (const QString &mdp : candidats)
+    {
+        errConnexion = db->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp);
+        if (errConnexion.isEmpty())
+        {
+            MySQLInstaller::setMotDePasseSQL(mdp);   // mémorise le mot de passe qui fonctionne
+            break;
+        }
+    }
+    if (!errConnexion.isEmpty())
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
                             tr("Rufus n'a pas pu se connecter à la base de données avec les "
