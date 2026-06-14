@@ -1297,7 +1297,7 @@ lieux d'activité</string>
           <string>OPTAM</string>
          </property>
         </widget>
-        <widget class="UpRadioButton" name="NoUseNumupRadioButton">
+        <widget class="QCheckBox" name="NoUseNumcheckBox">
          <property name="geometry">
           <rect>
            <x>30</x>
