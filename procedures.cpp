@@ -3374,6 +3374,12 @@ bool Procedures::IdentificationUser()
             return false;
     }
 
+    //! Connexion établie : AVANT toute identification, on contrôle le socle MySQL et on
+    //! sécurise la base au besoin — pose d'un mot de passe aléatoire + écriture du .dbkey,
+    //! en CONSERVANT gaxt78iy comme 2e mot de passe — puis on supprime gaxt78iy si la
+    //! deadline (sécurisation + 30 j) est passée. No-op si déjà fait / serveur < 8.0.14.
+    MySQLInstaller::entretienApresConnexion();
+
     bool ok = false;
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
