@@ -627,7 +627,7 @@ void DataBase::initParametresSysteme()
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
           "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VILLES_PARAMSYSTEME "') as chp;";
     QVariantList listquery = getFirstRecordFromStandardSelectSQL(req,ok);
-    if (listquery.size() > 0)
+    if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
         req = "select " CP_VILLES_PARAMSYSTEME ", " CP_COTATIONS_PARAMSYSTEME ", " CP_COMPTA_PARAMSYSTEME
               " from " TBL_PARAMSYSTEME;
@@ -645,7 +645,7 @@ void DataBase::initParametresSysteme()
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
           "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VERSIONBASEIOL_PARAMSYSTEME "') as chp;";
     listquery = getFirstRecordFromStandardSelectSQL(req,ok);
-    if (listquery.size() > 0)
+    if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
         req = "select " CP_VERSIONBASEIOL_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
         paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
@@ -660,7 +660,7 @@ void DataBase::initParametresSysteme()
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
           "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VERSION_PARAMSYSTEME "') as chp;";
     listquery = getFirstRecordFromStandardSelectSQL(req,ok);
-    if (listquery.size() > 0)
+    if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
         req = "select " CP_VERSION_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
         paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver la version utilisée"));
