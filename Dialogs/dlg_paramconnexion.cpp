@@ -195,12 +195,10 @@ bool dlg_paramconnexion::TestConnexion()
                                     + error);
             return false;
         }
-        //! Connexion MONOPOSTE réussie : si la base est encore sur le mot de passe
-        //! public (pas de .dbkey), on la sécurise à la volée — un mot de passe
-        //! aléatoire est posé tout en CONSERVANT gaxt78iy comme 2e mot de passe, pour
-        //! ne bloquer aucun autre poste si ce poste sert aussi de serveur. No-op si
-        //! la base est déjà sécurisée.
-        MySQLInstaller().securiserBaseSiNecessaire();
+        //! Connexion réussie : on sécurise la base à la volée si besoin (pose d'un mot de
+        //! passe aléatoire en conservant gaxt78iy comme 2e mot de passe) et on supprime
+        //! gaxt78iy si la deadline (sécurisation + 30 j) est passée. No-op si déjà fait.
+        MySQLInstaller::entretienApresConnexion();
         if (m_connectavecloginSQL)
         {
             DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
@@ -242,6 +240,9 @@ bool dlg_paramconnexion::TestConnexion()
                                     + error);
             return false;
         }
+        //! Connexion réseau réussie : même entretien qu'en monoposte — un poste LAN peut
+        //! sécuriser le serveur s'il ne l'est pas, et purger gaxt78iy une fois la deadline passée.
+        MySQLInstaller::entretienApresConnexion();
         DataBase::QueryResult rep = DataBase::I()->verifExistUser(Login, Password);
         if (rep == DataBase::Error)
         {

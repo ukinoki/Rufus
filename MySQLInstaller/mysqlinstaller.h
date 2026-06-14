@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QStringList>
 #include <QHash>
+#include <QDateTime>
 #include <QList>
 #include <QPair>
 #include <QDialog>
@@ -174,15 +175,26 @@ public:
     static void    stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp);
     static void    supprimerMotDePassePourMode(Utils::ModeAcces mode);               // mode de connexion abandonné
 
-    //  Sécurisation « à la volée » d'une base EXISTANTE connectée en monoposte.
-    //  Si .dbkey est absent (base encore sur le mot de passe public gaxt78iy), bascule
-    //  adminrufus/adminrufusSSL sur un mot de passe aléatoire en CONSERVANT gaxt78iy
-    //  comme 2e mot de passe (ALTER USER … RETAIN CURRENT PASSWORD) — pour ne bloquer
-    //  aucun autre poste si ce poste sert aussi de serveur —, puis écrit .dbkey.
-    //  No-op si : base déjà sécurisée (.dbkey présent), gaxt78iy inopérant, ou serveur
-    //  ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
-    //  À n'appeler qu'après une connexion MONOPOSTE réussie.
+    //  Sécurisation « à la volée » d'une base EXISTANTE. Si adminrufus n'a pas encore de
+    //  2e mot de passe (base encore sur gaxt78iy seul), bascule adminrufus/adminrufusSSL
+    //  sur un mot de passe aléatoire en CONSERVANT gaxt78iy comme 2e mot de passe
+    //  (ALTER USER … RETAIN CURRENT PASSWORD), puis écrit .dbkey. Passe par la connexion
+    //  Qt (DataBase::I()) : fonctionne en monoposte ET en réseau (un poste LAN peut
+    //  sécuriser le serveur). No-op si : déjà sécurisée (2e mot de passe présent), ou
+    //  serveur ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
     void    securiserBaseSiNecessaire();
+
+    //  À appeler APRÈS toute connexion réussie : sécurise la base au besoin, puis
+    //  supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée.
+    static void      entretienApresConnexion();
+    //  true si adminrufus possède un 2e mot de passe (base déjà sécurisée). Détecté via
+    //  mysql.user.User_attributes (sans connaître la valeur du mot de passe).
+    static bool      adminrufusEstSecurise();
+    //  Date de sécurisation = password_last_changed d'adminrufus (côté serveur, fiable).
+    static QDateTime dateSecurisation();
+    //  Supprime gaxt78iy (DISCARD OLD PASSWORD) si la deadline est passée — UNIQUEMENT si
+    //  ce poste détient le vrai mot de passe (sinon il se verrouillerait lui-même).
+    static void      supprimerGaxt78iySiEchue();
 
     // Résultat de createUserAvecAdmin().
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };

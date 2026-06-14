@@ -1569,24 +1569,19 @@ QString MySQLInstaller::getMySQLVersion()
 //  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
 void MySQLInstaller::securiserBaseSiNecessaire()
 {
-    // 1. Base déjà sécurisée (clé présente) → rien à faire.
-    if (QFile::exists(PATH_FILE_DBKEY))
+    // 1. Base déjà sécurisée → rien à faire. Le juge fait foi côté serveur (présence d'un
+    //    2e mot de passe sur adminrufus) ; le .dbkey local sert de garde-fou supplémentaire.
+    if (adminrufusEstSecurise() || QFile::exists(PATH_FILE_DBKEY))
         return;
 
-    const QString legacy = QString(MDP_SQL);          // gaxt78iy (mot de passe public)
-
-    // 2. gaxt78iy fonctionne-t-il vraiment ? Sinon : base injoignable avec nos comptes
-    //    (ou base sécurisée dont le legacy a déjà été retiré) → on ne touche à rien.
-    if (!tryConnectAs(QString(LOGIN_SQL), legacy))
-        return;
-
-    // 3. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD) ?
+    // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD) ?
     //    Requiert MySQL >= 8.0.14 et PAS MariaDB. Sinon, rotater bloquerait les autres
-    //    postes → on laisse la base telle quelle (sécurisation explicite plus tard).
-    const QString sv = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
-                "\"SELECT VERSION();\" 2>&1")
-            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), legacy)).trimmed();
+    //    postes → on laisse la base telle quelle.
+    bool ok = false;
+    QVariantList rv = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT VERSION()", ok);
+    if (!ok || rv.isEmpty())
+        return;
+    const QString sv = rv.at(0).toString();
     if (sv.contains("MariaDB", Qt::CaseInsensitive))
         return;
     QRegularExpression re(R"((\d+\.\d+\.\d+))");
@@ -1594,29 +1589,65 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), "8.0.14"))
         return;
 
-    // 4. Sécurisation : nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL,
-    //    en CONSERVANT gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD).
-    //    NB (cas connu, rare en monoposte) : si .dbkey a été supprimé À LA MAIN d'une
-    //    base DÉJÀ sécurisée, gaxt78iy y est un mot de passe SECONDAIRE ; re-sécuriser
-    //    le chasserait (MySQL ne garde qu'un seul mdp secondaire). À affiner plus tard.
-    const QString np       = genererMotDePasse();
-    const QString sslLogin = QString(LOGIN_SQL "SSL");
-    const QString sql = QString(
-        "ALTER USER '%1'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED BY '%4' REQUIRE SSL;"
-        "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
-        "ALTER USER '%3'@'%' IDENTIFIED BY '%2' RETAIN CURRENT PASSWORD;"
-        "FLUSH PRIVILEGES;")
-        .arg(QString(LOGIN_SQL), np, sslLogin, legacy);
-    const QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-            .arg(mysqlBin("mysql"), QString(LOGIN_SQL), legacy, sql));
-    if (out.contains("ERROR", Qt::CaseInsensitive))
-        return;   // échec : on NE stocke PAS .dbkey → la base reste sur gaxt78iy
+    // 3. Sécurisation via la connexion Qt en cours (monoposte OU serveur réseau) :
+    //    nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL, en CONSERVANT
+    //    gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD).
+    const QString np = genererMotDePasse();
+    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED BY '%1' RETAIN CURRENT PASSWORD").arg(np));
+    DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '%1' REQUIRE SSL").arg(QString(MDP_SQL)));
+    DataBase::I()->StandardSQL("GRANT ALL PRIVILEGES ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
+    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '%1' RETAIN CURRENT PASSWORD").arg(np));
+    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 
-    // 5. Mémoriser le nouveau mot de passe : ce poste s'y connectera désormais ;
-    //    gaxt78iy reste valable pour les autres postes (2e mot de passe).
+    // 4. Mémoriser le nouveau mot de passe (mode courant) : ce poste s'y connectera
+    //    désormais ; gaxt78iy reste valable pour les autres postes (2e mot de passe).
     stockerMotDePasse(np);
+}
+
+// À appeler après toute connexion réussie : sécurise au besoin, puis purge gaxt78iy si échu.
+void MySQLInstaller::entretienApresConnexion()
+{
+    MySQLInstaller().securiserBaseSiNecessaire();
+    supprimerGaxt78iySiEchue();
+}
+
+// adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis
+// MySQL 8.0.21 ; nos serveurs cibles (8.0.3x apt / 8.4.x Oracle) le fournissent.
+bool MySQLInstaller::adminrufusEstSecurise()
+{
+    bool ok = false;
+    QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+        "SELECT User_attributes->>'$.additional_password' IS NOT NULL "
+        "FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'", ok);
+    return ok && !r.isEmpty() && r.at(0).toInt() == 1;
+}
+
+// Date de sécurisation = dernier changement du mot de passe d'adminrufus.
+QDateTime MySQLInstaller::dateSecurisation()
+{
+    bool ok = false;
+    QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+        "SELECT password_last_changed FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'", ok);
+    if (ok && !r.isEmpty())
+        return r.at(0).toDateTime();
+    return QDateTime();
+}
+
+// Supprime gaxt78iy (le 2e mot de passe) si la deadline (sécurisation + 30 j) est passée.
+// Garde-fou : on ne le fait QUE si ce poste détient le vrai mot de passe aléatoire — sinon
+// il se couperait lui-même l'accès.
+void MySQLInstaller::supprimerGaxt78iySiEchue()
+{
+    if (motDePasseSQL() == QString(MDP_SQL))   // on n'a que gaxt78iy → ne pas droper
+        return;
+    if (!adminrufusEstSecurise())              // déjà droppé, ou jamais sécurisé
+        return;
+    const QDateTime d = dateSecurisation();
+    if (!d.isValid() || d.addDays(30) > QDateTime::currentDateTime())
+        return;                                // deadline pas encore atteinte
+    DataBase::I()->StandardSQL("ALTER USER '" LOGIN_SQL "'@'%' DISCARD OLD PASSWORD");
+    DataBase::I()->StandardSQL("ALTER USER '" LOGIN_SQL "SSL'@'%' DISCARD OLD PASSWORD");
+    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 }
 
 QString MySQLInstaller::downloadOracleDmg()
