@@ -62,15 +62,15 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 ; ─────────────────────────────────────────────────────────────────────────────
 ;  PRÉ-CONTRÔLE MySQL (avant TOUTE installation : on ne touche pas à l'ancien
 ;  Rufus tant que le socle MySQL n'est pas validé).
-;  Règle : MySQL >= 8.0.14 et PAS MariaDB. mysqld --version est « brutal » :
-;   • répond >= 8.0.14      -> serveur local OK (install/MAJ monoposte) -> on continue
-;   • répond < 8.0.14/Maria -> message de migration -> on ABANDONNE l'install
+;  Règle : MySQL >= 8.4.3 et PAS MariaDB. mysqld --version est « brutal » :
+;   • répond >= 8.4.3      -> serveur local OK (install/MAJ monoposte) -> on continue
+;   • répond < 8.4.3/Maria -> message de migration -> on ABANDONNE l'install
 ;   • ne répond pas         -> pas de MySQL local : 1re install OU client réseau
 ;                              -> 3 boutons (dont certification = trace légale .certif)
 ; ─────────────────────────────────────────────────────────────────────────────
 [Code]
 const
-  MIN_MAJOR = 8; MIN_MINOR = 0; MIN_PATCH = 14;
+  MIN_MAJOR = 8; MIN_MINOR = 4; MIN_PATCH = 3;
 
 function LitSortie(const Cmd: String; var Output: String): Boolean;
 var TmpFile: String; Code: Integer; A: AnsiString;
@@ -106,7 +106,7 @@ begin
   if (champ = 2) and (n > 0) then begin Pat := val; Result := True; end;
 end;
 
-// 0 = OK (>=8.0.14 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
+// 0 = OK (>=8.4.3 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
 function ControleMySQLLocal(): Integer;
 var Out: String; Maj, Min, Pat: Integer;
 begin
@@ -157,12 +157,12 @@ begin
   etat := ControleMySQLLocal();
 
   if etat = 0 then begin
-    EcritCertif('MAJ - vérifié local : MySQL >= 8.0.14');
+    EcritCertif('MAJ - vérifié local : MySQL >= 8.4.3');
     Result := True; Exit;
   end;
 
   if etat = 1 then begin
-    MsgBox('Cette version de Rufus exige MySQL 8.0.14 ou supérieur, et n''est pas '
+    MsgBox('Cette version de Rufus exige MySQL 8.4.3 ou supérieur, et n''est pas '
       + 'compatible avec MariaDB.' + #13#10#13#10
       + 'Votre serveur MySQL local est trop ancien (ou est MariaDB).' + #13#10#13#10
       + 'Marche à suivre AVANT de mettre à jour :' + #13#10
@@ -171,30 +171,30 @@ begin
       + '  3. restaurez votre sauvegarde, puis relancez cette mise à jour.' + #13#10#13#10
       + 'Mise à jour annulée : votre version actuelle de Rufus n''a pas été modifiée.',
       mbCriticalError, MB_OK);
-    EcritCertif('REFUS (MAJ) : MySQL local < 8.0.14 ou MariaDB');
+    EcritCertif('REFUS (MAJ) : MySQL local < 8.4.3 ou MariaDB');
     Result := False; Exit;
   end;
 
   // etat = 2 : pas de MySQL local → le Rufus existant est un CLIENT réseau → 2 boutons.
   btn := TaskDialogMsgBox(
     'Vérification de votre serveur MySQL',
-    'Cette version de Rufus exige un serveur MySQL 8.0.14 ou supérieur '
+    'Cette version de Rufus exige un serveur MySQL 8.4.3 ou supérieur '
       + '(MariaDB non pris en charge).' + #13#10#13#10
       + 'Aucun MySQL n''a été détecté sur cet ordinateur (ce poste se connecte donc à '
       + 'un serveur réseau). Indiquez votre situation :',
     mbInformation, 0,
-    ['Le serveur réseau est en version >= 8.0.14 (je le certifie)',
+    ['Le serveur réseau est en version >= 8.4.3 (je le certifie)',
      'J''IGNORE la version du serveur'], 0);
 
   if btn = 100 then begin
-    EcritCertif('CERTIFIÉ par l''utilisateur (MAJ) : serveur réseau >= 8.0.14');
+    EcritCertif('CERTIFIÉ par l''utilisateur (MAJ) : serveur réseau >= 8.4.3');
     Result := True;
   end else begin
     // 101 (version inconnue) ou fenêtre fermée : on guide et on ABANDONNE.
     MsgBox('Avant de mettre à jour, vérifiez la version de MySQL sur votre SERVEUR :' + #13#10
       + '  • sur le serveur, ouvrez une invite de commandes et tapez : mysqld --version' + #13#10
       + '  • ou dans MySQL Workbench : SELECT VERSION();' + #13#10#13#10
-      + 'Elle doit être >= 8.0.14 (et ne pas être MariaDB).' + #13#10#13#10
+      + 'Elle doit être >= 8.4.3 (et ne pas être MariaDB).' + #13#10#13#10
       + 'Relancez cette mise à jour une fois la vérification faite. '
       + 'Votre version actuelle de Rufus n''a pas été modifiée.',
       mbInformation, MB_OK);

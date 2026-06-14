@@ -30,19 +30,19 @@ Le contrôle ne se fait **QU'EN cas de MISE À JOUR** d'un Rufus préexistant : 
 Chaque installeur détecte d'abord un Rufus déjà présent (Windows : clé de
 désinstallation / `Rufus.exe` ; Linux : raccourci/AppImage installée / `rufus.ini` ;
 macOS : `/Applications/Rufus*.app`). S'il y en a un, il **vérifie le socle MySQL**
-(≥ **8.0.14**, MariaDB exclu) pour ne **jamais** détruire une installation qui marche
-si le serveur est trop ancien :
+(seuil **8.4.3 sous Windows/macOS**, **8.0.14 sous Linux** ; MariaDB exclu) pour ne
+**jamais** détruire une installation qui marche si le serveur est trop ancien :
 
 - **Windows** : section `[Code]` d'Inno Setup (`InitializeSetup` → `Abort` si KO) ;
 - **Linux** : dans `AppRun`, avant l'intégration/lancement (zenity) ;
 - **macOS** : script `preinstall` du `.pkg` (osascript via `launchctl asuser`).
 
-Logique commune (`mysqld --version` « brutal ») :
-- réponse **≥ 8.0.14** → on continue (serveur local OK, monoposte) ;
-- réponse **< 8.0.14 / MariaDB** → message de migration (sauvegarde → upgrade →
+Logique commune (`mysqld --version` « brutal », seuil = **8.4.3** Win/macOS, **8.0.14** Linux) :
+- réponse **≥ seuil** → on continue (serveur local OK, monoposte) ;
+- réponse **< seuil / MariaDB** → message de migration (sauvegarde → upgrade →
   restauration) → **mise à jour annulée** ;
 - **pas de réponse** (pas de MySQL local → le Rufus existant est un client réseau) →
-  **2 boutons** (« serveur ≥ 8.0.14, je certifie » / « version inconnue → vérifier »).
+  **2 boutons** (« serveur ≥ seuil, je certifie » / « version inconnue → vérifier »).
   Le choix + la date sont tracés dans **`~/.rufus/.certif`** (valeur légale :
   l'utilisateur a *attesté*).
 
