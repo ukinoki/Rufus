@@ -26,6 +26,10 @@ class Macros: public QObject
 public:
 // Les versions de la base et des ressources
 #define VERSION_BASE                          82  // version de la base de données
+// Seuil minimal de version du serveur MySQL exigé, selon l'OS (cf. MySQLInstaller::seuilVersionMySQL).
+// Windows/macOS installent MySQL 8.4 (LTS) ; Linux se contente du 8.0 d'apt (double mdp dès 8.0.14).
+#define VERSION_MYSQL_MINI_WINMAC             "8.4.3"   // seuil MySQL Windows / macOS
+#define VERSION_MYSQL_MINI_LINUX              "8.0.14"  // seuil MySQL Linux / Ubuntu
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"

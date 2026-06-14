@@ -416,9 +416,9 @@ static bool versionAtLeast(const QString& ver, const QString& minVer)
 static QString seuilVersionMySQL()
 {
 #if defined(Q_OS_LINUX)
-    return "8.0.14";
+    return VERSION_MYSQL_MINI_LINUX;
 #else
-    return "8.4.3";
+    return VERSION_MYSQL_MINI_WINMAC;
 #endif
 }
 
