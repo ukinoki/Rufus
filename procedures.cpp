@@ -2744,9 +2744,33 @@ bool Procedures::MettreAJourSocleMySQL()
     if (msgbox.clickedButton() != OKb)
         return false;
 
-    // 2. Sauvegarde de la base SEULE, dans un dossier dédié.
-    const QString dossierMig = QString(PATH_DIR_RUFUS) + "/MigrationMySQL";
-    Utils::mkpath(dossierMig);
+    // 2. Sauvegarde de la base SEULE, sur un support ayant ASSEZ DE PLACE. La migration
+    //    appelle Backup() directement (sans la boîte dlg_buprestore qui, elle, vérifie
+    //    l'espace libre) : on refait donc ici l'estimation. Taille nécessaire estimée à
+    //    partir de la taille de la base (marge ×2, plancher 50 Mo pour couvrir le dump SQL
+    //    et ses entêtes). Tant que le support choisi est trop petit, on propose d'en choisir
+    //    un autre (clé USB, disque externe…) et on boucle ; aucune désinstallation n'a encore
+    //    eu lieu, donc l'annulation est sans danger.
+    const qint64 tailleBase   = db->DatabaseSize();
+    const qint64 espaceRequis = qMax<qint64>(tailleBase * 2, 50LL * 1024 * 1024);
+    QString dossierMig = QString(PATH_DIR_RUFUS) + "/MigrationMySQL";
+    forever
+    {
+        Utils::mkpath(dossierMig);
+        const qint64 dispo = QStorageInfo(dossierMig).bytesAvailable();
+        if (dispo >= espaceRequis)
+            break;
+        UpMessageBox::Watch(Q_NULLPTR, tr("Espace insuffisant"),
+            tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
+            tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(espaceRequis) + "\n" +
+            tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
+            tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
+        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
+                                                  QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
+        if (url == QUrl())
+            return false;                 // annulé : rien n'a été désinstallé
+        dossierMig = url.path();
+    }
     if (!Backup(dossierMig, true, false, false, false, false, Q_NULLPTR))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
