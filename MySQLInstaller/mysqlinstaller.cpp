@@ -410,6 +410,18 @@ static bool versionAtLeast(const QString& ver, const QString& minVer)
     return true;   // égalité exacte => au moins la version minimale
 }
 
+//  Seuil minimal de version MySQL exigé, SELON L'OS : Windows/macOS installent MySQL 8.4
+//  (LTS), donc on impose 8.4.3 ; Linux se contente du 8.0 fourni par apt (qui sait déjà
+//  le double mot de passe), seuil 8.0.14.
+static QString seuilVersionMySQL()
+{
+#if defined(Q_OS_LINUX)
+    return "8.0.14";
+#else
+    return "8.4.3";
+#endif
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  Mot de passe aléatoire (helpers statiques)
 // ═════════════════════════════════════════════════════════════════════════════
@@ -580,14 +592,9 @@ MySQLRemoteConfig MySQLInstaller::defaultMySQLConfig()
 {
     MySQLRemoteConfig c;
     c.version     = "8.4.9";
-    // Seuil minimal accepté en mode Verify. Sous Linux on est plus tolérant :
-    // Rufus fonctionne bien avec MySQL 8.0 (la version fournie par apt), inutile
-    // d'imposer 8.4. Sous Windows/macOS on installe 8.4, donc seuil 8.4.3.
-#if defined(Q_OS_LINUX)
-    c.minVersion  = "8.0";
-#else
-    c.minVersion  = "8.4.3";
-#endif
+    // Seuil minimal accepté : 8.4.3 sous Windows/macOS (on y installe le 8.4 LTS),
+    // 8.0.14 sous Linux (le 8.0 d'apt suffit, il sait déjà le double mot de passe).
+    c.minVersion  = seuilVersionMySQL();
     c.winUrl      = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-winx64.zip";
     c.macArm64Url = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-macos14-arm64.dmg";
     c.macX86Url   = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-macos14-x86_64.dmg";
@@ -962,7 +969,7 @@ bool MySQLInstaller::run()
     // Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) :
     // MySQL >= 8.0.14 et PAS MariaDB.
     const QString ver = getMySQLVersion();
-    const bool compatible = versionAtLeast(ver, "8.0.14") && !isMariaDB();
+    const bool compatible = versionAtLeast(ver, seuilVersionMySQL()) && !isMariaDB();
 
     forever {
         switch (demanderQueFaireMySQL(compatible)) {
@@ -1586,7 +1593,7 @@ void MySQLInstaller::securiserBaseSiNecessaire()
         return;
     QRegularExpression re(R"((\d+\.\d+\.\d+))");
     const auto mv = re.match(sv);
-    if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), "8.0.14"))
+    if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), seuilVersionMySQL()))
         return;
 
     // 3. Sécurisation via la connexion Qt en cours (monoposte OU serveur réseau) :
