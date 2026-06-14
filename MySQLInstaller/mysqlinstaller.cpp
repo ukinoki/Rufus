@@ -1293,6 +1293,7 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     if (!installMySQL())          { cleanupDialog(); return false; }
     m_freshInstall = true;
     startMySQL();
+    m_dialog->checkStep(0);       // « MySQL X installé » (cf. faireCreate/faireVerify)
     if (!executerEtapesConfig())  { cleanupDialog(); return false; }
     stockerMotDePasse(m_password);
     cleanupDialog();
