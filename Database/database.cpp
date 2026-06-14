@@ -167,6 +167,11 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("Login        - " + m_db.userName());
     Logs::LogSQL("port         - " + QString::number(m_db.port()));
     Logs::LogSQL("options      - " + (useSSL? connectSSLoptions : "none"));
+    QString modetxt = "monoposte (MONO)";
+    if (m_modeacces == Utils::ReseauLocal)   modetxt = "réseau local (LAN)";
+    else if (m_modeacces == Utils::Distant)  modetxt = "distant (WAN)";
+    Logs::LogSQL("mode         - " + modetxt);
+    Logs::LogSQL("mot de passe - " + QString(password == QString(MDP_SQL) ? "générique (gaxt78iy)" : "aléatoire"));
 
     if( m_db.open() )
     {
