@@ -1161,6 +1161,70 @@ static void inviterANoterMotDePasse(const QString& mdp)
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+//  Petite fiche DÉDIÉE à la saisie du futur utilisateur Rufus (identifiant / mot de passe /
+//  confirmation), utilisée après la (ré)installation de MySQL. On n'utilise PAS la fiche
+//  MySQLInstallerDialog (avec sa checklist d'installation) : afficher ces cases à cette étape
+//  est inutile et prête à confusion. Renvoie true si validé ; remplit outLogin / outMdp.
+// ═════════════════════════════════════════════════════════════════════════════
+static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, QWidget* parent)
+{
+    UpDialog dlg(parent);
+    dlg.setModal(true);
+    dlg.setWindowTitle(QObject::tr("Compte utilisateur Rufus"));
+
+    UpLabel* intro = new UpLabel();
+    intro->setText(QObject::tr("Choisissez l'identifiant et le mot de passe que vous "
+                               "utiliserez pour vous connecter à Rufus."));
+    intro->setWordWrap(true);
+    dlg.dlglayout()->addWidget(intro);
+
+    UpLineEdit* eLogin   = new UpLineEdit();
+    UpLineEdit* eMdp     = new UpLineEdit();
+    UpLineEdit* eConfirm = new UpLineEdit();
+    eMdp    ->setEchoMode(QLineEdit::Password);
+    eConfirm->setEchoMode(QLineEdit::Password);
+    // Mêmes formats imposés que pour un utilisateur Rufus (cf. appliquerValidateursRufus).
+    eLogin  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, &dlg));
+    eMdp    ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    eConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+
+    auto addRow = [&](const QString& label, UpLineEdit* e) {
+        QHBoxLayout* h = new QHBoxLayout;
+        UpLabel* l = new UpLabel(); l->setText(label); l->setMinimumWidth(180);
+        h->addWidget(l);
+        h->addWidget(e);
+        dlg.dlglayout()->addLayout(h);
+    };
+    addRow(QObject::tr("Identifiant :"),               eLogin);
+    addRow(QObject::tr("Mot de passe :"),              eMdp);
+    addRow(QObject::tr("Confirmer le mot de passe :"), eConfirm);
+
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
+    QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
+
+    forever {
+        if (dlg.exec() != QDialog::Accepted)
+            return false;
+        const QString login = eLogin->text().trimmed();
+        const QString mdp   = eMdp->text();
+        if (login.isEmpty() || mdp.isEmpty()) {
+            UpMessageBox::Watch(&dlg, QObject::tr("Saisie incomplète"),
+                QObject::tr("Veuillez renseigner un identifiant et un mot de passe."));
+            continue;
+        }
+        if (mdp != eConfirm->text()) {
+            UpMessageBox::Watch(&dlg, QObject::tr("Mots de passe différents"),
+                QObject::tr("Le mot de passe et sa confirmation ne correspondent pas."));
+            continue;
+        }
+        outLogin = login;
+        outMdp   = mdp;
+        return true;
+    }
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 //  RÉUTILISER un MySQL existant compatible (choix Effacer/Conserver). Demande un
 //  compte admin MySQL, crée adminrufus/SSL, (option : efface les bases non-Rufus),
 //  déroule la config, puis la saisie du futur utilisateur Rufus.
@@ -1223,16 +1287,13 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerT
         tr("Paramétrage de l'installation pour Rufus en cours…"));
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
-    // Saisie du futur utilisateur applicatif Rufus (2e étape).
-    m_dialog->configurerNewUserRufus();
-    forever {
-        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
-        if (m_dialog->validerSaisie()) break;
-    }
-    m_loginRufus = m_dialog->login();
-    m_mdpRufus   = m_dialog->password();
-
+    // Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche
+    // d'installation (avec sa checklist) puis on ouvre une petite fiche dédiée
+    // (identifiant / mot de passe / confirmation) — plus de cases sans rapport ni confusion.
     cleanupDialog();
+    if (!demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, nullptr))
+        return false;
+
     inviterANoterMotDePasse(m_password);
     return true;
 }
