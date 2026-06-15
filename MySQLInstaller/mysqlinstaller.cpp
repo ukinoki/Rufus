@@ -2585,22 +2585,39 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
     // CONSERVANT gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD). INDISPENSABLE :
     // les autres postes du réseau se connectent d'abord avec gaxt78iy (bootstrap) avant de
     // récupérer l'aléatoire (papier/USB). RETAIN CURRENT PASSWORD : MySQL >= 8.0.14.
-    // mysql_native_password : cf. createUser() — le driver Qt ne sait pas authentifier
-    // caching_sha2_password sur une connexion TCP non chiffrée vers un serveur au cache vide.
-    const QString sql = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%4';"
-        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%4';"
-        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%2' RETAIN CURRENT PASSWORD;"
+    // mysql_native_password : on le PRÉFÈRE (le driver Qt ne sait pas faire caching_sha2 en
+    // TCP non chiffré — utile pour les postes réseau). MAIS ici le serveur est PRÉEXISTANT et
+    // on ne contrôle pas son my.cnf : sur MySQL 8.4, ce plugin est désactivé par défaut et le
+    // « CREATE USER … WITH mysql_native_password » échoue (ERROR 1524, plugin non chargé). Dans
+    // ce cas on REVIENT au plugin par défaut du serveur. En monoposte la connexion passe par le
+    // socket localhost (caching_sha2 OK) ; en réseau, il faudra un serveur où native est actif.
+    const QString tmpl = QString(
+        "CREATE USER IF NOT EXISTS '%1'@'%' %5 '%4';"
+        "ALTER USER '%1'@'%' %5 '%4';"
+        "ALTER USER '%1'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%2' RETAIN CURRENT PASSWORD;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' %5 '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' %5 '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
-        "FLUSH PRIVILEGES;").arg(m_login, m_password, sslLogin, legacy);
+        "FLUSH PRIVILEGES;");
+    auto sqlAvecAuth = [&](const QString& auth) {
+        return tmpl.arg(m_login, m_password, sslLogin, legacy, auth);
+    };
+    auto executer = [&](const QString& sql) {
+        return runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+                              .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+    };
 
-    const QString out = runCmdFull(
-        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
-            .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
+    QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
+    QString up  = out.toUpper();
+    // Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli plugin serveur.
+    if (up.contains("ERROR 1524")
+        || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
+    {
+        out = executer(sqlAvecAuth("IDENTIFIED BY"));
+        up  = out.toUpper();
+    }
 
     if (!out.contains("ERROR", Qt::CaseInsensitive))
         return CreateUserResult::Ok;
@@ -2609,7 +2626,6 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
     //   ERROR 1227 (42000): Access denied; you need (at least one of) the CREATE
     //                       USER privilege(s) for this operation
     //   ERROR 1044/1142 : accès refusé sur l'objet / privilège manquant.
-    const QString up = out.toUpper();
     const bool accessDeniedCreateUser =
         up.contains("ACCESS DENIED") && up.contains("CREATE USER");
     if (accessDeniedCreateUser
