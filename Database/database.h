@@ -96,7 +96,6 @@ private:
     QString m_base;
     QString m_server;
     int m_port = 3306;
-    bool ok;
     QSqlDatabase m_db = QSqlDatabase();
 
 public:

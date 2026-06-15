@@ -223,6 +223,7 @@ bool DataBase::verifglobalvariablesSQL()
 
 bool DataBase::dirsecure_file_priv()
 {
+    bool ok = false;
     if (m_dirsecurefilepriv != QString())
         return true;
     QString dirdata = QString();
@@ -635,6 +636,7 @@ void DataBase::VideDatabases()
 */
 void DataBase::initParametresSysteme()
 {
+    bool ok = false;
     if (!m_db.isOpen())
         return;
     if (m_parametres == Q_NULLPTR)
@@ -886,6 +888,7 @@ void DataBase::setVersion (QString newversion)
 */
 void DataBase::initDonnesOphtaPatient(int idpat)
 {
+    bool ok = false;
     if (!m_donneesophtapatient)
         m_donneesophtapatient = new DonneesOphtaPatient();
     else
@@ -1021,6 +1024,7 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 */
 DataBase::QueryResult DataBase::verifExistUser(QString login, QString password)
 {
+    bool ok = false;
     // Échappement des entrées (login + mot de passe en clair) : elles viennent de la saisie
     // utilisateur et sont concaténées dans la requête → éviter toute injection SQL.
     const QString loginSQL = Utils::correctquoteSQL(login);
@@ -1060,6 +1064,7 @@ DataBase::QueryResult DataBase::verifExistUser(QString login, QString password)
 
 DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
+    bool ok = false;
     // Échappement des entrées (cf. verifExistUser) : protection contre l'injection SQL.
     const QString loginSQL = Utils::correctquoteSQL(login);
     const QString pwdSQL   = Utils::correctquoteSQL(password);
@@ -1104,6 +1109,7 @@ DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString passw
 
 QJsonObject DataBase::loadUserData(int idUser)
 {
+    bool ok = false;
     QJsonObject userData{};
 
     QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
@@ -1166,6 +1172,7 @@ QJsonObject DataBase::loadUserData(int idUser)
 
 QJsonObject DataBase::loadAdminData()
 {
+    bool ok = false;
     QJsonObject userData{};
     QString req = "select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'";
     QVariantList usrid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les données de l'administrateur"));
@@ -1184,6 +1191,7 @@ void DataBase::NettoieTableUsers()
 
 QList<User*> DataBase::loadUsers()
 {
+    bool ok = false;
     QList<User*> users = QList<User*>();
     QString req = "select " CP_DROITS_USR ", " CP_ISAGA_USR ", " CP_LOGIN_USR ", " CP_FONCTION_USR ", " CP_TITRE_USR ", "                               // 0,1,2,3,4
             CP_NOM_USR ", " CP_PRENOM_USR ", " CP_MAIL_USR ", " CP_NUMPS_USR ", " CP_SPECIALITE_USR ", "                                                // 5,6,7,8,9
@@ -1261,6 +1269,7 @@ void DataBase::UpDateLogoUser(int id, QHash<QString, QVariant> sets)
 */
 QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
 {
+    bool ok = false;
     QJsonObject posteData{};
     QString req = "select " CP_NOMPOSTE_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
                   CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
@@ -1293,6 +1302,7 @@ QJsonObject DataBase::loadPosteConnecteData(int iduser, QString macadress)
 
 QList<PosteConnecte*> DataBase::loadPostesConnectes()
 {
+    bool ok = false;
     QList<PosteConnecte*> postes = QList<PosteConnecte*>();
     QString req = "select " CP_IDUSER_USRCONNECT ", " CP_NOMPOSTE_USRCONNECT ", " CP_MACADRESS_USRCONNECT ", " CP_DISTANT_USRCONNECT ", " CP_IDUSERSUPERVISEUR_USRCONNECT ", "
                   CP_IDUSERCOMPTABLE_USRCONNECT ", " CP_IDUSERPARENT_USRCONNECT ", " CP_IDLIEU_USRCONNECT ", " CP_HEUREDERNIERECONNECTION_USRCONNECT ", "
@@ -1326,6 +1336,7 @@ QList<PosteConnecte*> DataBase::loadPostesConnectes()
 
 QList<QString> DataBase::loadStringIdPostesConnectes()
 {
+    bool ok = false;
     QList<QString> listpostes = QList<QString>();
     QString req = "select " CP_IDUSER_USRCONNECT ", " CP_MACADRESS_USRCONNECT " from " TBL_USERSCONNECTES ;
     QList<QVariantList> postlist = StandardSelectSQL(req, ok);
@@ -1342,6 +1353,7 @@ QList<QString> DataBase::loadStringIdPostesConnectes()
 */
 QList<Correspondant*> DataBase::loadCorrespondants()                             //! tous les correspondants
 {
+    bool ok = false;
     QList<Correspondant*> correspondants = QList<Correspondant*>();
     QString req =   "SELECT idCor, CorNom, CorPrenom, CorSexe, cormedecin, corspecialite, nomspecialite as metier FROM " TBL_CORRESPONDANTS ", " TBL_SPECIALITES
                     " where cormedecin = 1 and corspecialite = idspecialite"
@@ -1372,6 +1384,7 @@ QList<Correspondant*> DataBase::loadCorrespondants()                            
 
 QList<Correspondant*> DataBase::loadCorrespondantsALL()                             //! tous les correspondants avec plus de renseignements
 {
+    bool ok = false;
     QList<Correspondant*> correspondants = QList<Correspondant*>();
     QString req = "SELECT idCor, CorNom, CorPrenom, nomspecialite as metier, CorAdresse1,"
                         " CorAdresse2, CorAdresse3, CorCodepostal, CorVille, CorTelephone,"
@@ -1414,6 +1427,7 @@ QList<Correspondant*> DataBase::loadCorrespondantsALL()                         
 
 QJsonObject DataBase::loadCorrespondantData(int idcor)                             //! toutes les données d'un correspondant
 {
+    bool ok = false;
     QJsonObject jData{};
     QString req = "SELECT CorNom, CorPrenom, nomspecialite as metier, CorAdresse1, CorAdresse2,"
                         " CorAdresse3, CorCodepostal, CorVille, CorTelephone, CorSexe,"
@@ -1464,6 +1478,7 @@ QJsonObject DataBase::loadCorrespondantData(int idcor)                          
 */
 QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 {
+    bool ok = false;
     QList<DocExterne*> docsexternes = QList<DocExterne*>();
     if (pat == Q_NULLPTR)
         return QList<DocExterne*>();
@@ -1500,6 +1515,7 @@ QList<DocExterne*> DataBase::loadDoscExternesByPatient(Patient *pat)
 
 QJsonObject DataBase::loadDocExterneData(int idDoc)
 {
+    bool ok = false;
     QJsonObject jData{};
     QString req = "Select " CP_ID_DOCSEXTERNES ", " CP_IDUSER_DOCSEXTERNES ", " CP_IDPAT_DOCSEXTERNES ", " CP_TYPEDOC_DOCSEXTERNES ", " CP_SOUSTYPEDOC_DOCSEXTERNES ","     //! 0,1,2,3,4
                   CP_TITRE_DOCSEXTERNES ", " CP_TEXTENTETE_DOCSEXTERNES ", " CP_TEXTCORPS_DOCSEXTERNES ", " CP_TEXTORIGINE_DOCSEXTERNES ", " CP_TEXTPIED_DOCSEXTERNES ","   //! 5,6,7,8,9
@@ -1566,6 +1582,7 @@ QJsonObject DataBase::loadImpressionData(QVariantList impressionlist)
 
 QList<Impression*> DataBase::loadImpressions()
 {
+    bool ok = false;
     QList<Impression*> impressions = QList<Impression*>();
     QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
                   CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
@@ -1586,6 +1603,7 @@ QList<Impression*> DataBase::loadImpressions()
 
 Impression* DataBase::loadImpressionById(int id)
 {
+    bool ok = false;
     Impression* impression = Q_NULLPTR;
     QString req = "Select " CP_ID_IMPRESSIONS ", " CP_TEXTE_IMPRESSIONS ", " CP_RESUME_IMPRESSIONS ", " CP_CONCLUSION_IMPRESSIONS ", " CP_IDUSER_IMPRESSIONS ","
                   CP_DOCPUBLIC_IMPRESSIONS ", " CP_PRESCRIPTION_IMPRESSIONS ", " CP_EDITABLE_IMPRESSIONS ", " CP_MEDICAL_IMPRESSIONS " from " TBL_IMPRESSIONS
@@ -1613,6 +1631,7 @@ QJsonObject DataBase::loadDossierImpressionData(QVariantList dossierdata)
 
 QList<DossierImpression*> DataBase::loadDossiersImpressions()
 {
+    bool ok = false;
     QList<DossierImpression*> dossiers = QList<DossierImpression*>();
     QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
@@ -1644,6 +1663,7 @@ QList<DossierImpression*> DataBase::loadDossiersImpressions()
 
 DossierImpression* DataBase::loadDossierImpressionById(int id)
 {
+    bool ok = false;
     DossierImpression* dossier = Q_NULLPTR;
     QString     req =  "SELECT " CP_RESUME_DOSSIERIMPRESSIONS " , " CP_ID_DOSSIERIMPRESSIONS " , " CP_IDUSER_DOSSIERIMPRESSIONS ", " CP_PUBLIC_DOSSIERIMPRESSIONS
                        " FROM "  TBL_DOSSIERSIMPRESSIONS
@@ -1775,6 +1795,7 @@ QJsonObject DataBase::loadCompteData(QVariantList listdata)
 
 int DataBase::getIdMaxTableComptesTableArchives()
 {
+    bool ok = false;
     int a(0), b(0);
     a = selectMaxFromTable(CP_ID_ARCHIVESCPT, TBL_ARCHIVESBANQUE, ok);
     b = selectMaxFromTable(CP_ID_LIGNCOMPTES, TBL_LIGNESCOMPTES, ok);
@@ -1868,6 +1889,7 @@ QJsonObject DataBase::loadLigneCompteDataById(int id)
 */
 QList<Depense*> DataBase::loadDepensesByUser(int idUser)
 {
+    bool ok = false;
     QList<Depense*> depenses = QList<Depense*>();
     QString req = "SELECT " CP_ID_DEPENSES ", " CP_DATE_DEPENSES " , dep." CP_REFFISCALE_DEPENSES ", " CP_OBJET_DEPENSES ", " CP_MONTANT_DEPENSES ","
                         " dep." CP_FAMILLEFISCALE_DEPENSES ", " CP_MONNAIE_DEPENSES ", " CP_IDRECETTE_DEPENSES ", " CP_MODEPAIEMENT_DEPENSES ", " CP_COMPTE_DEPENSES ","
@@ -1911,6 +1933,7 @@ QList<Depense*> DataBase::loadDepensesByUser(int idUser)
 
 void DataBase::loadDepenseArchivee(Depense *dep)
 {
+    bool ok = false;
     bool archivee = false;
     QString req = "select " CP_ID_ARCHIVESCPT " from " TBL_ARCHIVESBANQUE " where " CP_IDDEP_ARCHIVESCPT " = " + QString::number(dep->id());
     QVariantList arcdata = getFirstRecordFromStandardSelectSQL(req,ok);
@@ -1930,6 +1953,7 @@ void DataBase::loadDepenseArchivee(Depense *dep)
 
 QStringList DataBase::ListeRubriquesFiscales()
 {
+    bool ok = false;
     QStringList ListeRubriques = QStringList();
     QString req = "SELECT " CP_REFFISCALE_2035 " from " TBL_RUBRIQUES2035 " where " CP_FAMFISCALE_2035 " is not null and " CP_FAMFISCALE_2035 " <> 'Prélèvement personnel' order by " CP_REFFISCALE_2035;
     QList<QVariantList> rublist = StandardSelectSQL(req,ok);
@@ -1943,6 +1967,7 @@ QStringList DataBase::ListeRubriquesFiscales()
 
 int DataBase::GetidRubriqueFiscale(Depense *dep)
 {
+    bool ok = false;
     QString req = "SELECT idRubrique FROM " TBL_RUBRIQUES2035 " where "  CP_REFFISCALE_2035 " = '" + Utils::correctquoteSQL(dep->rubriquefiscale()) + "'";
     //qDebug() << req;
     QList<QVariantList> deplist = StandardSelectSQL(req,ok);
@@ -1953,6 +1978,7 @@ int DataBase::GetidRubriqueFiscale(Depense *dep)
 
 QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses, QDate date, QString objet, double montant, int iduser, QString reffiscale, enum comparateur Comp)
 {
+    bool ok = false;
     QString op = "=";
     if (Comp == DataBase::Sup)
         op = ">";
@@ -1985,6 +2011,7 @@ QList<Depense*> DataBase::VerifExistDepense(QMap<int, Depense *> m_listDepenses,
 */
 QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int intervalle)
 {
+    bool ok = false;
     QList<Archive*> archives = QList<Archive*>();
     QString req = "select " CP_ID_ARCHIVESCPT ", " CP_IDCOMPTE_ARCHIVESCPT ", " CP_IDDEP_ARCHIVESCPT ", " CP_IDREC_ARCHIVESCPT ", " CP_IDRECSPEC_ARCHIVESCPT ", " CP_IDREMCHEQ_ARCHIVESCPT ", "
                             CP_DATE_ARCHIVESCPT ", " CP_LIBELLE_ARCHIVESCPT " , " CP_MONTANT_ARCHIVESCPT ","
@@ -2023,6 +2050,7 @@ QList<Archive*> DataBase::loadArchiveByDate(QDate date, Compte *compte, int inte
 */
 QList<Banque*> DataBase::loadBanques()
 {
+    bool ok = false;
     QList<Banque*> banques = QList<Banque*>();
     QString req = "SELECT " CP_ID_BANQUES ", " CP_NOMABREGE_BANQUES ", " CP_NOMBANQUE_BANQUES ", " CP_CODE_BANQUES " FROM " TBL_BANQUES " order by " CP_NOMBANQUE_BANQUES;
     QList<QVariantList> banqlist = StandardSelectSQL(req,ok);
@@ -2047,6 +2075,7 @@ QList<Banque*> DataBase::loadBanques()
 */
 QList<Tiers*> DataBase::loadTiersPayants()
 {
+    bool ok = false;
     QList<Tiers*> listetiers = QList<Tiers*>();
     QString req = "SELECT " CP_ID_TIERS ", " CP_NOM_TIERS ", " CP_ADRESSE1_TIERS ", " CP_ADRESSE2_TIERS ", " CP_ADRESSE3_TIERS ", "
                             CP_CODEPOSTAL_TIERS ", " CP_VILLE_TIERS ", " CP_TELEPHONE_TIERS ", " CP_FAX_TIERS ", " CP_MAIL_TIERS ", " CP_WEB_TIERS " from " TBL_TIERS;
@@ -2076,6 +2105,7 @@ QList<Tiers*> DataBase::loadTiersPayants()
 
 QList<TypeTiers*> DataBase::loadTypesTiers()
 {
+    bool ok = false;
     QList<TypeTiers*> types;
     QString req = "SELECT Tiers FROM " TBL_LISTETIERS;
     QList<QVariantList> tierslist = StandardSelectSQL(req,ok);
@@ -2097,6 +2127,7 @@ QList<TypeTiers*> DataBase::loadTypesTiers()
 */
 QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
 {
+    bool ok = false;
     QList<Recette*> listerecettes = QList<Recette*>();
         //---------------------------------------------- Tous les actes effectués par tout le monde durant la période, sauf les impayés et les gratuits
         QString req =
@@ -2231,6 +2262,7 @@ QList<Recette*> DataBase::loadRecettesByPeriod(QDate datedebut, QDate datefin)
 */
 RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
 {
+    bool ok = false;
     QString req =   "SELECT "
                     CP_IDUSER_LIGNRECETTES ", "
                     CP_DATE_LIGNRECETTES ", "
@@ -2281,6 +2313,7 @@ RecetteComptable* DataBase::loadRecetteComptablebyId(int id)
 */
 QList<PaiementTiers*> DataBase::loadPaiementTiersByUser(User* usr)
 {
+    bool ok = false;
     QList<PaiementTiers*> listepaiements = QList<PaiementTiers*>();
     if (usr == Q_NULLPTR)
         return listepaiements;
@@ -2342,10 +2375,10 @@ QList<PaiementTiers*> DataBase::loadPaiementTiersByUser(User* usr)
 */
 QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
 {
+    bool ok = false;
     QList<LignePaiement*> listepaiements = QList<LignePaiement*>();
     if (pat == Q_NULLPTR)
         return listepaiements;
-    bool ok;
     QString req =   "SELECT " CP_IDACTE_LIGNEPAIEMENT ", lig." CP_IDRECETTE_LIGNEPAIEMENT ", " CP_PAYE_LIGNEPAIEMENT ", " CP_MONNAIE_LIGNRECETTES " FROM " TBL_LIGNESPAIEMENTS " as lig"
                     " inner join " TBL_RECETTES " rec on rec." CP_ID_LIGNRECETTES " = lig." CP_IDRECETTE_LIGNEPAIEMENT
                     " where " CP_IDACTE_LIGNEPAIEMENT " in"
@@ -2375,6 +2408,7 @@ QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
 */
 QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
  {
+     bool ok = false;
      int k = 0;
      QList<Cotation*> cotations = QList<Cotation*>();
      if (usr == Q_NULLPTR)
@@ -2443,6 +2477,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
 
 QStringList DataBase::loadTypesCotations()
 {
+    bool ok = false;
     QStringList listcotations = QStringList();
     QString req = "select distinct " CP_TYPEACTE_COTATIONS " as code from " TBL_COTATIONS
                   " union "
@@ -2461,6 +2496,7 @@ QStringList DataBase::loadTypesCotations()
 */
 QList<Motif*> DataBase::loadMotifs()
 {
+    bool ok = false;
     QList<Motif*> motifs = QList<Motif*>();
     QString  req = "SELECT idMotifsRDV, Motif, Raccourci, Couleur, Duree, ParDefaut, Utiliser, NoOrdre FROM "  TBL_MOTIFSRDV " ORDER BY NoOrdre";
     QList<QVariantList> mtflist = StandardSelectSQL(req,ok);
@@ -2505,6 +2541,7 @@ QJsonObject DataBase::loadSiteData(QVariantList sitdata)         //! attribue la
 
 QMap<int,qlonglong> DataBase::loadidSitesByUser(int idUser)
 {
+    bool ok = false;
     QMap<int,qlonglong> mapid = QMap<int,qlonglong>();
     QString req = "select " CP_IDLIEU_JOINTSITE ", " CP_AMNUMBER_JOINTSITE " from " TBL_JOINTURESLIEUX " where " CP_IDUSER_JOINTSITE " = " + QString::number(idUser) + " order by " CP_IDLIEU_JOINTSITE;
     //qDebug() << req;
@@ -2517,6 +2554,7 @@ QMap<int,qlonglong> DataBase::loadidSitesByUser(int idUser)
 
 QList<Site*> DataBase::loadSites()
 {
+    bool ok = false;
     QList<Site*> list = QList<Site*>();
     QString req = "select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
           CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
@@ -2536,6 +2574,7 @@ QList<Site*> DataBase::loadSites()
 
 Site* DataBase::loadSiteById(int id)
 {
+    bool ok = false;
     Site* sit = Q_NULLPTR;
     QString req = "select " CP_ID_SITE ", " CP_NOM_SITE ", " CP_ADRESSE1_SITE ", " CP_ADRESSE2_SITE ", " CP_ADRESSE3_SITE ", "
             CP_CODEPOSTAL_SITE ", " CP_VILLE_SITE ", " CP_TELEPHONE_SITE ", " CP_FAX_SITE ", " CP_COULEUR_SITE
@@ -2555,6 +2594,7 @@ Site* DataBase::loadSiteById(int id)
 */
 QList<Ville*> DataBase::loadVilles()
 {
+    bool ok = false;
     QList<Ville*> villes = QList<Ville*>();
 
     QString req = "select " CP_ID_VILLES "," CP_CP_VILLES ", " CP_NOM_VILLES
@@ -2577,6 +2617,7 @@ QList<Ville*> DataBase::loadVilles()
 
 QList<Ville*> DataBase::loadAutresVilles()
 {
+    bool ok = false;
     QList<Ville*> villes = QList<Ville*>();
 
     QString req = "select " CP_ID_AUTRESVILLES "," CP_CP_AUTRESVILLES ", " CP_NOM_AUTRESVILLES
@@ -2627,6 +2668,7 @@ bool DataBase::EnregistreAutreVille(QString CP, QString ville, int &id)
 */
 PatientEnCours* DataBase::loadPatientEnCoursById(int idPat)
 {
+    bool ok = false;
     PatientEnCours *pat = new PatientEnCours;
     QString req = "SELECT " CP_IDPAT_SALDAT " FROM " TBL_SALLEDATTENTE " where " CP_IDPAT_SALDAT " = " + QString::number(idPat);
     QVariantList patdata = getFirstRecordFromStandardSelectSQL(req,ok);
@@ -2643,6 +2685,7 @@ PatientEnCours* DataBase::loadPatientEnCoursById(int idPat)
 
 QJsonObject DataBase::loadPatientEnCoursDataById(int idPat)
 {
+    bool ok = false;
     QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
                   CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
                   CP_IDUSERENCOURSEXAM_SALDAT ", " CP_IDSALDAT_SALDAT ", " CP_MESSAGERETOUR_SALDAT ", " CP_DATERDV_SALDAT " FROM " TBL_SALLEDATTENTE " where " CP_IDPAT_SALDAT " = " + QString::number(idPat);
@@ -2655,6 +2698,7 @@ QJsonObject DataBase::loadPatientEnCoursDataById(int idPat)
 
 QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
 {
+    bool ok = false;
     QJsonObject jData{};
     if( !ok || patdata.size()==0 )
         return jData;
@@ -2677,6 +2721,7 @@ QJsonObject DataBase::loadPatientEnCoursData(QVariantList patdata)
 
 QList<PatientEnCours *> DataBase::loadPatientsenCoursAll()
 {
+    bool ok = false;
     QList<PatientEnCours*> listpat = QList<PatientEnCours*>();
     QString req = "SELECT " CP_IDPAT_SALDAT ", " CP_IDUSERSUPERVISEUR_SALDAT ", " CP_STATUT_SALDAT ", " CP_HEURESTATUT_SALDAT ", " CP_HEURERDV_SALDAT ", "
                   CP_HEUREARRIVEE_SALDAT ", " CP_MOTIF_SALDAT ", " CP_MESSAGE_SALDAT ", " CP_IDACTEAPAYER_SALDAT ", " CP_POSTEEXAMEN_SALDAT ", "
@@ -2758,6 +2803,7 @@ void DataBase::loadMedicalDataPatient(QJsonObject &jData, bool &ok)
 
 QJsonObject DataBase::loadPatientAllData(int idPat)
 {
+    bool ok = false;
     QJsonObject jData{};
     QString req = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
                             CP_IDCREATEUR_PATIENTS " FROM " TBL_PATIENTS " where " CP_IDPAT_PATIENTS " = " + QString::number(idPat);
@@ -2778,6 +2824,7 @@ QJsonObject DataBase::loadPatientAllData(int idPat)
 
 Patient* DataBase::loadPatientById(int idPat, Patient *pat, Item::LOADDETAILS details)
 {
+    bool ok = false;
     if (pat == Q_NULLPTR)
         pat = new Patient();
     QString req = "SELECT " CP_NOM_PATIENTS ", " CP_PRENOM_PATIENTS ", " CP_DDN_PATIENTS ", " CP_SEXE_PATIENTS ", " CP_DATECREATION_PATIENTS ", "
@@ -2823,6 +2870,7 @@ qint64 DataBase::countPatientsAll(QString nom, QString prenom)
 
 QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filtre)
 {
+    bool ok = false;
     QList<Patient*> listpatients = QList<Patient*>();
     QString clausewhere ("");
     QString like = (filtre? "like" : "=");
@@ -2868,6 +2916,7 @@ QList<Patient*> DataBase::loadPatientsAll(QString nom, QString prenom, bool filt
 
 QList<Patient*> DataBase::loadPatientsByListId(QList<int> listid)
 {
+    bool ok = false;
     QList<Patient*> listpatients =  QList<Patient*>();
     if (listid.size() == 0)
         return listpatients;
@@ -2902,6 +2951,7 @@ QList<Patient*> DataBase::loadPatientsByListId(QList<int> listid)
 
 QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 {
+    bool ok = false;
     QList<Patient*> listpatients = QList<Patient*>();
     QString req = "SELECT idPat, PatNom, PatPrenom, PatDDN, Sexe, PatCreele, PatCreePar FROM " TBL_PATIENTS
                   " WHERE PatDDN = '" + DDN.toString("yyyy-MM-dd") + "'";
@@ -2931,6 +2981,7 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 */
 QString DataBase::getMDPAdmin()
 {
+    bool ok = false;
     QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select " CP_MDPADMIN_PARAMSYSTEME " from " TBL_PARAMSYSTEME,ok);
     if( !ok )
     {
@@ -3005,6 +3056,7 @@ Acte* DataBase::loadActeById(int idActe)
 
 QJsonObject DataBase::loadActeAllData(int idActe)
 {
+    bool ok = false;
     QString req = "SELECT act." CP_ID_ACTES ", act." CP_IDPAT_ACTES ", act." CP_IDUSER_ACTES ",  act." CP_DATE_ACTES ", act." CP_MOTIF_ACTES ","
                   " act." CP_TEXTE_ACTES ", act." CP_CONCLUSION_ACTES ", act." CP_COURRIERAFAIRE_ACTES ", act." CP_COTATION_ACTES ", act." CP_MONTANT_ACTES ","
                   " act." CP_MONNAIE_ACTES ", act." CP_IDUSERCREATEUR_ACTES ", act." CP_IDUSERCOMPTABLE_ACTES ", act." CP_IDUSERPARENT_ACTES ","
@@ -3023,6 +3075,7 @@ QJsonObject DataBase::loadActeAllData(int idActe)
 
 QList<Acte *> DataBase::loadActesByPat(Patient *pat)
 {
+    bool ok = false;
     QList<Acte*> list = QList<Acte*>();
     if( pat == Q_NULLPTR )
         return list;
@@ -3052,6 +3105,7 @@ QList<Acte *> DataBase::loadActesByPat(Patient *pat)
 
 QList<Acte *> DataBase::loadIdActesByPat(Patient *pat)
 {
+    bool ok = false;
     QList<Acte*> list = QList<Acte*>();
     if( pat == Q_NULLPTR )
         return list;
@@ -3074,6 +3128,7 @@ QList<Acte *> DataBase::loadIdActesByPat(Patient *pat)
 
 double DataBase::getActePaye(int idActe)
 {
+    bool ok = false;
     double montant = 0.0;
     // on récupère les lignes de paiement
     QString req = " SELECT lp." CP_PAYE_LIGNEPAIEMENT ", lr." CP_MONNAIE_LIGNRECETTES
@@ -3094,6 +3149,7 @@ double DataBase::getActePaye(int idActe)
 }
 int DataBase::getidActeCorrespondant(int idpat, QDate date)
 {
+    bool ok = false;
     QString req = "select " CP_ID_ACTES " from " TBL_ACTES " where " CP_IDPAT_ACTES " = " + QString::number(idpat) + " and " CP_DATE_ACTES " = '" + date.toString("yyyy-MM-dd") + "'";
     //qDebug() << req;
     QVariantList listid = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver un acte correspondant"));
@@ -3174,6 +3230,7 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
 
 QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //! charge toutes les refractions d'un patient
 {
+    bool ok = false;
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                     "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
                                                     "WHERE TABLE_NAME = 'refractions' AND COLUMN_NAME = 'QuickOD') as chp;", ok);
@@ -3216,6 +3273,7 @@ QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //!
 
 Refraction* DataBase::loadRefractionById(int idref)                   //! charge une refraction définie par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                   "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
                                                   "WHERE TABLE_NAME = 'refractions' AND COLUMN_NAME = 'QuickOD') as chp;", ok);
@@ -3280,6 +3338,7 @@ CommentLunet* DataBase::loadCommentLunetById(int id)                 //! charge 
 
 QList<CommentLunet*> DataBase::loadCommentsLunets()        //! charge les commentaires utilisés par un groupe d'utilisateurs
 {
+    bool ok = false;
     QList<CommentLunet*> listcom = QList<CommentLunet*>();
     QString req = "SELECT " CP_ID_COMLUN ", " CP_TEXT_COMLUN ", " CP_RESUME_COMLUN ", " CP_IDUSER_COMLUN ", " CP_PARDEFAUT_COMLUN ", " CP_PUBLIC_COMLUN " FROM " TBL_COMMENTAIRESLUNETTES;
     //qDebug() << req;
@@ -3314,6 +3373,7 @@ QJsonObject DataBase::loadSessionOpData(QVariantList sessiondata)           //! 
 
 QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)                  //! charge toutes les sessions opératoires d'un user
 {
+    bool ok = false;
     QList<SessionOperatoire*> list = QList<SessionOperatoire*> ();
     QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE ", " CP_INCIDENT_SESSIONOPERATOIRE  // 0-1-2-3-4
                     " FROM " TBL_SESSIONSOPERATOIRES
@@ -3336,6 +3396,7 @@ QList<SessionOperatoire*> DataBase::loadSessionsOpByUserId(int id)              
 
 SessionOperatoire* DataBase::loadSessionOpById(int idsession, SessionOperatoire *session)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     SessionOperatoire *sess = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_SESSIONOPERATOIRE ", " CP_DATE_SESSIONOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE ", " CP_IDAIDE_SESSIONOPERATOIRE ", " CP_IDLIEU_SESSIONOPERATOIRE ", " CP_INCIDENT_SESSIONOPERATOIRE // 0-1-2-3-4
                     " FROM " TBL_SESSIONSOPERATOIRES
@@ -3376,6 +3437,7 @@ QJsonObject DataBase::loadInterventionData(QVariantList interventiondata)       
 
 QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)                  //! charge toutes les Interventions d'un patient
 {
+    bool ok = false;
     QList<Intervention*> list = QList<Intervention*> ();
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
                               CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
@@ -3399,6 +3461,7 @@ QList<Intervention*> DataBase::loadInterventionsBySessionId(int id)             
 
 QList<QPair<int, int>> DataBase::loadIdInterventionsByPatientId(int id)                  //! charge toutes les Interventions d'un patient
 {
+    bool ok = false;
     QList<QPair<int, int>> listpair = QList<QPair<int, int>>();
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_IDUSER_SESSIONOPERATOIRE
                     " FROM " TBL_LIGNESPRGOPERATOIRES " prog left outer join " TBL_SESSIONSOPERATOIRES " sess "
@@ -3416,6 +3479,7 @@ QList<QPair<int, int>> DataBase::loadIdInterventionsByPatientId(int id)         
 
 Intervention* DataBase::loadInterventionById(int idintervention, Intervention *interv)                   //! charge une Intervention définie par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     Intervention *intervention = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", " CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
                               CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
@@ -3436,6 +3500,7 @@ Intervention* DataBase::loadInterventionById(int idintervention, Intervention *i
 
 Intervention* DataBase::loadInterventionByDateIdPatient(QDate date, int idpatient)  //! charge une Intervention définie par sa date et l'iddu patietnt
 {
+    bool ok = false;
     Intervention *intervention = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_LIGNPRGOPERATOIRE ", " CP_HEURE_LIGNPRGOPERATOIRE ", " CP_IDPATIENT_LIGNPRGOPERATOIRE ", lign." CP_IDSESSION_LIGNPRGOPERATOIRE ", " CP_TYPEANESTH_LIGNPRGOPERATOIRE ", "  // 0-1-2-3-4
                               CP_IDTYPEINTERVENTION_LIGNPRGOPERATOIRE ", " CP_COTE_LIGNPRGOPERATOIRE ", " CP_IDIOL_LIGNPRGOPERATOIRE ", " CP_PWRIOL_LIGNPRGOPERATOIRE ", " CP_CYLIOL_LIGNPRGOPERATOIRE ", " // 5-6-7-8-9
@@ -3525,6 +3590,7 @@ QJsonObject DataBase::IOLData(QVariantList ioldata)                     //! attr
 
 QList<IOL*> DataBase::loadIOLs()                                            //! charge tous les IOLS
 {
+    bool ok = false;
     QString reqdel = "delete from " TBL_IOLS " where " CP_MODELNAME_IOLS " is null or " CP_MODELNAME_IOLS " = \"\""
                      " or " CP_IDMANUFACTURER_IOLS " is null or " CP_IDMANUFACTURER_IOLS " not in (select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS ")";
     //qDebug() << reqdel;
@@ -3560,6 +3626,7 @@ QList<IOL*> DataBase::loadIOLs()                                            //! 
 
 QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //! charge tous les IOLS d'un fabricant
 {
+    bool ok = false;
     QList<IOL*> list = QList<IOL*> ();
     QString req =   "SELECT " CP_ID_IOLS ", " CP_IDMANUFACTURER_IOLS ", " CP_IDIOLCON_IOLS ", " CP_MODELNAME_IOLS ", " CP_DIAOPT_IOLS ", "          // 0-1-2-3-4
                     CP_DIAALL_IOLS ", " CP_ACD_IOLS ", " CP_MINPWR_IOLS ", " CP_MAXPWR_IOLS ", " CP_PWRSTEP_IOLS ", "                               // 5-6-7-8-9
@@ -3592,6 +3659,7 @@ QList<IOL*> DataBase::loadIOLsByManufacturerId(int id)                       //!
 
 QJsonObject DataBase::loadIOLdataById(int idiol)                   //! charge un IOL défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     QJsonObject ioldata = QJsonObject();
     QString reqdel = "delete from " TBL_IOLS " where " CP_MODELNAME_IOLS " is null or " CP_MODELNAME_IOLS " = \"\""
                      " or " CP_IDMANUFACTURER_IOLS " is null or " CP_IDMANUFACTURER_IOLS " not in (select " CP_ID_MANUFACTURER " from " TBL_MANUFACTURERS ")";
@@ -3640,6 +3708,7 @@ QJsonObject DataBase::loadTypeInterventionData(QVariantList typeinterventiondata
 
 QList<TypeIntervention*> DataBase::loadTypeInterventions()                       //! charge tous les TypeInterventions
 {
+    bool ok = false;
     QList<TypeIntervention*> list = QList<TypeIntervention*> ();
     QString req =   "SELECT " CP_ID_TYPINTERVENTION ", " CP_TYPEINTERVENTION_TYPINTERVENTION ", " CP_CODECCAM_TYPINTERVENTION // 0-1-2
                     " FROM " TBL_TYPESINTERVENTIONS " order by " CP_ID_TYPINTERVENTION;
@@ -3658,6 +3727,7 @@ QList<TypeIntervention*> DataBase::loadTypeInterventions()                      
 
 TypeIntervention* DataBase::loadTypeInterventionById(int idtypeintervention)                   //! charge un TypeIntervention défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     TypeIntervention *typeintervention = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_TYPINTERVENTION ", " CP_TYPEINTERVENTION_TYPINTERVENTION ", " CP_CODECCAM_TYPINTERVENTION // 0-1-2
                     " FROM " TBL_TYPESINTERVENTIONS
@@ -3697,6 +3767,7 @@ QJsonObject DataBase::loadManufacturerData(QVariantList Mandata)         //! att
 
 QList<Manufacturer*> DataBase::loadManufacturers()                       //! charge tous les fabricants
 {
+    bool ok = false;
     QList<Manufacturer*> list = QList<Manufacturer*> ();
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
@@ -3718,6 +3789,7 @@ QList<Manufacturer*> DataBase::loadManufacturers()                       //! cha
 
 Manufacturer* DataBase::loadManufacturerById(int idManufacturer)                   //! charge un fabricant défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     Manufacturer *Man = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_MANUFACTURER ", " CP_NOM_MANUFACTURER ", " CP_ADRESSE1_MANUFACTURER ", " CP_ADRESSE2_MANUFACTURER ", " CP_ADRESSE3_MANUFACTURER ", "
                               CP_CODEPOSTAL_MANUFACTURER ", " CP_VILLE_MANUFACTURER ", " CP_TELEPHONE_MANUFACTURER ", " CP_FAX_MANUFACTURER ", " CP_PORTABLE_MANUFACTURER ", " CP_WEBSITE_MANUFACTURER ", "
@@ -3751,6 +3823,7 @@ QJsonObject DataBase::loadCommercialData(QVariantList comdata)         //! attri
 
 QList<Commercial*> DataBase::loadCommercials()                       //! charge tous les fabricants
 {
+    bool ok = false;
     QList<Commercial*> list = QList<Commercial*> ();
     QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
                               CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
@@ -3771,6 +3844,7 @@ QList<Commercial*> DataBase::loadCommercials()                       //! charge 
 
 Commercial* DataBase::loadCommercialById(int idcommercial)                   //! charge un commercial défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     Commercial *Com = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
                               CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
@@ -3786,6 +3860,7 @@ Commercial* DataBase::loadCommercialById(int idcommercial)                   //!
 
 QList<Commercial *> DataBase::loadCommercialsByIdManufacturer(int idmanufacturer)
 {
+    bool ok = false;
     QList<Commercial*> list = QList<Commercial*> ();
     QString req =   "SELECT " CP_ID_COM ", " CP_NOM_COM ", " CP_PRENOM_COM ", " CP_STATUT_COM ", " CP_MAIL_COM ", "
                               CP_TELEPHONE_COM ", " CP_IDMANUFACTURER_COM
@@ -3820,6 +3895,7 @@ QJsonObject DataBase::loadMotCleData(QVariantList Motcledata)         //! attrib
 
 QList<MotCle*> DataBase::loadMotsCles()                       //! charge tous les mots clés
 {
+    bool ok = false;
     QList<MotCle*> list = QList<MotCle*> ();
     QString req =   "SELECT " CP_ID_MOTCLE ", " CP_TEXT_MOTCLE
                     " FROM " TBL_MOTSCLES " order by " CP_TEXT_MOTCLE;
@@ -3839,6 +3915,7 @@ QList<MotCle*> DataBase::loadMotsCles()                       //! charge tous le
 
 MotCle* DataBase::loadMotCleById(int idMotcle)                   //! charge un mot clé défini par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     MotCle *Motcle = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_MOTCLE ", " CP_TEXT_MOTCLE
                     " FROM " TBL_MOTSCLES
@@ -3853,6 +3930,7 @@ MotCle* DataBase::loadMotCleById(int idMotcle)                   //! charge un m
 
 QList<int> DataBase::loadListIdMotsClesByPat(int idpat)                              //! chagre les id des mots clés utilisés par un patient
 {
+    bool ok = false;
     QList<int> listid = QList<int> ();
     QString req =   "SELECT " CP_IDMOTCLE_JOINTURESMOTSCLES
                     " FROM " TBL_MOTSCLESJOINTURES
@@ -3895,6 +3973,7 @@ QJsonObject DataBase::loadMessageData(QVariantList msgdata)         //! attribue
 
 QList<Message*> DataBase::loadMessagesRecusByIdUser(int id)                     //! charge tous les messages reçus par un utilisateur
 {
+    bool ok = false;
     QList<Message*> list = QList<Message*> ();
     QString req =
         "select Distinct"
@@ -3933,6 +4012,7 @@ QList<Message*> DataBase::loadMessagesRecusByIdUser(int id)                     
 
 QList<Message*> DataBase::loadMessagesEnvoyesByIdUser(int id)                     //! charge tous les messages envoyes par un utilisateur
 {
+    bool ok = false;
     QList<Message*> list = QList<Message*> ();
     QString req =
         "select Distinct"
@@ -3972,6 +4052,7 @@ QList<Message*> DataBase::loadMessagesEnvoyesByIdUser(int id)                   
 
 QList<Message*> DataBase::loadAllMessagesByIdUser(int id)                     //! charge tous les messages reçus ou envoyes par un utilisateur
 {
+    bool ok = false;
     QList<Message*> list = QList<Message*> ();
     QString req =
             "select Distinct"
@@ -4012,6 +4093,7 @@ QList<Message*> DataBase::loadAllMessagesByIdUser(int id)                     //
 
 Message* DataBase::loadMessageById(int idmessage)                     //! charge tous les messages envoyes par un utilisateur
 {
+    bool ok = false;
     Message *msg = Q_NULLPTR;
     QString req =
         "select "
@@ -4055,6 +4137,7 @@ QJsonObject DataBase::loadSessionData(QVariantList sessiondata)             //! 
 
 Session* DataBase::loadSessionById(int idsession)                           //! charge une session définie par son id - utilisé pour renouveler les données en cas de modification
 {
+    bool ok = false;
     Session *session = Q_NULLPTR;
     QString req =   "SELECT " CP_ID_SESSIONS ", " CP_IDUSER_SESSIONS ", " CP_IDSUPERVISEUR_SESSIONS ", " CP_IDPARENT_SESSIONS ", " CP_IDCOMPTABLE_SESSIONS ", " CP_DATEDEBUT_SESSIONS ", " CP_DATEFIN_SESSIONS // 0-1-2-3-4
                     " FROM " TBL_SESSIONS
@@ -4073,6 +4156,7 @@ Session* DataBase::loadSessionById(int idsession)                           //! 
 
 QList<RefractionDevice*> DataBase::loadrefractionDevices()
 {
+    bool ok = false;
     QList<RefractionDevice*> refractiondevices = QList<RefractionDevice*>();
     QString req = "select " CP_ID_REF ", " CP_BRAND_REF ", " CP_MODEL_REF ", " CP_TYPE_REF ", " CP_LIKEDEVICE_REF
                   ", " CP_SERIAL_REF ", " CP_LAN_REF ", " CP_IMPLEMENTE_REF ", " CP_COMMENT_REF
