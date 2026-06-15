@@ -132,7 +132,7 @@ public:
         /*! pour certaines données bool, on a 3 valeurs possibles, true, false et null
          * en fait, on pourrait même faire une 4ème valeur correspondant à "ne sait pas" -> ne sait pas si la valeur est true, false ou null
          */
-    enum ModeAcces { Poste = 0x1, ReseauLocal = 0x2, Distant = 0x4};     Q_ENUM(ModeAcces)
+    enum ModeAcces { Undefined = 0x0, Poste = 0x1, ReseauLocal = 0x2, Distant = 0x4};     Q_ENUM(ModeAcces)
     enum Period {Debut, Fin};
 
     static Utils   *I();

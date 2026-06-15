@@ -131,6 +131,18 @@ QString DataBase::versionMySQL()
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
+    // Le mode d'accès (Poste / ReseauLocal / Distant) DOIT avoir été fixé par setModeacces()
+    // AVANT toute connexion : il détermine le login (suffixe « SSL ») et l'usage de SSL. S'il
+    // n'a pas été précisé (valeur Undefined), on REFUSE la connexion plutôt que de la tenter
+    // avec des paramètres faux — un appel sans setModeacces() préalable est un bug à corriger.
+    if (m_modeacces == Utils::Undefined)
+    {
+        QString error = "DataBase::connectToDataBase()\n"
+                        + tr("Mode d'accès non défini : appelez setModeacces() avant de vous connecter.");
+        Logs::ERROR(error);
+        return error;
+    }
+
     // Une connexion homonyme peut déjà exister (cascade de mots de passe candidats,
     // reconnexion après migration…). addDatabase() avec un nom déjà pris émet l'avertissement
     // « duplicate connection name » et ne ferme pas proprement l'ancienne. On relâche d'abord

@@ -90,7 +90,7 @@ private:
     ParametresSysteme *m_parametres = Q_NULLPTR;
     DonneesOphtaPatient *m_donneesophtapatient = new DonneesOphtaPatient();
 
-    Utils::ModeAcces m_modeacces;
+    Utils::ModeAcces m_modeacces = Utils::Undefined;    //! DOIT être fixé via setModeacces() avant toute connexion
     QString m_dirimagerie = QString();
     QString m_dirsecurefilepriv = QString();
     QString m_base;
