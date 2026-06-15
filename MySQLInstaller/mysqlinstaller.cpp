@@ -1143,6 +1143,24 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+//  Invite l'utilisateur à CONSERVER le mot de passe (aléatoire) de connexion à la base : il en
+//  aura besoin pour brancher un autre poste au cabinet, ou pour dépanner cet ordinateur. Appelée
+//  après chaque création/rotation du mot de passe (install neuve, réutilisation, migration,
+//  sécurisation d'une base existante).
+// ═════════════════════════════════════════════════════════════════════════════
+static void inviterANoterMotDePasse(const QString& mdp)
+{
+    UpMessageBox::Watch(nullptr,
+        QObject::tr("Notez le mot de passe de la base de données"),
+        QObject::tr("Rufus a créé un mot de passe de connexion à votre base de données patients.\n"
+                    "Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire "
+                    "pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.")
+        + "\n\n" + QObject::tr("Mot de passe : ") + mdp
+        + "\n\n" + QObject::tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment "
+                               "depuis Paramètres ▸ onglet « Ce poste »."));
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 //  RÉUTILISER un MySQL existant compatible (choix Effacer/Conserver). Demande un
 //  compte admin MySQL, crée adminrufus/SSL, (option : efface les bases non-Rufus),
 //  déroule la config, puis la saisie du futur utilisateur Rufus.
@@ -1215,6 +1233,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerT
     m_mdpRufus   = m_dialog->password();
 
     cleanupDialog();
+    inviterANoterMotDePasse(m_password);
     return true;
 }
 
@@ -1290,6 +1309,7 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     stockerMotDePasse(m_password);
 
     cleanupDialog();
+    inviterANoterMotDePasse(m_password);
     return true;
 }
 
@@ -1329,6 +1349,7 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     if (!executerEtapesConfig())  { cleanupDialog(); return false; }
     stockerMotDePasse(m_password);
     cleanupDialog();
+    inviterANoterMotDePasse(m_password);
     return true;
 }
 
@@ -1718,6 +1739,7 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     // 4. Mémoriser le nouveau mot de passe (mode courant) : ce poste s'y connectera
     //    désormais ; gaxt78iy reste valable pour les autres postes (2e mot de passe).
     stockerMotDePasse(np);
+    inviterANoterMotDePasse(np);
 }
 
 // À appeler après toute connexion réussie : sécurise au besoin, puis purge gaxt78iy si échu.
