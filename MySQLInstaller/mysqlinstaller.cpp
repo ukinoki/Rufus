@@ -1176,7 +1176,10 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
     intro->setText(QObject::tr("Choisissez l'identifiant et le mot de passe que vous "
                                "utiliserez pour vous connecter à Rufus."));
     intro->setWordWrap(true);
-    dlg.dlglayout()->addWidget(intro);
+    // dlglayout() == m_globallay, qui contient DÉJÀ la barre de boutons (placée en premier par
+    // le constructeur) : on insère donc le contenu AVANT elle (à count()-1), sinon les boutons
+    // se retrouvent en haut de la fiche.
+    dlg.dlglayout()->insertWidget(dlg.dlglayout()->count() - 1, intro);
 
     UpLineEdit* eLogin   = new UpLineEdit();
     UpLineEdit* eMdp     = new UpLineEdit();
@@ -1193,7 +1196,7 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
         UpLabel* l = new UpLabel(); l->setText(label); l->setMinimumWidth(180);
         h->addWidget(l);
         h->addWidget(e);
-        dlg.dlglayout()->addLayout(h);
+        dlg.dlglayout()->insertLayout(dlg.dlglayout()->count() - 1, h);  // avant la barre de boutons
     };
     addRow(QObject::tr("Identifiant :"),               eLogin);
     addRow(QObject::tr("Mot de passe :"),              eMdp);
