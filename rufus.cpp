@@ -9881,7 +9881,12 @@ void Rufus::Remplir_SalDat()
                 }
             UpTextEdit *UserBureau;
             UserBureau          = new UpTextEdit;
-            UserBureau          ->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
+            // On retire UNIQUEMENT le menu contextuel intrinsèque d'UpTextEdit (branché dans son
+            // constructeur sur customContextMenuRequested) au lieu d'un disconnect() SANS argument :
+            // ce dernier coupe TOUTES les connexions sortantes de l'objet d'un coup (appel « joker »)
+            // et provoque l'avertissement Qt « wildcard call disconnects from destroyed signal ».
+            // En nommant le signal, on ne touche que la connexion voulue : plus d'avertissement.
+            disconnect(UserBureau, &UpTextEdit::customContextMenuRequested, nullptr, nullptr);
             ui->scrollArea      ->setStyleSheet("border: 1px none gray;  border-radius: 10px;");
             UserBureau          ->setStyleSheet("background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 rgba(200, 255, 200, 50));"
                                       "border: 1px solid gray;  border-radius: 10px;");
