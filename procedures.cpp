@@ -4327,16 +4327,14 @@ bool Procedures::PremierDemarrage()
         Datas::I()->sites->initListe();
         CalcLieuExercice();
         if (Datas::I()->sites->currentsite() == Q_NULLPTR)
-            UpMessageBox::Watch(Q_NULLPTR,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
-        UpMessageBox::Watch(Q_NULLPTR, tr("Redémarrage nécessaire"),
-                              tr("Le programme va se fermer pour que les modifications de la base Rufus "
-                                 "puissent être prises en compte.") + "\n\n" +
-                              tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé. "
-                                 "Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est "
-                                 "nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.") + "\n\n" +
+            UpMessageBox::Watch(nullptr,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
+        UpMessageBox::Watch(nullptr, tr("Redémarrage nécessaire"),
+                              tr("Le programme va se fermer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
+                              tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
+                              tr("Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)") + "\n" +
+                              tr("il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.") + "\n\n" +
                               tr("Mot de passe : ") + MySQLInstaller::motDePasseSQL() + "\n\n" +
-                              tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment "
-                                 "depuis Paramètres ▸ onglet « Ce poste »."));
+                              tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         db->setVersion(m_version);
         exit(0);
