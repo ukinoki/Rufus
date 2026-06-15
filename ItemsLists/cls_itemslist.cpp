@@ -822,7 +822,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 iol->setidmanufacturer(a);
                 Utils::CalcintValueSQL(newvalue);
             }
-            if (field == CP_IDIOLCON_IOLS)
+            else if (field == CP_IDIOLCON_IOLS)
             {
                 int a = newvalue.toInt();
                 iol->setidiolcon(a);
