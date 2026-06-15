@@ -4531,7 +4531,7 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 bool Procedures::VerifParamConnexion(bool connectavecLoginSQL, bool OKAccesDistant)
 {
     dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
-    Dlg_ParamConnex ->setWindowTitle(tr("Entrez les paramètres de connexion au serveur"));
+    Dlg_ParamConnex ->setWindowTitle(tr("Entrez votre identifiant et votre mot de passe d'utilisateur Rufus"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)
     {
