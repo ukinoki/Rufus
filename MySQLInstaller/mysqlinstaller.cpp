@@ -1168,55 +1168,74 @@ static void inviterANoterMotDePasse(const QString& mdp)
 // ═════════════════════════════════════════════════════════════════════════════
 static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, QWidget* parent)
 {
+    // Design repris de dlg_gestionusers::CreerUser() : libellés explicatifs centrés au-dessus de
+    // chaque champ (login / mot de passe / confirmation), champs centrés, mots de passe masqués.
     UpDialog dlg(parent);
-    dlg.setModal(true);
-    dlg.setWindowTitle(QObject::tr("Compte utilisateur Rufus"));
+    dlg.setWindowModality(Qt::WindowModal);
+    dlg.setFixedSize(300, 300);
+    dlg.setWindowTitle("");
 
-    UpLabel* intro = new UpLabel();
-    intro->setText(QObject::tr("Choisissez l'identifiant et le mot de passe que vous "
-                               "utiliserez pour vous connecter à Rufus."));
-    intro->setWordWrap(true);
-    // dlglayout() == m_globallay, qui contient DÉJÀ la barre de boutons (placée en premier par
-    // le constructeur) : on insère donc le contenu AVANT elle (à count()-1), sinon les boutons
-    // se retrouvent en haut de la fiche.
-    dlg.dlglayout()->insertWidget(dlg.dlglayout()->count() - 1, intro);
+    UpLabel*    label  = new UpLabel();
+    UpLabel*    label2 = new UpLabel();
+    UpLabel*    label3 = new UpLabel();
+    UpLineEdit* Line   = new UpLineEdit();
+    UpLineEdit* Line2  = new UpLineEdit();
+    UpLineEdit* Line3  = new UpLineEdit();
 
-    UpLineEdit* eLogin   = new UpLineEdit();
-    UpLineEdit* eMdp     = new UpLineEdit();
-    UpLineEdit* eConfirm = new UpLineEdit();
-    eMdp    ->setEchoMode(QLineEdit::Password);
-    eConfirm->setEchoMode(QLineEdit::Password);
-    // Mêmes formats imposés que pour un utilisateur Rufus (cf. appliquerValidateursRufus).
-    eLogin  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, &dlg));
-    eMdp    ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
-    eConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, &dlg));
+    Line2->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line3->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line ->setAlignment(Qt::AlignCenter);
+    Line2->setAlignment(Qt::AlignCenter);
+    Line3->setAlignment(Qt::AlignCenter);
+    Line ->setMaxLength(15);
+    Line2->setMaxLength(12);
+    Line3->setMaxLength(12);
+    Line ->setFixedHeight(20);
+    Line2->setFixedHeight(20);
+    Line3->setFixedHeight(20);
+    Line2->setEchoMode(QLineEdit::Password);
+    Line3->setEchoMode(QLineEdit::Password);
+    label ->setMinimumHeight(46);
+    label2->setMinimumHeight(46);
+    label3->setFixedHeight(16);
+    label ->setAlignment(Qt::AlignCenter);
+    label2->setAlignment(Qt::AlignCenter);
+    label3->setAlignment(Qt::AlignCenter);
 
-    auto addRow = [&](const QString& label, UpLineEdit* e) {
-        QHBoxLayout* h = new QHBoxLayout;
-        UpLabel* l = new UpLabel(); l->setText(label); l->setMinimumWidth(180);
-        h->addWidget(l);
-        h->addWidget(e);
-        dlg.dlglayout()->insertLayout(dlg.dlglayout()->count() - 1, h);  // avant la barre de boutons
-    };
-    addRow(QObject::tr("Identifiant :"),               eLogin);
-    addRow(QObject::tr("Mot de passe :"),              eMdp);
-    addRow(QObject::tr("Confirmer le mot de passe :"), eConfirm);
+    label ->setText(QObject::tr("Choisissez un login pour le nouvel utilisateur\n- mini 5 maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label2->setText(QObject::tr("Choisissez un mot de passe\n- mini 5 maxi 12 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label3->setText(QObject::tr("Confirmez le mot de passe"));
+
+    QVBoxLayout* lay = new QVBoxLayout();
+    lay->setContentsMargins(5, 5, 5, 5);
+    lay->setSpacing(5);
+    lay->addWidget(label);
+    lay->addWidget(Line);
+    lay->addWidget(label2);
+    lay->addWidget(Line2);
+    lay->addWidget(label3);
+    lay->addWidget(Line3);
+    lay->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
 
     dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
     QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
 
+    dlg.dlglayout()->insertLayout(0, lay);   // contenu AU-DESSUS de la barre de boutons
+    Line->setFocus();
+
     forever {
         if (dlg.exec() != QDialog::Accepted)
             return false;
-        const QString login = eLogin->text().trimmed();
-        const QString mdp   = eMdp->text();
+        const QString login = Line->text().trimmed();
+        const QString mdp   = Line2->text();
         if (login.isEmpty() || mdp.isEmpty()) {
             UpMessageBox::Watch(&dlg, QObject::tr("Saisie incomplète"),
                 QObject::tr("Veuillez renseigner un identifiant et un mot de passe."));
             continue;
         }
-        if (mdp != eConfirm->text()) {
+        if (mdp != Line3->text()) {
             UpMessageBox::Watch(&dlg, QObject::tr("Mots de passe différents"),
                 QObject::tr("Le mot de passe et sa confirmation ne correspondent pas."));
             continue;
