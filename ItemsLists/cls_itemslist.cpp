@@ -1547,7 +1547,17 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     {
         QString req = "update " + table + " set " + field + " = " + newvalue.toString() + " where " + clause;
         //qDebug() << req;
-        DataBase::I()->StandardSQL(req);
+        // Étape « journalisation » : on contrôle le résultat de l'écriture. StandardSQL
+        // journalise déjà l'erreur SQL ; on PRÉVIENT en plus l'utilisateur, car sinon
+        // l'échec est invisible et l'objet en mémoire diverge silencieusement de la base.
+        // (On ne change PAS encore la valeur de retour ni l'état mémoire : ce sera l'étape
+        // suivante — restauration de la valeur d'origine.)
+        if (!DataBase::I()->StandardSQL(req))
+            UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+                tr("La modification n'a pas pu être enregistrée dans la base de données "
+                   "(le serveur est peut-être momentanément indisponible).") + "\n" +
+                tr("L'affichage peut être temporairement désynchronisé de la base : "
+                   "vérifiez votre connexion, puis ressaisissez la modification."));
     }
     return ok;
 }
