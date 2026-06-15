@@ -131,6 +131,13 @@ QString DataBase::versionMySQL()
 
 QString DataBase::connectToDataBase(QString basename, QString login, QString password)
 {
+    // Une connexion homonyme peut déjà exister (cascade de mots de passe candidats,
+    // reconnexion après migration…). addDatabase() avec un nom déjà pris émet l'avertissement
+    // « duplicate connection name » et ne ferme pas proprement l'ancienne. On relâche d'abord
+    // la référence détenue par m_db, puis on retire l'ancienne connexion avant d'en rouvrir une.
+    m_db = QSqlDatabase();
+    if (QSqlDatabase::contains(basename))
+        QSqlDatabase::removeDatabase(basename);
     m_db = QSqlDatabase::addDatabase("QMYSQL",basename);
     m_db.setHostName( m_server );
     m_db.setPort( m_port );
@@ -317,29 +324,35 @@ bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
     for (int i = 1; i < ListTables.size(); i++)
         req += "," + ListTables.at(i) + " " + ModeBlocage;
     a = StandardSQL(req);
+    // Le pilote QMYSQL n'active pas CLIENT_MULTI_STATEMENTS par défaut : une requête
+    // contenant plusieurs instructions séparées par « ; » échouerait (seule la 1re est
+    // valide). On exécute donc chaque instruction séparément.
     if (a)
-        a = StandardSQL("SET AUTOCOMMIT = 0;"
-                    "START TRANSACTION;");
+        a = StandardSQL("SET AUTOCOMMIT = 0");
+    if (a)
+        a = StandardSQL("START TRANSACTION");
     return a;
 }
 
 void DataBase::commit()
 {
-    StandardSQL("COMMIT;"
-                "SET AUTOCOMMIT = 1;"
-                "UNLOCK TABLES;");
+    // Instructions séparées (cf. createtransaction) : pas de multi-statements.
+    StandardSQL("COMMIT");
+    StandardSQL("SET AUTOCOMMIT = 1");
+    StandardSQL("UNLOCK TABLES");
 }
 
 void DataBase::rollback()
 {
-    StandardSQL("ROLLBACK;"
-                "SET AUTOCOMMIT = 1;"
-                "UNLOCK TABLES;");
-
+    StandardSQL("ROLLBACK");
+    StandardSQL("SET AUTOCOMMIT = 1");
+    StandardSQL("UNLOCK TABLES");
 }
 
 bool DataBase::locktables(QStringList ListTables, QString ModeBlocage)
 {
+    if (ListTables.size() == 0)         // garde-fou : sinon ListTables.at(0) planterait
+        return false;
     unlocktables();
     QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
@@ -702,13 +715,14 @@ void DataBase::setmdpadmin(QString mdp)
 {
     if (!m_db.isOpen())
         return;
-    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" +  mdp + "'");
+    const QString mdpSQL = Utils::correctquoteSQL(mdp);   // anti-injection (mdp concaténé)
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" +  mdpSQL + "'");
     bool ok;
     QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select " CP_ID_USR " from " TBL_UTILISATEURS " where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'", ok);
     if (!ok || mdpdata.size()==0)
-        StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "', '" + mdp + "')");
+        StandardSQL("insert into " TBL_UTILISATEURS " (" CP_NOM_USR ", " CP_LOGIN_USR ", " CP_MDP_USR ") values ('" NOM_ADMINISTRATEUR "', '" NOM_ADMINISTRATEUR "', '" + mdpSQL + "')");
     else
-        StandardSQL("update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + mdp + "' where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'");
+        StandardSQL("update " TBL_UTILISATEURS " set " CP_MDP_USR " = '" + mdpSQL + "' where " CP_LOGIN_USR " = '" NOM_ADMINISTRATEUR "'");
     parametres()->setmdpadmin(mdp);
 }
 void DataBase::setnumcentre(int id)
@@ -995,9 +1009,13 @@ DonneesOphtaPatient* DataBase::donneesOphtaPatient()
 */
 DataBase::QueryResult DataBase::verifExistUser(QString login, QString password)
 {
+    // Échappement des entrées (login + mot de passe en clair) : elles viennent de la saisie
+    // utilisateur et sont concaténées dans la requête → éviter toute injection SQL.
+    const QString loginSQL = Utils::correctquoteSQL(login);
+    const QString pwdSQL   = Utils::correctquoteSQL(password);
     QString req = "SELECT " CP_ID_USR
                   " FROM " TBL_UTILISATEURS
-                  " WHERE " CP_LOGIN_USR " = '" + login + "' "
+                  " WHERE " CP_LOGIN_USR " = '" + loginSQL + "' "
                   " AND " CP_MDP_USR " = '" + Utils::calcSHA1(password) + "'"
                   " AND " CP_ISDESACTIVE_USR " is null ";
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
@@ -1012,8 +1030,8 @@ DataBase::QueryResult DataBase::verifExistUser(QString login, QString password)
     {
         req = "SELECT " CP_ID_USR
               " FROM " TBL_UTILISATEURS
-              " WHERE " CP_LOGIN_USR " = '" + login + "' "
-              " AND " CP_MDP_USR " = '" + password + "'"
+              " WHERE " CP_LOGIN_USR " = '" + loginSQL + "' "
+              " AND " CP_MDP_USR " = '" + pwdSQL + "'"
               " AND " CP_ISDESACTIVE_USR " is null ";
         usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
         if(!ok)
@@ -1030,9 +1048,12 @@ DataBase::QueryResult DataBase::verifExistUser(QString login, QString password)
 
 DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString password)
 {
+    // Échappement des entrées (cf. verifExistUser) : protection contre l'injection SQL.
+    const QString loginSQL = Utils::correctquoteSQL(login);
+    const QString pwdSQL   = Utils::correctquoteSQL(password);
     QString req = "SELECT " CP_ID_USR
                   " FROM " TBL_UTILISATEURS
-                  " WHERE " CP_LOGIN_USR " = '" + login + "' "
+                  " WHERE " CP_LOGIN_USR " = '" + loginSQL + "' "
                   " AND " CP_MDP_USR " = '" + Utils::calcSHA1(password) + "'"
                   " AND " CP_ISDESACTIVE_USR " is null ";
     QVariantList usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
@@ -1047,8 +1068,8 @@ DataBase::QueryResult DataBase::calcidUserConnected(QString login, QString passw
     {
         req = "SELECT " CP_ID_USR
               " FROM " TBL_UTILISATEURS
-              " WHERE " CP_LOGIN_USR " = '" + login + "' "
-              " AND " CP_MDP_USR " = '" + password + "'"
+              " WHERE " CP_LOGIN_USR " = '" + loginSQL + "' "
+              " AND " CP_MDP_USR " = '" + pwdSQL + "'"
               " AND " CP_ISDESACTIVE_USR " is null ";
         usrdata = getFirstRecordFromStandardSelectSQL(req, ok);
         if(!ok)
