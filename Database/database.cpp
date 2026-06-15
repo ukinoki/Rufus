@@ -119,9 +119,13 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
 
 QString DataBase::versionMySQL()
 {
+    QList<QVariantList> versiondata = QList<QVariantList>();
     bool ok;
     QString version = "";
-    version = StandardSelectSQL("show variables like 'version'", ok).at(0).at(1).toString();
+    versiondata = StandardSelectSQL("show variables like 'version'", ok);
+    if (ok && versiondata.size() > 0)
+        if (versiondata.at(0).size() > 1)
+            version = versiondata.at(0).at(1).toString();
     return version;
 }
 
@@ -143,7 +147,11 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
             m_settings.setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL,dirkey);
         QDir dirtorestore(QDir::toNativeSeparators(dirkey));
         if (!dirtorestore.exists())
-            return ("");
+        {
+            QString error = "DataBase::connectToDataBase()\n" + tr("Clés SSL introuvables");
+            Logs::ERROR(error);
+            return error;
+        }
         QStringList listfichiers = dirtorestore.entryList(QStringList() << "*.pem");
         for (int t=0; t<listfichiers.size(); t++)
         {
@@ -303,12 +311,14 @@ QTime DataBase::ServerTime()
 bool DataBase::createtransaction(QStringList ListTables, QString ModeBlocage)
 {
     bool a = true;
+    if (ListTables.size() == 0)
+        return false;
     QString req = "LOCK TABLES " + ListTables.at(0) + " " + ModeBlocage;
     for (int i = 1; i < ListTables.size(); i++)
         req += "," + ListTables.at(i) + " " + ModeBlocage;
     a = StandardSQL(req);
     if (a)
-        StandardSQL("SET AUTOCOMMIT = 0;"
+        a = StandardSQL("SET AUTOCOMMIT = 0;"
                     "START TRANSACTION;");
     return a;
 }
@@ -379,6 +389,12 @@ QList<QVariantList> DataBase::SelectRecordsFromTable(QStringList listselectChamp
                                                         bool distinct,
                                                         QString errormsg)
 {
+    if (listselectChamp.size() == 0)
+    {
+        OK = false;
+        Logs::ERROR(errormsg, tr("\nErreur\n") + "DataBase::SelectRecordsFromTable()\n" + tr("La liste des champs à sélectionner est vide"));
+        return QList<QVariantList>();
+    }
     QString Distinct = (distinct? "distinct " : "");
     QString selectchamp;
     for (int i=0; i<listselectChamp.size(); ++i)
@@ -738,10 +754,10 @@ double DataBase::versionbaseiol()
     QString req = "SELECT " CP_VERSIONBASEIOL_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
     bool ok = false;
     QList<QVariantList> query = StandardSelectSQL(req, ok);
-    if (ok)
-        return query.at(0).at(0).toDouble();
-    else
-        return 0.0;
+    if (ok && query.size() > 0)
+        if (query.at(0).size() > 0)
+            return query.at(0).at(0).toDouble();
+    return 0.0;
 }
 void DataBase::setsanscompta(bool one)
 {
@@ -2883,9 +2899,17 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
 QString DataBase::getMDPAdmin()
 {
     QVariantList mdpdata = getFirstRecordFromStandardSelectSQL("select " CP_MDPADMIN_PARAMSYSTEME " from " TBL_PARAMSYSTEME,ok);
-    if( !ok || mdpdata.size()==0 )
+    if( !ok )
+    {
         StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
-    else if (mdpdata.at(0) == "")
+        return Utils::calcSHA1(MDP_ADMINISTRATEUR);
+    }
+    if( mdpdata.size()==0 )
+    {
+        StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
+        return Utils::calcSHA1(MDP_ADMINISTRATEUR);
+    }
+    else if ( mdpdata.at(0) == "" )
         StandardSQL("update " TBL_PARAMSYSTEME " set " CP_MDPADMIN_PARAMSYSTEME " = '" + Utils::calcSHA1(MDP_ADMINISTRATEUR) + "'");
     return (mdpdata.at(0).toString() != ""? mdpdata.at(0).toString() : Utils::calcSHA1(MDP_ADMINISTRATEUR));
 }
