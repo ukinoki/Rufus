@@ -1316,7 +1316,6 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerT
     if (!demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, nullptr))
         return false;
 
-    inviterANoterMotDePasse(m_password);
     return true;
 }
 
@@ -1392,7 +1391,6 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     stockerMotDePasse(m_password);
 
     cleanupDialog();
-    inviterANoterMotDePasse(m_password);
     return true;
 }
 
