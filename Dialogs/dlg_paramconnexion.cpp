@@ -52,7 +52,11 @@ dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDis
     if (dir == "" || !QDir(dir).exists())
         ui->ClesSSLLineEdit ->clear();
     else ui->ClesSSLLineEdit->setText(dir);
-    ui->IPFrame->setVisible(false);
+    // État initial cohérent : IPFrame ET les widgets SSL masqués tant qu'aucun mode réseau
+    // n'est choisi (RegleAffichage centralise cette logique). Combiné au sizeConstraint
+    // SetFixedSize du layout (cf. .ui), la fiche s'ouvre à la bonne taille puis se
+    // redimensionne automatiquement à chaque changement de mode.
+    RegleAffichage(ui->PosteradioButton);
 }
 
 dlg_paramconnexion::~dlg_paramconnexion()

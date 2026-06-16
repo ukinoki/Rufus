@@ -4563,8 +4563,7 @@ bool Procedures::VerifParamConnexion(bool connectavecLoginSQL, bool OKAccesDista
         delete Dlg_ParamConnex;
         return true;
     }
-    Dlg_ParamConnex->disconnect();
-    delete Dlg_ParamConnex;
+    delete Dlg_ParamConnex;   // delete déconnecte déjà tout : pas de disconnect() global (joker)
     return false;
 }
 
