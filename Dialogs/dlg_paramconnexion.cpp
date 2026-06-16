@@ -134,15 +134,20 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
     }
     else if (butt == ui->DistantradioButton)
     {
+        // Lien ACTIF et coloré : on passe l'URL en HTML (<a href>) ET en 5e paramètre « link »
+        // de Watch, qui active alors l'ouverture externe (setOpenExternalLinks) et le clic.
+        // Le href est retiré par convertPlainText au calcul de la taille → pas d'élargissement.
+        const QString url = "https://www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html";
         UpMessageBox::Watch(this, tr("Informations importantes sur l'accès par internet"),
                                 tr("Pour des raisons de confidentialité, l'accès distant dans Rufus "
                                   "fonctionne obligatoirement avec un cryptage de données.") + "\n\n" +
                                 tr("Si vous voulez utiliser l'accès distant sur ce poste, il faut que:") + "\n" +
                                 tr("1. le serveur MySQL soit configuré pour le cryptage") + "\n" +
                                 tr("2. que sur ce poste les clés clientes SSL soient installées.") + "\n\n" +
-                                tr("Reportez vous à la page internet") + "\n"
-                                  "https://www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html" "\n" +
-                                tr("pour savoir comment modifier la configuration du serveur et générer des clés de cryptage") + "\n");
+                                tr("Reportez-vous à la page internet :") + "\n" +
+                                "<a href=\"" + url + "\">" + url + "</a>" + "\n" +
+                                tr("pour savoir comment modifier la configuration du serveur et générer des clés de cryptage."),
+                                UpDialog::ButtonOK, url);
         ui->IPlineEdit->clearMask();
         ui->IPlineEdit->clear();
         ui->IPlineEdit->setFocus();
