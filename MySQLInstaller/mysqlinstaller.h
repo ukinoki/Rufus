@@ -171,6 +171,13 @@ public:
     //  dans le mode courant : [ mdp .dbkey du mode, gaxt78iy ]. La cascade de
     //  connexion (et la récupération en dernier ressort) vit dans la couche connexion.
     static QStringList motsDePasseSQLCandidats();
+    //  Connexion à `basename` via adminrufus en ESSAYANT TOUS les mots de passe candidats
+    //  (aléatoire .dbkey PUIS gaxt78iy) et en mémorisant celui qui marche. Indispensable
+    //  juste après la sécurisation : l'aléatoire fraîchement posé peut ne pas être accepté
+    //  à la toute première connexion (cache d'auth caching_sha2 « froid »), alors que
+    //  gaxt78iy — conservé comme 2e mot de passe — fonctionne. Renvoie "" si OK, sinon la
+    //  dernière erreur. À utiliser pour TOUTE (re)connexion d'identification.
+    static QString connecterAvecCandidats(const QString& basename);
     //  Stocke le mot de passe du MODE COURANT dans le .dbkey (les autres modes sont
     //  préservés) ET met à jour le cache.
     static void    stockerMotDePasse(const QString& mdp);

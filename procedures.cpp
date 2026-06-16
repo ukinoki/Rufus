@@ -3521,17 +3521,7 @@ bool Procedures::IdentificationUser()
     //! mot de passe aléatoire non récupéré…), on propose de revoir les paramètres de
     //! connexion plutôt que de laisser l'utilisateur bloqué (qui finissait par détruire
     //! rufus.ini à la main). VerifParamConnexion rétablit la connexion et réécrit rufus.ini.
-    QString errConnexion;
-    const QStringList candidats = MySQLInstaller::motsDePasseSQLCandidats();
-    for (const QString &mdp : candidats)
-    {
-        errConnexion = db->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp);
-        if (errConnexion.isEmpty())
-        {
-            MySQLInstaller::setMotDePasseSQL(mdp);   // mémorise le mot de passe qui fonctionne
-            break;
-        }
-    }
+    QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
@@ -3579,7 +3569,10 @@ bool Procedures::IdentificationUser()
         QTextStream  ts(&sha);
         QString filecontents;
         filecontents.append(ts.readAll());
-        if (db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL()) .size())
+        //! (Re)connexion en CASCADE (aléatoire .dbkey PUIS gaxt78iy) : après la sécurisation,
+        //! l'aléatoire fraîchement posé peut être refusé à la toute première connexion (cache
+        //! d'auth caching_sha2 « froid ») ; gaxt78iy (2e mot de passe conservé) prend le relais.
+        if (MySQLInstaller::connecterAvecCandidats(DB_RUFUS).size())
             ok = false;
         ok = db->calcidUserConnected(filecontents.split("!!!!").at(0),filecontents.split("!!!!").at(1)) == DataBase::OK;
     }
@@ -4354,7 +4347,10 @@ bool Procedures::PremierDemarrage()
         //! échouent silencieusement (la base est créée par le binaire mysql, mais
         //! l'utilisateur applicatif n'est jamais inséré dans rufus.utilisateurs).
         db->initParametresConnexionSQL("localhost", 3306);
-        QString erreurConnexion = db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+        //! Connexion en CASCADE (aléatoire .dbkey PUIS gaxt78iy) : l'aléatoire vient d'être
+        //! posé par l'installeur ; s'il était refusé à la toute première connexion (cache
+        //! d'auth caching_sha2 « froid »), gaxt78iy (2e mot de passe conservé) prend le relais.
+        QString erreurConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         if (!erreurConnexion.isEmpty())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),

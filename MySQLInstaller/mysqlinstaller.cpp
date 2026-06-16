@@ -558,6 +558,25 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
     }
 }
 
+//  Connexion en cascade : essaie les mots de passe candidats (aléatoire .dbkey PUIS
+//  gaxt78iy) et mémorise celui qui marche. Cf. en-tête : protège contre l'échec de la
+//  TOUTE PREMIÈRE connexion avec l'aléatoire fraîchement posé par la sécurisation.
+QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
+{
+    QString err;
+    const QStringList candidats = motsDePasseSQLCandidats();
+    for (const QString &mdp : candidats)
+    {
+        err = DataBase::I()->connectToDataBase(basename, LOGIN_SQL, mdp);
+        if (err.isEmpty())
+        {
+            setMotDePasseSQL(mdp);                 // mémorise le mdp qui fonctionne
+            break;
+        }
+    }
+    return err;
+}
+
 //  Stocke le mot de passe du MODE COURANT (cf. stockerMotDePassePourMode).
 void MySQLInstaller::stockerMotDePasse(const QString& mdp)
 {

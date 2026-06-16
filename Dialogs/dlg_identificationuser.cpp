@@ -122,10 +122,13 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
     QString error = "";
-    //! Connexion MySQL via le compte fixe adminrufus ; motDePasseSQL() renvoie le
-    //! mot de passe aléatoire du cabinet (clé Param_MDPSQL du rufus.ini), avec repli
-    //! automatique sur MDP_SQL pour les bases existantes non migrées.
-    error = db->connectToDataBase(DB_RUFUS, LOGIN_SQL, MySQLInstaller::motDePasseSQL());
+    //! Connexion MySQL via le compte fixe adminrufus, en CASCADE : on essaie l'aléatoire
+    //! du cabinet (.dbkey) PUIS gaxt78iy. Indispensable juste après la sécurisation —
+    //! l'aléatoire fraîchement posé peut être refusé à la toute première connexion (cache
+    //! d'auth caching_sha2 « froid »), alors que gaxt78iy (2e mot de passe conservé)
+    //! fonctionne. Sans cette cascade, la 1re identification échouait et seul un
+    //! redémarrage de Rufus (qui repasse par la cascade) rétablissait l'accès.
+    error = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
 
     if( error.size() )
     {
