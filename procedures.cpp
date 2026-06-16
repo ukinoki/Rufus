@@ -48,43 +48,67 @@ Procedures::Procedures(QObject *parent) :
     m_connexionbaseOK           = false;
     if (!FichierIni.exists())
     {
-        UpDialog *versiondlg        = new UpDialog;
-        QGroupBox *gbox             = new QGroupBox;
-        QRadioButton *frbutt        = new QRadioButton("Version française");
-        QRadioButton *enbutt        = new QRadioButton("English version");
-        QRadioButton *esbutt        = new QRadioButton("Versión española");
-        QRadioButton *brbutt        = new QRadioButton("Versão brasileira");
-        QVBoxLayout *version_Lay    = new QVBoxLayout();
-        version_Lay                 ->addWidget(frbutt);
-        version_Lay                 ->addWidget(enbutt);
-        version_Lay                 ->addWidget(esbutt);
-        version_Lay                 ->addWidget(brbutt);
-        gbox                        ->setLayout(version_Lay);
-        versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-        versiondlg                  ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-        versiondlg->dlglayout()     ->insertWidget(0,gbox);
-        versiondlg->dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
-        versiondlg->OKButton        ->setEnabled(false);
-        connect(frbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-        connect(enbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-        connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-        connect(brbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-        connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
-        connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
-            if (frbutt->isChecked())
-                    m_version = "FR";
-            else if (enbutt->isChecked())
-                    m_version = "EN";
-            else if (esbutt->isChecked())
-                    m_version = "ES";
-            else if (brbutt->isChecked())
-                    m_version = "BR";
-            else
-                return;
-            versiondlg->accept();
-        });
-        if (versiondlg->exec() != QDialog::Accepted)
-            exit(0);
+        // ── Choix de la langue (premier démarrage) ──────────────────────────────
+        // Détection automatique d'après la locale système :
+        //   français → FR ; anglais (UK, USA…) → EN ; espagnol (Espagne + toute
+        //   l'Amérique latine) → ES ; portugais : Brésil → BR, sinon (Portugal…) → PT.
+        // Hors de ces langues → on ouvre le sélecteur, AVEC le français par défaut.
+        QString detected;
+        switch (QLocale::system().language()) {
+        case QLocale::French:     detected = "FR"; break;
+        case QLocale::English:    detected = "EN"; break;
+        case QLocale::Spanish:    detected = "ES"; break;
+        case QLocale::Portuguese: detected = (QLocale::system().territory() == QLocale::Brazil) ? "BR" : "PT"; break;
+        default:                  break;
+        }
+
+        if (!detected.isEmpty())
+            m_version = detected;
+        else
+        {
+            UpDialog *versiondlg        = new UpDialog;
+            QGroupBox *gbox             = new QGroupBox;
+            QRadioButton *frbutt        = new QRadioButton("Version française");
+            QRadioButton *enbutt        = new QRadioButton("English version");
+            QRadioButton *esbutt        = new QRadioButton("Versión española");
+            QRadioButton *brbutt        = new QRadioButton("Versão brasileira");
+            QRadioButton *ptbutt        = new QRadioButton("Versão portuguesa");
+            QVBoxLayout *version_Lay    = new QVBoxLayout();
+            version_Lay                 ->addWidget(frbutt);
+            version_Lay                 ->addWidget(enbutt);
+            version_Lay                 ->addWidget(esbutt);
+            version_Lay                 ->addWidget(brbutt);
+            version_Lay                 ->addWidget(ptbutt);
+            gbox                        ->setLayout(version_Lay);
+            versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+            versiondlg                  ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
+            versiondlg->dlglayout()     ->insertWidget(0,gbox);
+            versiondlg->dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+            frbutt                      ->setChecked(true);   //! français par défaut (OK actif d'emblée)
+            connect(frbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(enbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(brbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(ptbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
+            connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
+                if (frbutt->isChecked())
+                        m_version = "FR";
+                else if (enbutt->isChecked())
+                        m_version = "EN";
+                else if (esbutt->isChecked())
+                        m_version = "ES";
+                else if (brbutt->isChecked())
+                        m_version = "BR";
+                else if (ptbutt->isChecked())
+                        m_version = "PT";
+                else
+                    return;
+                versiondlg->accept();
+            });
+            if (versiondlg->exec() != QDialog::Accepted)
+                exit(0);
+        }
         QDir dirloc = QDir(QCoreApplication::applicationDirPath());
         dirloc.cdUp();
         QString locale = dirloc.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm";
