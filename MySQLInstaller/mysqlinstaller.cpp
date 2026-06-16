@@ -1785,6 +1785,13 @@ QString MySQLInstaller::getMySQLVersion()
 //  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
 void MySQLInstaller::securiserBaseSiNecessaire()
 {
+    // 0. JAMAIS depuis un poste en accès DISTANT (WAN). La sécurisation (poser l'aléatoire et
+    //    devenir « propriétaire » du mot de passe) doit être faite par un poste LOCAL (monoposte
+    //    ou réseau local), pas par un client distant — sinon, via la deadline des 30 jours, ce
+    //    poste distant pourrait verrouiller l'accès des postes locaux qui n'ont pas l'aléatoire.
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+        return;
+
     // 1. Base déjà sécurisée → rien à faire. Le juge fait foi côté serveur (présence d'un
     //    2e mot de passe sur adminrufus) ; le .dbkey local sert de garde-fou supplémentaire.
     if (adminrufusEstSecurise() || QFile::exists(PATH_FILE_DBKEY))

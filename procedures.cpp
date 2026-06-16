@@ -3552,6 +3552,18 @@ bool Procedures::IdentificationUser()
         if (MettreAJourSocleMySQL())
             return false;                       // succès → Rufus a redémarré
     }
+    else if (db->ModeAccesDataBase() != Utils::Poste && !MySQLInstaller::socleMySQLConforme())
+    {
+        //! Client RÉSEAU (LAN/distant) : il ne peut PAS migrer (ce n'est pas lui qui héberge la
+        //! base). On l'informe que la mise à jour doit se faire depuis le poste serveur, puis on
+        //! continue : la base tourne encore sur l'ancien MySQL (et la sécurisation reste en
+        //! attente tant que la version n'est pas conforme).
+        UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
+            tr("Le serveur MySQL est trop ancien pour cette version de Rufus.") + "\n" +
+            tr("La mise à jour doit être effectuée depuis le poste serveur "
+               "(en y lançant Rufus, qui s'en chargera).") + "\n\n" +
+            tr("En attendant, vous pouvez continuer à travailler normalement."));
+    }
 
     //! ÉTAPE 3 — Sécurisation : si la base est encore sur gaxt78iy, on pose un mot de passe
     //! aléatoire (en CONSERVANT gaxt78iy comme 2e mot de passe) et on écrit le .dbkey ; puis

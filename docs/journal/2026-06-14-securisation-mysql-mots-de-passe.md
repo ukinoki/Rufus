@@ -62,11 +62,15 @@ LE FLUX
         (SELECT VERSION() sur la connexion qu'on vient d'ouvrir.)
         - Version NON conforme (< 8.0.14, ou MariaDB) ET ce poste HÉBERGE la base (monoposte / BDD_POSTE) :
               -> on lance la PROCÉDURE DE MISE À JOUR DE LA BASE (voir plus bas), puis on relance Rufus.
-        - Ce poste est un CLIENT réseau (BDD_LOCAL / BDD_DISTANT) : ce n'est pas lui qui gère le serveur,
-              on n'agit pas (au pire un avertissement) ; c'est le poste serveur qui migrera.
+        - Ce poste est un CLIENT réseau (BDD_LOCAL / BDD_DISTANT) : il ne peut PAS migrer (ce n'est pas
+              lui qui héberge la base). On AFFICHE un message « serveur MySQL à mettre à jour depuis le
+              poste serveur », puis on continue normalement ; c'est le poste serveur (monoposte) qui migrera.
         - Version conforme -> on continue.
 
-     3. SÉCURISATION (structure de contrôle) — seulement sur une base à la version conforme.
+     3. SÉCURISATION (structure de contrôle) — seulement sur une base à la version conforme, et
+        UNIQUEMENT depuis un poste LOCAL (monoposte ou réseau local) : JAMAIS depuis un accès DISTANT
+        (WAN). Un poste distant ne doit pas « s'approprier » l'aléatoire — sinon, via la deadline, il
+        pourrait verrouiller les postes locaux qui ne le détiennent pas.
         On regarde AVEC QUEL mot de passe la connexion a réussi, ET si adminrufus a déjà un 2e mot de passe :
            SELECT User_attributes->>'$.additional_password' IS NOT NULL
            FROM mysql.user WHERE User='adminrufus' AND Host='%';   -> 1 = base déjà sécurisée
@@ -82,9 +86,11 @@ LE FLUX
      4. DEADLINE DE SUPPRESSION DE GAXT78IY.
         Quand la base est sécurisée, deadline = 30 jours après la date de sécurisation, lue côté serveur :
            SELECT password_last_changed FROM mysql.user WHERE User='adminrufus' AND Host='%';
-        À la deadline, si gaxt78iy existe encore -> DISCARD OLD PASSWORD (UNIQUEMENT depuis un poste qui
-        détient le random, sinon il se couperait l'accès). Au-delà, un poste sans le random ne peut plus
-        se connecter : il devra le récupérer.
+        À la deadline, gaxt78iy est retiré (DISCARD OLD PASSWORD) SEULEMENT si les 3 conditions sont
+        réunies : (a) ce poste détient le random (.dbkey ≠ gaxt78iy, sinon il se couperait l'accès) ;
+        (b) adminrufus a BIEN un 2e mot de passe (base sécurisée) — on ne retire JAMAIS l'unique mot de
+        passe ; (c) la deadline (sécurisation + 30 j) est dépassée. Au-delà, un poste sans le random ne
+        peut plus se connecter : il devra le récupérer (papier/USB).
 
      5. Si ce poste vient de sécuriser (il a créé le .dbkey), on invite fortement :
           - à noter/sauver le mot de passe en lieu sûr (papier ou clé USB) ;
