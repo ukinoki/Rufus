@@ -338,7 +338,7 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_impressions.cpp" line="203"/>
         <source>Impossible d&apos;enregistrer ce document d&apos;impression dans la base!</source>
-        <translation>Não foi possível guardar este documento de impressão na base!</translation>
+        <translation>Não foi possível salvar este documento de impressão no banco de dados!</translation>
     </message>
 </context>
 <context>
@@ -611,7 +611,7 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_impressions.cpp" line="91"/>
         <source>Impossible d&apos;enregistrer ce document d&apos;impression dans la base!</source>
-        <translation>Não foi possível guardar este documento de impressão na base!</translation>
+        <translation>Não foi possível salvar este documento de impressão no banco de dados!</translation>
     </message>
 </context>
 <context>
@@ -3596,7 +3596,7 @@ Infelizmente, nenhuma dessas conexões parece funcionar.</translation>
     <message>
         <location filename="procedures.cpp" line="2925"/>
         <source>de la base de données</source>
-        <translation>da base de dados</translation>
+        <translation>do banco de dados</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2926"/>
@@ -3611,7 +3611,7 @@ Infelizmente, nenhuma dessas conexões parece funcionar.</translation>
     <message>
         <location filename="procedures.cpp" line="2928"/>
         <source>pour éviter des dysfonctionnements ou une altération de votre base de données Rufus</source>
-        <translation>para evitar falhas ou alterações na sua base de dados do Rufus</translation>
+        <translation>para evitar falhas ou alterações no seu banco de dados do Rufus</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2929"/>
@@ -3687,7 +3687,7 @@ Infelizmente, nenhuma dessas conexões parece funcionar.</translation>
     <message>
         <location filename="rufus.cpp" line="6204"/>
         <source>Cette nouvelle version impose une mise à jour de la base de données</source>
-        <translation>Esta nova versão impõe uma atualização da base de dados</translation>
+        <translation>Esta nova versão impõe uma atualização do banco de dados</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="6206"/>
@@ -5941,7 +5941,7 @@ Você deve modificar o lançamento correspondente para poder excluir o ato.</tra
     <message>
         <location filename="rufus.cpp" line="10715"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
-        <translation>Não foi possível abrir a tabela Utilizadores</translation>
+        <translation>Não foi possível abrir a tabela Usuários</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10849"/>
@@ -11302,22 +11302,22 @@ para saber como modificar esta variável secure-file-priv na configuração do s
     <message>
         <location filename="Dialogs/dlg_identificationuser.cpp" line="192"/>
         <source>Erreur sur la base patients</source>
-        <translation>Erro na base de dados de pacientes</translation>
+        <translation>Erro no banco de dados de pacientes</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationuser.cpp" line="193"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
-        <translation>Não foi possível abrir a tabela Utilizadores</translation>
+        <translation>Não foi possível abrir a tabela Usuários</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationuser.cpp" line="203"/>
         <source>Erreur sur le compte utilisateur</source>
-        <translation>Erro na conta de utilizador</translation>
+        <translation>Erro na conta de usuário</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_identificationuser.cpp" line="204"/>
         <source>Identifiant ou mot de passe incorrect</source>
-        <translation>Identificador ou palavra-passe incorreta</translation>
+        <translation>Identificador ou senha incorreta</translation>
     </message>
 </context>
 <context>
@@ -14648,7 +14648,7 @@ dos arquivos de imagem importados desde este posto</translation>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="3349"/>
         <source>Les  interventions sur la base de données ne sont possibles qu&apos;à partir du poste serveur</source>
-        <translation>As intervenções na base de dados só são possíveis a partir do posto servidor</translation>
+        <translation>As intervenções no banco de dados só são possíveis a partir do posto servidor</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="3374"/>
@@ -15588,25 +15588,25 @@ para saber como modificar a configuração do servidor e gerar chaves de criptog
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="207"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="249"/>
         <source>Erreur sur la base patients</source>
-        <translation>Erro na base de dados de pacientes</translation>
+        <translation>Erro no banco de dados de pacientes</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="208"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="250"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
-        <translation>Não foi possível abrir a tabela Utilizadores</translation>
+        <translation>Não foi possível abrir a tabela Usuários</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="213"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="255"/>
         <source>Erreur sur le compte utilisateur</source>
-        <translation>Erro na conta de utilizador</translation>
+        <translation>Erro na conta de usuário</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="214"/>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="256"/>
         <source>Identifiant ou mot de passe incorrect</source>
-        <translation>Identificador ou palavra-passe incorreta</translation>
+        <translation>Identificador ou senha incorreta</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="229"/>
