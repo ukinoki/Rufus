@@ -481,6 +481,7 @@ private:
     QAction         *actionEnglish                  = Q_NULLPTR;
     QAction         *actionSpanish                  = Q_NULLPTR;
     QAction         *actionBrazil                   = Q_NULLPTR;
+    QAction         *actionPortugal                 = Q_NULLPTR;
     QMenu           *m_trayIconMenu                 = new QMenu();
     QSystemTrayIcon *ict_messageIcon                = new QSystemTrayIcon(this);};
 

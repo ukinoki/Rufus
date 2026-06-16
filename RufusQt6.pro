@@ -95,6 +95,7 @@ TRANSLATIONS += rufus_fr.ts \
                 rufus_ca.ts \
                 rufus_es.ts \
                 rufus_br.ts \
+                rufus_pt.ts \
                 rufus_it.ts \
                 rufus_ro.ts
 
@@ -139,4 +140,5 @@ DISTFILES += \
     rufus_en.qm \
     rufus_es.qm \
     rufus_fr.qm \
-    rufus_br.qm
+    rufus_br.qm \
+    rufus_pt.qm

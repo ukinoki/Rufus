@@ -8003,6 +8003,7 @@ void Rufus::CreerMenu()
         connect (actionEnglish,                     &QAction::triggered,        this,                   [=] {switchTranslator("en");});
         connect (actionSpanish,                     &QAction::triggered,        this,                   [=] {switchTranslator("es");});
         connect (actionBrazil,                      &QAction::triggered,        this,                   [=] {switchTranslator("br");});
+        connect (actionPortugal,                    &QAction::triggered,        this,                   [=] {switchTranslator("pt");});
 
 
     // 2. DEFINITION DES MENUS ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -11049,10 +11050,12 @@ void Rufus::retranslateActions() {
     actionEnglish   = retranslateAction(actionEnglish, tr("English"));
     actionSpanish   = retranslateAction(actionSpanish, tr("Español"));
     actionBrazil    = retranslateAction(actionBrazil, tr("Brasileiro"));
+    actionPortugal  = retranslateAction(actionPortugal, tr("Português"));
     actionFrench    ->setIcon( QPixmap("://France.ico") );
     actionEnglish   ->setIcon( QPixmap("://United-kingdom.ico") );
     actionSpanish   ->setIcon( QPixmap("://Spain.ico") );
     actionBrazil    ->setIcon( QPixmap("://Brazil.ico") );
+    actionPortugal  ->setIcon( QPixmap("://Portugal.ico") );
 
     actionQuit = retranslateAction(actionQuit, tr("Quitter"));
     actionQuit->setMenuRole(QAction::PreferencesRole);
