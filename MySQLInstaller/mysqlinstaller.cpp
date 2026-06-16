@@ -1808,11 +1808,18 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     // 3. Sécurisation via la connexion Qt en cours (monoposte OU serveur réseau) :
     //    nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL, en CONSERVANT
     //    gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD).
-    // mysql_native_password explicite (cf. createUser) : garantit que la rotation conserve
-    // — ou rétablit — un plugin compatible avec le driver Qt en TCP non chiffré.
-    const QString np = genererMotDePasse();
+    // ⚠️ RETAIN CURRENT PASSWORD est IGNORÉ par MySQL si le MÊME ALTER change le plugin
+    //    d'authentification. Or le compte existant peut être en caching_sha2 → un ALTER
+    //    « WITH mysql_native_password … RETAIN » poserait l'aléatoire mais JETTERAIT gaxt78iy.
+    //    On procède donc en DEUX temps (comme createUser) : 1) (re)poser gaxt78iy SOUS
+    //    mysql_native_password (changement de plugin seul) ; 2) basculer sur l'aléatoire avec
+    //    RETAIN (plugin désormais inchangé → gaxt78iy bien conservé comme 2e mot de passe).
+    const QString np     = genererMotDePasse();
+    const QString legacy = QString(MDP_SQL);
+    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1'").arg(legacy));
     DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
-    DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(QString(MDP_SQL)));
+    DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(legacy));
+    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(legacy));
     DataBase::I()->StandardSQL("GRANT ALL PRIVILEGES ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
     DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
