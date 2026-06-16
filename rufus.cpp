@@ -61,14 +61,20 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     proc->CleanIniFile();
     m_parametres = db->parametres();
     RecalcCurrentDateTime();
+    // La langue du POSTE est portée par rufus.ini (Param_Poste_Version) : réglage PROPRE à
+    // ce poste, qui FAIT FOI. On NE l'écrase PLUS avec la version (partagée) de la base —
+    // sinon, juste après l'identification, la base y remettait sa propre version (FR par
+    // défaut) et la langue choisie était perdue au redémarrage suivant.
+    QString version = proc->settings()->value(Param_Poste_Version).toString();
+    if (version.isEmpty())
+        version = m_parametres->version();          //! repli sur la base si l'ini ne précise rien
+    m_parametres->setversion(version);              //! cohérence en mémoire (ex. sélecteur de langue)
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
     dirloc.cdUp();
-    QString locale = dirloc.absolutePath() + "/Locale/rufus_" + m_parametres->version().toLower() + ".qm";
+    QString locale = dirloc.absolutePath() + "/Locale/rufus_" + version.toLower() + ".qm";
     QTranslator translator;
     if( translator.load(locale) )
         QCoreApplication::installTranslator(&translator);
-    //proc->setLanguage(m_parametres->version());   ne marche  pas???
-    proc->settings()->setValue(Param_Poste_Version, m_parametres->version());
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     if (proc->settings()->value(Position_Fiche Nom_fiche_Rufus) != QVariant())

@@ -3577,9 +3577,15 @@ bool Procedures::IdentificationUser()
     {
         VerifVersionBase();
         m_parametres = db->parametres();
-        m_settings->setValue(Param_Poste_Version, m_parametres->version()); //! si la version de la langue a été changée,
-                                                                            //! le programme doit pouvoir prendre en compte ce changement avant la connexion à la base
-                                                                            //! pour afficher les premières boîtes de dialogue dans la langue correspondante
+        //! La langue du poste est portée par rufus.ini (Param_Poste_Version), qui FAIT FOI :
+        //! on aligne la version EN MÉMOIRE sur l'ini, mais on NE réécrit PAS l'ini avec la
+        //! version de la base — sinon le choix de langue du poste était écrasé (par la version
+        //! de la base, FR par défaut) juste après l'identification.
+        {
+            const QString vposte = m_settings->value(Param_Poste_Version).toString();
+            if (!vposte.isEmpty())
+                m_parametres->setversion(vposte);
+        }
         if (m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Dossier_Videos).toString() == "")
             m_settings->setValue(Utils::getBaseFromMode(Utils::Poste) + Dossier_Videos, db->dirimagerie() + NOM_DIR_VIDEOS);
         if (m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Dossier_Videos).toString() == "")
