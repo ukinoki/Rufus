@@ -760,6 +760,8 @@ void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
         if (line!=Q_NULLPTR)
             line->setText(url.path());
         break;
+    default:
+        break;
     }
     proc->settings()->setValue(Utils::getBaseFromMode(mode) + Dossier_Documents + exam, url.path());
 }

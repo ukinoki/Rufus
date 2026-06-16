@@ -888,8 +888,9 @@ QString Utils::getBaseFromMode(ModeAcces mode )
         return "BDD_DISTANT";
     case Poste:
         return "BDD_POSTE";
+    case Undefined:
+        return "";
     }
-    return "BDD_LOCAL";
 }
 
 QString Utils::calcSHA1(QString mdp)
