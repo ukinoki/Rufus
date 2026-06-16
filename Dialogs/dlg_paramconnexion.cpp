@@ -101,7 +101,10 @@ void dlg_paramconnexion::MAJIP()
 
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
-    ui->IPFrame->setVisible(butt!=ui->PosteradioButton);
+    ui->IPFrame             ->setVisible(butt!=ui->PosteradioButton);
+    ui->ClesSSLuppushButton ->setVisible(butt == ui->DistantradioButton);
+    ui->ClesSSLLabel        ->setVisible(butt == ui->DistantradioButton);
+    ui->ClesSSLLineEdit     ->setVisible(butt == ui->DistantradioButton);
     if (butt == ui->LocalradioButton)
     {
         QString AdressIP, MasqueReseauLocal;
@@ -128,16 +131,14 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
     else if (butt == ui->DistantradioButton)
     {
         UpMessageBox::Watch(this, tr("Informations importantes sur l'accès par internet"),
-                                tr("Pour d'évidentes raisons de confidentialité, l'accès distant dans Rufus "
-                                  "fonctionne obligatoirement avec un cryptage de données openSSL sur 2048 bits.\n\n"
-                                  "Si vous voulez utiliser l'accès distant sur ce poste, il faut que:\n"
-                                  "1. le serveur MySQL soit configuré pour le cryptage (modification du fichier my.cnf sous macOS Linux ou my.ini sous Windows "
-                                  "et présence des clés serveur dans le dossier spécifié dans my.cnf/my.ini)\n"
-                                  "2. et que sur ce poste les clés clientes SSL soient installées dans un dossier.\n\n"
-                                  "Sinon, ça ne marchera pas\n\n"
-                                  "Reportez vous à la page internet\n"
-                                  "http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html\n"
-                                  "pour savoir comment modifier la configuration du serveur et générer des clés de cryptage\n"));
+                                tr("Pour des raisons de confidentialité, l'accès distant dans Rufus "
+                                  "fonctionne obligatoirement avec un cryptage de données.") + "\n\n" +
+                                tr("Si vous voulez utiliser l'accès distant sur ce poste, il faut que:") + "\n" +
+                                tr("1. le serveur MySQL soit configuré pour le cryptage") + "\n" +
+                                tr("2. que sur ce poste les clés clientes SSL soient installées.") + "\n\n" +
+                                tr("Reportez vous à la page internet") + "\n"
+                                  "https://www.rufusvision.org/configuration-pour-une-connexion-par-internet---le-cryptage-ssl.html" "\n" +
+                                tr("pour savoir comment modifier la configuration du serveur et générer des clés de cryptage") + "\n");
         ui->IPlineEdit->clearMask();
         ui->IPlineEdit->clear();
         ui->IPlineEdit->setFocus();

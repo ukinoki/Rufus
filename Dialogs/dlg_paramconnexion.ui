@@ -2,13 +2,22 @@
 <ui version="4.0">
  <class>dlg_paramconnexion</class>
  <widget class="QDialog" name="dlg_paramconnexion">
+  <property name="windowModality">
+   <enum>Qt::WindowModality::ApplicationModal</enum>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>439</width>
-    <height>531</height>
+    <width>450</width>
+    <height>505</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
@@ -19,9 +28,36 @@
   <property name="windowTitle">
    <string>Paramètrage de connexion à la base</string>
   </property>
+  <property name="modal">
+   <bool>true</bool>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <property name="spacing">
+    <number>10</number>
+   </property>
+   <property name="sizeConstraint">
+    <enum>QLayout::SizeConstraint::SetNoConstraint</enum>
+   </property>
+   <property name="leftMargin">
+    <number>10</number>
+   </property>
+   <property name="topMargin">
+    <number>10</number>
+   </property>
+   <property name="rightMargin">
+    <number>10</number>
+   </property>
+   <property name="bottomMargin">
+    <number>10</number>
+   </property>
    <item>
     <widget class="QFrame" name="frame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>415</width>
@@ -126,10 +162,16 @@
    </item>
    <item>
     <widget class="QFrame" name="MainFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>120</height>
+       <height>0</height>
       </size>
      </property>
      <property name="maximumSize">
@@ -149,9 +191,15 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="10,10,0">
       <property name="spacing">
+       <number>6</number>
+      </property>
+      <property name="leftMargin">
        <number>5</number>
       </property>
       <property name="topMargin">
+       <number>5</number>
+      </property>
+      <property name="rightMargin">
        <number>5</number>
       </property>
       <property name="bottomMargin">
@@ -159,6 +207,9 @@
       </property>
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="spacing">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="AccesgroupBox">
           <property name="sizePolicy">
@@ -188,81 +239,65 @@
           <property name="title">
            <string>Emplacement du serveur</string>
           </property>
-          <widget class="QRadioButton" name="PosteradioButton">
-           <property name="geometry">
-            <rect>
-             <x>12</x>
-             <y>29</y>
-             <width>165</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>165</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::FocusPolicy::WheelFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-           </property>
-           <property name="text">
-            <string>Sur ce poste</string>
-           </property>
-          </widget>
-          <widget class="QRadioButton" name="LocalradioButton">
-           <property name="geometry">
-            <rect>
-             <x>12</x>
-             <y>63</y>
-             <width>165</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>165</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::FocusPolicy::WheelFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-           </property>
-           <property name="text">
-            <string>Réseau local</string>
-           </property>
-          </widget>
-          <widget class="QRadioButton" name="DistantradioButton">
-           <property name="geometry">
-            <rect>
-             <x>12</x>
-             <y>97</y>
-             <width>165</width>
-             <height>25</height>
-            </rect>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>165</width>
-             <height>25</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::FocusPolicy::WheelFocus</enum>
-           </property>
-           <property name="contextMenuPolicy">
-            <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-           </property>
-           <property name="text">
-            <string>Accès distant</string>
-           </property>
-          </widget>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <item>
+            <widget class="QRadioButton" name="PosteradioButton">
+             <property name="minimumSize">
+              <size>
+               <width>165</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::FocusPolicy::WheelFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Sur ce poste</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="LocalradioButton">
+             <property name="minimumSize">
+              <size>
+               <width>165</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::FocusPolicy::WheelFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Réseau local</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="DistantradioButton">
+             <property name="minimumSize">
+              <size>
+               <width>165</width>
+               <height>25</height>
+              </size>
+             </property>
+             <property name="focusPolicy">
+              <enum>Qt::FocusPolicy::WheelFocus</enum>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="text">
+              <string>Accès distant</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
          </widget>
         </item>
         <item>
@@ -282,10 +317,16 @@
       </item>
       <item>
        <widget class="QFrame" name="IPFrame">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>123</width>
-          <height>115</height>
+          <height>0</height>
          </size>
         </property>
         <property name="frameShape">
@@ -296,19 +337,19 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <property name="spacing">
-          <number>4</number>
+          <number>5</number>
          </property>
          <property name="leftMargin">
-          <number>4</number>
+          <number>5</number>
          </property>
          <property name="topMargin">
-          <number>4</number>
+          <number>10</number>
          </property>
          <property name="rightMargin">
-          <number>4</number>
+          <number>5</number>
          </property>
          <property name="bottomMargin">
-          <number>4</number>
+          <number>10</number>
          </property>
          <item>
           <widget class="QLabel" name="IPlabel">
@@ -464,10 +505,16 @@
    </item>
    <item>
     <widget class="QFrame" name="prtFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>40</height>
+       <height>0</height>
       </size>
      </property>
      <property name="contextMenuPolicy">
@@ -491,6 +538,12 @@
       </property>
       <item>
        <widget class="QLabel" name="Portlabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>40</width>
@@ -510,6 +563,12 @@
       </item>
       <item>
        <widget class="QComboBox" name="PortcomboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
           <width>110</width>
@@ -539,6 +598,12 @@
    </item>
    <item>
     <widget class="QFrame" name="ButtonsFrame">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -558,8 +623,14 @@
       <property name="spacing">
        <number>5</number>
       </property>
+      <property name="leftMargin">
+       <number>5</number>
+      </property>
       <property name="topMargin">
        <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>5</number>
       </property>
       <property name="bottomMargin">
        <number>0</number>
