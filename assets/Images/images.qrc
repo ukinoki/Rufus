@@ -200,5 +200,6 @@
         <file>grid.png</file>
         <file>fullscreen.png</file>
         <file>Brazil.ico</file>
+        <file>Portugal.ico</file>
     </qresource>
 </RCC>
