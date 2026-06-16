@@ -46,13 +46,22 @@ Procedures::Procedures(QObject *parent) :
     //qDebug() << "qApp->font().pointSize()" << qApp->font().pointSize();
 
     m_connexionbaseOK           = false;
-    if (!FichierIni.exists())
+
+    // ── Langue de l'interface ───────────────────────────────────────────────────
+    // PRIORITÉ ABSOLUE : rufus.ini fait foi. La détection automatique (QLocale) ne sert
+    // QUE s'il n'y a PAS de rufus.ini, OU s'il en existe un mais SANS localisation.
+    //   français → FR ; anglais (UK, USA…) → EN ; espagnol (Espagne + toute l'Amérique
+    //   latine) → ES ; portugais : Brésil → BR, sinon (Portugal…) → PT.
+    // Hors de ces langues → sélecteur, AVEC le français par défaut.
+    QString iniVersion;
+    if (FichierIni.exists())
+        iniVersion = QSettings(PATH_FILE_INI, QSettings::IniFormat).value(Param_Poste_Version).toString();
+    if (!iniVersion.isEmpty())
     {
-        // ── Choix de la langue (premier démarrage) ──────────────────────────────
-        // Détection automatique d'après la locale système :
-        //   français → FR ; anglais (UK, USA…) → EN ; espagnol (Espagne + toute
-        //   l'Amérique latine) → ES ; portugais : Brésil → BR, sinon (Portugal…) → PT.
-        // Hors de ces langues → on ouvre le sélecteur, AVEC le français par défaut.
+        m_version = iniVersion;                       //! rufus.ini fait foi : aucune détection
+    }
+    else
+    {
         QString detected;
         switch (QLocale::system().language()) {
         case QLocale::French:     detected = "FR"; break;
@@ -61,7 +70,6 @@ Procedures::Procedures(QObject *parent) :
         case QLocale::Portuguese: detected = (QLocale::system().territory() == QLocale::Brazil) ? "BR" : "PT"; break;
         default:                  break;
         }
-
         if (!detected.isEmpty())
             m_version = detected;
         else
@@ -109,13 +117,16 @@ Procedures::Procedures(QObject *parent) :
             if (versiondlg->exec() != QDialog::Accepted)
                 exit(0);
         }
-        QDir dirloc = QDir(QCoreApplication::applicationDirPath());
-        dirloc.cdUp();
-        QString locale = dirloc.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm";
-        QTranslator translator;
-        if( translator.load(locale) )
-            QCoreApplication::installTranslator(&translator);
+    }
+    // Traducteur des boîtes de démarrage (portée constructeur → couvre toutes les boîtes ci-dessous).
+    QDir dirlocLang = QDir(QCoreApplication::applicationDirPath());
+    dirlocLang.cdUp();
+    QTranslator startupTranslator;
+    if (startupTranslator.load(dirlocLang.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm"))
+        QCoreApplication::installTranslator(&startupTranslator);
 
+    if (!FichierIni.exists())
+    {
         bool a = false;
         while (!a)
         {
