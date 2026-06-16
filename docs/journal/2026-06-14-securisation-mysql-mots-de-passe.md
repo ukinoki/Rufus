@@ -204,3 +204,24 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
    Code : MySQLInstaller::createUser / createUserAvecAdmin / securiserBaseSiNecessaire (clause
    « IDENTIFIED WITH mysql_native_password BY … »), et activation du plugin dans installMySQL (my.ini
    Windows) et prepareCreateModeMacOS (my.cnf macOS).
+
+=====================================================================
+À FAIRE — ÉTAPE 7 DE LA CONFIG SERVEUR : PRÉPARER LES CONNEXIONS CHIFFRÉES (SSL)
+=====================================================================
+   (Noté pour mémoire — non implémenté. À traiter plus tard.)
+
+   Lors de l'installation/configuration du serveur MySQL, il manque une 7e étape : préparer le
+   serveur pour les connexions chiffrées (SSL), nécessaires aux accès DISTANTS (WAN) via les
+   comptes adminrufusSSL (REQUIRE SSL).
+
+   1. Générer les clés/certificats SSL (CA, server, client).
+   2. Les intégrer au my.cnf / my.ini (ssl-ca, ssl-cert, ssl-key côté serveur).
+   3. Proposer les clés CLIENT (client-cert.pem, client-key.pem, ca-cert.pem) à l'utilisateur,
+      pour qu'il les déploie sur les postes en accès distant (cf. connectToDataBase : dossier
+      Dossier_ClesSSL lu dans rufus.ini).
+
+   Petite subtilité — REMPLACEMENT D'UN ANCIEN SERVEUR (mise à jour du socle) :
+      Si on remplace une ancienne version de MySQL, CONSERVER les anciennes clés et les réinjecter
+      dans la nouvelle installation, plutôt que d'en générer de nouvelles. Sinon, il faudrait
+      redéployer les clés client sur TOUS les postes en accès distant. Garder les anciennes évite
+      cette corvée et ne casse aucun poste distant existant.
