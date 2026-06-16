@@ -17,8 +17,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "upmessagebox.h"
 
+// ═════════════════════════════════════════════════════════════════════════════
+//  UpMessageBox — boîte de message « maison » (en remplacement de QMessageBox),
+//  construite sur UpDialog. Disposition :
+//      [ icône ]  |  [ titre en gras (wdg_texteditlbl) ]
+//                    [ texte informatif (wdg_infolbl)  ]
+//  En pratique on l'utilise surtout via les méthodes STATIQUES de fin de fichier
+//  (Watch / Show / Question / Information) : elles créent la boîte, la configurent,
+//  l'affichent (exec) puis la détruisent, et renvoient le bouton cliqué.
+// ═════════════════════════════════════════════════════════════════════════════
 UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
 {
+    // wdg_textlayout (titre + texte) est imbriqué dans wdg_infolayout ([icône] + textes),
+    // lui-même inséré dans le layout d'UpDialog AU-DESSUS de la barre de boutons.
+    // SetFixedSize : la boîte prend exactement la taille de son contenu.
     wdg_iconlbl             = new UpLabel();
     wdg_texteditlbl         = new UpLabel();
     wdg_infolbl             = new UpLabel();
@@ -26,6 +38,7 @@ UpMessageBox::UpMessageBox(QWidget *parent) : UpDialog(parent)
     wdg_infolayout          = new QHBoxLayout();
     wdg_ReponsSmallButton   = Q_NULLPTR;
     wdg_ReponsPushButton    = Q_NULLPTR;
+    // Texte sélectionnable (copier/coller) à la souris comme au clavier.
     wdg_texteditlbl         ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
     wdg_infolbl             ->setTextInteractionFlags(Qt::TextSelectableByKeyboard | Qt::TextSelectableByMouse);
 
@@ -74,6 +87,7 @@ void UpMessageBox::removeButton(UpSmallButton *button)
     }
 }
 
+// Mémorise le bouton cliqué (Small ou Push) puis ferme la boîte (accept()).
 void UpMessageBox::Repons(QPushButton *button)
 {
     UpSmallButton *but = qobject_cast<UpSmallButton*>(button);
@@ -173,6 +187,7 @@ void UpMessageBox::setIconPixmap(QPixmap pix)
     wdg_infolayout  ->insertWidget(0,wdg_iconlbl);
 }
 
+// Titre (ligne en gras du haut). La taille du label est figée sur le texte (CalcSize).
 void UpMessageBox::UpMessageBox::setText(QString Text)
 {
     if (Text == "")
@@ -184,6 +199,8 @@ void UpMessageBox::UpMessageBox::setText(QString Text)
     wdg_textlayout          ->insertWidget(1,wdg_texteditlbl);
 }
 
+// Texte informatif (sous le titre). Text peut être du HTML (liens, gras…) : c'est un
+// QLabel, qui détecte le texte riche tout seul. CalcSize retire les balises pour la mesure.
 void UpMessageBox::setInformativeText(QString Text)
 {
     if (Text == "")
@@ -205,6 +222,7 @@ void UpMessageBox::setDefaultButton(QPushButton *butt)
     butt->setFocus();
 }
 
+// Boîte d'information simple (icône Quest, un bouton OK). InfoText échappé (affiché tel quel).
 void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
 {
     UpMessageBox *msgbox     = new UpMessageBox(parent);
@@ -227,6 +245,11 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
     delete msgbox;
 }
 
+// Boîte d'AVERTISSEMENT (icône Warning) la plus utilisée. Renvoie le style du bouton cliqué.
+//  - InfoText : les sauts de ligne « \n » sont convertis en « <br> » puis le tout est passé
+//    dans un UpTextEdit → toHtml() (texte riche homogène).
+//  - link (optionnel) : si renseigné, le texte peut contenir un lien <a href="…"> ; le label
+//    devient cliquable et ouvre l'URL dans le navigateur (cf. plus bas).
 UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QString link)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
@@ -254,19 +277,22 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
     msgbox  ->buttonslayout()   ->setSpacing(50);
     msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
     msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    // Lien cliquable : on rend les liens du label accessibles à la souris et on autorise
+    // l'ouverture externe (setOpenExternalLinks → QLabel ouvre l'URL au clic). Le connect
+    // sur linkActivated est un filet de sécurité explicite (ouvre l'URL via QDesktopServices)
+    // au cas où openExternalLinks ne suffirait pas dans certains contextes.
     if (link != "")
     {
         msgbox  ->wdg_infolbl   ->setTextInteractionFlags(Qt::LinksAccessibleByMouse);
         msgbox  ->wdg_infolbl   ->setOpenExternalLinks(true);
-        connect (msgbox->wdg_infolbl,
-                &QLabel::linkActivated,                 /*! bug Qt - Impossible to open URL with linkActivated in a QMessageBox - However linkHovered works */
-                msgbox,
+        connect (msgbox->wdg_infolbl, &QLabel::linkActivated, msgbox,
                 [=] { QDesktopServices::openUrl(QUrl(link)); });
     }
 
     return ExecMsgBox(msgbox);
 }
 
+// exec() la boîte, renvoie le style du bouton cliqué (CANCELBUTTON par défaut) puis la détruit.
 UpSmallButton::StyleBouton UpMessageBox::ExecMsgBox(UpMessageBox*msgbox)
 {
     UpSmallButton::StyleBouton repons = UpSmallButton::CANCELBUTTON;
@@ -278,6 +304,8 @@ UpSmallButton::StyleBouton UpMessageBox::ExecMsgBox(UpMessageBox*msgbox)
 }
 
 
+// Boîte de QUESTION (icône Quest) : libellés des boutons fournis via titresboutonslist
+// (dans l'ordre). Renvoie le style du bouton cliqué.
 UpSmallButton::StyleBouton UpMessageBox::Question(QWidget *parent, QString Text, QString InfoText, Buttons Butts, QStringList titresboutonslist)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
@@ -308,6 +336,7 @@ UpSmallButton::StyleBouton UpMessageBox::Question(QWidget *parent, QString Text,
     return ExecMsgBox(msgbox);
 }
 
+// Boîte d'information (icône Info, un bouton OK). Ne renvoie rien (simple accusé de lecture).
 void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)
 {
     UpMessageBox*msgbox     = new UpMessageBox(parent);
