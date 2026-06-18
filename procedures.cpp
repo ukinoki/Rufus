@@ -3548,7 +3548,7 @@ bool Procedures::IdentificationUser()
         //! base). On l'informe que la mise à jour doit se faire depuis le poste serveur, puis on
         //! continue : la base tourne encore sur l'ancien MySQL (et la sécurisation reste en
         //! attente tant que la version n'est pas conforme).
-        UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour") + "\n" +
+        UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
             tr("Le serveur MySQL nécessite d'être mis à jour pour pouvoir utiliser") + "\n" +
             tr("les nouvelles fonctions de sécurité incluses dans cette version de Rufus.") + "\n" +
             tr("La mise à jour doit être effectuée depuis le poste serveur "
