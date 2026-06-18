@@ -203,6 +203,13 @@ public:
     //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.
     bool             reinstallerSocleMySQLpourMigration();
 
+    //  SSL (étape 7, point 4) — conservation des clés lors d'un remplacement de socle.
+    //  sauvegarder… : copie les 6 .pem du datadir vers un stash, AVANT la désinstallation.
+    //  restaurer…   : réinjecte les .pem dans le NOUVEAU datadir (même CA -> les postes
+    //  distants existants restent valides), redémarre MySQL et réactualise la copie client.
+    bool             sauvegarderClesSSLMigration();
+    void             restaurerClesSSLMigration();
+
     //  À appeler APRÈS toute connexion réussie : sécurise la base au besoin, puis
     //  supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée.
     static void      entretienApresConnexion();

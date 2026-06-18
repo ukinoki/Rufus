@@ -1217,6 +1217,20 @@ static void inviterANoterMotDePasse(const QString& mdp)
     return ok;
 }
 
+//  Répertoire de données (datadir) du MySQL installé par Rufus, selon l'OS — là où sont
+//  déposés les certificats SSL auto-générés. Utilisé par la conservation des clés lors d'un
+//  remplacement de socle (étape 7, point 4).
+[[maybe_unused]] static QString mysqlDataDir()
+{
+#if defined(Q_OS_WIN)
+    return "C:/ProgramData/MySQL/MySQL Server 8.4/Data";
+#elif defined(Q_OS_MACOS)
+    return "/usr/local/mysql/data";
+#else
+    return "/var/lib/mysql";
+#endif
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  Message affiché quand CE poste vient de SÉCURISER la base (mise en place du mot de
 //  passe aléatoire). Prévient que les AUTRES postes du réseau devront être mis à jour
@@ -1549,6 +1563,100 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     return true;
 }
 
+//  SSL (étape 7, point 4) — Sauvegarde des 6 .pem du datadir AVANT désinstallation (qui détruit
+//  le datadir). On conserve TOUTE la chaîne (CA + serveur + client) pour que le nouveau serveur
+//  présente le MÊME CA : les clés client déjà déployées sur les postes distants restent valides.
+//  true si au moins le CA a pu être conservé. Stash dans ~/.rufus (survit à la désinstallation).
+bool MySQLInstaller::sauvegarderClesSSLMigration()
+{
+    const QString datadir = mysqlDataDir();
+    const QString stash   = QString(PATH_DIR_RUFUSKEY) + "/ssl_migration";
+    const QStringList pem  = QStringList()
+        << "ca.pem" << "ca-key.pem" << "server-cert.pem"
+        << "server-key.pem" << "client-cert.pem" << "client-key.pem";
+#if defined(Q_OS_WIN)
+    // Datadir lisible par le processus (élevé) : copie directe en C++.
+    QDir().mkpath(stash);
+    for (const QString& f : pem) {
+        const QString dst = stash + "/" + f;
+        QFile::remove(dst);
+        if (QFile::exists(datadir + "/" + f))
+            QFile::copy(datadir + "/" + f, dst);
+    }
+#else
+    // Datadir root-only (mysql/_mysql, clés en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur.
+    const QString owner = QString::fromLocal8Bit(qgetenv("USER"));
+    QString sh = "DATA='" + datadir + "'; STASH='" + stash + "'; OWNER='" + owner + "'\n"
+                 "mkdir -p \"$STASH\"\n";
+    for (const QString& f : pem)
+        sh += "[ -f \"$DATA/" + f + "\" ] && cp -f \"$DATA/" + f + "\" \"$STASH/" + f + "\"\n";
+    sh += "[ -n \"$OWNER\" ] && chown -R \"$OWNER\" \"$STASH\"\n";
+    runCmdElevated(sh);
+#endif
+    return QFile::exists(stash + "/ca.pem");
+}
+
+//  Réinjecte les .pem conservés dans le NOUVEAU datadir, fixe droits/propriétaire, redémarre
+//  MySQL (-> il sert le MÊME CA) et réactualise la copie CLIENT rendue à l'utilisateur
+//  (PATH_DIR_CLESSSL_SERVEUR). Ne fait rien si aucun stash n'existe. Nettoie le stash ensuite.
+void MySQLInstaller::restaurerClesSSLMigration()
+{
+    const QString datadir = mysqlDataDir();
+    const QString stash   = QString(PATH_DIR_RUFUSKEY) + "/ssl_migration";
+    if (!QFile::exists(stash + "/ca.pem"))
+        return;
+    const QStringList pem  = QStringList()
+        << "ca.pem" << "ca-key.pem" << "server-cert.pem"
+        << "server-key.pem" << "client-cert.pem" << "client-key.pem";
+    const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
+#if defined(Q_OS_WIN)
+    runCmdElevated("net stop MySQL");
+    for (const QString& f : pem) {
+        const QString src = stash + "/" + f;
+        if (!QFile::exists(src)) continue;
+        const QString dst = datadir + "/" + f;
+        QFile::remove(dst);
+        QFile::copy(src, dst);
+    }
+    runCmdElevated("net start MySQL");
+    waitForMySQL(15);
+    recolterClesClientSSL(datadir);            // la copie client reflète les ANCIENNES clés
+#else
+    const QString user = QString::fromLocal8Bit(qgetenv("USER"));
+    QString sh = "DATA='" + datadir + "'; STASH='" + stash + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n";
+  #if defined(Q_OS_MACOS)
+    sh += "OWNER=$(id -u _mysql >/dev/null 2>&1 && echo _mysql || echo mysql)\n"
+          "PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
+          "[ -f \"$PLIST\" ] && launchctl unload \"$PLIST\" 2>/dev/null\n";
+  #else
+    sh += "OWNER=mysql\n"
+          "systemctl stop mysql 2>/dev/null\n";
+  #endif
+    for (const QString& f : pem)
+        sh += "[ -f \"$STASH/" + f + "\" ] && cp -f \"$STASH/" + f + "\" \"$DATA/" + f + "\"\n";
+    sh += "for k in ca-key.pem server-key.pem client-key.pem; do chmod 600 \"$DATA/$k\" 2>/dev/null; done\n"
+          "for c in ca.pem server-cert.pem client-cert.pem; do chmod 644 \"$DATA/$c\" 2>/dev/null; done\n"
+          "chown \"$OWNER\":\"$OWNER\" \"$DATA\"/ca.pem \"$DATA\"/ca-key.pem \"$DATA\"/server-cert.pem "
+          "\"$DATA\"/server-key.pem \"$DATA\"/client-cert.pem \"$DATA\"/client-key.pem 2>/dev/null\n"
+          // réactualiser la copie CLIENT rendue à l'utilisateur (mêmes clés qu'avant la migration)
+          "mkdir -p \"$SSLDEST\"\n"
+          "cp -f \"$STASH/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
+          "cp -f \"$STASH/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
+          "cp -f \"$STASH/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
+          "[ -n \"$USERN\" ] && chown -R \"$USERN\" \"$SSLDEST\"\n"
+          "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+  #if defined(Q_OS_MACOS)
+    sh += "[ -f \"$PLIST\" ] && launchctl load -w \"$PLIST\" 2>/dev/null || "
+          "/usr/local/mysql/support-files/mysql.server restart 2>/dev/null\n";
+  #else
+    sh += "systemctl start mysql 2>/dev/null\n";
+  #endif
+    runCmdElevated(sh);
+    waitForMySQL(15);
+#endif
+    QDir(stash).removeRecursively();
+}
+
 //  Orchestration destructive de la migration du socle : (droits admin) -> désinstallation
 //  de l'ancien MySQL -> réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde
 //  VALIDÉE (cf. Procedures). Renvoie true si le nouveau socle est prêt.
@@ -1557,8 +1665,15 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
     if (!assurerDroitsAdmin())
         return false;
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
+    // SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir).
+    const bool clesConservees = sauvegarderClesSSLMigration();
     uninstallMySQL();
-    return reinstallerSocleMySQL(cfg);
+    if (!reinstallerSocleMySQL(cfg))
+        return false;
+    // Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides.
+    if (clesConservees)
+        restaurerClesSSLMigration();
+    return true;
 }
 
 //  true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil exigé

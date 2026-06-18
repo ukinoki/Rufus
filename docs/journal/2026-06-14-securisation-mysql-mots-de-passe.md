@@ -283,7 +283,14 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
       (tabMono), visible seulement si ce poste héberge la base. Il copie depuis
       PATH_DIR_CLESSSL_SERVEUR les 3 clés client vers la clé USB choisie ; avertit si les clés ne
       sont pas (encore) disponibles. Slot dlg_param::ExporterClesSSLversUSB().
-   4. REMPLACEMENT D'UN ANCIEN SERVEUR : voir ci-dessous (conserver/réinjecter les anciennes clés).
+   4. REMPLACEMENT D'UN ANCIEN SERVEUR : conserver/réinjecter les anciennes clés (voir ci-dessous).
+      Implémenté dans reinstallerSocleMySQLpourMigration() : sauvegarderClesSSLMigration() copie les
+      6 .pem du datadir (CA + serveur + client) vers ~/.rufus/ssl_migration AVANT uninstallMySQL()
+      (qui détruit le datadir) ; après réinstallation, restaurerClesSSLMigration() les réinjecte dans
+      le nouveau datadir (droits/propriétaire rétablis), redémarre MySQL et réactualise la copie
+      client (PATH_DIR_CLESSSL_SERVEUR). Le serveur sert ainsi le MÊME CA -> aucun poste distant à
+      retoucher. Datadir root-only (Linux/macOS) : sauvegarde/réinjection CÔTÉ ROOT (script élevé) ;
+      Windows : en C++. Helper mysqlDataDir() pour le chemin du datadir selon l'OS.
    5. macOS et Linux/apt : même logique (datadir auto-génère les certs), récolte identique.
       Implémenté. Subtilité : sur macOS (datadir _mysql, client-key.pem en 0600) et Linux
       (/var/lib/mysql appartenant à mysql), la récolte se fait CÔTÉ ROOT dans le script élevé
