@@ -1664,6 +1664,31 @@ du dossier de stockage des videos</string>
               <string>...</string>
              </property>
             </widget>
+            <widget class="QPushButton" name="RecupClesSSLUSBupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>285</x>
+               <y>89</y>
+               <width>38</width>
+               <height>32</height>
+              </rect>
+             </property>
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Récupérer les clés client SSL depuis une clé USB</string>
+             </property>
+             <property name="text">
+              <string>USB</string>
+             </property>
+            </widget>
             <widget class="UpLabel" name="SossierClesSSLupLabel">
              <property name="geometry">
               <rect>
