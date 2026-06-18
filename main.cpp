@@ -74,6 +74,20 @@ protected:
 
 int main(int argc, char *argv[])
 {
+#ifdef Q_OS_LINUX
+    //! Sous Wayland, un client n'a PAS le droit de positionner lui-même ses fenêtres de premier
+    //! plan : restoreGeometry() y restaure la taille mais JAMAIS la position (restriction du
+    //! protocole). D'où le comportement "aléatoire" selon la session (X11 vs Wayland) et l'arrêt
+    //! total depuis qu'Ubuntu démarre en Wayland. On force la plateforme xcb (XWayland), où le
+    //! positionnement fonctionne comme sous X11/macOS/Windows — sans aucune perte de résolution
+    //! ni de détail d'imagerie (XWayland rend au pixel près ; seul le scaling FRACTIONNAIRE de
+    //! l'UI est un peu moins net). Surchargeable : si l'utilisateur a déjà fixé QT_QPA_PLATFORM,
+    //! on respecte son choix (Wayland natif possible).
+    //! À poser AVANT la construction de QApplication (lue à l'initialisation de la plateforme).
+    if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
+        qputenv("QT_QPA_PLATFORM", "xcb");
+#endif
+
     /*! Le lancement de 2 instances du programme sur le même poste provoque un patacaisse dans la gestion des postes connectés et génère des erreurs.
      * la classe SingleApplication permet de bloquer le lancement de plusieurs instances du programme sur le même poste
      * Elle n'est pas utile sous MacOS qui ne le permet pas par défaut.
