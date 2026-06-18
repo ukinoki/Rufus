@@ -59,6 +59,17 @@ LE FLUX
    pas de l'admin ; Linux : éviter /root sous sudo). Le souci n'est pas le droit de lecture (rufus.ini
    est lisible par tous), mais de viser le bon fichier.
 
+   IMPLÉMENTÉ (macOS preinstall + Windows RufusVision.iss) : les deux installeurs lisent désormais
+   rufus.ini pour déterminer le RÔLE du poste, et n'utilisent l'heuristique « mysqld local » qu'en
+   REPLI (rufus.ini absent ou muet) :
+     - macOS  : ~/Documents/Rufus/Rufus.ini via CONSOLE_HOME (utilisateur de la console) ;
+     - Windows: %USERPROFILE%\Documents\Rufus\Rufus.ini ({userprofile} = utilisateur connecté).
+     - BDD_POSTE Active=YES  -> SERVEUR : on contrôle la version locale ; si insuffisante, message 1.b
+       (consentement) ; Annuler -> l'installeur stoppe, l'ancien Rufus reste en place.
+     - BDD_LOCAL/BDD_DISTANT Active=YES -> CLIENT : on installe en silence (point 1.c), sans contrôle.
+   Le rôle vient de rufus.ini (fait foi) ; mysqld --version ne sert qu'à lire la VERSION du socle.
+   Reste à faire : adapter la LANGUE des messages à Param_Poste_Version de rufus.ini (cf. 1.b).
+
 
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION
 

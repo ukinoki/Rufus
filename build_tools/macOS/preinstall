@@ -12,6 +12,8 @@ MIN_MAJOR=8; MIN_MINOR=4; MIN_PATCH=3
 
 CONSOLE_UID="$(stat -f%Su /dev/console 2>/dev/null)"
 CONSOLE_HOME="$(eval echo "~${CONSOLE_UID}" 2>/dev/null)"
+# rufus.ini de l'utilisateur CONNECTÉ (pas celui de root) : c'est lui qui fait foi sur le rôle.
+RUFUS_INI="${CONSOLE_HOME}/Documents/Rufus/Rufus.ini"
 
 osa() {   # osascript dans la session de l'utilisateur connecté
     launchctl asuser "$(id -u "${CONSOLE_UID}" 2>/dev/null)" osascript "$@" 2>/dev/null
@@ -46,25 +48,36 @@ controle_mysql_local() {
     return 1
 }
 
-# Le contrôle ne se fait QU'EN cas de MISE À JOUR : si aucun Rufus n'est déjà présent
-# dans /Applications, c'est une installation NEUVE → rien à détruire → on installe.
-ls -d /Applications/Rufus*.app >/dev/null 2>&1 || exit 0
+# Valeur de "Active" sous une section de rufus.ini ($1 = nom de section, ex. BDD_POSTE).
+ini_active() {
+    awk -v sect="[$1]" '
+        /^\[/ { in_s = ($0 == sect) }
+        in_s && tolower($0) ~ /^active[ \t]*=/ {
+            sub(/^[^=]*=[ \t]*/, ""); gsub(/[ \t\r]/, ""); print toupper($0); exit
+        }
+    ' "${RUFUS_INI}" 2>/dev/null
+}
 
-controle_mysql_local; ETAT=$?
+# Rôle du poste d'après rufus.ini : BDD_POSTE Active=YES -> SERVEUR (héberge la base) ;
+# BDD_LOCAL/BDD_DISTANT Active=YES -> CLIENT réseau. rufus.ini FAIT FOI sur le rôle ;
+# la présence d'un mysqld local n'est qu'un repli quand l'ini est absent ou muet.
+role_depuis_ini() {
+    [ -f "${RUFUS_INI}" ] || { echo "INCONNU"; return; }
+    if [ "$(ini_active BDD_POSTE)" = "YES" ]; then
+        echo "SERVEUR"
+    elif [ "$(ini_active BDD_LOCAL)" = "YES" ] || [ "$(ini_active BDD_DISTANT)" = "YES" ]; then
+        echo "CLIENT"
+    else
+        echo "INCONNU"
+    fi
+}
 
-if [ "${ETAT}" -eq 0 ]; then
-    ecrit_certif "MAJ - vérifié local : MySQL >= 8.4.3"
-    exit 0
-fi
-
-if [ "${ETAT}" -eq 1 ]; then
-    # Ce poste héberge la base et son MySQL est trop ancien (ou MariaDB). On DEMANDE le
-    # consentement (cf. journal, point 1.b) :
-    #   OK, continuer → exit 0 : l'install se fait ; au 1er lancement, Rufus met à jour MySQL
-    #                   automatiquement (sauvegarde validée → réinstall → restauration).
-    #   Annuler       → exit 1 : l'installeur stoppe, l'ancien Rufus reste en place.
-    # NB : texte volontairement SANS apostrophe (chaîne osascript en quotes simples).
-    CHOIX="$(osa -e 'try' \
+# Consentement à la mise à jour du socle MySQL (journal, point 1.b).
+# Renvoie 0 si l'utilisateur accepte (OK, continuer), 1 sinon.
+# NB : texte volontairement SANS apostrophe (chaîne osascript en quotes simples).
+dialogue_consentement_maj() {
+    local choix
+    choix="$(osa -e 'try' \
       -e 'set b to button returned of (display dialog "Ce poste héberge la base de données patients.
 
 Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place une gestion plus élaborée du mot de passe.
@@ -75,7 +88,52 @@ Cette opération peut durer plusieurs minutes selon la taille de votre base.
 
 IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi ils ne pourront plus fonctionner." buttons {"Annuler, je ferai cela plus tard", "OK, continuer"} default button 2 with title "Mise à jour du serveur MySQL" with icon caution)' \
       -e 'return b' -e 'on error' -e 'return "CANCEL"' -e 'end try')"
-    if [ "${CHOIX}" = "OK, continuer" ]; then
+    [ "${choix}" = "OK, continuer" ]
+}
+
+# Le contrôle ne se fait QU'EN cas de MISE À JOUR : si aucun Rufus n'est déjà présent
+# dans /Applications, c'est une installation NEUVE → rien à détruire → on installe.
+ls -d /Applications/Rufus*.app >/dev/null 2>&1 || exit 0
+
+ROLE="$(role_depuis_ini)"
+
+# Point 1.c : CLIENT réseau (rufus.ini fait foi) → ce n'est pas lui qui héberge la base
+# → on installe sans rien signaler ni contrôler le mysqld local.
+if [ "${ROLE}" = "CLIENT" ]; then
+    ecrit_certif "CLIENT réseau (rufus.ini BDD_LOCAL/BDD_DISTANT) : installation sans contrôle de version"
+    exit 0
+fi
+
+controle_mysql_local; ETAT=$?
+
+# Point 1.b : ce poste HÉBERGE la base (rufus.ini BDD_POSTE) → consentement si la version
+# ne convient pas (trop ancienne, MariaDB, ou mysqld introuvable malgré le rôle serveur).
+if [ "${ROLE}" = "SERVEUR" ]; then
+    if [ "${ETAT}" -eq 0 ]; then
+        ecrit_certif "SERVEUR (rufus.ini BDD_POSTE) : MySQL local >= 8.4.3"
+        exit 0
+    fi
+    if dialogue_consentement_maj; then
+        ecrit_certif "MAJ acceptée (SERVEUR rufus.ini) : socle MySQL à mettre à jour au 1er lancement"
+        exit 0
+    fi
+    ecrit_certif "REPORT (MAJ, SERVEUR rufus.ini) : installation annulée par l'utilisateur"
+    exit 1
+fi
+
+# ─── ROLE = INCONNU (pas de rufus.ini exploitable) : repli sur l'heuristique du mysqld local ───
+
+if [ "${ETAT}" -eq 0 ]; then
+    ecrit_certif "MAJ - vérifié local : MySQL >= 8.4.3"
+    exit 0
+fi
+
+if [ "${ETAT}" -eq 1 ]; then
+    # MySQL local trop ancien (ou MariaDB). On DEMANDE le consentement (cf. journal, 1.b) :
+    #   OK, continuer → exit 0 : l'install se fait ; au 1er lancement, Rufus met à jour MySQL
+    #                   automatiquement (sauvegarde validée → réinstall → restauration).
+    #   Annuler       → exit 1 : l'installeur stoppe, l'ancien Rufus reste en place.
+    if dialogue_consentement_maj; then
         ecrit_certif "MAJ acceptée : MySQL local < 8.4.3 ou MariaDB, mise à jour auto au 1er lancement"
         exit 0
     fi

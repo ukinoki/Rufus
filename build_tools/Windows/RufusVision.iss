@@ -143,9 +143,50 @@ begin
          or RegKeyExists(HKCU64, KEY) or RegKeyExists(HKCU32, KEY);
 end;
 
+// Rôle du poste d'après rufus.ini : BDD_POSTE Active=YES → ce poste HÉBERGE la base
+// (serveur) ; BDD_LOCAL/BDD_DISTANT Active=YES → CLIENT réseau. rufus.ini FAIT FOI sur
+// le rôle ; la présence d'un mysqld local n'est qu'un repli quand l'ini est absent/muet.
+// Subtilité : l'installeur tourne en mode élevé, mais {userprofile} pointe bien vers le
+// profil de l'utilisateur CONNECTÉ (pas celui de l'admin) — c'est le bon rufus.ini.
+function RoleDepuisIni(): String;
+var ini: String;
+begin
+  Result := 'INCONNU';
+  ini := ExpandConstant('{userprofile}\Documents\Rufus\Rufus.ini');
+  if not FileExists(ini) then Exit;
+  if Uppercase(Trim(GetIniString('BDD_POSTE', 'Active', '', ini))) = 'YES' then begin
+    Result := 'SERVEUR'; Exit;
+  end;
+  if (Uppercase(Trim(GetIniString('BDD_LOCAL', 'Active', '', ini))) = 'YES')
+     or (Uppercase(Trim(GetIniString('BDD_DISTANT', 'Active', '', ini))) = 'YES') then
+    Result := 'CLIENT';
+end;
+
+// Dialogue de consentement à la mise à jour du socle MySQL (cf. journal, point 1.b).
+//   True  = l'utilisateur accepte : l'install se fait ; au 1er lancement, Rufus met à jour
+//           MySQL automatiquement (sauvegarde validée → réinstall → restauration).
+//   False = il reporte : l'installeur stoppe, l'ancien Rufus reste en place.
+function ConsentementMajServeur(): Boolean;
+begin
+  Result := (TaskDialogMsgBox(
+    'Mise à jour du serveur MySQL',
+    'Ce poste héberge la base de données patients.' + #13#10#13#10
+    + 'Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place '
+    + 'une gestion plus élaborée du mot de passe.' + #13#10#13#10
+    + 'Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, '
+    + 'réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.' + #13#10#13#10
+    + 'Cette opération peut durer plusieurs minutes selon la taille de votre base.' + #13#10#13#10
+    + 'IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront '
+    + 'IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi '
+    + 'ils ne pourront plus fonctionner.',
+    mbInformation, 0,
+    ['OK, continuer (Rufus mettra MySQL à jour automatiquement)',
+     'Annuler, je ferai cela plus tard'], 0) = 100);
+end;
+
 // True = on continue l'installation ; False = on l'abandonne (ancien Rufus intact).
 function InitializeSetup(): Boolean;
-var etat, btn: Integer;
+var etat, btn: Integer; role: String;
 begin
   // Installation NEUVE (aucun Rufus préexistant) : rien à détruire → on n'importune
   // pas l'utilisateur, on installe directement.
@@ -153,35 +194,44 @@ begin
     Result := True; Exit;
   end;
 
+  role := RoleDepuisIni();
+
+  // Point 1.c : ce poste est un CLIENT réseau (rufus.ini fait foi) → ce n'est pas lui qui
+  // héberge la base → on installe sans rien signaler ni contrôler le mysqld local.
+  if role = 'CLIENT' then begin
+    EcritCertif('CLIENT réseau (rufus.ini BDD_LOCAL/BDD_DISTANT) : installation sans contrôle de version');
+    Result := True; Exit;
+  end;
+
   // MISE À JOUR d'un Rufus existant : on protège l'installation qui marche.
   etat := ControleMySQLLocal();
 
+  // Point 1.b : ce poste HÉBERGE la base (rufus.ini BDD_POSTE) → consentement si la version
+  // ne convient pas (trop ancienne, MariaDB, ou mysqld introuvable malgré le rôle serveur).
+  if role = 'SERVEUR' then begin
+    if etat = 0 then begin
+      EcritCertif('SERVEUR (rufus.ini BDD_POSTE) : MySQL local >= 8.4.3');
+      Result := True; Exit;
+    end;
+    if ConsentementMajServeur() then begin
+      EcritCertif('MAJ acceptée (SERVEUR rufus.ini) : socle MySQL à mettre à jour au 1er lancement');
+      Result := True;
+    end else begin
+      EcritCertif('REPORT (MAJ, SERVEUR rufus.ini) : installation annulée par l''utilisateur');
+      Result := False;
+    end;
+    Exit;
+  end;
+
+  // role = INCONNU (pas de rufus.ini exploitable) : repli sur l'heuristique du mysqld local.
   if etat = 0 then begin
     EcritCertif('MAJ - vérifié local : MySQL >= 8.4.3');
     Result := True; Exit;
   end;
 
   if etat = 1 then begin
-    // Ce poste héberge la base et son MySQL est trop ancien (ou MariaDB). On DEMANDE le
-    // consentement (cf. journal, point 1.b) :
-    //   OK, continuer → Result := True  : l'install se fait ; au 1er lancement, Rufus met à
-    //                   jour MySQL automatiquement (sauvegarde validée → réinstall → restauration).
-    //   Annuler       → Result := False : l'installeur stoppe, l'ancien Rufus reste en place.
-    btn := TaskDialogMsgBox(
-      'Mise à jour du serveur MySQL',
-      'Ce poste héberge la base de données patients.' + #13#10#13#10
-      + 'Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place '
-      + 'une gestion plus élaborée du mot de passe.' + #13#10#13#10
-      + 'Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, '
-      + 'réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.' + #13#10#13#10
-      + 'Cette opération peut durer plusieurs minutes selon la taille de votre base.' + #13#10#13#10
-      + 'IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront '
-      + 'IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi '
-      + 'ils ne pourront plus fonctionner.',
-      mbInformation, 0,
-      ['OK, continuer (Rufus mettra MySQL à jour automatiquement)',
-       'Annuler, je ferai cela plus tard'], 0);
-    if btn = 100 then begin
+    // MySQL local trop ancien (ou MariaDB) : on DEMANDE le consentement (cf. journal, 1.b).
+    if ConsentementMajServeur() then begin
       EcritCertif('MAJ acceptée : MySQL local trop ancien, mise à jour auto au 1er lancement');
       Result := True;
     end else begin
