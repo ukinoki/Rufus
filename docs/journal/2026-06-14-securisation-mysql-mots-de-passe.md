@@ -284,8 +284,12 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
       PATH_DIR_CLESSSL_SERVEUR les 3 clés client vers la clé USB choisie ; avertit si les clés ne
       sont pas (encore) disponibles. Slot dlg_param::ExporterClesSSLversUSB().
    4. REMPLACEMENT D'UN ANCIEN SERVEUR : voir ci-dessous (conserver/réinjecter les anciennes clés).
-   5. macOS (prepareCreateModeMacOS) et Linux/apt 8.0 : même logique (datadir auto-génère les
-      certs) ; récolte identique.
+   5. macOS et Linux/apt : même logique (datadir auto-génère les certs), récolte identique.
+      Implémenté. Subtilité : sur macOS (datadir _mysql, client-key.pem en 0600) et Linux
+      (/var/lib/mysql appartenant à mysql), la récolte se fait CÔTÉ ROOT dans le script élevé
+      (oracleInitStartScript pour macOS ; script pkexec apt pour Linux), avec restitution à
+      l'utilisateur (chown). Sur Windows, le datadir est lisible par le processus : récolte en
+      C++ (recolterClesClientSSL). Destination commune : PATH_DIR_CLESSSL_SERVEUR.
 
    Petite subtilité — REMPLACEMENT D'UN ANCIEN SERVEUR (mise à jour du socle) :
       Si on remplace une ancienne version de MySQL, CONSERVER les anciennes clés et les réinjecter

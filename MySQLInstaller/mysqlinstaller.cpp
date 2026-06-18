@@ -2131,6 +2131,11 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
 // macOS — lequel n'initialise plus automatiquement /usr/local/mysql/data.
 QString MySQLInstaller::oracleInitStartScript() const
 {
+    // SSL (étape 7, points 2 et 5) : la récolte des clés CLIENT se fait ICI, côté ROOT, car le
+    // datadir (et client-key.pem en 0600) appartient à _mysql et n'est pas lisible par l'utilisateur.
+    // On copie les 3 clés client vers le dossier du serveur, puis on les rend à l'utilisateur (chown).
+    const QString sslDest  = QString(PATH_DIR_CLESSSL_SERVEUR);
+    const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));   // utilisateur lançant Rufus
     return QStringLiteral(
         "PREFIX=/usr/local/mysql; DATA=\"$PREFIX/data\"\n"
         // Compte exécutant mysqld : « _mysql » (créé par le pkg), repli « mysql ».
@@ -2155,8 +2160,18 @@ QString MySQLInstaller::oracleInitStartScript() const
         "  PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
         "  if [ -f \"$PLIST\" ]; then echo '-- launchctl load --'; launchctl load -w \"$PLIST\"; "
         "else echo '-- mysql.server start --'; TMPDIR=/tmp \"$PREFIX/support-files/mysql.server\" start; fi\n"
+        // Récolte des SEULES clés client (ca.pem -> ca-cert.pem, client-cert.pem, client-key.pem),
+        // puis restitution à l'utilisateur. JAMAIS server-*.pem ni ca-key.pem.
+        "  echo '-- recolte cles client SSL --'\n"
+        "  SSLDEST='%2'; SSLOWNER='%3'\n"
+        "  mkdir -p \"$SSLDEST\"\n"
+        "  [ -f \"$DATA/ca.pem\" ]          && cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"\n"
+        "  [ -f \"$DATA/client-cert.pem\" ] && cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\"\n"
+        "  [ -f \"$DATA/client-key.pem\" ]  && cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"\n"
+        "  [ -n \"$SSLOWNER\" ] && chown -R \"$SSLOWNER\" \"$SSLDEST\"\n"
+        "  chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n"
         "} >> '%1' 2>&1\n"
-        "chmod 644 '%1' 2>/dev/null\n").arg(m_initLog);
+        "chmod 644 '%1' 2>/dev/null\n").arg(m_initLog).arg(sslDest).arg(sslOwner);
 }
 
 // Initialise (si besoin) le datadir Oracle PUIS démarre le serveur, en UNE élévation.
@@ -2361,6 +2376,11 @@ bool MySQLInstaller::installMySQL()
     // Installation via apt-get (droits root → pkexec), avec barre de progression
     // RÉELLE : apt écrit son avancement (0-100) sur APT::Status-Fd.
     const QString aptScript = QDir::tempPath() + "/mysql_apt_install.sh";
+    // SSL (étape 7, points 2 et 5) : récolte des clés CLIENT, côté ROOT (le datadir
+    // /var/lib/mysql et client-key.pem en 0600 appartiennent à mysql), puis restitution
+    // à l'utilisateur. UNIQUEMENT les clés client ; jamais server-*.pem ni ca-key.pem.
+    const QString sslDest  = QString(PATH_DIR_CLESSSL_SERVEUR);
+    const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));
     {
         QFile f(aptScript);
         if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
@@ -2370,7 +2390,15 @@ bool MySQLInstaller::installMySQL()
                << "DEBIAN_FRONTEND=noninteractive apt-get -o APT::Status-Fd=1 "
                   "install -y mysql-server 2>/dev/null | "
                   "awk -F: '/^(pmstatus|dlstatus)/ "
-                  "{ printf \"PROGRESS %d 100\\n\", $3; fflush() }'\n";
+                  "{ printf \"PROGRESS %d 100\\n\", $3; fflush() }'\n"
+               << "DATA=/var/lib/mysql\n"
+               << "SSLDEST='" << sslDest << "'; SSLOWNER='" << sslOwner << "'\n"
+               << "mkdir -p \"$SSLDEST\"\n"
+               << "[ -f \"$DATA/ca.pem\" ]          && cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"\n"
+               << "[ -f \"$DATA/client-cert.pem\" ] && cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\"\n"
+               << "[ -f \"$DATA/client-key.pem\" ]  && cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"\n"
+               << "[ -n \"$SSLOWNER\" ] && chown -R \"$SSLOWNER\" \"$SSLDEST\"\n"
+               << "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
             f.close();
         }
     }
