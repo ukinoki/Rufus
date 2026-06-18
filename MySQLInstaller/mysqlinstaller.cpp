@@ -1180,6 +1180,64 @@ static void inviterANoterMotDePasse(const QString& mdp)
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+//  Message affiché quand CE poste vient de SÉCURISER la base (mise en place du mot de
+//  passe aléatoire). Prévient que les AUTRES postes du réseau devront être mis à jour
+//  vers cette version dans le délai (deadline) avant la purge de gaxt78iy. Texte rédigé
+//  au conditionnel (« s'il existe d'autres postes… ») : inoffensif en monoposte pur.
+// ═════════════════════════════════════════════════════════════════════════════
+static void avertirSecurisationMiseEnPlace()
+{
+    UpMessageBox::Watch(nullptr,
+        QObject::tr("Sécurisation de la base de données"),
+        QObject::tr("IMPORTANT : un mot de passe sécurisé vient d'être mis en place.") + "\n\n"
+        + QObject::tr("S'il existe d'autres postes sur le réseau local qui utilisent Rufus, "
+                      "ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version "
+                      "de Rufus dans un délai d'un mois.") + "\n"
+        + QObject::tr("Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus "
+                      "utiliser Rufus."));
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  Demande l'AUTORISATION de supprimer le mot de passe générique (gaxt78iy) une fois la
+//  deadline atteinte. Renvoie true si l'utilisateur confirme la suppression, false s'il
+//  préfère la reporter (dans ce cas la suppression sera reproposée à chaque connexion).
+// ═════════════════════════════════════════════════════════════════════════════
+static bool confirmerSuppressionGaxt78iy()
+{
+    UpMessageBox msgbox(nullptr);
+    msgbox.setIcon(UpMessageBox::Warning);
+    msgbox.setText(QObject::tr("Suppression du mot de passe générique"));
+    msgbox.setInformativeText(
+        QObject::tr("IMPORTANT : le mot de passe générique d'accès à la base de données va "
+                    "être supprimé.") + "\n\n"
+        + QObject::tr("S'il existe d'autres postes sur le réseau local qui utilisent une "
+                      "version plus ancienne du programme, ils doivent IMPÉRATIVEMENT être "
+                      "mis à jour vers cette nouvelle version pour pouvoir continuer à "
+                      "utiliser Rufus."));
+    UpSmallButton* bAnnuler   = new UpSmallButton(QObject::tr("Annuler et reporter cette suppression"));
+    UpSmallButton* bSupprimer = new UpSmallButton(QObject::tr("OK, supprimer le mot de passe"));
+    msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(bSupprimer, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    return msgbox.clickedButton() == bSupprimer;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
+//  Message affiché juste APRÈS la suppression effective du mot de passe générique.
+// ═════════════════════════════════════════════════════════════════════════════
+static void avertirSuppressionGaxt78iyEffectuee()
+{
+    UpMessageBox::Watch(nullptr,
+        QObject::tr("Mot de passe générique supprimé"),
+        QObject::tr("IMPORTANT : le mot de passe générique d'accès à la base de données vient "
+                    "d'être supprimé.") + "\n\n"
+        + QObject::tr("S'il existe d'autres postes sur le réseau local qui utilisent une "
+                      "version plus ancienne du programme, ils doivent IMPÉRATIVEMENT être "
+                      "mis à jour vers cette nouvelle version pour pouvoir continuer à "
+                      "utiliser Rufus."));
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 //  Petite fiche DÉDIÉE à la saisie du futur utilisateur Rufus (identifiant / mot de passe /
 //  confirmation), utilisée après la (ré)installation de MySQL. On n'utilise PAS la fiche
 //  MySQLInstallerDialog (avec sa checklist d'installation) : afficher ces cases à cette étape
@@ -1854,6 +1912,7 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     //    désormais ; gaxt78iy reste valable pour les autres postes (2e mot de passe).
     stockerMotDePasse(np);
     inviterANoterMotDePasse(np);
+    avertirSecurisationMiseEnPlace();
 }
 
 // À appeler après toute connexion réussie : sécurise au besoin, puis purge gaxt78iy si échu.
@@ -1897,9 +1956,17 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     const QDateTime d = dateSecurisation();
     if (!d.isValid() || d.addDays(30) > QDateTime::currentDateTime())
         return;                                // deadline pas encore atteinte
+
+    // Deadline atteinte : on DEMANDE l'autorisation avant de supprimer gaxt78iy (un poste
+    // resté sur une ancienne version perdrait l'accès). Si l'utilisateur reporte, on ne
+    // supprime rien : la demande se représentera telle quelle à la prochaine connexion.
+    if (!confirmerSuppressionGaxt78iy())
+        return;
+
     DataBase::I()->StandardSQL("ALTER USER '" LOGIN_SQL "'@'%' DISCARD OLD PASSWORD");
     DataBase::I()->StandardSQL("ALTER USER '" LOGIN_SQL "SSL'@'%' DISCARD OLD PASSWORD");
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
+    avertirSuppressionGaxt78iyEffectuee();
 }
 
 QString MySQLInstaller::downloadOracleDmg()
