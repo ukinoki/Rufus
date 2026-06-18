@@ -6268,7 +6268,38 @@ void Rufus::VerifLastVersion()
                         }
                     }
                     else if (child.tagName() == "Comment")
-                        m_MAJcomment = child.text();
+                    {
+                        //! Le <Comment> peut contenir une sous-section par langue : <FR>, <EN>,
+                        //! <ES>, <PT>, <BR>. On affiche celle qui correspond à la langue du poste
+                        //! (m_parametres->version(), déjà connue puisqu'elle a chargé le .qm),
+                        //! avec repli sur EN puis FR si elle est absente. Si <Comment> ne contient
+                        //! aucune de ces sous-sections (ancien format), on prend son texte brut.
+                        QString langue = m_parametres->version().toUpper();
+                        QString commentLangue, commentEN, commentFR;
+                        bool hassections = false;
+                        for (int k=0; k<child.childNodes().size(); k++)
+                        {
+                            QDomElement langchild = child.childNodes().at(k).toElement();
+                            if (langchild.isNull())
+                                continue;
+                            const QString tag = langchild.tagName().toUpper();
+                            if (tag=="FR" || tag=="EN" || tag=="ES" || tag=="PT" || tag=="BR")
+                            {
+                                hassections = true;
+                                if (tag == langue) commentLangue = langchild.text();
+                                if (tag == "EN")   commentEN     = langchild.text();
+                                if (tag == "FR")   commentFR     = langchild.text();
+                            }
+                        }
+                        if (!hassections)
+                            m_MAJcomment = child.text();                    //! ancien format : texte brut
+                        else if (!commentLangue.isEmpty())
+                            m_MAJcomment = commentLangue;                   //! langue du poste
+                        else if (!commentEN.isEmpty())
+                            m_MAJcomment = commentEN;                       //! repli anglais
+                        else
+                            m_MAJcomment = commentFR;                       //! repli français
+                    }
                 }
                 i = xml.childNodes().size();
             }
