@@ -136,8 +136,9 @@ end;
 // AppId, ou Rufus.exe à l'emplacement par défaut). Le contrôle MySQL ne se fait QU'EN
 // cas de MAJ : en installation neuve il n'y a rien à détruire, donc rien à vérifier.
 function RufusDejaInstalle(): Boolean;
-const KEY = 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{BB737C7D-1DA8-4BB2-9950-DA8781E50453}_is1';
+var KEY: String;   // NB: pas de 'const' LOCALE en Pascal Script Inno -> var assignée dans le corps
 begin
+  KEY := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{BB737C7D-1DA8-4BB2-9950-DA8781E50453}_is1';
   Result := FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}'))
          or RegKeyExists(HKLM64, KEY) or RegKeyExists(HKLM32, KEY)
          or RegKeyExists(HKCU64, KEY) or RegKeyExists(HKCU32, KEY);
