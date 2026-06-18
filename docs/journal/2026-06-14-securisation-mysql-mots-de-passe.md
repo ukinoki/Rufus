@@ -279,6 +279,10 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
       tabDistant. (Correction d'une 1re version placée à tort sur tabDistant : retirée.)
       Côté poste distant : on garde le simple sélecteur de dossier « … » (Dossier_ClesSSL) pour
       pointer les clés apportées par clé USB ; pas d'import « automatique ».
+      Implémenté : bouton « Exporter les clés client SSL (clé USB) » sur l'onglet Monoposte
+      (tabMono), visible seulement si ce poste héberge la base. Il copie depuis
+      PATH_DIR_CLESSSL_SERVEUR les 3 clés client vers la clé USB choisie ; avertit si les clés ne
+      sont pas (encore) disponibles. Slot dlg_param::ExporterClesSSLversUSB().
    4. REMPLACEMENT D'UN ANCIEN SERVEUR : voir ci-dessous (conserver/réinjecter les anciennes clés).
    5. macOS (prepareCreateModeMacOS) et Linux/apt 8.0 : même logique (datadir auto-génère les
       certs) ; récolte identique.

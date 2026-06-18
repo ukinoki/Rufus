@@ -1142,6 +1142,25 @@
              </property>
             </widget>
            </widget>
+           <widget class="QPushButton" name="ExportClesSSLupPushButton">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>262</y>
+              <width>325</width>
+              <height>28</height>
+             </rect>
+            </property>
+            <property name="contextMenuPolicy">
+             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+            </property>
+            <property name="toolTip">
+             <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+            </property>
+            <property name="text">
+             <string>Exporter les clés client SSL (clé USB)</string>
+            </property>
+           </widget>
            <widget class="QCheckBox" name="PosteServcheckBox">
             <property name="geometry">
              <rect>

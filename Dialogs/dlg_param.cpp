@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QFile>
 #include "dlg_param.h"
 #include "icons.h"
 #include "ui_dlg_param.h"
@@ -373,6 +374,8 @@ dlg_param::dlg_param(QWidget *parent) :
     a                               = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
+    //! Export des clés client SSL : réservé au poste qui HÉBERGE la base (il en conserve la copie).
+    ui->ExportClesSSLupPushButton   ->setVisible(a);
     ui->MonoConnexionupLabel        ->setVisible(a);
     ui->MonoDocsExtupLabel          ->setVisible(a);
     ui->MonoDocupTableWidget        ->setVisible(a);
@@ -2371,6 +2374,56 @@ void dlg_param::DossierClesSSL()
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
 }
 
+/*! (SERVEUR) Copie vers une clé USB les SEULES clés CLIENT SSL conservées par ce poste
+ *  (ca-cert.pem, client-cert.pem, client-key.pem ; jamais les clés serveur), afin de les
+ *  déployer sur les postes en accès distant. cf. journal SSL (étape 7, point 3).
+ *  L'extraction est volontairement réservée au serveur (poste maîtrisé). */
+void dlg_param::ExporterClesSSLversUSB()
+{
+    const QString source = QString(PATH_DIR_CLESSSL_SERVEUR);
+    const QStringList fichiers = QStringList() << "ca-cert.pem" << "client-cert.pem" << "client-key.pem";
+
+    //! Les clés sont récoltées du datadir à l'installation du serveur MySQL (recolterClesClientSSL).
+    QStringList manquants;
+    for (const QString &f : fichiers)
+        if (!QFile::exists(source + "/" + f))
+            manquants << f;
+    if (!manquants.isEmpty())
+    {
+        UpMessageBox::Watch(this, tr("Clés client SSL indisponibles"),
+                            tr("Les clés client SSL ne sont pas disponibles sur ce serveur :") + "\n"
+                            + manquants.join(", ") + "\n\n"
+                            + tr("Elles sont créées lors de l'installation du serveur MySQL par Rufus."));
+        return;
+    }
+
+    //! Destination : la clé USB choisie par l'utilisateur.
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB de destination"),
+                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
+    if (url == QUrl())
+        return;
+    const QString dest = url.path();
+
+    QStringList echecs;
+    for (const QString &f : fichiers)
+    {
+        const QString cible = dest + "/" + f;
+        QFile::remove(cible);                       //! QFile::copy échoue si la cible existe déjà
+        if (!QFile::copy(source + "/" + f, cible))
+            echecs << f;
+    }
+    if (!echecs.isEmpty())
+    {
+        UpMessageBox::Watch(this, tr("Export incomplet"),
+                            tr("Certains fichiers n'ont pas pu être copiés :") + "\n" + echecs.join(", "));
+        return;
+    }
+
+    UpMessageBox::Watch(this, tr("Clés client SSL exportées"),
+                        tr("Les clés client SSL ont été copiées sur :") + "\n" + dest + "\n\n"
+                        + tr("Déployez-les dans le dossier des clés SSL de chaque poste en accès distant."));
+}
+
 void dlg_param::EffaceProgrammationDataBackup()
 {
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
@@ -2603,6 +2656,7 @@ void dlg_param::ConnectSignals()
     connect(ui->DistantVideoDirupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DistantVideoDir);
 
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
+    connect(ui->ExportClesSSLupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});

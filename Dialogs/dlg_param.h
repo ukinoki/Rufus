@@ -118,6 +118,7 @@ private:
     void                LocalVideoDir();
     void                DistantVideoDir();
     void                DossierClesSSL();
+    void                ExporterClesSSLversUSB();        //!< (serveur) copie les clés CLIENT SSL conservées par ce poste vers une clé USB, pour les postes distants
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);
     void                EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, QString txtport);
