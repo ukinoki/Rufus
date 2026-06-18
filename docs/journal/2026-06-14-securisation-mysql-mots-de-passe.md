@@ -28,18 +28,25 @@ LE FLUX
 =====================================================================
 
 1. PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'installeur)
-   But : ne pas créer d'irréversibilité. Il ne faut pas écraser un Rufus qui marche si la migration
-   risque de bloquer la base (serveur trop ancien pour le double mot de passe).
-
+   But : ne pas mettre le poste serveur dans une situation où il serait bloqué plusieurs minutes, 
+   cause des manoeuvres de sauvegarde/restauration nécessaires.
+   
    a. Ne se fait QUE si un Rufus préexistant, ou une base Rufus, existe déjà sur ce poste.
    b. Si la base MySQL est SUR ce poste (rubrique BDD_POSTE de rufus.ini avec ACTIVE=YES)
       et que sa version ne remplit pas le critère :
         Message :
         " Ce poste héberge la base de données patients."
-        " Cette nouvelle version de Rufus nécessite une mise à jour du serveur MySQL."
+        " Cette nouvelle version de Rufus améliore la une sécurité de l'accès aux données du serveur
+        " en mettant en place une gestion plus élaborée du mot de passe général." 
+        " Elle nécessite une mise à jour du serveur MySQL."
         " Pour cela, Rufus devra désinstaller MySQL puis réinstaller une version plus récente."
         " Rufus fera donc une sauvegarde de votre base patients pour pouvoir la restaurer ensuite."
-        2 boutons : 1. Annuler   2. OK, continuer
+        " Cette installation peut-être longue et durer plusieurs minutes en fonction de la taille de votre base Rufus"
+        IMPORTANT: s'il existe d'autres postes sur le réseau local qui utilisent rufus,
+        ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version dans un délai d'un mois.
+        Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus utiliser Rufus.
+        2 boutons : 1. Annuler, je ferais ça à un autre moment   2. OK, continuer
+        Prévoir de lire la version de langue utilisée dans Rufus.ini et adapter ce texte à la langue utilisée.
    c. Si ce poste est un CLIENT réseau (BDD_LOCAL ou BDD_DISTANT avec ACTIVE=YES) :
       on installe sans rien signaler (ce n'est pas lui qui héberge la base).
 
@@ -79,7 +86,9 @@ LE FLUX
                 CE POSTE la sécurise (pose un random, garde gaxt78iy en 2e mot de passe avec RETAIN
                 CURRENT PASSWORD), écrit son .dbkey, et invite fortement à NOTER/SAUVER le mot de passe.
           - Connecté avec GAXT78IY et un 2e mot de passe EXISTE .... base déjà sécurisée par un autre
-                poste, mais celui-ci n'a pas le random : on DEMANDE le random (saisie ou clé USB).
+                poste, mais celui-ci n'a pas le random : on DEMANDE le random (saisie ou clé USB),
+                en précisant que le mot de passe actuellement utilisé arrive à échéance
+                à la date d'introduction du mot de passe sécurisé + 30.
         Cette structure évite toute « course » entre postes : dès qu'un poste a sécurisé, les autres
         voient « déjà sécurisé » et demandent le mot de passe au lieu d'en recréer un.
 
@@ -96,6 +105,12 @@ LE FLUX
           - à noter/sauver le mot de passe en lieu sûr (papier ou clé USB) ;
           - si le serveur est en réseau : à mettre à jour Rufus sur TOUS les autres postes (l'ancienne
             version ne marchera plus après la deadline) et à leur fournir le mot de passe (papier/USB).
+          - afficher un message
+          " IMPORTANT: un mot de passe sécurisé vient d'être mis en place.
+            s'il existe d'autres postes sur le réseau local qui utilisent rufus,
+            ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version de Rufus dans un délai d'un mois.
+            Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus utiliser Rufus."
+"
 
      6. ÉCRAN D'IDENTIFICATION (dlg_identificationuser), puis ouverture de la session.
         Le contrôle de la version de la BASE Rufus (majbase) se fait APRÈS l'identification.
