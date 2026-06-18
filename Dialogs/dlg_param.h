@@ -118,7 +118,6 @@ private:
     void                LocalVideoDir();
     void                DistantVideoDir();
     void                DossierClesSSL();
-    void                RecupererClesSSLDepuisUSB();     //!< copie les clés client SSL (ca-cert/client-cert/client-key.pem) depuis une clé USB vers le dossier Dossier_ClesSSL
     void                EnableModif(QWidget *obj);
     void                EnableFrameServeur(QCheckBox *box, bool a);
     void                EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, QString txtport);

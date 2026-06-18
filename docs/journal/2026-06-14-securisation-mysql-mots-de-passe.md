@@ -246,25 +246,42 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
 =====================================================================
 À FAIRE — ÉTAPE 7 DE LA CONFIG SERVEUR : PRÉPARER LES CONNEXIONS CHIFFRÉES (SSL)
 =====================================================================
-   (Noté pour mémoire — non implémenté. À traiter plus tard.)
+   (En cours d'implémentation.)
 
    Lors de l'installation/configuration du serveur MySQL, il manque une 7e étape : préparer le
    serveur pour les connexions chiffrées (SSL), nécessaires aux accès DISTANTS (WAN) via les
    comptes adminrufusSSL (REQUIRE SSL).
 
-   1. Générer les clés/certificats SSL (CA, server, client).
-   2. Les intégrer au my.cnf / my.ini (ssl-ca, ssl-cert, ssl-key côté serveur).
-   3. Proposer les clés CLIENT (client-cert.pem, client-key.pem, ca-cert.pem) à l'utilisateur,
-      pour qu'il les déploie sur les postes en accès distant (cf. connectToDataBase : dossier
-      Dossier_ClesSSL lu dans rufus.ini).
-   4. Côté POSTE DISTANT : dans dlg_param.cpp (onglet « Accès distant »), ajouter un bouton pour
-      RÉCUPÉRER les clés client SSL depuis une clé USB (les copier dans le dossier Dossier_ClesSSL).
-      → simplifie le déploiement des clés client sur chaque poste distant sans manip de fichiers.
-      Implémenté : bouton « USB » à côté du sélecteur de dossier des clés SSL. Il demande le
-      dossier source (la clé USB), vérifie la présence des 3 fichiers (ca-cert.pem, client-cert.pem,
-      client-key.pem), les copie dans un dossier local des clés (par défaut ~/Documents/Rufus/
-      DossierClesSSL si aucun n'est défini), met à jour rufus.ini (BDD_DISTANT/DossierClesSSL) et
-      le champ correspondant. Slot dlg_param::RecupererClesSSLDepuisUSB().
+   APPROCHE RETENUE : certificats AUTO-GÉNÉRÉS PAR MYSQL (pas d'openssl).
+   MySQL est lié à SA PROPRE OpenSSL (DLL/libs livrées avec le serveur). À l'--initialize
+   (--initialize-insecure), il dépose dans le datadir : ca.pem, ca-key.pem, server-cert.pem,
+   server-key.pem, client-cert.pem, client-key.pem (+ private/public_key.pem). Le serveur les
+   utilise tout seul → SSL actif SANS toucher au my.ini. AUCUN openssl système requis (ce qui
+   échoue sous Windows 11, c'est seulement l'utilitaire mysql_ssl_rsa_setup qui appelle la
+   commande openssl externe — on ne l'utilise pas). On ne pose PAS require_secure_transport
+   (casserait le monoposte local en clair) : le chiffrement reste imposé PAR COMPTE via
+   adminrufusSSL REQUIRE SSL.
+
+   Les 5 étapes (dans l'ordre) :
+   1. SERVEUR — s'assurer que SSL est actif. Cas nominal : rien à ajouter au my.ini (MySQL prend
+      ca.pem/server-cert.pem/server-key.pem du datadir). Garde-fous : ne JAMAIS toucher un serveur
+      préexistant ; pas de require_secure_transport.
+   2. RÉCOLTE DES CLÉS CLIENT. Après une install neuve, copier depuis le datadir vers le dossier
+      des clés du serveur (PATH_DIR_RUFUS + "/DossierClesSSL") UNIQUEMENT les clés CLIENT :
+      ca.pem -> RENOMMÉ ca-cert.pem, client-cert.pem, client-key.pem (noms attendus par
+      database.cpp). On ne récolte JAMAIS server-key.pem / server-cert.pem / ca-key.pem.
+   3. EXPORT UTILISATEUR — CÔTÉ SERVEUR (dlg_param.cpp, onglet « Ce poste » / tabMono). Bouton pour
+      EXPORTER vers une clé USB les SEULES clés client (la copie conservée par le serveur), afin de
+      les porter sur les postes distants.
+      SÉCURITÉ : l'extraction des clés client est un geste sensible (elles permettent à une machine
+      distante de se connecter). Elle doit se faire DEPUIS LE SERVEUR (poste maîtrisé), pas via un
+      bouton de confort sur un poste distant quelconque. -> le bouton est sur tabMono, JAMAIS sur
+      tabDistant. (Correction d'une 1re version placée à tort sur tabDistant : retirée.)
+      Côté poste distant : on garde le simple sélecteur de dossier « … » (Dossier_ClesSSL) pour
+      pointer les clés apportées par clé USB ; pas d'import « automatique ».
+   4. REMPLACEMENT D'UN ANCIEN SERVEUR : voir ci-dessous (conserver/réinjecter les anciennes clés).
+   5. macOS (prepareCreateModeMacOS) et Linux/apt 8.0 : même logique (datadir auto-génère les
+      certs) ; récolte identique.
 
    Petite subtilité — REMPLACEMENT D'UN ANCIEN SERVEUR (mise à jour du socle) :
       Si on remplace une ancienne version de MySQL, CONSERVER les anciennes clés et les réinjecter

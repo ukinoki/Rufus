@@ -15,7 +15,6 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QFile>
 #include "dlg_param.h"
 #include "icons.h"
 #include "ui_dlg_param.h"
@@ -2372,69 +2371,6 @@ void dlg_param::DossierClesSSL()
     proc->settings()->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, url.path());
 }
 
-/*! Récupère les clés client SSL (ca-cert.pem, client-cert.pem, client-key.pem) depuis une clé USB
- *  et les copie dans le dossier des clés SSL (Dossier_ClesSSL de BDD_DISTANT), pour simplifier le
- *  déploiement sur les postes en accès distant. cf. journal SSL (étape 7, point 4). */
-void dlg_param::RecupererClesSSLDepuisUSB()
-{
-    const QString cleBase = Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL;
-
-    //! Destination : le dossier des clés déjà paramétré s'il est local et exploitable, sinon un
-    //! dossier local par défaut sous ~/Documents/Rufus (la valeur d'usine "/etc/mysql" vise le
-    //! SERVEUR et n'est pas une cible d'écriture valable pour un poste client).
-    QString dest = proc->settings()->value(cleBase).toString();
-    if (dest.isEmpty() || dest == "/etc/mysql")
-        dest = QString(PATH_DIR_RUFUS) + Dossier_ClesSSL;
-
-    //! Source : la clé USB (dossier contenant les 3 fichiers .pem).
-    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB contenant les clés client SSL"),
-                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
-    if (url == QUrl())
-        return;
-    const QString source = url.path();
-
-    //! Les 3 fichiers attendus côté client (cf. connectToDataBase / Procedures).
-    const QStringList fichiers = QStringList() << "ca-cert.pem" << "client-cert.pem" << "client-key.pem";
-    QStringList manquants;
-    for (const QString &f : fichiers)
-        if (!QFile::exists(source + "/" + f))
-            manquants << f;
-    if (!manquants.isEmpty())
-    {
-        UpMessageBox::Watch(this, tr("Clés SSL introuvables"),
-                            tr("Ce dossier ne contient pas les fichiers de clés client attendus :") + "\n"
-                            + manquants.join(", "));
-        return;
-    }
-
-    if (!QDir().mkpath(dest))
-    {
-        UpMessageBox::Watch(this, tr("Copie impossible"),
-                            tr("Le dossier de destination des clés n'a pas pu être créé :") + "\n" + dest);
-        return;
-    }
-
-    QStringList echecs;
-    for (const QString &f : fichiers)
-    {
-        const QString cible = dest + "/" + f;
-        QFile::remove(cible);                       //! QFile::copy échoue si la cible existe déjà
-        if (!QFile::copy(source + "/" + f, cible))
-            echecs << f;
-    }
-    if (!echecs.isEmpty())
-    {
-        UpMessageBox::Watch(this, tr("Copie incomplète"),
-                            tr("Certains fichiers n'ont pas pu être copiés :") + "\n" + echecs.join(", "));
-        return;
-    }
-
-    proc->settings()->setValue(cleBase, dest);
-    ui->DossierClesSSLupLineEdit->setText(dest);
-    UpMessageBox::Watch(this, tr("Clés SSL importées"),
-                        tr("Les clés client SSL ont été copiées dans :") + "\n" + dest);
-}
-
 void dlg_param::EffaceProgrammationDataBackup()
 {
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
@@ -2667,7 +2603,6 @@ void dlg_param::ConnectSignals()
     connect(ui->DistantVideoDirupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DistantVideoDir);
 
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
-    connect(ui->RecupClesSSLUSBupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::RecupererClesSSLDepuisUSB);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
