@@ -303,8 +303,10 @@ begin
       + '(MariaDB non pris en charge).' + #13#10#13#10
       + 'Aucun MySQL n''a été détecté sur cet ordinateur (ce poste se connecte donc à '
       + 'un serveur réseau). Indiquez votre situation :',
-    mbInformation, 0,
-    ['Le serveur réseau est en version >= 8.4.3 (je le certifie)',
+    // NB : le '[' du tableau de boutons DOIT rester en fin de ligne. Une ligne du [Code] qui
+    // COMMENCE par '[' est prise pour un en-tête de section par Inno → "Invalid section tag".
+    mbInformation, 0, [
+    'Le serveur réseau est en version >= 8.4.3 (je le certifie)',
      'J''IGNORE la version du serveur'], 0);
 
   if btn = 100 then begin
