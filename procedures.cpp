@@ -2763,24 +2763,16 @@ bool Procedures::MettreAJourSocleMySQL()
 {
     // 1. Avertissement + confirmation.
     UpMessageBox msgbox(Q_NULLPTR);
-    msgbox.setText(tr("Ce poste héberge la base de données patients"));
+    msgbox.setText(tr("Mise à jour du serveur MySQL nécessaire"));
     msgbox.setInformativeText(
-        tr("Cette nouvelle version de Rufus améliore la sécurité de l'accès aux données "
-           "en mettant en place une gestion plus élaborée du mot de passe.") + "\n" +
-        tr("Elle nécessite une mise à jour du serveur MySQL.") + "\n\n" +
-        tr("Pour cela, Rufus va sauvegarder votre base patients, désinstaller l'ancien MySQL, "
-           "installer une version plus récente, puis restaurer votre base.") + "\n" +
+        tr("Cette version de Rufus nécessite une version plus récente du serveur MySQL.") + "\n\n" +
+        tr("Rufus va sauvegarder votre base de données, désinstaller l'ancien MySQL, "
+           "installer la nouvelle version, puis restaurer votre base.") + "\n\n" +
         tr("La sauvegarde est faite et vérifiée AVANT toute désinstallation : "
-           "si elle échoue, rien ne sera supprimé.") + "\n\n" +
-        tr("Cette opération peut être longue et durer plusieurs minutes selon la taille "
-           "de votre base.") + "\n\n" +
-        tr("IMPORTANT : s'il existe d'autres postes sur le réseau local qui utilisent Rufus, "
-           "ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version dans un "
-           "délai d'un mois. Sans cette mise à jour, au-delà de ce délai, ils ne pourront "
-           "plus utiliser Rufus."));
+           "si elle échoue, rien ne sera supprimé."));
     msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Annuler, je ferai cela à un autre moment"));
-    UpSmallButton *OKb   = new UpSmallButton(); OKb->setText(tr("OK, continuer"));
+    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Annuler"));
+    UpSmallButton *OKb   = new UpSmallButton(); OKb->setText(tr("Lancer la mise à jour"));
     msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
     msgbox.addButton(OKb,   UpSmallButton::STARTBUTTON);
     msgbox.exec();

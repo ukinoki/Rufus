@@ -162,17 +162,33 @@ begin
   end;
 
   if etat = 1 then begin
-    MsgBox('Cette version de Rufus exige MySQL 8.4.3 ou supérieur, et n''est pas '
-      + 'compatible avec MariaDB.' + #13#10#13#10
-      + 'Votre serveur MySQL local est trop ancien (ou est MariaDB).' + #13#10#13#10
-      + 'Marche à suivre AVANT de mettre à jour :' + #13#10
-      + '  1. Ouvrez votre Rufus actuel et SAUVEGARDEZ votre base ;' + #13#10
-      + '  2. mettez MySQL à jour vers 8.4.9 (ou réinstallez proprement) ;' + #13#10
-      + '  3. restaurez votre sauvegarde, puis relancez cette mise à jour.' + #13#10#13#10
-      + 'Mise à jour annulée : votre version actuelle de Rufus n''a pas été modifiée.',
-      mbCriticalError, MB_OK);
-    EcritCertif('REFUS (MAJ) : MySQL local < 8.4.3 ou MariaDB');
-    Result := False; Exit;
+    // Ce poste héberge la base et son MySQL est trop ancien (ou MariaDB). On DEMANDE le
+    // consentement (cf. journal, point 1.b) :
+    //   OK, continuer → Result := True  : l'install se fait ; au 1er lancement, Rufus met à
+    //                   jour MySQL automatiquement (sauvegarde validée → réinstall → restauration).
+    //   Annuler       → Result := False : l'installeur stoppe, l'ancien Rufus reste en place.
+    btn := TaskDialogMsgBox(
+      'Mise à jour du serveur MySQL',
+      'Ce poste héberge la base de données patients.' + #13#10#13#10
+      + 'Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place '
+      + 'une gestion plus élaborée du mot de passe.' + #13#10#13#10
+      + 'Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, '
+      + 'réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.' + #13#10#13#10
+      + 'Cette opération peut durer plusieurs minutes selon la taille de votre base.' + #13#10#13#10
+      + 'IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront '
+      + 'IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi '
+      + 'ils ne pourront plus fonctionner.',
+      mbInformation, 0,
+      ['OK, continuer (Rufus mettra MySQL à jour automatiquement)',
+       'Annuler, je ferai cela plus tard'], 0);
+    if btn = 100 then begin
+      EcritCertif('MAJ acceptée : MySQL local trop ancien, mise à jour auto au 1er lancement');
+      Result := True;
+    end else begin
+      EcritCertif('REPORT (MAJ) : MySQL trop ancien, installation annulée par l''utilisateur');
+      Result := False;
+    end;
+    Exit;
   end;
 
   // etat = 2 : pas de MySQL local → le Rufus existant est un CLIENT réseau → 2 boutons.

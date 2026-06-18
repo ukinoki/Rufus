@@ -58,12 +58,28 @@ if [ "${ETAT}" -eq 0 ]; then
 fi
 
 if [ "${ETAT}" -eq 1 ]; then
-    osa -e 'display dialog "Cette version de Rufus exige MySQL 8.4.3 ou supérieur (MariaDB non pris en charge).
+    # Ce poste héberge la base et son MySQL est trop ancien (ou MariaDB). On DEMANDE le
+    # consentement (cf. journal, point 1.b) :
+    #   OK, continuer → exit 0 : l'install se fait ; au 1er lancement, Rufus met à jour MySQL
+    #                   automatiquement (sauvegarde validée → réinstall → restauration).
+    #   Annuler       → exit 1 : l'installeur stoppe, l'ancien Rufus reste en place.
+    # NB : texte volontairement SANS apostrophe (chaîne osascript en quotes simples).
+    CHOIX="$(osa -e 'try' \
+      -e 'set b to button returned of (display dialog "Ce poste héberge la base de données patients.
 
-Votre serveur MySQL local est trop ancien.
+Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place une gestion plus élaborée du mot de passe.
 
-Avant de mettre à jour : sauvegardez votre base (Rufus actuel) → mettez MySQL à jour vers 8.4.9 → restaurez, puis relancez cette mise à jour." buttons {"Annuler la mise à jour"} default button 1 with title "MySQL trop ancien" with icon stop'
-    ecrit_certif "REFUS (MAJ) : MySQL local < 8.4.3 ou MariaDB"
+Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.
+
+Cette opération peut durer plusieurs minutes selon la taille de votre base.
+
+IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi ils ne pourront plus fonctionner." buttons {"Annuler, je ferai cela plus tard", "OK, continuer"} default button 2 with title "Mise à jour du serveur MySQL" with icon caution)' \
+      -e 'return b' -e 'on error' -e 'return "CANCEL"' -e 'end try')"
+    if [ "${CHOIX}" = "OK, continuer" ]; then
+        ecrit_certif "MAJ acceptée : MySQL local < 8.4.3 ou MariaDB, mise à jour auto au 1er lancement"
+        exit 0
+    fi
+    ecrit_certif "REPORT (MAJ) : MySQL trop ancien, installation annulée par l'utilisateur"
     exit 1
 fi
 
