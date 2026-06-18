@@ -19,6 +19,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include <QApplication>
 #include <QTranslator>
+#include <QKeyEvent>
+#include <QLineEdit>
+#include <QAbstractSpinBox>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_WIN)
     #include "singleapplication.h"
@@ -26,6 +29,48 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 QMap<QString,QPixmap> Icons::m_mapPixmap = QMap<QString,QPixmap>();
 QMap<QString,QIcon> Icons::m_mapIcon = QMap<QString,QIcon>();
+
+/*! Réécrit la touche décimale du PAVÉ NUMÉRIQUE vers le séparateur décimal local.
+ *  Sous Windows et Linux, cette touche est câblée en dur par l'OS sur VK_DECIMAL et envoie
+ *  TOUJOURS "." quel que soit le séparateur décimal local : aucun réglage ne le change, il faut
+ *  intercepter la frappe et la réémettre. macOS, lui, envoie déjà la virgule en France — on
+ *  reproduit donc ici, pour les 3 OS, le comportement attendu (QLocale().decimalPoint(), soit la
+ *  locale que le parsing QLocale().toDouble() attend déjà partout dans Rufus).
+ *  Pas de macro Q_OBJECT : une sous-classe de QObject qui ne fait qu'override eventFilter n'en a
+ *  pas besoin (donc pas de passage par moc). */
+class FiltreSeparateurDecimal : public QObject
+{
+public:
+    using QObject::QObject;
+protected:
+    bool eventFilter(QObject *obj, QEvent *event) override
+    {
+        if (event->type() == QEvent::KeyPress)
+        {
+            QKeyEvent *ke = static_cast<QKeyEvent*>(event);
+            //! uniquement la touche "." / "," du pavé numérique, sans Ctrl/Alt/Maj (on ne
+            //! détourne donc jamais un raccourci du type Ctrl + pavé numérique)
+            if (ke->modifiers() == Qt::KeypadModifier
+                && (ke->key() == Qt::Key_Period || ke->key() == Qt::Key_Comma))
+            {
+                const QString sep = QLocale().decimalPoint();   //! "," en France
+                //! on n'agit que dans une zone de saisie, et seulement si la frappe diffère déjà
+                //! du séparateur local (si la locale utilise ".", rien à faire : locale-aware)
+                if (!sep.isEmpty() && ke->text() != sep
+                    && (qobject_cast<QLineEdit*>(obj) || qobject_cast<QAbstractSpinBox*>(obj)))
+                {
+                    //! on réémet la frappe avec le bon caractère ; QLineEdit gère l'insertion et
+                    //! le remplacement d'une éventuelle sélection. L'événement réémis porte
+                    //! text() == sep, donc ce filtre le laisse passer → aucune récursion.
+                    QKeyEvent corrige(QEvent::KeyPress, ke->key(), ke->modifiers(), sep);
+                    QApplication::sendEvent(obj, &corrige);
+                    return true;                                //! on consomme l'événement d'origine
+                }
+            }
+        }
+        return QObject::eventFilter(obj, event);
+    }
+};
 
 int main(int argc, char *argv[])
 {
@@ -39,6 +84,9 @@ int main(int argc, char *argv[])
 #else
     QApplication app(argc, argv);
 #endif
+
+    //! Pavé numérique : la touche décimale envoie le séparateur décimal local (cf. classe ci-dessus).
+    app.installEventFilter(new FiltreSeparateurDecimal(&app));
 
     /*QString locale = QLocale::system().name().section('_', 0, 0);
     QDir dirloc = QDir(QCoreApplication::applicationDirPath());
