@@ -6295,10 +6295,10 @@ void Rufus::VerifLastVersion()
                             m_MAJcomment = child.text();                    //! ancien format : texte brut
                         else if (!commentLangue.isEmpty())
                             m_MAJcomment = commentLangue;                   //! langue du poste
-                        else if (!commentEN.isEmpty())
-                            m_MAJcomment = commentEN;                       //! repli anglais
+                        else if (!commentFR.isEmpty())
+                            m_MAJcomment = commentFR;                       //! repli français (>90% des users)
                         else
-                            m_MAJcomment = commentFR;                       //! repli français
+                            m_MAJcomment = commentEN;                       //! repli anglais
                     }
                 }
                 i = xml.childNodes().size();

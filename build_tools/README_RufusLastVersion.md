@@ -61,7 +61,7 @@ balise `<Date>` du XML. C'est indépendant de `VERSION_BASE` (la version du
 
 `VerifLastVersion()` affiche la sous-section qui correspond à la **langue du
 poste** (`ParametresSysteme::version()` — celle qui a déjà chargé le `.qm`,
-valeurs `FR`/`EN`/`ES`/`PT`/`BR`). Repli automatique sur `EN`, puis `FR`, si la
+valeurs `FR`/`EN`/`ES`/`PT`/`BR`). Repli automatique sur `FR`, puis `EN`, si la
 langue du poste n'a pas de sous-section.
 
 > **Compatibilité ascendante** : si `<Comment>` ne contient **aucune** de ces
@@ -78,7 +78,7 @@ langue du poste n'a pas de sous-section.
 | `<UPDBase>` | littéral **`Yes`** pour vrai | `text() == "Yes"` ; toute autre valeur = `No` |
 | `<CompatibleWithPrecedent>` | littéral **`Yes`** pour vrai | idem |
 | `<VersionBase>` | libre | **décoratif** : présent pour l'humain, jamais lu par le code |
-| `<Comment>` | sous-sections `FR`/`EN`/`ES`/`PT`/`BR` (ou texte brut) | la langue du poste est affichée ; repli `EN`→`FR` ; `<br/>` et HTML simples acceptés. Texte brut sans sous-section = ancien format, toujours géré |
+| `<Comment>` | sous-sections `FR`/`EN`/`ES`/`PT`/`BR` (ou texte brut) | la langue du poste est affichée ; repli `FR`→`EN` ; `<br/>` et HTML simples acceptés. Texte brut sans sous-section = ancien format, toujours géré |
 | Encodage | **UTF-16** (avec BOM) | tous les fichiers de production le sont ; surtout pas UTF-8 |
 
 ---
