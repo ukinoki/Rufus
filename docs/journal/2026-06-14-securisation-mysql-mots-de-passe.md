@@ -68,7 +68,16 @@ LE FLUX
        (consentement) ; Annuler -> l'installeur stoppe, l'ancien Rufus reste en place.
      - BDD_LOCAL/BDD_DISTANT Active=YES -> CLIENT : on installe en silence (point 1.c), sans contrôle.
    Le rôle vient de rufus.ini (fait foi) ; mysqld --version ne sert qu'à lire la VERSION du socle.
-   Reste à faire : adapter la LANGUE des messages à Param_Poste_Version de rufus.ini (cf. 1.b).
+
+   LANGUE DES MESSAGES (implémenté) : le dialogue de consentement 1.b est affiché dans la langue
+   du poste, lue dans rufus.ini ([Param_Poste] Version, = Param_Poste_Version côté code). Langues
+   traduites : fr, en, es, pt (br -> pt) ; repli fr pour toute autre valeur ou si absente.
+   On ne traduit QUE ce dialogue : c'est le seul montré quand rufus.ini est lisible (donc quand la
+   langue est connue). Les dialogues de REPLI (rôle INCONNU, c.-à-d. pas de rufus.ini exploitable)
+   restent en français : sans rufus.ini, on n'a pas la langue. Le cas CLIENT, lui, n'affiche rien.
+   macOS : le texte est passé en arguments à osascript (on run argv), ce qui lève la contrainte
+   « pas d'apostrophe » de l'ancienne version. Windows : libellés de boutons localisés, le résultat
+   reste lu par index (= 100), indépendant de la langue.
 
 
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION

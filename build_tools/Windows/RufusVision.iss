@@ -162,26 +162,81 @@ begin
     Result := 'CLIENT';
 end;
 
-// Dialogue de consentement à la mise à jour du socle MySQL (cf. journal, point 1.b).
+// Langue des messages, d'après rufus.ini ([Param_Poste] Version, = Param_Poste_Version côté
+// code). Traduit : fr, en, es, pt (br -> pt) ; repli fr pour toute autre / si absent.
+function LangueDepuisIni(): String;
+var ini, v: String;
+begin
+  Result := 'fr';
+  ini := ExpandConstant('{userprofile}\Documents\Rufus\Rufus.ini');
+  if not FileExists(ini) then Exit;
+  v := Lowercase(Trim(GetIniString('Param_Poste', 'Version', '', ini)));
+  if (v = 'fr') or (v = 'en') or (v = 'es') or (v = 'pt') then Result := v
+  else if v = 'br' then Result := 'pt';
+end;
+
+// Dialogue de consentement à la mise à jour du socle MySQL (cf. journal, point 1.b), dans la
+// langue du poste. On ne traduit QUE ce dialogue : c'est le seul montré quand rufus.ini est
+// lisible (donc quand la langue est connue) ; les dialogues de repli (rôle INCONNU) restent en
+// français, faute de rufus.ini pour en déduire la langue.
 //   True  = l'utilisateur accepte : l'install se fait ; au 1er lancement, Rufus met à jour
 //           MySQL automatiquement (sauvegarde validée → réinstall → restauration).
 //   False = il reporte : l'installeur stoppe, l'ancien Rufus reste en place.
 function ConsentementMajServeur(): Boolean;
+var lang, titre, texte, btnOk, btnAnnuler: String;
 begin
-  Result := (TaskDialogMsgBox(
-    'Mise à jour du serveur MySQL',
-    'Ce poste héberge la base de données patients.' + #13#10#13#10
-    + 'Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place '
-    + 'une gestion plus élaborée du mot de passe.' + #13#10#13#10
-    + 'Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, '
-    + 'réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.' + #13#10#13#10
-    + 'Cette opération peut durer plusieurs minutes selon la taille de votre base.' + #13#10#13#10
-    + 'IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront '
-    + 'IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi '
-    + 'ils ne pourront plus fonctionner.',
-    mbInformation, 0,
-    ['OK, continuer (Rufus mettra MySQL à jour automatiquement)',
-     'Annuler, je ferai cela plus tard'], 0) = 100);
+  lang := LangueDepuisIni();
+  if lang = 'en' then begin
+    titre := 'MySQL server update';
+    texte := 'This computer hosts the patient database.' + #13#10#13#10
+      + 'This new version of Rufus strengthens database security by introducing more elaborate '
+      + 'password management.' + #13#10#13#10
+      + 'It requires an update of the MySQL server: Rufus will uninstall MySQL, reinstall a more '
+      + 'recent version, then back up and restore your patient database.' + #13#10#13#10
+      + 'This operation may take several minutes depending on the size of your database.' + #13#10#13#10
+      + 'IMPORTANT: if the other computers on the local network also use Rufus, they MUST be '
+      + 'updated to this new version within one month, otherwise they will no longer work.';
+    btnOk := 'OK, continue (Rufus will update MySQL automatically)';
+    btnAnnuler := 'Cancel, I will do this later';
+  end else if lang = 'es' then begin
+    titre := 'Actualización del servidor MySQL';
+    texte := 'Este equipo aloja la base de datos de pacientes.' + #13#10#13#10
+      + 'Esta nueva versión de Rufus refuerza la seguridad de la base de datos mediante una '
+      + 'gestión más elaborada de la contraseña.' + #13#10#13#10
+      + 'Requiere actualizar el servidor MySQL: Rufus desinstalará MySQL, reinstalará una versión '
+      + 'más reciente y luego hará una copia de seguridad y restaurará su base de datos de pacientes.' + #13#10#13#10
+      + 'Esta operación puede durar varios minutos según el tamaño de su base de datos.' + #13#10#13#10
+      + 'IMPORTANTE: si los demás equipos de la red local también usan Rufus, deberán actualizarse '
+      + 'OBLIGATORIAMENTE a esta nueva versión en el plazo de un mes; de lo contrario, dejarán de funcionar.';
+    btnOk := 'Aceptar, continuar (Rufus actualizará MySQL automáticamente)';
+    btnAnnuler := 'Cancelar, lo haré más tarde';
+  end else if lang = 'pt' then begin
+    titre := 'Atualização do servidor MySQL';
+    texte := 'Este computador aloja a base de dados de pacientes.' + #13#10#13#10
+      + 'Esta nova versão do Rufus reforça a segurança da base de dados através de uma gestão '
+      + 'mais elaborada da palavra-passe.' + #13#10#13#10
+      + 'Exige uma atualização do servidor MySQL: o Rufus vai desinstalar o MySQL, reinstalar uma '
+      + 'versão mais recente e, em seguida, fazer uma cópia de segurança e restaurar a sua base de dados de pacientes.' + #13#10#13#10
+      + 'Esta operação pode demorar vários minutos consoante o tamanho da sua base de dados.' + #13#10#13#10
+      + 'IMPORTANTE: se os outros computadores da rede local também utilizarem o Rufus, terão '
+      + 'OBRIGATORIAMENTE de ser atualizados para esta nova versão no prazo de um mês, caso contrário deixarão de funcionar.';
+    btnOk := 'OK, continuar (o Rufus atualizará o MySQL automaticamente)';
+    btnAnnuler := 'Cancelar, farei isto mais tarde';
+  end else begin
+    titre := 'Mise à jour du serveur MySQL';
+    texte := 'Ce poste héberge la base de données patients.' + #13#10#13#10
+      + 'Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place '
+      + 'une gestion plus élaborée du mot de passe.' + #13#10#13#10
+      + 'Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, '
+      + 'réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.' + #13#10#13#10
+      + 'Cette opération peut durer plusieurs minutes selon la taille de votre base.' + #13#10#13#10
+      + 'IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront '
+      + 'IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi '
+      + 'ils ne pourront plus fonctionner.';
+    btnOk := 'OK, continuer (Rufus mettra MySQL à jour automatiquement)';
+    btnAnnuler := 'Annuler, je ferai cela plus tard';
+  end;
+  Result := (TaskDialogMsgBox(titre, texte, mbInformation, 0, [btnOk, btnAnnuler], 0) = 100);
 end;
 
 // True = on continue l'installation ; False = on l'abandonne (ancien Rufus intact).

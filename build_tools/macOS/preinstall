@@ -72,13 +72,71 @@ role_depuis_ini() {
     fi
 }
 
-# Consentement à la mise à jour du socle MySQL (journal, point 1.b).
-# Renvoie 0 si l'utilisateur accepte (OK, continuer), 1 sinon.
-# NB : texte volontairement SANS apostrophe (chaîne osascript en quotes simples).
-dialogue_consentement_maj() {
-    local choix
-    choix="$(osa -e 'try' \
-      -e 'set b to button returned of (display dialog "Ce poste héberge la base de données patients.
+# Langue des messages, d'après rufus.ini ([Param_Poste] Version, = Param_Poste_Version
+# côté code). Traduit : fr, en, es, pt (br -> pt) ; repli fr pour toute autre / si absent.
+langue_depuis_ini() {
+    local v
+    v="$(awk '
+        /^\[/ { in_s = ($0 == "[Param_Poste]") }
+        in_s && tolower($0) ~ /^version[ \t]*=/ {
+            sub(/^[^=]*=[ \t]*/, ""); gsub(/[ \t\r]/, ""); print tolower($0); exit
+        }
+    ' "${RUFUS_INI}" 2>/dev/null)"
+    case "$v" in
+        fr|en|es|pt) echo "$v" ;;
+        br)          echo "pt" ;;
+        *)           echo "fr" ;;
+    esac
+}
+
+# Textes localisés du dialogue de consentement (point 1.b) : titre, corps, bouton OK, bouton
+# Annuler. On ne traduit QUE ce dialogue : c'est le seul montré quand rufus.ini est lisible
+# (donc quand la langue est connue). Les dialogues de repli (rôle INCONNU, plus bas) restent
+# en français, faute de rufus.ini pour en déduire la langue.
+definir_textes_consentement() {
+    case "$1" in
+      en)
+        C_TITLE="MySQL server update"
+        C_TEXT="This computer hosts the patient database.
+
+This new version of Rufus strengthens database security by introducing more elaborate password management.
+
+It requires an update of the MySQL server: Rufus will uninstall MySQL, reinstall a more recent version, then back up and restore your patient database.
+
+This operation may take several minutes depending on the size of your database.
+
+IMPORTANT: if the other computers on the local network also use Rufus, they MUST be updated to this new version within one month, otherwise they will no longer work."
+        C_OK="OK, continue (Rufus will update MySQL automatically)"
+        C_CANCEL="Cancel, I will do this later" ;;
+      es)
+        C_TITLE="Actualización del servidor MySQL"
+        C_TEXT="Este equipo aloja la base de datos de pacientes.
+
+Esta nueva versión de Rufus refuerza la seguridad de la base de datos mediante una gestión más elaborada de la contraseña.
+
+Requiere actualizar el servidor MySQL: Rufus desinstalará MySQL, reinstalará una versión más reciente y luego hará una copia de seguridad y restaurará su base de datos de pacientes.
+
+Esta operación puede durar varios minutos según el tamaño de su base de datos.
+
+IMPORTANTE: si los demás equipos de la red local también usan Rufus, deberán actualizarse OBLIGATORIAMENTE a esta nueva versión en el plazo de un mes; de lo contrario, dejarán de funcionar."
+        C_OK="Aceptar, continuar (Rufus actualizará MySQL automáticamente)"
+        C_CANCEL="Cancelar, lo haré más tarde" ;;
+      pt)
+        C_TITLE="Atualização do servidor MySQL"
+        C_TEXT="Este computador aloja a base de dados de pacientes.
+
+Esta nova versão do Rufus reforça a segurança da base de dados através de uma gestão mais elaborada da palavra-passe.
+
+Exige uma atualização do servidor MySQL: o Rufus vai desinstalar o MySQL, reinstalar uma versão mais recente e, em seguida, fazer uma cópia de segurança e restaurar a sua base de dados de pacientes.
+
+Esta operação pode demorar vários minutos consoante o tamanho da sua base de dados.
+
+IMPORTANTE: se os outros computadores da rede local também utilizarem o Rufus, terão OBRIGATORIAMENTE de ser atualizados para esta nova versão no prazo de um mês, caso contrário deixarão de funcionar."
+        C_OK="OK, continuar (o Rufus atualizará o MySQL automaticamente)"
+        C_CANCEL="Cancelar, farei isto mais tarde" ;;
+      *)
+        C_TITLE="Mise à jour du serveur MySQL"
+        C_TEXT="Ce poste héberge la base de données patients.
 
 Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place une gestion plus élaborée du mot de passe.
 
@@ -86,9 +144,32 @@ Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL
 
 Cette opération peut durer plusieurs minutes selon la taille de votre base.
 
-IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi ils ne pourront plus fonctionner." buttons {"Annuler, je ferai cela plus tard", "OK, continuer"} default button 2 with title "Mise à jour du serveur MySQL" with icon caution)' \
-      -e 'return b' -e 'on error' -e 'return "CANCEL"' -e 'end try')"
-    [ "${choix}" = "OK, continuer" ]
+IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi ils ne pourront plus fonctionner."
+        C_OK="OK, continuer (Rufus mettra MySQL à jour automatiquement)"
+        C_CANCEL="Annuler, je ferai cela plus tard" ;;
+    esac
+}
+
+# Consentement à la mise à jour du socle MySQL (journal, point 1.b), dans la langue du poste.
+# Renvoie 0 si l'utilisateur accepte (clic sur le bouton OK), 1 sinon.
+# Le texte est passé en ARGUMENTS à osascript (on run argv) : plus aucune contrainte
+# d'apostrophe, et l'échappement est géré par le shell.
+dialogue_consentement_maj() {
+    definir_textes_consentement "$(langue_depuis_ini)"
+    local choix
+    choix="$(launchctl asuser "$(id -u "${CONSOLE_UID}" 2>/dev/null)" \
+        osascript - "${C_TEXT}" "${C_TITLE}" "${C_CANCEL}" "${C_OK}" 2>/dev/null <<'APPLESCRIPT'
+on run argv
+    try
+        set b to button returned of (display dialog (item 1 of argv) buttons {item 3 of argv, item 4 of argv} default button 2 with title (item 2 of argv) with icon caution)
+        return b
+    on error
+        return "CANCEL"
+    end try
+end run
+APPLESCRIPT
+)"
+    [ "${choix}" = "${C_OK}" ]
 }
 
 # Le contrôle ne se fait QU'EN cas de MISE À JOUR : si aucun Rufus n'est déjà présent
