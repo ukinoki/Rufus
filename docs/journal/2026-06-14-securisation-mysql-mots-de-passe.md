@@ -234,6 +234,9 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
    3. Proposer les clés CLIENT (client-cert.pem, client-key.pem, ca-cert.pem) à l'utilisateur,
       pour qu'il les déploie sur les postes en accès distant (cf. connectToDataBase : dossier
       Dossier_ClesSSL lu dans rufus.ini).
+   4. Côté POSTE DISTANT : dans dlg_param.cpp (onglet tabMono), ajouter un bouton pour RÉCUPÉRER
+      les clés client SSL depuis une clé USB (les copier dans le dossier Dossier_ClesSSL).
+      → simplifie le déploiement des clés client sur chaque poste distant sans manip de fichiers.
 
    Petite subtilité — REMPLACEMENT D'UN ANCIEN SERVEUR (mise à jour du socle) :
       Si on remplace une ancienne version de MySQL, CONSERVER les anciennes clés et les réinjecter
