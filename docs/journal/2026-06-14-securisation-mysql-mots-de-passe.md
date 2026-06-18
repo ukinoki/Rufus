@@ -28,6 +28,8 @@ LE FLUX
 =====================================================================
 
 1. PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'installeur)
+   Avant l'installation de Rufus, un pré-programme "installeur", vérifie la version en cours de MySQL et prévient l'utilisateur 
+   de la nécessité éventuelle d'une mise à jour de MySQL.
    But : ne pas mettre le poste serveur dans une situation où il serait bloqué plusieurs minutes, 
    cause des manoeuvres de sauvegarde/restauration nécessaires.
    
@@ -47,6 +49,7 @@ LE FLUX
         Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus utiliser Rufus.
         2 boutons : 1. Annuler, je ferais ça à un autre moment   2. OK, continuer
         Prévoir de lire la version de langue utilisée dans Rufus.ini et adapter ce texte à la langue utilisée.
+        En cas de clic sur Annuler, l'installeur stoppe et Rufus n'est pas installé
    c. Si ce poste est un CLIENT réseau (BDD_LOCAL ou BDD_DISTANT avec ACTIVE=YES) :
       on installe sans rien signaler (ce n'est pas lui qui héberge la base).
 
@@ -234,9 +237,6 @@ PLUGIN D'AUTHENTIFICATION : mysql_native_password (et pas caching_sha2_password)
    3. Proposer les clés CLIENT (client-cert.pem, client-key.pem, ca-cert.pem) à l'utilisateur,
       pour qu'il les déploie sur les postes en accès distant (cf. connectToDataBase : dossier
       Dossier_ClesSSL lu dans rufus.ini).
-   4. Côté POSTE DISTANT : dans dlg_param.cpp (onglet tabMono), ajouter un bouton pour RÉCUPÉRER
-      les clés client SSL depuis une clé USB (les copier dans le dossier Dossier_ClesSSL).
-      → simplifie le déploiement des clés client sur chaque poste distant sans manip de fichiers.
 
    Petite subtilité — REMPLACEMENT D'UN ANCIEN SERVEUR (mise à jour du socle) :
       Si on remplace une ancienne version de MySQL, CONSERVER les anciennes clés et les réinjecter
