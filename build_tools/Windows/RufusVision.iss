@@ -108,13 +108,13 @@ end;
 
 // 0 = OK (>=8.4.3 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
 function ControleMySQLLocal(): Integer;
-var Out: String; Maj, Min, Pat: Integer;
+var Sortie: String; Maj, Min, Pat: Integer;   // NB: ne PAS nommer "Out" (mot-clé réservé Pascal)
 begin
   Result := 2;
-  if not LitSortie('mysqld --version', Out) then Exit;
-  if Trim(Out) = '' then Exit;
-  if Pos('mariadb', Lowercase(Out)) > 0 then begin Result := 1; Exit; end;
-  if not ExtraitVersion(Out, Maj, Min, Pat) then Exit;   // version illisible -> traiter comme absent
+  if not LitSortie('mysqld --version', Sortie) then Exit;
+  if Trim(Sortie) = '' then Exit;
+  if Pos('mariadb', Lowercase(Sortie)) > 0 then begin Result := 1; Exit; end;
+  if not ExtraitVersion(Sortie, Maj, Min, Pat) then Exit;   // version illisible -> traiter comme absent
   if (Maj > MIN_MAJOR)
      or ((Maj = MIN_MAJOR) and (Min > MIN_MINOR))
      or ((Maj = MIN_MAJOR) and (Min = MIN_MINOR) and (Pat >= MIN_PATCH)) then
