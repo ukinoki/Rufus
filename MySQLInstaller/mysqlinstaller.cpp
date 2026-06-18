@@ -1169,12 +1169,19 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
 // ═════════════════════════════════════════════════════════════════════════════
 static void inviterANoterMotDePasse(const QString& mdp)
 {
+    //! Le mot de passe est mis en évidence (sur sa propre ligne, centré, gras, rouge, police
+    //! agrandie) pour faciliter sa transcription. InfoText est interprété en HTML par UpMessageBox
+    //! (UpTextEdit::setHtml) ; le mot de passe est purement alphanumérique (cf. genererMotDePasse),
+    //! donc sans risque d'injection HTML. Le <b> sert aussi à CalcSize (correction de hauteur 1.2),
+    //! ce qui réserve la place nécessaire à la police agrandie.
     UpMessageBox::Watch(nullptr,
         QObject::tr("Notez le mot de passe de la base de données"),
         QObject::tr("Rufus a créé un mot de passe de connexion à votre base de données patients.\n"
                     "Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire "
                     "pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.")
-        + "\n\n" + QObject::tr("Mot de passe : ") + mdp
+        + "\n\n" + QObject::tr("Mot de passe :")
+        + "\n\n" + "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">"
+                 + mdp + "</span></b></p>"
         + "\n\n" + QObject::tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment "
                                "depuis Paramètres ▸ onglet « Ce poste »."));
 }
