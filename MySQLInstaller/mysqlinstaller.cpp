@@ -1187,6 +1187,37 @@ static void inviterANoterMotDePasse(const QString& mdp)
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
+//  SSL — RÉCOLTE DES CLÉS CLIENT (étape 7, point 2).
+//  MySQL auto-génère ses certificats dans le datadir à l'--initialize (via SA propre
+//  OpenSSL, sans openssl système). On en place une copie des SEULES clés CLIENT dans le
+//  dossier du serveur (PATH_DIR_CLESSSL_SERVEUR), pour pouvoir ensuite les exporter vers
+//  les postes distants. On ne copie JAMAIS server-cert.pem / server-key.pem / ca-key.pem.
+//  ca.pem est renommé ca-cert.pem (nom attendu côté client, cf. database.cpp).
+//  Best-effort : un échec n'interrompt pas l'installation. datadir = répertoire de données
+//  MySQL où sont déposés les .pem.
+[[maybe_unused]] static bool recolterClesClientSSL(const QString& datadir)  // appelée selon l'OS (Windows ici ; macOS à venir, étape 5)
+{
+    const QString dest = PATH_DIR_CLESSSL_SERVEUR;
+    if (!QDir().mkpath(dest))
+        return false;
+    // { fichier dans le datadir, nom de destination } — UNIQUEMENT les clés client.
+    const char* paires[3][2] = {
+        { "ca.pem",          "ca-cert.pem"     },   // ca.pem -> ca-cert.pem
+        { "client-cert.pem", "client-cert.pem" },
+        { "client-key.pem",  "client-key.pem"  },
+    };
+    bool ok = true;
+    for (int i = 0; i < 3; ++i) {
+        const QString src = datadir + "/" + QString::fromLatin1(paires[i][0]);
+        const QString dst = dest    + "/" + QString::fromLatin1(paires[i][1]);
+        if (!QFile::exists(src)) { ok = false; continue; }
+        QFile::remove(dst);                          // QFile::copy échoue si la cible existe déjà
+        if (!QFile::copy(src, dst)) ok = false;
+    }
+    return ok;
+}
+
+// ═════════════════════════════════════════════════════════════════════════════
 //  Message affiché quand CE poste vient de SÉCURISER la base (mise en place du mot de
 //  passe aléatoire). Prévient que les AUTRES postes du réseau devront être mis à jour
 //  vers cette version dans le délai (deadline) avant la purge de gaxt78iy. Texte rédigé
@@ -2318,6 +2349,10 @@ bool MySQLInstaller::installMySQL()
             .arg(lastErrLog()));
         return false;
     }
+
+    // SSL (étape 7, point 2) : récolte des clés client auto-générées dans le datadir, pour
+    // pouvoir les exporter ensuite vers les postes distants. Best-effort.
+    recolterClesClientSSL(dataDir);
 
     // Rendre MySQL désinstallable depuis « Applications et fonctionnalités ».
     registerWindowsUninstaller(base, progData, version);
