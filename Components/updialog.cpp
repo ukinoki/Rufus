@@ -84,10 +84,15 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     {
         OKButton            = new UpSmallButton();
         OKButton            ->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-#ifdef Q_OS_WIN
-        OKButton            ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
-#else
+        // Ctrl+Entrée = valider et fermer la fiche.
+        // Le cas particulier, c'est macOS (et non Windows) : Qt y intervertit Ctrl et Cmd,
+        // donc Qt::META désigne la touche Ctrl PHYSIQUE du Mac. Sous Linux, Qt::META vaut la
+        // touche Super (⊞), captée par le gestionnaire de fenêtres → le raccourci n'arrive
+        // jamais à Rufus : il faut Qt::CTRL, comme sous Windows.
+#ifdef Q_OS_MACOS
         OKButton            ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+        OKButton            ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
 #endif
         wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count(), OKButton);
         m_nbbuttons ++;
@@ -110,10 +115,11 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     {
         PrintButton         = new UpSmallButton();
         PrintButton         ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
-#ifdef Q_OS_WIN
-        PrintButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
-#else
+        // idem OKButton : Qt::META = Super sous Linux (capté par le bureau) → Qt::CTRL ; Mac = Qt::META
+#ifdef Q_OS_MACOS
         PrintButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_P));
+#else
+        PrintButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
 #endif
         wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count() - m_nbbuttons, PrintButton);
         m_nbbuttons ++;
@@ -143,10 +149,11 @@ void UpDialog::AjouteLayButtons(Buttons Button)
     {
         CloseButton         = new UpSmallButton();
         CloseButton         ->setUpButtonStyle(UpSmallButton::CLOSEBUTTON);
-#ifdef Q_OS_WIN
-        CloseButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
-#else
+        // idem OKButton : Qt::META = Super sous Linux (capté par le bureau) → Qt::CTRL ; Mac = Qt::META
+#ifdef Q_OS_MACOS
         CloseButton         ->setShortcut(QKeySequence(Qt::META | Qt::Key_C));
+#else
+        CloseButton         ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_C));
 #endif
         wdg_buttonslayout   ->insertWidget(wdg_buttonslayout->count(), CloseButton);
         m_nbbuttons ++;
@@ -228,10 +235,21 @@ void UpDialog::AjouteWidgetLayButtons(QWidget *widg, bool ALaFin)
     {
         if (but->ButtonStyle() == UpSmallButton::CANCELBUTTON)
             but    ->setShortcut(QKeySequence("F12"));
+        // "Meta+Return" (forme chaîne) souffrait du même défaut : sous Linux Meta = Super (capté
+        // par le bureau), et même sous Windows Meta = touche ⊞ → le raccourci ne marchait que sur Mac.
+        // Forme enum portable : Mac = Qt::META (Ctrl physique), Windows + Linux = Qt::CTRL.
         else if (but->ButtonStyle() == UpSmallButton::STARTBUTTON)
-            but    ->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+            but    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+            but    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
         else if (but->ButtonStyle() == UpSmallButton::CLOSEBUTTON)
-            but    ->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+            but    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+            but    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
         UpdateTabOrder();
     }
     if (wdg_buttonslayout->findChildren<UpPushButton *>().size()>1)
