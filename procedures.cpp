@@ -4384,7 +4384,8 @@ bool Procedures::PremierDemarrage()
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
                               tr("Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)") + "\n" +
                               tr("il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.") + "\n\n" +
-                              tr("Mot de passe : ") + MySQLInstaller::motDePasseSQL() + "\n\n" +
+                              tr("Mot de passe :") + "\n\n" +
+                              "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + MySQLInstaller::motDePasseSQL() + "</span></b></p>" + "\n\n" +
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         db->setVersion(m_version);
