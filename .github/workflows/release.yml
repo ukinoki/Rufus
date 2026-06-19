@@ -121,12 +121,25 @@ jobs:
             --icon-file AppDir/usr/share/icons/hicolor/256x256/apps/rufus.png \
             --plugin qt
 
-          # Notre AppRun (fait de l'AppImage un installeur, cf. build_tools/Linux/AppRun)
+          # Notre AppRun (fait de l'AppImage un installeur, cf. build_tools/Linux/AppRun).
+          # ⚠️ linuxdeploy a créé AppDir/AppRun en SYMLINK vers usr/bin/Rufus. Il faut le
+          # SUPPRIMER d'abord (rm -f) : sinon `cp` suit le lien et ÉCRASE le binaire
+          # usr/bin/Rufus avec notre script (-> exec d'un chemin doublé usr/bin/usr/bin/Rufus
+          # au runtime, code 127, Rufus ne démarre pas).
+          rm -f AppDir/AppRun
           cp build_tools/Linux/AppRun AppDir/AppRun
           chmod +x AppDir/AppRun
 
+          # Garde-fou : le binaire doit rester un vrai ELF (et non avoir été écrasé par un script).
+          if ! file -b AppDir/usr/bin/Rufus | grep -q '^ELF'; then
+            echo "::error::AppDir/usr/bin/Rufus n'est pas un ELF (binaire écrasé ?)."
+            exit 1
+          fi
+
           # appimagetool exige l'icône à la RACINE de l'AppDir (Icon=rufus du .desktop),
-          # en plus de celle sous usr/share/icons. On la copie nous-mêmes par sécurité.
+          # en plus de celle sous usr/share/icons. On la copie nous-mêmes par sécurité
+          # (rm -f d'abord, même raison que pour AppRun : éviter d'écraser via un symlink).
+          rm -f AppDir/rufus.png
           cp build_tools/Linux/rufus.png AppDir/rufus.png
 
           # Empaquetage final avec appimagetool (ARCH explicite : appimagetool ne
