@@ -78,6 +78,11 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
             for (int n = 0; n <  allUpButtons.size(); n++)
                 allUpButtons.at(n)->setUpButtonStyle(UpPushButton::NORMALBUTTON, UpPushButton::Large);
 
+#ifdef Q_OS_MACOS
+            ui->OKpushButton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+            ui->OKpushButton    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
             ui->OKpushButton->setShortcut(QKeySequence("Meta+Return"));
             m_initok = true;
         }

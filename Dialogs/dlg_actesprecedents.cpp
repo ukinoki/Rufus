@@ -87,7 +87,12 @@ ui(new Ui::dlg_actesprecedents)
     connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Debut);});
     connect (ui->ActePrecedentpushButton,   &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Prec);});
 
-    ui->FermepushButton->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+    ui->FermepushButton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+    ui->FermepushButton    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
+
     proc->ModifTailleFont(ui->RenseignementsWidget, -3);
     Actualise();
 }

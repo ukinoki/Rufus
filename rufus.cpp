@@ -9574,16 +9574,16 @@ bool Rufus::Remplir_ListePatients_TableView()
     for (auto it = Datas::I()->patients->patientstable()->constBegin(); it != Datas::I()->patients->patientstable()->constEnd(); ++it)
     {
         Patient *pat = const_cast<Patient*>(it.value());
-        pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                   // id                           -> utilisé pour le drop event
-        pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                   // Nom + Prénom
-        pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyyEntete")), pat);      // date de naissance
-        pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                  // date de naissance inversée   -> utilisé pour le tri => pas de tr()
-        pitem4  = new UpStandardItem(pat->nom(), pat);                                                   // Nom                          -> utilisé pour le tri
-        pitem5  = new UpStandardItem(pat->prenom(), pat);                                                // Prénom                       -> utilisé pour le tri
+        pitem0  = new UpStandardItem(QString::number(pat->id()), pat);                                  // id                           -> utilisé pour le drop event
+        pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                  // Nom + Prénom
+        pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);           // date de naissance
+        pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                 // date de naissance inversée   -> utilisé pour le tri => pas de tr()
+        pitem4  = new UpStandardItem(pat->nom(), pat);                                                  // Nom                          -> utilisé pour le tri
+        pitem5  = new UpStandardItem(pat->prenom(), pat);                                               // Prénom                       -> utilisé pour le tri
         m_listepatientsmodel->appendRow(QList<QStandardItem *>() << pitem0 << pitem1 << pitem2 << pitem3 << pitem4 << pitem5);
     }
     QStandardItem *itnom = new QStandardItem();
-    itnom->setText(tr("NomEntete"));
+    itnom->setText(tr("Nom"));
     itnom->setTextAlignment(Qt::AlignLeft);
     m_listepatientsmodel->setHorizontalHeaderItem(1,itnom);
     QStandardItem *itDDN = new QStandardItem();

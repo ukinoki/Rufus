@@ -100,7 +100,12 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
 
     ui->PrintupSmallButton  ->setText("");
     ui->PrintupSmallButton  ->setUpButtonStyle(UpSmallButton::PRINTBUTTON);
-    ui->PrintupSmallButton  ->setShortcut(QKeySequence("Meta+P"));
+
+#ifdef Q_OS_MACOS
+    ui->PrintupSmallButton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_P));
+#else
+    ui->PrintupSmallButton    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_P));
+#endif
 
     wdg_boxbuttlayout = new QHBoxLayout();
     wdg_boxbuttlayout->addWidget(wdg_annuluppushbutton);
@@ -434,7 +439,11 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
 
     switch (m_mode) {
     case TableVide:
-        ui->OKupPushButton      ->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+        ui->OKupPushButton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+        ui->OKupPushButton    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
         wdg_modifieruppushbutton    ->setShortcut(QKeySequence());
         wdg_enreguppushbutton       ->setShortcut(QKeySequence());
         ui->FactureupPushButton     ->setVisible(false);
@@ -473,7 +482,11 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         }
         ui->OKupPushButton->setShortcut(QKeySequence());
         wdg_modifieruppushbutton->setShortcut(QKeySequence());
-        wdg_enreguppushbutton->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+        wdg_enreguppushbutton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+        wdg_enreguppushbutton    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
         RegleComptesComboBox();
         ui->ComptesupComboBox->setCurrentIndex(ui->ComptesupComboBox->findData(compte));
         break;
@@ -845,7 +858,11 @@ void dlg_depenses::CopieDepense()
     wdg_enreguppushbutton           ->setText("Enregistrer");
     ui->OKupPushButton              ->setShortcut(QKeySequence());
     wdg_modifieruppushbutton        ->setShortcut(QKeySequence());
-    wdg_enreguppushbutton           ->setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+    wdg_enreguppushbutton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+    wdg_enreguppushbutton    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
     ui->EcheancierupPushButton      ->setVisible(false);
     ui->FactureupPushButton         ->setVisible(false);
     ui->VisuDocupTableWidget        ->setVisible(false);

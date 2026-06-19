@@ -238,13 +238,7 @@ void UpDialog::AjouteWidgetLayButtons(QWidget *widg, bool ALaFin)
         // "Meta+Return" (forme chaîne) souffrait du même défaut : sous Linux Meta = Super (capté
         // par le bureau), et même sous Windows Meta = touche ⊞ → le raccourci ne marchait que sur Mac.
         // Forme enum portable : Mac = Qt::META (Ctrl physique), Windows + Linux = Qt::CTRL.
-        else if (but->ButtonStyle() == UpSmallButton::STARTBUTTON)
-#ifdef Q_OS_MACOS
-            but    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
-#else
-            but    ->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
-#endif
-        else if (but->ButtonStyle() == UpSmallButton::CLOSEBUTTON)
+        else if (but->ButtonStyle() == UpSmallButton::STARTBUTTON || but->ButtonStyle() == UpSmallButton::CLOSEBUTTON)
 #ifdef Q_OS_MACOS
             but    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
 #else

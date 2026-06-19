@@ -95,7 +95,11 @@ void UpPushButton::setUpButtonStyle(enum StyleBouton Style, enum TailleBouton Ta
 
     switch (Style) {
     case OKBUTTON:
-        setShortcut(QKeySequence("Meta+Return"));
+#ifdef Q_OS_MACOS
+        setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
+#else
+        setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Return));
+#endif
         setIcon(Icons::icOK());
         setText("OK");
         move(parentWidget()->size().width()-width-8,parentWidget()->size().height()-60);
