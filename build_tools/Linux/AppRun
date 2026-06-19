@@ -131,11 +131,11 @@ configurer_systeme() {
     # Un SEUL pkexec : EULA mscorefonts pré-acceptée, apt update, install PAQUET PAR
     # PAQUET (un paquet absent n'interrompt pas le reste), puis ajout au groupe dialout.
     # L'utilisateur réel est passé via env (pkexec s'exécute en root, $USER y vaudrait root).
+    # DPkg::Lock::Timeout=300 : si unattended-upgrades tient le verrou apt (fréquent sur un
+    # système fraîchement installé), apt patiente proprement jusqu'à 5 min au lieu de figer.
+    # (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...' — ça casserait la quote.)
     pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" bash -c '
         echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
-        # DPkg::Lock::Timeout : si les mises a jour auto d'Ubuntu (unattended-upgrades) tiennent
-        # le verrou apt (frequent sur un systeme fraichement installe), on PATIENTE proprement
-        # jusqu'a 300 s au lieu d'echouer ou de paraitre fige indefiniment.
         apt-get -o DPkg::Lock::Timeout=300 update -y || true
         for p in gsfonts ttf-mscorefonts-installer \
                  gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
