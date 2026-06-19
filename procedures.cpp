@@ -3533,7 +3533,7 @@ bool Procedures::IdentificationUser()
     }
 
     //! ÉTAPE 2 — Contrôle du socle MySQL AVANT toute autre chose. Si la version n'est pas
-    //! conforme au seuil de l'OS (8.4.3 Win/macOS, 8.0.14 Linux) ET que ce poste HÉBERGE la
+    //! conforme au seuil commun (8.0.14, cf. VERSION_MYSQL_MINI) ET que ce poste HÉBERGE la
     //! base (monoposte), on lance la PROCÉDURE DE MISE À JOUR DU SOCLE (sauvegarde validée →
     //! réinstall → restauration → relance). Si l'utilisateur annule, la base fonctionne
     //! encore sur l'ancien MySQL : on continue (pas de blocage).

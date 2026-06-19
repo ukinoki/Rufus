@@ -2,13 +2,13 @@
 # ─────────────────────────────────────────────────────────────────────────────
 #  preinstall du .pkg Rufus — PRÉ-CONTRÔLE du socle MySQL, AVANT toute copie.
 #  Un exit ≠ 0 annule l'installation → l'ancien Rufus n'est PAS remplacé.
-#  Règle : MySQL >= 8.4.3, MariaDB exclu. Trace dans ~/.rufus/.certif.
+#  Règle : MySQL >= 8.0.14, MariaDB exclu. Trace dans ~/.rufus/.certif.
 #
 #  Particularité macOS : le script tourne en root dans le contexte de l'installeur
 #  (sans session graphique). On affiche les dialogues dans la session de
 #  l'utilisateur connecté via « launchctl asuser … osascript ».
 # ─────────────────────────────────────────────────────────────────────────────
-MIN_MAJOR=8; MIN_MINOR=4; MIN_PATCH=3
+MIN_MAJOR=8; MIN_MINOR=0; MIN_PATCH=14
 
 CONSOLE_UID="$(stat -f%Su /dev/console 2>/dev/null)"
 CONSOLE_HOME="$(eval echo "~${CONSOLE_UID}" 2>/dev/null)"
@@ -26,7 +26,7 @@ ecrit_certif() {
     chown -R "${CONSOLE_UID}" "${dir}" 2>/dev/null
 }
 
-# 0 = OK (>=8.4.3 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
+# 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
 controle_mysql_local() {
     local bin="" c out ver maj min pat
     for c in mysqld /usr/local/mysql/bin/mysqld; do
@@ -191,7 +191,7 @@ controle_mysql_local; ETAT=$?
 # ne convient pas (trop ancienne, MariaDB, ou mysqld introuvable malgré le rôle serveur).
 if [ "${ROLE}" = "SERVEUR" ]; then
     if [ "${ETAT}" -eq 0 ]; then
-        ecrit_certif "SERVEUR (rufus.ini BDD_POSTE) : MySQL local >= 8.4.3"
+        ecrit_certif "SERVEUR (rufus.ini BDD_POSTE) : MySQL local >= 8.0.14"
         exit 0
     fi
     if dialogue_consentement_maj; then
@@ -205,7 +205,7 @@ fi
 # ─── ROLE = INCONNU (pas de rufus.ini exploitable) : repli sur l'heuristique du mysqld local ───
 
 if [ "${ETAT}" -eq 0 ]; then
-    ecrit_certif "MAJ - vérifié local : MySQL >= 8.4.3"
+    ecrit_certif "MAJ - vérifié local : MySQL >= 8.0.14"
     exit 0
 fi
 
@@ -215,7 +215,7 @@ if [ "${ETAT}" -eq 1 ]; then
     #                   automatiquement (sauvegarde validée → réinstall → restauration).
     #   Annuler       → exit 1 : l'installeur stoppe, l'ancien Rufus reste en place.
     if dialogue_consentement_maj; then
-        ecrit_certif "MAJ acceptée : MySQL local < 8.4.3 ou MariaDB, mise à jour auto au 1er lancement"
+        ecrit_certif "MAJ acceptée : MySQL local < 8.0.14 ou MariaDB, mise à jour auto au 1er lancement"
         exit 0
     fi
     ecrit_certif "REPORT (MAJ) : MySQL trop ancien, installation annulée par l'utilisateur"
@@ -224,19 +224,19 @@ fi
 
 # ETAT = 2 : pas de mysqld local → le Rufus existant est un CLIENT réseau → 2 boutons
 CHOIX="$(osa -e 'try' \
-  -e 'set b to button returned of (display dialog "Cette version de Rufus exige un serveur MySQL >= 8.4.3 (MariaDB non pris en charge).
+  -e 'set b to button returned of (display dialog "Cette version de Rufus exige un serveur MySQL >= 8.0.14 (MariaDB non pris en charge).
 
-Aucun MySQL local détecté (ce poste se connecte à un serveur réseau). Quelle est votre situation ?" buttons {"Version inconnue", "Serveur >= 8.4.3"} default button 2 with title "Vérification du serveur MySQL")' \
+Aucun MySQL local détecté (ce poste se connecte à un serveur réseau). Quelle est votre situation ?" buttons {"Version inconnue", "Serveur >= 8.0.14"} default button 2 with title "Vérification du serveur MySQL")' \
   -e 'return b' -e 'on error' -e 'return "CANCEL"' -e 'end try')"
 
 case "${CHOIX}" in
-  "Serveur >= 8.4.3")
-      ecrit_certif "CERTIFIÉ par l'utilisateur (MAJ) : serveur réseau >= 8.4.3"; exit 0 ;;
+  "Serveur >= 8.0.14")
+      ecrit_certif "CERTIFIÉ par l'utilisateur (MAJ) : serveur réseau >= 8.0.14"; exit 0 ;;
   *)
       osa -e 'display dialog "Sur le SERVEUR, vérifiez la version de MySQL :
   •  mysqld --version
   •  ou, dans MySQL : SELECT VERSION();
-Elle doit être >= 8.4.3 (et pas MariaDB).
+Elle doit être >= 8.0.14 (et pas MariaDB).
 
 Relancez cette mise à jour une fois la vérification faite. Votre version actuelle de Rufus n'\''a pas été modifiée." buttons {"OK"} default button 1 with title "Vérifiez votre serveur"'
       ecrit_certif "ABANDON (MAJ) : version serveur inconnue, vérification demandée"

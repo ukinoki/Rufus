@@ -30,14 +30,14 @@ Le contrôle ne se fait **QU'EN cas de MISE À JOUR** d'un Rufus préexistant : 
 Chaque installeur détecte d'abord un Rufus déjà présent (Windows : clé de
 désinstallation / `Rufus.exe` ; Linux : raccourci/AppImage installée / `rufus.ini` ;
 macOS : `/Applications/Rufus*.app`). S'il y en a un, il **vérifie le socle MySQL**
-(seuil **8.4.3 sous Windows/macOS**, **8.0.14 sous Linux** ; MariaDB exclu) pour ne
+(seuil **commun 8.0.14**, tous OS ; MariaDB exclu) pour ne
 **jamais** détruire une installation qui marche si le serveur est trop ancien :
 
 - **Windows** : section `[Code]` d'Inno Setup (`InitializeSetup` → `Abort` si KO) ;
 - **Linux** : dans `AppRun`, avant l'intégration/lancement (zenity) ;
 - **macOS** : script `preinstall` du `.pkg` (osascript via `launchctl asuser`).
 
-Logique commune (`mysqld --version` « brutal », seuil = **8.4.3** Win/macOS, **8.0.14** Linux) :
+Logique commune (`mysqld --version` « brutal », seuil = **8.0.14** pour tous les OS) :
 - réponse **≥ seuil** → on continue (serveur local OK, monoposte) ;
 - réponse **< seuil / MariaDB** → message de migration (sauvegarde → upgrade →
   restauration) → **mise à jour annulée** ;

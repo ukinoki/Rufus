@@ -402,7 +402,7 @@ static void waitProcessResponsive(QProcess& p, int timeoutMs)
     }
 }
 
-//  Compare deux numéros de version « pointés » (ex. « 8.4.8 » vs « 8.4.3 »).
+//  Compare deux numéros de version « pointés » (ex. « 8.0.40 » vs « 8.0.14 »).
 //  Renvoie true si « ver » est supérieur OU égal à « minVer », composant par
 //  composant. Une version vide/inconnue est considérée comme inférieure.
 static bool versionAtLeast(const QString& ver, const QString& minVer)
@@ -615,8 +615,9 @@ MySQLRemoteConfig MySQLInstaller::defaultMySQLConfig()
 {
     MySQLRemoteConfig c;
     c.version     = "8.4.9";
-    // Seuil minimal accepté : 8.4.3 sous Windows/macOS (on y installe le 8.4 LTS),
-    // 8.0.14 sous Linux (le 8.0 d'apt suffit, il sait déjà le double mot de passe).
+    // Seuil minimal accepté : 8.0.14, commun à tous les OS (cf. VERSION_MYSQL_MINI). La version
+    // POSÉE en cas d'install est le 8.4 LTS (c.version ci-dessus), mais un serveur déjà >= 8.0.14
+    // est accepté tel quel (le 8.0 d'apt suffit, il sait déjà le double mot de passe).
     c.minVersion  = seuilVersionMySQL();
     c.winUrl      = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-winx64.zip";
     c.macArm64Url = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-macos14-arm64.dmg";
