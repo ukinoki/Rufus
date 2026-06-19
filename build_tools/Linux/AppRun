@@ -99,6 +99,62 @@ if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && rufus
     socle_mysql_ok || exit 1
 fi
 
+# ── Configuration système du poste (composants requis, 1er lancement) ─────────
+#  Composants que l'AppImage ne peut PAS embarquer proprement : polices (dont les
+#  MS core fonts), plugins GStreamer (lecture vidéo), client MySQL (sauvegarde/
+#  restauration), et appartenance au groupe « dialout » (appareils de mesure sur
+#  port série). Installés via UN seul pkexec (apt), au 1er lancement, avec
+#  consentement, UNE seule fois (marqueur ~/.rufus/.systeme_ok).
+#  NB : libfuse2 (requis pour LANCER l'AppImage) ne peut pas s'auto-installer ici
+#  (œuf/poule) → c'est un prérequis documenté sur la page de téléchargement.
+configurer_systeme() {
+    local marqueur="${RUFUS_DIR}/.systeme_ok"
+    [ -n "${RUFUS_NO_INSTALL}" ]          && return 0
+    [ -f "${marqueur}" ]                  && return 0   # déjà configuré
+    [ -z "${DISPLAY}${WAYLAND_DISPLAY}" ] && return 0   # pas d'affichage graphique
+    command -v zenity  >/dev/null 2>&1    || return 0   # pas d'UI pour demander
+    command -v apt-get >/dev/null 2>&1    || return 0   # distribution non-apt : on ne touche à rien
+
+    zenity --question --no-wrap --title="Configurer Rufus sur ce poste" \
+        --text="Rufus va installer quelques composants système nécessaires :\n  •  polices (affichage et impression des documents)\n  •  lecture des vidéos (GStreamer)\n  •  client MySQL (sauvegarde / restauration)\n  •  accès aux appareils de mesure sur port série\n\nLe mot de passe administrateur vous sera demandé." \
+        --ok-label="Installer maintenant" --cancel-label="Plus tard" 2>/dev/null || return 0
+
+    local user; user="$(id -un)"
+
+    if ! command -v pkexec >/dev/null 2>&1; then
+        zenity --warning --no-wrap --title="Installation manuelle requise" \
+            --text="pkexec est absent. Ouvrez un terminal et exécutez :\n\nsudo apt install gsfonts ttf-mscorefonts-installer gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio mysql-client\nsudo usermod -aG dialout ${user}" 2>/dev/null
+        return 0
+    fi
+
+    # Un SEUL pkexec : EULA mscorefonts pré-acceptée, apt update, install PAQUET PAR
+    # PAQUET (un paquet absent n'interrompt pas le reste), puis ajout au groupe dialout.
+    # L'utilisateur réel est passé via env (pkexec s'exécute en root, $USER y vaudrait root).
+    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" bash -c '
+        echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
+        apt-get update -y || true
+        for p in gsfonts ttf-mscorefonts-installer \
+                 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
+                 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
+                 gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
+                 gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 \
+                 gstreamer1.0-pulseaudio mysql-client ; do
+            apt-get install -y "$p" || echo "RUFUS: paquet indisponible, ignoré: $p"
+        done
+        usermod -aG dialout "$RUFUS_USER" || true
+    '
+    local rc=$?
+
+    if [ "${rc}" -eq 0 ]; then
+        : > "${marqueur}"
+        ecrit_certif "Config système OK (polices, GStreamer, mysql-client, dialout) pour ${user}"
+        zenity --info --no-wrap --title="Configuration terminée" \
+            --text="Composants installés.\n\nPour l'accès aux appareils sur port série, déconnectez puis reconnectez votre session." 2>/dev/null
+    else
+        ecrit_certif "Config système annulée/échouée (rc=${rc})"
+    fi
+}
+
 integration_proposee() {
     # Déjà installé, ou demande explicite de ne rien faire, ou pas d'affichage
     # graphique (lancement en ligne de commande) → on ne propose rien.
@@ -156,5 +212,8 @@ if integration_proposee; then
             --text="Rufus a été ajouté au menu des applications.\nVous pouvez désormais le lancer depuis le menu d'Ubuntu." 2>/dev/null
     fi
 fi
+
+# Composants système requis (polices, vidéo, port série, mysql-client) — 1er lancement.
+configurer_systeme
 
 exec "${BIN}" "$@"
