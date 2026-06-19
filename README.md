@@ -1,8 +1,7 @@
 <img align=left src="https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufus2_11.png" width='80' alt='Icon'>
-<img align=right src="https://travis-ci.org/ukinoki/Rufus.svg?branch=master" alt='Icon'>
 
 Rufus est un logiciel médical libre et gratuit de gestion des activités de soin en ophtalmologie et en orthoptie, 
-basé sur le modèle client-serveur et publié en open source sous licence GPL. Son développement est assuré sous QT5 et la base de données fait appel à Mysql.
+basé sur le modèle client-serveur et publié en open source sous licence GPL. Son développement est assuré sous Qt6 et la base de données fait appel à MySQL.
 
 # Objectifs
 Développer un outil logiciel d'activité de soins en santé oculaire, libre, utilisable par la communauté des acteurs et facile à faire évoluer par tous.

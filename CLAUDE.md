@@ -11,7 +11,8 @@
 
 Logiciel médical **libre et gratuit** (GPL) de gestion des soins en
 **ophtalmologie et orthoptie**, en architecture **client-serveur local**
-(Qt + MySQL). Migration en cours **Qt5 → Qt6** (branche de travail `RufusQt6`).
+(Qt + MySQL). Développé en **Qt6** (branche principale `RufusQt6`) ; l'ère Qt5
+est révolue et archivée sous `archive/Qt5-master`.
 
 Particularité fondatrice : **développé par un ophtalmologiste qui code**, et non
 par une équipe d'informaticiens traduisant les demandes de praticiens. La même
