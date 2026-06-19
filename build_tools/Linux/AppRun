@@ -133,14 +133,17 @@ configurer_systeme() {
     # L'utilisateur réel est passé via env (pkexec s'exécute en root, $USER y vaudrait root).
     pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" bash -c '
         echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
-        apt-get update -y || true
+        # DPkg::Lock::Timeout : si les mises a jour auto d'Ubuntu (unattended-upgrades) tiennent
+        # le verrou apt (frequent sur un systeme fraichement installe), on PATIENTE proprement
+        # jusqu'a 300 s au lieu d'echouer ou de paraitre fige indefiniment.
+        apt-get -o DPkg::Lock::Timeout=300 update -y || true
         for p in gsfonts ttf-mscorefonts-installer \
                  gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
                  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
                  gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
                  gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 \
                  gstreamer1.0-pulseaudio mysql-client ; do
-            apt-get install -y "$p" || echo "RUFUS: paquet indisponible, ignoré: $p"
+            apt-get -o DPkg::Lock::Timeout=300 install -y "$p" || echo "RUFUS: paquet indisponible, ignoré: $p"
         done
         usermod -aG dialout "$RUFUS_USER" || true
     ' 2>&1 | zenity --progress --pulsate --no-cancel --auto-close \
