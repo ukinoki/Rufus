@@ -149,6 +149,7 @@ configurer_systeme() {
     # système fraîchement installé), apt patiente proprement jusqu'à 5 min au lieu de figer.
     # (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...' — ça casserait la quote.)
     pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" bash -c '
+        trap "" PIPE
         echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
         apt-get -o DPkg::Lock::Timeout=300 update -y || true
         for p in gsfonts ttf-mscorefonts-installer \
