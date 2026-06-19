@@ -16,6 +16,20 @@ export LD_LIBRARY_PATH="${HERE}/usr/lib:${LD_LIBRARY_PATH}"
 export QT_PLUGIN_PATH="${HERE}/usr/plugins:${QT_PLUGIN_PATH}"
 export QT_QPA_PLATFORM_PLUGIN_PATH="${HERE}/usr/plugins/platforms"
 
+# ── Verrou anti-double-lancement ──────────────────────────────────────────────
+# Pendant la phase d'install (apt via pkexec, parfois >30 s), faute de retour
+# immédiat l'utilisateur peut double-cliquer → plusieurs instances. SingleApplication
+# protège le binaire Qt, mais PAS cette phase AppRun (avant exec). On pose donc un
+# verrou flock dès le départ ; le fd 9 est hérité par exec → le verrou tient toute la
+# durée de Rufus, et un 2e lancement est refusé tant que Rufus tourne.
+exec 9>"${HOME}/.rufus.applock" 2>/dev/null || true
+if command -v flock >/dev/null 2>&1 && ! flock -n 9; then
+    [ -n "${DISPLAY}${WAYLAND_DISPLAY}" ] && command -v zenity >/dev/null 2>&1 && \
+        zenity --info --no-wrap --title="Rufus" \
+        --text="Rufus est déjà en cours de lancement.\nMerci de patienter quelques instants." 2>/dev/null
+    exit 0
+fi
+
 APPNAME="Rufus"
 BIN="${HERE}/usr/bin/Rufus"                       # binaire réel dans l'AppDir
 ICON_SRC="${HERE}/usr/share/icons/hicolor/256x256/apps/rufus.png"
@@ -146,7 +160,7 @@ configurer_systeme() {
             apt-get -o DPkg::Lock::Timeout=300 install -y "$p" || echo "RUFUS: paquet indisponible, ignoré: $p"
         done
         usermod -aG dialout "$RUFUS_USER" || true
-    ' 2>&1 | zenity --progress --pulsate --no-cancel --auto-close \
+    ' 2>&1 | sed -u 's/^/# /' | zenity --progress --pulsate --no-cancel --auto-close \
         --title="Installation des composants Rufus" \
         --text="Installation en cours… (cela peut prendre quelques minutes)" 2>/dev/null
     local rc=${PIPESTATUS[0]}
