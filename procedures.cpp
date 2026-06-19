@@ -4323,7 +4323,7 @@ bool Procedures::PremierDemarrage()
         //! comptes adminrufus/adminrufusSSL avec un mot de passe aléatoire propre au
         //! cabinet, stocké dans rufus.ini (clé Param_MDPSQL). Annulation utilisateur ou
         //! échec → retour à l'écran de premier démarrage (Rufus ne continue pas).
-        //! cf MySQLInstaller, MySQLInstaller/NOTES_INTEGRATION_MYSQLINSTALLER.md
+        //! cf MySQLInstaller, docs/NOTES_INTEGRATION_MYSQLINSTALLER.md
         MySQLInstaller installeurMySQL;
         if (!installeurMySQL.run())
             return PremierDemarrage();

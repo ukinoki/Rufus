@@ -67,7 +67,7 @@ du logiciel — et la grille de lecture de toutes ses décisions.
 - Commenter le **pourquoi** d'un choix non évident (les commentaires existants du
   code le font déjà — garder ce style, en français).
 - **Sécurité** : MySQL avec mot de passe aléatoire fort, connexions chiffrées
-  SSL entre postes. Voir `INITIALISATION_ET_SECURITE.md`.
+  SSL entre postes. Voir `docs/INITIALISATION_ET_SECURITE.md`.
 
 ---
 

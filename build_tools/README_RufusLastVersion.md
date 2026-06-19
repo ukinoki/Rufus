@@ -129,7 +129,7 @@ aléatoire** en multi-poste : ce serait un cas `CompatibleWithPrecedent = No`
 seraient éjectés). La version qui **introduit** simplement `MySQLInstaller` +
 le repli *legacy*, elle, reste `CompatibleWithPrecedent = Yes` (les bases
 existantes continuent de fonctionner sans changement). Voir
-`../INITIALISATION_ET_SECURITE.md`.
+`../docs/INITIALISATION_ET_SECURITE.md`.
 
 ---
 

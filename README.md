@@ -12,6 +12,14 @@ Fédérer une communauté et réaliser un développement collaboratif.
 Sous MacOs, télécharger le fichier rufus.dmg, l'ouvrir par un double clic et le déplacer à l'aide du finder, dans le dossier Applications de Macos.
 Sous Linux, télécharger le fichier rufus.Appimage et copier le dans le dossier "/usr/bin". Effectuez dans le terminal un "chmod a+x" sur l'appimage afin de la rendre exécutable ou faire un clic droit sur le fichier, choisir Propriétés et, dans l'onglet Permissions, cocher la case autoriser l'éxécution du fichier comme un programme.
 
+# Documentation
+La documentation de référence est regroupée dans le dossier [`docs/`](docs/) :
+- [`docs/INITIALISATION_ET_SECURITE.md`](docs/INITIALISATION_ET_SECURITE.md) — démarrage de Rufus, création d'une base patients, modèle de sécurité des accès MySQL.
+- [`docs/MYSQL_INSTALLATION_ET_SECURITE.md`](docs/MYSQL_INSTALLATION_ET_SECURITE.md) — prérequis d'installation MySQL, flux de sécurisation du mot de passe, connexions chiffrées (SSL).
+- [`docs/NOTES_INTEGRATION_MYSQLINSTALLER.md`](docs/NOTES_INTEGRATION_MYSQLINSTALLER.md) — notes d'intégration du module MySQLInstaller.
+
+Voir aussi `CLAUDE.md` (socle de développement, à la racine) et le dossier `build_tools/` (publication des releases).
+
 # Contact
 Vous souhaitez participer au projet, vous avez des commentaires particuliers ou des suggestions ?
 serge.laine2@sfr.fr

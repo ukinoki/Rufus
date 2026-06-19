@@ -290,4 +290,4 @@ ne pas saper l'incitation à conserver la clé.
 | Constantes comptes & mdp | `macros.h` : `LOGIN_SQL`, `MDP_SQL`, `Param_MDPSQL`, `MDP_ADMINISTRATEUR` |
 | Création des comptes à la base | `Procedures::RestaureBase()` (`procedures.cpp`) |
 | Connexion / test | `Dialogs/dlg_paramconnexion.cpp`, `Database/database.{h,cpp}` |
-| Détail de l'intégration + à-valider | `MySQLInstaller/NOTES_INTEGRATION_MYSQLINSTALLER.md` |
+| Détail de l'intégration + à-valider | `NOTES_INTEGRATION_MYSQLINSTALLER.md` (même dossier) |

@@ -890,7 +890,7 @@ public:
 //! « legacy » : MySQLInstaller::motDePasseSQL() renvoie le mot de passe aléatoire
 //! propre à cette installation (clé Param_MDPSQL du rufus.ini) s'il existe, sinon
 //! MDP_SQL — ce qui garantit que les bases existantes (pas encore migrées)
-//! continuent de fonctionner sans rien changer. cf NOTES_INTEGRATION_MYSQLINSTALLER.md
+//! continuent de fonctionner sans rien changer. cf docs/NOTES_INTEGRATION_MYSQLINSTALLER.md
 #define MDP_SQL                                     "gaxt78iy"
 //! Clé sous laquelle est stocké le mot de passe MySQL aléatoire (propre au cabinet,
 //! généré à la création de la base). Stocké dans le fichier CACHÉ PATH_FILE_DBKEY
