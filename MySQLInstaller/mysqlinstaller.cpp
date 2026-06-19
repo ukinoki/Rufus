@@ -1640,7 +1640,7 @@ void MySQLInstaller::restaurerClesSSLMigration()
           "cp -f \"$STASH/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
           "cp -f \"$STASH/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
           "cp -f \"$STASH/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
-          "[ -n \"$USERN\" ] && chown -R \"$USERN\" \"$SSLDEST\"\n"
+          "[ -n \"$USERN\" ] && { chown \"$USERN\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$USERN\" \"$SSLDEST\"; }\n"
           "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
   #if defined(Q_OS_MACOS)
     sh += "[ -f \"$PLIST\" ] && launchctl load -w \"$PLIST\" 2>/dev/null || "
@@ -2281,7 +2281,7 @@ QString MySQLInstaller::oracleInitStartScript() const
         "  [ -f \"$DATA/ca.pem\" ]          && cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"\n"
         "  [ -f \"$DATA/client-cert.pem\" ] && cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\"\n"
         "  [ -f \"$DATA/client-key.pem\" ]  && cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"\n"
-        "  [ -n \"$SSLOWNER\" ] && chown -R \"$SSLOWNER\" \"$SSLDEST\"\n"
+        "  [ -n \"$SSLOWNER\" ] && { chown \"$SSLOWNER\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$SSLOWNER\" \"$SSLDEST\"; }\n"
         "  chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n"
         "} >> '%1' 2>&1\n"
         "chmod 644 '%1' 2>/dev/null\n").arg(m_initLog).arg(sslDest).arg(sslOwner);
@@ -2510,7 +2510,7 @@ bool MySQLInstaller::installMySQL()
                << "[ -f \"$DATA/ca.pem\" ]          && cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"\n"
                << "[ -f \"$DATA/client-cert.pem\" ] && cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\"\n"
                << "[ -f \"$DATA/client-key.pem\" ]  && cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"\n"
-               << "[ -n \"$SSLOWNER\" ] && chown -R \"$SSLOWNER\" \"$SSLDEST\"\n"
+               << "[ -n \"$SSLOWNER\" ] && { chown \"$SSLOWNER\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$SSLOWNER\" \"$SSLDEST\"; }\n"
                << "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
             f.close();
         }
