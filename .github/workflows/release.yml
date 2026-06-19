@@ -104,7 +104,7 @@ jobs:
           ./linuxdeployqt-continuous-x86_64.AppImage \
             AppDir/usr/share/applications/rufus.desktop \
             -bundle-non-qt-libs -unsupported-allow-new-glibc \
-            -extra-plugins=sqldrivers || true
+            -extra-plugins=sqldrivers -verbose=2
 
           # Notre AppRun (fait de l'AppImage un installeur, cf. build_tools/Linux/AppRun)
           cp build_tools/Linux/AppRun AppDir/AppRun
@@ -120,6 +120,16 @@ jobs:
           wget -q https://github.com/AppImage/AppImageKit/releases/download/continuous/appimagetool-x86_64.AppImage
           chmod +x appimagetool-x86_64.AppImage
           ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir "Rufus-${VER}-x86_64.AppImage"
+
+          # Garde-fou : une AppImage complète (binaire + Qt) pèse des dizaines de Mo.
+          # Si elle est ridiculement petite, c'est que le bundling Qt a échoué — on
+          # ne laisse PLUS passer un faux vert (cf. linuxdeployqt avalé par un || true).
+          SZ=$(stat -c%s "Rufus-${VER}-x86_64.AppImage")
+          echo "Taille AppImage : $SZ octets"
+          if [ "$SZ" -lt 20000000 ]; then
+            echo "::error::AppImage anormalement petite ($SZ octets) : le bundling Qt a échoué."
+            exit 1
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
