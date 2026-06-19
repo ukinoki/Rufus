@@ -79,6 +79,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
     if (proc->settings()->value(Position_Fiche Nom_fiche_Rufus) != QVariant())
         restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_Rufus).toByteArray());
+    else
+        move(0, 0);     //! aucune position enregistrée (1er démarrage) : coin supérieur gauche
     setWindowIcon(Icons::icSunglasses());
 
     //! 2 - charge les data du user connecté
