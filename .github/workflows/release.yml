@@ -97,23 +97,30 @@ jobs:
           Terminal=false
           EOF
 
-          # linuxdeployqt : embarque Qt + dépendances (sans -appimage : on garde
-          # notre AppRun auto-installant).
-          wget -q https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage
-          chmod +x linuxdeployqt-continuous-x86_64.AppImage
-          ./linuxdeployqt-continuous-x86_64.AppImage \
-            AppDir/usr/share/applications/rufus.desktop \
-            -qmake="$QT_ROOT_DIR/bin/qmake" \
-            -bundle-non-qt-libs -unsupported-allow-new-glibc \
-            -extra-plugins=sqldrivers -verbose=2
+          # Bundling Qt avec linuxdeploy + plugin Qt (outil moderne et maintenu). Le build
+          # « continuous » de linuxdeployqt sortait en erreur AVANT de déployer Qt -> AppImage
+          # vide ; linuxdeploy est fiable pour Qt6. On garde notre AppRun auto-installant
+          # (il remplace, plus bas, celui généré par linuxdeploy).
+          export APPIMAGE_EXTRACT_AND_RUN=1          # lancer les outils-AppImage sans FUSE
+          export PATH="$PWD:$PATH"                   # pour que linuxdeploy trouve son plugin Qt
+          export QMAKE="$QT_ROOT_DIR/bin/qmake"      # le plugin Qt localise Qt via qmake
+          export EXTRA_QT_PLUGINS="sqldrivers"       # forcer l'embarquement du pilote qsqlmysql
+          wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+          ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --executable AppDir/usr/bin/Rufus \
+            --desktop-file AppDir/usr/share/applications/rufus.desktop \
+            --icon-file AppDir/usr/share/icons/hicolor/256x256/apps/rufus.png \
+            --plugin qt
 
           # Notre AppRun (fait de l'AppImage un installeur, cf. build_tools/Linux/AppRun)
           cp build_tools/Linux/AppRun AppDir/AppRun
           chmod +x AppDir/AppRun
 
           # appimagetool exige l'icône à la RACINE de l'AppDir (Icon=rufus du .desktop),
-          # en plus de celle sous usr/share/icons. linuxdeployqt ne la place pas en mode
-          # -bundle-non-qt-libs (sans -appimage) → on la copie nous-mêmes.
+          # en plus de celle sous usr/share/icons. On la copie nous-mêmes par sécurité.
           cp build_tools/Linux/rufus.png AppDir/rufus.png
 
           # Empaquetage final avec appimagetool (ARCH explicite : appimagetool ne
@@ -124,7 +131,7 @@ jobs:
 
           # Garde-fou : une AppImage complète (binaire + Qt) pèse des dizaines de Mo.
           # Si elle est ridiculement petite, c'est que le bundling Qt a échoué — on
-          # ne laisse PLUS passer un faux vert (cf. linuxdeployqt avalé par un || true).
+          # ne laisse PLUS passer un faux vert (bundling Qt incomplet = AppImage vide).
           SZ=$(stat -c%s "Rufus-${VER}-x86_64.AppImage")
           echo "Taille AppImage : $SZ octets"
           if [ "$SZ" -lt 20000000 ]; then
