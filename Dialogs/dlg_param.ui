@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -999,7 +999,7 @@
          <x>0</x>
          <y>0</y>
          <width>985</width>
-         <height>914</height>
+         <height>841</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="PosteLayout">
@@ -1029,13 +1029,13 @@
           <property name="minimumSize">
            <size>
             <width>950</width>
-            <height>385</height>
+            <height>335</height>
            </size>
           </property>
           <property name="maximumSize">
            <size>
             <width>16777215</width>
-            <height>385</height>
+            <height>335</height>
            </size>
           </property>
           <property name="contextMenuPolicy">
@@ -2974,10 +2974,13 @@ du dossier de stockage des videos</string>
           <property name="orientation">
            <enum>Qt::Orientation::Vertical</enum>
           </property>
+          <property name="sizeType">
+           <enum>QSizePolicy::Policy::Expanding</enum>
+          </property>
           <property name="sizeHint" stdset="0">
            <size>
             <width>958</width>
-            <height>28</height>
+            <height>5</height>
            </size>
           </property>
          </spacer>
