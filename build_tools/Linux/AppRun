@@ -167,7 +167,8 @@ configurer_systeme() {
     local rc=${PIPESTATUS[0]}
 
     if [ "${rc}" -eq 0 ]; then
-        : > "${marqueur}"
+        mkdir -p "${RUFUS_DIR}"          # le dossier doit exister AVANT d'y écrire le marqueur
+        : > "${marqueur}"               # (sinon échec silencieux : .certif présent, .systeme_ok absent)
         ecrit_certif "Config système OK (polices, GStreamer, mysql-client, dialout) pour ${user}"
         zenity --info --no-wrap --title="Configuration terminée" \
             --text="Composants installés.\n\nPour l'accès aux appareils sur port série, déconnectez puis reconnectez votre session." 2>/dev/null
