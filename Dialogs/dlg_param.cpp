@@ -28,10 +28,12 @@ dlg_param::dlg_param(QWidget *parent) :
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-    //! Hauteur du sous-onglet de connexion : doit loger les frames Mono/Local/Distant
-    //! agrandies par les champs mot de passe MySQL (sinon Distantframe empiète sur
-    //! Instrmtsframe). Forcé ici pour ne pas dépendre de la régénération du .ui.
-    ui->ParamConnexiontabWidget->setFixedHeight(385);
+    //! Hauteur du sous-onglet de connexion : laissée au .ui (min = max = 335 px), qui
+    //! loge déjà les frames Mono/Local/Distant avec leurs champs mot de passe MySQL.
+    //! NE PAS la forcer ici : un setFixedHeight() écrase le min ET le max du .ui ; s'il
+    //! impose une valeur plus grande que celle du .ui, le bas de ParamConnexiontabWidget
+    //! déborde sur Instrmtsframe à l'exécution (et seulement à l'exécution — Designer
+    //! n'exécute pas ce code). C'était la cause de l'empiètement constaté sous Ubuntu.
 
     QStringList ports;
     ports << "3306" << "3307";
@@ -114,11 +116,10 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->UserParamtab    ->setLayout(ui->UserLayout);
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);
     //! NE PAS « voler » PosteLayout vers PosteParamtab : ce layout a 3 items dont la somme des
-    //! hauteurs mini (tab 385 + Instrmtsframe 250 + ligne Imprimante 185 ≈ 840 px) dépasse la
-    //! hauteur de la page d'onglet. Posé sur PosteParamtab (trop courte), le layout est sur-
-    //! contraint : il rétrécit l'emplacement du tab, qui se force malgré tout à 385 et déborde
-    //! sur Instrmtsframe. Laissé sur son wrapper ParamWidget (914 px, défini dans le .ui), il a
-    //! la place nécessaire et tout se met en page sans chevauchement.
+    //! hauteurs mini (tab 335 + Instrmtsframe 250 + ligne Imprimante 185 ≈ 770 px) doit tenir
+    //! dans la page d'onglet. Posé sur PosteParamtab (trop courte), le layout est sur-contraint
+    //! et déborde. Laissé sur son wrapper ParamWidget (841 px, défini dans le .ui), il a la
+    //! place nécessaire et tout se met en page sans chevauchement.
     //ui->PosteParamtab   ->setLayout(ui->PosteLayout);
 
     ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->UserParamtab),Icons::icContact());
