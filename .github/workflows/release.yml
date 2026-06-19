@@ -103,6 +103,7 @@ jobs:
           chmod +x linuxdeployqt-continuous-x86_64.AppImage
           ./linuxdeployqt-continuous-x86_64.AppImage \
             AppDir/usr/share/applications/rufus.desktop \
+            -qmake="$QT_ROOT_DIR/bin/qmake" \
             -bundle-non-qt-libs -unsupported-allow-new-glibc \
             -extra-plugins=sqldrivers -verbose=2
 
