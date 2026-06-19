@@ -3,11 +3,13 @@ Installation de la nouvelle version de Rufus — mot de passe MySQL sécurisé e
 CE QUI CHANGE
 1. La nouvelle version exige un serveur MySQL qui sait gérer le DOUBLE MOT DE PASSE.
    SEUIL DE VERSION (critère), figé dans macros.h et utilisé PARTOUT (runtime + installeurs) :
-     - Windows / macOS : >= 8.4.3   (VERSION_MYSQL_MINI_WINMAC) — on y installe le 8.4 LTS ;
-     - Linux / Ubuntu  : >= 8.0.14  (VERSION_MYSQL_MINI_LINUX)  — le 8.0 d'apt sait déjà le double mdp ;
+     - COMMUN à tous les OS : >= 8.0.14 (VERSION_MYSQL_MINI) — première version qui gère le double
+       mot de passe (RETAIN CURRENT PASSWORD). L'OS du serveur n'entre PAS en jeu : seule compte la
+       version MySQL du serveur, pas la plateforme qui l'héberge ni celle du poste client.
      - MariaDB exclu dans tous les cas.
    Côté code, le seuil est résolu par MySQLInstaller::seuilVersionMySQL() (un seul point à changer).
-   En pratique l'installeur pose du 8.4.9 (Oracle) sur macOS/Windows, et du 8.0.x (apt) sous Linux.
+   En pratique l'installeur POSE du 8.4.9 (Oracle, LTS) sur macOS/Windows et du 8.0.x (apt) sous Linux ;
+   mais un serveur déjà >= 8.0.14 est accepté tel quel (aucune migration forcée).
 2. Elle remplace le mot de passe unique public (gaxt78iy) par un MOT DE PASSE ALÉATOIRE,
    propre au cabinet, pour les deux comptes MySQL de Rufus : adminrufus et adminrufusSSL.
 
