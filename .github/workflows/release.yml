@@ -108,6 +108,12 @@ jobs:
           wget -q https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
           wget -q https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
           chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-qt-x86_64.AppImage
+          # Rufus n'utilise que MySQL : on RETIRE les autres pilotes SQL de Qt (Oracle/qsqloci,
+          # PostgreSQL, ODBC…) dont les bibliothèques externes ne sont pas présentes sur le runner,
+          # sinon linuxdeploy-plugin-qt échoue en cherchant leurs dépendances (ex. libqsqloci ->
+          # libclntsh.so). On ne garde que qsqlmysql (+ qsqlite, sans dépendance externe).
+          find "$QT_ROOT_DIR/plugins/sqldrivers" -name 'libqsql*.so' \
+               ! -name 'libqsqlmysql.so' ! -name 'libqsqlite.so' -delete
           ./linuxdeploy-x86_64.AppImage \
             --appdir AppDir \
             --executable AppDir/usr/bin/Rufus \
