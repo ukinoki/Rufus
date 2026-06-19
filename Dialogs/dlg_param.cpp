@@ -113,7 +113,13 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);
-    ui->PosteParamtab   ->setLayout(ui->PosteLayout);
+    //! NE PAS « voler » PosteLayout vers PosteParamtab : ce layout a 3 items dont la somme des
+    //! hauteurs mini (tab 385 + Instrmtsframe 250 + ligne Imprimante 185 ≈ 840 px) dépasse la
+    //! hauteur de la page d'onglet. Posé sur PosteParamtab (trop courte), le layout est sur-
+    //! contraint : il rétrécit l'emplacement du tab, qui se force malgré tout à 385 et déborde
+    //! sur Instrmtsframe. Laissé sur son wrapper ParamWidget (914 px, défini dans le .ui), il a
+    //! la place nécessaire et tout se met en page sans chevauchement.
+    //ui->PosteParamtab   ->setLayout(ui->PosteLayout);
 
     ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->UserParamtab),Icons::icContact());
     ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->PosteParamtab),Icons::icComputer());
