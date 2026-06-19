@@ -142,8 +142,10 @@ configurer_systeme() {
             apt-get install -y "$p" || echo "RUFUS: paquet indisponible, ignoré: $p"
         done
         usermod -aG dialout "$RUFUS_USER" || true
-    '
-    local rc=$?
+    ' 2>&1 | zenity --progress --pulsate --no-cancel --auto-close \
+        --title="Installation des composants Rufus" \
+        --text="Installation en cours… (cela peut prendre quelques minutes)" 2>/dev/null
+    local rc=${PIPESTATUS[0]}
 
     if [ "${rc}" -eq 0 ]; then
         : > "${marqueur}"
