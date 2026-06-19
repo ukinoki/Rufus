@@ -60,7 +60,7 @@ jobs:
           # Le plugin qsqlmysql se lie au client MariaDB OU MySQL → on installe les
           # deux bibliothèques RUNTIME (sans les -dev, qui se déclarent mutuellement
           # « Conflicts » et feraient échouer apt) pour qu'il se charge au runtime,
-          # quel que soit celui contre lequel Qt a été construit. linuxdeployqt
+          # quel que soit celui contre lequel Qt a été construit. linuxdeploy
           # embarquera ensuite la lib utile dans l'AppImage.
           sudo apt-get install -y \
             libmariadb3 libmysqlclient21 \

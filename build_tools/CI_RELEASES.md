@@ -7,7 +7,7 @@ release :
 | OS | Paquet | Outil |
 |---|---|---|
 | Windows | `Rufus-<version>-Setup.exe` | `windeployqt` + **Inno Setup** (`build_tools/Windows/RufusVision.iss`) |
-| Linux | `Rufus-<version>-x86_64.AppImage` (auto-installante) | `linuxdeployqt` + `appimagetool` + `build_tools/Linux/AppRun` |
+| Linux | `Rufus-<version>-x86_64.AppImage` (auto-installante) | `linuxdeploy` + `linuxdeploy-plugin-qt` + `appimagetool` + `build_tools/Linux/AppRun` |
 | macOS | `Rufus-<version>.pkg` (**universel x86_64 + arm64**) | `macdeployqt` + `pkgbuild` + `build_tools/macOS/create-rufus-pkg.sh` |
 
 > **macOS — `.pkg` (et non `.dmg`).** On utilise un **`.pkg`** parce qu'il permet un
@@ -96,7 +96,7 @@ valider que sur les *runners* réels :
    - **A (par défaut)** : on installe la **bibliothèque client** MariaDB/MySQL sur
      chaque runner (apt `libmariadb-dev`/`default-libmysqlclient-dev`, brew
      `mariadb-connector-c`, `choco`), et on laisse `windeployqt --sql` /
-     `macdeployqt` / `linuxdeployqt -extra-plugins=sqldrivers` embarquer le plugin
+     `macdeployqt` / `linuxdeploy --plugin qt` (EXTRA_QT_PLUGINS=sqldrivers) embarquer le plugin
      **fourni par le Qt officiel** (Qt 6.10 le livre généralement). À confirmer au
      1er run que le plugin est présent et se charge.
    - **B (repli, si A échoue)** : compiler le plugin contre le Qt installé —
