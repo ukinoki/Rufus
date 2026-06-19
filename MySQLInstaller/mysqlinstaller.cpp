@@ -1689,7 +1689,18 @@ bool MySQLInstaller::socleMySQLConforme()
         return false;
     QRegularExpression re(R"((\d+\.\d+\.\d+))");
     const auto mv = re.match(sv);
-    return mv.hasMatch() && versionAtLeast(mv.captured(1), seuilVersionMySQL());
+    if (!mv.hasMatch())
+        return false;
+    //! Seuil de version : pour un serveur LOCAL (ce poste l'héberge, mode Poste), on exige le
+    //! seuil de l'OS de CE poste (8.4.3 Win/macOS car Rufus y installe le 8.4 LTS ; 8.0.14 Linux).
+    //! Pour un serveur DISTANT (client LAN/WAN), l'OS du serveur est INCONNU — typiquement Linux
+    //! en 8.0.x — donc on n'exige que le minimum FONCTIONNEL des fonctions de sécurité (double mot
+    //! de passe), soit 8.0.14. Sans ça, un poste Windows/macOS déclenchait une fausse alarme
+    //! « serveur à mettre à jour » à chaque connexion à un serveur Linux 8.0.x parfaitement valide.
+    const QString seuil = (DataBase::I()->ModeAccesDataBase() == Utils::Poste)
+                          ? seuilVersionMySQL()
+                          : QString(VERSION_MYSQL_MINI_LINUX);
+    return versionAtLeast(mv.captured(1), seuil);
 }
 
 // ═════════════════════════════════════════════════════════════════════════════

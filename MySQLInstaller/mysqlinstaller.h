@@ -196,8 +196,10 @@ public:
     //  serveur ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
     void    securiserBaseSiNecessaire();
 
-    //  true si le serveur MySQL courant atteint le seuil exigé par l'OS (seuilVersionMySQL)
-    //  et n'est pas MariaDB. Sert au démarrage à décider d'une migration du socle.
+    //  true si le serveur MySQL courant atteint le seuil exigé et n'est pas MariaDB. Seuil :
+    //  serveur LOCAL (mode Poste) → seuil de l'OS de ce poste (seuilVersionMySQL) ; serveur
+    //  DISTANT (client réseau) → minimum FONCTIONNEL 8.0.14 (l'OS du serveur, souvent Linux,
+    //  est inconnu). Sert au démarrage à décider d'une migration du socle / d'une alerte.
     static bool      socleMySQLConforme();
     //  Migration DESTRUCTIVE du socle : désinstalle l'ancien MySQL puis réinstalle + crée
     //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.
