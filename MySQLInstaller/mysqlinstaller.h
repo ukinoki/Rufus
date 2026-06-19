@@ -132,7 +132,7 @@ private:
     UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)
     UpCheckBox* m_steps[6];
     QString     m_stepDetail[6];
-    QString     m_minVersion = "8.4.3";
+    QString     m_minVersion = VERSION_MYSQL_MINI;   // seuil commun (8.0.14), écrasé par setMinVersion()
     bool        m_cancelled  = false;
 };
 
@@ -196,10 +196,9 @@ public:
     //  serveur ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
     void    securiserBaseSiNecessaire();
 
-    //  true si le serveur MySQL courant atteint le seuil exigé et n'est pas MariaDB. Seuil :
-    //  serveur LOCAL (mode Poste) → seuil de l'OS de ce poste (seuilVersionMySQL) ; serveur
-    //  DISTANT (client réseau) → minimum FONCTIONNEL 8.0.14 (l'OS du serveur, souvent Linux,
-    //  est inconnu). Sert au démarrage à décider d'une migration du socle / d'une alerte.
+    //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
+    //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
+    //  Sert au démarrage à décider d'une migration du socle (local) / d'une alerte (réseau).
     static bool      socleMySQLConforme();
     //  Migration DESTRUCTIVE du socle : désinstalle l'ancien MySQL puis réinstalle + crée
     //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.

@@ -418,16 +418,12 @@ static bool versionAtLeast(const QString& ver, const QString& minVer)
     return true;   // égalité exacte => au moins la version minimale
 }
 
-//  Seuil minimal de version MySQL exigé, SELON L'OS : Windows/macOS installent MySQL 8.4
-//  (LTS), donc on impose 8.4.3 ; Linux se contente du 8.0 fourni par apt (qui sait déjà
-//  le double mot de passe), seuil 8.0.14.
+//  Seuil minimal de version MySQL exigé, COMMUN à tous les OS (cf. VERSION_MYSQL_MINI) : 8.0.14,
+//  le minimum fonctionnel des fonctions de sécurité (double mot de passe). On ne distingue plus
+//  l'OS : ce qui compte est la version du serveur MySQL, pas la plateforme qui l'héberge.
 static QString seuilVersionMySQL()
 {
-#if defined(Q_OS_LINUX)
-    return VERSION_MYSQL_MINI_LINUX;
-#else
-    return VERSION_MYSQL_MINI_WINMAC;
-#endif
+    return VERSION_MYSQL_MINI;
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -1676,8 +1672,9 @@ bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
     return true;
 }
 
-//  true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil exigé
-//  par l'OS (cf. seuilVersionMySQL) et n'est pas MariaDB. False si trop ancien / illisible.
+//  true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil commun
+//  (VERSION_MYSQL_MINI = 8.0.14) et n'est pas MariaDB. False si trop ancien / illisible.
+//  L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
 bool MySQLInstaller::socleMySQLConforme()
 {
     bool ok = false;
@@ -1689,18 +1686,7 @@ bool MySQLInstaller::socleMySQLConforme()
         return false;
     QRegularExpression re(R"((\d+\.\d+\.\d+))");
     const auto mv = re.match(sv);
-    if (!mv.hasMatch())
-        return false;
-    //! Seuil de version : pour un serveur LOCAL (ce poste l'héberge, mode Poste), on exige le
-    //! seuil de l'OS de CE poste (8.4.3 Win/macOS car Rufus y installe le 8.4 LTS ; 8.0.14 Linux).
-    //! Pour un serveur DISTANT (client LAN/WAN), l'OS du serveur est INCONNU — typiquement Linux
-    //! en 8.0.x — donc on n'exige que le minimum FONCTIONNEL des fonctions de sécurité (double mot
-    //! de passe), soit 8.0.14. Sans ça, un poste Windows/macOS déclenchait une fausse alarme
-    //! « serveur à mettre à jour » à chaque connexion à un serveur Linux 8.0.x parfaitement valide.
-    const QString seuil = (DataBase::I()->ModeAccesDataBase() == Utils::Poste)
-                          ? seuilVersionMySQL()
-                          : QString(VERSION_MYSQL_MINI_LINUX);
-    return versionAtLeast(mv.captured(1), seuil);
+    return mv.hasMatch() && versionAtLeast(mv.captured(1), seuilVersionMySQL());
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
