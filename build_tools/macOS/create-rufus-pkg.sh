@@ -24,9 +24,63 @@ APP_PATH="${1:?Usage: create-rufus-pkg.sh <Rufus.app> [version] [outdir]}"
 VERSION="${2:-dev}"
 OUTDIR="${3:-$(pwd)}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
+REPO="$(cd "${HERE}/../.." && pwd)"   # racine du dépôt (pour les .qm de traduction)
+
+# ── Traductions : copier les .qm dans Rufus.app/Contents/Locale ───────────────
+# L'appli les cherche dans applicationDirPath()/../Locale = Contents/Locale (cf. rufus.cpp).
+# Rien dans le .pro ne les déploie (ils ne sont que dans DISTFILES) → on le fait ici, AVANT
+# macdeployqt et la signature, pour qu'ils soient couverts par la signature du bundle.
+echo "==> Traductions (.qm) -> ${APP_PATH}/Contents/Locale"
+LOCALE_DIR="${APP_PATH}/Contents/Locale"
+mkdir -p "${LOCALE_DIR}"
+# (au besoin) régénérer les .qm depuis les .ts, sinon prendre ceux du dépôt
+command -v lrelease >/dev/null 2>&1 && ( cd "${REPO}" && lrelease RufusQt6.pro >/dev/null 2>&1 ) || true
+cp -f "${REPO}"/rufus_*.qm "${LOCALE_DIR}/" 2>/dev/null || true
+ls "${LOCALE_DIR}"/rufus_*.qm >/dev/null 2>&1 || echo "   ⚠ aucun .qm copié (traductions manquantes ?)"
+
+# ── Pilote SQL MySQL : réorienter sa dépendance client AVANT macdeployqt ───────
+# macdeployqt embarque les autres pilotes SQL mais LÂCHE libqsqlmysql.dylib s'il ne peut pas
+# résoudre sa dépendance vers la lib client (libmariadb/libmysqlclient). On réoriente cette
+# dépendance, si elle pointe un chemin inexistant, vers la lib installée par brew → macdeployqt
+# pourra alors embarquer le pilote ET sa lib client, et réécrire les chemins tout seul.
+QT_PLUGINS="$(qmake -query QT_INSTALL_PLUGINS 2>/dev/null)"
+QSQLMYSQL="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
+if [ -n "${QT_PLUGINS}" ] && [ -f "${QSQLMYSQL}" ]; then
+    echo "==> Pilote MySQL : vérification de la dépendance client (${QSQLMYSQL})"
+    otool -L "${QSQLMYSQL}" 2>/dev/null | awk '/libmariadb|libmysqlclient/ {print $1}' | while read -r dep; do
+        [ -f "${dep}" ] && continue   # dépendance déjà résolvable : rien à faire
+        base="$(basename "${dep}")"
+        real="$(find /opt/homebrew /usr/local -name "${base}" 2>/dev/null | head -n1)"
+        if [ -n "${real}" ]; then
+            echo "   réoriente ${dep} -> ${real}"
+            install_name_tool -change "${dep}" "${real}" "${QSQLMYSQL}" 2>/dev/null || true
+        fi
+    done
+else
+    echo "   ⚠ libqsqlmysql.dylib introuvable dans les plugins Qt (${QT_PLUGINS}/sqldrivers)"
+fi
 
 echo "==> macdeployqt sur ${APP_PATH}"
 macdeployqt "${APP_PATH}" -verbose=1
+
+# Contrôle : le pilote MySQL est-il bien dans le bundle ? (sinon backup/connexion KO)
+if [ ! -f "${APP_PATH}/Contents/PlugIns/sqldrivers/libqsqlmysql.dylib" ]; then
+    echo "   ⚠ libqsqlmysql.dylib ABSENT du bundle après macdeployqt — tentative de copie directe"
+    mkdir -p "${APP_PATH}/Contents/PlugIns/sqldrivers"
+    cp -f "${QSQLMYSQL}" "${APP_PATH}/Contents/PlugIns/sqldrivers/" 2>/dev/null || true
+fi
+
+# ── Nom du bundle = « Rufus.app » → installé directement dans /Applications ────
+# Le .pro ne fixe pas de nom propre sur macOS (les scopes OSX/LINUX ne sont pas des scopes
+# qmake valides → bundle « RufusQt6.app » par défaut). On le renomme ici, AVANT la signature,
+# pour que l'utilisateur obtienne /Applications/Rufus.app (et non un nom interne de build).
+if [ "$(basename "${APP_PATH}")" != "Rufus.app" ]; then
+    NEWAPP="$(dirname "${APP_PATH}")/Rufus.app"
+    rm -rf "${NEWAPP}"
+    mv "${APP_PATH}" "${NEWAPP}"
+    APP_PATH="${NEWAPP}"
+    echo "==> bundle renommé : ${APP_PATH}"
+fi
 
 # Signature de l'app (en profondeur).
 if [ -n "${CODESIGN_ID:-}" ]; then
