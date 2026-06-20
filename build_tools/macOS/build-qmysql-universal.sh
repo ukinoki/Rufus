@@ -69,7 +69,7 @@ build_openssl() {                     # $1 = arch (x86_64|arm64), $2 = cible Ope
     rm -rf "openssl-${OSSL_VER}"
     tar xf openssl.tar.gz
     ( cd "openssl-${OSSL_VER}"
-      ./Configure "${target}" no-shared no-tests no-docs \
+      ./Configure "${target}" no-shared no-tests \
           -mmacosx-version-min="${DEPLOY_TARGET}" --prefix="${WORK}/ossl-${arch}" >/dev/null
       make -j"${JOBS}" >/dev/null
       make install_sw >/dev/null )
