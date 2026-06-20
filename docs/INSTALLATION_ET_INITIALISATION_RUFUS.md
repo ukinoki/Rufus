@@ -145,37 +145,51 @@ B - TACHES SPECIFIQUES LINUX DEDIEES A L'INSTALLEUR LINUX (AppImage / AppRun) �
    PARTAGE RÉSEAU DE L'IMAGERIE : en poste CLIENT d'un réseau local, l'accès au dossier d'imagerie
    partagé reste une manipulation MANUELLE (montage du partage) — l'installeur ne l'automatise pas.
 
-C - INSTALLATION DE L'APPLICATION ET INSCRIPTION DANS LES MENUS
-	L'installeur
-	. copie l'éxécutable dans le dossier ad hoc de l'environnement
-	. crée le raccourci de menu
-	. affiche une boîte de dialogue finale confirmant que tout s'est bien déroulé
-   « Rufus a été correctement installé sur ce poste et dans les menus, et le système a été
-   configuré pour qu'il puisse fonctionner. Que souhaitez-vous faire ? », avec TROIS cases à
-   cocher :
+C - INSTALLATION DE L'APPLICATION, MENUS ET MESSAGE DE FIN
+   Principe commun aux 3 environnements : l'installeur COPIE l'exécutable dans le dossier standard
+   de l'OS, crée le RACCOURCI DE MENU, et CONFIRME que tout s'est bien déroulé. Le DÉTAIL et la
+   fenêtre finale, eux, suivent les CONVENTIONS de chaque plateforme — ils ne sont PAS identiques.
+
+   --- LINUX (AppRun) : fenêtre finale à 3 cases à cocher ---
+   Une fois le système configuré, l'AppRun « installe » Rufus comme le ferait un setup, SANS le
+   demander :
+     - COPIE de l'AppImage dans ~/.local/bin/Rufus.AppImage (chmod +x) ;
+     - ICÔNE dans ~/.local/share/icons/hicolor/256x256/apps/rufus.png ;
+     - RACCOURCI DE MENU ~/.local/share/applications/rufus.desktop (Exec pointant sur l'AppImage
+       installée, catégories Office;MedicalSoftware), puis rafraîchissement des caches
+       (update-desktop-database, gtk-update-icon-cache).
+   Puis une boîte finale : « Rufus a été correctement installé sur ce poste et dans les menus, et le
+   système a été configuré pour qu'il puisse fonctionner. Que souhaitez-vous faire ? », avec TROIS
+   cases à cocher :
      - Créer un raccourci sur le BUREAU .................. PRÉCOCHÉE
        (copie du .desktop sur le bureau, vrai chemin via xdg-user-dir ; sous GNOME, le lanceur est
         marqué « de confiance » via gio, sinon il resterait grisé) ;
      - Inscrire dans la barre des FAVORIS ............... PRÉCOCHÉE
        (gsettings org.gnome.shell favorite-apps ; GNOME uniquement) ;
      - Exécuter Rufus maintenant ........................ NON COCHÉE.
- 
-   sous LINUX->
-   		Une fois le système configuré, l'AppRun « installe » Rufus comme le ferait un setup, SANS le
-   		demander (démarche standard) :
-     		- COPIE de l'AppImage dans ~/.local/bin/Rufus.AppImage (chmod +x) ;
-     		- ICÔNE dans ~/.local/share/icons/hicolor/256x256/apps/rufus.png ;
-     		- RACCOURCI DE MENU ~/.local/share/applications/rufus.desktop (Exec pointant sur l'AppImage
-       		installée, catégories Office;MedicalSoftware), puis rafraîchissement des caches
-       		(update-desktop-database, gtk-update-icon-cache).
+   Limites assumées : le centrage des fenêtres et l'épinglage aux favoris ne fonctionnent que sous
+   GNOME (bureau par défaut d'Ubuntu) ; sous KDE/XFCE ces gestes sont des no-op silencieux.
+   OUTIL DE TEST associé : build_tools/Linux/test/reset-poste-linux.sh remet un poste de TEST
+   « vierge de Rufus » (retrait ciblé des paquets sans casser le bureau, sortie de dialout,
+   suppression du home ~/.rufus / AppImage installée / raccourci menu / raccourci bureau /
+   désépinglage des favoris / ~/Documents/Rufus, et option destructive de purge du serveur MySQL).
 
-   		Limites assumées : le centrage des fenêtres et l'épinglage aux favoris ne fonctionnent que sous
-   		GNOME (bureau par défaut d'Ubuntu) ; sous KDE/XFCE ces gestes sont des no-op silencieux.
+   --- WINDOWS (Inno Setup) : page finale native de l'installeur ---
+   On reste dans les habitudes Windows/Inno, sans boîte personnalisée :
+     - menu DÉMARRER : raccourci créé SYSTÉMATIQUEMENT ;
+     - raccourci sur le BUREAU : case proposée, PRÉCOCHÉE (tâche « desktopicon » sans flag
+       « unchecked ») — alignée sur la démarche ;
+     - « Lancer Rufus » : case de la page finale, DÉCOCHÉE par défaut (flag « unchecked » sur
+       l'entrée [Run]) — alignée sur la démarche ;
+     - pas de « favoris » : épingler à la barre des tâches n'est pas géré nativement par Inno, on
+       ne le propose pas.
 
-   		OUTIL DE TEST associé : build_tools/Linux/test/reset-poste-linux.sh remet un poste de TEST
-   		« vierge de Rufus » (retrait ciblé des paquets sans casser le bureau, sortie de dialout,
-   		suppression du home ~/.rufus / AppImage installée / raccourci menu / raccourci bureau /
-   		désépinglage des favoris / ~/Documents/Rufus, et option destructive de purge du serveur MySQL).
+   --- macOS (.pkg) : message de fin, rien d'imposé ---
+   Convention Mac : le .pkg dépose Rufus.app dans /Applications (visible au Launchpad). L'installeur
+   ne crée AUCUN raccourci sur le bureau et ne lance PAS le programme — libre à l'utilisateur de
+   faire ses raccourcis et de lancer Rufus lui-même. Le script postinstall affiche simplement un
+   MESSAGE DE FIN « installation réussie », localisé (fr/en/es/pt ; langue lue dans Rufus.ini si
+   présent, sinon la locale macOS, repli fr).
 
 
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION

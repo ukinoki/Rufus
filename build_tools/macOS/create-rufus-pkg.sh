@@ -50,6 +50,8 @@ mkdir -p "${STAGE}"
 cp -R "${APP_PATH}" "${STAGE}/"
 cp "${HERE}/preinstall" "${SCRIPTS}/preinstall"
 chmod +x "${SCRIPTS}/preinstall"
+cp "${HERE}/postinstall" "${SCRIPTS}/postinstall"
+chmod +x "${SCRIPTS}/postinstall"
 
 PKG="${OUTDIR}/Rufus-${VERSION}.pkg"
 echo "==> pkgbuild ${PKG}"

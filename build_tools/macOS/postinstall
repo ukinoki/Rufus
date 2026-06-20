@@ -1,0 +1,53 @@
+#!/bin/bash
+# ─────────────────────────────────────────────────────────────────────────────
+#  postinstall du .pkg Rufus — message de fin « installation réussie ».
+#  Convention macOS : un .pkg dépose l'app dans /Applications (visible au
+#  Launchpad). On NE crée PAS de raccourci sur le bureau et on NE lance PAS le
+#  programme : libre à l'utilisateur de le faire. On se contente d'un message.
+#
+#  Comme le preinstall, le script tourne en root sans session graphique : on
+#  affiche le dialogue dans la session de l'utilisateur connecté via
+#  « launchctl asuser … osascript ». On sort toujours 0 (un souci d'affichage
+#  ne doit pas faire échouer une installation par ailleurs réussie).
+# ─────────────────────────────────────────────────────────────────────────────
+CONSOLE_UID="$(stat -f%Su /dev/console 2>/dev/null)"
+CONSOLE_HOME="$(eval echo "~${CONSOLE_UID}" 2>/dev/null)"
+RUFUS_INI="${CONSOLE_HOME}/Documents/Rufus/Rufus.ini"
+
+# Langue du message : 1) Rufus.ini ([Param_Poste] Version) si présent ; 2) sinon la
+# locale macOS de l'utilisateur connecté ; 3) repli fr. Traduit : fr, en, es, pt (br -> pt).
+langue() {
+    local v
+    if [ -f "${RUFUS_INI}" ]; then
+        v="$(awk '
+            /^\[/ { in_s = ($0 == "[Param_Poste]") }
+            in_s && tolower($0) ~ /^version[ \t]*=/ {
+                sub(/^[^=]*=[ \t]*/, ""); gsub(/[ \t\r]/, ""); print tolower($0); exit
+            }' "${RUFUS_INI}" 2>/dev/null)"
+    fi
+    [ -z "${v}" ] && v="$(launchctl asuser "$(id -u "${CONSOLE_UID}" 2>/dev/null)" \
+        defaults read -g AppleLocale 2>/dev/null | cut -c1-2 | tr 'A-Z' 'a-z')"
+    case "${v}" in
+        en|es|pt) echo "${v}" ;;
+        br)       echo "pt" ;;
+        *)        echo "fr" ;;
+    esac
+}
+
+case "$(langue)" in
+  en) TITRE="Installation complete";  TEXTE="Rufus has been successfully installed in the Applications folder. You can launch it from Launchpad or from the Applications folder." ;;
+  es) TITRE="Instalación completada"; TEXTE="Rufus se ha instalado correctamente en la carpeta Aplicaciones. Puede iniciarlo desde el Launchpad o desde la carpeta Aplicaciones." ;;
+  pt) TITRE="Instalação concluída";   TEXTE="O Rufus foi instalado com sucesso na pasta Aplicações. Pode iniciá-lo a partir do Launchpad ou da pasta Aplicações." ;;
+  *)  TITRE="Installation réussie";   TEXTE="Rufus a été installé avec succès dans le dossier Applications. Vous pouvez le lancer depuis le Launchpad ou le dossier Applications." ;;
+esac
+
+launchctl asuser "$(id -u "${CONSOLE_UID}" 2>/dev/null)" \
+    osascript - "${TEXTE}" "${TITRE}" 2>/dev/null <<'APPLESCRIPT'
+on run argv
+    try
+        display dialog (item 1 of argv) buttons {"OK"} default button 1 with title (item 2 of argv)
+    end try
+end run
+APPLESCRIPT
+
+exit 0
