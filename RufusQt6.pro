@@ -34,6 +34,12 @@ RC_FILE = assets/Images/icon.rc
 # est copiée dans Resources par la variable ICON (Sunglasses.icns) plus bas.
 macx {
     QMAKE_INFO_PLIST = build_tools/macOS/Info.plist
+    # Quand on fournit son propre Info.plist, qmake NE copie PLUS automatiquement l'icône
+    # (la variable ICON ne déploie l'icns que via le plist qu'il génère lui-même). On copie
+    # donc Sunglasses.icns à la main dans Contents/Resources, là où CFBundleIconFile la cherche.
+    rufus_icon.files = Sunglasses.icns
+    rufus_icon.path  = Contents/Resources
+    QMAKE_BUNDLE_DATA += rufus_icon
 }
 
 TEMPLATE = app
