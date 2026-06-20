@@ -10780,7 +10780,7 @@ void Rufus::LireLaCPS()
             }
         // A REVOIR : faire tout ce qu'il faut pour nouveau user ... mais quoi ???
         currentuser()->setid(idusrdata.at(0).toInt());
-        setWindowTitle("RufusQt6 - " + currentuser()->login() + " - " + currentuser()->fonction());
+        setWindowTitle("Rufus - " + currentuser()->login() + " - " + currentuser()->fonction());
         }
 }
 /*-----------------------------------------------------------------------------------------------------------------
