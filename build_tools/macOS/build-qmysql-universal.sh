@@ -157,6 +157,18 @@ DRV="$(find "${WORK}/sqldrv-build" -name 'libqsqlmysql.dylib' -type f | head -n1
 [ -n "${DRV}" ] || { echo "ERREUR : pilote non construit" >&2; exit 1; }
 DRIVER="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
 cp -f "${DRV}" "${DRIVER}"
+
+# Dépendance libmariadb STABLE : le pilote pointait vers le dossier TEMPORAIRE de build
+# (éphémère). On copie libmariadb dans le lib/ de Qt et on réécrit la référence du pilote vers
+# ce chemin fixe. -> Rufus en dev local trouve la lib ; et macdeployqt suivra ce chemin pour
+# l'embarquer dans le bundle. (libmariadb contient déjà OpenSSL en statique : aucune autre dépendance.)
+STABLE_MARIADB="${QT_PREFIX}/lib/$(basename "${MARIADB_DYLIB}")"
+cp -f "${MARIADB_DYLIB}" "${STABLE_MARIADB}"
+chmod u+w "${STABLE_MARIADB}"
+install_name_tool -id "${STABLE_MARIADB}" "${STABLE_MARIADB}" 2>/dev/null || true
+install_name_tool -change "${MARIADB_DYLIB}" "${STABLE_MARIADB}" "${DRIVER}" 2>/dev/null || true
+echo "   libmariadb stable : ${STABLE_MARIADB}"
+
 echo "== OK : ${DRIVER}"
 echo "   architectures : $(lipo -archs "${DRIVER}")"
 echo "   dépendances (otool) :"
