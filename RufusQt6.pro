@@ -16,9 +16,11 @@
 
 QT       += sql core gui network printsupport xml serialport multimedia multimediawidgets pdf
 
-OSX     { TARGET = /Applications/RufusQt6 }
-LINUX   { TARGET = $(HOME)/RufusQt6App }
-win32   { TARGET = Rufus }
+# Nom du produit = « Rufus » sur les 3 plateformes (macOS : Rufus.app ; Windows : Rufus.exe ;
+# Linux : binaire « Rufus »). Les anciens scopes « OSX » / « LINUX » n'étaient PAS des scopes
+# qmake valides (le scope macOS est « macx », pas « OSX ») : ils ne s'appliquaient jamais et
+# laissaient le nom par défaut « RufusQt6 » — d'où l'app macOS installée sous ce nom interne.
+TARGET = Rufus
 win32 {
 RC_ICONS = assets/Images/icon.ico
 RC_FILE = assets/Images/icon.rc

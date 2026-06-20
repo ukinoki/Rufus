@@ -70,10 +70,9 @@ if [ ! -f "${APP_PATH}/Contents/PlugIns/sqldrivers/libqsqlmysql.dylib" ]; then
     cp -f "${QSQLMYSQL}" "${APP_PATH}/Contents/PlugIns/sqldrivers/" 2>/dev/null || true
 fi
 
-# ── Nom du bundle = « Rufus.app » → installé directement dans /Applications ────
-# Le .pro ne fixe pas de nom propre sur macOS (les scopes OSX/LINUX ne sont pas des scopes
-# qmake valides → bundle « RufusQt6.app » par défaut). On le renomme ici, AVANT la signature,
-# pour que l'utilisateur obtienne /Applications/Rufus.app (et non un nom interne de build).
+# ── Filet de sécurité : nom du bundle = « Rufus.app » → /Applications/Rufus.app ─
+# Le .pro fixe désormais TARGET = Rufus (bundle « Rufus.app »). Ce renommage ne sert donc plus
+# que de garde-fou si un ancien build fournissait encore « RufusQt6.app ». AVANT la signature.
 if [ "$(basename "${APP_PATH}")" != "Rufus.app" ]; then
     NEWAPP="$(dirname "${APP_PATH}")/Rufus.app"
     rm -rf "${NEWAPP}"
