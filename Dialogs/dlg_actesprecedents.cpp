@@ -76,10 +76,21 @@ ui(new Ui::dlg_actesprecedents)
     ui->ConclusionupTextEdit    ->setStyleSheet(style);
     ui->FermepushButton->installEventFilter(this);
 
-    if (m_avantdernieracte)
-        restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_ActesPrecedents).toByteArray());
-    else
-        restoreGeometry(proc->settings()->value(Position_Fiche Nom_fiche_AutreDossier).toByteArray());
+    QByteArray geo = m_avantdernieracte
+            ? proc->settings()->value(Position_Fiche Nom_fiche_ActesPrecedents).toByteArray()
+            : proc->settings()->value(Position_Fiche Nom_fiche_AutreDossier).toByteArray();
+    if (!geo.isEmpty())
+        restoreGeometry(geo);
+    else if (QWidget *principale = parentWidget())
+    {
+        //! Aucune géométrie enregistrée (1er affichage) : sans cela la fenêtre se place n'importe
+        //! où, souvent derrière la fenêtre principale. On l'accole au flanc droit de celle-ci, en
+        //! haut, sur la MOITIÉ de sa hauteur (la moitié basse revient à dlg_docsexternes). La
+        //! largeur de cette fiche est figée, donc on ne touche qu'à la hauteur et à la position.
+        const QRect r = principale->frameGeometry();
+        resize(width(), r.height() / 2);
+        move(r.right() + 1, r.top());
+    }
 
     connect (ui->FermepushButton,           &QPushButton::clicked,  this,   &dlg_actesprecedents::close);
     connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Suiv);});

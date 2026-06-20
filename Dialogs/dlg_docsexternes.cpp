@@ -16,6 +16,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_multiimageviewer.h"
 #include "gbl_datas.h"
 #include "icons.h"
+#include <QMainWindow>
+#include <QScreen>
+#include <QGuiApplication>
 
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) : dlg_singleimageviewer(parent)
 {
@@ -113,6 +116,40 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     RemplirTreeView();
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_DocsExternes);
+
+    //! Placement par défaut quand AUCUNE géométrie n'est encore enregistrée (1er affichage).
+    //! Sans cela, originalgeometry() est nul et Display() positionne la fenêtre en haut-gauche,
+    //! DERRIÈRE la fenêtre principale → invisible pour l'utilisateur. On l'amène donc dans
+    //! l'espace vacant en BAS À DROITE : accolée au flanc droit de la fenêtre principale, sous
+    //! la moitié haute occupée par dlg_actesprecedents, jusqu'aux bords droit/bas de l'écran.
+    //! Dès que l'utilisateur la déplace, sa position est mémorisée (setEnregPosition(true)) et
+    //! ce calcul ne s'applique plus.
+    if (originalgeometry() == QRect())
+    {
+        QWidget *principale = Q_NULLPTR;
+        const auto tops = qApp->topLevelWidgets();
+        for (QWidget *w : tops)
+            if (qobject_cast<QMainWindow*>(w)) { principale = w; break; }
+        QScreen *ecr = (principale && principale->screen()) ? principale->screen()
+                                                            : QGuiApplication::primaryScreen();
+        if (ecr != Q_NULLPTR)
+        {
+            const QRect dispo = ecr->availableGeometry();
+            int x, y;
+            if (principale != Q_NULLPTR)
+            {
+                const QRect r = principale->frameGeometry();
+                x = r.right() + 1;            //! accolée au flanc droit de la fenêtre principale
+                y = r.top() + r.height() / 2; //! moitié basse, sous dlg_actesprecedents
+            }
+            else { x = dispo.left() + dispo.width() / 2; y = dispo.top() + dispo.height() / 2; }
+            x = qBound(dispo.left(), x, dispo.right()  - 200);
+            y = qBound(dispo.top(),  y, dispo.bottom() - 200);
+            const QRect defaut(QPoint(x, y), QPoint(dispo.right(), dispo.bottom()));
+            setOriginalgeometry(defaut);  //! utilisée par dlg_singleimageviewer::Display() pour le move()
+            setGeometry(defaut);
+        }
+    }
 }
 
 dlg_docsexternes::~dlg_docsexternes()
