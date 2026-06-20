@@ -46,6 +46,24 @@ QMAKE="${QT_BIN}/qmake"
 QTCMAKE="${QT_BIN}/qt-cmake"
 echo "== Qt détecté : ${QT_BIN}"
 
+# Localiser cmake : PATH, sinon celui embarqué par le Qt officiel (~/Qt/Tools/CMake…).
+# qt-cmake appelle cmake → on ajoute aussi son dossier au PATH. En CI, cmake est déjà présent.
+find_cmake() {
+    command -v cmake >/dev/null 2>&1 && { command -v cmake; return 0; }
+    local c
+    c="$(ls -d "${HOME}"/Qt/Tools/CMake*/CMake.app/Contents/bin/cmake 2>/dev/null | sort -V | tail -n1)"
+    [ -n "${c}" ] && { echo "${c}"; return 0; }
+    return 1
+}
+CMAKE="$(find_cmake)" || {
+    echo "ERREUR : cmake introuvable." >&2
+    echo "  -> installe-le : 'brew install cmake', OU via le Qt Maintenance Tool" >&2
+    echo "     (Developer and Designer Tools > CMake)." >&2
+    exit 1
+}
+export PATH="$(dirname "${CMAKE}"):${PATH}"
+echo "== cmake détecté : ${CMAKE}"
+
 QT_PREFIX="$("${QMAKE}" -query QT_INSTALL_PREFIX)"
 QT_PLUGINS="$("${QMAKE}" -query QT_INSTALL_PLUGINS)"
 QT_VER="$("${QMAKE}" -query QT_VERSION)"
@@ -90,7 +108,7 @@ curl -fL -o mariadb.tar.gz \
 tar xf mariadb.tar.gz
 MARIADB_SRC="${WORK}/mariadb-connector-c-${MARIADB_TAG#v}"
 
-cmake -S "${MARIADB_SRC}" -B "${WORK}/mariadb-build" \
+"${CMAKE}" -S "${MARIADB_SRC}" -B "${WORK}/mariadb-build" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_OSX_ARCHITECTURES="${ARCHS}" \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOY_TARGET}" \
@@ -100,8 +118,8 @@ cmake -S "${MARIADB_SRC}" -B "${WORK}/mariadb-build" \
     -DWITH_UNIT_TESTS=OFF \
     -DCMAKE_INSTALL_PREFIX="${WORK}/mariadb" >/dev/null
 echo "-- MariaDB Connector/C ${MARIADB_TAG}…"
-cmake --build "${WORK}/mariadb-build" -j"${JOBS}" --target libmariadb >/dev/null
-cmake --install "${WORK}/mariadb-build" >/dev/null
+"${CMAKE}" --build "${WORK}/mariadb-build" -j"${JOBS}" --target libmariadb >/dev/null
+"${CMAKE}" --install "${WORK}/mariadb-build" >/dev/null
 
 MARIADB_DYLIB="$(find "${WORK}/mariadb" -name 'libmariadb*.dylib' -type f | head -n1)"
 MARIADB_INC="$(dirname "$(find "${WORK}/mariadb" -name 'mysql.h' | head -n1)")"
@@ -123,8 +141,8 @@ echo "-- Pilote Qt qsqlmysql…"
     -DCMAKE_INSTALL_PREFIX="${QT_PREFIX}" \
     -DMySQL_INCLUDE_DIR="${MARIADB_INC}" \
     -DMySQL_LIBRARY="${MARIADB_DYLIB}" >/dev/null
-cmake --build "${WORK}/sqldrv-build" -j"${JOBS}" >/dev/null
-cmake --install "${WORK}/sqldrv-build" >/dev/null
+"${CMAKE}" --build "${WORK}/sqldrv-build" -j"${JOBS}" >/dev/null
+"${CMAKE}" --install "${WORK}/sqldrv-build" >/dev/null
 
 DRIVER="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
 [ -f "${DRIVER}" ] || { echo "ERREUR : ${DRIVER} non installé"; exit 1; }
