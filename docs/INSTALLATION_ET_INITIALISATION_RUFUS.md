@@ -94,10 +94,12 @@ B - TACHES SPECIFIQUES LINUX DEDIEES A L'INSTALLEUR LINUX (AppImage / AppRun) �
    l'AppImage (build_tools/Linux/AppRun). Au TOUT PREMIER lancement (double-clic sur le fichier
    .AppImage, AVANT que le poste ne soit installé), il joue une séquence d'installation complète
 
-   Comment il sait s'il doit (ré)installer : il le sait déjà. Il a regardé s'il y avait un rufs.ini à la phase 1.A
-   (tant qu'il n'existe pas de raccourci de menu
-   (~/.local/share/applications/rufus.desktop), il rejoue la séquence ; sa présence = « déjà
-   installé » → lancement direct. (Désactivable en exportant RUFUS_NO_INSTALL=1.))
+   Comment il sait s'il doit (ré)installer : il le lit EN CLAIR dans les MENUS. Tant qu'il n'existe
+   pas de raccourci de menu (~/.local/share/applications/rufus.desktop), il rejoue la séquence ; la
+   présence de ce raccourci = « déjà installé » → lancement direct. (Désactivable en exportant
+   RUFUS_NO_INSTALL=1.)
+   À ne pas confondre avec la lecture de Rufus.ini faite à la phase 1.A : celle-ci ne sert PAS à
+   décider de l'installation, mais seulement au pré-contrôle MySQL (et à présélectionner la langue).
 
    Ordre de la séquence d'installation :
      0.  Centrage des fenêtres : zenity n'ayant pas d'option de position, on active le temps de

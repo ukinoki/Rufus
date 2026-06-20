@@ -51,12 +51,14 @@ ecrit_certif() {
     printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${CERTIF}" 2>/dev/null
 }
 
-# Y a-t-il une BASE Rufus À PROTÉGER sur ce poste ? On se fie UNIQUEMENT à rufus.ini
+# Y a-t-il une BASE Rufus À PROTÉGER sur ce poste ? On se fie UNIQUEMENT à Rufus.ini
 # (= poste réellement configuré / connecté à une base). PAS au raccourci menu ni à l'AppImage
 # installée : ceux-ci signifient seulement « Rufus a déjà été lancé ici », pas « il y a une base ».
 # Sinon un simple 2e lancement (après ajout au menu) déclencherait à tort le pré-contrôle MySQL.
+# NB : nom canonique « Rufus.ini » (macro NOM_FILE_INI) ; on tolère aussi l'ancienne casse
+# minuscule, Linux étant sensible à la casse.
 rufus_preexistant() {
-    [ -f "${HOME}/Documents/Rufus/rufus.ini" ]
+    [ -f "${HOME}/Documents/Rufus/Rufus.ini" ] || [ -f "${HOME}/Documents/Rufus/rufus.ini" ]
 }
 
 # 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
