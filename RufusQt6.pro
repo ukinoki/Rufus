@@ -33,11 +33,13 @@ RC_FILE = assets/Images/icon.rc
 # qmake ne substitue PAS de façon fiable les jetons @…@ dans un plist fourni. L'icône elle-même
 # est copiée dans Resources par la variable ICON (Sunglasses.icns) plus bas.
 macx {
-    QMAKE_INFO_PLIST = build_tools/macOS/Info.plist
+    # Chemin ABSOLU via $$PWD (dossier du .pro source) : en shadow build (Qt Creator), un chemin
+    # RELATIF est résolu depuis le dossier de BUILD où le fichier n'existe pas → Info.plist VIDE.
+    QMAKE_INFO_PLIST = $$PWD/build_tools/macOS/Info.plist
     # Quand on fournit son propre Info.plist, qmake NE copie PLUS automatiquement l'icône
     # (la variable ICON ne déploie l'icns que via le plist qu'il génère lui-même). On copie
     # donc Sunglasses.icns à la main dans Contents/Resources, là où CFBundleIconFile la cherche.
-    rufus_icon.files = Sunglasses.icns
+    rufus_icon.files = $$PWD/Sunglasses.icns
     rufus_icon.path  = Contents/Resources
     QMAKE_BUNDLE_DATA += rufus_icon
 }
