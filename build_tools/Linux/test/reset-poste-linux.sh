@@ -62,7 +62,31 @@ echo "-- Étape 4 : nettoyage du home"
 rm -rf "${HOME_REEL}/.rufus" \
        "${HOME_REEL}/.local/bin/Rufus.AppImage" \
        "${HOME_REEL}/.local/share/applications/rufus.desktop" \
+       "${HOME_REEL}/.local/share/icons/hicolor/256x256/apps/rufus.png" \
        "${HOME_REEL}/Documents/Rufus"
+# Raccourci sur le bureau (FR « Bureau » ou EN « Desktop »)
+rm -f "${HOME_REEL}/Bureau/rufus.desktop" "${HOME_REEL}/Desktop/rufus.desktop"
 sudo -u "${USER_REEL}" update-desktop-database "${HOME_REEL}/.local/share/applications" 2>/dev/null || true
+
+# ── 5. Désépinglage de la barre des favoris (GNOME) ───────────────────────────
+# gsettings a besoin de la session DBus de l'utilisateur réel (pas celle de root).
+echo "-- Étape 5 : désépinglage de Rufus des favoris GNOME (best-effort)"
+RUNTIME_DIR="/run/user/$(id -u "${USER_REEL}")"
+sudo -u "${USER_REEL}" \
+    env XDG_RUNTIME_DIR="${RUNTIME_DIR}" \
+        DBUS_SESSION_BUS_ADDRESS="unix:path=${RUNTIME_DIR}/bus" \
+    python3 - <<'PY' 2>/dev/null || true
+import subprocess, ast
+try:
+    cur = subprocess.check_output(
+        ['gsettings', 'get', 'org.gnome.shell', 'favorite-apps'], text=True).strip()
+    lst = ast.literal_eval(cur) if cur.startswith('[') else []
+    if 'rufus.desktop' in lst:
+        lst = [x for x in lst if x != 'rufus.desktop']
+        subprocess.run(['gsettings', 'set', 'org.gnome.shell', 'favorite-apps',
+                        '[' + ', '.join("'%s'" % x for x in lst) + ']'])
+except Exception:
+    pass
+PY
 
 echo "== Reset terminé. Déconnecte/reconnecte la session (groupe dialout) avant de retester. =="

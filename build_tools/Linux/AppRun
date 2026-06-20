@@ -114,32 +114,40 @@ if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && rufus
     socle_mysql_ok || exit 1
 fi
 
-# ── Configuration système du poste (composants requis, 1er lancement) ─────────
+# ── 1. Configuration système du poste (composants requis) ─────────────────────
 #  Composants que l'AppImage ne peut PAS embarquer proprement : polices (dont les
 #  MS core fonts), plugins GStreamer (lecture vidéo), client MySQL (sauvegarde/
 #  restauration), et appartenance au groupe « dialout » (appareils de mesure sur
-#  port série). Installés via UN seul pkexec (apt), au 1er lancement, avec
-#  consentement, UNE seule fois (marqueur ~/.rufus/.systeme_ok).
+#  port série). Installés via UN seul pkexec (apt), à l'installation, avec
+#  consentement.
+#  Plus de marqueur « .systeme_ok » : tant que le poste n'est pas installé (pas de
+#  .desktop), on rejoue toute la séquence. Si la config ÉCHOUE vraiment, on s'arrête
+#  et on explique pourquoi ; la trace détaillée va dans ~/.rufus/install-systeme.log.
 #  NB : libfuse2 (requis pour LANCER l'AppImage) ne peut pas s'auto-installer ici
 #  (œuf/poule) → c'est un prérequis documenté sur la page de téléchargement.
+#  Retour : 0 = OK (ou non applicable : pas de GUI / distribution non-apt) ; 1 = échec → on stoppe.
 configurer_systeme() {
-    local marqueur="${RUFUS_DIR}/.systeme_ok"
     [ -n "${RUFUS_NO_INSTALL}" ]          && return 0
-    [ -f "${marqueur}" ]                  && return 0   # déjà configuré
     [ -z "${DISPLAY}${WAYLAND_DISPLAY}" ] && return 0   # pas d'affichage graphique
     command -v zenity  >/dev/null 2>&1    || return 0   # pas d'UI pour demander
     command -v apt-get >/dev/null 2>&1    || return 0   # distribution non-apt : on ne touche à rien
 
     zenity --question --no-wrap --title="Configurer Rufus sur ce poste" \
         --text="Rufus va installer quelques composants système nécessaires :\n  •  polices (affichage et impression des documents)\n  •  lecture des vidéos (GStreamer)\n  •  client MySQL (sauvegarde / restauration)\n  •  accès aux appareils de mesure sur port série\n\nLe mot de passe administrateur vous sera demandé." \
-        --ok-label="Installer maintenant" --cancel-label="Plus tard" 2>/dev/null || return 0
+        --ok-label="Installer maintenant" --cancel-label="Annuler" 2>/dev/null || {
+            zenity --error --no-wrap --title="Installation interrompue" \
+                --text="La configuration du système a été annulée.\n\nRufus a besoin de ces composants pour fonctionner :\nrelancez l'installation quand vous serez prêt." 2>/dev/null
+            return 1
+        }
 
     local user; user="$(id -un)"
+    local LOG="${RUFUS_DIR}/install-systeme.log"
+    mkdir -p "${RUFUS_DIR}" 2>/dev/null
 
     if ! command -v pkexec >/dev/null 2>&1; then
         zenity --warning --no-wrap --title="Installation manuelle requise" \
-            --text="pkexec est absent. Ouvrez un terminal et exécutez :\n\nsudo apt install gsfonts ttf-mscorefonts-installer gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio mysql-client\nsudo usermod -aG dialout ${user}" 2>/dev/null
-        return 0
+            --text="pkexec est absent. Ouvrez un terminal et exécutez :\n\nsudo apt install gsfonts ttf-mscorefonts-installer gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio mysql-client\nsudo usermod -aG dialout ${user}\n\nPuis relancez Rufus." 2>/dev/null
+        return 1
     fi
 
     # Un SEUL pkexec : EULA mscorefonts pré-acceptée, apt update, install PAQUET PAR
@@ -147,48 +155,54 @@ configurer_systeme() {
     # L'utilisateur réel est passé via env (pkexec s'exécute en root, $USER y vaudrait root).
     # DPkg::Lock::Timeout=300 : si unattended-upgrades tient le verrou apt (fréquent sur un
     # système fraîchement installé), apt patiente proprement jusqu'à 5 min au lieu de figer.
+    # Le code de sortie porte le diagnostic : 10 = pas d'accès aux dépôts (réseau) ; pkexec
+    # ajoute 126 (auth annulée) / 127 (non autorisé). La sortie complète est tee-ée dans LOG.
     # (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...' — ça casserait la quote.)
     pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" bash -c '
         trap "" PIPE
         echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
-        apt-get -o DPkg::Lock::Timeout=300 update -y || true
+        rc=0
+        if ! apt-get -o DPkg::Lock::Timeout=300 update -y; then
+            echo "RUFUS_ERR: echec de apt-get update (acces reseau aux depots indisponible)"
+            rc=10
+        fi
         for p in gsfonts ttf-mscorefonts-installer \
                  gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
                  gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
                  gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
                  gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 \
                  gstreamer1.0-pulseaudio mysql-client ; do
-            apt-get -o DPkg::Lock::Timeout=300 install -y "$p" || echo "RUFUS: paquet indisponible, ignoré: $p"
+            apt-get -o DPkg::Lock::Timeout=300 install -y "$p" || echo "RUFUS_ERR: paquet non installe: $p"
         done
-        usermod -aG dialout "$RUFUS_USER" || true
-    ' 2>&1 | sed -u 's/^/# /' | zenity --progress --pulsate --no-cancel --auto-close \
+        usermod -aG dialout "$RUFUS_USER" || echo "RUFUS_ERR: ajout au groupe dialout impossible"
+        exit $rc
+    ' 2>&1 | tee "${LOG}" | sed -u 's/^/# /' | zenity --progress --pulsate --no-cancel --auto-close \
         --title="Installation des composants Rufus" \
         --text="Installation en cours… (cela peut prendre quelques minutes)" 2>/dev/null
     local rc=${PIPESTATUS[0]}
 
     if [ "${rc}" -eq 0 ]; then
-        mkdir -p "${RUFUS_DIR}"          # le dossier doit exister AVANT d'y écrire le marqueur
-        : > "${marqueur}"               # (sinon échec silencieux : .certif présent, .systeme_ok absent)
         ecrit_certif "Config système OK (polices, GStreamer, mysql-client, dialout) pour ${user}"
-        zenity --info --no-wrap --title="Configuration terminée" \
-            --text="Composants installés.\n\nPour l'accès aux appareils sur port série, déconnectez puis reconnectez votre session." 2>/dev/null
-    else
-        ecrit_certif "Config système annulée/échouée (rc=${rc})"
+        return 0
     fi
+
+    # Échec réel : on explique (si on peut) et on stoppe l'installation.
+    local raison
+    case "${rc}" in
+        126) raison="Authentification annulée (mot de passe administrateur non fourni)." ;;
+        127) raison="Authentification refusée : ce compte n'est pas autorisé à installer des logiciels (droits administrateur/sudo requis)." ;;
+        10)  raison="Impossible d'accéder aux dépôts de paquets. Vérifiez la connexion réseau, puis relancez." ;;
+        *)   raison="Une erreur est survenue pendant l'installation des composants." ;;
+    esac
+    ecrit_certif "Config système ÉCHEC (rc=${rc}) : ${raison}"
+    zenity --error --no-wrap --title="Configuration du système impossible" \
+        --text="La configuration du système n'a pas pu se dérouler ; Rufus n'a pas été installé.\n\n${raison}\n\nDétails techniques : ${LOG}" 2>/dev/null
+    return 1
 }
 
-integration_proposee() {
-    # Déjà installé, ou demande explicite de ne rien faire, ou pas d'affichage
-    # graphique (lancement en ligne de commande) → on ne propose rien.
-    [ -n "${RUFUS_NO_INSTALL}" ] && return 1
-    [ -f "${DESKTOP}" ]         && return 1
-    [ -z "${DISPLAY}${WAYLAND_DISPLAY}" ] && return 1
-    # $APPIMAGE est posé par le runtime AppImage et pointe sur le fichier lui-même.
-    [ -z "${APPIMAGE}" ]        && return 1
-    return 0
-}
-
-installer() {
+# Inscription de Rufus dans les MENUS (copie de l'AppImage + icône + .desktop).
+# Démarche standard d'un installeur : on inscrit, on ne le demande pas.
+inscrire_dans_menus() {
     mkdir -p "${APPS_DIR}" "${ICONS_DIR}" "${BIN_DIR}"
 
     # 1. Copie de l'AppImage dans ~/.local/bin
@@ -219,23 +233,74 @@ EOF
         gtk-update-icon-cache -f -t "${HOME}/.local/share/icons/hicolor" >/dev/null 2>&1
 }
 
+# Raccourci sur le BUREAU (copie du .desktop, marqué « de confiance » pour GNOME).
+creer_raccourci_bureau() {
+    local desk
+    desk="$(xdg-user-dir DESKTOP 2>/dev/null)"
+    [ -z "${desk}" ] && { [ -d "${HOME}/Bureau" ] && desk="${HOME}/Bureau" || desk="${HOME}/Desktop"; }
+    mkdir -p "${desk}" 2>/dev/null
+    cp -f "${DESKTOP}" "${desk}/rufus.desktop" 2>/dev/null || return 0
+    chmod +x "${desk}/rufus.desktop" 2>/dev/null
+    # GNOME ≥ 3.36 grise le lanceur tant qu'il n'est pas marqué « trusted ».
+    command -v gio >/dev/null 2>&1 && gio set "${desk}/rufus.desktop" metadata::trusted true 2>/dev/null
+}
+
+# Épingler Rufus dans la barre des FAVORIS (Activités GNOME) via gsettings.
+ajouter_aux_favoris() {
+    command -v gsettings >/dev/null 2>&1 || return 0
+    local cur
+    cur="$(gsettings get org.gnome.shell favorite-apps 2>/dev/null)" || return 0
+    case "${cur}" in *"'rufus.desktop'"*) return 0 ;; esac   # déjà épinglé
+    local nouv
+    case "${cur}" in
+        "@as []"|"[]") nouv="['rufus.desktop']" ;;
+        *)             nouv="${cur%]*}, 'rufus.desktop']" ;;
+    esac
+    gsettings set org.gnome.shell favorite-apps "${nouv}" 2>/dev/null
+}
+
+# Boîte finale : annonce l'installation réussie et propose, par cases à cocher,
+# le raccourci bureau (précoché), les favoris (précoché) et le lancement (décoché).
+proposer_raccourcis_et_lancement() {
+    command -v zenity >/dev/null 2>&1 || return 0   # pas d'UI : on s'arrête là, sans lancer
+
+    local sel
+    sel="$(zenity --list --checklist \
+        --title="Rufus est installé" --width=540 --height=300 \
+        --text="Rufus a été correctement installé sur ce poste et dans les menus,\net le système a été configuré pour qu'il puisse fonctionner.\n\nQue souhaitez-vous faire ?" \
+        --column="" --column="id" --column="Action" \
+        --hide-column=2 --print-column=2 \
+        TRUE  bureau  "Créer un raccourci sur le bureau" \
+        TRUE  favoris "Inscrire dans la barre des favoris" \
+        FALSE lancer  "Exécuter Rufus maintenant" \
+        2>/dev/null)"
+
+    case "${sel}" in *bureau*)  creer_raccourci_bureau ;; esac
+    case "${sel}" in *favoris*) ajouter_aux_favoris    ;; esac
+    case "${sel}" in *lancer*)  exec "${BIN}" "$@"     ;; esac   # remplace le process : Rufus démarre
+}
+
+# Faut-il (re)jouer la séquence d'installation ? Oui tant que le poste n'est pas
+# installé (pas de .desktop), qu'on n'a pas explicitement désactivé l'install, et
+# qu'on tourne bien depuis l'AppImage avec un affichage graphique.
+integration_proposee() {
+    [ -n "${RUFUS_NO_INSTALL}" ]          && return 1
+    [ -f "${DESKTOP}" ]                   && return 1   # déjà installé
+    [ -z "${DISPLAY}${WAYLAND_DISPLAY}" ] && return 1   # lancement en ligne de commande
+    [ -z "${APPIMAGE}" ]                  && return 1   # posé par le runtime AppImage
+    return 0
+}
+
+# ── Séquence d'INSTALLATION (1er lancement de l'AppImage, poste pas encore installé) ──
 if integration_proposee; then
-    REPONSE=1   # par défaut : on installe (si pas de zenity pour demander)
-    if command -v zenity >/dev/null 2>&1; then
-        zenity --question --no-wrap --title="Installer Rufus" \
-            --text="Voulez-vous ajouter Rufus au menu des applications de cet ordinateur ?" \
-            2>/dev/null
-        REPONSE=$?
-    fi
-    if [ "${REPONSE}" -eq 0 ]; then
-        installer
-        command -v zenity >/dev/null 2>&1 && zenity --info --no-wrap \
-            --title="Rufus installé" \
-            --text="Rufus a été ajouté au menu des applications.\nVous pouvez désormais le lancer depuis le menu d'Ubuntu." 2>/dev/null
-    fi
+    # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
+    configurer_systeme || exit 1
+    # 2. Inscrire Rufus dans les menus (sans le demander).
+    inscrire_dans_menus
+    # 3. Proposer raccourci bureau / favoris / lancement. Ne lance Rufus que si demandé.
+    proposer_raccourcis_et_lancement
+    exit 0
 fi
 
-# Composants système requis (polices, vidéo, port série, mysql-client) — 1er lancement.
-configurer_systeme
-
+# ── Lancement NORMAL (poste déjà installé : démarrage depuis le menu) ──────────
 exec "${BIN}" "$@"
