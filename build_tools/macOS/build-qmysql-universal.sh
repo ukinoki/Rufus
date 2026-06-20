@@ -118,10 +118,10 @@ MARIADB_SRC="${WORK}/mariadb-connector-c-${MARIADB_TAG#v}"
     -DWITH_EXTERNAL_ZLIB=ON \
     -DWITH_UNIT_TESTS=OFF \
     -DCMAKE_C_FLAGS="-w" \
-    -DCMAKE_CXX_FLAGS="-w" \
     -DCMAKE_INSTALL_PREFIX="${WORK}/mariadb" >/dev/null
 echo "-- MariaDB Connector/C ${MARIADB_TAG}…"
-"${CMAKE}" --build "${WORK}/mariadb-build" -j"${JOBS}" --target libmariadb >/dev/null
+# On construit TOUTES les cibles (lib + plugins comme dialog.so) : l'install les attend toutes.
+"${CMAKE}" --build "${WORK}/mariadb-build" -j"${JOBS}" >/dev/null
 "${CMAKE}" --install "${WORK}/mariadb-build" >/dev/null
 
 MARIADB_DYLIB="$(find "${WORK}/mariadb" -name 'libmariadb*.dylib' -type f | head -n1)"
