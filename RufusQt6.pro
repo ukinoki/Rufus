@@ -28,8 +28,10 @@ RC_FILE = assets/Images/icon.rc
 # macOS : on fournit NOTRE Info.plist (CFBundleName=Rufus, identifiant, icône, Retina…).
 # Indispensable car le gabarit « Info.plist.app » manque dans le mkspec macx-clang de
 # certaines versions de Qt (présent seulement dans macx-g++) : sans QMAKE_INFO_PLIST, qmake
-# échoue à générer le plist d'un bundle NEUF (« Info.plist.app: no such file »). @EXECUTABLE@,
-# @ICON@ et @TYPEINFO@ sont renseignés par qmake.
+# échoue à générer le plist d'un bundle NEUF (« Info.plist.app: no such file »).
+# Valeurs codées EN DUR dans le plist (CFBundleExecutable=Rufus, CFBundleIconFile=Sunglasses.icns) :
+# qmake ne substitue PAS de façon fiable les jetons @…@ dans un plist fourni. L'icône elle-même
+# est copiée dans Resources par la variable ICON (Sunglasses.icns) plus bas.
 macx {
     QMAKE_INFO_PLIST = build_tools/macOS/Info.plist
 }

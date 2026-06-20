@@ -7,15 +7,15 @@
     <key>CFBundleDisplayName</key>
     <string>Rufus</string>
     <key>CFBundleExecutable</key>
-    <string>@EXECUTABLE@</string>
+    <string>Rufus</string>
     <key>CFBundleIconFile</key>
-    <string>@ICON@</string>
+    <string>Sunglasses.icns</string>
     <key>CFBundleIdentifier</key>
     <string>org.rufusvision.rufus</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleSignature</key>
-    <string>@TYPEINFO@</string>
+    <string>????</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleShortVersionString</key>
