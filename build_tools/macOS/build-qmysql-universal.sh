@@ -115,7 +115,9 @@ MARIADB_SRC="${WORK}/mariadb-connector-c-${MARIADB_TAG#v}"
     -DWITH_SSL=OPENSSL \
     -DOPENSSL_ROOT_DIR="${WORK}/ossl" \
     -DOPENSSL_USE_STATIC_LIBS=TRUE \
+    -DWITH_EXTERNAL_ZLIB=ON \
     -DWITH_UNIT_TESTS=OFF \
+    -DCMAKE_C_FLAGS="-Wno-error" \
     -DCMAKE_INSTALL_PREFIX="${WORK}/mariadb" >/dev/null
 echo "-- MariaDB Connector/C ${MARIADB_TAG}…"
 "${CMAKE}" --build "${WORK}/mariadb-build" -j"${JOBS}" --target libmariadb >/dev/null
