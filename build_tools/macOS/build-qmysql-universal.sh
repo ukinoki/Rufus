@@ -131,31 +131,32 @@ MARIADB_INC="$(dirname "$(find "${WORK}/mariadb" -name 'mysql.h' | head -n1)")"
 install_name_tool -id "${MARIADB_DYLIB}" "${MARIADB_DYLIB}"
 echo "   libmariadb : ${MARIADB_DYLIB} ($(lipo -archs "${MARIADB_DYLIB}"))"
 
-# ── 3. Pilote Qt qsqlmysql universel (compilé PAR ARCHI puis assemblé au lipo) ─
-# qt-cmake ne gère PAS une LISTE d'archis : « x86_64;arm64 » est réduit à la première.
-# On construit donc le pilote séparément pour chaque archi (valeur unique, bien respectée),
-# puis on assemble les deux .dylib mono-archi en un binaire universel avec lipo.
+# ── 3. Pilote Qt qsqlmysql universel ──────────────────────────────────────────
+# La chaîne Qt (build « qt_build_repo ») IGNORE -DCMAKE_OSX_ARCHITECTURES et impose x86_64.
+# On force donc les DEUX archis au niveau du compilateur ET de l'éditeur de liens
+# (-arch x86_64 -arch arm64), ce que la chaîne Qt ne peut pas écraser → binaire universel
+# en un seul build (clang dédoublonne les -arch redondants).
 cd "${WORK}"
 curl -fL -o qtbase.tar.xz \
     "https://download.qt.io/official_releases/qt/${QT_MINOR}/${QT_VER}/submodules/qtbase-everywhere-src-${QT_VER}.tar.xz"
 mkdir -p qtbase && tar xf qtbase.tar.xz -C qtbase --strip-components=1
 
-build_driver() {                       # $1 = archi -> imprime le chemin du .dylib construit
-    local arch="$1"
-    "${QTCMAKE}" -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-${arch}" \
-        -DCMAKE_OSX_ARCHITECTURES="${arch}" \
-        -DMySQL_INCLUDE_DIR="${MARIADB_INC}" \
-        -DMySQL_LIBRARY="${MARIADB_DYLIB}" >/dev/null
-    "${CMAKE}" --build "${WORK}/sqldrv-${arch}" -j"${JOBS}" >/dev/null
-    find "${WORK}/sqldrv-${arch}" -name 'libqsqlmysql.dylib' -type f | head -n1
-}
-echo "-- Pilote Qt qsqlmysql (x86_64)…" ; DRV_X86="$(build_driver x86_64)"
-echo "-- Pilote Qt qsqlmysql (arm64)…"  ; DRV_ARM="$(build_driver arm64)"
-[ -n "${DRV_X86}" ] && [ -n "${DRV_ARM}" ] || {
-    echo "ERREUR : pilote non construit (x86_64='${DRV_X86}' arm64='${DRV_ARM}')" >&2; exit 1; }
+ARCHFLAGS="-arch x86_64 -arch arm64"
+echo "-- Pilote Qt qsqlmysql (universel, -arch forcé)…"
+"${QTCMAKE}" -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-build" \
+    -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64" \
+    -DCMAKE_C_FLAGS="${ARCHFLAGS}" \
+    -DCMAKE_CXX_FLAGS="${ARCHFLAGS}" \
+    -DCMAKE_SHARED_LINKER_FLAGS="${ARCHFLAGS}" \
+    -DCMAKE_MODULE_LINKER_FLAGS="${ARCHFLAGS}" \
+    -DMySQL_INCLUDE_DIR="${MARIADB_INC}" \
+    -DMySQL_LIBRARY="${MARIADB_DYLIB}" >/dev/null
+"${CMAKE}" --build "${WORK}/sqldrv-build" -j"${JOBS}" >/dev/null
 
+DRV="$(find "${WORK}/sqldrv-build" -name 'libqsqlmysql.dylib' -type f | head -n1)"
+[ -n "${DRV}" ] || { echo "ERREUR : pilote non construit" >&2; exit 1; }
 DRIVER="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
-lipo -create "${DRV_X86}" "${DRV_ARM}" -output "${DRIVER}"
+cp -f "${DRV}" "${DRIVER}"
 echo "== OK : ${DRIVER}"
 echo "   architectures : $(lipo -archs "${DRIVER}")"
 echo "   dépendances (otool) :"
