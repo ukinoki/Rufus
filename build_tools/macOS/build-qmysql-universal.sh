@@ -24,9 +24,31 @@ set -euo pipefail
 OSSL_VER="${OSSL_VER:-3.0.16}"
 MARIADB_TAG="${MARIADB_TAG:-v3.4.3}"
 
-QT_PREFIX="${QT_ROOT_DIR:-$(qmake -query QT_INSTALL_PREFIX)}"
-QT_PLUGINS="$(qmake -query QT_INSTALL_PLUGINS)"
-QT_VER="$(qmake -query QT_VERSION)"
+# Localiser Qt (qmake + qt-cmake). Priorité : PATH ; sinon $QTDIR / $QT_ROOT_DIR ; sinon la
+# version la plus récente sous ~/Qt/<ver>/macos/bin (install Qt officielle). En CI, qmake est
+# déjà dans le PATH (install-qt-action) → premier cas.
+find_qt_bin() {
+    if command -v qmake >/dev/null 2>&1; then dirname "$(command -v qmake)"; return 0; fi
+    [ -n "${QTDIR:-}" ]        && [ -x "${QTDIR}/bin/qmake" ]        && { echo "${QTDIR}/bin"; return 0; }
+    [ -n "${QT_ROOT_DIR:-}" ]  && [ -x "${QT_ROOT_DIR}/bin/qmake" ]  && { echo "${QT_ROOT_DIR}/bin"; return 0; }
+    local cand
+    cand="$(ls -d "${HOME}"/Qt/*/macos/bin/qmake 2>/dev/null | sort -V | tail -n1)"
+    [ -n "${cand}" ] && { dirname "${cand}"; return 0; }
+    return 1
+}
+QT_BIN="$(find_qt_bin)" || {
+    echo "ERREUR : qmake introuvable." >&2
+    echo "  -> ajoute Qt au PATH, ou exporte QTDIR (ex. export QTDIR=~/Qt/6.10.2/macos)" >&2
+    exit 1
+}
+export PATH="${QT_BIN}:${PATH}"
+QMAKE="${QT_BIN}/qmake"
+QTCMAKE="${QT_BIN}/qt-cmake"
+echo "== Qt détecté : ${QT_BIN}"
+
+QT_PREFIX="$("${QMAKE}" -query QT_INSTALL_PREFIX)"
+QT_PLUGINS="$("${QMAKE}" -query QT_INSTALL_PLUGINS)"
+QT_VER="$("${QMAKE}" -query QT_VERSION)"
 QT_MINOR="${QT_VER%.*}"
 ARCHS="x86_64;arm64"
 DEPLOY_TARGET="11.0"
@@ -95,7 +117,7 @@ curl -fL -o qtbase.tar.xz \
 mkdir -p qtbase && tar xf qtbase.tar.xz -C qtbase --strip-components=1
 
 echo "-- Pilote Qt qsqlmysql…"
-qt-cmake -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-build" \
+"${QTCMAKE}" -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-build" \
     -DCMAKE_OSX_ARCHITECTURES="${ARCHS}" \
     -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOY_TARGET}" \
     -DCMAKE_INSTALL_PREFIX="${QT_PREFIX}" \
