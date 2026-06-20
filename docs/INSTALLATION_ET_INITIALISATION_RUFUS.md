@@ -1,4 +1,10 @@
-Installation de la nouvelle version de Rufus — mot de passe MySQL sécurisé et version de la base
+Installation et initialisation de Rufus — référence des 3 environnements (Windows, macOS, Linux)
+
+Ce document décrit le PROCESSUS d'installation et d'initialisation de Rufus : pré-contrôle et
+installation de MySQL, mot de passe sécurisé et version de la base, connexions chiffrées (SSL), et
+— sous Linux — les tâches de l'AppRun (composants système, inscription dans les menus, raccourcis).
+Pour les PRINCIPES de fonctionnement (démarrage, création de base, modèle de sécurité des accès),
+voir le document voisin docs/INITIALISATION_ET_SECURITE.md.
 
 CE QUI CHANGE
 1. La nouvelle version exige un serveur MySQL qui sait gérer le DOUBLE MOT DE PASSE.

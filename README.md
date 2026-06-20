@@ -13,8 +13,8 @@ Sous Linux, télécharger le fichier rufus.Appimage et copier le dans le dossier
 
 # Documentation
 La documentation de référence est regroupée dans le dossier [`docs/`](docs/) :
-- [`docs/INITIALISATION_ET_SECURITE.md`](docs/INITIALISATION_ET_SECURITE.md) — démarrage de Rufus, création d'une base patients, modèle de sécurité des accès MySQL.
-- [`docs/MYSQL_INSTALLATION_ET_SECURITE.md`](docs/MYSQL_INSTALLATION_ET_SECURITE.md) — prérequis d'installation MySQL, flux de sécurisation du mot de passe, connexions chiffrées (SSL).
+- [`docs/INSTALLATION_ET_INITIALISATION_RUFUS.md`](docs/INSTALLATION_ET_INITIALISATION_RUFUS.md) — processus d'installation et d'initialisation de Rufus sur les 3 environnements (Windows, macOS, Linux) : pré-contrôle et installation MySQL, mot de passe sécurisé, connexions chiffrées (SSL), et tâches de l'installeur Linux (composants système, menus, raccourcis).
+- [`docs/INITIALISATION_ET_SECURITE.md`](docs/INITIALISATION_ET_SECURITE.md) — principes de fonctionnement : démarrage de Rufus, création d'une base patients, modèle de sécurité des accès MySQL.
 - [`docs/NOTES_INTEGRATION_MYSQLINSTALLER.md`](docs/NOTES_INTEGRATION_MYSQLINSTALLER.md) — notes d'intégration du module MySQLInstaller.
 
 Voir aussi `CLAUDE.md` (socle de développement, à la racine) et le dossier `build_tools/` (publication des releases).
