@@ -131,24 +131,31 @@ MARIADB_INC="$(dirname "$(find "${WORK}/mariadb" -name 'mysql.h' | head -n1)")"
 install_name_tool -id "${MARIADB_DYLIB}" "${MARIADB_DYLIB}"
 echo "   libmariadb : ${MARIADB_DYLIB} ($(lipo -archs "${MARIADB_DYLIB}"))"
 
-# ── 3. Pilote Qt qsqlmysql universel ──────────────────────────────────────────
+# ── 3. Pilote Qt qsqlmysql universel (compilé PAR ARCHI puis assemblé au lipo) ─
+# qt-cmake ne gère PAS une LISTE d'archis : « x86_64;arm64 » est réduit à la première.
+# On construit donc le pilote séparément pour chaque archi (valeur unique, bien respectée),
+# puis on assemble les deux .dylib mono-archi en un binaire universel avec lipo.
 cd "${WORK}"
 curl -fL -o qtbase.tar.xz \
     "https://download.qt.io/official_releases/qt/${QT_MINOR}/${QT_VER}/submodules/qtbase-everywhere-src-${QT_VER}.tar.xz"
 mkdir -p qtbase && tar xf qtbase.tar.xz -C qtbase --strip-components=1
 
-echo "-- Pilote Qt qsqlmysql…"
-"${QTCMAKE}" -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-build" \
-    -DCMAKE_OSX_ARCHITECTURES="${ARCHS}" \
-    -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOY_TARGET}" \
-    -DCMAKE_INSTALL_PREFIX="${QT_PREFIX}" \
-    -DMySQL_INCLUDE_DIR="${MARIADB_INC}" \
-    -DMySQL_LIBRARY="${MARIADB_DYLIB}" >/dev/null
-"${CMAKE}" --build "${WORK}/sqldrv-build" -j"${JOBS}" >/dev/null
-"${CMAKE}" --install "${WORK}/sqldrv-build" >/dev/null
+build_driver() {                       # $1 = archi -> imprime le chemin du .dylib construit
+    local arch="$1"
+    "${QTCMAKE}" -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-${arch}" \
+        -DCMAKE_OSX_ARCHITECTURES="${arch}" \
+        -DMySQL_INCLUDE_DIR="${MARIADB_INC}" \
+        -DMySQL_LIBRARY="${MARIADB_DYLIB}" >/dev/null
+    "${CMAKE}" --build "${WORK}/sqldrv-${arch}" -j"${JOBS}" >/dev/null
+    find "${WORK}/sqldrv-${arch}" -name 'libqsqlmysql.dylib' -type f | head -n1
+}
+echo "-- Pilote Qt qsqlmysql (x86_64)…" ; DRV_X86="$(build_driver x86_64)"
+echo "-- Pilote Qt qsqlmysql (arm64)…"  ; DRV_ARM="$(build_driver arm64)"
+[ -n "${DRV_X86}" ] && [ -n "${DRV_ARM}" ] || {
+    echo "ERREUR : pilote non construit (x86_64='${DRV_X86}' arm64='${DRV_ARM}')" >&2; exit 1; }
 
 DRIVER="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
-[ -f "${DRIVER}" ] || { echo "ERREUR : ${DRIVER} non installé"; exit 1; }
+lipo -create "${DRV_X86}" "${DRV_ARM}" -output "${DRIVER}"
 echo "== OK : ${DRIVER}"
 echo "   architectures : $(lipo -archs "${DRIVER}")"
 echo "   dépendances (otool) :"
