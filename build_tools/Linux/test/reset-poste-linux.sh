@@ -64,9 +64,14 @@ rm -rf "${HOME_REEL}/.rufus" \
        "${HOME_REEL}/.local/share/applications/rufus.desktop" \
        "${HOME_REEL}/.local/share/icons/hicolor/256x256/apps/rufus.png" \
        "${HOME_REEL}/Documents/Rufus"
-# Raccourci sur le bureau (FR « Bureau » ou EN « Desktop »)
-rm -f "${HOME_REEL}/Bureau/rufus.desktop" "${HOME_REEL}/Desktop/rufus.desktop"
+# Raccourci sur le bureau : on interroge xdg-user-dir (chemin réel, éventuellement
+# localisé/personnalisé) en plus des noms usuels « Bureau » (FR) et « Desktop » (EN).
+DESK_REEL="$(sudo -u "${USER_REEL}" xdg-user-dir DESKTOP 2>/dev/null)"
+rm -f "${DESK_REEL}/rufus.desktop" \
+      "${HOME_REEL}/Bureau/rufus.desktop" \
+      "${HOME_REEL}/Desktop/rufus.desktop"
 sudo -u "${USER_REEL}" update-desktop-database "${HOME_REEL}/.local/share/applications" 2>/dev/null || true
+sudo -u "${USER_REEL}" gtk-update-icon-cache -f -t "${HOME_REEL}/.local/share/icons/hicolor" 2>/dev/null || true
 
 # ── 5. Désépinglage de la barre des favoris (GNOME) ───────────────────────────
 # gsettings a besoin de la session DBus de l'utilisateur réel (pas celle de root).

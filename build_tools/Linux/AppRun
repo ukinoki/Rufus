@@ -259,10 +259,44 @@ ajouter_aux_favoris() {
     gsettings set org.gnome.shell favorite-apps "${nouv}" 2>/dev/null
 }
 
+# ── Centrage des fenêtres de l'installation (GNOME) ───────────────────────────
+# zenity n'a aucune option de position : ses fenêtres se placent où le gestionnaire
+# de fenêtres veut (souvent décentrées). La parade fiable et sans dépendance : activer
+# le temps de l'install le réglage GNOME « center-new-windows », puis RENDRE à
+# l'utilisateur son réglage d'origine. No-op hors GNOME/mutter (clé absente).
+CENTRAGE_ANCIEN=""
+CENTRAGE_MODIFIE=0
+activer_centrage_fenetres() {
+    command -v gsettings >/dev/null 2>&1 || return 0
+    CENTRAGE_ANCIEN="$(gsettings get org.gnome.mutter center-new-windows 2>/dev/null)" || return 0
+    [ -z "${CENTRAGE_ANCIEN}" ] && return 0          # clé absente → pas GNOME/mutter, on ne touche à rien
+    [ "${CENTRAGE_ANCIEN}" = "true" ] && return 0    # déjà centré → rien à changer ni à restaurer
+    gsettings set org.gnome.mutter center-new-windows true 2>/dev/null && CENTRAGE_MODIFIE=1
+}
+restaurer_centrage_fenetres() {
+    [ "${CENTRAGE_MODIFIE}" = "1" ] || return 0
+    gsettings set org.gnome.mutter center-new-windows "${CENTRAGE_ANCIEN}" 2>/dev/null
+    CENTRAGE_MODIFIE=0
+}
+
+# Inscription dans les menus SOUS animation : la copie de l'AppImage (~60 Mo) et le
+# rafraîchissement des caches prennent plusieurs secondes pendant lesquelles, sinon,
+# rien ne s'affiche (le fameux « trou » entre l'install des composants et la fenêtre
+# finale). On enveloppe donc l'opération dans une barre pulsante.
+inscrire_dans_menus_avec_animation() {
+    if command -v zenity >/dev/null 2>&1; then
+        ( inscrire_dans_menus ) 2>&1 | zenity --progress --pulsate --no-cancel --auto-close \
+            --title="Installation de Rufus" \
+            --text="Finalisation : inscription de Rufus dans les menus…" 2>/dev/null
+    else
+        inscrire_dans_menus
+    fi
+}
+
 # Boîte finale : annonce l'installation réussie et propose, par cases à cocher,
 # le raccourci bureau (précoché), les favoris (précoché) et le lancement (décoché).
 proposer_raccourcis_et_lancement() {
-    command -v zenity >/dev/null 2>&1 || return 0   # pas d'UI : on s'arrête là, sans lancer
+    command -v zenity >/dev/null 2>&1 || { restaurer_centrage_fenetres; return 0; }   # pas d'UI : on s'arrête là, sans lancer
 
     local sel
     sel="$(zenity --list --checklist \
@@ -277,6 +311,7 @@ proposer_raccourcis_et_lancement() {
 
     case "${sel}" in *bureau*)  creer_raccourci_bureau ;; esac
     case "${sel}" in *favoris*) ajouter_aux_favoris    ;; esac
+    restaurer_centrage_fenetres   #! rendre son réglage à l'utilisateur AVANT le exec (qui ne reviendrait jamais)
     case "${sel}" in *lancer*)  exec "${BIN}" "$@"     ;; esac   # remplace le process : Rufus démarre
 }
 
@@ -293,11 +328,14 @@ integration_proposee() {
 
 # ── Séquence d'INSTALLATION (1er lancement de l'AppImage, poste pas encore installé) ──
 if integration_proposee; then
+    # 0. Centrer toutes les fenêtres de l'install (réglage rendu à l'utilisateur à la fin).
+    activer_centrage_fenetres
     # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
-    configurer_systeme || exit 1
-    # 2. Inscrire Rufus dans les menus (sans le demander).
-    inscrire_dans_menus
+    configurer_systeme || { restaurer_centrage_fenetres; exit 1; }
+    # 2. Inscrire Rufus dans les menus (sous animation, pour ne pas laisser l'écran vide).
+    inscrire_dans_menus_avec_animation
     # 3. Proposer raccourci bureau / favoris / lancement. Ne lance Rufus que si demandé.
+    #    (restaure lui-même le centrage avant un éventuel exec.)
     proposer_raccourcis_et_lancement
     exit 0
 fi
