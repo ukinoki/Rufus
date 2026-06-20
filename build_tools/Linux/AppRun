@@ -135,12 +135,40 @@ composants_systeme_presents() {
 }
 
 # ── Choix de la langue de l'installation (1re fenêtre) ────────────────────────
-# Préselection d'après la locale du système ; repli FR (>90 % d'utilisateurs francophones).
+# Présélection : 1) langue du POSTE si Rufus.ini existe (clé [Param_Poste] Version,
+# cohérent avec les preinstallers macOS/Windows) ; 2) sinon locale du système ;
+# 3) repli FR (>90 % d'utilisateurs francophones). La présélection reste modifiable.
 LANG_INSTALL="fr"
 choisir_langue_install() {
     command -v zenity >/dev/null 2>&1 || { LANG_INSTALL="fr"; return 0; }
+
+    local pref=""
+    # 1) Rufus.ini du poste. On essaie les deux casses (Linux est sensible à la casse ;
+    #    la macro pose « Rufus.ini », mais d'anciens fichiers peuvent être en minuscules).
+    local ini=""
+    local cand
+    for cand in "${HOME}/Documents/Rufus/Rufus.ini" "${HOME}/Documents/Rufus/rufus.ini"; do
+        [ -f "${cand}" ] && { ini="${cand}"; break; }
+    done
+    if [ -n "${ini}" ]; then
+        # Valeur de Version DANS la section [Param_Poste] uniquement.
+        case "$(awk '
+            /^\[/ { insec = ($0 ~ /^\[Param_Poste\]/) }
+            insec && /^[Vv]ersion[ \t]*=/ { sub(/^[^=]*=[ \t]*/, ""); gsub(/[ \t\r]/, ""); print toupper($0); exit }
+        ' "${ini}" 2>/dev/null)" in
+            EN)    pref=en ;;
+            ES)    pref=es ;;
+            PT|BR) pref=pt ;;   # br -> pt (comme les preinstallers macOS/Windows)
+            FR)    pref=fr ;;
+        esac
+    fi
+    # 2) à défaut, la locale du système.
+    [ -z "${pref}" ] && case "${LANG%%_*}" in
+        en) pref=en ;; es) pref=es ;; pt) pref=pt ;; *) pref=fr ;;
+    esac
+
     local fr=FALSE en=FALSE es=FALSE pt=FALSE
-    case "${LANG%%_*}" in
+    case "${pref}" in
         en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; *) fr=TRUE ;;
     esac
     local choix
