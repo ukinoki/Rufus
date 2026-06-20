@@ -35,7 +35,8 @@ DEUX SITUATIONS APRÈS TÉLÉCHARGEMENT DE RUFUS
 LE FLUX
 =====================================================================
 
-1. PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'installeur)
+1. L'INSTALLEUR
+A - PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'installeur)
    Avant l'installation de Rufus, un pré-programme "installeur", vérifie la version en cours de MySQL et prévient l'utilisateur 
    de la nécessité éventuelle d'une mise à jour de MySQL.
    But : ne pas mettre le poste serveur dans une situation où il serait bloqué plusieurs minutes, 
@@ -87,38 +88,27 @@ LE FLUX
    « pas d'apostrophe » de l'ancienne version. Windows : libellés de boutons localisés, le résultat
    reste lu par index (= 100), indépendant de la langue.
 
+B - TACHES SPECIFIQUES LINUX DEDIEES A L'INSTALLEUR LINUX (AppImage / AppRun) — AU-DELÀ DU CONTRÔLE MYSQL
 
-=====================================================================
-1 bis. INSTALLEUR LINUX (AppImage / AppRun) — AU-DELÀ DU CONTRÔLE MYSQL
-=====================================================================
    Sous Linux, l'« installeur » n'est pas un programme séparé : c'est l'AppRun embarqué dans
    l'AppImage (build_tools/Linux/AppRun). Au TOUT PREMIER lancement (double-clic sur le fichier
-   .AppImage, AVANT que le poste ne soit installé), il joue une séquence d'installation complète ;
-   ensuite, lancé depuis le menu, il démarre directement l'application.
+   .AppImage, AVANT que le poste ne soit installé), il joue une séquence d'installation complète
 
-   Comment il sait s'il doit (ré)installer : tant qu'il n'existe pas de raccourci de menu
+   Comment il sait s'il doit (ré)installer : il le sait déjà. Il a regardé s'il y avait un rufs.ini à la phase 1.A
+   (tant qu'il n'existe pas de raccourci de menu
    (~/.local/share/applications/rufus.desktop), il rejoue la séquence ; sa présence = « déjà
-   installé » → lancement direct. (Désactivable en exportant RUFUS_NO_INSTALL=1.)
+   installé » → lancement direct. (Désactivable en exportant RUFUS_NO_INSTALL=1.))
 
    Ordre de la séquence d'installation :
      0.  Centrage des fenêtres : zenity n'ayant pas d'option de position, on active le temps de
          l'install le réglage GNOME « center-new-windows », puis on REND à l'utilisateur son
          réglage d'origine (no-op hors GNOME). Toutes les fenêtres ci-dessous sont ainsi centrées.
      0b. CHOIX DE LA LANGUE (1re fenêtre) : Français / English / Español / Português, présélectionné
-         d'après la locale du système, repli FR. Tous les textes de l'install sont ensuite localisés
+         d'après ce qu'il a lu dans rufus.ini s'il existe sinon d'après la locale du système, repli FR. Tous les textes de l'install sont ensuite localisés
          (table definir_textes : FR par défaut, surchargé par langue).
-     1.  Configuration système (libs + dialout) — voir A ci-dessous.
-     2.  Inscription dans les menus — voir B.
-     3.  Fenêtre finale (raccourcis + lancement) — voir C.
+     1.  Configuration système (libs + dialout) — voir ci-dessous.
 
-   Pré-contrôle MySQL : avant tout cela, et UNIQUEMENT en cas de MISE À JOUR (un Rufus/base
-   préexiste ET on lance une AppImage autre que celle déjà installée), l'AppRun applique la même
-   règle qu'au point 1 (serveur local ≥ 8.0.14, MariaDB exclu ; client réseau → on laisse passer).
-   Une installation neuve ne déclenche aucun contrôle.
-
-   --------------------------------------------------------------
-   A. CONFIGURATION SYSTÈME : LES COMPOSANTS QUE L'APPIMAGE NE PEUT PAS EMBARQUER
-   --------------------------------------------------------------
+   CONFIGURATION SYSTÈME : LES COMPOSANTS QUE L'APPIMAGE NE PEUT PAS EMBARQUER
    Certains composants ne peuvent pas être embarqués proprement dans l'AppImage et doivent être
    posés sur le système, via UN SEUL appel pkexec (apt), avec le mot de passe administrateur :
 
@@ -153,23 +143,11 @@ LE FLUX
    PARTAGE RÉSEAU DE L'IMAGERIE : en poste CLIENT d'un réseau local, l'accès au dossier d'imagerie
    partagé reste une manipulation MANUELLE (montage du partage) — l'installeur ne l'automatise pas.
 
-   --------------------------------------------------------------
-   B. INSTALLATION DE L'APPLICATION ET INSCRIPTION DANS LES MENUS
-   --------------------------------------------------------------
-   Une fois le système configuré, l'AppRun « installe » Rufus comme le ferait un setup, SANS le
-   demander (démarche standard) :
-     - COPIE de l'AppImage dans ~/.local/bin/Rufus.AppImage (chmod +x) ;
-     - ICÔNE dans ~/.local/share/icons/hicolor/256x256/apps/rufus.png ;
-     - RACCOURCI DE MENU ~/.local/share/applications/rufus.desktop (Exec pointant sur l'AppImage
-       installée, catégories Office;MedicalSoftware), puis rafraîchissement des caches
-       (update-desktop-database, gtk-update-icon-cache).
-   Cette étape (copie ~60 Mo + caches) prend quelques secondes : elle se déroule SOUS une barre de
-   progression « Finalisation… » pour ne pas laisser l'écran vide.
-
-   --------------------------------------------------------------
-   C. FENÊTRE FINALE : INSTALLATION CONFIRMÉE + RACCOURCIS + LANCEMENT
-   --------------------------------------------------------------
-   À la fin, une boîte de dialogue annonce que le programme a bien été installé :
+C - INSTALLATION DE L'APPLICATION ET INSCRIPTION DANS LES MENUS
+	L'installeur
+	. copie l'éxécutable dans le dossier ad hoc de l'environnement
+	. crée le raccourci de menu
+	. affiche une boîte de dialogue finale confirmant que tout s'est bien déroulé
    « Rufus a été correctement installé sur ce poste et dans les menus, et le système a été
    configuré pour qu'il puisse fonctionner. Que souhaitez-vous faire ? », avec TROIS cases à
    cocher :
@@ -179,16 +157,23 @@ LE FLUX
      - Inscrire dans la barre des FAVORIS ............... PRÉCOCHÉE
        (gsettings org.gnome.shell favorite-apps ; GNOME uniquement) ;
      - Exécuter Rufus maintenant ........................ NON COCHÉE.
-   Rufus n'est lancé QUE si la dernière case est cochée — même logique qu'un installeur Windows
-   (ISS). Le réglage de centrage est restitué à l'utilisateur AVANT ce lancement.
+ 
+   sous LINUX->
+   		Une fois le système configuré, l'AppRun « installe » Rufus comme le ferait un setup, SANS le
+   		demander (démarche standard) :
+     		- COPIE de l'AppImage dans ~/.local/bin/Rufus.AppImage (chmod +x) ;
+     		- ICÔNE dans ~/.local/share/icons/hicolor/256x256/apps/rufus.png ;
+     		- RACCOURCI DE MENU ~/.local/share/applications/rufus.desktop (Exec pointant sur l'AppImage
+       		installée, catégories Office;MedicalSoftware), puis rafraîchissement des caches
+       		(update-desktop-database, gtk-update-icon-cache).
 
-   Limites assumées : le centrage des fenêtres et l'épinglage aux favoris ne fonctionnent que sous
-   GNOME (bureau par défaut d'Ubuntu) ; sous KDE/XFCE ces gestes sont des no-op silencieux.
+   		Limites assumées : le centrage des fenêtres et l'épinglage aux favoris ne fonctionnent que sous
+   		GNOME (bureau par défaut d'Ubuntu) ; sous KDE/XFCE ces gestes sont des no-op silencieux.
 
-   OUTIL DE TEST associé : build_tools/Linux/test/reset-poste-linux.sh remet un poste de TEST
-   « vierge de Rufus » (retrait ciblé des paquets sans casser le bureau, sortie de dialout,
-   suppression du home ~/.rufus / AppImage installée / raccourci menu / raccourci bureau /
-   désépinglage des favoris / ~/Documents/Rufus, et option destructive de purge du serveur MySQL).
+   		OUTIL DE TEST associé : build_tools/Linux/test/reset-poste-linux.sh remet un poste de TEST
+   		« vierge de Rufus » (retrait ciblé des paquets sans casser le bureau, sortie de dialout,
+   		suppression du home ~/.rufus / AppImage installée / raccourci menu / raccourci bureau /
+   		désépinglage des favoris / ~/Documents/Rufus, et option destructive de purge du serveur MySQL).
 
 
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION
