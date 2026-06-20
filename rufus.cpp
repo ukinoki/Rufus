@@ -7545,6 +7545,7 @@ void Rufus::SortieAppli()
     //! en accès distant où le contexte GL est encore plus fragile).
     qApp->sendPostedEvents(nullptr, QEvent::DeferredDelete);
     exit(0);
+}
 
 /*-----------------------------------------------------------------------------------------------------------------
 -- Chargement des données de l'utilisateur --------------------------------------------------------------------------------
