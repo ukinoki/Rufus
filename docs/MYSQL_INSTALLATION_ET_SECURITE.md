@@ -82,6 +82,109 @@ LE FLUX
    reste lu par index (= 100), indépendant de la langue.
 
 
+=====================================================================
+1 bis. INSTALLEUR LINUX (AppImage / AppRun) — AU-DELÀ DU CONTRÔLE MYSQL
+=====================================================================
+   Sous Linux, l'« installeur » n'est pas un programme séparé : c'est l'AppRun embarqué dans
+   l'AppImage (build_tools/Linux/AppRun). Au TOUT PREMIER lancement (double-clic sur le fichier
+   .AppImage, AVANT que le poste ne soit installé), il joue une séquence d'installation complète ;
+   ensuite, lancé depuis le menu, il démarre directement l'application.
+
+   Comment il sait s'il doit (ré)installer : tant qu'il n'existe pas de raccourci de menu
+   (~/.local/share/applications/rufus.desktop), il rejoue la séquence ; sa présence = « déjà
+   installé » → lancement direct. (Désactivable en exportant RUFUS_NO_INSTALL=1.)
+
+   Ordre de la séquence d'installation :
+     0.  Centrage des fenêtres : zenity n'ayant pas d'option de position, on active le temps de
+         l'install le réglage GNOME « center-new-windows », puis on REND à l'utilisateur son
+         réglage d'origine (no-op hors GNOME). Toutes les fenêtres ci-dessous sont ainsi centrées.
+     0b. CHOIX DE LA LANGUE (1re fenêtre) : Français / English / Español / Português, présélectionné
+         d'après la locale du système, repli FR. Tous les textes de l'install sont ensuite localisés
+         (table definir_textes : FR par défaut, surchargé par langue).
+     1.  Configuration système (libs + dialout) — voir A ci-dessous.
+     2.  Inscription dans les menus — voir B.
+     3.  Fenêtre finale (raccourcis + lancement) — voir C.
+
+   Pré-contrôle MySQL : avant tout cela, et UNIQUEMENT en cas de MISE À JOUR (un Rufus/base
+   préexiste ET on lance une AppImage autre que celle déjà installée), l'AppRun applique la même
+   règle qu'au point 1 (serveur local ≥ 8.0.14, MariaDB exclu ; client réseau → on laisse passer).
+   Une installation neuve ne déclenche aucun contrôle.
+
+   --------------------------------------------------------------
+   A. CONFIGURATION SYSTÈME : LES COMPOSANTS QUE L'APPIMAGE NE PEUT PAS EMBARQUER
+   --------------------------------------------------------------
+   Certains composants ne peuvent pas être embarqués proprement dans l'AppImage et doivent être
+   posés sur le système, via UN SEUL appel pkexec (apt), avec le mot de passe administrateur :
+
+     - POLICES : gsfonts + ttf-mscorefonts-installer (l'EULA mscorefonts est pré-acceptée par
+       debconf). Indispensables à l'affichage ET à l'impression correcte des documents.
+     - LECTURE VIDÉO (GStreamer) : gstreamer1.0-plugins-base / -good / -bad / -ugly, -libav,
+       -tools, -x, -alsa, -gl, -gtk3, -pulseaudio. Pour la relecture des vidéos de l'imagerie.
+     - CLIENT MYSQL : mysql-client. Nécessaire aux sauvegardes/restaurations (mysqldump / mysql).
+     - GROUPE « dialout » : l'utilisateur est ajouté au groupe dialout (usermod -aG dialout) pour
+       accéder aux appareils de mesure sur PORT SÉRIE. NB : la prise d'effet demande une
+       déconnexion/reconnexion de la session.
+
+   La liste des paquets est centralisée dans une seule variable (PAQUETS_REQUIS), partagée par la
+   détection de présence, le bloc pkexec et le message d'installation manuelle (un seul endroit à
+   maintenir). L'appel apt utilise DPkg::Lock::Timeout=300 (patiente si unattended-upgrades tient
+   le verrou) et installe PAQUET PAR PAQUET (un paquet indisponible n'interrompt pas le reste).
+
+   DÉTECTION DE PRÉSENCE (MAJ / réinstallation) : avant de proposer quoi que ce soit, on vérifie
+   que TOUS les paquets requis sont déjà installés (dpkg-query) ET que l'utilisateur est déjà dans
+   dialout. Si tout est en place, on SAUTE l'étape : pas de question, pas d'apt, pas de mot de
+   passe admin. Plus de marqueur « .systeme_ok ».
+
+   ÉCHEC : si la configuration échoue VRAIMENT, l'installation s'arrête et explique pourquoi
+   (authentification annulée/refusée, pas d'accès réseau aux dépôts…), avec renvoi vers le journal
+   détaillé ~/.rufus/install-systeme.log. Un paquet OPTIONNEL manquant (p. ex. un plugin GStreamer
+   absent du dépôt) est journalisé mais NON bloquant. Sont bloquants : l'échec d'authentification
+   pkexec et l'absence d'accès aux dépôts.
+
+   PRÉREQUIS NON AUTO-INSTALLABLE : libfuse2 est nécessaire pour LANCER l'AppImage elle-même
+   (problème de l'œuf et la poule) → il reste documenté sur la page de téléchargement, pas posé ici.
+
+   PARTAGE RÉSEAU DE L'IMAGERIE : en poste CLIENT d'un réseau local, l'accès au dossier d'imagerie
+   partagé reste une manipulation MANUELLE (montage du partage) — l'installeur ne l'automatise pas.
+
+   --------------------------------------------------------------
+   B. INSTALLATION DE L'APPLICATION ET INSCRIPTION DANS LES MENUS
+   --------------------------------------------------------------
+   Une fois le système configuré, l'AppRun « installe » Rufus comme le ferait un setup, SANS le
+   demander (démarche standard) :
+     - COPIE de l'AppImage dans ~/.local/bin/Rufus.AppImage (chmod +x) ;
+     - ICÔNE dans ~/.local/share/icons/hicolor/256x256/apps/rufus.png ;
+     - RACCOURCI DE MENU ~/.local/share/applications/rufus.desktop (Exec pointant sur l'AppImage
+       installée, catégories Office;MedicalSoftware), puis rafraîchissement des caches
+       (update-desktop-database, gtk-update-icon-cache).
+   Cette étape (copie ~60 Mo + caches) prend quelques secondes : elle se déroule SOUS une barre de
+   progression « Finalisation… » pour ne pas laisser l'écran vide.
+
+   --------------------------------------------------------------
+   C. FENÊTRE FINALE : INSTALLATION CONFIRMÉE + RACCOURCIS + LANCEMENT
+   --------------------------------------------------------------
+   À la fin, une boîte de dialogue annonce que le programme a bien été installé :
+   « Rufus a été correctement installé sur ce poste et dans les menus, et le système a été
+   configuré pour qu'il puisse fonctionner. Que souhaitez-vous faire ? », avec TROIS cases à
+   cocher :
+     - Créer un raccourci sur le BUREAU .................. PRÉCOCHÉE
+       (copie du .desktop sur le bureau, vrai chemin via xdg-user-dir ; sous GNOME, le lanceur est
+        marqué « de confiance » via gio, sinon il resterait grisé) ;
+     - Inscrire dans la barre des FAVORIS ............... PRÉCOCHÉE
+       (gsettings org.gnome.shell favorite-apps ; GNOME uniquement) ;
+     - Exécuter Rufus maintenant ........................ NON COCHÉE.
+   Rufus n'est lancé QUE si la dernière case est cochée — même logique qu'un installeur Windows
+   (ISS). Le réglage de centrage est restitué à l'utilisateur AVANT ce lancement.
+
+   Limites assumées : le centrage des fenêtres et l'épinglage aux favoris ne fonctionnent que sous
+   GNOME (bureau par défaut d'Ubuntu) ; sous KDE/XFCE ces gestes sont des no-op silencieux.
+
+   OUTIL DE TEST associé : build_tools/Linux/test/reset-poste-linux.sh remet un poste de TEST
+   « vierge de Rufus » (retrait ciblé des paquets sans casser le bureau, sortie de dialout,
+   suppression du home ~/.rufus / AppImage installée / raccourci menu / raccourci bureau /
+   désépinglage des favoris / ~/Documents/Rufus, et option destructive de purge du serveur MySQL).
+
+
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION
 
   I. IL Y A UN rufus.ini   (déroulé CHRONOLOGIQUE, AVANT l'écran d'identification)
