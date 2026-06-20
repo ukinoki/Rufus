@@ -162,12 +162,16 @@ cp -f "${DRV}" "${DRIVER}"
 # (éphémère). On copie libmariadb dans le lib/ de Qt et on réécrit la référence du pilote vers
 # ce chemin fixe. -> Rufus en dev local trouve la lib ; et macdeployqt suivra ce chemin pour
 # l'embarquer dans le bundle. (libmariadb contient déjà OpenSSL en statique : aucune autre dépendance.)
-STABLE_MARIADB="${QT_PREFIX}/lib/$(basename "${MARIADB_DYLIB}")"
+MARIADB_BASE="$(basename "${MARIADB_DYLIB}")"
+STABLE_MARIADB="${QT_PREFIX}/lib/${MARIADB_BASE}"
 cp -f "${MARIADB_DYLIB}" "${STABLE_MARIADB}"
 chmod u+w "${STABLE_MARIADB}"
-install_name_tool -id "${STABLE_MARIADB}" "${STABLE_MARIADB}" 2>/dev/null || true
-install_name_tool -change "${MARIADB_DYLIB}" "${STABLE_MARIADB}" "${DRIVER}" 2>/dev/null || true
-echo "   libmariadb stable : ${STABLE_MARIADB}"
+install_name_tool -id "@rpath/${MARIADB_BASE}" "${STABLE_MARIADB}" 2>/dev/null || true
+# Référence RELATIVE depuis le pilote (plugins/sqldrivers) vers Qt/lib : indépendante de
+# l'emplacement ABSOLU de Qt -> survit à un déplacement de Qt ET au cache CI (où le chemin
+# absolu de Qt peut varier d'un run à l'autre). macdeployqt sait suivre @loader_path.
+install_name_tool -change "${MARIADB_DYLIB}" "@loader_path/../../lib/${MARIADB_BASE}" "${DRIVER}" 2>/dev/null || true
+echo "   libmariadb : ${STABLE_MARIADB} (réf. pilote : @loader_path/../../lib/${MARIADB_BASE})"
 
 echo "== OK : ${DRIVER}"
 echo "   architectures : $(lipo -archs "${DRIVER}")"

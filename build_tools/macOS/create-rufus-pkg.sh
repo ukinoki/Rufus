@@ -38,36 +38,48 @@ command -v lrelease >/dev/null 2>&1 && ( cd "${REPO}" && lrelease RufusQt6.pro >
 cp -f "${REPO}"/rufus_*.qm "${LOCALE_DIR}/" 2>/dev/null || true
 ls "${LOCALE_DIR}"/rufus_*.qm >/dev/null 2>&1 || echo "   ⚠ aucun .qm copié (traductions manquantes ?)"
 
-# ── Pilote SQL MySQL : réorienter sa dépendance client AVANT macdeployqt ───────
-# macdeployqt embarque les autres pilotes SQL mais LÂCHE libqsqlmysql.dylib s'il ne peut pas
-# résoudre sa dépendance vers la lib client (libmariadb/libmysqlclient). On réoriente cette
-# dépendance, si elle pointe un chemin inexistant, vers la lib installée par brew → macdeployqt
-# pourra alors embarquer le pilote ET sa lib client, et réécrire les chemins tout seul.
+# Le pilote MySQL (libqsqlmysql.dylib) est installé dans les plugins Qt par
+# build_tools/macOS/build-qmysql-universal.sh, avec une dépendance STABLE vers libmariadb
+# (qui embarque OpenSSL en statique → aucune autre dépendance externe). Chemins de référence
+# pour le filet de sécurité post-macdeployqt ci-dessous.
 QT_PLUGINS="$(qmake -query QT_INSTALL_PLUGINS 2>/dev/null)"
+QT_LIBDIR="$(qmake -query QT_INSTALL_LIBS 2>/dev/null)"
 QSQLMYSQL="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
-if [ -n "${QT_PLUGINS}" ] && [ -f "${QSQLMYSQL}" ]; then
-    echo "==> Pilote MySQL : vérification de la dépendance client (${QSQLMYSQL})"
-    otool -L "${QSQLMYSQL}" 2>/dev/null | awk '/libmariadb|libmysqlclient/ {print $1}' | while read -r dep; do
-        [ -f "${dep}" ] && continue   # dépendance déjà résolvable : rien à faire
-        base="$(basename "${dep}")"
-        real="$(find /opt/homebrew /usr/local -name "${base}" 2>/dev/null | head -n1)"
-        if [ -n "${real}" ]; then
-            echo "   réoriente ${dep} -> ${real}"
-            install_name_tool -change "${dep}" "${real}" "${QSQLMYSQL}" 2>/dev/null || true
-        fi
-    done
-else
-    echo "   ⚠ libqsqlmysql.dylib introuvable dans les plugins Qt (${QT_PLUGINS}/sqldrivers)"
-fi
+[ -f "${QSQLMYSQL}" ] || echo "   ⚠ libqsqlmysql.dylib introuvable dans Qt (${QT_PLUGINS}/sqldrivers) — pilote non compilé ?"
 
 echo "==> macdeployqt sur ${APP_PATH}"
 macdeployqt "${APP_PATH}" -verbose=1
 
-# Contrôle : le pilote MySQL est-il bien dans le bundle ? (sinon backup/connexion KO)
-if [ ! -f "${APP_PATH}/Contents/PlugIns/sqldrivers/libqsqlmysql.dylib" ]; then
-    echo "   ⚠ libqsqlmysql.dylib ABSENT du bundle après macdeployqt — tentative de copie directe"
-    mkdir -p "${APP_PATH}/Contents/PlugIns/sqldrivers"
-    cp -f "${QSQLMYSQL}" "${APP_PATH}/Contents/PlugIns/sqldrivers/" 2>/dev/null || true
+# ── Filet de sécurité : pilote MySQL + libmariadb bien embarqués et reliés ─────
+# On ne dépend pas du bon vouloir de macdeployqt : on garantit que (1) le pilote est dans le
+# bundle, (2) libmariadb est dans Contents/Frameworks, (3) le pilote pointe vers cette copie.
+BUNDLE_DRV="${APP_PATH}/Contents/PlugIns/sqldrivers/libqsqlmysql.dylib"
+BUNDLE_FW="${APP_PATH}/Contents/Frameworks"
+
+if [ ! -f "${BUNDLE_DRV}" ]; then
+    echo "   pilote absent du bundle → copie directe depuis Qt"
+    mkdir -p "$(dirname "${BUNDLE_DRV}")"
+    cp -f "${QSQLMYSQL}" "${BUNDLE_DRV}" 2>/dev/null || true
+fi
+
+if [ -f "${BUNDLE_DRV}" ]; then
+    # Nom réel de la lib client référencée par le pilote (ex. libmariadb.3.dylib).
+    MARIADB_DEP="$(otool -L "${BUNDLE_DRV}" 2>/dev/null | awk '/libmariadb|libmysqlclient/ {print $1; exit}')"
+    MARIADB_NAME="$(basename "${MARIADB_DEP:-libmariadb.3.dylib}")"
+    if [ ! -f "${BUNDLE_FW}/${MARIADB_NAME}" ]; then
+        echo "   libmariadb absente de Frameworks → copie depuis ${QT_LIBDIR}"
+        mkdir -p "${BUNDLE_FW}"
+        cp -f "${QT_LIBDIR}/${MARIADB_NAME}" "${BUNDLE_FW}/" 2>/dev/null || true
+    fi
+    chmod u+w "${BUNDLE_FW}/${MARIADB_NAME}" 2>/dev/null || true
+    install_name_tool -id "@rpath/${MARIADB_NAME}" "${BUNDLE_FW}/${MARIADB_NAME}" 2>/dev/null || true
+    # Pointer la dépendance du pilote vers la copie embarquée, SAUF si macdeployqt l'a déjà
+    # rendue relative (@rpath/@loader_path) — dans ce cas on n'y touche pas.
+    case "${MARIADB_DEP}" in
+        @*) : ;;
+        ?*) install_name_tool -change "${MARIADB_DEP}" "@loader_path/../../Frameworks/${MARIADB_NAME}" "${BUNDLE_DRV}" 2>/dev/null || true ;;
+    esac
+    echo "   pilote MySQL : $(lipo -archs "${BUNDLE_DRV}" 2>/dev/null) | libmariadb embarquée : ${MARIADB_NAME}"
 fi
 
 # ── Filet de sécurité : nom du bundle = « Rufus.app » → /Applications/Rufus.app ─

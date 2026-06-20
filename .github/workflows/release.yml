@@ -240,10 +240,31 @@ jobs:
           version: ${{ env.QT_VERSION }}
           modules: 'qtmultimedia qtpdf qtserialport'
 
-      - name: Pilote MySQL universel pour Qt (absent des binaires macOS officiels)
+      # Le pilote MySQL universel est long à construire (OpenSSL + MariaDB + pilote, depuis les
+      # sources). On le met en cache : reconstruit SEULEMENT si la version de Qt ou le script
+      # changent (la clé inclut QT_VERSION + le hash du script, qui épingle OpenSSL/MariaDB).
+      - name: Cache du pilote MySQL universel
+        id: cache-qmysql
+        uses: actions/cache@v4
+        with:
+          path: qmysql-cache
+          key: qmysql-${{ runner.os }}-qt${{ env.QT_VERSION }}-${{ hashFiles('build_tools/macOS/build-qmysql-universal.sh') }}
+
+      - name: Construire le pilote MySQL universel (si absent du cache)
+        if: steps.cache-qmysql.outputs.cache-hit != 'true'
         run: |
           chmod +x build_tools/macOS/build-qmysql-universal.sh
           build_tools/macOS/build-qmysql-universal.sh
+          mkdir -p qmysql-cache
+          cp "$QT_ROOT_DIR/plugins/sqldrivers/libqsqlmysql.dylib" qmysql-cache/
+          cp "$QT_ROOT_DIR"/lib/libmariadb*.dylib qmysql-cache/
+
+      - name: Installer le pilote MySQL depuis le cache (si présent)
+        if: steps.cache-qmysql.outputs.cache-hit == 'true'
+        run: |
+          cp qmysql-cache/libqsqlmysql.dylib "$QT_ROOT_DIR/plugins/sqldrivers/"
+          cp qmysql-cache/libmariadb*.dylib  "$QT_ROOT_DIR/lib/"
+          echo "Pilote MySQL restauré depuis le cache : $(lipo -archs "$QT_ROOT_DIR/plugins/sqldrivers/libqsqlmysql.dylib")"
 
       - name: Compiler (qmake + make, Release, binaire universel)
         run: |
