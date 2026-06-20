@@ -4277,11 +4277,9 @@ bool Procedures::PremierDemarrage()
 
     msgbox->setText(tr("Premier démarrage de Rufus!"));
     msgbox->setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes.\n\n"
-                              "Cette installation ne peut aboutir si vous n'avez pas de serveur MySQL installé.\n"
-                              "Dans ce cas, il vous faut annuler et installer un serveur MySQL sur cet ordinateur ou sur un autre poste du réseau.\n\n"
                               "Commencez par choisir la situation qui décrit le mieux votre installation de Rufus.\n\n"
-                              "1. J'installe Rufus sur ce poste et ce poste se connectera à une base patients qui existe dèjà\n"
-                              "2. J'installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer\n"));
+                              "1. J'installe Rufus sur ce poste en créant une nouvelle base patients\n"
+                              "2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà\n"));
     msgbox->setIcon(UpMessageBox::Info);
 
     msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
