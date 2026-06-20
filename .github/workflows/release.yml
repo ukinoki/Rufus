@@ -240,8 +240,10 @@ jobs:
           version: ${{ env.QT_VERSION }}
           modules: 'qtmultimedia qtpdf qtserialport'
 
-      - name: Client MariaDB/MySQL (lib du pilote qsqlmysql)
-        run: brew install mariadb-connector-c || brew install mysql-client
+      - name: Pilote MySQL universel pour Qt (absent des binaires macOS officiels)
+        run: |
+          chmod +x build_tools/macOS/build-qmysql-universal.sh
+          build_tools/macOS/build-qmysql-universal.sh
 
       - name: Compiler (qmake + make, Release, binaire universel)
         run: |

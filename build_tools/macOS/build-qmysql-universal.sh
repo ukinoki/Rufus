@@ -1,0 +1,112 @@
+#!/bin/bash
+# ─────────────────────────────────────────────────────────────────────────────
+#  build-qmysql-universal.sh — construit le pilote Qt « qsqlmysql » en binaire
+#  UNIVERSEL (x86_64 + arm64) pour macOS et l'installe dans les plugins de Qt.
+#
+#  POURQUOI : le Qt officiel pour macOS (celui d'install-qt-action / de l'installeur
+#  en ligne) ne LIVRE PAS le pilote MySQL (contrairement à Linux/Windows). Sans lui,
+#  Rufus ne peut ni se connecter à MySQL ni sauvegarder/restaurer sur Mac.
+#
+#  STRATÉGIE (tout depuis les sources, en universel) :
+#    1. OpenSSL  -> bibliothèques STATIQUES universelles (libssl.a + libcrypto.a) ;
+#    2. MariaDB Connector/C -> libmariadb.dylib universelle, AVEC OpenSSL embarqué
+#       statiquement -> lib client AUTONOME (pas de dépendance OpenSSL externe) ;
+#    3. pilote Qt qsqlmysql -> universel, lié à cette libmariadb.dylib ;
+#    4. installation dans $QT/plugins/sqldrivers (macdeployqt l'embarquera ensuite).
+#
+#  Peut se lancer en local sur un Mac (pour valider) OU dans la CI. Prérequis :
+#  Qt dans le PATH (qmake, qt-cmake), Xcode (clang, lipo), cmake, curl, perl.
+#  Vérif finale :  lipo -archs <…>/libqsqlmysql.dylib  ->  « x86_64 arm64 ».
+# ─────────────────────────────────────────────────────────────────────────────
+set -euo pipefail
+
+# Versions épinglées (lignes stables/LTS).
+OSSL_VER="${OSSL_VER:-3.0.16}"
+MARIADB_TAG="${MARIADB_TAG:-v3.4.3}"
+
+QT_PREFIX="${QT_ROOT_DIR:-$(qmake -query QT_INSTALL_PREFIX)}"
+QT_PLUGINS="$(qmake -query QT_INSTALL_PLUGINS)"
+QT_VER="$(qmake -query QT_VERSION)"
+QT_MINOR="${QT_VER%.*}"
+ARCHS="x86_64;arm64"
+DEPLOY_TARGET="11.0"
+JOBS="$(sysctl -n hw.ncpu)"
+WORK="$(mktemp -d)"
+
+echo "== Pilote MySQL universel — Qt ${QT_VER}"
+echo "   plugins : ${QT_PLUGINS}"
+echo "   travail : ${WORK}"
+
+# ── 1. OpenSSL universel (statique) ───────────────────────────────────────────
+cd "${WORK}"
+curl -fL -o openssl.tar.gz \
+    "https://github.com/openssl/openssl/releases/download/openssl-${OSSL_VER}/openssl-${OSSL_VER}.tar.gz"
+
+build_openssl() {                     # $1 = arch (x86_64|arm64), $2 = cible OpenSSL
+    local arch="$1" target="$2"
+    rm -rf "openssl-${OSSL_VER}"
+    tar xf openssl.tar.gz
+    ( cd "openssl-${OSSL_VER}"
+      ./Configure "${target}" no-shared no-tests no-docs \
+          -mmacosx-version-min="${DEPLOY_TARGET}" --prefix="${WORK}/ossl-${arch}" >/dev/null
+      make -j"${JOBS}" >/dev/null
+      make install_sw >/dev/null )
+}
+echo "-- OpenSSL ${OSSL_VER} (x86_64)…" ; build_openssl x86_64 darwin64-x86_64-cc
+echo "-- OpenSSL ${OSSL_VER} (arm64)…"  ; build_openssl arm64  darwin64-arm64-cc
+
+mkdir -p "${WORK}/ossl/lib"
+lipo -create "${WORK}/ossl-x86_64/lib/libssl.a"    "${WORK}/ossl-arm64/lib/libssl.a"    -output "${WORK}/ossl/lib/libssl.a"
+lipo -create "${WORK}/ossl-x86_64/lib/libcrypto.a" "${WORK}/ossl-arm64/lib/libcrypto.a" -output "${WORK}/ossl/lib/libcrypto.a"
+cp -R "${WORK}/ossl-arm64/include" "${WORK}/ossl/include"
+echo "   OpenSSL universel : $(lipo -archs "${WORK}/ossl/lib/libssl.a")"
+
+# ── 2. MariaDB Connector/C universel (OpenSSL statique embarqué) ───────────────
+cd "${WORK}"
+curl -fL -o mariadb.tar.gz \
+    "https://github.com/mariadb-corporation/mariadb-connector-c/archive/refs/tags/${MARIADB_TAG}.tar.gz"
+tar xf mariadb.tar.gz
+MARIADB_SRC="${WORK}/mariadb-connector-c-${MARIADB_TAG#v}"
+
+cmake -S "${MARIADB_SRC}" -B "${WORK}/mariadb-build" \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_OSX_ARCHITECTURES="${ARCHS}" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOY_TARGET}" \
+    -DWITH_SSL=OPENSSL \
+    -DOPENSSL_ROOT_DIR="${WORK}/ossl" \
+    -DOPENSSL_USE_STATIC_LIBS=TRUE \
+    -DWITH_UNIT_TESTS=OFF \
+    -DCMAKE_INSTALL_PREFIX="${WORK}/mariadb" >/dev/null
+echo "-- MariaDB Connector/C ${MARIADB_TAG}…"
+cmake --build "${WORK}/mariadb-build" -j"${JOBS}" --target libmariadb >/dev/null
+cmake --install "${WORK}/mariadb-build" >/dev/null
+
+MARIADB_DYLIB="$(find "${WORK}/mariadb" -name 'libmariadb*.dylib' -type f | head -n1)"
+MARIADB_INC="$(dirname "$(find "${WORK}/mariadb" -name 'mysql.h' | head -n1)")"
+[ -n "${MARIADB_DYLIB}" ] || { echo "ERREUR : libmariadb.dylib introuvable après build"; exit 1; }
+# install_name ABSOLU : pour que macdeployqt puisse suivre la dépendance et l'embarquer.
+install_name_tool -id "${MARIADB_DYLIB}" "${MARIADB_DYLIB}"
+echo "   libmariadb : ${MARIADB_DYLIB} ($(lipo -archs "${MARIADB_DYLIB}"))"
+
+# ── 3. Pilote Qt qsqlmysql universel ──────────────────────────────────────────
+cd "${WORK}"
+curl -fL -o qtbase.tar.xz \
+    "https://download.qt.io/official_releases/qt/${QT_MINOR}/${QT_VER}/submodules/qtbase-everywhere-src-${QT_VER}.tar.xz"
+mkdir -p qtbase && tar xf qtbase.tar.xz -C qtbase --strip-components=1
+
+echo "-- Pilote Qt qsqlmysql…"
+qt-cmake -S qtbase/src/plugins/sqldrivers -B "${WORK}/sqldrv-build" \
+    -DCMAKE_OSX_ARCHITECTURES="${ARCHS}" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="${DEPLOY_TARGET}" \
+    -DCMAKE_INSTALL_PREFIX="${QT_PREFIX}" \
+    -DMySQL_INCLUDE_DIR="${MARIADB_INC}" \
+    -DMySQL_LIBRARY="${MARIADB_DYLIB}" >/dev/null
+cmake --build "${WORK}/sqldrv-build" -j"${JOBS}" >/dev/null
+cmake --install "${WORK}/sqldrv-build" >/dev/null
+
+DRIVER="${QT_PLUGINS}/sqldrivers/libqsqlmysql.dylib"
+[ -f "${DRIVER}" ] || { echo "ERREUR : ${DRIVER} non installé"; exit 1; }
+echo "== OK : ${DRIVER}"
+echo "   architectures : $(lipo -archs "${DRIVER}")"
+echo "   dépendances (otool) :"
+otool -L "${DRIVER}" | sed -n '2,8p'
