@@ -7537,8 +7537,14 @@ void Rufus::SortieAppli()
             }
     }
     close();
+    //! Avant exit() : forcer MAINTENANT la destruction des fenêtres déjà fermées mais en attente
+    //! (deleteLater, via WA_DeleteOnClose) — au premier chef dlg_docsexternes, qui porte une
+    //! surface OpenGL. Sinon leur destructeur s'exécute pendant exit()/__cxa_finalize, quand le
+    //! stockage thread-local GUI de Qt est déjà détruit : ~QWindow → ~QSurface →
+    //! QOpenGLContext::currentContext() → SIGSEGV (constaté sous macOS, dossier ouvert, surtout
+    //! en accès distant où le contexte GL est encore plus fragile).
+    qApp->sendPostedEvents(nullptr, QEvent::DeferredDelete);
     exit(0);
-}
 
 /*-----------------------------------------------------------------------------------------------------------------
 -- Chargement des données de l'utilisateur --------------------------------------------------------------------------------
