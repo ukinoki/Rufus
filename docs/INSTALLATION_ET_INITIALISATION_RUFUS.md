@@ -43,7 +43,7 @@ A - PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'insta
    cause des manoeuvres de sauvegarde/restauration nécessaires.
    
    a. Ne se fait QUE si un Rufus préexistant, ou une base Rufus, existe déjà sur ce poste.
-   b. Si la base MySQL est SUR ce poste (rubrique BDD_POSTE de rufus.ini avec ACTIVE=YES)
+   b. Si la base MySQL est SUR ce poste (rubrique BDD_POSTE de Rufus.ini avec ACTIVE=YES)
       et que sa version ne remplit pas le critère :
         Message :
         " Ce poste héberge la base de données patients."
@@ -63,27 +63,27 @@ A - PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'insta
       on installe sans rien signaler (ce n'est pas lui qui héberge la base).
 
    Note technique : l'installeur tourne en mode élevé (admin/root). « Le dossier personnel » n'y
-   pointe donc PAS vers l'utilisateur connecté. Pour trouver le bon rufus.ini, il faut viser le home
+   pointe donc PAS vers l'utilisateur connecté. Pour trouver le bon Rufus.ini, il faut viser le home
    de l'UTILISATEUR DE LA SESSION (macOS : utilisateur de la console ; Windows : profil de l'utilisateur,
-   pas de l'admin ; Linux : éviter /root sous sudo). Le souci n'est pas le droit de lecture (rufus.ini
+   pas de l'admin ; Linux : éviter /root sous sudo). Le souci n'est pas le droit de lecture (Rufus.ini
    est lisible par tous), mais de viser le bon fichier.
 
    IMPLÉMENTÉ (macOS preinstall + Windows RufusVision.iss) : les deux installeurs lisent désormais
-   rufus.ini pour déterminer le RÔLE du poste, et n'utilisent l'heuristique « mysqld local » qu'en
-   REPLI (rufus.ini absent ou muet) :
+   Rufus.ini pour déterminer le RÔLE du poste, et n'utilisent l'heuristique « mysqld local » qu'en
+   REPLI (Rufus.ini absent ou muet) :
      - macOS  : ~/Documents/Rufus/Rufus.ini via CONSOLE_HOME (utilisateur de la console) ;
      - Windows: %USERPROFILE%\Documents\Rufus\Rufus.ini ({userprofile} = utilisateur connecté).
      - BDD_POSTE Active=YES  -> SERVEUR : on contrôle la version locale ; si insuffisante, message 1.b
        (consentement) ; Annuler -> l'installeur stoppe, l'ancien Rufus reste en place.
      - BDD_LOCAL/BDD_DISTANT Active=YES -> CLIENT : on installe en silence (point 1.c), sans contrôle.
-   Le rôle vient de rufus.ini (fait foi) ; mysqld --version ne sert qu'à lire la VERSION du socle.
+   Le rôle vient de Rufus.ini (fait foi) ; mysqld --version ne sert qu'à lire la VERSION du socle.
 
    LANGUE DES MESSAGES (implémenté) : le dialogue de consentement 1.b est affiché dans la langue
-   du poste, lue dans rufus.ini ([Param_Poste] Version, = Param_Poste_Version côté code). Langues
+   du poste, lue dans Rufus.ini ([Param_Poste] Version, = Param_Poste_Version côté code). Langues
    traduites : fr, en, es, pt (br -> pt) ; repli fr pour toute autre valeur ou si absente.
-   On ne traduit QUE ce dialogue : c'est le seul montré quand rufus.ini est lisible (donc quand la
-   langue est connue). Les dialogues de REPLI (rôle INCONNU, c.-à-d. pas de rufus.ini exploitable)
-   restent en français : sans rufus.ini, on n'a pas la langue. Le cas CLIENT, lui, n'affiche rien.
+   On ne traduit QUE ce dialogue : c'est le seul montré quand Rufus.ini est lisible (donc quand la
+   langue est connue). Les dialogues de REPLI (rôle INCONNU, c.-à-d. pas de Rufus.ini exploitable)
+   restent en français : sans Rufus.ini, on n'a pas la langue. Le cas CLIENT, lui, n'affiche rien.
    macOS : le texte est passé en arguments à osascript (on run argv), ce qui lève la contrainte
    « pas d'apostrophe » de l'ancienne version. Windows : libellés de boutons localisés, le résultat
    reste lu par index (= 100), indépendant de la langue.
@@ -106,7 +106,7 @@ B - TACHES SPECIFIQUES LINUX DEDIEES A L'INSTALLEUR LINUX (AppImage / AppRun) �
          l'install le réglage GNOME « center-new-windows », puis on REND à l'utilisateur son
          réglage d'origine (no-op hors GNOME). Toutes les fenêtres ci-dessous sont ainsi centrées.
      0b. CHOIX DE LA LANGUE (1re fenêtre) : Français / English / Español / Português, présélectionné
-         d'après ce qu'il a lu dans rufus.ini s'il existe sinon d'après la locale du système, repli FR. Tous les textes de l'install sont ensuite localisés
+         d'après ce qu'il a lu dans Rufus.ini s'il existe sinon d'après la locale du système, repli FR. Tous les textes de l'install sont ensuite localisés
          (table definir_textes : FR par défaut, surchargé par langue).
      1.  Configuration système (libs + dialout) — voir ci-dessous.
 
@@ -180,11 +180,11 @@ C - INSTALLATION DE L'APPLICATION ET INSCRIPTION DANS LES MENUS
 
 2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION
 
-  I. IL Y A UN rufus.ini   (déroulé CHRONOLOGIQUE, AVANT l'écran d'identification)
+  I. IL Y A UN Rufus.ini   (déroulé CHRONOLOGIQUE, AVANT l'écran d'identification)
 
-     1. CONNEXION à la base selon rufus.ini.
+     1. CONNEXION à la base selon Rufus.ini.
         On essaie les mots de passe candidats : celui du .dbkey (du mode courant) PUIS gaxt78iy.
-        Si aucun ne marche -> message + VerifParamConnexion (corriger les paramètres, réécrire rufus.ini).
+        Si aucun ne marche -> message + VerifParamConnexion (corriger les paramètres, réécrire Rufus.ini).
 
      2. CONTRÔLE DE LA VERSION DE MYSQL — AVANT TOUTE AUTRE CHOSE.
         (SELECT VERSION() sur la connexion qu'on vient d'ouvrir.)
@@ -237,7 +237,7 @@ C - INSTALLATION DE L'APPLICATION ET INSCRIPTION DANS LES MENUS
         Le contrôle de la version de la BASE Rufus (majbase) se fait APRÈS l'identification.
 
 
-  II. IL N'Y A PAS DE rufus.ini
+  II. IL N'Y A PAS DE Rufus.ini
 
      A. NOUVELLE BASE VIERGE — uniquement en monoposte
         1. Y a-t-il déjà un MySQL installé ?
@@ -304,7 +304,7 @@ PROCÉDURE DE MISE À JOUR DE LA BASE (version trop ancienne)
       (Nota : ajouter à Procedures::RestaureBase() un paramètre indiquant le fichier de restauration,
        sans demander de choix à l'utilisateur.)
    6. VÉRIFIER la restauration (les tables/comptes attendus sont là ; comparer les comptages de lignes).
-      - Si OK -> supprimer l'ancien data dir mis de côté ; créer/mettre à jour rufus.ini ;
+      - Si OK -> supprimer l'ancien data dir mis de côté ; créer/mettre à jour Rufus.ini ;
         créer le mot de passe aléatoire (adminrufus + adminrufusSSL) en gardant gaxt78iy en 2e mot de passe ;
         écrire le .dbkey.
       - Si ÉCHEC -> ne rien supprimer : on dispose encore de la sauvegarde ET de l'ancien data dir.
