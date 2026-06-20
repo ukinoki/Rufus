@@ -114,6 +114,163 @@ if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && rufus
     socle_mysql_ok || exit 1
 fi
 
+# Liste UNIQUE des paquets requis (référencée par la détection de présence, le bloc
+# pkexec et le message d'installation manuelle — un seul endroit à maintenir).
+PAQUETS_REQUIS="gsfonts ttf-mscorefonts-installer \
+gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
+gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio mysql-client"
+
+# Tous les composants sont-ils DÉJÀ en place ? (paquets installés + appartenance à
+# dialout). Si oui, en cas de MAJ / réinstallation, inutile de reproposer l'install.
+composants_systeme_presents() {
+    command -v dpkg-query >/dev/null 2>&1 || return 1
+    local p
+    for p in ${PAQUETS_REQUIS}; do
+        [ "$(dpkg-query -W -f='${db:Status-Status}' "$p" 2>/dev/null)" = "installed" ] || return 1
+    done
+    # id -nG <user> interroge la base de groupes (état réel), pas seulement la session courante.
+    id -nG "$(id -un)" 2>/dev/null | tr ' ' '\n' | grep -qx dialout || return 1
+    return 0
+}
+
+# ── Choix de la langue de l'installation (1re fenêtre) ────────────────────────
+# Préselection d'après la locale du système ; repli FR (>90 % d'utilisateurs francophones).
+LANG_INSTALL="fr"
+choisir_langue_install() {
+    command -v zenity >/dev/null 2>&1 || { LANG_INSTALL="fr"; return 0; }
+    local fr=FALSE en=FALSE es=FALSE pt=FALSE
+    case "${LANG%%_*}" in
+        en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; *) fr=TRUE ;;
+    esac
+    local choix
+    choix="$(zenity --list --radiolist --title="Rufus — langue / language" \
+        --text="Choisissez la langue de l'installation / Choose the installation language:" \
+        --column="" --column="Langue" \
+        "${fr}" "Français" "${en}" "English" "${es}" "Español" "${pt}" "Português" \
+        2>/dev/null)"
+    case "${choix}" in
+        English)    LANG_INSTALL="en" ;;
+        Español)    LANG_INSTALL="es" ;;
+        Português)  LANG_INSTALL="pt" ;;
+        *)          LANG_INSTALL="fr" ;;   # Français, ou fenêtre fermée
+    esac
+}
+
+# Table des textes de l'install. On pose d'abord le FR (repli si une traduction manque),
+# puis on surcharge selon la langue choisie.
+definir_textes() {
+    MSG_CFG_TITLE="Configurer Rufus sur ce poste"
+    MSG_CFG_BODY="Rufus va installer quelques composants système nécessaires :\n  •  polices (affichage et impression des documents)\n  •  lecture des vidéos (GStreamer)\n  •  client MySQL (sauvegarde / restauration)\n  •  accès aux appareils de mesure sur port série\n\nLe mot de passe administrateur vous sera demandé."
+    MSG_CFG_OK="Installer maintenant"
+    MSG_CFG_CANCEL="Annuler"
+    MSG_CANCEL_TITLE="Installation interrompue"
+    MSG_CANCEL_BODY="La configuration du système a été annulée.\n\nRufus a besoin de ces composants pour fonctionner :\nrelancez l'installation quand vous serez prêt."
+    MSG_PKEXEC_TITLE="Installation manuelle requise"
+    MSG_PKEXEC_LEAD="pkexec est absent. Ouvrez un terminal et exécutez :"
+    MSG_PKEXEC_TAIL="Puis relancez Rufus."
+    MSG_PROG_TITLE="Installation des composants Rufus"
+    MSG_PROG_TEXT="Installation en cours… (cela peut prendre quelques minutes)"
+    MSG_ERR_TITLE="Configuration du système impossible"
+    MSG_ERR_LEAD="La configuration du système n'a pas pu se dérouler ; Rufus n'a pas été installé."
+    MSG_ERR_DETAILS="Détails techniques :"
+    MSG_REASON_126="Authentification annulée (mot de passe administrateur non fourni)."
+    MSG_REASON_127="Authentification refusée : ce compte n'est pas autorisé à installer des logiciels (droits administrateur/sudo requis)."
+    MSG_REASON_10="Impossible d'accéder aux dépôts de paquets. Vérifiez la connexion réseau, puis relancez."
+    MSG_REASON_DEF="Une erreur est survenue pendant l'installation des composants."
+    MSG_FINAL_PROG_TITLE="Installation de Rufus"
+    MSG_FINAL_PROG_TEXT="Finalisation : inscription de Rufus dans les menus…"
+    MSG_DONE_TITLE="Rufus est installé"
+    MSG_DONE_TEXT="Rufus a été correctement installé sur ce poste et dans les menus,\net le système a été configuré pour qu'il puisse fonctionner.\n\nQue souhaitez-vous faire ?"
+    MSG_ACT_DESKTOP="Créer un raccourci sur le bureau"
+    MSG_ACT_FAV="Inscrire dans la barre des favoris"
+    MSG_ACT_RUN="Exécuter Rufus maintenant"
+
+    case "${LANG_INSTALL}" in
+    en)
+        MSG_CFG_TITLE="Set up Rufus on this computer"
+        MSG_CFG_BODY="Rufus will install a few required system components:\n  •  fonts (display and printing of documents)\n  •  video playback (GStreamer)\n  •  MySQL client (backup / restore)\n  •  access to serial measurement devices\n\nYou will be asked for the administrator password."
+        MSG_CFG_OK="Install now"
+        MSG_CFG_CANCEL="Cancel"
+        MSG_CANCEL_TITLE="Installation cancelled"
+        MSG_CANCEL_BODY="System configuration was cancelled.\n\nRufus needs these components to work:\nrun the installation again when you are ready."
+        MSG_PKEXEC_TITLE="Manual installation required"
+        MSG_PKEXEC_LEAD="pkexec is missing. Open a terminal and run:"
+        MSG_PKEXEC_TAIL="Then start Rufus again."
+        MSG_PROG_TITLE="Installing Rufus components"
+        MSG_PROG_TEXT="Installation in progress… (this may take a few minutes)"
+        MSG_ERR_TITLE="System configuration failed"
+        MSG_ERR_LEAD="The system could not be configured; Rufus was not installed."
+        MSG_ERR_DETAILS="Technical details:"
+        MSG_REASON_126="Authentication cancelled (administrator password not provided)."
+        MSG_REASON_127="Authentication refused: this account is not allowed to install software (administrator/sudo rights required)."
+        MSG_REASON_10="Could not reach the package repositories. Check the network connection, then try again."
+        MSG_REASON_DEF="An error occurred while installing the components."
+        MSG_FINAL_PROG_TITLE="Installing Rufus"
+        MSG_FINAL_PROG_TEXT="Finishing: adding Rufus to the menus…"
+        MSG_DONE_TITLE="Rufus is installed"
+        MSG_DONE_TEXT="Rufus has been correctly installed on this computer and in the menus,\nand the system has been configured so that it can run.\n\nWhat would you like to do?"
+        MSG_ACT_DESKTOP="Create a desktop shortcut"
+        MSG_ACT_FAV="Pin to the favorites bar"
+        MSG_ACT_RUN="Run Rufus now"
+        ;;
+    es)
+        MSG_CFG_TITLE="Configurar Rufus en este equipo"
+        MSG_CFG_BODY="Rufus instalará algunos componentes del sistema necesarios:\n  •  tipografías (visualización e impresión de documentos)\n  •  reproducción de vídeo (GStreamer)\n  •  cliente MySQL (copia de seguridad / restauración)\n  •  acceso a los dispositivos de medición por puerto serie\n\nSe le pedirá la contraseña de administrador."
+        MSG_CFG_OK="Instalar ahora"
+        MSG_CFG_CANCEL="Cancelar"
+        MSG_CANCEL_TITLE="Instalación interrumpida"
+        MSG_CANCEL_BODY="La configuración del sistema se canceló.\n\nRufus necesita estos componentes para funcionar:\nvuelva a ejecutar la instalación cuando esté listo."
+        MSG_PKEXEC_TITLE="Instalación manual necesaria"
+        MSG_PKEXEC_LEAD="pkexec no está disponible. Abra un terminal y ejecute:"
+        MSG_PKEXEC_TAIL="Luego vuelva a iniciar Rufus."
+        MSG_PROG_TITLE="Instalando los componentes de Rufus"
+        MSG_PROG_TEXT="Instalación en curso… (puede tardar unos minutos)"
+        MSG_ERR_TITLE="No se pudo configurar el sistema"
+        MSG_ERR_LEAD="No se pudo configurar el sistema; Rufus no se instaló."
+        MSG_ERR_DETAILS="Detalles técnicos:"
+        MSG_REASON_126="Autenticación cancelada (no se proporcionó la contraseña de administrador)."
+        MSG_REASON_127="Autenticación rechazada: esta cuenta no puede instalar software (se requieren permisos de administrador/sudo)."
+        MSG_REASON_10="No se pudo acceder a los repositorios de paquetes. Compruebe la conexión de red y vuelva a intentarlo."
+        MSG_REASON_DEF="Se produjo un error al instalar los componentes."
+        MSG_FINAL_PROG_TITLE="Instalando Rufus"
+        MSG_FINAL_PROG_TEXT="Finalizando: añadiendo Rufus a los menús…"
+        MSG_DONE_TITLE="Rufus está instalado"
+        MSG_DONE_TEXT="Rufus se ha instalado correctamente en este equipo y en los menús,\ny el sistema se ha configurado para que pueda funcionar.\n\n¿Qué desea hacer?"
+        MSG_ACT_DESKTOP="Crear un acceso directo en el escritorio"
+        MSG_ACT_FAV="Anclar a la barra de favoritos"
+        MSG_ACT_RUN="Ejecutar Rufus ahora"
+        ;;
+    pt)
+        MSG_CFG_TITLE="Configurar o Rufus neste computador"
+        MSG_CFG_BODY="O Rufus vai instalar alguns componentes de sistema necessários:\n  •  tipos de letra (visualização e impressão de documentos)\n  •  reprodução de vídeo (GStreamer)\n  •  cliente MySQL (cópia de segurança / restauro)\n  •  acesso aos aparelhos de medição na porta série\n\nA palavra-passe de administrador ser-lhe-á pedida."
+        MSG_CFG_OK="Instalar agora"
+        MSG_CFG_CANCEL="Cancelar"
+        MSG_CANCEL_TITLE="Instalação interrompida"
+        MSG_CANCEL_BODY="A configuração do sistema foi cancelada.\n\nO Rufus precisa destes componentes para funcionar:\nexecute novamente a instalação quando estiver pronto."
+        MSG_PKEXEC_TITLE="Instalação manual necessária"
+        MSG_PKEXEC_LEAD="O pkexec não está disponível. Abra um terminal e execute:"
+        MSG_PKEXEC_TAIL="Depois inicie novamente o Rufus."
+        MSG_PROG_TITLE="A instalar os componentes do Rufus"
+        MSG_PROG_TEXT="Instalação em curso… (pode demorar alguns minutos)"
+        MSG_ERR_TITLE="Não foi possível configurar o sistema"
+        MSG_ERR_LEAD="Não foi possível configurar o sistema; o Rufus não foi instalado."
+        MSG_ERR_DETAILS="Detalhes técnicos:"
+        MSG_REASON_126="Autenticação cancelada (palavra-passe de administrador não fornecida)."
+        MSG_REASON_127="Autenticação recusada: esta conta não tem permissão para instalar software (são necessários direitos de administrador/sudo)."
+        MSG_REASON_10="Não foi possível aceder aos repositórios de pacotes. Verifique a ligação de rede e tente novamente."
+        MSG_REASON_DEF="Ocorreu um erro ao instalar os componentes."
+        MSG_FINAL_PROG_TITLE="A instalar o Rufus"
+        MSG_FINAL_PROG_TEXT="A finalizar: a adicionar o Rufus aos menus…"
+        MSG_DONE_TITLE="O Rufus está instalado"
+        MSG_DONE_TEXT="O Rufus foi corretamente instalado neste computador e nos menus,\ne o sistema foi configurado para que possa funcionar.\n\nO que deseja fazer?"
+        MSG_ACT_DESKTOP="Criar um atalho no ambiente de trabalho"
+        MSG_ACT_FAV="Fixar na barra de favoritos"
+        MSG_ACT_RUN="Executar o Rufus agora"
+        ;;
+    esac
+}
+
 # ── 1. Configuration système du poste (composants requis) ─────────────────────
 #  Composants que l'AppImage ne peut PAS embarquer proprement : polices (dont les
 #  MS core fonts), plugins GStreamer (lecture vidéo), client MySQL (sauvegarde/
@@ -132,11 +289,17 @@ configurer_systeme() {
     command -v zenity  >/dev/null 2>&1    || return 0   # pas d'UI pour demander
     command -v apt-get >/dev/null 2>&1    || return 0   # distribution non-apt : on ne touche à rien
 
-    zenity --question --no-wrap --title="Configurer Rufus sur ce poste" \
-        --text="Rufus va installer quelques composants système nécessaires :\n  •  polices (affichage et impression des documents)\n  •  lecture des vidéos (GStreamer)\n  •  client MySQL (sauvegarde / restauration)\n  •  accès aux appareils de mesure sur port série\n\nLe mot de passe administrateur vous sera demandé." \
-        --ok-label="Installer maintenant" --cancel-label="Annuler" 2>/dev/null || {
-            zenity --error --no-wrap --title="Installation interrompue" \
-                --text="La configuration du système a été annulée.\n\nRufus a besoin de ces composants pour fonctionner :\nrelancez l'installation quand vous serez prêt." 2>/dev/null
+    # MAJ / réinstallation : si tout est déjà en place, on ne repropose rien.
+    if composants_systeme_presents; then
+        ecrit_certif "Composants système déjà présents — configuration ignorée"
+        return 0
+    fi
+
+    zenity --question --no-wrap --title="${MSG_CFG_TITLE}" \
+        --text="${MSG_CFG_BODY}" \
+        --ok-label="${MSG_CFG_OK}" --cancel-label="${MSG_CFG_CANCEL}" 2>/dev/null || {
+            zenity --error --no-wrap --title="${MSG_CANCEL_TITLE}" \
+                --text="${MSG_CANCEL_BODY}" 2>/dev/null
             return 1
         }
 
@@ -145,8 +308,8 @@ configurer_systeme() {
     mkdir -p "${RUFUS_DIR}" 2>/dev/null
 
     if ! command -v pkexec >/dev/null 2>&1; then
-        zenity --warning --no-wrap --title="Installation manuelle requise" \
-            --text="pkexec est absent. Ouvrez un terminal et exécutez :\n\nsudo apt install gsfonts ttf-mscorefonts-installer gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio mysql-client\nsudo usermod -aG dialout ${user}\n\nPuis relancez Rufus." 2>/dev/null
+        zenity --warning --no-wrap --title="${MSG_PKEXEC_TITLE}" \
+            --text="${MSG_PKEXEC_LEAD}\n\nsudo apt install ${PAQUETS_REQUIS}\nsudo usermod -aG dialout ${user}\n\n${MSG_PKEXEC_TAIL}" 2>/dev/null
         return 1
     fi
 
@@ -158,7 +321,7 @@ configurer_systeme() {
     # Le code de sortie porte le diagnostic : 10 = pas d'accès aux dépôts (réseau) ; pkexec
     # ajoute 126 (auth annulée) / 127 (non autorisé). La sortie complète est tee-ée dans LOG.
     # (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...' — ça casserait la quote.)
-    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" bash -c '
+    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" RUFUS_PAQUETS="${PAQUETS_REQUIS}" bash -c '
         trap "" PIPE
         echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
         rc=0
@@ -166,19 +329,14 @@ configurer_systeme() {
             echo "RUFUS_ERR: echec de apt-get update (acces reseau aux depots indisponible)"
             rc=10
         fi
-        for p in gsfonts ttf-mscorefonts-installer \
-                 gstreamer1.0-plugins-base gstreamer1.0-plugins-good \
-                 gstreamer1.0-plugins-bad gstreamer1.0-plugins-ugly \
-                 gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
-                 gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 \
-                 gstreamer1.0-pulseaudio mysql-client ; do
+        for p in $RUFUS_PAQUETS ; do
             apt-get -o DPkg::Lock::Timeout=300 install -y "$p" || echo "RUFUS_ERR: paquet non installe: $p"
         done
         usermod -aG dialout "$RUFUS_USER" || echo "RUFUS_ERR: ajout au groupe dialout impossible"
         exit $rc
     ' 2>&1 | tee "${LOG}" | sed -u 's/^/# /' | zenity --progress --pulsate --no-cancel --auto-close \
-        --title="Installation des composants Rufus" \
-        --text="Installation en cours… (cela peut prendre quelques minutes)" 2>/dev/null
+        --title="${MSG_PROG_TITLE}" \
+        --text="${MSG_PROG_TEXT}" 2>/dev/null
     local rc=${PIPESTATUS[0]}
 
     if [ "${rc}" -eq 0 ]; then
@@ -189,14 +347,14 @@ configurer_systeme() {
     # Échec réel : on explique (si on peut) et on stoppe l'installation.
     local raison
     case "${rc}" in
-        126) raison="Authentification annulée (mot de passe administrateur non fourni)." ;;
-        127) raison="Authentification refusée : ce compte n'est pas autorisé à installer des logiciels (droits administrateur/sudo requis)." ;;
-        10)  raison="Impossible d'accéder aux dépôts de paquets. Vérifiez la connexion réseau, puis relancez." ;;
-        *)   raison="Une erreur est survenue pendant l'installation des composants." ;;
+        126) raison="${MSG_REASON_126}" ;;
+        127) raison="${MSG_REASON_127}" ;;
+        10)  raison="${MSG_REASON_10}" ;;
+        *)   raison="${MSG_REASON_DEF}" ;;
     esac
     ecrit_certif "Config système ÉCHEC (rc=${rc}) : ${raison}"
-    zenity --error --no-wrap --title="Configuration du système impossible" \
-        --text="La configuration du système n'a pas pu se dérouler ; Rufus n'a pas été installé.\n\n${raison}\n\nDétails techniques : ${LOG}" 2>/dev/null
+    zenity --error --no-wrap --title="${MSG_ERR_TITLE}" \
+        --text="${MSG_ERR_LEAD}\n\n${raison}\n\n${MSG_ERR_DETAILS} ${LOG}" 2>/dev/null
     return 1
 }
 
@@ -286,8 +444,8 @@ restaurer_centrage_fenetres() {
 inscrire_dans_menus_avec_animation() {
     if command -v zenity >/dev/null 2>&1; then
         ( inscrire_dans_menus ) 2>&1 | zenity --progress --pulsate --no-cancel --auto-close \
-            --title="Installation de Rufus" \
-            --text="Finalisation : inscription de Rufus dans les menus…" 2>/dev/null
+            --title="${MSG_FINAL_PROG_TITLE}" \
+            --text="${MSG_FINAL_PROG_TEXT}" 2>/dev/null
     else
         inscrire_dans_menus
     fi
@@ -300,13 +458,13 @@ proposer_raccourcis_et_lancement() {
 
     local sel
     sel="$(zenity --list --checklist \
-        --title="Rufus est installé" --width=540 --height=300 \
-        --text="Rufus a été correctement installé sur ce poste et dans les menus,\net le système a été configuré pour qu'il puisse fonctionner.\n\nQue souhaitez-vous faire ?" \
+        --title="${MSG_DONE_TITLE}" --width=560 --height=300 \
+        --text="${MSG_DONE_TEXT}" \
         --column="" --column="id" --column="Action" \
         --hide-column=2 --print-column=2 \
-        TRUE  bureau  "Créer un raccourci sur le bureau" \
-        TRUE  favoris "Inscrire dans la barre des favoris" \
-        FALSE lancer  "Exécuter Rufus maintenant" \
+        TRUE  bureau  "${MSG_ACT_DESKTOP}" \
+        TRUE  favoris "${MSG_ACT_FAV}" \
+        FALSE lancer  "${MSG_ACT_RUN}" \
         2>/dev/null)"
 
     case "${sel}" in *bureau*)  creer_raccourci_bureau ;; esac
@@ -330,6 +488,9 @@ integration_proposee() {
 if integration_proposee; then
     # 0. Centrer toutes les fenêtres de l'install (réglage rendu à l'utilisateur à la fin).
     activer_centrage_fenetres
+    # 0 bis. 1re fenêtre : choix de la langue, puis chargement des textes correspondants.
+    choisir_langue_install
+    definir_textes
     # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
     configurer_systeme || { restaurer_centrage_fenetres; exit 1; }
     # 2. Inscrire Rufus dans les menus (sous animation, pour ne pas laisser l'écran vide).
