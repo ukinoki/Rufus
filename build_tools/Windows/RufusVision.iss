@@ -239,7 +239,14 @@ begin
     btnOk := 'OK, continuer (Rufus mettra MySQL à jour automatiquement)';
     btnAnnuler := 'Annuler, je ferai cela plus tard';
   end;
-  Result := (TaskDialogMsgBox(titre, texte, mbInformation, 0, [btnOk, btnAnnuler], 0) = 100);
+  if lang = 'en' then texte := texte + #13#10#13#10 + 'Do you want to continue now?  (Yes = update,  No = later)'
+  else if lang = 'es' then texte := texte + #13#10#13#10 + '¿Desea continuar ahora?  (Sí = actualizar,  No = más tarde)'
+  else if lang = 'pt' then texte := texte + #13#10#13#10 + 'Deseja continuar agora?  (Sim = atualizar,  Não = mais tarde)'
+  else texte := texte + #13#10#13#10 + 'Voulez-vous continuer maintenant ?  (Oui = mettre à jour,  Non = plus tard)';
+  // MsgBox (Oui/Non) plutôt que TaskDialogMsgBox : fiable, boutons localisés par Windows.
+  // La question est portée par le texte (la version à libellés personnalisés provoquait
+  // « Invalid Button Labels » : Inno exige que le nombre de libellés corresponde à CommonButtons).
+  Result := (MsgBox(titre + #13#10#13#10 + texte, mbConfirmation, MB_YESNO) = IDYES);
 end;
 
 // True = on continue l'installation ; False = on l'abandonne (ancien Rufus intact).
@@ -299,20 +306,20 @@ begin
     Exit;
   end;
 
-  // etat = 2 : pas de MySQL local → le Rufus existant est un CLIENT réseau → 2 boutons.
-  btn := TaskDialogMsgBox(
-    'Vérification de votre serveur MySQL',
-    'Cette version de Rufus exige un serveur MySQL 8.0.14 ou supérieur '
+  // etat = 2 : pas de MySQL local → le Rufus existant est un CLIENT réseau.
+  // MsgBox Oui/Non (fiable) : Oui = je certifie ≥ 8.0.14 ; Non = je l'ignore.
+  btn := MsgBox(
+    'Vérification de votre serveur MySQL' + #13#10#13#10
+    + 'Cette version de Rufus exige un serveur MySQL 8.0.14 ou supérieur '
       + '(MariaDB non pris en charge).' + #13#10#13#10
       + 'Aucun MySQL n''a été détecté sur cet ordinateur (ce poste se connecte donc à '
-      + 'un serveur réseau). Indiquez votre situation :',
-    // NB : le '[' du tableau de boutons DOIT rester en fin de ligne. Une ligne du [Code] qui
-    // COMMENCE par '[' est prise pour un en-tête de section par Inno → "Invalid section tag".
-    mbInformation, 0, [
-    'Le serveur réseau est en version >= 8.0.14 (je le certifie)',
-     'J''IGNORE la version du serveur'], 0);
+      + 'un serveur réseau).' + #13#10#13#10
+      + 'Votre serveur est-il en version 8.0.14 ou supérieure ?' + #13#10
+      + '   •  Oui  = je le certifie, continuer l''installation' + #13#10
+      + '   •  Non = je l''ignore (l''installation sera reportée)',
+    mbConfirmation, MB_YESNO);
 
-  if btn = 100 then begin
+  if btn = IDYES then begin
     EcritCertif('CERTIFIÉ par l''utilisateur (MAJ) : serveur réseau >= 8.0.14');
     Result := True;
   end else begin
