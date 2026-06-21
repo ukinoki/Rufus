@@ -15,8 +15,8 @@
 #  UNIVERSEL (x86_64 + arm64) pour macOS et l'installe dans les plugins de Qt.
 #
 #  POURQUOI : le Qt officiel pour macOS (celui d'install-qt-action / de l'installeur
-#  en ligne) ne LIVRE PAS le pilote MySQL (contrairement à Linux/Windows). Sans lui,
-#  Rufus ne peut ni se connecter à MySQL ni sauvegarder/restaurer sur Mac.
+#  en ligne) ne LIVRE PAS le pilote MySQL (seul le Qt Linux le fournit ; Windows non plus).
+#  Sans lui, Rufus ne peut ni se connecter à MySQL ni sauvegarder/restaurer sur Mac.
 #
 #  STRATÉGIE (tout depuis les sources, en universel) :
 #    1. OpenSSL  -> bibliothèques STATIQUES universelles (libssl.a + libcrypto.a) ;

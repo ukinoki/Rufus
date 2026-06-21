@@ -182,13 +182,38 @@ jobs:
       - name: Environnement MSVC
         uses: ilammy/msvc-dev-cmd@v1
 
+      # Le Qt officiel Windows ne livre pas le pilote MySQL : on le construit (comme macOS),
+      # et on le met en cache (clé = version Qt + hash du script).
+      - name: Cache du pilote MySQL (Windows)
+        id: cache-qmysql-win
+        uses: actions/cache@v4
+        with:
+          path: qmysql-cache-win
+          key: qmysql-win-qt${{ env.QT_VERSION }}-${{ hashFiles('build_tools/Windows/build-qmysql-windows.ps1') }}
+
+      - name: Construire le pilote MySQL (si absent du cache)
+        if: steps.cache-qmysql-win.outputs.cache-hit != 'true'
+        shell: pwsh
+        run: |
+          build_tools\Windows\build-qmysql-windows.ps1
+          New-Item -ItemType Directory -Force -Path qmysql-cache-win | Out-Null
+          Copy-Item "$env:QT_ROOT_DIR\plugins\sqldrivers\qsqlmysql.dll" qmysql-cache-win\
+          Copy-Item "$env:QT_ROOT_DIR\bin\libmariadb.dll" qmysql-cache-win\
+
+      - name: Installer le pilote MySQL depuis le cache (si présent)
+        if: steps.cache-qmysql-win.outputs.cache-hit == 'true'
+        shell: pwsh
+        run: |
+          Copy-Item qmysql-cache-win\qsqlmysql.dll "$env:QT_ROOT_DIR\plugins\sqldrivers\" -Force
+          Copy-Item qmysql-cache-win\libmariadb.dll "$env:QT_ROOT_DIR\bin\" -Force
+
       - name: Compiler (qmake + nmake, Release)
         shell: cmd
         run: |
           qmake RufusQt6.pro CONFIG+=release
           nmake
 
-      - name: Déployer (windeployqt + assets + client MySQL)
+      - name: Déployer (windeployqt + assets + pilote MySQL)
         shell: pwsh
         run: |
           $deploy = "$env:GITHUB_WORKSPACE\Deploy"
@@ -200,9 +225,13 @@ jobs:
           windeployqt --release --compiler-runtime --sql "$deploy\Rufus.exe"
           # Assets de l'application
           Copy-Item -Recurse -Force assets "$deploy\assets"
-          # Client MySQL (mysql.exe / mysqldump.exe + libmysql.dll) — best-effort.
-          # TODO 1er run : vérifier le chemin du client MySQL sur le runner.
-          choco install mysql --no-progress -y | Out-Null
+          # Lib client MySQL à côté de Rufus.exe (le pilote qsqlmysql.dll en dépend au runtime).
+          Copy-Item "$env:QT_ROOT_DIR\bin\libmariadb.dll" "$deploy\libmariadb.dll" -Force
+          # Rufus n'utilise que MySQL : ne garder que ce pilote SQL.
+          if (Test-Path "$deploy\sqldrivers") {
+            Get-ChildItem "$deploy\sqldrivers" -Filter 'qsql*.dll' |
+              Where-Object { $_.Name -ne 'qsqlmysql.dll' } | Remove-Item -Force
+          }
 
       - name: Construire RufusSetup.exe (Inno Setup)
         shell: pwsh
