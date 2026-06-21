@@ -73,13 +73,15 @@ if [ -f "${BUNDLE_DRV}" ]; then
     fi
     chmod u+w "${BUNDLE_FW}/${MARIADB_NAME}" 2>/dev/null || true
     install_name_tool -id "@rpath/${MARIADB_NAME}" "${BUNDLE_FW}/${MARIADB_NAME}" 2>/dev/null || true
-    # Pointer la dépendance du pilote vers la copie embarquée, SAUF si macdeployqt l'a déjà
-    # rendue relative (@rpath/@loader_path) — dans ce cas on n'y touche pas.
-    case "${MARIADB_DEP}" in
-        @*) : ;;
-        ?*) install_name_tool -change "${MARIADB_DEP}" "@loader_path/../../Frameworks/${MARIADB_NAME}" "${BUNDLE_DRV}" 2>/dev/null || true ;;
-    esac
-    echo "   pilote MySQL : $(lipo -archs "${BUNDLE_DRV}" 2>/dev/null) | libmariadb embarquée : ${MARIADB_NAME}"
+    # TOUJOURS réécrire la dépendance du pilote vers la copie de Frameworks. La valeur posée par
+    # le script de build (@loader_path/../../lib/…) est juste DANS L'INSTALL QT (plugins -> lib),
+    # mais FAUSSE dans le bundle (PlugIns/sqldrivers/../../lib = Contents/lib, inexistant). Ici la
+    # cible est Contents/Frameworks : PlugIns/sqldrivers/../../Frameworks. (D'où le « driver not
+    # loaded » tant qu'on ne corrigeait pas les chemins en @… commençant par @loader_path.)
+    if [ -n "${MARIADB_DEP}" ]; then
+        install_name_tool -change "${MARIADB_DEP}" "@loader_path/../../Frameworks/${MARIADB_NAME}" "${BUNDLE_DRV}" 2>/dev/null || true
+    fi
+    echo "   pilote MySQL : $(lipo -archs "${BUNDLE_DRV}" 2>/dev/null) | dépendance -> $(otool -L "${BUNDLE_DRV}" | awk '/libmariadb|libmysqlclient/{print $1; exit}')"
 fi
 
 # ── Élagage des pilotes SQL inutiles ──────────────────────────────────────────
