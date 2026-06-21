@@ -328,6 +328,10 @@ private:
     //  message d'erreur explicite et renvoie false si : aucun accès réseau (WAN),
     //  ou WAN présent mais le lien de téléchargement ne se résout pas (DNS).
     bool    checkDownloadConnectivity(const QString& downloadUrl);
+    //  Alarme commune (macOS + Windows) quand le téléchargement de MySQL échoue :
+    //  invite l'utilisateur à installer MySQL lui-même puis à relancer Rufus, qui
+    //  détectera alors le serveur et le configurera.
+    void    avertirTelechargementImpossible();
     void    stopMySQL();
     bool    startMySQL();
     bool    waitForMySQL(int maxSeconds = 30);

@@ -2359,9 +2359,7 @@ bool MySQLInstaller::installMySQL()
     downloadFile(url, zipPath, tr("Téléchargement de MySQL %1…").arg(version));
     if (!QFile::exists(zipPath) || QFileInfo(zipPath).size() < 1'000'000LL) {
         QFile::remove(zipPath);
-        UpMessageBox::Watch(nullptr, tr("Téléchargement échoué"),
-            tr("Impossible de télécharger MySQL %1 depuis dev.mysql.com.\n"
-               "Vérifiez votre connexion Internet.").arg(version));
+        avertirTelechargementImpossible();
         return false;
     }
 
@@ -2521,7 +2519,7 @@ bool MySQLInstaller::installMySQL()
     return isMySQLInstalled();
 #else
     QString dmg = downloadOracleDmg();
-    if (dmg.isEmpty()) return false;
+    if (dmg.isEmpty()) { avertirTelechargementImpossible(); return false; }
     // installFromDmg installe le pkg PUIS initialise le datadir et démarre le
     // serveur dans la même élévation.
     if (!installFromDmg(dmg)) return false;
@@ -3625,6 +3623,23 @@ bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
         return false;
     }
     return true;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Alarme commune quand le téléchargement automatique de MySQL n'aboutit pas
+//  (site momentanément inaccessible, blocage CDN, coupure en cours de route…).
+//  On ne laisse pas l'utilisateur dans le noir : on lui explique qu'il peut
+//  installer MySQL lui-même et que Rufus prendra le relais au prochain lancement.
+// ─────────────────────────────────────────────────────────────────────────────
+void MySQLInstaller::avertirTelechargementImpossible()
+{
+    UpMessageBox::Watch(nullptr, tr("Téléchargement de MySQL impossible"),
+        tr("Rufus n'a pas réussi à télécharger MySQL : le site n'est pas accessible.") + "\n\n" +
+        tr("Vous pouvez installer MySQL vous-même : téléchargez-le et suivez la "
+           "procédure d'installation décrite sur le site de Rufus.") + "\n" +
+        "www.rufusvision.org" + "\n\n" +
+        tr("Relancez ensuite Rufus : il détectera le serveur et le configurera "
+           "automatiquement pour son usage."));
 }
 
 QString MySQLInstaller::getBrewPrefix()
