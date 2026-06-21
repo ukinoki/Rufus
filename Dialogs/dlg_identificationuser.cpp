@@ -48,6 +48,7 @@ dlg_identificationuser::dlg_identificationuser(QWidget *parent) :
     ui->AnnulpushButton ->installEventFilter(this);
     ui->LoginlineEdit   ->installEventFilter(this);
     ui->MDPlineEdit     ->installEventFilter(this);
+    ui->IconServerOKupLabel         ->setPixmap(Icons::pxCheck());
 
     ui->LoginlineEdit   ->setFocus();
 }
@@ -74,7 +75,6 @@ void dlg_identificationuser::Validation()
     if (m_loginresult == OK)
         accept();
     ui->OKpushButton->setEnabled(true);
-    ui->IconServerOKupLabel         ->setPixmap(Icons::pxunCheck());
     ui->IconGlobalSQLupLabel        ->setPixmap(Icons::pxunCheck());
     ui->IconBaseOKupLabel           ->setPixmap(Icons::pxunCheck());
     ui->IconUserOKupLabel           ->setPixmap(Icons::pxunCheck());
@@ -113,7 +113,7 @@ bool dlg_identificationuser::eventFilter(QObject *obj, QEvent *event)
 --------------------------------------------------------------------------------------------------------------*/
 dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
 {
-    bool ok;
+    bool ok = false;
     QString req;
     QString Login = ui->LoginlineEdit->text();
     QString Password = ui->MDPlineEdit->text();
@@ -121,30 +121,6 @@ dlg_identificationuser::LoginResult dlg_identificationuser::ControleDonnees()
     if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus();    return NoUser;}
     if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();      return NoUser;}
 
-    QString error = "";
-    //! Connexion MySQL via le compte fixe adminrufus, en CASCADE : on essaie l'aléatoire
-    //! du cabinet (.dbkey) PUIS gaxt78iy. Indispensable juste après la sécurisation —
-    //! l'aléatoire fraîchement posé peut être refusé à la toute première connexion (cache
-    //! d'auth caching_sha2 « froid »), alors que gaxt78iy (2e mot de passe conservé)
-    //! fonctionne. Sans cette cascade, la 1re identification échouait et seul un
-    //! redémarrage de Rufus (qui repasse par la cascade) rétablissait l'accès.
-    error = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-
-    if( error.size() )
-    {
-        ui->IconServerOKupLabel->setPixmap(Icons::pxError());
-        Utils::Pause(100);
-        UpMessageBox::Watch(this, tr("Erreur sur le serveur MySQL"),
-                            tr("Impossible de se connecter au serveur avec le login ") + Login
-                            + tr(" et ce mot de passe") + "\n"
-                            + tr("Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.") + "\n"
-                            + error);
-        return NoConnexion;
-    }
-    ui->IconServerOKupLabel->setPixmap(Icons::pxCheck());
-    Utils::Pause(150);
-
-    ok = false;
     if (!DataBase::I()->dirsecure_file_priv())
     {
         ui->IconGlobalSQLupLabel->setPixmap(Icons::pxError());

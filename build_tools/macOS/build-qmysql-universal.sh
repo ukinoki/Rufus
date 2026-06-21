@@ -5,6 +5,10 @@
 #  Ce script la fabrique en version « universelle » (marche sur Mac Intel ET
 #  Apple Silicon) et la range dans ton Qt. On le lance une fois ; ensuite Rufus
 #  sait se connecter à MySQL. La suite ci-dessous, c'est juste le détail technique.
+
+# On doit bâtir un driver universel et on utilise la lib MariaDB (les libs MySQL ne sont pas universelles)
+# On utilise la version de Qt enregistrée dans le PATH, sinon on cherche la plus récente sur le disque
+# Pour GitHUB, on utilise $QT_ROOT_DIR/bin/qmake
 # ═════════════════════════════════════════════════════════════════════════════
 # ─────────────────────────────────────────────────────────────────────────────
 #  build-qmysql-universal.sh — construit le pilote Qt « qsqlmysql » en binaire
