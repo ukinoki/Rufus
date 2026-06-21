@@ -1,0 +1,65 @@
+9. Construire le driver MyQSL pour MariaDB ou MySQL8.0 sous MacOS Silicon - build MySQL/MariaDB driver QT6 MacOs Silicon
+
+A - Pour MySQL
+​Les libs compatibles M1/M2 (arm64) ne sont fournies qu'à partir des versions 8.0.26 de MySQL. Il faut donc impérativement utiliser une de ces versions pour pouvoir compiler le driver MySQL pour Qt6 sur un Mac à processeur arm64.
+Se référer à la page  www.geeksforgeeks.org/how-to-install-mysql-on-macos/ pour la procédure d'installation.
+La configuration du serveur MySQL sera identique à celle décrite dans la page du site rufusvision pour la configuration d'un serveur MySQL 5.7 -> Installation du serveur MySQL sous MacOS
+
+B - Installer Qt 6
+Installer Qt6.3 ou supérieur et les sources du logiciel par le biais du logiciel d'installation de Qt, MaintenanceTool. Les sources du programme vont permettre de compiler le driver MySQL. Donc, modifiez ou faites une installation neuve en cochant la case Sources du logiciel d'installation comme indiqué dans la capture d'écran ci contre
+
+Installer aussi QtCreator, CMake et Ninja en cochant les cases correspondantes (mais elles le sont normalement par défaut)
+
+Installer aussi les librairies additionnelles QtPdf version Desktop, QTMultimedia et QtSerialPort, indispensables au fonctionnement de Rufus
+
+On est loin d'avoir fini...
+
+​C - Télécharger Xcode sur l'Apple Store et l'installer
+
+D - Indiquer au système le chemin vers les autres programmes dont il aura besoin  pour compiler le driver​
+pour cela, rajouter de nouvelles valeurs à la variable EXPORT en entrant dans le terminal
+export PATH=$PATH:~/Qt/Tools/CMake/CMake.app/Contents/bin:~/Qt/6.8.0/macos/bin:~/Qt/6.8.0/macos/lib:~/Qt/Tools/Ninja:~/Qt/6.8.0/macOS/bin
+​Attention à entrer la bonne valeur du dossier Qt, ici /Qt/6.8.0, mais il faut remplacer par le véritable emplacement de votre dossier Qt qui varie selon la version que vous avez installée: /Qt/6.4.0, /Qt/6.4.1, /Qt/6.4.2...etc...
+
+E - créer un sous répertoire du dossier personnel build-sqldrivers et s'y déplacer
+mkdir build-sqldrivers
+cd build-sqldrivers
+
+​F - lancer le make du driver SQL
+a. pour MariaDB
++++ L'instruction -DQT_GENERATE_SBOM=OFF ne doit être ajoutée que si vous compilez à partir d'une version Qt 6.8.1 ou supérieure
+qt-cmake -G Ninja ~/Qt/6.8.0/Src/qtbase/src/plugins/sqldrivers -DCMAKE_INSTALL_PREFIX=/Qt/6.8.0/macos -DMySQL_INCLUDE_DIR="/opt/homebrew/Cellar/mariadb/10.11.2/include" -DMySQL_LIBRARY="/opt/homebrew/Cellar/mariadb/10.11.2/lib/libmysqlclient.dylib"  -DCMAKE_OSX_ARCHITECTURES="arm64" -DQT_GENERATE_SBOM=OFF
+Attention à entrer la bonne valeur du dossier Qt, ici /Qt/6.8.0, mais il faut remplacer par le véritable emplacement de votre dossier Qt qui varie selon la version que vous aves installé /Qt/6.4.0, /Qt/6.4.1, /Qt/6.4.2...etc... et la bonne valeur des dossier include et de la lib libmysqlclient.dylib qui peut varier d'une installation de MariaDB à l'autre
+
+​b. pour MySQL
++++ L'instruction -DQT_GENERATE_SBOM=OFF ne doit être ajoutée que si vous compilez à partir d'une version Qt 6.8.1 ou supérieure
+qt-cmake -G Ninja ~/Qt/6.8.0/Src/qtbase/src/plugins/sqldrivers -DCMAKE_INSTALL_PREFIX=/Qt/6.8.0/macos -DMySQL_INCLUDE_DIR="/usr/local/mysql/include" -DMySQL_LIBRARY="/usr/local/mysql/lib/libmysqlclient.dylib"  -DCMAKE_OSX_ARCHITECTURES="arm64"  -DQT_GENERATE_SBOM=OFF
+Attention à entrer la bonne valeur du dossier Qt, ici /Qt/6.8.0, mais il faut remplacer par le véritable emplacement de votre dossier Qt qui varie selon la version installée: /Qt/6.4.0, /Qt/6.4.1, /Qt/6.4.2...etc...
+
+À la fin de la compilation, vous devez voir apparaître des lignes de confirmation, variant suivant la version de Qt
+-- Configuration summary has been written to /Users/xxx/config.summary
+-- Configuring done (6.5s)
+-- Generating done (0.0s)
+-- Build files have been written to: /Users/xxx
+​
+G - modifier le fichier build.ninja
+La commande précédente a créé un ensemble de fichiers dans le dossier build-sqldrivers et parmi ces fichiers, le fichier build.ninja va devoir être modifié
+Il fait référence à une compilation pour une architecture x86_64 et il faut remplacer cette référence par une référence à l'architecture arm64
+On peut le faire avec un éditeur de texte en remplaçant  -arch x86_64 par -arch arm64
+On peut le faire aussi plus simplement en entrant cette commande dans le terminal
+sed -i -e 's/-arch x86_64/-arch arm64/g' ~/build-sqldrivers/build.ninja
+
+I - lancer les commandes build puis installer les drivers
+cmake --build . (attention à l'espace entre build et .)
+Puis copier les fichiers élaborés par la compilation à leur emplacement dans les répertoires de Qt correspondant.
+Dans ce cas,
+​copier les libs contenues dans /Users/votrenomdutilisateur/build-sqldrivers/lib/cmake/Qt6Sql  vers le dossier /Users/votrenomdutilisateur/Qt/6.8.0/macos/lib/cmake/Qt6Sql
+​copier les libs contenues dans /Users/votrenomdutilisateur/build-sqldrivers/plugins/sqldrivers  vers le dossier /Users/votrenomdutilisateur/Qt/6.8.0/macos/plugins/sqldrivers
+Vous avez terminé et vous devez avoir maintenant, entre autres, dans le dossier /Users/votrenomdutilisateur/Qt/6.8.0/macos/plugins/sqldrivers, le fichier libqsqlmysql.dylib qui va donc permettre de faire le lien entre la base de données MySQL et Qt.
+
+J - Supprimer les libs inutiles dans /Users/votrenomdutilisateur/Qt/6.6.1/macos/plugins/sqldrivers
+rm -R ~/Qt/6.8.0/macos/plugins/sqldrivers/libqsqlite.*
+rm -R ~/Qt/6.8.0/macos/plugins/sqldrivers/libqsqlodbc.*
+rm -R ~/Qt/6.8.0/macos/plugins/sqldrivers/libqsqlpsql.*
+
+Voilà, c'était presque simple.​​​​
