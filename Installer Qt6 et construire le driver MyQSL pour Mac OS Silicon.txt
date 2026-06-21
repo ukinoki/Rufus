@@ -33,26 +33,43 @@ On ajoute les dossiers contenant qt-cmake, cmake et ninja à la variable PATH, e
 Attention à entrer la bonne valeur du dossier Qt, ici 6.8.0, mais il faut remplacer par la version que vous avez réellement installée : 6.4.0, 6.4.1, 6.8.2... etc.
 
 E - Se fabriquer une lib client UNIVERSELLE (l'étape clé de l'universel).
-Homebrew n'installe que l'architecture de votre Mac. Pour obtenir une lib client universelle, on installe MariaDB (ou MySQL) DEUX fois — une fois en arm64, une fois en x86_64 — puis on fusionne les deux libs avec lipo.
 
-a - arm64 (Homebrew natif, dans /opt/homebrew, déjà présent sur un Mac Apple Silicon) :
+L'idée : le driver doit se lier à une lib client (libmariadb) qui contient à la fois du code Intel (x86_64) et du code Apple Silicon (arm64). Le problème, c'est qu'une installation de MariaDB ne fournit QUE l'architecture de votre Mac. On va donc installer MariaDB DEUX fois — une version arm64 et une version x86_64 — puis « coller » les deux libs en une seule avec l'outil lipo. Pas de panique, on déroule pas à pas.
 
-    brew install mariadb
+e.1 - Installer Rosetta (la couche qui permet à un Mac Apple Silicon d'exécuter des programmes Intel). Dans le terminal :
 
-b - x86_64 (un second Homebrew sous Rosetta, dans /usr/local). Installer Rosetta si besoin (softwareupdate --install-rosetta), puis installer ce second Homebrew, et enfin :
+    softwareupdate --install-rosetta --agree-to-license
 
-    arch -x86_64 /usr/local/bin/brew install mariadb
+e.2 - Installer Homebrew. Homebrew est un « gestionnaire de paquets » : un programme qui télécharge et installe pour vous des outils (ici MariaDB) en une seule commande, sans avoir à tout compiler à la main. Sur un Mac Apple Silicon, il s'installe tout seul dans le dossier /opt/homebrew et ne gère que l'arm64. Dans le terminal :
 
-IMPORTANT : installez la MÊME version de MariaDB dans les deux préfixes (mêmes numéros), sinon la fusion lipo échouera ou produira une lib incohérente.
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-c - fusionner les deux libs en une seule lib universelle (adaptez les numéros de version et le nom exact du .dylib à ce qui est réellement installé) :
+Puis on l'ajoute à votre environnement pour pouvoir l'appeler avec la simple commande « brew » :
+
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+    source ~/.zshrc
+
+e.3 - Installer un SECOND Homebrew, en version Intel. C'est le point qui surprend : le Homebrew installé ci-dessus ne sait fabriquer que de l'arm64. Pour obtenir aussi la lib en Intel (x86_64), il faut un deuxième Homebrew, indépendant, qui tourne « en mode Intel » grâce à Rosetta. Il s'installe dans un AUTRE dossier (/usr/local), donc les deux ne se gênent pas. On lance exactement le même script d'installation, mais préfixé par « arch -x86_64 » qui le force en mode Intel :
+
+    arch -x86_64 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+(On n'ajoute PAS ce second Homebrew à l'environnement : on l'appellera toujours par son chemin complet /usr/local/bin/brew, précédé de « arch -x86_64 », pour ne pas le confondre avec le premier.)
+
+e.4 - Installer MariaDB dans chacun des deux Homebrew.
+
+    arm64 :     brew install mariadb
+    x86_64 :    arch -x86_64 /usr/local/bin/brew install mariadb
+
+IMPORTANT : installez la MÊME version de MariaDB des deux côtés (mêmes numéros). Si l'un installe 10.11.2 et l'autre 11.4.2, la fusion lipo de l'étape e.5 échouera. Au besoin, vérifiez le numéro réellement installé dans chaque dossier /opt/homebrew/Cellar/mariadb/ et /usr/local/Cellar/mariadb/.
+
+e.5 - Fusionner les deux libs en une seule, universelle. Adaptez les numéros de version (ici 10.11.2) et le nom exact du fichier .dylib à ce qui est réellement installé chez vous :
 
     lipo -create \
       /opt/homebrew/Cellar/mariadb/10.11.2/lib/libmariadb.3.dylib \
       /usr/local/Cellar/mariadb/10.11.2/lib/libmariadb.3.dylib \
       -output $HOME/libmariadb-universal.dylib
 
-d - vérifier que la lib obtenue est bien universelle :
+e.6 - Vérifier que la lib obtenue est bien universelle :
 
     lipo -archs $HOME/libmariadb-universal.dylib
 
