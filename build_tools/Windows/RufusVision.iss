@@ -128,7 +128,7 @@ end;
 procedure EcritCertif(const Ligne: String);
 var Dir: String;
 begin
-  Dir := ExpandConstant('{userprofile}\.rufus');
+  Dir := ExpandConstant('{%USERPROFILE}\.rufus');
   ForceDirectories(Dir);
   SaveStringToFile(Dir + '\.certif',
     GetDateTimeString('yyyy-mm-dd hh:nn', '-', ':') + ' | ' + Ligne + #13#10, True);
@@ -149,13 +149,13 @@ end;
 // Rôle du poste d'après rufus.ini : BDD_POSTE Active=YES → ce poste HÉBERGE la base
 // (serveur) ; BDD_LOCAL/BDD_DISTANT Active=YES → CLIENT réseau. rufus.ini FAIT FOI sur
 // le rôle ; la présence d'un mysqld local n'est qu'un repli quand l'ini est absent/muet.
-// Subtilité : l'installeur tourne en mode élevé, mais {userprofile} pointe bien vers le
+// Subtilité : l'installeur tourne en mode élevé, mais {%USERPROFILE} pointe bien vers le
 // profil de l'utilisateur CONNECTÉ (pas celui de l'admin) — c'est le bon rufus.ini.
 function RoleDepuisIni(): String;
 var ini: String;
 begin
   Result := 'INCONNU';
-  ini := ExpandConstant('{userprofile}\Documents\Rufus\Rufus.ini');
+  ini := ExpandConstant('{%USERPROFILE}\Documents\Rufus\Rufus.ini');
   if not FileExists(ini) then Exit;
   if Uppercase(Trim(GetIniString('BDD_POSTE', 'Active', '', ini))) = 'YES' then begin
     Result := 'SERVEUR'; Exit;
@@ -171,7 +171,7 @@ function LangueDepuisIni(): String;
 var ini, v: String;
 begin
   Result := 'fr';
-  ini := ExpandConstant('{userprofile}\Documents\Rufus\Rufus.ini');
+  ini := ExpandConstant('{%USERPROFILE}\Documents\Rufus\Rufus.ini');
   if not FileExists(ini) then Exit;
   v := Lowercase(Trim(GetIniString('Param_Poste', 'Version', '', ini)));
   if (v = 'fr') or (v = 'en') or (v = 'es') or (v = 'pt') then Result := v
