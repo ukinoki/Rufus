@@ -82,6 +82,17 @@ if [ -f "${BUNDLE_DRV}" ]; then
     echo "   pilote MySQL : $(lipo -archs "${BUNDLE_DRV}" 2>/dev/null) | libmariadb embarquée : ${MARIADB_NAME}"
 fi
 
+# ── Élagage des pilotes SQL inutiles ──────────────────────────────────────────
+# Rufus n'utilise que MySQL (SQLite gardé, sans dépendance externe). macdeployqt embarque
+# TOUS les pilotes de Qt (ODBC, PostgreSQL…) : on retire les superflus. (Même politique qu'en
+# CI Linux.) À faire AVANT la signature, pour que celle-ci porte sur le contenu final.
+SQLDRV_DIR="${APP_PATH}/Contents/PlugIns/sqldrivers"
+if [ -d "${SQLDRV_DIR}" ]; then
+    find "${SQLDRV_DIR}" -name 'libqsql*.dylib' \
+        ! -name 'libqsqlmysql.dylib' ! -name 'libqsqlite.dylib' -delete
+    echo "==> pilotes SQL conservés : $(ls "${SQLDRV_DIR}" 2>/dev/null | tr '\n' ' ')"
+fi
+
 # ── Filet de sécurité : nom du bundle = « Rufus.app » → /Applications/Rufus.app ─
 # Le .pro fixe désormais TARGET = Rufus (bundle « Rufus.app »). Ce renommage ne sert donc plus
 # que de garde-fou si un ancien build fournissait encore « RufusQt6.app ». AVANT la signature.
