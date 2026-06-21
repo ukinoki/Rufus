@@ -614,14 +614,19 @@ void MySQLInstaller::supprimerMotDePassePourMode(Utils::ModeAcces mode)
 MySQLRemoteConfig MySQLInstaller::defaultMySQLConfig()
 {
     MySQLRemoteConfig c;
-    c.version     = "8.4.9";
+    c.version     = "8.4.2";
     // Seuil minimal accepté : 8.0.14, commun à tous les OS (cf. VERSION_MYSQL_MINI). La version
-    // POSÉE en cas d'install est le 8.4 LTS (c.version ci-dessus), mais un serveur déjà >= 8.0.14
+    // POSÉE en cas d'install est le 8.4.2 LTS (c.version ci-dessus), mais un serveur déjà >= 8.0.14
     // est accepté tel quel (le 8.0 d'apt suffit, il sait déjà le double mot de passe).
     c.minVersion  = seuilVersionMySQL();
-    c.winUrl      = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-winx64.zip";
-    c.macArm64Url = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-macos14-arm64.dmg";
-    c.macX86Url   = "https://dev.mysql.com/get/Downloads/MySQL-8.4/mysql-8.4.9-macos14-x86_64.dmg";
+    // Binaires auto-hébergés sur la Release GitHub « mysqlinstaller-for-rufus » : URLs PERMANENTES
+    // (on les contrôle), téléchargeables en automatique (pas de blocage CDN/Akamai comme sur
+    // dev.mysql.com), et qui ne « rotent » pas au prochain point-release de MySQL. Le JSON distant
+    // (mysql_config.json) peut surcharger ces valeurs sans recompiler. macOS : un seul DMG par
+    // archi ; le build « macos14 » d'Oracle est compatible Ventura 13 (indiqué sur la page MySQL).
+    c.winUrl      = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-winx64.zip";
+    c.macArm64Url = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-macos14-arm64.dmg";
+    c.macX86Url   = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-macos14-x86_64.dmg";
     return c;
 }
 
