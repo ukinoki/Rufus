@@ -1,0 +1,55 @@
+
+6. Installer Qt6 et construire le driver MyQSL pour MariaDB ou MySQL8.0 sous MacOs Intel x64 - build MySQL driver QT6 MacOs intel x64
+Comme d'habitude, tout cela est très mal expliqué dans la documentation de Qt, les gens de Qt considérant que vous êtes le petit prince de l'informatique et que vous saurez pallier les insuffisances de leurs explications.
+Et que si, pour votre malheur, vous n'êtes pas ce petit prince, vous n'avez qu'à abandonner, parce que vous êtes trop stupide et l'informatique n'est pas faite pour vous.
+​
+Bon, ce coup de gueule posé, la compilation du driver n'est pas si complexe. Il vous faut installer Qt6.3 ou supérieur (et même Qt 6.8 minimum si vous êtes sous MacOS Tahoe) et les sources du logiciel par le biais du logiciel d'installation de Qt, MaintenanceTool. Donc, modifiez ou faites une installation neuve en cochant la case Sources du logiciel d'installation comme indiqué dans la capture d'écran ci contre
+
+​Il vous faut aussi installer CMake et Ninja en cochant les cases correspondantes (mais elles le sont normalement par défaut)
+	
+Photo
+	
+Photo
+On est loin d'avoir fini...
+​
+A - Télécharger Xcode sur l'Apple Store et l'installer
+
+B - Indiquer au système le chemin vers les autres programmes dont il aura besoin  pour compiler le driver​
+pour cela, rajouter de nouvelles valeurs à la variable EXPORT en entrant dans le terminal
+
+    export PATH=$PATH:~/Qt/Tools/CMake/CMake.app/Contents/bin:~/Qt/6.10.2/macos/bin:~/Qt/6.10.2/macos/lib:~/Qt/Tools/Ninja:~/Qt/6.10.2/macOS/bin
+
+    Attention à entrer la bonne valeur du dossier Qt, ici /Qt/6.10.2, mais il faut remplacer par le véritable emplacement de votre dossier Qt qui varie selon la version que vous avez installée: /Qt/6.4.0, /Qt/6.4.1, /Qt/6.4.2...etc...
+
+
+C - créer un sous répertoire du dossier personnel build-sqldrivers et s'y déplacer
+mkdir build-sqldrivers
+cd build-sqldrivers
+
+D - lancer le make du driver SQL
+a - pour MySQL
+qt-cmake -G Ninja ~/Qt/6.10.2/Src/qtbase/src/plugins/sqldrivers -DCMAKE_INSTALL_PREFIX=/Qt/6.10.2/macos -DMySQL_INCLUDE_DIR="/usr/local/mysql/include" -DMySQL_LIBRARY="/usr/local/mysql/lib/libmysqlclient.dylib"
+
+b - pour mariaDB
+​qt-cmake -G Ninja ~/Qt/6.10.2/Src/qtbase/src/plugins/sqldrivers -DCMAKE_INSTALL_PREFIX=/Qt/6.10.2/macos -DMySQL_INCLUDE_DIR="/usr/local/Cellar/mariadb/11.3.2/include/mysql" -DMySQL_LIBRARY="/usr/local/Cellar/mariadb/11.3.2/lib/libmysqlclient.dylib"  -DCMAKE_OSX_ARCHITECTURES="x86_64"
+
+Attention à entrer la bonne valeur du dossier Qt, ici /Qt/6.10.2, mais il faut remplacer par le véritable emplacement de votre dossier Qt qui varie selon la version que vous aves installé /Qt/6.4.0, /Qt/6.4.1, /Qt/6.4.2/Qt6.5.0...etc...
+puis, à la fin de l'écran de compilation, vous devez voir en général apparaître les lignes suivantes, mais pas forcément en fonction du fichier source du driver
+
+-- Configuration summary has been written to C:/Users/xxx/build-sqldrivers/config.summary
+
+-- Configuring done (4.6s)
+-- Generating done (0.3s)
+-- Build files have been written to: /Users/xxx/build-sqldrivers
+
+
+Un problème nouveau se présente parfois à partir de la version 6.8.1 de Qt. Le make du driver peut planter avant la fin avec un message cabalistique du genre
+
+    CMake Error ...etc...  no SBOM project name MySQL
+
+Je ne comprends pas la raison de ce bug et je me suis contenté d'appliquer une recette de cuisine trouvée sur le net, sans comprendre vraiment où était le problème.
+Dans le terminal, taper la commande que l'on fait varier en fonction de l'emplacement d'installation de Qt
+
+    ~/Qt/6.10.2/macos/bin/qt-configure-module ~/Qt/6.10.2/Src/qtbase/src/plugins/sqldrivers -no-sbom
+
+Après ça, on relance la commande précédente et normalement, ça marche
