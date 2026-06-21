@@ -1,0 +1,13 @@
+Bienvenue sur le site de Rufus. Rufus est un logiciel de gestion d'activité en ophtalmologie et en orthoptie, conçu pour s'adapter à toutes les formes d'exercice: individuel, groupe, travail à distance.
+libre - ​Rufus est un logiciel libre - open source - publié sous licence GPLv3
+multilingue - Rufus fonctionne en français, anglais, espagnol, portugais et brésilien
+multienvironnement - Rufus fonctionne sous MacOS, Linux Ubuntu et Windows 10/11. Les 3 versions ont un fonctionnement absolument identique et il est possible d'utiliser des postes Linux, Windows et MacOs dans la même structure.
+puissant -  Rufus implémente de très nombreuses fonctions: gestion avancée de l'imagerie et de l'édition de documents, de la gestion des programmes opératoires...
+peu exigeant en ressources matérielles -  Rufus accepte de tourner sur des machines anciennes sans ralentissement notable
+multimode - L'utilisateur peut fonctionner en monoposte, en réseau local ou en accès distant crypté. Le serveur peut même être 
+sécurisé - les données sont stockées en local et pas sur un cloud, diminuant considérablement les risques de piratage. Un système avancé de sauvegarde/restauration ou de gestion du mot de passe.
+évolutif - des mise à jour sont proposées de façon régulière
+
+
+Rufus est bâti sur un modèle client-serveur, et utilise le standard des bases de données, MySQL.
+Rufus est développé avec la version open-source de l'atelier logiciel Qt, basé sur le langage de programmation C++.
