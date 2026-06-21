@@ -4270,6 +4270,51 @@ int Procedures::idCentre()
 -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::PremierDemarrage()
 {
+    //! Avis « traduction assistée par IA » pour les versions NON françaises. Affiché une fois
+    //! (par session), avant le choix de premier démarrage. Le français (langue source) ne le
+    //! voit pas. Invite à signaler les imperfections / à contribuer via www.rufusvision.org.
+    static bool s_avisTraductionIA = false;
+    if (!s_avisTraductionIA)
+    {
+        s_avisTraductionIA = true;
+        const QString lang = (m_parametres != Q_NULLPTR) ? m_parametres->version().toUpper() : QString("FR");
+        QString titre, texte;
+        if (lang == "EN")
+        {
+            titre = "A note about this translation";
+            texte = "This non-French version of Rufus was translated with the help of artificial "
+                    "intelligence. Some wordings may be imperfect or awkward — thank you for your "
+                    "understanding.\n\nIf you would like to help improve the translation, you are "
+                    "very welcome: please get in touch via www.rufusvision.org.";
+        }
+        else if (lang == "ES")
+        {
+            titre = "Una nota sobre esta traducción";
+            texte = "Esta versión no francesa de Rufus se ha traducido con ayuda de inteligencia "
+                    "artificial. Algunas expresiones pueden ser imperfectas o poco naturales; "
+                    "gracias por su comprensión.\n\nSi desea ayudar a mejorar la traducción, será "
+                    "bienvenido: póngase en contacto a través de www.rufusvision.org.";
+        }
+        else if (lang == "BR")
+        {
+            titre = "Uma nota sobre esta tradução";
+            texte = "Esta versão não francesa do Rufus foi traduzida com a ajuda de inteligência "
+                    "artificial. Algumas expressões podem estar imperfeitas ou pouco naturais; "
+                    "obrigado pela compreensão.\n\nSe você quiser ajudar a melhorar a tradução, "
+                    "será bem-vindo: entre em contato pelo site www.rufusvision.org.";
+        }
+        else if (lang == "PT")
+        {
+            titre = "Uma nota sobre esta tradução";
+            texte = "Esta versão não francesa do Rufus foi traduzida com a ajuda de inteligência "
+                    "artificial. Algumas expressões podem estar imperfeitas ou pouco naturais; "
+                    "obrigado pela sua compreensão.\n\nSe quiser ajudar a melhorar a tradução, será "
+                    "bem-vindo: contacte-nos através de www.rufusvision.org.";
+        }
+        if (!texte.isEmpty())
+            UpMessageBox::Watch(Q_NULLPTR, titre, texte);
+    }
+
     UpMessageBox *msgbox = new UpMessageBox;
     UpSmallButton    AnnulBouton        (tr("Retour\nau menu d'accueil"));
     UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
