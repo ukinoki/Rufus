@@ -3635,10 +3635,10 @@ void MySQLInstaller::avertirTelechargementImpossible()
 {
     UpMessageBox::Watch(nullptr, tr("Téléchargement de MySQL impossible"),
         tr("Rufus n'a pas réussi à télécharger MySQL : le site n'est pas accessible.") + "\n\n" +
-        tr("Vous pouvez installer MySQL vous-même : téléchargez-le et installez le sans rien configurer.") + "\n" +
-        tr("Notez simplement l'identifiant et le login de l'utilisateur que vous avez créé.") + "\n" +
-        tr("Relancez ensuite Rufus : il détectera la présence du serveur") + "/n" +
-        tr("et vous demandera cet identifiant et ce mot de passe.") + "\n" +
+        tr("Vous pouvez installer MySQL vous-même : téléchargez-le et installez-le sans rien configurer.") + "\n" +
+        tr("Notez simplement le login et le mot de passe de l'utilisateur que vous avez créé.") + "\n" +
+        tr("Relancez ensuite Rufus : il détectera la présence du serveur") + "\n" +
+        tr("et vous demandera ce login et ce mot de passe.") + "\n" +
         tr("Avec ces renseignements, il se connectera au serveur") + "\n" +
         tr("et le configurera automatiquement pour son usage."));
 }
