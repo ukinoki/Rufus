@@ -3611,7 +3611,8 @@ bool Procedures::IdentificationUser()
                     texte = "This non-French version of Rufus was translated with the help of artificial "
                             "intelligence. Some wordings may be imperfect or awkward — thank you for your "
                             "understanding.\n\nIf you would like to help improve the translation, you are "
-                            "very welcome: please get in touch via www.rufusvision.org.";
+                            "very welcome: please get in touch via "
+                            "<a href=\"https://www.rufusvision.org/contact.html\">www.rufusvision.org</a>.";
                 }
                 else if (lang == "ES")
                 {
@@ -3619,7 +3620,8 @@ bool Procedures::IdentificationUser()
                     texte = "Esta versión no francesa de Rufus se ha traducido con ayuda de inteligencia "
                             "artificial. Algunas expresiones pueden ser imperfectas o poco naturales; "
                             "gracias por su comprensión.\n\nSi desea ayudar a mejorar la traducción, será "
-                            "bienvenido: póngase en contacto a través de www.rufusvision.org.";
+                            "bienvenido: póngase en contacto a través de "
+                            "<a href=\"https://www.rufusvision.org/contact.html\">www.rufusvision.org</a>.";
                 }
                 else if (lang == "BR")
                 {
@@ -3627,7 +3629,8 @@ bool Procedures::IdentificationUser()
                     texte = "Esta versão não francesa do Rufus foi traduzida com a ajuda de inteligência "
                             "artificial. Algumas expressões podem estar imperfeitas ou pouco naturais; "
                             "obrigado pela compreensão.\n\nSe você quiser ajudar a melhorar a tradução, "
-                            "será bem-vindo: entre em contato pelo site www.rufusvision.org.";
+                            "será bem-vindo: entre em contato pelo site "
+                            "<a href=\"https://www.rufusvision.org/contact.html\">www.rufusvision.org</a>.";
                 }
                 else if (lang == "PT")
                 {
@@ -3635,11 +3638,13 @@ bool Procedures::IdentificationUser()
                     texte = "Esta versão não francesa do Rufus foi traduzida com a ajuda de inteligência "
                             "artificial. Algumas expressões podem estar imperfeitas ou pouco naturais; "
                             "obrigado pela sua compreensão.\n\nSe quiser ajudar a melhorar a tradução, será "
-                            "bem-vindo: contacte-nos através de www.rufusvision.org.";
+                            "bem-vindo: contacte-nos através de "
+                            "<a href=\"https://www.rufusvision.org/contact.html\">www.rufusvision.org</a>.";
                 }
                 if (!texte.isEmpty())
                 {
-                    UpMessageBox::Watch(Q_NULLPTR, titre, texte);
+                    UpMessageBox::Watch(Q_NULLPTR, titre, texte, UpDialog::ButtonOK,
+                                        "https://www.rufusvision.org/contact.html");
                     m_settings->setValue(cleAvis, true);
                     m_settings->sync();
                 }
