@@ -123,12 +123,12 @@ consulta = </translation>
     <message>
         <location filename="Database/database.cpp" line="141"/>
         <source>Mode d&apos;accès non défini : appelez setModeacces() avant de vous connecter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Modo de acesso não definido: chame setModeacces() antes de se ligar.</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="170"/>
         <source>Clés SSL introuvables</source>
-        <translation type="unfinished"></translation>
+        <translation>Chaves SSL não encontradas</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="250"/>
@@ -158,7 +158,7 @@ consulta = </translation>
     <message>
         <location filename="Database/database.cpp" line="420"/>
         <source>La liste des champs à sélectionner est vide</source>
-        <translation type="unfinished"></translation>
+        <translation>A lista de campos a selecionar está vazia</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="625"/>
@@ -669,17 +669,17 @@ consulta = </translation>
     <message>
         <location filename="ItemsLists/cls_itemslist.cpp" line="1556"/>
         <source>Enregistrement impossible</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível guardar</translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_itemslist.cpp" line="1557"/>
         <source>La modification n&apos;a pas pu être enregistrée dans la base de données (le serveur est peut-être momentanément indisponible).</source>
-        <translation type="unfinished"></translation>
+        <translation>Não foi possível guardar a alteração na base de dados (o servidor pode estar momentaneamente indisponível).</translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_itemslist.cpp" line="1559"/>
         <source>L&apos;affichage peut être temporairement désynchronisé de la base : vérifiez votre connexion, puis ressaisissez la modification.</source>
-        <translation type="unfinished"></translation>
+        <translation>A visualização pode estar temporariamente dessincronizada da base: verifique a sua ligação e volte a introduzir a alteração.</translation>
     </message>
 </context>
 <context>
@@ -848,7 +848,11 @@ Deseja instalá-lo agora?</translation>
 Pour vous y connecter, choisissez « Conserver » puis, depuis l&apos;écran de premier démarrage, « Base patients existante sur le serveur ».
 
 Voulez-vous la conserver ou la supprimer ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Já existe uma base de dados Rufus neste computador.
+
+Para se ligar a ela, escolha « Manter » e, no ecrã de primeiro arranque, « Base de pacientes existente no servidor ».
+
+Deseja mantê-la ou eliminá-la ?</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="980"/>
@@ -860,24 +864,26 @@ Voulez-vous la conserver ou la supprimer ?</source>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="981"/>
         <source>Supprimer la base Rufus existante</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar a base Rufus existente</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="982"/>
         <source>Conserver la base existante</source>
-        <translation type="unfinished"></translation>
+        <translation>Manter a base existente</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="991"/>
         <source>Supprimer la base Rufus ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Eliminar a base Rufus ?</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="992"/>
         <source>Cette opération supprimera DÉFINITIVEMENT la base de données Rufus (patients, comptabilité, ophtalmologie, imagerie) présente sur ce serveur.
 
 Cette action est IRRÉVERSIBLE. Voulez-vous continuer ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta operação irá eliminar DEFINITIVAMENTE a base de dados Rufus (pacientes, contabilidade, oftalmologia, imagiologia) presente neste servidor.
+
+Esta ação é IRREVERSÍVEL. Deseja continuar ?</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1026"/>
@@ -2403,27 +2409,27 @@ Você confirma a exclusão dos dados antigos?</translation>
     <message>
         <location filename="procedures.cpp" line="2763"/>
         <source>Espace insuffisant</source>
-        <translation type="unfinished"></translation>
+        <translation>Espaço insuficiente</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2764"/>
         <source>Le support de sauvegarde ne dispose pas d&apos;assez d&apos;espace libre.</source>
-        <translation type="unfinished"></translation>
+        <translation>O suporte de cópia de segurança não dispõe de espaço livre suficiente.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2765"/>
         <source>Espace nécessaire (estimé) : </source>
-        <translation type="unfinished"></translation>
+        <translation>Espaço necessário (estimado): </translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2766"/>
         <source>Espace disponible : </source>
-        <translation type="unfinished"></translation>
+        <translation>Espaço disponível: </translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2767"/>
         <source>Choisissez un autre support de sauvegarde (clé USB, disque externe…).</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha outro suporte de cópia de segurança (pen USB, disco externo…).</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2777"/>
@@ -3081,32 +3087,32 @@ do Rufus</translation>
     <message>
         <location filename="procedures.cpp" line="4332"/>
         <source>Le programme va se fermer pour que les modifications de la base Rufus puissent être prises en compte.</source>
-        <translation type="unfinished"></translation>
+        <translation>O programa vai fechar para que as alterações à base Rufus possam ser aplicadas.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4333"/>
         <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
-        <translation type="unfinished"></translation>
+        <translation>IMPORTANTE — foi criada uma palavra-passe de ligação à sua base de dados</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4334"/>
         <source>Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Anote-a e guarde-a em local seguro (em papel ou numa pen USB)</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4335"/>
         <source>il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
-        <translation type="unfinished"></translation>
+        <translation>é necessária para ligar outro posto ao consultório, ou para reparar este computador.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4336"/>
         <source>Mot de passe : </source>
-        <translation type="unfinished"></translation>
+        <translation>Palavra-passe: </translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4337"/>
         <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste ».</source>
-        <translation type="unfinished"></translation>
+        <translation>Também a poderá guardar numa pen USB a qualquer momento em Editar/Definições/separador « Este posto ».</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4499"/>
@@ -3123,7 +3129,7 @@ O Rufus será reiniciado.</translation>
     <message>
         <location filename="procedures.cpp" line="4532"/>
         <source>Entrez votre identifiant et votre mot de passe d&apos;utilisateur Rufus</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduza o seu nome de utilizador e a sua palavra-passe de utilizador Rufus</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4621"/>
@@ -3893,23 +3899,24 @@ Infelizmente, nenhuma dessas ligações parece funcionar.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1154"/>
         <source>Notez le mot de passe de la base de données</source>
-        <translation type="unfinished"></translation>
+        <translation>Anote a palavra-passe da base de dados</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1155"/>
         <source>Rufus a créé un mot de passe de connexion à votre base de données patients.
 Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
-        <translation type="unfinished"></translation>
+        <translation>O Rufus criou uma palavra-passe de ligação à sua base de dados de pacientes.
+Guarde-a em local seguro (em papel ou numa pen USB) : é necessária para ligar outro posto ao consultório, ou para reparar este computador.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1158"/>
         <source>Mot de passe : </source>
-        <translation type="unfinished"></translation>
+        <translation>Palavra-passe: </translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1159"/>
         <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Paramètres ▸ onglet « Ce poste ».</source>
-        <translation type="unfinished"></translation>
+        <translation>Também a poderá guardar numa pen USB a qualquer momento em Definições ▸ separador « Este posto ».</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1206"/>
@@ -3947,12 +3954,12 @@ Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire 
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1239"/>
         <source>Mots de passe différents</source>
-        <translation type="unfinished"></translation>
+        <translation>Palavras-passe diferentes</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1240"/>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
-        <translation type="unfinished"></translation>
+        <translation>A palavra-passe e a sua confirmação não correspondem.</translation>
     </message>
 </context>
 <context>
@@ -5908,12 +5915,12 @@ o prontuário</translation>
     <message>
         <location filename="rufus.cpp" line="9541"/>
         <source>dd-MM-yyyyEntete</source>
-        <translation type="unfinished"></translation>
+        <translation>dd-MM-yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="9548"/>
         <source>NomEntete</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10110"/>
@@ -15684,32 +15691,32 @@ padrão para este aparelho</translation>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="142"/>
         <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
-        <translation type="unfinished"></translation>
+        <translation>Por razões de confidencialidade, o acesso remoto no Rufus funciona obrigatoriamente com encriptação de dados.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="144"/>
         <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
-        <translation type="unfinished"></translation>
+        <translation>Se quiser utilizar o acesso remoto neste posto, é necessário que:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="145"/>
         <source>1. le serveur MySQL soit configuré pour le cryptage</source>
-        <translation type="unfinished"></translation>
+        <translation>1. o servidor MySQL esteja configurado para a encriptação</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="146"/>
         <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
-        <translation type="unfinished"></translation>
+        <translation>2. as chaves cliente SSL estejam instaladas neste posto.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="147"/>
         <source>Reportez-vous à la page internet :</source>
-        <translation type="unfinished"></translation>
+        <translation>Consulte a página de Internet :</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="149"/>
         <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
-        <translation type="unfinished"></translation>
+        <translation>para saber como alterar a configuração do servidor e gerar chaves de encriptação.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="160"/>

@@ -915,7 +915,7 @@ Si esos datos le importan, detenga Rufus para guardarlos usted mismo antes de co
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1154"/>
         <source>Erreur</source>
-        <translation type="unfinished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1155"/>
@@ -1207,7 +1207,7 @@ Para autorizarlo:
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2957"/>
         <source>Annuler</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>

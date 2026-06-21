@@ -915,7 +915,7 @@ Se esses dados forem importantes para você, pare o Rufus para fazer o backup vo
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1154"/>
         <source>Erreur</source>
-        <translation type="unfinished">Erro</translation>
+        <translation>Erro</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1155"/>
@@ -1207,7 +1207,7 @@ Para autorizar:
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2957"/>
         <source>Annuler</source>
-        <translation type="unfinished">Cancelar</translation>
+        <translation>Cancelar</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
@@ -1225,12 +1225,12 @@ Isso pode levar vários minutos.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2935"/>
         <source>Non</source>
-        <translation type="unfinished">Não</translation>
+        <translation>Não</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2935"/>
         <source>Oui</source>
-        <translation type="unfinished">Sim</translation>
+        <translation>Sim</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2943"/>
@@ -5743,12 +5743,12 @@ o prontuário</translation>
     <message>
         <location filename="rufus.cpp" line="9541"/>
         <source>dd-MM-yyyyEntete</source>
-        <translation type="unfinished">dd-MM-yyyy</translation>
+        <translation>dd-MM-yyyy</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="9548"/>
         <source>NomEntete</source>
-        <translation type="unfinished">Nome</translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="10105"/>

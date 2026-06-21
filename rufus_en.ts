@@ -916,7 +916,7 @@ If this data matters to you, stop Rufus to back it up yourself before continuing
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1154"/>
         <source>Erreur</source>
-        <translation type="unfinished">Error</translation>
+        <translation>Error</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1155"/>
@@ -1208,7 +1208,7 @@ To allow it:
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2957"/>
         <source>Annuler</source>
-        <translation type="unfinished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
@@ -1226,12 +1226,12 @@ This may take several minutes.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2935"/>
         <source>Non</source>
-        <translation type="unfinished">No</translation>
+        <translation>No</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2935"/>
         <source>Oui</source>
-        <translation type="unfinished">Yes</translation>
+        <translation>Yes</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2943"/>
@@ -17833,37 +17833,37 @@ to put this cheque on hold</translation>
     <message>
         <location filename="pyxinterf.cpp" line="330"/>
         <source>Erreur : %1 .&lt;br&gt;&lt;br&gt;Veuillez vérifier les paramètres dans Pyxvital.ini.&lt;br&gt;(Nom serveur = </source>
-        <translation type="unfinished"></translation>
+        <translation>Error: %1 .&lt;br&gt;&lt;br&gt;Please check the settings in Pyxvital.ini.&lt;br&gt;(Server name = </translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="331"/>
         <source>&lt;br&gt;Port = </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br&gt;Port = </translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="331"/>
         <source>&lt;br&gt;Progamme serveur = </source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;br&gt;Server program = </translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="434"/>
         <source>La carte PS n&apos;a pas été lue !</source>
-        <translation type="unfinished"></translation>
+        <translation>The health professional card could not be read!</translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="438"/>
         <source>La carte Vitale n&apos;a pas été lue !</source>
-        <translation type="unfinished"></translation>
+        <translation>The Vitale card could not be read!</translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="542"/>
         <source>Tarification/Taux</source>
-        <translation type="unfinished"></translation>
+        <translation>Pricing/Rate</translation>
     </message>
     <message>
         <location filename="pyxinterf.cpp" line="546"/>
         <source>Facture/Numero</source>
-        <translation type="unfinished"></translation>
+        <translation>Invoice/Number</translation>
     </message>
 </context>
 </TS>
