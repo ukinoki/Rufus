@@ -4365,9 +4365,13 @@ bool Procedures::PremierDemarrage()
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
                                        "le login ") + currentuser()->login() + tr(" est reconnu") + ".\n" +
-                                       tr("Le programme va se fermer pour que les modifications") + "\n" +
-                                       tr("puissent être prises en compte\n"));
+                                       tr("Le programme va se fermer puis redémarrer automatiquement") + "\n" +
+                                       tr("pour que les modifications puissent être prises en compte") + ".\n");
             PremierParametrageMateriel();
+            //! Redémarrage automatique : on relance Rufus avant de quitter, pour que
+            //! l'utilisateur n'ait rien à faire (la nouvelle instance repart sur la
+            //! configuration fraîchement écrite).
+            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
             exit(0);
         }
     }
@@ -4435,7 +4439,7 @@ bool Procedures::PremierDemarrage()
         if (Datas::I()->sites->currentsite() == Q_NULLPTR)
             UpMessageBox::Watch(nullptr,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
         UpMessageBox::Watch(nullptr, tr("Redémarrage nécessaire"),
-                              tr("Le programme va se fermer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
+                              tr("Le programme va se fermer puis redémarrer automatiquement pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
                               tr("Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)") + "\n" +
                               tr("il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.") + "\n\n" +
@@ -4444,6 +4448,10 @@ bool Procedures::PremierDemarrage()
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
         db->setVersion(m_version);
+        //! Redémarrage automatique APRÈS la dernière boîte (celle qui affiche le mot de
+        //! passe) : on relance Rufus puis on quitte, l'utilisateur n'a rien à relancer
+        //! lui-même. La nouvelle instance repart sur la base tout juste créée.
+        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
         exit(0);
     }
     return false;
