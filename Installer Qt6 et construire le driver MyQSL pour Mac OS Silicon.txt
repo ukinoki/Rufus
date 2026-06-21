@@ -6,6 +6,8 @@ ATTENTION, le point qui surprend tout le monde : un driver universel ne sert à 
 
 (Si vous ne construisez Rufus que pour VOTRE propre Mac, l'universel est inutile : suivez plutôt la page « driver pour macOS Silicon » ou « driver pour macOS Intel x64 » selon votre processeur, c'est beaucoup plus court.)
 
+À FAIRE de préférence sur un Mac Apple Silicon : c'est là que tout se fait simplement. On PEUT aussi produire l'universel depuis un Mac Intel x64, mais c'est nettement plus compliqué (la fabrication de la lib client universelle à l'étape E ne marche pas pareil). Cela dit, le programmeur qui s'entête encore à coder sur un x64 de six ans n'est sans doute pas en train de chercher à livrer un driver universel...
+
 A - La lib client
 Les libs compatibles Apple Silicon (arm64) ne sont fournies qu'à partir des versions 8.0.26 de MySQL. Il faut donc impérativement utiliser une de ces versions (ou MariaDB, qui est arm64 depuis longtemps) pour pouvoir compiler le driver sur un Mac arm64.
 Se référer à la page www.geeksforgeeks.org/how-to-install-mysql-on-macos/ pour la procédure d'installation.
