@@ -96,14 +96,17 @@ Attention, là encore, à entrer la bonne valeur du dossier Qt (ici 6.8.0) et le
     -- Generating done (0.0s)
     -- Build files have been written to: /Users/xxx/build-sqldrivers
 
-H - COMPILER, INSTALLER, puis VÉRIFIER.
+H - COMPILER, COPIER À LA MAIN, puis VÉRIFIER.
 
     cmake --build .        (attention à l'espace entre build et le point)
-    cmake --install .
 
-Le driver (libqsqlmysql.dylib) est alors copié dans le dossier des plugins de votre Qt :
+ATTENTION : sous macOS, « cmake --install . » ne fonctionne pas pour ce driver (la chaîne sqldrivers de Qt ne sait pas s'installer toute seule). Il faut copier le fichier produit À LA MAIN, à chaque fois. Le driver compilé se trouve ici :
 
-    ~/Qt/6.8.0/macos/plugins/sqldrivers/libqsqlmysql.dylib
+    ~/build-sqldrivers/plugins/sqldrivers/libqsqlmysql.dylib
+
+Copiez-le dans le dossier des plugins de votre Qt :
+
+    cp ~/build-sqldrivers/plugins/sqldrivers/libqsqlmysql.dylib ~/Qt/6.8.0/macos/plugins/sqldrivers/
 
 Vérifier qu'il est bien UNIVERSEL :
 
