@@ -1,4 +1,11 @@
 #!/bin/bash
+# ═════════════════════════════════════════════════════════════════════════════
+#  EN CLAIR (pour aller vite) :
+#  Sous Mac, Qt ne fournit PAS la pièce qui permet à Rufus de parler à MySQL.
+#  Ce script la fabrique en version « universelle » (marche sur Mac Intel ET
+#  Apple Silicon) et la range dans ton Qt. On le lance une fois ; ensuite Rufus
+#  sait se connecter à MySQL. La suite ci-dessous, c'est juste le détail technique.
+# ═════════════════════════════════════════════════════════════════════════════
 # ─────────────────────────────────────────────────────────────────────────────
 #  build-qmysql-universal.sh — construit le pilote Qt « qsqlmysql » en binaire
 #  UNIVERSEL (x86_64 + arm64) pour macOS et l'installe dans les plugins de Qt.
