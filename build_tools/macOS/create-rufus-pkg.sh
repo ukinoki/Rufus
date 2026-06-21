@@ -83,13 +83,12 @@ if [ -f "${BUNDLE_DRV}" ]; then
 fi
 
 # ── Élagage des pilotes SQL inutiles ──────────────────────────────────────────
-# Rufus n'utilise que MySQL (SQLite gardé, sans dépendance externe). macdeployqt embarque
-# TOUS les pilotes de Qt (ODBC, PostgreSQL…) : on retire les superflus. (Même politique qu'en
-# CI Linux.) À faire AVANT la signature, pour que celle-ci porte sur le contenu final.
+# Rufus n'utilise QUE MySQL (QSqlDatabase::addDatabase("QMYSQL"), aucun usage de SQLite ni
+# autre). macdeployqt embarque TOUS les pilotes de Qt (ODBC, PostgreSQL, SQLite…) : on ne
+# garde que libqsqlmysql.dylib. À faire AVANT la signature, pour qu'elle porte sur le final.
 SQLDRV_DIR="${APP_PATH}/Contents/PlugIns/sqldrivers"
 if [ -d "${SQLDRV_DIR}" ]; then
-    find "${SQLDRV_DIR}" -name 'libqsql*.dylib' \
-        ! -name 'libqsqlmysql.dylib' ! -name 'libqsqlite.dylib' -delete
+    find "${SQLDRV_DIR}" -name 'libqsql*.dylib' ! -name 'libqsqlmysql.dylib' -delete
     echo "==> pilotes SQL conservés : $(ls "${SQLDRV_DIR}" 2>/dev/null | tr '\n' ' ')"
 fi
 
