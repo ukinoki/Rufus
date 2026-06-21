@@ -3635,11 +3635,12 @@ void MySQLInstaller::avertirTelechargementImpossible()
 {
     UpMessageBox::Watch(nullptr, tr("Téléchargement de MySQL impossible"),
         tr("Rufus n'a pas réussi à télécharger MySQL : le site n'est pas accessible.") + "\n\n" +
-        tr("Vous pouvez installer MySQL vous-même : téléchargez-le et suivez la "
-           "procédure d'installation décrite sur le site de Rufus.") + "\n" +
-        "www.rufusvision.org" + "\n\n" +
-        tr("Relancez ensuite Rufus : il détectera le serveur et le configurera "
-           "automatiquement pour son usage."));
+        tr("Vous pouvez installer MySQL vous-même : téléchargez-le et installez le sans rien configurer.") + "\n" +
+        tr("Notez simplement l'identifiant et le login de l'utilisateur que vous avez créé.") + "\n" +
+        tr("Relancez ensuite Rufus : il détectera la présence du serveur") + "/n" +
+        tr("et vous demandera cet identifiant et ce mot de passe.") + "\n" +
+        tr("Avec ces renseignements, il se connectera au serveur") + "\n" +
+        tr("et le configurera automatiquement pour son usage."));
 }
 
 QString MySQLInstaller::getBrewPrefix()
