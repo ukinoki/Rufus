@@ -120,8 +120,28 @@ chmod +x "${SCRIPTS}/postinstall"
 
 PKG="${OUTDIR}/Rufus-${VERSION}.pkg"
 echo "==> pkgbuild ${PKG}"
+
+# Empêcher la RELOCALISATION du bundle. Par défaut pkgbuild marque une .app « relocatable » :
+# l'installeur la pose là où Spotlight trouve déjà une copie de MÊME identifiant
+# (org.rufusvision.rufus — p.ex. un build local Qt Creator) au lieu de /Applications, et l'app
+# semble « disparaître ». On force BundleIsRelocatable=false via un component plist.
+COMPONENT_PLIST="$(mktemp -d)/component.plist"
+pkgbuild --analyze --root "${STAGE}" "${COMPONENT_PLIST}"
+python3 - "${COMPONENT_PLIST}" <<'PY'
+import plistlib, sys
+path = sys.argv[1]
+with open(path, "rb") as f:
+    data = plistlib.load(f)
+for item in data:
+    if isinstance(item, dict):
+        item["BundleIsRelocatable"] = False
+with open(path, "wb") as f:
+    plistlib.dump(data, f)
+PY
+
 pkgbuild \
     --root "${STAGE}" \
+    --component-plist "${COMPONENT_PLIST}" \
     --scripts "${SCRIPTS}" \
     --install-location /Applications \
     --identifier org.rufusvision.rufus \
