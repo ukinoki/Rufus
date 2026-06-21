@@ -45,18 +45,21 @@ Invoke-WebRequest -UseBasicParsing `
 tar xf mariadb.tar.gz
 $MariaSrc = Join-Path $Work ("mariadb-connector-c-" + $MARIADB_TAG.TrimStart('v'))
 
+# NB PowerShell : chaque -D... est ENTRE GUILLEMETS, sinon PowerShell peut découper la valeur
+# (ex. « =3.5 » devient « =3 » + « .5 » -> CMAKE_POLICY_VERSION_MINIMUM invalide). Les guillemets
+# forcent le passage d'un seul bloc à cmake.
 cmake -S $MariaSrc -B "$Work\mariadb-build" -G Ninja `
-  -DCMAKE_BUILD_TYPE=Release `
-  -DCMAKE_POLICY_VERSION_MINIMUM=3.5 `
-  -DWITH_SSL=SCHANNEL `
-  -DWITH_UNIT_TESTS=OFF `
-  -DCMAKE_DISABLE_FIND_PACKAGE_ZSTD=ON `
-  -DWITH_ZSTD=OFF `
-  -DCLIENT_PLUGIN_ZSTD=OFF `
-  -DCLIENT_PLUGIN_CACHING_SHA2_PASSWORD=STATIC `
-  -DCLIENT_PLUGIN_SHA256_PASSWORD=STATIC `
-  -DCLIENT_PLUGIN_MYSQL_NATIVE_PASSWORD=STATIC `
-  -DCMAKE_INSTALL_PREFIX="$Work\mariadb"
+  "-DCMAKE_BUILD_TYPE=Release" `
+  "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
+  "-DWITH_SSL=SCHANNEL" `
+  "-DWITH_UNIT_TESTS=OFF" `
+  "-DCMAKE_DISABLE_FIND_PACKAGE_ZSTD=ON" `
+  "-DWITH_ZSTD=OFF" `
+  "-DCLIENT_PLUGIN_ZSTD=OFF" `
+  "-DCLIENT_PLUGIN_CACHING_SHA2_PASSWORD=STATIC" `
+  "-DCLIENT_PLUGIN_SHA256_PASSWORD=STATIC" `
+  "-DCLIENT_PLUGIN_MYSQL_NATIVE_PASSWORD=STATIC" `
+  "-DCMAKE_INSTALL_PREFIX=$Work\mariadb"
 cmake --build "$Work\mariadb-build" --config Release
 cmake --install "$Work\mariadb-build"
 
@@ -81,8 +84,8 @@ if (-not $SqlSrc) { throw "Source des sqldrivers introuvable dans qtbase." }
 
 Write-Host "-- Pilote Qt qsqlmysql"
 & $QtCmake -S $SqlSrc -B "$Work\sqldrv" -G Ninja `
-  -DMySQL_INCLUDE_DIR="$MariaInc" `
-  -DMySQL_LIBRARY="$($MariaLib.FullName)"
+  "-DMySQL_INCLUDE_DIR=$MariaInc" `
+  "-DMySQL_LIBRARY=$($MariaLib.FullName)"
 cmake --build "$Work\sqldrv" --config Release
 
 $Driver = (Get-ChildItem -Recurse -Path "$Work\sqldrv" -Filter "qsqlmysql.dll" | Select-Object -First 1)
