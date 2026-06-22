@@ -1,205 +1,220 @@
-# Déroulé RÉEL du démarrage de Rufus (état des lieux du code)
+# Déroulé du démarrage de Rufus — fil de guidage du code
 
-> **But de ce fichier.** Ceci est la *photographie de l'existant* : ce que le code
-> fait **aujourd'hui** au lancement, reconstruit en suivant les sources (avec
-> références `fichier:ligne`). Il n'est pas la cible. La cible — la *guideline*
-> que l'on veut atteindre — est `INSTALLATION_ET_INITIALISATION_RUFUS.md`. En
-> comparant les deux, on voit l'écart qui reste à combler.
+> **But de ce fichier.** Version **condensée et unifiée** du démarrage : le *fil de
+> guidage* qui doit refléter ce que le code fait réellement, fonction par fonction.
+> Le **schéma exhaustif** (toutes les itérations 1a/1b/1c/1d cas par cas) reste dans
+> `initialisation Rufus.txt`, à la racine du dépôt. Ici, on **factorise** : depuis le
+> remaniement, les modes monoposte / réseau local / accès distant partagent une seule
+> fonction `Connexion_A_La_Base()`, et les différences se réduisent à quelques `if`.
 >
-> Quand le code change, **mettre à jour ce fichier** (il décrit le réel, pas le
-> souhaité). Les références de lignes sont indicatives : elles bougent avec le
-> code.
+> Quand le code change, **mettre à jour ce fichier**. Les références `fichier:ligne`
+> sont indicatives (elles bougent avec le code).
 
 ---
 
 ## 0. Le piège à défaire d'abord : il y a DEUX mots de passe, pas un
 
-La plus grosse source de confusion. `.dbkey` / `gaxt78iy` et « login/mot de
-passe » ne sont **pas** le même niveau :
+La plus grosse source de confusion. `.dbkey` / `gaxt78iy` et « login/mot de passe »
+ne sont **pas** le même niveau :
 
-| Niveau | Qui se connecte | Mot de passe utilisé | Où c'est résolu |
+| Niveau | Qui se connecte | Mot de passe | Où c'est résolu |
 |---|---|---|---|
-| **MySQL** (technique) | `adminrufus` / `adminrufusSSL` | aléatoire du cabinet (dans `~/.rufus/.dbkey`) **+** `gaxt78iy` conservé en 2ᵉ | cascade `MySQLInstaller::connecterAvecCandidats()` / `motDePasseSQL()` |
+| **MySQL** (technique) | `adminrufus` / `adminrufusSSL` | aléatoire du cabinet (`~/.rufus/.dbkey`) **+** `gaxt78iy` conservé en 2ᵉ | cascade `MySQLInstaller::connecterAvecCandidats()` / `motDePasseSQL()` |
 | **Application** (métier) | le praticien | son login/mot de passe perso | `dlg_identificationuser` → table `rufus.utilisateurs` |
 
-- La cascade **`.dbkey` (aléatoire) → `gaxt78iy`** ouvre la **connexion MySQL** de
-  bas niveau (le compte `adminrufus`). `gaxt78iy` (`MDP_SQL`) est le mot de passe
-  générique de bootstrap, conservé 30 jours comme 2ᵉ mot de passe pour qu'un
-  nouveau poste puisse se connecter avant de récupérer l'aléatoire.
-- Le **login/mot de passe demandé à l'écran**, c'est l'**identification du
-  praticien** (couche au-dessus), ou la saisie des paramètres dans le cas
-  « base existante ».
-
-Tout raisonnement sur le démarrage doit garder ces deux couches séparées.
+- La cascade **`.dbkey` (aléatoire) → `gaxt78iy`** ouvre la **connexion MySQL** de bas
+  niveau (compte `adminrufus`). `gaxt78iy` (`MDP_SQL`) est le mot de passe générique de
+  bootstrap, conservé ~30 j comme 2ᵉ mot de passe pour qu'un nouveau poste se connecte
+  avant d'avoir récupéré l'aléatoire.
+- Le **login/mot de passe demandé à l'écran** = l'**identification du praticien**
+  (couche au-dessus), faite en TOUT DERNIER (`IdentificationUser`), une fois la base
+  ouverte. **Aucune** demande de login praticien avant ce point.
 
 ---
 
-## 1. Le vrai pivot : `rufus.ini`, PAS le serveur
+## 1. Les 6 paramètres qui font varier le démarrage
 
-Contrairement à l'intuition (« au démarrage, Rufus regarde d'abord s'il y a un
-serveur MySQL »), le code **pivote sur la présence et la validité de
-`rufus.ini`**. La détection du serveur MySQL n'intervient **qu'à l'intérieur** du
-chemin « premier démarrage », lui-même déclenché par l'**absence** d'`ini`.
+C'est **chaque** démarrage (pas seulement le premier) qui les contrôle, dans un ordre
+qui dépend du mode :
 
-Conséquence structurante : `rufus.ini` est traité comme la **source de vérité**,
-alors qu'il n'est en réalité qu'un *cache* de la réponse à la vraie question
-métier (« ai-je un serveur, et une base Rufus dessus ? »).
+1. présence d'un `rufus.ini` valide (≥ 1 mode de connexion paramétré) ;
+2. présence d'un `.dbkey` ;
+3. présence d'un serveur ;
+4. présence d'une base Rufus sur ce serveur ;
+5. conformité de la version MySQL (≥ `VERSION_MYSQL_MINI` = 8.0.14, hors MariaDB) ;
+6. présence de clés SSL valides (accès distant uniquement).
 
----
+## 2. Les 4 fonctions qui gèrent tout
 
-## 2. Séquence au lancement
-
-L'orchestration se joue en deux temps : le **constructeur `Procedures`** (créé en
-premier via `Procedures::I()`), puis le **constructeur `Rufus`**.
-
-### 2.1 `main()` — `main.cpp:75`
-- Plateforme, filtre clavier, splash.
-- `Rufus w;` (`main.cpp:130`) → déclenche tout le reste.
-
-### 2.2 Constructeur `Procedures` — `procedures.cpp:29`
-Appelé dès `proc = Procedures::I();` au tout début du constructeur `Rufus`
-(`rufus.cpp:39`).
-
-1. **Langue de l'interface** (`procedures.cpp:50‑126`)
-   `rufus.ini` (`Param_Poste_Version`) fait foi ; sinon `QLocale` ; sinon
-   sélecteur manuel (FR par défaut).
-
-2. **`rufus.ini` ABSENT ?** (`procedures.cpp:128‑147`)
-   Boucle sur `RecupererDemarrage(msg, msgInfo, true, true, true, **true**)` — le dernier
-   paramètre `PremDemarrage = true` ajoute le bouton **« Premier démarrage »**.
-   → cf. §3.
-
-3. **`rufus.ini` PRÉSENT mais paramètres de connexion INVALIDES ?**
-   (`procedures.cpp:148‑186`)
-   Test `k` : au moins un mode (Poste / Réseau local / Distant) actif avec un
-   port plausible (3306/3307) et, pour les modes distants, un serveur renseigné.
-   Si invalide → boucle sur `RecupererDemarrage(..., **false**)` (PremDemarrage = **false**,
-   donc **PAS** de bouton « Premier démarrage » : seulement Restaurer /
-   Reconstruire / Quitter).
-
-4. Divers (imprimante, appareils de réfraction, `ReconstruitListeModesAcces()`).
-
-### 2.3 Constructeur `Rufus` — `rufus.cpp:22`
-On n'arrive ici **que si `rufus.ini` existe et est exploitable** (sinon §3 a
-déjà bouclé ou quitté).
-
-- `proc->ListeModesAcces().size()` (`rufus.cpp:43`) :
-  - **0** → « Rufus.ini endommagé », `exit(0)`.
-  - **1** → `db->setModeacces(...)` puis `Connexion_A_La_Base()` (`rufus.cpp:49`).
-  - **≥ 2** → `FicheChoixConnexion()` (choix du mode) puis
-    `Connexion_A_La_Base()` (`rufus.cpp:56‑58`).
-
-### 2.4 `Connexion_A_La_Base()` — `procedures.cpp:3060`
-Le chemin **normal** (ini valide) :
-1. `initParametresConnexionSQL(server, port)` → connexion **MySQL** (cascade
-   `.dbkey` / `gaxt78iy` côté `adminrufus`).
-2. `IdentificationUser()` → login **praticien** (`dlg_identificationuser`).
-3. Lieu d'exercice, création de session, `max_allowed_packet`, etc.
+| Fonction | Rôle |
+|---|---|
+| `Procedures::RecupererDemarrage()` | **Le carrefour de récupération** : appelé chaque fois que « ça rate ». |
+| `Procedures::PremierDemarrage()` | Derrière le bouton « Nouvelle base patients vierge » du carrefour. |
+| `Procedures::Connexion_A_La_Base()` | **Le cœur** : connexion MySQL + contrôles, UNIFIÉ pour les 3 modes. |
+| `Procedures::IdentificationUser()` | Identification du **praticien**, UNIQUEMENT (login métier). |
 
 ---
 
-## 3. La branche « premier démarrage » (uniquement si `rufus.ini` absent)
-
-`RecupererDemarrage(..., PremDemarrage=true)` (`procedures.cpp:4557`) affiche les boutons :
-**[Premier démarrage] [Restaurer le .ini] [Reconstruire le .ini] [Quitter]**.
-
-- **Quitter** → `exit(0)`.
-- **Restaurer** → recopie un `rufus.ini` sauvegardé puis **relance** Rufus.
-- **Reconstruire** → `VerifParamConnexion(true)` pour ressaisir les paramètres.
-- **Premier démarrage** → `PremierDemarrage()` (`procedures.cpp:4328`).
-
-### 3.1 `PremierDemarrage()` — `procedures.cpp:4328`
-Demande : *« Base patients vierge »* ou *« Base existante sur le serveur »*.
-
-#### A. « Base vierge » → `MySQLInstaller::run()` (`mysqlinstaller.cpp:~945`)
-C'est **ici**, et seulement ici, qu'on inspecte l'état réel du serveur. Les trois
-situations métier vivent toutes dans cette fonction :
+## 3. Séquence au lancement (vue d'ensemble)
 
 ```
-isMySQLInstalled() == false
-        → CAS 1 : aucun serveur
-          askYesNo → assurerDroitsAdmin → faireCreate(cfg)
-          (installe MySQL puis le configure : comptes, secure_file_priv, SSL…)
-
-isMySQLInstalled() == true
-        startMySQL() si besoin
-        ├─ baseRufusComplete() == true
-        │      → CAS 3 : serveur + base Rufus déjà présente
-        │        Boîte : Conserver / Supprimer / Annuler
-        │          • Conserver / Annuler → return false  ──► retour PremierDemarrage()
-        │                                  (l'utilisateur doit alors choisir « Base existante »)
-        │          • Supprimer → efface les bases Rufus puis continue
-        └─ baseRufusComplete() == false
-               → CAS 2 : serveur présent, pas de base Rufus
-                 on continue la configuration
+main()  (main.cpp:75)
+ ├─ splash
+ ├─ Rufus w;                       → constructeur Rufus
+ │   ├─ Procedures::I()            → constructeur Procedures :
+ │   │     • langue de l'interface (rufus.ini Param_Poste_Version)
+ │   │     • rufus.ini ABSENT ou INVALIDE → boucle RecupererDemarrage()   (cf. §6)
+ │   ├─ ListeModesAcces().size()   (rufus.cpp:43)
+ │   │     0   → « rufus.ini endommagé », exit (cas théorique, déjà géré en amont)
+ │   │     1   → Connexion_A_La_Base()                         (cf. §4)
+ │   │     ≥2  → FicheChoixConnexion() puis Connexion_A_La_Base()
+ │   ├─ (connexion OK) SauvegardeIni(), init widgets/menus/tables…
+ │   └─ w.show()                   → la fenêtre principale s'affiche
+ └─ Procedures::I()->ControleSocleMySQLApresAffichage()  (main.cpp:138)   (cf. §7)
+     → mise à jour DIFFÉRÉE du socle MySQL, APRÈS l'affichage
 ```
 
-Après un `run()` qui aboutit (cas 1 ou 2, ou cas 3 « Supprimer ») :
-`PremierDemarrage()` poursuit (`procedures.cpp:4406‑4448`) :
-- connexion MySQL en cascade (`connecterAvecCandidats`),
-- `RestaureBase(true, true)` → **crée** toute la structure de la base,
-- `CreerPremierUser(login, MDP)` → 1ᵉʳ utilisateur applicatif,
-- `PremierParametrageMateriel()` → écrit `rufus.ini` + dossiers,
-- boîte « Redémarrage nécessaire » (affiche le mot de passe à conserver),
-- **redémarrage automatique** puis `exit(0)`.
-
-#### B. « Base existante » → `VerifParamConnexion()` (`procedures.cpp:4361‑4372`)
-Se connecte à un serveur/base **déjà là** (saisie des paramètres), écrit
-`rufus.ini`, affiche « Connexion réussie », **redémarre automatiquement**.
+Point clé : tout sauf la migration du socle se joue **avant** `w.show()`, dans
+`Connexion_A_La_Base()`. La migration, longue, est volontairement **différée à après
+l'affichage** (Rufus tourne en mode dégradé en attendant).
 
 ---
 
-## 4. Où vivent les 3 situations, et l'entortillement avec `rufus.ini`
+## 4. `Connexion_A_La_Base()` — le cœur unifié — `procedures.cpp:3083`
 
-| Situation | Traitée où | Atteignable seulement si… |
+Une seule fonction pour les 3 modes. L'ordre des contrôles, et les quelques branches
+spécifiques à un mode, sont signalés ci-dessous.
+
+1. **`initParametresConnexionSQL(server, port)`** — serveur = `localhost` (monoposte)
+   ou l'IP du `rufus.ini` (réseau/distant).
+
+2. **[DISTANT] Pré-contrôle des clés SSL.** Le compte `adminrufusSSL` exige `REQUIRE
+   SSL`. Clés absentes (`client-key.pem` + `client-cert.pem`) → on **demande leur
+   dossier** (à copier du serveur sur une clé USB), on recontrôle ; toujours rien →
+   message + **carrefour** `RecupererDemarrage()`. Inutile de tenter une connexion qui
+   échouerait.
+
+3. **[MONOPOSTE] Pré-contrôle de la présence du serveur** (`serveurLocalPresent()`).
+   Pas de serveur installé → **carrefour**, mais **boutons « Rufus.ini » masqués**
+   (`RecupIni=false, ReconstruitIni=false`) : le `rufus.ini` est correct, c'est le
+   SERVEUR qui manque. Restent « Nouvelle base patients vierge » (installe le socle) et
+   « Quitter ». Inutile de tenter une connexion.
+
+4. **Connexion MySQL en cascade** (`connecterAvecCandidats(DB_RUFUS)` : `.dbkey` PUIS
+   `gaxt78iy`).
+   - **Échec d'AUTHENTIFICATION** (base sécurisée ailleurs / `.dbkey` périmé) → on
+     propose DIRECTEMENT de récupérer le bon mot de passe (`RecupererMotDePasseMySQL` :
+     saisie ou clé USB), puis on réessaie. Invite SIMPLE — on ne balade pas l'utilisateur
+     dans le carrefour pour juste un mot de passe.
+   - **Toujours en échec** (mdp non récupéré, ou échec NON-auth : serveur injoignable,
+     mauvais port…) → **garde-fou à 2 boutons** : `Abandonner et quitter` /
+     `Revoir les paramètres de connexion`. Seul « Revoir » ouvre le **carrefour**
+     `RecupererDemarrage()` (un échec de connexion est souvent transitoire ; on n'inflige
+     pas d'emblée les options « reconstruire/restaurer »).
+
+5. **Cohérence de la base** (`SELECT 1 FROM utilisateurs`). Base présente mais
+   altérée → messageBox **« Base de données endommagée »** :
+   - **monoposte (hôte)** : carrefour avec bouton « Restaurer la base » → `RestaureBase()` ;
+   - **client (réseau/distant)** : message seul (« la restauration ne peut se faire qu'à
+     partir du poste serveur ») — un client ne répare jamais la base partagée.
+
+6. **Version du socle MySQL.** Si < 8.0.14, on **ne fait RIEN ici** : on MÉMORISE le
+   besoin (`m_socleMySQLAMettreAJour = true`). Message et migration sont **différés** à
+   après l'affichage (cf. §7).
+
+7. **Entretien du mot de passe** (`MySQLInstaller::entretienApresConnexion()`) — cf. §5.
+
+8. **`IdentificationUser()`** — login praticien (`dlg_identificationuser`), UNIQUEMENT.
+
+9. Lieu d'exercice, création de session, `max_allowed_packet`, etc.
+
+---
+
+## 5. Entretien du mot de passe — `entretienApresConnexion()` — `mysqlinstaller.cpp:2106`
+
+Branches **auto-gardées** (chacune teste ses conditions) et **mutuellement exclusives**
+selon le mot de passe avec lequel CE poste s'est connecté (`motDePasseSQL()`) :
+
+```
+securiserBaseSiNecessaire()       générique + base NON sécurisée + LOCAL + ≥8.0.14
+                                   → pose un aléatoire (gaxt78iy conservé en 2ᵉ), écrit .dbkey
+                                   → renvoie true si elle vient de sécuriser (évite un message en double)
+
+connecté avec l'ALÉATOIRE, gaxt78iy encore présent :
+   supprimerGaxt78iySiEchue()      deadline (sécurisation + 30 j) PASSÉE
+                                   → retire gaxt78iy (après confirmation) + message
+   avertirEffacementImminent()     deadline NON atteinte (et pas juste sécurisé)
+                                   → simple avertissement informatif
+
+connecté avec le GÉNÉRIQUE, base SÉCURISÉE (un aléatoire existe) :
+   proposerRecuperationAleatoire() TOUS modes
+                                   → message d'échéance + bouton « Renseigner le nouveau
+                                     mot de passe » (réutilise RecupererMotDePasseMySQL :
+                                     saisie / clé USB → .dbkey)
+```
+
+Règle : on ne **sécurise** (poser l'aléatoire) JAMAIS depuis un poste en accès distant
+(sinon, via la deadline, il pourrait verrouiller les postes locaux). La **récupération**
+d'un aléatoire existant, elle, est possible depuis n'importe quel poste.
+
+---
+
+## 6. Le carrefour — `RecupererDemarrage()` — `procedures.cpp:4750`
+
+Appelé chaque fois que « ça rate ». Jusqu'à 3 boutons (+ « Quitter »), selon le contexte
+passé par l'appelant (qui seul connaît le rôle du poste et l'état de la connexion) :
+
+| Bouton | Paramètre | Action |
 |---|---|---|
-| **1. Pas de serveur** → installer + configurer | `MySQLInstaller::run()` cas `!installed` | `rufus.ini` absent → Premier démarrage → Base vierge |
-| **2. Serveur, pas de base Rufus** → configurer | `run()` cas `baseRufusComplete()==false` | idem |
-| **3. Serveur + base Rufus** → s'y connecter | `run()` cas `baseRufusComplete()==true` (Conserver) **puis** « Base existante » | idem |
+| **Nouvelle base patients vierge** | `PremDemarrage` | → `PremierDemarrage()` |
+| **Reconstruire le fichier Rufus.ini** | `ReconstruitIni` | → `VerifParamConnexion()` |
+| **Restaurer la base** *(poste hôte)* | `RestaurerBase` | → `RestaureBase()` |
+| **Restaurer le fichier Rufus.ini** *(sinon)* | `RecupIni` | → recopie `~/.rufus/.rufus.ini` (seulement si la sauvegarde existe) |
+| **Abandonner et quitter** | — | `exit(0)` |
 
-**Le nœud :** ces trois cas sont **tous** enfermés dans la branche
-« premier démarrage », donc **inaccessibles dès que `rufus.ini` existe et est
-valide**. Avec un `rufus.ini` exploitable, on file droit en
-`Connexion_A_La_Base` sans jamais re-sonder serveur ni base.
-
----
-
-## 5. Points de friction connus (à arbitrer dans la cible)
-
-> Ces points décrivent des limites de l'existant. Ils sont la matière du travail
-> de convergence vers `INSTALLATION_ET_INITIALISATION_RUFUS.md`.
-
-1. **La détection du serveur est inaccessible si `rufus.ini` existe.**
-   Un `rufus.ini` valide pointant vers un serveur mort ou une base disparue
-   échoue **sec**, sans auto-réparation ni proposition de réinstaller. Le seul
-   moyen d'atteindre `run()` est de n'avoir **pas** d'`ini`.
-
-2. **« Base existante » fait re-saisir ce que `run()` savait déjà.**
-   Quand `run()` détecte une base complète et qu'on clique « Conserver », on est
-   renvoyé à l'écran de premier démarrage pour re-choisir « Base existante » →
-   `VerifParamConnexion`, alors que la base venait d'être identifiée.
-   Aller-retour inutile.
-
-3. **Deux boucles `RecupererDemarrage` quasi jumelles** (`ini` absent vs `ini` invalide)
-   qui ne diffèrent que par le bouton « Premier démarrage ». Logique dupliquée.
-
-4. **L'ordre « `ini` d'abord » est l'inverse de l'intuition métier.**
-   Si la vraie question est « ai-je un serveur, et une base Rufus dessus ? »,
-   alors `rufus.ini` n'est qu'un *cache* de la réponse, pas la source de vérité.
-   On pilote sur le cache, pas sur l'état réel — d'où l'impression de
-   « plat de spaghetti » à cet endroit.
+Toute récupération réussie **relance** Rufus (`startDetached` + `exit(0)`).
+`PremierDemarrage()` (base vierge / base existante) vit derrière le 1ᵉʳ bouton ; c'est là
+— et là seulement — qu'on inspecte l'état réel du serveur (`MySQLInstaller::run()` :
+pas de serveur → installe ; serveur sans base → configure ; serveur + base → conserver /
+supprimer).
 
 ---
 
-## 6. Fonctions clés (index pour naviguer)
+## 7. Migration du socle DIFFÉRÉE — `ControleSocleMySQLApresAffichage()` — `procedures.cpp:3301`
+
+Appelée depuis `main.cpp:138`, **après `w.show()`**. Si `m_socleMySQLAMettreAJour` :
+
+1. `qApp->processEvents()` force la **peinture** de la fenêtre principale (même mécanisme
+   que `ShowMessage`) — sinon le dialogue modal surgirait sur un fond vide ;
+2. **monoposte (hôte)** → `MettreAJourSocleMySQL()` ;
+   **client** → message « mise à jour à faire depuis le poste serveur ».
+
+`MettreAJourSocleMySQL()` (`procedures.cpp:2763`) propose **2 chemins** (schéma à 3
+boutons de `VerifVersionBase`) :
+
+- **Sauvegarder les données et mettre à jour** : sauvegarde + validation par Rufus, puis
+  désinstall → téléchargement MySQL ≥ 8.0.14 → paramétrage → restauration **automatique**
+  depuis cette sauvegarde → relance ;
+- **Poursuivre, la sauvegarde a été faite** : on saute la sauvegarde ; à la restauration,
+  Rufus **demande le dossier** de la sauvegarde de l'utilisateur (`RestaureBase` avec
+  chemin vide) ;
+- **Annuler** : on ne touche à rien (Rufus continue en mode dégradé sur l'ancien socle).
+
+---
+
+## 8. Fonctions clés (index pour naviguer)
 
 | Rôle | Fonction | Emplacement |
 |---|---|---|
-| Orchestration init | `Procedures::Procedures()` | `procedures.cpp:29` |
-| `ini` absent/invalide → choix | `Procedures::RecupererDemarrage()` | `procedures.cpp:4557` |
-| Premier démarrage (vierge/existante) | `Procedures::PremierDemarrage()` | `procedures.cpp:4328` |
-| Détection serveur + base (3 cas) | `MySQLInstaller::run()` | `mysqlinstaller.cpp:~945` |
-| Connexion normale (ini valide) | `Procedures::Connexion_A_La_Base()` | `procedures.cpp:3060` |
-| Connexion MySQL en cascade | `MySQLInstaller::connecterAvecCandidats()` | `mysqlinstaller.cpp:560` |
-| Mot de passe MySQL du mode | `MySQLInstaller::motDePasseSQL()` | `mysqlinstaller.cpp:509` |
-| Config `secure_file_priv` (my.cnf + restart) | `MySQLInstaller::ensureSecureFilePriv()` | `mysqlinstaller.cpp:2644` |
+| Orchestration init | `Procedures::Procedures()` | `procedures.cpp:30` |
+| Carrefour de récupération | `Procedures::RecupererDemarrage()` | `procedures.cpp:4750` |
+| Premier démarrage (vierge/existante) | `Procedures::PremierDemarrage()` | `procedures.cpp:4509` |
+| Détection serveur + base (3 cas) | `MySQLInstaller::run()` | `mysqlinstaller.cpp` |
+| **Cœur** : connexion + contrôles unifiés | `Procedures::Connexion_A_La_Base()` | `procedures.cpp:3083` |
+| Migration socle différée | `Procedures::ControleSocleMySQLApresAffichage()` | `procedures.cpp:3301` |
+| Migration du socle (2 chemins) | `Procedures::MettreAJourSocleMySQL()` | `procedures.cpp:2763` |
+| Identification praticien | `Procedures::IdentificationUser()` | `procedures.cpp:3741` |
+| Pré-contrôle présence serveur (monoposte) | `MySQLInstaller::serveurLocalPresent()` | `mysqlinstaller.cpp:1939` |
+| Connexion MySQL en cascade | `MySQLInstaller::connecterAvecCandidats()` | `mysqlinstaller.cpp:561` |
+| Entretien du mot de passe | `MySQLInstaller::entretienApresConnexion()` | `mysqlinstaller.cpp:2106` |
+| Récupération mdp (saisie / clé USB) | `dlg_paramconnexion::RecupererMotDePasseMySQL()` | `Dialogs/dlg_paramconnexion.cpp` |
