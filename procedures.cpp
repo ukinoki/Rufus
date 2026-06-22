@@ -3524,12 +3524,23 @@ bool Procedures::IdentificationUser()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Connexion à la base impossible"),
-                            tr("Rufus n'a pas pu se connecter à la base de données avec les "
-                               "paramètres enregistrés.") + "\n" +
-                            tr("Vérifiez vos paramètres de connexion au serveur MySQL."));
-        if (!VerifParamConnexion())
-            return false;
+        //! Échec de connexion (serveur injoignable, mauvais serveur/port, mot de passe aléatoire
+        //! non récupéré…) : on route vers le CARREFOUR de récupération RecupererDemarrage() au lieu
+        //! d'enchaîner directement VerifParamConnexion. L'utilisateur y a le choix : revoir les
+        //! paramètres (Reconstruire), restaurer son Rufus.ini depuis une sauvegarde, ou quitter.
+        //!   - RestaurerBase = false : sans connexion, on ne peut pas restaurer la base ;
+        //!   - PremDemarrage  = false : une simple panne de connexion ne justifie pas de créer une
+        //!     base vierge (qui abandonnerait la base existante, momentanément injoignable).
+        //! Le carrefour RELANCE Rufus si une récupération réussit ; s'il rend la main (annulation),
+        //! on abandonne ce démarrage (retour false → l'appelant sort).
+        RecupererDemarrage(tr("Connexion à la base impossible"),
+                           tr("Rufus n'a pas pu se connecter à la base de données avec les "
+                              "paramètres enregistrés.") + "\n" +
+                           tr("Vous pouvez revoir les paramètres de connexion, restaurer le fichier "
+                              "Rufus.ini depuis une sauvegarde, ou quitter."),
+                           false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
+                           false /*PremDemarrage*/, false /*RestaurerBase*/);
+        return false;
     }
 
     //! ÉTAPE 2 — Contrôle du socle MySQL AVANT toute autre chose. Si la version n'est pas
