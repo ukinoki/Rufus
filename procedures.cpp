@@ -3083,6 +3083,11 @@ bool Procedures::Connexion_A_La_Base()
         };
         if (!clesSSLpresentes())
         {
+            //! On PRÉVIENT avant d'ouvrir le sélecteur de dossier système (sinon il surgit sans
+            //! contexte) : l'utilisateur comprend pourquoi on lui demande un dossier.
+            UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"),
+                tr("Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.") + "\n" +
+                tr("Indiquez leur emplacement dans la boîte de dialogue suivante."));
             const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
                 tr("Indiquez le dossier des clés SSL (client-key.pem, client-cert.pem, ca-cert.pem)"));
             if (!dir.isEmpty())
