@@ -2762,92 +2762,114 @@ bool Procedures::SauvegardeBaseValide(QString dossier)
 //! quelle étape, la sauvegarde est conservée et rien d'irréversible n'est tenté.
 bool Procedures::MettreAJourSocleMySQL()
 {
-    // 1. Avertissement + confirmation.
+    // 1. Avertissement + CHOIX (même schéma à 3 boutons que Procedures::VerifVersionBase) :
+    //    - « Sauvegarder les données et mettre à jour » : Rufus fait la sauvegarde lui-même, la
+    //      valide, puis migre et restaure DEPUIS cette sauvegarde (sans interaction) ;
+    //    - « Poursuivre, la sauvegarde a été faite » : l'utilisateur a DÉJÀ sa sauvegarde, on saute
+    //      l'étape de sauvegarde et on lui DEMANDERA le dossier de sauvegarde au moment de restaurer ;
+    //    - « Annuler » : on ne touche à rien.
     UpMessageBox msgbox(Q_NULLPTR);
     msgbox.setText(tr("Mise à jour du serveur MySQL nécessaire"));
     msgbox.setInformativeText(
         tr("Cette version de Rufus nécessite une version plus récente du serveur MySQL.") + "\n\n" +
-        tr("Rufus va sauvegarder votre base de données, désinstaller l'ancien MySQL, "
-           "installer la nouvelle version, puis restaurer votre base.") + "\n\n" +
-        tr("La sauvegarde est faite et vérifiée AVANT toute désinstallation : "
-           "si elle échoue, rien ne sera supprimé."));
+        tr("Rufus va désinstaller l'ancien MySQL, installer la nouvelle version, puis restaurer "
+           "votre base.") + "\n\n" +
+        tr("Une sauvegarde de la base est indispensable AVANT la désinstallation : Rufus peut la "
+           "faire pour vous, ou vous pouvez poursuivre si vous l'avez déjà faite (le dossier de "
+           "sauvegarde vous sera alors demandé pour la restauration)."));
     msgbox.setIcon(UpMessageBox::Warning);
-    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Annuler"));
-    UpSmallButton *OKb   = new UpSmallButton(); OKb->setText(tr("Lancer la mise à jour"));
-    msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
-    msgbox.addButton(OKb,   UpSmallButton::STARTBUTTON);
+    UpSmallButton *Annul   = new UpSmallButton(); Annul  ->setText(tr("Annuler"));
+    UpSmallButton *Poursui = new UpSmallButton(); Poursui->setText(tr("Poursuivre,\nla sauvegarde a été faite"));
+    UpSmallButton *Sauve   = new UpSmallButton(); Sauve  ->setText(tr("Sauvegarder les données\net mettre à jour"));
+    msgbox.addButton(Annul,   UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(Poursui, UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(Sauve,   UpSmallButton::STARTBUTTON);
     msgbox.exec();
-    if (msgbox.clickedButton() != OKb)
+    if (msgbox.clickedButton() == Annul)
         return false;
+    const bool sauvegarderDabord = (msgbox.clickedButton() == Sauve);
 
-    // 2. Sauvegarde de la base SEULE, sur un support ayant ASSEZ DE PLACE. La migration
-    //    appelle Backup() directement (sans la boîte dlg_buprestore qui, elle, vérifie
-    //    l'espace libre) : on refait donc ici l'estimation. Taille nécessaire estimée à
-    //    partir de la taille de la base (marge ×2, plancher 50 Mo pour couvrir le dump SQL
-    //    et ses entêtes). Tant que le support choisi est trop petit, on propose d'en choisir
-    //    un autre (clé USB, disque externe…) et on boucle ; aucune désinstallation n'a encore
-    //    eu lieu, donc l'annulation est sans danger.
-    const qint64 tailleBase   = db->DatabaseSize();
-    const qint64 espaceRequis = qMax<qint64>(tailleBase * 2, 50LL * 1024 * 1024);
-    QString dossierMig = QString(PATH_DIR_RUFUS) + "/MigrationMySQL";
-    forever
-    {
-        Utils::mkpath(dossierMig);
-        const qint64 dispo = QStorageInfo(dossierMig).bytesAvailable();
-        if (dispo >= espaceRequis)
-            break;
-        UpMessageBox::Watch(Q_NULLPTR, tr("Espace insuffisant"),
-            tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
-            tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(espaceRequis) + "\n" +
-            tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
-            tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
-        QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
-                                                  QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
-        if (url == QUrl())
-            return false;                 // annulé : rien n'a été désinstallé
-        dossierMig = url.path();
-    }
-    if (!Backup(dossierMig, true, false, false, false, false, Q_NULLPTR))
-    {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
-            tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
-        return false;
-    }
-    //! Backup lance le dump de façon ASYNCHRONE (m_ostask) : on ATTEND sa fin avant de
-    //! valider, sinon on lirait un fichier .sql encore incomplet.
-    m_ostask.waitForFinished(-1);
+    //! Dossier de la sauvegarde à restaurer. VIDE => restauration INTERACTIVE (RestaureBase
+    //! demandera le dossier). Renseigné => restauration AUTOMATIQUE depuis ce dossier.
+    QString dossierSauvegarde;
 
-    // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
-    QDir d(dossierMig);
-    const QStringList sub = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
-    if (sub.isEmpty())
-        return false;
-    const QString dossierSauvegarde = dossierMig + "/" + sub.first();
-
-    // 4. VALIDER la sauvegarde AVANT toute destruction.
-    if (!SauvegardeBaseValide(dossierSauvegarde))
+    if (sauvegarderDabord)
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
-            tr("La sauvegarde semble incomplète. La mise à jour est annulée : rien n'a été désinstallé.") + "\n" +
-            tr("Sauvegarde conservée dans :") + "\n" + dossierSauvegarde);
-        return false;
+        // 2. Sauvegarde de la base SEULE, sur un support ayant ASSEZ DE PLACE. La migration
+        //    appelle Backup() directement (sans la boîte dlg_buprestore qui, elle, vérifie
+        //    l'espace libre) : on refait donc ici l'estimation. Taille nécessaire estimée à
+        //    partir de la taille de la base (marge ×2, plancher 50 Mo pour couvrir le dump SQL
+        //    et ses entêtes). Tant que le support choisi est trop petit, on propose d'en choisir
+        //    un autre (clé USB, disque externe…) et on boucle ; aucune désinstallation n'a encore
+        //    eu lieu, donc l'annulation est sans danger.
+        const qint64 tailleBase   = db->DatabaseSize();
+        const qint64 espaceRequis = qMax<qint64>(tailleBase * 2, 50LL * 1024 * 1024);
+        QString dossierMig = QString(PATH_DIR_RUFUS) + "/MigrationMySQL";
+        forever
+        {
+            Utils::mkpath(dossierMig);
+            const qint64 dispo = QStorageInfo(dossierMig).bytesAvailable();
+            if (dispo >= espaceRequis)
+                break;
+            UpMessageBox::Watch(Q_NULLPTR, tr("Espace insuffisant"),
+                tr("Le support de sauvegarde ne dispose pas d'assez d'espace libre.") + "\n\n" +
+                tr("Espace nécessaire (estimé) : ") + Utils::getExpressionSize(espaceRequis) + "\n" +
+                tr("Espace disponible : ") + Utils::getExpressionSize(dispo) + "\n\n" +
+                tr("Choisissez un autre support de sauvegarde (clé USB, disque externe…)."));
+            QUrl url = Utils::getExistingDirectoryUrl(Q_NULLPTR, tr("Choisissez un dossier de sauvegarde"),
+                                                      QUrl::fromLocalFile(QDir::homePath()), QStringList(), false);
+            if (url == QUrl())
+                return false;                 // annulé : rien n'a été désinstallé
+            dossierMig = url.path();
+        }
+        if (!Backup(dossierMig, true, false, false, false, false, Q_NULLPTR))
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde impossible"),
+                tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
+            return false;
+        }
+        //! Backup lance le dump de façon ASYNCHRONE (m_ostask) : on ATTEND sa fin avant de
+        //! valider, sinon on lirait un fichier .sql encore incomplet.
+        m_ostask.waitForFinished(-1);
+
+        // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
+        QDir d(dossierMig);
+        const QStringList sub = d.entryList(QDir::Dirs | QDir::NoDotAndDotDot, QDir::Time);
+        if (sub.isEmpty())
+            return false;
+        dossierSauvegarde = dossierMig + "/" + sub.first();
+
+        // 4. VALIDER la sauvegarde AVANT toute destruction.
+        if (!SauvegardeBaseValide(dossierSauvegarde))
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Sauvegarde incomplète"),
+                tr("La sauvegarde semble incomplète. La mise à jour est annulée : rien n'a été désinstallé.") + "\n" +
+                tr("Sauvegarde conservée dans :") + "\n" + dossierSauvegarde);
+            return false;
+        }
     }
+
+    //! Rappel du lieu de la sauvegarde dans les messages d'erreur ci-dessous : selon le chemin
+    //! choisi, c'est la sauvegarde que Rufus vient de faire, ou celle de l'utilisateur (intacte).
+    const QString rappelSauvegarde = dossierSauvegarde.isEmpty()
+        ? tr("Votre sauvegarde n'a pas été touchée.")
+        : tr("Votre sauvegarde est conservée dans :") + "\n" + dossierSauvegarde;
 
     // 5. Désinstallation + réinstallation du socle MySQL (recrée adminrufus + gaxt78iy).
     if (!MySQLInstaller().reinstallerSocleMySQLpourMigration())
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Réinstallation impossible"),
-            tr("La réinstallation de MySQL a échoué.") + "\n" +
-            tr("Votre sauvegarde est conservée dans :") + "\n" + dossierSauvegarde);
+            tr("La réinstallation de MySQL a échoué.") + "\n" + rappelSauvegarde);
         return false;
     }
 
-    // 6. Restauration AUTOMATIQUE de la base depuis la sauvegarde validée.
+    // 6. Restauration de la base : AUTOMATIQUE depuis la sauvegarde validée (chemin renseigné), ou
+    //    INTERACTIVE — RestaureBase demande alors le dossier — si l'utilisateur a poursuivi avec sa
+    //    propre sauvegarde (chemin vide).
     if (!RestaureBase(false, false, false, Q_NULLPTR, dossierSauvegarde))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Restauration impossible"),
-            tr("La base n'a pas pu être restaurée automatiquement.") + "\n" +
-            tr("Votre sauvegarde est conservée dans :") + "\n" + dossierSauvegarde);
+            tr("La base n'a pas pu être restaurée.") + "\n" + rappelSauvegarde);
         return false;
     }
 
