@@ -3151,18 +3151,33 @@ bool Procedures::Connexion_A_La_Base()
             errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
 
         //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth : serveur injoignable,
-        //! mauvais serveur/port…) : on route vers le CARREFOUR de récupération RecupererDemarrage()
-        //! (Reconstruire les paramètres, restaurer Rufus.ini, ou quitter). RestaurerBase = false
-        //! (sans connexion, pas de restauration de base) ; PremDemarrage = false (une panne de
-        //! connexion ne justifie pas une base vierge qui abandonnerait la base existante). Le
-        //! carrefour RELANCE Rufus si une récupération réussit ; sinon (annulation), on sort.
+        //! mauvais serveur/port…). GARDE-FOU à 2 boutons AVANT le carrefour : un échec de connexion
+        //! est le plus souvent transitoire (serveur éteint, réseau) ; on présente d'abord un choix
+        //! SIMPLE — Quitter / Revoir les paramètres — plutôt que le carrefour complet, dont les
+        //! options (reconstruire/restaurer Rufus.ini) peuvent intimider un utilisateur peu à l'aise.
         if (!errConnexion.isEmpty())
         {
-            RecupererDemarrage(tr("Connexion à la base impossible"),
-                               tr("Rufus n'a pas pu se connecter à la base de données avec les "
-                                  "paramètres enregistrés.") + "\n" +
-                               tr("Vous pouvez revoir les paramètres de connexion, restaurer le fichier "
-                                  "Rufus.ini depuis une sauvegarde, ou quitter."),
+            UpMessageBox msgbox(Q_NULLPTR);
+            msgbox.setText(tr("Connexion à la base impossible"));
+            msgbox.setInformativeText(tr("Rufus n'a pas pu se connecter à la base de données avec les "
+                                         "paramètres enregistrés."));
+            msgbox.setIcon(UpMessageBox::Warning);
+            UpSmallButton *Annul  = new UpSmallButton(); Annul ->setText(tr("Abandonner et\nquitter Rufus"));
+            UpSmallButton *Revoir = new UpSmallButton(); Revoir->setText(tr("Revoir les paramètres\nde connexion"));
+            msgbox.addButton(Annul,  UpSmallButton::CLOSEBUTTON);
+            msgbox.addButton(Revoir, UpSmallButton::STARTBUTTON);
+            msgbox.exec();
+            if (msgbox.clickedButton() != Revoir)
+                return false;                       //! Quitter → on sort (rufus.cpp fera exit(0))
+
+            //! « Revoir » → CARREFOUR de récupération (Reconstruire les paramètres, restaurer
+            //! Rufus.ini, ou quitter). RestaurerBase = false (sans connexion, pas de restauration de
+            //! base) ; PremDemarrage = false (une panne de connexion ne justifie pas une base vierge
+            //! qui abandonnerait la base existante). Le carrefour RELANCE Rufus si une récupération
+            //! réussit ; sinon (annulation), on sort.
+            RecupererDemarrage(tr("Revoir les paramètres de connexion"),
+                               tr("Vous pouvez reconstruire les paramètres de connexion, restaurer le "
+                                  "fichier Rufus.ini depuis une sauvegarde, ou quitter."),
                                false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
                                false /*PremDemarrage*/, false /*RestaurerBase*/);
             return false;
@@ -3183,7 +3198,7 @@ bool Procedures::Connexion_A_La_Base()
             {
                 //! Poste HÔTE : on propose de RESTAURER la base depuis une sauvegarde (carrefour,
                 //! bouton « Restaurer la base »). Relance si succès ; sinon (annulation) on sort.
-                RecupererDemarrage(tr("Impossible d'ouvrir la table des utilisateurs"),
+                RecupererDemarrage(tr("Base de données endommagée"),
                                    tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                                    tr("Vous pouvez la restaurer depuis une sauvegarde, ou quitter."),
                                    false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
@@ -3192,9 +3207,10 @@ bool Procedures::Connexion_A_La_Base()
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
             //! autres. On l'informe ; la réparation se fait depuis le poste serveur.
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir la table des utilisateurs"),
+            UpMessageBox::Watch(Q_NULLPTR, tr("Base de données endommagée"),
                 tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
-                tr("Elle doit être réparée depuis le poste serveur ; Rufus ne peut pas continuer ici."));
+                tr("Vous devez restaurer une base patients ; cette restauration ne peut se faire "
+                   "qu'à partir du poste serveur."));
             return false;
         }
     }
