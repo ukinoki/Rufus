@@ -3079,7 +3079,10 @@ bool Procedures::Connexion_A_La_Base()
             const QString dir = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
             if (dir.isEmpty() || !QDir(dir).exists()) return false;
             QDir d(dir);
-            return d.exists("client-key.pem") && d.exists("client-cert.pem") && d.exists("ca-cert.pem");
+            //! On exige uniquement les clés CLIENT (client-key.pem + client-cert.pem). ca-cert.pem
+            //! est OPTIONNEL : connectToDataBase ne l'ajoute que s'il est présent, et des clés
+            //! générées via MySQL Workbench fonctionnent sans lui depuis des années.
+            return d.exists("client-key.pem") && d.exists("client-cert.pem");
         };
         if (!clesSSLpresentes())
         {
@@ -3093,7 +3096,7 @@ bool Procedures::Connexion_A_La_Base()
                 "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + dossierCles + "</span></b></p>" + "\n\n" +
                 tr("Indiquez l'emplacement de ce dossier dans la boîte de dialogue suivante."));
             const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                tr("Indiquez le dossier des clés SSL (client-key.pem, client-cert.pem, ca-cert.pem)"));
+                tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
             if (!dir.isEmpty())
                 m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
             if (!clesSSLpresentes())
