@@ -225,6 +225,9 @@ public:
     //  Supprime gaxt78iy (DISCARD OLD PASSWORD) si la deadline est passée — UNIQUEMENT si
     //  ce poste détient le vrai mot de passe (sinon il se verrouillerait lui-même).
     static void      supprimerGaxt78iySiEchue();
+    //  #5 — Poste DISTANT n'ayant pas (encore) l'aléatoire : rappel (à chaque démarrage) de le
+    //  récupérer (clé USB depuis le serveur), avec la date d'échéance, avant le retrait de gaxt78iy.
+    void      rappelerRecuperationAleatoireDistant();
 
     // Résultat de createUserAvecAdmin().
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };

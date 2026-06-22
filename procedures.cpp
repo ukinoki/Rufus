@@ -3069,6 +3069,38 @@ bool Procedures::Connexion_A_La_Base()
 
     db->initParametresConnexionSQL(server, port);
 
+    //! ACCÈS DISTANT (#2) : pré-contrôle des CLÉS SSL avant toute connexion (le compte adminrufusSSL
+    //! exige REQUIRE SSL). Absentes → on demande DIRECTEMENT leur dossier (à copier du serveur sur
+    //! une clé USB), on recontrôle ; toujours rien → message + carrefour (inutile de tenter une
+    //! connexion qui échouerait). Clés attendues : client-key.pem, client-cert.pem, ca-cert.pem.
+    if (db->ModeAccesDataBase() == Utils::Distant)
+    {
+        auto clesSSLpresentes = [this]() -> bool {
+            const QString dir = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+            if (dir.isEmpty() || !QDir(dir).exists()) return false;
+            QDir d(dir);
+            return d.exists("client-key.pem") && d.exists("client-cert.pem") && d.exists("ca-cert.pem");
+        };
+        if (!clesSSLpresentes())
+        {
+            const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
+                tr("Indiquez le dossier des clés SSL (client-key.pem, client-cert.pem, ca-cert.pem)"));
+            if (!dir.isEmpty())
+                m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
+            if (!clesSSLpresentes())
+            {
+                RecupererDemarrage(tr("Clés SSL introuvables"),
+                                   tr("L'accès distant nécessite les clés SSL du cabinet "
+                                      "(client-key.pem, client-cert.pem, ca-cert.pem), à copier depuis le "
+                                      "poste serveur sur une clé USB.") + "\n" +
+                                   tr("Indiquez leur dossier (Reconstruire), ou quittez."),
+                                   false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
+                                   false /*PremDemarrage*/, false /*RestaurerBase*/);
+                return false;
+            }
+        }
+    }
+
     //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification (qui n'est QUE le
     //! login). On essaie les mots de passe candidats (.dbkey PUIS gaxt78iy) : un .dbkey absent ou
     //! périmé ne doit pas bloquer une base qui accepte encore gaxt78iy.

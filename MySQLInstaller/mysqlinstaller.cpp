@@ -2092,6 +2092,22 @@ void MySQLInstaller::entretienApresConnexion()
 {
     MySQLInstaller().securiserBaseSiNecessaire();
     supprimerGaxt78iySiEchue();
+    MySQLInstaller().rappelerRecuperationAleatoireDistant();
+}
+
+//  #5 — Poste DISTANT sans l'aléatoire : rappel régulier (à chaque démarrage) de le récupérer,
+//  avec la date d'échéance, avant que gaxt78iy ne soit supprimé côté serveur par un poste local.
+void MySQLInstaller::rappelerRecuperationAleatoireDistant()
+{
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant) return;   // concerne le seul accès distant
+    if (motDePasseSQL() != QString(MDP_SQL))                  return;   // ce poste détient déjà l'aléatoire
+    if (!adminrufusEstSecurise())                             return;   // base pas (encore) sécurisée : rien à récupérer
+    const QDateTime d = dateSecurisation();
+    const QString echeance = d.isValid() ? d.addDays(30).toString("dd/MM/yyyy") : tr("(à brève échéance)");
+    UpMessageBox::Watch(nullptr, tr("Mot de passe du cabinet à récupérer"),
+        tr("Ce poste distant utilise encore le mot de passe générique.") + "\n" +
+        tr("Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste "
+           "serveur) et enregistrez-le : sans lui, cet accès cessera de fonctionner après le %1.").arg(echeance));
 }
 
 // adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis
