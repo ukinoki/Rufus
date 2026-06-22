@@ -3068,6 +3068,56 @@ bool Procedures::Connexion_A_La_Base()
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
 
     db->initParametresConnexionSQL(server, port);
+
+    //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification (qui n'est QUE le
+    //! login). On essaie les mots de passe candidats (.dbkey PUIS gaxt78iy) : un .dbkey absent ou
+    //! périmé ne doit pas bloquer une base qui accepte encore gaxt78iy.
+    QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+    if (!errConnexion.isEmpty())
+    {
+        //! Échec de connexion (serveur injoignable, mauvais serveur/port, mot de passe aléatoire
+        //! non récupéré…) : on route vers le CARREFOUR de récupération RecupererDemarrage()
+        //! (Reconstruire les paramètres, restaurer Rufus.ini, ou quitter). RestaurerBase = false
+        //! (sans connexion, pas de restauration de base) ; PremDemarrage = false (une panne de
+        //! connexion ne justifie pas une base vierge qui abandonnerait la base existante). Le
+        //! carrefour RELANCE Rufus si une récupération réussit ; sinon (annulation), on sort.
+        RecupererDemarrage(tr("Connexion à la base impossible"),
+                           tr("Rufus n'a pas pu se connecter à la base de données avec les "
+                              "paramètres enregistrés.") + "\n" +
+                           tr("Vous pouvez revoir les paramètres de connexion, restaurer le fichier "
+                              "Rufus.ini depuis une sauvegarde, ou quitter."),
+                           false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
+                           false /*PremDemarrage*/, false /*RestaurerBase*/);
+        return false;
+    }
+
+    //! Contrôle du socle MySQL : si version < 8.0.14 (cf. VERSION_MYSQL_MINI) ET ce poste HÉBERGE
+    //! la base (monoposte), on lance la PROCÉDURE DE MISE À JOUR DU SOCLE (sauvegarde validée →
+    //! réinstall → restauration → relance). Annulation → on continue sur l'ancien MySQL.
+    if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::socleMySQLConforme())
+    {
+        if (MettreAJourSocleMySQL())
+            return false;                       // succès → Rufus a redémarré
+    }
+    else if (db->ModeAccesDataBase() != Utils::Poste && !MySQLInstaller::socleMySQLConforme())
+    {
+        //! Client RÉSEAU (LAN/distant) : il ne peut PAS migrer (ce n'est pas lui qui héberge la
+        //! base). On l'informe que la mise à jour doit se faire depuis le poste serveur, puis on
+        //! continue : la base tourne encore sur l'ancien MySQL (sécurisation en attente).
+        UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
+            tr("Le serveur MySQL nécessite d'être mis à jour pour pouvoir utiliser") + "\n" +
+            tr("les nouvelles fonctions de sécurité incluses dans cette version de Rufus.") + "\n" +
+            tr("La mise à jour doit être effectuée depuis le poste serveur "
+               "(en y lançant Rufus, qui s'en chargera).") + "\n\n" +
+            tr("Même s'il est fortement conseillé de faire cette mise à jour") + "\n" +
+            tr("vous pouvez continuer à travailler normalement."));
+    }
+
+    //! Sécurisation : si la base est encore sur gaxt78iy, pose un aléatoire (en CONSERVANT gaxt78iy
+    //! en 2e mot de passe) et écrit le .dbkey ; supprime gaxt78iy si la deadline (sécurisation +
+    //! 30 j) est passée. No-op si déjà fait.
+    MySQLInstaller::entretienApresConnexion();
+
     if (!IdentificationUser())
         return false;
 
@@ -3515,64 +3565,9 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::IdentificationUser()
 {
-    //! Connexion à la base. On essaie les mots de passe candidats (celui du .dbkey PUIS
-    //! gaxt78iy) : un .dbkey absent ou périmé ne doit pas bloquer une base qui accepte
-    //! encore gaxt78iy. Si aucun ne marche (serveur injoignable, mauvais serveur/port,
-    //! mot de passe aléatoire non récupéré…), on propose de revoir les paramètres de
-    //! connexion plutôt que de laisser l'utilisateur bloqué (qui finissait par détruire
-    //! rufus.ini à la main). VerifParamConnexion rétablit la connexion et réécrit rufus.ini.
-    QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
-    if (!errConnexion.isEmpty())
-    {
-        //! Échec de connexion (serveur injoignable, mauvais serveur/port, mot de passe aléatoire
-        //! non récupéré…) : on route vers le CARREFOUR de récupération RecupererDemarrage() au lieu
-        //! d'enchaîner directement VerifParamConnexion. L'utilisateur y a le choix : revoir les
-        //! paramètres (Reconstruire), restaurer son Rufus.ini depuis une sauvegarde, ou quitter.
-        //!   - RestaurerBase = false : sans connexion, on ne peut pas restaurer la base ;
-        //!   - PremDemarrage  = false : une simple panne de connexion ne justifie pas de créer une
-        //!     base vierge (qui abandonnerait la base existante, momentanément injoignable).
-        //! Le carrefour RELANCE Rufus si une récupération réussit ; s'il rend la main (annulation),
-        //! on abandonne ce démarrage (retour false → l'appelant sort).
-        RecupererDemarrage(tr("Connexion à la base impossible"),
-                           tr("Rufus n'a pas pu se connecter à la base de données avec les "
-                              "paramètres enregistrés.") + "\n" +
-                           tr("Vous pouvez revoir les paramètres de connexion, restaurer le fichier "
-                              "Rufus.ini depuis une sauvegarde, ou quitter."),
-                           false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
-                           false /*PremDemarrage*/, false /*RestaurerBase*/);
-        return false;
-    }
-
-    //! ÉTAPE 2 — Contrôle du socle MySQL AVANT toute autre chose. Si la version n'est pas
-    //! conforme au seuil commun (8.0.14, cf. VERSION_MYSQL_MINI) ET que ce poste HÉBERGE la
-    //! base (monoposte), on lance la PROCÉDURE DE MISE À JOUR DU SOCLE (sauvegarde validée →
-    //! réinstall → restauration → relance). Si l'utilisateur annule, la base fonctionne
-    //! encore sur l'ancien MySQL : on continue (pas de blocage).
-    if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::socleMySQLConforme())
-    {
-        if (MettreAJourSocleMySQL())
-            return false;                       // succès → Rufus a redémarré
-    }
-    else if (db->ModeAccesDataBase() != Utils::Poste && !MySQLInstaller::socleMySQLConforme())
-    {
-        //! Client RÉSEAU (LAN/distant) : il ne peut PAS migrer (ce n'est pas lui qui héberge la
-        //! base). On l'informe que la mise à jour doit se faire depuis le poste serveur, puis on
-        //! continue : la base tourne encore sur l'ancien MySQL (et la sécurisation reste en
-        //! attente tant que la version n'est pas conforme).
-        UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
-            tr("Le serveur MySQL nécessite d'être mis à jour pour pouvoir utiliser") + "\n" +
-            tr("les nouvelles fonctions de sécurité incluses dans cette version de Rufus.") + "\n" +
-            tr("La mise à jour doit être effectuée depuis le poste serveur "
-               "(en y lançant Rufus, qui s'en chargera).") + "\n\n" +
-            tr("Même s'il est fortement conseillé de faire cette mise à jour") + "\n" +
-            tr("vous pouvez continuer à travailler normalement."));
-    }
-
-    //! ÉTAPE 3 — Sécurisation : si la base est encore sur gaxt78iy, on pose un mot de passe
-    //! aléatoire (en CONSERVANT gaxt78iy comme 2e mot de passe) et on écrit le .dbkey ; puis
-    //! on supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée. No-op si déjà fait.
-    MySQLInstaller::entretienApresConnexion();
-
+    //! Identification du PRATICIEN, UNIQUEMENT. À ce stade, la connexion au serveur, le contrôle de
+    //! la version MySQL et la sécurisation ont DÉJÀ été faits par l'appelant Connexion_A_La_Base().
+    //! Ici, on vérifie seulement que cet utilisateur existe dans la table des utilisateurs de la base.
     bool ok = false;
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
