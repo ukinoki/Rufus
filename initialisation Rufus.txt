@@ -1,7 +1,3 @@
-Bon, la nuit porte conseil.
-Je pense qu’on prend le problème à l’envers. On crée un cheminement et on essie de l’adapter a posteriori à l’ensembles des situations imaginables, situations qu’on essaie de formaliser mais dont on oublie toutes les possiblilités.
-
-Il faut faire l’inverse. La première des choses est de listert toutes ce situations, d énumérer pour chacune d’entre elle, la conduite à tenir et ensuite seulement de simplifier le fil conducteur pour l’adapter, sans en oublier aucune.
 
 Qu’est ce qui fait varier les possibles. 6 paramètres :
 	1. Présence ou non d’un rufus valide (avec au moins un mode de connexion paramétré)
@@ -89,20 +85,6 @@ Donc, on énumère
 					→ non, on suggère de faire évoluer, à partir du poste hôte, le serveur vers une version MySQL conforme au mini de la version SQL
 
 A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
-
-
-il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
-	1. on est en monoposte
-		la base MySQL est incompatible avec le double mdp.→ on essaie gaxt78iy et c’est tout
-		la base MySQL est compatible → on essaie avec le mdp aléatoire puis gaxt78iy
-			si échec avec le mdp aléatoire, on efface .dbkey
-			si échec avec les 2 mdp
-				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
-	2. on est en réseau local ou en accès distant
-		on essaie avec le mdp aléatoire puis gaxt78iy
-			si échec avec le mdp aléatoire, on efface .dbkey
-			si échec avec les 2 mdp
-				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
 
 Procedures::RecupererDemarrage()
 propose 3 boutons (+ le bouton Quitter du dialogue)
