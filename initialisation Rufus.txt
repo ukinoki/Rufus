@@ -36,7 +36,7 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
 				→ si OK, on continue
-				→ sinon, message d'erreur et ???
+				→ sinon, message d'erreur et PremierDemarrage()
 			→ si on s’est connecté avec le mdp aléatoire
 				on vérifie si le mdp gaxt78iy est toujours présent
 					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
@@ -45,7 +45,9 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 						effacement du mdp gaxt78iy
 			→ si on s’est connecté avec gaxt78iy
 				→ on vérifie si le serveur est conforme au mini de la version SQL.
-					→ oui, on en crée un et on l’enregistre dans .dbkey
+					→ oui, on vérifie s'il y a un mdp aléatoire
+						→ oui, on le demande et on l'enregistre dans .dbkey
+						→ non, on en crée un et on l’enregistre dans .dbkey
 					→ non, on propose de faire immédiatement évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 
 	1c. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
@@ -53,7 +55,7 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
 				→ si OK, on continue
-				→ sinon, message d'erreur et ???
+				→ sinon, message d'erreur et invitation à se connecter sur l'ordinateur hôte pour régler le problème
 			→ si on s’est connecté avec le mdp aléatoire
 				on vérifie si le mdp gaxt78iy est toujours présent
 					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
@@ -76,13 +78,13 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
 				→ si OK, on continue
-				→ sinon, message d'erreur et ???
+				→ sinon, message d'erreur et invitation à se connecter sur l'ordinateur hôte pour régler le problème
 			→ si on s’est connecté avec gaxt78iy
 				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on vérifie s'il y a un mdp aléatoire
-						→ non, on le demande et on l’enregistre dans .dbkey
+						→ oui, on le demande et on l’enregistre dans .dbkey
 						RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
-					→ non, on suggère de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
+					→ non, on suggère de faire évoluer, à partir du poste hôte, le serveur vers une version MySQL conforme au mini de la version SQL
 
 A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
 
@@ -99,3 +101,10 @@ il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
 			si échec avec le mdp aléatoire, on efface .dbkey
 			si échec avec les 2 mdp
 				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
+
+procedures::PremieRDemmarge()
+propose 4 boutons
+	→ Nouvelle base patients vierge
+	→ Reconstruction du' fichier Rufus.ini
+	→ Restauration depuis une sauvegarde deu fichier Rufus.ini  et/ou de la base patients
+ 
