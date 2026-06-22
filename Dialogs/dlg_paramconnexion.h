@@ -69,7 +69,6 @@ public:
     Ui::dlg_paramconnexion *ui;
 
 private:
-    bool            m_connectavecloginSQL;          //!< true : valider aussi l'identité applicative (table utilisateurs)
     QString         m_IPaveczero = "";              //!< adresse du serveur normalisée avec des zéros de remplissage (000.000.000.000)
     QString         m_adresseserveur = "";          //!< adresse effective utilisée pour la connexion (localhost ou IP)
     void            DossierClesSSL();               //!< choisit le dossier des clés SSL (accès distant) et le mémorise dans rufus.ini

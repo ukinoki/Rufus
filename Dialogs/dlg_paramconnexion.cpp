@@ -34,7 +34,6 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     dlglayout()->insertWidget(0, ui->prtFrame);
     dlglayout()->insertWidget(0, ui->MainFrame);
     dlglayout()->insertWidget(0, ui->frame);
-    m_connectavecloginSQL = true;
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
@@ -189,11 +188,8 @@ bool dlg_paramconnexion::TestConnexion()
         QString Password = ui->MDPlineEdit->text();
         if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));    ui->LoginlineEdit->setFocus(); return false;}
         if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));   ui->MDPlineEdit->setFocus();    return false;}
-        if (m_connectavecloginSQL)
-        {
-            Login = LOGIN_SQL;
-            Password = MySQLInstaller::motDePasseSQL();
-        }
+        Login    = LOGIN_SQL;
+        Password = MySQLInstaller::motDePasseSQL();
         //! La connexion MySQL passe TOUJOURS par le compte fixe adminrufus
         //! (motDePasseSQL() = mdp aléatoire du cabinet, repli legacy MDP_SQL).
         //! Les identifiants saisis (Login/Password) sont l'identité APPLICATIVE
@@ -214,21 +210,20 @@ bool dlg_paramconnexion::TestConnexion()
         //! passe aléatoire en conservant gaxt78iy comme 2e mot de passe) et on supprime
         //! gaxt78iy si la deadline (sécurisation + 30 j) est passée. No-op si déjà fait.
         MySQLInstaller::entretienApresConnexion();
-        if (m_connectavecloginSQL)
+        //! Validation de l'identité APPLICATIVE Rufus (login/mdp du praticien dans la table
+        //! utilisateurs), distincte de la connexion MySQL (compte adminrufus).
+        DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
+        if (rep == DataBase::Error)
         {
-            DataBase::QueryResult rep = DataBase::I()->verifExistUser(ui->LoginlineEdit->text(), ui->MDPlineEdit->text());
-            if (rep == DataBase::Error)
-            {
-                UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
-                                    tr("Impossible d'ouvrir la table Utilisateurs"));
-                return false;
-            }
-            if( rep == DataBase::Empty )
-            {
-                UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
-                                    tr("Identifiant ou mot de passe incorrect") );
-                return false;
-            }
+            UpMessageBox::Watch(this, tr("Erreur sur la base patients"),
+                                tr("Impossible d'ouvrir la table Utilisateurs"));
+            return false;
+        }
+        if( rep == DataBase::Empty )
+        {
+            UpMessageBox::Watch(this, tr("Erreur sur le compte utilisateur"),
+                                tr("Identifiant ou mot de passe incorrect") );
+            return false;
         }
         return true;
     }
