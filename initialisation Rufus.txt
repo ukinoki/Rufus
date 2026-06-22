@@ -28,61 +28,117 @@ Donc, on énumère
 		on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer Procedures::RecupererDemarrage()
 
 1b, c ou d. On a un rufus.ini paramétré correctement avec un ou plusieurs modes de connexion (si plusieurs modes de connexion, on éxécute Procedures ::FicheChoixConnexion() et on est ramené à un seul mode 1b, 1c ou 1d).
-	1b . On tente de se connecter au serveur avec les paramètres rufus.ini
- 		avec le .dbkey s’il y en a un sinon avec gaxt78iy
-		→ pas de connexion → Procedures::RecupererDemarrage()
-		→ connexion OK
-			→ on vérifie la cohérence de la base Rufus
-				→ si OK, on continue
-				→ sinon, message d'erreur et Procedures::RecupererDemarrage()
-			→ si on s’est connecté avec le mdp aléatoire
-				on vérifie si le mdp gaxt78iy est toujours présent
-					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
-						message prévenant que l'effacement du mdp est imminent
-					si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
-						effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
-			→ si on s’est connecté avec gaxt78iy
-				→ on vérifie si le serveur est conforme au mini de la version SQL.
-					→ oui, on vérifie s'il y a un mdp aléatoire
-						→ oui, on le demande et on l'enregistre dans .dbkey
-						→ non, on en crée un et on l’enregistre dans .dbkey
-					→ non, on propose de faire immédiatement évoluer le serveur vers une version MySQL conforme au mini de la version SQL
+	1b . Monoposte
+		On vérifie la présence d'un serveur
+			→ pas de serveur → RecupererDemarrage() avec les boutons concernant Rufus.ini effacés et un message disant qu'il n'y a pas de serveur
+			→ présence d'un serveur
+				→ recueil de la version de MySQL
+				→ tentative de connexion avec le .dbkey s’il y en a un sinon avec gaxt78iy
+					→ pas de connexion et → MySQL >= 8.014
+					 	→ demande d'un mdp autre que gaxt78iy et nouvelle tentative de connexion
+					→ connexion OK
+					 	→ MySQL >= 8.014 → enregistrement du mdp dans .dbkey
+						→ on vérifie la cohérence de la base Rufus
+							→ si pas OK → messageBox base de données endommagée
+								→ bouton annuler → fermeture du programme
+								→ bouton restaurer la base → RestaureBase()
+						→ MySQL >= 8.0.14
+						 	→ on s’est connecté avec le mdp aléatoire
+								on vérifie si le mdp gaxt78iy est toujours présent
+									si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
+										message prévenant que l'effacement du mdp est imminent
+									si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
+										effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
+							→ on s’est connecté avec le mdp générique 
+								→ on vérifie s'il y a un mdp aléatoire
+									→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
+													" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
+													" menu Edition/Paramètres...etc...
+										→ bouton annuler
+										→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+									→ non
+										→ on en crée un
+										→ on l’enregistre dans .dbkey
+										→ on affiche le message pour pouvoir l'enregistrer
+						→ MYSQL < 8.0.14 
+							→ Après l'affichage de rufus.cpp à l'écran
+							→ message "serveur MySQL à mettre à jour"
+								→ bouton annuler
+								→ bouton mettre à jour le serveur
+									→ messageBox (cette messageBox existe déjà dans Procedures::VerifVersionBase() → s'en inspirer)
+										→ sauvegarder les données
+										→ bouton poursuivre, la sauvegarde a été faite
+					→ pas de connexion
+						→ bouton annuler → fermeture du programme
+						→ bouton revoir les parametres de connexion → RecupererDemarrage()
 
-	1c. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
-		→ pas de connexion → Procedures::RecupererDemarrage()
-		→ connexion OK
-			→ on vérifie la cohérence de la base Rufus
-				→ si OK, on continue
-				→ sinon, message d'erreur et invitation à se connecter sur l'ordinateur hôte pour régler le problème
-			→ si on s’est connecté avec le mdp aléatoire
-				on vérifie si le mdp gaxt78iy est toujours présent
-					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
-						message prévenant que l'effacement du mdp est imminent
-					si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
-						effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
-			→ si on s’est connecté avec gaxt78iy
-				→ on vérifie si le serveur est conforme au mini de la version SQL.
-					→ oui, on vérifie s'il y a un mdp aléatoire
-						→ oui, on le demande et on l'enregistre dans .dbkey
-						→ non, on en crée un et on l’enregistre dans .dbkey
-					→ non, on suggère de faire évoluer, à partir du poste hôte, le serveur vers une version MySQL conforme au mini de la version SQ
-	1d. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
+	1c. Réseau local
+		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec gaxt78iy
+			→ pas de connexion → Procedures::RecupererDemarrage()
+			→ connexion OK
+				→ recueil de la version de MySQL
+				→ on vérifie la cohérence de la base Rufus
+					→ si pas OK → messageBox base de données endommagée
+						→ bouton annuler → fermeture du programme
+						→ bouton restaurer la base → RestaureBase()
+				→ MySQL >= 8.0.14
+					→ on s’est connecté avec le mdp aléatoire
+						on vérifie si le mdp gaxt78iy est toujours présent
+							si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
+								message prévenant que l'effacement du mdp est imminent
+							si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
+								effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
+					→ on s’est connecté avec le mdp générique
+						→ on vérifie s'il y a un mdp aléatoire
+							→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
+											" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
+											" menu Edition/Paramètres...etc...
+								→ bouton annuler
+								→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+							→ non
+								→ on en crée un
+								→ on l’enregistre dans .dbkey
+								→ on affiche le message pour pouvoir l'enregistrer
+				→ MYSQL < 8.0.14 
+					→ Après l'affichage de rufus.cpp à l'écran
+					→ message 	"serveur MySQL à mettre à jour"
+								" cette mise à jour doit se faire depuis le poste serveur"
+			→ pas de connexion
+				→ bouton annuler → fermeture du programme
+				→ bouton revoir les parametres de connexion → RecupererDemarrage()
+	1d. Accès distant 
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
 				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::RecupererDemarrage()
-		→ pas de connexion 
-			→ si le motif de l'absence de connexion est lié à des clés SSL invalides → message d'info
-			→ Procedures::RecupererDemarrage()
+		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
-				→ si OK, on continue
-				→ sinon, message d'erreur et invitation à se connecter sur l'ordinateur hôte pour régler le problème
-			→ si on s’est connecté avec gaxt78iy
-				→ on vérifie si le serveur est conforme au mini de la version SQL.
-					→ oui, on vérifie s'il y a un mdp aléatoire
-						→ oui, on le demande et on l’enregistre dans .dbkey
-						RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
-					→ non, on suggère de faire évoluer, à partir du poste hôte, le serveur vers une version MySQL conforme au mini de la version SQL
+				→ si pas OK → messageBox base de données endommagée
+					→ bouton annuler → fermeture du programme
+					→ bouton restaurer la base → RestaureBase()
+				→ MySQL >= 8.0.14
+					→ on s’est connecté avec le mdp aléatoire
+						on vérifie si le mdp gaxt78iy est toujours présent
+							si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
+								message prévenant que l'effacement du mdp est imminent
+							si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
+								effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
+					→ on s’est connecté avec le mdp générique
+						→ on vérifie s'il y a un mdp aléatoire
+							→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
+											" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
+											" menu Edition/Paramètres...etc...
+								→ bouton annuler
+								→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+							→ non, on suggère de créer un mdp aléatoire à partir d'un des postes du réseau local ou du serveur
+								RÈGLE → on ne sécurise pas le mdp depuis un poste WANrveur vers une version MySQL conforme au mini de la version SQL
+				→ MYSQL < 8.0.14 
+					→ Après l'affichage de rufus.cpp à l'écran
+					→ message 	"serveur MySQL à mettre à jour"
+								" cette mise à jour doit se faire depuis le poste serveur"
+			→ pas de connexion
+				→ bouton annuler → fermeture du programme
+				→ bouton revoir les parametres de connexion → RecupererDemarrage()
 
 A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
 
