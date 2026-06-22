@@ -132,6 +132,9 @@ int main(int argc, char *argv[])
     w.show();
 
     const int ret = app.exec();
-    Procedures::SauvegardeIni();   //! sauvegarde silencieuse de Rufus.ini à la fermeture (restaurable dans VerifIni)
+    //! NB : la sauvegarde de Rufus.ini ne se fait PLUS ici (à la fermeture), mais à l'OUVERTURE
+    //! réussie (cf. constructeur Rufus, après Connexion_A_La_Base) : la fermeture ne garantit pas
+    //! la cohérence du fichier, l'ouverture réussie si. On évite ainsi d'écraser une sauvegarde
+    //! saine par un Rufus.ini éventuellement corrompu en cours de session.
     return ret;
 }

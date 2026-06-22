@@ -63,6 +63,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
     proc->CleanIniFile();
+    //! Sauvegarde de Rufus.ini MAINTENANT, à l'ouverture RÉUSSIE (la connexion à la base vient
+    //! d'aboutir → ce Rufus.ini est forcément cohérent), et plus à la fermeture (qui, elle, ne
+    //! garantit pas la cohérence du fichier). Chaque poste sauvegarde AINSI le SIEN : un poste
+    //! client peut donc restaurer son propre Rufus.ini, indépendamment de celui du serveur.
+    Procedures::SauvegardeIni();
     m_parametres = db->parametres();
     RecalcCurrentDateTime();
     // La langue du POSTE est portée par rufus.ini (Param_Poste_Version) : réglage PROPRE à
