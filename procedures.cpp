@@ -3075,20 +3075,32 @@ bool Procedures::Connexion_A_La_Base()
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        //! Échec de connexion (serveur injoignable, mauvais serveur/port, mot de passe aléatoire
-        //! non récupéré…) : on route vers le CARREFOUR de récupération RecupererDemarrage()
+        //! Échec d'AUTHENTIFICATION (base sécurisée sur un autre poste / .dbkey périmé) : on propose
+        //! DIRECTEMENT de récupérer le bon mot de passe (saisie ou clé USB), invite SIMPLE — on ne
+        //! balade pas un utilisateur peu à l'aise à travers le carrefour pour, au final, juste lui
+        //! demander un mot de passe — puis on réessaie. (RecupererMotDePasseMySQL est statique : pas
+        //! besoin d'ouvrir le dialogue dlg_paramconnexion.)
+        if (dlg_paramconnexion::EstErreurAuthentification(errConnexion)
+            && dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR))
+            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+
+        //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth : serveur injoignable,
+        //! mauvais serveur/port…) : on route vers le CARREFOUR de récupération RecupererDemarrage()
         //! (Reconstruire les paramètres, restaurer Rufus.ini, ou quitter). RestaurerBase = false
         //! (sans connexion, pas de restauration de base) ; PremDemarrage = false (une panne de
         //! connexion ne justifie pas une base vierge qui abandonnerait la base existante). Le
         //! carrefour RELANCE Rufus si une récupération réussit ; sinon (annulation), on sort.
-        RecupererDemarrage(tr("Connexion à la base impossible"),
-                           tr("Rufus n'a pas pu se connecter à la base de données avec les "
-                              "paramètres enregistrés.") + "\n" +
-                           tr("Vous pouvez revoir les paramètres de connexion, restaurer le fichier "
-                              "Rufus.ini depuis une sauvegarde, ou quitter."),
-                           false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
-                           false /*PremDemarrage*/, false /*RestaurerBase*/);
-        return false;
+        if (!errConnexion.isEmpty())
+        {
+            RecupererDemarrage(tr("Connexion à la base impossible"),
+                               tr("Rufus n'a pas pu se connecter à la base de données avec les "
+                                  "paramètres enregistrés.") + "\n" +
+                               tr("Vous pouvez revoir les paramètres de connexion, restaurer le fichier "
+                                  "Rufus.ini depuis une sauvegarde, ou quitter."),
+                               false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
+                               false /*PremDemarrage*/, false /*RestaurerBase*/);
+            return false;
+        }
     }
 
     //! Contrôle du socle MySQL : si version < 8.0.14 (cf. VERSION_MYSQL_MINI) ET ce poste HÉBERGE

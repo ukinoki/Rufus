@@ -276,7 +276,7 @@ bool dlg_paramconnexion::TestConnexion()
 QString dlg_paramconnexion::TenterConnexionAvecRecuperation()
 {
     QString error = ConnecterAvecCandidats();
-    if (!error.isEmpty() && EstErreurAuthentification(error) && RecupererMotDePasseMySQL())
+    if (!error.isEmpty() && EstErreurAuthentification(error) && RecupererMotDePasseMySQL(this))
         error = ConnecterAvecCandidats();
     return error;
 }
@@ -323,9 +323,9 @@ bool dlg_paramconnexion::EstErreurAuthentification(const QString &error)
 //! aléatoire du cabinet, soit en important le fichier copié sur une clé USB depuis
 //! un poste qui fonctionne, soit en le saisissant. En cas de succès, l'enregistre
 //! (.dbkey + cache) et renvoie true pour signaler qu'un nouvel essai est possible.
-bool dlg_paramconnexion::RecupererMotDePasseMySQL()
+bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent)
 {
-    UpMessageBox msgbox(this);
+    UpMessageBox msgbox(parent);
     msgbox.setText(tr("Base de données sécurisée"));
     msgbox.setInformativeText(tr("Aucun mot de passe connu ne permet de se connecter à cette base : "
                                  "elle a été sécurisée sur un autre poste.\n\n"
@@ -347,7 +347,7 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL()
     if (msgbox.clickedButton() == USBBouton)
     {
         const QString fichier = QFileDialog::getOpenFileName(
-                    this, tr("Sélectionnez le fichier du mot de passe sur la clé USB"));
+                    parent, tr("Sélectionnez le fichier du mot de passe sur la clé USB"));
         if (fichier.isEmpty())
             return false;
         QFile f(fichier);
@@ -358,14 +358,14 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL()
         }
         if (mdp.isEmpty())
         {
-            UpMessageBox::Watch(this, tr("Fichier illisible"),
+            UpMessageBox::Watch(parent, tr("Fichier illisible"),
                                 tr("Ce fichier ne contient pas de mot de passe valide."));
             return false;
         }
     }
     else if (msgbox.clickedButton() == SaisirBouton)
     {
-        UpDialog dlg(this);
+        UpDialog dlg(parent);
         dlg.setWindowTitle(tr("Mot de passe de la base"));
         UpLabel *lbl = new UpLabel();
         lbl->setText(tr("Entrez le mot de passe MySQL du cabinet :"));

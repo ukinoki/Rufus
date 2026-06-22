@@ -81,7 +81,7 @@ private:
     bool            TestConnexion();                //!< tente la connexion MySQL et la validation du compte utilisateur
     QString         ConnecterAvecCandidats();       //!< essaie les mdp candidats (.dbkey puis gaxt78iy) ; "" si l'un réussit, sinon la dernière erreur
     QString         TenterConnexionAvecRecuperation(); //!< cascade complète : candidats, puis récupération du mdp en dernier ressort, puis nouvel essai
-    bool            RecupererMotDePasseMySQL();      //!< base sécurisée ailleurs : importe le .dbkey d'une clé USB ou saisit le mdp, l'enregistre
+    static bool     RecupererMotDePasseMySQL(QWidget *parent);      //!< base sécurisée ailleurs : importe le .dbkey d'une clé USB ou saisit le mdp, l'enregistre (statique : appelable aussi au démarrage, hors dialogue)
     static bool     EstErreurAuthentification(const QString &error); //!< vrai si l'erreur est un refus d'authentification (mauvais mdp), pas un serveur injoignable
 };
 
