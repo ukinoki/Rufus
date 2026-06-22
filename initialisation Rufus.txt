@@ -46,7 +46,7 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 			→ si on s’est connecté avec gaxt78iy
 				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on en crée un et on l’enregistre dans .dbkey
-					→ non, on propose de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
+					→ non, on propose de faire immédiatement évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 
 	1c. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ pas de connexion → PremierDemarrage()
@@ -65,7 +65,7 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 					→ oui, on vérifie s'il y a un mdp aléatoire
 						→ oui, on le demande et on l'enregistre dans .dbkey
 						→ non, on en crée un et on l’enregistre dans .dbkey
-					→ non, on suggère de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
+					→ non, on suggère de faire évoluer, à partir du poste hôte, le serveur vers une version MySQL conforme au mini de la version SQ
 	1d. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
@@ -81,7 +81,7 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
 				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on vérifie s'il y a un mdp aléatoire
 						→ non, on le demande et on l’enregistre dans .dbkey
-						on ne sécurise pas le mdp depuis un poste WAN
+						RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 					→ non, on suggère de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 
 A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
