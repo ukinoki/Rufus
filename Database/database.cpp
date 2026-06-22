@@ -217,6 +217,10 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     }
 
     QString error = m_db.lastError().text();
+    qDebug() << "m_db.lastError().text()" << m_db.lastError().text()
+             << "m_db.lastError().nativeErrorCode()" << m_db.lastError().nativeErrorCode()   // le code MySQL (ex. "1045", "2026"…)
+             << "m_db.lastError().databaseText()" << m_db.lastError().databaseText();      // côté serveur/driver
+
     Logs::ERROR(error);
     return error;
 }
