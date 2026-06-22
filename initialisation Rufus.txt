@@ -26,8 +26,10 @@ VerifParamConnexion()
 note : changer le look de dlg_paramconnexion() pour le faire coller au look Rufus en utilisant une UpDialog
 Donc, on énumère
 
-1a → PremierDémarrage() qui va être à même de gérer toutes les autres itérations quand on est dans cette situation → à vérifier mais elle tourne en boucle tant que la connexion à une base Rufus n’est pas établie
-note : la situation où rufus.ini est présent mais mal paramétré est mal gérée dans le code → Rufus.cpp à la ligne 43-46, on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer Procedures::VerifIni()
+1a → VerifIni() qui va être à même de gérer toutes les autres itérations quand on est dans cette situation
+		→ à vérifier mais elle tourne en boucle tant que la connexion à une base Rufus n’est pas établie
+		note : la situation où rufus.ini est présent mais mal paramétré est mal gérée dans le code → Rufus.cpp à la ligne 43-46,
+		on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer Procedures::VerifIni()
 
 1b, c ou d. On a un rufus.ini paramétré correctement avec un ou plusieurs modes de connexion (si plusieurs modes de connexion, on éxécute Procedures ::FicheChoixConnexion() et on est ramené à un seul mode 1b, 1c ou 1d).
 	1b . On tente de se connecter au serveur avec les paramètres rufus.ini
@@ -103,9 +105,9 @@ il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
 				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
 
 Procedures::VerifIni()
-propose 4 boutons
+propose 3 boutons
 	→ Nouvelle base patients vierge
 	→ Reconstruction du' fichier Rufus.ini
 	→ Restauration depuis une sauvegarde du fichier Rufus.ini  et/ou de la base patients suivant le contexte
 		→ monoposte -> restaurer la base
- 		→ sinon -> restaurer le fichier Rufus.ini
+ 		→ sinon ou dans l'incertitude sur monoposte -> restaurer le fichier Rufus.ini
