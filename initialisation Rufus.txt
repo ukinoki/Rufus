@@ -66,8 +66,21 @@ Donc, on énumère
 								→ bouton annuler
 								→ bouton mettre à jour le serveur
 									→ messageBox (cette messageBox existe déjà dans Procedures::VerifVersionBase() → s'en inspirer)
-										→ sauvegarder les données
+										→ sauvegarder les données et mettre à jour MySQL
+											-> fermeture de Rufus
+											-> démarrage d'une sauvegarde
+											-> effacement de MySQL
+											-> Téléchargement de MySQL > 8.0.14
+											-> paramétrage de MySQL
+											-> restauration de la base
+											-> relance de Rufus
 										→ bouton poursuivre, la sauvegarde a été faite
+											-> fermeture de Rufus
+											-> effacement de MySQL
+											-> Téléchargement de MySQL > 8.0.14
+											-> paramétrage de MySQL
+											-> restauration de la base en demandant le dossier de sauvegarde
+											-> relance de Rufus
 					→ pas de connexion
 						→ bouton annuler → fermeture du programme
 						→ bouton revoir les parametres de connexion → RecupererDemarrage()
