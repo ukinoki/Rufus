@@ -186,6 +186,12 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
             if ((nomfich == "ca-cert.pem" || nomfich == "ca.pem") && !connectSSLoptions.contains("SSL_CA="))
                 connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/" + nomfich + ";");
         }
+        //! Le pilote MariaDB Connector VÉRIFIE par défaut le certificat serveur (chaîne ET hostname).
+        //! Or les certificats auto-générés par MySQL ont un CN générique qui ne correspond PAS à
+        //! l'IP/host du serveur → « Hostname verification failed ». On désactive cette vérification :
+        //! la connexion reste CHIFFRÉE (clés client présentées), mais sans authentifier le serveur —
+        //! c'est le comportement de l'ancien pilote. Option reconnue par le plugin QMYSQL pour MariaDB.
+        connectSSLoptions += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
         m_db.setConnectOptions(connectSSLoptions);
         login += "SSL";
     }
