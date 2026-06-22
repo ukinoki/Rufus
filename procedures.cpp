@@ -3149,8 +3149,8 @@ bool Procedures::Connexion_A_La_Base()
             {
                 //! Poste HÔTE : on propose de RESTAURER la base depuis une sauvegarde (carrefour,
                 //! bouton « Restaurer la base »). Relance si succès ; sinon (annulation) on sort.
-                RecupererDemarrage(tr("Base de données incohérente"),
-                                   tr("La base de données Rufus de ce poste est incomplète ou endommagée.") + "\n" +
+                RecupererDemarrage(tr("Impossible d'ouvrir la table des utilisateurs"),
+                                   tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                                    tr("Vous pouvez la restaurer depuis une sauvegarde, ou quitter."),
                                    false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
                                    false /*PremDemarrage*/, true /*RestaurerBase*/);
@@ -3158,8 +3158,8 @@ bool Procedures::Connexion_A_La_Base()
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
             //! autres. On l'informe ; la réparation se fait depuis le poste serveur.
-            UpMessageBox::Watch(Q_NULLPTR, tr("Base de données incohérente"),
-                tr("La base de données Rufus du serveur est incomplète ou endommagée.") + "\n" +
+            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir la table des utilisateurs"),
+                tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
                 tr("Elle doit être réparée depuis le poste serveur ; Rufus ne peut pas continuer ici."));
             return false;
         }
