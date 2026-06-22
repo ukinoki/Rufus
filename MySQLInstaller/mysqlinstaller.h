@@ -203,6 +203,10 @@ public:
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
     //  Sert au démarrage à décider d'une migration du socle (local) / d'une alerte (réseau).
     static bool      socleMySQLConforme();
+    //  true si un SERVEUR MySQL local est présent (binaire/service installé), AVANT toute connexion.
+    //  Sert au démarrage MONOPOSTE : pas de serveur → inutile de tenter une connexion, on propose
+    //  directement une base vierge. (Enveloppe statique de isMySQLInstalled().)
+    static bool      serveurLocalPresent();
     //  Migration DESTRUCTIVE du socle : désinstalle l'ancien MySQL puis réinstalle + crée
     //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.
     bool             reinstallerSocleMySQLpourMigration();

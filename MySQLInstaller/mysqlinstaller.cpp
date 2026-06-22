@@ -1933,6 +1933,13 @@ bool MySQLInstaller::isOracleInstall()
     return !oraclePrefix().isEmpty();
 }
 
+//  Enveloppe STATIQUE de isMySQLInstalled() : permet le pré-contrôle « y a-t-il un serveur ? »
+//  au démarrage (Procedures::Connexion_A_La_Base) sans exposer le détail d'implémentation.
+bool MySQLInstaller::serveurLocalPresent()
+{
+    return MySQLInstaller().isMySQLInstalled();
+}
+
 //  Vérifie que le dossier de l'exécutable mysql figure dans la variable PATH.
 //  Sinon l'y ajoute de façon persistante (écriture privilégiée ; admin requis).
 bool MySQLInstaller::ensureMysqlInPath()

@@ -3119,6 +3119,22 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
+    //! MONOPOSTE : pré-contrôle de la PRÉSENCE d'un serveur MySQL local AVANT toute tentative de
+    //! connexion (inutile de tenter une connexion s'il n'y a pas de serveur — cf. spec d'init). Pas
+    //! de serveur → carrefour de récupération, mais avec les boutons « Rufus.ini » MASQUÉS : le
+    //! rufus.ini est correct, c'est le SERVEUR qui manque. Seuls « Nouvelle base patients vierge »
+    //! (qui installe le socle) et « Quitter » ont du sens ici.
+    if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
+    {
+        RecupererDemarrage(tr("Aucun serveur de base de données"),
+                           tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
+                           tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
+                              "vierge (le serveur sera installé automatiquement), ou quittez."),
+                           false /*DetruitIni*/, false /*RecupIni*/, false /*ReconstruitIni*/,
+                           true /*PremDemarrage*/, false /*RestaurerBase*/);
+        return false;
+    }
+
     //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification (qui n'est QUE le
     //! login). On essaie les mots de passe candidats (.dbkey PUIS gaxt78iy) : un .dbkey absent ou
     //! périmé ne doit pas bloquer une base qui accepte encore gaxt78iy.
