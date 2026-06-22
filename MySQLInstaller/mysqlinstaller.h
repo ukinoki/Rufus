@@ -197,12 +197,16 @@ public:
     //  Qt (DataBase::I()) : fonctionne en monoposte ET en réseau (un poste LAN peut
     //  sécuriser le serveur). No-op si : déjà sécurisée (2e mot de passe présent), ou
     //  serveur ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
-    void    securiserBaseSiNecessaire();
+    bool    securiserBaseSiNecessaire();   // true si la sécurisation vient d'être posée DANS cet appel
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
     //  Sert au démarrage à décider d'une migration du socle (local) / d'une alerte (réseau).
     static bool      socleMySQLConforme();
+    //  true si un SERVEUR MySQL local est présent (binaire/service installé), AVANT toute connexion.
+    //  Sert au démarrage MONOPOSTE : pas de serveur → inutile de tenter une connexion, on propose
+    //  directement une base vierge. (Enveloppe statique de isMySQLInstalled().)
+    static bool      serveurLocalPresent();
     //  Migration DESTRUCTIVE du socle : désinstalle l'ancien MySQL puis réinstalle + crée
     //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.
     bool             reinstallerSocleMySQLpourMigration();
@@ -225,9 +229,14 @@ public:
     //  Supprime gaxt78iy (DISCARD OLD PASSWORD) si la deadline est passée — UNIQUEMENT si
     //  ce poste détient le vrai mot de passe (sinon il se verrouillerait lui-même).
     static void      supprimerGaxt78iySiEchue();
-    //  #5 — Poste DISTANT n'ayant pas (encore) l'aléatoire : rappel (à chaque démarrage) de le
-    //  récupérer (clé USB depuis le serveur), avec la date d'échéance, avant le retrait de gaxt78iy.
-    void      rappelerRecuperationAleatoireDistant();
+    //  Poste détenant l'ALÉATOIRE, gaxt78iy encore présent et deadline NON atteinte : simple
+    //  avertissement que l'effacement du générique est imminent (informatif, pas d'action).
+    void      avertirEffacementImminent();
+    //  Poste connecté avec le GÉNÉRIQUE alors que la base est SÉCURISÉE (un aléatoire existe) —
+    //  TOUS modes : message d'échéance + bouton « Renseigner le nouveau mot de passe » (saisie / clé
+    //  USB → .dbkey), pour récupérer l'aléatoire avant le retrait de gaxt78iy. (Ex-rappel distant,
+    //  généralisé : un poste local doit aussi pouvoir récupérer l'aléatoire posé par un autre poste.)
+    void      proposerRecuperationAleatoire();
 
     // Résultat de createUserAvecAdmin().
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };

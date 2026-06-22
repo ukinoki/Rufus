@@ -43,6 +43,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QJsonObject>
 #include <QRandomGenerator>
 #include "database.h"          // DataBase::I()->ModeAccesDataBase() : mode de connexion courant
+#include "dlg_paramconnexion.h" // RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -1933,6 +1934,13 @@ bool MySQLInstaller::isOracleInstall()
     return !oraclePrefix().isEmpty();
 }
 
+//  Enveloppe STATIQUE de isMySQLInstalled() : permet le pré-contrôle « y a-t-il un serveur ? »
+//  au démarrage (Procedures::Connexion_A_La_Base) sans exposer le détail d'implémentation.
+bool MySQLInstaller::serveurLocalPresent()
+{
+    return MySQLInstaller().isMySQLInstalled();
+}
+
 //  Vérifie que le dossier de l'exécutable mysql figure dans la variable PATH.
 //  Sinon l'y ajoute de façon persistante (écriture privilégiée ; admin requis).
 bool MySQLInstaller::ensureMysqlInPath()
@@ -2032,19 +2040,19 @@ QString MySQLInstaller::getMySQLVersion()
 }
 
 //  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
-void MySQLInstaller::securiserBaseSiNecessaire()
+bool MySQLInstaller::securiserBaseSiNecessaire()
 {
     // 0. JAMAIS depuis un poste en accès DISTANT (WAN). La sécurisation (poser l'aléatoire et
     //    devenir « propriétaire » du mot de passe) doit être faite par un poste LOCAL (monoposte
     //    ou réseau local), pas par un client distant — sinon, via la deadline des 30 jours, ce
     //    poste distant pourrait verrouiller l'accès des postes locaux qui n'ont pas l'aléatoire.
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
-        return;
+        return false;
 
     // 1. Base déjà sécurisée → rien à faire. Le juge fait foi côté serveur (présence d'un
     //    2e mot de passe sur adminrufus) ; le .dbkey local sert de garde-fou supplémentaire.
     if (adminrufusEstSecurise() || QFile::exists(PATH_FILE_DBKEY))
-        return;
+        return false;
 
     // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD) ?
     //    Requiert MySQL >= 8.0.14 et PAS MariaDB. Sinon, rotater bloquerait les autres
@@ -2052,14 +2060,14 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     bool ok = false;
     QVariantList rv = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT VERSION()", ok);
     if (!ok || rv.isEmpty())
-        return;
+        return false;
     const QString sv = rv.at(0).toString();
     if (sv.contains("MariaDB", Qt::CaseInsensitive))
-        return;
+        return false;
     QRegularExpression re(R"((\d+\.\d+\.\d+))");
     const auto mv = re.match(sv);
     if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), seuilVersionMySQL()))
-        return;
+        return false;
 
     // 3. Sécurisation via la connexion Qt en cours (monoposte OU serveur réseau) :
     //    nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL, en CONSERVANT
@@ -2085,29 +2093,91 @@ void MySQLInstaller::securiserBaseSiNecessaire()
     stockerMotDePasse(np);
     inviterANoterMotDePasse(np);
     avertirSecurisationMiseEnPlace();
+    return true;
 }
 
-// À appeler après toute connexion réussie : sécurise au besoin, puis purge gaxt78iy si échu.
+// À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
+// poste s'est connecté (l'aléatoire ou le générique gaxt78iy). Chaque étape est AUTO-GARDÉE (ses
+// propres conditions), et les deux branches sont MUTUELLEMENT EXCLUSIVES (random vs générique) :
+//   • securiserBaseSiNecessaire   : générique + base non sécurisée + local + ≥8.0.14 → pose l'aléatoire ;
+//   • supprimerGaxt78iySiEchue    : aléatoire + gaxt78iy présent + deadline PASSÉE → retire gaxt78iy ;
+//   • avertirEffacementImminent   : aléatoire + gaxt78iy présent + deadline PROCHE → avertit (informatif) ;
+//   • proposerRecuperationAleatoire : générique + base sécurisée → propose de récupérer l'aléatoire.
 void MySQLInstaller::entretienApresConnexion()
 {
-    MySQLInstaller().securiserBaseSiNecessaire();
+    //! Si la sécurisation vient d'être posée DANS cet appel, securiser a déjà affiché ses propres
+    //! messages (mot de passe à noter + sécurisation en place) : inutile d'y ajouter aussitôt
+    //! l'avertissement « générique bientôt désactivé » (deadline tout juste créée). On le réserve
+    //! donc aux démarrages SUIVANTS.
+    const bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
     supprimerGaxt78iySiEchue();
-    MySQLInstaller().rappelerRecuperationAleatoireDistant();
+    if (!vientDeSecuriser)
+        MySQLInstaller().avertirEffacementImminent();
+    MySQLInstaller().proposerRecuperationAleatoire();
 }
 
-//  #5 — Poste DISTANT sans l'aléatoire : rappel régulier (à chaque démarrage) de le récupérer,
-//  avec la date d'échéance, avant que gaxt78iy ne soit supprimé côté serveur par un poste local.
-void MySQLInstaller::rappelerRecuperationAleatoireDistant()
+//  Poste détenant l'ALÉATOIRE, gaxt78iy encore en 2e mot de passe, deadline NON atteinte : on
+//  prévient simplement que le générique sera bientôt effacé (cf. supprimerGaxt78iySiEchue, qui le
+//  retirera une fois la deadline passée). Purement informatif.
+void MySQLInstaller::avertirEffacementImminent()
 {
-    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant) return;   // concerne le seul accès distant
-    if (motDePasseSQL() != QString(MDP_SQL))                  return;   // ce poste détient déjà l'aléatoire
-    if (!adminrufusEstSecurise())                             return;   // base pas (encore) sécurisée : rien à récupérer
+    if (motDePasseSQL() == QString(MDP_SQL)) return;   // on n'a que le générique → pas concerné
+    if (!adminrufusEstSecurise())            return;   // gaxt78iy déjà retiré
     const QDateTime d = dateSecurisation();
-    const QString echeance = d.isValid() ? d.addDays(30).toString("dd/MM/yyyy") : tr("(à brève échéance)");
-    UpMessageBox::Watch(nullptr, tr("Mot de passe du cabinet à récupérer"),
-        tr("Ce poste distant utilise encore le mot de passe générique.") + "\n" +
-        tr("Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste "
-           "serveur) et enregistrez-le : sans lui, cet accès cessera de fonctionner après le %1.").arg(echeance));
+    if (!d.isValid())                        return;
+    const QDateTime echeance = d.addDays(30);
+    if (echeance <= QDateTime::currentDateTime()) return;   // deadline passée → c'est supprimerGaxt78iySiEchue qui agit
+    const int jours = QDateTime::currentDateTime().daysTo(echeance);
+    UpMessageBox::Watch(nullptr, tr("Mot de passe générique bientôt désactivé"),
+        tr("Ce poste utilise désormais le mot de passe sécurisé du cabinet.") + "\n" +
+        tr("Le mot de passe générique (de mise en route) sera automatiquement désactivé le %1 "
+           "(dans %2 jours).").arg(QLocale().toString(echeance.date(), "dd MMMM yyyy")).arg(jours) + "\n" +
+        tr("Assurez-vous d'ici là que les autres postes ont bien récupéré le mot de passe sécurisé."));
+}
+
+//  Poste connecté avec le GÉNÉRIQUE (gaxt78iy) alors que la base est SÉCURISÉE (un aléatoire existe
+//  côté serveur) — TOUS modes (monoposte, réseau local, distant). On l'informe de l'échéance et on
+//  lui propose de récupérer DÈS MAINTENANT l'aléatoire (saisie ou clé USB → .dbkey), avant que
+//  gaxt78iy ne soit retiré par un poste local et que cet accès ne cesse de fonctionner.
+void MySQLInstaller::proposerRecuperationAleatoire()
+{
+    if (motDePasseSQL() != QString(MDP_SQL)) return;   // ce poste détient déjà l'aléatoire
+    if (!adminrufusEstSecurise())            return;   // base pas (encore) sécurisée : rien à récupérer
+    const QDateTime d = dateSecurisation();
+    const QDateTime echeance = d.isValid() ? d.addDays(30) : QDateTime();
+    const QString dateTxt = echeance.isValid() ? QLocale().toString(echeance.date(), "dd MMMM yyyy")
+                                               : tr("prochainement");
+    const int jours = echeance.isValid() ? QDateTime::currentDateTime().daysTo(echeance) : 0;
+
+    QString corps = tr("Ce poste utilise encore le mot de passe générique (de mise en route),");
+    if (echeance.isValid())
+        corps += " " + tr("qui sera désactivé le %1 (dans %2 jours).").arg(dateTxt).arg(jours);
+    else
+        corps += " " + tr("qui sera prochainement désactivé.");
+    corps += "\n\n" +
+        tr("Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste qui "
+           "a fait la mise à jour, ou disponible via le menu Édition / Paramètres d'un poste à jour) "
+           "et enregistrez-le : sans lui, cet accès cessera de fonctionner.");
+
+    UpMessageBox msgbox(nullptr);
+    msgbox.setText(tr("Mot de passe du cabinet à récupérer"));
+    msgbox.setInformativeText(corps);
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Plus tard"));
+    UpSmallButton *Saisir = new UpSmallButton(); Saisir->setText(tr("Renseigner le nouveau\nmot de passe"));
+    msgbox.addButton(Annul,  UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(Saisir, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() != Saisir)
+        return;
+
+    //! Réutilise la collecte saisie/clé USB → stockerMotDePasse(.dbkey) de dlg_paramconnexion, mais
+    //! avec un message d'introduction adapté à CE contexte (le générique fonctionne encore — ce
+    //! n'est pas un échec de connexion).
+    dlg_paramconnexion::RecupererMotDePasseMySQL(nullptr,
+        tr("Récupérer le mot de passe du cabinet"),
+        tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
+           "laquelle il a été copié depuis un poste à jour."));
 }
 
 // adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis
