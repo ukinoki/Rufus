@@ -44,7 +44,7 @@ Donc, on énumère
 					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
 						message prévenant que l'effacement du mdp est imminent
 					si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
-						effacement du mdp gaxt78iy
+						effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
 			→ si on s’est connecté avec gaxt78iy
 				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on vérifie s'il y a un mdp aléatoire
@@ -63,7 +63,7 @@ Donc, on énumère
 					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
 						message prévenant que l'effacement du mdp est imminent
 					si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
-						effacement du mdp gaxt78iy
+						effacement du mdp gaxt78iy et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
 			→ si on s’est connecté avec gaxt78iy
 				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on vérifie s'il y a un mdp aléatoire
