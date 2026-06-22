@@ -559,6 +559,9 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
 //  TOUTE PREMIÈRE connexion avec l'aléatoire fraîchement posé par la sécurisation.
 QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
 {
+    const Utils::ModeAcces mode = DataBase::I()->ModeAccesDataBase();
+    const QString randomStocke  = motDePasseStockePourMode(mode);   // "" si aucun aléatoire enregistré
+
     QString err;
     const QStringList candidats = motsDePasseSQLCandidats();
     for (const QString &mdp : candidats)
@@ -569,8 +572,21 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
             setMotDePasseSQL(mdp);                 // mémorise le mdp qui fonctionne
             break;
         }
+        //! Si c'est l'ALÉATOIRE enregistré (.dbkey) qui est REFUSÉ par le serveur (erreur
+        //! d'authentification, pas un serveur injoignable), il est périmé → on l'efface du .dbkey.
+        //! JAMAIS sur une erreur réseau, sinon une coupure passagère jetterait un mdp valide.
+        //! gaxt78iy prend alors le relais.
+        if (!randomStocke.isEmpty() && mdp == randomStocke && estErreurAuthentification(err))
+            supprimerMotDePassePourMode(mode);
     }
     return err;
+}
+
+//  Refus d'authentification (mauvais mdp : MySQL 1045 / « Access denied ») vs serveur injoignable.
+bool MySQLInstaller::estErreurAuthentification(const QString& erreur)
+{
+    return erreur.contains("denied", Qt::CaseInsensitive)
+        || erreur.contains("1045");
 }
 
 //  Stocke le mot de passe du MODE COURANT (cf. stockerMotDePassePourMode).

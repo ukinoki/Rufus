@@ -278,48 +278,13 @@ bool dlg_paramconnexion::TestConnexion()
 //! récupération : on renvoie l'erreur telle quelle.
 QString dlg_paramconnexion::TenterConnexionAvecRecuperation()
 {
-    QString error = ConnecterAvecCandidats();
-    if (!error.isEmpty() && EstErreurAuthentification(error) && RecupererMotDePasseMySQL(this))
-        error = ConnecterAvecCandidats();
+    //! Cascade + récupération mutualisées dans MySQLInstaller (mêmes règles au démarrage et ici) :
+    //! connecterAvecCandidats efface au passage un .dbkey périmé (refus d'auth) ; sur un refus
+    //! d'auth global (base sécurisée ailleurs), on propose de récupérer le mdp puis on réessaie.
+    QString error = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+    if (!error.isEmpty() && MySQLInstaller::estErreurAuthentification(error) && RecupererMotDePasseMySQL(this))
+        error = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     return error;
-}
-
-//! Essaie successivement les mots de passe candidats (.dbkey puis gaxt78iy).
-//! Retourne "" dès qu'un essai réussit — en mémorisant ce mot de passe comme
-//! courant —, sinon la dernière erreur rencontrée.
-QString dlg_paramconnexion::ConnecterAvecCandidats()
-{
-    const auto mode            = DataBase::I()->ModeAccesDataBase();
-    const QString randomStocke = MySQLInstaller::motDePasseStockePourMode(mode);   // "" si aucun aléatoire enregistré
-
-    QString error;
-    const QStringList candidats = MySQLInstaller::motsDePasseSQLCandidats();
-    for (const QString &mdp : candidats)
-    {
-        error = DataBase::I()->connectToDataBase(DB_RUFUS, LOGIN_SQL, mdp);
-        if (error.isEmpty())
-        {
-            MySQLInstaller::setMotDePasseSQL(mdp);   // ce mdp devient le mdp courant (mémoire)
-            return QString();
-        }
-        //! Si c'est l'ALÉATOIRE enregistré (.dbkey) qui est REFUSÉ par le serveur (erreur
-        //! d'authentification, pas un serveur injoignable), il est périmé → on l'efface du
-        //! .dbkey. On NE l'efface JAMAIS sur une erreur réseau, sinon une coupure passagère
-        //! jetterait un mot de passe pourtant valide. gaxt78iy prend alors le relais ; la
-        //! récupération du bon aléatoire est gérée au-dessus (TenterConnexionAvecRecuperation).
-        if (!randomStocke.isEmpty() && mdp == randomStocke && EstErreurAuthentification(error))
-            MySQLInstaller::supprimerMotDePassePourMode(mode);
-    }
-    return error;
-}
-
-//! Vrai si l'erreur traduit un refus d'authentification MySQL (mauvais mot de
-//! passe), par opposition à un serveur injoignable. MySQL : erreur 1045
-//! « Access denied ».
-bool dlg_paramconnexion::EstErreurAuthentification(const QString &error)
-{
-    return error.contains("denied", Qt::CaseInsensitive)
-        || error.contains("1045");
 }
 
 //! Base sécurisée sur un autre poste : propose de récupérer le mot de passe

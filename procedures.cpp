@@ -3080,7 +3080,7 @@ bool Procedures::Connexion_A_La_Base()
         //! balade pas un utilisateur peu à l'aise à travers le carrefour pour, au final, juste lui
         //! demander un mot de passe — puis on réessaie. (RecupererMotDePasseMySQL est statique : pas
         //! besoin d'ouvrir le dialogue dlg_paramconnexion.)
-        if (dlg_paramconnexion::EstErreurAuthentification(errConnexion)
+        if (MySQLInstaller::estErreurAuthentification(errConnexion)
             && dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR))
             errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
 

@@ -178,6 +178,9 @@ public:
     //  gaxt78iy — conservé comme 2e mot de passe — fonctionne. Renvoie "" si OK, sinon la
     //  dernière erreur. À utiliser pour TOUTE (re)connexion d'identification.
     static QString connecterAvecCandidats(const QString& basename);
+    //  Vrai si l'erreur de connexion est un REFUS D'AUTHENTIFICATION (mauvais mot de passe :
+    //  MySQL 1045 / « Access denied »), par opposition à un serveur injoignable (réseau).
+    static bool    estErreurAuthentification(const QString& erreur);
     //  Stocke le mot de passe du MODE COURANT dans le .dbkey (les autres modes sont
     //  préservés) ET met à jour le cache.
     static void    stockerMotDePasse(const QString& mdp);

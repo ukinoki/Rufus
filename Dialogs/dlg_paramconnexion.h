@@ -79,10 +79,8 @@ private:
     void            Verif();                        //!< valide les paramètres et ferme la fiche si la connexion réussit (bouton « OK »)
     bool            VerifFiche();                   //!< contrôle que les champs obligatoires sont renseignés
     bool            TestConnexion();                //!< tente la connexion MySQL et la validation du compte utilisateur
-    QString         ConnecterAvecCandidats();       //!< essaie les mdp candidats (.dbkey puis gaxt78iy) ; "" si l'un réussit, sinon la dernière erreur
-    QString         TenterConnexionAvecRecuperation(); //!< cascade complète : candidats, puis récupération du mdp en dernier ressort, puis nouvel essai
+    QString         TenterConnexionAvecRecuperation(); //!< cascade complète (MySQLInstaller) : candidats, puis récupération du mdp en dernier ressort, puis nouvel essai
     static bool     RecupererMotDePasseMySQL(QWidget *parent);      //!< base sécurisée ailleurs : importe le .dbkey d'une clé USB ou saisit le mdp, l'enregistre (statique : appelable aussi au démarrage, hors dialogue)
-    static bool     EstErreurAuthentification(const QString &error); //!< vrai si l'erreur est un refus d'authentification (mauvais mdp), pas un serveur injoignable
 };
 
 #endif // DLG_PARAMCONNEXION_H
