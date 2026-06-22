@@ -179,8 +179,12 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
                 connectSSLoptions += "SSL_KEY=" + QDir::toNativeSeparators(dirkey + "/client-key.pem;");
             if (nomfich == "client-cert.pem")
                 connectSSLoptions += "SSL_CERT=" + QDir::toNativeSeparators(dirkey + "/client-cert.pem;");
-            if (nomfich == "ca-cert.pem")
-                connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/ca-cert.pem;");
+            // CA du serveur : MySQL la génère sous le nom « ca.pem » ; certaines configs la
+            // renomment « ca-cert.pem ». On accepte les DEUX (sinon SSL_CA reste vide et le pilote
+            // ne peut pas valider un certificat serveur auto-signé → « self-signed certificate in
+            // certificate chain »). On n'en prend qu'une (la première rencontrée).
+            if ((nomfich == "ca-cert.pem" || nomfich == "ca.pem") && !connectSSLoptions.contains("SSL_CA="))
+                connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/" + nomfich + ";");
         }
         m_db.setConnectOptions(connectSSLoptions);
         login += "SSL";
