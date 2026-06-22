@@ -3589,11 +3589,9 @@ bool Procedures::IdentificationUser()
         QTextStream  ts(&sha);
         QString filecontents;
         filecontents.append(ts.readAll());
-        //! (Re)connexion en CASCADE (aléatoire .dbkey PUIS gaxt78iy) : après la sécurisation,
-        //! l'aléatoire fraîchement posé peut être refusé à la toute première connexion (cache
-        //! d'auth caching_sha2 « froid ») ; gaxt78iy (2e mot de passe conservé) prend le relais.
-        if (MySQLInstaller::connecterAvecCandidats(DB_RUFUS).size())
-            ok = false;
+        //! (Re)connexion défensive en CASCADE (aléatoire .dbkey PUIS gaxt78iy) avant la vérification
+        //! d'identité — la connexion est déjà ouverte par Connexion_A_La_Base, ce rappel ne nuit pas.
+        MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         ok = db->calcidUserConnected(filecontents.split("!!!!").at(0),filecontents.split("!!!!").at(1)) == DataBase::OK;
     }
     if (!ok)
