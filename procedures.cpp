@@ -3089,14 +3089,17 @@ bool Procedures::Connexion_A_La_Base()
         if (!clesSSLpresentes())
         {
             //! On PRÉVIENT avant d'ouvrir le sélecteur de dossier système (sinon il surgit sans
-            //! contexte) : l'utilisateur comprend pourquoi on lui demande un dossier, et on lui
-            //! rappelle le NOM du dossier à chercher (mis en évidence, rouge/gras/centré).
-            const QString dossierCles = QString(Dossier_ClesSSL).remove('/');   // « DossierClesSSL »
-            UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"),
-                tr("Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.") + "\n\n" +
-                tr("Elles se trouvent normalement dans un dossier nommé :") + "\n\n" +
-                "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + dossierCles + "</span></b></p>" + "\n\n" +
-                tr("Indiquez l'emplacement de ce dossier dans la boîte de dialogue suivante."));
+            //! contexte). On affiche le CHEMIN réellement configuré (la VALEUR du réglage, p.ex.
+            //! …/MACMINILECROS-SSLKeys), pas le nom de la macro. S'il n'y a pas encore de chemin,
+            //! on décrit les fichiers attendus.
+            const QString dirActuel = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+            QString corps = tr("Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.") + "\n\n";
+            if (!dirActuel.isEmpty())
+                corps += tr("Rufus les a cherchées dans le dossier :") + "\n\n" +
+                         "<p align=\"center\"><b><span style=\"color:#c00000; font-size:12pt;\">" + dirActuel + "</span></b></p>" + "\n\n";
+            corps += tr("Indiquez, dans la boîte de dialogue suivante, le dossier contenant "
+                        "client-key.pem et client-cert.pem.");
+            UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"), corps);
             const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
                 tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
             if (!dir.isEmpty())
