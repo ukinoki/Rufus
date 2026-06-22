@@ -3103,6 +3103,36 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
+    //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi, mais la base est-elle
+    //! exploitable ? On sonde une table cœur (rufus.utilisateurs) via la connexion DÉJÀ ouverte —
+    //! vaut pour monoposte ET client (pas de client CLI localhost, contrairement à
+    //! baseRufusComplete). Une base ABSENTE aurait déjà fait échouer la connexion ci-dessus ; ici
+    //! on attrape le cas « base présente mais incomplète/endommagée » (tables manquantes).
+    {
+        bool baseOk = false;
+        db->StandardSelectSQL("SELECT 1 FROM " TBL_UTILISATEURS " LIMIT 1", baseOk);
+        if (!baseOk)
+        {
+            if (db->ModeAccesDataBase() == Utils::Poste)
+            {
+                //! Poste HÔTE : on propose de RESTAURER la base depuis une sauvegarde (carrefour,
+                //! bouton « Restaurer la base »). Relance si succès ; sinon (annulation) on sort.
+                RecupererDemarrage(tr("Base de données incohérente"),
+                                   tr("La base de données Rufus de ce poste est incomplète ou endommagée.") + "\n" +
+                                   tr("Vous pouvez la restaurer depuis une sauvegarde, ou quitter."),
+                                   false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
+                                   false /*PremDemarrage*/, true /*RestaurerBase*/);
+                return false;
+            }
+            //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
+            //! autres. On l'informe ; la réparation se fait depuis le poste serveur.
+            UpMessageBox::Watch(Q_NULLPTR, tr("Base de données incohérente"),
+                tr("La base de données Rufus du serveur est incomplète ou endommagée.") + "\n" +
+                tr("Elle doit être réparée depuis le poste serveur ; Rufus ne peut pas continuer ici."));
+            return false;
+        }
+    }
+
     //! Contrôle du socle MySQL : si version < 8.0.14 (cf. VERSION_MYSQL_MINI) ET ce poste HÉBERGE
     //! la base (monoposte), on lance la PROCÉDURE DE MISE À JOUR DU SOCLE (sauvegarde validée →
     //! réinstall → restauration → relance). Annulation → on continue sur l'ancien MySQL.
