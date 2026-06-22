@@ -19,26 +19,26 @@ Qu’est ce qui fait varier les possibles. 6 paramètres :
 c’est chaque démarrage de Rufus qui contrôle ça et pas seulement le premier démarrage
 Donc, la première action que fait rufus en démarrant, c’est de contrôler ces 6 paramètres dans un ordre qui va varier
 Et on a essentiellement 4 fonctions pour gérer tout ça
-Procedures::VerifIni()            (le carrefour de récupération : c'est lui qu'on appelle quand ça rate)
-Procedures::PremierDemarrage()    (derrière le bouton « Nouvelle base vierge » de VerifIni)
+Procedures::RecupererDemarrage()            (le carrefour de récupération : c'est lui qu'on appelle quand ça rate)
+Procedures::PremierDemarrage()    (derrière le bouton « Nouvelle base vierge » de RecupererDemarrage)
 Procedures::IdentificationUser()
 Procedures::VerifParamConnexion()
 note : changer le look de dlg_paramconnexion() pour le faire coller au look Rufus en utilisant une UpDialog
 Donc, on énumère
 
-1a → VerifIni() qui va être à même de gérer toutes les autres itérations quand on est dans cette situation
+1a → RecupererDemarrage() qui va être à même de gérer toutes les autres itérations quand on est dans cette situation
 		→ à vérifier mais elle tourne en boucle tant que la connexion à une base Rufus n’est pas établie
 		note : la situation où rufus.ini est présent mais mal paramétré est mal gérée dans le code → Rufus.cpp à la ligne 43-46,
-		on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer Procedures::VerifIni()
+		on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer Procedures::RecupererDemarrage()
 
 1b, c ou d. On a un rufus.ini paramétré correctement avec un ou plusieurs modes de connexion (si plusieurs modes de connexion, on éxécute Procedures ::FicheChoixConnexion() et on est ramené à un seul mode 1b, 1c ou 1d).
 	1b . On tente de se connecter au serveur avec les paramètres rufus.ini
  		avec le .dbkey s’il y en a un sinon avec gaxt78iy
-		→ pas de connexion → Procedures::VerifIni()
+		→ pas de connexion → Procedures::RecupererDemarrage()
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
 				→ si OK, on continue
-				→ sinon, message d'erreur et Procedures::VerifIni()
+				→ sinon, message d'erreur et Procedures::RecupererDemarrage()
 			→ si on s’est connecté avec le mdp aléatoire
 				on vérifie si le mdp gaxt78iy est toujours présent
 					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
@@ -53,7 +53,7 @@ Donc, on énumère
 					→ non, on propose de faire immédiatement évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 
 	1c. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
-		→ pas de connexion → Procedures::VerifIni()
+		→ pas de connexion → Procedures::RecupererDemarrage()
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
 				→ si OK, on continue
@@ -73,10 +73,10 @@ Donc, on énumère
 	1d. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
-				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::VerifIni()
+				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::RecupererDemarrage()
 		→ pas de connexion 
 			→ si le motif de l'absence de connexion est lié à des clés SSL invalides → message d'info
-			→ Procedures::VerifIni()
+			→ Procedures::RecupererDemarrage()
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
 				→ si OK, on continue
@@ -104,7 +104,7 @@ il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
 			si échec avec les 2 mdp
 				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
 
-Procedures::VerifIni()
+Procedures::RecupererDemarrage()
 propose 3 boutons (+ le bouton Quitter du dialogue)
 	→ Nouvelle base patients vierge
 	→ Reconstruction du fichier Rufus.ini
