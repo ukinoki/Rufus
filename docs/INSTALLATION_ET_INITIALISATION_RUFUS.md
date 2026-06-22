@@ -207,11 +207,11 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
   NB : 3 et 4 ne sont pas indépendants — une base ne peut exister sans serveur ; et « base cohérente »
   se DÉCOUVRE une fois connecté (cassée / incomplète / complète).
 - 4 fonctions orchestrent tout :
-    • Procedures::VerifIni() — LE CARREFOUR DE RÉCUPÉRATION. Tout échec au démarrage (connexion
+    • Procedures::RecupererDemarrage() — LE CARREFOUR DE RÉCUPÉRATION. Tout échec au démarrage (connexion
       impossible, base incohérente sur le poste hôte, Rufus.ini absent/invalide) y CONVERGE, au lieu
       d'un exit() brutal : c'est le seul endroit d'où l'utilisateur peut encore agir sur Rufus.ini ou
       la base. Son texte est passé EN PARAMÈTRE (il varie selon la raison de l'appel).
-    • Procedures::PremierDemarrage() — derrière le bouton « Nouvelle base vierge » de VerifIni().
+    • Procedures::PremierDemarrage() — derrière le bouton « Nouvelle base vierge » de RecupererDemarrage().
     • Procedures::IdentificationUser() — login du PRATICIEN (couche applicative).
     • Procedures::VerifParamConnexion() — saisie/correction des paramètres de connexion.
 - DEUX couches de mot de passe à NE PAS confondre :
@@ -227,7 +227,7 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
 
      0. ACCÈS DISTANT seulement — CLÉS SSL. Avant la connexion, vérifier la présence de clés SSL valides.
         Absentes -> on demande où elles se trouvent ; toujours rien -> message « impossible de se
-        connecter sans les clés » -> VerifIni().
+        connecter sans les clés » -> RecupererDemarrage().
 
      1. CONNEXION à la base selon Rufus.ini.
         On essaie les mots de passe candidats : celui du .dbkey (du mode courant) PUIS gaxt78iy.
@@ -238,12 +238,12 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
             • échec d'AUTHENTIFICATION (base sécurisée ailleurs) -> on demande DIRECTEMENT le bon mot de
               passe (saisie ou clé USB), invite SIMPLE (pas de fenêtre complexe ni de détour), puis on
               réessaie ;
-            • sinon (serveur injoignable, paramètres faux...) -> VerifIni().
+            • sinon (serveur injoignable, paramètres faux...) -> RecupererDemarrage().
 
      1bis. COHÉRENCE DE LA BASE Rufus (une fois connecté).
         - Base cohérente -> on continue.
         - Base cassée / incomplète :
-            • poste HÔTE (monoposte) -> VerifIni() (restauration possible depuis une sauvegarde) ;
+            • poste HÔTE (monoposte) -> RecupererDemarrage() (restauration possible depuis une sauvegarde) ;
             • poste CLIENT (réseau local / distant) -> message « base à réparer depuis le poste
               serveur » : un poste client ne répare JAMAIS la base partagée des autres.
 
@@ -298,9 +298,9 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
         Le contrôle de la version de la BASE Rufus (majbase) se fait APRÈS l'identification.
 
 
-  II. IL N'Y A PAS DE Rufus.ini (ou Rufus.ini invalide)  -> VerifIni()
+  II. IL N'Y A PAS DE Rufus.ini (ou Rufus.ini invalide)  -> RecupererDemarrage()
 
-     VerifIni() propose 3 boutons (+ le bouton Quitter du dialogue) :
+     RecupererDemarrage() propose 3 boutons (+ le bouton Quitter du dialogue) :
        - « Nouvelle base patients vierge »          -> PremierDemarrage() (monoposte) ;
        - « Reconstruction du fichier Rufus.ini »    -> VerifParamConnexion (pointer vers une base existante) ;
        - « Restauration depuis une sauvegarde » :

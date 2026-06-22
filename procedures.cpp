@@ -142,7 +142,7 @@ Procedures::Procedures(QObject *parent) :
                                 + QObject::tr("les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après") + "\n"
                                 + QObject::tr("le démarrage complet du logiciel (Menu Edition/Paramètres).") + "\n";
             m_connexionbaseOK = a;
-            a = VerifIni(msg, msgInfo, true, true, true, true);
+            a = RecupererDemarrage(msg, msgInfo, true, true, true, true);
         }
     }
     if (m_settings == Q_NULLPTR)
@@ -181,7 +181,7 @@ Procedures::Procedures(QObject *parent) :
                     + QObject::tr("les renseignements concernant les appareils connectés au réseau ou à ce poste d'examen après") + "\n"
                     + QObject::tr("le démarrage complet du logiciel (Menu Edition/Paramètres).")+ "\n";
             m_connexionbaseOK = k;
-            k = VerifIni(msg, msgInfo, false, true, true, false);
+            k = RecupererDemarrage(msg, msgInfo, false, true, true, false);
         }
     }
 
@@ -4555,7 +4555,7 @@ void Procedures::PremierParametrageMateriel()
 //! réussie la garantit (la connexion à la base vient d'aboutir). On ne risque donc jamais
 //! d'écraser une sauvegarde saine par un Rufus.ini corrompu. Chaque poste sauvegarde le SIEN,
 //! ce qui permet à un poste client de restaurer son propre Rufus.ini (pas celui du serveur).
-//! Comme personne ne pense à sauvegarder ce fichier, Rufus s'en charge : VerifIni() pourra le
+//! Comme personne ne pense à sauvegarder ce fichier, Rufus s'en charge : RecupererDemarrage() pourra le
 //! restaurer si l'original est perdu. No-op si Rufus.ini n'existe pas (rien à sauvegarder).
 void Procedures::SauvegardeIni()
 {
@@ -4566,7 +4566,7 @@ void Procedures::SauvegardeIni()
     QFile::copy(PATH_FILE_INI, PATH_FILE_INI_BACKUP);
 }
 
-bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage)
+bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
     UpSmallButton RecupIniBouton           (tr("Restaurer le fichier d'initialisation\nà partir d'une sauvegarde"));

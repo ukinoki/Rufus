@@ -65,7 +65,7 @@ Appelé dès `proc = Procedures::I();` au tout début du constructeur `Rufus`
    sélecteur manuel (FR par défaut).
 
 2. **`rufus.ini` ABSENT ?** (`procedures.cpp:128‑147`)
-   Boucle sur `VerifIni(msg, msgInfo, true, true, true, **true**)` — le dernier
+   Boucle sur `RecupererDemarrage(msg, msgInfo, true, true, true, **true**)` — le dernier
    paramètre `PremDemarrage = true` ajoute le bouton **« Premier démarrage »**.
    → cf. §3.
 
@@ -73,7 +73,7 @@ Appelé dès `proc = Procedures::I();` au tout début du constructeur `Rufus`
    (`procedures.cpp:148‑186`)
    Test `k` : au moins un mode (Poste / Réseau local / Distant) actif avec un
    port plausible (3306/3307) et, pour les modes distants, un serveur renseigné.
-   Si invalide → boucle sur `VerifIni(..., **false**)` (PremDemarrage = **false**,
+   Si invalide → boucle sur `RecupererDemarrage(..., **false**)` (PremDemarrage = **false**,
    donc **PAS** de bouton « Premier démarrage » : seulement Restaurer /
    Reconstruire / Quitter).
 
@@ -100,7 +100,7 @@ Le chemin **normal** (ini valide) :
 
 ## 3. La branche « premier démarrage » (uniquement si `rufus.ini` absent)
 
-`VerifIni(..., PremDemarrage=true)` (`procedures.cpp:4557`) affiche les boutons :
+`RecupererDemarrage(..., PremDemarrage=true)` (`procedures.cpp:4557`) affiche les boutons :
 **[Premier démarrage] [Restaurer le .ini] [Reconstruire le .ini] [Quitter]**.
 
 - **Quitter** → `exit(0)`.
@@ -180,7 +180,7 @@ valide**. Avec un `rufus.ini` exploitable, on file droit en
    `VerifParamConnexion`, alors que la base venait d'être identifiée.
    Aller-retour inutile.
 
-3. **Deux boucles `VerifIni` quasi jumelles** (`ini` absent vs `ini` invalide)
+3. **Deux boucles `RecupererDemarrage` quasi jumelles** (`ini` absent vs `ini` invalide)
    qui ne diffèrent que par le bouton « Premier démarrage ». Logique dupliquée.
 
 4. **L'ordre « `ini` d'abord » est l'inverse de l'intuition métier.**
@@ -196,7 +196,7 @@ valide**. Avec un `rufus.ini` exploitable, on file droit en
 | Rôle | Fonction | Emplacement |
 |---|---|---|
 | Orchestration init | `Procedures::Procedures()` | `procedures.cpp:29` |
-| `ini` absent/invalide → choix | `Procedures::VerifIni()` | `procedures.cpp:4557` |
+| `ini` absent/invalide → choix | `Procedures::RecupererDemarrage()` | `procedures.cpp:4557` |
 | Premier démarrage (vierge/existante) | `Procedures::PremierDemarrage()` | `procedures.cpp:4328` |
 | Détection serveur + base (3 cas) | `MySQLInstaller::run()` | `mysqlinstaller.cpp:~945` |
 | Connexion normale (ini valide) | `Procedures::Connexion_A_La_Base()` | `procedures.cpp:3060` |

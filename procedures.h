@@ -112,7 +112,7 @@ private:
     bool                    VerifVersionBase(QWidget *widg = Q_NULLPTR);
     bool                    MettreAJourSocleMySQL();                                    //! PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL : sauvegarde validée -> désinstall/réinstall MySQL -> restauration -> relance
     bool                    SauvegardeBaseValide(QString dossier);                      //! true si le dump (rufus.sql) du dossier est complet (« Dump completed »)
-    bool                    VerifIni(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
+    bool                    RecupererDemarrage(QString msg = "",                                  //! Récupère ou reconstruit le fichier d'initialisaton Rufus.ini et/ou la base
                                      QString msgInfo = "",
                                      bool DetruitIni = true,
                                      bool RecupIni = true,
@@ -120,7 +120,7 @@ private:
                                      bool PremDemarrage = false);
     bool                    VerifParamConnexion();            //! true =  le choix accès distant est validé ou non
 public:
-    static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque fermeture) pour pouvoir le restaurer dans VerifIni()
+    static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque ouverture réussie) pour pouvoir le restaurer dans RecupererDemarrage()
     void                    setDirSQLExecutable();                                      /*! fixe le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     QString                 dirSQLExecutable();                                         /*! le chemin vers le dossier contenant les fichier mysql et mysqldump  */
     void                    setDirSSLKeys();                                            /*! fixe le chemin vers le dossier des clés SSL */
