@@ -113,9 +113,9 @@ Donc, on énumère
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ connexion OK
 			→ on vérifie la cohérence de la base Rufus
-				→ si pas OK → messageBox base de données endommagée
-					→ bouton annuler → fermeture du programme
-					→ bouton restaurer la base → RestaureBase()
+				→ si pas OK → messageBox "base de données endommagée"
+							"vous devez restaurer une base patients"
+							"cette restauration ne peut se faire qu'à partir du poste serveur"
 				→ MySQL >= 8.0.14
 					→ on s’est connecté avec le mdp aléatoire
 						on vérifie si le mdp gaxt78iy est toujours présent
