@@ -192,13 +192,60 @@ C - INSTALLATION DE L'APPLICATION, MENUS ET MESSAGE DE FIN
    présent, sinon la locale macOS, repli fr).
 
 
-2. LANCEMENT DU PROGRAMME APRÈS INSTALLATION
+2. LANCEMENT DU PROGRAMME (À CHAQUE DÉMARRAGE, pas seulement au premier)
 
-  I. IL Y A UN Rufus.ini   (déroulé CHRONOLOGIQUE, AVANT l'écran d'identification)
+PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
+- Ces contrôles sont rejoués à CHAQUE démarrage, pas seulement au premier.
+- 6 paramètres font varier les situations :
+    1. présence d'un Rufus.ini VALIDE et son mode : (a) absent/invalide, (b) monoposte,
+       (c) réseau local, (d) accès distant ;
+    2. présence d'un .dbkey (mot de passe aléatoire enregistré sur CE poste) ;
+    3. présence d'un serveur MySQL ;
+    4. s'il y a un serveur : présence d'une base Rufus COHÉRENTE dessus ;
+    5. s'il y a un serveur : version conforme (>= 8.0.14, pas MariaDB) ;
+    6. présence de clés SSL valides (accès distant).
+  NB : 3 et 4 ne sont pas indépendants — une base ne peut exister sans serveur ; et « base cohérente »
+  se DÉCOUVRE une fois connecté (cassée / incomplète / complète).
+- 4 fonctions orchestrent tout :
+    • Procedures::VerifIni() — LE CARREFOUR DE RÉCUPÉRATION. Tout échec au démarrage (connexion
+      impossible, base incohérente sur le poste hôte, Rufus.ini absent/invalide) y CONVERGE, au lieu
+      d'un exit() brutal : c'est le seul endroit d'où l'utilisateur peut encore agir sur Rufus.ini ou
+      la base. Son texte est passé EN PARAMÈTRE (il varie selon la raison de l'appel).
+    • Procedures::PremierDemarrage() — derrière le bouton « Nouvelle base vierge » de VerifIni().
+    • Procedures::IdentificationUser() — login du PRATICIEN (couche applicative).
+    • Procedures::VerifParamConnexion() — saisie/correction des paramètres de connexion.
+- DEUX couches de mot de passe à NE PAS confondre :
+    • MySQL (technique) : compte adminrufus = aléatoire du cabinet (~/.rufus/.dbkey) + gaxt78iy en 2e ;
+    • Application (métier) : login/mot de passe du praticien (table rufus.utilisateurs).
+  Jusqu'à l'écran d'identification, AUCUNE demande de login praticien n'a lieu.
+- SAUVEGARDE de Rufus.ini : faite à chaque OUVERTURE RÉUSSIE (et NON à la fermeture, qui ne garantit
+  pas la cohérence du fichier), dans ~/.rufus/.rufus.ini. Chaque poste sauvegarde le SIEN → un poste
+  client peut restaurer son propre Rufus.ini, indépendamment de celui (inutile pour lui) du serveur.
+
+
+  I. IL Y A UN Rufus.ini VALIDE   (mode connu ; déroulé CHRONOLOGIQUE, AVANT l'écran d'identification)
+
+     0. ACCÈS DISTANT seulement — CLÉS SSL. Avant la connexion, vérifier la présence de clés SSL valides.
+        Absentes -> on demande où elles se trouvent ; toujours rien -> message « impossible de se
+        connecter sans les clés » -> VerifIni().
 
      1. CONNEXION à la base selon Rufus.ini.
         On essaie les mots de passe candidats : celui du .dbkey (du mode courant) PUIS gaxt78iy.
-        Si aucun ne marche -> message + VerifParamConnexion (corriger les paramètres, réécrire Rufus.ini).
+        - Si l'ALÉATOIRE (.dbkey) est REFUSÉ par le serveur (erreur d'AUTHENTIFICATION, et non un
+          serveur injoignable), il est périmé -> on l'EFFACE du .dbkey ; jamais sur une erreur réseau,
+          sinon on jetterait un mot de passe valide. gaxt78iy prend alors le relais.
+        - Si AUCUN candidat ne marche :
+            • échec d'AUTHENTIFICATION (base sécurisée ailleurs) -> on demande DIRECTEMENT le bon mot de
+              passe (saisie ou clé USB), invite SIMPLE (pas de fenêtre complexe ni de détour), puis on
+              réessaie ;
+            • sinon (serveur injoignable, paramètres faux...) -> VerifIni().
+
+     1bis. COHÉRENCE DE LA BASE Rufus (une fois connecté).
+        - Base cohérente -> on continue.
+        - Base cassée / incomplète :
+            • poste HÔTE (monoposte) -> VerifIni() (restauration possible depuis une sauvegarde) ;
+            • poste CLIENT (réseau local / distant) -> message « base à réparer depuis le poste
+              serveur » : un poste client ne répare JAMAIS la base partagée des autres.
 
      2. CONTRÔLE DE LA VERSION DE MYSQL — AVANT TOUTE AUTRE CHOSE.
         (SELECT VERSION() sur la connexion qu'on vient d'ouvrir.)
@@ -251,7 +298,18 @@ C - INSTALLATION DE L'APPLICATION, MENUS ET MESSAGE DE FIN
         Le contrôle de la version de la BASE Rufus (majbase) se fait APRÈS l'identification.
 
 
-  II. IL N'Y A PAS DE Rufus.ini
+  II. IL N'Y A PAS DE Rufus.ini (ou Rufus.ini invalide)  -> VerifIni()
+
+     VerifIni() propose 3 boutons (+ le bouton Quitter du dialogue) :
+       - « Nouvelle base patients vierge »          -> PremierDemarrage() (monoposte) ;
+       - « Reconstruction du fichier Rufus.ini »    -> VerifParamConnexion (pointer vers une base existante) ;
+       - « Restauration depuis une sauvegarde » :
+            • monoposte                              -> restaurer la base ;
+            • sinon (ou incertitude sur le mode)     -> restaurer le fichier Rufus.ini, bouton affiché
+              UNIQUEMENT si une sauvegarde ~/.rufus/.rufus.ini existe.
+     Sauvegarder/restaurer en local reste possible (pas de masquage du bouton selon le rôle du poste) :
+     la restauration est de toute façon protégée par le mot de passe administrateur Rufus (« bob »).
+     Le détail des deux grands cas (création / connexion) suit.
 
      A. NOUVELLE BASE VIERGE — uniquement en monoposte
         1. Y a-t-il déjà un MySQL installé ?
