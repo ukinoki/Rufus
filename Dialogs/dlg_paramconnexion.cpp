@@ -324,10 +324,20 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent)
             mdp = QString::fromUtf8(f.readAll()).trimmed();
             f.close();
         }
+        //! GARDE-FOU : un fichier de mot de passe valide tient sur UNE seule ligne. Si on pointe par
+        //! erreur sur un AUTRE fichier (typiquement un .dbkey « MONO=… / WAN=… », ou tout texte
+        //! multi-lignes), on le REFUSE — on n'enregistre JAMAIS un contenu aberrant comme mot de passe
+        //! (un mdp multi-lignes finissait stocké tel quel dans le .dbkey et provoquait des dégâts).
+        if (mdp.contains('\n') || mdp.contains('\r')
+            || mdp.startsWith("MONO=",   Qt::CaseInsensitive)
+            || mdp.startsWith("LAN=",    Qt::CaseInsensitive)
+            || mdp.startsWith("WAN=",    Qt::CaseInsensitive)
+            || mdp.startsWith("MDPSQL=", Qt::CaseInsensitive))
+            mdp.clear();
         if (mdp.isEmpty())
         {
             UpMessageBox::Watch(parent, tr("Fichier illisible"),
-                                tr("Ce fichier ne contient pas de mot de passe valide."));
+                                tr("Ce fichier ne contient pas un mot de passe valide."));
             return false;
         }
     }
