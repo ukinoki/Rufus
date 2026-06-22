@@ -20,18 +20,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "mysqlinstaller.h"     //! motDePasseSQL() : mdp MySQL du cabinet (repli legacy MDP_SQL)
 #include <QFileDialog>
 
-dlg_paramconnexion::dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDistant, QWidget *parent) :
+dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::dlg_paramconnexion)
 {
     ui->setupUi(this);
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
-    m_connectavecloginSQL = connectavecLoginSQL;
+    m_connectavecloginSQL = true;
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   
-    ui->DistantradioButton  ->setVisible(OKAccesDistant);
-    ui->LocalradioButton    ->setVisible(OKAccesDistant);
-    ui->PosteradioButton    ->setChecked(!OKAccesDistant);
     ui->AccesgroupBox       ->setFocusProxy(ui->PosteradioButton);
     ui->OKuppushButton      ->setShortcut(QKeySequence("Meta+Return"));
 

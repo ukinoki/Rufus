@@ -41,7 +41,11 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     //! 0. Choix du mode de connexion au serveur, connexion à la base et récupération des données utilisateur
     /*! récupération des différents modes d'accès paramétrés dans le fichier ini */
     switch (proc->ListeModesAcces().size()) {
-    case 0:        /*! si aucun mode d'accès n'est paramétré, sortie du programme */
+    case 0:
+        /*! si aucun mode d'accès n'est paramétré, sortie du programme
+         *  cette situation est impossible car elle a déjà été gérée en amont par Procedures::VerifIni()
+         *  elle n'est écrite que pour éviter les warnings du compilateur
+        */
         UpMessageBox::Watch(this, tr("Erreur fichier Rufus.ini"), tr("Aucun paramétrage valide de connexion retrouvé") + "\n" + tr("Le fichier rufus.ini est endommagé et doit être réparé"));
         exit(0);
     case 1:        /*! si un seul mode d'accès est paramétré, on passe directement à la fiche de connexion */

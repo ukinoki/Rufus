@@ -63,7 +63,7 @@ class dlg_paramconnexion : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_paramconnexion(bool connectavecLoginSQL, bool OKAccesDistant, QWidget *parent = Q_NULLPTR);
+    explicit dlg_paramconnexion(QWidget *parent = Q_NULLPTR);
     ~dlg_paramconnexion();
     Ui::dlg_paramconnexion *ui;
 

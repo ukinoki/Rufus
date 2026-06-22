@@ -3528,7 +3528,7 @@ bool Procedures::IdentificationUser()
                             tr("Rufus n'a pas pu se connecter à la base de données avec les "
                                "paramètres enregistrés.") + "\n" +
                             tr("Vérifiez vos paramètres de connexion au serveur MySQL."));
-        if (!VerifParamConnexion(true))
+        if (!VerifParamConnexion())
             return false;
     }
 
@@ -4360,7 +4360,7 @@ bool Procedures::PremierDemarrage()
     QString login (""), MDP("");
     if (protoc == BaseExistante)
     {
-        if (VerifParamConnexion(true))
+        if (VerifParamConnexion())
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
@@ -4627,9 +4627,10 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
         if (m_settings != Q_NULLPTR)
             delete m_settings;
         m_settings    = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-        if (VerifParamConnexion(true))
+        if (VerifParamConnexion())
         {
-            UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
+            UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
             exit(0);
         }
     }
@@ -4641,9 +4642,9 @@ bool Procedures::VerifIni(QString msg, QString msgInfo, bool DetruitIni, bool Re
 /*-----------------------------------------------------------------------------------------------------------------
     -- Vérifie et répare les paramètres de connexion  -----------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::VerifParamConnexion(bool connectavecLoginSQL, bool OKAccesDistant)
+bool Procedures::VerifParamConnexion()
 {
-    dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion(connectavecLoginSQL,  OKAccesDistant);
+    dlg_paramconnexion *Dlg_ParamConnex = new dlg_paramconnexion();
     Dlg_ParamConnex ->setWindowTitle(tr("Entrez votre identifiant et votre mot de passe d'utilisateur Rufus"));
     Dlg_ParamConnex ->setFont(m_applicationfont);
     if (Dlg_ParamConnex->exec() == QDialog::Accepted)

@@ -1,0 +1,72 @@
+Bon, la nuit porte conseil.
+Je pense qu’on prend le problème à l’envers. On crée un cheminement et on essie de l’adapter a posteriori à l’ensembles des situations imaginables, situations qu’on essaie de formaliser mais dont on oublie toutes les possiblilités.
+
+Il faut faire l’inverse. La première des choses est de listert toutes ce situations, d énumérer pour chacune d’entre elle, la conduite à tenir et ensuite seulement de simplifier le fil conducteur pour l’adapter, sans en oublier aucune.
+
+Qu’est ce qui fait varier les possibles. 5 paramètres :
+	1. Présence ou non d’un rufus valide (avec au moins un mode de connexion paramétré)
+		4 situations
+			a. pas de rufus.ini ou rufus.ini invalide (pas de mode de connexion paramétré)
+			b. rufus.ini et monoposte
+			c. rufus.ini et réseau local
+			d.rufus.ini et accès distant
+	2. présence d’un .dbkey
+	3. présence d’un serveur
+	4. présence d’une base Rufus sur ce serveur
+Ce qui fait 32 possibilités (4xZxZxZ), ce qui n’est pas énorme à énumérer d’autant qu’une situation est déjà parfois bien gérée par le code sans qu’il soit besoin d’envisager toutes les autres itérations quand cette situation est acquise, comme 1a par exemple.
+
+c’est chaque démarrage de Rufus qui contrôle ça et pas seulement le premier démarrage
+Donc, la première action que fait rufus en démarrant, c’est de contrôler ces 4 paramètres dans un ordre qui va varier
+Et on a essentiellement 3 fonctions pour gérer tout ça
+VerifIni()
+PremierDemarrage()
+IdentificationUser()
+VerifParamConnexion()
+note : changer le look de dlg_paramconnexion() pour le faire coller au look Rufus en utilisant une UpDialog
+Donc, on énumère
+
+1a → PremierDémarrage() qui va être à même de gérer toutes les autres itérations quand on est dans cette situation → à vérifier mais elle tourne en boucle tant que la connexion à une base Rufus n’est pas établie
+note : la situation où rufus.ini est présent mais mal paramétré est mal gérée dans le code → Rufus.cpp à la ligne 43-46, on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer PremierDemarrage()
+
+1b, c ou d. On a un rufus.ini paramétré correctement avec un ou plusieurs modes de connexion (si plusieurs modes de connexion, on éxécute Procedures ::FicheChoixConnexion() et on est ramené à un seul mode 1b, 1c ou 1d).
+	1b . On tente de se connecter au serveur avec les paramètres rufus.ini
+ 		avec le .dbkey s’il y en a un sinon avec gaxt78iy
+		→ pas de connexion → PremierDemarrage()
+		→ connexion OK
+			→ si on s’est connecté avec gaxt78iy
+				→ on vérifie si le serveur est compatible double mdp.
+					→ oui, on en crée un et on l’enregistre dans .dbkey
+					→ non, on propose de faire évoluer le serveur vers une version MySQL compatible mdp double
+
+	1c. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
+		→ pas de connexion → PremierDemarrage()
+		→ connexion OK → on continue
+			→ si on s’est connecté avec gaxt78iy
+				→ on vérifie si le serveur est compatible double mdp.
+					→ oui, on vérifie s'il y a un mdp aléatoire
+						→ oui, on le demande et on l'enregistre dans .dbkey
+						→ non, on en crée un et on l’enregistre dans .dbkey
+					→ non, on suggère de faire évoluer le serveur vers une version MySQL compatible mdp double
+	1d. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
+		→ pas de connexion → PremierDemarrage()
+		→ connexion OK → on continue
+			→ si on s’est connecté avec gaxt78iy
+				→ on vérifie si le serveur est compatible double mdp.
+					→ oui, on vérifie s'il y a un mdp aléatoire
+						→ non, on en crée un et on l’enregistre dans .dbkey
+					→ non, on suggère de faire évoluer le serveur vers une version MySQL compatible mdp double
+
+A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
+
+
+il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
+	1. on est en monoposte
+		la base MySQL est incompatible avec le double mdp.→ on essaie gaxt78iy et c’est tout
+		la base MySQL est compatible → on essaie avec le mdp aléatoire puis gaxt78iy
+			si échec avec le mdp aléatoire, on efface .dbkey
+			si échec avec les 2 mdp
+				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
+	2. on est en réseau local ou en accès distant
+		on essaie avec le mdp aléatoire puis gaxt78iy
+			si échec avec le mdp aléatoire, on efface .dbkey
+			si échec avec les 2 mdp
