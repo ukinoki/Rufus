@@ -117,7 +117,8 @@ private:
                                      bool DetruitIni = true,
                                      bool RecupIni = true,
                                      bool ReconstruitIni = true,
-                                     bool PremDemarrage = false);
+                                     bool PremDemarrage = false,
+                                     bool RestaurerBase = false);          //! true (poste hôte) = bouton « Restaurer la base » au lieu de « Restaurer Rufus.ini »
     bool                    VerifParamConnexion();            //! true =  le choix accès distant est validé ou non
 public:
     static void             SauvegardeIni();                                            //! copie silencieuse de Rufus.ini vers ~/.rufus/.rufus.ini (appelée à chaque ouverture réussie) pour pouvoir le restaurer dans RecupererDemarrage()

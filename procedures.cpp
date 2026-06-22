@@ -4566,12 +4566,13 @@ void Procedures::SauvegardeIni()
     QFile::copy(PATH_FILE_INI, PATH_FILE_INI_BACKUP);
 }
 
-bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage)
+bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage, bool RestaurerBase)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton RecupIniBouton           (tr("Restaurer le fichier d'initialisation\nà partir d'une sauvegarde"));
-    UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nd'initialisation"));
-    UpSmallButton PremierDemarrageBouton   (tr("Premier démarrage\nde Rufus"));
+    UpSmallButton RecupIniBouton           (tr("Restaurer le fichier Rufus.ini\nà partir d'une sauvegarde"));
+    UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
+    UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nRufus.ini"));
+    UpSmallButton PremierDemarrageBouton   (tr("Nouvelle base\npatients vierge"));
 
     UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
@@ -4579,7 +4580,17 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
     msgbox->setIcon(UpMessageBox::Warning);
     if (PremDemarrage)                      msgbox->addButton(&PremierDemarrageBouton,   UpSmallButton::NOBUTTON);
     if (ReconstruitIni)                     msgbox->addButton(&ReconstruitIniBouton,     UpSmallButton::NOBUTTON);
-    if (RecupIni)                           msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
+    //! 3e bouton (restauration), selon le CONTEXTE fixé par l'APPELANT (qui seul connaît le rôle
+    //! du poste et l'état de la connexion) :
+    //!   - RestaurerBase (poste hôte) -> « Restaurer la base de données » ;
+    //!   - sinon -> « Restaurer le fichier Rufus.ini », mais UNIQUEMENT si une sauvegarde
+    //!     ~/.rufus/.rufus.ini existe (sinon il n'y a rien à restaurer).
+    if (RecupIni)
+    {
+        if (RestaurerBase)                  msgbox->addButton(&RestaureBaseBouton,       UpSmallButton::NOBUTTON);
+        else if (QFile::exists(PATH_FILE_INI_BACKUP))
+                                            msgbox->addButton(&RecupIniBouton,           UpSmallButton::NOBUTTON);
+    }
     msgbox->addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
     msgbox->exec();
     bool reponse = false;
@@ -4634,6 +4645,19 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
         if (VerifParamConnexion())
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+            exit(0);
+        }
+    }
+    else if (msgbox->clickedButton()==&RestaureBaseBouton)
+    {
+        //! Restauration de la base depuis une sauvegarde (la sélection fine de RestaureBase permet
+        //! au besoin de ne restaurer QUE Rufus.ini). Réservé au poste HÔTE (RestaurerBase) : un poste
+        //! client ne restaure jamais la base partagée. Succès -> relance pour repartir proprement.
+        if (RestaureBase(false, false, true, Q_NULLPTR))
+        {
+            UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
+                                tr("La base de données a été restaurée. Rufus va redémarrer."));
             QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
             exit(0);
         }
