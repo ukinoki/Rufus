@@ -340,6 +340,7 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent)
         dlg.dlglayout()->insertWidget(0, lbl);
         UpLineEdit *champ = new UpLineEdit(&dlg);
         champ->setAlignment(Qt::AlignCenter);
+        champ->setEchoMode(QLineEdit::Password);   //! mot de passe masqué à la saisie
         dlg.dlglayout()->insertWidget(1, champ);
         dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
         connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
