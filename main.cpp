@@ -131,6 +131,12 @@ int main(int argc, char *argv[])
     w.setApp(&app, &translator); // For dynamic translations
     w.show();
 
+    //! Mise à jour DIFFÉRÉE du socle MySQL : si la connexion a détecté un MySQL trop ancien, on ne
+    //! le signale (et on ne migre) qu'ICI, APRÈS w.show(), pour que Rufus soit déjà visible — il
+    //! fonctionne en mode dégradé sur l'ancien socle en attendant. Le dialogue est modal (il bloque)
+    //! mais la fenêtre principale, peinte juste avant, reste visible derrière (cf. la méthode).
+    Procedures::I()->ControleSocleMySQLApresAffichage();
+
     const int ret = app.exec();
     //! NB : la sauvegarde de Rufus.ini ne se fait PLUS ici (à la fermeture), mais à l'OUVERTURE
     //! réussie (cf. constructeur Rufus, après Connexion_A_La_Base) : la fermeture ne garantit pas

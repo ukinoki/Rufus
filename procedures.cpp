@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "mysqlinstaller.h"
+#include <QEventLoop>
 
 Procedures* Procedures::instance =  Q_NULLPTR;
 Procedures* Procedures::I()
@@ -3182,27 +3183,14 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
-    //! Contrôle du socle MySQL : si version < 8.0.14 (cf. VERSION_MYSQL_MINI) ET ce poste HÉBERGE
-    //! la base (monoposte), on lance la PROCÉDURE DE MISE À JOUR DU SOCLE (sauvegarde validée →
-    //! réinstall → restauration → relance). Annulation → on continue sur l'ancien MySQL.
-    if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::socleMySQLConforme())
-    {
-        if (MettreAJourSocleMySQL())
-            return false;                       // succès → Rufus a redémarré
-    }
-    else if (db->ModeAccesDataBase() != Utils::Poste && !MySQLInstaller::socleMySQLConforme())
-    {
-        //! Client RÉSEAU (LAN/distant) : il ne peut PAS migrer (ce n'est pas lui qui héberge la
-        //! base). On l'informe que la mise à jour doit se faire depuis le poste serveur, puis on
-        //! continue : la base tourne encore sur l'ancien MySQL (sécurisation en attente).
-        UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
-            tr("Le serveur MySQL nécessite d'être mis à jour pour pouvoir utiliser") + "\n" +
-            tr("les nouvelles fonctions de sécurité incluses dans cette version de Rufus.") + "\n" +
-            tr("La mise à jour doit être effectuée depuis le poste serveur "
-               "(en y lançant Rufus, qui s'en chargera).") + "\n\n" +
-            tr("Même s'il est fortement conseillé de faire cette mise à jour") + "\n" +
-            tr("vous pouvez continuer à travailler normalement."));
-    }
+    //! Contrôle du socle MySQL : si version < 8.0.14 (cf. VERSION_MYSQL_MINI), on NE fait RIEN ici.
+    //! On MÉMORISE simplement le besoin de mise à jour : message et migration sont DIFFÉRÉS à APRÈS
+    //! l'affichage de la fenêtre Rufus (cf. ControleSocleMySQLApresAffichage(), appelée depuis
+    //! main.cpp après w.show()). Raison : la migration (sauvegarde → réinstall → restauration →
+    //! relance) est longue ; Rufus sait fonctionner en mode dégradé sur l'ancien MySQL, autant que
+    //! l'utilisateur le voie DÉJÀ ouvert avant de décider. La sécurisation ci-dessous, elle, reste
+    //! immédiate (elle n'attend pas le nouveau socle : elle pose l'aléatoire sur l'existant).
+    m_socleMySQLAMettreAJour = !MySQLInstaller::socleMySQLConforme();
 
     //! Sécurisation : si la base est encore sur gaxt78iy, pose un aléatoire (en CONSERVANT gaxt78iy
     //! en 2e mot de passe) et écrit le .dbkey ; supprime gaxt78iy si la deadline (sécurisation +
@@ -3239,6 +3227,48 @@ bool Procedures::Connexion_A_La_Base()
     db->StandardSQL("SET GLOBAL max_allowed_packet=" MAX_ALLOWED_PACKET "*1024*1024 ;");
 
     return m_connexionbaseOK;
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
+    -- Contrôle DIFFÉRÉ du socle MySQL, APRÈS l'affichage de la fenêtre Rufus -----------------------------------------
+    -----------------------------------------------------------------------------------------------------------------
+    Appelée depuis main.cpp juste après w.show(). Si Connexion_A_La_Base() a détecté un socle MySQL
+    trop ancien (< VERSION_MYSQL_MINI), c'est ICI — et seulement ici — qu'on en informe l'utilisateur,
+    une fois que Rufus est VISIBLE à l'écran (il tourne déjà en mode dégradé sur l'ancien MySQL).
+        • Poste HÔTE (monoposte) : on propose la mise à jour du socle (MettreAJourSocleMySQL gère son
+          propre dialogue de consentement, la sauvegarde validée, la réinstall, la restauration et la
+          relance). Annulation → on continue en mode dégradé.
+        • Poste CLIENT (réseau local / distant) : il n'héberge pas la base, il ne peut pas migrer. On
+          l'informe simplement que la mise à jour doit se faire depuis le poste serveur.
+    Pourquoi processEvents() d'abord : exec() bloque la boucle d'événements ; sans cela, la fenêtre
+    principale — montrée par w.show() à l'instant — n'aurait pas encore été PEINTE et le dialogue
+    surgirait sur un fond vide. On vide donc la file de peinture en attente (même mécanisme que
+    ShowMessage) pour que Rufus soit dessiné DERRIÈRE le dialogue modal. */
+void Procedures::ControleSocleMySQLApresAffichage()
+{
+    if (!m_socleMySQLAMettreAJour)
+        return;
+    m_socleMySQLAMettreAJour = false;                   //! one-shot : on ne reposera pas la question dans la session
+
+    //! Forcer le premier affichage de la fenêtre principale AVANT le dialogue modal.
+    qApp->processEvents(QEventLoop::AllEvents, 100);
+
+    if (db->ModeAccesDataBase() == Utils::Poste)
+    {
+        //! Poste hôte : MettreAJourSocleMySQL() porte son propre dialogue Annuler / Lancer la mise à
+        //! jour, fait la sauvegarde validée puis migre et relance Rufus. Annulation → mode dégradé.
+        MettreAJourSocleMySQL();
+        return;
+    }
+
+    //! Poste CLIENT (LAN / distant) : il ne peut PAS migrer (ce n'est pas lui qui héberge la base).
+    UpMessageBox::Watch(Q_NULLPTR, tr("Serveur MySQL à mettre à jour"),
+        tr("Le serveur MySQL nécessite d'être mis à jour pour pouvoir utiliser") + "\n" +
+        tr("les nouvelles fonctions de sécurité incluses dans cette version de Rufus.") + "\n" +
+        tr("La mise à jour doit être effectuée depuis le poste serveur "
+           "(en y lançant Rufus, qui s'en chargera).") + "\n\n" +
+        tr("Même s'il est fortement conseillé de faire cette mise à jour") + "\n" +
+        tr("vous pouvez continuer à travailler normalement."));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -3656,9 +3686,11 @@ void Procedures::CreerUserFactice(int idusr, QString login, QString mdp)
     -----------------------------------------------------------------------------------------------------------------*/
 bool Procedures::IdentificationUser()
 {
-    //! Identification du PRATICIEN, UNIQUEMENT. À ce stade, la connexion au serveur, le contrôle de
-    //! la version MySQL et la sécurisation ont DÉJÀ été faits par l'appelant Connexion_A_La_Base().
-    //! Ici, on vérifie seulement que cet utilisateur existe dans la table des utilisateurs de la base.
+    //! Identification du PRATICIEN, UNIQUEMENT. À ce stade, la connexion au serveur et la
+    //! sécurisation ont DÉJÀ été faites par l'appelant Connexion_A_La_Base() (le contrôle de version
+    //! MySQL, lui, est seulement MÉMORISÉ : il est traité APRÈS l'affichage, cf.
+    //! ControleSocleMySQLApresAffichage()). Ici, on vérifie seulement que cet utilisateur existe
+    //! dans la table des utilisateurs de la base.
     bool ok = false;
     dlg_identificationuser *dlg_IdentUser   = new dlg_identificationuser();
     dlg_IdentUser   ->setFont(m_applicationfont);
