@@ -232,8 +232,10 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
      1. CONNEXION à la base selon Rufus.ini.
         On essaie les mots de passe candidats : celui du .dbkey (du mode courant) PUIS gaxt78iy.
         - Si l'ALÉATOIRE (.dbkey) est REFUSÉ par le serveur (erreur d'AUTHENTIFICATION, et non un
-          serveur injoignable), il est périmé -> on l'EFFACE du .dbkey ; jamais sur une erreur réseau,
-          sinon on jetterait un mot de passe valide. gaxt78iy prend alors le relais.
+          serveur injoignable), il est périmé -> on retire SON ENTRÉE du .dbkey (la ligne du mode
+          courant : MONO/LAN/WAN ; les autres modes sont PRÉSERVÉS, le fichier n'est PAS supprimé) ;
+          jamais sur une erreur réseau, sinon on jetterait un mot de passe valide. gaxt78iy prend
+          alors le relais.
         - Si AUCUN candidat ne marche :
             • échec d'AUTHENTIFICATION (base sécurisée ailleurs) -> on demande DIRECTEMENT le bon mot de
               passe (saisie ou clé USB), invite SIMPLE (pas de fenêtre complexe ni de détour), puis on
