@@ -286,6 +286,9 @@ QString dlg_paramconnexion::TenterConnexionAvecRecuperation()
 //! courant —, sinon la dernière erreur rencontrée.
 QString dlg_paramconnexion::ConnecterAvecCandidats()
 {
+    const auto mode            = DataBase::I()->ModeAccesDataBase();
+    const QString randomStocke = MySQLInstaller::motDePasseStockePourMode(mode);   // "" si aucun aléatoire enregistré
+
     QString error;
     const QStringList candidats = MySQLInstaller::motsDePasseSQLCandidats();
     for (const QString &mdp : candidats)
@@ -296,6 +299,13 @@ QString dlg_paramconnexion::ConnecterAvecCandidats()
             MySQLInstaller::setMotDePasseSQL(mdp);   // ce mdp devient le mdp courant (mémoire)
             return QString();
         }
+        //! Si c'est l'ALÉATOIRE enregistré (.dbkey) qui est REFUSÉ par le serveur (erreur
+        //! d'authentification, pas un serveur injoignable), il est périmé → on l'efface du
+        //! .dbkey. On NE l'efface JAMAIS sur une erreur réseau, sinon une coupure passagère
+        //! jetterait un mot de passe pourtant valide. gaxt78iy prend alors le relais ; la
+        //! récupération du bon aléatoire est gérée au-dessus (TenterConnexionAvecRecuperation).
+        if (!randomStocke.isEmpty() && mdp == randomStocke && EstErreurAuthentification(error))
+            MySQLInstaller::supprimerMotDePassePourMode(mode);
     }
     return error;
 }
