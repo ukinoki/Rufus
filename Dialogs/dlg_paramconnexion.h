@@ -67,6 +67,9 @@ public:
     explicit dlg_paramconnexion(QWidget *parent = Q_NULLPTR);
     ~dlg_paramconnexion();
     Ui::dlg_paramconnexion *ui;
+    //! Récupération du mot de passe aléatoire (saisie ou clé USB). STATIQUE et PUBLIQUE : appelée
+    //! aussi AU DÉMARRAGE (Connexion_A_La_Base), hors de toute instance du dialogue.
+    static bool     RecupererMotDePasseMySQL(QWidget *parent);
 
 private:
     QString         m_IPaveczero = "";              //!< adresse du serveur normalisée avec des zéros de remplissage (000.000.000.000)
@@ -80,7 +83,6 @@ private:
     bool            VerifFiche();                   //!< contrôle que les champs obligatoires sont renseignés
     bool            TestConnexion();                //!< tente la connexion MySQL et la validation du compte utilisateur
     QString         TenterConnexionAvecRecuperation(); //!< cascade complète (MySQLInstaller) : candidats, puis récupération du mdp en dernier ressort, puis nouvel essai
-    static bool     RecupererMotDePasseMySQL(QWidget *parent);      //!< base sécurisée ailleurs : importe le .dbkey d'une clé USB ou saisit le mdp, l'enregistre (statique : appelable aussi au démarrage, hors dialogue)
 };
 
 #endif // DLG_PARAMCONNEXION_H
