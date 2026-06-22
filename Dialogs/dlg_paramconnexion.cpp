@@ -21,11 +21,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileDialog>
 
 dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
-    QDialog(parent),
+    UpDialog(parent),
     ui(new Ui::dlg_paramconnexion)
 {
     ui->setupUi(this);
-    setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+    //! Look Rufus : on hérite de UpDialog (fenêtre stylée, sans la barre de titre « brute » de l'OS).
+    //! Le .ui ayant un layout de premier niveau, on REMONTE ses cadres dans le layout de UpDialog
+    //! (dlglayout) — chaque insertWidget(0,…) reparente le cadre, l'ordre final (haut→bas) étant :
+    //! login, mode+IP, port, boutons. On garde les boutons du .ui (OK/Annuler/Tester) et leurs
+    //! connexions ; on NE refixe PAS setWindowFlags (UpDialog gère sa propre fenêtre stylée).
+    dlglayout()->insertWidget(0, ui->ButtonsFrame);
+    dlglayout()->insertWidget(0, ui->prtFrame);
+    dlglayout()->insertWidget(0, ui->MainFrame);
+    dlglayout()->insertWidget(0, ui->frame);
     m_connectavecloginSQL = true;
 
     ui->PortcomboBox        ->addItems(QStringList() << "3306" << "3307");   

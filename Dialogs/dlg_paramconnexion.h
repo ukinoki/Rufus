@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTimer>
 #include "upmessagebox.h"
 #include "upradiobutton.h"
+#include "updialog.h"
 #include "database.h"
 #include "icons.h"
 
@@ -59,7 +60,7 @@ class dlg_paramconnexion;
  * À la première connexion monoposte réussie, la base est sécurisée à la volée
  * si elle est encore sur le mot de passe public (securiserBaseSiNecessaire).
  */
-class dlg_paramconnexion : public QDialog
+class dlg_paramconnexion : public UpDialog
 {
     Q_OBJECT
 public:
