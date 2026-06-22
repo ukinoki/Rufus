@@ -187,13 +187,21 @@ fi
 
 controle_mysql_local; ETAT=$?
 
-# Point 1.b : ce poste HÉBERGE la base (rufus.ini BDD_POSTE) → consentement si la version
-# ne convient pas (trop ancienne, MariaDB, ou mysqld introuvable malgré le rôle serveur).
+# Point 1.b : ce poste HÉBERGE la base (rufus.ini BDD_POSTE) → consentement UNIQUEMENT si un
+# MySQL local est PRÉSENT mais ne convient pas (trop ancien, ou MariaDB) : là, la mise à jour
+# imposera une sauvegarde/restauration (longue), d'où le consentement. Si AUCUN mysqld n'est
+# présent (ETAT=2, ex. MySQL désinstallé), il n'y a RIEN à migrer → installation NEUVE du socle
+# au 1er lancement : on continue SANS message (le « version trop ancienne » n'aurait aucun sens).
 if [ "${ROLE}" = "SERVEUR" ]; then
     if [ "${ETAT}" -eq 0 ]; then
         ecrit_certif "SERVEUR (rufus.ini BDD_POSTE) : MySQL local >= 8.0.14"
         exit 0
     fi
+    if [ "${ETAT}" -eq 2 ]; then
+        ecrit_certif "SERVEUR (rufus.ini BDD_POSTE) : aucun MySQL local → installation neuve du socle au 1er lancement"
+        exit 0
+    fi
+    # ETAT = 1 : MySQL local PRÉSENT mais trop ancien (ou MariaDB) → consentement à la mise à jour.
     if dialogue_consentement_maj; then
         ecrit_certif "MAJ acceptée (SERVEUR rufus.ini) : socle MySQL à mettre à jour au 1er lancement"
         exit 0
