@@ -3079,12 +3079,12 @@ bool Procedures::Connexion_A_La_Base()
             const QString dir = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
             if (dir.isEmpty() || !QDir(dir).exists()) return false;
             QDir d(dir);
-            //! Trois éléments NÉCESSAIRES : les clés CLIENT (client-key.pem + client-cert.pem) ET la
-            //! CA du serveur (ca.pem, nom MySQL, ou ca-cert.pem) — le pilote VÉRIFIE le certificat
-            //! serveur, donc sans CA la connexion échoue (« self-signed certificate in chain »). On
-            //! contrôle tout ici pour ne pas laisser l'utilisateur aller jusqu'à l'échec de connexion.
-            return d.exists("client-key.pem") && d.exists("client-cert.pem")
-                && (d.exists("ca.pem") || d.exists("ca-cert.pem"));
+            //! On exige les clés CLIENT (client-key.pem + client-cert.pem) — nécessaires pour
+            //! présenter le certificat client et activer SSL (compte adminrufusSSL en REQUIRE SSL).
+            //! ca.pem / ca-cert.pem est OPTIONNEL : on N'authentifie PLUS le serveur
+            //! (MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 dans connectToDataBase), donc la CA n'est pas
+            //! requise pour établir la connexion.
+            return d.exists("client-key.pem") && d.exists("client-cert.pem");
         };
         if (!clesSSLpresentes())
         {
@@ -3098,7 +3098,7 @@ bool Procedures::Connexion_A_La_Base()
                 "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + dossierCles + "</span></b></p>" + "\n\n" +
                 tr("Indiquez l'emplacement de ce dossier dans la boîte de dialogue suivante."));
             const QString dir = QFileDialog::getExistingDirectory(Q_NULLPTR,
-                tr("Indiquez le dossier des clés SSL (client-key.pem, client-cert.pem et ca.pem)"));
+                tr("Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)"));
             if (!dir.isEmpty())
                 m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
             if (!clesSSLpresentes())
