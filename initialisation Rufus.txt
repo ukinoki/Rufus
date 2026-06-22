@@ -3,7 +3,7 @@ Je pense qu’on prend le problème à l’envers. On crée un cheminement et on
 
 Il faut faire l’inverse. La première des choses est de listert toutes ce situations, d énumérer pour chacune d’entre elle, la conduite à tenir et ensuite seulement de simplifier le fil conducteur pour l’adapter, sans en oublier aucune.
 
-Qu’est ce qui fait varier les possibles. 5 paramètres :
+Qu’est ce qui fait varier les possibles. 6 paramètres :
 	1. Présence ou non d’un rufus valide (avec au moins un mode de connexion paramétré)
 		4 situations
 			a. pas de rufus.ini ou rufus.ini invalide (pas de mode de connexion paramétré)
@@ -12,8 +12,9 @@ Qu’est ce qui fait varier les possibles. 5 paramètres :
 			d.rufus.ini et accès distant
 	2. présence d’un .dbkey
 	3. présence d’un serveur
-	4. présence d’une base Rufus sur ce serveur
-Ce qui fait 32 possibilités (4xZxZxZ), ce qui n’est pas énorme à énumérer d’autant qu’une situation est déjà parfois bien gérée par le code sans qu’il soit besoin d’envisager toutes les autres itérations quand cette situation est acquise, comme 1a par exemple.
+	4. s'il y a un serveur, présence d’une base Rufus sur ce serveur
+	5. s'il y a un serveur, est-il conforme au mini de la version SQL
+	6. présence de clés SSL valides pour l'accès distant
 
 c’est chaque démarrage de Rufus qui contrôle ça et pas seulement le premier démarrage
 Donc, la première action que fait rufus en démarrant, c’est de contrôler ces 4 paramètres dans un ordre qui va varier
@@ -33,28 +34,55 @@ note : la situation où rufus.ini est présent mais mal paramétré est mal gé
  		avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ pas de connexion → PremierDemarrage()
 		→ connexion OK
+			→ on vérifie la cohérence de la base Rufus
+				→ si OK, on continue
+				→ sinon, message d'erreur et ???
+			→ si on s’est connecté avec le mdp aléatoire
+				on vérifie si le mdp gaxt78iy est toujours présent
+					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
+						message prévenant que l'effacement du mdp est imminent
+					si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
+						effacement du mdp gaxt78iy
 			→ si on s’est connecté avec gaxt78iy
-				→ on vérifie si le serveur est compatible double mdp.
+				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on en crée un et on l’enregistre dans .dbkey
-					→ non, on propose de faire évoluer le serveur vers une version MySQL compatible mdp double
+					→ non, on propose de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 
 	1c. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ pas de connexion → PremierDemarrage()
-		→ connexion OK → on continue
+		→ connexion OK
+			→ on vérifie la cohérence de la base Rufus
+				→ si OK, on continue
+				→ sinon, message d'erreur et ???
+			→ si on s’est connecté avec le mdp aléatoire
+				on vérifie si le mdp gaxt78iy est toujours présent
+					si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp gaxt78iy existe toujours
+						message prévenant que l'effacement du mdp est imminent
+					si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp gaxt78iy existe toujours
+						effacement du mdp gaxt78iy
 			→ si on s’est connecté avec gaxt78iy
-				→ on vérifie si le serveur est compatible double mdp.
+				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on vérifie s'il y a un mdp aléatoire
 						→ oui, on le demande et on l'enregistre dans .dbkey
 						→ non, on en crée un et on l’enregistre dans .dbkey
-					→ non, on suggère de faire évoluer le serveur vers une version MySQL compatible mdp double
+					→ non, on suggère de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 	1d. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
-		→ pas de connexion → PremierDemarrage()
-		→ connexion OK → on continue
+		→ pas de clés SSL
+			→ on demande où elles se trouvent
+				→ toujours pas de clés → PremierDemarrage()
+		→ pas de connexion 
+			→ si le motif de l'absence de connexion est lié à des clés SSL invalides → message d'info
+			→ PremierDemarrage()
+		→ connexion OK
+			→ on vérifie la cohérence de la base Rufus
+				→ si OK, on continue
+				→ sinon, message d'erreur et ???
 			→ si on s’est connecté avec gaxt78iy
-				→ on vérifie si le serveur est compatible double mdp.
+				→ on vérifie si le serveur est conforme au mini de la version SQL.
 					→ oui, on vérifie s'il y a un mdp aléatoire
-						→ non, on en crée un et on l’enregistre dans .dbkey
-					→ non, on suggère de faire évoluer le serveur vers une version MySQL compatible mdp double
+						→ non, on le demande et on l’enregistre dans .dbkey
+						on ne sécurise pas le mdp depuis un poste WAN
+					→ non, on suggère de faire évoluer le serveur vers une version MySQL conforme au mini de la version SQL
 
 A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
 
@@ -70,3 +98,4 @@ il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
 		on essaie avec le mdp aléatoire puis gaxt78iy
 			si échec avec le mdp aléatoire, on efface .dbkey
 			si échec avec les 2 mdp
+				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
