@@ -17,12 +17,12 @@ Qu’est ce qui fait varier les possibles. 6 paramètres :
 	6. présence de clés SSL valides pour l'accès distant
 
 c’est chaque démarrage de Rufus qui contrôle ça et pas seulement le premier démarrage
-Donc, la première action que fait rufus en démarrant, c’est de contrôler ces 4 paramètres dans un ordre qui va varier
-Et on a essentiellement 3 fonctions pour gérer tout ça
-VerifIni()
-Procedures::VerifIni()
-IdentificationUser()
-VerifParamConnexion()
+Donc, la première action que fait rufus en démarrant, c’est de contrôler ces 6 paramètres dans un ordre qui va varier
+Et on a essentiellement 4 fonctions pour gérer tout ça
+Procedures::VerifIni()            (le carrefour de récupération : c'est lui qu'on appelle quand ça rate)
+Procedures::PremierDemarrage()    (derrière le bouton « Nouvelle base vierge » de VerifIni)
+Procedures::IdentificationUser()
+Procedures::VerifParamConnexion()
 note : changer le look de dlg_paramconnexion() pour le faire coller au look Rufus en utilisant une UpDialog
 Donc, on énumère
 
@@ -73,7 +73,7 @@ Donc, on énumère
 	1d. On tente de se connecter au serveur avec les paramètres rufus.ini avec le .dbkey s’il y en a un sinon avec gaxt78iy
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
-				→ toujours pas de clés → message "impossible de se connecter sans les clés"
+				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::VerifIni()
 		→ pas de connexion 
 			→ si le motif de l'absence de connexion est lié à des clés SSL invalides → message d'info
 			→ Procedures::VerifIni()
@@ -105,9 +105,13 @@ il faut revoir QString dlg_paramconnexion::ConnecterAvecCandidats()
 				on demande un mdp adminrufus et on l’enregistre dans .dbkey s’il fonctionne
 
 Procedures::VerifIni()
-propose 3 boutons
+propose 3 boutons (+ le bouton Quitter du dialogue)
 	→ Nouvelle base patients vierge
-	→ Reconstruction du' fichier Rufus.ini
+	→ Reconstruction du fichier Rufus.ini
 	→ Restauration depuis une sauvegarde du fichier Rufus.ini  et/ou de la base patients suivant le contexte
 		→ monoposte -> restaurer la base
  		→ sinon ou dans l'incertitude sur monoposte -> restaurer le fichier Rufus.ini
+		   (ce bouton « restaurer le fichier Rufus.ini » n'apparaît que si une sauvegarde ~/.rufus/.rufus.ini existe)
+	note : sauvegarder/restaurer reste possible depuis un poste local ; ce n'est pas évident au premier abord,
+	       et c'est de toute façon protégé par le mot de passe administrateur Rufus (« bob ») — d'où l'absence
+	       de masquage du bouton selon le rôle du poste.
