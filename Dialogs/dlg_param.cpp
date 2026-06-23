@@ -431,6 +431,8 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DistantVideoDirupLabel      ->setVisible(c);
     ui->DistantVideoDirupLineEdit   ->setVisible(c);
     ui->DistantVideoDirupPushButton ->setVisible(c);
+    //! Export des clés client SSL d'accès distant : visible quand l'accès distant est paramétré.
+    ui->ExportClesSSLDistantupPushButton ->setVisible(c);
     if (c)
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + Param_Serveur).toString());
@@ -1101,6 +1103,7 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->DistantVideoDirupLabel      ->setVisible(a);
         ui->DistantVideoDirupLineEdit   ->setVisible(a);
         ui->DistantVideoDirupPushButton ->setVisible(a);
+        ui->ExportClesSSLDistantupPushButton ->setVisible(a);
      }
 }
 
@@ -2422,6 +2425,68 @@ void dlg_param::ExporterClesSSLversUSB()
                         + tr("Déployez-les dans le dossier des clés SSL de chaque poste en accès distant."));
 }
 
+/*! (ACCÈS DISTANT) Copie vers une clé USB les clés SSL d'accès au serveur DISTANT — celles que ce
+ *  poste utilise pour joindre cette base (dossier renseigné via « … » → Dossier_ClesSSL) — afin de
+ *  les déployer sur un AUTRE poste qui doit accéder au même serveur distant.
+ *  À distinguer de l'export du Poste serveur (ExporterClesSSLversUSB), qui exporte, lui, les clés du
+ *  serveur que CE poste héberge : un même poste peut détenir les DEUX jeux de clés. */
+void dlg_param::ExporterClesSSLDistantversUSB()
+{
+    const QString source = proc->settings()->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+    if (source.isEmpty() || !QDir(source).exists())
+    {
+        UpMessageBox::Watch(this, tr("Dossier des clés SSL non renseigné"),
+                            tr("Le dossier des clés SSL d'accès distant n'est pas renseigné sur ce poste.") + "\n\n"
+                            + tr("Indiquez-le d'abord avec le bouton de sélection du dossier des clés SSL."));
+        return;
+    }
+
+    //! Clés CLIENT requises pour l'accès distant : client-key.pem + client-cert.pem (la CA
+    //! ca.pem / ca-cert.pem est facultative — on l'inclut si elle est présente).
+    const QStringList obligatoires = QStringList() << "client-key.pem" << "client-cert.pem";
+    QStringList manquants;
+    for (const QString &f : obligatoires)
+        if (!QFile::exists(source + "/" + f))
+            manquants << f;
+    if (!manquants.isEmpty())
+    {
+        UpMessageBox::Watch(this, tr("Clés client SSL indisponibles"),
+                            tr("Le dossier des clés SSL ne contient pas les clés nécessaires :") + "\n"
+                            + manquants.join(", "));
+        return;
+    }
+
+    //! Destination : la clé USB choisie par l'utilisateur.
+    QUrl url = Utils::getExistingDirectoryUrl(this, tr("Sélectionnez la clé USB de destination"),
+                                              QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
+    if (url == QUrl())
+        return;
+    const QString dest = url.path();
+
+    //! On copie les clés client + la CA si elle existe (sous l'un ou l'autre nom).
+    const QStringList aCopier = QStringList() << "client-key.pem" << "client-cert.pem" << "ca.pem" << "ca-cert.pem";
+    QStringList echecs;
+    for (const QString &f : aCopier)
+    {
+        if (!QFile::exists(source + "/" + f))
+            continue;                               //! ca.pem / ca-cert.pem facultatifs
+        const QString cible = dest + "/" + f;
+        QFile::remove(cible);                       //! QFile::copy échoue si la cible existe déjà
+        if (!QFile::copy(source + "/" + f, cible))
+            echecs << f;
+    }
+    if (!echecs.isEmpty())
+    {
+        UpMessageBox::Watch(this, tr("Export incomplet"),
+                            tr("Certains fichiers n'ont pas pu être copiés :") + "\n" + echecs.join(", "));
+        return;
+    }
+
+    UpMessageBox::Watch(this, tr("Clés client SSL exportées"),
+                        tr("Les clés SSL d'accès distant ont été copiées sur :") + "\n" + dest + "\n\n"
+                        + tr("Déployez-les sur l'autre poste en accès distant, puis indiquez-y leur dossier."));
+}
+
 void dlg_param::EffaceProgrammationDataBackup()
 {
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
@@ -2655,6 +2720,7 @@ void dlg_param::ConnectSignals()
 
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->ExportClesSSLPosteupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
+    connect(ui->ExportClesSSLDistantupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
