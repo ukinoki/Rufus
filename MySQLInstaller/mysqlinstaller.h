@@ -210,6 +210,11 @@ public:
     //  Sert au démarrage MONOPOSTE : pas de serveur → inutile de tenter une connexion, on propose
     //  directement une base vierge. (Enveloppe statique de isMySQLInstalled().)
     static bool      serveurLocalPresent();
+    //  MONOPOSTE uniquement : à chaque démarrage, vérification SILENCIEUSE et bon marché de la config
+    //  serveur (secure_file_priv, dossier partagé, client mysql dans le PATH). Si tout est conforme →
+    //  rien. Sinon → propose (consentement) de RÉPARER en réutilisant executerEtapesConfig() sans
+    //  réinstaller. La correction est réservée au monoposte : un client ne peut pas corriger le serveur.
+    void      verifierEtReparerConfigMonoposte();
     //  Migration DESTRUCTIVE du socle : désinstalle l'ancien MySQL puis réinstalle + crée
     //  adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si OK.
     bool             reinstallerSocleMySQLpourMigration();

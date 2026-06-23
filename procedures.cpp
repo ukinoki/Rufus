@@ -3206,6 +3206,13 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
+    //! COHÉRENCE DE LA CONFIGURATION MySQL (MONOPOSTE uniquement). Vérification SILENCIEUSE et bon
+    //! marché de la config serveur (secure_file_priv, dossier partagé, client mysql) ; si une
+    //! anomalie est détectée, propose de la corriger (réutilise executerEtapesConfig, sans
+    //! réinstaller). RÉSERVÉ au monoposte : un client ne peut pas corriger le serveur — il défère
+    //! (comme pour la base endommagée et la version). No-op si tout est conforme.
+    MySQLInstaller().verifierEtReparerConfigMonoposte();
+
     //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi, mais la base est-elle
     //! exploitable ? On sonde une table cœur (rufus.utilisateurs) via la connexion DÉJÀ ouverte —
     //! vaut pour monoposte ET client (pas de client CLI localhost, contrairement à

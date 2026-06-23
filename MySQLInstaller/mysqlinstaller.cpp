@@ -1994,6 +1994,74 @@ bool MySQLInstaller::serveurLocalPresent()
     return MySQLInstaller().isMySQLInstalled();
 }
 
+//  MONOPOSTE : vérification SILENCIEUSE de la config serveur à chaque démarrage, puis réparation
+//  SUR CONSENTEMENT si nécessaire. Cf. DEROULE_REEL_DEMARRAGE.md §5 : seul le monoposte corrige la
+//  config (un client ne peut pas toucher au serveur).
+void MySQLInstaller::verifierEtReparerConfigMonoposte()
+{
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
+        return;                                   //! correction réservée au poste qui héberge la base
+
+    m_login    = LOGIN_SQL;
+    m_password = motDePasseSQL();
+
+    //! ── Vérification BON MARCHÉ et SILENCIEUSE (filesystem + 1 requête, aucune élévation, aucun
+    //! sous-processus) ── On ne retient QUE deux signaux ROBUSTES de dérive (sans faux positif) :
+    //!   • le dossier partagé a disparu ;
+    //!   • secure_file_priv ne pointe plus sur un dossier valide (DataBase::dirsecure_file_priv(),
+    //!     la même validation que le reste de Rufus).
+    //! Le PATH du client mysql n'est PAS testé ici (mysqlBin() peut renvoyer un nom relatif résolu
+    //! via le PATH du process → faux positif ; et l'absence est déjà signalée plus loin par
+    //! dirSQLExecutable()). Les contrôles plus lourds (écriture réelle, privilèges) sont (re)faits
+    //! par executerEtapesConfig() PENDANT la réparation. But : un démarrage normal ne paie rien.
+    QStringList problemes;
+    if (!QDir(sharedFolderPath()).exists())
+        problemes << tr("le dossier partagé est introuvable");
+    if (!DataBase::I()->dirsecure_file_priv())
+        problemes << tr("la variable serveur secure_file_priv n'est pas correctement positionnée");
+
+    if (problemes.isEmpty())
+        return;                                   //! cas courant : tout est conforme, RIEN (silencieux)
+
+    //! ── Anomalie détectée : on PROPOSE de corriger (peut demander le mdp administrateur du poste) ──
+    UpMessageBox msgbox(Q_NULLPTR);
+    msgbox.setText(tr("Configuration du serveur MySQL à corriger"));
+    msgbox.setInformativeText(
+        tr("La configuration du serveur MySQL présente une ou plusieurs anomalies :") + "\n• "
+        + problemes.join("\n• ") + "\n\n"
+        + tr("Rufus peut tenter de les corriger maintenant. Cette opération peut demander le mot de "
+             "passe administrateur de l'ordinateur.") + "\n"
+        + tr("Vous pouvez aussi continuer : Rufus fonctionnera, mais certaines fonctions (imagerie, "
+             "sauvegarde) pourraient être perturbées."));
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Plus tard"));
+    UpSmallButton *Rep   = new UpSmallButton(); Rep->setText(tr("Corriger maintenant"));
+    msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(Rep,   UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() != Rep)
+        return;
+
+    //! ── Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
+    //! lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false).
+    m_dialog = new MySQLInstallerDialog();
+    m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
+                                    tr("Vérification et correction de la configuration en cours…"));
+    m_dialog->show();
+    QApplication::processEvents();
+    m_freshInstall = false;
+    const bool repare = executerEtapesConfig();
+    cleanupDialog();
+
+    if (repare)
+        UpMessageBox::Watch(Q_NULLPTR, tr("Configuration corrigée"),
+            tr("La configuration du serveur MySQL a été corrigée."));
+    else
+        UpMessageBox::Watch(Q_NULLPTR, tr("Correction incomplète"),
+            tr("Certaines anomalies de configuration n'ont pas pu être corrigées.") + "\n"
+            + tr("Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées."));
+}
+
 //  Vérifie que le dossier de l'exécutable mysql figure dans la variable PATH.
 //  Sinon l'y ajoute de façon persistante (écriture privilégiée ; admin requis).
 bool MySQLInstaller::ensureMysqlInPath()
