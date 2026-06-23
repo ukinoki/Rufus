@@ -98,16 +98,28 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
         }
     )");
     root->addWidget(m_progress);
+
+    //  Ligne de détail sous la barre : taille téléchargée (rassure sur un gros téléchargement,
+    //  ~550 Mo pour le DMG macOS). Vide tant qu'on n'a pas de progression chiffrée.
+    m_detail = new QLabel(QString());
+    m_detail->setStyleSheet("font-size: 12px; color: #6B6A63;");
+    m_detail->setAlignment(Qt::AlignCenter);
+    root->addWidget(m_detail);
 }
 
 void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
 {
     if (total <= 0) {                 // taille inconnue → barre animée
         m_progress->setRange(0, 0);
+        m_detail->clear();
         return;
     }
     m_progress->setRange(0, 100);
     m_progress->setValue(int(received * 100 / total));
+    //  « X / Y Mo » : un téléchargement de plusieurs centaines de Mo qui n'affiche rien donne
+    //  l'impression d'un programme figé.
+    const double mo = 1024.0 * 1024.0;
+    m_detail->setText(tr("%1 / %2 Mo").arg(received / mo, 0, 'f', 0).arg(total / mo, 0, 'f', 0));
 }
 
 // ═════════════════════════════════════════════════════════════════════════════
@@ -2263,10 +2275,12 @@ QString MySQLInstaller::downloadOracleDmg()
     const QString fileName = url.section('/', -1);
     QString tmpDmg         = QDir::tempPath() + "/" + fileName;
 
-    runLongOp(
-        QString("curl -fSL --progress-bar -o '%1' '%2' 2>&1").arg(tmpDmg, url),
-        tr("Téléchargement de MySQL %1 (Oracle)…").arg(cfg.version),
-        600000);
+    //! Téléchargement avec BARRE DE PROGRESSION RÉELLE : downloadFile() pilote
+    //! MySQLProgressDialog::setProgress via QNetworkAccessManager (repli curl). Le DMG macOS pèse
+    //! ~550 Mo ; sans progression chiffrée, l'utilisateur croit l'application figée. (Avant :
+    //! runLongOp + « curl --progress-bar », dont la barre texte part sur stderr et n'était pas
+    //! exploitée → boîte à barre seulement animée.)
+    downloadFile(url, tmpDmg, tr("Téléchargement de MySQL %1 (Oracle)…").arg(cfg.version));
 
     if (!QFile::exists(tmpDmg) || QFileInfo(tmpDmg).size() < 1'000'000LL) {
         QFile::remove(tmpDmg);

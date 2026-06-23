@@ -63,6 +63,7 @@ public:
 private:
     QLabel*       m_label;
     QProgressBar* m_progress;
+    QLabel*       m_detail;       //  taille téléchargée « X / Y Mo » (gros DMG macOS ~550 Mo)
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
