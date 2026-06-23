@@ -3175,14 +3175,12 @@ bool Procedures::Connexion_A_La_Base()
     //! (qui installe le socle) et « Quitter » ont du sens ici.
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
-        // On est en monoposte et il n'y a pas de serveur => on crée une base vierge après avoir téléchargé le serveur
-        PremierDemarrage(true, false);
-        //RecupererDemarrage(tr("Aucun serveur de base de données"),
-        //                   tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
-        //                   tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
-        //                      "vierge (le serveur sera installé automatiquement), ou quittez."),
-        //                   false /*DetruitIni*/, false /*RecupIni*/, false /*ReconstruitIni*/,
-        //                   true /*PremDemarrage*/, false /*RestaurerBase*/);
+        RecupererDemarrage(tr("Aucun serveur de base de données"),
+                           tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
+                           tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
+                              "(le serveur sera installé automatiquement), ou quittez."),
+                           false /*DetruitIni*/, false /*RecupIni*/, false /*ReconstruitIni*/,
+                           true /*PremDemarrage*/, false /*RestaurerBase*/);
         return false;
     }
 
@@ -3923,13 +3921,13 @@ bool Procedures::IdentificationUser()
         UpMessageBox    msgbox;
         UpSmallButton   AnnulBouton(tr("Annuler"));
         UpSmallButton   RestaureBaseBouton(tr("Restaurer la base depuis une sauvegarde"));
-        UpSmallButton   BaseViergeBouton(tr("Nouvelle base patients vierge"));
+        UpSmallButton   BaseViergeBouton(tr("Nouvelle base patients"));
         switch (loginresult) {
         case dlg_identificationuser::CorruptedBase:
             msgbox.setText(tr("Base de données endommagée!"));
-            msgbox.setInformativeText(tr("La base de données semble endommagée.\n"
-                                      "Voulez-vous la reconstruire à partir"
-                                      " d'une sauvegarde ou recréer une base vierge?\n\n"));
+            msgbox.setInformativeText(tr("La base de données est endommagée.\n"
+                                      "Voulez-vous la reconstruire à partir\n"
+                                      "d'une sauvegarde ou recréer une base patients vierge?\n\n"));
             msgbox.setIcon(UpMessageBox::Info);
             msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
             msgbox.addButton(&BaseViergeBouton, UpSmallButton::STARTBUTTON);
@@ -4541,25 +4539,25 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage(bool CreerBase, bool ConnectBase)
+bool Procedures::PremierDemarrage()
 {
     UpMessageBox *msgbox = new UpMessageBox;
 
     UpSmallButton    AnnulBouton        (tr("Abandonner"));
-    UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
+    UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients"));
     UpSmallButton    BaseExistanteBouton(tr("Base patients existante\nsur le serveur"));
-
-    msgbox->setText(tr("Premier démarrage de Rufus!"));
-    msgbox->setInformativeText(tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes.\n\n"
-                              "Commencez par choisir la situation qui décrit le mieux votre installation de Rufus.\n\n"
-                              "1. J'installe Rufus sur ce poste en créant une nouvelle base patients\n"
-                              "2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà\n"));
+    QString text     =  tr("Premier démarrage de Rufus!");
+    QString inftxt   =  tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
+                        tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
+                        tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
+                        tr("2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà");
+    msgbox->setText(text);
+    msgbox->setInformativeText(inftxt);
     msgbox->setIcon(UpMessageBox::Info);
 
-    if (CreerBase)
-        msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
-    if (ConnectBase)
-        msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
+
+    msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
+    msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
     msgbox->addButton(&AnnulBouton,         UpSmallButton::CANCELBUTTON);
     msgbox->exec();
 

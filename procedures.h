@@ -163,7 +163,7 @@ public:
 private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    PremierDemarrage(bool CreerBase = true, bool ConnectBase = true);
+    bool                    PremierDemarrage();
     void                    PremierParametrageMateriel();
     int         protoc = BaseExistante;
     enum protoc {BaseExistante, BaseVierge};
