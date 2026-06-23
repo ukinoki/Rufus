@@ -355,6 +355,12 @@ void MySQLInstallerDialog::checkStep(int i)
 {
     if (i < 0 || i > 6) return;
     m_steps[i]->setChecked(true);
+    //! Peinture SYNCHRONE : sous Windows, après une étape qui bloque longuement le thread UI
+    //! (typiquement secure_file_priv, qui redémarre le service MySQL via un appel élevé),
+    //! QApplication::processEvents() seul ne rafraîchit pas toujours la case → l'utilisateur ne
+    //! voyait pas les dernières coches se poser. repaint() force l'affichage immédiat de la case
+    //! ET du dialogue. macOS, lui, repeignait déjà correctement.
+    m_steps[i]->repaint();
     QApplication::processEvents();
     //! Pause pour qu'on VOIE chaque coche se poser (comme dlg_identificationuser) : sinon les
     //! étapes défilent trop vite et l'utilisateur ne distingue pas ce qui se passe. La pause est
