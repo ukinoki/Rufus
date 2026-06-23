@@ -64,11 +64,14 @@ Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChang
 ; ─────────────────────────────────────────────────────────────────────────────
 ;  PRÉ-CONTRÔLE MySQL (avant TOUTE installation : on ne touche pas à l'ancien
 ;  Rufus tant que le socle MySQL n'est pas validé).
-;  Règle : MySQL >= 8.0.14 et PAS MariaDB. mysqld --version est « brutal » :
-;   • répond >= 8.0.14      -> serveur local OK (install/MAJ monoposte) -> on continue
-;   • répond < 8.0.14/Maria -> message de migration -> on ABANDONNE l'install
-;   • ne répond pas         -> pas de MySQL local : 1re install OU client réseau
-;                              -> 3 boutons (dont certification = trace légale .certif)
+;  LOGIQUE SIMPLIFIÉE (cf. « initialisation Rufus.txt », section I) : on NE devine
+;  PLUS le rôle du poste (serveur/client) via rufus.ini. On regarde seulement le
+;  MySQL LOCAL, d'après mysqld --version :
+;   • répond >= 8.0.14      -> conforme -> on installe ;
+;   • ne répond pas         -> pas de MySQL local (MySQL sera posé au 1er lancement) -> on installe ;
+;   • répond < 8.0.14/Maria -> avertissement (le 1er lancement proposera une mise à jour qui
+;                              efface les données). Le message dit « si vous n'hébergez pas la base
+;                              ici, ignorez » : plus besoin de détecter le rôle. Non -> on ABANDONNE.
 ; ─────────────────────────────────────────────────────────────────────────────
 [Code]
 const
@@ -134,37 +137,6 @@ begin
     GetDateTimeString('yyyy-mm-dd hh:nn', '-', ':') + ' | ' + Ligne + #13#10, True);
 end;
 
-// Un Rufus est-il DÉJÀ installé sur ce poste ? (clé de désinstallation Inno de notre
-// AppId, ou Rufus.exe à l'emplacement par défaut). Le contrôle MySQL ne se fait QU'EN
-// cas de MAJ : en installation neuve il n'y a rien à détruire, donc rien à vérifier.
-function RufusDejaInstalle(): Boolean;
-var KEY: String;   // NB: pas de 'const' LOCALE en Pascal Script Inno -> var assignée dans le corps
-begin
-  KEY := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\{BB737C7D-1DA8-4BB2-9950-DA8781E50453}_is1';
-  Result := FileExists(ExpandConstant('{autopf}\{#MyAppName}\{#MyAppExeName}'))
-         or RegKeyExists(HKLM64, KEY) or RegKeyExists(HKLM32, KEY)
-         or RegKeyExists(HKCU64, KEY) or RegKeyExists(HKCU32, KEY);
-end;
-
-// Rôle du poste d'après rufus.ini : BDD_POSTE Active=YES → ce poste HÉBERGE la base
-// (serveur) ; BDD_LOCAL/BDD_DISTANT Active=YES → CLIENT réseau. rufus.ini FAIT FOI sur
-// le rôle ; la présence d'un mysqld local n'est qu'un repli quand l'ini est absent/muet.
-// Subtilité : l'installeur tourne en mode élevé, mais {%USERPROFILE} pointe bien vers le
-// profil de l'utilisateur CONNECTÉ (pas celui de l'admin) — c'est le bon rufus.ini.
-function RoleDepuisIni(): String;
-var ini: String;
-begin
-  Result := 'INCONNU';
-  ini := ExpandConstant('{%USERPROFILE}\Documents\Rufus\Rufus.ini');
-  if not FileExists(ini) then Exit;
-  if Uppercase(Trim(GetIniString('BDD_POSTE', 'Active', '', ini))) = 'YES' then begin
-    Result := 'SERVEUR'; Exit;
-  end;
-  if (Uppercase(Trim(GetIniString('BDD_LOCAL', 'Active', '', ini))) = 'YES')
-     or (Uppercase(Trim(GetIniString('BDD_DISTANT', 'Active', '', ini))) = 'YES') then
-    Result := 'CLIENT';
-end;
-
 // Langue des messages, d'après rufus.ini ([Param_Poste] Version, = Param_Poste_Version côté
 // code). Traduit : fr, en, es, pt (br -> pt) ; repli fr pour toute autre / si absent.
 function LangueDepuisIni(): String;
@@ -178,168 +150,104 @@ begin
   else if v = 'br' then Result := 'pt';
 end;
 
-// Dialogue de consentement à la mise à jour du socle MySQL (cf. journal, point 1.b), dans la
-// langue du poste. On ne traduit QUE ce dialogue : c'est le seul montré quand rufus.ini est
-// lisible (donc quand la langue est connue) ; les dialogues de repli (rôle INCONNU) restent en
-// français, faute de rufus.ini pour en déduire la langue.
-//   True  = l'utilisateur accepte : l'install se fait ; au 1er lancement, Rufus met à jour
-//           MySQL automatiquement (sauvegarde validée → réinstall → restauration).
-//   False = il reporte : l'installeur stoppe, l'ancien Rufus reste en place.
+// Avertissement « serveur MySQL à mettre à jour », dans la langue du poste. Affiché UNIQUEMENT
+// quand un MySQL local trop ancien (ou MariaDB) est détecté. Le message dit explicitement
+// « si vous n'hébergez pas la base ici, ignorez » → plus besoin de détecter le rôle du poste.
+//   True  = l'utilisateur accepte (Oui) : l'install se fait ; au 1er lancement, si ce poste
+//           héberge la base, Rufus proposera la mise à jour du socle.
+//   False = il refuse (Non) : l'installeur stoppe, l'ancien Rufus reste en place.
 function ConsentementMajServeur(): Boolean;
-var lang, titre, texte, btnOk, btnAnnuler: String;
+var lang, titre, texte: String;
 begin
   lang := LangueDepuisIni();
   if lang = 'en' then begin
-    titre := 'MySQL server update';
-    texte := 'This computer hosts the patient database.' + #13#10#13#10
-      + 'This new version of Rufus strengthens database security by introducing more elaborate '
-      + 'password management.' + #13#10#13#10
-      + 'It requires an update of the MySQL server: Rufus will uninstall MySQL, reinstall a more '
-      + 'recent version, then back up and restore your patient database.' + #13#10#13#10
-      + 'This operation may take several minutes depending on the size of your database.' + #13#10#13#10
-      + 'IMPORTANT: if the other computers on the local network also use Rufus, they MUST be '
-      + 'updated to this new version within one month, otherwise they will no longer work.';
-    btnOk := 'OK, continue (Rufus will update MySQL automatically)';
-    btnAnnuler := 'Cancel, I will do this later';
+    titre := 'MySQL server to update';
+    texte := 'IMPORTANT' + #13#10#13#10
+      + 'Rufus stores your patient data in a database - on this computer, on another computer of '
+      + 'your network, or on a remote server. That database is managed by the MySQL server, '
+      + 'required by Rufus, which Rufus installs itself on first launch.' + #13#10#13#10
+      + 'If you do not intend to host the patient database on this computer, ignore this message.' + #13#10#13#10
+      + 'This version of Rufus greatly strengthens password security and requires a MySQL server '
+      + '>= 8.0.14 (MariaDB not supported). This computer already hosts a MySQL/MariaDB server that '
+      + 'is too old or incompatible.' + #13#10#13#10
+      + 'On first launch, Rufus will offer to update the server. This update erases the data and '
+      + 'therefore requires a backup:' + #13#10
+      + '  - if the database on this computer is a Rufus patient database, Rufus can back it up and '
+      + 'restore it automatically;' + #13#10
+      + '  - if it holds other data, back it up yourself, otherwise it will be permanently lost.' + #13#10#13#10
+      + 'Do you want to continue installing Rufus?  (Yes = continue,  No = cancel)';
   end else if lang = 'es' then begin
-    titre := 'Actualización del servidor MySQL';
-    texte := 'Este equipo aloja la base de datos de pacientes.' + #13#10#13#10
-      + 'Esta nueva versión de Rufus refuerza la seguridad de la base de datos mediante una '
-      + 'gestión más elaborada de la contraseña.' + #13#10#13#10
-      + 'Requiere actualizar el servidor MySQL: Rufus desinstalará MySQL, reinstalará una versión '
-      + 'más reciente y luego hará una copia de seguridad y restaurará su base de datos de pacientes.' + #13#10#13#10
-      + 'Esta operación puede durar varios minutos según el tamaño de su base de datos.' + #13#10#13#10
-      + 'IMPORTANTE: si los demás equipos de la red local también usan Rufus, deberán actualizarse '
-      + 'OBLIGATORIAMENTE a esta nueva versión en el plazo de un mes; de lo contrario, dejarán de funcionar.';
-    btnOk := 'Aceptar, continuar (Rufus actualizará MySQL automáticamente)';
-    btnAnnuler := 'Cancelar, lo haré más tarde';
+    titre := 'Servidor MySQL por actualizar';
+    texte := 'IMPORTANTE' + #13#10#13#10
+      + 'Rufus almacena los datos de sus pacientes en una base de datos: en este equipo, en otro '
+      + 'equipo de su red o en un servidor remoto. Esa base la gestiona el servidor MySQL, '
+      + 'imprescindible para Rufus, que Rufus instala por sí mismo en el primer arranque.' + #13#10#13#10
+      + 'Si no piensa alojar la base de pacientes en este equipo, ignore este mensaje.' + #13#10#13#10
+      + 'Esta versión de Rufus refuerza enormemente la seguridad de las contraseñas y requiere un '
+      + 'servidor MySQL >= 8.0.14 (MariaDB no compatible). Este equipo ya aloja un servidor '
+      + 'MySQL/MariaDB demasiado antiguo o incompatible.' + #13#10#13#10
+      + 'En el primer arranque, Rufus propondrá actualizar el servidor. Esta actualización borra los '
+      + 'datos y exige una copia de seguridad:' + #13#10
+      + '  - si la base de este equipo es una base de pacientes Rufus, Rufus podrá copiarla y '
+      + 'restaurarla automáticamente;' + #13#10
+      + '  - si contiene otros datos, haga usted mismo una copia, de lo contrario se perderán definitivamente.' + #13#10#13#10
+      + '¿Desea continuar la instalación de Rufus?  (Sí = continuar,  No = cancelar)';
   end else if lang = 'pt' then begin
-    titre := 'Atualização do servidor MySQL';
-    texte := 'Este computador aloja a base de dados de pacientes.' + #13#10#13#10
-      + 'Esta nova versão do Rufus reforça a segurança da base de dados através de uma gestão '
-      + 'mais elaborada da palavra-passe.' + #13#10#13#10
-      + 'Exige uma atualização do servidor MySQL: o Rufus vai desinstalar o MySQL, reinstalar uma '
-      + 'versão mais recente e, em seguida, fazer uma cópia de segurança e restaurar a sua base de dados de pacientes.' + #13#10#13#10
-      + 'Esta operação pode demorar vários minutos consoante o tamanho da sua base de dados.' + #13#10#13#10
-      + 'IMPORTANTE: se os outros computadores da rede local também utilizarem o Rufus, terão '
-      + 'OBRIGATORIAMENTE de ser atualizados para esta nova versão no prazo de um mês, caso contrário deixarão de funcionar.';
-    btnOk := 'OK, continuar (o Rufus atualizará o MySQL automaticamente)';
-    btnAnnuler := 'Cancelar, farei isto mais tarde';
+    titre := 'Servidor MySQL a atualizar';
+    texte := 'IMPORTANTE' + #13#10#13#10
+      + 'O Rufus guarda os dados dos seus pacientes numa base de dados - neste computador, noutro '
+      + 'computador da sua rede ou num servidor remoto. Essa base é gerida pelo servidor MySQL, '
+      + 'indispensável ao Rufus, que o Rufus instala por si próprio no primeiro arranque.' + #13#10#13#10
+      + 'Se não tenciona alojar a base de pacientes neste computador, ignore esta mensagem.' + #13#10#13#10
+      + 'Esta versão do Rufus reforça muito a segurança das palavras-passe e exige um servidor MySQL '
+      + '>= 8.0.14 (MariaDB não suportado). Este computador já aloja um servidor MySQL/MariaDB '
+      + 'demasiado antigo ou incompatível.' + #13#10#13#10
+      + 'No primeiro arranque, o Rufus proporá atualizar o servidor. Esta atualização apaga os dados '
+      + 'e exige uma cópia de segurança:' + #13#10
+      + '  - se a base deste computador for uma base de pacientes Rufus, o Rufus poderá copiá-la e '
+      + 'restaurá-la automaticamente;' + #13#10
+      + '  - se contiver outros dados, faça você mesmo uma cópia, caso contrário serão definitivamente perdidos.' + #13#10#13#10
+      + 'Deseja continuar a instalação do Rufus?  (Sim = continuar,  Não = cancelar)';
   end else begin
-    titre := 'Mise à jour du serveur MySQL';
-    texte := 'Ce poste héberge la base de données patients.' + #13#10#13#10
-      + 'Cette nouvelle version de Rufus renforce la sécurité de la base en mettant en place '
-      + 'une gestion plus élaborée du mot de passe.' + #13#10#13#10
-      + 'Elle nécessite une mise à jour du serveur MySQL : Rufus va désinstaller MySQL, '
-      + 'réinstaller une version plus récente, puis sauvegarder et restaurer votre base patients.' + #13#10#13#10
-      + 'Cette opération peut durer plusieurs minutes selon la taille de votre base.' + #13#10#13#10
-      + 'IMPORTANT : si les autres postes du réseau local utilisent aussi Rufus, ils devront '
-      + 'IMPÉRATIVEMENT être mis à jour vers cette nouvelle version sous un mois, faute de quoi '
-      + 'ils ne pourront plus fonctionner.';
-    btnOk := 'OK, continuer (Rufus mettra MySQL à jour automatiquement)';
-    btnAnnuler := 'Annuler, je ferai cela plus tard';
+    titre := 'Serveur MySQL à mettre à jour';
+    texte := 'IMPORTANT' + #13#10#13#10
+      + 'Rufus stocke les données de vos patients dans une base de données - sur ce poste, sur un '
+      + 'autre poste de votre réseau, ou sur un serveur distant. Cette base est gérée par le serveur '
+      + 'MySQL, indispensable à Rufus, que Rufus installe lui-même à son premier lancement.' + #13#10#13#10
+      + 'Si vous ne comptez pas héberger la base patients sur ce poste, ignorez ce message.' + #13#10#13#10
+      + 'Cette version de Rufus renforce fortement la sécurité des mots de passe et nécessite un '
+      + 'serveur MySQL >= 8.0.14 (MariaDB non pris en charge). Or ce poste héberge déjà un serveur '
+      + 'MySQL/MariaDB trop ancien ou incompatible.' + #13#10#13#10
+      + 'À son premier lancement, Rufus proposera de mettre à jour le serveur. Cette mise à jour '
+      + 'efface les données et nécessite donc une sauvegarde :' + #13#10
+      + '  - si la base de ce poste est une base patients Rufus, Rufus pourra la sauvegarder puis la '
+      + 'restaurer automatiquement ;' + #13#10
+      + '  - si elle contient d''autres données, sauvegardez-les vous-même, sinon elles seront définitivement perdues.' + #13#10#13#10
+      + 'Voulez-vous continuer à installer Rufus ?  (Oui = continuer,  Non = annuler)';
   end;
-  if lang = 'en' then texte := texte + #13#10#13#10 + 'Do you want to continue now?  (Yes = update,  No = later)'
-  else if lang = 'es' then texte := texte + #13#10#13#10 + '¿Desea continuar ahora?  (Sí = actualizar,  No = más tarde)'
-  else if lang = 'pt' then texte := texte + #13#10#13#10 + 'Deseja continuar agora?  (Sim = atualizar,  Não = mais tarde)'
-  else texte := texte + #13#10#13#10 + 'Voulez-vous continuer maintenant ?  (Oui = mettre à jour,  Non = plus tard)';
-  // MsgBox (Oui/Non) plutôt que TaskDialogMsgBox : fiable, boutons localisés par Windows.
-  // La question est portée par le texte (la version à libellés personnalisés provoquait
-  // « Invalid Button Labels » : Inno exige que le nombre de libellés corresponde à CommonButtons).
+  // MsgBox (Oui/Non) : fiable, boutons localisés par Windows. La question est portée par le texte.
   Result := (MsgBox(titre + #13#10#13#10 + texte, mbConfirmation, MB_YESNO) = IDYES);
 end;
 
 // True = on continue l'installation ; False = on l'abandonne (ancien Rufus intact).
+// Logique simplifiée : on regarde seulement le MySQL LOCAL.
+//   conforme (0) ou absent (2) → on installe sans rien dire ;
+//   trop ancien / MariaDB (1)  → avertissement + consentement (Non → abandon).
 function InitializeSetup(): Boolean;
-var etat, btn: Integer; role: String;
+var etat: Integer;
 begin
-  // Installation NEUVE (aucun Rufus préexistant) : rien à détruire → on n'importune
-  // pas l'utilisateur, on installe directement.
-  if not RufusDejaInstalle() then begin
-    Result := True; Exit;
-  end;
-
-  role := RoleDepuisIni();
-
-  // Point 1.c : ce poste est un CLIENT réseau (rufus.ini fait foi) → ce n'est pas lui qui
-  // héberge la base → on installe sans rien signaler ni contrôler le mysqld local.
-  if role = 'CLIENT' then begin
-    EcritCertif('CLIENT réseau (rufus.ini BDD_LOCAL/BDD_DISTANT) : installation sans contrôle de version');
-    Result := True; Exit;
-  end;
-
-  // MISE À JOUR d'un Rufus existant : on protège l'installation qui marche.
   etat := ControleMySQLLocal();
-
-  // Point 1.b : ce poste HÉBERGE la base (rufus.ini BDD_POSTE) → consentement UNIQUEMENT si un
-  // MySQL local est PRÉSENT mais ne convient pas (trop ancien, ou MariaDB) : la mise à jour
-  // imposera alors une sauvegarde/restauration (longue). Si AUCUN mysqld n'est présent (etat=2,
-  // ex. MySQL désinstallé), il n'y a RIEN à migrer → installation NEUVE du socle au 1er lancement :
-  // on continue SANS message (le « version trop ancienne » n'aurait aucun sens).
-  if role = 'SERVEUR' then begin
-    if etat = 0 then begin
-      EcritCertif('SERVEUR (rufus.ini BDD_POSTE) : MySQL local >= 8.0.14');
-      Result := True; Exit;
-    end;
-    if etat = 2 then begin
-      EcritCertif('SERVEUR (rufus.ini BDD_POSTE) : aucun MySQL local -> installation neuve du socle au 1er lancement');
-      Result := True; Exit;
-    end;
-    // etat = 1 : MySQL local PRÉSENT mais trop ancien (ou MariaDB) → consentement à la mise à jour.
-    if ConsentementMajServeur() then begin
-      EcritCertif('MAJ acceptée (SERVEUR rufus.ini) : socle MySQL à mettre à jour au 1er lancement');
-      Result := True;
-    end else begin
-      EcritCertif('REPORT (MAJ, SERVEUR rufus.ini) : installation annulée par l''utilisateur');
-      Result := False;
-    end;
+  if etat <> 1 then begin
+    EcritCertif('MySQL local conforme ou absent (etat=' + IntToStr(etat) + ') : installation sans avertissement');
+    Result := True;
     Exit;
   end;
-
-  // role = INCONNU (pas de rufus.ini exploitable) : repli sur l'heuristique du mysqld local.
-  if etat = 0 then begin
-    EcritCertif('MAJ - vérifié local : MySQL >= 8.0.14');
-    Result := True; Exit;
-  end;
-
-  if etat = 1 then begin
-    // MySQL local trop ancien (ou MariaDB) : on DEMANDE le consentement (cf. journal, 1.b).
-    if ConsentementMajServeur() then begin
-      EcritCertif('MAJ acceptée : MySQL local trop ancien, mise à jour auto au 1er lancement');
-      Result := True;
-    end else begin
-      EcritCertif('REPORT (MAJ) : MySQL trop ancien, installation annulée par l''utilisateur');
-      Result := False;
-    end;
-    Exit;
-  end;
-
-  // etat = 2 : pas de MySQL local → le Rufus existant est un CLIENT réseau.
-  // MsgBox Oui/Non (fiable) : Oui = je certifie ≥ 8.0.14 ; Non = je l'ignore.
-  btn := MsgBox(
-    'Vérification de votre serveur MySQL' + #13#10#13#10
-    + 'Cette version de Rufus exige un serveur MySQL 8.0.14 ou supérieur '
-      + '(MariaDB non pris en charge).' + #13#10#13#10
-      + 'Aucun MySQL n''a été détecté sur cet ordinateur (ce poste se connecte donc à '
-      + 'un serveur réseau).' + #13#10#13#10
-      + 'Votre serveur est-il en version 8.0.14 ou supérieure ?' + #13#10
-      + '   •  Oui  = je le certifie, continuer l''installation' + #13#10
-      + '   •  Non = je l''ignore (l''installation sera reportée)',
-    mbConfirmation, MB_YESNO);
-
-  if btn = IDYES then begin
-    EcritCertif('CERTIFIÉ par l''utilisateur (MAJ) : serveur réseau >= 8.0.14');
+  // etat = 1 : MySQL local présent mais trop ancien (ou MariaDB) → avertissement.
+  if ConsentementMajServeur() then begin
+    EcritCertif('Avertissement MySQL ancien/MariaDB accepté : installation poursuivie');
     Result := True;
   end else begin
-    // 101 (version inconnue) ou fenêtre fermée : on guide et on ABANDONNE.
-    MsgBox('Avant de mettre à jour, vérifiez la version de MySQL sur votre SERVEUR :' + #13#10
-      + '  • sur le serveur, ouvrez une invite de commandes et tapez : mysqld --version' + #13#10
-      + '  • ou dans MySQL Workbench : SELECT VERSION();' + #13#10#13#10
-      + 'Elle doit être >= 8.0.14 (et ne pas être MariaDB).' + #13#10#13#10
-      + 'Relancez cette mise à jour une fois la vérification faite. '
-      + 'Votre version actuelle de Rufus n''a pas été modifiée.',
-      mbInformation, MB_OK);
-    EcritCertif('ABANDON (MAJ) : version serveur inconnue, vérification demandée');
+    EcritCertif('Avertissement MySQL ancien/MariaDB : installation annulée par l''utilisateur');
     Result := False;
   end;
 end;

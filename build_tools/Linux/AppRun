@@ -39,9 +39,12 @@ ICONS_DIR="${HOME}/.local/share/icons/hicolor/256x256/apps"
 BIN_DIR="${HOME}/.local/bin"
 DESKTOP="${APPS_DIR}/rufus.desktop"
 
-# ── Pré-contrôle du socle MySQL (UNIQUEMENT en cas de MISE À JOUR) ────────────
-#  Règle : MySQL >= 8.0.14, MariaDB exclu. On ne contrôle que si un Rufus PRÉEXISTE
-#  (sinon, install neuve = rien à détruire = pas de contrôle). Trace ~/.rufus/.certif.
+# ── Pré-contrôle du socle MySQL ──────────────────────────────────────────────
+#  LOGIQUE SIMPLIFIÉE (cf. « initialisation Rufus.txt », section I) : on regarde
+#  seulement le MySQL LOCAL. Conforme (>=8.0.14) ou absent → on continue ; trop
+#  ancien / MariaDB → avertissement + consentement (le message dit « si vous
+#  n'hébergez pas la base ici, ignorez » → pas de détection de rôle).
+#  Règle : MySQL >= 8.0.14, MariaDB exclu. Trace ~/.rufus/.certif.
 RUFUS_DIR="${HOME}/.rufus"
 CERTIF="${RUFUS_DIR}/.certif"
 INSTALLED_APPIMAGE="${BIN_DIR}/${APPNAME}.AppImage"
@@ -49,16 +52,6 @@ INSTALLED_APPIMAGE="${BIN_DIR}/${APPNAME}.AppImage"
 ecrit_certif() {
     mkdir -p "${RUFUS_DIR}" 2>/dev/null
     printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${CERTIF}" 2>/dev/null
-}
-
-# Y a-t-il une BASE Rufus À PROTÉGER sur ce poste ? On se fie UNIQUEMENT à Rufus.ini
-# (= poste réellement configuré / connecté à une base). PAS au raccourci menu ni à l'AppImage
-# installée : ceux-ci signifient seulement « Rufus a déjà été lancé ici », pas « il y a une base ».
-# Sinon un simple 2e lancement (après ajout au menu) déclencherait à tort le pré-contrôle MySQL.
-# NB : nom canonique « Rufus.ini » (macro NOM_FILE_INI) ; on tolère aussi l'ancienne casse
-# minuscule, Linux étant sensible à la casse.
-rufus_preexistant() {
-    [ -f "${HOME}/Documents/Rufus/Rufus.ini" ] || [ -f "${HOME}/Documents/Rufus/rufus.ini" ]
 }
 
 # 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
@@ -77,42 +70,34 @@ controle_mysql_local() {
     return 1
 }
 
-# 0 = on peut continuer ; 1 = on bloque (socle non garanti)
+# 0 = on peut continuer ; 1 = on bloque (l'utilisateur a refusé)
 socle_mysql_ok() {
     [ -z "${DISPLAY}${WAYLAND_DISPLAY}" ] && return 0   # pas de GUI → on n'interroge pas
 
     controle_mysql_local; local e=$?
 
-    if [ "${e}" -eq 0 ]; then ecrit_certif "MAJ - vérifié local : MySQL >= 8.0.14"; return 0; fi
-
-    if [ "${e}" -eq 1 ]; then
-        command -v zenity >/dev/null 2>&1 && zenity --error --no-wrap \
-          --title="MySQL trop ancien" \
-          --text="Cette version de Rufus exige MySQL 8.0.14 ou supérieur (MariaDB non pris en charge).\n\nVotre serveur MySQL local est trop ancien.\n\nAvant de mettre à jour : sauvegardez votre base (Rufus actuel) → mettez MySQL à jour vers 8.x → restaurez, puis relancez." 2>/dev/null
-        ecrit_certif "REFUS (MAJ) : MySQL local < 8.0.14 ou MariaDB"
-        return 1
-    fi
-
-    # e = 2 : pas de mysqld local → le Rufus existant est un CLIENT réseau → 2 boutons
-    command -v zenity >/dev/null 2>&1 || { ecrit_certif "pas de mysqld local, zenity absent : laissé passer"; return 0; }
-    if zenity --question --no-wrap --title="Vérification du serveur MySQL" \
-        --text="Cette version de Rufus exige un serveur MySQL >= 8.0.14 (MariaDB non pris en charge).\n\nAucun MySQL local détecté (ce poste se connecte donc à un serveur réseau)." \
-        --ok-label="Le serveur est en >= 8.0.14 (je certifie)" \
-        --cancel-label="J'ignore la version — vérifier d'abord" 2>/dev/null; then
-        ecrit_certif "CERTIFIÉ par l'utilisateur (MAJ) : serveur réseau >= 8.0.14"
+    # Conforme (0) ou pas de MySQL local (2) → rien à signaler → on continue.
+    if [ "${e}" -ne 1 ]; then
+        ecrit_certif "MySQL local conforme ou absent (e=${e}) : poursuite sans avertissement"
         return 0
     fi
-    zenity --info --no-wrap --title="Vérifiez votre serveur" \
-        --text="Sur le SERVEUR, vérifiez la version de MySQL :\n  • mysqld --version\n  • ou, dans MySQL : SELECT VERSION();\nElle doit être >= 8.0.14 (et pas MariaDB).\n\nRelancez Rufus une fois la vérification faite." 2>/dev/null
-    ecrit_certif "ABANDON (MAJ) : version serveur inconnue, vérification demandée"
+
+    # e = 1 : MySQL local présent mais trop ancien (ou MariaDB) → avertissement + consentement.
+    command -v zenity >/dev/null 2>&1 || { ecrit_certif "MySQL ancien/MariaDB mais zenity absent : laissé passer"; return 0; }
+    if zenity --question --no-wrap --title="Serveur MySQL à mettre à jour" \
+        --text="<b>IMPORTANT</b>\n\nRufus stocke les données de vos patients dans une base de données gérée par le serveur MySQL, que Rufus installe lui-même à son premier lancement.\n\n<b>Si vous ne comptez pas héberger la base patients sur ce poste, ignorez ce message.</b>\n\nCette version de Rufus nécessite un serveur MySQL ≥ 8.0.14 (MariaDB non pris en charge). Or ce poste héberge déjà un serveur MySQL/MariaDB trop ancien ou incompatible.\n\nAu premier lancement, Rufus proposera de mettre à jour le serveur. Cette mise à jour efface les données et nécessite donc une sauvegarde :\n  •  base patients Rufus → Rufus pourra la sauvegarder puis la restaurer automatiquement ;\n  •  autres données → sauvegardez-les vous-même, sinon elles seront définitivement perdues.\n\nVoulez-vous continuer à installer Rufus ?" \
+        --ok-label="Continuer" --cancel-label="Annuler" 2>/dev/null; then
+        ecrit_certif "Avertissement MySQL ancien/MariaDB accepté : poursuite"
+        return 0
+    fi
+    ecrit_certif "Avertissement MySQL ancien/MariaDB : installation annulée par l'utilisateur"
     return 1
 }
 
-# On ne contrôle qu'en cas de MISE À JOUR : un Rufus préexiste ET on lance une
-# AppImage AUTRE que celle déjà installée (= une nouvelle version qu'on démarre).
-# Lancement normal depuis le menu (AppImage installée) → pas de contrôle, pas de
-# question. Installation neuve (aucun Rufus préexistant) → pas de contrôle non plus.
-if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ] && rufus_preexistant; then
+# On contrôle quand on lance une AppImage AUTRE que celle déjà installée (= installation
+# neuve OU nouvelle version qu'on démarre). Lancement normal depuis le menu (AppImage
+# installée) → pas de contrôle, pas de question.
+if [ -n "${APPIMAGE}" ] && [ "${APPIMAGE}" != "${INSTALLED_APPIMAGE}" ]; then
     socle_mysql_ok || exit 1
 fi
 
