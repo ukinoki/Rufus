@@ -86,7 +86,7 @@ private:
     explicit                Procedures(QObject *parent = Q_NULLPTR);
     static Procedures*      instance;
     QSettings               *m_settings = Q_NULLPTR;
-    ParametresSysteme       *m_parametres;
+    ParametresSysteme       *m_parametres = Q_NULLPTR;
     OsTask                  m_ostask;
     QString                 m_version = ""; //! la version du  programme
 
