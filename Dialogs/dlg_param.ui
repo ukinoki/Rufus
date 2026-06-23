@@ -1045,7 +1045,7 @@
            <enum>QTabWidget::TabPosition::North</enum>
           </property>
           <property name="currentIndex">
-           <number>2</number>
+           <number>0</number>
           </property>
           <property name="tabBarAutoHide">
            <bool>false</bool>
@@ -1158,6 +1158,25 @@
              </property>
              <property name="text">
               <string>Exporter les clés client SSL (clé USB)</string>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="CreerClesSSLPosteupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>110</y>
+               <width>305</width>
+               <height>28</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+             </property>
+             <property name="text">
+              <string>Créer de nouvelles clés SSL</string>
              </property>
             </widget>
            </widget>

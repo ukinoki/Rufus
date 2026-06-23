@@ -381,8 +381,6 @@ dlg_param::dlg_param(QWidget *parent) :
     a                               = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
-    //! Export des clés client SSL : réservé au poste qui HÉBERGE la base (il en conserve la copie).
-    ui->ExportClesSSLPosteupPushButton  ->setVisible(a);
     ui->MonoDocsExtupLabel          ->setVisible(a);
     ui->MonoDocupTableWidget        ->setVisible(a);
     if (a)
@@ -431,8 +429,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->DistantVideoDirupLabel      ->setVisible(c);
     ui->DistantVideoDirupLineEdit   ->setVisible(c);
     ui->DistantVideoDirupPushButton ->setVisible(c);
-    //! Export des clés client SSL d'accès distant : visible quand l'accès distant est paramétré.
-    ui->ExportClesSSLDistantupPushButton ->setVisible(c);
     if (c)
     {
         ui->EmplacementDistantuplineEdit->setText(proc->settings()->value(Base + Param_Serveur).toString());
@@ -1103,7 +1099,6 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->DistantVideoDirupLabel      ->setVisible(a);
         ui->DistantVideoDirupLineEdit   ->setVisible(a);
         ui->DistantVideoDirupPushButton ->setVisible(a);
-        ui->ExportClesSSLDistantupPushButton ->setVisible(a);
      }
 }
 
