@@ -65,6 +65,13 @@ Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: de
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent unchecked
 
 
+[UninstallDelete]
+; Rufus.ini est créé par l'application (pas par l'installeur) → Inno ne le retire pas tout seul.
+; On le supprime à la désinstallation. {%USERPROFILE} vise le profil de l'utilisateur connecté
+; (même hypothèse que la lecture de la langue à l'installation).
+Type: files; Name: "{%USERPROFILE}\Documents\Rufus\Rufus.ini"
+
+
 ; ─────────────────────────────────────────────────────────────────────────────
 ;  PRÉ-CONTRÔLE MySQL (avant TOUTE installation : on ne touche pas à l'ancien
 ;  Rufus tant que le socle MySQL n'est pas validé).
@@ -115,21 +122,68 @@ begin
   if (champ = 2) and (n > 0) then begin Pat := val; Result := True; end;
 end;
 
-// 0 = OK (>=8.0.14 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
-function ControleMySQLLocal(): Integer;
-var Sortie: String; Maj, Min, Pat: Integer;   // NB: ne PAS nommer "Out" (mot-clé réservé Pascal)
+// Analyse la sortie de « <mysqld> --version ».
+//   0 = version >= mini ; 1 = trop vieux / MariaDB ; -1 = pas de version exploitable (essayer ailleurs)
+function EtatDepuisMysqld(const MysqldCmd: String): Integer;
+var Sortie: String; Maj, Min, Pat: Integer;
 begin
-  Result := 2;
-  if not LitSortie('mysqld --version', Sortie) then Exit;
+  Result := -1;
+  if not LitSortie(MysqldCmd + ' --version', Sortie) then Exit;
   if Trim(Sortie) = '' then Exit;
   if Pos('mariadb', Lowercase(Sortie)) > 0 then begin Result := 1; Exit; end;
-  if not ExtraitVersion(Sortie, Maj, Min, Pat) then Exit;   // version illisible -> traiter comme absent
+  if not ExtraitVersion(Sortie, Maj, Min, Pat) then Exit;   // « 'mysqld' n'est pas reconnu… » -> -1
   if (Maj > MIN_MAJOR)
      or ((Maj = MIN_MAJOR) and (Min > MIN_MINOR))
      or ((Maj = MIN_MAJOR) and (Min = MIN_MINOR) and (Pat >= MIN_PATCH)) then
     Result := 0
   else
     Result := 1;
+end;
+
+// Cherche « <sous-dossier>\bin\mysqld.exe » sous un dossier de base (ex. C:\Program Files\MySQL).
+// Renvoie le chemin complet ENTRE GUILLEMETS, ou '' si rien trouvé.
+function ChercheMysqldDans(const BaseDir: String): String;
+var fr: TFindRec; chemin: String;
+begin
+  Result := '';
+  if not DirExists(BaseDir) then Exit;
+  if FindFirst(BaseDir + '\*', fr) then begin
+    try
+      repeat
+        if ((fr.Attributes and FILE_ATTRIBUTE_DIRECTORY) <> 0)
+           and (fr.Name <> '.') and (fr.Name <> '..') then begin
+          chemin := BaseDir + '\' + fr.Name + '\bin\mysqld.exe';
+          if FileExists(chemin) then begin Result := '"' + chemin + '"'; Exit; end;
+        end;
+      until not FindNext(fr);
+    finally
+      FindClose(fr);
+    end;
+  end;
+end;
+
+// mysqld.exe hors PATH : emplacements d'installation standard de MySQL.
+function TrouveMysqldHorsPath(): String;
+begin
+  Result := ChercheMysqldDans(ExpandConstant('{commonpf}\MySQL'));
+  if Result = '' then
+    Result := ChercheMysqldDans(ExpandConstant('{commonpf32}\MySQL'));
+end;
+
+// 0 = OK (>=8.0.14 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
+// On essaie d'abord le PATH, puis les emplacements d'installation standard : un MySQL installé
+// mais ABSENT du PATH (cas fréquent sous Windows) ne doit pas être pris pour « aucun serveur ».
+function ControleMySQLLocal(): Integer;
+var etat: Integer; chemin: String;
+begin
+  etat := EtatDepuisMysqld('mysqld');                 // 1. via le PATH
+  if etat >= 0 then begin Result := etat; Exit; end;
+  chemin := TrouveMysqldHorsPath();                   // 2. emplacements standard
+  if chemin <> '' then begin
+    etat := EtatDepuisMysqld(chemin);
+    if etat >= 0 then begin Result := etat; Exit; end;
+  end;
+  Result := 2;                                         // 3. aucun mysqld détecté
 end;
 
 procedure EcritCertif(const Ligne: String);
