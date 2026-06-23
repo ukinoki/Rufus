@@ -3129,13 +3129,21 @@ bool Procedures::Connexion_A_La_Base()
                 m_settings->setValue(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL, dir);
             if (!clesSSLpresentes())
             {
-                RecupererDemarrage(tr("Clés SSL introuvables"),
-                                   tr("L'accès distant nécessite les clés SSL du cabinet "
-                                      "(client-key.pem, client-cert.pem, ca-cert.pem), à copier depuis le "
-                                      "poste serveur sur une clé USB.") + "\n" +
-                                   tr("Indiquez leur dossier (Reconstruire), ou quittez."),
-                                   false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
-                                   false /*PremDemarrage*/, false /*RestaurerBase*/);
+                UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"),
+                    tr("L'accès distant nécessite les clés SSL du cabinet (client-key.pem, "
+                       "client-cert.pem), à copier depuis le poste serveur sur une clé USB."));
+                //! Pas de connexion possible sans les clés. On RENVOIE vers les paramètres de
+                //! connexion : plusieurs modes paramétrés → on revient au CHOIX du mode (le
+                //! constructeur reboucle sur FicheChoixConnexion() ; l'utilisateur peut basculer
+                //! sur un accès local) ; un seul mode → on ressaisit les paramètres
+                //! (VerifParamConnexion, qui inclut le dossier des clés SSL) puis on relance.
+                if (ListeModesAcces().size() > 1)
+                    return false;
+                if (VerifParamConnexion())
+                {
+                    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+                    exit(0);
+                }
                 return false;
             }
         }
@@ -3173,35 +3181,21 @@ bool Procedures::Connexion_A_La_Base()
             errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
 
         //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth : serveur injoignable,
-        //! mauvais serveur/port…). GARDE-FOU à 2 boutons AVANT le carrefour : un échec de connexion
-        //! est le plus souvent transitoire (serveur éteint, réseau) ; on présente d'abord un choix
-        //! SIMPLE — Quitter / Revoir les paramètres — plutôt que le carrefour complet, dont les
-        //! options (reconstruire/restaurer Rufus.ini) peuvent intimider un utilisateur peu à l'aise.
+        //! mauvais serveur/port…) : on présente le CARREFOUR de récupération AVEC le bouton de
+        //! connexion/création d'une base (mode-aware : PremierDemarrage en monoposte,
+        //! VerifParamConnexion en client). Sans ce bouton, un rufus.ini correct pointant vers un
+        //! serveur/base disparu menait à une IMPASSE (on ne pouvait que reconstruire/restaurer
+        //! Rufus.ini). RestaurerBase=false (sans connexion, pas de restauration de base) ;
+        //! ReconstruitIni=false (en client, ce serait redondant avec le bouton « Connexion »).
         if (!errConnexion.isEmpty())
         {
-            UpMessageBox msgbox(Q_NULLPTR);
-            msgbox.setText(tr("Connexion à la base impossible"));
-            msgbox.setInformativeText(tr("Rufus n'a pas pu se connecter à la base de données avec les "
-                                         "paramètres enregistrés."));
-            msgbox.setIcon(UpMessageBox::Warning);
-            UpSmallButton *Annul  = new UpSmallButton(); Annul ->setText(tr("Abandonner et\nquitter Rufus"));
-            UpSmallButton *Revoir = new UpSmallButton(); Revoir->setText(tr("Revoir les paramètres\nde connexion"));
-            msgbox.addButton(Annul,  UpSmallButton::CLOSEBUTTON);
-            msgbox.addButton(Revoir, UpSmallButton::STARTBUTTON);
-            msgbox.exec();
-            if (msgbox.clickedButton() != Revoir)
-                return false;                       //! Quitter → on sort (rufus.cpp fera exit(0))
-
-            //! « Revoir » → CARREFOUR de récupération (Reconstruire les paramètres, restaurer
-            //! Rufus.ini, ou quitter). RestaurerBase = false (sans connexion, pas de restauration de
-            //! base) ; PremDemarrage = false (une panne de connexion ne justifie pas une base vierge
-            //! qui abandonnerait la base existante). Le carrefour RELANCE Rufus si une récupération
-            //! réussit ; sinon (annulation), on sort.
-            RecupererDemarrage(tr("Revoir les paramètres de connexion"),
-                               tr("Vous pouvez reconstruire les paramètres de connexion, restaurer le "
-                                  "fichier Rufus.ini depuis une sauvegarde, ou quitter."),
-                               false /*DetruitIni*/, true /*RecupIni*/, true /*ReconstruitIni*/,
-                               false /*PremDemarrage*/, false /*RestaurerBase*/);
+            RecupererDemarrage(tr("Connexion à la base impossible"),
+                               tr("Rufus n'a pas pu se connecter à la base de données avec les "
+                                  "paramètres enregistrés.") + "\n" +
+                               tr("Vous pouvez vous connecter à (ou créer) une base patients, "
+                                  "restaurer le fichier Rufus.ini depuis une sauvegarde, ou quitter."),
+                               false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
+                               true /*PremDemarrage*/, false /*RestaurerBase*/);
             return false;
         }
     }
@@ -4772,10 +4766,27 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
     UpSmallButton RecupIniBouton           (tr("Restaurer le fichier Rufus.ini\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
     UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nRufus.ini"));
-    UpSmallButton PremierDemarrageBouton   (tr("Connexion/Création\nd'une base patients"));
+    UpSmallButton PremierDemarrageBouton;
 
-    PremierDemarrageBouton.setImmediateToolTip(tr("Cette option permet de créer une nouvelle base patients vierge\n"
-                                            "ou de se connecter à une base patients existante sur le serveur"));
+    //! Le bouton « connexion » s'adapte au MODE (déjà connu par db) :
+    //!   - réseau local / distant (CLIENT) : on ne CRÉE pas de base, on (re)saisit seulement les
+    //!     paramètres de connexion → VerifParamConnexion() ;
+    //!   - monoposte / mode encore indéterminé (pas de rufus.ini) : création OU connexion via
+    //!     PremierDemarrage() (qui propose base vierge / base existante).
+    const bool clientReseau = (db->ModeAccesDataBase() == Utils::ReseauLocal
+                            || db->ModeAccesDataBase() == Utils::Distant);
+    if (clientReseau)
+    {
+        PremierDemarrageBouton.setText(tr("Connexion à une\nbase patients"));
+        PremierDemarrageBouton.setImmediateToolTip(tr("Se connecter à une base patients existante "
+                                                "sur le serveur (paramètres de connexion)"));
+    }
+    else
+    {
+        PremierDemarrageBouton.setText(tr("Connexion/Création\nd'une base patients"));
+        PremierDemarrageBouton.setImmediateToolTip(tr("Cette option permet de créer une nouvelle base patients vierge\n"
+                                                "ou de se connecter à une base patients existante sur le serveur"));
+    }
 
     UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
@@ -4866,7 +4877,22 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
         }
     }
     else if (msgbox->clickedButton()==&PremierDemarrageBouton)
-        reponse = PremierDemarrage();
+    {
+        if (clientReseau)
+        {
+            //! Client réseau : pas de création de base ; on (re)saisit les paramètres de connexion.
+            //! Succès → relance pour repartir proprement (comme la reconstruction de Rufus.ini).
+            if (VerifParamConnexion())
+            {
+                UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
+                                    tr("Rufus va redémarrer."));
+                QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+                exit(0);
+            }
+        }
+        else
+            reponse = PremierDemarrage();
+    }
     return reponse;
 }
 
