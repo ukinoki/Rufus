@@ -3175,12 +3175,14 @@ bool Procedures::Connexion_A_La_Base()
     //! (qui installe le socle) et « Quitter » ont du sens ici.
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
-        RecupererDemarrage(tr("Aucun serveur de base de données"),
-                           tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
-                           tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
-                              "vierge (le serveur sera installé automatiquement), ou quittez."),
-                           false /*DetruitIni*/, false /*RecupIni*/, false /*ReconstruitIni*/,
-                           true /*PremDemarrage*/, false /*RestaurerBase*/);
+        // On est en monoposte et il n'y a pas de serveur => on crée une base vierge après avoir téléchargé le serveur
+        PremierDemarrage(true, false);
+        //RecupererDemarrage(tr("Aucun serveur de base de données"),
+        //                   tr("Aucun serveur MySQL n'est installé sur ce poste.") + "\n" +
+        //                   tr("Pour utiliser Rufus en monoposte, créez une nouvelle base patients "
+        //                      "vierge (le serveur sera installé automatiquement), ou quittez."),
+        //                   false /*DetruitIni*/, false /*RecupIni*/, false /*ReconstruitIni*/,
+        //                   true /*PremDemarrage*/, false /*RestaurerBase*/);
         return false;
     }
 
@@ -4539,10 +4541,11 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage()
+bool Procedures::PremierDemarrage(bool CreerBase, bool ConnectBase)
 {
     UpMessageBox *msgbox = new UpMessageBox;
-    UpSmallButton    AnnulBouton        (tr("Retour\nau menu d'accueil"));
+
+    UpSmallButton    AnnulBouton        (tr("Abandonner"));
     UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients vierge"));
     UpSmallButton    BaseExistanteBouton(tr("Base patients existante\nsur le serveur"));
 
@@ -4553,8 +4556,10 @@ bool Procedures::PremierDemarrage()
                               "2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà\n"));
     msgbox->setIcon(UpMessageBox::Info);
 
-    msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
-    msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
+    if (CreerBase)
+        msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
+    if (ConnectBase)
+        msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
     msgbox->addButton(&AnnulBouton,         UpSmallButton::CANCELBUTTON);
     msgbox->exec();
 
