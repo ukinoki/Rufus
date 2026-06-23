@@ -22,6 +22,10 @@
 AppId={{BB737C7D-1DA8-4BB2-9950-DA8781E50453}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
+; Empêche le lancement de PLUSIEURS instances simultanées de l'installeur (double-clic répété,
+; ou deux sessions utilisateur) : Inno crée ce mutex au démarrage et refuse une 2e instance tant
+; que la 1re tourne. Préfixe « Global\ » → vaut pour toutes les sessions de la machine.
+SetupMutex=Global\RufusVisionSetupMutex
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
