@@ -43,6 +43,7 @@ Donc, on énumère
 							→ dossier partagé
 							→ droits lecture/écriture
 							→ droits utilisateur
+							→ clésSSL présentes
 							→ si pas OK → on corrige
 					 	→ MySQL >= 8.014 → enregistrement du mdp dans .dbkey
 						→ on vérifie la cohérence de la base Rufus
@@ -102,7 +103,6 @@ Donc, on énumère
 					→ dossier partagé
 					→ droits lecture/écriture
 					→ droits utilisateur
-					→ clésSSL présentes
 					→ si pas OK → on corrige
 				→ on vérifie la cohérence de la base Rufus
 					→ si pas OK → messageBox "base de données endommagée"
