@@ -3195,9 +3195,19 @@ bool Procedures::Connexion_A_La_Base()
         //! balade pas un utilisateur peu à l'aise à travers le carrefour pour, au final, juste lui
         //! demander un mot de passe — puis on réessaie. (RecupererMotDePasseMySQL est statique : pas
         //! besoin d'ouvrir le dialogue dlg_paramconnexion.)
-        if (MySQLInstaller::estErreurAuthentification(errConnexion)
-            && dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR))
-            errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+        //! MONOPOSTE : on ajoute un 4e bouton « mot de passe inconnu → réinitialiser le serveur »
+        //! (remplacer un serveur local sans s'y connecter : mdp égaré / données sans importance).
+        if (MySQLInstaller::estErreurAuthentification(errConnexion))
+        {
+            const bool monoposte = (db->ModeAccesDataBase() == Utils::Poste);
+            bool reinitialiser = false;
+            if (dlg_paramconnexion::RecupererMotDePasseMySQL(Q_NULLPTR, QString(), QString(),
+                                                             monoposte ? &reinitialiser : nullptr))
+                errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);   // mdp obtenu → on réessaie
+            else if (monoposte && !reinitialiser)
+                return false;   //! bouton « Annuler » (monoposte) → on sort ; sinon (réinitialiser
+                                //! demandée, OU mode client) → on tombe sur le carrefour ci-dessous.
+        }
 
         //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth : serveur injoignable,
         //! mauvais serveur/port…) : on présente le CARREFOUR de récupération AVEC le bouton de

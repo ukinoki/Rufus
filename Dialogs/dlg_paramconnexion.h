@@ -72,7 +72,12 @@ public:
     //! titre/corps optionnels : permettent d'adapter le message d'introduction au CONTEXTE — échec
     //! d'authentification (défaut) OU récupération PROACTIVE alors que le générique fonctionne encore
     //! (cf. MySQLInstaller::proposerRecuperationAleatoire). Vides → le message « échec » par défaut.
-    static bool     RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(), const QString &corps = QString());
+    //! reinitialiserDemande (MONOPOSTE) : si non nul, ajoute un 4e bouton « mot de passe inconnu →
+    //! réinitialiser le serveur » ; un clic met *reinitialiserDemande=true et renvoie false (on ne
+    //! cherche pas à se connecter, on veut remplacer le serveur sans sauvegarde).
+    static bool     RecupererMotDePasseMySQL(QWidget *parent, const QString &titre = QString(),
+                                             const QString &corps = QString(),
+                                             bool *reinitialiserDemande = nullptr);
 
 private:
     QString         m_IPaveczero = "";              //!< adresse du serveur normalisée avec des zéros de remplissage (000.000.000.000)

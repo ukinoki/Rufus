@@ -291,8 +291,11 @@ QString dlg_paramconnexion::TenterConnexionAvecRecuperation()
 //! aléatoire du cabinet, soit en important le fichier copié sur une clé USB depuis
 //! un poste qui fonctionne, soit en le saisissant. En cas de succès, l'enregistre
 //! (.dbkey + cache) et renvoie true pour signaler qu'un nouvel essai est possible.
-bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre, const QString &corps)
+bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString &titre,
+                                                  const QString &corps, bool *reinitialiserDemande)
 {
+    if (reinitialiserDemande)
+        *reinitialiserDemande = false;
     UpMessageBox msgbox(parent);
     msgbox.setText(!titre.isEmpty() ? titre : tr("Base de données sécurisée"));
     msgbox.setInformativeText(!corps.isEmpty() ? corps
@@ -308,9 +311,24 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
     SaisirBouton->setText(tr("Saisir le mot de passe"));
     USBBouton   ->setText(tr("Importer depuis une clé USB"));
     msgbox.addButton(AnnulBouton,  UpSmallButton::CLOSEBUTTON);
+    //! 4e bouton (MONOPOSTE) : on ne connaît pas le mot de passe et on veut REMPLACER le serveur
+    //! sans s'y connecter (données sans importance / mdp égaré) → réinitialisation.
+    UpSmallButton *ReinitBouton = nullptr;
+    if (reinitialiserDemande)
+    {
+        ReinitBouton = new UpSmallButton();
+        ReinitBouton->setText(tr("Mot de passe inconnu :\nréinitialiser le serveur"));
+        msgbox.addButton(ReinitBouton, UpSmallButton::NOBUTTON);
+    }
     msgbox.addButton(SaisirBouton, UpSmallButton::CANCELBUTTON);
     msgbox.addButton(USBBouton,    UpSmallButton::STARTBUTTON);
     msgbox.exec();
+
+    if (ReinitBouton && msgbox.clickedButton() == ReinitBouton)
+    {
+        *reinitialiserDemande = true;
+        return false;                 //! pas de mot de passe : l'appelant orientera vers la réinitialisation
+    }
 
     QString mdp;
     if (msgbox.clickedButton() == USBBouton)
