@@ -142,9 +142,9 @@ II LANCEMENT DE RUFUS
 				→ recueil de la version de MySQL
 				→ on vérifie l'accès au dossier partagé d'imagerie (montage du partage réseau)
 					→ si pas accessible → message invitant à monter le partage (manuel)
-				→ NB : la config du SERVEUR (secure-file-priv, droits MySQL, dossier partagé côté serveur)
-				       n'est PAS corrigée ici : un client ne peut pas la corriger, elle relève du poste
-				       serveur (monoposte), sur lequel on lance Rufus à jour
+						→ NB : la config du SERVEUR (secure-file-priv, droits MySQL, dossier partagé côté serveur)
+				       		n'est PAS corrigée ici : un client ne peut pas la corriger, elle relève du poste
+				       		serveur (monoposte), sur lequel on lance Rufus à jour
 				→ on vérifie la cohérence de la base Rufus
 					→ si pas OK → messageBox "base de données endommagée"
 								"vous devez restaurer une base patients"
