@@ -1121,18 +1121,26 @@ bool MySQLInstaller::run()
             return false;                       // retour au menu précédent
 
         case QueFaireMySQL::Reinstaller: {
-            // Incompatible : on avertit (perte des données non-Rufus), l'utilisateur
-            // sauvegarde lui-même, puis on désinstalle/réinstalle MySQL 8.x.
+            // « Réinitialiser totalement MySQL » : sert AUX DEUX cas — version incompatible
+            // (< 8.0.14 / MariaDB) ET version compatible mais SANS mot de passe valide. On
+            // avertit (perte des données non-Rufus), l'utilisateur sauvegarde lui-même, puis
+            // on DÉSINSTALLE simplement MySQL et on RELANCE Rufus : au redémarrage, le flux
+            // normal ne trouve aucun serveur → installation neuve. Pas de logique en double
+            // (on ne réinstalle pas en ligne) et aucune connexion requise.
             offrirSauvegardeAvantEffacement();  // (quitte Rufus s'il veut sauvegarder)
             if (!assurerDroitsAdmin()) continue;
             MySQLProgressDialog* clean = new MySQLProgressDialog(
-                tr("Désinstallation de l'ancien MySQL…"));
+                tr("Désinstallation de MySQL…"));
             clean->show();
             QApplication::processEvents();
             uninstallMySQL();
             clean->close();
             delete clean;
-            return faireCreate(cfg);            // installation neuve complète
+            UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
+                tr("MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf."));
+            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+            exit(0);
+            return true;                        // jamais atteint
         }
 
         case QueFaireMySQL::Effacer:
