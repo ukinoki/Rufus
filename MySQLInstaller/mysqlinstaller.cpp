@@ -168,8 +168,8 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     m_mdpConfirmLbl->setVisible(false);
     m_mdpConfirm->setVisible(false);
 
-    // Les 6 cases (affichage seul) insérées entre la saisie et les boutons.
-    for (int i = 0; i < 6; i++) {
+    // Les 7 cases (affichage seul) insérées entre la saisie et les boutons.
+    for (int i = 0; i < 7; i++) {
         m_steps[i] = new UpCheckBox();
         m_steps[i]->setToggleable(false);   // pilotée par l'engine, non cliquable
         dlglayout()->insertWidget(row++, m_steps[i]);
@@ -332,13 +332,14 @@ QString MySQLInstallerDialog::baseStepLabel(int i) const
     case 3: return tr("secure_file_priv configuré");
     case 4: return tr("Lecture / écriture MySQL vérifiée");
     case 5: return tr("Droits de l'utilisateur confirmés");
+    case 6: return tr("Clés SSL pour l'accès distant");
     }
     return {};
 }
 
 void MySQLInstallerDialog::applyStepLabel(int i)
 {
-    if (i < 0 || i > 5) return;
+    if (i < 0 || i > 6) return;
     QString label = baseStepLabel(i);
     if (!m_stepDetail[i].isEmpty())
         label += " : " + m_stepDetail[i];
@@ -347,7 +348,7 @@ void MySQLInstallerDialog::applyStepLabel(int i)
 
 void MySQLInstallerDialog::checkStep(int i)
 {
-    if (i < 0 || i > 5) return;
+    if (i < 0 || i > 6) return;
     m_steps[i]->setChecked(true);
     QApplication::processEvents();
     //! Pause pour qu'on VOIE chaque coche se poser (comme dlg_identificationuser) : sinon les
@@ -359,14 +360,14 @@ void MySQLInstallerDialog::checkStep(int i)
 
 void MySQLInstallerDialog::uncheckAllSteps()
 {
-    for (int i = 0; i < 6; i++)
+    for (int i = 0; i < 7; i++)
         m_steps[i]->setChecked(false);
     QApplication::processEvents();
 }
 
 void MySQLInstallerDialog::setStepDetail(int i, const QString& detail)
 {
-    if (i < 0 || i > 5) return;
+    if (i < 0 || i > 6) return;
     m_stepDetail[i] = detail;
     applyStepLabel(i);
 }
@@ -2048,6 +2049,15 @@ bool MySQLInstaller::executerEtapesConfig()
     }
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(5);
+
+    // ── Étape 7 : clés SSL pour l'accès distant ───────────────────────────
+    // Les certificats sont auto-générés par MySQL dans le datadir ; on récolte la copie CLIENT
+    // (exportable) si elle n'a pas déjà été faite à l'installation. BEST-EFFORT : l'accès distant
+    // est optionnel, on ne fait pas échouer la config s'il manque (le contrôle au démarrage,
+    // controlerClesSSLMonoposte(), rattrapera au besoin).
+    if (!clesSSLServeurPresentes())
+        extraireClesSSLDepuisDatadir();
+    m_dialog->checkStep(6);
 
     // ── Toutes les étapes de configuration sont validées ─────────────────────
     return true;

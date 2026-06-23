@@ -133,8 +133,8 @@ private:
     UpLabel*       m_mdpConfirmLbl = nullptr;   // confirmation du mot de passe (création de compte)
     UpLineEdit*    m_mdpConfirm    = nullptr;
     UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)
-    UpCheckBox* m_steps[6];
-    QString     m_stepDetail[6];
+    UpCheckBox* m_steps[7];          // 0..5 = config ; 6 = clés SSL pour l'accès distant
+    QString     m_stepDetail[7];
     QString     m_minVersion = VERSION_MYSQL_MINI;   // seuil commun (8.0.14), écrasé par setMinVersion()
     bool        m_cancelled  = false;
 };
