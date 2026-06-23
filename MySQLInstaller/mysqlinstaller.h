@@ -130,6 +130,8 @@ private:
     UpLabel*       m_mdpLbl        = nullptr;
     UpLineEdit*    m_login         = nullptr;
     UpLineEdit*    m_mdp           = nullptr;
+    UpLabel*       m_mdpConfirmLbl = nullptr;   // confirmation du mot de passe (création de compte)
+    UpLineEdit*    m_mdpConfirm    = nullptr;
     UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)
     UpCheckBox* m_steps[6];
     QString     m_stepDetail[6];
