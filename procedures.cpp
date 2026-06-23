@@ -3213,6 +3213,12 @@ bool Procedures::Connexion_A_La_Base()
     //! (comme pour la base endommagée et la version). No-op si tout est conforme.
     MySQLInstaller().verifierEtReparerConfigMonoposte();
 
+    //! CLÉS SSL (MONOPOSTE) : le serveur rattrape des clés effacées, jamais récoltées ou expirées
+    //! (cas typique : ancien Rufus + MySQL 8 déjà présent → certificats auto-générés dans le datadir
+    //! mais jamais récoltés). Réextraction silencieuse si possible ; sinon, avertissement +
+    //! régénération destructive sur consentement (puis relance). No-op en réseau/distant.
+    MySQLInstaller().controlerClesSSLMonoposte();
+
     //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi, mais la base est-elle
     //! exploitable ? On sonde une table cœur (rufus.utilisateurs) via la connexion DÉJÀ ouverte —
     //! vaut pour monoposte ET client (pas de client CLI localhost, contrairement à

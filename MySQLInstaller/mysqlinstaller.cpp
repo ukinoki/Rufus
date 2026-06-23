@@ -1729,6 +1729,180 @@ void MySQLInstaller::restaurerClesSSLMigration()
     QDir(stash).removeRecursively();
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+//  SSL — contrôle et (re)génération des clés (serveur / monoposte)
+// ─────────────────────────────────────────────────────────────────────────────
+
+//  La copie CLIENT exportable (récoltée du datadir) est-elle présente ? Ce sont ces 3 fichiers
+//  qu'on distribue aux postes distants et qu'on a besoin de pouvoir exporter.
+bool MySQLInstaller::clesSSLServeurPresentes()
+{
+    const QString d = QString(PATH_DIR_CLESSSL_SERVEUR);
+    return QFile::exists(d + "/ca-cert.pem")
+        && QFile::exists(d + "/client-cert.pem")
+        && QFile::exists(d + "/client-key.pem");
+}
+
+//  Date d'expiration du certificat SERVEUR, lue via l'état SSL du serveur (aucun accès au datadir
+//  requis). Renvoie une QDateTime INVALIDE si SSL est inactif / le certificat est absent / illisible.
+QDateTime MySQLInstaller::dateExpirationCertSSL()
+{
+    bool ok = false;
+    const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+        "SHOW STATUS LIKE 'Ssl_server_not_after'", ok);
+    if (!ok || r.size() < 2)
+        return QDateTime();
+    QString v = r.at(1).toString().trimmed();   // p.ex. « Apr 14 12:00:00 2034 GMT »
+    if (v.isEmpty())
+        return QDateTime();
+    v.remove(" GMT").remove(" UTC");
+    v = v.simplified();                          // « Apr 1 … » (jour sur 1 chiffre) → un seul espace
+    QDateTime dt = QLocale(QLocale::C).toDateTime(v, "MMM d HH:mm:ss yyyy");
+    if (dt.isValid()) dt.setTimeSpec(Qt::UTC);
+    return dt;
+}
+
+//  (Ré)extrait les clés CLIENT du datadir vers PATH_DIR_CLESSSL_SERVEUR, SANS arrêter le serveur
+//  (les .pem sont lisibles pendant qu'il tourne) → AUCUNE coupure de la connexion. Cas d'usage : la
+//  copie exportable a été effacée par erreur alors que le serveur a toujours ses certificats.
+//  true si la copie client est désormais présente.
+bool MySQLInstaller::extraireClesSSLDepuisDatadir()
+{
+    const QString datadir = mysqlDataDir();
+#if defined(Q_OS_WIN)
+    recolterClesClientSSL(datadir);   // datadir lisible par le process élevé → copie C++ directe
+#else
+    //! Datadir root-only (mysql/_mysql, client-key.pem en 0600) : extraction ÉLEVÉE puis restitution.
+    const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
+    const QString user    = QString::fromLocal8Bit(qgetenv("USER"));
+    QString sh =
+        "DATA='" + datadir + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n"
+        "mkdir -p \"$SSLDEST\"\n"
+        "cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
+        "cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
+        "cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
+        "[ -n \"$USERN\" ] && { chown \"$USERN\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$USERN\" \"$SSLDEST\"; }\n"
+        "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+    runCmdElevated(sh);
+#endif
+    return clesSSLServeurPresentes();
+}
+
+//  DESTRUCTIF : régénère DE NOUVELLES clés SSL. Arrête le serveur, SUPPRIME les certificats du
+//  datadir, redémarre (MySQL les recrée tout seul via auto_generate_certs, sans openssl externe),
+//  attend leur (ré)apparition, puis réextrait la copie client. INVALIDE toute clé déjà distribuée :
+//  l'appelant DOIT prévenir l'utilisateur et RELANCER Rufus (le redémarrage du serveur a coupé la
+//  connexion en cours). true si une nouvelle copie client est disponible.
+bool MySQLInstaller::regenererClesSSL()
+{
+    const QString datadir = mysqlDataDir();
+    const QStringList pem  = QStringList()
+        << "ca.pem" << "ca-key.pem" << "server-cert.pem" << "server-key.pem"
+        << "client-cert.pem" << "client-key.pem" << "private_key.pem" << "public_key.pem";
+#if defined(Q_OS_WIN)
+    runCmdElevated("net stop MySQL");
+    for (const QString& f : pem)
+        QFile::remove(datadir + "/" + f);
+    runCmdElevated("net start MySQL");
+    waitForMySQL(15);
+    //! Laisser à mysqld le temps de régénérer les certificats avant de les récolter.
+    for (int i = 0; i < 20 && !QFile::exists(datadir + "/ca.pem"); ++i)
+        Utils::Pause(1000);
+    recolterClesClientSSL(datadir);
+#else
+    const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
+    const QString user    = QString::fromLocal8Bit(qgetenv("USER"));
+    QString sh = "DATA='" + datadir + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n";
+  #if defined(Q_OS_MACOS)
+    sh += "PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
+          "[ -f \"$PLIST\" ] && launchctl unload \"$PLIST\" 2>/dev/null\n";
+  #else
+    sh += "systemctl stop mysql 2>/dev/null\n";
+  #endif
+    for (const QString& f : pem)
+        sh += "rm -f \"$DATA/" + f + "\"\n";
+  #if defined(Q_OS_MACOS)
+    sh += "[ -f \"$PLIST\" ] && launchctl load -w \"$PLIST\" 2>/dev/null || "
+          "/usr/local/mysql/support-files/mysql.server restart 2>/dev/null\n";
+  #else
+    sh += "systemctl start mysql 2>/dev/null\n";
+  #endif
+    //! Attendre la régénération automatique des certificats (auto_generate_certs) puis récolter.
+    sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n"
+          "mkdir -p \"$SSLDEST\"\n"
+          "cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
+          "cp -f \"$DATA/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
+          "cp -f \"$DATA/client-key.pem\"  \"$SSLDEST/client-key.pem\"  2>/dev/null\n"
+          "[ -n \"$USERN\" ] && { chown \"$USERN\" \"$(dirname \"$SSLDEST\")\"; chown -R \"$USERN\" \"$SSLDEST\"; }\n"
+          "chmod 600 \"$SSLDEST/client-key.pem\" 2>/dev/null\n";
+    runCmdElevated(sh);
+    waitForMySQL(15);
+#endif
+    return clesSSLServeurPresentes();
+}
+
+//  Contrôle des clés SSL au démarrage (MONOPOSTE). Cf. l'exigence : le serveur doit rattraper des
+//  clés effacées par erreur, jamais créées, ou expirées. On distingue le cas BÉNIN (copie client
+//  manquante alors que le serveur a déjà ses certificats → simple réextraction, sans coupure) du
+//  cas DESTRUCTIF (certificats expirés ou absents → régénération, qui invalide les clés distribuées
+//  → consentement + relance).
+void MySQLInstaller::controlerClesSSLMonoposte()
+{
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
+        return;
+
+    const QDateTime exp   = dateExpirationCertSSL();
+    const bool      expire = exp.isValid() && exp <= QDateTime::currentDateTimeUtc();
+    const bool      presentes = clesSSLServeurPresentes();
+
+    if (presentes && !expire)
+        return;                                   //! tout va bien : rien
+
+    //! Cas BÉNIN : la copie client exportable manque, mais le serveur a des certificats VALIDES
+    //! (« effacée par erreur »/« jamais récoltée » — typiquement un ancien Rufus + MySQL 8 déjà
+    //! présent). On RÉEXTRAIT simplement, sans toucher au serveur (aucune coupure, aucune relance).
+    if (!presentes && !expire)
+    {
+        if (extraireClesSSLDepuisDatadir())
+            return;
+        //! Échec → le datadir n'a pas (ou plus) de certificats : on bascule sur la régénération.
+    }
+
+    //! Cas DESTRUCTIF : certificats expirés, ou aucun certificat. La régénération crée de NOUVELLES
+    //! clés → les postes distants déjà configurés devront recevoir les nouvelles. On avertit
+    //! sévèrement et on n'agit que sur consentement.
+    UpMessageBox msgbox(Q_NULLPTR);
+    msgbox.setText(expire ? tr("Certificats SSL expirés") : tr("Clés SSL absentes"));
+    msgbox.setInformativeText(
+        (expire ? tr("Les certificats SSL du serveur ont expiré : l'accès distant ne fonctionne plus.")
+                : tr("Le serveur ne dispose pas de clés SSL pour l'accès distant.")) + "\n\n"
+        + tr("Rufus peut générer de NOUVELLES clés SSL.") + "\n"
+        + tr("ATTENTION : les postes en accès distant déjà configurés ne pourront plus se connecter "
+             "tant que vous ne leur aurez pas transmis les NOUVELLES clés.") + "\n"
+        + tr("Le serveur MySQL sera redémarré et Rufus relancé."));
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton *Plus = new UpSmallButton(); Plus->setText(tr("Plus tard"));
+    UpSmallButton *Gen  = new UpSmallButton(); Gen ->setText(tr("Générer de nouvelles clés"));
+    msgbox.addButton(Plus, UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(Gen,  UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() != Gen)
+        return;                                   //! reporté : on retentera au prochain démarrage
+
+    if (regenererClesSSL())
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Nouvelles clés SSL générées"),
+            tr("De nouvelles clés SSL ont été générées.") + "\n"
+            + tr("Transmettez-les aux postes en accès distant : menu Édition / Paramètres / Ce poste "
+                 "→ « Exporter les clés client SSL ».") + "\n\n"
+            + tr("Rufus va redémarrer."));
+        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+        exit(0);
+    }
+    UpMessageBox::Watch(Q_NULLPTR, tr("Génération impossible"),
+        tr("Les clés SSL n'ont pas pu être générées."));
+}
+
 //  Orchestration destructive de la migration du socle : (droits admin) -> désinstallation
 //  de l'ancien MySQL -> réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde
 //  VALIDÉE (cf. Procedures). Renvoie true si le nouveau socle est prêt.

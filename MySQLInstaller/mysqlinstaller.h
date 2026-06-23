@@ -226,6 +226,24 @@ public:
     bool             sauvegarderClesSSLMigration();
     void             restaurerClesSSLMigration();
 
+    //  SSL — contrôle/(re)génération des clés (serveur / monoposte).
+    //  clesSSLServeurPresentes() : la copie CLIENT exportable (PATH_DIR_CLESSSL_SERVEUR) existe-t-elle ?
+    //  dateExpirationCertSSL()  : date d'expiration du certificat serveur (SHOW STATUS Ssl_server_not_after),
+    //                             invalide si SSL inactif / certificat absent.
+    //  extraireClesSSLDepuisDatadir() : (ré)extrait les clés client du datadir SANS redémarrer le serveur
+    //                             (cas « copie effacée par erreur » alors que le serveur a déjà ses certs).
+    //  regenererClesSSL() : DESTRUCTIF — arrête le serveur, supprime les certs du datadir, redémarre (MySQL
+    //                             les régénère via auto_generate_certs), réextrait. INVALIDE les clés déjà
+    //                             distribuées → l'appelant doit prévenir + RELANCER Rufus (connexion coupée).
+    static bool      clesSSLServeurPresentes();
+    QDateTime        dateExpirationCertSSL();
+    bool             extraireClesSSLDepuisDatadir();
+    bool             regenererClesSSL();
+    //  MONOPOSTE, à chaque démarrage : contrôle les clés SSL serveur. Copie client absente mais certs
+    //  valides → réextraction SILENCIEUSE (sans redémarrage). Certs expirés / absents → message
+    //  d'avertissement + (sur consentement) régénération destructive puis RELANCE de Rufus.
+    void             controlerClesSSLMonoposte();
+
     //  À appeler APRÈS toute connexion réussie : sécurise la base au besoin, puis
     //  supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée.
     static void      entretienApresConnexion();

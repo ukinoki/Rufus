@@ -2482,6 +2482,53 @@ void dlg_param::ExporterClesSSLDistantversUSB()
                         + tr("Déployez-les sur l'autre poste en accès distant, puis indiquez-y leur dossier."));
 }
 
+/*! (CE POSTE / serveur) Génère DE NOUVELLES clés SSL pour le serveur. Opération DESTRUCTIVE :
+ *  les clés actuellement déployées sur les postes en accès distant cesseront de fonctionner tant
+ *  qu'on ne leur aura pas transmis les nouvelles. D'où l'avertissement sévère et la confirmation
+ *  par le mot de passe administrateur. Réutilise MySQLInstaller::regenererClesSSL() (arrêt serveur
+ *  → suppression des certificats → redémarrage [auto-régénération] → réextraction) puis relance
+ *  Rufus (la connexion a été coupée par le redémarrage du serveur). */
+void dlg_param::CreerClesSSL()
+{
+    UpMessageBox msgbox(this);
+    msgbox.setText(tr("Créer de nouvelles clés SSL ?"));
+    msgbox.setInformativeText(
+        tr("Vous allez générer de NOUVELLES clés SSL pour ce serveur.") + "\n\n"
+        + "<b><span style=\"color:#c00000;\">"
+        + tr("ATTENTION : plus aucun poste en accès distant ne pourra se connecter tant que vous ne "
+             "lui aurez pas transmis les NOUVELLES clés.")
+        + "</span></b>" + "\n\n"
+        + tr("Après la génération, exportez les nouvelles clés (bouton « Exporter les clés client "
+             "SSL ») et déployez-les sur chaque poste distant.") + "\n\n"
+        + tr("Le serveur MySQL sera redémarré et Rufus relancé. Continuer ?"));
+    msgbox.setIcon(UpMessageBox::Warning);
+    UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Annuler"));
+    UpSmallButton *OKb   = new UpSmallButton(); OKb  ->setText(tr("Générer de nouvelles clés"));
+    msgbox.addButton(Annul, UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(OKb,   UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+    if (msgbox.clickedButton() != OKb)
+        return;
+
+    //! Confirmation par le mot de passe administrateur Rufus (geste irréversible pour l'accès distant).
+    QString mdp;
+    if (!Utils::VerifMDP(proc->MDPAdmin(), tr("Saisissez le mot de passe Administrateur"), mdp, false, this))
+        return;
+
+    if (MySQLInstaller().regenererClesSSL())
+    {
+        UpMessageBox::Watch(this, tr("Nouvelles clés SSL générées"),
+            tr("De nouvelles clés SSL ont été générées.") + "\n"
+            + tr("Exportez-les puis déployez-les sur les postes en accès distant.") + "\n\n"
+            + tr("Rufus va redémarrer."));
+        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+        exit(0);
+    }
+    else
+        UpMessageBox::Watch(this, tr("Génération impossible"),
+            tr("Les clés SSL n'ont pas pu être générées."));
+}
+
 void dlg_param::EffaceProgrammationDataBackup()
 {
     QList<QRadioButton*> listbutton2 = ui->JourSauvegardeframe->findChildren<QRadioButton*>();
@@ -2716,6 +2763,7 @@ void dlg_param::ConnectSignals()
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
     connect(ui->ExportClesSSLPosteupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
     connect(ui->ExportClesSSLDistantupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
+    connect(ui->CreerClesSSLPosteupPushButton,           &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
