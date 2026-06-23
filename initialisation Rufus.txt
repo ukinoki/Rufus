@@ -98,12 +98,11 @@ Donc, on énumère
 			→ pas de connexion → Procedures::RecupererDemarrage()
 			→ connexion OK
 				→ recueil de la version de MySQL
-				→ on vérifie la cohérence de la configuration de Rufus pour MySQL
-					→ secure-file-priv
-					→ dossier partagé
-					→ droits lecture/écriture
-					→ droits utilisateur
-					→ si pas OK → on corrige
+				→ on vérifie l'accès au dossier partagé d'imagerie (montage du partage réseau)
+					→ si pas accessible → message invitant à monter le partage (manuel)
+				→ NB : la config du SERVEUR (secure-file-priv, droits MySQL, dossier partagé côté serveur)
+				       n'est PAS corrigée ici : un client ne peut pas la corriger, elle relève du poste
+				       serveur (monoposte), sur lequel on lance Rufus à jour
 				→ on vérifie la cohérence de la base Rufus
 					→ si pas OK → messageBox "base de données endommagée"
 								"vous devez restaurer une base patients"
@@ -139,11 +138,8 @@ Donc, on énumère
 				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::RecupererDemarrage()
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
 		→ connexion OK
-			→ on vérifie la cohérence de la configuration de Rufus pour MySQL
-				→ secure-file-priv
-				→ droits lecture/écriture
-				→ droits utilisateur
-				→ si pas OK → on corrige
+			→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ;
+			   ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
 			→ on vérifie la cohérence de la base Rufus
 				→ si pas OK → messageBox "base de données endommagée"
 							"vous devez restaurer une base patients"
