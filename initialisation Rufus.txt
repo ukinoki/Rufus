@@ -37,6 +37,13 @@ Donc, on énumère
 					→ pas de connexion et MySQL >= 8.014
 					 	→ demande d'un mdp autre que le mdp générique et nouvelle tentative de connexion
 					→ connexion OK
+						→ on vérifie la cohérence de la configuration de Rufus pour MySQL
+						 	→ path
+							→ secure-file-priv
+							→ dossier partagé
+							→ droits lecture/écriture
+							→ droits utilisateur
+							→ si pas OK → on corrige
 					 	→ MySQL >= 8.014 → enregistrement du mdp dans .dbkey
 						→ on vérifie la cohérence de la base Rufus
 							→ si pas OK → messageBox base de données endommagée
@@ -90,6 +97,13 @@ Donc, on énumère
 			→ pas de connexion → Procedures::RecupererDemarrage()
 			→ connexion OK
 				→ recueil de la version de MySQL
+				→ on vérifie la cohérence de la configuration de Rufus pour MySQL
+					→ secure-file-priv
+					→ dossier partagé
+					→ droits lecture/écriture
+					→ droits utilisateur
+					→ clésSSL présentes
+					→ si pas OK → on corrige
 				→ on vérifie la cohérence de la base Rufus
 					→ si pas OK → messageBox "base de données endommagée"
 								"vous devez restaurer une base patients"
@@ -125,6 +139,11 @@ Donc, on énumère
 				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::RecupererDemarrage()
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
 		→ connexion OK
+			→ on vérifie la cohérence de la configuration de Rufus pour MySQL
+				→ secure-file-priv
+				→ droits lecture/écriture
+				→ droits utilisateur
+				→ si pas OK → on corrige
 			→ on vérifie la cohérence de la base Rufus
 				→ si pas OK → messageBox "base de données endommagée"
 							"vous devez restaurer une base patients"

@@ -382,8 +382,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PosteServcheckBox           ->setChecked(a);
     ui->Posteframe                  ->setVisible(a);
     //! Export des clés client SSL : réservé au poste qui HÉBERGE la base (il en conserve la copie).
-    ui->ExportClesSSLupPushButton   ->setVisible(a);
-    ui->MonoConnexionupLabel        ->setVisible(a);
+    ui->ExportClesSSLPosteupPushButton  ->setVisible(a);
     ui->MonoDocsExtupLabel          ->setVisible(a);
     ui->MonoDocupTableWidget        ->setVisible(a);
     if (a)
@@ -404,7 +403,6 @@ dlg_param::dlg_param(QWidget *parent) :
     b                                   = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->LocalServcheckBox               ->setChecked(b);
     ui->Localframe                      ->setVisible(b);
-    ui->LocalConnexionupLabel           ->setVisible(b);
     ui->LocalDocsExtupLabel             ->setVisible(b);
     ui->LocalDocupTableWidget           ->setVisible(b);
     ui->LocalPathStockageupLabel        ->setVisible(b);
@@ -425,7 +423,6 @@ dlg_param::dlg_param(QWidget *parent) :
     c                               = (proc->settings()->value(Base + Param_Active).toString() == "YES");
     ui->DistantServcheckBox         ->setChecked(c);
     ui->Distantframe                ->setVisible(c);
-    ui->DistantConnexionupLabel     ->setVisible(c);
     ui->DistantDocsExtupLabel       ->setVisible(c);
     ui->DistantDocupTableWidget     ->setVisible(c);
     ui->DistantStockageupLabel      ->setVisible(c);
@@ -1050,11 +1047,9 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
     if (box == ui->PosteServcheckBox)
     {
         ui->Posteframe                  ->setVisible(a);
-        ui->MonoConnexionupLabel        ->setVisible(a);
         ui->MonoDocsExtupLabel          ->setVisible(a);
         ui->MonoDocupTableWidget        ->setVisible(a);
         ui->Posteframe                  ->setEnabled(a);
-        ui->MonoConnexionupLabel        ->setEnabled(a);
         ui->MonoDocsExtupLabel          ->setEnabled(a);
         ui->MonoDocupTableWidget        ->setEnabled(a);
         ui->PosteStockageupLabel        ->setVisible(a && DataBase::I()->ModeAccesDataBase() == Utils::Poste);
@@ -1066,7 +1061,6 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
     else if (box == ui->LocalServcheckBox)
     {
         ui->Localframe                      ->setVisible(a);
-        ui->LocalConnexionupLabel           ->setVisible(a);
         ui->LocalDocsExtupLabel             ->setVisible(a);
         ui->LocalDocupTableWidget           ->setVisible(a);
         ui->LocalPathStockageupLabel        ->setVisible(a);
@@ -1076,7 +1070,6 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
         ui->LocalVideoDirupLineEdit         ->setVisible(a);
         ui->LocalVideoDirupPushButton       ->setVisible(a);
         ui->Localframe                      ->setEnabled(a);
-        ui->LocalConnexionupLabel           ->setEnabled(a);
         ui->LocalDocsExtupLabel             ->setEnabled(a);
         ui->LocalDocupTableWidget           ->setEnabled(a);
         ui->LocalPathStockageupLabel        ->setEnabled(a);
@@ -1102,14 +1095,12 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
                                     );
         ui->Distantframe                ->setVisible(a);
         ui->Distantframe                ->setEnabled(a);
-        ui->DistantConnexionupLabel     ->setVisible(a);
         ui->DistantStockageupLabel      ->setVisible(a);
         ui->DistantStockageupLineEdit   ->setVisible(a);
         ui->DistantStockageupPushButton ->setVisible(a);
         ui->DistantVideoDirupLabel      ->setVisible(a);
         ui->DistantVideoDirupLineEdit   ->setVisible(a);
         ui->DistantVideoDirupPushButton ->setVisible(a);
-        ui->DistantConnexionupLabel     ->setEnabled(a);
      }
 }
 
@@ -2663,7 +2654,7 @@ void dlg_param::ConnectSignals()
     connect(ui->DistantVideoDirupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DistantVideoDir);
 
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
-    connect(ui->ExportClesSSLupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
+    connect(ui->ExportClesSSLPosteupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});

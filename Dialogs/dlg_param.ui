@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -1058,7 +1058,7 @@
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>130</y>
+              <y>120</y>
               <width>550</width>
               <height>170</height>
              </rect>
@@ -1068,9 +1068,9 @@
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>170</y>
+              <y>120</y>
               <width>325</width>
-              <height>85</height>
+              <height>168</height>
              </rect>
             </property>
             <property name="frameShape">
@@ -1082,7 +1082,7 @@
             <widget class="QLabel" name="SQLPortlabel_2">
              <property name="geometry">
               <rect>
-               <x>20</x>
+               <x>12</x>
                <y>15</y>
                <width>41</width>
                <height>16</height>
@@ -1095,7 +1095,7 @@
             <widget class="QComboBox" name="SQLPortPostecomboBox">
              <property name="geometry">
               <rect>
-               <x>120</x>
+               <x>108</x>
                <y>12</y>
                <width>104</width>
                <height>26</height>
@@ -1105,7 +1105,7 @@
             <widget class="QLabel" name="MDPMonolabel">
              <property name="geometry">
               <rect>
-               <x>20</x>
+               <x>12</x>
                <y>50</y>
                <width>95</width>
                <height>16</height>
@@ -1118,7 +1118,7 @@
             <widget class="UpLineEdit" name="MDPMonouplineEdit">
              <property name="geometry">
               <rect>
-               <x>120</x>
+               <x>110</x>
                <y>47</y>
                <width>150</width>
                <height>24</height>
@@ -1134,38 +1134,38 @@
             <widget class="UpSmallButton" name="MDPMonoUSBupSmallButton">
              <property name="geometry">
               <rect>
-               <x>276</x>
+               <x>266</x>
                <y>47</y>
-               <width>30</width>
-               <height>24</height>
+               <width>54</width>
+               <height>32</height>
               </rect>
              </property>
             </widget>
-           </widget>
-           <widget class="QPushButton" name="ExportClesSSLupPushButton">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>262</y>
-              <width>325</width>
-              <height>28</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-            </property>
-            <property name="toolTip">
-             <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
-            </property>
-            <property name="text">
-             <string>Exporter les clés client SSL (clé USB)</string>
-            </property>
+            <widget class="QPushButton" name="ExportClesSSLPosteupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>135</y>
+               <width>305</width>
+               <height>28</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+             </property>
+             <property name="text">
+              <string>Exporter les clés client SSL (clé USB)</string>
+             </property>
+            </widget>
            </widget>
            <widget class="QCheckBox" name="PosteServcheckBox">
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>110</y>
+              <y>95</y>
               <width>281</width>
               <height>20</height>
              </rect>
@@ -1174,24 +1174,11 @@
              <string>Cet appareil héberge un serveur</string>
             </property>
            </widget>
-           <widget class="UpLabel" name="MonoConnexionupLabel">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>140</y>
-              <width>251</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Paramètres de la connexion au serveur</string>
-            </property>
-           </widget>
            <widget class="UpLabel" name="MonoDocsExtupLabel">
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>100</y>
+              <y>95</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1296,7 +1283,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>180</y>
+              <y>140</y>
               <width>325</width>
               <height>108</height>
              </rect>
@@ -1310,8 +1297,8 @@ du dossier de stockage des videos</string>
             <widget class="QLabel" name="SQLPortlabel">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>43</y>
+               <x>4</x>
+               <y>40</y>
                <width>45</width>
                <height>16</height>
               </rect>
@@ -1323,8 +1310,8 @@ du dossier de stockage des videos</string>
             <widget class="QComboBox" name="SQLPortLocalcomboBox">
              <property name="geometry">
               <rect>
-               <x>119</x>
-               <y>42</y>
+               <x>103</x>
+               <y>39</y>
                <width>104</width>
                <height>26</height>
               </rect>
@@ -1333,8 +1320,8 @@ du dossier de stockage des videos</string>
             <widget class="QLabel" name="MDPLocallabel">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>76</y>
+               <x>4</x>
+               <y>73</y>
                <width>95</width>
                <height>16</height>
               </rect>
@@ -1346,8 +1333,8 @@ du dossier de stockage des videos</string>
             <widget class="UpLineEdit" name="MDPLocaluplineEdit">
              <property name="geometry">
               <rect>
-               <x>120</x>
-               <y>73</y>
+               <x>104</x>
+               <y>70</y>
                <width>150</width>
                <height>24</height>
               </rect>
@@ -1362,18 +1349,18 @@ du dossier de stockage des videos</string>
             <widget class="UpSmallButton" name="MDPLocalUSBupSmallButton">
              <property name="geometry">
               <rect>
-               <x>276</x>
-               <y>73</y>
-               <width>30</width>
-               <height>24</height>
+               <x>260</x>
+               <y>70</y>
+               <width>54</width>
+               <height>32</height>
               </rect>
              </property>
             </widget>
             <widget class="QLabel" name="EmplacementLocallabel">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>20</y>
+               <x>4</x>
+               <y>17</y>
                <width>91</width>
                <height>16</height>
               </rect>
@@ -1385,8 +1372,8 @@ du dossier de stockage des videos</string>
             <widget class="QLineEdit" name="EmplacementLocaluplineEdit">
              <property name="geometry">
               <rect>
-               <x>120</x>
-               <y>16</y>
+               <x>104</x>
+               <y>13</y>
                <width>150</width>
                <height>21</height>
               </rect>
@@ -1403,7 +1390,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>100</y>
+              <y>95</y>
               <width>281</width>
               <height>41</height>
              </rect>
@@ -1417,7 +1404,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>100</y>
+              <y>95</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1430,7 +1417,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>130</y>
+              <y>120</y>
               <width>550</width>
               <height>170</height>
              </rect>
@@ -1445,24 +1432,11 @@ un serveur hébergé sur le réseau local</string>
              <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
             </property>
            </widget>
-           <widget class="UpLabel" name="LocalConnexionupLabel">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>150</y>
-              <width>251</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Paramètres de la connexion au serveur</string>
-            </property>
-           </widget>
            <widget class="UpLineEdit" name="LocalPathStockageupLineEdit">
             <property name="geometry">
              <rect>
               <x>365</x>
-              <y>18</y>
+              <y>13</y>
               <width>505</width>
               <height>21</height>
              </rect>
@@ -1487,7 +1461,7 @@ un serveur hébergé sur le réseau local</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>15</y>
+              <y>10</y>
               <width>311</width>
               <height>30</height>
              </rect>
@@ -1504,7 +1478,7 @@ du dossier d'imagerie sur le serveur</string>
             <property name="geometry">
              <rect>
               <x>880</x>
-              <y>14</y>
+              <y>9</y>
               <width>54</width>
               <height>32</height>
              </rect>
@@ -1520,7 +1494,7 @@ du dossier d'imagerie sur le serveur</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>60</y>
+              <y>50</y>
               <width>301</width>
               <height>30</height>
              </rect>
@@ -1537,7 +1511,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>365</x>
-              <y>63</y>
+              <y>53</y>
               <width>505</width>
               <height>21</height>
              </rect>
@@ -1562,7 +1536,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>880</x>
-              <y>58</y>
+              <y>48</y>
               <width>54</width>
               <height>32</height>
              </rect>
@@ -1583,9 +1557,9 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>150</y>
+              <y>120</y>
               <width>325</width>
-              <height>150</height>
+              <height>168</height>
              </rect>
             </property>
             <property name="contextMenuPolicy">
@@ -1600,8 +1574,8 @@ du dossier de stockage des videos</string>
             <widget class="QLabel" name="SQLPortlabel_3">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>45</y>
+               <x>10</x>
+               <y>34</y>
                <width>41</width>
                <height>16</height>
               </rect>
@@ -1616,8 +1590,8 @@ du dossier de stockage des videos</string>
             <widget class="QLabel" name="Emplacementlabel_3">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>20</y>
+               <x>10</x>
+               <y>9</y>
                <width>91</width>
                <height>16</height>
               </rect>
@@ -1632,8 +1606,8 @@ du dossier de stockage des videos</string>
             <widget class="QLineEdit" name="EmplacementDistantuplineEdit">
              <property name="geometry">
               <rect>
-               <x>120</x>
-               <y>16</y>
+               <x>110</x>
+               <y>5</y>
                <width>150</width>
                <height>21</height>
               </rect>
@@ -1651,8 +1625,8 @@ du dossier de stockage des videos</string>
             <widget class="QComboBox" name="SQLPortDistantcomboBox">
              <property name="geometry">
               <rect>
-               <x>119</x>
-               <y>42</y>
+               <x>109</x>
+               <y>31</y>
                <width>104</width>
                <height>26</height>
               </rect>
@@ -1664,8 +1638,8 @@ du dossier de stockage des videos</string>
             <widget class="QPushButton" name="DossierCLesSSLupPushButton">
              <property name="geometry">
               <rect>
-               <x>229</x>
-               <y>89</y>
+               <x>219</x>
+               <y>72</y>
                <width>54</width>
                <height>32</height>
               </rect>
@@ -1686,8 +1660,8 @@ du dossier de stockage des videos</string>
             <widget class="UpLabel" name="SossierClesSSLupLabel">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>72</y>
+               <x>10</x>
+               <y>59</y>
                <width>261</width>
                <height>21</height>
               </rect>
@@ -1702,8 +1676,8 @@ du dossier de stockage des videos</string>
             <widget class="UpLineEdit" name="DossierClesSSLupLineEdit">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>92</y>
+               <x>10</x>
+               <y>79</y>
                <width>201</width>
                <height>21</height>
               </rect>
@@ -1727,8 +1701,8 @@ du dossier de stockage des videos</string>
             <widget class="QLabel" name="MDPDistantlabel">
              <property name="geometry">
               <rect>
-               <x>20</x>
-               <y>124</y>
+               <x>10</x>
+               <y>110</y>
                <width>95</width>
                <height>16</height>
               </rect>
@@ -1740,8 +1714,8 @@ du dossier de stockage des videos</string>
             <widget class="UpLineEdit" name="MDPDistantuplineEdit">
              <property name="geometry">
               <rect>
-               <x>120</x>
-               <y>121</y>
+               <x>102</x>
+               <y>107</y>
                <width>150</width>
                <height>24</height>
               </rect>
@@ -1756,11 +1730,30 @@ du dossier de stockage des videos</string>
             <widget class="UpSmallButton" name="MDPDistantUSBupSmallButton">
              <property name="geometry">
               <rect>
-               <x>276</x>
-               <y>121</y>
-               <width>30</width>
-               <height>24</height>
+               <x>258</x>
+               <y>107</y>
+               <width>54</width>
+               <height>32</height>
               </rect>
+             </property>
+            </widget>
+            <widget class="QPushButton" name="ExportClesSSLDistantupPushButton">
+             <property name="geometry">
+              <rect>
+               <x>10</x>
+               <y>135</y>
+               <width>305</width>
+               <height>28</height>
+              </rect>
+             </property>
+             <property name="contextMenuPolicy">
+              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
+             </property>
+             <property name="toolTip">
+              <string>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</string>
+             </property>
+             <property name="text">
+              <string>Exporter les clés client SSL (clé USB)</string>
              </property>
             </widget>
            </widget>
@@ -1768,7 +1761,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>100</y>
+              <y>95</y>
               <width>341</width>
               <height>20</height>
              </rect>
@@ -1784,7 +1777,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>100</y>
+              <y>95</y>
               <width>540</width>
               <height>16</height>
              </rect>
@@ -1800,7 +1793,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>360</x>
-              <y>130</y>
+              <y>120</y>
               <width>550</width>
               <height>170</height>
              </rect>
@@ -1815,27 +1808,11 @@ du dossier de stockage des videos</string>
              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
             </property>
            </widget>
-           <widget class="UpLabel" name="DistantConnexionupLabel">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>130</y>
-              <width>251</width>
-              <height>16</height>
-             </rect>
-            </property>
-            <property name="contextMenuPolicy">
-             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-            </property>
-            <property name="text">
-             <string>Paramètres de la connexion au serveur</string>
-            </property>
-           </widget>
            <widget class="UpLabel" name="DistantStockageupLabel">
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>15</y>
+              <y>10</y>
               <width>341</width>
               <height>30</height>
              </rect>
@@ -1852,7 +1829,7 @@ des fichiers image importés depuis ce poste</string>
             <property name="geometry">
              <rect>
               <x>880</x>
-              <y>14</y>
+              <y>9</y>
               <width>54</width>
               <height>32</height>
              </rect>
@@ -1868,7 +1845,7 @@ des fichiers image importés depuis ce poste</string>
             <property name="geometry">
              <rect>
               <x>365</x>
-              <y>18</y>
+              <y>13</y>
               <width>505</width>
               <height>21</height>
              </rect>
@@ -1893,7 +1870,7 @@ des fichiers image importés depuis ce poste</string>
             <property name="geometry">
              <rect>
               <x>10</x>
-              <y>60</y>
+              <y>50</y>
               <width>341</width>
               <height>30</height>
              </rect>
@@ -1910,7 +1887,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>365</x>
-              <y>63</y>
+              <y>53</y>
               <width>505</width>
               <height>21</height>
              </rect>
@@ -1935,7 +1912,7 @@ du dossier de stockage des videos</string>
             <property name="geometry">
              <rect>
               <x>880</x>
-              <y>58</y>
+              <y>48</y>
               <width>54</width>
               <height>32</height>
              </rect>
