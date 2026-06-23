@@ -1,33 +1,71 @@
-
-Qu’est ce qui fait varier les possibles. 6 paramètres :
+I. L'INSTALLEUR
+	→ vérification de la présence d'un serveur MySQL
+		→ si OK
+			→ recueil de la version du serveur
+				→ si version MySQL < 8.0.14 ou serveur MariaDB
+					→ message - "IMPORTANT
+								Rufus stocke les données de vos patients dans une base de donnée stockée
+								 	→ sur ce poste
+								 	→ ou un autre poste de votre réseau
+								 	→ ou sur un poste serveur distant sur internet
+								Cette base patients est gérée par un autre programme, le serveur de base de données MySQL, indispensable au fonctionnement de Rufus
+								L'installation de MySQL est effectuée par Rufus lors de son premier lancement
+								Si vous ne comptez pas héberger votre base patients sur ce poste, ne  tenez pas compte de ce message
+								
+								Cette nouvelle version de Rufus embarque une sécurisation des mots de passe bien plus forte que les précédentes
+								mais nécessite un serveur MySL dont la version doit être supérieure à 8.0.14
+									→ votre poste héberge déjà un serveur MySQL/MariaDB
+								 	Cependant, 	la version du serveur sMySQL hébergée par votre poste est trop ancienne et n'est pas compatible avec cette version de Rufus
+								 			/	le serveur hébergé sur cotre poste est un serveur MariaDB et n'est pas compatible avec cette version de Rufus
+								 A son premier lancement, Rufus vous proposera de mettre à jour le serveur
+								 Cette mise à jour entraînera une perte de vos données et nécessite donc une sauvegarde.
+								 	Si votre base de données présente sur ce poste est une base patients Rufus,
+								 		Rufus pourra, avant de mettre à jour le serveur, sauvegarder cette base patients
+								 		et la restaurer après la mise à jour
+								 	Si votre base de données contient d'autres données qui ne sont pas une base patients Rufus,
+								 		il est fortement conseillé de faire une sauvegarde de vos données
+								 		qui seront sinon irrémédiablement perdues
+								 Voulez-vous continuer à installer Rufus?
+						→ 2 boutons : 1. Annuler, je ferais ça à un autre moment   2. OK, continuer
+					→ Ce message est affiché dans une des 5 langues implémentées dans Rufus
+						pour savoir quelle langue utiliser, on utilise la variable stockée ans Rufus.ini s'il y en a un, sinon le QLocqle().
+						Dans le doute, on utilise le français					   
+	→ Sous Linux
+		→ installation des polices gsfonts + ttf-mscorefonts-installer
+		→ installation de gtreamer
+		→ installation du client MySQL
+		→ inscription dans le groupe dialout		
+	→ copie del'exécutable dans le dossier standard
+	→ création d'un raccourci dans les menus
+	→ Sous Linux / Windows
+		→ proposition de création d'un raccourci sur le bureau
+	→ Sous Linux
+		→ proposition de création d'un raccourci dans les favoris Linux
+	→ Sous MacOS
+		→ message de fin, rien d'imposé ---
+		
+II LANCEMENT DE RUFUS
+	6 paramètres :
 	1. Présence ou non d’un rufus valide (avec au moins un mode de connexion paramétré)
 		4 situations
 			a. pas de rufus.ini ou rufus.ini invalide (pas de mode de connexion paramétré)
 			b. rufus.ini et monoposte
 			c. rufus.ini et réseau local
-			d.rufus.ini et accès distant
+			d. rufus.ini et accès distant
 	2. présence d’un .dbkey
 	3. présence d’un serveur
 	4. s'il y a un serveur, présence d’une base Rufus sur ce serveur
 	5. s'il y a un serveur, est-il conforme au mini de la version SQL
 	6. présence de clés SSL valides pour l'accès distant
 
-c’est chaque démarrage de Rufus qui contrôle ça et pas seulement le premier démarrage
-Donc, la première action que fait rufus en démarrant, c’est de contrôler ces 6 paramètres dans un ordre qui va varier
-Et on a essentiellement 4 fonctions pour gérer tout ça
-Procedures::RecupererDemarrage()            (le carrefour de récupération : c'est lui qu'on appelle quand ça rate)
-Procedures::PremierDemarrage()    (derrière le bouton « Nouvelle base vierge » de RecupererDemarrage)
-Procedures::IdentificationUser()
-Procedures::VerifParamConnexion()
-note : changer le look de dlg_paramconnexion() pour le faire coller au look Rufus en utilisant une UpDialog
-Donc, on énumère
+	La séquence se déroule à chaque lancement de Rufus
 
-1a → RecupererDemarrage() qui va être à même de gérer toutes les autres itérations quand on est dans cette situation
-		→ à vérifier mais elle tourne en boucle tant que la connexion à une base Rufus n’est pas établie
-		note : la situation où rufus.ini est présent mais mal paramétré est mal gérée dans le code → Rufus.cpp à la ligne 43-46,
-		on fait un exit() brutal alors qu’on devrait proposer de le récupérer et si OK, lancer Procedures::RecupererDemarrage()
-
-1b, c ou d. On a un rufus.ini paramétré correctement avec un ou plusieurs modes de connexion (si plusieurs modes de connexion, on éxécute Procedures ::FicheChoixConnexion() et on est ramené à un seul mode 1b, 1c ou 1d).
+1. pas de rufus.ini ou rufus.ini invalide sans mode de connexion paramétré
+	→ message " absence de fichier ede configuration Rufus.ini ou fichier Rufus.ini corrompu
+				→ bouton annuler → fermeture du programme
+				→ bouton revoir les parametres de connexion → RecupererDemarrage()
+				
+2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion paramétrés
 	1b . Monoposte
 		On vérifie la présence d'un serveur
 			→ pas de serveur → RecupererDemarrage() avec les boutons concernant Rufus.ini effacés et un message disant qu'il n'y a pas de serveur
@@ -168,16 +206,3 @@ Donc, on énumère
 				→ bouton annuler → fermeture du programme
 				→ bouton revoir les parametres de connexion → RecupererDemarrage()
 
-A ce stade, on arrive à Procedures ::IdentificationUser(). Jusque là, il n‘y a eu normalement aucune demande de login/mdp auprès de l’utilisateur pour lui demander son login/mdp
-
-Procedures::RecupererDemarrage()
-propose 3 boutons (+ le bouton Quitter du dialogue)
-	→ Connexion/Création d'une base patients
-	→ Reconstruction du fichier Rufus.ini
-	→ Restauration depuis une sauvegarde du fichier Rufus.ini  et/ou de la base patients suivant le contexte
-		→ monoposte -> restaurer la base
- 		→ sinon ou dans l'incertitude sur monoposte -> restaurer le fichier Rufus.ini
-		   (ce bouton « restaurer le fichier Rufus.ini » n'apparaît que si une sauvegarde ~/.rufus/.rufus.ini existe)
-	note : sauvegarder/restaurer reste possible depuis un poste local ; ce n'est pas évident au premier abord,
-	       et c'est de toute façon protégé par le mot de passe administrateur Rufus (« bob ») — d'où l'absence
-	       de masquage du bouton selon le rôle du poste.
