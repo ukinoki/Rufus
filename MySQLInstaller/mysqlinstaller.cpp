@@ -1904,6 +1904,34 @@ void MySQLInstaller::controlerClesSSLMonoposte()
         tr("Les clés SSL n'ont pas pu être générées."));
 }
 
+//  ACCÈS DISTANT : avertissement PROACTIF d'expiration des clés SSL. Indispensable car le serveur
+//  (souvent une machine dédiée jamais utilisée pour Rufus) ne déclenche jamais controlerClesSSLMonoposte()
+//  → sans ce rappel côté client, l'accès distant tomberait sans préavis le jour de l'expiration.
+//  On lit la date via le statut SSL de la connexion (certs serveur et client partagent la même
+//  validité, générés ensemble). La régénération se fait sur le SERVEUR : ici on ne fait qu'alerter.
+void MySQLInstaller::avertirExpirationClesSSLDistant()
+{
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant)
+        return;
+    const QDateTime exp = dateExpirationCertSSL();
+    if (!exp.isValid())
+        return;                                   //! statut indisponible → on n'invente rien
+    const qint64 jours = QDateTime::currentDateTimeUtc().daysTo(exp);
+    if (jours > 60)
+        return;                                   //! encore large (certs valides ~10 ans) → silence
+
+    const QString quand = (jours <= 0)
+        ? tr("ont expiré")
+        : tr("expireront le %1 (dans %2 jours)")
+              .arg(QLocale().toString(exp.date(), "dd MMMM yyyy")).arg(jours);
+    UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL d'accès distant"),
+        tr("Les clés SSL qui sécurisent cet accès distant %1.").arg(quand) + "\n\n"
+        + tr("Sans renouvellement, la connexion à distance cessera de fonctionner.") + "\n"
+        + tr("Faites générer de nouvelles clés SUR LE POSTE SERVEUR (menu Édition / Paramètres / "
+             "Ce poste → « Créer de nouvelles clés SSL »), puis faites-vous transmettre les nouvelles "
+             "clés et indiquez leur dossier ici."));
+}
+
 //  Orchestration destructive de la migration du socle : (droits admin) -> désinstallation
 //  de l'ancien MySQL -> réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde
 //  VALIDÉE (cf. Procedures). Renvoie true si le nouveau socle est prêt.

@@ -243,6 +243,11 @@ public:
     //  valides → réextraction SILENCIEUSE (sans redémarrage). Certs expirés / absents → message
     //  d'avertissement + (sur consentement) régénération destructive puis RELANCE de Rufus.
     void             controlerClesSSLMonoposte();
+    //  ACCÈS DISTANT, à chaque démarrage : prévient si les certificats SSL approchent de leur
+    //  expiration (le serveur, souvent dans une armoire, ne lance jamais Rufus et ne le verrait pas).
+    //  Sans renouvellement, l'accès distant serait refusé du jour au lendemain. Lecture via
+    //  dateExpirationCertSSL() ; la régénération, elle, se fait sur le SERVEUR.
+    void             avertirExpirationClesSSLDistant();
 
     //  À appeler APRÈS toute connexion réussie : sécurise la base au besoin, puis
     //  supprime gaxt78iy si la deadline (sécurisation + 30 j) est passée.

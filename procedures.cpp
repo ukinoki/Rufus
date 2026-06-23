@@ -3219,6 +3219,11 @@ bool Procedures::Connexion_A_La_Base()
     //! régénération destructive sur consentement (puis relance). No-op en réseau/distant.
     MySQLInstaller().controlerClesSSLMonoposte();
 
+    //! ACCÈS DISTANT : avertir PROACTIVEMENT si les clés SSL approchent de l'expiration. Le serveur
+    //! (souvent dans une armoire, jamais utilisé pour Rufus) ne le verrait pas — c'est le poste
+    //! distant, utilisé chaque jour, qui doit prévenir avant que la connexion ne soit refusée.
+    MySQLInstaller().avertirExpirationClesSSLDistant();
+
     //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi, mais la base est-elle
     //! exploitable ? On sonde une table cœur (rufus.utilisateurs) via la connexion DÉJÀ ouverte —
     //! vaut pour monoposte ET client (pas de client CLI localhost, contrairement à
