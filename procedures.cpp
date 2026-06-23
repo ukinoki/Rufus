@@ -3906,8 +3906,9 @@ bool Procedures::IdentificationUser()
             {
                 if (RestaureBase(false,true,false))
                 {
-                    UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
                     Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+                    UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+                    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
                     exit(0);
                 }
             }
@@ -3916,8 +3917,9 @@ bool Procedures::IdentificationUser()
                 if (!RestaureBase(true, true))
                     exit(0);
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
-                UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va se fermer"), tr("Relancez-le pour que certaines données puissent être prises en compte"));
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+                UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
+                QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
                 exit(0);
             }
             break;
@@ -4543,12 +4545,11 @@ bool Procedures::PremierDemarrage()
     {
         if (VerifParamConnexion())
         {
+            PremierParametrageMateriel();
             UpMessageBox::Watch(Q_NULLPTR, tr("Connexion réussie"),
                                    tr("Bien, la connexion au serveur MySQL fonctionne,\n"
                                        "le login ") + currentuser()->login() + tr(" est reconnu") + ".\n" +
-                                       tr("Le programme va se fermer puis redémarrer automatiquement") + "\n" +
-                                       tr("pour que les modifications puissent être prises en compte") + ".\n");
-            PremierParametrageMateriel();
+                                       tr("Le programme va redémarrer pour que les modifications puissent être prises en compte") + ".\n");
             //! Redémarrage automatique : on relance Rufus avant de quitter, pour que
             //! l'utilisateur n'ait rien à faire (la nouvelle instance repart sur la
             //! configuration fraîchement écrite).
@@ -4619,16 +4620,16 @@ bool Procedures::PremierDemarrage()
         CalcLieuExercice();
         if (Datas::I()->sites->currentsite() == Q_NULLPTR)
             UpMessageBox::Watch(nullptr,tr("Pas d'adresse spécifiée"), tr("Vous n'avez précisé aucun lieu d'exercice!"));
+        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+        db->setVersion(m_version);
         UpMessageBox::Watch(nullptr, tr("Redémarrage nécessaire"),
-                              tr("Le programme va se fermer puis redémarrer automatiquement pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
+                              tr("Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.") + "\n\n" +
                               tr("IMPORTANT — un mot de passe de connexion à votre base de données a été créé") + ".\n" +
                               tr("Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)") + "\n" +
                               tr("il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.") + "\n\n" +
                               tr("Mot de passe :") + "\n\n" +
                               "<p align=\"center\"><b><span style=\"color:#c00000; font-size:14pt;\">" + MySQLInstaller::motDePasseSQL() + "</span></b></p>" + "\n\n" +
                               tr("Vous pourrez aussi l'enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste »."));
-        Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-        db->setVersion(m_version);
         //! Redémarrage automatique APRÈS la dernière boîte (celle qui affiche le mot de
         //! passe) : on relance Rufus puis on quitte, l'utilisateur n'a rien à relancer
         //! lui-même. La nouvelle instance repart sur la base tout juste créée.
@@ -4753,7 +4754,10 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
     UpSmallButton RecupIniBouton           (tr("Restaurer le fichier Rufus.ini\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
     UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nRufus.ini"));
-    UpSmallButton PremierDemarrageBouton   (tr("Nouvelle base\npatients vierge"));
+    UpSmallButton PremierDemarrageBouton   (tr("Connexion/Création\nd'une base patients"));
+
+    PremierDemarrageBouton.setImmediateToolTip(tr("Cette option permet de créer une nouvelle base patients vierge\n"
+                                            "ou de se connecter à une base patients existante sur le serveur"));
 
     UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
