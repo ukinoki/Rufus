@@ -39,9 +39,21 @@ Set-Location $Work
 
 # --- 1. MariaDB Connector/C (DLL) --------------------------------------------
 Write-Host "-- MariaDB Connector/C $MARIADB_TAG (source)"
-Invoke-WebRequest -UseBasicParsing `
-  -Uri "https://github.com/mariadb-corporation/mariadb-connector-c/archive/refs/tags/$MARIADB_TAG.tar.gz" `
-  -OutFile "mariadb.tar.gz"
+# Téléchargement avec NOUVELLES TENTATIVES : les runners GitHub subissent régulièrement des
+# timeouts réseau transitoires vers codeload.github.com (« host has failed to respond »), qui
+# faisaient échouer tout le job. On réessaie avec un délai croissant avant d'abandonner.
+$mariaUrl = "https://github.com/mariadb-corporation/mariadb-connector-c/archive/refs/tags/$MARIADB_TAG.tar.gz"
+$ok = $false
+for ($i = 1; $i -le 5 -and -not $ok; $i++) {
+  try {
+    Invoke-WebRequest -UseBasicParsing -Uri $mariaUrl -OutFile "mariadb.tar.gz" -TimeoutSec 180
+    $ok = $true
+  } catch {
+    Write-Host "   tentative $i/5 echouee : $($_.Exception.Message)"
+    if ($i -lt 5) { Start-Sleep -Seconds (10 * $i) }
+  }
+}
+if (-not $ok) { throw "Telechargement de MariaDB Connector/C impossible apres 5 tentatives." }
 tar xf mariadb.tar.gz
 $MariaSrc = Join-Path $Work ("mariadb-connector-c-" + $MARIADB_TAG.TrimStart('v'))
 
@@ -74,9 +86,19 @@ Write-Host "   include        : $MariaInc"
 
 # --- 2. Pilote Qt qsqlmysql ---------------------------------------------------
 Write-Host "-- Sources qtbase $QtVer (pour le pilote sqldrivers)"
-Invoke-WebRequest -UseBasicParsing `
-  -Uri "https://download.qt.io/official_releases/qt/$QtMinor/$QtVer/submodules/qtbase-everywhere-src-$QtVer.zip" `
-  -OutFile "qtbase.zip"
+# Même robustesse réseau que ci-dessus : download.qt.io est fréquemment lent / instable.
+$qtbaseUrl = "https://download.qt.io/official_releases/qt/$QtMinor/$QtVer/submodules/qtbase-everywhere-src-$QtVer.zip"
+$ok = $false
+for ($i = 1; $i -le 5 -and -not $ok; $i++) {
+  try {
+    Invoke-WebRequest -UseBasicParsing -Uri $qtbaseUrl -OutFile "qtbase.zip" -TimeoutSec 300
+    $ok = $true
+  } catch {
+    Write-Host "   tentative $i/5 echouee : $($_.Exception.Message)"
+    if ($i -lt 5) { Start-Sleep -Seconds (10 * $i) }
+  }
+}
+if (-not $ok) { throw "Telechargement des sources qtbase impossible apres 5 tentatives." }
 Expand-Archive -Force "qtbase.zip" -DestinationPath "qtbase-extract"
 $SqlSrc = (Get-ChildItem -Recurse -Path "qtbase-extract" -Directory -Filter "sqldrivers" |
            Where-Object { Test-Path (Join-Path $_.FullName "CMakeLists.txt") } | Select-Object -First 1).FullName
