@@ -112,21 +112,38 @@ spécifiques à un mode, sont signalés ci-dessous.
      `RecupererDemarrage()` (un échec de connexion est souvent transitoire ; on n'inflige
      pas d'emblée les options « reconstruire/restaurer »).
 
-5. **Cohérence de la base** (`SELECT 1 FROM utilisateurs`). Base présente mais
+5. **Cohérence de la CONFIGURATION MySQL** (post-connexion). Règle de fond : la config du
+   serveur ne peut être **corrigée** que là où on a la main dessus → **uniquement en
+   monoposte**. Un client peut détecter, mais défère (comme pour la base endommagée et la
+   version).
+   - **[MONOPOSTE]** vérification SILENCIEUSE et bon marché des items de config (PATH,
+     dossier partagé, `secure_file_priv`, lecture/écriture, privilèges adminrufus, clés SSL
+     serveur) ; si **tout va bien → rien** (cas courant). Si un item est cassé → on RÉPARE
+     (réutilise `MySQLInstaller::executerEtapesConfig()` avec `m_freshInstall=false` : il
+     rejoue les `ensure*`/`setup*` SANS réinstaller ni recréer d'utilisateur).
+   - **[RÉSEAU LOCAL]** on vérifie seulement l'accès au **dossier partagé d'imagerie** (son
+     propre montage réseau) → si inaccessible, message (montage manuel). La config SERVEUR
+     n'est ni vérifiée ni corrigée ici (le client ne peut pas la corriger).
+   - **[DISTANT]** rien : un poste distant ne corrige aucune config serveur, et ses clés SSL
+     ont déjà été pré-contrôlées avant la connexion (§4.2).
+   - NB : `dlg_identificationuser` contrôle DÉJÀ (plus tard, à l'identification)
+     `secure_file_priv` et `sql_mode` et alerte en cas d'anomalie — sans corriger.
+
+6. **Cohérence de la base** (`SELECT 1 FROM utilisateurs`). Base présente mais
    altérée → messageBox **« Base de données endommagée »** :
    - **monoposte (hôte)** : carrefour avec bouton « Restaurer la base » → `RestaureBase()` ;
    - **client (réseau/distant)** : message seul (« la restauration ne peut se faire qu'à
      partir du poste serveur ») — un client ne répare jamais la base partagée.
 
-6. **Version du socle MySQL.** Si < 8.0.14, on **ne fait RIEN ici** : on MÉMORISE le
+7. **Version du socle MySQL.** Si < 8.0.14, on **ne fait RIEN ici** : on MÉMORISE le
    besoin (`m_socleMySQLAMettreAJour = true`). Message et migration sont **différés** à
    après l'affichage (cf. §7).
 
-7. **Entretien du mot de passe** (`MySQLInstaller::entretienApresConnexion()`) — cf. §5.
+8. **Entretien du mot de passe** (`MySQLInstaller::entretienApresConnexion()`) — cf. §5.
 
-8. **`IdentificationUser()`** — login praticien (`dlg_identificationuser`), UNIQUEMENT.
+9. **`IdentificationUser()`** — login praticien (`dlg_identificationuser`), UNIQUEMENT.
 
-9. Lieu d'exercice, création de session, `max_allowed_packet`, etc.
+10. Lieu d'exercice, création de session, `max_allowed_packet`, etc.
 
 ---
 
