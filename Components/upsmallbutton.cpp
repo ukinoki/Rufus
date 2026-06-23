@@ -74,6 +74,10 @@ void UpSmallButton::setUpButtonStyle(enum StyleBouton Style)
     case QWANTBUTTON:           setIcon( Icons::icQwant() );                break;
     case RECEPTIONBUTTON:       setIcon( Icons::icReception() );            break;
     case RECORDBUTTON:          setIcon( Icons::icSauvegarder() );          break;
+    //! Pas d'image de clavier dans les ressources : on utilise l'icône « mot de passe MySQL »,
+    //! à propos pour « Saisir le mot de passe » (changer ici si une image de clavier est ajoutée).
+    case KEYBOARDBUTTON:        setIcon( Icons::icPasswordMySQL() );        break;
+    case SKIPBUTTON:            setIcon( Icons::icApres() );                break;   //! flèche « avancer » = passer l'étape
     case STARTBUTTON:           setIcon( Icons::icOK() );                   break;
     case SUPPRBUTTON:           setIcon( Icons::icPoubelle(QSize(25,25)) ); break;
     case PDFBUTTON:             setIcon( Icons::icPdf() );                  break;

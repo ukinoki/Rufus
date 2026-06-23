@@ -311,17 +311,17 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
     SaisirBouton->setText(tr("Saisir le mot de passe"));
     USBBouton   ->setText(tr("Importer depuis une clé USB"));
     msgbox.addButton(AnnulBouton,  UpSmallButton::CLOSEBUTTON);
-    //! 4e bouton (MONOPOSTE) : on ne connaît pas le mot de passe et on veut REMPLACER le serveur
-    //! sans s'y connecter (données sans importance / mdp égaré) → réinitialisation.
+    //! 4e bouton (MONOPOSTE) : « Passer cette étape » — on ne saisit pas de mot de passe et on
+    //! poursuit vers la création / réinitialisation d'une base (mdp égaré / données sans importance).
     UpSmallButton *ReinitBouton = nullptr;
     if (reinitialiserDemande)
     {
         ReinitBouton = new UpSmallButton();
-        ReinitBouton->setText(tr("Mot de passe inconnu :\nréinitialiser le serveur"));
-        msgbox.addButton(ReinitBouton, UpSmallButton::NOBUTTON);
+        ReinitBouton->setText(tr("Passer cette étape"));
+        msgbox.addButton(ReinitBouton, UpSmallButton::SKIPBUTTON);
     }
-    msgbox.addButton(SaisirBouton, UpSmallButton::CANCELBUTTON);
-    msgbox.addButton(USBBouton,    UpSmallButton::STARTBUTTON);
+    msgbox.addButton(SaisirBouton, UpSmallButton::KEYBOARDBUTTON);
+    msgbox.addButton(USBBouton,    UpSmallButton::RECORDBUTTON);
     msgbox.exec();
 
     if (ReinitBouton && msgbox.clickedButton() == ReinitBouton)
