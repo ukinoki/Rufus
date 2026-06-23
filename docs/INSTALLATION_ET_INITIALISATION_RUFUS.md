@@ -14,7 +14,8 @@ CE QUI CHANGE
        version MySQL du serveur, pas la plateforme qui l'héberge ni celle du poste client.
      - MariaDB exclu dans tous les cas.
    Côté code, le seuil est résolu par MySQLInstaller::seuilVersionMySQL() (un seul point à changer).
-   En pratique l'installeur POSE du 8.4.9 (Oracle, LTS) sur macOS/Windows et du 8.0.x (apt) sous Linux ;
+   En pratique l'installeur POSE du 8.4.2 (Oracle, LTS — compatible macOS Ventura) sur macOS/Windows,
+   hébergé sur le dépôt github.com/ukinoki/mysqlinstaller-for-rufus, et du 8.0.x (apt) sous Linux ;
    mais un serveur déjà >= 8.0.14 est accepté tel quel (aucune migration forcée).
 2. Elle remplace le mot de passe unique public (gaxt78iy) par un MOT DE PASSE ALÉATOIRE,
    propre au cabinet, pour les deux comptes MySQL de Rufus : adminrufus et adminrufusSSL.
@@ -194,7 +195,8 @@ C - INSTALLATION DE L'APPLICATION, MENUS ET MESSAGE DE FIN
 
 2. LANCEMENT DU PROGRAMME (À CHAQUE DÉMARRAGE, pas seulement au premier)
 
-PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
+PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt pour le schéma EXHAUSTIF cas par cas, et
+docs/DEROULE_REEL_DEMARRAGE.md pour le fil de guidage CONDENSÉ et unifié du code)
 - Ces contrôles sont rejoués à CHAQUE démarrage, pas seulement au premier.
 - 6 paramètres font varier les situations :
     1. présence d'un Rufus.ini VALIDE et son mode : (a) absent/invalide, (b) monoposte,
@@ -229,6 +231,12 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
         Absentes -> on demande où elles se trouvent ; toujours rien -> message « impossible de se
         connecter sans les clés » -> RecupererDemarrage().
 
+     0bis. MONOPOSTE seulement — PRÉSENCE DU SERVEUR. Avant toute tentative de connexion, vérifier qu'un
+        serveur MySQL local est installé (MySQLInstaller::serveurLocalPresent()). Absent ->
+        RecupererDemarrage() avec les boutons « Rufus.ini » MASQUÉS (le Rufus.ini est correct, c'est le
+        SERVEUR qui manque) : restent « Nouvelle base patients vierge » (installe le socle) et « Quitter ».
+        Inutile de tenter une connexion qui échouerait à coup sûr.
+
      1. CONNEXION à la base selon Rufus.ini.
         On essaie les mots de passe candidats : celui du .dbkey (du mode courant) PUIS gaxt78iy.
         - Si l'ALÉATOIRE (.dbkey) est REFUSÉ par le serveur (erreur d'AUTHENTIFICATION, et non un
@@ -240,7 +248,10 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
             • échec d'AUTHENTIFICATION (base sécurisée ailleurs) -> on demande DIRECTEMENT le bon mot de
               passe (saisie ou clé USB), invite SIMPLE (pas de fenêtre complexe ni de détour), puis on
               réessaie ;
-            • sinon (serveur injoignable, paramètres faux...) -> RecupererDemarrage().
+            • sinon (serveur injoignable, paramètres faux...) -> GARDE-FOU à 2 boutons « Abandonner et
+              quitter » / « Revoir les paramètres de connexion » ; seul « Revoir » ouvre
+              RecupererDemarrage() (un échec de connexion est le plus souvent transitoire : on n'inflige
+              pas d'emblée les options reconstruire/restaurer du carrefour).
 
      1bis. COHÉRENCE DE LA BASE Rufus (une fois connecté).
         - Base cohérente -> on continue.
@@ -249,14 +260,19 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
             • poste CLIENT (réseau local / distant) -> message « base à réparer depuis le poste
               serveur » : un poste client ne répare JAMAIS la base partagée des autres.
 
-     2. CONTRÔLE DE LA VERSION DE MYSQL — AVANT TOUTE AUTRE CHOSE.
-        (SELECT VERSION() sur la connexion qu'on vient d'ouvrir.)
-        - Version NON conforme (< 8.0.14, ou MariaDB) ET ce poste HÉBERGE la base (monoposte / BDD_POSTE) :
-              -> on lance la PROCÉDURE DE MISE À JOUR DE LA BASE (voir plus bas), puis on relance Rufus.
-        - Ce poste est un CLIENT réseau (BDD_LOCAL / BDD_DISTANT) : il ne peut PAS migrer (ce n'est pas
-              lui qui héberge la base). On AFFICHE un message « serveur MySQL à mettre à jour depuis le
-              poste serveur », puis on continue normalement ; c'est le poste serveur (monoposte) qui migrera.
-        - Version conforme -> on continue.
+     2. CONTRÔLE DE LA VERSION DU SOCLE MYSQL — mais ACTION DIFFÉRÉE À APRÈS L'AFFICHAGE.
+        (SELECT VERSION() sur la connexion qu'on vient d'ouvrir.) Si la version n'est PAS conforme
+        (< 8.0.14, ou MariaDB), on NE FAIT RIEN ici : on MÉMORISE seulement le besoin
+        (Procedures::m_socleMySQLAMettreAJour). Message et migration sont joués APRÈS w.show(), par
+        Procedures::ControleSocleMySQLApresAffichage() (appelée depuis main.cpp) :
+        - poste HÔTE (monoposte / BDD_POSTE) -> PROCÉDURE DE MISE À JOUR DU SOCLE (voir plus bas), qui
+              relance Rufus en cas de succès ;
+        - poste CLIENT (BDD_LOCAL / BDD_DISTANT) -> message « serveur MySQL à mettre à jour depuis le
+              poste serveur », puis on continue normalement.
+        Pourquoi DIFFÉRER : la migration est longue ; Rufus sait tourner en mode dégradé sur l'ancien
+        socle, autant que l'utilisateur le voie DÉJÀ ouvert avant de décider. La SÉCURISATION (étape 3),
+        elle, reste immédiate (elle n'attend pas le nouveau socle). NB : le contrôle de la version de la
+        BASE Rufus (majbase) reste, lui aussi, APRÈS l'identification (étape 6).
 
      3. SÉCURISATION (structure de contrôle) — seulement sur une base à la version conforme, et
         UNIQUEMENT depuis un poste LOCAL (monoposte ou réseau local) : JAMAIS depuis un accès DISTANT
@@ -270,9 +286,11 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
                 CE POSTE la sécurise (pose un random, garde gaxt78iy en 2e mot de passe avec RETAIN
                 CURRENT PASSWORD), écrit son .dbkey, et invite fortement à NOTER/SAUVER le mot de passe.
           - Connecté avec GAXT78IY et un 2e mot de passe EXISTE .... base déjà sécurisée par un autre
-                poste, mais celui-ci n'a pas le random : on DEMANDE le random (saisie ou clé USB),
-                en précisant que le mot de passe actuellement utilisé arrive à échéance
-                à la date d'introduction du mot de passe sécurisé + 30.
+                poste, mais celui-ci n'a pas le random : message d'échéance (le mot de passe actuel
+                arrive à terme à la date de sécurisation + 30 j) + bouton « Renseigner le nouveau mot de
+                passe » qui RÉCUPÈRE le random (saisie ou clé USB) -> .dbkey. Implémenté pour TOUS les
+                modes (monoposte, réseau local, distant) via MySQLInstaller::proposerRecuperationAleatoire()
+                — un poste LOCAL peut aussi récupérer l'aléatoire posé par un autre poste.
         Cette structure évite toute « course » entre postes : dès qu'un poste a sécurisé, les autres
         voient « déjà sécurisé » et demandent le mot de passe au lieu d'en recréer un.
 
@@ -284,6 +302,9 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
         (b) adminrufus a BIEN un 2e mot de passe (base sécurisée) — on ne retire JAMAIS l'unique mot de
         passe ; (c) la deadline (sécurisation + 30 j) est dépassée. Au-delà, un poste sans le random ne
         peut plus se connecter : il devra le récupérer (papier/USB).
+        AVANT la deadline (poste détenant le random, gaxt78iy encore présent), un simple avertissement
+        informatif annonce la date d'effacement imminent du générique
+        (MySQLInstaller::avertirEffacementImminent()).
 
      5. Si ce poste vient de sécuriser (il a créé le .dbkey), on invite fortement :
           - à noter/sauver le mot de passe en lieu sûr (papier ou clé USB) ;
@@ -351,17 +372,27 @@ PRINCIPES GÉNÉRAUX (cf. initialisation Rufus.txt)
 
 
 =====================================================================
-PROCÉDURE DE MISE À JOUR DE LA BASE (version trop ancienne)
+PROCÉDURE DE MISE À JOUR DU SOCLE MYSQL (version trop ancienne)
 =====================================================================
-   Message :
-   " Cette nouvelle version de Rufus nécessite une mise à jour de la base de données patients MySQL."
-   " Pour cela, Rufus doit désinstaller MySQL puis réinstaller une version plus récente."
-   " Il faut donc sauvegarder votre base patients pour pouvoir la restaurer ensuite."
-   " Voulez-vous faire cette sauvegarde, ou continuer ?"
-   " Si vous continuez sans sauvegarde, vos données patients seront définitivement perdues."
-      2 boutons :
-        1. Faire la sauvegarde d'abord
-        2. Ma sauvegarde est faite ET testée, on peut continuer
+   DÉCLENCHEMENT : différé à APRÈS l'affichage de la fenêtre Rufus (cf. §2.I.2 et
+   Procedures::ControleSocleMySQLApresAffichage). Réservé au poste HÔTE (monoposte).
+   Code : Procedures::MettreAJourSocleMySQL().
+
+   Message + CHOIX (schéma à 3 boutons calqué sur Procedures::VerifVersionBase) :
+   " Cette version de Rufus nécessite une version plus récente du serveur MySQL."
+   " Rufus va désinstaller l'ancien MySQL, installer la nouvelle version, puis restaurer votre base."
+   " Une sauvegarde de la base est indispensable AVANT la désinstallation : Rufus peut la faire pour
+     vous, ou vous pouvez poursuivre si vous l'avez déjà faite (le dossier de sauvegarde vous sera
+     alors demandé pour la restauration)."
+      3 boutons :
+        1. Annuler ......................................... on ne touche à rien ; Rufus continue en
+                                                            mode dégradé sur l'ancien socle.
+        2. Poursuivre, la sauvegarde a été faite ........... on SAUTE la sauvegarde ; à la restauration,
+                                                            Rufus DEMANDE le dossier de la sauvegarde
+                                                            (RestaureBase avec chemin vide).
+        3. Sauvegarder les données et mettre à jour ........ Rufus sauvegarde + VALIDE, puis migre et
+                                                            restaure AUTOMATIQUEMENT depuis cette
+                                                            sauvegarde.
 
    Déroulé (avec garde-fous pour ne JAMAIS perdre les données) :
    1. Sauvegarde : se connecter avec adminrufus/gaxt78iy et appeler
