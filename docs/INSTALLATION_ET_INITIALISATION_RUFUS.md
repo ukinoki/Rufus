@@ -37,57 +37,41 @@ LE FLUX
 =====================================================================
 
 1. L'INSTALLEUR
-A - PREMIÈRE TÂCHE — VÉRIFICATION DE LA VERSION DE MYSQL (faite par l'installeur)
-   Avant l'installation de Rufus, un pré-programme "installeur", vérifie la version en cours de MySQL et prévient l'utilisateur 
-   de la nécessité éventuelle d'une mise à jour de MySQL.
-   But : ne pas mettre le poste serveur dans une situation où il serait bloqué plusieurs minutes, 
-   cause des manoeuvres de sauvegarde/restauration nécessaires.
-   
-   a. Ne se fait QUE si un Rufus préexistant, ou une base Rufus, existe déjà sur ce poste.
-   b. Si la base MySQL est SUR ce poste (rubrique BDD_POSTE de Rufus.ini avec ACTIVE=YES)
-      et que sa version ne remplit pas le critère :
-        Message :
-        " Ce poste héberge la base de données patients."
-        " Cette nouvelle version de Rufus améliore la une sécurité de l'accès aux données du serveur
-        " en mettant en place une gestion plus élaborée du mot de passe général." 
-        " Elle nécessite une mise à jour du serveur MySQL."
-        " Pour cela, Rufus devra désinstaller MySQL puis réinstaller une version plus récente."
-        " Rufus fera donc une sauvegarde de votre base patients pour pouvoir la restaurer ensuite."
-        " Cette installation peut-être longue et durer plusieurs minutes en fonction de la taille de votre base Rufus"
-        IMPORTANT: s'il existe d'autres postes sur le réseau local qui utilisent rufus,
-        ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version dans un délai d'un mois.
-        Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus utiliser Rufus.
-        2 boutons : 1. Annuler, je ferais ça à un autre moment   2. OK, continuer
-        Prévoir de lire la version de langue utilisée dans Rufus.ini et adapter ce texte à la langue utilisée.
-        En cas de clic sur Annuler, l'installeur stoppe et Rufus n'est pas installé
-   c. Si ce poste est un CLIENT réseau (BDD_LOCAL ou BDD_DISTANT avec ACTIVE=YES) :
-      on installe sans rien signaler (ce n'est pas lui qui héberge la base).
+A - PREMIÈRE TÂCHE — VÉRIFICATION DU MYSQL LOCAL (faite par l'installeur)
+   (cf. « initialisation Rufus.txt », section I — fil conducteur de référence.)
 
-   Note technique : l'installeur tourne en mode élevé (admin/root). « Le dossier personnel » n'y
-   pointe donc PAS vers l'utilisateur connecté. Pour trouver le bon Rufus.ini, il faut viser le home
-   de l'UTILISATEUR DE LA SESSION (macOS : utilisateur de la console ; Windows : profil de l'utilisateur,
-   pas de l'admin ; Linux : éviter /root sous sudo). Le souci n'est pas le droit de lecture (Rufus.ini
-   est lisible par tous), mais de viser le bon fichier.
+   LOGIQUE SIMPLIFIÉE : l'installeur NE devine PLUS le rôle du poste (serveur/client) en
+   lisant Rufus.ini. Il regarde SEULEMENT le serveur MySQL LOCAL (mysqld --version) :
+     - pas de MySQL local        -> rien à signaler (MySQL sera posé au 1er lancement) -> on installe ;
+     - MySQL local >= 8.0.14      -> conforme -> on installe ;
+     - MySQL local < 8.0.14 / MariaDB -> UN avertissement + consentement (cf. message ci-dessous) ;
+       Annuler -> l'installeur stoppe (l'ancien Rufus reste en place) ; Continuer -> on installe.
 
-   IMPLÉMENTÉ (macOS preinstall + Windows RufusVision.iss) : les deux installeurs lisent désormais
-   Rufus.ini pour déterminer le RÔLE du poste, et n'utilisent l'heuristique « mysqld local » qu'en
-   REPLI (Rufus.ini absent ou muet) :
-     - macOS  : ~/Documents/Rufus/Rufus.ini via CONSOLE_HOME (utilisateur de la console) ;
-     - Windows: %USERPROFILE%\Documents\Rufus\Rufus.ini ({userprofile} = utilisateur connecté).
-     - BDD_POSTE Active=YES  -> SERVEUR : on contrôle la version locale ; si insuffisante, message 1.b
-       (consentement) ; Annuler -> l'installeur stoppe, l'ancien Rufus reste en place.
-     - BDD_LOCAL/BDD_DISTANT Active=YES -> CLIENT : on installe en silence (point 1.c), sans contrôle.
-   Le rôle vient de Rufus.ini (fait foi) ; mysqld --version ne sert qu'à lire la VERSION du socle.
+   Pourquoi c'est plus simple ET correct : le message dit explicitement « si vous ne comptez pas
+   héberger la base sur ce poste, ignorez ce message ». On n'a donc PLUS besoin de détecter le
+   rôle (la détection BDD_POSTE/BDD_LOCAL/BDD_DISTANT, fragile car elle visait le Rufus.ini de
+   l'utilisateur de session pendant que l'installeur tourne en élevé, est SUPPRIMÉE).
 
-   LANGUE DES MESSAGES (implémenté) : le dialogue de consentement 1.b est affiché dans la langue
-   du poste, lue dans Rufus.ini ([Param_Poste] Version, = Param_Poste_Version côté code). Langues
-   traduites : fr, en, es, pt (br -> pt) ; repli fr pour toute autre valeur ou si absente.
-   On ne traduit QUE ce dialogue : c'est le seul montré quand Rufus.ini est lisible (donc quand la
-   langue est connue). Les dialogues de REPLI (rôle INCONNU, c.-à-d. pas de Rufus.ini exploitable)
-   restent en français : sans Rufus.ini, on n'a pas la langue. Le cas CLIENT, lui, n'affiche rien.
-   macOS : le texte est passé en arguments à osascript (on run argv), ce qui lève la contrainte
-   « pas d'apostrophe » de l'ancienne version. Windows : libellés de boutons localisés, le résultat
-   reste lu par index (= 100), indépendant de la langue.
+   Message (résumé) :
+     IMPORTANT — Rufus stocke vos données patients dans une base gérée par le serveur MySQL,
+     que Rufus installe lui-même au 1er lancement (base hébergée ici, sur un autre poste du
+     réseau, ou sur un serveur distant). Si vous n'hébergez pas la base ici, ignorez ce message.
+     Cette version exige MySQL >= 8.0.14 (MariaDB exclu) ; or ce poste a un MySQL/MariaDB trop
+     ancien. Au 1er lancement, Rufus proposera de mettre à jour le serveur : cette mise à jour
+     efface les données -> sauvegarde nécessaire (Rufus la fait+restaure si c'est une base
+     patients Rufus ; sinon, sauvegardez vous-même). Continuer l'installation de Rufus ?
+     2 boutons : Annuler / Continuer.
+
+   LANGUE DU MESSAGE : lue dans Rufus.ini ([Param_Poste] Version) si présent, sinon repli français.
+   Langues traduites : fr, en, es, pt (br -> pt). (Sur Linux, ce pré-contrôle reste affiché en
+   français : il s'exécute avant le bloc de détection de langue de l'AppRun.)
+
+   IMPLÉMENTÉ sur les 3 plateformes :
+     - macOS (preinstall) : mysqld --version (mysqld ou /usr/local/mysql/bin/mysqld) ; message
+       via osascript dans la session de l'utilisateur connecté (texte passé en arguments).
+     - Windows (RufusVision.iss) : mysqld --version ; MsgBox Oui/Non (boutons localisés par Windows).
+     - Linux (AppRun) : mysqld --version ; zenity ; contrôle dès qu'on lance une AppImage non
+       installée (installation neuve OU nouvelle version).
 
 B - TACHES SPECIFIQUES LINUX DEDIEES A L'INSTALLEUR LINUX (AppImage / AppRun) — AU-DELÀ DU CONTRÔLE MYSQL
 
