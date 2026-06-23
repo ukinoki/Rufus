@@ -2398,7 +2398,15 @@ void dlg_param::ExporterClesSSLversUSB()
                                               QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
     if (url == QUrl())
         return;
-    const QString dest = url.path();
+    //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi : les clés ne se perdent pas au
+    //! milieu d'autres fichiers, et le poste distant n'a qu'à pointer ce dossier.
+    const QString dest = url.path() + "/SSLKeys";
+    if (!QDir().mkpath(dest))
+    {
+        UpMessageBox::Watch(this, tr("Dossier inaccessible"),
+                            tr("Impossible de créer le sous-dossier SSLKeys dans l'emplacement choisi."));
+        return;
+    }
 
     QStringList echecs;
     for (const QString &f : fichiers)
@@ -2456,7 +2464,14 @@ void dlg_param::ExporterClesSSLDistantversUSB()
                                               QUrl::fromLocalFile(QDir::homePath()), QStringList()<<m_parametres->dirbkup(), false);
     if (url == QUrl())
         return;
-    const QString dest = url.path();
+    //! Sous-dossier dédié « SSLKeys » dans l'emplacement choisi (même principe que l'export serveur).
+    const QString dest = url.path() + "/SSLKeys";
+    if (!QDir().mkpath(dest))
+    {
+        UpMessageBox::Watch(this, tr("Dossier inaccessible"),
+                            tr("Impossible de créer le sous-dossier SSLKeys dans l'emplacement choisi."));
+        return;
+    }
 
     //! On copie les clés client + la CA si elle existe (sous l'un ou l'autre nom).
     const QStringList aCopier = QStringList() << "client-key.pem" << "client-cert.pem" << "ca.pem" << "ca-cert.pem";
