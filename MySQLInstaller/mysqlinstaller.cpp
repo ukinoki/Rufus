@@ -2141,11 +2141,12 @@ void MySQLInstaller::avertirEffacementImminent()
     if (echeance <= QDateTime::currentDateTime()) return;   // deadline passée → c'est supprimerGaxt78iySiEchue qui agit
     const int jours = QDateTime::currentDateTime().daysTo(echeance);
     UpMessageBox::Watch(nullptr, tr("Mot de passe générique bientôt désactivé"),
-        tr("Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.") + "\n" +
+        tr("Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.") + "\n\n" +
         tr("Un mot de passe générique est par ailleurs maintenu") + "\n" +
-        tr("pour des raisons de compatibilité avec les versions antérieures de Rufus") + "\n" +
-        tr("sera automatiquement désactivé le %1 dans %2 jours").arg(QLocale().toString(echeance.date(), tr("dd MMMM yyyy"))).arg(jours) + "\n" +
-        tr("Assurez-vous d'ici là que les autres postes ont bien récupéré le mot de passe sécurisé."));
+        tr("pour des raisons de compatibilité avec les versions antérieures de Rufus") + "\n\n" +
+        tr("Ce mot de passe générique sera automatiquement désactivé") + "\n" +
+        tr("le %1 dans %2 jours").arg(QLocale().toString(echeance.date(), tr("dd MMMM yyyy"))).arg(jours) + "\n\n" +
+        tr("Assurez-vous d'ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé."));
 }
 
 //  Poste connecté avec le GÉNÉRIQUE (gaxt78iy) alors que la base est SÉCURISÉE (un aléatoire existe
