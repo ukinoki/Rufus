@@ -2481,6 +2481,25 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             if (url == QUrl())
                 return false;
             dirtorestore = QDir(url.path());
+            //! GARDE-FOU : on vérifie que le dossier choisi contient bien TOUS les fichiers d'une
+            //! sauvegarde Rufus complète AVANT d'aller plus loin. Sans ce contrôle, choisir un dossier
+            //! quelconque (sans les .sql) faisait planter la restauration.
+            {
+                const QStringList requis = QStringList()
+                    << "rufus.sql" << "Ophtalmologie.sql" << "Images.sql"
+                    << "ComptaMedicale.sql" << "user.sql" << "Rufus.ini";
+                QStringList manquants;
+                for (const QString &f : requis)
+                    if (!dirtorestore.exists(f))
+                        manquants << f;
+                if (!manquants.isEmpty())
+                {
+                    UpMessageBox::Watch(parent, tr("Dossier de sauvegarde invalide"),
+                        tr("Le dossier choisi ne contient pas une sauvegarde Rufus complète.") + "\n" +
+                        tr("Fichier(s) manquant(s) :") + "\n" + manquants.join(", "));
+                    return false;
+                }
+            }
             QString mdp("");
             if (!Utils::VerifMDP((PremierDemarrage? Utils::calcSHA1(MDP_ADMINISTRATEUR) : MDPAdmin()),tr("Saisissez le mot de passe Administrateur"), mdp))
                 return false;

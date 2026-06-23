@@ -245,7 +245,8 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
                   "dans Rufus."),
                tr("Installer"));
     appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
-    //! CRÉATION d'un compte → champ de confirmation du mot de passe visible.
+    //! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation.
+    m_confirmMdpRequis = true;
     if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
     if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
                            m_mdpConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this)); }
@@ -253,6 +254,7 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
 
 void MySQLInstallerDialog::masquerSaisieUtilisateur()
 {
+    m_confirmMdpRequis = false;
     if (m_loginLbl)      m_loginLbl->setVisible(false);
     if (m_login)         m_login->setVisible(false);
     if (m_mdpLbl)        m_mdpLbl->setVisible(false);
@@ -273,6 +275,7 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
     m_login->setValidator(nullptr);
     m_mdp  ->setValidator(nullptr);
     //! On SAISIT un mot de passe existant (pas de création) → pas de confirmation.
+    m_confirmMdpRequis = false;
     if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(false);
     if (m_mdpConfirm)    m_mdpConfirm->setVisible(false);
     // Le choix « réinstaller / effacer » est désormais fait en amont par la boîte
@@ -287,7 +290,8 @@ void MySQLInstallerDialog::configurerNewUserRufus()
                   "dans Rufus."),
                tr("Créer le compte"));
     appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
-    //! CRÉATION d'un compte → champ de confirmation du mot de passe visible.
+    //! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation.
+    m_confirmMdpRequis = true;
     if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
     if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
                            m_mdpConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this)); }
@@ -310,9 +314,10 @@ bool MySQLInstallerDialog::validerSaisie()
             tr("Veuillez renseigner un identifiant et un mot de passe."));
         return false;
     }
-    //! Confirmation : uniquement à la CRÉATION (champ visible). On vérifie que les deux saisies
-    //! coïncident — on n'enregistre pas un mot de passe que l'utilisateur aurait mal tapé.
-    if (m_mdpConfirm && m_mdpConfirm->isVisible()
+    //! Confirmation : uniquement à la CRÉATION (m_confirmMdpRequis). On vérifie que les deux saisies
+    //! coïncident — on n'enregistre pas un mot de passe que l'utilisateur aurait mal tapé. NB : on ne
+    //! teste PAS isVisible() (validerSaisie() est appelée APRÈS exec(), fiche déjà masquée → faux).
+    if (m_confirmMdpRequis && m_mdpConfirm
         && password() != m_mdpConfirm->text()) {
         UpMessageBox::Watch(this, tr("Confirmation incorrecte"),
             tr("Le mot de passe et sa confirmation ne sont pas identiques."));

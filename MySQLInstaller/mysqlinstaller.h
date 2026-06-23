@@ -132,6 +132,7 @@ private:
     UpLineEdit*    m_mdp           = nullptr;
     UpLabel*       m_mdpConfirmLbl = nullptr;   // confirmation du mot de passe (création de compte)
     UpLineEdit*    m_mdpConfirm    = nullptr;
+    bool           m_confirmMdpRequis = false;  // true en mode CRÉATION : validerSaisie() exige mdp == confirmation
     UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)
     UpCheckBox* m_steps[7];          // 0..5 = config ; 6 = clés SSL pour l'accès distant
     QString     m_stepDetail[7];

@@ -2492,15 +2492,18 @@ void dlg_param::CreerClesSSL()
 {
     UpMessageBox msgbox(this);
     msgbox.setText(tr("Créer de nouvelles clés SSL ?"));
+    //! Texte en HTML : le QLabel d'UpMessageBox ne rend le riche QUE si la chaîne COMMENCE par une
+    //! balise (Qt::mightBeRichText). On structure donc tout en <p> (et le gras/rouge en <span>) ;
+    //! CalcSize mesure correctement car convertPlainText() retransforme les blocs HTML en lignes.
     msgbox.setInformativeText(
-        tr("Vous allez générer de NOUVELLES clés SSL pour ce serveur.") + "\n\n"
-        + "<b><span style=\"color:#c00000;\">"
+        "<p>" + tr("Vous allez générer de NOUVELLES clés SSL pour ce serveur.") + "</p>"
+        + "<p><span style=\"color:#c00000;\"><b>"
         + tr("ATTENTION : plus aucun poste en accès distant ne pourra se connecter tant que vous ne "
              "lui aurez pas transmis les NOUVELLES clés.")
-        + "</span></b>" + "\n\n"
-        + tr("Après la génération, exportez les nouvelles clés (bouton « Exporter les clés client "
-             "SSL ») et déployez-les sur chaque poste distant.") + "\n\n"
-        + tr("Le serveur MySQL sera redémarré et Rufus relancé. Continuer ?"));
+        + "</b></span></p>"
+        + "<p>" + tr("Après la génération, exportez les nouvelles clés (bouton « Exporter les clés "
+             "client SSL ») et déployez-les sur chaque poste distant.") + "</p>"
+        + "<p>" + tr("Le serveur MySQL sera redémarré et Rufus relancé. Continuer ?") + "</p>");
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Annuler"));
     UpSmallButton *OKb   = new UpSmallButton(); OKb  ->setText(tr("Générer de nouvelles clés"));
