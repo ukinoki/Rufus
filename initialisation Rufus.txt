@@ -15,8 +15,8 @@ I. L'INSTALLEUR
 								Cette nouvelle version de Rufus embarque une sécurisation des mots de passe bien plus forte que les précédentes
 								mais nécessite un serveur MySL dont la version doit être supérieure à 8.0.14
 									→ votre poste héberge déjà un serveur MySQL/MariaDB
-								 	Cependant, 	la version du serveur sMySQL hébergée par votre poste est trop ancienne et n'est pas compatible avec cette version de Rufus
-								 			/	le serveur hébergé sur cotre poste est un serveur MariaDB et n'est pas compatible avec cette version de Rufus
+								 	Cependant, 	la version du serveur MySQL hébergée par votre poste est trop ancienne et n'est pas compatible avec cette version de Rufus
+								 			/	le serveur hébergé sur votre poste est un serveur MariaDB et n'est pas compatible avec cette version de Rufus
 								 A son premier lancement, Rufus vous proposera de mettre à jour le serveur
 								 Cette mise à jour entraînera une perte de vos données et nécessite donc une sauvegarde.
 								 	Si votre base de données présente sur ce poste est une base patients Rufus,
@@ -32,17 +32,17 @@ I. L'INSTALLEUR
 						Dans le doute, on utilise le français					   
 	→ Sous Linux
 		→ installation des polices gsfonts + ttf-mscorefonts-installer
-		→ installation de gtreamer
+		→ installation de gstreamer
 		→ installation du client MySQL
 		→ inscription dans le groupe dialout		
-	→ copie del'exécutable dans le dossier standard
+	→ copie de l'exécutable dans le dossier standard
 	→ création d'un raccourci dans les menus
 	→ Sous Linux / Windows
 		→ proposition de création d'un raccourci sur le bureau
 	→ Sous Linux
 		→ proposition de création d'un raccourci dans les favoris Linux
 	→ Sous MacOS
-		→ message de fin, rien d'imposé ---
+		→ message de fin
 		
 II LANCEMENT DE RUFUS
 	6 paramètres :
@@ -61,11 +61,11 @@ II LANCEMENT DE RUFUS
 	La séquence se déroule à chaque lancement de Rufus
 
 1. pas de rufus.ini ou rufus.ini invalide sans mode de connexion paramétré
-	→ message " absence de fichier ede configuration Rufus.ini ou fichier Rufus.ini corrompu
+	→ message " absence de fichier de configuration Rufus.ini ou fichier Rufus.ini corrompu
 				→ bouton annuler → fermeture du programme
 				→ bouton revoir les parametres de connexion → RecupererDemarrage()
 				
-2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion paramétrés
+2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion
 	1b . Monoposte
 		On vérifie la présence d'un serveur
 			→ pas de serveur → RecupererDemarrage() avec les boutons concernant Rufus.ini effacés et un message disant qu'il n'y a pas de serveur
@@ -74,6 +74,10 @@ II LANCEMENT DE RUFUS
 				→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
 					→ pas de connexion et MySQL >= 8.014
 					 	→ demande d'un mdp autre que le mdp générique et nouvelle tentative de connexion
+					→ toujours pas de connexion
+						→ Procedures::RecupererDemarrage() avec le bouton PremierDemarrageBouton
+							→ dont le texte est Connexion/Création d'une base patients
+							→ dont le click oriente vers la création d'une base ou la  vérification des paramètres de connexion (Procedures::PremierDemarrage())
 					→ connexion OK
 						→ on vérifie la cohérence de la configuration de Rufus pour MySQL
 						 	→ path
@@ -127,13 +131,13 @@ II LANCEMENT DE RUFUS
 											-> paramétrage de MySQL
 											-> restauration de la base en demandant le dossier de sauvegarde
 											-> relance de Rufus
-					→ pas de connexion
-						→ bouton annuler → fermeture du programme
-						→ bouton revoir les parametres de connexion → RecupererDemarrage()
 
 	1c. Réseau local
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
-			→ pas de connexion → Procedures::RecupererDemarrage()
+			→ pas de connexion
+				→ Procedures::RecupererDemarrage() avec le bouton PremierDemarrageBouton
+					→ dont le texte est Connexion à une base patients
+					→ dont le click oriente vers la vérification des paramètres de connexion (Procedures::VerifParamconnexion())
 			→ connexion OK
 				→ recueil de la version de MySQL
 				→ on vérifie l'accès au dossier partagé d'imagerie (montage du partage réseau)
@@ -167,42 +171,42 @@ II LANCEMENT DE RUFUS
 					→ Après l'affichage de rufus.cpp à l'écran
 					→ message 	"serveur MySQL à mettre à jour"
 								" cette mise à jour doit se faire depuis le poste serveur"
-			→ pas de connexion
-				→ bouton annuler → fermeture du programme
-				→ bouton revoir les parametres de connexion → RecupererDemarrage()
 	1d. Accès distant 
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
-				→ toujours pas de clés → message "impossible de se connecter sans les clés" → Procedures::RecupererDemarrage()
+				→ toujours pas de clés → message "impossible de se connecter sans les clés"
+					→ 1 seul mode de connexion paramétré dans Rufus.ini → vérification des paramètres de connexion (Procedures::VerifParamconnexion()
+					→ plusieurs modes de connexion paramétrés dans Rufus.ini → retour qu choix du mode de connexion (Procedures::FichecChoiXConnexion()
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
-		→ connexion OK
-			→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ;
-			   ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
-			→ on vérifie la cohérence de la base Rufus
-				→ si pas OK → messageBox "base de données endommagée"
-							"vous devez restaurer une base patients"
-							"cette restauration ne peut se faire qu'à partir du poste serveur"
-				→ MySQL >= 8.0.14
-					→ on s’est connecté avec le mdp aléatoire
-						on vérifie si le mdp générique est toujours présent
-							si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
-								message prévenant que l'effacement du mdp est imminent
-							si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp générique existe toujours
-								effacement du mdp générique et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
-					→ on s’est connecté avec le mdp générique
-						→ on vérifie s'il y a un mdp aléatoire
-							→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
-											" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
-											" menu Edition/Paramètres...etc...
-								→ bouton annuler
-								→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
-							→ non, on suggère de créer un mdp aléatoire à partir d'un des postes du réseau local ou du serveur
-								RÈGLE → on ne sécurise pas le mdp depuis un poste WANrveur vers une version MySQL conforme au mini de la version SQL
-				→ MYSQL < 8.0.14 
-					→ Après l'affichage de rufus.cpp à l'écran
-					→ message 	"serveur MySQL à mettre à jour"
-								" cette mise à jour doit se faire depuis le poste serveur"
 			→ pas de connexion
-				→ bouton annuler → fermeture du programme
-				→ bouton revoir les parametres de connexion → RecupererDemarrage()
+				→ Procedures::RecupererDemarrage() avec le bouton PremierDemarrageBouton
+					→ dont le texte est Connexion à une base patients
+					→ dont le click oriente vers la vérification des paramètres de connexion (Procedures::VerifParamconnexion())
+			→ connexion OK
+				→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ;
+			   	ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
+				→ on vérifie la cohérence de la base Rufus
+					→ si pas OK → messageBox "base de données endommagée"
+								"vous devez restaurer une base patients"
+								"cette restauration ne peut se faire qu'à partir du poste serveur"
+					→ MySQL >= 8.0.14
+						→ on s’est connecté avec le mdp aléatoire
+							on vérifie si le mdp générique est toujours présent
+								si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
+									message prévenant que l'effacement du mdp est imminent
+								si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp générique existe toujours
+									effacement du mdp générique et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
+						→ on s’est connecté avec le mdp générique
+							→ on vérifie s'il y a un mdp aléatoire
+								→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
+												" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
+												" menu Edition/Paramètres...etc...
+									→ bouton annuler
+									→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+								→ non, on suggère de créer un mdp aléatoire à partir d'un des postes du réseau local ou du serveur
+									RÈGLE → on ne sécurise pas le mdp depuis un poste WANrveur vers une version MySQL conforme au mini de la version SQL
+					→ MYSQL < 8.0.14 
+						→ Après l'affichage de rufus.cpp à l'écran
+							→ message 	"serveur MySQL à mettre à jour"
+										" cette mise à jour doit se faire depuis le poste serveur"
 
