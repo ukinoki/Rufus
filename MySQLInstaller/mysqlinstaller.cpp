@@ -1166,12 +1166,20 @@ MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compati
             tr("L'utiliser en EFFAÇANT toutes les données déjà présentes"));
         UpSmallButton* bConserver = new UpSmallButton(
             tr("L'utiliser en CONSERVANT les données déjà présentes"));
+        //! Échappatoire pour une base compatible dont on n'a PAS le mot de passe : « Effacer » et
+        //! « Conserver » exigent tous deux de se connecter (drop / configuration). Sans identifiants
+        //! valides, on serait bloqué → on offre la réinstallation COMPLÈTE (désinstall + install
+        //! neuve), qui ne demande aucune connexion. Réutilise le chemin Reinstaller.
+        UpSmallButton* bReinstall = new UpSmallButton(
+            tr("Réinstaller entièrement MySQL\n(si le mot de passe est perdu)"));
         msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
-        msgbox.addButton(bEffacer,   UpSmallButton::OUPSBUTTON);
+        msgbox.addButton(bReinstall, UpSmallButton::OUPSBUTTON);
+        msgbox.addButton(bEffacer,   UpSmallButton::NOBUTTON);
         msgbox.addButton(bConserver, UpSmallButton::STARTBUTTON);
         msgbox.exec();
         if (msgbox.clickedButton() == bEffacer)   return QueFaireMySQL::Effacer;
         if (msgbox.clickedButton() == bConserver) return QueFaireMySQL::Conserver;
+        if (msgbox.clickedButton() == bReinstall) return QueFaireMySQL::Reinstaller;
         return QueFaireMySQL::Annuler;
     }
 
