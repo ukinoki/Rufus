@@ -3719,16 +3719,27 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
             QNetworkReply* reply = nam.get(req);
 
             QEventLoop loop;
+            //! WATCHDOG anti-blocage : sans lui, si tous les octets arrivent (barre à 100 %) mais
+            //! que la connexion ne se referme pas proprement (FIN retardé/perdu sur un lien lent),
+            //! le signal finished() n'est JAMAIS émis et loop.exec() reste figé indéfiniment — c'est
+            //! le « figé à 100 % » observé. On (ré)arme un délai à chaque octet reçu ; passé ce
+            //! délai SANS le moindre progrès, on abandonne (reply->abort() → finished en erreur →
+            //! repli sur curl, qui a son propre timeout).
+            QTimer watchdog;
+            watchdog.setSingleShot(true);
+            QObject::connect(&watchdog, &QTimer::timeout, reply, &QNetworkReply::abort);
             QObject::connect(reply, &QNetworkReply::readyRead, [&]{
                 file.write(reply->readAll());
             });
             QObject::connect(reply, &QNetworkReply::downloadProgress,
                              [&](qint64 r, qint64 t){
+                watchdog.start(120000);     //! 120 s sans le moindre octet → on lâche QNAM
                 dlg.setProgress(r, t);
-                QApplication::processEvents();
             });
             QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+            watchdog.start(120000);
             loop.exec();
+            watchdog.stop();
 
             file.write(reply->readAll());      // reliquat éventuel
             file.close();
