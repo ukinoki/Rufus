@@ -133,6 +133,7 @@ public:
     bool                    Connexion_A_La_Base();
     bool                    ConnexionBaseOK() const     { return m_connexionbaseOK; }
     void                    ControleSocleMySQLApresAffichage();                         //! À appeler APRÈS w.show() (main.cpp) : si le socle MySQL est trop ancien, affiche le message/la mise à jour APRÈS que Rufus soit visible (mode dégradé en attendant)
+    void                    SuspendreTimersFond() { emit ConnectTimers(false); }        //! arrête les timers de fond (écritures SQL périodiques) avant une opération qui coupe la connexion (redémarrage serveur) suivie d'une relance de Rufus
     QList<Utils::ModeAcces> ListeModesAcces() const     { return m_listemodesacces; }
     void                    ProgrammeSQLVideImagesTemp(QTime timebackup);   /*! programme l'effacement des données temporaires d'imagerie
                                                                              * vide la table EchangeImages

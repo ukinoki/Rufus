@@ -2518,6 +2518,12 @@ void dlg_param::CreerClesSSL()
     if (!Utils::VerifMDP(proc->MDPAdmin(), tr("Saisissez le mot de passe Administrateur"), mdp, false, this))
         return;
 
+    //! La régénération REDÉMARRE le serveur MySQL → la connexion Qt est coupée. On ARRÊTE d'abord
+    //! les timers de fond (heartbeat poste connecté, etc.) : sinon l'un d'eux tente une écriture SQL
+    //! pendant le redémarrage et déclenche un « Enregistrement impossible » orphelin (affiché
+    //! derrière dlg_param, donc bloqué). On relance Rufus juste après, donc inutile de les rétablir.
+    proc->SuspendreTimersFond();
+
     if (MySQLInstaller().regenererClesSSL())
     {
         UpMessageBox::Watch(this, tr("Nouvelles clés SSL générées"),
