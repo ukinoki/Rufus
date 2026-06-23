@@ -1134,6 +1134,10 @@ bool MySQLInstaller::run()
             clean->show();
             QApplication::processEvents();
             uninstallMySQL();
+            //! On efface aussi ~/.rufus : il contient le .dbkey (mots de passe MySQL sauvegardés)
+            //! — devenu inutile/trompeur puisqu'on repart de zéro — ainsi que les clés SSL et le
+            //! journal. Sans ça, le poste réessaierait l'ancien mot de passe au redémarrage.
+            QDir(PATH_DIR_RUFUSKEY).removeRecursively();
             clean->close();
             delete clean;
             UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
