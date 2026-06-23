@@ -107,10 +107,14 @@ spécifiques à un mode, sont signalés ci-dessous.
      saisie ou clé USB), puis on réessaie. Invite SIMPLE — on ne balade pas l'utilisateur
      dans le carrefour pour juste un mot de passe.
    - **Toujours en échec** (mdp non récupéré, ou échec NON-auth : serveur injoignable,
-     mauvais port…) → **garde-fou à 2 boutons** : `Abandonner et quitter` /
-     `Revoir les paramètres de connexion`. Seul « Revoir » ouvre le **carrefour**
-     `RecupererDemarrage()` (un échec de connexion est souvent transitoire ; on n'inflige
-     pas d'emblée les options « reconstruire/restaurer »).
+     mauvais port…) → **carrefour** `RecupererDemarrage()` AVEC le bouton de
+     **connexion/création d'une base** (cf. §6). Sans ce bouton, un `rufus.ini` correct
+     pointant vers un serveur/base disparu menait à une IMPASSE (on ne pouvait que
+     reconstruire/restaurer `rufus.ini`). Boutons : connexion + restaurer `rufus.ini`
+     (si sauvegarde) + quitter.
+   - **[DISTANT] clés SSL absentes** (pré-contrôle §4.2 resté infructueux) → on NE passe PAS
+     par le carrefour : un seul mode paramétré → `VerifParamConnexion()` (inclut le dossier
+     des clés SSL) puis relance ; plusieurs modes → on reboucle sur `FicheChoixConnexion()`.
 
 5. **Cohérence de la CONFIGURATION MySQL** (post-connexion). Règle de fond : la config du
    serveur ne peut être **corrigée** que là où on a la main dessus → **uniquement en
@@ -183,11 +187,16 @@ passé par l'appelant (qui seul connaît le rôle du poste et l'état de la conn
 
 | Bouton | Paramètre | Action |
 |---|---|---|
-| **Nouvelle base patients vierge** | `PremDemarrage` | → `PremierDemarrage()` |
+| **Connexion/Création d'une base patients** *(monoposte / indéterminé)* | `PremDemarrage` | → `PremierDemarrage()` |
+| **Connexion à une base patients** *(réseau local / distant)* | `PremDemarrage` | → `VerifParamConnexion()` puis relance |
 | **Reconstruire le fichier Rufus.ini** | `ReconstruitIni` | → `VerifParamConnexion()` |
 | **Restaurer la base** *(poste hôte)* | `RestaurerBase` | → `RestaureBase()` |
 | **Restaurer le fichier Rufus.ini** *(sinon)* | `RecupIni` | → recopie `~/.rufus/.rufus.ini` (seulement si la sauvegarde existe) |
 | **Abandonner et quitter** | — | `exit(0)` |
+
+Le **même** bouton `PremDemarrage` s'adapte au mode (`db->ModeAccesDataBase()`) : il CRÉE ou
+connecte en monoposte (via `PremierDemarrage`), il connecte seulement en client réseau (via
+`VerifParamConnexion`). Pas de paramètre supplémentaire : le mode est déjà connu.
 
 Toute récupération réussie **relance** Rufus (`startDetached` + `exit(0)`).
 `PremierDemarrage()` (base vierge / base existante) vit derrière le 1ᵉʳ bouton ; c'est là
