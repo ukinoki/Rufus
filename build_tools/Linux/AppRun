@@ -58,12 +58,47 @@ ecrit_certif() {
 MYSQL_VER=""
 MYSQL_IS_MARIA=0
 
+# Version du SERVEUR MySQL EN COURS d'exécution, demandée AU serveur via le socket local
+# (SELECT VERSION()). C'est la source de vérité : immunisée contre la version du CLIENT mysql
+# — que Rufus installe lui-même depuis les dépôts (mysql-client 8.0.4x), souvent plus récent que
+# le serveur en place — et contre les remous de paquets apt. Le socket évite toute résolution DNS.
+# On essaie les mots de passe connus (~/.rufus/.dbkey, puis le legacy gaxt78iy).
+# Écho : « 8.0.13 » / « 10.5.8-MariaDB »… ou rien si le serveur est injoignable / non authentifié.
+version_serveur_en_cours() {
+    command -v mysql >/dev/null 2>&1 || return 0
+    local mdp out v
+    local -a mdps=()
+    if [ -f "${HOME}/.rufus/.dbkey" ]; then
+        while IFS='=' read -r _ v; do [ -n "${v}" ] && mdps+=("${v}"); done < "${HOME}/.rufus/.dbkey"
+    fi
+    mdps+=("gaxt78iy")
+    for mdp in "${mdps[@]}"; do
+        out="$(mysql --protocol=socket --connect-timeout=5 -u adminrufus -p"${mdp}" -N -B -e "SELECT VERSION();" 2>/dev/null)" || continue
+        out="$(printf '%s' "${out}" | grep -oiE '[0-9]+\.[0-9]+\.[0-9]+(-mariadb)?' | head -n1)"
+        [ -n "${out}" ] && { printf '%s' "${out}"; return 0; }
+    done
+    return 0
+}
+
 # 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
 controle_mysql_local() {
-    local out maj min pat
+    local out maj min pat sv mysqld_bin
     MYSQL_VER=""; MYSQL_IS_MARIA=0
-    out="$(mysqld --version 2>/dev/null)" || return 2
-    [ -z "${out}" ] && return 2
+
+    # 1. Source de vérité : la version annoncée par le SERVEUR en cours (cf. version_serveur_en_cours).
+    sv="$(version_serveur_en_cours)"
+    if [ -n "${sv}" ]; then
+        out="${sv}"
+    else
+        # 2. Repli : binaire serveur mysqld. On le cherche aussi HORS PATH (/usr/sbin : mysqld n'y est
+        #    pas pour un utilisateur normal, ni au lancement GUI par double-clic).
+        mysqld_bin="$(command -v mysqld 2>/dev/null || true)"
+        [ -z "${mysqld_bin}" ] && [ -x /usr/sbin/mysqld ]            && mysqld_bin=/usr/sbin/mysqld
+        [ -z "${mysqld_bin}" ] && [ -x /usr/local/mysql/bin/mysqld ] && mysqld_bin=/usr/local/mysql/bin/mysqld
+        [ -z "${mysqld_bin}" ] && return 2
+        out="$("${mysqld_bin}" --version 2>/dev/null)" || return 2
+        [ -z "${out}" ] && return 2
+    fi
     if printf '%s' "${out}" | grep -qi mariadb; then MYSQL_IS_MARIA=1; return 1; fi
     MYSQL_VER="$(printf '%s' "${out}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)"
     [ -z "${MYSQL_VER}" ] && return 2
