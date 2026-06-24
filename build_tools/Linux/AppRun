@@ -54,15 +54,20 @@ ecrit_certif() {
     printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${CERTIF}" 2>/dev/null
 }
 
+# Renseignées par controle_mysql_local (pour adapter le message) : version détectée et MariaDB ?
+MYSQL_VER=""
+MYSQL_IS_MARIA=0
+
 # 0 = OK (>=8.0.14 MySQL) | 1 = trop vieux / MariaDB | 2 = pas de mysqld local
 controle_mysql_local() {
-    local out ver maj min pat
+    local out maj min pat
+    MYSQL_VER=""; MYSQL_IS_MARIA=0
     out="$(mysqld --version 2>/dev/null)" || return 2
     [ -z "${out}" ] && return 2
-    printf '%s' "${out}" | grep -qi mariadb && return 1
-    ver="$(printf '%s' "${out}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)"
-    [ -z "${ver}" ] && return 2
-    maj="${ver%%.*}"; min="${ver#*.}"; min="${min%%.*}"; pat="${ver##*.}"
+    if printf '%s' "${out}" | grep -qi mariadb; then MYSQL_IS_MARIA=1; return 1; fi
+    MYSQL_VER="$(printf '%s' "${out}" | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -n1)"
+    [ -z "${MYSQL_VER}" ] && return 2
+    maj="${MYSQL_VER%%.*}"; min="${MYSQL_VER#*.}"; min="${min%%.*}"; pat="${MYSQL_VER##*.}"
     [ "${maj}" -gt 8 ] && return 0
     [ "${maj}" -lt 8 ] && return 1
     [ "${min}" -gt 0 ] && return 0
@@ -84,9 +89,35 @@ socle_mysql_ok() {
 
     # e = 1 : MySQL local présent mais trop ancien (ou MariaDB) → avertissement + consentement.
     command -v zenity >/dev/null 2>&1 || { ecrit_certif "MySQL ancien/MariaDB mais zenity absent : laissé passer"; return 0; }
-    if zenity --question --no-wrap --title="Serveur MySQL à mettre à jour" \
-        --text="<b>IMPORTANT</b>\n\nRufus stocke les données de vos patients dans une base de données gérée par le serveur MySQL, que Rufus installe lui-même à son premier lancement.\n\n<b>Si vous ne comptez pas héberger la base patients sur ce poste, ignorez ce message.</b>\n\nCette version de Rufus nécessite un serveur MySQL ≥ 8.0.14 (MariaDB non pris en charge). Or ce poste héberge déjà un serveur MySQL/MariaDB trop ancien ou incompatible.\n\nAu premier lancement, Rufus proposera de mettre à jour le serveur. Cette mise à jour efface les données et nécessite donc une sauvegarde :\n  •  base patients Rufus → Rufus pourra la sauvegarder puis la restaurer automatiquement ;\n  •  autres données → sauvegardez-les vous-même, sinon elles seront définitivement perdues.\n\nVoulez-vous continuer à installer Rufus ?" \
-        --ok-label="Continuer" --cancel-label="Annuler" 2>/dev/null; then
+
+    # Détail adapté à la situation réelle : MariaDB (incompatible) vs MySQL trop ancien (avec sa version).
+    local detail
+    if [ "${MYSQL_IS_MARIA}" = "1" ]; then
+        detail="Ce poste héberge un serveur MariaDB incompatible avec cette version de Rufus"
+    else
+        detail="Ce poste héberge bien un serveur MySQL mais sa version est ${MYSQL_VER:-inconnue}, trop ancienne pour exécuter cette version de Rufus"
+    fi
+
+    # Centrer la fenêtre : zenity n'a pas d'option de position. On active BRIÈVEMENT le réglage
+    # GNOME center-new-windows (restauré juste après). No-op hors GNOME/mutter. (Cette fenêtre
+    # s'affiche AVANT la séquence d'install, donc avant activer_centrage_fenetres global.)
+    local c_old c_mod=0
+    if command -v gsettings >/dev/null 2>&1; then
+        c_old="$(gsettings get org.gnome.mutter center-new-windows 2>/dev/null)"
+        if [ -n "${c_old}" ] && [ "${c_old}" != "true" ]; then
+            gsettings set org.gnome.mutter center-new-windows true 2>/dev/null && c_mod=1
+        fi
+    fi
+
+    local reponse=0
+    zenity --question --no-wrap --title="Serveur MySQL à mettre à jour" \
+        --text="<b>IMPORTANT</b>\n\nRufus stocke les données de vos patients dans une base de données gérée par le serveur MySQL, que Rufus installe lui-même à son premier lancement.\n\n<b>Si vous ne comptez pas héberger la base patients sur ce poste, ignorez ce message.</b>\n\nCette version de Rufus nécessite un serveur MySQL dont la version est postérieure à 8.0.14.\n\n${detail}.\n\nAu premier lancement, Rufus proposera de mettre à jour le serveur. Cette mise à jour efface les données et nécessite donc une sauvegarde :\n  •  base patients Rufus → Rufus pourra la sauvegarder puis la restaurer automatiquement ;\n  •  autres données → sauvegardez-les vous-même, sinon elles seront définitivement perdues.\n\nVoulez-vous continuer à installer Rufus ?" \
+        --ok-label="Continuer" --cancel-label="Annuler" 2>/dev/null || reponse=1
+
+    # Restaurer le réglage de centrage AVANT de rendre la main (quel que soit le choix).
+    [ "${c_mod}" = 1 ] && gsettings set org.gnome.mutter center-new-windows "${c_old}" 2>/dev/null
+
+    if [ "${reponse}" = 0 ]; then
         ecrit_certif "Avertissement MySQL ancien/MariaDB accepté : poursuite"
         return 0
     fi
@@ -159,7 +190,7 @@ choisir_langue_install() {
         en) en=TRUE ;; es) es=TRUE ;; pt) pt=TRUE ;; *) fr=TRUE ;;
     esac
     local choix
-    choix="$(zenity --list --radiolist --title="Rufus — langue / language" \
+    choix="$(zenity --list --radiolist --hide-header --title="Rufus — langue / language" \
         --text="Choisissez la langue de l'installation / Choose the installation language:" \
         --column="" --column="Langue" \
         "${fr}" "Français" "${en}" "English" "${es}" "Español" "${pt}" "Português" \
