@@ -172,7 +172,14 @@ fi
 PAQUETS_REQUIS="gsfonts ttf-mscorefonts-installer \
 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
 gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
-gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio mysql-client"
+gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio"
+
+# Client MySQL (sauvegarde / restauration) : ajouté UNIQUEMENT si aucun client mysql n'est déjà
+# présent. Installer celui des dépôts Ubuntu PAR-DESSUS un client d'un autre éditeur (p.ex. un
+# MySQL Oracle pré-installé) provoque une collision de paquets (mysql-common / clients de versions
+# différentes) qui casse l'état dpkg et bloque tout apt ultérieur. Et c'est sans intérêt : tout
+# client 8.0.x dialogue avec tout serveur 8.0.x, donc le client déjà en place fait l'affaire.
+command -v mysql >/dev/null 2>&1 || PAQUETS_REQUIS="${PAQUETS_REQUIS} mysql-client"
 
 # Tous les composants sont-ils DÉJÀ en place ? (paquets installés + appartenance à
 # dialout). Si oui, en cas de MAJ / réinstallation, inutile de reproposer l'install.
