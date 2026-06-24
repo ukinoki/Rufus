@@ -135,7 +135,7 @@ Procedures::Procedures(QObject *parent) :
             QString msgInfo =   QObject::tr("Le fichier d'initialisation") + "\n" + PATH_FILE_INI "\"\n" + tr("n'existe pas.") + "\n"
                                 + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
                                 + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois.") + "\n"
-                                + QObject::tr("Si c'est le cas, choisissez l'option \"Premier démarrage de Rufus\"") + "\n\n"
+                                + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n\n"
                                 + QObject::tr("Si le logiciel fonctionnait déjà sur ce poste et que le fichier a été effacé par erreur:") + "\n"
                                 + QObject::tr("1. Si vous disposez d'une sauvegarde du fichier, choisissez \"Restaurer le fichier à partir d'une sauvegarde\"") + "\n"
                                 + QObject::tr("2. Sinon cliquez sur \"Reconstruire le fichier d'initialisation\" et suivez les étapes de la reconstruction.\"") + "\n"
@@ -4819,6 +4819,12 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
         PremierDemarrageBouton.setImmediateToolTip(tr("Cette option permet de créer une nouvelle base patients vierge\n"
                                                 "ou de se connecter à une base patients existante sur le serveur"));
     }
+
+    //! Le message (msgInfo) peut DÉSIGNER ce bouton via le repère « %1 » : on y injecte le libellé
+    //! EXACT du bouton (sans le retour à la ligne d'affichage), pour que la phrase qui le décrit et
+    //! le texte porté par le bouton restent toujours identiques — un seul libellé source, qui suit
+    //! automatiquement le mode. Sans « %1 » dans msgInfo (autres appelants), c'est un no-op.
+    msgInfo.replace("%1", PremierDemarrageBouton.text().replace('\n', ' '));
 
     UpMessageBox *msgbox = new UpMessageBox;
     msgbox->setText(msg);
