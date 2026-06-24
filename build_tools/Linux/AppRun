@@ -54,14 +54,6 @@ ecrit_certif() {
     printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${CERTIF}" 2>/dev/null
 }
 
-# Trace de DIAGNOSTIC horodatée à la seconde (~/.rufus/.timing) : sert à localiser le
-# « trou » de fin d'installation. Temporaire — à retirer une fois la cause identifiée.
-TIMING="${RUFUS_DIR}/.timing"
-trace_temps() {
-    mkdir -p "${RUFUS_DIR}" 2>/dev/null
-    printf '%s | %s\n' "$(date '+%H:%M:%S')" "$1" >> "${TIMING}" 2>/dev/null
-}
-
 # Renseignées par controle_mysql_local (pour adapter le message) : version détectée et MariaDB ?
 MYSQL_VER=""
 MYSQL_IS_MARIA=0
@@ -385,22 +377,28 @@ configurer_systeme() {
     # DPkg::Lock::Timeout=300 : si unattended-upgrades tient le verrou apt (fréquent sur un
     # système fraîchement installé), apt patiente proprement jusqu'à 5 min au lieu de figer.
     # Le code de sortie porte le diagnostic : 10 = pas d'accès aux dépôts (réseau) ; pkexec
-    # ajoute 126 (auth annulée) / 127 (non autorisé). La sortie complète est tee-ée dans LOG.
-    # (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...' — ça casserait la quote.)
-    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" RUFUS_PAQUETS="${PAQUETS_REQUIS}" bash -c '
+    # ajoute 126 (auth annulée) / 127 (non autorisé).
+    #
+    # Toute la sortie d'apt va dans le LOG (et NON dans la barre). Pilotée par apt, la barre se
+    # vidait pendant les phases SILENCIEUSES — typiquement le téléchargement des polices Microsoft
+    # par ttf-mscorefonts-installer — donnant un « écran vide » de plusieurs dizaines de secondes.
+    # La barre affiche donc un message STABLE (MSG_PROG_TEXT) et pulse du début à la fin ; le détail
+    # reste dans le LOG. (NB : aucun commentaire à apostrophe DANS le bloc bash -c '...'.)
+    pkexec env DEBIAN_FRONTEND=noninteractive RUFUS_USER="${user}" RUFUS_PAQUETS="${PAQUETS_REQUIS}" RUFUS_LOG="${LOG}" bash -c '
         trap "" PIPE
-        echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections 2>/dev/null
+        : > "$RUFUS_LOG"
+        echo "ttf-mscorefonts-installer msttcorefonts/accepted-mscorefonts-eula select true" | debconf-set-selections >>"$RUFUS_LOG" 2>&1
         rc=0
-        if ! apt-get -o DPkg::Lock::Timeout=300 update -y; then
-            echo "RUFUS_ERR: echec de apt-get update (acces reseau aux depots indisponible)"
+        if ! apt-get -o DPkg::Lock::Timeout=300 update -y >>"$RUFUS_LOG" 2>&1; then
+            echo "RUFUS_ERR: echec de apt-get update (acces reseau aux depots indisponible)" >>"$RUFUS_LOG"
             rc=10
         fi
         for p in $RUFUS_PAQUETS ; do
-            apt-get -o DPkg::Lock::Timeout=300 install -y "$p" || echo "RUFUS_ERR: paquet non installe: $p"
+            apt-get -o DPkg::Lock::Timeout=300 install -y "$p" >>"$RUFUS_LOG" 2>&1 || echo "RUFUS_ERR: paquet non installe: $p" >>"$RUFUS_LOG"
         done
-        usermod -aG dialout "$RUFUS_USER" || echo "RUFUS_ERR: ajout au groupe dialout impossible"
+        usermod -aG dialout "$RUFUS_USER" >>"$RUFUS_LOG" 2>&1 || echo "RUFUS_ERR: ajout au groupe dialout impossible" >>"$RUFUS_LOG"
         exit $rc
-    ' 2>&1 | tee "${LOG}" | sed -u 's/^/# /' | zenity --progress --pulsate --no-cancel --auto-close \
+    ' | zenity --progress --pulsate --no-cancel --auto-close \
         --title="${MSG_PROG_TITLE}" \
         --text="${MSG_PROG_TEXT}" 2>/dev/null
     local rc=${PIPESTATUS[0]}
@@ -434,17 +432,14 @@ inscrire_dans_menus() {
     # AFFICHER la fenêtre tout de suite : sans aucune sortie, la barre pouvait rester invisible
     # pendant la copie (~30 s sur l'AppImage + caches), d'où l'impression de plantage.
     echo "# ${MSG_FINAL_PROG_TEXT}"
-    trace_temps "inscrire: DEBUT"
 
     # 1. Copie de l'AppImage dans ~/.local/bin
     local cible="${BIN_DIR}/${APPNAME}.AppImage"
     cp -f "${APPIMAGE}" "${cible}"
     chmod +x "${cible}"
-    trace_temps "inscrire: AppImage copiee"
 
     # 2. Icône
     [ -f "${ICON_SRC}" ] && cp -f "${ICON_SRC}" "${ICONS_DIR}/rufus.png"
-    trace_temps "inscrire: icone copiee"
 
     # 3. Raccourci menu (.desktop) pointant sur l'AppImage installée
     cat > "${DESKTOP}" <<EOF
@@ -459,15 +454,12 @@ Terminal=false
 EOF
     chmod +x "${DESKTOP}"
 
-    # 4. Rafraîchissement des caches (best-effort, sans bloquer) — étape la plus lente.
+    # 4. Rafraîchissement des caches (best-effort, sans bloquer).
     echo "# ${MSG_FINAL_PROG_TEXT2}"
-    trace_temps "inscrire: avant update-desktop-database"
     command -v update-desktop-database >/dev/null 2>&1 && \
         update-desktop-database "${APPS_DIR}" >/dev/null 2>&1
-    trace_temps "inscrire: avant gtk-update-icon-cache"
     command -v gtk-update-icon-cache >/dev/null 2>&1 && \
         gtk-update-icon-cache -f -t "${HOME}/.local/share/icons/hicolor" >/dev/null 2>&1
-    trace_temps "inscrire: FIN (caches faits)"
 }
 
 # Raccourci sur le BUREAU (copie du .desktop, marqué « de confiance » pour GNOME).
@@ -591,16 +583,12 @@ if integration_proposee; then
     choisir_langue_install
     definir_textes
     # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
-    trace_temps "sequence: avant configurer_systeme"
     configurer_systeme || { restaurer_centrage_fenetres; exit 1; }
-    trace_temps "sequence: APRES configurer_systeme (fin animation libs)"
     # 2. Inscrire Rufus dans les menus (sous animation, pour ne pas laisser l'écran vide).
     inscrire_dans_menus_avec_animation
-    trace_temps "sequence: APRES inscrire_dans_menus_avec_animation"
     # 2 bis. Si les polices MS n'ont pas fini de se télécharger (aléa réseau du paquet
     #        ttf-mscorefonts-installer), prévenir l'utilisateur — sinon, rien ne s'affiche.
     avertir_polices_differees
-    trace_temps "sequence: avant ecran final (proposer_raccourcis)"
     # 3. Proposer raccourci bureau / favoris / lancement. Ne lance Rufus que si demandé.
     #    (restaure lui-même le centrage avant un éventuel exec.)
     proposer_raccourcis_et_lancement
