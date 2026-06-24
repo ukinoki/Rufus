@@ -2412,15 +2412,34 @@ QString MySQLInstaller::oraclePrefix() const
 QString MySQLInstaller::serverVersionString()
 {
     const QRegularExpression re(R"((\d+\.\d+\.\d+[^\s]*))");   // « 8.0.13 », « 10.5.8-MariaDB »…
-    for (const QString& mdp : motsDePasseSQLCandidats()) {
-        const QString out = runCmdFull(
-            QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT VERSION();\" 2>&1")
-                .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp));
-        const auto m = re.match(out);
-        if (m.hasMatch())
-            return m.captured(1);
-    }
-    return QString();
+
+    //  Essaie « SELECT VERSION() » avec chaque mot de passe candidat, via la chaîne de connexion
+    //  donnée et le timeout donné. Renvoie la version trouvée, ou vide.
+    auto interroge = [&](const QString& conn, int timeoutMs) -> QString {
+        for (const QString& mdp : motsDePasseSQLCandidats()) {
+            const QString out = runCmdFull(
+                QString("\"%1\" %2 -u \"%3\" -p\"%4\" -N -B -e \"SELECT VERSION();\" 2>&1")
+                    .arg(mysqlBin("mysql"), conn, QString(LOGIN_SQL), mdp), timeoutMs);
+            const auto m = re.match(out);
+            if (m.hasMatch())
+                return m.captured(1);
+        }
+        return QString();
+    };
+
+#if !defined(Q_OS_WIN)
+    //  1. SOCKET Unix (pas de -h : connexion « localhost »). Sans adresse IP, le serveur ne fait
+    //     AUCUNE résolution DNS inverse → réponse IMMÉDIATE. C'est le point clé : en TCP, un serveur
+    //     dont le DNS inverse traîne (fréquent en VM) ne répond qu'au bout de ~30 s — ce qui
+    //     dépassait le timeout de runCmd et faisait échouer la lecture (d'où la version fausse).
+    const QString viaSocket = interroge(QStringLiteral("--connect-timeout=5"), 8000);
+    if (!viaSocket.isEmpty())
+        return viaSocket;
+#endif
+    //  2. Repli TCP (réseau/local, ou socket indisponible). Timeout LONG : si le serveur traîne sur
+    //     la résolution DNS inverse, il finit par répondre (~30 s) — lent mais correct, infiniment
+    //     mieux qu'une version fausse.
+    return interroge(QStringLiteral(LOCAL_TCP_ARGS), 35000);
 }
 
 //  Version du SERVEUR MySQL (X.Y.Z), et NON du client. C'est la version du SERVEUR qui décide de la
