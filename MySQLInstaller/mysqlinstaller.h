@@ -351,7 +351,7 @@ private:
     // ── MySQL ──────────────────────────────────────────────────────────────────
     bool    isMySQLInstalled();
     bool    ensureMysqlInPath();         // chemin de mysql présent dans PATH (sinon l'ajoute)
-    QString getMySQLVersion();
+    QString getMySQLServerVersion();     // version du SERVEUR (mysqld), pas du client mysql
     bool    installMySQL();
     bool    uninstallMySQL();        // désinstalle MySQL + config Rufus (3 plateformes)
     bool    installFromDmg(const QString& dmgPath);

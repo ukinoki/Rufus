@@ -1111,7 +1111,7 @@ bool MySQLInstaller::run()
 
     // Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) :
     // MySQL >= 8.0.14 et PAS MariaDB.
-    const QString ver = getMySQLVersion();
+    const QString ver = getMySQLServerVersion();
     const bool compatible = versionAtLeast(ver, seuilVersionMySQL()) && !isMariaDB();
 
     forever {
@@ -2392,14 +2392,43 @@ QString MySQLInstaller::oraclePrefix() const
 #endif
 }
 
-QString MySQLInstaller::getMySQLVersion()
+//  Version du SERVEUR MySQL (binaire mysqld), et NON du client. C'est la version du SERVEUR qui
+//  décide de la compatibilité (double mot de passe « RETAIN CURRENT PASSWORD » apparu en 8.0.14).
+//  Indispensable sous Ubuntu : l'installeur Rufus pose le paquet « mysql-client » des dépôts, qui
+//  écrase /usr/bin/mysql par une version récente (p.ex. 8.0.4x) sans toucher au serveur déjà en
+//  place (p.ex. 8.0.13) — « mysql --version » renverrait donc une version trompeuse, plus haute
+//  que le serveur réel, et on jugerait à tort « compatible » une base trop ancienne.
+QString MySQLInstaller::getMySQLServerVersion()
 {
-    QString out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL());
-    QRegularExpression re(R"(Distrib\s+([\d.]+))");
-    auto m = re.match(out);
+    //  Candidats pour le binaire serveur : d'abord l'emplacement résolu par mysqlBin (préfixe
+    //  Oracle / Homebrew / PATH), puis les chemins système usuels où mysqld n'est PAS dans le
+    //  PATH d'un utilisateur normal (Debian/Ubuntu : /usr/sbin). « mysqld --version » se contente
+    //  d'afficher la version et de quitter (il ne démarre aucun serveur).
+    QStringList candidats;
+    candidats << mysqlBin("mysqld");
+#if !defined(Q_OS_WIN)
+    candidats << "/usr/sbin/mysqld" << "/usr/local/mysql/bin/mysqld";
+#endif
+
+    const QRegularExpression reDistrib(R"(Distrib\s+([\d.]+))");  // format MariaDB / anciens MySQL
+    const QRegularExpression reVer(R"(Ver\s+([\d.]+))");          // format MySQL 8.x
+
+    for (const QString& bin : candidats) {
+        const QString out = runCmd("\"" + bin + "\" --version " + NUL());
+        if (out.trimmed().isEmpty())
+            continue;
+        auto m = reDistrib.match(out);
+        if (m.hasMatch()) return m.captured(1);
+        m = reVer.match(out);
+        if (m.hasMatch()) return m.captured(1);
+    }
+
+    //  Repli ultime : version du client (mieux que rien si mysqld reste introuvable). Trompeuse
+    //  sous Ubuntu (cf. ci-dessus), d'où son rang de dernier recours uniquement.
+    const QString out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL());
+    auto m = reDistrib.match(out);
     if (m.hasMatch()) return m.captured(1);
-    re = QRegularExpression(R"(Ver\s+([\d.]+))");
-    m = re.match(out);
+    m = reVer.match(out);
     return m.hasMatch() ? m.captured(1) : QString();
 }
 
