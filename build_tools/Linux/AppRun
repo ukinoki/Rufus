@@ -195,6 +195,7 @@ definir_textes() {
     MSG_REASON_DEF="Une erreur est survenue pendant l'installation des composants."
     MSG_FINAL_PROG_TITLE="Installation de Rufus"
     MSG_FINAL_PROG_TEXT="Finalisation : inscription de Rufus dans les menus…"
+    MSG_FINAL_PROG_TEXT2="Mise à jour des menus et des icônes…"
     MSG_DONE_TITLE="Rufus est installé"
     MSG_DONE_TEXT="Rufus a été correctement installé sur ce poste et dans les menus,\net le système a été configuré pour qu'il puisse fonctionner.\n\nQue souhaitez-vous faire ?"
     MSG_ACT_DESKTOP="Créer un raccourci sur le bureau"
@@ -223,6 +224,7 @@ definir_textes() {
         MSG_REASON_DEF="An error occurred while installing the components."
         MSG_FINAL_PROG_TITLE="Installing Rufus"
         MSG_FINAL_PROG_TEXT="Finishing: adding Rufus to the menus…"
+        MSG_FINAL_PROG_TEXT2="Updating menus and icons…"
         MSG_DONE_TITLE="Rufus is installed"
         MSG_DONE_TEXT="Rufus has been correctly installed on this computer and in the menus,\nand the system has been configured so that it can run.\n\nWhat would you like to do?"
         MSG_ACT_DESKTOP="Create a desktop shortcut"
@@ -250,6 +252,7 @@ definir_textes() {
         MSG_REASON_DEF="Se produjo un error al instalar los componentes."
         MSG_FINAL_PROG_TITLE="Instalando Rufus"
         MSG_FINAL_PROG_TEXT="Finalizando: añadiendo Rufus a los menús…"
+        MSG_FINAL_PROG_TEXT2="Actualizando menús e iconos…"
         MSG_DONE_TITLE="Rufus está instalado"
         MSG_DONE_TEXT="Rufus se ha instalado correctamente en este equipo y en los menús,\ny el sistema se ha configurado para que pueda funcionar.\n\n¿Qué desea hacer?"
         MSG_ACT_DESKTOP="Crear un acceso directo en el escritorio"
@@ -277,6 +280,7 @@ definir_textes() {
         MSG_REASON_DEF="Ocorreu um erro ao instalar os componentes."
         MSG_FINAL_PROG_TITLE="A instalar o Rufus"
         MSG_FINAL_PROG_TEXT="A finalizar: a adicionar o Rufus aos menus…"
+        MSG_FINAL_PROG_TEXT2="A atualizar menus e ícones…"
         MSG_DONE_TITLE="O Rufus está instalado"
         MSG_DONE_TEXT="O Rufus foi corretamente instalado neste computador e nos menus,\ne o sistema foi configurado para que possa funcionar.\n\nO que deseja fazer?"
         MSG_ACT_DESKTOP="Criar um atalho no ambiente de trabalho"
@@ -378,6 +382,12 @@ configurer_systeme() {
 inscrire_dans_menus() {
     mkdir -p "${APPS_DIR}" "${ICONS_DIR}" "${BIN_DIR}"
 
+    # Les lignes « # … » envoyées sur stdout pilotent le TEXTE de la barre zenity --progress
+    # (cf. inscrire_dans_menus_avec_animation). Émettre du texte AU DÉBUT force aussi zenity à
+    # AFFICHER la fenêtre tout de suite : sans aucune sortie, la barre pouvait rester invisible
+    # pendant la copie (~30 s sur l'AppImage + caches), d'où l'impression de plantage.
+    echo "# ${MSG_FINAL_PROG_TEXT}"
+
     # 1. Copie de l'AppImage dans ~/.local/bin
     local cible="${BIN_DIR}/${APPNAME}.AppImage"
     cp -f "${APPIMAGE}" "${cible}"
@@ -399,7 +409,8 @@ Terminal=false
 EOF
     chmod +x "${DESKTOP}"
 
-    # 4. Rafraîchissement des caches (best-effort, sans bloquer)
+    # 4. Rafraîchissement des caches (best-effort, sans bloquer) — étape la plus lente.
+    echo "# ${MSG_FINAL_PROG_TEXT2}"
     command -v update-desktop-database >/dev/null 2>&1 && \
         update-desktop-database "${APPS_DIR}" >/dev/null 2>&1
     command -v gtk-update-icon-cache >/dev/null 2>&1 && \
