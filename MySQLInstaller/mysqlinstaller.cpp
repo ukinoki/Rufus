@@ -1210,9 +1210,17 @@ MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compati
 //  Le serveur MySQL local est-il MariaDB ? (incompatible : pas de RETAIN/double mdp.)
 bool MySQLInstaller::isMariaDB()
 {
-    QString out = runCmd("\"" + mysqlBin("mysqld") + "\" --version " + NUL());
+    //  Fiable : la chaîne VERSION() du serveur en cours contient « MariaDB » si c'en est un. Le client
+    //  mysql posé par l'installeur étant un vrai MySQL, l'interroger LUI dirait « pas MariaDB » même
+    //  face à un serveur MariaDB — d'où la priorité au serveur (cf. serverVersionString).
+    const QString srv = serverVersionString();
+    if (!srv.isEmpty())
+        return srv.contains("mariadb", Qt::CaseInsensitive);
+
+    //  Repli (serveur injoignable) : binaire mysqld puis client. Timeout court (blocage AppImage).
+    QString out = runCmd("\"" + mysqlBin("mysqld") + "\" --version " + NUL(), 5000);
     if (out.contains("mariadb", Qt::CaseInsensitive)) return true;
-    out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL());
+    out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL(), 5000);
     return out.contains("mariadb", Qt::CaseInsensitive);
 }
 
@@ -2392,29 +2400,57 @@ QString MySQLInstaller::oraclePrefix() const
 #endif
 }
 
-//  Version du SERVEUR MySQL (binaire mysqld), et NON du client. C'est la version du SERVEUR qui
-//  décide de la compatibilité (double mot de passe « RETAIN CURRENT PASSWORD » apparu en 8.0.14).
-//  Indispensable sous Ubuntu : l'installeur Rufus pose le paquet « mysql-client » des dépôts, qui
-//  écrase /usr/bin/mysql par une version récente (p.ex. 8.0.4x) sans toucher au serveur déjà en
-//  place (p.ex. 8.0.13) — « mysql --version » renverrait donc une version trompeuse, plus haute
-//  que le serveur réel, et on jugerait à tort « compatible » une base trop ancienne.
+//  Chaîne VERSION() telle que rapportée par le SERVEUR EN COURS d'exécution (ex. « 8.0.13 » ou
+//  « 10.5.8-MariaDB »). On INTERROGE le serveur via le client mysql : la valeur renvoyée est celle
+//  du serveur, indépendante de la version du binaire client. Vide si le serveur est injoignable
+//  (arrêté, ou aucun mot de passe candidat ne convient).
+//
+//  C'est la méthode FIABLE, en particulier sous AppImage : Rufus tournant en AppImage exporte son
+//  propre LD_LIBRARY_PATH (libs embarquées) ; tout binaire serveur qu'il lance (mysqld) hérite de
+//  cet environnement et échoue à se charger — « mysqld --version » reste alors muet jusqu'au timeout.
+//  Interroger le serveur déjà lancé évite à la fois ce blocage et la lecture trompeuse du client.
+QString MySQLInstaller::serverVersionString()
+{
+    const QRegularExpression re(R"((\d+\.\d+\.\d+[^\s]*))");   // « 8.0.13 », « 10.5.8-MariaDB »…
+    for (const QString& mdp : motsDePasseSQLCandidats()) {
+        const QString out = runCmdFull(
+            QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT VERSION();\" 2>&1")
+                .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp));
+        const auto m = re.match(out);
+        if (m.hasMatch())
+            return m.captured(1);
+    }
+    return QString();
+}
+
+//  Version du SERVEUR MySQL (X.Y.Z), et NON du client. C'est la version du SERVEUR qui décide de la
+//  compatibilité (double mot de passe « RETAIN CURRENT PASSWORD » apparu en 8.0.14). Sous Ubuntu,
+//  l'installeur Rufus pose le paquet « mysql-client » des dépôts, qui écrase /usr/bin/mysql par une
+//  version récente (p.ex. 8.0.4x) sans toucher au serveur en place (p.ex. 8.0.13) : « mysql --version »
+//  renverrait donc une version trompeuse, plus haute que le serveur réel.
 QString MySQLInstaller::getMySQLServerVersion()
 {
-    //  Candidats pour le binaire serveur : d'abord l'emplacement résolu par mysqlBin (préfixe
-    //  Oracle / Homebrew / PATH), puis les chemins système usuels où mysqld n'est PAS dans le
-    //  PATH d'un utilisateur normal (Debian/Ubuntu : /usr/sbin). « mysqld --version » se contente
-    //  d'afficher la version et de quitter (il ne démarre aucun serveur).
+    //  1. Le plus fiable : demander sa version au SERVEUR en cours d'exécution (cf. serverVersionString).
+    const QString srv = serverVersionString();
+    const QRegularExpression reXYZ(R"((\d+\.\d+\.\d+))");
+    {
+        const auto m = reXYZ.match(srv);
+        if (m.hasMatch()) return m.captured(1);
+    }
+
+    //  2. Repli (serveur injoignable) : binaire serveur mysqld. « --version » ne fait qu'afficher la
+    //  version et quitter (il ne démarre rien). Timeout COURT : sous AppImage, ce binaire peut rester
+    //  bloqué (cf. serverVersionString) — inutile d'attendre 30 s. Chemins usuels où mysqld n'est pas
+    //  dans le PATH d'un utilisateur normal (Debian/Ubuntu : /usr/sbin).
     QStringList candidats;
     candidats << mysqlBin("mysqld");
 #if !defined(Q_OS_WIN)
     candidats << "/usr/sbin/mysqld" << "/usr/local/mysql/bin/mysqld";
 #endif
-
     const QRegularExpression reDistrib(R"(Distrib\s+([\d.]+))");  // format MariaDB / anciens MySQL
     const QRegularExpression reVer(R"(Ver\s+([\d.]+))");          // format MySQL 8.x
-
     for (const QString& bin : candidats) {
-        const QString out = runCmd("\"" + bin + "\" --version " + NUL());
+        const QString out = runCmd("\"" + bin + "\" --version " + NUL(), 5000);
         if (out.trimmed().isEmpty())
             continue;
         auto m = reDistrib.match(out);
@@ -2423,9 +2459,9 @@ QString MySQLInstaller::getMySQLServerVersion()
         if (m.hasMatch()) return m.captured(1);
     }
 
-    //  Repli ultime : version du client (mieux que rien si mysqld reste introuvable). Trompeuse
-    //  sous Ubuntu (cf. ci-dessus), d'où son rang de dernier recours uniquement.
-    const QString out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL());
+    //  3. Repli ultime : version du client (mieux que rien). Trompeuse sous Ubuntu (cf. ci-dessus),
+    //  d'où son rang de dernier recours uniquement.
+    const QString out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL(), 5000);
     auto m = reDistrib.match(out);
     if (m.hasMatch()) return m.captured(1);
     m = reVer.match(out);
