@@ -170,25 +170,66 @@ end;
 // mysqld.exe hors PATH : emplacements d'installation standard de MySQL.
 function TrouveMysqldHorsPath(): String;
 begin
-  Result := ChercheMysqldDans(ExpandConstant('{commonpf}\MySQL'));
+  // {sd} = lecteur système. On vise les VRAIS dossiers « Program Files » (dont les noms ne sont
+  // PAS localisés au niveau du système de fichiers), pour ne dépendre ni du mode d'architecture
+  // de l'installeur ni de l'ambiguïté de {commonpf}.
+  Result := ChercheMysqldDans(ExpandConstant('{sd}\Program Files\MySQL'));
   if Result = '' then
-    Result := ChercheMysqldDans(ExpandConstant('{commonpf32}\MySQL'));
+    Result := ChercheMysqldDans(ExpandConstant('{sd}\Program Files (x86)\MySQL'));
+end;
+
+// mysqld.exe via le SERVICE Windows : on parcourt les services et on récupère le binaire pointé
+// par l'ImagePath de celui qui exécute mysqld.exe. C'est la méthode la PLUS FIABLE — elle donne
+// l'emplacement EXACT du serveur qui tourne, indépendamment du PATH, du dossier d'installation et
+// du mode d'architecture de l'installeur. Renvoie le chemin ENTRE GUILLEMETS, ou '' si aucun.
+function CheminMysqldDepuisService(): String;
+var noms: TArrayOfString; i, q: Integer; img, chemin: String;
+begin
+  Result := '';
+  if not RegGetSubkeyNames(HKEY_LOCAL_MACHINE, 'SYSTEM\CurrentControlSet\Services', noms) then Exit;
+  for i := 0 to GetArrayLength(noms)-1 do begin
+    if RegQueryStringValue(HKEY_LOCAL_MACHINE,
+         'SYSTEM\CurrentControlSet\Services\' + noms[i], 'ImagePath', img) then begin
+      if Pos('mysqld', Lowercase(img)) > 0 then begin
+        img := Trim(img);
+        if Copy(img, 1, 1) = '"' then begin
+          // ImagePath cité : "C:\...\mysqld.exe" --defaults-file="..." → on prend l'intérieur des guillemets.
+          q := Pos('"', Copy(img, 2, Length(img)));
+          if q > 0 then chemin := Copy(img, 2, q-1) else chemin := '';
+        end else begin
+          // Non cité : on coupe au 1er espace (cas rare ; les chemins MySQL contiennent des espaces).
+          q := Pos(' ', img);
+          if q > 0 then chemin := Copy(img, 1, q-1) else chemin := img;
+        end;
+        if (chemin <> '') and FileExists(chemin) then begin
+          Result := '"' + chemin + '"';
+          Exit;
+        end;
+      end;
+    end;
+  end;
 end;
 
 // 0 = OK (>=8.0.14 MySQL) ; 1 = trop vieux/MariaDB ; 2 = pas de mysqld local
-// On essaie d'abord le PATH, puis les emplacements d'installation standard : un MySQL installé
-// mais ABSENT du PATH (cas fréquent sous Windows) ne doit pas être pris pour « aucun serveur ».
+// On interroge d'abord le SERVICE Windows (emplacement exact du serveur qui tourne), puis le PATH,
+// puis les emplacements d'installation standard : un MySQL installé mais ABSENT du PATH (cas
+// fréquent sous Windows) ne doit pas être pris pour « aucun serveur ».
 function ControleMySQLLocal(): Integer;
 var etat: Integer; chemin: String;
 begin
-  etat := EtatDepuisMysqld('mysqld');                 // 1. via le PATH
-  if etat >= 0 then begin Result := etat; Exit; end;
-  chemin := TrouveMysqldHorsPath();                   // 2. emplacements standard
+  chemin := CheminMysqldDepuisService();              // 1. via le service Windows (le plus fiable)
   if chemin <> '' then begin
     etat := EtatDepuisMysqld(chemin);
     if etat >= 0 then begin Result := etat; Exit; end;
   end;
-  Result := 2;                                         // 3. aucun mysqld détecté
+  etat := EtatDepuisMysqld('mysqld');                 // 2. via le PATH
+  if etat >= 0 then begin Result := etat; Exit; end;
+  chemin := TrouveMysqldHorsPath();                   // 3. emplacements standard
+  if chemin <> '' then begin
+    etat := EtatDepuisMysqld(chemin);
+    if etat >= 0 then begin Result := etat; Exit; end;
+  end;
+  Result := 2;                                         // 4. aucun mysqld détecté
 end;
 
 procedure EcritCertif(const Ligne: String);
