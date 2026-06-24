@@ -54,6 +54,14 @@ ecrit_certif() {
     printf '%s | %s\n' "$(date '+%Y-%m-%d %H:%M')" "$1" >> "${CERTIF}" 2>/dev/null
 }
 
+# Trace de DIAGNOSTIC horodatée à la seconde (~/.rufus/.timing) : sert à localiser le
+# « trou » de fin d'installation. Temporaire — à retirer une fois la cause identifiée.
+TIMING="${RUFUS_DIR}/.timing"
+trace_temps() {
+    mkdir -p "${RUFUS_DIR}" 2>/dev/null
+    printf '%s | %s\n' "$(date '+%H:%M:%S')" "$1" >> "${TIMING}" 2>/dev/null
+}
+
 # Renseignées par controle_mysql_local (pour adapter le message) : version détectée et MariaDB ?
 MYSQL_VER=""
 MYSQL_IS_MARIA=0
@@ -426,14 +434,17 @@ inscrire_dans_menus() {
     # AFFICHER la fenêtre tout de suite : sans aucune sortie, la barre pouvait rester invisible
     # pendant la copie (~30 s sur l'AppImage + caches), d'où l'impression de plantage.
     echo "# ${MSG_FINAL_PROG_TEXT}"
+    trace_temps "inscrire: DEBUT"
 
     # 1. Copie de l'AppImage dans ~/.local/bin
     local cible="${BIN_DIR}/${APPNAME}.AppImage"
     cp -f "${APPIMAGE}" "${cible}"
     chmod +x "${cible}"
+    trace_temps "inscrire: AppImage copiee"
 
     # 2. Icône
     [ -f "${ICON_SRC}" ] && cp -f "${ICON_SRC}" "${ICONS_DIR}/rufus.png"
+    trace_temps "inscrire: icone copiee"
 
     # 3. Raccourci menu (.desktop) pointant sur l'AppImage installée
     cat > "${DESKTOP}" <<EOF
@@ -450,10 +461,13 @@ EOF
 
     # 4. Rafraîchissement des caches (best-effort, sans bloquer) — étape la plus lente.
     echo "# ${MSG_FINAL_PROG_TEXT2}"
+    trace_temps "inscrire: avant update-desktop-database"
     command -v update-desktop-database >/dev/null 2>&1 && \
         update-desktop-database "${APPS_DIR}" >/dev/null 2>&1
+    trace_temps "inscrire: avant gtk-update-icon-cache"
     command -v gtk-update-icon-cache >/dev/null 2>&1 && \
         gtk-update-icon-cache -f -t "${HOME}/.local/share/icons/hicolor" >/dev/null 2>&1
+    trace_temps "inscrire: FIN (caches faits)"
 }
 
 # Raccourci sur le BUREAU (copie du .desktop, marqué « de confiance » pour GNOME).
@@ -577,12 +591,16 @@ if integration_proposee; then
     choisir_langue_install
     definir_textes
     # 1. Configurer le système. Si ça échoue réellement, on s'arrête là (rien d'inscrit).
+    trace_temps "sequence: avant configurer_systeme"
     configurer_systeme || { restaurer_centrage_fenetres; exit 1; }
+    trace_temps "sequence: APRES configurer_systeme (fin animation libs)"
     # 2. Inscrire Rufus dans les menus (sous animation, pour ne pas laisser l'écran vide).
     inscrire_dans_menus_avec_animation
+    trace_temps "sequence: APRES inscrire_dans_menus_avec_animation"
     # 2 bis. Si les polices MS n'ont pas fini de se télécharger (aléa réseau du paquet
     #        ttf-mscorefonts-installer), prévenir l'utilisateur — sinon, rien ne s'affiche.
     avertir_polices_differees
+    trace_temps "sequence: avant ecran final (proposer_raccourcis)"
     # 3. Proposer raccourci bureau / favoris / lancement. Ne lance Rufus que si demandé.
     #    (restaure lui-même le centrage avant un éventuel exec.)
     proposer_raccourcis_et_lancement
