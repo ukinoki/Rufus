@@ -2241,13 +2241,15 @@ bool Procedures::ReinitBase()
     UpSmallButton OKBouton(tr("Réinitialiser"));
     UpSmallButton AnnulBouton(tr("Annuler"));
     msgbox      .setText(tr("Réinitialisation du programme!"));
+    //! On décrit les boutons de la fenêtre de récupération par leur FONCTION, et non par leur
+    //! libellé exact : cette fenêtre n'apparaît qu'au PROCHAIN démarrage (autre exécution), donc
+    //! impossible de garantir ici le texte qu'ils porteront. Citer un libellé le condamnerait à
+    //! devenir faux au moindre renommage (cf. l'ancien « Premier démarrage de Rufus »).
     msgbox      .setInformativeText(tr("Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée"
                                       " puis le programme sera arrêté.\n"
-                                      "Au redémarrage du programme, une fenêtre de dialogue vous permettra"
-                                      " de réinitialiser toutes les données en cliquant sur le bouton \"Premier démarrage de Rufus\".\n"
-                                      "Vous pourrez encore annuler la réinitialisation"
-                                      " en cliquant sur le bouton \"Restaurer le fichier de paramétrage\""
-                                      " et en choisissant le fichier RufusBackup.ini"));
+                                      "Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.\n"
+                                      "Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage"
+                                      " à partir de la sauvegarde (fichier RufusBackup.ini)."));
     msgbox      .setIcon(UpMessageBox::Warning);
     msgbox      .addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
     msgbox      .addButton(&OKBouton, UpSmallButton::STARTBUTTON);
