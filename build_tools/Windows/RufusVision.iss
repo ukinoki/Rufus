@@ -93,7 +93,12 @@ var TmpFile: String; Code: Integer; A: AnsiString;
 begin
   Result := False; Output := '';
   TmpFile := ExpandConstant('{tmp}\rufus_mysqld.txt');
-  if Exec(ExpandConstant('{cmd}'), '/C ' + Cmd + ' > "' + TmpFile + '" 2>&1', '',
+  // /S + commande ENTIÈRE entre guillemets : sinon, avec un chemin mysqld.exe entre guillemets
+  // (« C:\Program Files\… ») ET la redirection vers TmpFile (aussi entre guillemets), cmd /C
+  // retire les MAUVAIS guillemets (règle des « exactement 2 guillemets ») et la commande casse →
+  // version illisible. Avec /S, cmd retire UNIQUEMENT le guillemet de début et de fin de la ligne
+  // → tous les guillemets internes sont préservés.
+  if Exec(ExpandConstant('{cmd}'), '/S /C "' + Cmd + ' > "' + TmpFile + '" 2>&1"', '',
           SW_HIDE, ewWaitUntilTerminated, Code) then
     if LoadStringFromFile(TmpFile, A) then begin Output := String(A); Result := True; end;
   DeleteFile(TmpFile);
