@@ -4798,27 +4798,22 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
     UpSmallButton RecupIniBouton           (tr("Restaurer le fichier Rufus.ini\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
     UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nRufus.ini"));
-    UpSmallButton PremierDemarrageBouton;
+    //! Libellé NEUTRE, vrai dans TOUS les modes : le bouton mène à « une base patients
+    //! exploitable », qu'on s'y connecte ou qu'on la crée. On NE fait PAS dépendre le TEXTE du
+    //! contexte réseau. Aujourd'hui un client ne peut que se connecter (pas créer), mais c'est une
+    //! règle de COMPORTEMENT (ci-dessous), pas un fait à graver dans le libellé : le jour où un
+    //! client pourra créer une base, seul le comportement changera — pas de libellé resté faux.
+    //! Le détail (se connecter / créer) est présenté à l'écran suivant.
+    UpSmallButton PremierDemarrageBouton    (tr("Accéder à une\nbase patients"));
+    PremierDemarrageBouton.setImmediateToolTip(tr("Mettre en place l'accès de ce poste à sa base patients."));
 
-    //! Le bouton « connexion » s'adapte au MODE (déjà connu par db) :
+    //! Le COMPORTEMENT, lui, dépend légitimement du mode (déjà connu par db) :
     //!   - réseau local / distant (CLIENT) : on ne CRÉE pas de base, on (re)saisit seulement les
     //!     paramètres de connexion → VerifParamConnexion() ;
     //!   - monoposte / mode encore indéterminé (pas de rufus.ini) : création OU connexion via
     //!     PremierDemarrage() (qui propose base vierge / base existante).
     const bool clientReseau = (db->ModeAccesDataBase() == Utils::ReseauLocal
                             || db->ModeAccesDataBase() == Utils::Distant);
-    if (clientReseau)
-    {
-        PremierDemarrageBouton.setText(tr("Connexion à une\nbase patients"));
-        PremierDemarrageBouton.setImmediateToolTip(tr("Se connecter à une base patients existante "
-                                                "sur le serveur (paramètres de connexion)"));
-    }
-    else
-    {
-        PremierDemarrageBouton.setText(tr("Connexion/Création\nd'une base patients"));
-        PremierDemarrageBouton.setImmediateToolTip(tr("Cette option permet de créer une nouvelle base patients vierge\n"
-                                                "ou de se connecter à une base patients existante sur le serveur"));
-    }
 
     //! Le message (msgInfo) peut DÉSIGNER ce bouton via le repère « %1 » : on y injecte le libellé
     //! EXACT du bouton (sans le retour à la ligne d'affichage), pour que la phrase qui le décrit et
