@@ -2202,6 +2202,10 @@ bool MySQLInstaller::uninstallMySQL()
     const QString out =
         runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
     diag += "---powershell output begin---\n" + out + "\n---powershell output end---\n";
+    // Canal de diagnostic FIABLE : on AFFICHE le résultat (un GUI s'affiche quels que soient les
+    // droits, contrairement à l'écriture d'un fichier sous élévation). Si cette boîte n'apparaît
+    // pas du tout → uninstallMySQL() n'est pas atteint (problème en amont, pas ici).
+    UpMessageBox::Watch(nullptr, tr("Diagnostic désinstallation MySQL"), diag);
     {
         QFile lf(QDir::homePath() + "/rufus-uninstall-diag.txt");
         if (lf.open(QIODevice::WriteOnly | QIODevice::Text))
