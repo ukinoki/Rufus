@@ -62,8 +62,8 @@ II LANCEMENT DE RUFUS
 
 1. pas de rufus.ini ou rufus.ini invalide sans mode de connexion paramétré
 	→ voir s'il y a un rufus.ini de sauvegarde dans le dossier .rufus
-	→ si oui
-		→ restaurer le fichier et continuer
+	→ si oui, vérifier s'il est valide,
+		→ si oui, restaurer le fichier
 	→ si non
 		→ message " absence de fichier de configuration Rufus.ini ou fichier Rufus.ini corrompu
 				→ bouton annuler → fermeture du programme
