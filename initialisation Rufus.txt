@@ -82,10 +82,14 @@ II LANCEMENT DE RUFUS
 					 		→ 4 boutons
 					 			a. → mot de passe inconnu
 					 				ou pas d'autre mdp
-					 				ou ne souhaite pas se connecter → situation où on veut réinitialiser le serveur 
+					 				ou ne souhaite pas se connecter → situation où on veut réinitialiser le serveur
+ 									→ PASSER CETTE ETAPE
 					 			b. → mot de passe saisi au clavier
+ 									→ SAISR LE MOR DE PASSE
 					 			c. → mot de passe sur clé USB
+ 									→ IMPORTER DEPUIS UNE CLÉ USB
 					 			d. → annuler et sortir
+									→ ANNULER
 					→ toujours pas de connexion avec le mdp ou a.
 						→ Procedures::RecupererDemarrage() avec le bouton PremierDemarrageBouton
 							→ dont le texte est Connexion/Création d'une base patients
