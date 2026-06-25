@@ -2144,12 +2144,11 @@ bool MySQLInstaller::uninstallMySQL()
     // nettoie le PATH machine et la clé de désinstallation Rufus.
     // (Aucun guillemet double DANS $ps : tout est en quotes simples ou via [char]34, car le bloc
     //  est passé à powershell -Command "<...>" — un " interne casserait la commande.)
-    // DIAGNOSTIC (temporaire) : on journalise tout dans C:\ProgramData\rufus-uninstall.log
-    // (élévation, service trouvé, résultat de chaque suppression). $ErrorActionPreference=Continue
-    // pour que les erreurs (Access denied / fichier verrouillé) apparaissent dans le journal. Si le
-    // fichier n'existe pas après coup → le script n'a pas été exécuté du tout.
+    // DIAGNOSTIC (temporaire) : c'est le C++ qui capture la sortie du PowerShell (runCmdFull) et
+    // l'écrit dans C:\Users\<user>\rufus-uninstall-diag.txt — plus fiable que de demander au script
+    // de se journaliser (s'il ne tourne pas, pas de log). Le fichier indique isAdminUser, si le .ps1
+    // a bien été écrit, et la sortie COMPLÈTE du script (élévation, service, suppressions, erreurs).
     const QString ps =
-        "Start-Transcript -Path 'C:\\ProgramData\\rufus-uninstall.log' -Force | Out-Null;"
         "$ErrorActionPreference='Continue';"
         "$wp=New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent());"
         "Write-Output ('ELEVATED=' + $wp.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator));"
@@ -2186,19 +2185,28 @@ bool MySQLInstaller::uninstallMySQL()
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
         "\\Uninstall\\MySQLForRufus' -Recurse -Force;"
-        "Write-Output 'DONE';"
-        "Stop-Transcript | Out-Null";
+        "Write-Output 'DONE'";
     // On exécute via un FICHIER .ps1 (-File), PAS en ligne (-Command "…") : passer un script long
     // et truffé de | { } ' à travers cmd.exe → powershell casse l'imbrication de guillemets en
     // silence (le diagnostic, lui, marche précisément parce qu'il s'exécute en -File). On écrit
     // donc le script dans le dossier temporaire et on le lance par chemin.
     const QString script = QDir::toNativeSeparators(QDir::tempPath() + "/rufus_uninstall_mysql.ps1");
+    QString diag = "isAdminUser=" + QString(isAdminUser() ? "true" : "false") + "\n";
+    bool written = false;
     {
         QFile f(script);
         if (f.open(QIODevice::WriteOnly | QIODevice::Text))
-            f.write(ps.toUtf8());
+            written = (f.write(ps.toUtf8()) > 0);
     }
-    runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
+    diag += "scriptWritten=" + QString(written ? "true" : "false") + "  path=" + script + "\n";
+    const QString out =
+        runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
+    diag += "---powershell output begin---\n" + out + "\n---powershell output end---\n";
+    {
+        QFile lf(QDir::homePath() + "/rufus-uninstall-diag.txt");
+        if (lf.open(QIODevice::WriteOnly | QIODevice::Text))
+            lf.write(diag.toUtf8());
+    }
     QFile::remove(script);
     return !isMySQLInstalled();
 #elif defined(Q_OS_LINUX)
