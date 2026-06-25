@@ -2142,75 +2142,45 @@ bool MySQLInstaller::uninstallMySQL()
     // le supprime, on retire le dossier qu'il pointe, PUIS on balaie les installations SERVEUR de
     // TOUTE version (Program Files\MySQL\MySQL Server * et ProgramData\MySQL\MySQL Server *), on
     // nettoie le PATH machine et la clé de désinstallation Rufus.
-    // (Aucun guillemet double DANS $ps : tout est en quotes simples ou via [char]34, car le bloc
-    //  est passé à powershell -Command "<...>" — un " interne casserait la commande.)
-    // DIAGNOSTIC (temporaire) : c'est le C++ qui capture la sortie du PowerShell (runCmdFull) et
-    // l'écrit dans C:\Users\<user>\rufus-uninstall-diag.txt — plus fiable que de demander au script
-    // de se journaliser (s'il ne tourne pas, pas de log). Le fichier indique isAdminUser, si le .ps1
-    // a bien été écrit, et la sortie COMPLÈTE du script (élévation, service, suppressions, erreurs).
+    // (Aucun guillemet double DANS $ps : tout est en quotes simples ou via [char]34.)
     const QString ps =
-        "$ErrorActionPreference='Continue';"
-        "$wp=New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent());"
-        "Write-Output ('ELEVATED=' + $wp.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator));"
+        "$ErrorActionPreference='SilentlyContinue';"
         "$base=$null;"
         "$svc=Get-CimInstance Win32_Service | "
             "Where-Object {$_.PathName -like '*mysqld.exe*'} | Select-Object -First 1;"
         "if($svc){"
-            "Write-Output ('SERVICE=' + $svc.Name + ' STATE=' + $svc.State);"
             "$exe=$svc.PathName.Trim([char]34);"
             "$i=$exe.ToLower().IndexOf('mysqld.exe');"
             "if($i -ge 0){$exe=$exe.Substring(0,$i+10)};"
             "$base=Split-Path (Split-Path ($exe.Trim().Trim([char]34)) -Parent) -Parent;"
-            "Write-Output ('BASE=' + $base);"
             "Stop-Service -Name $svc.Name -Force;"
-            "sc.exe stop $svc.Name;"
-            "sc.exe delete $svc.Name"
-        "}else{Write-Output 'SERVICE=none'};"
+            "sc.exe stop $svc.Name | Out-Null;"
+            "sc.exe delete $svc.Name | Out-Null"
+        "};"
         "Start-Sleep -Seconds 2;"
         "Get-Process mysqld -ErrorAction SilentlyContinue | Stop-Process -Force;"
         "Start-Sleep -Seconds 1;"
-        "if($base -and (Test-Path $base)){Write-Output ('RM ' + $base);"
-            "Remove-Item -LiteralPath $base -Recurse -Force};"
-        "foreach($d in (Get-ChildItem 'C:\\Program Files\\MySQL' -Directory "
-            "-Filter 'MySQL Server *' -ErrorAction SilentlyContinue)){"
-            "Write-Output ('RM ' + $d.FullName);"
-            "Remove-Item -LiteralPath $d.FullName -Recurse -Force};"
-        "foreach($d in (Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory "
-            "-Filter 'MySQL Server *' -ErrorAction SilentlyContinue)){"
-            "Write-Output ('RM ' + $d.FullName);"
-            "Remove-Item -LiteralPath $d.FullName -Recurse -Force};"
+        "if($base -and (Test-Path $base)){Remove-Item -LiteralPath $base -Recurse -Force};"
+        "Get-ChildItem 'C:\\Program Files\\MySQL' -Directory -Filter 'MySQL Server *' "
+            "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
+        "Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory -Filter 'MySQL Server *' "
+            "-ErrorAction SilentlyContinue | Remove-Item -Recurse -Force;"
         "$p=[Environment]::GetEnvironmentVariable('Path','Machine');"
         "if($p){[Environment]::SetEnvironmentVariable('Path',"
             "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*')}) -join ';'),"
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
-        "\\Uninstall\\MySQLForRufus' -Recurse -Force;"
-        "Write-Output 'DONE'";
+        "\\Uninstall\\MySQLForRufus' -Recurse -Force";
     // On exécute via un FICHIER .ps1 (-File), PAS en ligne (-Command "…") : passer un script long
     // et truffé de | { } ' à travers cmd.exe → powershell casse l'imbrication de guillemets en
-    // silence (le diagnostic, lui, marche précisément parce qu'il s'exécute en -File). On écrit
-    // donc le script dans le dossier temporaire et on le lance par chemin.
+    // silence. On écrit donc le script dans le dossier temporaire et on le lance par chemin.
     const QString script = QDir::toNativeSeparators(QDir::tempPath() + "/rufus_uninstall_mysql.ps1");
-    QString diag = "isAdminUser=" + QString(isAdminUser() ? "true" : "false") + "\n";
-    bool written = false;
     {
         QFile f(script);
         if (f.open(QIODevice::WriteOnly | QIODevice::Text))
-            written = (f.write(ps.toUtf8()) > 0);
+            f.write(ps.toUtf8());
     }
-    diag += "scriptWritten=" + QString(written ? "true" : "false") + "  path=" + script + "\n";
-    const QString out =
-        runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
-    diag += "---powershell output begin---\n" + out + "\n---powershell output end---\n";
-    // Canal de diagnostic FIABLE : on AFFICHE le résultat (un GUI s'affiche quels que soient les
-    // droits, contrairement à l'écriture d'un fichier sous élévation). Si cette boîte n'apparaît
-    // pas du tout → uninstallMySQL() n'est pas atteint (problème en amont, pas ici).
-    UpMessageBox::Watch(nullptr, tr("Diagnostic désinstallation MySQL"), diag);
-    {
-        QFile lf(QDir::homePath() + "/rufus-uninstall-diag.txt");
-        if (lf.open(QIODevice::WriteOnly | QIODevice::Text))
-            lf.write(diag.toUtf8());
-    }
+    runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
     QFile::remove(script);
     return !isMySQLInstalled();
 #elif defined(Q_OS_LINUX)
