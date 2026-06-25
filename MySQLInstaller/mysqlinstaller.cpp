@@ -2172,8 +2172,18 @@ bool MySQLInstaller::uninstallMySQL()
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
         "\\Uninstall\\MySQLForRufus' -Recurse -Force";
-    runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -Command \"" + ps + "\"",
-               300000);
+    // On exécute via un FICHIER .ps1 (-File), PAS en ligne (-Command "…") : passer un script long
+    // et truffé de | { } ' à travers cmd.exe → powershell casse l'imbrication de guillemets en
+    // silence (le diagnostic, lui, marche précisément parce qu'il s'exécute en -File). On écrit
+    // donc le script dans le dossier temporaire et on le lance par chemin.
+    const QString script = QDir::toNativeSeparators(QDir::tempPath() + "/rufus_uninstall_mysql.ps1");
+    {
+        QFile f(script);
+        if (f.open(QIODevice::WriteOnly | QIODevice::Text))
+            f.write(ps.toUtf8());
+    }
+    runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -File \"" + script + "\"", 300000);
+    QFile::remove(script);
     return !isMySQLInstalled();
 #elif defined(Q_OS_LINUX)
     // apt purge (par motif individuel) + suppression données/config. On RETIRE le
