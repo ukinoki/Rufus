@@ -103,8 +103,9 @@
     </message>
     <message>
         <location filename="Database/database.cpp" line="114"/>
-        <location filename="Database/database.cpp" line="468"/>
-        <location filename="Database/database.cpp" line="503"/>
+        <location filename="Database/database.cpp" line="429"/>
+        <location filename="Database/database.cpp" line="518"/>
+        <location filename="Database/database.cpp" line="553"/>
         <source>
 Erreur
 </source>
@@ -120,111 +121,126 @@ requete = </source>
 consulta = </translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="223"/>
+        <location filename="Database/database.cpp" line="141"/>
+        <source>Mode d&apos;accès non défini : appelez setModeacces() avant de vous connecter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Database/database.cpp" line="170"/>
+        <source>Clés SSL introuvables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Database/database.cpp" line="259"/>
         <source>Le dossier de sauvegarde d&apos;imagerie </source>
         <translation>A pasta de backup de imagens </translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="223"/>
+        <location filename="Database/database.cpp" line="259"/>
         <source> n&apos;existe pas</source>
         <translation> não existe</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="226"/>
+        <location filename="Database/database.cpp" line="262"/>
         <source>Il y a un problème avec la localisation de la variable MySQL &quot;secure_file_priv&quot;</source>
         <translation>Há um problema com a localização da variável MySQL &quot;secure_file_priv&quot;</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="229"/>
+        <location filename="Database/database.cpp" line="265"/>
         <source>Réseau local</source>
         <translation>Rede local</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="230"/>
+        <location filename="Database/database.cpp" line="266"/>
         <source>Renseignez un dossier valide dans Editions/Paramètres/Onglet </source>
         <translation>Informe uma pasta válida em Edições/Parâmetros/Aba </translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="584"/>
+        <location filename="Database/database.cpp" line="429"/>
+        <source>La liste des champs à sélectionner est vide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Database/database.cpp" line="634"/>
         <source>Messages</source>
         <translation>Mensagens</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="584"/>
+        <location filename="Database/database.cpp" line="634"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation>Exclusão da antiga base Rufus em andamento</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="608"/>
-        <location filename="Database/database.cpp" line="639"/>
-        <location filename="Database/database.cpp" line="656"/>
+        <location filename="Database/database.cpp" line="658"/>
+        <location filename="Database/database.cpp" line="689"/>
+        <location filename="Database/database.cpp" line="706"/>
         <source>Impossible de retrouver les paramètres du système</source>
         <translation>Impossível encontrar os parâmetros do sistema</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="671"/>
+        <location filename="Database/database.cpp" line="721"/>
         <source>Impossible de retrouver la version utilisée</source>
         <translation>Impossível encontrar a versão utilizada</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="871"/>
-        <location filename="Database/database.cpp" line="948"/>
+        <location filename="Database/database.cpp" line="922"/>
+        <location filename="Database/database.cpp" line="999"/>
         <source>Impossible de retrouver les données opthalmologiques du patient</source>
         <translation>Impossível encontrar os dados oftalmológicos do paciente</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="908"/>
+        <location filename="Database/database.cpp" line="959"/>
         <source>Impossible de retrouver les données ophtalmologiques du patient</source>
         <translation>Impossível encontrar os dados oftalmológicos do paciente</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="1074"/>
-        <location filename="Database/database.cpp" line="1382"/>
+        <location filename="Database/database.cpp" line="1132"/>
+        <location filename="Database/database.cpp" line="1440"/>
         <source>Impossible de retrouver les données de l&apos;utilisateur</source>
         <translation>Impossível encontrar os dados do usuário</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="1122"/>
+        <location filename="Database/database.cpp" line="1180"/>
         <source>Impossible de retrouver les données de l&apos;administrateur</source>
         <translation>Impossível encontrar os dados do administrador</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="1207"/>
+        <location filename="Database/database.cpp" line="1265"/>
         <source>Impossible de modifier le logo de l&apos;utilisateur</source>
         <translation>Impossível modificar o logotipo do usuário</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="2171"/>
+        <location filename="Database/database.cpp" line="2229"/>
         <source>Apport praticien</source>
         <translation>Contribuição do profissional</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="2172"/>
+        <location filename="Database/database.cpp" line="2230"/>
         <source>Divers et autres recettes</source>
         <translation>Diversos e outras receitas</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="2560"/>
+        <location filename="Database/database.cpp" line="2618"/>
         <source>Ville déjà enregistrée</source>
         <translation>Cidade já registrada</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="2561"/>
+        <location filename="Database/database.cpp" line="2619"/>
         <source>La localité </source>
         <translation>A localidade </translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="2561"/>
+        <location filename="Database/database.cpp" line="2619"/>
         <source> est déjà enregistrée dans la base avec le code postal </source>
         <translation> já está registrada na base com o código postal </translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="3042"/>
+        <location filename="Database/database.cpp" line="3108"/>
         <source>Impossible de retrouver un acte correspondant</source>
         <translation>Impossível encontrar um ato correspondente</translation>
     </message>
     <message>
-        <location filename="Database/database.cpp" line="3568"/>
+        <location filename="Database/database.cpp" line="3634"/>
         <source>Impossible de modifier l&apos;IOL</source>
         <translation>Impossível modificar a LIO</translation>
     </message>
@@ -650,6 +666,21 @@ consulta = </translation>
         <source>Suppression impossible - l&apos;item n&apos;est pas reconnu</source>
         <translation>Exclusão impossível - o item não é reconhecido</translation>
     </message>
+    <message>
+        <location filename="ItemsLists/cls_itemslist.cpp" line="1556"/>
+        <source>Enregistrement impossible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ItemsLists/cls_itemslist.cpp" line="1557"/>
+        <source>La modification n&apos;a pas pu être enregistrée dans la base de données (le serveur est peut-être momentanément indisponible).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="ItemsLists/cls_itemslist.cpp" line="1559"/>
+        <source>L&apos;affichage peut être temporairement désynchronisé de la base : vérifiez votre connexion, puis ressaisissez la modification.</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Manufacturer</name>
@@ -717,23 +748,23 @@ consulta = </translation>
 <context>
     <name>MySQLInstaller</name>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="783"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="900"/>
         <source>Téléchargement de Visual C++ Redistributable 2022…</source>
         <translation>Baixando o Visual C++ Redistributable 2022…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="788"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="905"/>
         <source>Installation de Visual C++ Redistributable 2022…</source>
         <translation>Instalando o Visual C++ Redistributable 2022…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="879"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="895"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="996"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1012"/>
         <source>Droits administrateur requis</source>
         <translation>Direitos de administrador necessários</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="880"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="997"/>
         <source>Pour installer ou désinstaller MySQL (le moteur de base de données de Rufus), Windows demande les droits administrateur.
 
 Rufus doit donc être relancé en mode administrateur. Voulez-vous le faire maintenant ?
@@ -746,12 +777,12 @@ Portanto, o Rufus deve ser reiniciado em modo administrador. Deseja fazer isso a
 Uma janela do Windows solicitará então uma conta de administrador do computador.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="888"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1005"/>
         <source>Élévation refusée</source>
         <translation>Elevação recusada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="889"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1006"/>
         <source>Rufus n&apos;a pas pu obtenir les droits administrateur.
 
 Faites un clic droit sur l&apos;application puis « Exécuter en tant qu&apos;administrateur », et relancez.</source>
@@ -760,7 +791,7 @@ Faites un clic droit sur l&apos;application puis « Exécuter en tant qu&apos;ad
 Clique com o botão direito no aplicativo, escolha «Executar como administrador» e reinicie.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="896"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1013"/>
         <source>Pour installer ou désinstaller MySQL (le moteur de base de données de Rufus), macOS demande un compte administrateur.
 
 Connectez-vous avec un compte administrateur (ou demandez à un administrateur de l&apos;exécuter), puis relancez.</source>
@@ -769,35 +800,35 @@ Connectez-vous avec un compte administrateur (ou demandez à un administrateur d
 Faça login com uma conta de administrador (ou peça a um administrador para executá-lo) e reinicie.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="918"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1035"/>
         <source>Visual C++ Redistributable requis</source>
         <translation>Visual C++ Redistributable necessário</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="919"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1036"/>
         <source>L&apos;installation de Microsoft Visual C++ Redistributable 2022 a échoué.
 Vérifiez votre connexion Internet et relancez.</source>
         <translation>A instalação do Microsoft Visual C++ Redistributable 2022 falhou.
 Verifique sua conexão com a Internet e reinicie.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="928"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1045"/>
         <source>Version d&apos;Ubuntu non compatible</source>
         <translation>Versão do Ubuntu incompatível</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="929"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1046"/>
         <source>Ce programme nécessite Ubuntu 22.04 ou une version ultérieure.</source>
         <translation>Este programa requer o Ubuntu 22.04 ou uma versão posterior.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="951"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1215"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1068"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1607"/>
         <source>Installation de MySQL</source>
         <translation>Instalação do MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="952"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1069"/>
         <source>Pour installer Rufus, il est nécessaire d&apos;installer une base de données MySQL sur cet ordinateur.
 
 Voulez-vous l&apos;installer maintenant ?</source>
@@ -806,36 +837,80 @@ Voulez-vous l&apos;installer maintenant ?</source>
 Deseja instalá-lo agora?</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="970"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1091"/>
         <source>Une base Rufus existe déjà</source>
         <translation>Um banco Rufus já existe</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="971"/>
         <source>Un serveur MySQL contient déjà une base Rufus complète sur cet ordinateur.
 
 Pour vous y connecter, utilisez « Base patients existante sur le serveur » depuis l&apos;écran de premier démarrage.</source>
-        <translation>Um servidor MySQL já contém um banco Rufus completo neste computador.
+        <translation type="vanished">Um servidor MySQL já contém um banco Rufus completo neste computador.
 
 Para se conectar a ele, use «Banco de pacientes existente no servidor» na tela de primeira inicialização.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="994"/>
         <source>Désinstallation de l&apos;ancien MySQL…</source>
-        <translation>Desinstalando o antigo MySQL…</translation>
+        <translation type="vanished">Desinstalando o antigo MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1022"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1092"/>
+        <source>Une base de données Rufus existe déjà sur cet ordinateur.
+
+Pour vous y connecter, choisissez « Conserver » puis, depuis l&apos;écran de premier démarrage, « Base patients existante sur le serveur ».
+
+Voulez-vous la conserver ou la supprimer ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1098"/>
+        <source>Supprimer la base Rufus existante</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1099"/>
+        <source>Conserver la base existante</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1108"/>
+        <source>Supprimer la base Rufus ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1109"/>
+        <source>Cette opération supprimera DÉFINITIVEMENT la base de données Rufus (patients, comptabilité, ophtalmologie, imagerie) présente sur ce serveur.
+
+Cette action est IRRÉVERSIBLE. Voulez-vous continuer ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1147"/>
+        <source>Désinstallation de MySQL…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1157"/>
+        <source>MySQL supprimé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1158"/>
+        <source>MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1187"/>
         <source>MySQL est déjà présent sur cet ordinateur</source>
         <translation>O MySQL já está presente neste computador</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1024"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1189"/>
         <source>Annuler (retour au menu)</source>
         <translation>Cancelar (voltar ao menu)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1027"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1192"/>
         <source>Cette version de MySQL est compatible avec Rufus.
 
 Que voulez-vous faire ?</source>
@@ -844,17 +919,23 @@ Que voulez-vous faire ?</source>
 O que você deseja fazer?</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1031"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1196"/>
         <source>L&apos;utiliser en EFFAÇANT toutes les données déjà présentes</source>
         <translation>Usá-la APAGANDO todos os dados já presentes</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1033"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1198"/>
         <source>L&apos;utiliser en CONSERVANT les données déjà présentes</source>
         <translation>Usá-la MANTENDO todos os dados já presentes</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1043"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1204"/>
+        <source>Réinstaller entièrement MySQL
+(si le mot de passe est perdu)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1216"/>
         <source>Cette version de MySQL n&apos;est PAS compatible avec Rufus (MariaDB, ou version antérieure à 8.0.14).
 
 Que voulez-vous faire ?</source>
@@ -863,17 +944,17 @@ Que voulez-vous faire ?</source>
 O que você deseja fazer?</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1047"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1220"/>
         <source>Tout effacer et réinstaller MySQL</source>
         <translation>Apagar tudo e reinstalar o MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1070"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1251"/>
         <source>Des données vont être effacées</source>
         <translation>Dados serão apagados</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1071"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1252"/>
         <source>Cette opération va supprimer des données présentes sur ce serveur MySQL qui ne sont PAS gérées par Rufus.
 
 Si ces données vous importent, arrêtez Rufus pour les sauvegarder vous-même avant de poursuivre.</source>
@@ -882,195 +963,505 @@ Si ces données vous importent, arrêtez Rufus pour les sauvegarder vous-même a
 Se esses dados forem importantes para você, pare o Rufus para fazer o backup você mesmo antes de continuar.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1077"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1258"/>
         <source>Arrêter Rufus pour sauvegarder d&apos;abord</source>
         <translation>Parar o Rufus para fazer backup primeiro</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1079"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1260"/>
         <source>Continuer (effacer les données)</source>
         <translation>Continuar (apagar os dados)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1133"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1403"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1528"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2108"/>
         <source>Connexion impossible</source>
         <translation>Conexão impossível</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1134"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1529"/>
         <source>Connexion refusée avec cet identifiant / mot de passe. Réessayez.</source>
         <translation>Conexão recusada com este usuário / senha. Tente novamente.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1146"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1541"/>
         <source>Droits insuffisants</source>
         <translation>Direitos insuficientes</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1147"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1542"/>
         <source>Le compte MySQL « %1 » n&apos;a pas le droit de créer des utilisateurs (CREATE USER). Réessayez avec un compte administrateur MySQL (par ex. root).</source>
         <translation>A conta MySQL «%1» não tem permissão para criar usuários (CREATE USER). Tente novamente com uma conta de administrador do MySQL (por exemplo, root).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1154"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1549"/>
         <source>Erreur</source>
         <translation>Erro</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1155"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1550"/>
         <source>Impossible de créer les comptes Rufus.</source>
         <translation>Não é possível criar as contas do Rufus.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1172"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1567"/>
         <source>Serveur MySQL prêt</source>
         <translation>Servidor MySQL pronto</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1173"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1252"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1568"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1644"/>
         <source>Paramétrage de l&apos;installation pour Rufus en cours…</source>
         <translation>Configurando a instalação para o Rufus…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1216"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1608"/>
         <source>Téléchargement et installation du serveur MySQL en cours…</source>
         <translation>Baixando e instalando o servidor MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1251"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1643"/>
         <source>Serveur MySQL installé</source>
         <translation>Servidor MySQL instalado</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1275"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1667"/>
         <source>Réinstallation de MySQL</source>
         <translation>Reinstalação do MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1276"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1668"/>
         <source>Installation du serveur MySQL en cours…</source>
         <translation>Instalando o servidor MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1354"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1933"/>
+        <source>Certificats SSL expirés</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1933"/>
+        <source>Clés SSL absentes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1935"/>
+        <source>Les certificats SSL du serveur ont expiré : l&apos;accès distant ne fonctionne plus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1936"/>
+        <source>Le serveur ne dispose pas de clés SSL pour l&apos;accès distant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1937"/>
+        <source>Rufus peut générer de NOUVELLES clés SSL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1938"/>
+        <source>ATTENTION : les postes en accès distant déjà configurés ne pourront plus se connecter tant que vous ne leur aurez pas transmis les NOUVELLES clés.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1940"/>
+        <source>Le serveur MySQL sera redémarré et Rufus relancé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1942"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2328"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2656"/>
+        <source>Plus tard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1943"/>
+        <source>Générer de nouvelles clés</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1952"/>
+        <source>Nouvelles clés SSL générées</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1953"/>
+        <source>De nouvelles clés SSL ont été générées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1954"/>
+        <source>Transmettez-les aux postes en accès distant : menu Édition / Paramètres / Ce poste → « Exporter les clés client SSL ».</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1956"/>
+        <source>Rufus va redémarrer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1960"/>
+        <source>Génération impossible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1961"/>
+        <source>Les clés SSL n&apos;ont pas pu être générées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1981"/>
+        <source>ont expiré</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1982"/>
+        <source>expireront le %1 (dans %2 jours)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1984"/>
+        <source>Clés SSL d&apos;accès distant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1985"/>
+        <source>Les clés SSL qui sécurisent cet accès distant %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1986"/>
+        <source>Sans renouvellement, la connexion à distance cessera de fonctionner.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1987"/>
+        <source>Faites générer de nouvelles clés SUR LE POSTE SERVEUR (menu Édition / Paramètres / Ce poste → « Créer de nouvelles clés SSL »), puis faites-vous transmettre les nouvelles clés et indiquez leur dossier ici.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2051"/>
         <source>PATH non configuré</source>
         <translation>PATH não configurado</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1355"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2052"/>
         <source>Impossible d&apos;ajouter le chemin de mysql à la variable PATH.</source>
         <translation>Não é possível adicionar o caminho do mysql à variável PATH.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1373"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2070"/>
         <source>Création d&apos;utilisateur impossible</source>
         <translation>Não é possível criar o usuário</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1374"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2071"/>
         <source>Impossible de créer l&apos;utilisateur &apos;%1&apos;.</source>
         <translation>Não é possível criar o usuário &apos;%1&apos;.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1380"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2074"/>
+        <source>Détail :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2080"/>
         <source>Dossier partagé impossible</source>
         <translation>Pasta compartilhada impossível</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1381"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2081"/>
         <source>Impossible de créer ou de partager le dossier %1.</source>
         <translation>Não é possível criar ou compartilhar a pasta %1.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1392"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2092"/>
         <source>secure_file_priv impossible</source>
         <translation>secure_file_priv impossível</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1393"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2093"/>
         <source>Impossible de configurer secure_file_priv sur %1.</source>
         <translation>Não é possível configurar secure_file_priv em %1.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1404"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2109"/>
         <source>Connexion impossible avec le login « %1 ».
 Vérifiez le login et le mot de passe.</source>
         <translation>Conexão impossível com o login «%1».
 Verifique o login e a senha.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1411"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1420"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2113"/>
         <source>Écriture impossible</source>
         <translation>Gravação impossível</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1412"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2114"/>
+        <source>Le serveur MySQL ne parvient pas à écrire dans %1.
+
+Vérifiez que le compte « %2 » possède le privilège FILE et que les droits du dossier autorisent l&apos;écriture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4249"/>
+        <source>Téléchargement de MySQL impossible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4250"/>
+        <source>Rufus n&apos;a pas réussi à télécharger MySQL : le site n&apos;est pas accessible.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4251"/>
+        <source>Vous pouvez installer MySQL vous-même : téléchargez-le et installez-le sans rien configurer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4252"/>
+        <source>Notez simplement le login et le mot de passe de l&apos;utilisateur que vous avez créé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4253"/>
+        <source>Relancez ensuite Rufus : il détectera la présence du serveur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4254"/>
+        <source>et vous demandera ce login et ce mot de passe.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4255"/>
+        <source>Avec ces renseignements, il se connectera au serveur</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4256"/>
+        <source>et le configurera automatiquement pour son usage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>mysql ne parvient pas à écrire dans %1.
 Accordez l&apos;accès complet au disque à mysqld, ou vérifiez le privilège FILE de « %2 ».</source>
-        <translation>O mysql não consegue gravar em %1.
+        <translation type="vanished">O mysql não consegue gravar em %1.
 Conceda acesso total ao disco ao mysqld, ou verifique o privilégio FILE de «%2».</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1421"/>
         <source>mysql ne parvient pas à écrire dans %1.
 Vérifiez les droits du dossier et le privilège FILE de « %2 ».</source>
-        <translation>O mysql não consegue gravar em %1.
+        <translation type="vanished">O mysql não consegue gravar em %1.
 Verifique as permissões da pasta e o privilégio FILE de «%2».</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1433"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2125"/>
         <source>Privilèges manquants</source>
         <translation>Privilégios ausentes</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1434"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2126"/>
         <source>Privilège(s) manquant(s) pour « %1 » : %2</source>
         <translation>Privilégio(s) ausente(s) para «%1»: %2</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1775"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2310"/>
+        <source>le dossier partagé est introuvable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2312"/>
+        <source>la variable serveur secure_file_priv n&apos;est pas correctement positionnée</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2319"/>
+        <source>Configuration du serveur MySQL à corriger</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2321"/>
+        <source>La configuration du serveur MySQL présente une ou plusieurs anomalies :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2323"/>
+        <source>Rufus peut tenter de les corriger maintenant. Cette opération peut demander le mot de passe administrateur de l&apos;ordinateur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2325"/>
+        <source>Vous pouvez aussi continuer : Rufus fonctionnera, mais certaines fonctions (imagerie, sauvegarde) pourraient être perturbées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2329"/>
+        <source>Corriger maintenant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2339"/>
+        <source>Correction de la configuration MySQL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2340"/>
+        <source>Vérification et correction de la configuration en cours…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2348"/>
+        <source>Configuration corrigée</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2349"/>
+        <source>La configuration du serveur MySQL a été corrigée.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2351"/>
+        <source>Correction incomplète</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2352"/>
+        <source>Certaines anomalies de configuration n&apos;ont pas pu être corrigées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2353"/>
+        <source>Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2619"/>
+        <source>Mot de passe générique bientôt désactivé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2620"/>
+        <source>Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2621"/>
+        <source>Un mot de passe générique est par ailleurs maintenu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2622"/>
+        <source>pour des raisons de compatibilité avec les versions antérieures de Rufus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2623"/>
+        <source>Ce mot de passe générique sera automatiquement désactivé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2624"/>
+        <source>le %1 dans %2 jours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2624"/>
+        <source>dd MMMM yyyy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2625"/>
+        <source>Assurez-vous d&apos;ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2639"/>
+        <source>prochainement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2642"/>
+        <source>Ce poste utilise encore le mot de passe générique (de mise en route),</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2644"/>
+        <source>qui sera désactivé le %1 (dans %2 jours).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2646"/>
+        <source>qui sera prochainement désactivé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2648"/>
+        <source>Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste qui a fait la mise à jour, ou disponible via le menu Édition / Paramètres d&apos;un poste à jour) et enregistrez-le : sans lui, cet accès cessera de fonctionner.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2653"/>
+        <source>Mot de passe du cabinet à récupérer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2657"/>
+        <source>Renseigner le nouveau
+mot de passe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2668"/>
+        <source>Récupérer le mot de passe du cabinet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2669"/>
+        <source>Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur laquelle il a été copié depuis un poste à jour.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2761"/>
         <source>Téléchargement de MySQL %1 (Oracle)…</source>
         <translation>Baixando o MySQL %1 (Oracle)…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1831"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2816"/>
         <source>Installation et configuration de MySQL…
 (Autorisez l&apos;opération dans la fenêtre qui s&apos;affiche)</source>
         <translation>Instalando e configurando o MySQL…
 (Autorize a operação na janela que aparece)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1958"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2958"/>
         <source>Téléchargement de MySQL %1…</source>
         <translation>Baixando o MySQL %1…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1961"/>
         <source>Téléchargement échoué</source>
-        <translation>Falha no download</translation>
+        <translation type="vanished">Falha no download</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1962"/>
         <source>Impossible de télécharger MySQL %1 depuis dev.mysql.com.
 Vérifiez votre connexion Internet.</source>
-        <translation>Não é possível baixar o MySQL %1 de dev.mysql.com.
+        <translation type="vanished">Não é possível baixar o MySQL %1 de dev.mysql.com.
 Verifique sua conexão com a Internet.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2014"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3012"/>
         <source>Extraction des fichiers MySQL…</source>
         <translation>Extraindo os arquivos do MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2023"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3021"/>
         <source>Extraction échouée</source>
         <translation>Falha na extração</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2024"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3022"/>
         <source>L&apos;archive MySQL n&apos;a pas pu être extraite (mysqld.exe introuvable).
 
 Détail : %1</source>
@@ -1079,34 +1470,34 @@ Détail : %1</source>
 Detalhe: %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2025"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3023"/>
         <source>(aucun détail)</source>
         <translation>(sem detalhes)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2035"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3033"/>
         <source>Configuration échouée</source>
         <translation>Falha na configuração</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2036"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3034"/>
         <source>Impossible d&apos;écrire %1.</source>
         <translation>Não é possível gravar %1.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2053"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3051"/>
         <source>Initialisation de la base de données,
 cela peut prendre quelques instants…</source>
         <translation>Inicializando o banco de dados,
 isso pode levar alguns instantes…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2056"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3054"/>
         <source>Initialisation échouée</source>
         <translation>Falha na inicialização</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2057"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3055"/>
         <source>L&apos;initialisation du datadir MySQL a échoué.
 
 %1</source>
@@ -1115,22 +1506,22 @@ isso pode levar alguns instantes…</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2068"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3066"/>
         <source>Installation incomplète</source>
         <translation>Instalação incompleta</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2069"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3067"/>
         <source>Les fichiers MySQL sont en place mais l&apos;installation n&apos;est pas détectée correctement.</source>
         <translation>Os arquivos do MySQL estão no lugar, mas a instalação não é detectada corretamente.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2074"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3072"/>
         <source>Démarrage du service échoué</source>
         <translation>Falha ao iniciar o serviço</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2075"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3073"/>
         <source>MySQL est installé mais le service n&apos;a pas démarré.
 
 %1</source>
@@ -1139,17 +1530,17 @@ isso pode levar alguns instantes…</translation>
 %1</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2101"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3116"/>
         <source>Installation de MySQL via apt-get…</source>
         <translation>Instalando o MySQL via apt-get…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2117"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3132"/>
         <source>Initialisation impossible</source>
         <translation>Inicialização impossível</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2118"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3133"/>
         <source>MySQL est installé mais la base de données n&apos;a pas pu être initialisée (%1/data).
 
 Le serveur ne peut pas démarrer.
@@ -1164,22 +1555,20 @@ Detalhe (%2):
 %3</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2122"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3137"/>
         <source>(journal indisponible)</source>
         <translation>(registro indisponível)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2206"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3221"/>
         <source>Redémarrage de MySQL…</source>
         <translation>Reiniciando o MySQL…</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2311"/>
         <source>Accès complet au disque requis pour mysqld</source>
-        <translation>Acesso total ao disco necessário para o mysqld</translation>
+        <translation type="vanished">Acesso total ao disco necessário para o mysqld</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2312"/>
         <source>mysqld ne parvient pas à écrire dans /Users/Shared. Sur macOS, un démon doit disposer de l&apos;« Accès complet au disque » pour y accéder.
 
 Pour l&apos;autoriser :
@@ -1191,7 +1580,7 @@ Pour l&apos;autoriser :
 
   4. Activez l&apos;interrupteur en face de mysqld.
   5. Revenez ici et cliquez sur « Réessayer ».</source>
-        <translation>O mysqld não consegue gravar em /Users/Shared. No macOS, um daemon precisa de «Acesso total ao disco» para acessá-lo.
+        <translation type="vanished">O mysqld não consegue gravar em /Users/Shared. No macOS, um daemon precisa de «Acesso total ao disco» para acessá-lo.
 
 Para autorizar:
   1. Abra Ajustes do Sistema ▸ Privacidade e Segurança ▸ Acesso total ao disco.
@@ -1204,36 +1593,35 @@ Para autorizar:
   5. Volte aqui e clique em «Tentar novamente».</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2957"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1097"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3991"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2322"/>
         <source>Réessayer</source>
-        <translation>Tentar novamente</translation>
+        <translation type="vanished">Tentar novamente</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2653"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2753"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3681"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3781"/>
         <source>Préparation du serveur…
 Cela peut durer plusieurs minutes.</source>
         <translation>Preparando o servidor…
 Isso pode levar vários minutos.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2935"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3969"/>
         <source>Non</source>
         <translation>Não</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2935"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3969"/>
         <source>Oui</source>
         <translation>Sim</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2943"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3977"/>
         <source>MySQL %1 est installé, mais la version %2 (ou ultérieure) est nécessaire.
 
 La mise à jour effectue un NETTOYAGE COMPLET : MySQL est entièrement désinstallé puis réinstallé proprement. La base de données existante sera DÉFINITIVEMENT SUPPRIMÉE.
@@ -1246,27 +1634,27 @@ A atualização executa uma LIMPEZA COMPLETA: o MySQL é totalmente desinstalado
 Faça backup dos seus dados ANTES de continuar. Só confirme se eles já estiverem salvos.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2951"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3985"/>
         <source>(version inconnue)</source>
         <translation>(versão desconhecida)</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2955"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3989"/>
         <source>Mise à jour de MySQL nécessaire</source>
         <translation>Atualização do MySQL necessária</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2958"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3992"/>
         <source>OK, faire la MAJ, mes données sont sauvegardées</source>
         <translation>OK, atualizar, meus dados estão salvos</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3177"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4222"/>
         <source>Pas d&apos;accès réseau</source>
         <translation>Sem acesso à rede</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3178"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4223"/>
         <source>Absence d&apos;accès réseau. Le programme ne peut pas télécharger le fichier d&apos;installation de MySQL.
 
 Fermeture du programme.</source>
@@ -1275,12 +1663,12 @@ Fermeture du programme.</source>
 Fechando o programa.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3187"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4232"/>
         <source>Lien de téléchargement introuvable</source>
         <translation>Link de download não encontrado</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="3188"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4233"/>
         <source>Impossible de résoudre le lien de téléchargement. Le programme ne peut pas télécharger le fichier d&apos;installation de MySQL.
 
 Fermeture du programme.</source>
@@ -1292,114 +1680,139 @@ Fechando o programa.</translation>
 <context>
     <name>MySQLInstallerDialog</name>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="118"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="123"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="145"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="150"/>
         <source>Préparation de MySQL pour Rufus</source>
         <translation>Preparando o MySQL para o Rufus</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="134"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="161"/>
         <source>Identifiant :</source>
         <translation>Usuário:</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="140"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="167"/>
         <source>Mot de passe :</source>
         <translation>Senha:</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="165"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="176"/>
+        <source>Confirmez le mot de passe :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="203"/>
         <source>Supprimer MySQL</source>
         <translation>Remover o MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="217"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="257"/>
         <source>Création de la base Rufus</source>
         <translation>Criação do banco Rufus</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="218"/>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="251"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="258"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="303"/>
         <source>Choisissez l&apos;identifiant et le mot de passe que vous utiliserez dans Rufus.</source>
         <translation>Escolha o usuário e a senha que você usará no Rufus.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="220"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="260"/>
         <source>Installer</source>
         <translation>Instalar</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="234"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="282"/>
         <source>Connexion à MySQL</source>
         <translation>Conexão ao MySQL</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="235"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="283"/>
         <source>Un serveur MySQL existe déjà. Saisissez l&apos;identifiant et le mot de passe d&apos;un compte MySQL administrateur (capable de créer des utilisateurs).</source>
         <translation>Já existe um servidor MySQL. Digite o usuário e a senha de uma conta de administrador do MySQL (capaz de criar usuários).</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="238"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="286"/>
         <source>Se connecter</source>
         <translation>Conectar</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="250"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="302"/>
         <source>Compte utilisateur Rufus</source>
         <translation>Conta de usuário do Rufus</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="253"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="305"/>
         <source>Créer le compte</source>
         <translation>Criar a conta</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="270"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="327"/>
         <source>Saisie incomplète</source>
         <translation>Preenchimento incompleto</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="271"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="328"/>
         <source>Veuillez renseigner un identifiant et un mot de passe.</source>
         <translation>Digite um usuário e uma senha.</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="280"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="336"/>
+        <source>Confirmation incorrecte</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="337"/>
+        <source>Le mot de passe et sa confirmation ne sont pas identiques.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="348"/>
         <source>MySQL %1 (ou ultérieur) installé</source>
         <translation>MySQL %1 (ou posterior) instalado</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="281"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="349"/>
         <source>Variable d&apos;environnement MySQL (PATH) configurée</source>
         <translation>Variável de ambiente do MySQL (PATH) configurada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="282"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="350"/>
         <source>Dossier partagé créé et partagé</source>
         <translation>Pasta compartilhada criada e compartilhada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="283"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="351"/>
         <source>secure_file_priv configuré</source>
         <translation>secure_file_priv configurado</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="284"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="352"/>
         <source>Lecture / écriture MySQL vérifiée</source>
         <translation>Leitura / gravação do MySQL verificada</translation>
     </message>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="285"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="353"/>
         <source>Droits de l&apos;utilisateur confirmés</source>
         <translation>Direitos do usuário confirmados</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="354"/>
+        <source>Clés SSL pour l&apos;accès distant</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>MySQLProgressDialog</name>
     <message>
-        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="70"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="71"/>
         <source>MySQL Installer</source>
         <translation>Instalador do MySQL</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="122"/>
+        <source>%1 / %2 Mo</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1437,6 +1850,7 @@ Fechando o programa.</translation>
     <message>
         <location filename="Items/cls_patientencours.h" line="98"/>
         <location filename="Items/cls_patientencours.h" line="104"/>
+        <location filename="Items/cls_patientencours.h" line="104"/>
         <source>En attente de nouvel examen par </source>
         <translation>Aguardando novo exame por </translation>
     </message>
@@ -1448,6 +1862,7 @@ Fechando o programa.</translation>
     </message>
     <message>
         <location filename="Items/cls_patientencours.h" line="100"/>
+        <location filename="Items/cls_patientencours.h" line="106"/>
         <location filename="Items/cls_patientencours.h" line="106"/>
         <source>En cours de consultation avec </source>
         <translation>Em consulta com </translation>
@@ -1528,579 +1943,636 @@ Fechando o programa.</translation>
 <context>
     <name>Procedures</name>
     <message>
-        <location filename="procedures.cpp" line="99"/>
+        <location filename="procedures.cpp" line="170"/>
         <source>n&apos;existe pas.</source>
         <translation>não existe.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="233"/>
+        <location filename="procedures.cpp" line="295"/>
         <source>Choisir une période</source>
         <translation>Escolher um período</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="292"/>
+        <location filename="procedures.cpp" line="354"/>
         <source>Autres postes connectés!</source>
         <translation>Outros postos conectados!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="293"/>
+        <location filename="procedures.cpp" line="355"/>
         <source>Vous ne pouvez pas effectuer d&apos;opération de sauvegarde/restauration sur la base de données si vous n&apos;êtes pas le seul poste connecté.</source>
         <translation>Você não pode realizar operações de backup/restauração no banco de dados se não for o único posto conectado.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="295"/>
+        <location filename="procedures.cpp" line="357"/>
         <source>Le poste </source>
         <translation>O posto </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="295"/>
+        <location filename="procedures.cpp" line="357"/>
         <source> est aussi connecté</source>
         <translation> também está conectado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="344"/>
+        <location filename="procedures.cpp" line="406"/>
         <source>Dossiers à restaurer</source>
         <translation>Pastas a restaurar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="344"/>
+        <location filename="procedures.cpp" line="406"/>
         <source>Dossiers à sauvegarder</source>
         <translation>Pastas a salvar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="355"/>
+        <location filename="procedures.cpp" line="417"/>
         <source>Fichier de paramètrage Rufus.ini</source>
         <translation>Arquivo de configuração Rufus.ini</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="380"/>
+        <location filename="procedures.cpp" line="442"/>
         <source>Videos</source>
         <translation>Vídeos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="406"/>
+        <location filename="procedures.cpp" line="468"/>
         <source>Images</source>
         <translation>Imagens</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="432"/>
+        <location filename="procedures.cpp" line="494"/>
         <source>Factures</source>
         <translation>Faturas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="452"/>
+        <location filename="procedures.cpp" line="514"/>
         <source>Base de données</source>
         <translation>Banco de dados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="489"/>
+        <location filename="procedures.cpp" line="551"/>
         <source>Incident pendant la sauvegarde</source>
         <translation>Incidente durante o backup</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="495"/>
-        <location filename="procedures.cpp" line="2325"/>
-        <location filename="procedures.cpp" line="2449"/>
+        <location filename="procedures.cpp" line="557"/>
+        <location filename="procedures.cpp" line="2389"/>
+        <location filename="procedures.cpp" line="2532"/>
         <source>Saisissez le mot de passe Administrateur</source>
         <translation>Digite a senha do Administrador</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="498"/>
+        <location filename="procedures.cpp" line="560"/>
         <source>Sauvegarde de la base Rufus</source>
         <translation>Backup da base Rufus</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="510"/>
+        <location filename="procedures.cpp" line="572"/>
+        <location filename="procedures.cpp" line="2866"/>
         <source>Choisissez un dossier de sauvegarde</source>
         <translation>Escolha uma pasta de backup</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="517"/>
-        <location filename="procedures.cpp" line="2752"/>
+        <location filename="procedures.cpp" line="579"/>
+        <location filename="procedures.cpp" line="2874"/>
         <source>Sauvegarde impossible</source>
         <translation>Backup impossível</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="518"/>
+        <location filename="procedures.cpp" line="580"/>
         <source>Impossible de créer le dossier de sauvegarde.</source>
         <translation>Não é possível criar a pasta de backup.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="536"/>
+        <location filename="procedures.cpp" line="598"/>
         <source>Base de données sauvegardée!
 </source>
         <translation>Banco de dados salvo!
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="539"/>
-        <location filename="procedures.cpp" line="2378"/>
-        <location filename="procedures.cpp" line="2394"/>
-        <location filename="procedures.cpp" line="2574"/>
-        <location filename="procedures.cpp" line="2580"/>
-        <location filename="procedures.cpp" line="2602"/>
-        <location filename="procedures.cpp" line="2618"/>
-        <location filename="procedures.cpp" line="2647"/>
-        <location filename="procedures.cpp" line="2676"/>
+        <location filename="procedures.cpp" line="601"/>
+        <location filename="procedures.cpp" line="2442"/>
+        <location filename="procedures.cpp" line="2458"/>
+        <location filename="procedures.cpp" line="2657"/>
+        <location filename="procedures.cpp" line="2663"/>
+        <location filename="procedures.cpp" line="2685"/>
+        <location filename="procedures.cpp" line="2701"/>
+        <location filename="procedures.cpp" line="2730"/>
+        <location filename="procedures.cpp" line="2759"/>
         <source>Messages</source>
         <translation>Mensagens</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="574"/>
+        <location filename="procedures.cpp" line="636"/>
         <source>Fichier de paramétrage Rufus.ini sauvegardé
 </source>
         <translation>Arquivo de configuração Rufus.ini salvo
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="592"/>
+        <location filename="procedures.cpp" line="654"/>
         <source>Sauvegarde des factures</source>
         <translation>Backup das faturas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="594"/>
+        <location filename="procedures.cpp" line="656"/>
         <source>Factures sauvegardées
 </source>
         <translation>Faturas salvas
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="604"/>
+        <location filename="procedures.cpp" line="666"/>
         <source>Sauvegarde des fichiers d&apos;imagerie</source>
         <translation>Backup dos arquivos de imagem</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="606"/>
+        <location filename="procedures.cpp" line="668"/>
         <source>Fichiers imagerie sauvegardés
 </source>
         <translation>Arquivos de imagem salvos
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="616"/>
+        <location filename="procedures.cpp" line="678"/>
         <source>Sauvegarde des videos</source>
         <translation>Backup dos vídeos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="618"/>
+        <location filename="procedures.cpp" line="680"/>
         <source>Fichiers video sauvegardés</source>
         <translation>Arquivos de vídeo salvos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="819"/>
+        <location filename="procedures.cpp" line="881"/>
         <source>le chemin des programmes mysql et mysqldump (</source>
         <translation>o caminho dos programas mysql e mysqldump (</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="820"/>
-        <location filename="procedures.cpp" line="876"/>
+        <location filename="procedures.cpp" line="882"/>
+        <location filename="procedures.cpp" line="938"/>
         <source>Choisissez un dossier valide dans la boîte de dialogue suivante</source>
         <translation>Escolha uma pasta válida na caixa de diálogo seguinte</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="825"/>
+        <location filename="procedures.cpp" line="887"/>
         <source>Choisissez le dossier dans lequel se trouvent les executables mysql et mysqldump</source>
         <translation>Escolha a pasta onde estão os executáveis mysql e mysqldump</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="831"/>
+        <location filename="procedures.cpp" line="893"/>
         <source>le chemin choisi (</source>
         <translation>o caminho escolhido (</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="831"/>
+        <location filename="procedures.cpp" line="893"/>
         <source>) n&apos;est pas valide</source>
         <translation>) não é válido</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="832"/>
-        <location filename="procedures.cpp" line="886"/>
+        <location filename="procedures.cpp" line="894"/>
+        <location filename="procedures.cpp" line="948"/>
         <source>Voulez vous annuler?</source>
         <translation>Deseja cancelar?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="832"/>
-        <location filename="procedures.cpp" line="886"/>
+        <location filename="procedures.cpp" line="894"/>
+        <location filename="procedures.cpp" line="948"/>
         <source>Si vous annulez, la fonction demandée ne pourra pas s&apos;éxécuter!</source>
         <translation>Se você cancelar, a função solicitada não poderá ser executada!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="834"/>
-        <location filename="procedures.cpp" line="888"/>
-        <location filename="procedures.cpp" line="1550"/>
-        <location filename="procedures.cpp" line="2206"/>
-        <location filename="procedures.cpp" line="2316"/>
-        <location filename="procedures.cpp" line="2528"/>
-        <location filename="procedures.cpp" line="2739"/>
-        <location filename="procedures.cpp" line="2961"/>
-        <location filename="procedures.cpp" line="3581"/>
-        <location filename="procedures.cpp" line="4670"/>
+        <location filename="procedures.cpp" line="896"/>
+        <location filename="procedures.cpp" line="950"/>
+        <location filename="procedures.cpp" line="1612"/>
+        <location filename="procedures.cpp" line="2268"/>
+        <location filename="procedures.cpp" line="2380"/>
+        <location filename="procedures.cpp" line="2611"/>
+        <location filename="procedures.cpp" line="2828"/>
+        <location filename="procedures.cpp" line="3090"/>
+        <location filename="procedures.cpp" line="3974"/>
+        <location filename="procedures.cpp" line="5167"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="834"/>
-        <location filename="procedures.cpp" line="888"/>
+        <location filename="procedures.cpp" line="896"/>
+        <location filename="procedures.cpp" line="950"/>
         <source>Reprendre</source>
         <translation>Continuar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="874"/>
+        <location filename="procedures.cpp" line="936"/>
         <source>le chemin par défaut</source>
         <translation>o caminho padrão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="875"/>
-        <location filename="procedures.cpp" line="885"/>
+        <location filename="procedures.cpp" line="937"/>
+        <location filename="procedures.cpp" line="947"/>
         <source>n&apos;est pas valide</source>
         <translation>não é válido</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="880"/>
+        <location filename="procedures.cpp" line="942"/>
         <source>Choisissez le dossier dans lequel se trouvent les clés SSL</source>
         <translation>Escolha a pasta onde estão as chaves SSL</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="885"/>
+        <location filename="procedures.cpp" line="947"/>
         <source>le chemin choisi</source>
         <translation>o caminho escolhido</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="962"/>
+        <location filename="procedures.cpp" line="1024"/>
         <source>Impossible de lancer le processus de chargement de la base de données à partir du fichier </source>
         <translation>Impossível iniciar o processo de carregamento do banco de dados a partir do arquivo </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="970"/>
+        <location filename="procedures.cpp" line="1032"/>
         <source>Echec du processus de chargement de la base de données à partir du fichier </source>
         <translation>Falha no processo de carregamento do banco de dados a partir do arquivo </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="993"/>
+        <location filename="procedures.cpp" line="1055"/>
         <source>Choisissez le dossier dans lequel vous voulez sauvegarder la base</source>
         <translation>Escolha a pasta onde deseja fazer o backup da base</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1263"/>
-        <location filename="procedures.cpp" line="3887"/>
+        <location filename="procedures.cpp" line="1325"/>
+        <location filename="procedures.cpp" line="4282"/>
         <source>Qui enregistre les honoraires pour </source>
         <translation>Quem registra os honorários para </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1325"/>
+        <location filename="procedures.cpp" line="1387"/>
         <source>remplacé par</source>
         <translation>substituído por</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1345"/>
+        <location filename="procedures.cpp" line="1407"/>
         <source>Impossible d&apos;imprimer</source>
         <translation>Impossível imprimir</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1345"/>
+        <location filename="procedures.cpp" line="1407"/>
         <source>Pas de site de travail référencé pour l&apos;utilisateur </source>
         <translation>Nenhum local de trabalho referenciado para o usuário </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1372"/>
+        <location filename="procedures.cpp" line="1434"/>
         <source>, le </source>
         <translation>, em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1372"/>
-        <location filename="procedures.cpp" line="1729"/>
+        <location filename="procedures.cpp" line="1434"/>
+        <location filename="procedures.cpp" line="1791"/>
         <source>d MMMM yyyy</source>
         <translation>d AAAA mm</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1435"/>
+        <location filename="procedures.cpp" line="1497"/>
         <source>Erreur d&apos;accès au fichier:
 </source>
         <translation>Erro de acesso ao arquivo:
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1435"/>
+        <location filename="procedures.cpp" line="1497"/>
         <source>Impossible d&apos;enregistrer l&apos;impression dans la base</source>
         <translation>Impossível salvar a impressão na base</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1548"/>
+        <location filename="procedures.cpp" line="1610"/>
         <source>Imprimer ou créer un pdf?</source>
         <translation>Imprimir ou criar um PDF?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1551"/>
+        <location filename="procedures.cpp" line="1613"/>
         <source>Imprimer</source>
         <translation>Imprimir</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1552"/>
+        <location filename="procedures.cpp" line="1614"/>
         <source>Créer un pdf</source>
         <translation>Criar um PDF</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1588"/>
+        <location filename="procedures.cpp" line="1650"/>
         <source>Impossible d&apos;accéder à la table </source>
         <translation>Impossível acessar a tabela </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1630"/>
+        <location filename="procedures.cpp" line="1692"/>
         <source>Impossible d&apos;accéder au fichier </source>
         <translation>Impossível acessar o arquivo </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1729"/>
+        <location filename="procedures.cpp" line="1791"/>
         <source>le </source>
         <translation>o </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1746"/>
+        <location filename="procedures.cpp" line="1808"/>
         <source>fichier</source>
         <translation>arquivo</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1747"/>
+        <location filename="procedures.cpp" line="1809"/>
         <source>sauvegardé sur le bureau dans le dossier </source>
         <translation>salvo na área de trabalho na pasta </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1753"/>
-        <location filename="procedures.cpp" line="1830"/>
+        <location filename="procedures.cpp" line="1815"/>
+        <location filename="procedures.cpp" line="1892"/>
         <source>Enregistrement pdf</source>
         <translation>Salvar PDF</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1753"/>
-        <location filename="procedures.cpp" line="1830"/>
+        <location filename="procedures.cpp" line="1815"/>
+        <location filename="procedures.cpp" line="1892"/>
         <source>Echec enregistrement pdf</source>
         <translation>Falha ao salvar PDF</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1754"/>
-        <location filename="procedures.cpp" line="1831"/>
+        <location filename="procedures.cpp" line="1816"/>
+        <location filename="procedures.cpp" line="1893"/>
         <source>Impossible d&apos;enregistrer le fichier </source>
         <translation>Impossível salvar o arquivo </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1944"/>
+        <location filename="procedures.cpp" line="2006"/>
         <source>Vos données enregistrées pour cette session</source>
         <translation>Seus dados registrados para esta sessão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1945"/>
+        <location filename="procedures.cpp" line="2007"/>
         <source>Site</source>
         <translation>Local</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1948"/>
+        <location filename="procedures.cpp" line="2010"/>
         <source>Vos données permanentes</source>
         <translation>Seus dados permanentes</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1948"/>
+        <location filename="procedures.cpp" line="2010"/>
         <source>Fonction :</source>
         <translation>Função:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1950"/>
-        <location filename="procedures.cpp" line="3414"/>
+        <location filename="procedures.cpp" line="2012"/>
+        <location filename="procedures.cpp" line="3781"/>
         <source>Ophtalmologiste</source>
         <translation>Oftalmologista</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1952"/>
+        <location filename="procedures.cpp" line="2014"/>
         <source>Orthoptiste</source>
         <translation>Ortoptista</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1960"/>
+        <location filename="procedures.cpp" line="2022"/>
         <source>Responsabilité des actes :</source>
         <translation>Responsabilidade pelos atos:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1962"/>
+        <location filename="procedures.cpp" line="2024"/>
         <source>toujours responsable</source>
         <translation>sempre responsável</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1964"/>
+        <location filename="procedures.cpp" line="2026"/>
         <source>alterne responsabilité et assistant</source>
         <translation>alterna responsabilidade e assistente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1966"/>
+        <location filename="procedures.cpp" line="2028"/>
         <source>assistant</source>
         <translation>assistente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1970"/>
+        <location filename="procedures.cpp" line="2032"/>
         <source>RPPS :</source>
         <translation>RPPS:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1976"/>
+        <location filename="procedures.cpp" line="2038"/>
         <source>Exercice :			</source>
         <translation>Exercício:			</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1978"/>
+        <location filename="procedures.cpp" line="2040"/>
         <source>libéral</source>
         <translation>liberal</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1981"/>
+        <location filename="procedures.cpp" line="2043"/>
         <source>libéral en SEL</source>
         <translation>liberal em SEL</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1987"/>
+        <location filename="procedures.cpp" line="2049"/>
         <source>salarié</source>
         <translation>assalariado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1988"/>
+        <location filename="procedures.cpp" line="2050"/>
         <source>Employeur : </source>
         <translation>Empregador: </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="1992"/>
-        <location filename="procedures.cpp" line="2020"/>
+        <location filename="procedures.cpp" line="2054"/>
+        <location filename="procedures.cpp" line="2082"/>
         <source>remplaçant</source>
         <translation>substituto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2000"/>
-        <location filename="procedures.cpp" line="2013"/>
+        <location filename="procedures.cpp" line="2062"/>
+        <location filename="procedures.cpp" line="2075"/>
         <source>Honoraires encaissés sur le compte :</source>
         <translation>Honorários recebidos na conta:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2002"/>
-        <location filename="procedures.cpp" line="2015"/>
-        <location filename="procedures.cpp" line="2043"/>
+        <location filename="procedures.cpp" line="2064"/>
+        <location filename="procedures.cpp" line="2077"/>
+        <location filename="procedures.cpp" line="2105"/>
         <source>de</source>
         <translation>de</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2020"/>
+        <location filename="procedures.cpp" line="2082"/>
         <source>Statut :</source>
         <translation>Status:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2022"/>
+        <location filename="procedures.cpp" line="2084"/>
         <source>Cotation des actes :</source>
         <translation>Codificação dos atos:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2022"/>
-        <location filename="procedures.cpp" line="2050"/>
+        <location filename="procedures.cpp" line="2084"/>
+        <location filename="procedures.cpp" line="2112"/>
         <source>Oui</source>
         <translation>Sim</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2022"/>
-        <location filename="procedures.cpp" line="2050"/>
+        <location filename="procedures.cpp" line="2084"/>
+        <location filename="procedures.cpp" line="2112"/>
         <source>Sans</source>
         <translation>Sem</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2033"/>
+        <location filename="procedures.cpp" line="2095"/>
         <source>Secteur conventionnel :</source>
         <translation>Setor convencional:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2034"/>
+        <location filename="procedures.cpp" line="2096"/>
         <source>OPTAM :</source>
         <translation>OPTAM:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2044"/>
+        <location filename="procedures.cpp" line="2106"/>
         <source>Comptabilité enregistrée sur compte :</source>
         <translation>Contabilidade registrada na conta:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2050"/>
+        <location filename="procedures.cpp" line="2112"/>
         <source>Membre d&apos;une AGA :</source>
         <translation>Membro de uma AGA:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2205"/>
+        <location filename="procedures.cpp" line="2267"/>
         <source>Réinitialiser</source>
         <translation>Reinicializar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2207"/>
+        <location filename="procedures.cpp" line="2269"/>
         <source>Réinitialisation du programme!</source>
         <translation>Reinicialização do programa!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2208"/>
+        <location filename="procedures.cpp" line="3976"/>
+        <source>Nouvelle base patients</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3980"/>
+        <source>La base de données est endommagée.
+Voulez-vous la reconstruire à partir
+d&apos;une sauvegarde ou recréer une base patients vierge?
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3993"/>
+        <location filename="procedures.cpp" line="4004"/>
+        <location filename="procedures.cpp" line="4958"/>
+        <source>Le programme va redémarrer pour que certaines données puissent être prises en compte</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4615"/>
+        <source>Abandonner</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4616"/>
+        <source>Nouvelle base
+patients</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4619"/>
+        <source>Cette étape va vous permettre de configurer le logiciel en quelques secondes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4620"/>
+        <source>Commencez par choisir la situation qui décrit le mieux votre installation de Rufus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4621"/>
+        <source>1. J&apos;installe Rufus sur ce poste en créant une nouvelle base patients</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4622"/>
+        <source>2. J&apos;installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4656"/>
+        <source>Le programme va redémarrer pour que les modifications puissent être prises en compte</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
 Au redémarrage du programme, une fenêtre de dialogue vous permettra de réinitialiser toutes les données en cliquant sur le bouton &quot;Premier démarrage de Rufus&quot;.
 Vous pourrez encore annuler la réinitialisation en cliquant sur le bouton &quot;Restaurer le fichier de paramétrage&quot; et en choisissant le fichier RufusBackup.ini</source>
-        <translation>Se você confirmar a reinicialização, um backup da base de pacientes, do arquivo Rufus.ini e dos arquivos de recursos será realizado e o programa será encerrado.
+        <translation type="vanished">Se você confirmar a reinicialização, um backup da base de pacientes, do arquivo Rufus.ini e dos arquivos de recursos será realizado e o programa será encerrado.
 Ao reiniciar o programa, uma janela de diálogo permitirá reinicializar todos os dados clicando no botão &quot;Primeiro início do Rufus&quot;.
 Você ainda poderá cancelar a reinicialização clicando no botão &quot;Restaurar o arquivo de configuração&quot; e escolhendo o arquivo RufusBackup.ini</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2232"/>
+        <location filename="procedures.cpp" line="2296"/>
         <source>Arrêt du programme!</source>
         <translation>Encerramento do programa!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2273"/>
+        <location filename="procedures.cpp" line="2337"/>
         <source> minutes</source>
         <translation> minutos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2275"/>
-        <location filename="procedures.cpp" line="2286"/>
+        <location filename="procedures.cpp" line="2339"/>
+        <location filename="procedures.cpp" line="2350"/>
         <source>moins d&apos;une minute</source>
         <translation>menos de um minuto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2281"/>
+        <location filename="procedures.cpp" line="2345"/>
         <source> heures</source>
         <translation> horas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2283"/>
+        <location filename="procedures.cpp" line="2347"/>
         <source>moins d&apos;une heure</source>
         <translation>menos de uma hora</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2288"/>
+        <location filename="procedures.cpp" line="2352"/>
         <source>Volume à transférer: </source>
         <translation>Volume a transferir: </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2289"/>
+        <location filename="procedures.cpp" line="2353"/>
         <source>Temps estimé: </source>
         <translation>Tempo estimado: </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2291"/>
+        <location filename="procedures.cpp" line="2355"/>
         <source>Volume disponible sur le disque: </source>
         <translation>Volume disponível no disco: </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2309"/>
+        <location filename="procedures.cpp" line="2373"/>
         <source>ce poste</source>
         <translation>este posto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2311"/>
+        <location filename="procedures.cpp" line="2375"/>
         <source>le serveur </source>
         <translation>o servidor </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2312"/>
+        <location filename="procedures.cpp" line="2376"/>
         <source>Vous avez choisi de créer une base vierge sur </source>
         <translation>Você escolheu criar uma base vazia em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2313"/>
+        <location filename="procedures.cpp" line="2377"/>
         <source>Si une base de données Rufus existe sur ce serveur, elle sera définitivement effacée pour être remplacée par cette base vierge.
 Confirmez-vous la suppression des anciennes données?
 </source>
@@ -2109,728 +2581,908 @@ Você confirma a exclusão dos dados antigos?
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2317"/>
-        <location filename="procedures.cpp" line="2529"/>
+        <location filename="procedures.cpp" line="2381"/>
+        <location filename="procedures.cpp" line="2612"/>
         <source>J&apos;ai compris
 Je confirme</source>
         <translation>Entendi
 Confirmo</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2357"/>
-        <location filename="procedures.cpp" line="2359"/>
-        <location filename="procedures.cpp" line="2560"/>
-        <location filename="procedures.cpp" line="2562"/>
+        <location filename="procedures.cpp" line="2421"/>
+        <location filename="procedures.cpp" line="2423"/>
+        <location filename="procedures.cpp" line="2643"/>
+        <location filename="procedures.cpp" line="2645"/>
         <source>Echec de la restauration</source>
         <translation>Falha na restauração</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2357"/>
-        <location filename="procedures.cpp" line="2359"/>
-        <location filename="procedures.cpp" line="2560"/>
-        <location filename="procedures.cpp" line="2562"/>
+        <location filename="procedures.cpp" line="2421"/>
+        <location filename="procedures.cpp" line="2423"/>
+        <location filename="procedures.cpp" line="2643"/>
+        <location filename="procedures.cpp" line="2645"/>
         <source>Le fichier </source>
         <translation>O arquivo </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2357"/>
-        <location filename="procedures.cpp" line="2560"/>
+        <location filename="procedures.cpp" line="2421"/>
+        <location filename="procedures.cpp" line="2643"/>
         <source> n&apos;a pas été trouvé!</source>
         <translation> não foi encontrado!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2359"/>
-        <location filename="procedures.cpp" line="2562"/>
+        <location filename="procedures.cpp" line="2423"/>
+        <location filename="procedures.cpp" line="2645"/>
         <source> est vide!</source>
         <translation> está vazio!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2363"/>
-        <location filename="procedures.cpp" line="2543"/>
-        <location filename="procedures.cpp" line="2566"/>
+        <location filename="procedures.cpp" line="2427"/>
+        <location filename="procedures.cpp" line="2626"/>
+        <location filename="procedures.cpp" line="2649"/>
         <source>Base non restaurée</source>
         <translation>Base não restaurada</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2369"/>
+        <location filename="procedures.cpp" line="2433"/>
         <source>Impossible d&apos;éxécuter la restauration!</source>
         <translation>Impossível executar a restauração!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2377"/>
-        <location filename="procedures.cpp" line="2573"/>
+        <location filename="procedures.cpp" line="2441"/>
+        <location filename="procedures.cpp" line="2656"/>
         <source>Suppression de l&apos;ancienne base Rufus en cours</source>
         <translation>Exclusão da antiga base Rufus em andamento</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2394"/>
-        <location filename="procedures.cpp" line="2580"/>
+        <location filename="procedures.cpp" line="2458"/>
+        <location filename="procedures.cpp" line="2663"/>
         <source>Incident pendant la restauration</source>
         <translation>Incidente durante a restauração</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2400"/>
+        <location filename="procedures.cpp" line="2464"/>
         <source>Base vierge créée</source>
         <translation>Base vazia criada</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2400"/>
+        <location filename="procedures.cpp" line="2464"/>
         <source>La création de la base vierge a réussi.</source>
         <translation>A criação da base vazia foi bem-sucedida.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2427"/>
+        <location filename="procedures.cpp" line="2491"/>
         <source>Choix du dossier de sauvegarde</source>
         <translation>Escolha da pasta de backup</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2428"/>
+        <location filename="procedures.cpp" line="2492"/>
         <source>Dans la fiche suivante, choisissez le dossier contenant la sauvegarde de la base.</source>
         <translation>Na janela seguinte, escolha a pasta contendo o backup da base.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2430"/>
+        <location filename="procedures.cpp" line="2494"/>
         <source>Une fois le dossier sélectionné, la sauvegarde commencera automatiquement.</source>
         <translation>Após selecionar a pasta, o backup iniciará automaticamente.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2432"/>
+        <location filename="procedures.cpp" line="2496"/>
         <source>Ce processus est long et peut durer plusieurs minutes (environ 1&apos; pour 2 Go)</source>
         <translation>Este processo é longo e pode durar vários minutos (cerca de 1&apos; para 2 GB)</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2434"/>
+        <location filename="procedures.cpp" line="2498"/>
         <source>Vous ne pouvez pas choisir un dossier dont le chemin contient des espaces</source>
         <translation>Você não pode escolher uma pasta cujo caminho contenha espaços</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2436"/>
+        <location filename="procedures.cpp" line="2500"/>
         <source>Restaurer à partir du dossier</source>
         <translation>Restaurar a partir da pasta</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2441"/>
+        <location filename="procedures.cpp" line="2505"/>
         <source>Chemin invalide</source>
         <translation>Caminho inválido</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2441"/>
+        <location filename="procedures.cpp" line="2505"/>
         <source>Le chemin </source>
         <translation>O caminho </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2442"/>
+        <location filename="procedures.cpp" line="2506"/>
         <source> contient des espaces et ne permettra pas de faire une restauration!</source>
         <translation> contém espaços e não permitirá fazer uma restauração!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2532"/>
+        <location filename="procedures.cpp" line="2525"/>
+        <source>Dossier de sauvegarde invalide</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2526"/>
+        <source>Le dossier choisi ne contient pas une sauvegarde Rufus complète.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2527"/>
+        <source>Fichier(s) manquant(s) :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2615"/>
         <source>Attention</source>
         <translation>Atenção</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2533"/>
+        <location filename="procedures.cpp" line="2616"/>
         <source>Vous avez choisi de restaurer la base à partir du dosssier</source>
         <translation>Você escolheu restaurar a base a partir da pasta</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2535"/>
+        <location filename="procedures.cpp" line="2618"/>
         <source>Si une base de données Rufus existe sur ce serveur, elle sera définitivement effacée pour être remplacée par cette sauvegarde.
 Confirmez-vous la suppression des anciennes données?</source>
         <translation>Se um banco de dados Rufus existir neste servidor, ele será permanentemente apagado para ser substituído por este backup.
 Você confirma a exclusão dos dados antigos?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2548"/>
+        <location filename="procedures.cpp" line="2631"/>
         <source>Restauration de la base en cours</source>
         <translation>Restauração da base em andamento</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2582"/>
+        <location filename="procedures.cpp" line="2665"/>
         <source>Base de données Rufus restaurée
 </source>
         <translation>Banco de dados Rufus restaurado
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2601"/>
+        <location filename="procedures.cpp" line="2684"/>
         <source>Fichier de paramétrage Rufus.ini restauré
 </source>
         <translation>Arquivo de configuração Rufus.ini restaurado
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2602"/>
+        <location filename="procedures.cpp" line="2685"/>
         <source>Fichier de paramétrage Rufus.ini restauré</source>
         <translation>Arquivo de configuração Rufus.ini restaurado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2617"/>
+        <location filename="procedures.cpp" line="2700"/>
         <source>le dossier de destination de l&apos;imagerie n&apos;existe pas</source>
         <translation>a pasta de destino das imagens não existe</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2628"/>
+        <location filename="procedures.cpp" line="2711"/>
         <source>Restauration des fichiers d&apos;imagerie</source>
         <translation>Restauração dos arquivos de imagem</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2630"/>
+        <location filename="procedures.cpp" line="2713"/>
         <source>Fichiers d&apos;imagerie restaurés
 </source>
         <translation>Arquivos de imagem restaurados
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2646"/>
+        <location filename="procedures.cpp" line="2729"/>
         <source>le dossier de destination des factures n&apos;existe pas</source>
         <translation>a pasta de destino das faturas não existe</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2657"/>
+        <location filename="procedures.cpp" line="2740"/>
         <source>Restauration des factures</source>
         <translation>Restauração das faturas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2659"/>
+        <location filename="procedures.cpp" line="2742"/>
         <source>Fichiers factures restaurés
 </source>
         <translation>Arquivos de faturas restaurados
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2675"/>
+        <location filename="procedures.cpp" line="2758"/>
         <source>le dossier de destination des videos n&apos;existe pas</source>
         <translation>a pasta de destino dos vídeos não existe</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2686"/>
+        <location filename="procedures.cpp" line="2769"/>
         <source>Restauration des videos</source>
         <translation>Restauração dos vídeos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2688"/>
+        <location filename="procedures.cpp" line="2771"/>
         <source>Fichiers video restaurés
 </source>
         <translation>Arquivos de vídeo restaurados
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2697"/>
+        <location filename="procedures.cpp" line="2780"/>
         <source>Restauration terminée</source>
         <translation>Restauração concluída</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2731"/>
+        <location filename="procedures.cpp" line="2819"/>
         <source>Mise à jour du serveur MySQL nécessaire</source>
         <translation>Atualização do servidor MySQL necessária</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2733"/>
+        <location filename="procedures.cpp" line="2821"/>
         <source>Cette version de Rufus nécessite une version plus récente du serveur MySQL.</source>
         <translation>Esta versão do Rufus requer uma versão mais recente do servidor MySQL.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2734"/>
         <source>Rufus va sauvegarder votre base de données, désinstaller l&apos;ancien MySQL, installer la nouvelle version, puis restaurer votre base.</source>
-        <translation>O Rufus fará backup do seu banco de dados, desinstalará o antigo MySQL, instalará a nova versão e, em seguida, restaurará seu banco.</translation>
+        <translation type="vanished">O Rufus fará backup do seu banco de dados, desinstalará o antigo MySQL, instalará a nova versão e, em seguida, restaurará seu banco.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2736"/>
         <source>La sauvegarde est faite et vérifiée AVANT toute désinstallation : si elle échoue, rien ne sera supprimé.</source>
-        <translation>O backup é feito e verificado ANTES de qualquer desinstalação: se falhar, nada será excluído.</translation>
+        <translation type="vanished">O backup é feito e verificado ANTES de qualquer desinstalação: se falhar, nada será excluído.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2740"/>
         <source>Lancer la mise à jour</source>
-        <translation>Iniciar a atualização</translation>
+        <translation type="vanished">Iniciar a atualização</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2753"/>
+        <location filename="procedures.cpp" line="2875"/>
         <source>La sauvegarde a échoué. La mise à jour est annulée : rien n&apos;a été désinstallé.</source>
         <translation>O backup falhou. A atualização foi cancelada: nada foi desinstalado.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2770"/>
+        <location filename="procedures.cpp" line="2892"/>
         <source>Sauvegarde incomplète</source>
         <translation>Backup incompleto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2771"/>
+        <location filename="procedures.cpp" line="2893"/>
         <source>La sauvegarde semble incomplète. La mise à jour est annulée : rien n&apos;a été désinstallé.</source>
         <translation>O backup parece incompleto. A atualização foi cancelada: nada foi desinstalado.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2772"/>
+        <location filename="procedures.cpp" line="2894"/>
         <source>Sauvegarde conservée dans :</source>
         <translation>Backup mantido em:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2779"/>
+        <location filename="procedures.cpp" line="2908"/>
         <source>Réinstallation impossible</source>
         <translation>Reinstalação impossível</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2780"/>
+        <location filename="procedures.cpp" line="2909"/>
         <source>La réinstallation de MySQL a échoué.</source>
         <translation>A reinstalação do MySQL falhou.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2781"/>
-        <location filename="procedures.cpp" line="2790"/>
+        <location filename="procedures.cpp" line="2903"/>
         <source>Votre sauvegarde est conservée dans :</source>
         <translation>Seu backup foi mantido em:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2788"/>
+        <location filename="procedures.cpp" line="2274"/>
+        <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
+Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
+Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2822"/>
+        <source>Rufus va désinstaller l&apos;ancien MySQL, installer la nouvelle version, puis restaurer votre base.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2824"/>
+        <source>Une sauvegarde de la base est indispensable AVANT la désinstallation : Rufus peut la faire pour vous, ou vous pouvez poursuivre si vous l&apos;avez déjà faite (le dossier de sauvegarde vous sera alors demandé pour la restauration).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2829"/>
+        <source>Poursuivre,
+la sauvegarde a été faite</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2830"/>
+        <source>Sauvegarder les données
+et mettre à jour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2861"/>
+        <source>Espace insuffisant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2862"/>
+        <source>Le support de sauvegarde ne dispose pas d&apos;assez d&apos;espace libre.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2863"/>
+        <source>Espace nécessaire (estimé) : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2864"/>
+        <source>Espace disponible : </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2865"/>
+        <source>Choisissez un autre support de sauvegarde (clé USB, disque externe…).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2902"/>
+        <source>Votre sauvegarde n&apos;a pas été touchée.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="2918"/>
         <source>Restauration impossible</source>
         <translation>Restauração impossível</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2789"/>
         <source>La base n&apos;a pas pu être restaurée automatiquement.</source>
-        <translation>O banco não pôde ser restaurado automaticamente.</translation>
+        <translation type="vanished">O banco não pôde ser restaurado automaticamente.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2795"/>
+        <location filename="procedures.cpp" line="2924"/>
         <source>Mise à jour terminée</source>
         <translation>Atualização concluída</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2796"/>
+        <location filename="procedures.cpp" line="2925"/>
         <source>MySQL a été mis à jour et votre base restaurée. Rufus va redémarrer.</source>
         <translation>O MySQL foi atualizado e seu banco restaurado. O Rufus será reiniciado.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2806"/>
+        <location filename="procedures.cpp" line="2935"/>
         <source>Impossible de mettre à jour la base de données
 Sortie du programme</source>
         <translation>Impossível atualizar o banco de dados
 Encerrando o programa</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2824"/>
+        <location filename="procedures.cpp" line="2953"/>
         <source>Mise à jour de la base nécessaire</source>
         <translation>Atualização da base necessária</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2825"/>
+        <location filename="procedures.cpp" line="2954"/>
         <source>Pour éxécuter cette version de Rufus, la base de données doit être mise à jour vers la version</source>
         <translation>Para executar esta versão do Rufus, o banco de dados deve ser atualizado para a versão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2827"/>
+        <location filename="procedures.cpp" line="2956"/>
         <source>et une sauvegarde de la base actuelle est fortement conseillée</source>
         <translation>e um backup da base atual é fortemente recomendado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2832"/>
+        <location filename="procedures.cpp" line="2961"/>
         <source>Pousuivre, la sauvegarde a été faite</source>
         <translation>Continuar, o backup foi feito</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2833"/>
+        <location filename="procedures.cpp" line="2962"/>
         <source>OK, je vais sauvegarder la base d&apos;abord</source>
         <translation>OK, vou fazer o backup da base primeiro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2834"/>
+        <location filename="procedures.cpp" line="2963"/>
         <source>Annuler et fermer</source>
         <translation>Cancelar e fechar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2850"/>
+        <location filename="procedures.cpp" line="2979"/>
         <source>RufusAdmin présent</source>
         <translation>RufusAdmin presente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2850"/>
+        <location filename="procedures.cpp" line="2979"/>
         <source>Après la mise à jour de la base</source>
         <translation>Após a atualização da base</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2851"/>
+        <location filename="procedures.cpp" line="2980"/>
         <source>Il vous faudra installer une version de RufusAdmin correspondante à la nouvelle version de la base</source>
         <translation>Você precisará instalar uma versão do RufusAdmin correspondente à nova versão da base</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2852"/>
+        <location filename="procedures.cpp" line="2981"/>
         <source>Il faudra relancer chaque poste du réseau après le redémarrage de RufusAdmin</source>
         <translation>Será necessário reiniciar cada posto da rede após o reinício do RufusAdmin</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2854"/>
+        <location filename="procedures.cpp" line="2983"/>
         <source>Mise à jour de la base vers la version </source>
         <translation>Atualização da base para a versão </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2880"/>
+        <location filename="procedures.cpp" line="3009"/>
         <source>Mise à jour effectuée de la base vers la version </source>
         <translation>Atualização realizada da base para a versão </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2886"/>
+        <location filename="procedures.cpp" line="3015"/>
         <source>Echec de la mise à jour vers la version </source>
         <translation>Falha na atualização para a versão </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2886"/>
+        <location filename="procedures.cpp" line="3015"/>
         <source>Le programme de mise à jour n&apos;a pas pu effectuer la tâche!</source>
         <translation>O programa de atualização não pôde executar a tarefa!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2926"/>
+        <location filename="procedures.cpp" line="3055"/>
         <source>actuellement installée sur ce poste</source>
         <translation>atualmente instalada neste posto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2930"/>
+        <location filename="procedures.cpp" line="3059"/>
         <source>Version de Rufus trop ancienne</source>
         <translation>Versão do Rufus muito antiga</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2959"/>
+        <location filename="procedures.cpp" line="3088"/>
         <source>Quelle base de données souhaitez-vous utiliser?</source>
         <translation>Qual banco de dados você deseja usar?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2962"/>
+        <location filename="procedures.cpp" line="3091"/>
         <source>Locale, sur ce réseau</source>
         <translation>Local, nesta rede</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2963"/>
+        <location filename="procedures.cpp" line="3092"/>
         <source>Distante, par internet</source>
         <translation>Remoto, pela internet</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2964"/>
+        <location filename="procedures.cpp" line="3093"/>
         <source>Sur cette machine</source>
         <translation>Nesta máquina</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3017"/>
-        <location filename="procedures.cpp" line="3018"/>
-        <location filename="procedures.cpp" line="4269"/>
-        <location filename="procedures.cpp" line="4532"/>
+        <location filename="procedures.cpp" line="3140"/>
+        <source>Installation de MySQL</source>
+        <translation type="unfinished">Instalação do MySQL</translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3141"/>
+        <source>Rufus va maintenant installer un serveur MySQL neuf sur ce poste, puis créer une nouvelle base patients.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3180"/>
+        <source>Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3182"/>
+        <source>Rufus les a cherchées dans le dossier :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3184"/>
+        <source>Indiquez, dans la boîte de dialogue suivante, le dossier contenant client-key.pem et client-cert.pem.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3186"/>
+        <location filename="procedures.cpp" line="3193"/>
+        <source>Clés SSL introuvables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3188"/>
+        <source>Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3194"/>
+        <source>L&apos;accès distant nécessite les clés SSL du cabinet (client-key.pem, client-cert.pem), à copier depuis le poste serveur sur une clé USB.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3220"/>
+        <source>Aucun serveur de base de données</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3221"/>
+        <source>Aucun serveur MySQL n&apos;est installé sur ce poste.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3222"/>
+        <source>Pour utiliser Rufus en monoposte, créez une nouvelle base patients (le serveur sera installé automatiquement), ou quittez.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3266"/>
+        <source>Vous pouvez vous connecter à (ou créer) une base patients, restaurer le fichier Rufus.ini depuis une sauvegarde, ou quitter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3306"/>
+        <location filename="procedures.cpp" line="3315"/>
+        <source>Base de données endommagée</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3307"/>
+        <location filename="procedures.cpp" line="3316"/>
+        <source>La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3308"/>
+        <source>Vous pouvez la restaurer depuis une sauvegarde, ou quitter.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3317"/>
+        <source>Vous devez restaurer une base patients ; cette restauration ne peut se faire qu&apos;à partir du poste serveur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3342"/>
+        <location filename="procedures.cpp" line="3343"/>
+        <location filename="procedures.cpp" line="4689"/>
+        <location filename="procedures.cpp" line="5030"/>
         <source>Impossible de trouver l&apos;exécutable MySQL</source>
         <translation>Impossível encontrar o executável MySQL</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3018"/>
-        <location filename="procedures.cpp" line="4268"/>
-        <location filename="procedures.cpp" line="4532"/>
+        <location filename="procedures.cpp" line="3343"/>
+        <location filename="procedures.cpp" line="4688"/>
+        <location filename="procedures.cpp" line="5030"/>
         <source>Erreur de connexion</source>
         <translation>Erro de conexão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3018"/>
+        <location filename="procedures.cpp" line="3343"/>
         <source>Le programme ne pourra effectuer aucune opération de sauvegarde, restauration ou mise à jour de la base</source>
         <translation>O programa não poderá realizar nenhuma operação de backup, restauração ou atualização da base</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3036"/>
-        <location filename="procedures.cpp" line="4306"/>
+        <location filename="procedures.cpp" line="3361"/>
+        <location filename="procedures.cpp" line="4729"/>
         <source>Pas d&apos;adresse spécifiée</source>
         <translation>Nenhum endereço especificado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3036"/>
-        <location filename="procedures.cpp" line="4306"/>
+        <location filename="procedures.cpp" line="3361"/>
+        <location filename="procedures.cpp" line="4729"/>
         <source>Vous n&apos;avez précisé aucun lieu d&apos;exercice!</source>
         <translation>Você não especificou nenhum local de trabalho!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3075"/>
+        <location filename="procedures.cpp" line="3402"/>
+        <source>Serveur MySQL à mettre à jour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3403"/>
+        <source>Le serveur MySQL nécessite d&apos;être mis à jour pour pouvoir utiliser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3404"/>
+        <source>les nouvelles fonctions de sécurité incluses dans cette version de Rufus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3405"/>
+        <source>La mise à jour doit être effectuée depuis le poste serveur (en y lançant Rufus, qui s&apos;en chargera).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3407"/>
+        <source>Même s&apos;il est fortement conseillé de faire cette mise à jour</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3408"/>
+        <source>vous pouvez continuer à travailler normalement.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3442"/>
         <source>D&apos;où vous connectez-vous?</source>
         <translation>De onde você está se conectando?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3181"/>
+        <location filename="procedures.cpp" line="3548"/>
         <source>Vous n&apos;avez pas de  numéro AM enregistré pour ce site</source>
         <translation>Você não tem número AM registrado para este local</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3182"/>
+        <location filename="procedures.cpp" line="3549"/>
         <source>Enregistrez le numéro AM correspondant à</source>
         <translation>Registre o número AM correspondente a</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3184"/>
+        <location filename="procedures.cpp" line="3551"/>
         <source>dans la boîte de dialogue suivante</source>
         <translation>na caixa de diálogo seguinte</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3188"/>
+        <location filename="procedures.cpp" line="3555"/>
         <source>Enregistrez le numéro AM (9 chiffres) correspondant à</source>
         <translation>Registre o número AM (9 dígitos) correspondente a</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3221"/>
+        <location filename="procedures.cpp" line="3588"/>
         <source>Enregistrement numéro AM</source>
         <translation>Registro número AM</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3250"/>
-        <location filename="procedures.cpp" line="3255"/>
-        <location filename="procedures.cpp" line="3277"/>
+        <location filename="procedures.cpp" line="3617"/>
+        <location filename="procedures.cpp" line="3622"/>
+        <location filename="procedures.cpp" line="3644"/>
         <source>Impossible de créer l&apos;utilisateur</source>
         <translation>Impossível criar o usuário</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3250"/>
+        <location filename="procedures.cpp" line="3617"/>
         <source>Login manquant</source>
         <translation>Login ausente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3255"/>
+        <location filename="procedures.cpp" line="3622"/>
         <source>Mot de passe manquant</source>
         <translation>Senha ausente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3277"/>
+        <location filename="procedures.cpp" line="3644"/>
         <source>Erreur de création de l&apos;utilisateur</source>
         <translation>Erro na criação do usuário</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3295"/>
+        <location filename="procedures.cpp" line="3662"/>
         <source>Un compte utilisateur a été créé</source>
         <translation>Uma conta de usuário foi criada</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3296"/>
+        <location filename="procedures.cpp" line="3663"/>
         <source>Un compte utilisateur factice a été créé
 </source>
         <translation>Uma conta de usuário fictícia foi criada
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3299"/>
+        <location filename="procedures.cpp" line="3666"/>
         <source>avec le login </source>
         <translation>com o login </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3299"/>
+        <location filename="procedures.cpp" line="3666"/>
         <source>et le mot de passe que vous avez fourni</source>
         <translation>e a senha que você forneceu</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3300"/>
+        <location filename="procedures.cpp" line="3667"/>
         <source>Voulez-vous conserver ces données pour le moment ou les modifier?</source>
         <translation>Deseja manter estes dados por enquanto ou modificá-los?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3301"/>
+        <location filename="procedures.cpp" line="3668"/>
         <source>Vous pourrez les modifier par la suite</source>
         <translation>Você poderá modificá-los posteriormente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3303"/>
+        <location filename="procedures.cpp" line="3670"/>
         <source>Une liste arbitraires de cotations a été créée</source>
         <translation>Uma lista arbitrária de codificações foi criada</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3304"/>
+        <location filename="procedures.cpp" line="3671"/>
         <source>Vous pourrez la modifier par la suite dans le menu Edition/Paramètres
 </source>
         <translation>Você poderá modificá-la posteriormente no menu Edição/Parâmetros
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3305"/>
+        <location filename="procedures.cpp" line="3672"/>
         <source>Modifier les données</source>
         <translation>Modificar os dados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3305"/>
+        <location filename="procedures.cpp" line="3672"/>
         <source>Conserver les données</source>
         <translation>Manter os dados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3310"/>
+        <location filename="procedures.cpp" line="3677"/>
         <source>Enregistrement de l&apos;utilisateur </source>
         <translation>Registro do usuário </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3326"/>
+        <location filename="procedures.cpp" line="3693"/>
         <source>Base de données des villes et codes postaux</source>
         <translation>Banco de dados de cidades e códigos postais</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3327"/>
+        <location filename="procedures.cpp" line="3694"/>
         <source>Voulez-vous utiliser la base de données des villes françaises?</source>
         <translation>Deseja usar o banco de dados de cidades francesas?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3329"/>
-        <location filename="procedures.cpp" line="3348"/>
+        <location filename="procedures.cpp" line="3696"/>
+        <location filename="procedures.cpp" line="3715"/>
         <source>Non</source>
         <translation>Não</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3329"/>
+        <location filename="procedures.cpp" line="3696"/>
         <source>Utiliser les codes postaux français</source>
         <translation>Usar os códigos postais franceses</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3345"/>
+        <location filename="procedures.cpp" line="3712"/>
         <source>Cotations françaises</source>
         <translation>Codificações francesas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3346"/>
+        <location filename="procedures.cpp" line="3713"/>
         <source>Voulez-vous utiliser le système français de cotation des actes médicaux?</source>
         <translation>Deseja usar o sistema francês de codificação dos atos médicos?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3348"/>
+        <location filename="procedures.cpp" line="3715"/>
         <source>Utiliser les cotations françaises</source>
         <translation>Usar as codificações francesas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3412"/>
+        <location filename="procedures.cpp" line="3779"/>
         <source>Docteur</source>
         <translation>Doutor</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3413"/>
+        <location filename="procedures.cpp" line="3780"/>
         <source>Médecin</source>
         <translation>Médico</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3478"/>
+        <location filename="procedures.cpp" line="3263"/>
         <source>Connexion à la base impossible</source>
         <translation>Não é possível conectar ao banco de dados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3479"/>
+        <location filename="procedures.cpp" line="2919"/>
+        <source>La base n&apos;a pas pu être restaurée.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="3264"/>
         <source>Rufus n&apos;a pas pu se connecter à la base de données avec les paramètres enregistrés.</source>
         <translation>O Rufus não conseguiu conectar ao banco de dados com os parâmetros salvos.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3481"/>
         <source>Vérifiez vos paramètres de connexion au serveur MySQL.</source>
-        <translation>Verifique os parâmetros de conexão com o servidor MySQL.</translation>
+        <translation type="vanished">Verifique os parâmetros de conexão com o servidor MySQL.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3582"/>
+        <location filename="procedures.cpp" line="3975"/>
         <source>Restaurer la base depuis une sauvegarde</source>
         <translation>Restaurar a base a partir de um backup</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3583"/>
         <source>Nouvelle base patients vierge</source>
-        <translation>Nova base de pacientes vazia</translation>
+        <translation type="vanished">Nova base de pacientes vazia</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3586"/>
+        <location filename="procedures.cpp" line="3979"/>
         <source>Base de données endommagée!</source>
         <translation>Banco de dados danificado!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3587"/>
         <source>La base de données semble endommagée.
 Voulez-vous la reconstruire à partir d&apos;une sauvegarde ou recréer une base vierge?
 
 </source>
-        <translation>O banco de dados parece estar danificado.
+        <translation type="vanished">O banco de dados parece estar danificado.
 Deseja reconstruí-lo a partir de um backup ou recriar uma base vazia?
 
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3599"/>
-        <location filename="procedures.cpp" line="4489"/>
         <source>Le programme va se fermer pour que certaines données puissent être prises en compte</source>
-        <translation>O programa será encerrado para que alguns dados possam ser processados</translation>
+        <translation type="vanished">O programa será encerrado para que alguns dados possam ser processados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3609"/>
         <source>Le programme va se fermer</source>
-        <translation>O programa será encerrado</translation>
+        <translation type="vanished">O programa será encerrado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3609"/>
         <source>Relancez-le pour que certaines données puissent être prises en compte</source>
-        <translation>Reinicie-o para que alguns dados possam ser processados</translation>
+        <translation type="vanished">Reinicie-o para que alguns dados possam ser processados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3661"/>
+        <location filename="procedures.cpp" line="4056"/>
         <source>Le dossier de sauvegarde d&apos;imagerie</source>
         <translation>A pasta de backup de imagens</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3661"/>
+        <location filename="procedures.cpp" line="4056"/>
         <source> n&apos;existe pas</source>
         <translation> não existe</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3662"/>
+        <location filename="procedures.cpp" line="4057"/>
         <source>Renseignez un dossier valide dans</source>
         <translation>Informe uma pasta válida em</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3662"/>
+        <location filename="procedures.cpp" line="4057"/>
         <source>Editions/Paramètres/Onglet </source>
         <translation>Edições/Parâmetros/Aba </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3662"/>
+        <location filename="procedures.cpp" line="4057"/>
         <source>Réseau local</source>
         <translation>Rede local</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3672"/>
+        <location filename="procedures.cpp" line="4067"/>
         <source>Le dossier de sauvegarde d&apos;imagerie enregistré dans les paramètres était invalide</source>
         <translation>A pasta de backup de imagens registrada nos parâmetros era inválida</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3673"/>
+        <location filename="procedures.cpp" line="4068"/>
         <source>Il a été remplacé par </source>
         <translation>Foi substituída por </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3674"/>
+        <location filename="procedures.cpp" line="4069"/>
         <source> et enregistré dans </source>
         <translation> e registrado em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3674"/>
+        <location filename="procedures.cpp" line="4069"/>
         <source>Editions/Paramètres/Onglet/Réseau local</source>
         <translation>Edições/Parâmetros/Aba/Rede local</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3698"/>
+        <location filename="procedures.cpp" line="4093"/>
         <source>Quel est votre rôle dans cette session?</source>
         <translation>Qual é o seu papel nesta sessão?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3705"/>
+        <location filename="procedures.cpp" line="4100"/>
         <source>Qui supervise votre activité pour cette session?</source>
         <translation>Quem supervisiona sua atividade nesta sessão?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3712"/>
+        <location filename="procedures.cpp" line="4107"/>
         <source>Qui enregistre les honoraires de vos actes?</source>
         <translation>Quem registra os honorários dos seus atos?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3756"/>
+        <location filename="procedures.cpp" line="4151"/>
         <source>Responsable de mes actes</source>
         <translation>Responsável pelos meus atos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3762"/>
+        <location filename="procedures.cpp" line="4157"/>
         <source>Assistant</source>
         <translation>Assistente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3778"/>
+        <location filename="procedures.cpp" line="4173"/>
         <source>Vous ne pourrez pas vous connecter en tant qu&apos;assistant</source>
         <translation>Você não poderá se conectar como assistente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3779"/>
+        <location filename="procedures.cpp" line="4174"/>
         <source>Vous étes enregistré comme pouvant être assistant
 mais il n&apos;y a aucun utilisateur susceptible de superviser
 vos actes enregistré dans la base de données</source>
@@ -2839,56 +3491,53 @@ mas não há nenhum usuário capaz de supervisionar
 seus atos registrado no banco de dados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3839"/>
-        <location filename="procedures.cpp" line="3924"/>
+        <location filename="procedures.cpp" line="4234"/>
+        <location filename="procedures.cpp" line="4319"/>
         <source>Aucun superviseur valide n&apos;a été défini pour vos actes</source>
         <translation>Nenhum supervisor válido foi definido para seus atos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3839"/>
-        <location filename="procedures.cpp" line="3924"/>
-        <location filename="procedures.cpp" line="3952"/>
+        <location filename="procedures.cpp" line="4234"/>
+        <location filename="procedures.cpp" line="4319"/>
+        <location filename="procedures.cpp" line="4347"/>
         <source>Impossible de continuer</source>
         <translation>Impossível continuar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="3952"/>
+        <location filename="procedures.cpp" line="4347"/>
         <source>Aucun parent valide n&apos;a été défini pour vos actes</source>
         <translation>Nenhum responsável válido foi definido para seus atos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4081"/>
+        <location filename="procedures.cpp" line="4476"/>
         <source>Tout le monde</source>
         <translation>Todos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4202"/>
         <source>Retour
 au menu d&apos;accueil</source>
-        <translation>Retorno
+        <translation type="vanished">Retorno
 ao menu principal</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4203"/>
         <source>Nouvelle base
 patients vierge</source>
-        <translation>Nova base
+        <translation type="vanished">Nova base
 de pacientes vazia</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4204"/>
+        <location filename="procedures.cpp" line="4617"/>
         <source>Base patients existante
 sur le serveur</source>
         <translation>Base de pacientes existente
 no servidor</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4206"/>
+        <location filename="procedures.cpp" line="4618"/>
         <source>Premier démarrage de Rufus!</source>
         <translation>Primeiro início do Rufus!</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4207"/>
         <source>Cette étape va vous permettre de configurer le logiciel en quelques secondes.
 
 Cette installation ne peut aboutir si vous n&apos;avez pas de serveur MySQL installé.
@@ -2899,7 +3548,7 @@ Commencez par choisir la situation qui décrit le mieux votre installation de Ru
 1. J&apos;installe Rufus sur ce poste et ce poste se connectera à une base patients qui existe dèjà
 2. J&apos;installe Rufus sur ce poste et ce poste se connectera à une base patients vierge que je vais créer
 </source>
-        <translation>Esta etapa permitirá configurar o software em poucos segundos.
+        <translation type="vanished">Esta etapa permitirá configurar o software em poucos segundos.
 
 Esta instalação não pode ser concluída se você não tiver um servidor MySQL instalado.
 Neste caso, você deve cancelar e instalar um servidor MySQL neste computador ou em outro posto da rede.
@@ -2911,571 +3560,648 @@ Comece escolhendo a situação que melhor descreve sua instalação do Rufus.
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4238"/>
+        <location filename="procedures.cpp" line="4653"/>
         <source>Connexion réussie</source>
         <translation>Conexão bem-sucedida</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4239"/>
+        <location filename="procedures.cpp" line="4654"/>
         <source>Bien, la connexion au serveur MySQL fonctionne,
 le login </source>
         <translation>Ótimo, a conexão ao servidor MySQL funciona,
 o login </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4240"/>
+        <location filename="procedures.cpp" line="4655"/>
         <source> est reconnu</source>
         <translation> é reconhecido</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4241"/>
         <source>Le programme va se fermer pour que les modifications</source>
-        <translation>O programa será encerrado para que as modificações</translation>
+        <translation type="vanished">O programa será encerrado para que as modificações</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4242"/>
         <source>puissent être prises en compte
 </source>
-        <translation>possam ser processadas
+        <translation type="vanished">possam ser processadas
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4307"/>
+        <location filename="procedures.cpp" line="4732"/>
         <source>Redémarrage nécessaire</source>
         <translation>Reinício necessário</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4308"/>
         <source>Le programme va se fermer pour que les modifications de la base Rufus
 puissent être prises en compte
 </source>
-        <translation>O programa será encerrado para que as modificações da base Rufus
+        <translation type="vanished">O programa será encerrado para que as modificações da base Rufus
 possam ser processadas
 </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4424"/>
+        <location filename="procedures.cpp" line="4861"/>
         <source>Abandonner et
 quitter Rufus</source>
         <translation>Abandonar e
 sair do Rufus</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4425"/>
         <source>Restaurer le fichier d&apos;initialisation
 à partir d&apos;une sauvegarde</source>
-        <translation>Restaurar o arquivo de inicialização
+        <translation type="vanished">Restaurar o arquivo de inicialização
 a partir de um backup</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4426"/>
         <source>Reconstruire le fichier
 d&apos;initialisation</source>
-        <translation>Reconstruir o arquivo
+        <translation type="vanished">Reconstruir o arquivo
 de inicialização</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4427"/>
         <source>Premier démarrage
 de Rufus</source>
-        <translation>Primeiro início
+        <translation type="vanished">Primeiro início
 do Rufus</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4456"/>
+        <location filename="procedures.cpp" line="4925"/>
         <source>Choisir le fichier d&apos;initialisation</source>
         <translation>Escolher o arquivo de inicialização</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4489"/>
+        <location filename="procedures.cpp" line="4958"/>
         <source>Le fichier Rufus.ini a été reconstruit</source>
         <translation>O arquivo Rufus.ini foi reconstruído</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4504"/>
         <source>Entrez les paramètres de connexion au serveur</source>
-        <translation>Insira os parâmetros de conexão ao servidor</translation>
+        <translation type="vanished">Insira os parâmetros de conexão ao servidor</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4270"/>
-        <location filename="procedures.cpp" line="4532"/>
+        <location filename="procedures.cpp" line="4690"/>
+        <location filename="procedures.cpp" line="5030"/>
         <source>Le programme ne pourra pas s&apos;intialiser</source>
         <translation>O programa não poderá ser inicializado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4283"/>
+        <location filename="procedures.cpp" line="4706"/>
         <source>Erreur de connexion au serveur MySQL</source>
         <translation>Erro de conexão com o servidor MySQL</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4284"/>
+        <location filename="procedures.cpp" line="4707"/>
         <source>La connexion à MySQL a échoué après l&apos;installation.</source>
         <translation>A conexão com o MySQL falhou após a instalação.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4471"/>
+        <location filename="procedures.cpp" line="4733"/>
+        <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4734"/>
+        <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4735"/>
+        <source>Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4736"/>
+        <source>il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4737"/>
+        <source>Mot de passe :</source>
+        <translation type="unfinished">Senha:</translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4739"/>
+        <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste ».</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4862"/>
+        <source>Restaurer le fichier Rufus.ini
+à partir d&apos;une sauvegarde</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4863"/>
+        <source>Restaurer la base de données
+à partir d&apos;une sauvegarde</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4864"/>
+        <source>Reconstruire le fichier
+Rufus.ini</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4871"/>
+        <source>Accéder à une
+base patients</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4872"/>
+        <source>Mettre en place l&apos;accès de ce poste à sa base patients.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4940"/>
         <source>Fichier d&apos;initialisation restauré</source>
         <translation>Arquivo de inicialização restaurado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4472"/>
+        <location filename="procedures.cpp" line="4941"/>
         <source>Le fichier d&apos;initialisation a été restauré à partir de la sauvegarde.
 Rufus va redémarrer.</source>
         <translation>O arquivo de inicialização foi restaurado a partir do backup.
 O Rufus será reiniciado.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4594"/>
+        <location filename="procedures.cpp" line="4970"/>
+        <source>Base restaurée</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4971"/>
+        <source>La base de données a été restaurée. Rufus va redémarrer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4984"/>
+        <source>Paramètres de connexion enregistrés</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="4985"/>
+        <source>Rufus va redémarrer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="5002"/>
+        <source>Entrez votre identifiant et votre mot de passe d&apos;utilisateur Rufus</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="5091"/>
         <source>Erreur connexion série</source>
         <translation>Erro de conexão serial</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4595"/>
+        <location filename="procedures.cpp" line="5092"/>
         <source>Des connexions série sont paramétrées pour certains appareils du poste de réfraction.
 Malheureusement, aucune de ces connexions ne semble fonctionner.</source>
         <translation>Conexões seriais estão configuradas para alguns aparelhos do posto de refração.
 Infelizmente, nenhuma dessas conexões parece funcionar.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4627"/>
+        <location filename="procedures.cpp" line="5124"/>
         <source>le frontofocomètre</source>
         <translation>o frontofocômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4628"/>
+        <location filename="procedures.cpp" line="5125"/>
         <source>l&apos;autorefractomètre</source>
         <translation>o autorrefratômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4629"/>
+        <location filename="procedures.cpp" line="5126"/>
         <source>le refracteur</source>
         <translation>o refrator</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4630"/>
-        <location filename="procedures.cpp" line="4664"/>
+        <location filename="procedures.cpp" line="5127"/>
+        <location filename="procedures.cpp" line="5161"/>
         <source>le tonomètre</source>
         <translation>o tonômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4667"/>
+        <location filename="procedures.cpp" line="5164"/>
         <source>Une mesure vient d&apos;être émise par </source>
         <translation>Uma medida acaba de ser emitida por </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4667"/>
+        <location filename="procedures.cpp" line="5164"/>
         <source> mais la date de l&apos;acte actuellement affiché n&apos;est pas celle d&apos;aujourd&apos;hui.</source>
         <translation> mas a data do ato atualmente exibido não é a de hoje.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4669"/>
+        <location filename="procedures.cpp" line="5166"/>
         <source>Voulez-vous quand même enregistrer cette mesure?</source>
         <translation>Deseja salvar esta medida mesmo assim?</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4670"/>
+        <location filename="procedures.cpp" line="5167"/>
         <source>Enregistrer la mesure</source>
         <translation>Salvar a medida</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4708"/>
-        <location filename="procedures.cpp" line="4731"/>
-        <location filename="procedures.cpp" line="4755"/>
-        <location filename="procedures.cpp" line="4779"/>
+        <location filename="procedures.cpp" line="5205"/>
+        <location filename="procedures.cpp" line="5228"/>
+        <location filename="procedures.cpp" line="5252"/>
+        <location filename="procedures.cpp" line="5276"/>
         <source>Connexion</source>
         <translation>Conexão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4709"/>
-        <location filename="procedures.cpp" line="4712"/>
-        <location filename="procedures.cpp" line="4732"/>
-        <location filename="procedures.cpp" line="4735"/>
-        <location filename="procedures.cpp" line="4756"/>
-        <location filename="procedures.cpp" line="4759"/>
-        <location filename="procedures.cpp" line="4780"/>
-        <location filename="procedures.cpp" line="4783"/>
-        <location filename="procedures.cpp" line="4996"/>
-        <location filename="procedures.cpp" line="5041"/>
-        <location filename="procedures.cpp" line="5086"/>
-        <location filename="procedures.cpp" line="5130"/>
+        <location filename="procedures.cpp" line="5206"/>
+        <location filename="procedures.cpp" line="5209"/>
+        <location filename="procedures.cpp" line="5229"/>
+        <location filename="procedures.cpp" line="5232"/>
+        <location filename="procedures.cpp" line="5253"/>
+        <location filename="procedures.cpp" line="5256"/>
+        <location filename="procedures.cpp" line="5277"/>
+        <location filename="procedures.cpp" line="5280"/>
+        <location filename="procedures.cpp" line="5493"/>
+        <location filename="procedures.cpp" line="5538"/>
+        <location filename="procedures.cpp" line="5583"/>
+        <location filename="procedures.cpp" line="5627"/>
         <source>sur</source>
         <translation>em</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4712"/>
-        <location filename="procedures.cpp" line="4735"/>
-        <location filename="procedures.cpp" line="4759"/>
-        <location filename="procedures.cpp" line="4783"/>
+        <location filename="procedures.cpp" line="5209"/>
+        <location filename="procedures.cpp" line="5232"/>
+        <location filename="procedures.cpp" line="5256"/>
+        <location filename="procedures.cpp" line="5280"/>
         <source>Impossible de connecter</source>
         <translation>Impossível conectar</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4939"/>
+        <location filename="procedures.cpp" line="5436"/>
         <source>Fronto</source>
         <translation>Fronto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4940"/>
-        <location filename="procedures.cpp" line="7802"/>
+        <location filename="procedures.cpp" line="5437"/>
+        <location filename="procedures.cpp" line="8299"/>
         <source>Autoref</source>
         <translation>Autoref</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4941"/>
+        <location filename="procedures.cpp" line="5438"/>
         <source>Refracteur</source>
         <translation>Refrator</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4942"/>
+        <location filename="procedures.cpp" line="5439"/>
         <source>Tono</source>
         <translation>Tono</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4965"/>
+        <location filename="procedures.cpp" line="5462"/>
         <source>Liste des ports disponibles</source>
         <translation>Lista de portas disponíveis</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4967"/>
+        <location filename="procedures.cpp" line="5464"/>
         <source>Aucun port COM disponible sur le système</source>
         <translation>Nenhuma porta COM disponível no sistema</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4982"/>
+        <location filename="procedures.cpp" line="5479"/>
         <source>Erreur paramètrage connexion frontofocomètre</source>
         <translation>Erro de configuração da conexão do frontofocômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4982"/>
-        <location filename="procedures.cpp" line="5027"/>
-        <location filename="procedures.cpp" line="5072"/>
-        <location filename="procedures.cpp" line="5116"/>
+        <location filename="procedures.cpp" line="5479"/>
+        <location filename="procedures.cpp" line="5524"/>
+        <location filename="procedures.cpp" line="5569"/>
+        <location filename="procedures.cpp" line="5613"/>
         <source>le port de comunication n&apos;est pas configuré</source>
         <translation>a porta de comunicação não está configurada</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="4996"/>
+        <location filename="procedures.cpp" line="5493"/>
         <source>Connexion frontocomètre</source>
         <translation>Conexão frontofocômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5000"/>
-        <location filename="procedures.cpp" line="5001"/>
-        <location filename="procedures.cpp" line="5007"/>
+        <location filename="procedures.cpp" line="5497"/>
+        <location filename="procedures.cpp" line="5498"/>
+        <location filename="procedures.cpp" line="5504"/>
         <source>Impossible de connecter le frontocomètre sur </source>
         <translation>Impossível conectar o frontofocômetro em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5027"/>
+        <location filename="procedures.cpp" line="5524"/>
         <source>Erreur paramètrage connexion refracteur</source>
         <translation>Erro de configuração da conexão do refrator</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5041"/>
+        <location filename="procedures.cpp" line="5538"/>
         <source>Connexion refracteur</source>
         <translation>Conexão refrator</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5045"/>
-        <location filename="procedures.cpp" line="5046"/>
-        <location filename="procedures.cpp" line="5052"/>
+        <location filename="procedures.cpp" line="5542"/>
+        <location filename="procedures.cpp" line="5543"/>
+        <location filename="procedures.cpp" line="5549"/>
         <source>Impossible de connecter le refracteur sur </source>
         <translation>Impossível conectar o refrator em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5072"/>
+        <location filename="procedures.cpp" line="5569"/>
         <source>Erreur paramètrage connexion autorefractomètre</source>
         <translation>Erro de configuração da conexão do autorrefratômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5086"/>
+        <location filename="procedures.cpp" line="5583"/>
         <source>Connexion autorefractomètre</source>
         <translation>Conexão autorrefratômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5090"/>
-        <location filename="procedures.cpp" line="5091"/>
-        <location filename="procedures.cpp" line="5097"/>
+        <location filename="procedures.cpp" line="5587"/>
+        <location filename="procedures.cpp" line="5588"/>
+        <location filename="procedures.cpp" line="5594"/>
         <source>Impossible de connecter l&apos;autorefractomètre sur </source>
         <translation>Impossível conectar o autorrefratômetro em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5116"/>
+        <location filename="procedures.cpp" line="5613"/>
         <source>Erreur paramètrage connexion tonomomètre</source>
         <translation>Erro de configuração da conexão do tonômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5130"/>
+        <location filename="procedures.cpp" line="5627"/>
         <source>Connexion tonomètre</source>
         <translation>Conexão tonômetro</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5134"/>
-        <location filename="procedures.cpp" line="5135"/>
-        <location filename="procedures.cpp" line="5141"/>
+        <location filename="procedures.cpp" line="5631"/>
+        <location filename="procedures.cpp" line="5632"/>
+        <location filename="procedures.cpp" line="5638"/>
         <source>Impossible de connecter le tonomètre sur </source>
         <translation>Impossível conectar o tonômetro em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5948"/>
+        <location filename="procedures.cpp" line="6445"/>
         <source>utilisateur</source>
         <translation>usuário</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5956"/>
+        <location filename="procedures.cpp" line="6453"/>
         <source>tout le monde</source>
         <translation>todos</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5958"/>
-        <location filename="procedures.cpp" line="5968"/>
-        <location filename="procedures.cpp" line="5970"/>
-        <location filename="procedures.cpp" line="5980"/>
-        <location filename="procedures.cpp" line="5982"/>
+        <location filename="procedures.cpp" line="6455"/>
+        <location filename="procedures.cpp" line="6465"/>
+        <location filename="procedures.cpp" line="6467"/>
+        <location filename="procedures.cpp" line="6477"/>
+        <location filename="procedures.cpp" line="6479"/>
         <source>sans objet</source>
         <translation>sem objeto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5960"/>
-        <location filename="procedures.cpp" line="5972"/>
-        <location filename="procedures.cpp" line="5984"/>
+        <location filename="procedures.cpp" line="6457"/>
+        <location filename="procedures.cpp" line="6469"/>
+        <location filename="procedures.cpp" line="6481"/>
         <source>indéterminé</source>
         <translation>indeterminado</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5963"/>
+        <location filename="procedures.cpp" line="6460"/>
         <source>superviseur</source>
         <translation>supervisor</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5975"/>
+        <location filename="procedures.cpp" line="6472"/>
         <source>parent</source>
         <translation>responsável</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5987"/>
+        <location filename="procedures.cpp" line="6484"/>
         <source>comptable</source>
         <translation>contador</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5991"/>
+        <location filename="procedures.cpp" line="6488"/>
         <source>cpte banque</source>
         <translation>conta banco</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6018"/>
-        <location filename="procedures.cpp" line="6031"/>
-        <location filename="procedures.cpp" line="6057"/>
+        <location filename="procedures.cpp" line="6515"/>
+        <location filename="procedures.cpp" line="6528"/>
+        <location filename="procedures.cpp" line="6554"/>
         <source>Echec</source>
         <translation>Falha</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6018"/>
+        <location filename="procedures.cpp" line="6515"/>
         <source>Impossible de retrouver les données du patient pour ce document</source>
         <translation>Impossível encontrar os dados do paciente para este documento</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6031"/>
+        <location filename="procedures.cpp" line="6528"/>
         <source>Video non accessible en accès distant</source>
         <translation>Vídeo não acessível em acesso remoto</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6036"/>
+        <location filename="procedures.cpp" line="6533"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>Erro de acesso ao arquivo:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6040"/>
-        <location filename="procedures.cpp" line="6060"/>
+        <location filename="procedures.cpp" line="6537"/>
+        <location filename="procedures.cpp" line="6557"/>
         <source>Enregistrer un fichier</source>
         <translation>Salvar um arquivo</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6057"/>
+        <location filename="procedures.cpp" line="6554"/>
         <source>Impossible de charger le document</source>
         <translation>Impossível carregar o documento</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6072"/>
+        <location filename="procedures.cpp" line="6569"/>
         <source>Document enregistré dans</source>
         <translation>Documento salvo em</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6774"/>
-        <location filename="procedures.cpp" line="6778"/>
-        <location filename="procedures.cpp" line="6793"/>
-        <location filename="procedures.cpp" line="6797"/>
-        <location filename="procedures.cpp" line="7144"/>
-        <location filename="procedures.cpp" line="7148"/>
-        <location filename="procedures.cpp" line="7160"/>
-        <location filename="procedures.cpp" line="7164"/>
-        <location filename="procedures.cpp" line="7754"/>
-        <location filename="procedures.cpp" line="7758"/>
-        <location filename="procedures.cpp" line="7769"/>
-        <location filename="procedures.cpp" line="7773"/>
-        <location filename="procedures.cpp" line="7830"/>
-        <location filename="procedures.cpp" line="7833"/>
-        <location filename="procedures.cpp" line="7849"/>
-        <location filename="procedures.cpp" line="7852"/>
+        <location filename="procedures.cpp" line="7271"/>
+        <location filename="procedures.cpp" line="7275"/>
+        <location filename="procedures.cpp" line="7290"/>
+        <location filename="procedures.cpp" line="7294"/>
+        <location filename="procedures.cpp" line="7641"/>
+        <location filename="procedures.cpp" line="7645"/>
+        <location filename="procedures.cpp" line="7657"/>
+        <location filename="procedures.cpp" line="7661"/>
+        <location filename="procedures.cpp" line="8251"/>
+        <location filename="procedures.cpp" line="8255"/>
+        <location filename="procedures.cpp" line="8266"/>
+        <location filename="procedures.cpp" line="8270"/>
+        <location filename="procedures.cpp" line="8327"/>
+        <location filename="procedures.cpp" line="8330"/>
+        <location filename="procedures.cpp" line="8346"/>
+        <location filename="procedures.cpp" line="8349"/>
         <source> à </source>
         <translation>a</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6780"/>
-        <location filename="procedures.cpp" line="6785"/>
-        <location filename="procedures.cpp" line="6799"/>
-        <location filename="procedures.cpp" line="6804"/>
-        <location filename="procedures.cpp" line="7150"/>
-        <location filename="procedures.cpp" line="7166"/>
-        <location filename="procedures.cpp" line="7760"/>
-        <location filename="procedures.cpp" line="7775"/>
+        <location filename="procedures.cpp" line="7277"/>
+        <location filename="procedures.cpp" line="7282"/>
+        <location filename="procedures.cpp" line="7296"/>
+        <location filename="procedures.cpp" line="7301"/>
+        <location filename="procedures.cpp" line="7647"/>
+        <location filename="procedures.cpp" line="7663"/>
+        <location filename="procedures.cpp" line="8257"/>
+        <location filename="procedures.cpp" line="8272"/>
         <source>plan</source>
         <translation>plano</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6845"/>
-        <location filename="procedures.cpp" line="6848"/>
-        <location filename="procedures.cpp" line="6853"/>
-        <location filename="procedures.cpp" line="6858"/>
-        <location filename="procedures.cpp" line="6861"/>
-        <location filename="procedures.cpp" line="6866"/>
-        <location filename="procedures.cpp" line="6879"/>
-        <location filename="procedures.cpp" line="6882"/>
-        <location filename="procedures.cpp" line="7789"/>
+        <location filename="procedures.cpp" line="7342"/>
+        <location filename="procedures.cpp" line="7345"/>
+        <location filename="procedures.cpp" line="7350"/>
+        <location filename="procedures.cpp" line="7355"/>
+        <location filename="procedures.cpp" line="7358"/>
+        <location filename="procedures.cpp" line="7363"/>
+        <location filename="procedures.cpp" line="7376"/>
+        <location filename="procedures.cpp" line="7379"/>
+        <location filename="procedures.cpp" line="8286"/>
         <source>OD</source>
         <translation>OD</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="6850"/>
-        <location filename="procedures.cpp" line="6855"/>
-        <location filename="procedures.cpp" line="6863"/>
-        <location filename="procedures.cpp" line="6868"/>
-        <location filename="procedures.cpp" line="6871"/>
-        <location filename="procedures.cpp" line="6874"/>
-        <location filename="procedures.cpp" line="6884"/>
-        <location filename="procedures.cpp" line="6887"/>
-        <location filename="procedures.cpp" line="7787"/>
+        <location filename="procedures.cpp" line="7347"/>
+        <location filename="procedures.cpp" line="7352"/>
+        <location filename="procedures.cpp" line="7360"/>
+        <location filename="procedures.cpp" line="7365"/>
+        <location filename="procedures.cpp" line="7368"/>
+        <location filename="procedures.cpp" line="7371"/>
+        <location filename="procedures.cpp" line="7381"/>
+        <location filename="procedures.cpp" line="7384"/>
+        <location filename="procedures.cpp" line="8284"/>
         <source>OG</source>
         <translation>OG</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7176"/>
-        <location filename="procedures.cpp" line="7178"/>
-        <location filename="procedures.cpp" line="7782"/>
+        <location filename="procedures.cpp" line="7673"/>
+        <location filename="procedures.cpp" line="7675"/>
+        <location filename="procedures.cpp" line="8279"/>
         <source>ODG</source>
         <translation>ODG</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7182"/>
+        <location filename="procedures.cpp" line="7679"/>
         <source>Porte</source>
         <translation>Armação</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7805"/>
+        <location filename="procedures.cpp" line="8302"/>
         <source>EIP</source>
         <translation>EIP</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7828"/>
-        <location filename="procedures.cpp" line="7832"/>
+        <location filename="procedures.cpp" line="8325"/>
+        <location filename="procedures.cpp" line="8329"/>
         <source>KOD</source>
         <translation>KOD</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7847"/>
-        <location filename="procedures.cpp" line="7851"/>
+        <location filename="procedures.cpp" line="8344"/>
+        <location filename="procedures.cpp" line="8348"/>
         <source>KOG</source>
         <translation>KOG</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7883"/>
-        <location filename="procedures.cpp" line="7898"/>
-        <location filename="procedures.cpp" line="7913"/>
-        <location filename="procedures.cpp" line="7934"/>
+        <location filename="procedures.cpp" line="8380"/>
+        <location filename="procedures.cpp" line="8395"/>
+        <location filename="procedures.cpp" line="8410"/>
+        <location filename="procedures.cpp" line="8431"/>
         <source>corr.</source>
         <translation>corr.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7885"/>
+        <location filename="procedures.cpp" line="8382"/>
         <source>TOG:</source>
         <translation>TOE:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7886"/>
-        <location filename="procedures.cpp" line="7901"/>
-        <location filename="procedures.cpp" line="7916"/>
-        <location filename="procedures.cpp" line="7936"/>
+        <location filename="procedures.cpp" line="8383"/>
+        <location filename="procedures.cpp" line="8398"/>
+        <location filename="procedures.cpp" line="8413"/>
+        <location filename="procedures.cpp" line="8433"/>
         <source>à</source>
         <translation>a</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7900"/>
+        <location filename="procedures.cpp" line="8397"/>
         <source>TOD:</source>
         <translation>TOD:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7915"/>
+        <location filename="procedures.cpp" line="8412"/>
         <source>TODG:</source>
         <translation>TODG:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7927"/>
+        <location filename="procedures.cpp" line="8424"/>
         <source>TO:</source>
         <translation>TO:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7961"/>
+        <location filename="procedures.cpp" line="8458"/>
         <source>pachy OG</source>
         <translation>pachy OE</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7963"/>
+        <location filename="procedures.cpp" line="8460"/>
         <source>pachy OD</source>
         <translation>pachy OD</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7967"/>
+        <location filename="procedures.cpp" line="8464"/>
         <source>pachy ODG</source>
         <translation>pachy ODG</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="7969"/>
+        <location filename="procedures.cpp" line="8466"/>
         <source>pachy</source>
         <translation>pachy</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8204"/>
+        <location filename="procedures.cpp" line="8701"/>
         <source>Erreur de création de données autoref dans </source>
         <translation>Erro na criação de dados autoref em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8221"/>
+        <location filename="procedures.cpp" line="8718"/>
         <source>Erreur de mise à jour de données autoref dans </source>
         <translation>Erro na atualização de dados autoref em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8252"/>
+        <location filename="procedures.cpp" line="8749"/>
         <source>Erreur de création de données de kératométrie  dans </source>
         <translation>Erro na criação de dados de ceratometria em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8284"/>
+        <location filename="procedures.cpp" line="8781"/>
         <source>Erreur de modification de données de kératométrie dans </source>
         <translation>Erro na modificação de dados de ceratometria em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8390"/>
+        <location filename="procedures.cpp" line="8887"/>
         <source>Erreur création de données de refraction dans </source>
         <translation>Erro na criação de dados de refração em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8414"/>
+        <location filename="procedures.cpp" line="8911"/>
         <source>Erreur de mise à jour de données de refraction dans </source>
         <translation>Erro na atualização de dados de refração em </translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8426"/>
-        <location filename="procedures.cpp" line="8440"/>
+        <location filename="procedures.cpp" line="8923"/>
+        <location filename="procedures.cpp" line="8937"/>
         <source>Impossible de sauvegarder la mesure!</source>
         <translation>Impossível salvar a medida!</translation>
     </message>
@@ -3508,214 +4234,218 @@ Infelizmente, nenhuma dessas conexões parece funcionar.</translation>
         <translation>HH:mm:ss</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="98"/>
+        <location filename="procedures.cpp" line="169"/>
         <source>Le fichier d&apos;initialisation de l&apos;application est absent</source>
         <translation>O arquivo de inicialização da aplicação está ausente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="99"/>
-        <location filename="procedures.cpp" line="139"/>
+        <location filename="procedures.cpp" line="170"/>
+        <location filename="procedures.cpp" line="201"/>
         <source>Le fichier d&apos;initialisation</source>
         <translation>O arquivo de inicialização</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="100"/>
-        <location filename="procedures.cpp" line="142"/>
+        <location filename="procedures.cpp" line="171"/>
+        <location filename="procedures.cpp" line="204"/>
         <source>Ce fichier est indispensable au bon fonctionnement de l&apos;application.</source>
         <translation>Este arquivo é indispensável para o bom funcionamento da aplicação.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="101"/>
+        <location filename="procedures.cpp" line="172"/>
         <source>Cette absence est normale si vous démarrez l&apos;application pour la première fois.</source>
         <translation>Esta ausência é normal se você estiver iniciando a aplicação pela primeira vez.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="102"/>
         <source>Si c&apos;est le cas, choisissez l&apos;option &quot;Premier démarrage de Rufus&quot;</source>
-        <translation>Se for o caso, escolha a opção &quot;Primeiro início do Rufus&quot;</translation>
+        <translation type="vanished">Se for o caso, escolha a opção &quot;Primeiro início do Rufus&quot;</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="103"/>
+        <location filename="procedures.cpp" line="173"/>
+        <source>Si c&apos;est le cas, choisissez l&apos;option &quot;%1&quot;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="procedures.cpp" line="174"/>
         <source>Si le logiciel fonctionnait déjà sur ce poste et que le fichier a été effacé par erreur:</source>
         <translation>Se o software já funcionava neste posto e o arquivo foi apagado por engano:</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="104"/>
-        <location filename="procedures.cpp" line="143"/>
+        <location filename="procedures.cpp" line="175"/>
+        <location filename="procedures.cpp" line="205"/>
         <source>1. Si vous disposez d&apos;une sauvegarde du fichier, choisissez &quot;Restaurer le fichier à partir d&apos;une sauvegarde&quot;</source>
         <translation>1. Se você tiver um backup do arquivo, escolha &quot;Restaurar o arquivo a partir de um backup&quot;</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="105"/>
+        <location filename="procedures.cpp" line="176"/>
         <source>2. Sinon cliquez sur &quot;Reconstruire le fichier d&apos;initialisation&quot; et suivez les étapes de la reconstruction.&quot;</source>
         <translation>2. Caso contrário clique em &quot;Reconstruir o arquivo de inicialização&quot; e siga as etapas da reconstrução.&quot;</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="106"/>
-        <location filename="procedures.cpp" line="145"/>
+        <location filename="procedures.cpp" line="177"/>
+        <location filename="procedures.cpp" line="207"/>
         <source>Il vous faudra alors compléter de nouveau</source>
         <translation>Você precisará então preencher novamente</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="107"/>
-        <location filename="procedures.cpp" line="146"/>
+        <location filename="procedures.cpp" line="178"/>
+        <location filename="procedures.cpp" line="208"/>
         <source>les renseignements concernant les appareils connectés au réseau ou à ce poste d&apos;examen après</source>
         <translation>as informações sobre os aparelhos conectados à rede ou a este posto de exame após</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="108"/>
-        <location filename="procedures.cpp" line="147"/>
+        <location filename="procedures.cpp" line="179"/>
+        <location filename="procedures.cpp" line="209"/>
         <source>le démarrage complet du logiciel (Menu Edition/Paramètres).</source>
         <translation>o início completo do software (Menu Edição/Parâmetros).</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="138"/>
+        <location filename="procedures.cpp" line="200"/>
         <source>Le fichier d&apos;initialisation de l&apos;application est corrompu</source>
         <translation>O arquivo de inicialização da aplicação está corrompido</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="140"/>
+        <location filename="procedures.cpp" line="202"/>
         <source>ne contient pas de renseignement valide</source>
         <translation>não contém informação válida</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="141"/>
+        <location filename="procedures.cpp" line="203"/>
         <source>permettant la connexion à la base de données.</source>
         <translation>permitindo a conexão ao banco de dados.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="144"/>
+        <location filename="procedures.cpp" line="206"/>
         <source>2. Sinon cliquez sur &quot;Reconstruire le fichier d&apos;initialisation&quot; et suivez les étapes de la reconstruction.</source>
         <translation>2. Caso contrário clique em &quot;Reconstruir o arquivo de inicialização&quot; e siga as etapas da reconstrução.</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2925"/>
+        <location filename="procedures.cpp" line="3054"/>
         <source>Vous utilisez sur ce poste une version de Rufus prévue pour la version</source>
         <translation>Utiliza-se neste computador uma versão do Rufus prevista para a versão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2925"/>
+        <location filename="procedures.cpp" line="3054"/>
         <source>de la base de données</source>
         <translation>do banco de dados</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2926"/>
+        <location filename="procedures.cpp" line="3055"/>
         <source>Cette version est peut-être incompatible avec la version</source>
         <translation>Esta versão pode ser incompatível com a versão</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2927"/>
+        <location filename="procedures.cpp" line="3056"/>
         <source>Il est fortement conseillé de faire une mise à jour de Rufus</source>
         <translation>Recomenda-se fortemente atualizar o Rufus</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2928"/>
+        <location filename="procedures.cpp" line="3057"/>
         <source>pour éviter des dysfonctionnements ou une altération de votre base de données Rufus</source>
         <translation>para evitar falhas ou alterações no seu banco de dados do Rufus</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="2929"/>
+        <location filename="procedures.cpp" line="3058"/>
         <source>Vous pouvez télécharger la dernière version sur la page Téléchargements du site</source>
         <translation>Pode descarregar a última versão na página de Descargas do site</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5250"/>
+        <location filename="procedures.cpp" line="5747"/>
         <source>Réglages par défaut inconnus pour l&apos;appareil</source>
         <translation>Configurações padrão desconhecidas para o dispositivo</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5251"/>
+        <location filename="procedures.cpp" line="5748"/>
         <source>Utilisation de réglages génériques</source>
         <translation>Utilização de configurações genéricas</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5252"/>
+        <location filename="procedures.cpp" line="5749"/>
         <source>Il faudra probablement revoir les réglages</source>
         <translation>Provavelmente será necessário rever as configurações</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="5253"/>
+        <location filename="procedures.cpp" line="5750"/>
         <source>en fonction des caractéristiques du</source>
         <translation>conforme as características do</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8030"/>
-        <location filename="procedures.cpp" line="8034"/>
+        <location filename="procedures.cpp" line="8527"/>
+        <location filename="procedures.cpp" line="8531"/>
         <source> à </source>
         <translation>a</translation>
     </message>
     <message>
-        <location filename="procedures.cpp" line="8036"/>
+        <location filename="procedures.cpp" line="8533"/>
         <source>plan</source>
         <translation>plano</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="312"/>
+        <location filename="rufus.cpp" line="329"/>
         <source>Problème Autoref Huvitz</source>
         <translation>Problema com o Autoref Huvitz</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="313"/>
+        <location filename="rufus.cpp" line="330"/>
         <source>Des problémes techniques de collaboration avec la société Essilor</source>
         <translation>Problemas técnicos na colaboração com a empresa Essilor</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="314"/>
+        <location filename="rufus.cpp" line="331"/>
         <source>ne nous permettent plus de maintenir l&apos;implémentation de l&apos;autoref HUVITZ HTR-1A pour le moment</source>
         <translation>não nos permitem mais manter a implementação do autoref HUVITZ HTR-1A, por enquanto</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="315"/>
+        <location filename="rufus.cpp" line="332"/>
         <source>nous espérons que ce problème indépendant de l&apos;équipe de développement pourra se résoudre rapidement</source>
         <translation>esperamos que este problema, independente da equipa de desenvolvimento, possa ser resolvido rapidamente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="316"/>
+        <location filename="rufus.cpp" line="333"/>
         <source>nous vous invitons à nous contacter pour avoir plus d&apos;informations</source>
         <translation>convidamo-lo a contactar-nos para obter mais informações</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6200"/>
+        <location filename="rufus.cpp" line="6217"/>
         <source>La nouvelle version est datée du </source>
         <translation>A nova versão é de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6201"/>
+        <location filename="rufus.cpp" line="6218"/>
         <source>Vous utilisez la version du </source>
         <translation>Utiliza-se a versão do </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6204"/>
+        <location filename="rufus.cpp" line="6221"/>
         <source>Cette nouvelle version impose une mise à jour de la base de données</source>
         <translation>Esta nova versão impõe uma atualização do banco de dados</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6206"/>
+        <location filename="rufus.cpp" line="6223"/>
         <source>Après cette mise à jour, tous les postes utilisant Rufus sur cette base devront aussi évoluer vers la nouvelle version</source>
         <translation>Após esta atualização, todos os postos usando Rufus nesta base deverão também atualizar para a nova versão</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6208"/>
+        <location filename="rufus.cpp" line="6225"/>
         <source>Cette mise à jour de la base de données reste compatible avec votre version actuelle de Rufus</source>
         <translation>Esta atualização do banco de dados permanece compatível com sua versão atual do Rufus</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6209"/>
+        <location filename="rufus.cpp" line="6226"/>
         <source>Les postes utilisant la version actuelle de Rufus continuent de fonctionner avec cette nouvelle version</source>
         <translation>Os postos usando a versão atual do Rufus continuam funcionando com esta nova versão</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6212"/>
+        <location filename="rufus.cpp" line="6229"/>
         <source>Cette nouvelle version n&apos;impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus</source>
         <translation>Esta nova versão não exige atualização do banco de dados e é compatível com a versão anterior do Rufus</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6215"/>
+        <location filename="rufus.cpp" line="6232"/>
         <source>Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site</source>
         <translation>Você pode baixar a nova versão na página de Downloads do site</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6216"/>
+        <location filename="rufus.cpp" line="6233"/>
         <source>Une nouvelle version de Rufus est en ligne</source>
         <translation>Uma nova versão do Rufus está disponível</translation>
     </message>
@@ -3736,58 +4466,178 @@ Infelizmente, nenhuma dessas conexões parece funcionar.</translation>
         <translation>Pasta de backup provisório </translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="940"/>
-        <location filename="utils.cpp" line="970"/>
+        <location filename="utils.cpp" line="941"/>
+        <location filename="utils.cpp" line="971"/>
         <source>Mot de passe invalide!</source>
         <translation>Senha inválida!</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1186"/>
-        <location filename="utils.cpp" line="1199"/>
+        <location filename="utils.cpp" line="1187"/>
+        <location filename="utils.cpp" line="1200"/>
         <source>Espèces</source>
         <translation>Dinheiro</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1187"/>
-        <location filename="utils.cpp" line="1200"/>
+        <location filename="utils.cpp" line="1188"/>
+        <location filename="utils.cpp" line="1201"/>
         <source>Carte de crédit</source>
         <translation>Cartão de crédito</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1188"/>
-        <location filename="utils.cpp" line="1201"/>
+        <location filename="utils.cpp" line="1189"/>
+        <location filename="utils.cpp" line="1202"/>
         <source>TIP</source>
         <translation>TIP</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1189"/>
-        <location filename="utils.cpp" line="1202"/>
+        <location filename="utils.cpp" line="1190"/>
+        <location filename="utils.cpp" line="1203"/>
         <source>Virement</source>
         <translation>Transferência</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1190"/>
-        <location filename="utils.cpp" line="1203"/>
+        <location filename="utils.cpp" line="1191"/>
+        <location filename="utils.cpp" line="1204"/>
         <source>Prélèvement</source>
         <translation>Débito automático</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1191"/>
-        <location filename="utils.cpp" line="1204"/>
+        <location filename="utils.cpp" line="1192"/>
+        <location filename="utils.cpp" line="1205"/>
         <source>Chèque</source>
         <translation>Cheque</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1192"/>
-        <location filename="utils.cpp" line="1205"/>
+        <location filename="utils.cpp" line="1193"/>
+        <location filename="utils.cpp" line="1206"/>
         <source>Gratuit</source>
         <translation>Gratuito</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1193"/>
-        <location filename="utils.cpp" line="1206"/>
+        <location filename="utils.cpp" line="1194"/>
+        <location filename="utils.cpp" line="1207"/>
         <source>Impayé</source>
         <translation>Não pago</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1308"/>
+        <source>Notez le mot de passe de la base de données</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1309"/>
+        <source>Rufus a créé un mot de passe de connexion à votre base de données patients.
+Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1312"/>
+        <source>Mot de passe :</source>
+        <translation type="unfinished">Senha:</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1315"/>
+        <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Paramètres ▸ onglet « Ce poste ».</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1373"/>
+        <source>Sécurisation de la base de données</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1374"/>
+        <source>IMPORTANT : un mot de passe sécurisé vient d&apos;être mis en place.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1375"/>
+        <source>S&apos;il existe d&apos;autres postes sur le réseau local qui utilisent Rufus, ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version de Rufus dans un délai d&apos;un mois.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1378"/>
+        <source>Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus utiliser Rufus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1391"/>
+        <source>Suppression du mot de passe générique</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1393"/>
+        <source>IMPORTANT : le mot de passe générique d&apos;accès à la base de données va être supprimé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1395"/>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1416"/>
+        <source>S&apos;il existe d&apos;autres postes sur le réseau local qui utilisent une version plus ancienne du programme, ils doivent IMPÉRATIVEMENT être mis à jour vers cette nouvelle version pour pouvoir continuer à utiliser Rufus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1399"/>
+        <source>Annuler et reporter cette suppression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1400"/>
+        <source>OK, supprimer le mot de passe</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1413"/>
+        <source>Mot de passe générique supprimé</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1414"/>
+        <source>IMPORTANT : le mot de passe générique d&apos;accès à la base de données vient d&apos;être supprimé.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1465"/>
+        <source>Choisissez un login pour le nouvel utilisateur
+- mini 5 maxi 15 caractères -
+- pas de caractères spéciaux ou accentués -</source>
+        <translation type="unfinished">Escolha um login para o novo usuário
+- mínimo 5 máximo 15 caracteres -
+- sem caracteres especiais ou acentuados -</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1466"/>
+        <source>Choisissez un mot de passe
+- mini 5 maxi 12 caractères -
+- pas de caractères spéciaux ou accentués -</source>
+        <translation type="unfinished">Escolha uma senha
+- mínimo 5 máximo 12 caracteres -
+- sem caracteres especiais ou acentuados -</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1467"/>
+        <source>Confirmez le mot de passe</source>
+        <translation type="unfinished">Confirme a senha</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1493"/>
+        <source>Saisie incomplète</source>
+        <translation type="unfinished">Preenchimento incompleto</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1494"/>
+        <source>Veuillez renseigner un identifiant et un mot de passe.</source>
+        <translation type="unfinished">Digite um usuário e uma senha.</translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1498"/>
+        <source>Mots de passe différents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1499"/>
+        <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3828,7 +4678,7 @@ serão copiados automaticamente</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="316"/>
-        <location filename="rufus.cpp" line="11016"/>
+        <location filename="rufus.cpp" line="11077"/>
         <source>Recopier</source>
         <translation>Copiar</translation>
     </message>
@@ -3851,12 +4701,13 @@ pacientes - F5</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="516"/>
+        <location filename="rufus.cpp" line="9604"/>
         <source>Nom</source>
         <translation>Nome</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="541"/>
-        <location filename="rufus.cpp" line="9552"/>
+        <location filename="rufus.cpp" line="9608"/>
         <source>Date de naissance</source>
         <translation>Data de nascimento</translation>
     </message>
@@ -3867,7 +4718,7 @@ pacientes - F5</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="635"/>
-        <location filename="rufus.cpp" line="9099"/>
+        <location filename="rufus.cpp" line="9155"/>
         <source>Créer
 le dossier</source>
         <translation>Criar
@@ -3875,7 +4726,7 @@ o prontuário</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="665"/>
-        <location filename="rufus.cpp" line="9048"/>
+        <location filename="rufus.cpp" line="9104"/>
         <source>Chercher avec la
 date de naissance</source>
         <translation>Buscar com a
@@ -3884,8 +4735,8 @@ data de nascimento</translation>
     <message>
         <location filename="rufus.ui" line="793"/>
         <location filename="rufus.ui" line="2849"/>
-        <location filename="rufus.cpp" line="3813"/>
-        <location filename="rufus.cpp" line="5050"/>
+        <location filename="rufus.cpp" line="3830"/>
+        <location filename="rufus.cpp" line="5067"/>
         <source>Envoyer un message</source>
         <translation>Enviar uma mensagem</translation>
     </message>
@@ -4094,15 +4945,15 @@ ato</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3623"/>
-        <location filename="rufus.cpp" line="8625"/>
+        <location filename="rufus.cpp" line="8681"/>
         <source>Cotation</source>
         <translation>Codificação</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="3636"/>
-        <location filename="rufus.cpp" line="6924"/>
-        <location filename="rufus.cpp" line="6928"/>
-        <location filename="rufus.cpp" line="8626"/>
+        <location filename="rufus.cpp" line="6972"/>
+        <location filename="rufus.cpp" line="6976"/>
+        <location filename="rufus.cpp" line="8682"/>
         <source>Montant</source>
         <translation>Valor</translation>
     </message>
@@ -4158,7 +5009,7 @@ ato</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4021"/>
-        <location filename="rufus.cpp" line="4042"/>
+        <location filename="rufus.cpp" line="4059"/>
         <source>Enregistrer le paiement</source>
         <translation>Registrar o pagamento</translation>
     </message>
@@ -4179,8 +5030,8 @@ ato</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4133"/>
-        <location filename="rufus.cpp" line="3102"/>
-        <location filename="rufus.cpp" line="11075"/>
+        <location filename="rufus.cpp" line="3119"/>
+        <location filename="rufus.cpp" line="11138"/>
         <source>Acte</source>
         <translation>Ato</translation>
     </message>
@@ -4191,8 +5042,8 @@ ato</translation>
     </message>
     <message>
         <location filename="rufus.ui" line="4195"/>
-        <location filename="rufus.cpp" line="9008"/>
-        <location filename="rufus.cpp" line="11078"/>
+        <location filename="rufus.cpp" line="9064"/>
+        <location filename="rufus.cpp" line="11141"/>
         <source>Documents</source>
         <translation>Documentos</translation>
     </message>
@@ -4222,1315 +5073,1315 @@ ato</translation>
         <translation>Tratamentos em curso</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="45"/>
+        <location filename="rufus.cpp" line="49"/>
         <source>Erreur fichier Rufus.ini</source>
         <translation>Erro no arquivo Rufus.ini</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="45"/>
+        <location filename="rufus.cpp" line="49"/>
         <source>Aucun paramétrage valide de connexion retrouvé</source>
         <translation>Nenhuma configuração válida de conexão encontrada</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="45"/>
+        <location filename="rufus.cpp" line="49"/>
         <source>Le fichier rufus.ini est endommagé et doit être réparé</source>
         <translation>O arquivo rufus.ini está danificado e deve ser reparado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="81"/>
+        <location filename="rufus.cpp" line="98"/>
         <source>Pas d&apos;utilisateur identifié!
 Sortie du programme</source>
         <translation>Nenhum usuário identificado!
 Encerrando o programa</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="84"/>
+        <location filename="rufus.cpp" line="101"/>
         <source>Site</source>
         <translation>Local</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="121"/>
+        <location filename="rufus.cpp" line="138"/>
         <source>RufusAdmin présent</source>
         <translation>RufusAdmin presente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="125"/>
+        <location filename="rufus.cpp" line="142"/>
         <source>Aucun serveur TCP enregistré dans la base</source>
         <translation>Nenhum servidor TCP registrado na base</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="127"/>
-        <location filename="rufus.cpp" line="2223"/>
-        <location filename="rufus.cpp" line="2297"/>
-        <location filename="rufus.cpp" line="2348"/>
-        <location filename="rufus.cpp" line="2354"/>
-        <location filename="rufus.cpp" line="2512"/>
-        <location filename="rufus.cpp" line="2618"/>
-        <location filename="rufus.cpp" line="2672"/>
-        <location filename="rufus.cpp" line="2678"/>
-        <location filename="rufus.cpp" line="4805"/>
-        <location filename="rufus.cpp" line="4818"/>
-        <location filename="rufus.cpp" line="4882"/>
-        <location filename="rufus.cpp" line="5706"/>
-        <location filename="rufus.cpp" line="5728"/>
-        <location filename="rufus.cpp" line="5921"/>
-        <location filename="rufus.cpp" line="6186"/>
-        <location filename="rufus.cpp" line="10890"/>
+        <location filename="rufus.cpp" line="144"/>
+        <location filename="rufus.cpp" line="2240"/>
+        <location filename="rufus.cpp" line="2314"/>
+        <location filename="rufus.cpp" line="2365"/>
+        <location filename="rufus.cpp" line="2371"/>
+        <location filename="rufus.cpp" line="2529"/>
+        <location filename="rufus.cpp" line="2635"/>
+        <location filename="rufus.cpp" line="2689"/>
+        <location filename="rufus.cpp" line="2695"/>
+        <location filename="rufus.cpp" line="4822"/>
+        <location filename="rufus.cpp" line="4835"/>
+        <location filename="rufus.cpp" line="4899"/>
+        <location filename="rufus.cpp" line="5723"/>
+        <location filename="rufus.cpp" line="5745"/>
+        <location filename="rufus.cpp" line="5938"/>
+        <location filename="rufus.cpp" line="6203"/>
+        <location filename="rufus.cpp" line="10951"/>
         <source>Messages</source>
         <translation>Mensagens</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="136"/>
+        <location filename="rufus.cpp" line="153"/>
         <source>Connexion TCP OK</source>
         <translation>Conexão TCP OK</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="144"/>
+        <location filename="rufus.cpp" line="161"/>
         <source>RufusAdmin présent mais échec connexion</source>
         <translation>RufusAdmin presente mas falha na conexão</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="151"/>
+        <location filename="rufus.cpp" line="168"/>
         <source>RufusAdmin absent</source>
         <translation>RufusAdmin ausente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="156"/>
+        <location filename="rufus.cpp" line="173"/>
         <source>Connexion distante - pas d&apos;utilisation de TCP</source>
         <translation>Conexão remota - sem uso de TCP</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="298"/>
+        <location filename="rufus.cpp" line="315"/>
         <source>Vous n&apos;avez aucun dossier de patient enregistré!</source>
         <translation>Você não tem nenhum prontuário de paciente registrado!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="298"/>
+        <location filename="rufus.cpp" line="315"/>
         <source>Vous devez d&apos;abord en créer un.</source>
         <translation>Você deve criar um primeiro.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1029"/>
-        <location filename="rufus.cpp" line="4156"/>
-        <location filename="rufus.cpp" line="4217"/>
+        <location filename="rufus.cpp" line="1046"/>
+        <location filename="rufus.cpp" line="4173"/>
+        <location filename="rufus.cpp" line="4234"/>
         <source>Urgence</source>
         <translation>Urgência</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1083"/>
+        <location filename="rufus.cpp" line="1100"/>
         <source>Impossible de remplir la salle d&apos;attente!</source>
         <translation>Impossível preencher a sala de espera!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1129"/>
+        <location filename="rufus.cpp" line="1146"/>
         <source>Carte</source>
         <translation>Cartão</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1294"/>
+        <location filename="rufus.cpp" line="1311"/>
         <source>Le ou les actes que vous avez sélectionnés
 sont déjà en cours d&apos;enregistrement!</source>
         <translation>O(s) ato(s) que você selecionou
 já está(ão) sendo registrado(s)!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1304"/>
-        <location filename="rufus.cpp" line="7332"/>
-        <location filename="rufus.cpp" line="7345"/>
-        <location filename="rufus.cpp" line="10187"/>
+        <location filename="rufus.cpp" line="1321"/>
+        <location filename="rufus.cpp" line="7380"/>
+        <location filename="rufus.cpp" line="7393"/>
+        <location filename="rufus.cpp" line="10248"/>
         <source>Il manque la cotation!</source>
         <translation>Falta a codificação!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1306"/>
-        <location filename="rufus.cpp" line="7334"/>
-        <location filename="rufus.cpp" line="7350"/>
-        <location filename="rufus.cpp" line="7408"/>
-        <location filename="rufus.cpp" line="10187"/>
+        <location filename="rufus.cpp" line="1323"/>
+        <location filename="rufus.cpp" line="7382"/>
+        <location filename="rufus.cpp" line="7398"/>
+        <location filename="rufus.cpp" line="7456"/>
+        <location filename="rufus.cpp" line="10248"/>
         <source>Il manque le montant!</source>
         <translation>Falta o valor!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1309"/>
+        <location filename="rufus.cpp" line="1326"/>
         <source>Vous ne pouvez pas enregistrer le paiement de cet acte !</source>
         <translation>Você não pode registrar o pagamento deste ato!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1321"/>
+        <location filename="rufus.cpp" line="1338"/>
         <source>Vous ne pouvez paz enregistrer le paiement de cet acte !</source>
         <translation>Você não pode registrar o pagamento deste ato!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1322"/>
+        <location filename="rufus.cpp" line="1339"/>
         <source>Il est déjà en cours d&apos;enregistrement par </source>
         <translation>Já está sendo registrado por </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1329"/>
-        <location filename="rufus.cpp" line="7379"/>
+        <location filename="rufus.cpp" line="1346"/>
+        <location filename="rufus.cpp" line="7427"/>
         <source>Consultation gratuite</source>
         <translation>Consulta gratuita</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1330"/>
-        <location filename="rufus.cpp" line="7376"/>
+        <location filename="rufus.cpp" line="1347"/>
+        <location filename="rufus.cpp" line="7424"/>
         <source>Vous avez entré un montant nul !</source>
         <translation>Você inseriu um valor nulo!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1331"/>
+        <location filename="rufus.cpp" line="1348"/>
         <source>Enregistrer cette consultation comme gratuite?</source>
         <translation>Registrar esta consulta como gratuita?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1332"/>
-        <location filename="rufus.cpp" line="1655"/>
-        <location filename="rufus.cpp" line="7289"/>
-        <location filename="rufus.cpp" line="7834"/>
-        <location filename="rufus.cpp" line="7883"/>
-        <location filename="rufus.cpp" line="8260"/>
-        <location filename="rufus.cpp" line="8854"/>
-        <location filename="rufus.cpp" line="10253"/>
-        <location filename="rufus.cpp" line="10407"/>
-        <location filename="rufus.cpp" line="10606"/>
+        <location filename="rufus.cpp" line="1349"/>
+        <location filename="rufus.cpp" line="1672"/>
+        <location filename="rufus.cpp" line="7337"/>
+        <location filename="rufus.cpp" line="7889"/>
+        <location filename="rufus.cpp" line="7938"/>
+        <location filename="rufus.cpp" line="8316"/>
+        <location filename="rufus.cpp" line="8910"/>
+        <location filename="rufus.cpp" line="10314"/>
+        <location filename="rufus.cpp" line="10468"/>
+        <location filename="rufus.cpp" line="10667"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1341"/>
+        <location filename="rufus.cpp" line="1358"/>
         <source>Impossible d&apos;enregister cet acte comme gratuit</source>
         <translation>Impossível registrar este ato como gratuito</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1449"/>
-        <location filename="rufus.cpp" line="11035"/>
+        <location filename="rufus.cpp" line="1466"/>
+        <location filename="rufus.cpp" line="11096"/>
         <source>Gestion des tiers payants</source>
         <translation>Gestão de terceiros pagadores</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1468"/>
+        <location filename="rufus.cpp" line="1485"/>
         <source>Autre Dossier</source>
         <translation>Outro Prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1487"/>
-        <location filename="rufus.cpp" line="4691"/>
-        <location filename="rufus.cpp" line="10646"/>
+        <location filename="rufus.cpp" line="1504"/>
+        <location filename="rufus.cpp" line="4708"/>
+        <location filename="rufus.cpp" line="10707"/>
         <source>Revenir au tarif conventionnel</source>
         <translation>Voltar ao tarife convencional</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1492"/>
-        <location filename="rufus.cpp" line="10644"/>
+        <location filename="rufus.cpp" line="1509"/>
+        <location filename="rufus.cpp" line="10705"/>
         <source>Revenir au tarif habituellement pratiqué</source>
         <translation>Voltar ao tarife habitualmente praticado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1653"/>
+        <location filename="rufus.cpp" line="1670"/>
         <source>Reprendre</source>
         <translation>Continuar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1654"/>
+        <location filename="rufus.cpp" line="1671"/>
         <source>Créer un nouveau
 bilan orthoptique</source>
         <translation>Criar um novo
 relatório ortóptico</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1657"/>
+        <location filename="rufus.cpp" line="1674"/>
         <source>Voulez-vous reprendre le bilan affiché
 ou créer un nouveau bilan à la date d&apos;aujourd&apos;hui?</source>
         <translation>Deseja retomar o relatório exibido
 ou criar um novo relatório com a data de hoje?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="1968"/>
+        <location filename="rufus.cpp" line="1985"/>
         <source>Enregistrer un document issu du scanner pour </source>
         <translation>Registrar um documento do scanner para </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2060"/>
+        <location filename="rufus.cpp" line="2077"/>
         <source>Le processus d&apos;importation automatique des images a été stoppé en raison de l&apos;erreur</source>
         <translation>O processo de importação automática de imagens foi interrompido devido ao erro</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2062"/>
+        <location filename="rufus.cpp" line="2079"/>
         <source>Il vous faut relancer le programme pour qu&apos;il reprenne</source>
         <translation>Você precisa reiniciar o programa para que ele seja retomado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2075"/>
-        <location filename="rufus.cpp" line="2110"/>
-        <location filename="rufus.cpp" line="2370"/>
-        <location filename="rufus.cpp" line="5299"/>
-        <location filename="rufus.cpp" line="5320"/>
+        <location filename="rufus.cpp" line="2092"/>
+        <location filename="rufus.cpp" line="2127"/>
+        <location filename="rufus.cpp" line="2387"/>
+        <location filename="rufus.cpp" line="5316"/>
+        <location filename="rufus.cpp" line="5337"/>
         <source>Dossier de sauvegarde </source>
         <translation>Pasta de backup </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2075"/>
-        <location filename="rufus.cpp" line="2110"/>
-        <location filename="rufus.cpp" line="2370"/>
-        <location filename="rufus.cpp" line="5299"/>
-        <location filename="rufus.cpp" line="5320"/>
+        <location filename="rufus.cpp" line="2092"/>
+        <location filename="rufus.cpp" line="2127"/>
+        <location filename="rufus.cpp" line="2387"/>
+        <location filename="rufus.cpp" line="5316"/>
+        <location filename="rufus.cpp" line="5337"/>
         <source> invalide</source>
         <translation> inválida</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2087"/>
+        <location filename="rufus.cpp" line="2104"/>
         <source>Nombreux documents à convertir</source>
         <translation>Muitos documentos para converter</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2088"/>
+        <location filename="rufus.cpp" line="2105"/>
         <source>Il y a </source>
         <translation>Há </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2088"/>
+        <location filename="rufus.cpp" line="2105"/>
         <source> documents à convertir.</source>
         <translation> documentos para converter.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2089"/>
+        <location filename="rufus.cpp" line="2106"/>
         <source>Cette procédure devrait durer environ </source>
         <translation>Este procedimento deverá durar aproximadamente </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2090"/>
+        <location filename="rufus.cpp" line="2107"/>
         <source>et figera l&apos;éxécution du programme durant ce temps</source>
         <translation>e bloqueará a execução do programa durante este tempo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2091"/>
+        <location filename="rufus.cpp" line="2108"/>
         <source>Voulez vous le faire maintenant?</source>
         <translation>Deseja fazer isso agora?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2092"/>
+        <location filename="rufus.cpp" line="2109"/>
         <source>Trop de documents à rapatrier</source>
         <translation>Muitos documentos para importar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2152"/>
-        <location filename="rufus.cpp" line="2263"/>
-        <location filename="rufus.cpp" line="2449"/>
-        <location filename="rufus.cpp" line="2588"/>
+        <location filename="rufus.cpp" line="2169"/>
+        <location filename="rufus.cpp" line="2280"/>
+        <location filename="rufus.cpp" line="2466"/>
+        <location filename="rufus.cpp" line="2605"/>
         <source>pas de dossier de sauvegarde</source>
         <translation>sem pasta de backup</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2153"/>
-        <location filename="rufus.cpp" line="2264"/>
-        <location filename="rufus.cpp" line="2450"/>
-        <location filename="rufus.cpp" line="2589"/>
+        <location filename="rufus.cpp" line="2170"/>
+        <location filename="rufus.cpp" line="2281"/>
+        <location filename="rufus.cpp" line="2467"/>
+        <location filename="rufus.cpp" line="2606"/>
         <source>Impossible de créer le dossier de sauvegarde </source>
         <translation>Impossível criar a pasta de backup </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2155"/>
-        <location filename="rufus.cpp" line="2177"/>
-        <location filename="rufus.cpp" line="2266"/>
-        <location filename="rufus.cpp" line="2452"/>
-        <location filename="rufus.cpp" line="2468"/>
-        <location filename="rufus.cpp" line="2591"/>
+        <location filename="rufus.cpp" line="2172"/>
+        <location filename="rufus.cpp" line="2194"/>
+        <location filename="rufus.cpp" line="2283"/>
+        <location filename="rufus.cpp" line="2469"/>
+        <location filename="rufus.cpp" line="2485"/>
+        <location filename="rufus.cpp" line="2608"/>
         <source> pour enregistrer les fichiers image de la base</source>
         <translation> para salvar os arquivos de imagem da base</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2156"/>
-        <location filename="rufus.cpp" line="2178"/>
-        <location filename="rufus.cpp" line="2187"/>
-        <location filename="rufus.cpp" line="2267"/>
-        <location filename="rufus.cpp" line="2453"/>
-        <location filename="rufus.cpp" line="2469"/>
-        <location filename="rufus.cpp" line="2478"/>
-        <location filename="rufus.cpp" line="2592"/>
+        <location filename="rufus.cpp" line="2173"/>
+        <location filename="rufus.cpp" line="2195"/>
+        <location filename="rufus.cpp" line="2204"/>
+        <location filename="rufus.cpp" line="2284"/>
+        <location filename="rufus.cpp" line="2470"/>
+        <location filename="rufus.cpp" line="2486"/>
+        <location filename="rufus.cpp" line="2495"/>
+        <location filename="rufus.cpp" line="2609"/>
         <source>Voulez vous stopper le processus d&apos;importation?</source>
         <translation>Deseja parar o processo de importação?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2174"/>
-        <location filename="rufus.cpp" line="2465"/>
+        <location filename="rufus.cpp" line="2191"/>
+        <location filename="rufus.cpp" line="2482"/>
         <source>pas de fichier de sauvegarde</source>
         <translation>sem arquivo de backup</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2175"/>
-        <location filename="rufus.cpp" line="2466"/>
-        <location filename="rufus.cpp" line="3110"/>
+        <location filename="rufus.cpp" line="2192"/>
+        <location filename="rufus.cpp" line="2483"/>
+        <location filename="rufus.cpp" line="3127"/>
         <source>Impossible d&apos;enregistrer le fichier </source>
         <translation>Impossível salvar o arquivo </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2182"/>
-        <location filename="rufus.cpp" line="2473"/>
+        <location filename="rufus.cpp" line="2199"/>
+        <location filename="rufus.cpp" line="2490"/>
         <source>problème de compression du fichier</source>
         <translation>problema de compressão do arquivo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2194"/>
-        <location filename="rufus.cpp" line="2320"/>
-        <location filename="rufus.cpp" line="2485"/>
-        <location filename="rufus.cpp" line="2645"/>
+        <location filename="rufus.cpp" line="2211"/>
+        <location filename="rufus.cpp" line="2337"/>
+        <location filename="rufus.cpp" line="2502"/>
+        <location filename="rufus.cpp" line="2662"/>
         <source>Impossible d&apos;ouvrir le fichier</source>
         <translation>Impossível abrir o arquivo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2353"/>
-        <location filename="rufus.cpp" line="2677"/>
+        <location filename="rufus.cpp" line="2370"/>
+        <location filename="rufus.cpp" line="2694"/>
         <source>export terminé</source>
         <translation>exportação concluída</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2353"/>
+        <location filename="rufus.cpp" line="2370"/>
         <source> documents exportés en </source>
         <translation> documentos exportados em </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2353"/>
+        <location filename="rufus.cpp" line="2370"/>
         <source> document exporté en </source>
         <translation> documento exportado em </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2617"/>
+        <location filename="rufus.cpp" line="2634"/>
         <source>Impossible de charger le document </source>
         <translation>Impossível carregar o documento </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2677"/>
+        <location filename="rufus.cpp" line="2694"/>
         <source> documents comptables exportés en </source>
         <translation> documentos contábeis exportados em </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2677"/>
+        <location filename="rufus.cpp" line="2694"/>
         <source> document comptable exporté en </source>
         <translation> documento contábil exportado em </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2720"/>
+        <location filename="rufus.cpp" line="2737"/>
         <source>Pas d&apos;actes enregistré pour ce patient!</source>
         <translation>Nenhum ato registrado para este paciente!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2784"/>
+        <location filename="rufus.cpp" line="2801"/>
         <source>depuis le</source>
         <translation>desde</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2792"/>
+        <location filename="rufus.cpp" line="2809"/>
         <source>jusqu&apos;au</source>
         <translation>até</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2797"/>
+        <location filename="rufus.cpp" line="2814"/>
         <source>tout le dossier</source>
         <translation>todo o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2798"/>
+        <location filename="rufus.cpp" line="2815"/>
         <source>acte en cours</source>
         <translation>ato em curso</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2806"/>
+        <location filename="rufus.cpp" line="2823"/>
         <source>Impression dossier</source>
         <translation>Impressão do prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2868"/>
-        <location filename="rufus.cpp" line="2944"/>
-        <location filename="rufus.cpp" line="2946"/>
-        <location filename="rufus.cpp" line="3073"/>
-        <location filename="rufus.cpp" line="7574"/>
+        <location filename="rufus.cpp" line="2885"/>
+        <location filename="rufus.cpp" line="2961"/>
+        <location filename="rufus.cpp" line="2963"/>
+        <location filename="rufus.cpp" line="3090"/>
+        <location filename="rufus.cpp" line="7629"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2883"/>
-        <location filename="rufus.cpp" line="7590"/>
+        <location filename="rufus.cpp" line="2900"/>
+        <location filename="rufus.cpp" line="7645"/>
         <source>Tél.</source>
         <translation>Tel.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2885"/>
-        <location filename="rufus.cpp" line="7592"/>
+        <location filename="rufus.cpp" line="2902"/>
+        <location filename="rufus.cpp" line="7647"/>
         <source>Portable</source>
         <translation>Celular</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2887"/>
-        <location filename="rufus.cpp" line="7594"/>
+        <location filename="rufus.cpp" line="2904"/>
+        <location filename="rufus.cpp" line="7649"/>
         <source>Mail</source>
         <translation>E-mail</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2889"/>
-        <location filename="rufus.cpp" line="7596"/>
+        <location filename="rufus.cpp" line="2906"/>
+        <location filename="rufus.cpp" line="7651"/>
         <source>NNI</source>
         <translation>NNI</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2900"/>
+        <location filename="rufus.cpp" line="2917"/>
         <source>Antécédents ophtalmologiques: </source>
         <translation>Antecedentes oftalmológicos: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2908"/>
+        <location filename="rufus.cpp" line="2925"/>
         <source>Traitements ophtalmologiques: </source>
         <translation>Tratamentos oftalmológicos: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2916"/>
+        <location filename="rufus.cpp" line="2933"/>
         <source>Antécédents généraux: </source>
         <translation>Antecedentes gerais: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2924"/>
+        <location filename="rufus.cpp" line="2941"/>
         <source>Traitements généraux: </source>
         <translation>Tratamentos gerais: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2932"/>
+        <location filename="rufus.cpp" line="2949"/>
         <source>Médecin traitant: </source>
         <translation>Médico de família: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2954"/>
+        <location filename="rufus.cpp" line="2971"/>
         <source>d MMMM yyyy</source>
         <translation>d AAAA mm</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2961"/>
+        <location filename="rufus.cpp" line="2978"/>
         <source>Motif:</source>
         <translation>Motivo:</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2967"/>
+        <location filename="rufus.cpp" line="2984"/>
         <source>Examen:</source>
         <translation>Exame:</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2974"/>
+        <location filename="rufus.cpp" line="2991"/>
         <source>Conclusion:</source>
         <translation>Conclusão:</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="2982"/>
+        <location filename="rufus.cpp" line="2999"/>
         <source>rien à imprimer</source>
         <translation>nada para imprimir</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3006"/>
+        <location filename="rufus.cpp" line="3023"/>
         <source>Quel soignant pour l&apos;entête?</source>
         <translation>Qual profissional para o cabeçalho?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3056"/>
+        <location filename="rufus.cpp" line="3073"/>
         <source>Pas de soignant retrouvé pour la liste d&apos;actes</source>
         <translation>Nenhum profissional encontrado para a lista de atos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3065"/>
+        <location filename="rufus.cpp" line="3082"/>
         <source>COMPTE RENDU DE DOSSIER</source>
         <translation>RELATÓRIO DE PRONTUÁRIO</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3067"/>
+        <location filename="rufus.cpp" line="3084"/>
         <source>Actes du</source>
         <translation>Atos de</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3067"/>
+        <location filename="rufus.cpp" line="3084"/>
         <source>au</source>
         <translation>a</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3069"/>
+        <location filename="rufus.cpp" line="3086"/>
         <source>Acte du</source>
         <translation>Ato de</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3101"/>
+        <location filename="rufus.cpp" line="3118"/>
         <source>sur le bureau</source>
         <translation>na área de trabalho</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3101"/>
+        <location filename="rufus.cpp" line="3118"/>
         <source>dans le dossier </source>
         <translation>na pasta </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3102"/>
+        <location filename="rufus.cpp" line="3119"/>
         <source>Actes</source>
         <translation>Atos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3102"/>
+        <location filename="rufus.cpp" line="3119"/>
         <source>du </source>
         <translation>de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3102"/>
+        <location filename="rufus.cpp" line="3119"/>
         <source> au </source>
         <translation> a </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3103"/>
+        <location filename="rufus.cpp" line="3120"/>
         <source>fichier</source>
         <translation>arquivo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3104"/>
+        <location filename="rufus.cpp" line="3121"/>
         <source>sauvegardé </source>
         <translation>salvo </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3109"/>
+        <location filename="rufus.cpp" line="3126"/>
         <source>Enregistrement pdf</source>
         <translation>Salvar PDF</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3109"/>
+        <location filename="rufus.cpp" line="3126"/>
         <source>Echec enregistrement pdf</source>
         <translation>Falha ao salvar PDF</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3127"/>
-        <location filename="rufus.cpp" line="3128"/>
+        <location filename="rufus.cpp" line="3144"/>
+        <location filename="rufus.cpp" line="3145"/>
         <source>Export</source>
         <translation>Exportação</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3127"/>
-        <location filename="rufus.cpp" line="3128"/>
+        <location filename="rufus.cpp" line="3144"/>
+        <location filename="rufus.cpp" line="3145"/>
         <source>Impression</source>
         <translation>Impressão</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3127"/>
-        <location filename="rufus.cpp" line="3128"/>
-        <location filename="rufus.cpp" line="3683"/>
+        <location filename="rufus.cpp" line="3144"/>
+        <location filename="rufus.cpp" line="3145"/>
+        <location filename="rufus.cpp" line="3700"/>
         <source>dossier</source>
         <translation>prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3127"/>
-        <location filename="rufus.cpp" line="3128"/>
+        <location filename="rufus.cpp" line="3144"/>
+        <location filename="rufus.cpp" line="3145"/>
         <source>actes</source>
         <translation>atos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3138"/>
+        <location filename="rufus.cpp" line="3155"/>
         <source>Impossible d&apos;enregistrer ce document dans la base!</source>
         <translation>Impossível salvar este documento na base!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3202"/>
+        <location filename="rufus.cpp" line="3219"/>
         <source>Patient déjà inscrit en salle d&apos;attente</source>
         <translation>Paciente já inscrito na sala de espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3235"/>
+        <location filename="rufus.cpp" line="3252"/>
         <source>pas de correspondant enregistré</source>
         <translation>nenhum correspondente registrado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3259"/>
+        <location filename="rufus.cpp" line="3276"/>
         <source>pas de fournisseur enregistré</source>
         <translation>nenhum fornecedor registrado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3274"/>
+        <location filename="rufus.cpp" line="3291"/>
         <source>pas de tiers payant enregistré</source>
         <translation>nenhum terceiro pagador registrado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3321"/>
+        <location filename="rufus.cpp" line="3338"/>
         <source>Modifier les mots clés</source>
         <translation>Modificar as palavras-chave</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3358"/>
+        <location filename="rufus.cpp" line="3375"/>
         <source>id du patient</source>
         <translation>id do paciente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3377"/>
+        <location filename="rufus.cpp" line="3394"/>
         <source>Aucun mot clé défini dans la base</source>
         <translation>Nenhuma palavra-chave definida na base</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3377"/>
+        <location filename="rufus.cpp" line="3394"/>
         <source>Recherche impossible</source>
         <translation>Busca impossível</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3406"/>
-        <location filename="rufus.cpp" line="3492"/>
+        <location filename="rufus.cpp" line="3423"/>
+        <location filename="rufus.cpp" line="3509"/>
         <source>Recherche de patients par mots clés</source>
         <translation>Busca de pacientes por palavras-chave</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3463"/>
+        <location filename="rufus.cpp" line="3480"/>
         <source>Vous n&apos;avez sélectionné aucun mot clé</source>
         <translation>Você não selecionou nenhuma palavra-chave</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3480"/>
+        <location filename="rufus.cpp" line="3497"/>
         <source>Aucun patient retrouvé pour ces critères</source>
         <translation>Nenhum paciente encontrado para estes critérios</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3511"/>
-        <location filename="rufus.cpp" line="3580"/>
-        <location filename="rufus.cpp" line="3703"/>
+        <location filename="rufus.cpp" line="3528"/>
+        <location filename="rufus.cpp" line="3597"/>
+        <location filename="rufus.cpp" line="3720"/>
         <source>dd-MMM-yyyy</source>
         <translation>dd-MMM-yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3544"/>
+        <location filename="rufus.cpp" line="3561"/>
         <source>Pas de courrier en attente</source>
         <translation>Nenhuma correspondência pendente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3554"/>
+        <location filename="rufus.cpp" line="3571"/>
         <source>Double clic ou clic droit
 sur un dossier pour l&apos;ouvrir</source>
         <translation>Clique duplo ou clique direito
 num prontuário para abri-lo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3559"/>
+        <location filename="rufus.cpp" line="3576"/>
         <source>Liste des courriers en attente</source>
         <translation>Lista das correspondências pendentes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3652"/>
+        <location filename="rufus.cpp" line="3669"/>
         <source>recherche de patients sur </source>
         <translation>busca de pacientes em </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3683"/>
-        <location filename="rufus.cpp" line="7665"/>
+        <location filename="rufus.cpp" line="3700"/>
+        <location filename="rufus.cpp" line="7720"/>
         <source>dossiers</source>
         <translation>prontuários</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3732"/>
-        <location filename="rufus.cpp" line="3785"/>
+        <location filename="rufus.cpp" line="3749"/>
+        <location filename="rufus.cpp" line="3802"/>
         <source>Visualiser le dossier</source>
         <translation>Visualizar o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3746"/>
-        <location filename="rufus.cpp" line="3775"/>
-        <location filename="rufus.cpp" line="3972"/>
+        <location filename="rufus.cpp" line="3763"/>
+        <location filename="rufus.cpp" line="3792"/>
+        <location filename="rufus.cpp" line="3989"/>
         <source>Modifier les données de ce patient</source>
         <translation>Modificar os dados deste paciente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3773"/>
+        <location filename="rufus.cpp" line="3790"/>
         <source>Inscrire ce patient en salle d&apos;attente</source>
         <translation>Inscrever este paciente na sala de espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3778"/>
-        <location filename="rufus.cpp" line="3981"/>
-        <location filename="rufus.cpp" line="11016"/>
+        <location filename="rufus.cpp" line="3795"/>
+        <location filename="rufus.cpp" line="3998"/>
+        <location filename="rufus.cpp" line="11077"/>
         <source>Créer un dossier de la même famille</source>
         <translation>Criar um prontuário da mesma família</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3789"/>
-        <location filename="rufus.cpp" line="4036"/>
+        <location filename="rufus.cpp" line="3806"/>
+        <location filename="rufus.cpp" line="4053"/>
         <source>Programmer une intervention</source>
         <translation>Programar uma intervenção</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3794"/>
-        <location filename="rufus.cpp" line="3988"/>
-        <location filename="rufus.cpp" line="4033"/>
+        <location filename="rufus.cpp" line="3811"/>
+        <location filename="rufus.cpp" line="4005"/>
+        <location filename="rufus.cpp" line="4050"/>
         <source>Emettre un document</source>
         <translation>Emitir um documento</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3798"/>
+        <location filename="rufus.cpp" line="3815"/>
         <source>Réimprimer un document</source>
         <translation>Reimprimir um documento</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3804"/>
+        <location filename="rufus.cpp" line="3821"/>
         <source>Exporter le dossier du patient</source>
         <translation>Exportar o prontuário do paciente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3807"/>
+        <location filename="rufus.cpp" line="3824"/>
         <source>Enregistrer un document scanné</source>
         <translation>Registrar um documento digitalizado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3810"/>
-        <location filename="rufus.cpp" line="11028"/>
+        <location filename="rufus.cpp" line="3827"/>
+        <location filename="rufus.cpp" line="11089"/>
         <source>Enregistrer une video</source>
         <translation>Registrar um vídeo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3835"/>
+        <location filename="rufus.cpp" line="3852"/>
         <source>Pas de consultation enregistrée pour </source>
         <translation>Nenhuma consulta registrada para </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3883"/>
+        <location filename="rufus.cpp" line="3900"/>
         <source>Modifier les coordonnées de ce médecin</source>
         <translation>Modificar os dados deste médico</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3915"/>
+        <location filename="rufus.cpp" line="3932"/>
         <source>Modifier les coordonnées de ce correspondant</source>
         <translation>Modificar os dados deste correspondente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3967"/>
+        <location filename="rufus.cpp" line="3984"/>
         <source>Retirer ce dossier de la salle d&apos;attente</source>
         <translation>Retirar este prontuário da sala de espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3977"/>
+        <location filename="rufus.cpp" line="3994"/>
         <source>Modifier le motif de l&apos;acte</source>
         <translation>Modificar o motivo do ato</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="3985"/>
-        <location filename="rufus.cpp" line="7920"/>
+        <location filename="rufus.cpp" line="4002"/>
+        <location filename="rufus.cpp" line="7975"/>
         <source>Ouvrir le dossier</source>
         <translation>Abrir o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4030"/>
+        <location filename="rufus.cpp" line="4047"/>
         <source>Reprendre le dossier</source>
         <translation>Retomar o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4124"/>
+        <location filename="rufus.cpp" line="4141"/>
         <source>Motif de l&apos;acte</source>
         <translation>Motivo do ato</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4135"/>
+        <location filename="rufus.cpp" line="4152"/>
         <source>RDV avec</source>
         <translation>Consulta com</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4181"/>
+        <location filename="rufus.cpp" line="4198"/>
         <source>Message</source>
         <translation>Mensagem</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4183"/>
+        <location filename="rufus.cpp" line="4200"/>
         <source>Heure de RDV</source>
         <translation>Hora da consulta</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4200"/>
+        <location filename="rufus.cpp" line="4217"/>
         <source>Enregistrer le motif de l&apos;acte</source>
         <translation>Registrar o motivo do ato</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4304"/>
+        <location filename="rufus.cpp" line="4321"/>
         <source>ANTÉCÉDENTS GÉNÉRAUX</source>
         <translation>ANTECEDENTES GERAIS</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4309"/>
+        <location filename="rufus.cpp" line="4326"/>
         <source>TRAITEMENTS EN COURS</source>
         <translation>TRATAMENTOS EM CURSO</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4314"/>
+        <location filename="rufus.cpp" line="4331"/>
         <source>ATCDTS OPHTALMOLOGIQUES FAMILIAUX</source>
         <translation>ANTEC. OFTALMOLÓGICOS FAMILIARES</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4323"/>
+        <location filename="rufus.cpp" line="4340"/>
         <source>AUTRES</source>
         <translation>OUTROS</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4327"/>
+        <location filename="rufus.cpp" line="4344"/>
         <source>MÉDECIN GÉNÉRALISTE</source>
         <translation>MÉDICO DE FAMÍLIA</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4403"/>
+        <location filename="rufus.cpp" line="4420"/>
         <source>NON FUMEUR</source>
         <translation>NÃO FUMANTE</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4406"/>
+        <location filename="rufus.cpp" line="4423"/>
         <source>TABAC : </source>
         <translation>TABACO: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4406"/>
+        <location filename="rufus.cpp" line="4423"/>
         <source> cig/j</source>
         <translation> cig/dia</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4497"/>
-        <location filename="rufus.cpp" line="11020"/>
+        <location filename="rufus.cpp" line="4514"/>
+        <location filename="rufus.cpp" line="11081"/>
         <source>Paramètres</source>
         <translation>Parâmetros</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4805"/>
-        <location filename="rufus.cpp" line="5706"/>
+        <location filename="rufus.cpp" line="4822"/>
+        <location filename="rufus.cpp" line="5723"/>
         <source>Vous avez oublié de rédiger le texte de votre message!</source>
         <translation>Você se esqueceu de redigir o texto da sua mensagem!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4818"/>
+        <location filename="rufus.cpp" line="4835"/>
         <source>Vous avez oublié de choisir un destinataire!</source>
         <translation>Você se esqueceu de escolher um destinatário!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4882"/>
-        <location filename="rufus.cpp" line="5728"/>
+        <location filename="rufus.cpp" line="4899"/>
+        <location filename="rufus.cpp" line="5745"/>
         <source>Message enregistré</source>
         <translation>Mensagem registrada</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4897"/>
-        <location filename="rufus.cpp" line="8531"/>
+        <location filename="rufus.cpp" line="4914"/>
+        <location filename="rufus.cpp" line="8587"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4920"/>
+        <location filename="rufus.cpp" line="4937"/>
         <source>A propos de </source>
         <translation>Sobre </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4939"/>
+        <location filename="rufus.cpp" line="4956"/>
         <source>Destinataire</source>
         <translation>Destinatário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="4941"/>
-        <location filename="rufus.cpp" line="9814"/>
+        <location filename="rufus.cpp" line="4958"/>
+        <location filename="rufus.cpp" line="9870"/>
         <source>Tout le monde</source>
         <translation>Todos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5027"/>
+        <location filename="rufus.cpp" line="5044"/>
         <source>Tâche à accomplir avant le </source>
         <translation>Tarefa a realizar antes de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5028"/>
+        <location filename="rufus.cpp" line="5045"/>
         <source>Urgent</source>
         <translation>Urgente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5066"/>
+        <location filename="rufus.cpp" line="5083"/>
         <source>monoposte</source>
         <translation>monoposto</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5068"/>
+        <location filename="rufus.cpp" line="5085"/>
         <source>réseau local</source>
         <translation>rede local</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5071"/>
+        <location filename="rufus.cpp" line="5088"/>
         <source>accès distant - connexion </source>
         <translation>acesso remoto - conexão </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5073"/>
+        <location filename="rufus.cpp" line="5090"/>
         <source>cryptée (SSL)</source>
         <translation>criptografada (SSL)</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5075"/>
+        <location filename="rufus.cpp" line="5092"/>
         <source>non cryptée</source>
         <translation>não criptografada</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5254"/>
+        <location filename="rufus.cpp" line="5271"/>
         <source>Rufus est un logiciel libre - open source - publié sous licence GPLv3 de gestion d&apos;activité en ophtalmologie et en orthoptie.</source>
         <translation>Rufus é um software livre - open source - publicado sob licença GPLv3 de gestão de atividade em oftalmologia e ortóptica.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5255"/>
+        <location filename="rufus.cpp" line="5272"/>
         <source>En savoir plus sur RufusVision : </source>
         <translation>Saiba mais sobre RufusVision: </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5265"/>
+        <location filename="rufus.cpp" line="5282"/>
         <source>RufusVision pour </source>
         <translation>RufusVision para </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5266"/>
+        <location filename="rufus.cpp" line="5283"/>
         <source>Version </source>
         <translation>Versão </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5268"/>
+        <location filename="rufus.cpp" line="5285"/>
         <source>Rufus utilise MySQL ou MariaDB pour intéragir avec la base de données. Ces logiciels sont publiés sous licence GNU GPL.</source>
         <translation>Rufus usa MySQL ou MariaDB para interagir com o banco de dados. Estes softwares são publicados sob licença GNU GPL.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5270"/>
+        <location filename="rufus.cpp" line="5287"/>
         <source>A propos de RufusVision</source>
         <translation>Sobre o RufusVision</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5361"/>
-        <location filename="rufus.cpp" line="5776"/>
+        <location filename="rufus.cpp" line="5378"/>
+        <location filename="rufus.cpp" line="5793"/>
         <source>Messagerie</source>
         <translation>Mensageria</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5391"/>
+        <location filename="rufus.cpp" line="5408"/>
         <source>Reçu</source>
         <translation>Recebido</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5419"/>
-        <location filename="rufus.cpp" line="5474"/>
-        <location filename="rufus.cpp" line="5570"/>
-        <location filename="rufus.cpp" line="5616"/>
+        <location filename="rufus.cpp" line="5436"/>
+        <location filename="rufus.cpp" line="5491"/>
+        <location filename="rufus.cpp" line="5587"/>
+        <location filename="rufus.cpp" line="5633"/>
         <source>d-MMM-yy</source>
         <translation>d-MMM-yy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5421"/>
+        <location filename="rufus.cpp" line="5438"/>
         <source> de </source>
         <translation> de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5427"/>
-        <location filename="rufus.cpp" line="5578"/>
+        <location filename="rufus.cpp" line="5444"/>
+        <location filename="rufus.cpp" line="5595"/>
         <source>lu</source>
         <translation>lido</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5447"/>
+        <location filename="rufus.cpp" line="5464"/>
         <source>Répondre</source>
         <translation>Responder</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5474"/>
-        <location filename="rufus.cpp" line="5616"/>
+        <location filename="rufus.cpp" line="5491"/>
+        <location filename="rufus.cpp" line="5633"/>
         <source>A effectuer avant le </source>
         <translation>A realizar antes de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5487"/>
-        <location filename="rufus.cpp" line="5629"/>
+        <location filename="rufus.cpp" line="5504"/>
+        <location filename="rufus.cpp" line="5646"/>
         <source>fait</source>
         <translation>feito</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5557"/>
+        <location filename="rufus.cpp" line="5574"/>
         <source>Envoyé</source>
         <translation>Enviado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5572"/>
-        <location filename="rufus.cpp" line="6900"/>
+        <location filename="rufus.cpp" line="5589"/>
+        <location filename="rufus.cpp" line="6948"/>
         <source> pour </source>
         <translation> para </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5591"/>
+        <location filename="rufus.cpp" line="5608"/>
         <source>Modifier</source>
         <translation>Modificar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5691"/>
+        <location filename="rufus.cpp" line="5708"/>
         <source>Pas de messages</source>
         <translation>Sem mensagens</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5693"/>
+        <location filename="rufus.cpp" line="5710"/>
         <source>PAS DE MESSAGES</source>
         <translation>SEM MENSAGENS</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5739"/>
+        <location filename="rufus.cpp" line="5756"/>
         <source>Impossible de retrouver l&apos;expéditeur du message</source>
         <translation>Impossível encontrar o remetente da mensagem</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5756"/>
+        <location filename="rufus.cpp" line="5773"/>
         <source>à propos de </source>
         <translation>sobre </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5767"/>
+        <location filename="rufus.cpp" line="5784"/>
         <source>Réponse au message de </source>
         <translation>Resposta à mensagem de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5896"/>
-        <location filename="rufus.cpp" line="5904"/>
-        <location filename="rufus.cpp" line="5915"/>
-        <location filename="rufus.cpp" line="10884"/>
+        <location filename="rufus.cpp" line="5913"/>
+        <location filename="rufus.cpp" line="5921"/>
+        <location filename="rufus.cpp" line="5932"/>
+        <location filename="rufus.cpp" line="10945"/>
         <source>Vous avez </source>
         <translation>Você tem </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5896"/>
-        <location filename="rufus.cpp" line="5915"/>
-        <location filename="rufus.cpp" line="10884"/>
+        <location filename="rufus.cpp" line="5913"/>
+        <location filename="rufus.cpp" line="5932"/>
+        <location filename="rufus.cpp" line="10945"/>
         <source> nouveaux messages</source>
         <translation> novas mensagens</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5898"/>
-        <location filename="rufus.cpp" line="5917"/>
-        <location filename="rufus.cpp" line="10886"/>
+        <location filename="rufus.cpp" line="5915"/>
+        <location filename="rufus.cpp" line="5934"/>
+        <location filename="rufus.cpp" line="10947"/>
         <source>Vous avez 1 nouveau message</source>
         <translation>Você tem 1 nova mensagem</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5904"/>
+        <location filename="rufus.cpp" line="5921"/>
         <source> messages</source>
         <translation> mensagens</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5906"/>
+        <location filename="rufus.cpp" line="5923"/>
         <source> nouveaux</source>
         <translation> novas</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5908"/>
+        <location filename="rufus.cpp" line="5925"/>
         <source> dont 1 nouveau</source>
         <translation> das quais 1 nova</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="5911"/>
+        <location filename="rufus.cpp" line="5928"/>
         <source>Vous avez 1 message</source>
         <translation>Você tem 1 mensagem</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6159"/>
-        <location filename="rufus.cpp" line="10114"/>
-        <location filename="rufus.cpp" line="10127"/>
+        <location filename="rufus.cpp" line="6176"/>
+        <location filename="rufus.cpp" line="10175"/>
+        <location filename="rufus.cpp" line="10188"/>
         <source>inconnu</source>
         <translation>desconhecido</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6169"/>
+        <location filename="rufus.cpp" line="6186"/>
         <source>administrateur</source>
         <translation>administrador</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6186"/>
+        <location filename="rufus.cpp" line="6203"/>
         <source>Le poste </source>
         <translation>O posto </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6186"/>
+        <location filename="rufus.cpp" line="6203"/>
         <source> a été retiré de la liste des postes connectés actuellement au serveur</source>
         <translation> foi removido da lista dos postos atualmente conectados ao servidor</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6675"/>
+        <location filename="rufus.cpp" line="6723"/>
         <source>Impossible de mettre à jour le champ </source>
         <translation>Impossível atualizar o campo </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6898"/>
+        <location filename="rufus.cpp" line="6946"/>
         <source>Créé par </source>
         <translation>Criado por </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6950"/>
+        <location filename="rufus.cpp" line="6998"/>
         <source>Créer un nouvel acte pour </source>
         <translation>Criar um novo ato para </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6951"/>
+        <location filename="rufus.cpp" line="6999"/>
         <source>Créer un bilan orthoptique pour </source>
         <translation>Criar um relatório ortóptico para </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="6996"/>
+        <location filename="rufus.cpp" line="7044"/>
         <source>Voir les consultations précédentes de </source>
         <translation>Ver as consultas anteriores de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7279"/>
+        <location filename="rufus.cpp" line="7327"/>
         <source>Il existe </source>
         <translation>Existe </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7279"/>
+        <location filename="rufus.cpp" line="7327"/>
         <source> dont le sexe n&apos;est pas précisé.</source>
         <translation> cujo sexo não está especificado.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7279"/>
+        <location filename="rufus.cpp" line="7327"/>
         <source>Les convertir?</source>
         <translation>Convertê-los?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7282"/>
+        <location filename="rufus.cpp" line="7330"/>
         <source>Convertir </source>
         <translation>Converter </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7285"/>
+        <location filename="rufus.cpp" line="7333"/>
         <source>Masculin</source>
         <translation>Masculino</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7287"/>
+        <location filename="rufus.cpp" line="7335"/>
         <source>Féminin</source>
         <translation>Feminino</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7305"/>
+        <location filename="rufus.cpp" line="7353"/>
         <source>Il reste </source>
         <translation>Restam </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7305"/>
+        <location filename="rufus.cpp" line="7353"/>
         <source> dossiers pour lesquels le sexe n&apos;est pas précisé</source>
         <translation> prontuários para os quais o sexo não está especificado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7344"/>
+        <location filename="rufus.cpp" line="7392"/>
         <source>Consultation incomplète</source>
         <translation>Consulta incompleta</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7368"/>
+        <location filename="rufus.cpp" line="7416"/>
         <source>Impossible de retrouver le dernier acte du patient pour le contrôler!</source>
         <translation>Impossível encontrar o último ato do paciente para verificá-lo!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7377"/>
+        <location filename="rufus.cpp" line="7425"/>
         <source>Enregistrer cet acte comme gratuit?</source>
         <translation>Registrar este ato como gratuito?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7380"/>
+        <location filename="rufus.cpp" line="7428"/>
         <source>Non</source>
         <translation>Não</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7395"/>
-        <location filename="rufus.cpp" line="10189"/>
+        <location filename="rufus.cpp" line="7443"/>
+        <location filename="rufus.cpp" line="10250"/>
         <source>il manque les informations de paiement</source>
         <translation>faltam as informações de pagamento</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7484"/>
+        <location filename="rufus.cpp" line="7532"/>
         <source>Fermer quand même</source>
         <translation>Fechar mesmo assim</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7485"/>
+        <location filename="rufus.cpp" line="7533"/>
         <source>vous ne pouvez pas fermer l&apos;application.</source>
         <translation>você não pode fechar a aplicação.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7486"/>
+        <location filename="rufus.cpp" line="7534"/>
         <source>Vous avez encore des patients en salle d&apos;attente dont la consultation n&apos;est pas terminée.</source>
         <translation>Você ainda tem pacientes na sala de espera cuja consulta não foi concluída.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7657"/>
+        <location filename="rufus.cpp" line="7712"/>
         <source>aucun dossier pour ces critères</source>
         <translation>nenhum prontuário para estes critérios</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7722"/>
+        <location filename="rufus.cpp" line="7777"/>
         <source>Impossible d&apos;ouvrir ce dossier!</source>
         <translation>Impossível abrir este prontuário!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7723"/>
+        <location filename="rufus.cpp" line="7778"/>
         <source>Ce patient est</source>
         <translation>Este paciente está</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7723"/>
+        <location filename="rufus.cpp" line="7778"/>
         <source>sur </source>
         <translation>em </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7789"/>
+        <location filename="rufus.cpp" line="7844"/>
         <source>Chercher avec
 nom et prénom</source>
         <translation>Buscar com
 nome e sobrenome</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7817"/>
+        <location filename="rufus.cpp" line="7872"/>
         <source>Vous devez spécifier un nom!</source>
         <translation>Você deve especificar um nome!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7823"/>
+        <location filename="rufus.cpp" line="7878"/>
         <source>Vous devez spécifier un prénom!</source>
         <translation>Você deve especificar um sobrenome!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7833"/>
+        <location filename="rufus.cpp" line="7888"/>
         <source>Je confirme</source>
         <translation>Confirmo</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7836"/>
+        <location filename="rufus.cpp" line="7891"/>
         <source>Confirmez vous la date de naissance?</source>
         <translation>Você confirma a data de nascimento?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7836"/>
+        <location filename="rufus.cpp" line="7891"/>
         <source>d-MMM-yyyy</source>
         <translation>d-MMM-yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7851"/>
+        <location filename="rufus.cpp" line="7906"/>
         <source>Ce patient est déjà venu!</source>
         <translation>Este paciente já veio!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7857"/>
+        <location filename="rufus.cpp" line="7912"/>
         <source>Ouverture du dossier de </source>
         <translation>Abertura do prontuário de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7858"/>
+        <location filename="rufus.cpp" line="7913"/>
         <source>Inscrire le dossier en salle d&apos;attente?</source>
         <translation>Inscrever o prontuário na sala de espera?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7860"/>
+        <location filename="rufus.cpp" line="7915"/>
         <source>Inscrire en
 salle d&apos;attente</source>
         <translation>Inscrever na
 sala de espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7861"/>
+        <location filename="rufus.cpp" line="7916"/>
         <source>Ne pas inscrire</source>
         <translation>Não inscrever</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7879"/>
+        <location filename="rufus.cpp" line="7934"/>
         <source>Un ou plusieurs dossiers similaires!</source>
         <translation>Um ou mais prontuários similares!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7880"/>
+        <location filename="rufus.cpp" line="7935"/>
         <source>Il existe des dossiers similaires
 à celui que vous essayez d&apos;enregistrer!
 Le créer quand meme?</source>
@@ -5539,297 +6390,296 @@ ao que você está tentando registrar!
 Criá-lo mesmo assim?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7882"/>
+        <location filename="rufus.cpp" line="7937"/>
         <source>Créer le dossier</source>
         <translation>Criar o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7916"/>
-        <location filename="rufus.cpp" line="8407"/>
+        <location filename="rufus.cpp" line="7971"/>
+        <location filename="rufus.cpp" line="8463"/>
         <source>Dossier </source>
         <translation>Prontuário </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7916"/>
+        <location filename="rufus.cpp" line="7971"/>
         <source> créé</source>
         <translation> criado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7917"/>
-        <location filename="rufus.cpp" line="8408"/>
+        <location filename="rufus.cpp" line="7972"/>
+        <location filename="rufus.cpp" line="8464"/>
         <source>Ouvrir le dossier ou inscrire le dossier en salle d&apos;attente?</source>
         <translation>Abrir o prontuário ou inscrevê-lo na sala de espera?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7919"/>
-        <location filename="rufus.cpp" line="8411"/>
+        <location filename="rufus.cpp" line="7974"/>
+        <location filename="rufus.cpp" line="8467"/>
         <source>Inscrire le dossier
 en salle d&apos;attente</source>
         <translation>Inscrever o prontuário
 na sala de espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7921"/>
-        <location filename="rufus.cpp" line="8413"/>
+        <location filename="rufus.cpp" line="7976"/>
+        <location filename="rufus.cpp" line="8469"/>
         <source>Ne rien faire</source>
         <translation>Não fazer nada</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="7978"/>
-        <location filename="rufus.cpp" line="10948"/>
+        <location filename="rufus.cpp" line="8033"/>
+        <location filename="rufus.cpp" line="11009"/>
         <source>Information statut</source>
         <translation>Informação de status</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8034"/>
+        <location filename="rufus.cpp" line="8090"/>
         <source>Copier</source>
         <translation>Copiar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8035"/>
+        <location filename="rufus.cpp" line="8091"/>
         <source>Couper</source>
         <translation>Cortar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8036"/>
+        <location filename="rufus.cpp" line="8092"/>
         <source>Coller</source>
         <translation>Colar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8172"/>
+        <location filename="rufus.cpp" line="8228"/>
         <source>Impossible d&apos;accéder à la table </source>
         <translation>Impossível acessar a tabela </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8209"/>
+        <location filename="rufus.cpp" line="8265"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et un document d&apos;imagerie</source>
         <translation>Este prontuário contém o conteúdo do ato em curso e um documento de imagem</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8211"/>
+        <location filename="rufus.cpp" line="8267"/>
         <source>Ce dossier contient le contenu de l&apos;acte en cours et </source>
         <translation>Este prontuário contém o conteúdo do ato em curso e </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8211"/>
+        <location filename="rufus.cpp" line="8267"/>
         <source> documents d&apos;imagerie</source>
         <translation> documentos de imagem</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8213"/>
+        <location filename="rufus.cpp" line="8269"/>
         <source>Export d&apos;acte effectué</source>
         <translation>Exportação de ato realizada</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8214"/>
+        <location filename="rufus.cpp" line="8270"/>
         <source>Le dossier </source>
         <translation>A pasta </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8215"/>
+        <location filename="rufus.cpp" line="8271"/>
         <source> a été créé sur le bureau</source>
         <translation> foi criada na área de trabalho</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8254"/>
+        <location filename="rufus.cpp" line="8310"/>
         <source>Garder le dossier en salle d&apos;attente?</source>
         <translation>Manter o prontuário na sala de espera?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8255"/>
+        <location filename="rufus.cpp" line="8311"/>
         <source>Fermeture du dossier de </source>
         <translation>Fechamento do prontuário de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8259"/>
+        <location filename="rufus.cpp" line="8315"/>
         <source>Garder le dossier
 en salle d&apos;attente</source>
         <translation>Manter o prontuário
 na sala de espera</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8261"/>
+        <location filename="rufus.cpp" line="8317"/>
         <source>Fermer
 le dossier</source>
         <translation>Fechar
 o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8367"/>
-        <location filename="rufus.cpp" line="10917"/>
+        <location filename="rufus.cpp" line="8423"/>
+        <location filename="rufus.cpp" line="9597"/>
+        <location filename="rufus.cpp" line="10978"/>
         <source>dd-MM-yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8369"/>
+        <location filename="rufus.cpp" line="8425"/>
         <source>yyyyMMdd</source>
         <translation>yyyyMMdd</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8412"/>
+        <location filename="rufus.cpp" line="8468"/>
         <source>Ouvrir
  le dossier</source>
         <translation>Abrir
  o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8529"/>
+        <location filename="rufus.cpp" line="8585"/>
         <source>Liste des patients</source>
         <translation>Lista dos pacientes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8552"/>
+        <location filename="rufus.cpp" line="8608"/>
         <source>Voir les messages</source>
         <translation>Ver as mensagens</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8622"/>
+        <location filename="rufus.cpp" line="8678"/>
         <source>Heure</source>
         <translation>Hora</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8623"/>
+        <location filename="rufus.cpp" line="8679"/>
         <source>Nom Prénom</source>
         <translation>Nome Sobrenome</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8624"/>
+        <location filename="rufus.cpp" line="8680"/>
         <source>Soignant</source>
         <translation>Profissional</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8664"/>
+        <location filename="rufus.cpp" line="8720"/>
         <source>Paiement</source>
         <translation>Pagamento</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8802"/>
-        <location filename="rufus.cpp" line="9059"/>
+        <location filename="rufus.cpp" line="8858"/>
+        <location filename="rufus.cpp" line="9115"/>
         <source>Ouvrir
 le dossier</source>
         <translation>Abrir
 o prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8851"/>
+        <location filename="rufus.cpp" line="8907"/>
         <source>Correspondant inconnu! Souhaitez-vous l&apos;enregistrer?</source>
         <translation>Correspondente desconhecido! Deseja registrá-lo?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8853"/>
+        <location filename="rufus.cpp" line="8909"/>
         <source>Enregistrer</source>
         <translation>Registrar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8997"/>
+        <location filename="rufus.cpp" line="9053"/>
         <source>Impossible d&apos;imprimer</source>
         <translation>Impossível imprimir</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="8997"/>
+        <location filename="rufus.cpp" line="9053"/>
         <source>Aucun émetteur n&apos;est précisé pour l&apos;impression</source>
         <translation>Nenhum emissor foi especificado para a impressão</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9148"/>
+        <location filename="rufus.cpp" line="9204"/>
         <source>Aucun dossier sélectionné!</source>
         <translation>Nenhum prontuário selecionado!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9148"/>
+        <location filename="rufus.cpp" line="9204"/>
         <source>Sélectionnez d&apos;abord un dossier à recopier.</source>
         <translation>Selecione primeiro um prontuário para copiar.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9541"/>
         <source>dd-MM-yyyyEntete</source>
-        <translation>dd-MM-yyyy</translation>
+        <translation type="vanished">dd-MM-yyyy</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="9548"/>
         <source>NomEntete</source>
-        <translation>Nome</translation>
+        <translation type="vanished">Nome</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10105"/>
+        <location filename="rufus.cpp" line="10166"/>
         <source>ServeurTCP</source>
         <translation>ServidorTCP</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10115"/>
-        <location filename="rufus.cpp" line="10133"/>
+        <location filename="rufus.cpp" line="10176"/>
+        <location filename="rufus.cpp" line="10194"/>
         <source>Postes connectés</source>
         <translation>Postos conectados</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10151"/>
+        <location filename="rufus.cpp" line="10212"/>
         <source>Poste importateur des documents</source>
         <translation>Posto importador de documentos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10154"/>
+        <location filename="rufus.cpp" line="10215"/>
         <source>Pas de poste paramétré</source>
         <translation>Nenhum posto configurado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10159"/>
+        <location filename="rufus.cpp" line="10220"/>
         <source>Administrateur</source>
         <translation>Administrador</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10161"/>
+        <location filename="rufus.cpp" line="10222"/>
         <source>prioritaire</source>
         <translation>prioritário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10161"/>
+        <location filename="rufus.cpp" line="10222"/>
         <source>non prioritaire</source>
         <translation>não prioritário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10168"/>
+        <location filename="rufus.cpp" line="10229"/>
         <source>Version de Rufus </source>
         <translation>Versão do Rufus </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10169"/>
+        <location filename="rufus.cpp" line="10230"/>
         <source>Version de la base </source>
         <translation>Versão da base </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10171"/>
+        <location filename="rufus.cpp" line="10232"/>
         <source>inconnue</source>
         <translation>desconhecida</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10185"/>
+        <location filename="rufus.cpp" line="10246"/>
         <source>Consultation incomplète!</source>
         <translation>Consulta incompleta!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10231"/>
+        <location filename="rufus.cpp" line="10292"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des versements enregistrés.</source>
         <translation>Receio não poder excluir este ato
 Há pagamentos registrados.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10232"/>
+        <location filename="rufus.cpp" line="10293"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par carte de crédit enregistrés.</source>
         <translation>Receio não poder excluir este ato
 Há pagamentos por cartão de crédito registrados.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10233"/>
-        <location filename="rufus.cpp" line="10389"/>
+        <location filename="rufus.cpp" line="10294"/>
+        <location filename="rufus.cpp" line="10450"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par chèque enregistrés.</source>
         <translation>Receio não poder excluir este ato
 Há pagamentos por cheque registrados.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10234"/>
+        <location filename="rufus.cpp" line="10295"/>
         <source>Je crains de ne pas pouvoir supprimer cet acte
 Il y a des paiements par chèque enregistrés.
 Ce ou ces chèques ne sont pas encaissés.
@@ -5840,39 +6690,39 @@ Este(s) cheque(s) não foi(foram) depositado(s).
 Você deve modificar o lançamento correspondente para poder excluir o ato.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10250"/>
+        <location filename="rufus.cpp" line="10311"/>
         <source>Etes vous sûr de vouloir supprimer cet acte?</source>
         <translation>Tem certeza de que deseja excluir este ato?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10252"/>
-        <location filename="rufus.cpp" line="10406"/>
-        <location filename="rufus.cpp" line="11017"/>
-        <location filename="rufus.cpp" line="11023"/>
+        <location filename="rufus.cpp" line="10313"/>
+        <location filename="rufus.cpp" line="10467"/>
+        <location filename="rufus.cpp" line="11078"/>
+        <location filename="rufus.cpp" line="11084"/>
         <source>Supprimer</source>
         <translation>Excluir</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10264"/>
+        <location filename="rufus.cpp" line="10325"/>
         <source>Impossible de retrouver les données de l&apos;acte</source>
         <translation>Impossível encontrar os dados do ato</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10385"/>
+        <location filename="rufus.cpp" line="10446"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des versements enregistrés.</source>
         <translation>Receio não poder excluir este prontuário
 Há pagamentos registrados.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10387"/>
+        <location filename="rufus.cpp" line="10448"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des paiements par carte de crédit enregistrés.</source>
         <translation>Receio não poder excluir este prontuário
 Há pagamentos por cartão de crédito registrados.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10391"/>
+        <location filename="rufus.cpp" line="10452"/>
         <source>Je crains de ne pas pouvoir supprimer ce dossier
 Il y a des paiements par chèque enregistrés.
 Ce ou ces chèques ne sont pas encaissés.
@@ -5883,264 +6733,269 @@ Este(s) cheque(s) não foi(foram) depositado(s).
 Você deve modificar o lançamento correspondente para poder excluir o ato.</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10404"/>
+        <location filename="rufus.cpp" line="10465"/>
         <source>Etes vous sûr de vouloir supprimer le dossier de </source>
         <translation>Tem certeza de que deseja excluir o prontuário de </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10492"/>
+        <location filename="rufus.cpp" line="10553"/>
         <source>Pachymétrie - </source>
         <translation>Paquimetria - </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10538"/>
+        <location filename="rufus.cpp" line="10599"/>
         <source>Tonométrie - </source>
         <translation>Tonometria - </translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10567"/>
+        <location filename="rufus.cpp" line="10628"/>
         <source>Saisie de montant refusée !</source>
         <translation>Inserção de valor recusada!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10568"/>
+        <location filename="rufus.cpp" line="10629"/>
         <source>Le montant que vous souhaitez enregistrer</source>
         <translation>O valor que você deseja registrar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10568"/>
-        <location filename="rufus.cpp" line="10569"/>
+        <location filename="rufus.cpp" line="10629"/>
+        <location filename="rufus.cpp" line="10630"/>
         <source>€</source>
         <translation>R$</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10569"/>
+        <location filename="rufus.cpp" line="10630"/>
         <source>est inférieur à la somme des paiements</source>
         <translation>é inferior à soma dos pagamentos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10569"/>
+        <location filename="rufus.cpp" line="10630"/>
         <source>déjà enregistrés pour cet acte</source>
         <translation>já registrados para este ato</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10602"/>
+        <location filename="rufus.cpp" line="10663"/>
         <source>Cet acte a déjà été enregistré comme acte gratuit !</source>
         <translation>Este ato já foi registrado como ato gratuito!</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10603"/>
+        <location filename="rufus.cpp" line="10664"/>
         <source>Annuler et considérer comme acte payant?</source>
         <translation>Cancelar e considerar como ato pago?</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10605"/>
+        <location filename="rufus.cpp" line="10666"/>
         <source>Considérer comme payant</source>
         <translation>Considerar como pago</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10715"/>
+        <location filename="rufus.cpp" line="10776"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
         <translation>Não foi possível abrir a tabela Usuários</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10849"/>
+        <location filename="rufus.cpp" line="10910"/>
         <source>Tarification/Total_AMC</source>
         <translation>Tarificação/Total_AMC</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10850"/>
+        <location filename="rufus.cpp" line="10911"/>
         <source>Tarification/Total_AMO</source>
         <translation>Tarificação/Total_AMO</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10851"/>
+        <location filename="rufus.cpp" line="10912"/>
         <source>Tarification/Base_remboursement</source>
         <translation>Tarificação/Base_reembolso</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10852"/>
+        <location filename="rufus.cpp" line="10913"/>
         <source>Tarification/Total_assure</source>
         <translation>Tarificação/Total_segurado</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10853"/>
+        <location filename="rufus.cpp" line="10914"/>
         <source>Prestation/Code</source>
         <translation>Prestação/Código</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="10854"/>
+        <location filename="rufus.cpp" line="10915"/>
         <source>Prestation/Code_CCAM</source>
         <translation>Prestação/Código_CCAM</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11014"/>
-        <location filename="rufus.cpp" line="11022"/>
+        <location filename="rufus.cpp" line="11075"/>
+        <location filename="rufus.cpp" line="11083"/>
         <source>Créer</source>
         <translation>Criar</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11014"/>
+        <location filename="rufus.cpp" line="11075"/>
         <source>Créer un nouveau dossier</source>
         <translation>Criar um novo prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11015"/>
+        <location filename="rufus.cpp" line="11076"/>
         <source>Ouvrir</source>
         <translation>Abrir</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11015"/>
+        <location filename="rufus.cpp" line="11076"/>
         <source>Ouvrir un dossier existant</source>
         <translation>Abrir um prontuário existente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11017"/>
+        <location filename="rufus.cpp" line="11078"/>
         <source>Supprimer un dossier</source>
         <translation>Excluir um prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11018"/>
+        <location filename="rufus.cpp" line="11079"/>
         <source>Recherche par mot clé</source>
         <translation>Busca por palavra-chave</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11019"/>
+        <location filename="rufus.cpp" line="11080"/>
         <source>Recherche par ID patient</source>
         <translation>Busca por ID do paciente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11021"/>
+        <location filename="rufus.cpp" line="11082"/>
         <source>Voir le statut</source>
         <translation>Ver o status</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11024"/>
+        <location filename="rufus.cpp" line="11085"/>
         <source>Document simple</source>
         <translation>Documento simples</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11025"/>
+        <location filename="rufus.cpp" line="11086"/>
         <source>Dossier patient</source>
         <translation>Prontuário do paciente</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11026"/>
+        <location filename="rufus.cpp" line="11087"/>
         <source>Exporter l&apos;acte en cours</source>
         <translation>Exportar o ato em curso</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11027"/>
+        <location filename="rufus.cpp" line="11088"/>
         <source>Enregistrer un document</source>
         <translation>Registrar um documento</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11029"/>
+        <location filename="rufus.cpp" line="11090"/>
         <source>Afficher les courriers à faire</source>
         <translation>Exibir as correspondências a fazer</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11030"/>
+        <location filename="rufus.cpp" line="11091"/>
         <source>Liste des correspondants</source>
         <translation>Lista dos correspondentes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11031"/>
+        <location filename="rufus.cpp" line="11092"/>
         <source>Liste des fabricants</source>
         <translation>Lista dos fabricantes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11032"/>
+        <location filename="rufus.cpp" line="11093"/>
         <source>Liste des implants</source>
         <translation>Lista dos implantes</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11033"/>
+        <location filename="rufus.cpp" line="11094"/>
         <source>Liste des tiers payants</source>
         <translation>Lista dos terceiros pagadores</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11034"/>
+        <location filename="rufus.cpp" line="11095"/>
         <source>Gestion des paiements directs</source>
         <translation>Gestão dos pagamentos diretos</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11036"/>
+        <location filename="rufus.cpp" line="11097"/>
         <source>Bilan des recettes</source>
         <translation>Balanço das receitas</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11037"/>
+        <location filename="rufus.cpp" line="11098"/>
         <source>Enregistrement des recettes spéciales</source>
         <translation>Registro das receitas especiais</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11038"/>
+        <location filename="rufus.cpp" line="11099"/>
         <source>Journal des dépenses</source>
         <translation>Diário de despesas</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11039"/>
+        <location filename="rufus.cpp" line="11100"/>
         <source>Gestion des comptes bancaires</source>
         <translation>Gestão das contas bancárias</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11040"/>
+        <location filename="rufus.cpp" line="11101"/>
         <source>Effectuer une remise de chèques</source>
         <translation>Realizar um depósito de cheques</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11041"/>
+        <location filename="rufus.cpp" line="11102"/>
         <source>A propos</source>
         <translation>Sobre</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11043"/>
+        <location filename="rufus.cpp" line="11104"/>
         <source>Français</source>
         <translation>Francês</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11044"/>
+        <location filename="rufus.cpp" line="11105"/>
         <source>English</source>
         <translation>English</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11045"/>
+        <location filename="rufus.cpp" line="11106"/>
         <source>Español</source>
         <translation>Español</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11046"/>
+        <location filename="rufus.cpp" line="11107"/>
         <source>Brasileiro</source>
         <translation>Brasileiro</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11052"/>
+        <location filename="rufus.cpp" line="11108"/>
+        <source>Português</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="rufus.cpp" line="11115"/>
         <source>Quitter</source>
         <translation>Sair</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11072"/>
+        <location filename="rufus.cpp" line="11135"/>
         <source>Dossier</source>
         <translation>Prontuário</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11073"/>
+        <location filename="rufus.cpp" line="11136"/>
         <source>Edition</source>
         <translation>Edição</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11079"/>
+        <location filename="rufus.cpp" line="11142"/>
         <source>Comptabilité</source>
         <translation>Contabilidade</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11082"/>
+        <location filename="rufus.cpp" line="11145"/>
         <source>Aide</source>
         <translation>Ajuda</translation>
     </message>
     <message>
-        <location filename="rufus.cpp" line="11084"/>
+        <location filename="rufus.cpp" line="11147"/>
         <source>Emettre</source>
         <translation>Emitir</translation>
     </message>
@@ -6244,12 +7099,12 @@ valor conforme mais próximo!</translation>
 <context>
     <name>UpPushButton</name>
     <message>
-        <location filename="Components/uppushbutton.cpp" line="106"/>
+        <location filename="Components/uppushbutton.cpp" line="110"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="Components/uppushbutton.cpp" line="111"/>
+        <location filename="Components/uppushbutton.cpp" line="115"/>
         <source>Imprimer</source>
         <translation>Imprimir</translation>
     </message>
@@ -6356,54 +7211,54 @@ valor conforme mais próximo!</translation>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="utils.cpp" line="952"/>
+        <location filename="utils.cpp" line="953"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1141"/>
-        <location filename="utils.cpp" line="1146"/>
+        <location filename="utils.cpp" line="1142"/>
+        <location filename="utils.cpp" line="1147"/>
         <source>Nom de dossier non conforme</source>
         <translation>Nome de pasta não conforme</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1141"/>
+        <location filename="utils.cpp" line="1142"/>
         <source>Vous ne pouvez pas choisir un dossier dont le nom contient des espaces</source>
         <translation>Você não pode escolher uma pasta cujo nome contenha espaços</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1146"/>
+        <location filename="utils.cpp" line="1147"/>
         <source>Le dossier doit être différent</source>
         <translation>A pasta deve ser diferente</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1290"/>
+        <location filename="utils.cpp" line="1291"/>
         <source>moispluriel</source>
         <translation>meses</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1291"/>
+        <location filename="utils.cpp" line="1292"/>
         <source>moissingulier</source>
         <translation>mês</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1304"/>
+        <location filename="utils.cpp" line="1305"/>
         <source>jours</source>
         <translation>dias</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1307"/>
+        <location filename="utils.cpp" line="1308"/>
         <source>an</source>
         <translation>ano</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1317"/>
-        <location filename="utils.cpp" line="1327"/>
+        <location filename="utils.cpp" line="1318"/>
+        <location filename="utils.cpp" line="1328"/>
         <source>ans</source>
         <translation>anos</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1407"/>
+        <location filename="utils.cpp" line="1408"/>
         <source>Le code qui suit n&apos;est pas achevé et entraînera
 assez rapidement un plantage du programme
 avec un risque élevé de corruption des données</source>
@@ -6412,7 +7267,7 @@ bastante rapidamente uma falha do programa
 com alto risco de corrupção dos dados</translation>
     </message>
     <message>
-        <location filename="utils.cpp" line="1841"/>
+        <location filename="utils.cpp" line="1842"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>Erro de acesso ao arquivo:</translation>
     </message>
@@ -6752,32 +7607,32 @@ anterior</translation>
         <translation>Consultas anteriores de </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_actesprecedents.cpp" line="276"/>
+        <location filename="Dialogs/dlg_actesprecedents.cpp" line="292"/>
         <source>d MMMM yyyy</source>
         <translation>d AAAA mm</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_actesprecedents.cpp" line="287"/>
+        <location filename="Dialogs/dlg_actesprecedents.cpp" line="303"/>
         <source>MOTIF</source>
         <translation>MOTIVO</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_actesprecedents.cpp" line="295"/>
+        <location filename="Dialogs/dlg_actesprecedents.cpp" line="311"/>
         <source>EXAMEN</source>
         <translation>EXAME</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_actesprecedents.cpp" line="305"/>
+        <location filename="Dialogs/dlg_actesprecedents.cpp" line="321"/>
         <source>CONCLUSION</source>
         <translation>CONCLUSÃO</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_actesprecedents.cpp" line="319"/>
+        <location filename="Dialogs/dlg_actesprecedents.cpp" line="335"/>
         <source>Créé par </source>
         <translation>Criado por </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_actesprecedents.cpp" line="321"/>
+        <location filename="Dialogs/dlg_actesprecedents.cpp" line="337"/>
         <source> pour </source>
         <translation> para </translation>
     </message>
@@ -6909,12 +7764,15 @@ alternée</source>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1478"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1502"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1542"/>
+        <location filename="Dialogs/dlg_bilanortho.cpp" line="1542"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1589"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1599"/>
+        <location filename="Dialogs/dlg_bilanortho.cpp" line="1611"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1611"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1664"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1674"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1684"/>
+        <location filename="Dialogs/dlg_bilanortho.cpp" line="1686"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1686"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1738"/>
         <location filename="Dialogs/dlg_bilanortho.cpp" line="1745"/>
@@ -7370,11 +8228,15 @@ alternée</source>
     <message>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="101"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="103"/>
+        <location filename="Dialogs/dlg_bilanrecettes.cpp" line="103"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="542"/>
+        <location filename="Dialogs/dlg_bilanrecettes.cpp" line="544"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="544"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="551"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="553"/>
+        <location filename="Dialogs/dlg_bilanrecettes.cpp" line="553"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="621"/>
+        <location filename="Dialogs/dlg_bilanrecettes.cpp" line="623"/>
         <location filename="Dialogs/dlg_bilanrecettes.cpp" line="623"/>
         <source>d MMMM yyyy</source>
         <translation>d AAAA mm</translation>
@@ -7796,7 +8658,7 @@ consolidações</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_comptes.cpp" line="39"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="86"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="91"/>
         <source>Vous n&apos;avez pas de compte bancaire enregistré!</source>
         <translation>Você não tem conta bancária registrada!</translation>
     </message>
@@ -7806,199 +8668,199 @@ consolidações</translation>
         <translation>Gestão das contas bancárias</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="131"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="136"/>
         <source>Impossible d&apos;ouvrir la table des archives bancaires</source>
         <translation>Impossível abrir a tabela de arquivos bancários</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="144"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="149"/>
         <source>Il n&apos;y a pas d&apos;acte à désarchiver!</source>
         <translation>Não há ato para desarquivar!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="202"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="207"/>
         <source>Il n&apos;y a pas d&apos;écriture à archiver!</source>
         <translation>Não há lançamento para arquivar!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="289"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="294"/>
         <source>Supprimer l&apos;écriture</source>
         <translation>Excluir o lançamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="292"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="297"/>
         <source>Modifer le montant de l&apos;écriture</source>
         <translation>Modificar o valor do lançamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="325"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="772"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="330"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="777"/>
         <source>NoLigne</source>
         <translation>NoLinha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="326"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="773"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="331"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="778"/>
         <source>Date</source>
         <translation>Data</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="327"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="774"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="332"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="779"/>
         <source>Type opération</source>
         <translation>Tipo de operação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="328"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="775"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="333"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="780"/>
         <source>Libellé opération</source>
         <translation>Descrição da operação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="329"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="776"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="334"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="781"/>
         <source>Crédit</source>
         <translation>Crédito</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="330"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="777"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="335"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="782"/>
         <source>Débit</source>
         <translation>Débito</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="332"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="337"/>
         <source>consolidé le</source>
         <translation>consolidado em</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="359"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="364"/>
         <source>Voir tout</source>
         <translation>Ver tudo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="364"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="369"/>
         <source>Revoir par consolidation</source>
         <translation>Revisar por consolidação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="415"/>
-        <location filename="Dialogs/dlg_comptes.cpp" line="930"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="420"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="935"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="490"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="495"/>
         <source>Liste des remises archivées sur le compte </source>
         <translation>Lista dos depósitos arquivados na conta </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="493"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="498"/>
         <source>Voir les archives précédentes</source>
         <translation>Ver os arquivos anteriores</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="528"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="533"/>
         <source>Aucune écriture archivée depuis </source>
         <translation>Nenhum lançamento arquivado desde </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="528"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="533"/>
         <source>jours</source>
         <translation>dias</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="534"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="539"/>
         <source>Consolidation</source>
         <translation>Consolidação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="535"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="540"/>
         <source>du</source>
         <translation>do</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="584"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="589"/>
         <source>Vous avez choisi de modifier le montant de l&apos;écriture</source>
         <translation>Você escolheu modificar o valor do lançamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="586"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="591"/>
         <source>Cette modification est définitive mais ne supprimera</source>
         <translation>Esta modificação é definitiva mas não excluirá</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="587"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="592"/>
         <source>pas l&apos;opération de recette/dépense correspondante.</source>
         <translation>a operação de receita/despesa correspondente.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="588"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="593"/>
         <source>Modifier le montant d&apos;une ligne du compte bancaire</source>
         <translation>Modificar o valor de uma linha da conta bancária</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="589"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="594"/>
         <source>sert en général à équilibrer le compte pour le rendre</source>
         <translation>serve geralmente para equilibrar a conta para torná-la</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="590"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="595"/>
         <source>conforme au relevé</source>
         <translation>conforme com o extrato</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="591"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="596"/>
         <source>Entrez le nouveau montant</source>
         <translation>Insira o novo valor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="652"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="657"/>
         <source>Suppression d&apos;une écriture!</source>
         <translation>Exclusão de um lançamento!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="653"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="658"/>
         <source>Vous avez choisi de supprimer l&apos;écriture</source>
         <translation>Você escolheu excluir o lançamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="655"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="660"/>
         <source>Cette suppression est définitive mais ne supprimera pas l&apos;opération de recette/dépense correspondante.</source>
         <translation>Esta exclusão é definitiva mas não excluirá a operação de receita/despesa correspondente.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="656"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="661"/>
         <source>Supprimer une écriture du compte bancaire sert en général à équilibrer le compte pour le rendre conforme au relevé</source>
         <translation>Excluir um lançamento da conta bancária serve geralmente para equilibrar a conta para torná-la conforme com o extrato</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="657"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="662"/>
         <source>Confirmez vous la suppression?</source>
         <translation>Você confirma a exclusão?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="660"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="665"/>
         <source>Supprimer</source>
         <translation>Excluir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="662"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="667"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="704"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="709"/>
         <source>Pas d&apos;écriture sur ce compte!</source>
         <translation>Nenhum lançamento nesta conta!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="778"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="783"/>
         <source>Consolidé</source>
         <translation>Consolidado</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_comptes.cpp" line="817"/>
+        <location filename="Dialogs/dlg_comptes.cpp" line="822"/>
         <source>Pas d&apos;écriture sur le compte</source>
         <translation>Nenhum lançamento na conta</translation>
     </message>
@@ -8017,8 +8879,8 @@ consolidações</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="95"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1577"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1594"/>
         <source>Rubrique 2035</source>
         <translation>Rubrica 2035</translation>
     </message>
@@ -8049,8 +8911,8 @@ consolidações</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="365"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1573"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1590"/>
         <source>Date</source>
         <translation>Data</translation>
     </message>
@@ -8061,15 +8923,15 @@ consolidações</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="450"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1575"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1592"/>
         <source>Montant</source>
         <translation>Valor</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.ui" line="504"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1576"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1593"/>
         <source>Mode de paiement</source>
         <translation>Modo de pagamento</translation>
     </message>
@@ -8126,7 +8988,7 @@ despesa</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="39"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="561"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="574"/>
         <source>Aucun utilisateur susceptible d&apos;enregistrer des dépenses n&apos;est référencé dans la base</source>
         <translation>Nenhum usuário capaz de registrar despesas está referenciado na base</translation>
     </message>
@@ -8137,14 +8999,14 @@ despesa</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="79"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="445"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="454"/>
         <source>Modifier</source>
         <translation>Modificar</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="85"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="874"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1107"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="891"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1124"/>
         <source>Supprimer</source>
         <translation>Excluir</translation>
     </message>
@@ -8155,403 +9017,403 @@ despesa</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_depenses.cpp" line="97"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="683"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="875"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="696"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="892"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="124"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="129"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="209"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="214"/>
         <source>Exportation de la table des dépenses</source>
         <translation>Exportação da tabela de despesas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="210"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="215"/>
         <source>Voulez-vous exporter la table des dépenses?
 (Jeu de caractères Unicode (UTF8), Format CSV, langue anglais(USA), champs séparés par tabulation)</source>
         <translation>Deseja exportar a tabela de despesas?
 (Conjunto de caracteres Unicode (UTF8), Formato CSV, idioma inglês(EUA), campos separados por tabulação)</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1574"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1591"/>
         <source>Dépense</source>
         <translation>Despesa</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
         <source>id Rubrique 2035</source>
         <translation>id Rubrica 2035</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="213"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="218"/>
         <source>Famille fiscale</source>
         <translation>Família fiscal</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="251"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="256"/>
         <source>Depenses</source>
         <translation>Despesas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="252"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="257"/>
         <source>Année</source>
         <translation>Ano</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="256"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="261"/>
         <source>Nom du fichier d&apos;export</source>
         <translation>Nome do arquivo de exportação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="266"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="271"/>
         <source>Exportation réussie</source>
         <translation>Exportação bem-sucedida</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="266"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="271"/>
         <source>Echec exportation</source>
         <translation>Falha na exportação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="266"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="271"/>
         <source>Les données n&apos;ont pas pu être exportées</source>
         <translation>Os dados não puderam ser exportados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="282"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="287"/>
         <source>Impossible de retrouver les données de l&apos;en-tête</source>
         <translation>Não é possível recuperar os dados do cabeçalho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="282"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="287"/>
         <source>Annulation de l&apos;impression</source>
         <translation>Cancelamento da impressão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="314"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="331"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="319"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="336"/>
         <source>d MMM yy</source>
         <translation>d MMM yy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="345"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="350"/>
         <source>Comptabilité</source>
         <translation>Contabilidade</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="350"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="355"/>
         <source>fichier</source>
         <translation>arquivo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="351"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="356"/>
         <source>sauvegardé sur le bureau dans le dossier Comptabilité</source>
         <translation>salvo na área de trabalho na pasta Contabilidade</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="358"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="363"/>
         <source>Enregistrement pdf</source>
         <translation>Salvar PDF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="358"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="363"/>
         <source>Echec enregistrement pdf</source>
         <translation>Falha ao salvar PDF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="359"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="364"/>
         <source>Impossible d&apos;enregistret le fichier </source>
         <translation>Impossível salvar o arquivo </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="424"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="429"/>
         <source>Vous ne pouvez pas enregistrer de dépenses.
 Aucun compte bancaire n&apos;est enregistré.</source>
         <translation>Você não pode registrar despesas.
 Nenhuma conta bancária está registrada.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="488"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="501"/>
         <source>Enregistrer</source>
         <translation>Registrar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="568"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="573"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="581"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="586"/>
         <source>Pas de compte bancaire enregistré pour </source>
         <translation>Nenhuma conta bancária registrada para </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="620"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1253"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="633"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1270"/>
         <source>l&apos;objet de la dépense</source>
         <translation>o objeto da despesa</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="622"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="635"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1255"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1268"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="648"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1272"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1285"/>
         <source>le montant</source>
         <translation>o valor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="624"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="637"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1257"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1270"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="650"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1274"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1287"/>
         <source>le mode de paiement</source>
         <translation>o modo de pagamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="626"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="639"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1259"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1272"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="652"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1276"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1289"/>
         <source>la rubrique fiscale</source>
         <translation>a rubrica fiscal</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="628"/>
         <location filename="Dialogs/dlg_depenses.cpp" line="641"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1261"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1274"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="654"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1278"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1291"/>
         <source>le compte bancaire</source>
         <translation>a conta bancária</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="632"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1265"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="645"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1282"/>
         <source>vous avez oublié de renseigner </source>
         <translation>você se esqueceu de preencher </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="633"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1266"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="646"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1283"/>
         <source>le motif</source>
         <translation>o motivo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="656"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1289"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1321"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1326"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="669"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1306"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1338"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1343"/>
         <source>Elle a déjà été saisie</source>
         <translation>Já foi inserida</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="663"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1298"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="676"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1315"/>
         <source>Elle date de plus de 3 mois</source>
         <translation>Data de mais de 3 meses</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="672"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="685"/>
         <source>Une dépense semblable a été saisie le </source>
         <translation>Uma despesa similar foi inserida em </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="679"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1318"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="692"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1335"/>
         <source>Il y a un problème avec cette dépense!</source>
         <translation>Há um problema com esta despesa!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="680"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1319"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="693"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1336"/>
         <source>Confirmer la saisie?</source>
         <translation>Confirmar a inserção?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="682"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="695"/>
         <source>Confirmer</source>
         <translation>Confirmar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="723"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1360"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="736"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1377"/>
         <source>Virement débiteur</source>
         <translation>Transferência debitora</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="799"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="812"/>
         <source>Effectuer une copie de cette dépense à la date d&apos;aujourd&apos;hui</source>
         <translation>Fazer uma cópia desta despesa com a data de hoje</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="805"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="818"/>
         <source>Supprimer la facture de</source>
         <translation>Excluir a fatura de</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="809"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="822"/>
         <source>Rechercher une valeur</source>
         <translation>Pesquisar um valor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="867"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="884"/>
         <source>Vous ne pouvez pas supprimer cette écriture</source>
         <translation>Você não pode excluir este lançamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="867"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="884"/>
         <source>Elle a déjà été enregistrée sur le compte bancaire</source>
         <translation>Já foi registrada na conta bancária</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="871"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="888"/>
         <source>Supprimer une dépense!</source>
         <translation>Excluir uma despesa!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="872"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="889"/>
         <source>Confirmer la suppression de
 </source>
         <translation>Confirmar a exclusão de
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="961"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="978"/>
         <source>GLOBAL</source>
         <translation>GLOBAL</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="998"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1015"/>
         <source>Voir</source>
         <translation>Ver</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="998"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1015"/>
         <source>l&apos;échéancier</source>
         <translation>o cronograma</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="998"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1015"/>
         <source>la facture</source>
         <translation>a fatura</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1010"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1027"/>
         <source>La visualisation de cette facture ou échéancier n&apos;est pas possible</source>
         <translation>A visualização desta fatura ou cronograma não é possível</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1020"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1037"/>
         <source>Facture introuvable!</source>
         <translation>Fatura não encontrada!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1020"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1037"/>
         <source>Le lien enregistré vers la facture de cette dépense est corrompu!</source>
         <translation>O link registrado para a fatura desta despesa está corrompido!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1020"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1037"/>
         <source>Voulez-vous le supprimer?</source>
         <translation>Deseja excluí-lo?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1051"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1068"/>
         <source>Total général</source>
         <translation>Total geral</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1052"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1803"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1069"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1820"/>
         <source>Aucun</source>
         <translation>Nenhum</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1053"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1070"/>
         <source>Total </source>
         <translation>Total </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1104"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1121"/>
         <source>Suppression d&apos;échéancier</source>
         <translation>Exclusão de cronograma</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1104"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1121"/>
         <source>Suppression de facture</source>
         <translation>Exclusão de fatura</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1105"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1122"/>
         <source>Confirmez la suppression du lien vers </source>
         <translation>Confirme a exclusão do link para </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1105"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1122"/>
         <source>Confirmez la suppression de la facture </source>
         <translation>Confirme a exclusão da fatura </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1311"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1328"/>
         <source>Une dépense semblable a été saisie
 le </source>
         <translation>Uma despesa similar foi inserida
 em </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1321"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1338"/>
         <source>Oui</source>
         <translation>Sim</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1322"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1339"/>
         <source>Non</source>
         <translation>Não</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1443"/>
-        <location filename="Dialogs/dlg_depenses.cpp" line="2052"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1460"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="2069"/>
         <source>d MMM yyyy</source>
         <translation>d MMM yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1578"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1595"/>
         <source>Famille rubrique</source>
         <translation>Família de rubrica</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1579"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1596"/>
         <source>Classement par date</source>
         <translation>Ordenação por data</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1702"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1719"/>
         <source>Entrez le montant à rechercher</source>
         <translation>Insira o valor a pesquisar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1723"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1740"/>
         <source>Recherche de montant</source>
         <translation>Pesquisa de valor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1880"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1897"/>
         <source>Choisissez un échéancier</source>
         <translation>Escolha um cronograma</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1908"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1925"/>
         <source>Nom déja utilisé</source>
         <translation>Nome já usado</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1908"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1925"/>
         <source>Le nom</source>
         <translation>O nome</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_depenses.cpp" line="1908"/>
+        <location filename="Dialogs/dlg_depenses.cpp" line="1925"/>
         <source>est déja utilisé</source>
         <translation>já está sendo usado</translation>
     </message>
@@ -8559,299 +9421,299 @@ em </translation>
 <context>
     <name>dlg_docsexternes</name>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="26"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="29"/>
         <source>Documents de </source>
         <translation>Documentos de </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="55"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="128"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="58"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="165"/>
         <source>Agrandir</source>
         <translation>Ampliar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="60"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="128"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="63"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="165"/>
         <source>Réduire</source>
         <translation>Reduzir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="67"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="70"/>
         <source>Afficher l&apos;imagerie</source>
         <translation>Exibir as imagens</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="70"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="73"/>
         <source>Tous</source>
         <translation>Todos</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="71"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="74"/>
         <source>Importants</source>
         <translation>Importantes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="72"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="75"/>
         <source>Afficher tous les documents
 y compris les documents d&apos;importance minime</source>
         <translation>Exibir todos os documentos
 incluindo os de importância mínima</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="73"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="76"/>
         <source>N&apos;afficher que les documents marqués importants</source>
         <translation>Exibir somente os documentos marcados como importantes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="79"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="94"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="82"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="97"/>
         <source>Date</source>
         <translation>Data</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="79"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="82"/>
         <source>Type</source>
         <translation>Tipo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="126"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="163"/>
         <source>Le titre</source>
         <translation>O título</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="127"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="164"/>
         <source>La date</source>
         <translation>A data</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="133"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="170"/>
         <source>Ouvrir dans le visualisateur</source>
         <translation>Abrir no visualizador</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="139"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="176"/>
         <source>Afficher en plein écran</source>
         <translation>Exibir em tela cheia</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="146"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="183"/>
         <source>Importance</source>
         <translation>Importância</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="147"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="184"/>
         <source>Faible</source>
         <translation>Baixa</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="148"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="185"/>
         <source>Normale</source>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="149"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="186"/>
         <source>Forte</source>
         <translation>Alta</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="166"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="203"/>
         <source>Modifier</source>
         <translation>Modificar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="179"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="216"/>
         <source>Imprimer</source>
         <translation>Imprimir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="182"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="219"/>
         <source>Réimprimer</source>
         <translation>Reimprimir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="183"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="220"/>
         <source>Modifier et réimprimer</source>
         <translation>Modificar e reimprimir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="184"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="221"/>
         <source>Modifier et réimprimer à la date d&apos;aujourd&apos;hui</source>
         <translation>Modificar e reimprimir com a data de hoje</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="185"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="222"/>
         <source>Réimprimer à la date d&apos;aujourd&apos;hui</source>
         <translation>Reimprimir com a data de hoje</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="207"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="793"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="244"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="830"/>
         <source>Supprimer</source>
         <translation>Excluir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="327"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="364"/>
         <source>Video non accessible en accès distant</source>
         <translation>Vídeo não acessível em acesso remoto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="332"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="369"/>
         <source>Erreur d&apos;accès au fichier:</source>
         <translation>Erro de acesso ao arquivo:</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="345"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="382"/>
         <source>d-M-yyyy</source>
         <translation>d-M-yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="352"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="362"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="389"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="399"/>
         <source>Impossible de charger le document</source>
         <translation>Impossível carregar o documento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="493"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="530"/>
         <source>Réimprimer
 le document</source>
         <translation>Reimprimir
 o documento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="494"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="531"/>
         <source>Modifier
 et imprimer</source>
         <translation>Modificar
 e imprimir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="495"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="532"/>
         <source>Réimprimer à
 la date d&apos;aujourd&apos;hui</source>
         <translation>Reimprimir com
 a data de hoje</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="496"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="794"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="533"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="831"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="497"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="534"/>
         <source>Réimprimer un document</source>
         <translation>Reimprimir um documento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="516"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="553"/>
         <source>Modifier et imprimer
 à la date d&apos;aujourd&apos;hui</source>
         <translation>Modificar e imprimir
 com a data de hoje</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="541"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="578"/>
         <source>Documents</source>
         <translation>Documentos</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="544"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="581"/>
         <source>fichier</source>
         <translation>arquivo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="545"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="582"/>
         <source>sauvegardé sur le bureau dans le dossier </source>
         <translation>salvo na área de trabalho na pasta </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="564"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="601"/>
         <source>Impossible de retrouver les données de l&apos;en-tête</source>
         <translation>Não é possível recuperar os dados do cabeçalho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="564"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="601"/>
         <source>Annulation de l&apos;impression</source>
         <translation>Cancelamento da impressão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="594"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="631"/>
         <source>le </source>
         <translation>o </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="594"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="631"/>
         <source>d MMMM yyyy</source>
         <translation>d AAAA mm</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="600"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="637"/>
         <source>Rien à imprimer</source>
         <translation>Nada para imprimir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="629"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="666"/>
         <source>Enregistrement pdf</source>
         <translation>Salvar PDF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="629"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="666"/>
         <source>Echec enregistrement pdf</source>
         <translation>Falha ao salvar PDF</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="630"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="667"/>
         <source>Impossible d&apos;enregistrer le fichier </source>
         <translation>Impossível salvar o arquivo </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="697"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="734"/>
         <source>Modifier la date</source>
         <translation>Modificar a data</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="700"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="737"/>
         <source>dd/MM/yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="713"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="750"/>
         <source>Vous devez entrer une date valide</source>
         <translation>Você deve inserir uma data válida</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="717"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="754"/>
         <source>Entrez la date du document</source>
         <translation>Insira a data do documento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="753"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="790"/>
         <source>Vous devez entrer du texte</source>
         <translation>Você deve inserir texto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="757"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="794"/>
         <source>Entrez le titre du document</source>
         <translation>Insira o título do documento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="786"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="823"/>
         <source>Suppression refusée</source>
         <translation>Exclusão recusada</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="786"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="823"/>
         <source>Vous ne pouvez pas supprimer un document dont vous n&apos;êtes pas l&apos;auteur</source>
         <translation>Você não pode excluir um documento do qual não é o autor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="796"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="833"/>
         <source>Etes vous certain de vouloir supprimer le document </source>
         <translation>Tem certeza de que deseja excluir o documento </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="979"/>
-        <location filename="Dialogs/dlg_docsexternes.cpp" line="998"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1016"/>
+        <location filename="Dialogs/dlg_docsexternes.cpp" line="1035"/>
         <source>dd-MM-yyyy</source>
         <translation>dd/MM/yyyy</translation>
     </message>
@@ -11225,7 +12087,7 @@ que deseja reativar</translation>
         <translation>Rufus - Identificação do usuário</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="68"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="69"/>
         <source>Vous ne pouvez pas utiliser ce Login pour vous connecter</source>
         <translation>Você não pode usar este login para se conectar</translation>
     </message>
@@ -11240,33 +12102,29 @@ que deseja reativar</translation>
         <translation>Você não especificou sua senha!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="134"/>
         <source>Erreur sur le serveur MySQL</source>
-        <translation>Erro no servidor MySQL</translation>
+        <translation type="vanished">Erro no servidor MySQL</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="135"/>
         <source>Impossible de se connecter au serveur avec le login </source>
-        <translation>Impossível conectar ao servidor com o login </translation>
+        <translation type="vanished">Impossível conectar ao servidor com o login </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="136"/>
         <source> et ce mot de passe</source>
-        <translation> e esta senha</translation>
+        <translation type="vanished"> e esta senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="137"/>
         <source>Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.</source>
-        <translation>Revise as configurações dos parâmetros de conexão no arquivo rufus.ini.</translation>
+        <translation type="vanished">Revise as configurações dos parâmetros de conexão no arquivo rufus.ini.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="148"/>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="164"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="127"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="143"/>
         <source>Configuration du serveur défectueuse</source>
         <translation>Configuração do servidor com defeito</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="149"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="128"/>
         <source>La variable MySQL &apos;secure_file_priv&apos; n&apos;est pas positionnée sur un dossier existant
 Vous ne pourrez pas afficher les documents d&apos;imagerie
 Veuillez modifier la valeur de cette variable en la faisant pointer
@@ -11281,41 +12139,41 @@ Consulte a página de instalação do servidor MySQL no site https://www.rufusvi
 para saber como modificar esta variável secure-file-priv na configuração do seu servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="165"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="144"/>
         <source>La variable MySQL &apos;sql_mode&apos; n&apos;est pas positionnée sur la valeur </source>
         <translation>A variável MySQL &apos;sql_mode&apos; não está definida para o valor &apos;</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="166"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="145"/>
         <source>Rufus sera instable
 Veuillez modifier la valeur de cette variable sur la valeur </source>
         <translation>O Rufus será instável.
 Por favor, altere o valor desta variável para o valor &apos;</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="168"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="147"/>
         <source>Reportez-vous à la page installation du serveur MySQLsur le site https://www.rufusvision.org
 pour savoir comment modifier cette variabe secure-file-priv dans la configuration de votre serveur</source>
         <translation>Consulte a página de instalação do servidor MySQL no site https://www.rufusvision.org
 para saber como modificar esta variável secure-file-priv na configuração do seu servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="192"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="171"/>
         <source>Erreur sur la base patients</source>
         <translation>Erro no banco de dados de pacientes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="193"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="172"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
         <translation>Não foi possível abrir a tabela Usuários</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="203"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="182"/>
         <source>Erreur sur le compte utilisateur</source>
         <translation>Erro na conta de usuário</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_identificationuser.cpp" line="204"/>
+        <location filename="Dialogs/dlg_identificationuser.cpp" line="183"/>
         <source>Identifiant ou mot de passe incorrect</source>
         <translation>Identificador ou senha incorreta</translation>
     </message>
@@ -14339,8 +15197,8 @@ Você confirma a inserção?</translation>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="396"/>
         <location filename="Dialogs/dlg_param.ui" line="1115"/>
-        <location filename="Dialogs/dlg_param.ui" line="1324"/>
-        <location filename="Dialogs/dlg_param.ui" line="1718"/>
+        <location filename="Dialogs/dlg_param.ui" line="1349"/>
+        <location filename="Dialogs/dlg_param.ui" line="1730"/>
         <source>Mot de passe</source>
         <translation>Senha</translation>
     </message>
@@ -14396,610 +15254,627 @@ Você confirma a inserção?</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="1092"/>
-        <location filename="Dialogs/dlg_param.ui" line="1301"/>
-        <location filename="Dialogs/dlg_param.ui" line="1594"/>
-        <location filename="Dialogs/dlg_param.cpp" line="584"/>
+        <location filename="Dialogs/dlg_param.ui" line="1326"/>
+        <location filename="Dialogs/dlg_param.ui" line="1606"/>
+        <location filename="Dialogs/dlg_param.cpp" line="589"/>
         <source>Port</source>
         <translation>Porta</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1155"/>
+        <location filename="Dialogs/dlg_param.ui" line="1157"/>
+        <location filename="Dialogs/dlg_param.ui" line="1176"/>
+        <location filename="Dialogs/dlg_param.ui" line="1772"/>
+        <source>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.ui" line="1160"/>
+        <location filename="Dialogs/dlg_param.ui" line="1775"/>
+        <source>Exporter les clés client SSL (clé USB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.ui" line="1179"/>
+        <source>Créer de nouvelles clés SSL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.ui" line="1193"/>
         <source>Cet appareil héberge un serveur</source>
         <translation>Este aparelho hospeda um servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1168"/>
-        <location filename="Dialogs/dlg_param.ui" line="1439"/>
-        <location filename="Dialogs/dlg_param.ui" line="1812"/>
         <source>Paramètres de la connexion au serveur</source>
-        <translation>Parâmetros da conexão ao servidor</translation>
+        <translation type="vanished">Parâmetros da conexão ao servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1181"/>
-        <location filename="Dialogs/dlg_param.ui" line="1407"/>
-        <location filename="Dialogs/dlg_param.ui" line="1777"/>
+        <location filename="Dialogs/dlg_param.ui" line="1206"/>
+        <location filename="Dialogs/dlg_param.ui" line="1432"/>
+        <location filename="Dialogs/dlg_param.ui" line="1808"/>
         <source>Emplacement des dossiers des documents émis par chaque appareil d&apos;imagerie</source>
         <translation>Localização das pastas dos documentos emitidos por cada aparelho de imagem</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1197"/>
+        <location filename="Dialogs/dlg_param.ui" line="1222"/>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Emplacement du dossier d&apos;imagerie&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Localização da pasta de imagens&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1210"/>
+        <location filename="Dialogs/dlg_param.ui" line="1235"/>
         <source>secure_file_priv</source>
         <translation>secure_file_priv</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1251"/>
-        <location filename="Dialogs/dlg_param.ui" line="1497"/>
-        <location filename="Dialogs/dlg_param.ui" line="1555"/>
-        <location filename="Dialogs/dlg_param.ui" line="1664"/>
-        <location filename="Dialogs/dlg_param.ui" line="1845"/>
-        <location filename="Dialogs/dlg_param.ui" line="1928"/>
-        <location filename="Dialogs/dlg_param.ui" line="2188"/>
-        <location filename="Dialogs/dlg_param.ui" line="2232"/>
-        <location filename="Dialogs/dlg_param.ui" line="2248"/>
-        <location filename="Dialogs/dlg_param.ui" line="2292"/>
-        <location filename="Dialogs/dlg_param.ui" line="2364"/>
-        <location filename="Dialogs/dlg_param.ui" line="2380"/>
-        <location filename="Dialogs/dlg_param.ui" line="3186"/>
-        <location filename="Dialogs/dlg_param.ui" line="3775"/>
-        <location filename="Dialogs/dlg_param.ui" line="3788"/>
+        <location filename="Dialogs/dlg_param.ui" line="1276"/>
+        <location filename="Dialogs/dlg_param.ui" line="1509"/>
+        <location filename="Dialogs/dlg_param.ui" line="1567"/>
+        <location filename="Dialogs/dlg_param.ui" line="1676"/>
+        <location filename="Dialogs/dlg_param.ui" line="1860"/>
+        <location filename="Dialogs/dlg_param.ui" line="1943"/>
+        <location filename="Dialogs/dlg_param.ui" line="2203"/>
+        <location filename="Dialogs/dlg_param.ui" line="2247"/>
+        <location filename="Dialogs/dlg_param.ui" line="2263"/>
+        <location filename="Dialogs/dlg_param.ui" line="2307"/>
+        <location filename="Dialogs/dlg_param.ui" line="2379"/>
+        <location filename="Dialogs/dlg_param.ui" line="2395"/>
+        <location filename="Dialogs/dlg_param.ui" line="3204"/>
+        <location filename="Dialogs/dlg_param.ui" line="3793"/>
+        <location filename="Dialogs/dlg_param.ui" line="3806"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1267"/>
-        <location filename="Dialogs/dlg_param.ui" line="1513"/>
-        <location filename="Dialogs/dlg_param.ui" line="1886"/>
+        <location filename="Dialogs/dlg_param.ui" line="1292"/>
+        <location filename="Dialogs/dlg_param.ui" line="1525"/>
+        <location filename="Dialogs/dlg_param.ui" line="1901"/>
         <source>Chemin depuis ce poste
 du dossier de stockage des videos</source>
         <translation>Caminho desde este posto
 da pasta de armazenamento dos vídeos</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1274"/>
+        <location filename="Dialogs/dlg_param.ui" line="1299"/>
         <source>Réseau local</source>
         <translation>Rede local</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1363"/>
-        <location filename="Dialogs/dlg_param.ui" line="1610"/>
-        <location filename="Dialogs/dlg_param.ui" line="3196"/>
+        <location filename="Dialogs/dlg_param.ui" line="1388"/>
+        <location filename="Dialogs/dlg_param.ui" line="1622"/>
+        <location filename="Dialogs/dlg_param.ui" line="3214"/>
         <source>Emplacement</source>
         <translation>Localização</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1393"/>
+        <location filename="Dialogs/dlg_param.ui" line="1418"/>
         <source>Cet appareil peut se connecter à
 un serveur hébergé sur le réseau local</source>
         <translation>Este aparelho pode se conectar a
 um servidor hospedado na rede local</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1480"/>
+        <location filename="Dialogs/dlg_param.ui" line="1492"/>
         <source>Chemin depuis ce poste
 du dossier d&apos;imagerie sur le serveur</source>
         <translation>Caminho desde este posto
 da pasta de imagens no servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1561"/>
+        <location filename="Dialogs/dlg_param.ui" line="1573"/>
         <source>Accès distant</source>
         <translation>Acesso remoto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1680"/>
+        <location filename="Dialogs/dlg_param.ui" line="1692"/>
         <source>Emplacement des clés client SSL</source>
         <translation>Localização das chaves cliente SSL</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1761"/>
+        <location filename="Dialogs/dlg_param.ui" line="1792"/>
         <source>Cet appareil peut se connecter à un serveur distant</source>
         <translation>Este aparelho pode se conectar a um servidor remoto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1828"/>
+        <location filename="Dialogs/dlg_param.ui" line="1843"/>
         <source>Emplacement du dossier de copie des originaux
 des fichiers image importés depuis ce poste</source>
         <translation>Localização da pasta de cópia dos originais
 dos arquivos de imagem importados desde este posto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1964"/>
+        <location filename="Dialogs/dlg_param.ui" line="1979"/>
         <source>Instruments connectés</source>
         <translation>Instrumentos conectados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1980"/>
+        <location filename="Dialogs/dlg_param.ui" line="1995"/>
         <source>Frontofocomètre</source>
         <translation>Frontofocômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="1996"/>
+        <location filename="Dialogs/dlg_param.ui" line="2011"/>
         <source>Autorefractomètre</source>
         <translation>Autorrefratômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2012"/>
+        <location filename="Dialogs/dlg_param.ui" line="2027"/>
         <source>Refracteur</source>
         <translation>Refrator</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2128"/>
+        <location filename="Dialogs/dlg_param.ui" line="2143"/>
         <source>Tonomètre</source>
         <translation>Tonômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2442"/>
-        <location filename="Dialogs/dlg_param.ui" line="2486"/>
-        <location filename="Dialogs/dlg_param.ui" line="2530"/>
-        <location filename="Dialogs/dlg_param.ui" line="2574"/>
+        <location filename="Dialogs/dlg_param.ui" line="2457"/>
+        <location filename="Dialogs/dlg_param.ui" line="2501"/>
+        <location filename="Dialogs/dlg_param.ui" line="2545"/>
+        <location filename="Dialogs/dlg_param.ui" line="2589"/>
         <source>Param</source>
         <translation>Param</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2627"/>
+        <location filename="Dialogs/dlg_param.ui" line="2642"/>
         <source>Imprimante</source>
         <translation>Impressora</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2643"/>
+        <location filename="Dialogs/dlg_param.ui" line="2658"/>
         <source>Entête standard</source>
         <translation>Cabeçalho padrão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2659"/>
+        <location filename="Dialogs/dlg_param.ui" line="2674"/>
         <source>Entête Ordonnance ALD</source>
         <translation>Cabeçalho Receita ALD</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2675"/>
+        <location filename="Dialogs/dlg_param.ui" line="2690"/>
         <source>Pied de page standard</source>
         <translation>Rodapé padrão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2691"/>
+        <location filename="Dialogs/dlg_param.ui" line="2706"/>
         <source>Marge haute</source>
         <translation>Margem superior</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2774"/>
+        <location filename="Dialogs/dlg_param.ui" line="2789"/>
         <source>Oups!</source>
         <translation>Ops!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2800"/>
+        <location filename="Dialogs/dlg_param.ui" line="2815"/>
         <source>Afficher un aperçu avant impression</source>
         <translation>Exibir uma pré-visualização antes de imprimir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2816"/>
+        <location filename="Dialogs/dlg_param.ui" line="2831"/>
         <source>Ordonnances avec duplicata</source>
         <translation>Receitas com duplicata</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2872"/>
+        <location filename="Dialogs/dlg_param.ui" line="2887"/>
         <source>Cet appareil est prioritaire pour importer les documents d&apos;imagerie dans la base</source>
         <translation>Este aparelho é prioritário para importar os documentos de imagem na base</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2891"/>
+        <location filename="Dialogs/dlg_param.ui" line="2906"/>
         <source>Cet appareil importe les documents d&apos;imagerie dans la base sans être prioritaire</source>
         <translation>Este aparelho importa os documentos de imagem na base sem ser prioritário</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="2910"/>
+        <location filename="Dialogs/dlg_param.ui" line="2925"/>
         <source>Cet appareil ne participe pas à l&apos;importation des documents d&apos;imagerie</source>
         <translation>Este aparelho não participa da importação dos documentos de imagem</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3040"/>
+        <location filename="Dialogs/dlg_param.ui" line="3058"/>
         <source>Général</source>
         <translation>Geral</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3110"/>
+        <location filename="Dialogs/dlg_param.ui" line="3128"/>
         <source>Paramétrage des sauvegardes</source>
         <translation>Configuração dos backups</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3176"/>
+        <location filename="Dialogs/dlg_param.ui" line="3194"/>
         <source>Heure</source>
         <translation>Hora</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3236"/>
+        <location filename="Dialogs/dlg_param.ui" line="3254"/>
         <source>Lundi</source>
         <translation>Segunda-feira</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3252"/>
+        <location filename="Dialogs/dlg_param.ui" line="3270"/>
         <source>Mardi</source>
         <translation>Terça-feira</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3268"/>
+        <location filename="Dialogs/dlg_param.ui" line="3286"/>
         <source>Mercredi</source>
         <translation>Quarta-feira</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3284"/>
+        <location filename="Dialogs/dlg_param.ui" line="3302"/>
         <source>Jeudi</source>
         <translation>Quinta-feira</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3300"/>
+        <location filename="Dialogs/dlg_param.ui" line="3318"/>
         <source>Vendredi</source>
         <translation>Sexta-feira</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3316"/>
+        <location filename="Dialogs/dlg_param.ui" line="3334"/>
         <source>Samedi</source>
         <translation>Sábado</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3332"/>
+        <location filename="Dialogs/dlg_param.ui" line="3350"/>
         <source>Dimanche</source>
         <translation>Domingo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3349"/>
+        <location filename="Dialogs/dlg_param.ui" line="3367"/>
         <source>Les  interventions sur la base de données ne sont possibles qu&apos;à partir du poste serveur</source>
         <translation>As intervenções no banco de dados só são possíveis a partir do posto servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3374"/>
+        <location filename="Dialogs/dlg_param.ui" line="3392"/>
         <source>Effectuer une sauvegarde
 immédiatement</source>
         <translation>Realizar um backup
 imediatamente</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3385"/>
+        <location filename="Dialogs/dlg_param.ui" line="3403"/>
         <source>Effacer la programmation
 des sauvegardes</source>
         <translation>Apagar a programação
 dos backups</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3402"/>
+        <location filename="Dialogs/dlg_param.ui" line="3420"/>
         <source>Restaurer
 la base</source>
         <translation>Restaurar
 a base</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3419"/>
+        <location filename="Dialogs/dlg_param.ui" line="3437"/>
         <source>Réinitialiser
 les données</source>
         <translation>Reinicializar
 os dados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3519"/>
-        <location filename="Dialogs/dlg_param.cpp" line="557"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1781"/>
+        <location filename="Dialogs/dlg_param.ui" line="3537"/>
+        <location filename="Dialogs/dlg_param.cpp" line="562"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1785"/>
         <source>Appareils connectés au réseau</source>
         <translation>Aparelhos conectados à rede</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3556"/>
+        <location filename="Dialogs/dlg_param.ui" line="3574"/>
         <source>Utiliser la base de données des villes françaises</source>
         <translation>Usar o banco de dados de cidades francesas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3572"/>
+        <location filename="Dialogs/dlg_param.ui" line="3590"/>
         <source>Utiliser une base de données de villes personnalisée</source>
         <translation>Usar um banco de dados de cidades personalizado</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3601"/>
+        <location filename="Dialogs/dlg_param.ui" line="3619"/>
         <source>Modifier la
 liste des villes</source>
         <translation>Modificar a
 lista das cidades</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3649"/>
+        <location filename="Dialogs/dlg_param.ui" line="3667"/>
         <source>Utiliser les cotations d&apos;actes françaises</source>
         <translation>Usar as codificações de atos francesas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3690"/>
+        <location filename="Dialogs/dlg_param.ui" line="3708"/>
         <source>Enregistrer une comptabilité</source>
         <translation>Registrar uma contabilidade</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3706"/>
+        <location filename="Dialogs/dlg_param.ui" line="3724"/>
         <source>Enregistrer une comptabilité simplifiée</source>
         <translation>Registrar uma contabilidade simplificada</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3722"/>
+        <location filename="Dialogs/dlg_param.ui" line="3740"/>
         <source>Ne pas enregistrer de comptabilité</source>
         <translation>Não registrar contabilidade</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3752"/>
+        <location filename="Dialogs/dlg_param.ui" line="3770"/>
         <source>Gestion des utilisateurs</source>
         <translation>Gestão dos usuários</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3804"/>
+        <location filename="Dialogs/dlg_param.ui" line="3822"/>
         <source>Paramétrer
 les motifs de consultation</source>
         <translation>Configurar
 os motivos de consulta</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3828"/>
-        <location filename="Dialogs/dlg_param.ui" line="4009"/>
+        <location filename="Dialogs/dlg_param.ui" line="3846"/>
+        <location filename="Dialogs/dlg_param.ui" line="4027"/>
         <source>Version de la base</source>
         <translation>Versão da base</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3841"/>
+        <location filename="Dialogs/dlg_param.ui" line="3859"/>
         <source>Poste importateur des documents</source>
         <translation>Posto importador de documentos</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3857"/>
+        <location filename="Dialogs/dlg_param.ui" line="3875"/>
         <source>Changer le mot
 de passe administrateur</source>
         <translation>Alterar a senha
 do administrador</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3881"/>
-        <location filename="Dialogs/dlg_param.ui" line="4022"/>
+        <location filename="Dialogs/dlg_param.ui" line="3899"/>
+        <location filename="Dialogs/dlg_param.ui" line="4040"/>
         <source>Version de Rufus</source>
         <translation>Versão do Rufus</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3897"/>
+        <location filename="Dialogs/dlg_param.ui" line="3915"/>
         <source>Gestion
 des organismes bancaires</source>
         <translation>Gestão
 dos organismos bancários</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3924"/>
+        <location filename="Dialogs/dlg_param.ui" line="3942"/>
         <source>Gestion des lieux d&apos;activité</source>
         <translation>Gestão dos locais de atividade</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3947"/>
+        <location filename="Dialogs/dlg_param.ui" line="3965"/>
         <source>Emplacement du serveur</source>
         <translation>Localização do servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3970"/>
+        <location filename="Dialogs/dlg_param.ui" line="3988"/>
         <source>AdresseTCP</source>
         <translation>EndereçoTCP</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3983"/>
+        <location filename="Dialogs/dlg_param.ui" line="4001"/>
         <source>Version de la base Implants</source>
         <translation>Versão da base de Implantes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="3996"/>
+        <location filename="Dialogs/dlg_param.ui" line="4014"/>
         <source>Version de la base IOL</source>
         <translation>Versão da base LIO</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.ui" line="4098"/>
+        <location filename="Dialogs/dlg_param.ui" line="4116"/>
         <source>Version</source>
         <translation>Versão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="106"/>
+        <location filename="Dialogs/dlg_param.cpp" line="109"/>
         <source>Actes codifiés</source>
         <translation>Atos codificados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="107"/>
+        <location filename="Dialogs/dlg_param.cpp" line="110"/>
         <source>Actes non codifés</source>
         <translation>Atos não codificados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="165"/>
+        <location filename="Dialogs/dlg_param.cpp" line="173"/>
         <source>Emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR CE POSTE SERVEUR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Cet emplacement n&apos;est pas modifiable et correspond à la variable secure_file_priv de MySQL</source>
         <translation>Localização da pasta de armazenamento dos documentos de imagem &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;NESTE POSTO SERVIDOR&lt;/b&gt;&lt;/font&gt;&lt;br/&gt;Esta localização não é modificável e corresponde à variável secure_file_priv do MySQL</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="168"/>
+        <location filename="Dialogs/dlg_param.cpp" line="176"/>
         <source>Indiquez ici &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;LE LIEN&lt;/b&gt;&lt;/font&gt;&lt;br /&gt; vers l&apos;emplacement du dossier de stockage des documents d&apos;imagerie &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;SUR LE SERVEUR&lt;/b&gt;&lt;/font&gt;</source>
         <translation>Indique aqui &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;O LINK&lt;/b&gt;&lt;/font&gt;&lt;br /&gt; para a localização da pasta de armazenamento dos documentos de imagem &lt;br /&gt;&lt;font color=&quot;green&quot;&gt;&lt;b&gt;NO SERVIDOR&lt;/b&gt;&lt;/font&gt;</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="204"/>
+        <location filename="Dialogs/dlg_param.cpp" line="212"/>
         <source>Emplacement du fichier de mesures émises par le frontofocomètre</source>
         <translation>Localização do arquivo de medidas emitidas pelo frontofocômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="217"/>
+        <location filename="Dialogs/dlg_param.cpp" line="225"/>
         <source>Emplacement du fichier de mesures émises par l&apos;autorefractomètre</source>
         <translation>Localização do arquivo de medidas emitidas pelo autorrefratômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="233"/>
+        <location filename="Dialogs/dlg_param.cpp" line="241"/>
         <source>Emplacement du fichier de mesures émises par le refracteur</source>
         <translation>Localização do arquivo de medidas emitidas pelo refrator</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="235"/>
+        <location filename="Dialogs/dlg_param.cpp" line="243"/>
         <source>Emplacement du fichier de mesures de frontofocomètre élaborées par Rufus à envoyer au réfracteur</source>
         <translation>Localização do arquivo de medidas do frontofocômetro elaboradas pelo Rufus a enviar ao refrator</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="237"/>
+        <location filename="Dialogs/dlg_param.cpp" line="245"/>
         <source>Emplacement du fichier de mesures d&apos;autorefractomètre élaborées par Rufus à envoyer au réfracteur</source>
         <translation>Localização do arquivo de medidas do autorrefratômetro elaboradas pelo Rufus a enviar ao refrator</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="251"/>
+        <location filename="Dialogs/dlg_param.cpp" line="259"/>
         <source>Emplacement du fichier de mesures émises par le tonomètre</source>
         <translation>Localização do arquivo de medidas emitidas pelo tonômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="305"/>
+        <location filename="Dialogs/dlg_param.cpp" line="313"/>
         <source>Code postal par défaut</source>
         <translation>Código postal padrão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="306"/>
+        <location filename="Dialogs/dlg_param.cpp" line="314"/>
         <source>Ville par défaut</source>
         <translation>Cidade padrão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="457"/>
+        <location filename="Dialogs/dlg_param.cpp" line="462"/>
         <source>Evitez de modifier les réglages de l&apos;imprimante</source>
         <translation>Evite modificar as configurações da impressora</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="458"/>
+        <location filename="Dialogs/dlg_param.cpp" line="463"/>
         <source>Les résultats peuvent être assez surprenants!</source>
         <translation>Os resultados podem ser bastante surpreendentes!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="459"/>
+        <location filename="Dialogs/dlg_param.cpp" line="464"/>
         <source>Cliquez sur le bouton Oups! pour revenir aux réglages par défaut</source>
         <translation>Clique no botão Ops! para voltar às configurações padrão</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="476"/>
+        <location filename="Dialogs/dlg_param.cpp" line="481"/>
         <source>inconnue</source>
         <translation>desconhecida</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="495"/>
-        <location filename="Dialogs/dlg_param.cpp" line="513"/>
-        <location filename="Dialogs/dlg_param.cpp" line="531"/>
-        <location filename="Dialogs/dlg_param.cpp" line="550"/>
+        <location filename="Dialogs/dlg_param.cpp" line="500"/>
+        <location filename="Dialogs/dlg_param.cpp" line="518"/>
+        <location filename="Dialogs/dlg_param.cpp" line="536"/>
+        <location filename="Dialogs/dlg_param.cpp" line="555"/>
         <source>Type d&apos;examen</source>
         <translation>Tipo de exame</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="496"/>
-        <location filename="Dialogs/dlg_param.cpp" line="514"/>
-        <location filename="Dialogs/dlg_param.cpp" line="532"/>
+        <location filename="Dialogs/dlg_param.cpp" line="501"/>
+        <location filename="Dialogs/dlg_param.cpp" line="519"/>
+        <location filename="Dialogs/dlg_param.cpp" line="537"/>
         <source>Dossier de stockage</source>
         <translation>Pasta de armazenamento</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="551"/>
+        <location filename="Dialogs/dlg_param.cpp" line="556"/>
         <source>Nom de l&apos;appareil</source>
         <translation>Nome do aparelho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="552"/>
+        <location filename="Dialogs/dlg_param.cpp" line="557"/>
         <source>Format nom fichier</source>
         <translation>Formato do nome do arquivo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="582"/>
+        <location filename="Dialogs/dlg_param.cpp" line="587"/>
         <source>Serveur</source>
         <translation>Servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="615"/>
+        <location filename="Dialogs/dlg_param.cpp" line="623"/>
         <source>Le changement de version ne prendra effet qu&apos;après redémarrage du logiciel</source>
         <translation>A mudança de versão só terá efeito após o reinício do software</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="657"/>
+        <location filename="Dialogs/dlg_param.cpp" line="665"/>
         <source>Modifications non enregistrées!</source>
         <translation>Modificações não salvas!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="658"/>
+        <location filename="Dialogs/dlg_param.cpp" line="666"/>
         <source>Vous avez modifié certains éléments. Voulez vous enregistrer ces modifications?</source>
         <translation>Você modificou alguns elementos. Deseja salvar estas modificações?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="660"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1483"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1632"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1750"/>
+        <location filename="Dialogs/dlg_param.cpp" line="668"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1487"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1636"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1754"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2523"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="661"/>
+        <location filename="Dialogs/dlg_param.cpp" line="669"/>
         <source>Enregistrer</source>
         <translation>Registrar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="771"/>
+        <location filename="Dialogs/dlg_param.cpp" line="781"/>
         <source>Repertoire invalide!</source>
         <translation>Diretório inválido!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="806"/>
+        <location filename="Dialogs/dlg_param.cpp" line="816"/>
         <source>Impossible de retrouver le nom de l&apos;appareil</source>
         <translation>Impossível encontrar o nome do aparelho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="976"/>
+        <location filename="Dialogs/dlg_param.cpp" line="986"/>
         <source>Saisissez votre mot de passe</source>
         <translation>Digite sua senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="999"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1009"/>
         <source>Vous ne pouvez pas modifier les paramètres généraux</source>
         <translation>Você não pode modificar os parâmetros gerais</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1000"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1010"/>
         <source>Une session de RufusAdmin est actuellement active sur le poste</source>
         <translation>Uma sessão do RufusAdmin está atualmente ativa no posto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1007"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1017"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2533"/>
         <source>Saisissez le mot de passe Administrateur</source>
         <translation>Digite a senha do Administrador</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1077"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1083"/>
         <source>Configuration pour un accès distant</source>
         <translation>Configuração para acesso remoto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1078"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1084"/>
         <source>L&apos;accès distant fonctionne obligatoirement avec un cryptage de données SSL.</source>
         <translation>O acesso remoto funciona obrigatoriamente com criptografia de dados SSL.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1080"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1086"/>
         <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut vous assurer que:</source>
         <translation>Se você quiser usar o acesso remoto neste posto, é necessário garantir que:</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1082"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1088"/>
         <source>1. le serveur MySQL est configuré pour le cryptage</source>
         <translation>1. o servidor MySQL está configurado para a criptografia</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1083"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1089"/>
         <source>2. que les clés clientes SSL sont installées sur ce poste.</source>
         <translation>2. que as chaves cliente SSL estão instaladas neste posto.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1084"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1090"/>
         <source>Reportez vous à la page internet</source>
         <translation>Consulte a página da internet</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1162"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1166"/>
         <source>Données utilisateurs modifiées?</source>
         <translation>Dados dos usuários modificados?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1163"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1167"/>
         <source>Si vous avez modifié des données d&apos;utilisateurs actuellement connectés,
 chacun de ces utilisateurs doit relancer le programme
 pour pouvoir prendre en compte les modifications apportées!</source>
@@ -15008,246 +15883,398 @@ cada um desses usuários deve reiniciar o programa
 para poder processar as modificações realizadas!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1201"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1205"/>
         <source>Liste des lieux d&apos;exercice</source>
         <translation>Lista dos locais de exercício</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1244"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1317"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1248"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1321"/>
         <source>Numero AM </source>
         <translation>Número AM </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1245"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1249"/>
         <source>Pas de numéro AM enregistré pour ce site</source>
         <translation>Nenhum número AM registrado para este local</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1246"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1250"/>
         <source>Cliquez sur le bouton pour modifier le numéro</source>
         <translation>Clique no botão para modificar o número</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1268"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1272"/>
         <source>Enregistrez le numéro AM (9 chiffres) correspondant à</source>
         <translation>Registre o número AM (9 dígitos) correspondente a</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1301"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1305"/>
         <source>Enregistrement numéro AM</source>
         <translation>Registro número AM</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1349"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1353"/>
         <source>Choisissez un appareil</source>
         <translation>Escolha um aparelho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1377"/>
-        <location filename="Dialogs/dlg_param.cpp" line="2104"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1381"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2108"/>
         <source>Choisissez le dossier dans lequel vous voulez sauvegarder la base
 Le nom de dossier ne doit pas contenir d&apos;espace</source>
         <translation>Escolha a pasta onde deseja salvar a base
 O nome da pasta não deve conter espaços</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1479"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1834"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1873"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1483"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1838"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1877"/>
         <source>Suppression de cotation</source>
         <translation>Exclusão de codificação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1480"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1484"/>
         <source>Vous étiez le seul à utiliser cette cotation</source>
         <translation>Você era o único a usar esta codificação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1481"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1485"/>
         <source>Voulez-vous la supprimer définitvement?</source>
         <translation>Deseja excluí-la definitivamente?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1483"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1487"/>
         <source>Supprimer la cotation</source>
         <translation>Excluir a codificação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1627"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1631"/>
         <source>Suppression d&apos;un appareil!</source>
         <translation>Exclusão de um aparelho!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1628"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1632"/>
         <source>Voulez vous vraiment supprimer l&apos;appareil</source>
         <translation>Tem certeza de que deseja excluir o aparelho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1631"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1635"/>
         <source>Supprimer</source>
         <translation>Excluir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1746"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1750"/>
         <source>Reset des paramètres imprimante!</source>
         <translation>Redefinição dos parâmetros da impressora!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1747"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1751"/>
         <source>Restaurer les valeurs par défaut?</source>
         <translation>Restaurar os valores padrão?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1749"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1753"/>
         <source>Restaurer</source>
         <translation>Restaurar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1828"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1832"/>
         <source>Suppression refusée</source>
         <translation>Exclusão recusada</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1829"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1833"/>
         <source>La cotation</source>
         <translation>A codificação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1830"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1834"/>
         <source>est utilisée par d&apos;autres utilisateurs</source>
         <translation>é utilizada por outros usuários</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1834"/>
-        <location filename="Dialogs/dlg_param.cpp" line="1873"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1838"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1877"/>
         <source>Confirmez la suppression de la cotation </source>
         <translation>Confirme a exclusão da codificação </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1896"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1900"/>
         <source>Confirmez le nouveau mot de passe</source>
         <translation>Confirme a nova senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1908"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1912"/>
         <source>Entrez le nouveau mot de passe</source>
         <translation>Insira a nova senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1919"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1923"/>
         <source>Entrez votre mot de passe</source>
         <translation>Digite sua senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1929"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1933"/>
         <source>Mot de passe administrateur</source>
         <translation>Senha do administrador</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1942"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1946"/>
         <source>Afficher / masquer le mot de passe</source>
         <translation>Mostrar / ocultar a senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1952"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1956"/>
         <source>Enregistrer ce mot de passe sur une clé USB</source>
         <translation>Salvar esta senha em um pen drive</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1957"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1961"/>
         <source>Aucun mot de passe à enregistrer</source>
         <translation>Nenhuma senha para salvar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1961"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1965"/>
         <source>Choisissez la clé USB où enregistrer le mot de passe</source>
         <translation>Escolha o pen drive onde salvar a senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1970"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1974"/>
         <source>Mot de passe enregistré</source>
         <translation>Senha salva</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1971"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1975"/>
         <source>Le mot de passe a été copié sur la clé USB.</source>
         <translation>A senha foi copiada para o pen drive.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1974"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1978"/>
         <source>Échec de l&apos;enregistrement</source>
         <translation>Falha ao salvar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1975"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1979"/>
         <source>Impossible d&apos;écrire sur cet emplacement.</source>
         <translation>Não é possível gravar neste local.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="1982"/>
+        <location filename="Dialogs/dlg_param.cpp" line="1986"/>
         <source>Motifs de consultations</source>
         <translation>Motivos de consultas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2127"/>
-        <location filename="Dialogs/dlg_param.cpp" line="2205"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2131"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2209"/>
         <source>Choisissez le dossier d&apos;enregistrement provisoire des mesures de l&apos;appareil
 Le nom de dossier ne doit pas contenir d&apos;espace</source>
         <translation>Escolha a pasta de registro provisório das medidas do aparelho
 O nome da pasta não deve conter espaços</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2404"/>
-        <location filename="Dialogs/dlg_param.cpp" line="2432"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2389"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2456"/>
+        <source>Clés client SSL indisponibles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2390"/>
+        <source>Les clés client SSL ne sont pas disponibles sur ce serveur :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2392"/>
+        <source>Elles sont créées lors de l&apos;installation du serveur MySQL par Rufus.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2397"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2463"/>
+        <source>Sélectionnez la clé USB de destination</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2406"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2471"/>
+        <source>Dossier inaccessible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2407"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2472"/>
+        <source>Impossible de créer le sous-dossier SSLKeys dans l&apos;emplacement choisi.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2421"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2490"/>
+        <source>Export incomplet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2422"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2491"/>
+        <source>Certains fichiers n&apos;ont pas pu être copiés :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2426"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2495"/>
+        <source>Clés client SSL exportées</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2427"/>
+        <source>Les clés client SSL ont été copiées sur :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2428"/>
+        <source>Déployez-les dans le dossier des clés SSL de chaque poste en accès distant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2441"/>
+        <source>Dossier des clés SSL non renseigné</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2442"/>
+        <source>Le dossier des clés SSL d&apos;accès distant n&apos;est pas renseigné sur ce poste.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2443"/>
+        <source>Indiquez-le d&apos;abord avec le bouton de sélection du dossier des clés SSL.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2457"/>
+        <source>Le dossier des clés SSL ne contient pas les clés nécessaires :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2496"/>
+        <source>Les clés SSL d&apos;accès distant ont été copiées sur :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2497"/>
+        <source>Déployez-les sur l&apos;autre poste en accès distant, puis indiquez-y leur dossier.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2509"/>
+        <source>Créer de nouvelles clés SSL ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2514"/>
+        <source>Vous allez générer de NOUVELLES clés SSL pour ce serveur.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2516"/>
+        <source>ATTENTION : plus aucun poste en accès distant ne pourra se connecter tant que vous ne lui aurez pas transmis les NOUVELLES clés.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2519"/>
+        <source>Après la génération, exportez les nouvelles clés (bouton « Exporter les clés client SSL ») et déployez-les sur chaque poste distant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2521"/>
+        <source>Le serveur MySQL sera redémarré et Rufus relancé. Continuer ?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2524"/>
+        <source>Générer de nouvelles clés</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2544"/>
+        <source>Nouvelles clés SSL générées</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2545"/>
+        <source>De nouvelles clés SSL ont été générées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2546"/>
+        <source>Exportez-les puis déployez-les sur les postes en accès distant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2547"/>
+        <source>Rufus va redémarrer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2552"/>
+        <source>Génération impossible</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2553"/>
+        <source>Les clés SSL n&apos;ont pas pu être générées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_param.cpp" line="2591"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2619"/>
         <source>Vous n&apos;avez pas spécifié de dossier de stockage valide pour les documents d&apos;imagerie !</source>
         <translation>Você não especificou uma pasta de armazenamento válida para os documentos de imagem!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2447"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2634"/>
         <source>Le programme va se fermer pour que certaines données puissent être prises en compte</source>
         <translation>O programa será encerrado para que alguns dados possam ser processados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2460"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2647"/>
         <source>Pas de poste paramétré</source>
         <translation>Nenhum posto configurado</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2468"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2655"/>
         <source>Administrateur</source>
         <translation>Administrador</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2470"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2657"/>
         <source>prioritaire</source>
         <translation>prioritário</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="2470"/>
-        <location filename="Dialogs/dlg_param.cpp" line="2475"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2657"/>
+        <location filename="Dialogs/dlg_param.cpp" line="2662"/>
         <source>non prioritaire</source>
         <translation>não prioritário</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3035"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3225"/>
         <source>Erreur</source>
         <translation>Erro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3047"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3237"/>
         <source>Ancien mot de passe requis</source>
         <translation>Senha antiga necessária</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3055"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3245"/>
         <source>Le mot de passe que vous voulez modifier n&apos;est pas le bon
 </source>
         <translation>A senha que você deseja modificar não está correta
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3063"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3253"/>
         <source>Le nouveau mot de passe n&apos;est pas conforme
 (au moins 5 caractères - chiffres ou lettres non accentuées -
 </source>
@@ -15256,184 +16283,184 @@ O nome da pasta não deve conter espaços</translation>
 </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3076"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3266"/>
         <source>Modifications enregistrées</source>
         <translation>Modificações salvas</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3077"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3267"/>
         <source>Le nouveau mot de passe a été enregistré avec succès</source>
         <translation>A nova senha foi registrada com sucesso</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3138"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3328"/>
         <source>Débit</source>
         <translation>Débito</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3139"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3329"/>
         <source>Bits de donnés</source>
         <translation>Bits de dados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3140"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3330"/>
         <source>Parité</source>
         <translation>Paridade</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3141"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3331"/>
         <source>Bits d&apos;arrêt</source>
         <translation>Bits de parada</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3142"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3332"/>
         <source>Contrôle de flux</source>
         <translation>Controle de fluxo</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3193"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3383"/>
         <source>Revenir aux réglages
 par défaut pour cet appareil</source>
         <translation>Voltar às configurações
 padrão para este aparelho</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3313"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3322"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3331"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3340"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3349"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3503"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3512"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3521"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3530"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3539"/>
         <source>Invalide</source>
         <translation>Inválido</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3361"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3551"/>
         <source>Réglé sur</source>
         <translation>Configurado em</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3522"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3712"/>
         <source>Cotation</source>
         <translation>Codificação</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3523"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3713"/>
         <source>Montant</source>
         <translation>Valor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3524"/>
+        <location filename="Dialogs/dlg_param.cpp" line="3714"/>
         <source>Pratiqué</source>
         <translation>Praticado</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3945"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4135"/>
         <source>Un même port COM est affecté à plusieurs appareils différents!</source>
         <translation>Uma mesma porta COM está atribuída a vários aparelhos diferentes!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3952"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4142"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour l&apos;autorefractomètre </source>
         <translation>Você não especificou uma porta de comunicação para o autorrefratômetro </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3953"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3982"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4011"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4040"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4143"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4172"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4201"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4230"/>
         <source>Voulez-vous le garder quand même?</source>
         <translation>Deseja mantê-lo mesmo assim?</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3955"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3984"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4013"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4042"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4145"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4174"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4203"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4232"/>
         <source>Confirmer</source>
         <translation>Confirmar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3955"/>
-        <location filename="Dialogs/dlg_param.cpp" line="3984"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4013"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4042"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4145"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4174"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4203"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4232"/>
         <source>Corriger</source>
         <translation>Corrigir</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3965"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4155"/>
         <source>Vous avez spécifié un port COM pour l&apos;autorefractomètre sans sélectionner de machine !</source>
         <translation>Você especificou uma porta COM para o autorrefratômetro sem selecionar um aparelho!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3972"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4162"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour l&apos;autorefractomètre</source>
         <translation>Você não especificou uma pasta de rede válida para o autorrefratômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3981"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4171"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour le frontofocomètre </source>
         <translation>Você não especificou uma porta de comunicação para o frontofocômetro </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="3994"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4184"/>
         <source>Vous avez spécifié un port COM pour le frontofocotomètre sans sélectionner de machine !</source>
         <translation>Você especificou uma porta COM para o frontofocômetro sem selecionar um aparelho!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4001"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4191"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour le frontofocomètre</source>
         <translation>Você não especificou uma pasta de rede válida para o frontofocômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4010"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4200"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour le refracteur </source>
         <translation>Você não especificou uma porta de comunicação para o refrator </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4023"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4213"/>
         <source>Vous avez spécifié un port COM pour le réfracteur sans sélectionner de machine !</source>
         <translation>Você especificou uma porta COM para o refrator sem selecionar um aparelho!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4030"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4220"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour le refracteur</source>
         <translation>Você não especificou uma pasta de rede válida para o refrator</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4039"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4229"/>
         <source>Vous n&apos;avez pas spécifié de port de communication pour le tonomètre </source>
         <translation>Você não especificou uma porta de comunicação para o tonômetro </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4052"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4242"/>
         <source>Vous avez spécifié un port COM pour le tonomètre sans sélectionner de machine !</source>
         <translation>Você especificou uma porta COM para o tonômetro sem selecionar um aparelho!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4059"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4249"/>
         <source>Vous n&apos;avez pas spécifié de dossier réseau valide pour le tonomètre</source>
         <translation>Você não especificou uma pasta de rede válida para o tonômetro</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4069"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4077"/>
-        <location filename="Dialogs/dlg_param.cpp" line="4085"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4259"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4267"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4275"/>
         <source>Mot de passe MySQL manquant</source>
         <translation>Senha do MySQL ausente</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4070"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4260"/>
         <source>Indiquez le mot de passe MySQL pour le mode « Monoposte ».</source>
         <translation>Informe a senha do MySQL para o modo «Estação única».</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4078"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4268"/>
         <source>Indiquez le mot de passe MySQL pour le mode « Réseau local ».</source>
         <translation>Informe a senha do MySQL para o modo «Rede local».</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_param.cpp" line="4086"/>
+        <location filename="Dialogs/dlg_param.cpp" line="4276"/>
         <source>Indiquez le mot de passe MySQL pour le mode « Accès distant ».</source>
         <translation>Informe a senha do MySQL para o modo «Acesso remoto».</translation>
     </message>
@@ -15441,83 +16468,82 @@ padrão para este aparelho</translation>
 <context>
     <name>dlg_paramconnexion</name>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="20"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="29"/>
         <source>Paramètrage de connexion à la base</source>
         <translation>Configuração de conexão à base</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="59"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="95"/>
         <source>Mot de passe</source>
         <translation>Senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="75"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="111"/>
         <source>Login</source>
         <translation>Login</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="189"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="240"/>
         <source>Emplacement du serveur</source>
         <translation>Localização do servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="213"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="258"/>
         <source>Sur ce poste</source>
         <translation>Neste posto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="238"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="277"/>
         <source>Réseau local</source>
         <translation>Rede local</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="263"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="296"/>
         <source>Accès distant</source>
         <translation>Acesso remoto</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="331"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="372"/>
         <source>Adresse IP du serveur</source>
         <translation>Endereço IP do servidor</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="372"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="413"/>
         <source>Emplacement clés SSL</source>
         <translation>Localização das chaves SSL</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="440"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="481"/>
         <source>...</source>
         <translation>...</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="504"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="557"/>
         <source>Port</source>
         <translation>Porta</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="579"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="321"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="650"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="310"/>
         <source>Annuler</source>
         <translation>Cancelar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="605"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="676"/>
         <source>Tester</source>
         <translation>Testar</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.ui" line="625"/>
+        <location filename="Dialogs/dlg_paramconnexion.ui" line="696"/>
         <source>OK</source>
         <translation>OK</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="130"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="145"/>
         <source>Informations importantes sur l&apos;accès par internet</source>
         <translation>Informações importantes sobre o acesso pela internet</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="131"/>
         <source>Pour d&apos;évidentes raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données openSSL sur 2048 bits.
 
 Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:
@@ -15530,7 +16556,7 @@ Reportez vous à la page internet
 http://www.rufusvision.org/configuration-pour-un-accegraves-agrave-distance---le-cryptage-de-donneacutees-ssl.html
 pour savoir comment modifier la configuration du serveur et générer des clés de cryptage
 </source>
-        <translation>Por razões óbvias de confidencialidade, o acesso remoto no Rufus funciona obrigatoriamente com criptografia de dados openSSL de 2048 bits.
+        <translation type="vanished">Por razões óbvias de confidencialidade, o acesso remoto no Rufus funciona obrigatoriamente com criptografia de dados openSSL de 2048 bits.
 
 Se você quiser usar o acesso remoto neste posto, é necessário que:
 1. o servidor MySQL esteja configurado para a criptografia (modificação do arquivo my.cnf no macOS Linux ou my.ini no Windows e presença das chaves do servidor na pasta especificada em my.cnf/my.ini)
@@ -15544,87 +16570,117 @@ para saber como modificar a configuração do servidor e gerar chaves de criptog
 </translation>
     </message>
     <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="146"/>
+        <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="148"/>
+        <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="149"/>
+        <source>1. le serveur MySQL soit configuré pour le cryptage</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="150"/>
+        <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="151"/>
+        <source>Reportez-vous à la page internet :</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="153"/>
+        <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="164"/>
         <source>Paramètres OK!</source>
         <translation>Parâmetros OK!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="175"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="227"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="189"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="237"/>
         <source>Vous n&apos;avez pas précisé votre identifiant!</source>
         <translation>Você não especificou seu identificador!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="176"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="228"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="190"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="238"/>
         <source>Vous n&apos;avez pas précisé votre mot de passe!</source>
         <translation>Você não especificou sua senha!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="191"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="236"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="202"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="246"/>
         <source>Erreur sur le serveur MySQL</source>
         <translation>Erro no servidor MySQL</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="192"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="237"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="203"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="247"/>
         <source>Impossible de se connecter au serveur avec le login </source>
         <translation>Impossível conectar ao servidor com o login </translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="193"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="238"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="204"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="248"/>
         <source> et ce mot de passe</source>
         <translation> e esta senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="194"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="239"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="205"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="249"/>
         <source>Revoyez le réglage des paramètres de connexion dans le fichier rufus.ini.</source>
         <translation>Revise as configurações dos parâmetros de conexão no arquivo rufus.ini.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="207"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="249"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="218"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="259"/>
         <source>Erreur sur la base patients</source>
         <translation>Erro no banco de dados de pacientes</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="208"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="250"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="219"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="260"/>
         <source>Impossible d&apos;ouvrir la table Utilisateurs</source>
         <translation>Não foi possível abrir a tabela Usuários</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="213"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="255"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="224"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="265"/>
         <source>Erreur sur le compte utilisateur</source>
         <translation>Erro na conta de usuário</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="214"/>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="256"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="225"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="266"/>
         <source>Identifiant ou mot de passe incorrect</source>
         <translation>Identificador ou senha incorreta</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="229"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="239"/>
         <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur!</source>
         <translation>Você não especificou o endereço do servidor!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="232"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="242"/>
         <source>Vous n&apos;avez pas précisé d&apos;adresse valides pour les clés SSL!</source>
         <translation>Você não especificou endereços válidos para as chaves SSL!</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="312"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="300"/>
         <source>Base de données sécurisée</source>
         <translation>Banco de dados protegido</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="313"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="302"/>
         <source>Aucun mot de passe connu ne permet de se connecter à cette base : elle a été sécurisée sur un autre poste.
 
 Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depuis un poste qui fonctionne, ou le saisir si vous le connaissez.</source>
@@ -15633,57 +16689,66 @@ Vous pouvez récupérer le mot de passe du cabinet copié sur une clé USB depui
 Você pode recuperar a senha do consultório copiada em um pen drive a partir de um computador que funcione, ou digitá-la se a conhecer.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="322"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="311"/>
         <source>Saisir le mot de passe</source>
         <translation>Digitar a senha</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="323"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="312"/>
         <source>Importer depuis une clé USB</source>
         <translation>Importar de um pen drive</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="333"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="320"/>
+        <source>Passer cette étape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="337"/>
         <source>Sélectionnez le fichier du mot de passe sur la clé USB</source>
         <translation>Selecione o arquivo da senha no pen drive</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="344"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="358"/>
         <source>Fichier illisible</source>
         <translation>Arquivo ilegível</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="345"/>
-        <source>Ce fichier ne contient pas de mot de passe valide.</source>
-        <translation>Este arquivo não contém uma senha válida.</translation>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="359"/>
+        <source>Ce fichier ne contient pas un mot de passe valide.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="352"/>
+        <source>Ce fichier ne contient pas de mot de passe valide.</source>
+        <translation type="vanished">Este arquivo não contém uma senha válida.</translation>
+    </message>
+    <message>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="366"/>
         <source>Mot de passe de la base</source>
         <translation>Senha do banco de dados</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="354"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="368"/>
         <source>Entrez le mot de passe MySQL du cabinet :</source>
         <translation>Digite a senha do MySQL do consultório:</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="379"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="394"/>
         <source>Vous n&apos;avez pas précisé le login.</source>
         <translation>Você não especificou o login.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="385"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="400"/>
         <source>Vous n&apos;avez pas précisé le mot de passe.</source>
         <translation>Você não especificou a senha.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="401"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="416"/>
         <source>Vous n&apos;avez pas précisé le mode d&apos;accès.</source>
         <translation>Você não especificou o modo de acesso.</translation>
     </message>
     <message>
-        <location filename="Dialogs/dlg_paramconnexion.cpp" line="407"/>
+        <location filename="Dialogs/dlg_paramconnexion.cpp" line="422"/>
         <source>Vous n&apos;avez pas précisé l&apos;adresse du serveur.</source>
         <translation>Você não especificou o endereço do servidor.</translation>
     </message>
@@ -16848,6 +17913,7 @@ predefinido</translation>
         <location filename="Dialogs/dlg_refraction.cpp" line="2435"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="3065"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="3070"/>
+        <location filename="Dialogs/dlg_refraction.cpp" line="3161"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="3161"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="3163"/>
         <location filename="Dialogs/dlg_refraction.cpp" line="3165"/>

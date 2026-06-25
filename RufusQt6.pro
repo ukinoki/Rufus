@@ -112,12 +112,9 @@ FORMS += \
 
 TRANSLATIONS += rufus_fr.ts \
                 rufus_en.ts \
-                rufus_ca.ts \
                 rufus_es.ts \
                 rufus_br.ts \
-                rufus_pt.ts \
-                rufus_it.ts \
-                rufus_ro.ts
+                rufus_pt.ts
 
 #--------------------
 # INCLUDE
