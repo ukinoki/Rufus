@@ -2136,21 +2136,40 @@ bool MySQLInstaller::executerEtapesConfig()
 bool MySQLInstaller::uninstallMySQL()
 {
 #if defined(Q_OS_WIN)
-    // L'application tourne déjà en administrateur : arrêt + suppression du service,
-    // des dossiers (binaires + données), de l'entrée PATH et de la clé de registre.
-    const QString base = "C:/Program Files/MySQL/MySQL Server 8.4";
-    const QString prog = "C:/ProgramData/MySQL/MySQL Server 8.4";
-    const QString bin  = QDir::toNativeSeparators(base + "/bin");
+    // L'application tourne déjà en administrateur. On NE code PAS la version ni le nom du service
+    // en dur : l'utilisateur peut avoir « MySQL Server 8.0 » + service « MySQL80 » (et non 8.4 /
+    // « MySQL »). On DÉCOUVRE donc le service réel par son ImagePath (mysqld.exe), on le stoppe et
+    // le supprime, on retire le dossier qu'il pointe, PUIS on balaie les installations SERVEUR de
+    // TOUTE version (Program Files\MySQL\MySQL Server * et ProgramData\MySQL\MySQL Server *), on
+    // nettoie le PATH machine et la clé de désinstallation Rufus.
+    // (Aucun guillemet double DANS $ps : tout est en quotes simples ou via [char]34, car le bloc
+    //  est passé à powershell -Command "<...>" — un " interne casserait la commande.)
     const QString ps =
         "$ErrorActionPreference='SilentlyContinue';"
-        "net stop MySQL;"
-        "sc.exe delete MySQL;"
-        "$bin='" + bin + "';"
+        "$base=$null;"
+        "$svc=Get-CimInstance Win32_Service | "
+            "Where-Object {$_.PathName -like '*mysqld.exe*'} | Select-Object -First 1;"
+        "if($svc){"
+            "$exe=$svc.PathName.Trim([char]34);"
+            "$i=$exe.ToLower().IndexOf('mysqld.exe');"
+            "if($i -ge 0){$exe=$exe.Substring(0,$i+10)};"
+            "$base=Split-Path (Split-Path ($exe.Trim().Trim([char]34)) -Parent) -Parent;"
+            "Stop-Service -Name $svc.Name -Force;"
+            "sc.exe stop $svc.Name | Out-Null;"
+            "sc.exe delete $svc.Name | Out-Null"
+        "};"
+        "Start-Sleep -Seconds 2;"
+        "Get-Process mysqld | Stop-Process -Force;"
+        "Start-Sleep -Seconds 1;"
+        "if($base -and (Test-Path $base)){Remove-Item -LiteralPath $base -Recurse -Force};"
+        "Get-ChildItem 'C:\\Program Files\\MySQL' -Directory -Filter 'MySQL Server *' | "
+            "Remove-Item -Recurse -Force;"
+        "Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory -Filter 'MySQL Server *' | "
+            "Remove-Item -Recurse -Force;"
         "$p=[Environment]::GetEnvironmentVariable('Path','Machine');"
         "if($p){[Environment]::SetEnvironmentVariable('Path',"
-        "(($p -split ';' | Where-Object {$_ -and $_ -ne $bin}) -join ';'),'Machine')};"
-        "Remove-Item -LiteralPath '" + QDir::toNativeSeparators(base) + "' -Recurse -Force;"
-        "Remove-Item -LiteralPath '" + QDir::toNativeSeparators(prog) + "' -Recurse -Force;"
+            "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*')}) -join ';'),"
+            "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
         "\\Uninstall\\MySQLForRufus' -Recurse -Force";
     runCmdFull("powershell -NoProfile -ExecutionPolicy Bypass -Command \"" + ps + "\"",
