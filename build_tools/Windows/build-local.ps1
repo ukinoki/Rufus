@@ -143,9 +143,14 @@ if (-not $InstallerOnly) {
     Write-Host "Déploiement (windeployqt + assets + pilote MySQL)…"
     Remove-Item $Deploy -Recurse -Force -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Force -Path $Deploy | Out-Null
-    $exe = Get-ChildItem -Recurse -Filter Rufus.exe |
-           Where-Object { $_.FullName -notlike '*\Deploy\*' } | Select-Object -First 1
+    # Choisir le Rufus.exe FRAÎCHEMENT compilé : le plus RÉCENT, en excluant Deploy\ et les dossiers
+    # de build QtCreator (build-*). Sinon un vieux Rufus.exe (p.ex. d'un build QtCreator) pouvait
+    # être empaqueté à la place du neuf — et AUCUNE modification du code ne se voyait.
+    $exe = Get-ChildItem -Recurse -Filter Rufus.exe -ErrorAction SilentlyContinue |
+           Where-Object { $_.FullName -notlike '*\Deploy\*' -and $_.FullName -notlike '*build-*' } |
+           Sort-Object LastWriteTime -Descending | Select-Object -First 1
     if (-not $exe) { throw "Rufus.exe introuvable après nmake." }
+    Write-Host ("Rufus.exe empaqueté : {0}  (compilé le {1})" -f $exe.FullName, $exe.LastWriteTime) -ForegroundColor Cyan
     Copy-Item $exe.FullName "$Deploy\Rufus.exe"
     & "$QtRoot\bin\windeployqt.exe" --release --compiler-runtime --sql "$Deploy\Rufus.exe"
     if ($LASTEXITCODE -ne 0) { throw "windeployqt a échoué." }
