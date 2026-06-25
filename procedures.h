@@ -163,7 +163,7 @@ public:
 private:
     bool                    CreerPremierUser(QString Login, QString MDP);
     void                    CreerUserFactice(int idusr, QString login, QString mdp);
-    bool                    PremierDemarrage();
+    bool                    PremierDemarrage(bool forceBaseVierge = false);  //! forceBaseVierge : saute le choix vierge/existante (raccourci -installMySQL)
     void                    PremierParametrageMateriel();
     int         protoc = BaseExistante;
     enum protoc {BaseExistante, BaseVierge};

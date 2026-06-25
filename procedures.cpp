@@ -3103,6 +3103,20 @@ bool Procedures::FicheChoixConnexion()
 --------------------------------------------------------------------------------------------------------------*/
 bool Procedures::Connexion_A_La_Base()
 {
+    //! Raccourci « -installMySQL » : posé par le case Reinstaller (mysqlinstaller.cpp) au
+    //! redémarrage, après désinstallation d'un MySQL trop ancien / MariaDB / sans mot de passe. On
+    //! va DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le
+    //! carrefour « Aucun serveur » ni le choix vierge/existante. En cas de SUCCÈS, PremierDemarrage
+    //! relance Rufus puis quitte ; en cas d'échec, il renvoie et on poursuit le flux normal
+    //! (carrefour de récupération), où l'utilisateur pourra réessayer ou quitter.
+    if (QApplication::arguments().contains(QStringLiteral("-installMySQL")))
+    {
+        UpMessageBox::Watch(Q_NULLPTR, tr("Installation de MySQL"),
+            tr("Rufus va maintenant installer un serveur MySQL neuf sur ce poste, "
+               "puis créer une nouvelle base patients."));
+        PremierDemarrage(/*forceBaseVierge=*/true);
+    }
+
     QString server = "localhost";
     if( db->ModeAccesDataBase() == Utils::Poste )
         server = "localhost";
@@ -4551,35 +4565,53 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-bool Procedures::PremierDemarrage()
+//! Arguments de relancement, DÉBARRASSÉS du drapeau one-shot « -installMySQL » : sans ce
+//! filtrage, une relance qui reporte arguments() rebouclerait indéfiniment sur l'installation.
+static QStringList argsRelance()
 {
-    UpMessageBox *msgbox = new UpMessageBox;
+    QStringList a = QApplication::arguments().mid(1);
+    a.removeAll(QStringLiteral("-installMySQL"));
+    return a;
+}
 
-    UpSmallButton    AnnulBouton        (tr("Abandonner"));
-    UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients"));
-    UpSmallButton    BaseExistanteBouton(tr("Base patients existante\nsur le serveur"));
-    QString text     =  tr("Premier démarrage de Rufus!");
-    QString inftxt   =  tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
-                        tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
-                        tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
-                        tr("2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà");
-    msgbox->setText(text);
-    msgbox->setInformativeText(inftxt);
-    msgbox->setIcon(UpMessageBox::Info);
-
-
-    msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
-    msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
-    msgbox->addButton(&AnnulBouton,         UpSmallButton::CANCELBUTTON);
-    msgbox->exec();
-
-    protoc = BaseExistante;
-    if (msgbox->clickedButton() == &AnnulBouton)
-        return false;
-    else if (msgbox->clickedButton() == &BaseExistanteBouton)
-        protoc = BaseExistante;
-    else if (msgbox->clickedButton() == &BaseViergeBouton)
+bool Procedures::PremierDemarrage(bool forceBaseVierge)
+{
+    if (forceBaseVierge)
+    {
+        //! Raccourci « -installMySQL » : on saute le choix vierge/existante et on impose la base
+        //! vierge. Le serveur vient d'être (ré)installé neuf → il n'existe aucune base à proposer.
         protoc = BaseVierge;
+    }
+    else
+    {
+        UpMessageBox *msgbox = new UpMessageBox;
+
+        UpSmallButton    AnnulBouton        (tr("Abandonner"));
+        UpSmallButton    BaseViergeBouton (tr("Nouvelle base\npatients"));
+        UpSmallButton    BaseExistanteBouton(tr("Base patients existante\nsur le serveur"));
+        QString text     =  tr("Premier démarrage de Rufus!");
+        QString inftxt   =  tr("Cette étape va vous permettre de configurer le logiciel en quelques secondes") + "\n\n" +
+                            tr("Commencez par choisir la situation qui décrit le mieux votre installation de Rufus") + "\n\n" +
+                            tr("1. J'installe Rufus sur ce poste en créant une nouvelle base patients") + "\n" +
+                            tr("2. J'installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà");
+        msgbox->setText(text);
+        msgbox->setInformativeText(inftxt);
+        msgbox->setIcon(UpMessageBox::Info);
+
+
+        msgbox->addButton(&BaseViergeBouton,    UpSmallButton::NOBUTTON);
+        msgbox->addButton(&BaseExistanteBouton, UpSmallButton::NOBUTTON);
+        msgbox->addButton(&AnnulBouton,         UpSmallButton::CANCELBUTTON);
+        msgbox->exec();
+
+        protoc = BaseExistante;
+        if (msgbox->clickedButton() == &AnnulBouton)
+            return false;
+        else if (msgbox->clickedButton() == &BaseExistanteBouton)
+            protoc = BaseExistante;
+        else if (msgbox->clickedButton() == &BaseViergeBouton)
+            protoc = BaseVierge;
+    }
 
 
 
@@ -4598,8 +4630,8 @@ bool Procedures::PremierDemarrage()
                                        tr("Le programme va redémarrer pour que les modifications puissent être prises en compte") + ".\n");
             //! Redémarrage automatique : on relance Rufus avant de quitter, pour que
             //! l'utilisateur n'ait rien à faire (la nouvelle instance repart sur la
-            //! configuration fraîchement écrite).
-            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+            //! configuration fraîchement écrite). argsRelance() : sans -installMySQL (anti-boucle).
+            QProcess::startDetached(QApplication::applicationFilePath(), argsRelance());
             exit(0);
         }
     }
@@ -4613,7 +4645,10 @@ bool Procedures::PremierDemarrage()
         //! cf MySQLInstaller, docs/NOTES_INTEGRATION_MYSQLINSTALLER.md
         MySQLInstaller installeurMySQL;
         if (!installeurMySQL.run())
-            return PremierDemarrage();
+            //! En mode FORCÉ (raccourci -installMySQL), on NE recurse PAS : la msgbox étant sautée,
+            //! une récursion sur échec n'offrirait aucune sortie. On rend la main (return false) → le
+            //! flux normal de Connexion_A_La_Base présente le carrefour « Aucun serveur » (avec Quitter).
+            return forceBaseVierge ? false : PremierDemarrage(false);
 
         //! nbp = TOUJOURS monoposte / serveur local. On reloge ici les effets de bord
         //! « Poste » qu'assurait dlg_paramconnexion (qu'on n'appelle plus pour nbp :
@@ -4644,7 +4679,7 @@ bool Procedures::PremierDemarrage()
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Erreur de connexion au serveur MySQL"),
                                 tr("La connexion à MySQL a échoué après l'installation.") + "\n" + erreurConnexion);
-            return PremierDemarrage();
+            return forceBaseVierge ? false : PremierDemarrage(false);   //! cf. note ci-dessus (pas de récursion en mode forcé)
         }
         m_connexionbaseOK = true;
 
@@ -4679,7 +4714,8 @@ bool Procedures::PremierDemarrage()
         //! Redémarrage automatique APRÈS la dernière boîte (celle qui affiche le mot de
         //! passe) : on relance Rufus puis on quitte, l'utilisateur n'a rien à relancer
         //! lui-même. La nouvelle instance repart sur la base tout juste créée.
-        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+        //! argsRelance() : sans -installMySQL, sinon la nouvelle instance réinstallerait en boucle.
+        QProcess::startDetached(QApplication::applicationFilePath(), argsRelance());
         exit(0);
     }
     return false;

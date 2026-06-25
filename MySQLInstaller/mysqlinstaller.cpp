@@ -1156,7 +1156,11 @@ bool MySQLInstaller::run()
             delete clean;
             UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
                 tr("MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf."));
-            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+            //! On relance AVEC le drapeau « -installMySQL » : au redémarrage, Connexion_A_La_Base()
+            //! va DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le
+            //! carrefour « Aucun serveur » ni le choix vierge/existante (ergonomie après un
+            //! « tout effacer et réinstaller » délibéré). Drapeau posé À CE SEUL endroit.
+            QProcess::startDetached(QApplication::applicationFilePath(), QStringList{"-installMySQL"});
             exit(0);
             return true;                        // jamais atteint
         }
