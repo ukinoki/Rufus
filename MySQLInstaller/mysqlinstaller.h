@@ -406,7 +406,6 @@ private:
     bool    setupSharedFolder();         // existe + partagé (crée/partage sinon)
     bool    ensureSecureFilePriv();      // secure_file_priv = /Users/Shared (my.cnf)
     bool    testSharedFolderRW();        // mysql lit ET écrit un fichier test
-    bool    guideMysqldFullDiskAccess(); // guide l'octroi du FDA à mysqld (ré-essai)
 #if defined(Q_OS_LINUX)
     //  Regroupe TOUT le paramétrage root du mode Create en une seule élévation
     //  (utilisateur MySQL + dossier/AppArmor/ufw/Samba/wsdd + my.cnf + restart),

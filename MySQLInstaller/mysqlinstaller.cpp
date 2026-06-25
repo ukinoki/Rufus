@@ -2097,32 +2097,24 @@ bool MySQLInstaller::executerEtapesConfig()
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(3);
 
-    // ── Étape 5 : mysql lit et écrit dans le dossier (fichier test) ───────
-    while (!testSharedFolderRW()) {
+    // ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
+    // secure_file_priv est désormais VÉRIFIÉ côté serveur par ensureSecureFilePriv (étape 4) : si on
+    // arrive ici, le serveur l'applique. Un échec d'écriture ne vient donc PLUS du « Full Disk
+    // Access » (faux diagnostic : /Users/Shared n'est pas protégé par TCC) mais d'une cause réelle —
+    // privilège FILE manquant, ou droits du dossier. On le dit honnêtement, sans boucle ni renvoi
+    // vers les Réglages Système (les 3 plateformes traitées pareil).
+    if (!testSharedFolderRW()) {
         if (!tryConnect()) {
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                 tr("Connexion impossible avec le login « %1 ».\n"
                    "Vérifiez le login et le mot de passe.").arg(m_login));
             return false;
         }
-#if defined(Q_OS_MACOS)
-        // macOS : l'échec vient en général de l'absence de « Full Disk Access ».
-        if (!guideMysqldFullDiskAccess()) {
-            UpMessageBox::Watch(m_dialog, tr("Écriture impossible"),
-                tr("mysql ne parvient pas à écrire dans %1.\n"
-                   "Accordez l'accès complet au disque à mysqld, ou vérifiez le "
-                   "privilège FILE de « %2 ».").arg(sharedFolderPath(), m_login));
-            return false;
-        }
-        restartMySQL();   // appliquer l'accès nouvellement accordé au démon
-#else
-        // Windows / Linux : pas de notion de « Full Disk Access ».
         UpMessageBox::Watch(m_dialog, tr("Écriture impossible"),
-            tr("mysql ne parvient pas à écrire dans %1.\n"
-               "Vérifiez les droits du dossier et le privilège FILE de « %2 ».")
-            .arg(sharedFolderPath(), m_login));
+            tr("Le serveur MySQL ne parvient pas à écrire dans %1.\n\n"
+               "Vérifiez que le compte « %2 » possède le privilège FILE et que les "
+               "droits du dossier autorisent l'écriture.").arg(sharedFolderPath(), m_login));
         return false;
-#endif
     }
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(4);
@@ -3338,40 +3330,6 @@ bool MySQLInstaller::testSharedFolderRW()
 
     // Écriture ET lecture réussies si le jeton est revenu intact.
     return out.contains(token);
-}
-
-//  Guide l'utilisateur pour accorder l'« Accès complet au disque » au binaire
-//  mysqld, puis attend qu'il demande un ré-essai. Renvoie false si l'utilisateur
-//  annule.
-bool MySQLInstaller::guideMysqldFullDiskAccess()
-{
-    const QString mysqld = mysqlBin("mysqld");
-
-    forever {
-        const UpSmallButton::StyleBouton rep = UpMessageBox::Question(m_dialog,
-            tr("Accès complet au disque requis pour mysqld"),
-            tr("mysqld ne parvient pas à écrire dans /Users/Shared. Sur macOS, un "
-               "démon doit disposer de l'« Accès complet au disque » pour y accéder.\n\n"
-               "Pour l'autoriser :\n"
-               "  1. Ouvrez les Réglages Système ▸ Confidentialité ▸ Accès complet au disque.\n"
-               "  2. Cliquez sur le bouton « + ».\n"
-               "  3. Glissez mysqld (révélé dans le Finder) :\n\n"
-               "        %1\n\n"
-               "  4. Activez l'interrupteur en face de mysqld.\n"
-               "  5. Revenez ici et cliquez sur « Réessayer ».").arg(mysqld),
-            UpDialog::ButtonCancel | UpDialog::ButtonOK,
-            QStringList() << tr("Annuler") << tr("Réessayer"));
-
-        if (rep != UpSmallButton::STARTBUTTON)
-            return false;             // « Annuler »
-
-        // Ouvre les Réglages Système et révèle mysqld dans le Finder, puis
-        // réaffiche la boîte pour le ré-essai.
-        runCmd("open 'x-apple.systempreferences:com.apple.preference.security"
-               "?Privacy_AllFiles' 2>/dev/null");
-        runCmd("open -R '" + mysqld + "' 2>/dev/null");
-        return true;                  // « Réessayer »
-    }
 }
 
 //  Lit la valeur d'une clé dans la section [mysqld] de my.cnf (sans connexion).
