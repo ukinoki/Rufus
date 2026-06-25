@@ -123,12 +123,12 @@ query = </translation>
     <message>
         <location filename="Database/database.cpp" line="141"/>
         <source>Mode d&apos;accès non défini : appelez setModeacces() avant de vous connecter.</source>
-        <translation type="unfinished"></translation>
+        <translation>Access mode not defined: call setModeacces() before connecting.</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="170"/>
         <source>Clés SSL introuvables</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL keys not found</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="259"/>
@@ -158,7 +158,7 @@ query = </translation>
     <message>
         <location filename="Database/database.cpp" line="429"/>
         <source>La liste des champs à sélectionner est vide</source>
-        <translation type="unfinished"></translation>
+        <translation>The list of fields to select is empty</translation>
     </message>
     <message>
         <location filename="Database/database.cpp" line="634"/>
@@ -670,17 +670,17 @@ query = </translation>
     <message>
         <location filename="ItemsLists/cls_itemslist.cpp" line="1556"/>
         <source>Enregistrement impossible</source>
-        <translation type="unfinished"></translation>
+        <translation>Could not save</translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_itemslist.cpp" line="1557"/>
         <source>La modification n&apos;a pas pu être enregistrée dans la base de données (le serveur est peut-être momentanément indisponible).</source>
-        <translation type="unfinished"></translation>
+        <translation>The change could not be saved to the database (the server may be temporarily unavailable).</translation>
     </message>
     <message>
         <location filename="ItemsLists/cls_itemslist.cpp" line="1559"/>
         <source>L&apos;affichage peut être temporairement désynchronisé de la base : vérifiez votre connexion, puis ressaisissez la modification.</source>
-        <translation type="unfinished"></translation>
+        <translation>The display may be temporarily out of sync with the database: check your connection, then re-enter the change.</translation>
     </message>
 </context>
 <context>
@@ -861,44 +861,50 @@ To connect to it, use &quot;Existing patient database on the server&quot; from t
 Pour vous y connecter, choisissez « Conserver » puis, depuis l&apos;écran de premier démarrage, « Base patients existante sur le serveur ».
 
 Voulez-vous la conserver ou la supprimer ?</source>
-        <translation type="unfinished"></translation>
+        <translation>A Rufus database already exists on this computer.
+
+To connect to it, choose &quot;Keep&quot;, then, from the first-launch screen, &quot;Existing patient database on the server&quot;.
+
+Do you want to keep it or delete it?</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1098"/>
         <source>Supprimer la base Rufus existante</source>
-        <translation type="unfinished"></translation>
+        <translation>Delete the existing Rufus database</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1099"/>
         <source>Conserver la base existante</source>
-        <translation type="unfinished"></translation>
+        <translation>Keep the existing database</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1108"/>
         <source>Supprimer la base Rufus ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Delete the Rufus database?</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1109"/>
         <source>Cette opération supprimera DÉFINITIVEMENT la base de données Rufus (patients, comptabilité, ophtalmologie, imagerie) présente sur ce serveur.
 
 Cette action est IRRÉVERSIBLE. Voulez-vous continuer ?</source>
-        <translation type="unfinished"></translation>
+        <translation>This operation will PERMANENTLY delete the Rufus database (patients, accounting, ophthalmology, imaging) on this server.
+
+This action is IRREVERSIBLE. Do you want to continue?</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1147"/>
         <source>Désinstallation de MySQL…</source>
-        <translation type="unfinished"></translation>
+        <translation>Uninstalling MySQL…</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1157"/>
         <source>MySQL supprimé</source>
-        <translation type="unfinished"></translation>
+        <translation>MySQL removed</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1158"/>
         <source>MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf.</source>
-        <translation type="unfinished"></translation>
+        <translation>MySQL has been removed. Rufus will restart to install a new server.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1187"/>
@@ -933,7 +939,8 @@ What do you want to do?</translation>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1204"/>
         <source>Réinstaller entièrement MySQL
 (si le mot de passe est perdu)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fully reinstall MySQL
+(if the password is lost)</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1216"/>
@@ -1038,109 +1045,109 @@ If this data matters to you, stop Rufus to back it up yourself before continuing
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1933"/>
         <source>Certificats SSL expirés</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL certificates expired</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1933"/>
         <source>Clés SSL absentes</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL keys missing</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1935"/>
         <source>Les certificats SSL du serveur ont expiré : l&apos;accès distant ne fonctionne plus.</source>
-        <translation type="unfinished"></translation>
+        <translation>The server&apos;s SSL certificates have expired: remote access no longer works.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1936"/>
         <source>Le serveur ne dispose pas de clés SSL pour l&apos;accès distant.</source>
-        <translation type="unfinished"></translation>
+        <translation>The server does not have SSL keys for remote access.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1937"/>
         <source>Rufus peut générer de NOUVELLES clés SSL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus can generate NEW SSL keys.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1938"/>
         <source>ATTENTION : les postes en accès distant déjà configurés ne pourront plus se connecter tant que vous ne leur aurez pas transmis les NOUVELLES clés.</source>
-        <translation type="unfinished"></translation>
+        <translation>WARNING: workstations already configured for remote access will no longer be able to connect until you have given them the NEW keys.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1940"/>
         <source>Le serveur MySQL sera redémarré et Rufus relancé.</source>
-        <translation type="unfinished"></translation>
+        <translation>The MySQL server will be restarted and Rufus relaunched.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1942"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2328"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2656"/>
         <source>Plus tard</source>
-        <translation type="unfinished"></translation>
+        <translation>Later</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1943"/>
         <source>Générer de nouvelles clés</source>
-        <translation type="unfinished"></translation>
+        <translation>Generate new keys</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1952"/>
         <source>Nouvelles clés SSL générées</source>
-        <translation type="unfinished"></translation>
+        <translation>New SSL keys generated</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1953"/>
         <source>De nouvelles clés SSL ont été générées.</source>
-        <translation type="unfinished"></translation>
+        <translation>New SSL keys have been generated.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1954"/>
         <source>Transmettez-les aux postes en accès distant : menu Édition / Paramètres / Ce poste → « Exporter les clés client SSL ».</source>
-        <translation type="unfinished"></translation>
+        <translation>Send them to the remote-access workstations: Edit / Settings / This computer menu → &quot;Export SSL client keys&quot;.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1956"/>
         <source>Rufus va redémarrer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus will restart.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1960"/>
         <source>Génération impossible</source>
-        <translation type="unfinished"></translation>
+        <translation>Generation failed</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1961"/>
         <source>Les clés SSL n&apos;ont pas pu être générées.</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL keys could not be generated.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1981"/>
         <source>ont expiré</source>
-        <translation type="unfinished"></translation>
+        <translation>expired</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1982"/>
         <source>expireront le %1 (dans %2 jours)</source>
-        <translation type="unfinished"></translation>
+        <translation>will expire on %1 (in %2 days)</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1984"/>
         <source>Clés SSL d&apos;accès distant</source>
-        <translation type="unfinished"></translation>
+        <translation>Remote-access SSL keys</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1985"/>
         <source>Les clés SSL qui sécurisent cet accès distant %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL keys securing this remote access %1.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1986"/>
         <source>Sans renouvellement, la connexion à distance cessera de fonctionner.</source>
-        <translation type="unfinished"></translation>
+        <translation>Without renewal, the remote connection will stop working.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1987"/>
         <source>Faites générer de nouvelles clés SUR LE POSTE SERVEUR (menu Édition / Paramètres / Ce poste → « Créer de nouvelles clés SSL »), puis faites-vous transmettre les nouvelles clés et indiquez leur dossier ici.</source>
-        <translation type="unfinished"></translation>
+        <translation>Have new keys generated ON THE SERVER WORKSTATION (Edit / Settings / This computer menu → &quot;Create new SSL keys&quot;), then have the new keys sent to you and specify their folder here.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2051"/>
@@ -1165,7 +1172,7 @@ If this data matters to you, stop Rufus to back it up yourself before continuing
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2074"/>
         <source>Détail :</source>
-        <translation type="unfinished"></translation>
+        <translation>Details:</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2080"/>
@@ -1204,47 +1211,49 @@ Check the username and password.</translation>
         <source>Le serveur MySQL ne parvient pas à écrire dans %1.
 
 Vérifiez que le compte « %2 » possède le privilège FILE et que les droits du dossier autorisent l&apos;écriture.</source>
-        <translation type="unfinished"></translation>
+        <translation>The MySQL server cannot write to %1.
+
+Check that the &quot;%2&quot; account has the FILE privilege and that the folder permissions allow writing.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4249"/>
         <source>Téléchargement de MySQL impossible</source>
-        <translation type="unfinished"></translation>
+        <translation>MySQL download failed</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4250"/>
         <source>Rufus n&apos;a pas réussi à télécharger MySQL : le site n&apos;est pas accessible.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus could not download MySQL: the site is not accessible.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4251"/>
         <source>Vous pouvez installer MySQL vous-même : téléchargez-le et installez-le sans rien configurer.</source>
-        <translation type="unfinished"></translation>
+        <translation>You can install MySQL yourself: download it and install it without configuring anything.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4252"/>
         <source>Notez simplement le login et le mot de passe de l&apos;utilisateur que vous avez créé.</source>
-        <translation type="unfinished"></translation>
+        <translation>Simply note down the login and password of the user you created.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4253"/>
         <source>Relancez ensuite Rufus : il détectera la présence du serveur</source>
-        <translation type="unfinished"></translation>
+        <translation>Then restart Rufus: it will detect the presence of the server</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4254"/>
         <source>et vous demandera ce login et ce mot de passe.</source>
-        <translation type="unfinished"></translation>
+        <translation>and will ask you for this login and password.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4255"/>
         <source>Avec ces renseignements, il se connectera au serveur</source>
-        <translation type="unfinished"></translation>
+        <translation>With this information, it will connect to the server</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="4256"/>
         <source>et le configurera automatiquement pour son usage.</source>
-        <translation type="unfinished"></translation>
+        <translation>and will configure it automatically for its use.</translation>
     </message>
     <message>
         <source>mysql ne parvient pas à écrire dans %1.
@@ -1271,158 +1280,159 @@ Check the folder permissions and the FILE privilege of &quot;%2&quot;.</translat
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2310"/>
         <source>le dossier partagé est introuvable</source>
-        <translation type="unfinished"></translation>
+        <translation>the shared folder cannot be found</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2312"/>
         <source>la variable serveur secure_file_priv n&apos;est pas correctement positionnée</source>
-        <translation type="unfinished"></translation>
+        <translation>the server variable secure_file_priv is not correctly set</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2319"/>
         <source>Configuration du serveur MySQL à corriger</source>
-        <translation type="unfinished"></translation>
+        <translation>MySQL server configuration to be corrected</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2321"/>
         <source>La configuration du serveur MySQL présente une ou plusieurs anomalies :</source>
-        <translation type="unfinished"></translation>
+        <translation>The MySQL server configuration has one or more anomalies:</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2323"/>
         <source>Rufus peut tenter de les corriger maintenant. Cette opération peut demander le mot de passe administrateur de l&apos;ordinateur.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus can try to correct them now. This operation may require the computer&apos;s administrator password.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2325"/>
         <source>Vous pouvez aussi continuer : Rufus fonctionnera, mais certaines fonctions (imagerie, sauvegarde) pourraient être perturbées.</source>
-        <translation type="unfinished"></translation>
+        <translation>You can also continue: Rufus will work, but some features (imaging, backup) may be disrupted.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2329"/>
         <source>Corriger maintenant</source>
-        <translation type="unfinished"></translation>
+        <translation>Correct now</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2339"/>
         <source>Correction de la configuration MySQL</source>
-        <translation type="unfinished"></translation>
+        <translation>Correcting the MySQL configuration</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2340"/>
         <source>Vérification et correction de la configuration en cours…</source>
-        <translation type="unfinished"></translation>
+        <translation>Checking and correcting the configuration…</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2348"/>
         <source>Configuration corrigée</source>
-        <translation type="unfinished"></translation>
+        <translation>Configuration corrected</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2349"/>
         <source>La configuration du serveur MySQL a été corrigée.</source>
-        <translation type="unfinished"></translation>
+        <translation>The MySQL server configuration has been corrected.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2351"/>
         <source>Correction incomplète</source>
-        <translation type="unfinished"></translation>
+        <translation>Incomplete correction</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2352"/>
         <source>Certaines anomalies de configuration n&apos;ont pas pu être corrigées.</source>
-        <translation type="unfinished"></translation>
+        <translation>Some configuration anomalies could not be corrected.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2353"/>
         <source>Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus continues; some features (imaging, backup) may be affected.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2619"/>
         <source>Mot de passe générique bientôt désactivé</source>
-        <translation type="unfinished"></translation>
+        <translation>Generic password soon to be disabled</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2620"/>
         <source>Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.</source>
-        <translation type="unfinished"></translation>
+        <translation>This computer uses a secure password to access the database server.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2621"/>
         <source>Un mot de passe générique est par ailleurs maintenu</source>
-        <translation type="unfinished"></translation>
+        <translation>A generic password is also kept</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2622"/>
         <source>pour des raisons de compatibilité avec les versions antérieures de Rufus</source>
-        <translation type="unfinished"></translation>
+        <translation>for compatibility reasons with earlier versions of Rufus</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2623"/>
         <source>Ce mot de passe générique sera automatiquement désactivé</source>
-        <translation type="unfinished"></translation>
+        <translation>This generic password will be automatically disabled</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2624"/>
         <source>le %1 dans %2 jours</source>
-        <translation type="unfinished"></translation>
+        <translation>on %1 in %2 days</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2624"/>
         <source>dd MMMM yyyy</source>
-        <translation type="unfinished"></translation>
+        <translation>dd MMMM yyyy</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2625"/>
         <source>Assurez-vous d&apos;ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé.</source>
-        <translation type="unfinished"></translation>
+        <translation>In the meantime, make sure the other workstations that access this server have retrieved the secure password.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2639"/>
         <source>prochainement</source>
-        <translation type="unfinished"></translation>
+        <translation>soon</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2642"/>
         <source>Ce poste utilise encore le mot de passe générique (de mise en route),</source>
-        <translation type="unfinished"></translation>
+        <translation>This computer is still using the generic (start-up) password,</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2644"/>
         <source>qui sera désactivé le %1 (dans %2 jours).</source>
-        <translation type="unfinished"></translation>
+        <translation>which will be disabled on %1 (in %2 days).</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2646"/>
         <source>qui sera prochainement désactivé.</source>
-        <translation type="unfinished"></translation>
+        <translation>which will be disabled soon.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2648"/>
         <source>Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste qui a fait la mise à jour, ou disponible via le menu Édition / Paramètres d&apos;un poste à jour) et enregistrez-le : sans lui, cet accès cessera de fonctionner.</source>
-        <translation type="unfinished"></translation>
+        <translation>Retrieve the practice&apos;s secure password (copied onto a USB drive from the workstation that performed the update, or available from the Edit / Settings menu of an up-to-date workstation) and save it: without it, this access will stop working.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2653"/>
         <source>Mot de passe du cabinet à récupérer</source>
-        <translation type="unfinished"></translation>
+        <translation>Practice password to retrieve</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2657"/>
         <source>Renseigner le nouveau
 mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter the new
+password</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2668"/>
         <source>Récupérer le mot de passe du cabinet</source>
-        <translation type="unfinished"></translation>
+        <translation>Retrieve the practice password</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2669"/>
         <source>Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur laquelle il a été copié depuis un poste à jour.</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter the practice&apos;s secure password, or import it from the USB drive onto which it was copied from an up-to-date workstation.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="2761"/>
@@ -1699,7 +1709,7 @@ Closing the program.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="176"/>
         <source>Confirmez le mot de passe :</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm the password:</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="203"/>
@@ -1760,12 +1770,12 @@ Closing the program.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="336"/>
         <source>Confirmation incorrecte</source>
-        <translation type="unfinished"></translation>
+        <translation>Incorrect confirmation</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="337"/>
         <source>Le mot de passe et sa confirmation ne sont pas identiques.</source>
-        <translation type="unfinished"></translation>
+        <translation>The password and its confirmation are not identical.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="348"/>
@@ -1800,7 +1810,7 @@ Closing the program.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="354"/>
         <source>Clés SSL pour l&apos;accès distant</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL keys for remote access</translation>
     </message>
 </context>
 <context>
@@ -1813,7 +1823,7 @@ Closing the program.</translation>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="122"/>
         <source>%1 / %2 Mo</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 / %2 MB</translation>
     </message>
 </context>
 <context>
@@ -2912,85 +2922,85 @@ Program exit</translation>
     <message>
         <location filename="procedures.cpp" line="3140"/>
         <source>Installation de MySQL</source>
-        <translation type="unfinished">Installing MySQL</translation>
+        <translation>Installing MySQL</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3141"/>
         <source>Rufus va maintenant installer un serveur MySQL neuf sur ce poste, puis créer une nouvelle base patients.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus will now install a new MySQL server on this computer, then create a new patient database.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3180"/>
         <source>Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL encryption keys for the remote connection cannot be found.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3182"/>
         <source>Rufus les a cherchées dans le dossier :</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus looked for them in the folder:</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3184"/>
         <source>Indiquez, dans la boîte de dialogue suivante, le dossier contenant client-key.pem et client-cert.pem.</source>
-        <translation type="unfinished"></translation>
+        <translation>In the next dialog, specify the folder containing client-key.pem and client-cert.pem.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3186"/>
         <location filename="procedures.cpp" line="3193"/>
         <source>Clés SSL introuvables</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL keys not found</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3188"/>
         <source>Indiquez le dossier des clés SSL (client-key.pem et client-cert.pem)</source>
-        <translation type="unfinished"></translation>
+        <translation>Specify the SSL keys folder (client-key.pem and client-cert.pem)</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3194"/>
         <source>L&apos;accès distant nécessite les clés SSL du cabinet (client-key.pem, client-cert.pem), à copier depuis le poste serveur sur une clé USB.</source>
-        <translation type="unfinished"></translation>
+        <translation>Remote access requires the practice&apos;s SSL keys (client-key.pem, client-cert.pem), to be copied from the server workstation onto a USB drive.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3220"/>
         <source>Aucun serveur de base de données</source>
-        <translation type="unfinished"></translation>
+        <translation>No database server</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3221"/>
         <source>Aucun serveur MySQL n&apos;est installé sur ce poste.</source>
-        <translation type="unfinished"></translation>
+        <translation>No MySQL server is installed on this computer.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3222"/>
         <source>Pour utiliser Rufus en monoposte, créez une nouvelle base patients (le serveur sera installé automatiquement), ou quittez.</source>
-        <translation type="unfinished"></translation>
+        <translation>To use Rufus in single-workstation mode, create a new patient database (the server will be installed automatically), or quit.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3266"/>
         <source>Vous pouvez vous connecter à (ou créer) une base patients, restaurer le fichier Rufus.ini depuis une sauvegarde, ou quitter.</source>
-        <translation type="unfinished"></translation>
+        <translation>You can connect to (or create) a patient database, restore the Rufus.ini file from a backup, or quit.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3306"/>
         <location filename="procedures.cpp" line="3315"/>
         <source>Base de données endommagée</source>
-        <translation type="unfinished"></translation>
+        <translation>Damaged database</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3307"/>
         <location filename="procedures.cpp" line="3316"/>
         <source>La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.</source>
-        <translation type="unfinished"></translation>
+        <translation>The connection to the MySQL server works, but the Rufus patient database is corrupted.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3308"/>
         <source>Vous pouvez la restaurer depuis une sauvegarde, ou quitter.</source>
-        <translation type="unfinished"></translation>
+        <translation>You can restore it from a backup, or quit.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3317"/>
         <source>Vous devez restaurer une base patients ; cette restauration ne peut se faire qu&apos;à partir du poste serveur.</source>
-        <translation type="unfinished"></translation>
+        <translation>You must restore a patient database; this restore can only be done from the server workstation.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3342"/>
@@ -3027,32 +3037,32 @@ Program exit</translation>
     <message>
         <location filename="procedures.cpp" line="3402"/>
         <source>Serveur MySQL à mettre à jour</source>
-        <translation type="unfinished"></translation>
+        <translation>MySQL server to be updated</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3403"/>
         <source>Le serveur MySQL nécessite d&apos;être mis à jour pour pouvoir utiliser</source>
-        <translation type="unfinished"></translation>
+        <translation>The MySQL server needs to be updated in order to use</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3404"/>
         <source>les nouvelles fonctions de sécurité incluses dans cette version de Rufus.</source>
-        <translation type="unfinished"></translation>
+        <translation>the new security features included in this version of Rufus.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3405"/>
         <source>La mise à jour doit être effectuée depuis le poste serveur (en y lançant Rufus, qui s&apos;en chargera).</source>
-        <translation type="unfinished"></translation>
+        <translation>The update must be carried out from the server workstation (by launching Rufus there, which will take care of it).</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3407"/>
         <source>Même s&apos;il est fortement conseillé de faire cette mise à jour</source>
-        <translation type="unfinished"></translation>
+        <translation>Even though this update is strongly recommended</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3408"/>
         <source>vous pouvez continuer à travailler normalement.</source>
-        <translation type="unfinished"></translation>
+        <translation>you can continue working normally.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3442"/>
@@ -3830,7 +3840,9 @@ Unfortunately, none of these connections seem to work.</translation>
         <source>Si vous confirmez la réinitialisation, une sauvegarde de la base patients, du fichier Rufus.ini et des fichiers ressources sera réalisée puis le programme sera arrêté.
 Au redémarrage, une fenêtre de récupération vous permettra de repartir sur une base patients neuve.
 Vous pourrez encore annuler la réinitialisation en restaurant le fichier de paramétrage à partir de la sauvegarde (fichier RufusBackup.ini).</source>
-        <translation type="unfinished"></translation>
+        <translation>If you confirm the reset, a backup of the patient database, the Rufus.ini file and the resource files will be made, then the program will be stopped.
+On restart, a recovery window will let you start over with a fresh patient database.
+You can still cancel the reset by restoring the configuration file from the backup (RufusBackup.ini file).</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2492"/>
@@ -3855,79 +3867,81 @@ Vous pourrez encore annuler la réinitialisation en restaurant le fichier de par
     <message>
         <location filename="procedures.cpp" line="2525"/>
         <source>Dossier de sauvegarde invalide</source>
-        <translation type="unfinished"></translation>
+        <translation>Invalid backup folder</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2526"/>
         <source>Le dossier choisi ne contient pas une sauvegarde Rufus complète.</source>
-        <translation type="unfinished"></translation>
+        <translation>The chosen folder does not contain a complete Rufus backup.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2527"/>
         <source>Fichier(s) manquant(s) :</source>
-        <translation type="unfinished"></translation>
+        <translation>Missing file(s):</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2822"/>
         <source>Rufus va désinstaller l&apos;ancien MySQL, installer la nouvelle version, puis restaurer votre base.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus will uninstall the old MySQL, install the new version, then restore your database.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2824"/>
         <source>Une sauvegarde de la base est indispensable AVANT la désinstallation : Rufus peut la faire pour vous, ou vous pouvez poursuivre si vous l&apos;avez déjà faite (le dossier de sauvegarde vous sera alors demandé pour la restauration).</source>
-        <translation type="unfinished"></translation>
+        <translation>A backup of the database is essential BEFORE uninstalling: Rufus can do it for you, or you can continue if you have already done it (the backup folder will then be requested for the restore).</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2829"/>
         <source>Poursuivre,
 la sauvegarde a été faite</source>
-        <translation type="unfinished"></translation>
+        <translation>Continue,
+the backup has been done</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2830"/>
         <source>Sauvegarder les données
 et mettre à jour</source>
-        <translation type="unfinished"></translation>
+        <translation>Back up the data
+and update</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2861"/>
         <source>Espace insuffisant</source>
-        <translation type="unfinished"></translation>
+        <translation>Insufficient space</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2862"/>
         <source>Le support de sauvegarde ne dispose pas d&apos;assez d&apos;espace libre.</source>
-        <translation type="unfinished"></translation>
+        <translation>The backup medium does not have enough free space.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2863"/>
         <source>Espace nécessaire (estimé) : </source>
-        <translation type="unfinished"></translation>
+        <translation>Space required (estimated): </translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2864"/>
         <source>Espace disponible : </source>
-        <translation type="unfinished"></translation>
+        <translation>Available space: </translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2865"/>
         <source>Choisissez un autre support de sauvegarde (clé USB, disque externe…).</source>
-        <translation type="unfinished"></translation>
+        <translation>Choose another backup medium (USB drive, external disk…).</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2902"/>
         <source>Votre sauvegarde n&apos;a pas été touchée.</source>
-        <translation type="unfinished"></translation>
+        <translation>Your backup has not been touched.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="2919"/>
         <source>La base n&apos;a pas pu être restaurée.</source>
-        <translation type="unfinished"></translation>
+        <translation>The database could not be restored.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3976"/>
         <source>Nouvelle base patients</source>
-        <translation type="unfinished"></translation>
+        <translation>New patient database</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3980"/>
@@ -3936,134 +3950,141 @@ Voulez-vous la reconstruire à partir
 d&apos;une sauvegarde ou recréer une base patients vierge?
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>The database is damaged.
+Do you want to rebuild it from
+a backup, or create a blank patient database?</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="3993"/>
         <location filename="procedures.cpp" line="4004"/>
         <location filename="procedures.cpp" line="4958"/>
         <source>Le programme va redémarrer pour que certaines données puissent être prises en compte</source>
-        <translation type="unfinished"></translation>
+        <translation>The program will restart so that some data can be taken into account</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4615"/>
         <source>Abandonner</source>
-        <translation type="unfinished"></translation>
+        <translation>Give up</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4616"/>
         <source>Nouvelle base
 patients</source>
-        <translation type="unfinished"></translation>
+        <translation>New
+patient database</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4619"/>
         <source>Cette étape va vous permettre de configurer le logiciel en quelques secondes</source>
-        <translation type="unfinished"></translation>
+        <translation>This step lets you configure the software in just a few seconds</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4620"/>
         <source>Commencez par choisir la situation qui décrit le mieux votre installation de Rufus</source>
-        <translation type="unfinished"></translation>
+        <translation>Start by choosing the situation that best describes your Rufus installation</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4621"/>
         <source>1. J&apos;installe Rufus sur ce poste en créant une nouvelle base patients</source>
-        <translation type="unfinished"></translation>
+        <translation>1. I am installing Rufus on this computer by creating a new patient database</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4622"/>
         <source>2. J&apos;installe Rufus sur ce poste et Rufus se connectera à une base patients qui existe dèjà</source>
-        <translation type="unfinished"></translation>
+        <translation>2. I am installing Rufus on this computer and Rufus will connect to a patient database that already exists</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4656"/>
         <source>Le programme va redémarrer pour que les modifications puissent être prises en compte</source>
-        <translation type="unfinished"></translation>
+        <translation>The program will restart so that the changes can be taken into account</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4733"/>
         <source>Le programme va redémarrer pour que les modifications de la base Rufus puissent être prises en compte.</source>
-        <translation type="unfinished"></translation>
+        <translation>The program will restart so that the changes to the Rufus database can be taken into account.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4734"/>
         <source>IMPORTANT — un mot de passe de connexion à votre base de données a été créé</source>
-        <translation type="unfinished"></translation>
+        <translation>IMPORTANT — a password for connecting to your database has been created</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4735"/>
         <source>Notez-le et conservez-le en lieu sûr (sur papier ou sur une clé USB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Note it down and keep it in a safe place (on paper or on a USB drive)</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4736"/>
         <source>il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
-        <translation type="unfinished"></translation>
+        <translation>it is required to connect another workstation to the practice, or to troubleshoot this computer.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4737"/>
         <source>Mot de passe :</source>
-        <translation type="unfinished">Password:</translation>
+        <translation>Password:</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4739"/>
         <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Edition/Paramètres/Onglet « Ce poste ».</source>
-        <translation type="unfinished"></translation>
+        <translation>You can also save it to a USB drive at any time from Edit/Settings/&quot;This computer&quot; tab.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4862"/>
         <source>Restaurer le fichier Rufus.ini
 à partir d&apos;une sauvegarde</source>
-        <translation type="unfinished"></translation>
+        <translation>Restore the Rufus.ini file
+from a backup</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4863"/>
         <source>Restaurer la base de données
 à partir d&apos;une sauvegarde</source>
-        <translation type="unfinished"></translation>
+        <translation>Restore the database
+from a backup</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4864"/>
         <source>Reconstruire le fichier
 Rufus.ini</source>
-        <translation type="unfinished"></translation>
+        <translation>Rebuild the
+Rufus.ini file</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4871"/>
         <source>Accéder à une
 base patients</source>
-        <translation type="unfinished"></translation>
+        <translation>Access a
+patient database</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4872"/>
         <source>Mettre en place l&apos;accès de ce poste à sa base patients.</source>
-        <translation type="unfinished"></translation>
+        <translation>Set up this computer&apos;s access to its patient database.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4970"/>
         <source>Base restaurée</source>
-        <translation type="unfinished"></translation>
+        <translation>Database restored</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4971"/>
         <source>La base de données a été restaurée. Rufus va redémarrer.</source>
-        <translation type="unfinished"></translation>
+        <translation>The database has been restored. Rufus will restart.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4984"/>
         <source>Paramètres de connexion enregistrés</source>
-        <translation type="unfinished"></translation>
+        <translation>Connection settings saved</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="4985"/>
         <source>Rufus va redémarrer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus will restart.</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="5002"/>
         <source>Entrez votre identifiant et votre mot de passe d&apos;utilisateur Rufus</source>
-        <translation type="unfinished"></translation>
+        <translation>Enter your Rufus user login and password</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="6515"/>
@@ -4269,7 +4290,7 @@ base patients</source>
     <message>
         <location filename="procedures.cpp" line="173"/>
         <source>Si c&apos;est le cas, choisissez l&apos;option &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>If so, choose the &quot;%1&quot; option</translation>
     </message>
     <message>
         <location filename="procedures.cpp" line="174"/>
@@ -4529,86 +4550,87 @@ base patients</source>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1308"/>
         <source>Notez le mot de passe de la base de données</source>
-        <translation type="unfinished"></translation>
+        <translation>Note down the database password</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1309"/>
         <source>Rufus a créé un mot de passe de connexion à votre base de données patients.
 Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire pour connecter un autre poste au cabinet, ou pour dépanner cet ordinateur.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus has created a password for connecting to your patient database.
+Keep it in a safe place (on paper or on a USB drive): it is required to connect another workstation to the practice, or to troubleshoot this computer.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1312"/>
         <source>Mot de passe :</source>
-        <translation type="unfinished">Password:</translation>
+        <translation>Password:</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1315"/>
         <source>Vous pourrez aussi l&apos;enregistrer sur une clé USB à tout moment depuis Paramètres ▸ onglet « Ce poste ».</source>
-        <translation type="unfinished"></translation>
+        <translation>You can also save it to a USB drive at any time from Settings ▸ &quot;This computer&quot; tab.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1373"/>
         <source>Sécurisation de la base de données</source>
-        <translation type="unfinished"></translation>
+        <translation>Securing the database</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1374"/>
         <source>IMPORTANT : un mot de passe sécurisé vient d&apos;être mis en place.</source>
-        <translation type="unfinished"></translation>
+        <translation>IMPORTANT: a secure password has just been set up.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1375"/>
         <source>S&apos;il existe d&apos;autres postes sur le réseau local qui utilisent Rufus, ils devront IMPÉRATIVEMENT être mis à jour vers cette nouvelle version de Rufus dans un délai d&apos;un mois.</source>
-        <translation type="unfinished"></translation>
+        <translation>If there are other workstations on the local network that use Rufus, they MUST be updated to this new version of Rufus within one month.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1378"/>
         <source>Sans cette mise à jour, au-delà de ce délai, ils ne pourront plus utiliser Rufus.</source>
-        <translation type="unfinished"></translation>
+        <translation>Without this update, beyond that deadline, they will no longer be able to use Rufus.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1391"/>
         <source>Suppression du mot de passe générique</source>
-        <translation type="unfinished"></translation>
+        <translation>Deleting the generic password</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1393"/>
         <source>IMPORTANT : le mot de passe générique d&apos;accès à la base de données va être supprimé.</source>
-        <translation type="unfinished"></translation>
+        <translation>IMPORTANT: the generic password for accessing the database is about to be deleted.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1395"/>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1416"/>
         <source>S&apos;il existe d&apos;autres postes sur le réseau local qui utilisent une version plus ancienne du programme, ils doivent IMPÉRATIVEMENT être mis à jour vers cette nouvelle version pour pouvoir continuer à utiliser Rufus.</source>
-        <translation type="unfinished"></translation>
+        <translation>If there are other workstations on the local network using an older version of the program, they MUST be updated to this new version in order to continue using Rufus.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1399"/>
         <source>Annuler et reporter cette suppression</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancel and postpone this deletion</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1400"/>
         <source>OK, supprimer le mot de passe</source>
-        <translation type="unfinished"></translation>
+        <translation>OK, delete the password</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1413"/>
         <source>Mot de passe générique supprimé</source>
-        <translation type="unfinished"></translation>
+        <translation>Generic password deleted</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1414"/>
         <source>IMPORTANT : le mot de passe générique d&apos;accès à la base de données vient d&apos;être supprimé.</source>
-        <translation type="unfinished"></translation>
+        <translation>IMPORTANT: the generic password for accessing the database has just been deleted.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1465"/>
         <source>Choisissez un login pour le nouvel utilisateur
 - mini 5 maxi 15 caractères -
 - pas de caractères spéciaux ou accentués -</source>
-        <translation type="unfinished">Choose a login for the new user
+        <translation>Choose a login for the new user
 - min. 5 max. 15 characters -
 - no special or accented characters -</translation>
     </message>
@@ -4617,34 +4639,34 @@ Conservez-le en lieu sûr (sur papier ou sur une clé USB) : il est nécessaire 
         <source>Choisissez un mot de passe
 - mini 5 maxi 12 caractères -
 - pas de caractères spéciaux ou accentués -</source>
-        <translation type="unfinished">Choose a password for the new user
+        <translation>Choose a password for the new user
 - min. 5 max. 15 characters -
 - no special or accented characters -</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1467"/>
         <source>Confirmez le mot de passe</source>
-        <translation type="unfinished">Confirm password</translation>
+        <translation>Confirm password</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1493"/>
         <source>Saisie incomplète</source>
-        <translation type="unfinished">Incomplete entry</translation>
+        <translation>Incomplete entry</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1494"/>
         <source>Veuillez renseigner un identifiant et un mot de passe.</source>
-        <translation type="unfinished">Please enter a username and a password.</translation>
+        <translation>Please enter a username and a password.</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1498"/>
         <source>Mots de passe différents</source>
-        <translation type="unfinished"></translation>
+        <translation>Different passwords</translation>
     </message>
     <message>
         <location filename="MySQLInstaller/mysqlinstaller.cpp" line="1499"/>
         <source>Le mot de passe et sa confirmation ne correspondent pas.</source>
-        <translation type="unfinished"></translation>
+        <translation>The password and its confirmation do not match.</translation>
     </message>
 </context>
 <context>
@@ -6587,7 +6609,7 @@ in waiting room</translation>
     <message>
         <location filename="rufus.cpp" line="11108"/>
         <source>Português</source>
-        <translation type="unfinished"></translation>
+        <translation>Português</translation>
     </message>
     <message>
         <location filename="rufus.cpp" line="11115"/>
@@ -15341,18 +15363,18 @@ a server hosted on the local network</translation>
         <location filename="Dialogs/dlg_param.ui" line="1176"/>
         <location filename="Dialogs/dlg_param.ui" line="1772"/>
         <source>Copier les clés client SSL sur une clé USB, pour les déployer sur les postes en accès distant</source>
-        <translation type="unfinished"></translation>
+        <translation>Copy the SSL client keys to a USB drive, to deploy them on remote-access workstations</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="1160"/>
         <location filename="Dialogs/dlg_param.ui" line="1775"/>
         <source>Exporter les clés client SSL (clé USB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Export the SSL client keys (USB drive)</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="1179"/>
         <source>Créer de nouvelles clés SSL</source>
-        <translation type="unfinished"></translation>
+        <translation>Create new SSL keys</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.ui" line="1492"/>
@@ -16077,153 +16099,153 @@ The folder name must not contain spaces</translation>
         <location filename="Dialogs/dlg_param.cpp" line="2389"/>
         <location filename="Dialogs/dlg_param.cpp" line="2456"/>
         <source>Clés client SSL indisponibles</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL client keys unavailable</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2390"/>
         <source>Les clés client SSL ne sont pas disponibles sur ce serveur :</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL client keys are not available on this server:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2392"/>
         <source>Elles sont créées lors de l&apos;installation du serveur MySQL par Rufus.</source>
-        <translation type="unfinished"></translation>
+        <translation>They are created when Rufus installs the MySQL server.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2397"/>
         <location filename="Dialogs/dlg_param.cpp" line="2463"/>
         <source>Sélectionnez la clé USB de destination</source>
-        <translation type="unfinished"></translation>
+        <translation>Select the destination USB drive</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2406"/>
         <location filename="Dialogs/dlg_param.cpp" line="2471"/>
         <source>Dossier inaccessible</source>
-        <translation type="unfinished"></translation>
+        <translation>Folder not accessible</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2407"/>
         <location filename="Dialogs/dlg_param.cpp" line="2472"/>
         <source>Impossible de créer le sous-dossier SSLKeys dans l&apos;emplacement choisi.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unable to create the SSLKeys subfolder in the chosen location.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2421"/>
         <location filename="Dialogs/dlg_param.cpp" line="2490"/>
         <source>Export incomplet</source>
-        <translation type="unfinished"></translation>
+        <translation>Incomplete export</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2422"/>
         <location filename="Dialogs/dlg_param.cpp" line="2491"/>
         <source>Certains fichiers n&apos;ont pas pu être copiés :</source>
-        <translation type="unfinished"></translation>
+        <translation>Some files could not be copied:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2426"/>
         <location filename="Dialogs/dlg_param.cpp" line="2495"/>
         <source>Clés client SSL exportées</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL client keys exported</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2427"/>
         <source>Les clés client SSL ont été copiées sur :</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL client keys have been copied to:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2428"/>
         <source>Déployez-les dans le dossier des clés SSL de chaque poste en accès distant.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deploy them in the SSL keys folder of each remote-access workstation.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2441"/>
         <source>Dossier des clés SSL non renseigné</source>
-        <translation type="unfinished"></translation>
+        <translation>SSL keys folder not specified</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2442"/>
         <source>Le dossier des clés SSL d&apos;accès distant n&apos;est pas renseigné sur ce poste.</source>
-        <translation type="unfinished"></translation>
+        <translation>The remote-access SSL keys folder is not specified on this computer.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2443"/>
         <source>Indiquez-le d&apos;abord avec le bouton de sélection du dossier des clés SSL.</source>
-        <translation type="unfinished"></translation>
+        <translation>First specify it with the SSL keys folder selection button.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2457"/>
         <source>Le dossier des clés SSL ne contient pas les clés nécessaires :</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL keys folder does not contain the required keys:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2496"/>
         <source>Les clés SSL d&apos;accès distant ont été copiées sur :</source>
-        <translation type="unfinished"></translation>
+        <translation>The remote-access SSL keys have been copied to:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2497"/>
         <source>Déployez-les sur l&apos;autre poste en accès distant, puis indiquez-y leur dossier.</source>
-        <translation type="unfinished"></translation>
+        <translation>Deploy them on the other remote-access workstation, then point it to their folder.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2509"/>
         <source>Créer de nouvelles clés SSL ?</source>
-        <translation type="unfinished"></translation>
+        <translation>Create new SSL keys?</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2514"/>
         <source>Vous allez générer de NOUVELLES clés SSL pour ce serveur.</source>
-        <translation type="unfinished"></translation>
+        <translation>You are about to generate NEW SSL keys for this server.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2516"/>
         <source>ATTENTION : plus aucun poste en accès distant ne pourra se connecter tant que vous ne lui aurez pas transmis les NOUVELLES clés.</source>
-        <translation type="unfinished"></translation>
+        <translation>WARNING: no remote-access workstation will be able to connect until you have given it the NEW keys.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2519"/>
         <source>Après la génération, exportez les nouvelles clés (bouton « Exporter les clés client SSL ») et déployez-les sur chaque poste distant.</source>
-        <translation type="unfinished"></translation>
+        <translation>After generation, export the new keys (&quot;Export SSL client keys&quot; button) and deploy them to each remote workstation.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2521"/>
         <source>Le serveur MySQL sera redémarré et Rufus relancé. Continuer ?</source>
-        <translation type="unfinished"></translation>
+        <translation>The MySQL server will be restarted and Rufus relaunched. Continue?</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2524"/>
         <source>Générer de nouvelles clés</source>
-        <translation type="unfinished"></translation>
+        <translation>Generate new keys</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2544"/>
         <source>Nouvelles clés SSL générées</source>
-        <translation type="unfinished"></translation>
+        <translation>New SSL keys generated</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2545"/>
         <source>De nouvelles clés SSL ont été générées.</source>
-        <translation type="unfinished"></translation>
+        <translation>New SSL keys have been generated.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2546"/>
         <source>Exportez-les puis déployez-les sur les postes en accès distant.</source>
-        <translation type="unfinished"></translation>
+        <translation>Export them, then deploy them on the remote-access workstations.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2547"/>
         <source>Rufus va redémarrer.</source>
-        <translation type="unfinished"></translation>
+        <translation>Rufus will restart.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2552"/>
         <source>Génération impossible</source>
-        <translation type="unfinished"></translation>
+        <translation>Generation failed</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2553"/>
         <source>Les clés SSL n&apos;ont pas pu être générées.</source>
-        <translation type="unfinished"></translation>
+        <translation>The SSL keys could not be generated.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_param.cpp" line="2591"/>
@@ -16584,32 +16606,32 @@ to find out how to modify the server configuration and generate encryption keys
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="146"/>
         <source>Pour des raisons de confidentialité, l&apos;accès distant dans Rufus fonctionne obligatoirement avec un cryptage de données.</source>
-        <translation type="unfinished"></translation>
+        <translation>For privacy reasons, remote access in Rufus always works with data encryption.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="148"/>
         <source>Si vous voulez utiliser l&apos;accès distant sur ce poste, il faut que:</source>
-        <translation type="unfinished"></translation>
+        <translation>If you want to use remote access on this computer, you must:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="149"/>
         <source>1. le serveur MySQL soit configuré pour le cryptage</source>
-        <translation type="unfinished"></translation>
+        <translation>1. the MySQL server is configured for encryption</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="150"/>
         <source>2. que sur ce poste les clés clientes SSL soient installées.</source>
-        <translation type="unfinished"></translation>
+        <translation>2. the SSL client keys are installed on this computer.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="151"/>
         <source>Reportez-vous à la page internet :</source>
-        <translation type="unfinished"></translation>
+        <translation>Refer to the web page:</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="153"/>
         <source>pour savoir comment modifier la configuration du serveur et générer des clés de cryptage.</source>
-        <translation type="unfinished"></translation>
+        <translation>to find out how to change the server configuration and generate encryption keys.</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="164"/>
@@ -16713,7 +16735,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="320"/>
         <source>Passer cette étape</source>
-        <translation type="unfinished"></translation>
+        <translation>Skip this step</translation>
     </message>
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="337"/>
@@ -16728,7 +16750,7 @@ You can retrieve the practice password copied to a USB drive from a working comp
     <message>
         <location filename="Dialogs/dlg_paramconnexion.cpp" line="359"/>
         <source>Ce fichier ne contient pas un mot de passe valide.</source>
-        <translation type="unfinished"></translation>
+        <translation>This file does not contain a valid password.</translation>
     </message>
     <message>
         <source>Ce fichier ne contient pas de mot de passe valide.</source>
