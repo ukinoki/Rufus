@@ -122,6 +122,20 @@ void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
     m_detail->setText(tr("%1 / %2 Mo").arg(received / mo, 0, 'f', 0).arg(total / mo, 0, 'f', 0));
 }
 
+//  Progression en FRACTION (ex. fichiers extraits) : on remplit la barre, SANS afficher de volume
+//  en Mo — ces valeurs ne sont pas des octets (à l'extraction, c'était « 0 / 0 Mo » trompeur).
+void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
+{
+    if (total <= 0) {                 // total inconnu → barre animée
+        m_progress->setRange(0, 0);
+        m_detail->clear();
+        return;
+    }
+    m_progress->setRange(0, 100);
+    m_progress->setValue(int(done * 100 / total));
+    m_detail->clear();
+}
+
 // ═════════════════════════════════════════════════════════════════════════════
 //  MySQLInstallerDialog : checklist des 6 critères (composants Rufus up*)
 // ═════════════════════════════════════════════════════════════════════════════
@@ -4101,7 +4115,7 @@ void MySQLInstaller::runLongOpProgress(const QString& cmd, const QString& label,
             if (line.startsWith("PROGRESS")) {
                 const QStringList p = line.split(' ', Qt::SkipEmptyParts);
                 if (p.size() >= 3)
-                    dlg.setProgress(p.at(1).toLongLong(), p.at(2).toLongLong());
+                    dlg.setProgressBar(p.at(1).toLongLong(), p.at(2).toLongLong());
             }
         }
         QApplication::processEvents();

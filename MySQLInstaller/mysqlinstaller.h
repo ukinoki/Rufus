@@ -58,7 +58,8 @@ public:
     explicit MySQLProgressDialog(const QString& operation, QWidget* parent = nullptr);
 
     //  Mode déterminé (pourcentage). total <= 0 => barre animée (indéterminée).
-    void setProgress(qint64 received, qint64 total);
+    void setProgress(qint64 received, qint64 total);     //  octets → détail « X / Y Mo »
+    void setProgressBar(qint64 done, qint64 total);      //  fraction → barre SEULE (pas de volume)
 
 private:
     QLabel*       m_label;
