@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Désinstallation TOTALE de MySQL 8.4.3 (installeur officiel Oracle .dmg)
+# Désinstallation TOTALE de MySQL — TOUTE version (installeur officiel Oracle .dmg)
 # ATTENTION : supprime définitivement toutes les bases de données. Aucun backup.
 # À lancer avec :  sudo bash uninstall_mysql.sh
 #
@@ -23,8 +23,9 @@ sleep 2
 echo "--> 2. Suppression des fichiers d'installation"
 rm -f  /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist
 rm -rf /Library/PreferencePanes/MySQL.prefPane
-rm -rf /usr/local/mysql                          # symlink
-rm -rf /usr/local/mysql-8.4.3-macos14-x86_64     # contenu réel (binaires + data + bases)
+rm -rf /Library/StartupItems/MySQLCOM              # ancien item de démarrage (anciennes versions)
+rm -rf /usr/local/mysql                            # symlink
+rm -rf /usr/local/mysql-*                          # contenu réel, TOUTE version (binaires + data + bases)
 rm -f  /etc/my.cnf
 rm -f  /tmp/mysql.sock /tmp/mysql.sock.lock
 
@@ -35,7 +36,9 @@ if grep -q '^/usr/local/mysql/bin$' /etc/paths 2>/dev/null; then
 fi
 
 echo "--> 4. Oubli des reçus d'installation (pkgutil)"
-for p in com.mysql.launchd com.mysql.mysql com.mysql.prefpane com.oracle.oss.mysql.mysqld; do
+# Énumération dynamique : les noms de reçus varient selon la version → on attrape tout ce qui
+# contient « mysql » (sinon un futur installeur pourrait se croire déjà posé).
+for p in $(pkgutil --pkgs 2>/dev/null | grep -i mysql); do
   pkgutil --forget "$p" 2>/dev/null
 done
 
