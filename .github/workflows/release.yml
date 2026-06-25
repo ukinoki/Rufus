@@ -97,6 +97,12 @@ jobs:
           Terminal=false
           EOF
 
+          # Traductions : l'appli lit <dir-binaire>/../Locale/rufus_xx.qm (cf. rufus.cpp).
+          # Le binaire vit dans usr/bin → on pose les .qm dans usr/Locale. L'AppImage tourne
+          # en place (l'AppRun installeur recopie l'AppImage entière), le chemin reste valide.
+          mkdir -p AppDir/usr/Locale
+          cp rufus_*.qm AppDir/usr/Locale/
+
           # Bundling Qt avec linuxdeploy + plugin Qt (outil moderne et maintenu). Le build
           # « continuous » de linuxdeployqt sortait en erreur AVANT de déployer Qt -> AppImage
           # vide ; linuxdeploy est fiable pour Qt6. On garde notre AppRun auto-installant
@@ -225,6 +231,10 @@ jobs:
           windeployqt --release --compiler-runtime --sql "$deploy\Rufus.exe"
           # Assets de l'application
           Copy-Item -Recurse -Force assets "$deploy\assets"
+          # Traductions : l'install est à plat ({app}\Rufus.exe), donc les .qm vont dans
+          # {app}\Locale\ (le repli ./Locale de rufus.cpp les y trouve, cf. cheminQmLangue).
+          New-Item -ItemType Directory -Force -Path "$deploy\Locale" | Out-Null
+          Copy-Item rufus_*.qm "$deploy\Locale\" -Force
           # Lib client MySQL à côté de Rufus.exe (le pilote qsqlmysql.dll en dépend au runtime).
           Copy-Item "$env:QT_ROOT_DIR\bin\libmariadb.dll" "$deploy\libmariadb.dll" -Force
           # Rufus n'utilise que MySQL : ne garder que ce pilote SQL.

@@ -19,6 +19,23 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_rufus.h"
 #include <cstdlib>
 
+//! Localise le .qm d'une langue. Selon le packaging, le dossier Locale est posé soit
+//! À CÔTÉ du binaire (Windows : install à plat, {app}\Locale\), soit UN CRAN AU-DESSUS
+//! (macOS : Contents/MacOS → Contents/Locale ; AppImage : usr/bin → usr/Locale). On teste
+//! les deux et on retourne le premier .qm existant — à défaut la variante « au-dessus »,
+//! repli neutre qui préserve le comportement historique macOS/Linux.
+static QString cheminQmLangue(const QString &lang)
+{
+    const QString dirBin = QCoreApplication::applicationDirPath();
+    const QString suffixe = "/Locale/rufus_" + lang.toLower() + ".qm";
+    const QString aCote = dirBin + suffixe;
+    if (QFile::exists(aCote))
+        return aCote;
+    QDir parent(dirBin);
+    parent.cdUp();
+    return parent.absolutePath() + suffixe;
+}
+
 Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
@@ -78,11 +95,8 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     if (version.isEmpty())
         version = m_parametres->version();          //! repli sur la base si l'ini ne précise rien
     m_parametres->setversion(version);              //! cohérence en mémoire (ex. sélecteur de langue)
-    QDir dirloc = QDir(QCoreApplication::applicationDirPath());
-    dirloc.cdUp();
-    QString locale = dirloc.absolutePath() + "/Locale/rufus_" + version.toLower() + ".qm";
     QTranslator translator;
-    if( translator.load(locale) )
+    if( translator.load(cheminQmLangue(version)) )
         QCoreApplication::installTranslator(&translator);
 
     //! 1 - Restauration de la position de la fenetre et de la police d'écran
@@ -11048,11 +11062,7 @@ void Rufus::switchTranslator(const QString lang) {
     app->removeTranslator(translator);
 
     // load the new translator
-    QDir dirloc = QDir(QCoreApplication::applicationDirPath());
-    dirloc.cdUp();
-    QString path = dirloc.absolutePath();
-    path.append("/Locale/");
-    if(translator->load(path + "rufus_" + lang + ".qm")){ //Here Path and Filename has to be entered because the system didn't find the QM Files else}
+    if(translator->load(cheminQmLangue(lang))){ //Here Path and Filename has to be entered because the system didn't find the QM Files else}
         qApp->installTranslator(translator);
     }
     retranslateUi();
