@@ -3962,14 +3962,20 @@ QString MySQLInstaller::getCnfPath()
         if (QFile::exists(p)) return p;
     return "/etc/mysql/mysql.conf.d/mysqld.cnf";
 #else
-    QString prefix = getBrewPrefix();
+    // Installation Oracle (.dmg) : son mysqld, lancé par launchd SANS --defaults-file, lit la chaîne
+    // de config par défaut où /etc/my.cnf vient en PREMIER. On y écrit DONC nos réglages, sans se
+    // laisser détourner par un Homebrew présent sur la machine : un Mac de dev a souvent brew, mais
+    // NOTRE serveur est l'Oracle — écrire dans le my.cnf de brew laisserait le serveur Oracle aveugle
+    // (c'était la cause de secure_file_priv=NULL et de mysql_native_password désactivé).
+    if (isOracleInstall())
+        return "/etc/my.cnf";
+    const QString prefix = getBrewPrefix();     // MySQL installé via Homebrew (brew install mysql)
     if (!prefix.isEmpty()) return prefix + "/etc/my.cnf";
     for (auto& p : {QString("/etc/my.cnf"),
                     QString("/etc/mysql/my.cnf"),
                     QString("/usr/local/mysql/etc/my.cnf"),
                     QString("/usr/local/etc/my.cnf")})
         if (QFile::exists(p)) return p;
-    if (isOracleInstall()) return "/etc/my.cnf";
     return "/opt/homebrew/etc/my.cnf";
 #endif
 }
