@@ -278,6 +278,7 @@ private:
     static QHash<QString,QString> s_cacheMDP;    // cache mémoire des mdp MySQL par mode (MONO/LAN/WAN), cf motDePasseSQL
     QString             m_login;                 // = LOGIN_SQL (compte SQL technique)
     QString             m_password;              // mot de passe aléatoire d'adminrufus
+    QString             m_createUserErr;         // sortie SQL du dernier createUser() échoué (diag)
     QString             m_loginRufus;            // login du futur utilisateur Rufus (saisi)
     QString             m_mdpRufus;              // son mot de passe EN CLAIR (saisi)
     QString             m_brewPrefix;

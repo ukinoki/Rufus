@@ -2064,7 +2064,10 @@ bool MySQLInstaller::executerEtapesConfig()
     // été créés par createUserAvecAdmin() → on ne les recrée pas.
     if (m_freshInstall && !m_comptesDejaCrees && !createUser()) {
         UpMessageBox::Watch(m_dialog, tr("Création d'utilisateur impossible"),
-            tr("Impossible de créer l'utilisateur '%1'.").arg(m_login));
+            tr("Impossible de créer l'utilisateur '%1'.").arg(m_login)
+            + (m_createUserErr.trimmed().isEmpty()
+                   ? QString()
+                   : "\n\n" + tr("Détail :") + "\n" + m_createUserErr.trimmed().left(1500)));
         return false;
     }
 
@@ -3545,12 +3548,14 @@ bool MySQLInstaller::createUser()
     p.closeWriteChannel();
     waitProcessResponsive(p, 60000);
     const QString out = QString::fromLocal8Bit(p.readAll());
+    m_createUserErr = out;
     return !out.contains("ERROR", Qt::CaseInsensitive)
         && !out.contains("not authorized", Qt::CaseInsensitive)
         && !out.contains("dismissed",      Qt::CaseInsensitive);
 #else
     const QString out = runCmdFull(
         QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sql));
+    m_createUserErr = out;
     return !out.contains("ERROR", Qt::CaseInsensitive);
 #endif
 }
