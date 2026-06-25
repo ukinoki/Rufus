@@ -2144,34 +2144,50 @@ bool MySQLInstaller::uninstallMySQL()
     // nettoie le PATH machine et la clé de désinstallation Rufus.
     // (Aucun guillemet double DANS $ps : tout est en quotes simples ou via [char]34, car le bloc
     //  est passé à powershell -Command "<...>" — un " interne casserait la commande.)
+    // DIAGNOSTIC (temporaire) : on journalise tout dans C:\ProgramData\rufus-uninstall.log
+    // (élévation, service trouvé, résultat de chaque suppression). $ErrorActionPreference=Continue
+    // pour que les erreurs (Access denied / fichier verrouillé) apparaissent dans le journal. Si le
+    // fichier n'existe pas après coup → le script n'a pas été exécuté du tout.
     const QString ps =
-        "$ErrorActionPreference='SilentlyContinue';"
+        "Start-Transcript -Path 'C:\\ProgramData\\rufus-uninstall.log' -Force | Out-Null;"
+        "$ErrorActionPreference='Continue';"
+        "$wp=New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent());"
+        "Write-Output ('ELEVATED=' + $wp.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator));"
         "$base=$null;"
         "$svc=Get-CimInstance Win32_Service | "
             "Where-Object {$_.PathName -like '*mysqld.exe*'} | Select-Object -First 1;"
         "if($svc){"
+            "Write-Output ('SERVICE=' + $svc.Name + ' STATE=' + $svc.State);"
             "$exe=$svc.PathName.Trim([char]34);"
             "$i=$exe.ToLower().IndexOf('mysqld.exe');"
             "if($i -ge 0){$exe=$exe.Substring(0,$i+10)};"
             "$base=Split-Path (Split-Path ($exe.Trim().Trim([char]34)) -Parent) -Parent;"
+            "Write-Output ('BASE=' + $base);"
             "Stop-Service -Name $svc.Name -Force;"
-            "sc.exe stop $svc.Name | Out-Null;"
-            "sc.exe delete $svc.Name | Out-Null"
-        "};"
+            "sc.exe stop $svc.Name;"
+            "sc.exe delete $svc.Name"
+        "}else{Write-Output 'SERVICE=none'};"
         "Start-Sleep -Seconds 2;"
-        "Get-Process mysqld | Stop-Process -Force;"
+        "Get-Process mysqld -ErrorAction SilentlyContinue | Stop-Process -Force;"
         "Start-Sleep -Seconds 1;"
-        "if($base -and (Test-Path $base)){Remove-Item -LiteralPath $base -Recurse -Force};"
-        "Get-ChildItem 'C:\\Program Files\\MySQL' -Directory -Filter 'MySQL Server *' | "
-            "Remove-Item -Recurse -Force;"
-        "Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory -Filter 'MySQL Server *' | "
-            "Remove-Item -Recurse -Force;"
+        "if($base -and (Test-Path $base)){Write-Output ('RM ' + $base);"
+            "Remove-Item -LiteralPath $base -Recurse -Force};"
+        "foreach($d in (Get-ChildItem 'C:\\Program Files\\MySQL' -Directory "
+            "-Filter 'MySQL Server *' -ErrorAction SilentlyContinue)){"
+            "Write-Output ('RM ' + $d.FullName);"
+            "Remove-Item -LiteralPath $d.FullName -Recurse -Force};"
+        "foreach($d in (Get-ChildItem 'C:\\ProgramData\\MySQL' -Directory "
+            "-Filter 'MySQL Server *' -ErrorAction SilentlyContinue)){"
+            "Write-Output ('RM ' + $d.FullName);"
+            "Remove-Item -LiteralPath $d.FullName -Recurse -Force};"
         "$p=[Environment]::GetEnvironmentVariable('Path','Machine');"
         "if($p){[Environment]::SetEnvironmentVariable('Path',"
             "(($p -split ';' | Where-Object {$_ -and ($_ -notlike '*MySQL Server*')}) -join ';'),"
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
-        "\\Uninstall\\MySQLForRufus' -Recurse -Force";
+        "\\Uninstall\\MySQLForRufus' -Recurse -Force;"
+        "Write-Output 'DONE';"
+        "Stop-Transcript | Out-Null";
     // On exécute via un FICHIER .ps1 (-File), PAS en ligne (-Command "…") : passer un script long
     // et truffé de | { } ' à travers cmd.exe → powershell casse l'imbrication de guillemets en
     // silence (le diagnostic, lui, marche précisément parce qu'il s'exécute en -File). On écrit
