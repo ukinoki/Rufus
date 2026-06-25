@@ -1,4 +1,4 @@
-,I. L'INSTALLEUR
+I. L'INSTALLEUR
 	→ vérification de la présence d'un serveur MySQL
 		→ si OK
 			→ recueil de la version du serveur

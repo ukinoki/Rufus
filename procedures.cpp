@@ -27,6 +27,35 @@ Procedures* Procedures::I()
     return instance;
 }
 
+//! Un rufus.ini est-il VALIDE = contient-il au moins un mode de connexion paramétré (Poste,
+//! Réseau local ou Distant) avec un port 3306/3307 (et un serveur renseigné pour les modes réseau) ?
+static bool iniContientModeValide(QSettings& s)
+{
+    static const QSet<int> ports = { 3306, 3307 };
+    return (s.value(Utils::getBaseFromMode(Utils::Poste) + Param_Active).toString() == "YES"
+            && ports.contains(s.value(Utils::getBaseFromMode(Utils::Poste) + Param_Port).toInt()))
+        || (s.value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Active).toString() == "YES"
+            && s.value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Serveur).toString() != ""
+            && ports.contains(s.value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Port).toInt()))
+        || (s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Active).toString() == "YES"
+            && s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Serveur).toString() != ""
+            && ports.contains(s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt()));
+}
+
+//! Restaure Rufus.ini depuis la sauvegarde ~/.rufus/.rufus.ini, MAIS seulement si cette sauvegarde
+//! est elle-même VALIDE (un mode de connexion paramétré) — inutile, voire nuisible, de restaurer un
+//! fichier cassé. Renvoie true si la restauration a bien eu lieu.
+static bool restaurerIniDepuisSauvegarde()
+{
+    if (!QFile::exists(PATH_FILE_INI_BACKUP))
+        return false;
+    QSettings sauvegarde(PATH_FILE_INI_BACKUP, QSettings::IniFormat);
+    if (!iniContientModeValide(sauvegarde))
+        return false;                                   // sauvegarde invalide → on ne touche à rien
+    QFile::remove(PATH_FILE_INI);                        // QFile::copy n'écrase pas une cible existante
+    return QFile::copy(PATH_FILE_INI_BACKUP, PATH_FILE_INI);
+}
+
 Procedures::Procedures(QObject *parent) :
     QObject(parent)
 {
@@ -126,6 +155,12 @@ Procedures::Procedures(QObject *parent) :
     if (startupTranslator.load(dirlocLang.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm"))
         QCoreApplication::installTranslator(&startupTranslator);
 
+    //! Rufus.ini absent : on tente d'abord une RESTAURATION AUTOMATIQUE depuis la sauvegarde
+    //! ~/.rufus/.rufus.ini (si elle existe ET est valide) avant d'embêter l'utilisateur. Si la
+    //! restauration a lieu, FichierIni existe désormais → on saute le carrefour de récupération.
+    if (!FichierIni.exists())
+        restaurerIniDepuisSauvegarde();
+
     if (!FichierIni.exists())
     {
         bool a = false;
@@ -148,25 +183,16 @@ Procedures::Procedures(QObject *parent) :
     }
     if (m_settings == Q_NULLPTR)
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
-    QList<int> lports ={ 3306 , 3307};
-    QSet<int> ports =QSet<int>(lports.constBegin(), lports.constEnd());
-    bool k =    (
-                  m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Active).toString() == "YES"
-                  &&
-                  ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Poste) + Param_Port).toInt()) != ports.end() )
-                )
-                ||
-                (
-                  m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Active).toString() == "YES"
-                  && m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Serveur).toString() != ""
-                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::ReseauLocal) + Param_Port).toInt()) != ports.end() )
-                )
-                ||
-                (
-                  m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Active).toString() == "YES"
-                  && m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Serveur).toString() != ""
-                  && ( ports.find(m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt()) != ports.end() )
-                );
+    bool k = iniContientModeValide(*m_settings);
+    //! Rufus.ini présent mais SANS mode de connexion valide : avant le carrefour, on tente la
+    //! restauration depuis la sauvegarde (qui n'a lieu que si elle est elle-même valide). Si oui,
+    //! on recharge m_settings et on revalide k.
+    if (!k && restaurerIniDepuisSauvegarde())
+    {
+        delete m_settings;
+        m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
+        k = iniContientModeValide(*m_settings);
+    }
     if (!k)
     {
         while (!k)
