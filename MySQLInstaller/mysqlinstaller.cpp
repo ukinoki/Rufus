@@ -3252,10 +3252,16 @@ bool MySQLInstaller::ensureSecureFilePriv()
     // le chemin avec un « / » final → on normalise avant de comparer.
     auto sansSlash = [](QString s) { while (s.endsWith('/')) s.chop(1); return s; };
     auto serveurOk = [&]() -> bool {
-        const QString live = runCmdFull(QString(
+        const QString out = runCmdFull(QString(
             "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
             "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
-            .arg(mysqlBin("mysql"), m_login, m_password)).trimmed();
+            .arg(mysqlBin("mysql"), m_login, m_password));
+        // runCmdFull fusionne stderr : le client mysql lancé avec -p<motdepasse> imprime
+        // TOUJOURS « [Warning] Using a password on the command line interface can be
+        // insecure » AVANT le résultat. La valeur est donc sur la DERNIÈRE ligne non vide ;
+        // une comparaison sur la sortie brute échouerait à cause de cette ligne parasite.
+        const QStringList lignes = out.split('\n', Qt::SkipEmptyParts);
+        const QString live = lignes.isEmpty() ? QString() : lignes.last().trimmed();
         return !live.isEmpty() && live.compare("NULL", Qt::CaseInsensitive) != 0
             && sansSlash(live) == sansSlash(target);
     };
