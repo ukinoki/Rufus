@@ -3253,11 +3253,26 @@ bool MySQLInstaller::ensureSecureFilePriv()
     const QString target = sharedFolderPath();
     const QList<QPair<QString, QString>> vars = rufusCnfVars();
 
-    // Déjà toutes configurées ? → aucune élévation.
-    bool allOk = true;
+    // secure_file_priv TEL QUE LE SERVEUR L'APPLIQUE (et non tel qu'écrit dans le fichier) : c'est
+    // la SEULE preuve que le my.cnf a été lu. Un fichier correct mais hors de la chaîne de config du
+    // serveur (cf. bug getCnfPath) laissait la variable à NULL côté serveur tout en validant le
+    // fichier → fausse réussite, puis fausse fenêtre « Full Disk Access ». Le serveur renvoie souvent
+    // le chemin avec un « / » final → on normalise avant de comparer.
+    auto sansSlash = [](QString s) { while (s.endsWith('/')) s.chop(1); return s; };
+    auto serveurOk = [&]() -> bool {
+        const QString live = runCmdFull(QString(
+            "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+            "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
+            .arg(mysqlBin("mysql"), m_login, m_password)).trimmed();
+        return !live.isEmpty() && live.compare("NULL", Qt::CaseInsensitive) != 0
+            && sansSlash(live) == sansSlash(target);
+    };
+
+    // Déjà bon ? Le FICHIER doit contenir nos réglages ET le SERVEUR doit les appliquer réellement.
+    bool fichierOk = true;
     for (const auto& kv : vars)
-        if (getCnfVar(kv.first) != kv.second) { allOk = false; break; }
-    if (allOk)
+        if (getCnfVar(kv.first) != kv.second) { fichierOk = false; break; }
+    if (fichierOk && serveurOk())
         return true;
 
     const QString tmp = writeCnfToTemp(vars);
@@ -3287,7 +3302,10 @@ bool MySQLInstaller::ensureSecureFilePriv()
 
     if (!ok)
         return false;
-    return getCnfVar("secure_file_priv") == target;
+    // Preuve finale sur le SERVEUR VIVANT (après redémarrage), pas sur le fichier : si le serveur
+    // ne lit toujours pas le my.cnf, on le sait ICI (et on échoue honnêtement) au lieu de glisser
+    // vers une fausse fenêtre Full Disk Access.
+    return serveurOk();
 }
 
 //  Vérifie que mysql sait ÉCRIRE puis RELIRE un fichier dans /Users/Shared.
