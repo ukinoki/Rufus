@@ -62,6 +62,39 @@ function Trouver-QtRoot {
     throw "Qt introuvable. Passe -QtRoot 'C:\Qt\6.10.2\msvc2022_64' ou définis QT_ROOT_DIR."
 }
 
+# Quelle lib client le pilote qsqlmysql.dll réclame-t-il VRAIMENT ? Le pilote est lié, à la
+# compilation, soit au connecteur MariaDB (libmariadb.dll), soit au client Oracle (libmysql.dll),
+# et il l'exige par son nom exact. On lit sa table d'imports avec dumpbin (présent avec MSVC).
+function Detecter-ClientRequis {
+    param([string]$Plugin)
+    if (-not (Test-Path $Plugin)) { return $null }
+    if (-not (Get-Command dumpbin -ErrorAction SilentlyContinue)) { return $null }
+    $deps = (& dumpbin /dependents $Plugin 2>$null) -join "`n"
+    $m = [regex]::Match($deps, '(?im)^\s*(lib(?:mariadb|mysql)\w*\.dll)\s*$')
+    if ($m.Success) { return $m.Groups[1].Value }
+    return $null
+}
+
+# Localise un DLL par nom dans les emplacements plausibles : Qt (bin / plugins), cache CI, et
+# les installations MySQL standard (pour libmysql.dll), puis en dernier recours récursif sous Qt.
+function Trouver-Dll {
+    param([string]$Nom, [string]$QtRoot)
+    $spots = @(
+        (Join-Path $QtRoot "bin\$Nom"),
+        (Join-Path $QtRoot "plugins\sqldrivers\$Nom"),
+        (Join-Path $RepoRoot "qmysql-cache-win\$Nom")
+    )
+    foreach ($base in @("${env:ProgramFiles}\MySQL", "${env:ProgramFiles(x86)}\MySQL")) {
+        if (Test-Path $base) {
+            $spots += Get-ChildItem $base -Recurse -Filter $Nom -ErrorAction SilentlyContinue | ForEach-Object FullName
+        }
+    }
+    foreach ($s in $spots) { if ($s -and (Test-Path $s)) { return $s } }
+    $hit = Get-ChildItem -Path $QtRoot -Recurse -Filter $Nom -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($hit) { return $hit.FullName }
+    return $null
+}
+
 # Charge l'environnement MSVC (cl, nmake) dans la session courante si nmake n'est pas déjà là.
 function Importer-MSVC {
     if (Get-Command nmake -ErrorAction SilentlyContinue) { return }
@@ -117,7 +150,18 @@ if (-not $InstallerOnly) {
     & "$QtRoot\bin\windeployqt.exe" --release --compiler-runtime --sql "$Deploy\Rufus.exe"
     if ($LASTEXITCODE -ne 0) { throw "windeployqt a échoué." }
     Copy-Item -Recurse -Force assets "$Deploy\assets"
-    Copy-Item "$QtRoot\bin\libmariadb.dll" "$Deploy\libmariadb.dll" -Force
+    # Lib client SQL dont DÉPEND réellement le pilote (libmariadb.dll de notre build, ou libmysql.dll
+    # du client Oracle) : on détecte la dépendance exacte, on la localise, et on la copie à côté de
+    # Rufus.exe. Sans elle, qsqlmysql.dll ne se charge pas et Rufus ne voit pas MySQL.
+    $client = Detecter-ClientRequis (Join-Path $Deploy 'sqldrivers\qsqlmysql.dll')
+    if (-not $client) { $client = 'libmariadb.dll' }   # défaut : notre build standard
+    $clientPath = Trouver-Dll $client $QtRoot
+    if (-not $clientPath) {
+        throw "Lib client SQL « $client » (réclamée par qsqlmysql.dll) introuvable. " +
+              "Place-la dans $QtRoot\bin, ou construis le pilote MySQL (relance sans -SkipQMySQL)."
+    }
+    Copy-Item $clientPath "$Deploy\$client" -Force
+    Write-Host "Lib client SQL : $client  (depuis $clientPath)"
     # Rufus n'utilise que MySQL : ne garder que ce pilote SQL.
     if (Test-Path "$Deploy\sqldrivers") {
         Get-ChildItem "$Deploy\sqldrivers" -Filter 'qsql*.dll' |

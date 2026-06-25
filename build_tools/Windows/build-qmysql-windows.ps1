@@ -33,7 +33,9 @@ $QtMinor  = $QtVer.Substring(0, $QtVer.LastIndexOf('.'))
 $QtPlugins = (& $Qmake -query QT_INSTALL_PLUGINS).Trim()
 Write-Host "== Qt $QtVer  | plugins: $QtPlugins"
 
-$Work = Join-Path $env:RUNNER_TEMP "qmysql"
+# RUNNER_TEMP n'existe qu'en CI (GitHub Actions) ; en local on retombe sur le TEMP utilisateur.
+$TmpBase = if ($env:RUNNER_TEMP) { $env:RUNNER_TEMP } else { $env:TEMP }
+$Work = Join-Path $TmpBase "qmysql"
 New-Item -ItemType Directory -Force -Path $Work | Out-Null
 Set-Location $Work
 
