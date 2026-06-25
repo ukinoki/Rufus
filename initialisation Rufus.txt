@@ -73,7 +73,13 @@ II LANCEMENT DE RUFUS
 	1b . Monoposte
 		On vérifie la présence d'un serveur
 			→ pas de serveur 
-				→ RecupererDemarrage() avec les boutons concernant Rufus.ini effacés et un message disant qu'il n'y a pas de serveur
+				→ Revenir à la version par défaut = QLOcale()
+					→ effacer le paramètre version dans Rufus.ini s'il est différent de QLocale() 
+					et le remplacer par celui donné par QLOcale()
+					ne pas effacer Rufus.ini pour ne pas perdre les autres réglages de rufus.ini
+				→ RecupereDemarrage() avec les boutons concernant rufus.ini effacés 
+					→ Nouvelle base patients vierge → réinstaller MySQL et relancer le programme
+					→ Connexion à une base existante → régler les paramètres VerifParamConnexion() et relancer le programme
 			→ présence d'un serveur
 				→ recueil de la version de MySQL
 				→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
