@@ -3250,7 +3250,15 @@ bool MySQLInstaller::ensureSecureFilePriv()
     // serveur (cf. bug getCnfPath) laissait la variable à NULL côté serveur tout en validant le
     // fichier → fausse réussite, puis fausse fenêtre « Full Disk Access ». Le serveur renvoie souvent
     // le chemin avec un « / » final → on normalise avant de comparer.
-    auto sansSlash = [](QString s) { while (s.endsWith('/')) s.chop(1); return s; };
+    // Normalise un chemin pour comparaison : antislashs → slashs (Windows renvoie
+    // « C:\Users\Public\ »), puis suppression du séparateur final. La comparaison qui
+    // suit est faite CASse-insensitive (les chemins Windows le sont ; sans risque ailleurs,
+    // la valeur venant de notre propre target).
+    auto sansSlash = [](QString s) {
+        s.replace('\\', '/');
+        while (s.endsWith('/')) s.chop(1);
+        return s;
+    };
     auto serveurOk = [&]() -> bool {
         const QString out = runCmdFull(QString(
             "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
@@ -3263,7 +3271,7 @@ bool MySQLInstaller::ensureSecureFilePriv()
         const QStringList lignes = out.split('\n', Qt::SkipEmptyParts);
         const QString live = lignes.isEmpty() ? QString() : lignes.last().trimmed();
         return !live.isEmpty() && live.compare("NULL", Qt::CaseInsensitive) != 0
-            && sansSlash(live) == sansSlash(target);
+            && sansSlash(live).compare(sansSlash(target), Qt::CaseInsensitive) == 0;
     };
 
     // Déjà bon ? Le FICHIER doit contenir nos réglages ET le SERVEUR doit les appliquer réellement.
