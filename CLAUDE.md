@@ -15,8 +15,8 @@ Logiciel médical **libre et gratuit** (GPL) de gestion des soins en
 est révolue et archivée sous `archive/Qt5-master`.
 
 Particularité fondatrice : **développé par un ophtalmologiste qui code**, et non
-par une équipe d'informaticiens traduisant les demandes de praticiens. La même
-personne tient le scalpel et le clavier. C'est la source de tous les avantages
+par une équipe d'informaticiens traduisant les demandes de praticiens.
+La double compétence est la source de tous les avantages
 du logiciel — et la grille de lecture de toutes ses décisions.
 
 ---
@@ -24,12 +24,12 @@ du logiciel — et la grille de lecture de toutes ses décisions.
 ## 2. Philosophie produit (le socle — non négociable)
 
 1. **Le métier d'abord, le normatif jamais en maître.** Rufus se consacre à
-   l'acte de soin, pas à la conformité administrative changeante. Les éditeurs
-   commerciaux s'épuisent à courir après des normes locales qui bougent sans
-   cesse ; Rufus s'en affranchit délibérément pour rester sur son cœur de métier.
+   l'acte de soin, pas à la conformité administrative changeante. L'affranchissement
+   des normes locales permet d'éditer une version internationale du programme
+   pour rester sur le cœur de métier.
 
 2. **Local, jamais le cloud. Les données ne quittent pas le cabinet.** Aucune
-   exfiltration vers des serveurs tiers, aucune monétisation de données patients
+   exfiltration vers des serveurs tiers, aucune monétisation possible de données patients
    (même « anonymisées »). C'est un **principe non négociable** et, accessoirement,
    la meilleure réponse RGPD qui soit : on est plus propre que bien des solutions
    « conformes » qui, elles, hébergent tout ailleurs. À formuler comme un
