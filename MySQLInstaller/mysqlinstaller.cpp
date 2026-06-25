@@ -3518,31 +3518,35 @@ bool MySQLInstaller::createUser()
     // non), puis on bascule sur l'aléatoire EN CONSERVANT gaxt78iy comme 2e mot de passe.
     // (RETAIN CURRENT PASSWORD : MySQL >= 8.0.14, garanti par l'install d'un serveur 8.x.)
     //
-    // IMPORTANT — plugin d'authentification : les comptes sont créés en
-    // « mysql_native_password » et NON dans le plugin par défaut « caching_sha2_password ».
-    // Le driver Qt (QMYSQL) ouvre, en monoposte, une connexion TCP NON chiffrée et sans
-    // récupération de la clé publique du serveur : sur un serveur fraîchement installé (cache
-    // d'authentification vide), caching_sha2_password REFUSE alors la connexion (« requires
-    // secure connection »). mysql_native_password fonctionne, lui, sur TCP en clair et survit
-    // aux redémarrages du serveur. (Plugin présent et actif sur MySQL 8.0 ; sur 8.4 il est
-    // réactivé via « mysql_native_password=ON » dans my.cnf/my.ini lors de l'installation.)
+    // IMPORTANT — plugin d'authentification. On PRÉFÈRE « mysql_native_password » : le driver Qt
+    // (QMYSQL) en a besoin pour les POSTES RÉSEAU (connexion TCP en clair, cache d'auth froid, où
+    // caching_sha2_password refuse). Mais sur MySQL 8.4 ce plugin est DÉSACTIVÉ par défaut, et si le
+    // « mysql_native_password=ON » écrit dans my.cnf n'est pas pris en compte par le serveur lancé
+    // (cas macOS via launchd), « WITH mysql_native_password » échoue (ERROR 1524). On REVIENT alors
+    // au plugin par défaut (caching_sha2) : le monoposte se connecte par le socket localhost
+    // (caching_sha2 OK) ; l'accès réseau, lui, exigera un serveur où native est actif.
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    const QString sql = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%4';"
-        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%4';"
-        "ALTER USER '%1'@'%' IDENTIFIED WITH mysql_native_password BY '%2' RETAIN CURRENT PASSWORD;"
+    const QString tmpl = QString(
+        "CREATE USER IF NOT EXISTS '%1'@'%' %5 '%4';"
+        "ALTER USER '%1'@'%' %5 '%4';"
+        "ALTER USER '%1'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' IDENTIFIED WITH mysql_native_password BY '%2' RETAIN CURRENT PASSWORD;"
+        "CREATE USER IF NOT EXISTS '%3'@'%' %5 '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' %5 '%4' REQUIRE SSL;"
+        "ALTER USER '%3'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
         "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
-        "FLUSH PRIVILEGES;\n").arg(m_login, m_password, sslLogin, legacy);
+        "FLUSH PRIVILEGES;\n");
+    auto sqlAvecAuth = [&](const QString& auth) {
+        return tmpl.arg(m_login, m_password, sslLogin, legacy, auth);
+    };
 
 #if defined(Q_OS_LINUX)
     // Sur Ubuntu, root@localhost utilise auth_socket : « mysql -u root » ne
     // fonctionne QUE lancé en tant que root. On exécute donc mysql via pkexec, et
     // on transmet le SQL (qui contient le mot de passe) par l'ENTRÉE STANDARD.
+    // (MySQL d'apt = 8.0, mysql_native_password actif → pas de repli nécessaire ici.)
+    const QString sql = sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY");
     QProcess p;
     p.setProcessChannelMode(QProcess::MergedChannels);
     p.start("pkexec", QStringList{ mysqlBin("mysql"), "-u", "root" });
@@ -3557,8 +3561,15 @@ bool MySQLInstaller::createUser()
         && !out.contains("not authorized", Qt::CaseInsensitive)
         && !out.contains("dismissed",      Qt::CaseInsensitive);
 #else
-    const QString out = runCmdFull(
-        QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sql));
+    auto executer = [&](const QString& sqlTexte) {
+        return runCmdFull(QString("\"%1\" -u root -e \"%2\" 2>&1").arg(mysqlBin("mysql"), sqlTexte));
+    };
+    QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
+    const QString up = out.toUpper();
+    // Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli sur le plugin serveur.
+    if (up.contains("ERROR 1524")
+        || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
+        out = executer(sqlAvecAuth("IDENTIFIED BY"));
     m_createUserErr = out;
     return !out.contains("ERROR", Qt::CaseInsensitive);
 #endif
