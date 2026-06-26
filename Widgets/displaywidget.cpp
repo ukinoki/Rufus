@@ -22,7 +22,12 @@ DisplayWidget::DisplayWidget(QWidget *parent) : QGraphicsView(parent) {
     setScene(m_scene);
     //setDragMode(QGraphicsView::RubberBandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    // ScrollBarAlwaysOn (au lieu de AsNeeded) : avec AsNeeded, la barre verticale apparaît/disparaît
+    // selon la hauteur du contenu ; sous Windows (barre de ~17 px, NON overlay contrairement à macOS)
+    // chaque apparition CHANGE la largeur du viewport → re-resize → re-rasterisation → la barre se
+    // re-évalue… boucle de rétroaction (image qui tremble, gel ~30 s, crash). En la gardant TOUJOURS
+    // affichée, la largeur du viewport est CONSTANTE → la boucle ne peut plus s'amorcer.
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setContextMenuPolicy(Qt::CustomContextMenu);
     viewport()->installEventFilter(this);
