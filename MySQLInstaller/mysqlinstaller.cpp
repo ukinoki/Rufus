@@ -3253,15 +3253,13 @@ bool MySQLInstaller::ensureSecureFilePriv()
     // serveur (cf. bug getCnfPath) laissait la variable à NULL côté serveur tout en validant le
     // fichier → fausse réussite, puis fausse fenêtre « Full Disk Access ». Le serveur renvoie souvent
     // le chemin avec un « / » final → on normalise avant de comparer.
-    // Normalise un chemin pour comparaison : antislashs → slashs (Windows renvoie
-    // « C:\Users\Public\ »), puis suppression du séparateur final. La comparaison qui
-    // suit est faite CASse-insensitive (les chemins Windows le sont ; sans risque ailleurs,
-    // la valeur venant de notre propre target).
-    auto sansSlash = [](QString s) {
-        s.replace('\\', '/');
-        while (s.endsWith('/')) s.chop(1);
-        return s;
-    };
+    // Normalise un chemin pour comparaison robuste, quelle que soit la forme renvoyée par
+    // le serveur. On force d'abord « \ » → « / » (QDir::cleanPath ne le fait pas hors Windows),
+    // puis QDir::cleanPath collapse les séparateurs MULTIPLES — ce qui avale aussi les antislashs
+    // DOUBLÉS par le client mysql en mode -B (« C:\Users\Public\ » sort « C:\\Users\\Public\\ »,
+    // devient « C://Users//Public// » puis « C:/Users/Public ») — et retire le séparateur final.
+    // La comparaison qui suit est CASse-insensitive (chemins Windows insensibles à la casse).
+    auto normChemin = [](QString s) { return QDir::cleanPath(s.replace('\\', '/')); };
     QString liveVu;     // dernière valeur lue côté serveur (conservée pour le diagnostic)
     auto serveurOk = [&]() -> bool {
         const QString out = runCmdFull(QString(
@@ -3275,7 +3273,7 @@ bool MySQLInstaller::ensureSecureFilePriv()
         const QStringList lignes = out.split('\n', Qt::SkipEmptyParts);
         liveVu = lignes.isEmpty() ? QString() : lignes.last().trimmed();
         return !liveVu.isEmpty() && liveVu.compare("NULL", Qt::CaseInsensitive) != 0
-            && sansSlash(liveVu).compare(sansSlash(target), Qt::CaseInsensitive) == 0;
+            && normChemin(liveVu).compare(normChemin(target), Qt::CaseInsensitive) == 0;
     };
     // Diagnostic posé sur CHAQUE échec : on saura, à l'écran, POURQUOI ça a raté (valeur
     // réelle du serveur vs. attendue, et ce que contient le fichier de config réellement lu).
