@@ -2091,7 +2091,10 @@ bool MySQLInstaller::executerEtapesConfig()
     if (!ensureSecureFilePriv()) {
         UpMessageBox::Watch(m_dialog, tr("secure_file_priv impossible"),
             tr("Impossible de configurer secure_file_priv sur %1.")
-            .arg(sharedFolderPath()));
+            .arg(sharedFolderPath())
+            + (m_secureFilePrivErr.trimmed().isEmpty()
+                   ? QString()
+                   : "\n\n" + tr("Détail :") + "\n" + m_secureFilePrivErr.trimmed()));
         return false;
     }
     if (m_dialog->wasCancelled()) return false;
@@ -3259,6 +3262,7 @@ bool MySQLInstaller::ensureSecureFilePriv()
         while (s.endsWith('/')) s.chop(1);
         return s;
     };
+    QString liveVu;     // dernière valeur lue côté serveur (conservée pour le diagnostic)
     auto serveurOk = [&]() -> bool {
         const QString out = runCmdFull(QString(
             "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
@@ -3269,10 +3273,22 @@ bool MySQLInstaller::ensureSecureFilePriv()
         // insecure » AVANT le résultat. La valeur est donc sur la DERNIÈRE ligne non vide ;
         // une comparaison sur la sortie brute échouerait à cause de cette ligne parasite.
         const QStringList lignes = out.split('\n', Qt::SkipEmptyParts);
-        const QString live = lignes.isEmpty() ? QString() : lignes.last().trimmed();
-        return !live.isEmpty() && live.compare("NULL", Qt::CaseInsensitive) != 0
-            && sansSlash(live).compare(sansSlash(target), Qt::CaseInsensitive) == 0;
+        liveVu = lignes.isEmpty() ? QString() : lignes.last().trimmed();
+        return !liveVu.isEmpty() && liveVu.compare("NULL", Qt::CaseInsensitive) != 0
+            && sansSlash(liveVu).compare(sansSlash(target), Qt::CaseInsensitive) == 0;
     };
+    // Diagnostic posé sur CHAQUE échec : on saura, à l'écran, POURQUOI ça a raté (valeur
+    // réelle du serveur vs. attendue, et ce que contient le fichier de config réellement lu).
+    auto noteEchec = [&](const QString& etape) {
+        m_secureFilePrivErr =
+            tr("Étape : %1").arg(etape) + "\n"
+          + tr("Serveur renvoie : « %1 »").arg(liveVu.isEmpty()
+                ? tr("(aucune réponse / connexion impossible)") : liveVu) + "\n"
+          + tr("Attendu : « %1 »").arg(target) + "\n"
+          + tr("Fichier %1").arg(getCnfPath()) + "\n"
+          + tr("contient : « %1 »").arg(getCnfVar("secure_file_priv"));
+    };
+    m_secureFilePrivErr.clear();
 
     // Déjà bon ? Le FICHIER doit contenir nos réglages ET le SERVEUR doit les appliquer réellement.
     bool fichierOk = true;
@@ -3282,8 +3298,10 @@ bool MySQLInstaller::ensureSecureFilePriv()
         return true;
 
     const QString tmp = writeCnfToTemp(vars);
-    if (tmp.isEmpty())
+    if (tmp.isEmpty()) {
+        m_secureFilePrivErr = tr("Écriture du my.ini temporaire impossible.");
         return false;
+    }
     const QString path = getCnfPath();
     bool ok;
 
@@ -3306,12 +3324,18 @@ bool MySQLInstaller::ensureSecureFilePriv()
     if (ok) restartMySQL();
 #endif
 
-    if (!ok)
+    if (!ok) {
+        noteEchec(tr("copie du my.ini / redémarrage du serveur (commande élevée en échec)"));
         return false;
+    }
     // Preuve finale sur le SERVEUR VIVANT (après redémarrage), pas sur le fichier : si le serveur
     // ne lit toujours pas le my.cnf, on le sait ICI (et on échoue honnêtement) au lieu de glisser
     // vers une fausse fenêtre Full Disk Access.
-    return serveurOk();
+    if (!serveurOk()) {
+        noteEchec(tr("vérification de la variable serveur après redémarrage"));
+        return false;
+    }
+    return true;
 }
 
 //  Vérifie que mysql sait ÉCRIRE puis RELIRE un fichier dans /Users/Shared.
