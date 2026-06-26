@@ -165,7 +165,10 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     prioritydlg         ->setLayout(lay);
     prioritydlg         ->setFixedHeight((hauteurligne)*nlignes + marge*4);
     prioritydlg         ->setFixedWidth(w + imglbl->width() + marge*4);
-    prioritydlg         ->setWindowFlags(Qt::SplashScreen);
+    // WindowStaysOnTopHint : sans lui, un splash SANS parent passe DERRIÈRE la fenêtre principale
+    // sous certains gestionnaires de fenêtres Linux (Ubuntu) — le message « en cours » devient
+    // invisible. raise()/activateWindow() après show() forcent la mise au premier plan.
+    prioritydlg         ->setWindowFlags(Qt::SplashScreen | Qt::WindowStaysOnTopHint);
 
 
     int yy              = QGuiApplication::primaryScreen()->availableGeometry().height();
@@ -173,6 +176,8 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     int height = hauteurligne*nlignes - marge;
     prioritydlg         ->move(xx/2 - w/2 - marge - lay->spacing()-15, yy/2 - (height/2)*yprioritymessage);
     prioritydlg         ->show();
+    prioritydlg         ->raise();
+    prioritydlg         ->activateWindow();
     if (parent != Q_NULLPTR)
         parent->setEnabled(false);
     int msec = 500;

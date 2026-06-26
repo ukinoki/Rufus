@@ -429,7 +429,12 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     if (OKvideos)
     {
         // taille du dossier video ---------------------------------------------------------------------------------------------------------------------------------------
-        DataDir = Utils::dir_size(m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString());
+        // En RESTAURATION, mesurer depuis le BACKUP (pathorigin + /Videos), comme Images et
+        // Factures — et NON depuis le dossier vidéo LIVE (souvent vide après une réinstall), sinon
+        // la case « Videos » n'apparaît pas. En SAUVEGARDE, la source reste le dossier vidéo LIVE.
+        DataDir = Utils::dir_size(op == RestoreOp
+            ? pathorigin + NOM_DIR_VIDEOS
+            : m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Dossier_Videos).toString());
         m_videossize = DataDir["Size"];
         if (m_videossize> 0)
         {
