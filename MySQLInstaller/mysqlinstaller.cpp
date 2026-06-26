@@ -2203,10 +2203,15 @@ bool MySQLInstaller::uninstallMySQL()
     // apt purge (par motif individuel) + suppression données/config. On RETIRE le
     // partage [Rufus] de Samba mais on NE purge PAS samba/wsdd ni le dossier
     // partagé (l'utilisateur peut s'en servir par ailleurs).
+    // On NE purge PAS 'libmysqlclient.*' : la réinstallation de mysql-server ramène la
+    // bonne version de toute façon, et purger la lib cliente faisait des DÉGÂTS COLLATÉRAUX
+    // (libmysqlclient-dev d'un développeur, lib cliente partagée par d'autres applis du poste).
+    // De même 'mysql.*' (filet trop large : mysql-workbench, php-mysql…) est remplacé par le
+    // ciblage 'mysql-community-*' (paquets du dépôt Oracle), serveur/client/common restant couverts.
     const QString script =
         "systemctl stop mysql mysqld mariadb 2>/dev/null;"
-        "for pat in 'mysql-server.*' 'mysql-client.*' 'libmysqlclient.*' "
-                   "'mysql-common' 'mysql.*' 'mariadb.*'; do "
+        "for pat in 'mysql-server.*' 'mysql-client.*' 'mysql-common' "
+                   "'mysql-community-*' 'mariadb.*'; do "
           "DEBIAN_FRONTEND=noninteractive apt-get purge -y \"$pat\" 2>/dev/null || true; "
         "done;"
         "DEBIAN_FRONTEND=noninteractive apt-get autoremove -y --purge 2>/dev/null || true;"
