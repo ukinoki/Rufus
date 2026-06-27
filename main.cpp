@@ -81,8 +81,11 @@ int main(int argc, char *argv[])
     //! total depuis qu'Ubuntu démarre en Wayland. On force la plateforme xcb (XWayland), où le
     //! positionnement fonctionne comme sous X11/macOS/Windows — sans aucune perte de résolution
     //! ni de détail d'imagerie (XWayland rend au pixel près ; seul le scaling FRACTIONNAIRE de
-    //! l'UI est un peu moins net). Surchargeable : si l'utilisateur a déjà fixé QT_QPA_PLATFORM,
-    //! on respecte son choix (Wayland natif possible).
+    //! l'UI est un peu moins net). Bénéfice annexe confirmé : le redimensionnement de fenêtre à la
+    //! souris, saccadé sous Wayland (limite connue de Qt), redevient fluide sous xcb. Surchargeable :
+    //! si l'utilisateur a déjà fixé QT_QPA_PLATFORM, on respecte son choix (Wayland natif possible).
+    //! NB déploiement : depuis Qt 6.5 le plugin xcb exige libxcb-cursor0 ; elle doit être embarquée
+    //! dans l'AppImage (cf. build_tools/Linux/create-rufus-appimage.sh), sinon Rufus ne démarre pas.
     //! À poser AVANT la construction de QApplication (lue à l'initialisation de la plateforme).
     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM"))
         qputenv("QT_QPA_PLATFORM", "xcb");
