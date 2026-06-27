@@ -101,3 +101,13 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   respectant les choix produit du socle ci-dessus.
 - Garder à l'esprit que ce projet dit **pourquoi** on code autant que **quoi**.
   Les décisions techniques servent la vision, pas l'inverse.
+- **Adapter le registre à l'auteur.** L'auteur de Rufus est ophtalmologiste, pas
+  informaticien, mais il maîtrise Qt (il a écrit l'essentiel du code) : les
+  notions de classe, héritage, signal/slot, ou `ScrollBarAsNeeded` sont acquises
+  et n'ont pas à être réexpliquées. En revanche, **bannir le jargon
+  d'implémentation non défini** (« rasteriser », « transient », « idempotent »,
+  « blast radius »…) : soit l'éviter, soit le définir en une demi-phrase à la
+  première occurrence. Viser des explications **courtes, claires et sobres** —
+  *ce qui se conçoit bien s'énonce brièvement*. Il doit toujours pouvoir
+  comprendre ce qui est fait pour le corriger à sa main : une explication qu'il
+  renonce à lire est une explication ratée.
