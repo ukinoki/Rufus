@@ -64,6 +64,7 @@ public:
     qreal           sizeRatio(QSize size);
     void            setOKwheelzoom(bool newOKwheelzoom);
     void            setFitByTransform(bool b) { m_fitByTransform = b; }
+    bool            fitByTransform() const     { return m_fitByTransform; }
     void            setListimg(const QList<QImage> &newListimg, QSize size);
     void            setVideo(const QString filename, QSize size);
 

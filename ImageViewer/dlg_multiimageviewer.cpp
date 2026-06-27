@@ -611,6 +611,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
                 QImage image    = listimg.at(0);
                 displaysize     = finalsize(sizeforunit().width(), image);
                 wdg_display     = new DisplayWidget;
+                wdg_display     ->setFitByTransform(true);   //! pixmap natif + fit par transform (cf. viewer simple) ; mettre false pour revenir à l'ancien chemin
                 wdg_display     ->setListimg(listimg, displaysize);
             }
             //! wdg_display     ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;"); //! for tests
@@ -879,9 +880,15 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                                                 {
                                                     QImage img      = wdgdisplay->itemImage(itm);
                                                     QSize imgsize   = finalsize(size.width(), img);
-                                                    wdgdisplay      ->setPixmapforItem(itm, imgsize);
-                                                    wdgdisplay      ->scene()->setSceneRect(0,0,imgsize.width(),imgsize.height());
-                                                    wdgdisplay      ->setMinimumHeight(imgsize.height());
+                                                    if (wdgdisplay->fitByTransform())
+                                                        //! pixmap natif : on ne fixe que la hauteur de la vignette, la vue ajuste l'image
+                                                        wdgdisplay  ->setMinimumHeight(imgsize.height());
+                                                    else
+                                                    {
+                                                        wdgdisplay  ->setPixmapforItem(itm, imgsize);
+                                                        wdgdisplay  ->scene()->setSceneRect(0,0,imgsize.width(),imgsize.height());
+                                                        wdgdisplay  ->setMinimumHeight(imgsize.height());
+                                                    }
                                                 }
                                                 else
                                                 {
