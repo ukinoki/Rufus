@@ -42,12 +42,6 @@ private:
     UpMediaPlayer                   *m_mediaPlayer      = Q_NULLPTR;
     qreal                           m_ScaleFactor;
     bool                            OKwheelzoom         = false;
-    //! true  -> pixmaps natifs, le redimensionnement ne fait que recalculer la transform de vue
-    //!          (plus de re-rasterisation dans resizeEvent -> supprime la double mise à l'échelle
-    //!           et la boucle de rétroaction du resize).
-    //! false -> ancien chemin (rasterisation à la largeur du viewport à chaque resize), encore
-    //!          utilisé par dlg_multiimageviewer en attendant sa migration.
-    bool                            m_fitByTransform    = false;
     QString                         m_text              = "";
     void    fitVideo(QSize size);
     qreal   listImageScaleFactor(qreal w);
@@ -63,15 +57,12 @@ public:
     void            fitImage(QSize size);
     qreal           sizeRatio(QSize size);
     void            setOKwheelzoom(bool newOKwheelzoom);
-    void            setFitByTransform(bool b) { m_fitByTransform = b; }
-    bool            fitByTransform() const     { return m_fitByTransform; }
     void            setListimg(const QList<QImage> &newListimg, QSize size);
     void            setVideo(const QString filename, QSize size);
 
     void            setText(const QString &newText);
 
     UpMediaPlayer*  mediaPlayer() const;
-    QSize           setPixmapforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
     QPixmap         itemPixmap(QGraphicsPixmapItem *itm)   { return itm->data(RenderedPixmap).value<QPixmap>(); }
     QImage          itemImage(QGraphicsPixmapItem *itm)    { return itm->data(SourceImage).value<QImage>(); }
 
