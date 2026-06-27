@@ -74,8 +74,12 @@ du logiciel — et la grille de lecture de toutes ses décisions.
 
 ## 4. Conventions concrètes du dépôt
 
-- **Branche de travail** : `RufusQt6`. Commiter et pousser dessus. Messages de
-  commit en **français**, clairs et descriptifs.
+- **Branche de travail** : `RufusQt6`. Commiter et pousser **directement dessus**.
+  Messages de commit en **français**, clairs et descriptifs. **Ne pas laisser le
+  travail sur les branches éphémères que les sessions web créent automatiquement**
+  (du type `claude/...`) : elles sont jetables et réapparaissent toute seules ;
+  tout doit atterrir sur `RufusQt6`. En fin de session, rapatrier les commits sur
+  `RufusQt6` (rebase) et pousser là.
 - **Version du logiciel = date de sortie**, fixée dans `rufus.cpp` :
   `qApp->setApplicationVersion("jj-MM-aaaa/révision")`. Indépendante de
   `VERSION_BASE` (schéma de la base, `macros.h`).
