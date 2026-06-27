@@ -45,12 +45,10 @@ private:
     UpSmallButton           *m_ZoomInButton     = new UpSmallButton();
     UpSmallButton           *m_ZoomOutButton    = new UpSmallButton();
 
-/*! la classe dlg_docsexternes affiche les documents pdf, jpg ou video dans une fiche Updialog
- *  Les intitulés des documents sont affichés à gauche dans un QTreeView *wdg_listdocstreewiew
- *  et les documents eux-mêmes sont affichés à droite dans
- *      . un UpTablWidget *wdg_pdftbl pour les pdf,
- *      . un QVideoWidget wdg_video pour les videos
- *      . ou un UpLabel wdg_jpglbl pour les jpg */
+/*! la classe dlg_docsexternes affiche les documents (pdf, jpg ou vidéo) dans une fiche UpDialog.
+ *  Les intitulés des documents sont listés à gauche dans le QTreeView *wdg_listdocstreewiew ;
+ *  le document sélectionné est affiché à droite dans le DisplayWidget (QGraphicsView) hérité de
+ *  dlg_singleimageviewer — pdf rendu en images, jpg, ou vidéo passent tous par ce même widget. */
 
     QTreeView               *wdg_listdocstreewiew   = new QTreeView();
 

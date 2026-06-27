@@ -69,7 +69,6 @@ private:
     DocExterne*             m_currentDoc       = Q_NULLPTR;
     UpLabel*                m_labwdg            = Q_NULLPTR;
     UpLabel*                m_labinfowdg        = new UpLabel();
-    QGraphicsScene          *m_scene            = Q_NULLPTR;
     DisplayWidget         *m_imgwdg           = Q_NULLPTR;
     QWidget*                m_parent            = Q_NULLPTR;
     QHBoxLayout*            m_mainlayout        = new QHBoxLayout();

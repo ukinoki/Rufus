@@ -31,6 +31,10 @@ class DisplayWidget : public QGraphicsView {
     Q_OBJECT
 
 private:
+    //! clés de QGraphicsItem::setData()/data() : on stocke par item l'image source (jamais
+    //! redimensionnée) et le pixmap effectivement rendu à la taille du viewport.
+    enum ItemDataKey { SourceImage = 0, RenderedPixmap = 1 };
+
     Item                            *m_rufusitem        = Q_NULLPTR;
     QGraphicsScene                  *m_scene            = new QGraphicsScene;
     QList<QGraphicsPixmapItem*>     m_listgraphicsItem;
@@ -60,8 +64,8 @@ public:
 
     UpMediaPlayer*  mediaPlayer() const;
     QSize           setPixmapforItem(QGraphicsPixmapItem *itm, QSize size);              /*! set pixamp for item according to size */
-    QPixmap         itemPixmap(QGraphicsPixmapItem *itm)   { return itm->data(1).value<QPixmap>(); }
-    QImage          itemImage(QGraphicsPixmapItem *itm)    { return itm->data(0).value<QImage>(); }
+    QPixmap         itemPixmap(QGraphicsPixmapItem *itm)   { return itm->data(RenderedPixmap).value<QPixmap>(); }
+    QImage          itemImage(QGraphicsPixmapItem *itm)    { return itm->data(SourceImage).value<QImage>(); }
 
     void            setrufusitem(Item *item) { m_rufusitem = item; }
     Item*           rufusitem() const        { return m_rufusitem; }

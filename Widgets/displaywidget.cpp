@@ -87,7 +87,7 @@ void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
     foreach (QImage img, newListimg)
     {
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
-        item->setData(0, img);
+        item->setData(SourceImage, img);
         QSize sz = setPixmapforItem(item, size);
         item->setPos(0,h);
         m_scene->addItem(item);
@@ -212,12 +212,12 @@ void DisplayWidget::checkSize() {
 QSize DisplayWidget::setPixmapforItem(QGraphicsPixmapItem *itm, QSize size)
 {
     QSize szpix = QSize();
-    if(itm->data(0).value<QImage>() != QImage())
+    if(itm->data(SourceImage).value<QImage>() != QImage())
     {
-        QPixmap pix = QPixmap::fromImage(itm->data(0).value<QImage>()).scaledToWidth(size.width(), Qt::SmoothTransformation);
+        QPixmap pix = QPixmap::fromImage(itm->data(SourceImage).value<QImage>()).scaledToWidth(size.width(), Qt::SmoothTransformation);
         itm->resetTransform();
         itm->setPixmap(pix);
-        itm->setData(1,pix);
+        itm->setData(RenderedPixmap,pix);
         szpix = pix.size();
     }
     return szpix;
