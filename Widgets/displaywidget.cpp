@@ -16,10 +16,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "displaywidget.h"
+#include <QPainter>
 
 
 DisplayWidget::DisplayWidget(QWidget *parent) : QGraphicsView(parent) {
     setScene(m_scene);
+    //! avec les pixmaps natifs (m_fitByTransform), c'est la transform de vue qui met l'image à
+    //! l'échelle : on demande un lissage pour conserver la qualité au sous-échantillonnage.
+    setRenderHint(QPainter::SmoothPixmapTransform, true);
     //setDragMode(QGraphicsView::RubberBandDrag);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     // ScrollBarAlwaysOn (au lieu de AsNeeded) : avec AsNeeded, la barre verticale apparaît/disparaît
@@ -88,7 +92,18 @@ void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
     {
         QGraphicsPixmapItem *item = new QGraphicsPixmapItem;
         item->setData(SourceImage, img);
-        QSize sz = setPixmapforItem(item, size);
+        QSize sz;
+        if (m_fitByTransform)
+        {
+            //! pixmap natif posé une fois pour toutes ; la mise à l'échelle se fera par la
+            //! transform de vue (fitImage), jamais en re-rastérisant.
+            QPixmap pix = QPixmap::fromImage(img);
+            item->setPixmap(pix);
+            item->setData(RenderedPixmap, pix);
+            sz = pix.size();
+        }
+        else
+            sz = setPixmapforItem(item, size);
         item->setPos(0,h);
         m_scene->addItem(item);
         //QGraphicsRectItem *rect = m_scene->addRect(QRectF(10, h + 10, 10, 10));
@@ -96,6 +111,8 @@ void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
         m_listgraphicsItem << item;
         h += sz.height();
     }
+    if (m_fitByTransform)
+        fitImage(size);             //! transform de fit initiale (avant le premier resizeEvent)
 }
 
 void DisplayWidget::setVideo(const QString filename, QSize size)
@@ -254,12 +271,18 @@ void DisplayWidget::resizeEvent(QResizeEvent* event) {
         QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
         if (itm)
         {
-            int h = 0;
-            for (int i = 0; i < m_listgraphicsItem.size(); i++) {
-                QSize sz = setPixmapforItem(m_listgraphicsItem.at(i),event->size());
-                m_listgraphicsItem.at(i)->setPos(0,h);
-                h += sz.height();
+            if (!m_fitByTransform)
+            {
+                //! ancien chemin : re-rastérise chaque pixmap à la largeur du viewport.
+                int h = 0;
+                for (int i = 0; i < m_listgraphicsItem.size(); i++) {
+                    QSize sz = setPixmapforItem(m_listgraphicsItem.at(i),event->size());
+                    m_listgraphicsItem.at(i)->setPos(0,h);
+                    h += sz.height();
+                }
             }
+            //! m_fitByTransform : pixmaps natifs déjà posés, on ne re-rastérise plus ; le resize ne
+            //! fait que recalculer la transform de vue (idempotent, peu coûteux) -> pas de boucle.
             fitImage(event->size());
             checkSize();
         }
