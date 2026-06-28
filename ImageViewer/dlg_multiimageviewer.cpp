@@ -117,6 +117,20 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
     connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkVerticalHeader(idx);} );
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_Viewer);
+    //! Défaut au tout 1er affichage (aucune géométrie sauvegardée dans Rufus.ini -> originalgeometry()
+    //! reste vide) : on ouvre en HAUTEUR maximale disponible et LARGEUR = 1/2 de l'écran. C'est l'usage
+    //! courant (comparaison de documents). Ensuite, la géométrie quittée est mémorisée et reprise.
+    if (originalgeometry() == QRect())
+    {
+        QList<QScreen*> screens = QGuiApplication::screens();
+        if (!screens.isEmpty())
+        {
+            QRect avail = screens.first()->availableGeometry();
+            resize(screens.first()->geometry().width() / 2, avail.height());
+            //! pas de move() : on laisse le gestionnaire de fenêtres placer la fiche (il garde la
+            //! barre de titre visible). La positionner à la main couperait le cadre (cf. frameGeometry).
+        }
+    }
 }
 
 void dlg_multiimageviewer::FillXTable()
