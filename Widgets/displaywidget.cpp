@@ -17,8 +17,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "displaywidget.h"
 #include <QPainter>
-#include <QScrollBar>
-#include <QDebug>
 
 
 DisplayWidget::DisplayWidget(QWidget *parent) : QGraphicsView(parent) {
@@ -289,16 +287,6 @@ void DisplayWidget::resizeEvent(QResizeEvent* event) {
                 fitVideo(viewport()->size());
         }
     }
-    //! ===== DEBUG TEMPORAIRE (à retirer) : mesure le débordement réel =====
-    //! Hmax/Vmax = de combien de pixels on peut faire défiler = de combien le contenu dépasse.
-    qDebug() << "DW resize  widget:" << event->size()
-             << " viewport:" << viewport()->size()
-             << " scale:" << transform().m11()
-             << " sceneRect:" << sceneRect()
-             << " contenu_affiché:" << QSizeF(sceneRect().width()*transform().m11(), sceneRect().height()*transform().m22()).toSize()
-             << " | Hscroll max:" << horizontalScrollBar()->maximum()
-             << " Vscroll max:" << verticalScrollBar()->maximum();
-    //! ====================================================================
 }
 
 bool DisplayWidget::eventFilter(QObject *obj, QEvent *event)
