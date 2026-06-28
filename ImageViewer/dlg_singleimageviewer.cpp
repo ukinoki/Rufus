@@ -125,10 +125,14 @@ void dlg_singleimageviewer::centerForZoom()
     //! framePosition() corrige le décalage du cadre (barre de titre) quand la fiche est déjà visible.
     if (QGuiApplication::screens().isEmpty())
         return;
+    //! On centre d'après la taille CIBLE (recalculée), et NON width()/height() : juste après resize(),
+    //! sous xcb/X11 la nouvelle taille n'est pas encore appliquée (le gestionnaire de fenêtres la
+    //! traite de façon asynchrone) -> width() est périmé -> la fiche se retrouve déportée à droite.
+    QSize sz    = optimalGeometryForZoom(m_wdgratio).size();
     QRect avail = QGuiApplication::screens().first()->availableGeometry();
-    int x = avail.left() + (avail.width()  - width())  / 2;
-    int y = avail.top()  + (avail.height() - height()) / 2;
-    move(framePosition(QRect(x, y, width(), height())));
+    int x = avail.left() + (avail.width()  - sz.width())  / 2;
+    int y = avail.top()  + (avail.height() - sz.height()) / 2;
+    move(framePosition(QRect(QPoint(x, y), sz)));
 }
 
 qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)

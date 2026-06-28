@@ -126,9 +126,12 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
         if (!screens.isEmpty())
         {
             QRect avail = screens.first()->availableGeometry();
-            resize(screens.first()->geometry().width() / 2, avail.height());
+            int   w     = screens.first()->geometry().width() / 2;       //! largeur cible
+            resize(w, avail.height());
             //! centré horizontalement ; top aligné sur la zone utile (la hauteur est déjà maximale).
-            move(avail.left() + (avail.width() - width()) / 2, avail.top());
+            //! On centre d'après w (cible), pas width() : sous xcb/X11 width() est encore périmé juste
+            //! après resize() (resize asynchrone) -> la fiche serait déportée à droite.
+            move(avail.left() + (avail.width() - w) / 2, avail.top());
         }
     }
 }
