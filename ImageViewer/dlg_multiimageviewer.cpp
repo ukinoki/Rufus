@@ -630,6 +630,8 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
             //! wdg_display     ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;"); //! for tests
             wdg_display     ->setrufusitem(doc);
             wdg_display     ->installEventFilter(this);
+            wdg_display     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));   //! loupe au survol (comme dlg_depenses)
+            connect(wdg_display, &DisplayWidget::clicked, this, [=] {ZoomDoc(wdg_display);});   //! clic -> mode zoom
             glaywidg        = wdg_display;
             glay            ->addWidget(glaywidg);
         }
@@ -916,14 +918,8 @@ bool dlg_multiimageviewer::eventFilter(QObject *obj, QEvent *event)
                 }
         }
     }
-    QMouseEvent *mseevent = dynamic_cast<QMouseEvent*>(event);
-    if (mseevent)
-        if (event->type() == QEvent::MouseButtonDblClick)
-        {
-            qDebug() << "ZoomDoc";
-            if (dynamic_cast<DisplayWidget*>(obj) != Q_NULLPTR)
-                ZoomDoc(dynamic_cast<DisplayWidget*>(obj));
-        }
+    //! Le clic sur une vignette -> mode zoom est désormais géré par le signal DisplayWidget::clicked
+    //! (connecté dans DockWidget), avec curseur loupe — comme dlg_depenses. Plus de double-clic.
     return QWidget::eventFilter(obj, event);
 }
 

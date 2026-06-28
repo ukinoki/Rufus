@@ -203,7 +203,6 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     QMenu *menuModif    = menu->addMenu(tr("Modifier"));
     menuModif           ->setIcon(Icons::icEditer());
     menuModif           ->addAction(paction_Modifier);
-    menu                ->addAction(paction_Zoom);
     if (docmt->format() == VIDEO || docmt->format() == DOCUMENTRECU)
         menuModif->addAction(paction_ModifierDate);
     connect (paction_Modifier,      &QAction::triggered,    this,  [=] {ModifierItem(idx);});
@@ -245,6 +244,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
     if (currentuser()->isSoignant())
         menu->addAction(paction_Poubelle);
+    menu                ->addAction(paction_Zoom);          //! passage en mode zoom : toujours en DERNIER item
     menu->exec(cursor().pos());
     menu->close();
 }
@@ -888,9 +888,8 @@ void dlg_docsexternes::ZoomDoc(bool changemode)
             m_positionorigin = pos();
             m_sizeorigin     = size();
         }
-        //! set dimensions to max
+        //! set dimensions to max (changeMode() centre déjà la fiche -> plus de move(0,0) à la main)
         changeMode(dlg_singleimageviewer::Zoom);
-        move (0,0);
     }
     else if (mode() == dlg_singleimageviewer::Zoom)
     {
