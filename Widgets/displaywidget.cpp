@@ -171,18 +171,28 @@ UpMediaPlayer *DisplayWidget::mediaPlayer() const
 
 void DisplayWidget::fitImage(QSize size)
 {
-    if (m_listgraphicsItem.size() > 0)
-    {
+    if (m_listgraphicsItem.size() == 0 || !m_listgraphicsItem.at(0))
+        return;
+    //! sceneRect = englobant de toutes les pages, en coordonnées natives (largeur = 1re page,
+    //! hauteur = somme des pages empilées).
+    int h = 0;
+    foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
+        if (itm)
+            h += itemPixmap(itm).height();
+    qreal w = itemPixmap(m_listgraphicsItem.at(0)).width();
+    m_scene->setSceneRect(0, 0, w, h);
+
+    resetTransform();
+    if (m_listgraphicsItem.size() == 1)
+        //! Image unique : on loge l'image ENTIÈRE dans le viewport (fit "contain") = le plus petit
+        //! des deux facteurs largeur/hauteur. Avant on n'ajustait qu'à la LARGEUR, donc une image
+        //! un peu plus haute que le viewport débordait de quelques pixels -> elle "bougeait" à la
+        //! molette / au défilement. Désormais : aucun débordement, aucun défilement parasite.
+        m_ScaleFactor = qMin(qreal(size.width()) / w, qreal(size.height()) / h);
+    else
+        //! Multi-pages : ajustées à la largeur, défilement vertical voulu pour parcourir les pages.
         m_ScaleFactor = listImageScaleFactor(size.width());
-        resetTransform();
-        scale(m_ScaleFactor);
-        int h = 0;
-        foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
-            if (itm)
-                h += itemPixmap(itm).height();
-        if (m_listgraphicsItem.at(0))
-            m_scene->setSceneRect(0, 0, itemPixmap(m_listgraphicsItem.at(0)).width(), h);
-    }
+    scale(m_ScaleFactor);
 }
 
 void DisplayWidget::fitVideo(QSize size)
