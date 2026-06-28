@@ -942,7 +942,12 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
         connect(imgzoom->PrintButton,   &UpSmallButton::clicked,    this,       [=] {Procedures::I()->Print(doc->pagelist());});
         connect(imgzoom->RecordButton,  &UpSmallButton::clicked,    this,       [=] {Procedures::I()->saveDocumentToFile(doc, imgzoom);});
         if (imgzoom->imagewidget())
+        {
             imgzoom->imagewidget()->setOKwheelzoom(true);
+            //! dans la vue zoom : curseur loupe-moins au survol, clic -> ferme la fiche (inverse de la grille)
+            imgzoom->imagewidget()->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30)));
+            connect(imgzoom->imagewidget(), &DisplayWidget::clicked, imgzoom, &dlg_singleimageviewer::close);
+        }
         imgzoom->exec();
         delete imgzoom;
     }

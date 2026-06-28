@@ -1111,6 +1111,12 @@ void dlg_depenses::ZoomDoc()
                                                                                 dlg_imgviewer->close();
                                                                             });
     connect(dlg_imgviewer->OKButton,    &UpSmallButton::clicked, dlg_imgviewer, &dlg_singleimageviewer::close);
+    if (dlg_imgviewer->imagewidget())
+    {
+        //! dans la vue zoom : curseur loupe-moins au survol, clic -> ferme la fiche (inverse de la grille)
+        dlg_imgviewer->imagewidget()->setCursor(QCursor(Icons::pxZoomOut().scaled(30,30)));
+        connect(dlg_imgviewer->imagewidget(), &DisplayWidget::clicked, dlg_imgviewer, &dlg_singleimageviewer::close);
+    }
     dlg_imgviewer                   ->exec();
     delete dlg_imgviewer;
 }
