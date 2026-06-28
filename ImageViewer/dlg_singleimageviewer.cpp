@@ -94,36 +94,26 @@ void dlg_singleimageviewer::setDepense(Depense *dep)
 
 QRect dlg_singleimageviewer::optimalGeometryForZoom(double ratioimgorigine) const
 {
-    //! Géométrie du dialogue en mode Zoom : l'image doit s'afficher à sa taille MAXIMALE admise
-    //! par l'écran sans être tronquée. Selon l'orientation de l'image (son ratio largeur/hauteur
-    //! comparé à celui de l'écran), c'est la HAUTEUR ou la LARGEUR qui plafonne.
-    //! deltas() = "chrome" du dialogue (marges, boutons…) à réserver autour de l'image.
-    //! (Logique reprise telle quelle depuis l'ancien UpDialog::setOptimalSizesForZoom : c'est au
-    //!  viewer, qui seul connaît le ratio de l'image, de la porter — pas à la classe de base.)
-    double wscreen = 0, hscreen = 0, screenratio = 1;
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size())
-    {
-        wscreen     = listscreens.first()->availableGeometry().width();
-        hscreen     = listscreens.first()->availableGeometry().height();
-        screenratio = wscreen / hscreen;
-    }
-    int wdelta = deltas().width();
-    int hdelta = deltas().height();
-    int finalw(0), finalh(0);
-    if (screenratio >= ratioimgorigine)         //! écran plus "large" que l'image -> la HAUTEUR plafonne
-    {
-        finalh    = int(hscreen * 0.98);
-        double hd = finalh - hdelta;            //! hauteur disponible pour l'image
-        finalw    = int(hd * ratioimgorigine) + wdelta;
-    }
-    else                                        //! écran plus "étroit" -> la LARGEUR plafonne
-    {
-        finalw    = int(wscreen);
-        double wd = finalw - wdelta;            //! largeur disponible pour l'image
-        finalh    = int(wd / ratioimgorigine) + hdelta;
-    }
-    return QRect(0, 0, finalw, finalh);
+    //! Géométrie du dialogue en mode Zoom : la fiche doit occuper toute la place possible et
+    //! afficher l'image à sa taille MAXIMALE sans la tronquer. Qt::KeepAspectRatio loge un
+    //! rectangle de ratio image dans la place disponible et choisit TOUT SEUL si c'est la hauteur
+    //! ou la largeur qui plafonne (selon l'orientation) — plus de calcul d'orientation à la main.
+    //!
+    //! Le 0.98 (marge de 2 %) est une réserve de sécurité ASSUMÉE, pas un détail cosmétique :
+    //!  - Qt ne connaît la taille du CADRE de la fenêtre (barre de titre + bordures, soit
+    //!    frameGeometry() - geometry()) qu'APRÈS le premier affichage : impossible de la déduire
+    //!    ici pour la soustraire proprement avant d'afficher la fiche.
+    //!  - availableGeometry() n'excluait pas toujours le dock macOS (selon les versions de Qt).
+    //! Ces 2 % couvrent forfaitairement cadre + dock pour éviter que la fiche déborde de l'écran.
+    //! Solution propre possible (2 passes : afficher puis réajuster sur frameGeometry connu), à ne
+    //! tenter que si le besoin réel se présente — gain ~2 %, et code de géométrie cross-plateforme.
+    if (QGuiApplication::screens().isEmpty())
+        return QRect();
+    QSize  ecran  = QGuiApplication::screens().first()->availableGeometry().size() * 0.98;
+    QSize  chrome = deltas();                            //! place prise par boutons/marges autour de l'image
+    QSizeF placeImage(ecran.width() - chrome.width(), ecran.height() - chrome.height());
+    QSize  image  = QSizeF(ratioimgorigine, 1.0).scaled(placeImage, Qt::KeepAspectRatio).toSize();
+    return QRect(QPoint(0, 0), image + chrome);
 }
 
 qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)
