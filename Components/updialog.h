@@ -90,13 +90,19 @@ public:
     Mode            mode() const;
     QVBoxLayout*    dlglayout() const;
     QHBoxLayout*    buttonslayout() const;
-    QWidget*        widgetbuttons() const;
     UpLineEdit*     searchline() const                                  { return wdg_chercheuplineedit; }
     void            setStageCount(double stage =  1);
     QObject*        data() const                                        { return obj_data; }
     void            setdata(QObject* data) { obj_data = data; }
-    int             stageheight() const;
+    void            setSaveGeometry(QString geometryname);
+    Buttons         buttons() const;
 
+protected:
+    //! Helpers réservés aux sous-classes (fiches) : tout ce qui ne sert qu'à une fiche dérivée — et
+    //! jamais appelé de l'extérieur sur une autre instance — vit ici, pas dans l'API publique.
+
+    QWidget*        widgetbuttons() const;
+    int             nbbuttons() const;                                  //! amount of buttons in buttons layout
 
     //! resize(), size(), width() & geometry() makes reference to geometry() excluding frameGeometry()
     //! move(), pos() makes reference to geometry() including framePosition
@@ -113,22 +119,16 @@ public:
     }
 
     QSize           sizeForMainWidgetDisplay() const;
-
-    void            setSaveGeometry(QString geometryname);
-
     void            setCorrectionWidth(const int &correctionwidth)      { m_correctionwidth = correctionwidth; }
 
-    //! amount of buttons in buttons layout
-    int             nbbuttons() const;
-    void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
-    Buttons         buttons() const;
-
-protected:
     //! difference between geometry size and all widget's size --> contentsmargins and spacings +
     //! correctionwidth (= width of allwidgets excluding this of MainWidget).
-    //! protected (et non public) : seul un viewer (sous-classe) en a besoin, pour calculer la
-    //! géométrie de son mode Zoom. Aucun appelant externe.
+    //! protected (et non public) : seul un viewer (sous-classe) en a besoin. Aucun appelant externe.
     QSize           deltas() const;
+
+private:
+    int             stageheight() const;
+    void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)
