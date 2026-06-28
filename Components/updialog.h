@@ -77,7 +77,6 @@ private:
     UpLabel         *wdg_label;
     UpLineEdit      *wdg_chercheuplineedit;
     QRect           m_originalgeometry      = QRect();
-    QRect           m_optimalgeometryforzoom= QRect();
     Buttons         m_Buttons               = NoButton;
 
 public:
@@ -104,9 +103,6 @@ public:
     QRect           originalgeometry() const                            { return m_originalgeometry; }
     void            setOriginalgeometry(const QRect &geometry)          { m_originalgeometry = geometry; }
 
-    QRect           optimalgeometryforzoom() const                      { return m_optimalgeometryforzoom; }
-    void            setOptimalgeometryforzoom(const QRect &geometry)    { m_optimalgeometryforzoom = geometry; }
-
     //!position of framegeometry for a Dialog whose geometry() would be rectgeometry
     QPoint          framePosition(QRect rectgeometry) const
     {
@@ -116,19 +112,23 @@ public:
         return p;
     }
 
-    void            setOptimalSizesForZoom(double ratioimgorigine);
     QSize           sizeForMainWidgetDisplay() const;
 
     void            setSaveGeometry(QString geometryname);
 
-    //! difference between geometry size and all widget's size   --> contentsmargins and spacings + correctionwidth (= width of allwidgets excluding this of MainWidget)
-    QSize           deltas() const;
     void            setCorrectionWidth(const int &correctionwidth)      { m_correctionwidth = correctionwidth; }
 
     //! amount of buttons in buttons layout
     int             nbbuttons() const;
     void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
     Buttons         buttons() const;
+
+protected:
+    //! difference between geometry size and all widget's size --> contentsmargins and spacings +
+    //! correctionwidth (= width of allwidgets excluding this of MainWidget).
+    //! protected (et non public) : seul un viewer (sous-classe) en a besoin, pour calculer la
+    //! géométrie de son mode Zoom. Aucun appelant externe.
+    QSize           deltas() const;
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

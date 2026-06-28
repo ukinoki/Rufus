@@ -315,53 +315,6 @@ void UpDialog::TuneSize(bool fixh, bool fixw)
 }
 
 
-/*!
- *  \brief      UpDialog::setOptimalSizesForZoom
- *  \abstract   calc the right size for maximum size view respect with screen resolution depending on
-        *  item resolution to display
-        *  screen resolution
- *  \param
- *  ratioimgorigine = frame ratio (w/h) of original imagery item
- *
- *  \return
-    *  m_sizeform = final size for QDialog
-    *  m_sizewidget = size available inside form for widget to display
-*/
-void UpDialog::setOptimalSizesForZoom(double ratioimgorigine)
-{
-    /*! screen resolution */
-    double          wscroll  = 0;
-    double          hscroll  = 0;
-    double          screenratio = 1;
-    QList<QScreen*> listscreens = QGuiApplication::screens();
-    if (listscreens.size())
-    {
-        wscroll     = listscreens.first()->availableGeometry().width();
-        hscroll     = listscreens.first()->availableGeometry().height();
-        screenratio = wscroll/hscroll;
-    }
-
-    int wdelta   = deltas().width();
-    int hdelta   = deltas().height();
-
-    /*! if screenration >= videoratio  => screenheight is used for max heighth */
-    int finalh (0), finalw(0);
-    if (screenratio >= ratioimgorigine)
-    {
-        finalh = int(hscroll * 0.98);
-        double hd = finalh - hdelta;        //! height available for scrollarea - double is used to cast (hd * m_vidorimgratio) to double
-        finalw = int(hd * ratioimgorigine) + wdelta;
-    }
-    /*! if screenration < videoratio  => screenwidth is used for max width */
-    else
-    {
-        finalw = int(wscroll);
-        double wd = finalw - wdelta;        //! width available for scrollarea - double is used to cast (wd / m_vidorimgratio) to double
-        finalh = int(wd / ratioimgorigine) + hdelta;
-    }
-    m_optimalgeometryforzoom      = QRect(0,0,finalw, finalh);
-}
-
 QSize UpDialog::deltas() const              //! difference between geometry size and all widget's size except mainwidget
 {
     QSize sz = sizeForMainWidgetDisplay();

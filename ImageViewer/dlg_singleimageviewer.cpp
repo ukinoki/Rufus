@@ -92,6 +92,40 @@ void dlg_singleimageviewer::setDepense(Depense *dep)
     }
 }
 
+QRect dlg_singleimageviewer::optimalGeometryForZoom(double ratioimgorigine) const
+{
+    //! Géométrie du dialogue en mode Zoom : l'image doit s'afficher à sa taille MAXIMALE admise
+    //! par l'écran sans être tronquée. Selon l'orientation de l'image (son ratio largeur/hauteur
+    //! comparé à celui de l'écran), c'est la HAUTEUR ou la LARGEUR qui plafonne.
+    //! deltas() = "chrome" du dialogue (marges, boutons…) à réserver autour de l'image.
+    //! (Logique reprise telle quelle depuis l'ancien UpDialog::setOptimalSizesForZoom : c'est au
+    //!  viewer, qui seul connaît le ratio de l'image, de la porter — pas à la classe de base.)
+    double wscreen = 0, hscreen = 0, screenratio = 1;
+    QList<QScreen*> listscreens = QGuiApplication::screens();
+    if (listscreens.size())
+    {
+        wscreen     = listscreens.first()->availableGeometry().width();
+        hscreen     = listscreens.first()->availableGeometry().height();
+        screenratio = wscreen / hscreen;
+    }
+    int wdelta = deltas().width();
+    int hdelta = deltas().height();
+    int finalw(0), finalh(0);
+    if (screenratio >= ratioimgorigine)         //! écran plus "large" que l'image -> la HAUTEUR plafonne
+    {
+        finalh    = int(hscreen * 0.98);
+        double hd = finalh - hdelta;            //! hauteur disponible pour l'image
+        finalw    = int(hd * ratioimgorigine) + wdelta;
+    }
+    else                                        //! écran plus "étroit" -> la LARGEUR plafonne
+    {
+        finalw    = int(wscreen);
+        double wd = finalw - wdelta;            //! largeur disponible pour l'image
+        finalh    = int(wd / ratioimgorigine) + hdelta;
+    }
+    return QRect(0, 0, finalw, finalh);
+}
+
 qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)
 {
     qreal maxw(0), maxh(0);
@@ -116,8 +150,8 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     m_wdgratio = widgetRatio(listimage);
     if (m_mode == Zoom)
     {
-        setOptimalSizesForZoom(m_wdgratio);
-        resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
+        QRect geozoom = optimalGeometryForZoom(m_wdgratio);
+        resize(geozoom.width(), geozoom.height());
     }
     else m_imgwdg   ->resize(sizeForMainWidgetDisplay());
     m_labinfowdg    ->setText("<font color='magenta'>" + nomdoc + "</font>");
@@ -151,8 +185,8 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     m_wdgratio      = size.width() / size.height();
     if (m_mode == Zoom)
     {
-        setOptimalSizesForZoom(m_wdgratio);
-        resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
+        QRect geozoom = optimalGeometryForZoom(m_wdgratio);
+        resize(geozoom.width(), geozoom.height());
     }
     else m_imgwdg   ->resize(sizeForMainWidgetDisplay());
     m_labinfowdg    ->setText(QFileInfo(filepath).fileName());
@@ -221,8 +255,8 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
     m_mode = newMode;
     if (m_mode == Zoom)
     {
-        setOptimalSizesForZoom(m_wdgratio);
-        resize(optimalgeometryforzoom().width(), optimalgeometryforzoom().height());
+        QRect geozoom = optimalGeometryForZoom(m_wdgratio);
+        resize(geozoom.width(), geozoom.height());
         move(0,0);
         setEnregPosition(false);
     }
