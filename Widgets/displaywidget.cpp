@@ -242,21 +242,24 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event) {
 }
 
 void DisplayWidget::resizeEvent(QResizeEvent* event) {
+    QGraphicsView::resizeEvent(event);          //! laisse la base poser le viewport + la barre AVANT de mesurer
     if (m_scene->items().size() >0)
     {
         QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
         if (itm)
         {
-            //! pixmaps natifs déjà posés : on ne re-rastérise plus ; le resize ne fait que
-            //! recalculer la transform de vue (idempotent, peu coûteux) -> pas de boucle.
-            fitImage(event->size());
+            //! On ajuste à la taille du VIEWPORT (zone réellement visible, cadre + barre verticale
+            //! déduits) et NON à celle du widget (event->size()) : sinon l'image est trop large de la
+            //! largeur de la barre (~17 px) -> elle dépasse le cadre de quelques pixels et "bouge" à
+            //! la molette / au défilement. Pixmaps natifs : pas de re-rasterisation, juste la transform.
+            fitImage(viewport()->size());
             checkSize();
         }
         else
         {
             QGraphicsVideoItem *itm = dynamic_cast<QGraphicsVideoItem *>(m_scene->items().at(0));
             if (itm)
-                fitVideo(event->size());
+                fitVideo(viewport()->size());
         }
     }
 }
