@@ -183,19 +183,15 @@ void DisplayWidget::fitImage(QSize size)
     {
         //! Image unique : "cover". On remplit TOUT le viewport (facteur = le PLUS GRAND des deux,
         //! largeur/hauteur), quitte à rogner l'excédent -> aucune zone blanche, même en étirant la
-        //! fiche dans un sens. Puis on borne la scène à la fenêtre réellement visible, CENTRÉE : la
-        //! scène fait alors exactement la taille du viewport -> aucune marge de défilement, donc
-        //! l'image ne "bouge" plus du tout (ni molette ni scroll).
+        //! fiche dans un sens. La scène reste l'image ENTIÈRE : on peut donc faire défiler à la
+        //! souris pour voir les bords rognés (sinon il faudrait agrandir la fiche à chaque fois).
+        //! Barres en AsNeeded -> elles n'apparaissent QUE dans la dimension réellement rognée ;
+        //! dans celle qui tombe pile, aucune barre, donc pas de micro-déplacement parasite.
         m_ScaleFactor = qMax(qreal(size.width()) / w, qreal(size.height()) / h);
         scale(m_ScaleFactor);
-        qreal vw = size.width()  / m_ScaleFactor;       //! largeur visible, en coordonnées scène
-        qreal vh = size.height() / m_ScaleFactor;       //! hauteur visible, en coordonnées scène
-        m_scene->setSceneRect((w - vw) / 2, (h - vh) / 2, vw, vh);
-        if (!OKwheelzoom)                               //! visualisation simple (hors viewer zoom) : on
-        {                                               //! coupe les barres pour qu'aucun geste (pavé
-            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   //! tactile, glissement) ne puisse
-            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);     //! déplacer l'image.
-        }
+        m_scene->setSceneRect(0, 0, w, h);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     }
     else
     {
@@ -203,6 +199,8 @@ void DisplayWidget::fitImage(QSize size)
         m_ScaleFactor = listImageScaleFactor(size.width());
         scale(m_ScaleFactor);
         m_scene->setSceneRect(0, 0, w, h);
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     }
 }
 
@@ -245,10 +243,8 @@ void DisplayWidget::wheelEvent(QWheelEvent *event) {
         QPoint scrollAmount = event->angleDelta();
         scrollAmount.y() > 0 ? zoomIn() : zoomOut();
     }
-    else if (m_listgraphicsItem.size() > 1)
-        QGraphicsView::wheelEvent(event);       //! multi-pages : la molette défile pour parcourir les pages
     else
-        event->accept();                        //! image unique en "cover" : rien à faire défiler -> on ignore la molette (pas de jitter)
+        QGraphicsView::wheelEvent(event);       //! défilement (image rognée à voir en entier, ou multi-pages)
 }
 
 
