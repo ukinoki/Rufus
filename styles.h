@@ -41,6 +41,14 @@ public:
                 "QRadioButton::indicator {width: 18px; height: 18px;}"
                 "QRadioButton::indicator::checked {image: url(://blueball.png);}"
                 "QScrollArea {background-color:rgb(237, 237, 237); border: 1px solid rgb(150,150,150);}"
+                //! la scrollarea centrale de la mainwindow remplit tout le centralWidget : si on la
+                //! laisse au gris opaque de la règle ci-dessus, elle masque le fond (wallpaper) du
+                //! centralWidget. On la rend donc TRANSPARENTE (cadre + viewport interne + widget de
+                //! contenu) pour que le fond réapparaisse. Sélecteurs par id -> n'affectent qu'elle,
+                //! les autres QScrollArea gardent leur gris.
+                "QScrollArea#centralScrollArea {background: transparent; border: none;}"
+                "QScrollArea#centralScrollArea > QWidget#qt_scrollarea_viewport {background: transparent;}"
+                "QWidget#centralScrollAreaWidget {background: transparent;}"
                                               "QScrollBar:vertical {width: widthscrollbarpx;}"
                 "QTabBar::tab:selected {background: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1,stop: 0 #fafafa, stop: 1.0 rgb(164, 205, 255));"
                                         "border-color: #9B9B9B;"
