@@ -116,6 +116,21 @@ QRect dlg_singleimageviewer::optimalGeometryForZoom(double ratioimgorigine) cons
     return QRect(QPoint(0, 0), image + chrome);
 }
 
+void dlg_singleimageviewer::centerForZoom()
+{
+    //! En mode Zoom, la fiche remplit l'écran dans UNE dimension et laisse de la place dans l'autre
+    //! (selon l'orientation de l'image). On la centre dans les DEUX dimensions : l'axe "plein" se
+    //! recentre sur sa petite marge (le 0.98), l'axe "libre" se centre vraiment. Résultat : image
+    //! portrait -> fiche centrée horizontalement ; image paysage -> centrée verticalement.
+    //! framePosition() corrige le décalage du cadre (barre de titre) quand la fiche est déjà visible.
+    if (QGuiApplication::screens().isEmpty())
+        return;
+    QRect avail = QGuiApplication::screens().first()->availableGeometry();
+    int x = avail.left() + (avail.width()  - width())  / 2;
+    int y = avail.top()  + (avail.height() - height()) / 2;
+    move(framePosition(QRect(x, y, width(), height())));
+}
+
 qreal dlg_singleimageviewer::widgetRatio(QList<QImage> listimg)
 {
     qreal maxw(0), maxh(0);
@@ -156,7 +171,7 @@ void dlg_singleimageviewer::DisplayImage(QList<QImage> listimage, QString nomdoc
     setMaximumHeight(int(finalh));
 
     if (m_mode == Zoom)
-        move(0, 0);
+        centerForZoom();
     else
         move(framePosition(originalgeometry()));
 }
@@ -195,10 +210,7 @@ void dlg_singleimageviewer::DisplayVideo(QString filepath)
     m_controlplayer     ->startplay();
 
     if (m_mode == Zoom)
-    {
-        move(0,0);
-        //if (listscreens.size())  move((listscreens.first()->geometry().width() - width())/2, 0);
-    }
+        centerForZoom();
     else
         move(framePosition(originalgeometry()));
 }
@@ -247,7 +259,7 @@ void dlg_singleimageviewer::changeMode(Mode newMode)
     {
         QRect geozoom = optimalGeometryForZoom(m_wdgratio);
         resize(geozoom.width(), geozoom.height());
-        move(0,0);
+        centerForZoom();
         setEnregPosition(false);
     }
     else

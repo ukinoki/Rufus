@@ -127,8 +127,8 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
         {
             QRect avail = screens.first()->availableGeometry();
             resize(screens.first()->geometry().width() / 2, avail.height());
-            //! pas de move() : on laisse le gestionnaire de fenêtres placer la fiche (il garde la
-            //! barre de titre visible). La positionner à la main couperait le cadre (cf. frameGeometry).
+            //! centré horizontalement ; top aligné sur la zone utile (la hauteur est déjà maximale).
+            move(avail.left() + (avail.width() - width()) / 2, avail.top());
         }
     }
 }

@@ -60,6 +60,7 @@ protected:
 private:
     qreal                   widgetRatio(QList<QImage> listimg);
     QRect                   optimalGeometryForZoom(double ratioimgorigine) const;   //! géométrie du dialogue en mode Zoom (image à sa taille max non tronquée)
+    void                    centerForZoom();                                        //! centre la fiche en mode Zoom (sur l'axe qui a de la place libre)
     void                    DisplayImage(QList<QImage> listimg, QString nomdoc = QString());
     void                    goTo(UpToolBar::Choice choice);
     void                    displaycurrentDocument();
