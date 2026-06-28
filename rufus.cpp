@@ -419,6 +419,14 @@ void Rufus::ConnectSignals()
     }
     connect (ui->PatientsListeTableView,                            &QTableView::entered,                               this,   [=] {AfficheToolTip(getPatientFromCursorPositionInTable());});
     connect (ui->PatientsListeTableView->selectionModel(),          &QItemSelectionModel::selectionChanged,             this,   &Rufus::EnableButtons);
+    //! Depuis que le centralScrollAreaWidget est transparent (pour laisser voir le wallpaper de la
+    //! mainwindow dans les zones vides), un viewport de table transparent laisse voir le fond au
+    //! travers. On force le viewport de la liste des patients en blanc OPAQUE (les couleurs alternées
+    //! des lignes, peintes par-dessus, restent intactes).
+    ui->PatientsListeTableView->viewport()->setAutoFillBackground(true);
+    QPalette palListePatients = ui->PatientsListeTableView->viewport()->palette();
+    palListePatients.setColor(ui->PatientsListeTableView->viewport()->backgroundRole(), Qt::white);
+    ui->PatientsListeTableView->viewport()->setPalette(palListePatients);
     connect (ui->PatientsVusFlecheupLabel,                          &UpLabel::clicked,                                  this,   &Rufus::AffichePatientsVusWidget);
     connect (ui->PatientsVusupTableWidget,                          &QTableView::activated,                             this,   [=] {gTimerPatientsVus->start();});
     connect (ui->PremierActepushButton,                             &QPushButton::clicked,                              this,   [=] {NavigationConsult(ItemsList::Debut);});
