@@ -173,26 +173,34 @@ void DisplayWidget::fitImage(QSize size)
 {
     if (m_listgraphicsItem.size() == 0 || !m_listgraphicsItem.at(0))
         return;
-    //! sceneRect = englobant de toutes les pages, en coordonnées natives (largeur = 1re page,
-    //! hauteur = somme des pages empilées).
+    //! dimensions natives : largeur = 1re page, hauteur = somme des pages empilées.
     int h = 0;
     foreach(QGraphicsPixmapItem *itm, m_listgraphicsItem)
         if (itm)
             h += itemPixmap(itm).height();
     qreal w = itemPixmap(m_listgraphicsItem.at(0)).width();
-    m_scene->setSceneRect(0, 0, w, h);
 
     resetTransform();
     if (m_listgraphicsItem.size() == 1)
-        //! Image unique : on loge l'image ENTIÈRE dans le viewport (fit "contain") = le plus petit
-        //! des deux facteurs largeur/hauteur. Avant on n'ajustait qu'à la LARGEUR, donc une image
-        //! un peu plus haute que le viewport débordait de quelques pixels -> elle "bougeait" à la
-        //! molette / au défilement. Désormais : aucun débordement, aucun défilement parasite.
-        m_ScaleFactor = qMin(qreal(size.width()) / w, qreal(size.height()) / h);
+    {
+        //! Image unique : "cover". On remplit TOUT le viewport (facteur = le PLUS GRAND des deux,
+        //! largeur/hauteur), quitte à rogner l'excédent -> aucune zone blanche, même en étirant la
+        //! fiche dans un sens. Puis on borne la scène à la fenêtre réellement visible, CENTRÉE : la
+        //! scène fait alors exactement la taille du viewport -> aucune marge de défilement, donc
+        //! l'image ne "bouge" plus du tout (ni molette ni scroll).
+        m_ScaleFactor = qMax(qreal(size.width()) / w, qreal(size.height()) / h);
+        scale(m_ScaleFactor);
+        qreal vw = size.width()  / m_ScaleFactor;       //! largeur visible, en coordonnées scène
+        qreal vh = size.height() / m_ScaleFactor;       //! hauteur visible, en coordonnées scène
+        m_scene->setSceneRect((w - vw) / 2, (h - vh) / 2, vw, vh);
+    }
     else
+    {
         //! Multi-pages : ajustées à la largeur, défilement vertical voulu pour parcourir les pages.
         m_ScaleFactor = listImageScaleFactor(size.width());
-    scale(m_ScaleFactor);
+        scale(m_ScaleFactor);
+        m_scene->setSceneRect(0, 0, w, h);
+    }
 }
 
 void DisplayWidget::fitVideo(QSize size)
