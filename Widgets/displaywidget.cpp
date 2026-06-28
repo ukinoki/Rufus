@@ -193,6 +193,11 @@ void DisplayWidget::fitImage(QSize size)
         qreal vw = size.width()  / m_ScaleFactor;       //! largeur visible, en coordonnées scène
         qreal vh = size.height() / m_ScaleFactor;       //! hauteur visible, en coordonnées scène
         m_scene->setSceneRect((w - vw) / 2, (h - vh) / 2, vw, vh);
+        if (!OKwheelzoom)                               //! visualisation simple (hors viewer zoom) : on
+        {                                               //! coupe les barres pour qu'aucun geste (pavé
+            setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);   //! tactile, glissement) ne puisse
+            setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);     //! déplacer l'image.
+        }
     }
     else
     {
@@ -242,8 +247,10 @@ void DisplayWidget::wheelEvent(QWheelEvent *event) {
         QPoint scrollAmount = event->angleDelta();
         scrollAmount.y() > 0 ? zoomIn() : zoomOut();
     }
+    else if (m_listgraphicsItem.size() > 1)
+        QGraphicsView::wheelEvent(event);       //! multi-pages : la molette défile pour parcourir les pages
     else
-        QGraphicsView::wheelEvent(event);
+        event->accept();                        //! image unique en "cover" : rien à faire défiler -> on ignore la molette (pas de jitter)
 }
 
 
