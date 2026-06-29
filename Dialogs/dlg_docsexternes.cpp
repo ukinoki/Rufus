@@ -493,15 +493,13 @@ DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
 
 QModelIndex dlg_docsexternes::getIndexFromId(QStandardItemModel *modele, int id)
 {
-    QModelIndex idx;
+    //! l'id est unique -> on retourne dès la première correspondance (avant, le break ne sortait
+    //! que de la boucle interne et la boucle externe continuait à balayer pour rien).
     for (int m = 0; m<modele->rowCount(); m++)
         for (int n=0; n<modele->item(m)->rowCount(); n++)
             if (modele->item(m)->child(n)->data().toMap().value("id").toInt() == id)
-            {
-                idx = modele->item(m)->child(n)->index();
-                break;
-            }
-    return idx;
+                return modele->item(m)->child(n)->index();
+    return QModelIndex();
 }
 
 QStandardItem* dlg_docsexternes::getItemFromDocument(QStandardItemModel *model, DocExterne* docmt)
@@ -1081,7 +1079,6 @@ void dlg_docsexternes::RemplirTreeView()
                 if (doc->importance()==2)
                     listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
             }
-            listitemsdate.at(0)->sortChildren(1);
         }
         QList<QStandardItem *> listitemstype = m_tripartypemodel->findItems(doc->typedoc());
         if (listitemstype.size()>0)
@@ -1098,9 +1095,14 @@ void dlg_docsexternes::RemplirTreeView()
                 if (doc->importance()==2)
                     listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
             }
-            listitemstype.at(0)->sortChildren(1);
         }
     }
+    //! Tri des enfants de chaque en-tête, une seule fois APRÈS le remplissage (colonne 1 = clé
+    //! datetime cachée). Avant, on re-triait toute la fratrie à CHAQUE document inséré.
+    for (int i = 0; i < m_tripardatemodel->rowCount(); ++i)
+        m_tripardatemodel->item(i)->sortChildren(1);
+    for (int i = 0; i < m_tripartypemodel->rowCount(); ++i)
+        m_tripartypemodel->item(i)->sortChildren(1);
 //    qDebug() << "rowCount() = " << gmodeleTriParDate->rowCount();
 //    qDebug() << "dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->text();
 //    qDebug() << "rowCount() du dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->rowCount()-1;
