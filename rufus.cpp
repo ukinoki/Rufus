@@ -4318,7 +4318,7 @@ void Rufus::ModifierTerrain()
     ui->TabacLabel->setVisible(true);
     ui->TabaclineEdit->setVisible(true);
     ui->OKModifTerrainupSmallButton->setUpButtonStyle(UpSmallButton::STARTBUTTON);
-    ui->OKModifTerrainupSmallButton->disconnect();
+    disconnect(ui->OKModifTerrainupSmallButton, &QPushButton::clicked,  nullptr,nullptr);
     connect (ui->OKModifTerrainupSmallButton,   &QPushButton::clicked,  this,   [=] {OKModifierTerrain(currentpatient());});
 }
 
@@ -4500,7 +4500,7 @@ void Rufus::OKModifierTerrain(Patient *pat, bool recalclesdonnees) // recalcule 
     ui->TabaclineEdit->setVisible(!a);
     ui->OKModifTerrainupSmallButton->setUpButtonStyle(a? UpSmallButton::EDITBUTTON : UpSmallButton::STARTBUTTON);
 
-    ui->OKModifTerrainupSmallButton->disconnect();
+    disconnect(ui->OKModifTerrainupSmallButton, &QPushButton::clicked,  nullptr,nullptr);
     connect (ui->OKModifTerrainupSmallButton,   &QPushButton::clicked,  this,   [=] {a? ModifierTerrain() : OKModifierTerrain(currentpatient());});
 }
 
