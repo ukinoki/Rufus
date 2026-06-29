@@ -25,13 +25,15 @@ DisplayWidget::DisplayWidget(QWidget *parent) : QGraphicsView(parent) {
     //! un lissage pour conserver la qualité au sous-échantillonnage.
     setRenderHint(QPainter::SmoothPixmapTransform, true);
     //setDragMode(QGraphicsView::RubberBandDrag);
+    //! Barres de défilement TOUJOURS masquées, dans les deux sens. Raison : une barre qui réserve de
+    //! la place (cas non-overlay : Windows, ou macOS sous certaines versions de Qt comme 6.11.1 où les
+    //! barres redeviennent non-transientes) rétrécit le viewport quand elle apparaît → resizeEvent →
+    //! re-fit → la barre se réévalue… boucle de rétroaction (tremblement, gouttière + liseré blanc,
+    //! voire crash). En les masquant, la largeur du viewport est CONSTANTE et la boucle ne peut pas
+    //! s'amorcer. Le défilement/pan d'une image rognée reste possible à la molette / au pavé tactile
+    //! (qui fonctionnent même barres masquées).
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    // ScrollBarAlwaysOn (au lieu de AsNeeded) : avec AsNeeded, la barre verticale apparaît/disparaît
-    // selon la hauteur du contenu ; sous Windows (barre de ~17 px, NON overlay contrairement à macOS)
-    // chaque apparition CHANGE la largeur du viewport → re-resize → re-rasterisation → la barre se
-    // re-évalue… boucle de rétroaction (image qui tremble, gel ~30 s, crash). En la gardant TOUJOURS
-    // affichée, la largeur du viewport est CONSTANTE → la boucle ne peut plus s'amorcer.
-    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     setContextMenuPolicy(Qt::CustomContextMenu);
     viewport()->installEventFilter(this);
@@ -179,29 +181,22 @@ void DisplayWidget::fitImage(QSize size)
     qreal w = itemPixmap(m_listgraphicsItem.at(0)).width();
 
     resetTransform();
+    //! NB : on ne touche PAS à la politique des barres ici (fitImage est appelé pendant le resize) :
+    //! le faire pouvait déclencher une ré-entrée du resizeEvent -> récursion -> crash (vu sous
+    //! Qt 6.11.1). Les barres sont réglées une fois pour toutes (masquées) dans le constructeur.
     if (m_listgraphicsItem.size() == 1)
     {
         //! Image unique : "cover". On remplit TOUT le viewport (facteur = le PLUS GRAND des deux,
         //! largeur/hauteur), quitte à rogner l'excédent -> aucune zone blanche, même en étirant la
-        //! fiche dans un sens. La scène reste l'image ENTIÈRE : on peut donc faire défiler à la
-        //! souris pour voir les bords rognés (sinon il faudrait agrandir la fiche à chaque fois).
-        //! Barres en AsNeeded -> elles n'apparaissent QUE dans la dimension réellement rognée ;
-        //! dans celle qui tombe pile, aucune barre, donc pas de micro-déplacement parasite.
+        //! fiche dans un sens. La scène reste l'image ENTIÈRE : on peut faire défiler à la molette /
+        //! au pavé tactile pour voir les bords rognés (sinon il faudrait agrandir la fiche).
         m_ScaleFactor = qMax(qreal(size.width()) / w, qreal(size.height()) / h);
-        scale(m_ScaleFactor);
-        m_scene->setSceneRect(0, 0, w, h);
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     }
     else
-    {
-        //! Multi-pages : ajustées à la largeur, défilement vertical voulu pour parcourir les pages.
+        //! Multi-pages : ajustées à la largeur, défilement vertical (molette) pour parcourir les pages.
         m_ScaleFactor = listImageScaleFactor(size.width());
-        scale(m_ScaleFactor);
-        m_scene->setSceneRect(0, 0, w, h);
-        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-        setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    }
+    scale(m_ScaleFactor);
+    m_scene->setSceneRect(0, 0, w, h);
 }
 
 void DisplayWidget::fitVideo(QSize size)
@@ -263,16 +258,19 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event) {
 }
 
 void DisplayWidget::resizeEvent(QResizeEvent* event) {
-    QGraphicsView::resizeEvent(event);          //! laisse la base poser le viewport + la barre AVANT de mesurer
+    //! Garde anti-récursion : un ajustement peut, sur certaines versions de Qt, ré-émettre un
+    //! resizeEvent (barre qui apparaît/disparaît, relayout) -> sans ce garde, récursion -> crash.
+    if (m_inResize)
+        return;
+    m_inResize = true;
+    QGraphicsView::resizeEvent(event);          //! laisse la base poser le viewport AVANT de mesurer
     if (m_scene->items().size() >0)
     {
         QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
         if (itm)
         {
-            //! On ajuste à la taille du VIEWPORT (zone réellement visible, cadre + barre verticale
-            //! déduits) et NON à celle du widget (event->size()) : sinon l'image est trop large de la
-            //! largeur de la barre (~17 px) -> elle dépasse le cadre de quelques pixels et "bouge" à
-            //! la molette / au défilement. Pixmaps natifs : pas de re-rasterisation, juste la transform.
+            //! On ajuste à la taille du VIEWPORT (zone réellement visible) et NON à celle du widget :
+            //! pixmaps natifs, pas de re-rasterisation, juste la transform de vue.
             fitImage(viewport()->size());
             checkSize();
         }
@@ -283,6 +281,7 @@ void DisplayWidget::resizeEvent(QResizeEvent* event) {
                 fitVideo(viewport()->size());
         }
     }
+    m_inResize = false;
 }
 
 bool DisplayWidget::eventFilter(QObject *obj, QEvent *event)

@@ -633,12 +633,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
             //! wdg_display     ->setStyleSheet("border: 1px solid rgb(164, 205, 255);border-radius: 5px;"); //! for tests
             wdg_display     ->setrufusitem(doc);
             wdg_display     ->installEventFilter(this);
-            //! Les vignettes du multi-viewer affichent toujours l'image en entier : aucune barre
-            //! nécessaire (la hauteur est calée sur le contenu). On repasse donc en AsNeeded (au lieu
-            //! de l'AlwaysOn du constructeur, utile seulement au viewer plein écran) -> pas de barre
-            //! permanente inutile. Seul un PDF multi-pages (rarissime) fera apparaître la barre pour
-            //! défiler les pages suivantes. Hauteur fixe -> pas d'oscillation possible.
-            wdg_display     ->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+            //! (barres masquées par le constructeur de DisplayWidget -> pas de barre permanente ici)
             wdg_display     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));   //! loupe au survol (comme dlg_depenses)
             connect(wdg_display, &DisplayWidget::clicked, this, [=] {ZoomDoc(wdg_display);});   //! clic -> mode zoom
             glaywidg        = wdg_display;

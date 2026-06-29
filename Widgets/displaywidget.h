@@ -42,6 +42,7 @@ private:
     UpMediaPlayer                   *m_mediaPlayer      = Q_NULLPTR;
     qreal                           m_ScaleFactor;
     bool                            OKwheelzoom         = false;
+    bool                            m_inResize          = false;        //! garde anti-récursion du resizeEvent
     QString                         m_text              = "";
     void    fitVideo(QSize size);
     qreal   listImageScaleFactor(qreal w);
