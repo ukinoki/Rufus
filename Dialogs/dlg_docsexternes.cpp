@@ -19,6 +19,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMainWindow>
 #include <QScreen>
 #include <QGuiApplication>
+#include <QPainter>
 
 dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget *parent) : dlg_singleimageviewer(parent)
 {
@@ -28,13 +29,6 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint);
     setWindowTitle(tr("Documents de ") + m_docsexternes->patient()->prenom() + " " + m_docsexternes->patient()->nom());
 
-    QFont font  = qApp->font();
-    font        .setPointSize(font.pointSize()+2);
-    int d=0;
-#ifdef QT_OSX_PLATFORM_SDK_EQUAL_OR_ABOVE
-    d=2;
-#endif
-    m_font                  .setPointSize(m_font.pointSize()-d);
     mainlayout()            ->setSpacing(10);
 
     wdg_listdocstreewiew    ->setFixedWidth(m_treeviewwidth);
@@ -920,8 +914,7 @@ void dlg_docsexternes::RemplirTreeView()
 
     if (!wdg_listdocstreewiew)
         return;
-    if (wdg_listdocstreewiew)
-        wdg_listdocstreewiew->disconnect();
+    wdg_listdocstreewiew->disconnect();
     if (wdg_listdocstreewiew->selectionModel())
         wdg_listdocstreewiew->selectionModel()->disconnect();
     QString             idimpraretrouver = "";
@@ -1048,54 +1041,31 @@ void dlg_docsexternes::RemplirTreeView()
         pitemtype           ->setFont(fontitem);
         pitemtype           ->setData(data);
         pitemtype           ->setEditable(false);
-        if (doc->format() == PRESCRIPTION)
-        {
-            pitemdate->setIcon(Icons::icStetho());
-            pitemtype->setIcon(Icons::icStetho());
-        }
-        else if (doc->format() == PRESCRIPTIONLUNETTES)
-        {
-            pitemdate->setIcon(Icons::icSunglasses());
-            pitemtype->setIcon(Icons::icSunglasses());
-        }
-        else if (doc->format() == VIDEO)
-        {
-            pitemdate->setIcon(Icons::icCinema());
-            pitemtype->setIcon(Icons::icCinema());
-        }
-        else if (doc->format() == IMAGERIE)
-        {
-            pitemdate->setIcon(Icons::icPhoto());
-            pitemtype->setIcon(Icons::icPhoto());
-        }
-        else if (doc->format() == COURRIER)
-        {
-            pitemdate->setIcon(Icons::icImprimer());
-            pitemtype->setIcon(Icons::icImprimer());
-        }
-        else if (doc->format() == COURRIERADMINISTRATIF)
-        {
-            pitemdate->setIcon(Icons::icTampon());
-            pitemtype->setIcon(Icons::icTampon());
-        }
+        //! icône selon le format du document (calculée UNE fois, posée sur les deux modèles)
+        QIcon docicon;
+        if      (doc->format() == PRESCRIPTION)          docicon = Icons::icStetho();
+        else if (doc->format() == PRESCRIPTIONLUNETTES)  docicon = Icons::icSunglasses();
+        else if (doc->format() == VIDEO)                 docicon = Icons::icCinema();
+        else if (doc->format() == IMAGERIE)              docicon = Icons::icPhoto();
+        else if (doc->format() == COURRIER)              docicon = Icons::icImprimer();
+        else if (doc->format() == COURRIERADMINISTRATIF) docicon = Icons::icTampon();
         else if (doc->format() == DOCUMENTRECU)
+            docicon = (doc->typedoc() == COURRIER)? Icons::icImprimer() : Icons::icPhoto();
+        //! document important : on ACCOLE l'étoile à droite de l'icône de format (au lieu de
+        //! l'écraser) -> on conserve l'info du type ET de l'importance.
+        if (doc->importance() == 2)
         {
-            if (doc->typedoc()== COURRIER)
-            {
-                pitemdate->setIcon(Icons::icImprimer());
-                pitemtype->setIcon(Icons::icImprimer());
-            }
-                else
-            {
-                pitemdate->setIcon(Icons::icPhoto());
-                pitemtype->setIcon(Icons::icPhoto());
-            }
+            const int s = 24;
+            QPixmap combine(2*s + 2, s);
+            combine.fill(Qt::transparent);
+            QPainter peintre(&combine);
+            peintre.drawPixmap(0,     0, docicon.pixmap(s, s));
+            peintre.drawPixmap(s + 2, 0, Icons::icImportant().pixmap(s, s));
+            peintre.end();
+            docicon = QIcon(combine);
         }
-        if (doc->importance()==2)
-        {
-            pitemdate->setIcon(Icons::icImportant());
-            pitemtype->setIcon(Icons::icImportant());
-        }
+        pitemdate->setIcon(docicon);
+        pitemtype->setIcon(docicon);
         QList<QStandardItem *> listitemsdate = m_tripardatemodel->findItems(date);
         if (listitemsdate.size()>0)
         {
