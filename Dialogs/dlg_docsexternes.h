@@ -71,7 +71,9 @@ private:
     void                    ActualiseDocsExternes();
     void                    AfficheCustomMenu(DocExterne *docmt);
     void                    AfficheDoc(QModelIndex idx);
+    void                    afficheModele(int idaretrouver, bool afficherDoc);
     void                    BasculeTriListe(dlg_docsexternes::ModeTri mode);
+    int                     idDocSelectionne();
     QMap<QString, QString>  CalcNomFilePdf();
 
     void                    CorrigeImportance(DocExterne *docmt, enum Importance imptce);

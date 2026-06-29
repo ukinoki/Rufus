@@ -402,59 +402,75 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         ZoomDoc(false);
 }
 
+int dlg_docsexternes::idDocSelectionne()
+{
+    //! id du document actuellement sélectionné dans l'arbre, ou -1 si rien n'est sélectionné (ou si
+    //! c'est un en-tête date/type, qui n'a pas d'id). Sert à re-sélectionner le même document après
+    //! une reconstruction (RemplirTreeView) ou un changement de tri (BasculeTriListe).
+    QStandardItemModel *modele = qobject_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
+    if (modele == Q_NULLPTR || modele->rowCount() == 0 || wdg_listdocstreewiew->selectionModel() == Q_NULLPTR)
+        return -1;
+    const QModelIndexList sel = wdg_listdocstreewiew->selectionModel()->selectedIndexes();
+    if (sel.isEmpty())
+        return -1;
+    QStandardItem *it = modele->itemFromIndex(sel.first());
+    if (it == Q_NULLPTR || it->hasChildren())
+        return -1;
+    return it->data().toInt();
+}
+
+void dlg_docsexternes::afficheModele(int idaretrouver, bool afficherDoc)
+{
+    //! Bascule l'arbre sur le modèle du tri courant (date ou type), re-sélectionne le document
+    //! `idaretrouver` (ou le dernier s'il est introuvable) et rebranche les connexions. Code commun
+    //! à RemplirTreeView (après reconstruction des modèles) et BasculeTriListe (simple changement de
+    //! tri). `afficherDoc` : RemplirTreeView réaffiche le document (le contenu a pu changer),
+    //! BasculeTriListe non (seul l'ordre d'affichage change).
+    m_model = (m_modetri == parDate) ? m_tripardatemodel : m_tripartypemodel;
+
+    //! On détruit l'ancien selectionModel pour éviter des bugs d'affichage à la réinitialisation du modèle.
+    QItemSelectionModel *ancien = wdg_listdocstreewiew->selectionModel();
+    wdg_listdocstreewiew->setModel(m_model);
+    delete ancien;
+
+    if (m_model != Q_NULLPTR && m_model->rowCount() > 0)
+    {
+        //! Cible par défaut : le tout dernier document ; sinon celui qu'on devait retrouver.
+        int n = m_model->rowCount() - 1;
+        int nrows = (m_model->item(n) != Q_NULLPTR) ? m_model->item(n)->rowCount() - 1 : 0;
+        QModelIndex idx = m_model->item(n)->child(nrows, 0)->index();
+        if (idaretrouver != -1)
+        {
+            QModelIndex indx = getIndexFromId(m_model, idaretrouver);
+            if (indx.isValid())
+                idx = indx;
+        }
+        wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
+        wdg_listdocstreewiew->expandAll();
+        wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
+        wdg_listdocstreewiew->setCurrentIndex(idx);
+        if (afficherDoc)
+            AfficheDoc(idx);
+    }
+    connect(wdg_listdocstreewiew->selectionModel(), &QItemSelectionModel::currentChanged, this,
+            [=] {AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());});
+    connect(wdg_listdocstreewiew, &QTreeView::customContextMenuRequested, this,
+            [=] {
+                QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
+                DocExterne *docmt = getDocumentFromIndex(idx);
+                if (docmt != Q_NULLPTR)
+                    AfficheCustomMenu(docmt);
+            });
+}
+
 void dlg_docsexternes::BasculeTriListe(ModeTri mode)
 {
-    QString             idimpraretrouver = "";
-    //! Le menu contextuel sera reconnecté en fin de fonction ; le selectionModel, lui, est détruit
-    //! plus bas (delete m) donc sa connexion currentChanged disparaît avec lui.
+    //! Le menu contextuel et le currentChanged seront rebranchés par afficheModele (qui détruit
+    //! aussi l'ancien selectionModel).
     disconnect(wdg_listdocstreewiew, &QTreeView::customContextMenuRequested, this, nullptr);
-    if (wdg_listdocstreewiew->selectionModel()->selectedIndexes().size()>0)
-    {
-        QModelIndex actifidx = wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0);
-        if (!m_model->itemFromIndex(actifidx)->hasChildren())
-            idimpraretrouver = m_model->itemFromIndex(actifidx)->data().toMap().value("id").toString();
-    }
+    int idaretrouver = idDocSelectionne();
     m_modetri = mode;
-    switch (m_modetri) {
-    case parDate:
-        m_model  = m_tripardatemodel;
-        break;
-    case parType:
-        m_model  = m_tripartypemodel;
-        break;
-    }
-
-    QItemSelectionModel *m = wdg_listdocstreewiew->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-    wdg_listdocstreewiew->setModel(m_model);
-    delete m;
-
-    if (m_model)
-        if (m_model->rowCount()>0)
-        {
-            int nrows = 0;
-            int n = m_model->rowCount()-1;
-            if (m_model->item(n) != Q_NULLPTR)
-                nrows = m_model->item(n)->rowCount()-1;                 // le nombre de child du dernier item date
-            QStandardItem *item =  m_model->item(n)->child(nrows,0);    // le tout dernier item
-            QModelIndex idx = item->index();                            // l'index de ce dernier item
-            if (idimpraretrouver != "")
-            {
-                QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
-                if (indx.isValid())
-                    idx = indx;
-            }
-            wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
-            wdg_listdocstreewiew->expandAll();
-            wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-            wdg_listdocstreewiew->setCurrentIndex(idx);
-        }
-    connect(wdg_listdocstreewiew->selectionModel()  ,   &QItemSelectionModel::currentChanged,   this,   [=] {AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());});
-    connect(wdg_listdocstreewiew,                       &QTreeView::customContextMenuRequested, this,   [=] {
-        QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
-        DocExterne *docmt = getDocumentFromIndex(idx);
-        if (docmt != Q_NULLPTR)
-            AfficheCustomMenu(docmt);
-    });
+    afficheModele(idaretrouver, false);   //! on ne réaffiche pas le document : seul l'ordre de tri change
 }
 
 void dlg_docsexternes::ActualiseDocsExternes()
@@ -488,7 +504,7 @@ DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
     QStandardItem *it = m_model->itemFromIndex(idx);
     if (it == Q_NULLPTR || it->hasChildren())
         return Q_NULLPTR;
-    int idimpr = it->data().toMap().value("id").toInt();
+    int idimpr = it->data().toInt();
     return m_docsexternes->getById(idimpr);
 }
 
@@ -498,7 +514,7 @@ QModelIndex dlg_docsexternes::getIndexFromId(QStandardItemModel *modele, int id)
     //! que de la boucle interne et la boucle externe continuait à balayer pour rien).
     for (int m = 0; m<modele->rowCount(); m++)
         for (int n=0; n<modele->item(m)->rowCount(); n++)
-            if (modele->item(m)->child(n)->data().toMap().value("id").toInt() == id)
+            if (modele->item(m)->child(n)->data().toInt() == id)
                 return modele->item(m)->child(n)->index();
     return QModelIndex();
 }
@@ -919,18 +935,7 @@ void dlg_docsexternes::RemplirTreeView()
     disconnect(wdg_listdocstreewiew, &QTreeView::customContextMenuRequested, this, nullptr);
     if (wdg_listdocstreewiew->selectionModel())
         disconnect(wdg_listdocstreewiew->selectionModel(), &QItemSelectionModel::currentChanged, this, nullptr);
-    QString             idimpraretrouver = "";
-    m_model = qobject_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
-    if (m_model)
-    {
-        if (m_model->rowCount()>0)
-            if (wdg_listdocstreewiew->selectionModel()->selectedIndexes().size()>0)
-            {
-                QModelIndex actifidx = wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0);
-                if (!m_model->itemFromIndex(actifidx)->hasChildren())
-                    idimpraretrouver = m_model->itemFromIndex(actifidx)->data().toMap().value("id").toString();
-            }
-    }
+    int idaretrouver = idDocSelectionne();   //! pour re-sélectionner le même document après reconstruction
 
     if (m_tripardatemodel != Q_NULLPTR)
         delete m_tripardatemodel;
@@ -1047,16 +1052,14 @@ void dlg_docsexternes::RemplirTreeView()
         pitemtype           = new QStandardItem(doc->titrelong());
         pitemtridated       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));
         pitemtridatet       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));
-        QMap<QString, QVariant> data;
-        data                .insert("id", QString::number(doc->id()));
         QFont fontitem      = m_font;
         fontitem            .setBold(doc->importance()==2);
         fontitem            .setItalic(doc->importance()==0);
         pitemdate           ->setFont(fontitem);
-        pitemdate           ->setData(data);
+        pitemdate           ->setData(doc->id());      //! id du document (entier) -> permet de le retrouver depuis l'item
         pitemdate           ->setEditable(false);
         pitemtype           ->setFont(fontitem);
-        pitemtype           ->setData(data);
+        pitemtype           ->setData(doc->id());
         pitemtype           ->setEditable(false);
         //! icône selon le format (+ étoile si important), calculée UNE fois et posée sur les deux modèles
         QIcon docicon = iconeDoc(doc, doc->importance());
@@ -1076,41 +1079,5 @@ void dlg_docsexternes::RemplirTreeView()
 //    qDebug() << "dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->text();
 //    qDebug() << "rowCount() du dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->rowCount()-1;
 
-    if (m_modetri == parDate)
-        m_model = m_tripardatemodel;
-    else
-        m_model = m_tripartypemodel;
-    QItemSelectionModel *m = wdg_listdocstreewiew->selectionModel(); // il faut détruire le selectionModel pour éviter des bugs d'affichage quand on réinitialise le modèle
-    wdg_listdocstreewiew->setModel(m_model);
-    delete m;
-
-    int nrows = m_model->item(m_model->rowCount()-1)->rowCount()-1;                 // le nombre de child du dernier item
-    QStandardItem *item =  m_model->item(m_model->rowCount()-1)->child(nrows,0);    // le tout dernier item
-    QModelIndex idx = item->index();                                                // l'index de ce dernier item
-    if (idimpraretrouver != "")
-    {
-        QModelIndex indx = getIndexFromId(m_model, idimpraretrouver.toInt());
-        if (indx.isValid())
-            idx = indx;
-    }
-    wdg_listdocstreewiew->setSelectionModel(new QItemSelectionModel(m_model));
-    wdg_listdocstreewiew->expandAll();
-    wdg_listdocstreewiew->scrollTo(idx, QAbstractItemView::PositionAtCenter);
-    wdg_listdocstreewiew->setCurrentIndex(idx);
-    AfficheDoc(idx);
-    connect(wdg_listdocstreewiew->selectionModel(),
-            &QItemSelectionModel::currentChanged,
-            this,
-            [=] {
-                    AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());
-                });
-    connect(wdg_listdocstreewiew,
-            &QTreeView::customContextMenuRequested,
-            this,
-            [=] {
-                    QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
-                    DocExterne *docmt = getDocumentFromIndex(idx);
-                    if (docmt != Q_NULLPTR)
-                        AfficheCustomMenu(docmt);
-                });
+    afficheModele(idaretrouver, true);   //! bascule sur le bon modèle, re-sélectionne et réaffiche le document
 }
