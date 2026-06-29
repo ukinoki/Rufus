@@ -524,10 +524,11 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
             else if (!ListDialogDocs.at(i)->isModal())
                 ListDialogDocs.at(i)->close();
         }
-    dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP);
+    dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(docs, m_utiliseTCP, this);   /*! parent = mainwindow : la fiche est "possédée" par Rufus -> une seule entrée dans la barre des tâches Windows et fermeture avec le dossier */
     ui->OuvreDocsExternespushButton->setEnabled(true);
     if (docs == Datas::I()->docsexternes)
     {
+        Dlg_DocsExt->setAttribute(Qt::WA_ShowWithoutActivating);    /*! la fiche s'affiche sans voler le focus : il doit rester sur le dossier Rufus */
         Dlg_DocsExt->setWindowModality(Qt::NonModal);
         Dlg_DocsExt->show();
     }
@@ -570,7 +571,8 @@ void Rufus::MAJDocsExternes()
             Datas::I()->docsexternes->setNouveauDocumentExterneFalse();
         if (Datas::I()->docsexternes->docsexternes()->size()>0)
         {
-            dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP);
+            dlg_docsexternes *Dlg_DocsExt = new dlg_docsexternes(Datas::I()->docsexternes, m_utiliseTCP, this);   /*! parent = mainwindow : voir OuvrirDocsExternes() */
+            Dlg_DocsExt->setAttribute(Qt::WA_ShowWithoutActivating);    /*! la fiche s'affiche sans voler le focus à Rufus */
             Dlg_DocsExt->setWindowModality(Qt::NonModal);
             Dlg_DocsExt->show();
             ui->OuvreDocsExternespushButton->setEnabled(true);
