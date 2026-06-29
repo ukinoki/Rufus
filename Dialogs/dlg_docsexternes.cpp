@@ -339,7 +339,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     bool j              =((docmt->format() == VIDEO || docmt->format() == IMAGERIE || docmt->format() == DOCUMENTRECU)
                                    && DataBase::I()->ModeAccesDataBase() != Utils::Distant);
     RecordButton        ->setVisible(j);
-    RecordButton        ->disconnect();
+    //! On coupe UNIQUEMENT notre connexion précédente (le lambda capturait l'ancien document), pas
+    //! toutes les connexions de l'objet.
+    disconnect(RecordButton, &UpSmallButton::clicked, this, nullptr);
     connect (RecordButton,  &UpSmallButton::clicked,    this,   [=] {proc->saveDocumentToFile(m_currentdocument, this);});
     //PrintButton         ->setVisible(!docmt->isVideo());
     labinfowidget()     ->setVisible(!docmt->isVideo());
@@ -394,7 +396,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         else return;
         setListDocuments(QList<DocExterne*>() << docmt);
     }
-    imagewidget()->disconnect();
+    disconnect(imagewidget(), &QWidget::customContextMenuRequested, this, nullptr);  //! seulement notre menu contextuel précédent
     connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
     if (mode() == dlg_singleimageviewer::Zoom)
         ZoomDoc(false);
@@ -403,7 +405,9 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 void dlg_docsexternes::BasculeTriListe(ModeTri mode)
 {
     QString             idimpraretrouver = "";
-    wdg_listdocstreewiew    ->disconnect();
+    //! Le menu contextuel sera reconnecté en fin de fonction ; le selectionModel, lui, est détruit
+    //! plus bas (delete m) donc sa connexion currentChanged disparaît avec lui.
+    disconnect(wdg_listdocstreewiew, &QTreeView::customContextMenuRequested, this, nullptr);
     if (wdg_listdocstreewiew->selectionModel()->selectedIndexes().size()>0)
     {
         QModelIndex actifidx = wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0);
@@ -508,7 +512,7 @@ QStandardItem* dlg_docsexternes::getItemFromDocument(QStandardItemModel *model, 
 void dlg_docsexternes::ImprimeDoc()
 {
 #ifndef QT_NO_PRINTER
-    PrintButton         ->disconnect();  // pour éviter le doubles impressions en cas de double clic lent
+    disconnect(PrintButton, &QPushButton::clicked, this, nullptr);  // évite une 2e impression si re-clic pendant la boîte de dialogue (reconnecté à la fin)
     DocExterne * docmt  = getDocumentFromIndex(wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0));
     docmt               = m_docsexternes->getById(docmt->id());
     if (docmt != Q_NULLPTR)
@@ -909,9 +913,12 @@ void dlg_docsexternes::RemplirTreeView()
 
     if (!wdg_listdocstreewiew)
         return;
-    wdg_listdocstreewiew->disconnect();
+    //! On coupe NOS connexions le temps de reconstruire le modèle : sinon currentChanged se
+    //! déclenche pendant la destruction de l'ancien modèle -> AfficheDoc sur un index invalide.
+    //! Ciblé (notre menu contextuel + notre currentChanged), pas un disconnect() global de l'objet.
+    disconnect(wdg_listdocstreewiew, &QTreeView::customContextMenuRequested, this, nullptr);
     if (wdg_listdocstreewiew->selectionModel())
-        wdg_listdocstreewiew->selectionModel()->disconnect();
+        disconnect(wdg_listdocstreewiew->selectionModel(), &QItemSelectionModel::currentChanged, this, nullptr);
     QString             idimpraretrouver = "";
     m_model = qobject_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
     if (m_model)
