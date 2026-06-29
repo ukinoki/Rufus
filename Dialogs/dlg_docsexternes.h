@@ -65,7 +65,7 @@ private:
 
     ModeTri                 m_modetri;
     ModeFiltre              m_modefiltre;
-    int                     m_iconsize  = 32;   //! côté (px) du pictogramme dans l'arbre ; règle aussi setIconSize
+    int                     m_iconsize  = 16;   //! côté (px) du pictogramme dans l'arbre ; règle aussi setIconSize
 
 
     void                    ActualiseDocsExternes();
