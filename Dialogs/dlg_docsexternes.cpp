@@ -1017,6 +1017,21 @@ void dlg_docsexternes::RemplirTreeView()
         typitem     ->setIcon(Icons::icSortirDossier());
         rootNodeType->appendRow(typitem);
     }
+    //! Ajoute le document (item visible + item-tri caché) sous l'en-tête `cleentete` du modèle, si
+    //! le filtre courant l'autorise : Tous -> toujours ; Normaux -> importance > 0 ; Importants ->
+    //! importance == 2. Factorise les deux blocs jadis identiques (tri par date / tri par type).
+    auto ajouteSousEntete = [this] (QStandardItemModel *model, const QString &cleentete,
+                                    QStandardItem *pitem, QStandardItem *pitemtri, int importance)
+    {
+        const QList<QStandardItem *> entetes = model->findItems(cleentete);
+        if (entetes.isEmpty())
+            return;
+        const bool visible = (m_modefiltre == FiltreSans)
+                          || (m_modefiltre == NormalFiltre    && importance > 0)
+                          || (m_modefiltre == ImportantFiltre && importance == 2);
+        if (visible)
+            entetes.first()->appendRow(QList<QStandardItem*>() << pitem << pitemtri);
+    };
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
         QString date = doc->datetimeimpression().toString(tr("dd-MM-yyyy"));
@@ -1040,38 +1055,9 @@ void dlg_docsexternes::RemplirTreeView()
         QIcon docicon = iconeDoc(doc, doc->importance());
         pitemdate->setIcon(docicon);
         pitemtype->setIcon(docicon);
-        QList<QStandardItem *> listitemsdate = m_tripardatemodel->findItems(date);
-        if (listitemsdate.size()>0)
-        {
-            switch (m_modefiltre) {
-            case FiltreSans:
-                listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
-                break;
-            case NormalFiltre:
-                if (doc->importance()>0)
-                    listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
-                break;
-            case ImportantFiltre:
-                if (doc->importance()==2)
-                    listitemsdate.at(0)->appendRow(QList<QStandardItem*>() << pitemdate << pitemtridated);
-            }
-        }
-        QList<QStandardItem *> listitemstype = m_tripartypemodel->findItems(doc->typedoc());
-        if (listitemstype.size()>0)
-        {
-            switch (m_modefiltre) {
-            case FiltreSans:
-                listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
-                break;
-            case NormalFiltre:
-                if (doc->importance()>0)
-                    listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
-                break;
-            case ImportantFiltre:
-                if (doc->importance()==2)
-                    listitemstype.at(0)->appendRow(QList<QStandardItem*>() << pitemtype << pitemtridatet);
-            }
-        }
+        //! Rattachement à l'en-tête de date ET à l'en-tête de type — même règle de filtre des deux côtés.
+        ajouteSousEntete(m_tripardatemodel, date,           pitemdate, pitemtridated, doc->importance());
+        ajouteSousEntete(m_tripartypemodel, doc->typedoc(), pitemtype, pitemtridatet, doc->importance());
     }
     //! Tri des enfants de chaque en-tête, une seule fois APRÈS le remplissage (colonne 1 = clé
     //! datetime cachée). Avant, on re-triait toute la fratrie à CHAQUE document inséré.
