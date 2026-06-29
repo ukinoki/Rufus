@@ -40,9 +40,10 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_listdocstreewiew    ->setAnimated(true);
     wdg_listdocstreewiew    ->setIndentation(6);
     wdg_listdocstreewiew    ->header()->setVisible(false);
-    //! taille des pictogrammes : la boîte est large de 2 icônes pour loger l'étoile « important »
-    //! accolée à droite (cf. iconeDoc). Une icône simple (carrée) s'aligne à gauche dans cette boîte.
-    wdg_listdocstreewiew    ->setIconSize(QSize(2*m_iconsize + 2, m_iconsize));
+    //! taille des pictogrammes : case CARRÉE (l'arbre réserve un emplacement d'icône carré ; une
+    //! image plus large y serait réduite). L'étoile « important » est donc posée en pastille dans
+    //! un coin de l'icône de type (cf. iconeDoc), pas accolée à côté.
+    wdg_listdocstreewiew    ->setIconSize(QSize(m_iconsize, m_iconsize));
 
     mainlayout()            ->insertWidget(0,wdg_listdocstreewiew);
     setCorrectionwidget(wdg_listdocstreewiew);
@@ -260,16 +261,19 @@ QIcon dlg_docsexternes::iconeDoc(DocExterne *docmt, int importance) const
     else if (docmt->format() == COURRIERADMINISTRATIF) docicon = Icons::icTampon();
     else if (docmt->format() == DOCUMENTRECU)
         docicon = (docmt->typedoc() == COURRIER)? Icons::icImprimer() : Icons::icPhoto();
-    //! Importance forte : on ACCOLE l'étoile à droite de l'icône de format (au lieu de l'écraser)
-    //! -> on conserve l'info du type ET de l'importance.
+    //! Importance forte : icône de type en taille PLEINE + petite étoile en pastille dans le coin
+    //! bas-droit. On ne met pas les deux côte à côte : la case d'icône de l'arbre est carrée, donc
+    //! une image deux fois plus large y serait réduite de moitié (type rapetissé). La pastille garde
+    //! le type à la même taille qu'une icône simple, tout en signalant l'importance.
     if (importance != 2)
         return docicon;
-    const int s = m_iconsize;
-    QPixmap combine(2*s + 2, s);
+    const int s = m_iconsize * 2;       //! rendu 2× -> net même sur écran Retina (réduit ensuite à la case)
+    QPixmap combine(s, s);
     combine.fill(Qt::transparent);
     QPainter peintre(&combine);
-    peintre.drawPixmap(0,     0, docicon.pixmap(s, s));
-    peintre.drawPixmap(s + 2, 0, Icons::icImportant().pixmap(s, s));
+    peintre.drawPixmap(0, 0, docicon.pixmap(s, s));
+    const int b = s * 0.6;              //! étoile = ~60 % du côté, calée en bas à droite
+    peintre.drawPixmap(s - b, s - b, Icons::icImportant().pixmap(b, b));
     peintre.end();
     return QIcon(combine);
 }
