@@ -285,7 +285,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
     {
         if (ui->ActeCotationcomboBox->lineEdit()->completer() != Q_NULLPTR)
         {
-            ui->ActeCotationcomboBox->lineEdit()->completer()->disconnect();
+            disconnect(ui->ActeCotationcomboBox->lineEdit()->completer(), QOverload<const QString &>::of(&QCompleter::activated), nullptr, nullptr);
             delete ui->ActeCotationcomboBox->lineEdit()->completer();
         }
         QCompleter *comp = new QCompleter(QStringList() << Utils::ConvertitModePaiementtotr(GRATUIT) << db->loadTypesCotations());
@@ -6956,7 +6956,8 @@ void Rufus::AfficheActe(Acte* acte)
     //1. retrouver le créateur de l'acte et le soignant superviseur de l'acte
     QString nomsuperviseur(""), superviseurlogin ("");
     User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
-    ui->ActeCotationcomboBox    ->disconnect();                       //! il faut faire ça pour éviter un foutoir de messages quand on navigue d'un acte à l'autre dans le dossier du patient
+    disconnect(ui->ActeCotationcomboBox,    &QComboBox::currentTextChanged,                 nullptr, nullptr);
+    disconnect(ui->ActeCotationcomboBox,    QOverload<int>::of(&QComboBox::highlighted), nullptr, nullptr);
     if (usr != Q_NULLPTR)
     {
         nomsuperviseur =  usr->prenom() + " " + usr->nom();
