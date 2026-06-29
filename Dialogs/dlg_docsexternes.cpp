@@ -40,6 +40,9 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     wdg_listdocstreewiew    ->setAnimated(true);
     wdg_listdocstreewiew    ->setIndentation(6);
     wdg_listdocstreewiew    ->header()->setVisible(false);
+    //! taille des pictogrammes : la boîte est large de 2 icônes pour loger l'étoile « important »
+    //! accolée à droite (cf. iconeDoc). Une icône simple (carrée) s'aligne à gauche dans cette boîte.
+    wdg_listdocstreewiew    ->setIconSize(QSize(2*m_iconsize + 2, m_iconsize));
 
     mainlayout()            ->insertWidget(0,wdg_listdocstreewiew);
     setCorrectionwidget(wdg_listdocstreewiew);
@@ -243,55 +246,45 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     menu->close();
 }
 
+QIcon dlg_docsexternes::iconeDoc(DocExterne *docmt, int importance) const
+{
+    //! Pictogramme selon le format du document. Source UNIQUE pour l'arbre : appelée par
+    //! RemplirTreeView (premier remplissage) et par CorrigeImportance (changement d'importance à
+    //! la volée) — ainsi le mapping ne peut plus diverger entre les deux endroits.
+    QIcon docicon;
+    if      (docmt->format() == PRESCRIPTION)          docicon = Icons::icStetho();
+    else if (docmt->format() == PRESCRIPTIONLUNETTES)  docicon = Icons::icSunglasses();
+    else if (docmt->format() == VIDEO)                 docicon = Icons::icCinema();
+    else if (docmt->format() == IMAGERIE)              docicon = Icons::icPhoto();
+    else if (docmt->format() == COURRIER)              docicon = Icons::icImprimer();
+    else if (docmt->format() == COURRIERADMINISTRATIF) docicon = Icons::icTampon();
+    else if (docmt->format() == DOCUMENTRECU)
+        docicon = (docmt->typedoc() == COURRIER)? Icons::icImprimer() : Icons::icPhoto();
+    //! Importance forte : on ACCOLE l'étoile à droite de l'icône de format (au lieu de l'écraser)
+    //! -> on conserve l'info du type ET de l'importance.
+    if (importance != 2)
+        return docicon;
+    const int s = m_iconsize;
+    QPixmap combine(2*s + 2, s);
+    combine.fill(Qt::transparent);
+    QPainter peintre(&combine);
+    peintre.drawPixmap(0,     0, docicon.pixmap(s, s));
+    peintre.drawPixmap(s + 2, 0, Icons::icImportant().pixmap(s, s));
+    peintre.end();
+    return QIcon(combine);
+}
+
 void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance imptce)
 {
-    auto modifieitem = [] (QStandardItem *item, DocExterne *docmt, int imp, QFont fontitem)
+    //! imp : 0 = faible (italique), 1 = normale, 2 = forte (gras + étoile accolée à l'icône de type).
+    //! L'icône vient de iconeDoc() : MÊME source que RemplirTreeView, donc le type reste affiché à
+    //! tous les niveaux d'importance (auparavant le cas « forte » n'affichait que l'étoile).
+    auto modifieitem = [this] (QStandardItem *item, DocExterne *docmt, int imp, QFont fontitem)
     {
-        switch (imp) {
-        case 0:{
-            fontitem.setItalic(true);
-            item->setFont(fontitem);
-            if (docmt->typedoc() == PRESCRIPTION)
-                item->setIcon(Icons::icStetho());
-            else if (docmt->format() == PRESCRIPTIONLUNETTES)
-                item->setIcon(Icons::icSunglasses());
-            else if (docmt->format() == VIDEO)
-                item->setIcon(Icons::icCinema());
-            else if (docmt->format() == IMAGERIE)
-                item->setIcon(Icons::icPhoto());
-            else if (docmt->format() == COURRIER)
-                item->setIcon(Icons::icImprimer());
-            else if (docmt->format() == COURRIERADMINISTRATIF)
-                item->setIcon(Icons::icTampon());
-            else
-                item->setIcon(QIcon());
-            break;
-        }
-        case 1:{
-            item->setFont(fontitem);
-            if (docmt->typedoc() == PRESCRIPTION)
-                item->setIcon(Icons::icStetho());
-            else if (docmt->format() == PRESCRIPTIONLUNETTES)
-                item->setIcon(Icons::icSunglasses());
-            else if (docmt->format() == VIDEO)
-                item->setIcon(Icons::icCinema());
-            else if (docmt->format() == IMAGERIE)
-                item->setIcon(Icons::icPhoto());
-            else if (docmt->format() == COURRIER)
-                item->setIcon(Icons::icImprimer());
-            else if (docmt->format() == COURRIERADMINISTRATIF)
-                item->setIcon(Icons::icTampon());
-            else
-                item->setIcon(QIcon());
-            break;
-        }
-        case 2:{
-            fontitem.setBold(true);
-            item->setFont(fontitem);
-            item->setIcon(Icons::icImportant());
-            break;
-        }
-        }
+        fontitem.setItalic(imp == 0);
+        fontitem.setBold(imp == 2);
+        item->setFont(fontitem);
+        item->setIcon(iconeDoc(docmt, imp));
     };
 
     int imp = 0;
@@ -1039,29 +1032,8 @@ void dlg_docsexternes::RemplirTreeView()
         pitemtype           ->setFont(fontitem);
         pitemtype           ->setData(data);
         pitemtype           ->setEditable(false);
-        //! icône selon le format du document (calculée UNE fois, posée sur les deux modèles)
-        QIcon docicon;
-        if      (doc->format() == PRESCRIPTION)          docicon = Icons::icStetho();
-        else if (doc->format() == PRESCRIPTIONLUNETTES)  docicon = Icons::icSunglasses();
-        else if (doc->format() == VIDEO)                 docicon = Icons::icCinema();
-        else if (doc->format() == IMAGERIE)              docicon = Icons::icPhoto();
-        else if (doc->format() == COURRIER)              docicon = Icons::icImprimer();
-        else if (doc->format() == COURRIERADMINISTRATIF) docicon = Icons::icTampon();
-        else if (doc->format() == DOCUMENTRECU)
-            docicon = (doc->typedoc() == COURRIER)? Icons::icImprimer() : Icons::icPhoto();
-        //! document important : on ACCOLE l'étoile à droite de l'icône de format (au lieu de
-        //! l'écraser) -> on conserve l'info du type ET de l'importance.
-        if (doc->importance() == 2)
-        {
-            const int s = 24;
-            QPixmap combine(2*s + 2, s);
-            combine.fill(Qt::transparent);
-            QPainter peintre(&combine);
-            peintre.drawPixmap(0,     0, docicon.pixmap(s, s));
-            peintre.drawPixmap(s + 2, 0, Icons::icImportant().pixmap(s, s));
-            peintre.end();
-            docicon = QIcon(combine);
-        }
+        //! icône selon le format (+ étoile si important), calculée UNE fois et posée sur les deux modèles
+        QIcon docicon = iconeDoc(doc, doc->importance());
         pitemdate->setIcon(docicon);
         pitemtype->setIcon(docicon);
         QList<QStandardItem *> listitemsdate = m_tripardatemodel->findItems(date);

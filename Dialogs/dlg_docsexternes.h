@@ -65,6 +65,7 @@ private:
 
     ModeTri                 m_modetri;
     ModeFiltre              m_modefiltre;
+    int                     m_iconsize  = 32;   //! côté (px) du pictogramme dans l'arbre ; règle aussi setIconSize
 
 
     void                    ActualiseDocsExternes();
@@ -77,6 +78,7 @@ private:
 
     void                    FiltrerListe(UpCheckBox *chk);
     DocExterne*             getDocumentFromIndex(QModelIndex idx);
+    QIcon                   iconeDoc(DocExterne *docmt, int importance) const;
     QModelIndex             getIndexFromId(QStandardItemModel *model, int id);
     QStandardItem*          getItemFromDocument(QStandardItemModel *model, DocExterne* docmt);
     void                    ImprimeDoc();
