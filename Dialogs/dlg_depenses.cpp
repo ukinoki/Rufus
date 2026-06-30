@@ -153,7 +153,7 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     ReconstruitListeAnnees();
     QString year = m_currentdate.toString("yyyy");
     int idx = ui->AnneecomboBox->findText(year);
-    ui->AnneecomboBox->disconnect();
+    disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
     ui->AnneecomboBox->setCurrentIndex(idx==-1? ui->AnneecomboBox->count()-1 : idx);
     connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_depenses::RedessineBigTable);
     RedessineBigTable();
@@ -456,7 +456,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         break;
     }
     case Modifier: {
-        wdg_bigtable->disconnect();
+        disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
         wdg_enreguppushbutton       ->setText("Valider");
         int compte = -1;
         Depense *dep = (wdg_bigtable->rowCount()>0? getDepenseFromRow(wdg_bigtable->currentRow()) : Q_NULLPTR);
@@ -492,7 +492,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
         break;
     }
     case Enregistrer: {
-        wdg_bigtable->disconnect();
+        disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
         ui->DateDepdateEdit     ->setDate(m_currentdate);
         ui->ObjetlineEdit       ->setText("");
         ui->MontantlineEdit     ->setText("0,00");
@@ -514,7 +514,7 @@ void    dlg_depenses::RegleAffichageFiche(enum Mode mode)
 -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::AnnulEnreg()
 {
-    wdg_bigtable->disconnect();
+    disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     RegleAffichageFiche(Lire);
     MetAJourFiche();
     connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
@@ -853,7 +853,7 @@ void dlg_depenses::CopieDepense()
     ui->ChercheMontantupPushButton  ->setEnabled(false);
     ui->ExportupPushButton          ->setEnabled(false);
     ui->PrintupSmallButton          ->setEnabled(false);
-    wdg_bigtable                    ->disconnect();
+    disconnect(wdg_bigtable,        &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     ui->DateDepdateEdit             ->setDate(m_currentdate);
     wdg_enreguppushbutton           ->setText("Enregistrer");
     ui->OKupPushButton              ->setShortcut(QKeySequence());
@@ -909,7 +909,7 @@ void dlg_depenses::SupprimerDepense()
         ReconstruitListeAnnees();
         QString year = m_currentdate.toString("yyyy");
         int idx = ui->AnneecomboBox->findText(year);
-        ui->AnneecomboBox->disconnect();
+        disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
         RedessineBigTable();
         connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
@@ -1208,9 +1208,9 @@ void dlg_depenses::MetAJourFiche()
     ui->frame->setVisible(wdg_bigtable->rowCount() > 0 && !wdg_bigtable->isRowHidden(wdg_bigtable->currentRow()));
     if (m_mode == Lire && wdg_bigtable->rowCount() > 0 && !wdg_bigtable->isRowHidden(wdg_bigtable->currentRow()))
     {
-        ui->DateDepdateEdit     ->disconnect();
-        ui->RefFiscalecomboBox  ->disconnect();
-        ui->PaiementcomboBox    ->disconnect();
+        disconnect(ui->DateDepdateEdit,     &QDateEdit::dateChanged,        nullptr, nullptr);
+        disconnect(ui->RefFiscalecomboBox,  &QComboBox::currentTextChanged, nullptr, nullptr);
+        disconnect(ui->PaiementcomboBox,    &QComboBox::currentTextChanged, nullptr, nullptr);
         if (wdg_bigtable->selectedRanges().size() == 0)
             wdg_bigtable->setCurrentCell(wdg_bigtable->rowCount()-1,1);
 
@@ -1512,7 +1512,7 @@ void dlg_depenses::ModifierDepense()
             }
     }
     m_mode = Lire;
-    wdg_bigtable->disconnect();
+    disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     RegleAffichageFiche(Lire);
     MetAJourFiche();
     connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
@@ -1524,7 +1524,7 @@ void dlg_depenses::ModifierDepense()
 void dlg_depenses::RedessineBigTable()
 {
     RemplitBigTable();
-    wdg_bigtable->disconnect();
+    disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     m_depenseencours = Q_NULLPTR;
     if (wdg_bigtable->rowCount() > 0)
     {
@@ -1669,7 +1669,7 @@ void dlg_depenses::FiltreTable()
         wdg_bigtable->scrollToItem(wdg_bigtable->item(row,0), QAbstractItemView::PositionAtCenter);
         if (row != rowdep)
         {
-            wdg_bigtable->disconnect();
+            disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
             MetAJourFiche();
             connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
         }
@@ -1769,7 +1769,7 @@ void dlg_depenses::RechercheValeur()
                     if (dep->annee() != ui->AnneecomboBox->currentText().toInt())
                     {
                         int idx = ui->AnneecomboBox->findText(QString::number(dep->annee()));
-                        ui->AnneecomboBox->disconnect();
+                        disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
                         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
                         RemplitBigTable();
                         connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
@@ -1793,7 +1793,7 @@ void dlg_depenses::RechercheValeur()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::ReconstruitListeAnnees()
 {
-    ui->AnneecomboBox->disconnect();
+    disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
     QStringList ListeAnnees;
     for (auto it = Datas::I()->depenses->depenses()->constBegin(); it != Datas::I()->depenses->depenses()->constEnd(); ++it)
     {
@@ -1802,7 +1802,7 @@ void dlg_depenses::ReconstruitListeAnnees()
             ListeAnnees << QString::number(dep->annee());
     }
     ListeAnnees.sort();
-    ui->AnneecomboBox->disconnect();
+    disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
     ui->AnneecomboBox->clear();
     if (ListeAnnees.size()==0)
         ListeAnnees << m_currentdate.toString("yyyy");
@@ -1834,7 +1834,7 @@ void dlg_depenses::ReconstruitListeRubriques(int idx)
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_depenses::RemplitBigTable()
 {
-    wdg_bigtable->disconnect();
+    disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     wdg_bigtable->clearContents();
     wdg_bigtable->setRowCount(0);
     QList<Depense*> listDepenses;

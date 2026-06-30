@@ -1640,15 +1640,15 @@ void Rufus::ConnectTimers(bool a)
     }
     else
     {
-        t_timerVerifImportateurDocs  ->disconnect();
-        t_timerSalDat                ->disconnect();
-        t_timerCorrespondants        ->disconnect();
-        t_timerExportDocs            ->disconnect();
-        t_timerActualiseDocsExternes ->disconnect();
-        t_timerVerifMessages         ->disconnect();
-        t_timerPosteConnecte         ->disconnect();
-        t_timerVerifVerrou           ->disconnect();
-        t_timerSupprDocs             ->disconnect();
+        disconnect(t_timerVerifImportateurDocs,     &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerSalDat,                   &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerCorrespondants,           &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerExportDocs,               &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerActualiseDocsExternes,    &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerVerifMessages,            &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerPosteConnecte,            &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerVerifVerrou,              &QTimer::timeout, nullptr, nullptr);
+        disconnect(t_timerSupprDocs,                &QTimer::timeout, nullptr, nullptr);
         t_timerVerifImportateurDocs  ->stop();
         t_timerSalDat                ->stop();
         t_timerCorrespondants        ->stop();
@@ -2097,7 +2097,7 @@ void Rufus::ExporteDocs()
         if (UpMessageBox::Question(this, title, msg)
                                    !=UpSmallButton::STARTBUTTON)
         {
-            t_timerExportDocs->disconnect();
+            disconnect(t_timerExportDocs,   &QTimer::timeout, nullptr, nullptr);
              QString msg = tr("Le processus d'importation automatique des images a été stoppé en raison de l'erreur") +
                     "<br/><font color=\"red\"><b>" + errormsg + "</b></font><br/>" +
                     tr("Il vous faut relancer le programme pour qu'il reprenne");
@@ -6423,7 +6423,7 @@ void Rufus::VerifImportateur()  //!< uniquement utilisé quand le TCP n'est pas 
         if (isPosteImport())
             connect(t_timerExportDocs,           &QTimer::timeout,   this,   &Rufus::ExporteDocs);
         else
-            t_timerExportDocs->disconnect();
+            disconnect(t_timerExportDocs,   &QTimer::timeout, nullptr, nullptr);
         VerifDossiersImagerie();
     }
 }
@@ -7073,7 +7073,7 @@ void Rufus::AfficheActe(Acte* acte)
 
     //4. régler la scrollbar
     ui->ScrollBar->setVisible(m_listeactes->actes()->size() > 1);
-    ui->ScrollBar->disconnect();
+    disconnect(ui->ScrollBar, &QScrollBar::valueChanged, nullptr, nullptr);
     ui->ScrollBar->setMinimum(0);
     ui->ScrollBar->setMaximum(m_listeactes->actes()->size() - 1);
     ui->ScrollBar->setSingleStep(1);
@@ -9203,7 +9203,7 @@ void Rufus::ProgrammationIntervention(Patient *pat, Acte *act)
     dlg_progr->exec();
     if (dlg_progr->docimprime())
         MAJDocsExternes();                  //ProgrammationIntervention()
-    dlg_progr->disconnect();
+    disconnect(dlg_progr, &dlg_programmationinterventions::updateHtml, nullptr, nullptr);
     delete dlg_progr;
 }
 

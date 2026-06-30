@@ -5299,7 +5299,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
     if (usetimer)
     {
         t_filewatchtimer.stop();
-        t_filewatchtimer.disconnect();
+        disconnect(&t_filewatchtimer,  &QTimer::timeout, nullptr, nullptr);
         if (m_devicesLAN >0)
         {
             t_filewatchtimer.start(1000);
@@ -5338,10 +5338,10 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
     }
     else
     {
-        m_filewatcherautoref.disconnect();
-        m_filewatcherfronto.disconnect();
-        m_filewatcherrefracteur.disconnect();
-        m_filewatchertono.disconnect();
+        disconnect(&m_filewatcherautoref,       &QFileSystemWatcher::directoryChanged, nullptr, nullptr);
+        disconnect(&m_filewatcherfronto,        &QFileSystemWatcher::directoryChanged, nullptr, nullptr);
+        disconnect(&m_filewatcherrefracteur,    &QFileSystemWatcher::directoryChanged, nullptr, nullptr);
+        disconnect(&m_filewatchertono,          &QFileSystemWatcher::directoryChanged, nullptr, nullptr);
         if (m_devicesLAN.testFlag(Autoref) && pathdirautoref != "")
             connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
             {
