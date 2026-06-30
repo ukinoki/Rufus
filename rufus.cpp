@@ -5378,7 +5378,10 @@ void Rufus::AfficheBAL(int idx)
     {
         if (dlg_msgBAL->isVisible())
             dlg_msgBAL->close();
-        delete dlg_msgBAL;
+        dlg_msgBAL->deleteLater();   /*! deleteLater() et non delete : AfficheBAL() est appelée depuis le clic sur la poubelle d'un message,
+                                          donc pendant le traitement du signal d'un widget enfant de dlg_msgBAL. Un delete immédiat détruirait
+                                          ce widget alors que son eventFilter n'a pas fini -> accès mémoire libérée et crash. deleteLater() repousse
+                                          la destruction au retour dans la boucle d'évènements, quand plus rien ne touche au widget. */
     }
     dlg_msgBAL = new QDialog(this);
     int x = 0;
