@@ -1315,8 +1315,10 @@ void dlg_param::fixAMnumberforSite(UpPushButton *AMnumberButton, QMap<Site *, ql
             for (auto it = mapsites.begin(); it != mapsites.end(); ++it)
                 mapid.insert(it.key()->id(), it.value());
             currentuser()->setmapUserSites(mapid);
-            db->StandardSQL("update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(currentuser()->AMnumberforSite(Datas::I()->sites->currentsite()->id())) +
-                            " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(Datas::I()->sites->currentsite()->id()));
+            QString req ="update " TBL_JOINTURESLIEUX " set " CP_AMNUMBER_JOINTSITE " = " +  QString::number(AMnumber) +
+                            " where " CP_IDUSER_JOINTSITE  " = " + QString::number(currentuser()->id())  + " and " CP_IDLIEU_JOINTSITE " = " + QString::number(AMnumberButton->data());
+            db->StandardSQL(req);
+            qDebug() << req;
             AMnumberButton->setiD(AMnumber);
             AMnumberButton->setImmediateToolTip(tr("Numero AM ") + QString::number(AMnumberButton->iD()));
         }
