@@ -1183,7 +1183,6 @@ void dlg_impressions::OKpushButtonClicked()
     int         c = 0;
     QStringList listQuestions, listtypeQuestions;
     QStringList ExpARemplacer, Rempla;
-    QString listusersComboBox = "ListUsers";
     QString listsoignantsComboBox = "ListSoignants";
     userentete();
     if (m_userentete == Q_NULLPTR)
@@ -1283,6 +1282,18 @@ void dlg_impressions::OKpushButtonClicked()
             dlg_ask->move(QPoint(x()+width()/2,y()+height()/2));
 
             QVBoxLayout *layWidg = new QVBoxLayout();
+
+            /*! pour chaque question, on mémorise dès la construction de la fenêtre le widget qui portera la réponse,
+             *  au lieu de le retrouver après coup en re-parcourant les layouts widget par widget :
+             *  le lien question -> réponse ne dépend ainsi plus de la position des widgets dans la fenêtre */
+            struct LigneQuestion {
+                QString question;                       //! le texte de la question, tel qu'il figure dans le marqueur ((question//TYPE))
+                QString type;                           //! le type de la réponse attendue (DATE, TEXTE, HEURE...)
+                QWidget *wdgreponse = Q_NULLPTR;        //! le widget de saisie de la réponse
+                QWidget *wdgpuissance = Q_NULLPTR;      //! uniquement pour l'implant : la spinbox de puissance
+            };
+            QList<LigneQuestion> listlignesquestions;
+
             for (int m=0; m<listQuestions.size();m++)
             {
                 QHBoxLayout *lay = new QHBoxLayout();
@@ -1294,12 +1305,15 @@ void dlg_impressions::OKpushButtonClicked()
                 lay->addWidget(label);
                 QSpacerItem *spacer = new QSpacerItem(10,10,QSizePolicy::Expanding);
                 lay->addSpacerItem(spacer);
+                QWidget *wdgreponse = Q_NULLPTR;
+                QWidget *wdgpuissance = Q_NULLPTR;
                 if (listtypeQuestions.at(m)  == "TEXTE")
                 {
                     UpLineEdit *Line = new UpLineEdit();
                     Line->setValidator(new QRegularExpressionValidator(Utils::rgx_all,this));
                     Line->setMaxLength(60);
                     Line->setFixedHeight(23);
+                    wdgreponse = Line;
                     lay->addWidget(Line);
                 }
                 else if (listtypeQuestions.at(m)  == "MONTANT")
@@ -1311,6 +1325,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Line->setMaxLength(15);
                     Line->setFixedHeight(23);
                     Line->installEventFilter(this);
+                    wdgreponse = Line;
                     lay->addWidget(Line);
                 }
                 else if (listtypeQuestions.at(m)  == "SOIGNANT")
@@ -1323,17 +1338,20 @@ void dlg_impressions::OKpushButtonClicked()
                     foreach (User* usr, *Datas::I()->users->actifs())
                         if (usr->isSoignant())
                             Combo->addItem(usr->login(), usr->id());
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == "DATE")
                 {
                     QDateEdit *Date = new QDateEdit();
                     Date->setDisplayFormat(tr("dd/MM/yyyy"));
-                    Date->setCalendarPopup(false); //si on met ce paramètre à true et qu'on utilise le calendarpopup,
-                                                   //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
+                    Date->setCalendarPopup(false); //précaution héritée de l'ancienne relecture des réponses, qui parcourait les layouts
+                                                   //avec QLayout::count() et plantait quand le calendarpopup était activé
+                                                   //cette relecture n'existe plus : on pourrait probablement réactiver le popup, à tester
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(120,30);
                     Date->setDate(m_currentdate);
+                    wdgreponse = Date;
                     lay->addWidget(Date);
                 }
                 else if (listtypeQuestions.at(m)  == "HEURE")
@@ -1343,6 +1361,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setFixedSize(Utils::qtimeeditsize());
                     Time->setTime(QTime::currentTime());
                     Time->setTimeZone(QTimeZone(QTimeZone::LocalTime));
+                    wdgreponse = Time;
                     lay->addWidget(Time);
                 }
                 else if (listtypeQuestions.at(m)  == COTEOEIL)
@@ -1355,6 +1374,7 @@ void dlg_impressions::OKpushButtonClicked()
                     QStringList listcote;
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
                     Combo->addItems(listcote);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == COTEBRUT)
@@ -1367,6 +1387,7 @@ void dlg_impressions::OKpushButtonClicked()
                     QStringList listcote;
                     listcote << tr("Droit") << tr("Gauche") << tr("Les deux");
                     Combo->addItems(listcote);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == YESNO)
@@ -1379,6 +1400,7 @@ void dlg_impressions::OKpushButtonClicked()
                     QStringList listouinon;
                     listouinon << tr("Oui") << tr("Non");
                     Combo->addItems(listouinon);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == SURGEONINTERVENTION)
@@ -1391,6 +1413,7 @@ void dlg_impressions::OKpushButtonClicked()
                     foreach (User* usr, *Datas::I()->users->actifs())
                         if (usr->isMedecin())
                             Combo->addItem(usr->login(), usr->id());
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m) == ANESTHINTERVENTION)
@@ -1405,6 +1428,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->addItem(tr("Générale"), "G");
                     Combo->addItem(tr("Sans objet"), "");
                     Combo->setCurrentIndex(0);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m) == PROVENANCE)
@@ -1415,6 +1439,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setEditable(false);
                     Combo->setObjectName(PROVENANCE);
                     Combo->addItems(QStringList() << tr("Domicile") << tr("Institution") << tr("Transfert"));
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == TYPESEJOUR)
@@ -1425,6 +1450,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setEditable(false);
                     Combo->setObjectName(TYPESEJOUR);
                     Combo->addItems(QStringList() << tr("Ambulatoire") << tr("Hospitalisation") << tr("Urgence"));
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == SITE)
@@ -1436,18 +1462,21 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->setObjectName(SITE);
                     foreach (Site* sit, *Datas::I()->sites->sites())
                         Combo->addItem(sit->nom(), QString::number(sit->id()) );
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == DATEINTERVENTION)
                 {
                     QDateEdit *Date = new QDateEdit();
                     Date->setDisplayFormat(tr("dd/MM/yyyy"));
-                    Date->setCalendarPopup(false); //si on met ce paramètre à true et qu'on utilise le calendarpopup,
-                                                   //la fonction QLayout::count() utilisée un peu plus loin plante le programme..(?)..
+                    Date->setCalendarPopup(false); //précaution héritée de l'ancienne relecture des réponses, qui parcourait les layouts
+                                                   //avec QLayout::count() et plantait quand le calendarpopup était activé
+                                                   //cette relecture n'existe plus : on pourrait probablement réactiver le popup, à tester
                     Date->setContentsMargins(0,0,0,0);
                     Date->setFixedSize(120,30);
                     Date->setDate(m_currentdate);
                     Date->setObjectName(DATEINTERVENTION);
+                    wdgreponse = Date;
                     lay->addWidget(Date);
                 }
                 else if (listtypeQuestions.at(m)  == HEUREINTERVENTION)
@@ -1458,6 +1487,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Time->setTime(QTime::currentTime());
                     Time->setTimeZone(QTimeZone(QTimeZone::LocalTime));
                     Time->setObjectName(HEUREINTERVENTION);
+                    wdgreponse = Time;
                     lay->addWidget(Time);
                 }
                 else if (listtypeQuestions.at(m)  == COTEINTERVENTION)
@@ -1470,6 +1500,7 @@ void dlg_impressions::OKpushButtonClicked()
                     listcote << tr("chaque oeil") << tr("l'oeil droit") << tr("l'oeil gauche");
                     Combo->addItems(listcote);
                     Combo->setObjectName(COTEINTERVENTION);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == TYPEINTERVENTION)
@@ -1481,6 +1512,7 @@ void dlg_impressions::OKpushButtonClicked()
                     foreach (TypeIntervention* typ, *Datas::I()->typesinterventions->typeinterventions())
                         Combo->addItem(typ->typeintervention(), QString::number(typ->id()) );
                     Combo->setObjectName(TYPEINTERVENTION);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                 }
                 else if (listtypeQuestions.at(m)  == IMPLANTINTERVENTION)
@@ -1509,6 +1541,7 @@ void dlg_impressions::OKpushButtonClicked()
                     for(int i=0; i<model->rowCount(); i++)
                         Combo->addItem(model->item(i)->text(), model->item(i,1)->text());
                     Combo->setObjectName(IMPLANTINTERVENTION);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
                     UpDoubleSpinBox *pwrIOLspinbox = new UpDoubleSpinBox();
                     pwrIOLspinbox   ->setSingleStep(0.50);
@@ -1516,6 +1549,7 @@ void dlg_impressions::OKpushButtonClicked()
                     pwrIOLspinbox   ->setFixedSize(QSize(70,28));
                     pwrIOLspinbox   ->setRange(-10.0, 35.0);
                     pwrIOLspinbox   ->setObjectName(PWRIOLINTERVENTION);
+                    wdgpuissance    = pwrIOLspinbox;
                     lay             ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding,QSizePolicy::Expanding));
                     lay             ->addWidget(pwrIOLspinbox);
                 }
@@ -1528,7 +1562,17 @@ void dlg_impressions::OKpushButtonClicked()
                     foreach (Site* sit, *Datas::I()->sites->sites())
                         Combo->addItem(sit->nom(), QString::number(sit->id()) );
                     Combo->setObjectName(SITEINTERVENTION);
+                    wdgreponse = Combo;
                     lay->addWidget(Combo);
+                }
+                if (wdgreponse != Q_NULLPTR)
+                {
+                    LigneQuestion ligne;
+                    ligne.question      = listQuestions.at(m);
+                    ligne.type          = listtypeQuestions.at(m);
+                    ligne.wdgreponse    = wdgreponse;
+                    ligne.wdgpuissance  = wdgpuissance;
+                    listlignesquestions << ligne;
                 }
             }
             dlg_ask->dlglayout()    ->setContentsMargins(5,5,5,5);
@@ -1550,114 +1594,61 @@ void dlg_impressions::OKpushButtonClicked()
             }
             else
             {
-                for (int n=0; n< layWidg->count(); n++)
+                /*! relecture des réponses : chaque ligne relie le marqueur d'origine au widget qui a recueilli la réponse,
+                 *  le marqueur à remplacer est reconstruit à l'identique -> ((question//TYPE)) */
+                for (int m=0; m<listlignesquestions.size(); m++)
                 {
-                    QHBoxLayout *hlay = dynamic_cast<QHBoxLayout*>(layWidg->itemAt(n));
-                    if (hlay != Q_NULLPTR)
+                    const LigneQuestion &ligne = listlignesquestions.at(m);
+                    QString reponse;
+                    if (ligne.type == "TEXTE" || ligne.type == "MONTANT")
                     {
-                        bool b = false;
-                        for (int r=0; r<hlay->count(); r++)
+                        UpLineEdit *line = qobject_cast<UpLineEdit*>(ligne.wdgreponse);
+                        if (line != Q_NULLPTR)
+                            reponse = line->text();
+                    }
+                    else if (ligne.type == "DATE" || ligne.type == DATEINTERVENTION)
+                    {
+                        QDateEdit *date = qobject_cast<QDateEdit*>(ligne.wdgreponse);
+                        if (date != Q_NULLPTR)
+                            reponse = QLocale::system().toString(date->date(),tr("d MMMM yyyy"));
+                    }
+                    else if (ligne.type == "HEURE" || ligne.type == HEUREINTERVENTION)
+                    {
+                        QTimeEdit *time = qobject_cast<QTimeEdit*>(ligne.wdgreponse);
+                        if (time != Q_NULLPTR)
+                            reponse = time->time().toString("H'H'mm");
+                    }
+                    else if (ligne.type == "SOIGNANT")
+                    {
+                        UpComboBox *combo = qobject_cast<UpComboBox*>(ligne.wdgreponse);
+                        if (combo != Q_NULLPTR)
                         {
-                            QWidget *w = hlay->itemAt(r)->widget();
-                            b = (qobject_cast<UpLabel*>(w)!=Q_NULLPTR);
-                            if (b) break;
+                            User* usr = Datas::I()->users->getById(combo->currentData().toInt());
+                            reponse = (usr != Q_NULLPTR? (usr->isMedecin()? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom() : "");
                         }
-                        if (b)
+                    }
+                    else if (ligne.type == IMPLANTINTERVENTION)
+                    {
+                        UpComboBox *combo = qobject_cast<UpComboBox*>(ligne.wdgreponse);
+                        if (combo != Q_NULLPTR)
                         {
-                            for (int q=0; q<hlay->count(); q++)
+                            reponse = combo->currentText();
+                            UpDoubleSpinBox *spinbox = qobject_cast<UpDoubleSpinBox*>(ligne.wdgpuissance);
+                            if (spinbox != Q_NULLPTR)
                             {
-                                QLayoutItem *layoutItem = hlay->itemAt(q);
-                                if (layoutItem->spacerItem()) {
-                                    hlay->removeItem(layoutItem);
-                                    delete layoutItem;
-                                    --q;
-                                }
-                            }
-                            QList<QWidget*> listwidg;
-                            for (int s=0; s<hlay->count(); s++)
-                                listwidg << hlay->itemAt(s)->widget();
-                            QString minidou;
-                            for (int p=0; p<listwidg.size(); p++)
-                            {
-                                UpLabel *linelabel = qobject_cast<UpLabel*>(listwidg.at(p));
-                                if (linelabel != Q_NULLPTR)
-                                {
-                                    minidou = "((" + linelabel->text();
-                                    continue;
-                                }
-                                UpLineEdit *linetext = qobject_cast<UpLineEdit*>(listwidg.at(p));
-                                if (linetext != Q_NULLPTR)
-                                {
-                                    Rempla          << linetext->text();
-                                    const QDoubleValidator *val = dynamic_cast<const QDoubleValidator*>(linetext->validator());
-                                    if (val)
-                                        ExpARemplacer   << minidou + "//MONTANT))";
-                                    else
-                                        ExpARemplacer   << minidou + "//TEXTE))";
-                                    continue;
-                                }
-                                QDateEdit *linedate = qobject_cast<QDateEdit*>(listwidg.at(p));
-                                if (linedate != Q_NULLPTR)
-                                {
-                                    Rempla          << QLocale::system().toString(linedate->date(),tr("d MMMM yyyy"));
-                                    if (linedate->objectName() == DATEINTERVENTION)
-                                        ExpARemplacer   << minidou + "//" + DATEINTERVENTION + "))";
-                                    else
-                                        ExpARemplacer   << minidou + "//DATE))";
-                                    continue;
-                                }
-                                QTimeEdit *linetime = qobject_cast<QTimeEdit*>(listwidg.at(p));
-                                if (linetime != Q_NULLPTR)
-                                {
-                                    Rempla          << linetime->time().toString("H'H'mm");
-                                    if (linetime->objectName() == HEUREINTERVENTION)
-                                        ExpARemplacer   << minidou + "//" + HEUREINTERVENTION + "))";
-                                    else
-                                        ExpARemplacer   << minidou + "//HEURE))";
-                                    continue;
-                                }
-                                UpComboBox *linecombo = qobject_cast<UpComboBox*>(listwidg.at(p));
-                                if (linecombo != Q_NULLPTR)
-                                {
-                                    if (linecombo->objectName() == listsoignantsComboBox)
-                                    {
-                                        int idusr = linecombo->currentData().toInt();
-                                        User* usr = Datas::I()->users->getById(idusr);
-                                        QString babar = (usr != Q_NULLPTR? (usr->isMedecin()? usr->titre() + " " : "") + usr->prenom() + " " + usr->nom() : "");
-                                        Rempla          << babar;
-                                        ExpARemplacer   << minidou + "//SOIGNANT))";
-                                    }
-                                    else if (linecombo->objectName() == SURGEONINTERVENTION
-                                             || linecombo->objectName() == COTEINTERVENTION
-                                             || linecombo->objectName() == SITEINTERVENTION
-                                             || linecombo->objectName() == ANESTHINTERVENTION
-                                             || linecombo->objectName() == TYPEINTERVENTION)
-                                    {
-                                        Rempla          << linecombo->currentText();
-                                        ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
-                                    }
-                                    else if (linecombo->objectName() == IMPLANTINTERVENTION)
-                                    {
-                                        QString         item;
-                                        item = linecombo->currentText();
-                                        UpDoubleSpinBox *spinbox = qobject_cast<UpDoubleSpinBox*>(listwidg.at(p+1));
-                                        if (spinbox != Q_NULLPTR)
-                                        {
-                                            QString pos = (spinbox->value()>0? "+":"");
-                                            item += " " + pos + spinbox->textFromValue(spinbox->value());
-                                        }
-                                        Rempla          << item;
-                                        ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
-                                    }
-                                    else if (linecombo->objectName() != listusersComboBox)
-                                    {
-                                        Rempla          << linecombo->currentText();
-                                        ExpARemplacer   << minidou + "//" + linecombo->objectName() + "))";
-                                    }
-                                }
+                                QString pos = (spinbox->value()>0? "+":"");
+                                reponse += " " + pos + spinbox->textFromValue(spinbox->value());
                             }
                         }
                     }
+                    else    // tous les autres types sont des combos dont on relit simplement le texte affiché
+                    {
+                        UpComboBox *combo = qobject_cast<UpComboBox*>(ligne.wdgreponse);
+                        if (combo != Q_NULLPTR)
+                            reponse = combo->currentText();
+                    }
+                    ExpARemplacer   << "((" + ligne.question + "//" + ligne.type + "))";
+                    Rempla          << reponse;
                 }
             }
             delete dlg_ask;
