@@ -57,7 +57,8 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
         if (m_currentdocument)
         {
             MetAJour(m_currentdocument->texte(),false);
-            ui->upTextEdit                  ->setText(m_listtexts.at(0));
+            if (m_listtexts.size() > 0)             // la liste est vide si aucun émetteur n'a pu être déterminé
+                ui->upTextEdit              ->setText(m_listtexts.at(0));
         }
     });
     connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
@@ -193,6 +194,8 @@ void dlg_impressions::AfficheTexteDocument(Impression *doc)
     {
         ui->textFrame                   ->setVisible(true);
         MetAJour(doc->texte(), false);
+        if (m_listtexts.size() == 0)                // la liste est vide si aucun émetteur n'a pu être déterminé
+            return;
         ui->upTextEdit                  ->setText(m_listtexts.at(0));
         EffaceWidget(ui->textFrame);
         ui->DocPubliccheckBox           ->setChecked(doc->ispublic());
@@ -357,8 +360,10 @@ QString dlg_impressions::DocumentToolTip(Impression *doc)
 {
     if (!doc)
         return "";
-    QTextEdit *text = new QTextEdit;
     MetAJour(doc->texte(),false);
+    if (m_listtexts.size() == 0)                // la liste est vide si aucun émetteur n'a pu être déterminé
+        return "";
+    QTextEdit *text = new QTextEdit;
     text->setText(m_listtexts.at(0));
     QString ab = text->toPlainText();
     ab.replace(QRegularExpression::wildcardToRegularExpression("\n\n[\n]*"),"\n");
@@ -920,7 +925,8 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
             {
                 QString champ = upitem->data().toString();
                 MetAJour("{{" + champ + "}}", false, true);
-                QToolTip::showText(cursor().pos(), m_listtexts.at(0));
+                if (m_listtexts.size() > 0)
+                    QToolTip::showText(cursor().pos(), m_listtexts.at(0));
             }
         } );
 
@@ -2976,7 +2982,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         TypeIntervention *typ = Datas::I()->typesinterventions->getById(m_currentintervention->idtypeintervention());
 
         txt = "((" + TITRESURGEONINTERVENTION + "//" + SURGEONINTERVENTION + "))";
-        User *usr = Datas::I()->users->getById(session->iduser());
+        User *usr = (session != Q_NULLPTR? Datas::I()->users->getById(session->iduser()) : Q_NULLPTR);
         texte.replace(txt,  (usr != Q_NULLPTR? usr->titre() + " " + usr->prenom() + " " + usr->nom() : "null"));
 
         txt = "((" + TITREDATEINTERVENTION + "//" + DATEINTERVENTION + "))";
@@ -3094,7 +3100,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
             form += listcor.at(0)->prenom() + " " + listcor.at(0)->nom();
             texte.replace("{{" + CORPAT + "}}"          ,form);
             texte.replace("{{" + POLITESSECOR + "}}"    ,form2);
-            texte.replace("{{" + NOMCOR + "}}}"         ,listcor.at(0)->nom());
+            texte.replace("{{" + NOMCOR + "}}"          ,listcor.at(0)->nom());
             texte.replace("{{" + PRENOMCOR + "}}"       ,listcor.at(0)->prenom());
             if (texte.contains(ADRCORPAT))
             {
@@ -3106,7 +3112,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
         {
             texte.replace("{{" + CORPAT + "}}"         ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
             texte.replace("{{" + POLITESSECOR + "}}"   ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
-            texte.replace("{{" + NOMCOR + "}}}"        ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
+            texte.replace("{{" + NOMCOR + "}}"         ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
             texte.replace("{{" + PRENOMCOR + "}}"      ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
             texte.replace("{{" + ADRCORPAT + "}}"      ,tr("CORRESPONDANTS À CHOISIR À L'IMPRESSION"));
         }
@@ -3154,7 +3160,7 @@ void dlg_impressions::MetAJour(QString texte, bool pourVisu, bool onlyforfirstco
                     form += cor->prenom() + " " + cor->nom();
                     txtdef.replace("{{" + CORPAT + "}}"         , form);
                     txtdef.replace("{{" + POLITESSECOR + "}}"   , form2);
-                    txtdef.replace("{{" + NOMCOR + "}}}"        , cor->nom());
+                    txtdef.replace("{{" + NOMCOR + "}}"         , cor->nom());
                     txtdef.replace("{{" + PRENOMCOR + "}}"      , cor->prenom());
                     if (txtdef.contains(ADRCORPAT))
                     {
@@ -3680,11 +3686,9 @@ void dlg_impressions::SupprimmeDossier(DossierImpression *dossier)
         Datas::I()->metadocuments->SupprimeDossierImpression(dossier);
         if (row > -1 && row < m_dossiersmodel->rowCount())
             m_dossiersmodel->removeRow(row); //! declenche le signal currentrowchanged et mcurrentdosier devient le dossier suivanr ou qnullptre s'il n'y a pas de suivant
-        if (m_docsmodel->rowCount() == 0)
-            ConfigMode(CreationDOC);
-        else
+        ConfigMode(Selection);
+        if (m_dossiersmodel->rowCount() > 0)    // on supprime un dossier, pas un document : on reste en sélection et on pointe le dossier suivant s'il en reste
         {
-            ConfigMode(Selection);
             if (row >= m_dossiersmodel->rowCount())
                 row = m_dossiersmodel->rowCount()-1;
             dossier = getDossierFromIndex(m_dossiersmodel->index(row,0));
