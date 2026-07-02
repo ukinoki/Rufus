@@ -90,7 +90,6 @@ private:
     bool                        m_pdf = false;
     double                      m_opacity;
     QMap<QString,QString>       map_champs;
-    QStringList                 m_listid;
     QStringList                 m_listtexts;   /*! pour un document donné, il peut y avoir plusieurs impressions s'il y a plusieurs destinataires
                                                 -> le texte varie légèrement d'un destinataire à l'autre en ce qui concerne le nom du correspondant
                                                 -> la variable correspond à la liste des textes */
@@ -112,7 +111,6 @@ private:
     QMenu                       *m_menucontextuel_textdoc   = Q_NULLPTR;
     QMenu                       *m_menucontextuel_dossier   = Q_NULLPTR;
 
-    bool                        event(QEvent *event);
     void                        closeEvent      (QCloseEvent *event);
     bool                        eventFilter     (QObject *obj, QEvent *event);
     void                        keyPressEvent   (QKeyEvent * event );

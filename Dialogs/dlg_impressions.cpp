@@ -162,6 +162,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
 
 dlg_impressions::~dlg_impressions()
 {
+    delete ui;
 }
 
 QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString> > dlg_impressions::mapdocsaimprimer() const
@@ -513,26 +514,6 @@ void dlg_impressions::EnableOKPushButton(QModelIndex idx)
             if (itm)
                 if (itm->ischecked())
                     VerifDossiers();
-            if (wdg_docsbuttonframe->searchline()->text() == "")
-                m_listid.clear();
-            for (int i=0; i<m_docsmodel->rowCount(); i++)
-            {
-                UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,0));
-                if (itm)
-                {
-                    UpStandardItem *titm = dynamic_cast<UpStandardItem*>(m_docsmodel->item(i,1));
-                    if (!titm)
-                        continue;
-                    Impression *doc = qobject_cast<Impression*>(titm->rufusitem());
-                    if (!doc)
-                        continue;
-                    if(itm->ischecked())
-                           m_listid << QString::number(doc->id());
-                    else
-                        while (m_listid.contains(QString::number(doc->id())))
-                                m_listid.removeOne(QString::number(doc->id()));
-                }
-            }
         }
         bool a = false;
         for (int i=0 ; i<m_docsmodel->rowCount(); i++)
@@ -1253,7 +1234,10 @@ void dlg_impressions::OKpushButtonClicked()
                 {
                     Impression *doc         = getDocumentFromIndex(m_docsmodel->index(i,0));
                     QString text            =  doc->texte();
-                    QString questpattern    = "([(][(][éêëèÉÈÊËàâÂÀîïÏÎôöÔÖùÙçÇ'a-zA-ZŒœ0-9°?, -]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
+                    //! la question admet n'importe quel caractère sauf les parenthèses et le slash (qui délimitent le marqueur) :
+                    //! l'ancienne liste de caractères énumérés à la main laissait passer certaines lettres accentuées (û, ü, ñ...)
+                    //! et la question sortait alors telle quelle, ((...)) compris, sur le document imprimé
+                    QString questpattern    = "([(][(][^/()]*//(DATE|TEXTE|HEURE|MONTANT|SOIGNANT";
                     questpattern            += "|" + COTEOEIL + "|" + COTEBRUT + "|" + YESNO + "|" + PROVENANCE + "|" + TYPESEJOUR + "|" + SITE;
                     if (m_currentintervention == Q_NULLPTR)
                         questpattern        += "|" + DATEINTERVENTION + "|" + HEUREINTERVENTION + "|" + COTEINTERVENTION +
@@ -1419,7 +1403,7 @@ void dlg_impressions::OKpushButtonClicked()
                     Combo->addItem(tr("Locale"), "L");
                     Combo->addItem(tr("LocoRegionale"), "R");
                     Combo->addItem(tr("Générale"), "G");
-                    Combo->addItem(tr("Sans objet", ""));
+                    Combo->addItem(tr("Sans objet"), "");
                     Combo->setCurrentIndex(0);
                     lay->addWidget(Combo);
                 }
@@ -1779,48 +1763,6 @@ void dlg_impressions::VerifCoherencedlg_ask()
     if (a) dlg_ask->accept();
 }
 
-bool dlg_impressions::event(QEvent *event)
-{
-/*    if (event->type() == QEvent::ToolTip)
-    {
-        QWidget* rec            = ui->DocupTableView;
-        QRect rect              = QRect(rec->pos(),rec->size());
-        QHelpEvent *helpEvent   = static_cast<QHelpEvent *>(event);
-        QTableWidgetItem *itemM = new QTableWidgetItem;
-        QPoint pos              = helpEvent->pos();
-        QPoint fromPpos         = mapFromParent(pos);
-        QPoint fromGpos         = mapFromGlobal(pos);
-        QPoint ToPpos           = mapToParent(pos);
-        QPoint ToGpos           = mapToGlobal(pos);
-        QPoint ToThispos        = rec->mapTo(this,pos);
-        QPoint FromThispos      = rec->mapFrom(this,pos);
-        QString tru = "true";
-        if (!rect.contains(pos)) tru = "false";
-        ui->lineEdit->setText(" pos = (" + QString::number(pos.x()) + "," + QString::number(pos.y()) + ") " +
-                              " FromParent = (" + QString::number(fromPpos.x()) + "," + QString::number(fromPpos.y()) + ") " +
-                              " FromGlobal = (" + QString::number(fromGpos.x()) + "," + QString::number(fromGpos.y()) + ") " +
-                              " ToParent = (" + QString::number(ToPpos.x()) + "," + QString::number(ToPpos.y()) + ") " +
-                              " ToGlobal = ("+ QString::number(ToGpos.x()) + "," + QString::number(ToGpos.y()) + ")" +
-                              " ToThis = (" + QString::number(ToThispos.x()) + "," + QString::number(ToThispos.y()) + ") " +
-                              " FromThis = ("+ QString::number(FromThispos.x()) + "," + QString::number(FromThispos.y()) + ")" +
-                              " Rect = (" + QString::number(rec->x()) + "," + QString::number(rec->y()) + ") " +
-                              " (" + QString::number(rec->x()+rec->width()) + "," + QString::number(rec->y()+rec->height()) + ")" +
-                              " " + tru);
-        itemM = ui->DocupTableView->itemAt(rec->mapFrom(this,pos));
-        if (itemM == 0) return false;
-        if (itemM->row() > -1) {
-            QTextEdit *text = new QTextEdit;
-            text->setText(MetAJour(ui->DocupTableView->item(itemM->row(),2)->text()));
-            QString ab = text->toPlainText().left(300);
-            QToolTip::showText(helpEvent->globalPos(), ab);
-        } else {
-            QToolTip::hideText();
-            event->ignore();
-        }
-        return true;
-    }*/
-    return QWidget::event(event);
-}
 void dlg_impressions::closeEvent(QCloseEvent *event)
 {
     proc->settings()->setValue(Position_Fiche Nom_fiche_Documents,saveGeometry());
@@ -2653,7 +2595,7 @@ bool dlg_impressions::EnregistreDocument(Impression *doc)
     }
     else if (m_mode == ModificationDOC)
     {
-        DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le site"));
+        DataBase::I()->UpdateTable(TBL_IMPRESSIONS, m_docslistbinds, " where " CP_ID_IMPRESSIONS " = " + QString::number(m_currentdocument->id()),tr("Impossible de modifier le document"));
         m_currentdocument = Datas::I()->impressions->getById(m_currentdocument->id(), true);
         row = m_docsmodel->getRowFromItem(m_currentdocument);
     }
