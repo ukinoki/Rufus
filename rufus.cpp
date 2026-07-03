@@ -6268,9 +6268,9 @@ void Rufus::VerifLastVersion()
         //qDebug() << "OS = " << m_os;
     };
 
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request;
-    //request.setUrl(QUrl("~/RufusQt6/build_tools/RufusLastVersionTest.xml"));
+    //request.setUrl(QUrl::fromLocalFile(QDir::homePath() + "/Documents/GitHub/Rufus/build_tools/RufusLastVersionTest.xml"));
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     request.setUrl(QUrl(LIEN_XML_RUFUSLASTVERSION));
     QNetworkReply *reply = manager->get(request);
 
