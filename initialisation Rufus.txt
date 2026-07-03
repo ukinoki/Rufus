@@ -110,6 +110,7 @@ II LANCEMENT DE RUFUS
 							→ si pas OK → messageBox base de données endommagée
 								→ bouton annuler → fermeture du programme
 								→ bouton restaurer la base → RestaureBase()
+								→ bouton nouvelle base patients → PremierDemarrage() (base vierge / existante)
 						→ MySQL >= 8.0.14
 						 	→ on s’est connecté avec le mdp aléatoire
 								on vérifie si le mdp générique est toujours présent
