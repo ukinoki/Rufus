@@ -499,6 +499,12 @@ void Rufus::OuvrirDocsExternes(DocsExternes *docs)
     if (ListDialogDocs.size()>0)
         for (int i=0; i< ListDialogDocs.size();++i)
         {
+            /*! Une fiche déjà fermée (close()) est encore présente dans topLevelWidgets() le temps que son deleteLater()
+                s'exécute (elle a WA_DeleteOnClose). Il ne faut surtout pas la "ressusciter" par setVisible(true) : elle serait
+                détruite juste après par le deleteLater en attente -> la fiche apparaît puis disparaît. On l'ignore donc :
+                la boucle tombera sur la création d'une fiche neuve plus bas. */
+            if (ListDialogDocs.at(i)->isHidden())
+                continue;
             if (currentpatient() != Q_NULLPTR)
             {
                 if (docs->patient()->id() == currentpatient()->id())
