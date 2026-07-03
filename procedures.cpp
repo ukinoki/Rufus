@@ -3306,13 +3306,16 @@ bool Procedures::Connexion_A_La_Base()
         {
             if (db->ModeAccesDataBase() == Utils::Poste)
             {
-                //! Poste HÔTE : on propose de RESTAURER la base depuis une sauvegarde (carrefour,
-                //! bouton « Restaurer la base »). Relance si succès ; sinon (annulation) on sort.
+                //! Poste HÔTE : on propose de RESTAURER la base depuis une sauvegarde (bouton
+                //! « Restaurer la base ») ET de créer une NOUVELLE base patients vierge (bouton
+                //! « Accéder à une base patients » → PremierDemarrage). Sans ce 2e bouton, un poste
+                //! avec un .dbkey valide mais une base altérée ET sans sauvegarde restait en
+                //! CUL-DE-SAC : la seule issue était de bricoler MySQL à la main ou d'effacer .dbkey.
                 RecupererDemarrage(tr("Base de données endommagée"),
                                    tr("La connexion au serveur MySQL fonctionne, mais la base de données patients Rufus est altérée.") + "\n" +
-                                   tr("Vous pouvez la restaurer depuis une sauvegarde, ou quitter."),
+                                   tr("Vous pouvez la restaurer depuis une sauvegarde, créer une nouvelle base patients, ou quitter."),
                                    false /*DetruitIni*/, true /*RecupIni*/, false /*ReconstruitIni*/,
-                                   false /*PremDemarrage*/, true /*RestaurerBase*/);
+                                   true /*PremDemarrage*/, true /*RestaurerBase*/);
                 return false;
             }
             //! Poste CLIENT (réseau local / distant) : il ne répare JAMAIS la base partagée des
