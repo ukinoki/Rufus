@@ -48,7 +48,10 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->DocsPublicscheckBox     ->setImmediateToolTip(tr("Cocher cette case pour visualiser les dossiers et documents rendus publics par leurs créateurs\n"
                                                     "Ces dossiers et documents sont affichés en caractères italiques bleus"));
 
-    ui->upTextEdit->disconnect(); // pour déconnecter la fonction MenuContextuel intrinsèque de la classe UpTextEdit
+    //! On retire UNIQUEMENT le menu contextuel intrinsèque d'UpTextEdit (customContextMenuRequested →
+    //! UpTextEdit::MenuContextuel, cf. uptextedit.cpp) pour laisser place à MenuContextuelTexteDocument
+    //! connecté plus bas. Ciblé, pour ne casser aucune autre connexion (même forme qu'à rufus.cpp).
+    disconnect(ui->upTextEdit, &UpTextEdit::customContextMenuRequested, nullptr, nullptr);
 
     connect (wdg_docsbuttonframe->searchline(), &QLineEdit::textEdited,                 this,   &dlg_impressions::FiltreListe);
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::OKpushButtonClicked);
@@ -1989,7 +1992,7 @@ void dlg_impressions::ConfigMode(Mode mode)
     disconnect (ui->upTextEdit,                 &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
 
     if (m_mode != Selection) {
-        t_timerefface->disconnect();
+        disconnect(t_timerefface, &QTimer::timeout, this, nullptr);
         ui->textFrame->setGraphicsEffect(new QGraphicsOpacityEffect());
         ui->DossiersupTableView->setContextMenuPolicy(Qt::NoContextMenu);
 
@@ -2375,7 +2378,7 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     m_opacity = 1;
     widg->setVisible(true);
     widg->setAutoFillBackground(true);
-    t_timerefface->disconnect();
+    disconnect(t_timerefface, &QTimer::timeout, this, nullptr);
     t_timerefface->start(70);
     connect(t_timerefface, &QTimer::timeout, this, [=]
     {
@@ -2388,7 +2391,7 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
             m_opacityeffect->setOpacity(m_opacity);
             widg->setGraphicsEffect(m_opacityeffect);
             if (m_opacity < 0.10)
-                t_timerefface->disconnect();
+                disconnect(t_timerefface, &QTimer::timeout, this, nullptr);
         }
         else
         {
@@ -3195,9 +3198,14 @@ void dlg_impressions::Remplir_TableView()
     //Remplissage Table Documents
     if (!Datas::I()->impressions->isfull())
         Datas::I()->impressions->initListe();
-    ui->DocsupTableView->disconnect();
-    ui->DocsupTableView->selectionModel()->disconnect();
-    ui->DocsupTableView->horizontalHeader()->disconnect();
+    //! disconnect CIBLÉS (symétriques des connect plus bas) : Remplir_TableView() est rappelée, il faut
+    //! retirer NOS connexions pour éviter les doublons — sans nuire aux connexions internes de la vue,
+    //! du selectionModel ou du header (ce que faisait le ->disconnect() global).
+    disconnect(ui->DocsupTableView, &QAbstractItemView::doubleClicked,    this, nullptr);
+    disconnect(ui->DocsupTableView, &QWidget::customContextMenuRequested, this, &dlg_impressions::MenuContextuelDocuments);
+    disconnect(ui->DocsupTableView, &QAbstractItemView::clicked,          this, nullptr);
+    disconnect(ui->DocsupTableView->selectionModel(),   &QItemSelectionModel::currentRowChanged, this, nullptr);
+    disconnect(ui->DocsupTableView->horizontalHeader(), &QHeaderView::sectionClicked,            this, nullptr);
     UpLineDelegate *linedoc = new UpLineDelegate();
     connect(linedoc,   &UpLineDelegate::textEdited, this, [=] {ui->OKupPushButton->setEnabled(true);});
     connect(linedoc,   &UpLineDelegate::commitData, this, [=](QWidget *editor) {
@@ -3300,8 +3308,12 @@ void dlg_impressions::Remplir_TableView()
     //Remplissage Table Dossiers
     if (!Datas::I()->metadocuments->isfull())
         Datas::I()->metadocuments->initListe();
-    ui->DossiersupTableView->disconnect();
-    ui->DossiersupTableView->selectionModel()->disconnect();
+    //! disconnect CIBLÉS (symétriques des connect plus bas), même raison que pour DocsupTableView.
+    disconnect(ui->DossiersupTableView, &QAbstractItemView::entered,          this, nullptr);
+    disconnect(ui->DossiersupTableView, &QAbstractItemView::doubleClicked,    this, nullptr);
+    disconnect(ui->DossiersupTableView, &QWidget::customContextMenuRequested, this, &dlg_impressions::MenuContextuelDossiers);
+    disconnect(ui->DossiersupTableView, &QAbstractItemView::clicked,          this, nullptr);
+    disconnect(ui->DossiersupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, nullptr);
     UpLineDelegate *line = new UpLineDelegate();
     connect(line,   &UpLineDelegate::textEdited, this, [=] {ui->OKupPushButton->setEnabled(true);});
     connect(line,   &UpLineDelegate::commitData, this, [=](QWidget *editor) {
