@@ -135,7 +135,7 @@ void dlg_actesprecedents::Actualise()
     if (m_iscurrentpatient)
         it_currentacte --;
 
-    ui->ScrollBar->disconnect();
+    disconnect(ui->ScrollBar, &QScrollBar::valueChanged, this, nullptr);
     ui->ScrollBar->setMinimum(0);
     n = (m_iscurrentpatient? 2 : 1);
     initScrollValue = map_actes->size()-n+1;
