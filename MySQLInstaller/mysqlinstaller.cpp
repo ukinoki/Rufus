@@ -2624,10 +2624,12 @@ void MySQLInstaller::avertirEffacementImminent()
     const QDateTime echeance = d.addDays(30);
     if (echeance <= QDateTime::currentDateTime()) return;   // deadline passée → c'est supprimerGaxt78iySiEchue qui agit
 
-    //! « Ne plus afficher » : mémorisé dans rufus.ini, CLÉ PAR SÉCURISATION (la date de sécurisation
-    //! sert de signature). Ainsi masquer l'avis ne vaut QUE pour l'échéance courante : si la base est
-    //! re-sécurisée plus tard (nouvelle date → nouvelle échéance), l'avis réapparaît légitimement.
-    const QString cleMasque = QString(Param_Poste) + "/AvisGeneriqueMasque";
+    //! « Ne plus afficher » : mémorisé dans rufus.ini DANS LA RUBRIQUE DE LA BASE COURANTE
+    //! (getBaseFromMode) — l'avis concerne LA base à laquelle on se connecte, et un poste peut viser
+    //! plusieurs bases (locale / réseau / distant), chacune avec sa PROPRE sécurisation. Masquer l'avis
+    //! sur une base ne le masque donc PAS sur une autre. La VALEUR est la date de sécurisation : si la
+    //! base est re-sécurisée plus tard (nouvelle date → nouvelle échéance), l'avis réapparaît.
+    const QString cleMasque = Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + "/AvisGeneriqueMasque";
     const QString signature = d.toString(Qt::ISODate);
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
     if (ini.value(cleMasque).toString() == signature) return;   // déjà masqué pour cette sécurisation
