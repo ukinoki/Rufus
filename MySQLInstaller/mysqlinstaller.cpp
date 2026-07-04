@@ -2623,14 +2623,28 @@ void MySQLInstaller::avertirEffacementImminent()
     if (!d.isValid())                        return;
     const QDateTime echeance = d.addDays(30);
     if (echeance <= QDateTime::currentDateTime()) return;   // deadline passée → c'est supprimerGaxt78iySiEchue qui agit
+
+    //! « Ne plus afficher » : mémorisé dans rufus.ini, CLÉ PAR SÉCURISATION (la date de sécurisation
+    //! sert de signature). Ainsi masquer l'avis ne vaut QUE pour l'échéance courante : si la base est
+    //! re-sécurisée plus tard (nouvelle date → nouvelle échéance), l'avis réapparaît légitimement.
+    const QString cleMasque = QString(Param_Poste) + "/AvisGeneriqueMasque";
+    const QString signature = d.toString(Qt::ISODate);
+    QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
+    if (ini.value(cleMasque).toString() == signature) return;   // déjà masqué pour cette sécurisation
+
     const int jours = QDateTime::currentDateTime().daysTo(echeance);
-    UpMessageBox::Watch(nullptr, tr("Mot de passe générique bientôt désactivé"),
+    const UpSmallButton::StyleBouton rep = UpMessageBox::Question(nullptr,
+        tr("Mot de passe générique bientôt désactivé"),
         tr("Ce poste utilise un mot de passe sécurisé pour accèder au servur de base de données.") + "\n\n" +
         tr("Un mot de passe générique est par ailleurs maintenu") + "\n" +
         tr("pour des raisons de compatibilité avec les versions antérieures de Rufus") + "\n\n" +
         tr("Ce mot de passe générique sera automatiquement désactivé") + "\n" +
         tr("le %1 dans %2 jours").arg(QLocale().toString(echeance.date(), tr("dd MMMM yyyy"))).arg(jours) + "\n\n" +
-        tr("Assurez-vous d'ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé."));
+        tr("Assurez-vous d'ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé."),
+        UpDialog::ButtonCancel | UpDialog::ButtonOK,
+        QStringList() << tr("Ne plus afficher ce message") << tr("J'ai compris"));
+    if (rep == UpSmallButton::CANCELBUTTON)                      // « Ne plus afficher ce message »
+        ini.setValue(cleMasque, signature);
 }
 
 //  Poste connecté avec le GÉNÉRIQUE (gaxt78iy) alors que la base est SÉCURISÉE (un aléatoire existe
