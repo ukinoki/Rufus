@@ -224,7 +224,7 @@ II LANCEMENT DE RUFUS
 									→ bouton annuler
 									→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
 								→ non, on suggère de créer un mdp aléatoire à partir d'un des postes du réseau local ou du serveur
-									RÈGLE → on ne sécurise pas le mdp depuis un poste WANrveur vers une version MySQL conforme au mini de la version SQL
+									RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 					→ MYSQL < 8.0.14 
 						→ Après l'affichage de rufus.cpp à l'écran
 							→ message 	"serveur MySQL à mettre à jour"
