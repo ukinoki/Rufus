@@ -2565,41 +2565,33 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     if (adminrufusEstSecurise() || !lireDBKey().value(cleModeCourant()).isEmpty())
         return false;
 
-    // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD) ?
-    //    Requiert MySQL >= 8.0.14 et PAS MariaDB. Sinon, rotater bloquerait les autres
-    //    postes → on laisse la base telle quelle.
-    bool ok = false;
-    QVariantList rv = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT VERSION()", ok);
-    if (!ok || rv.isEmpty())
-        return false;
-    const QString sv = rv.at(0).toString();
-    if (sv.contains("MariaDB", Qt::CaseInsensitive))
-        return false;
-    QRegularExpression re(R"((\d+\.\d+\.\d+))");
-    const auto mv = re.match(sv);
-    if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), seuilVersionMySQL()))
+    // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD, MySQL >= 8.0.14,
+    //    pas MariaDB) ? Sinon, rotater bloquerait les autres postes → on laisse la base telle quelle.
+    if (!socleMySQLConforme())
         return false;
 
-    // 3. Sécurisation via la connexion Qt en cours (monoposte OU serveur réseau) :
-    //    nouveau mot de passe aléatoire pour adminrufus/adminrufusSSL, en CONSERVANT
-    //    gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD).
-    // ⚠️ RETAIN CURRENT PASSWORD est IGNORÉ par MySQL si le MÊME ALTER change le plugin
-    //    d'authentification. Or le compte existant peut être en caching_sha2 → un ALTER
-    //    « WITH mysql_native_password … RETAIN » poserait l'aléatoire mais JETTERAIT gaxt78iy.
-    //    On procède donc en DEUX temps (comme createUser) : 1) (re)poser gaxt78iy SOUS
-    //    mysql_native_password (changement de plugin seul) ; 2) basculer sur l'aléatoire avec
-    //    RETAIN (plugin désormais inchangé → gaxt78iy bien conservé comme 2e mot de passe).
+    // 3. Pose de l'aléatoire + sauvegarde (cœur commun avec l'auto-réparation).
+    return poserEtSauvegarderAleatoire();
+}
+
+// Cœur de la sécurisation : génère un aléatoire, le SAUVEGARDE (et le relit) AVANT de le poser sur le
+// serveur, le pose sur TOUS les hosts d'adminrufus/adminrufusSSL (en conservant gaxt78iy comme 2e mot
+// de passe), VÉRIFIE que ça a pris, et affiche le mot de passe à noter. Renvoie true si OK.
+// Suppose déjà contrôlé par l'appelant : accès NON distant + socle MySQL conforme (>= 8.0.14).
+// Partagé par securiserBaseSiNecessaire() (1re sécurisation) et (à venir) le bouton « mot de passe égaré ».
+bool MySQLInstaller::poserEtSauvegarderAleatoire()
+{
+    // ⚠️ RETAIN CURRENT PASSWORD est IGNORÉ par MySQL si le MÊME ALTER change le plugin d'auth. Le
+    //    compte peut être en caching_sha2 → on procède en DEUX temps : 1) (re)poser gaxt78iy sous
+    //    mysql_native_password (changement de plugin seul) ; 2) basculer sur l'aléatoire avec RETAIN.
     const QString np     = genererMotDePasse();
     const QString legacy = QString(MDP_SQL);
     if (np.isEmpty())                                   // garde-fou : genererMotDePasse ne renvoie jamais vide
         return false;
 
-    //! ORDRE CRITIQUE — on SAUVEGARDE puis on RELIT le mot de passe (depuis le DISQUE, pas le cache)
-    //! AVANT de le poser sur le serveur. Auparavant l'aléatoire était posé d'abord et le .dbkey écrit
-    //! ensuite : si l'écriture échouait ou que le poste était interrompu entre les deux, la base se
-    //! retrouvait SÉCURISÉE avec un mot de passe PERDU → inaccessible dès l'expiration de gaxt78iy (30 j).
-    //! Désormais, si on ne parvient pas à écrire ET relire le .dbkey, on N'ALTÈRE PAS le serveur : mieux
-    //! vaut une base encore en gaxt78iy (accessible) qu'une base verrouillée.
+    //! ORDRE CRITIQUE — on SAUVEGARDE puis on RELIT le mot de passe (DISQUE, pas cache) AVANT de le
+    //! poser sur le serveur : si l'écriture échoue, on N'ALTÈRE PAS le serveur (sinon base sécurisée
+    //! avec un mot de passe perdu → verrouillage à l'expiration de gaxt78iy).
     stockerMotDePasse(np);
     if (lireDBKey().value(cleModeCourant()) != np)
     {
@@ -2608,12 +2600,9 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
         return false;                                   // écriture impossible → on ne sécurise PAS
     }
 
-    //! Mot de passe sauvegardé ET relu avec succès : on pose l'aléatoire sur le serveur, en CONSERVANT
-    //! gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD) pour les autres postes.
     //! On traite TOUS les hosts existants d'adminrufus / adminrufusSSL (bases héritées : @'%',
     //! @'localhost', @'192.168.%'…). INDISPENSABLE : une connexion locale matche le host le PLUS
-    //! SPÉCIFIQUE (@'localhost'), qui sinon resterait sans np (donc sur gaxt78iy) et refuserait np,
-    //! provoquant l'échec de la reconnexion juste après la sécurisation.
+    //! SPÉCIFIQUE (@'localhost'), qui sinon resterait sans np (donc sur gaxt78iy) et refuserait np.
     const QString ur  = QString(LOGIN_SQL);
     const QString urS = QString(LOGIN_SQL) + "SSL";
     for (const QString& h : hostsDuCompteSQL(ur))
@@ -2632,12 +2621,8 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     }
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 
-    //! VÉRIFICATION que la sécurisation a bien pris côté serveur. Le retour des StandardSQL n'est pas
-    //! fiable ici (erreurs silencieuses) ; on interroge donc le serveur : adminrufus a-t-il désormais un
-    //! 2e mot de passe (RETAIN réussi) ? Si NON, les ALTER ont échoué (privilèges, plugin d'auth…) et np
-    //! n'est PAS le mot de passe du serveur. On ANNULE alors tout : on retire np du .dbkey (sinon la
-    //! reconnexion suivante essaierait un np invalide) et on ne montre AUCUN message de succès trompeur.
-    //! La base reste sur gaxt78iy (fonctionnelle, non sécurisée) ; on réessaiera au prochain démarrage.
+    //! VÉRIFICATION que la sécurisation a pris (retours StandardSQL non fiables). Sinon on ANNULE :
+    //! retrait de np du .dbkey, retour à gaxt78iy, aucun message trompeur. La base reste fonctionnelle.
     if (!adminrufusEstSecurise())
     {
         supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   // retire np du .dbkey + cache
