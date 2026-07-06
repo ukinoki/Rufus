@@ -220,6 +220,7 @@ private:
     QString m_os = "";
     QString m_MAJlastversion ="";
     QString m_MAJcomment ="";
+    QString m_MAJdownloadlink ="";               //!< lien de téléchargement lu dans le node <Lien> du XML (repli : site Rufus)
     bool m_MAJBase = false;
     bool m_MAJBaseCompatibiltyWithPrec = true;
 

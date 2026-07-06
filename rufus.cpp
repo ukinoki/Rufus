@@ -6263,8 +6263,17 @@ void Rufus::VerifLastVersion()
                 text += "<br/>" + QObject::tr("Cette nouvelle version n'impose pas de mise à jour de la base de données et est compatible avec la précédente version de Rufus");
             if (m_MAJcomment !="")
                 text +="<br/>" + m_MAJcomment;
-            text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site") + " <a href=\'https://www.rufusvision.org\'>www.rufusvision.org</a>";
-            UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, "https://www.rufusvision.org");
+            //! Lien cliquable construit à partir du node <Lien> du XML (repli sur le site Rufus).
+            //! Texte affiché = le seul nom de domaine (sans schéma ni chemin) pour rester lisible :
+            //! l'URL réelle peut contenir un chemin à accents encodés (…/teacuteleacutechargements.html).
+            QString lien = m_MAJdownloadlink.isEmpty() ? QStringLiteral("https://www.rufusvision.org/teacuteleacutechargements.html") : m_MAJdownloadlink;
+            QString lienAffiche = lien;
+            if      (lienAffiche.startsWith("https://")) lienAffiche.remove(0, 8);
+            else if (lienAffiche.startsWith("http://"))  lienAffiche.remove(0, 7);
+            lienAffiche = lienAffiche.section('/', 0, 0);       //! garde uniquement le domaine
+            text += "<br/>" + QObject::tr("Vous pouvez télécharger la nouvelle version sur la page Téléchargements du site")
+                    + " <a href=\"" + lien + "\">" + lienAffiche + "</a>";
+            UpMessageBox::Watch(this, QObject::tr("Une nouvelle version de Rufus est en ligne"), text, UpDialog::ButtonOK, lien);
         }
         //qDebug() << "OS = " << m_os;
     };
@@ -6299,6 +6308,11 @@ void Rufus::VerifLastVersion()
             const QString xmltext = decodeur.decode(data);
             docxml.setContent(xmltext);
             QDomElement xml = docxml.documentElement();
+            //! Lien de téléchargement : node <Lien> propre, commun à tous les systèmes (on ne le
+            //! retape donc pas à chaque OS). Lu à part car ce n'est pas une section d'OS. Repli sur
+            //! le site Rufus si le node est absent (anciens fichiers).
+            const QDomElement lienEl = xml.firstChildElement("Lien");
+            m_MAJdownloadlink = lienEl.isNull() ? QString() : lienEl.text().trimmed();
             for (int i=0; i<xml.childNodes().size(); i++)
             {
                 QDomElement system = xml.childNodes().at(i).toElement();
