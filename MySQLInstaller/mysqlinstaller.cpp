@@ -2594,14 +2594,37 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
         return false;                                   // écriture impossible → on ne sécurise PAS
     }
 
-    //! Mot de passe sauvegardé ET relu avec succès : on peut maintenant poser l'aléatoire sur le serveur,
-    //! en CONSERVANT gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD) pour les autres postes.
-    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1'").arg(legacy));
-    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
-    DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(legacy));
-    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(legacy));
-    DataBase::I()->StandardSQL("GRANT ALL PRIVILEGES ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
-    DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
+    //! Mot de passe sauvegardé ET relu avec succès : on pose l'aléatoire sur le serveur, en CONSERVANT
+    //! gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD) pour les autres postes.
+    //! On traite TOUS les hosts existants d'adminrufus / adminrufusSSL (bases héritées : @'%',
+    //! @'localhost', @'192.168.%'…). INDISPENSABLE : une connexion locale matche le host le PLUS
+    //! SPÉCIFIQUE (@'localhost'), qui sinon resterait sans np (donc sur gaxt78iy) et refuserait np,
+    //! provoquant l'échec de la reconnexion juste après la sécurisation.
+    auto hostsDe = [](const QString& user) -> QStringList {
+        QStringList hosts;
+        bool okh = false;
+        const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
+            QString("SELECT Host FROM mysql.user WHERE User='%1'").arg(user), okh);
+        for (const QVariantList& r : rows)
+            if (!r.isEmpty()) hosts << r.at(0).toString();
+        return hosts;
+    };
+    const QString ur  = QString(LOGIN_SQL);
+    const QString urS = QString(LOGIN_SQL) + "SSL";
+    for (const QString& h : hostsDe(ur))
+    {
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, np));
+    }
+    QStringList hostsS = hostsDe(urS);
+    if (!hostsS.contains("%")) hostsS << "%";            // adminrufusSSL@'%' garanti (créé si absent)
+    for (const QString& h : hostsS)
+    {
+        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
+        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, h));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, h, np));
+    }
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 
     //! VÉRIFICATION que la sécurisation a bien pris côté serveur. Le retour des StandardSQL n'est pas
