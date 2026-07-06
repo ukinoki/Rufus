@@ -2533,6 +2533,20 @@ QString MySQLInstaller::getMySQLServerVersion()
     return m.hasMatch() ? m.captured(1) : QString();
 }
 
+//  Liste des hosts existants d'un compte MySQL. adminrufus a souvent PLUSIEURS entrées sur les
+//  bases héritées (@'%', @'localhost', @'192.168.%'…). On applique pose ET purge du mot de passe à
+//  CHAQUE variante : une connexion matche le host le plus spécifique, qui doit donc être traité.
+static QStringList hostsDuCompteSQL(const QString& user)
+{
+    QStringList hosts;
+    bool ok = false;
+    const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
+        QString("SELECT Host FROM mysql.user WHERE User='%1'").arg(user), ok);
+    for (const QVariantList& r : rows)
+        if (!r.isEmpty()) hosts << r.at(0).toString();
+    return hosts;
+}
+
 //  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
 bool MySQLInstaller::securiserBaseSiNecessaire()
 {
@@ -2600,23 +2614,14 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     //! @'localhost', @'192.168.%'…). INDISPENSABLE : une connexion locale matche le host le PLUS
     //! SPÉCIFIQUE (@'localhost'), qui sinon resterait sans np (donc sur gaxt78iy) et refuserait np,
     //! provoquant l'échec de la reconnexion juste après la sécurisation.
-    auto hostsDe = [](const QString& user) -> QStringList {
-        QStringList hosts;
-        bool okh = false;
-        const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
-            QString("SELECT Host FROM mysql.user WHERE User='%1'").arg(user), okh);
-        for (const QVariantList& r : rows)
-            if (!r.isEmpty()) hosts << r.at(0).toString();
-        return hosts;
-    };
     const QString ur  = QString(LOGIN_SQL);
     const QString urS = QString(LOGIN_SQL) + "SSL";
-    for (const QString& h : hostsDe(ur))
+    for (const QString& h : hostsDuCompteSQL(ur))
     {
         DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
         DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, np));
     }
-    QStringList hostsS = hostsDe(urS);
+    QStringList hostsS = hostsDuCompteSQL(urS);
     if (!hostsS.contains("%")) hostsS << "%";            // adminrufusSSL@'%' garanti (créé si absent)
     for (const QString& h : hostsS)
     {
@@ -2826,8 +2831,12 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     if (!confirmerSuppressionGaxt78iy())
         return;
 
-    DataBase::I()->StandardSQL("ALTER USER '" LOGIN_SQL "'@'%' DISCARD OLD PASSWORD");
-    DataBase::I()->StandardSQL("ALTER USER '" LOGIN_SQL "SSL'@'%' DISCARD OLD PASSWORD");
+    //! Purge de gaxt78iy sur TOUS les hosts (comme la pose de l'aléatoire) : sinon le mot de passe
+    //! générique subsisterait sur @'localhost' / @'192.168.%' et resterait un accès valide en local/LAN.
+    for (const QString& h : hostsDuCompteSQL(QString(LOGIN_SQL)))
+        DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%1' DISCARD OLD PASSWORD").arg(h));
+    for (const QString& h : hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL"))
+        DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%1' DISCARD OLD PASSWORD").arg(h));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
     avertirSuppressionGaxt78iyEffectuee();
 }
