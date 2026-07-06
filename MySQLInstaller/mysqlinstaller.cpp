@@ -2678,6 +2678,17 @@ bool MySQLInstaller::normaliserComptesAdminrufusSiIncoherents()
     return poserEtSauvegarderAleatoire();                     // pas d'aléatoire utilisable → on en crée un neuf
 }
 
+// Jeu de hosts LOCAUX/PRIVÉS sur lesquels adminrufus (compte NON-SSL) est autorisé : loopback + les
+// trois plages privées RFC 1918 (172.16/12 énuméré 172.16.%…172.31.%). Couvre n'importe quel LAN, quel
+// que soit son schéma, et EXCLUT toute IP publique. Source unique : createUser + restreindreAdminrufusAuLAN.
+static QStringList hostsLANprives()
+{
+    QStringList h;
+    h << "localhost" << "127.0.0.1" << "10.%" << "192.168.%";
+    for (int i = 16; i <= 31; ++i) h << QString("172.%1.%").arg(i);
+    return h;
+}
+
 // Vrai si `h` (host vu par MySQL pour une connexion) est une adresse LOCALE ou PRIVÉE (RFC 1918) :
 // loopback, ou l'une des trois plages privées (10/8, 172.16/12, 192.168/16). Toute IP publique en est
 // exclue. Sert à ne restreindre adminrufus au LAN QUE si ce poste se connecte bien depuis une telle
@@ -2752,10 +2763,7 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN()
 
     // 1) Créer adminrufus sur TOUTES les plages locales/privées (RFC 1918 + loopback), mdp courant
     //    (+ gaxt78iy conservé en 2e mdp pour le bootstrap des postes qui ne l'ont pas encore).
-    QStringList lanHosts;
-    lanHosts << "localhost" << "127.0.0.1" << "10.%" << "192.168.%";
-    for (int i = 16; i <= 31; ++i) lanHosts << QString("172.%1.%").arg(i);
-    for (const QString& h : lanHosts)
+    for (const QString& h : hostsLANprives())
     {
         DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
         DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
@@ -2958,19 +2966,25 @@ void MySQLInstaller::suggererSecurisationDepuisLocal()
 // MySQL 8.0.21 ; nos serveurs cibles (8.0.3x apt / 8.4.x Oracle) le fournissent.
 bool MySQLInstaller::adminrufusEstSecurise()
 {
+    //! On interroge adminrufusSSL@'%' (et NON adminrufus@'%') : c'est la référence STABLE. L'Option B
+    //! supprime adminrufus@'%' (restriction au LAN) mais laisse adminrufusSSL@'%' intact ; or les deux
+    //! sont sécurisés EN MÊME TEMPS (imposerMotDePasseSurTousLesHosts). Interroger adminrufus@'%' ferait
+    //! croire, après l'Option B, que la base n'est plus sécurisée (et gaxt78iy ne serait jamais purgé).
     bool ok = false;
     QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
         "SELECT User_attributes->>'$.additional_password' IS NOT NULL "
-        "FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'", ok);
+        "FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
     return ok && !r.isEmpty() && r.at(0).toInt() == 1;
 }
 
 // Date de sécurisation = dernier changement du mot de passe d'adminrufus.
 QDateTime MySQLInstaller::dateSecurisation()
 {
+    //! adminrufusSSL@'%' : référence stable (cf. adminrufusEstSecurise) — adminrufus@'%' peut avoir été
+    //! supprimé par l'Option B. Les deux comptes sont (re)sécurisés ensemble, donc la date fait foi.
     bool ok = false;
     QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-        "SELECT password_last_changed FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'", ok);
+        "SELECT password_last_changed FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
     if (ok && !r.isEmpty())
         return r.at(0).toDateTime();
     return QDateTime();
@@ -3824,18 +3838,24 @@ bool MySQLInstaller::createUser()
     // (caching_sha2 OK) ; l'accès réseau, lui, exigera un serveur où native est actif.
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    const QString tmpl = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' %5 '%4';"
-        "ALTER USER '%1'@'%' %5 '%4';"
-        "ALTER USER '%1'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
-        "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' %5 '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' %5 '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
-        "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
-        "FLUSH PRIVILEGES;\n");
+    //! adminrufus (NON-SSL) n'est créé QUE sur les hosts LOCAUX/PRIVÉS (jamais @'%', qui serait joignable
+    //! du WAN via la redirection de ports). adminrufusSSL@'%' (SSL) sert l'accès distant. Double mot de
+    //! passe partout : aléatoire (m_password) primaire + gaxt78iy en 2e (bootstrap réseau, 30 j).
     auto sqlAvecAuth = [&](const QString& auth) {
-        return tmpl.arg(m_login, m_password, sslLogin, legacy, auth);
+        QString sql;
+        for (const QString& h : hostsLANprives())
+        {
+            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4' RETAIN CURRENT PASSWORD;").arg(m_login, h, auth, m_password);
+            sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
+        }
+        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
+        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
+        sql += QString("ALTER USER '%1'@'%' %2 '%3' RETAIN CURRENT PASSWORD;").arg(sslLogin, auth, m_password);
+        sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
+        sql += "FLUSH PRIVILEGES;\n";
+        return sql;
     };
 
 #if defined(Q_OS_LINUX)
@@ -3892,18 +3912,23 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
     // « CREATE USER … WITH mysql_native_password » échoue (ERROR 1524, plugin non chargé). Dans
     // ce cas on REVIENT au plugin par défaut du serveur. En monoposte la connexion passe par le
     // socket localhost (caching_sha2 OK) ; en réseau, il faudra un serveur où native est actif.
-    const QString tmpl = QString(
-        "CREATE USER IF NOT EXISTS '%1'@'%' %5 '%4';"
-        "ALTER USER '%1'@'%' %5 '%4';"
-        "ALTER USER '%1'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
-        "GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;"
-        "CREATE USER IF NOT EXISTS '%3'@'%' %5 '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' %5 '%4' REQUIRE SSL;"
-        "ALTER USER '%3'@'%' %5 '%2' RETAIN CURRENT PASSWORD;"
-        "GRANT ALL PRIVILEGES ON *.* TO '%3'@'%' WITH GRANT OPTION;"
-        "FLUSH PRIVILEGES;");
+    //! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%' — cf. createUser) ;
+    //! adminrufusSSL@'%' (SSL) pour l'accès distant. Double mot de passe : aléatoire + gaxt78iy (2e).
     auto sqlAvecAuth = [&](const QString& auth) {
-        return tmpl.arg(m_login, m_password, sslLogin, legacy, auth);
+        QString sql;
+        for (const QString& h : hostsLANprives())
+        {
+            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(m_login, h, auth, legacy);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4' RETAIN CURRENT PASSWORD;").arg(m_login, h, auth, m_password);
+            sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(m_login, h);
+        }
+        sql += QString("CREATE USER IF NOT EXISTS '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
+        sql += QString("ALTER USER '%1'@'%' %2 '%3' REQUIRE SSL;").arg(sslLogin, auth, legacy);
+        sql += QString("ALTER USER '%1'@'%' %2 '%3' RETAIN CURRENT PASSWORD;").arg(sslLogin, auth, m_password);
+        sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%' WITH GRANT OPTION;").arg(sslLogin);
+        sql += "FLUSH PRIVILEGES;";
+        return sql;
     };
     auto executer = [&](const QString& sql) {
         return runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
