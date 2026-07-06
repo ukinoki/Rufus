@@ -42,18 +42,50 @@ static bool iniContientModeValide(QSettings& s)
             && ports.contains(s.value(Utils::getBaseFromMode(Utils::Distant) + Param_Port).toInt()));
 }
 
-//! Restaure Rufus.ini depuis la sauvegarde ~/.rufus/.rufus.ini, MAIS seulement si cette sauvegarde
-//! est elle-même VALIDE (un mode de connexion paramétré) — inutile, voire nuisible, de restaurer un
-//! fichier cassé. Renvoie true si la restauration a bien eu lieu.
-static bool restaurerIniDepuisSauvegarde()
+//! Issue du carrefour « Rufus.ini absent ou invalide » quand une sauvegarde valide existe.
+enum class IssueIni { Restauree, Recuperer, PasDeSauvegarde };
+
+//! Rufus.ini absent ou sans mode de connexion valide : on NE restaure PLUS en silence depuis
+//! ~/.rufus/.rufus.ini. Un poste qu'on a volontairement remis à zéro (Rufus.ini effacé exprès pour
+//! tout reparamétrer) verrait sinon sa sauvegarde ressuscitée à chaque lancement → boucle sans fin.
+//! On laisse donc l'utilisateur décider. On ne propose la restauration QUE si la sauvegarde est
+//! elle-même valide (inutile de restaurer un fichier cassé) :
+//!   • Restaurer la copie  → on écrase Rufus.ini par la sauvegarde et on repart normalement ;
+//!   • Revoir les paramètres → on passe au carrefour de récupération (RecupererDemarrage) ;
+//!   • Annuler / fermeture  → on quitte.
+//! Si aucune sauvegarde valide n'existe, pas de boîte ici : on renvoie PasDeSauvegarde et l'appelant
+//! enchaîne directement sur le carrefour de récupération.
+static IssueIni proposerRestaurationIni()
 {
     if (!QFile::exists(PATH_FILE_INI_BACKUP))
-        return false;
+        return IssueIni::PasDeSauvegarde;
     QSettings sauvegarde(PATH_FILE_INI_BACKUP, QSettings::IniFormat);
     if (!iniContientModeValide(sauvegarde))
-        return false;                                   // sauvegarde invalide → on ne touche à rien
-    QFile::remove(PATH_FILE_INI);                        // QFile::copy n'écrase pas une cible existante
-    return QFile::copy(PATH_FILE_INI_BACKUP, PATH_FILE_INI);
+        return IssueIni::PasDeSauvegarde;               // sauvegarde inexploitable → carrefour
+
+    UpMessageBox msgbox(Q_NULLPTR);
+    msgbox.setIcon(UpMessageBox::Quest);
+    msgbox.setText(QObject::tr("Fichier de configuration Rufus.ini absent ou corrompu"));
+    msgbox.setInformativeText(QObject::tr(
+        "Une copie de sauvegarde valide existe sur ce poste.\n\n"
+        "Voulez-vous la restaurer ?"));
+    UpSmallButton* bAnnuler   = new UpSmallButton(QObject::tr("Annuler et quitter"));
+    UpSmallButton* bRevoir    = new UpSmallButton(QObject::tr("Revoir les paramètres de connexion"));
+    UpSmallButton* bRestaurer = new UpSmallButton(QObject::tr("Restaurer la copie de sauvegarde"));
+    msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
+    msgbox.addButton(bRevoir,    UpSmallButton::EDITBUTTON);
+    msgbox.addButton(bRestaurer, UpSmallButton::STARTBUTTON);
+    msgbox.exec();
+
+    if (msgbox.clickedButton() == bRestaurer)
+    {
+        QFile::remove(PATH_FILE_INI);                   // QFile::copy n'écrase pas une cible existante
+        QFile::copy(PATH_FILE_INI_BACKUP, PATH_FILE_INI);
+        return IssueIni::Restauree;
+    }
+    if (msgbox.clickedButton() == bRevoir)
+        return IssueIni::Recuperer;
+    exit(0);                                            // Annuler (ou fermeture) → on quitte
 }
 
 Procedures::Procedures(QObject *parent) :
@@ -155,11 +187,11 @@ Procedures::Procedures(QObject *parent) :
     if (startupTranslator.load(dirlocLang.absolutePath() + "/Locale/rufus_" + m_version.toLower() + ".qm"))
         QCoreApplication::installTranslator(&startupTranslator);
 
-    //! Rufus.ini absent : on tente d'abord une RESTAURATION AUTOMATIQUE depuis la sauvegarde
-    //! ~/.rufus/.rufus.ini (si elle existe ET est valide) avant d'embêter l'utilisateur. Si la
-    //! restauration a lieu, FichierIni existe désormais → on saute le carrefour de récupération.
+    //! Rufus.ini absent : s'il existe une sauvegarde valide dans ~/.rufus, on DEMANDE à l'utilisateur
+    //! (restaurer / revoir les paramètres / quitter) plutôt que de restaurer en silence. S'il choisit
+    //! « Restaurer », FichierIni existe désormais → on saute le carrefour de récupération.
     if (!FichierIni.exists())
-        restaurerIniDepuisSauvegarde();
+        proposerRestaurationIni();
 
     if (!FichierIni.exists())
     {
@@ -184,10 +216,10 @@ Procedures::Procedures(QObject *parent) :
     if (m_settings == Q_NULLPTR)
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
     bool k = iniContientModeValide(*m_settings);
-    //! Rufus.ini présent mais SANS mode de connexion valide : avant le carrefour, on tente la
-    //! restauration depuis la sauvegarde (qui n'a lieu que si elle est elle-même valide). Si oui,
-    //! on recharge m_settings et on revalide k.
-    if (!k && restaurerIniDepuisSauvegarde())
+    //! Rufus.ini présent mais SANS mode de connexion valide : même carrefour que l'absence de fichier.
+    //! Si une sauvegarde valide existe, on DEMANDE (restaurer / revoir / quitter) ; si l'utilisateur
+    //! restaure, on recharge m_settings et on revalide k.
+    if (!k && proposerRestaurationIni() == IssueIni::Restauree)
     {
         delete m_settings;
         m_settings = new QSettings(PATH_FILE_INI, QSettings::IniFormat);
