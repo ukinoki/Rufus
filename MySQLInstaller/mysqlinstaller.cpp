@@ -2598,7 +2598,8 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
 //   • securiserBaseSiNecessaire   : générique + base non sécurisée + local + ≥8.0.14 → pose l'aléatoire ;
 //   • supprimerGaxt78iySiEchue    : aléatoire + gaxt78iy présent + deadline PASSÉE → retire gaxt78iy ;
 //   • avertirEffacementImminent   : aléatoire + gaxt78iy présent + deadline PROCHE → avertit (informatif) ;
-//   • proposerRecuperationAleatoire : générique + base sécurisée → propose de récupérer l'aléatoire.
+//   • proposerRecuperationAleatoire : générique + base sécurisée → propose de récupérer l'aléatoire ;
+//   • suggererSecurisationDepuisLocal : DISTANT + générique + base NON sécurisée → suggère de sécuriser depuis un poste local.
 void MySQLInstaller::entretienApresConnexion()
 {
     //! Si la sécurisation vient d'être posée DANS cet appel, securiser a déjà affiché ses propres
@@ -2610,6 +2611,7 @@ void MySQLInstaller::entretienApresConnexion()
     if (!vientDeSecuriser)
         MySQLInstaller().avertirEffacementImminent();
     MySQLInstaller().proposerRecuperationAleatoire();
+    MySQLInstaller().suggererSecurisationDepuisLocal();
 }
 
 //  Poste détenant l'ALÉATOIRE, gaxt78iy encore en 2e mot de passe, deadline NON atteinte : on
@@ -2692,6 +2694,50 @@ void MySQLInstaller::proposerRecuperationAleatoire()
         tr("Récupérer le mot de passe du cabinet"),
         tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
            "laquelle il a été copié depuis un poste à jour."));
+}
+
+//  Poste DISTANT connecté avec le GÉNÉRIQUE (gaxt78iy) sur une base ENCORE NON sécurisée : on ne
+//  sécurise JAMAIS depuis un poste distant (WAN) — cf. securiserBaseSiNecessaire, garde-fou n°0, qui
+//  refuse d'agir en Distant, ce qui laissait ce cas SANS aucun message. On SUGGÈRE donc de faire la
+//  sécurisation depuis un poste du réseau local ou le serveur. Purement informatif (aucune action
+//  possible d'ici). Réservé à MySQL >= 8.0.14 : en deçà, la sécurisation est impossible et c'est
+//  l'avis « serveur à mettre à jour » (ControleSocleMySQLApresAffichage) qui s'applique.
+void MySQLInstaller::suggererSecurisationDepuisLocal()
+{
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant) return;   // uniquement en accès distant
+    if (motDePasseSQL() != QString(MDP_SQL))                  return;   // ce poste détient déjà l'aléatoire
+    if (adminrufusEstSecurise())                             return;   // base déjà sécurisée → proposerRecuperationAleatoire s'en charge
+
+    //! MySQL >= 8.0.14 requis pour la sécurisation (double mot de passe). En deçà, ne rien suggérer :
+    //! l'avis « serveur à mettre à jour » couvre déjà ce cas (et sécuriser serait de toute façon impossible).
+    bool ok = false;
+    QVariantList rv = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT VERSION()", ok);
+    if (!ok || rv.isEmpty())                         return;
+    const QString sv = rv.at(0).toString();
+    if (sv.contains("MariaDB", Qt::CaseInsensitive)) return;
+    QRegularExpression re(R"((\d+\.\d+\.\d+))");
+    const auto mv = re.match(sv);
+    if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), seuilVersionMySQL())) return;
+
+    //! « Ne plus afficher » mémorisé PAR BASE (getBaseFromMode) : l'avis concerne la base à laquelle on
+    //! se connecte, et un poste peut viser plusieurs bases. La base n'étant pas encore sécurisée, il n'y
+    //! a pas de date de signature : on mémorise un simple booléen. Si la base est sécurisée plus tard
+    //! depuis un poste local, cette fonction sort en amont (adminrufusEstSecurise) → l'avis ne revient pas.
+    const QString cleMasque = Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + "/AvisSuggestionSecuMasque";
+    QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
+    if (ini.value(cleMasque).toBool()) return;
+
+    const UpSmallButton::StyleBouton rep = UpMessageBox::Question(nullptr,
+        tr("Base de données non sécurisée"),
+        tr("Ce poste se connecte au serveur avec le mot de passe générique de mise en route.") + "\n\n" +
+        tr("Pour sécuriser cet accès, il est recommandé de créer un mot de passe sécurisé,") + "\n" +
+        tr("mais cette opération ne peut pas se faire depuis un poste distant.") + "\n\n" +
+        tr("Lancez Rufus depuis un poste du réseau local ou depuis le serveur :") + "\n" +
+        tr("la sécurisation s'y fera automatiquement."),
+        UpDialog::ButtonCancel | UpDialog::ButtonOK,
+        QStringList() << tr("Ne plus afficher ce message") << tr("J'ai compris"));
+    if (rep == UpSmallButton::CANCELBUTTON)                      // « Ne plus afficher ce message »
+        ini.setValue(cleMasque, true);
 }
 
 // adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis

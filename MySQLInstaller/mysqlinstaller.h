@@ -270,6 +270,11 @@ public:
     //  USB → .dbkey), pour récupérer l'aléatoire avant le retrait de gaxt78iy. (Ex-rappel distant,
     //  généralisé : un poste local doit aussi pouvoir récupérer l'aléatoire posé par un autre poste.)
     void      proposerRecuperationAleatoire();
+    //  Poste DISTANT connecté avec le GÉNÉRIQUE sur une base NON encore sécurisée : on ne sécurise
+    //  jamais depuis un poste distant (cf. securiserBaseSiNecessaire, garde-fou n°0), on se contente
+    //  de SUGGÉRER de le faire depuis un poste du réseau local ou le serveur. Informatif, avec un
+    //  « Ne plus afficher ». Réservé à MySQL >= 8.0.14 (en deçà, c'est l'avis « serveur à mettre à jour »).
+    void      suggererSecurisationDepuisLocal();
 
     // Résultat de createUserAvecAdmin().
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };
