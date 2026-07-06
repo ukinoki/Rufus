@@ -16,6 +16,41 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "upmessagebox.h"
+#include <QScreen>
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  Plafond de largeur COMMUN à toutes les boîtes de message. La boîte est en
+//  SetFixedSize (elle prend la taille de son contenu) : sans plafond, une phrase
+//  longue donne un label plus large que l'écran, la boîte déborde et son bouton
+//  de fermeture sort du cadre. On plafonne donc ICI, une fois pour toutes, la
+//  largeur de CHAQUE label (titre et texte) — plus besoin d'y penser à chaque
+//  message. Plafond fixe (les écrans cliniques sont larges), borné à 75 % de
+//  l'écran par sécurité sur un petit écran.
+static int largeurMaxMessage()
+{
+    int lmax = 700;
+    if (const QScreen *ecran = QApplication::primaryScreen())
+        lmax = qMin(lmax, int(ecran->availableGeometry().width() * 0.75));
+    return lmax;
+}
+
+//  Fige la taille d'un label de boîte de message : si le texte tient sous le
+//  plafond, taille exacte (comportement historique) ; sinon largeur plafonnée +
+//  retour à la ligne (wordWrap), la hauteur étant recalculée par heightForWidth.
+//  Le texte du label doit déjà être posé (heightForWidth s'appuie dessus).
+static void figeTailleLabel(UpLabel *lbl, const QString &texteMesure)
+{
+    const QSize taille = Utils::CalcSize(texteMesure);
+    const int   lmax   = largeurMaxMessage();
+    if (taille.width() > lmax)
+    {
+        lbl->setWordWrap(true);
+        lbl->setFixedWidth(lmax);
+        lbl->setFixedHeight(lbl->heightForWidth(lmax));
+    }
+    else
+        lbl->setFixedSize(taille);
+}
 
 // ═════════════════════════════════════════════════════════════════════════════
 //  UpMessageBox — boîte de message « maison » (en remplacement de QMessageBox),
@@ -195,7 +230,7 @@ void UpMessageBox::UpMessageBox::setText(QString Text)
     wdg_texteditlbl         ->setStyleSheet("border: 0px solid; background-color: rgba(200,200,200,0)");
     wdg_texteditlbl         ->setText("<b>" + Text + "</b>");
     wdg_texteditlbl         ->setWordWrap(true);
-    wdg_texteditlbl         ->setFixedSize(Utils::CalcSize(Text));
+    figeTailleLabel(wdg_texteditlbl, Text);
     wdg_textlayout          ->insertWidget(1,wdg_texteditlbl);
 }
 
@@ -211,7 +246,7 @@ void UpMessageBox::setInformativeText(QString Text)
     int position = 1;
     if (qobject_cast<QLabel*>(wdg_textlayout->itemAt(1)->widget()) != Q_NULLPTR)
         position += 1;
-    wdg_infolbl     ->setFixedSize(Utils::CalcSize(Text));
+    figeTailleLabel(wdg_infolbl, Text);
     wdg_textlayout      ->insertWidget(position,wdg_infolbl);
     wdg_textlayout      ->setSizeConstraint(QLayout::SetFixedSize);
 }
@@ -232,8 +267,7 @@ void UpMessageBox::Show(QWidget *parent, QString Text, QString InfoText)
     msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    //! Le dimensionnement (plafonné) est fait par setText()/setInformativeText().
 
     for (int i=0; i<msgbox->buttonslayout()->count();i++)
     {
@@ -275,20 +309,8 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
     }
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
-    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
-    /*! La boîte est en SetFixedSize : sans plafond, une phrase longue (ex. le <Comment> d'une
-        notification de nouvelle version) donne un label plus large que l'écran, la boîte déborde
-        et le bouton OK sort du cadre. On plafonne donc la largeur du texte informatif et on laisse
-        le QLabel (wordWrap déjà actif) revenir à la ligne ; heightForWidth recalcule la hauteur. */
-    QSize infosize = Utils::CalcSize(InfoText);
-    const int largeurmax = 700;
-    if (infosize.width() > largeurmax)
-    {
-        msgbox->wdg_infolbl->setFixedWidth(largeurmax);
-        msgbox->wdg_infolbl->setFixedHeight(msgbox->wdg_infolbl->heightForWidth(largeurmax));
-    }
-    else
-        msgbox->wdg_infolbl->setFixedSize(infosize);
+    //! Le dimensionnement (plafonné, avec retour à la ligne si besoin) est fait par
+    //! setText()/setInformativeText() → figeTailleLabel(). Rien à refaire ici.
     // Lien cliquable : on rend les liens du label accessibles à la souris et on autorise
     // l'ouverture externe (setOpenExternalLinks → QLabel ouvre l'URL au clic). Le connect
     // sur linkActivated est un filet de sécurité explicite (ouvre l'URL via QDesktopServices)
@@ -340,8 +362,7 @@ UpSmallButton::StyleBouton UpMessageBox::Question(QWidget *parent, QString Text,
             connect(butt, &QPushButton::clicked, msgbox, [=] {msgbox->Repons(butt);});
         }
     }
-    msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    //! Dimensionnement (plafonné) fait par setText()/setInformativeText().
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
 
@@ -358,8 +379,7 @@ void UpMessageBox::Information(QWidget *parent, QString Text, QString InfoText)
 
     msgbox  ->AjouteLayButtons(UpDialog::ButtonOK);
     connect (msgbox->OKButton, &QPushButton::clicked, msgbox, [=] {msgbox->accept();});
-    msgbox  ->wdg_texteditlbl       ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->wdg_infolbl   ->setFixedSize(Utils::CalcSize(InfoText));
+    //! Dimensionnement (plafonné) fait par setText()/setInformativeText().
     msgbox  ->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->exec();
     delete msgbox;
