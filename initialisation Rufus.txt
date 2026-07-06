@@ -126,6 +126,7 @@ II LANCEMENT DE RUFUS
 															" menu Edition/Paramètres...etc...
 												→ bouton annuler
 												→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+												→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
 											→ non
 												→ on en crée un
 												→ on l’enregistre dans .dbkey
@@ -183,6 +184,7 @@ II LANCEMENT DE RUFUS
 													" menu Edition/Paramètres...etc...
 										→ bouton annuler
 										→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+										→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
 									→ non
 										→ on en crée un
 										→ on l’enregistre dans .dbkey
