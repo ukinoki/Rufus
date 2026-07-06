@@ -223,7 +223,8 @@ II LANCEMENT DE RUFUS
 												" menu Edition/Paramètres...etc...
 									→ bouton annuler
 									→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
-								→ non, on suggère de créer un mdp aléatoire à partir d'un des postes du réseau local ou du serveur
+								→ non, on affiche une boîte de message invitant à se connecter sur un poste local ou sur le serveur pour créer un mdp aléatoire,
+								  avec un seul bouton OK
 									RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 					→ MYSQL < 8.0.14 
 						→ Après l'affichage de rufus.cpp à l'écran
