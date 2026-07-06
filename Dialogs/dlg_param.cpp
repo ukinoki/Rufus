@@ -2790,6 +2790,9 @@ void dlg_param::ConnectSignals()
     connect(ui->ExportClesSSLPosteupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
     connect(ui->ExportClesSSLDistantupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
     connect(ui->CreerClesSSLPosteupPushButton,           &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
+    //! Recréer le mot de passe de la base (si l'ancien aléatoire est perdu). Protégé par le mot de passe
+    //! Administrateur ; réservé au local + socle conforme (contrôlé dans recreerMotDePasseApresVerifAdmin).
+    connect(ui->RecreerMDPMonoupPushButton,              &QPushButton::clicked,                  this,   [=] {MySQLInstaller().recreerMotDePasseApresVerifAdmin(this);});
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
