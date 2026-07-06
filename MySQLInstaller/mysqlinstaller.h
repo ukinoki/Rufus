@@ -203,6 +203,10 @@ public:
     //  sécuriser le serveur). No-op si : déjà sécurisée (2e mot de passe présent), ou
     //  serveur ne supportant pas le double mot de passe (MySQL < 8.0.14 / MariaDB).
     bool    securiserBaseSiNecessaire();   // true si la sécurisation vient d'être posée DANS cet appel
+    //  Cœur commun : génère un aléatoire, le sauvegarde+relit AVANT de le poser sur tous les hosts
+    //  d'adminrufus/adminrufusSSL, vérifie et affiche le mot de passe. Suppose local + socle conforme.
+    //  Utilisé par la 1re sécurisation ET (à venir) le bouton « le mot de passe est égaré ».
+    bool    poserEtSauvegarderAleatoire();
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
