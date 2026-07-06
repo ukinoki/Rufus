@@ -276,7 +276,19 @@ UpSmallButton::StyleBouton UpMessageBox::Watch(QWidget *parent, QString Text, QS
     msgbox  ->dlglayout()       ->setSizeConstraint(QLayout::SetFixedSize);
     msgbox  ->buttonslayout()   ->setSpacing(50);
     msgbox  ->wdg_texteditlbl   ->setFixedSize(Utils::CalcSize(Text));
-    msgbox  ->wdg_infolbl       ->setFixedSize(Utils::CalcSize(InfoText));
+    /*! La boîte est en SetFixedSize : sans plafond, une phrase longue (ex. le <Comment> d'une
+        notification de nouvelle version) donne un label plus large que l'écran, la boîte déborde
+        et le bouton OK sort du cadre. On plafonne donc la largeur du texte informatif et on laisse
+        le QLabel (wordWrap déjà actif) revenir à la ligne ; heightForWidth recalcule la hauteur. */
+    QSize infosize = Utils::CalcSize(InfoText);
+    const int largeurmax = 700;
+    if (infosize.width() > largeurmax)
+    {
+        msgbox->wdg_infolbl->setFixedWidth(largeurmax);
+        msgbox->wdg_infolbl->setFixedHeight(msgbox->wdg_infolbl->heightForWidth(largeurmax));
+    }
+    else
+        msgbox->wdg_infolbl->setFixedSize(infosize);
     // Lien cliquable : on rend les liens du label accessibles à la souris et on autorise
     // l'ouverture externe (setOpenExternalLinks → QLabel ouvre l'URL au clic). Le connect
     // sur linkActivated est un filet de sécurité explicite (ouvre l'URL via QDesktopServices)

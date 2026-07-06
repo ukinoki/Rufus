@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "rufus.h"
 #include "ui_rufus.h"
 #include <cstdlib>
+#include <QStringConverter>
 
 //! Localise le .qm d'une langue. Selon le packaging, le dossier Locale est posé soit
 //! À CÔTÉ du binaire (Windows : install à plat, {app}\Locale\), soit UN CRAN AU-DESSUS
@@ -6288,7 +6289,15 @@ void Rufus::VerifLastVersion()
             reply->deleteLater();
             data = reply->readAll();
             QDomDocument docxml;
-            docxml.setContent(data);
+            /*! Décodage défensif : le fichier de référence est en UTF-16 avec BOM, mais l'hébergement
+                en ligne peut le ré-encoder (perte du BOM, passage en UTF-8). On décode selon le BOM réel
+                plutôt que de faire confiance à la déclaration <?xml encoding=...?> — sinon un fichier
+                ré-encodé "n'est pas parsé du tout". On passe ensuite une QString à setContent(), qui ignore
+                la déclaration d'encodage puisque le texte est déjà décodé. */
+            const bool utf16 = data.startsWith(QByteArray::fromHex("FFFE")) || data.startsWith(QByteArray::fromHex("FEFF"));
+            QStringDecoder decodeur(utf16 ? QStringDecoder::Utf16 : QStringDecoder::Utf8);   //! l'endianness UTF-16 est déduite du BOM
+            const QString xmltext = decodeur.decode(data);
+            docxml.setContent(xmltext);
             QDomElement xml = docxml.documentElement();
             for (int i=0; i<xml.childNodes().size(); i++)
             {
