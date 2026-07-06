@@ -205,8 +205,17 @@ public:
     bool    securiserBaseSiNecessaire();   // true si la sécurisation vient d'être posée DANS cet appel
     //  Cœur commun : génère un aléatoire, le sauvegarde+relit AVANT de le poser sur tous les hosts
     //  d'adminrufus/adminrufusSSL, vérifie et affiche le mot de passe. Suppose local + socle conforme.
-    //  Utilisé par la 1re sécurisation ET (à venir) le bouton « le mot de passe est égaré ».
+    //  Utilisé par la 1re sécurisation, le bouton « le mot de passe est égaré » ET la normalisation.
     bool    poserEtSauvegarderAleatoire();
+    //  Pose `mdp` (+ gaxt78iy en 2e mdp, plugin mysql_native_password) sur TOUS les hosts d'adminrufus/
+    //  adminrufusSSL. Partagé par la sécurisation (aléatoire neuf) et la normalisation (aléatoire courant).
+    void    imposerMotDePasseSurTousLesHosts(const QString& mdp);
+    //  true si les comptes adminrufus/adminrufusSSL n'ont pas tous le même plugin d'auth entre hosts
+    //  (bases héritées : @'%' en native mais @'localhost'/@'192.168.%' restés en caching_sha2).
+    bool    comptesAdminrufusIncoherents();
+    //  À chaque lancement (local) : rétablit la cohérence des comptes adminrufus entre hosts. Préserve
+    //  l'aléatoire s'il fonctionne (correction silencieuse), sinon en crée un neuf. true si nouvel aléatoire.
+    bool    normaliserComptesAdminrufusSiIncoherents();
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.

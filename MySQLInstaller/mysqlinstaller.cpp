@@ -2584,8 +2584,7 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
     // ⚠️ RETAIN CURRENT PASSWORD est IGNORÉ par MySQL si le MÊME ALTER change le plugin d'auth. Le
     //    compte peut être en caching_sha2 → on procède en DEUX temps : 1) (re)poser gaxt78iy sous
     //    mysql_native_password (changement de plugin seul) ; 2) basculer sur l'aléatoire avec RETAIN.
-    const QString np     = genererMotDePasse();
-    const QString legacy = QString(MDP_SQL);
+    const QString np = genererMotDePasse();
     if (np.isEmpty())                                   // garde-fou : genererMotDePasse ne renvoie jamais vide
         return false;
 
@@ -2600,26 +2599,8 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
         return false;                                   // écriture impossible → on ne sécurise PAS
     }
 
-    //! On traite TOUS les hosts existants d'adminrufus / adminrufusSSL (bases héritées : @'%',
-    //! @'localhost', @'192.168.%'…). INDISPENSABLE : une connexion locale matche le host le PLUS
-    //! SPÉCIFIQUE (@'localhost'), qui sinon resterait sans np (donc sur gaxt78iy) et refuserait np.
-    const QString ur  = QString(LOGIN_SQL);
-    const QString urS = QString(LOGIN_SQL) + "SSL";
-    for (const QString& h : hostsDuCompteSQL(ur))
-    {
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, np));
-    }
-    QStringList hostsS = hostsDuCompteSQL(urS);
-    if (!hostsS.contains("%")) hostsS << "%";            // adminrufusSSL@'%' garanti (créé si absent)
-    for (const QString& h : hostsS)
-    {
-        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
-        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, h));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, h, np));
-    }
-    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
+    //! Pose np (avec gaxt78iy en 2e mot de passe) sur TOUS les hosts d'adminrufus/adminrufusSSL.
+    imposerMotDePasseSurTousLesHosts(np);
 
     //! VÉRIFICATION que la sécurisation a pris (retours StandardSQL non fiables). Sinon on ANNULE :
     //! retrait de np du .dbkey, retour à gaxt78iy, aucun message trompeur. La base reste fonctionnelle.
@@ -2636,6 +2617,65 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
     return true;
 }
 
+// Pose `mdp` (avec gaxt78iy en 2e mot de passe, plugin mysql_native_password) sur TOUS les hosts
+// existants d'adminrufus / adminrufusSSL. En DEUX temps par host (RETAIN est ignoré si le même ALTER
+// change le plugin). Partagé par la sécurisation (aléatoire neuf) et la normalisation (aléatoire
+// courant préservé).
+void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
+{
+    const QString legacy = QString(MDP_SQL);
+    const QString ur  = QString(LOGIN_SQL);
+    const QString urS = QString(LOGIN_SQL) + "SSL";
+    for (const QString& h : hostsDuCompteSQL(ur))
+    {
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdp));
+    }
+    QStringList hostsS = hostsDuCompteSQL(urS);
+    if (!hostsS.contains("%")) hostsS << "%";            // adminrufusSSL@'%' garanti (créé si absent)
+    for (const QString& h : hostsS)
+    {
+        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
+        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, h));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, h, mdp));
+    }
+    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
+}
+
+// Vrai si les comptes adminrufus/adminrufusSSL n'utilisent PAS tous le même plugin d'auth (mélange
+// mysql_native_password / caching_sha2_password selon les hosts). Signature des bases héritées où la
+// sécurisation n'avait touché que @'%' : @'localhost' / @'192.168.%' restent en caching_sha2 avec
+// l'ANCIEN mot de passe → une connexion locale matche ce host et n'a donc pas l'aléatoire.
+bool MySQLInstaller::comptesAdminrufusIncoherents()
+{
+    bool ok = false;
+    const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
+        "SELECT DISTINCT plugin FROM mysql.user WHERE User IN ('" LOGIN_SQL "','" LOGIN_SQL "SSL')", ok);
+    return ok && rows.size() > 1;   // plus d'un plugin distinct = incohérent
+}
+
+// À CHAQUE lancement (local) : si les comptes adminrufus sont incohérents entre hosts, on rétablit la
+// cohérence. Détection = une requête (DISTINCT plugin) ; on ne corrige QUE si nécessaire.
+//   • aléatoire FONCTIONNEL (on s'est connecté avec) → on l'IMPOSE à tous les hosts : correction
+//     SILENCIEUSE, le mot de passe ne change pas (rien à renoter) ;
+//   • sinon (on est retombé sur gaxt78iy : le host local était resté sur l'ancien mdp) → on en CRÉE
+//     un neuf (jamais en distant, déjà garanti). Renvoie true dans ce seul cas (nouvel aléatoire posé).
+bool MySQLInstaller::normaliserComptesAdminrufusSiIncoherents()
+{
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
+    if (!socleMySQLConforme())               return false;
+    if (!comptesAdminrufusIncoherents())     return false;   // cohérent → rien à faire (cas le plus fréquent)
+
+    const QString courant = motDePasseSQL();                 // aléatoire (si on s'est connecté avec) OU gaxt78iy
+    if (courant != QString(MDP_SQL))
+    {
+        imposerMotDePasseSurTousLesHosts(courant);           // préserve l'aléatoire, correction silencieuse
+        return false;
+    }
+    return poserEtSauvegarderAleatoire();                     // pas d'aléatoire utilisable → on en crée un neuf
+}
+
 // À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
 // poste s'est connecté (l'aléatoire ou le générique gaxt78iy). Chaque étape est AUTO-GARDÉE (ses
 // propres conditions), et les deux branches sont MUTUELLEMENT EXCLUSIVES (random vs générique) :
@@ -2650,7 +2690,9 @@ void MySQLInstaller::entretienApresConnexion()
     //! messages (mot de passe à noter + sécurisation en place) : inutile d'y ajouter aussitôt
     //! l'avertissement « générique bientôt désactivé » (deadline tout juste créée). On le réserve
     //! donc aux démarrages SUIVANTS.
-    const bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
+    bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
+    if (!vientDeSecuriser)
+        vientDeSecuriser = MySQLInstaller().normaliserComptesAdminrufusSiIncoherents();   //! #4 : cohérence des comptes adminrufus entre hosts
     supprimerGaxt78iySiEchue();
     if (!vientDeSecuriser)
         MySQLInstaller().avertirEffacementImminent();
