@@ -272,8 +272,9 @@ public:
     void      proposerRecuperationAleatoire();
     //  Poste DISTANT connecté avec le GÉNÉRIQUE sur une base NON encore sécurisée : on ne sécurise
     //  jamais depuis un poste distant (cf. securiserBaseSiNecessaire, garde-fou n°0), on se contente
-    //  de SUGGÉRER de le faire depuis un poste du réseau local ou le serveur. Informatif, avec un
-    //  « Ne plus afficher ». Réservé à MySQL >= 8.0.14 (en deçà, c'est l'avis « serveur à mettre à jour »).
+    //  d'INVITER à le faire depuis un poste du réseau local ou le serveur. Simple information, un seul
+    //  bouton OK (aucun aléatoire n'existe encore → rien à saisir). Réservé à MySQL >= 8.0.14 (en deçà,
+    //  c'est l'avis « serveur à mettre à jour »).
     void      suggererSecurisationDepuisLocal();
 
     // Résultat de createUserAvecAdmin().

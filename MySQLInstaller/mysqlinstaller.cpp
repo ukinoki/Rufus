@@ -2719,25 +2719,16 @@ void MySQLInstaller::suggererSecurisationDepuisLocal()
     const auto mv = re.match(sv);
     if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), seuilVersionMySQL())) return;
 
-    //! « Ne plus afficher » mémorisé PAR BASE (getBaseFromMode) : l'avis concerne la base à laquelle on
-    //! se connecte, et un poste peut viser plusieurs bases. La base n'étant pas encore sécurisée, il n'y
-    //! a pas de date de signature : on mémorise un simple booléen. Si la base est sécurisée plus tard
-    //! depuis un poste local, cette fonction sort en amont (adminrufusEstSecurise) → l'avis ne revient pas.
-    const QString cleMasque = Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + "/AvisSuggestionSecuMasque";
-    QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
-    if (ini.value(cleMasque).toBool()) return;
-
-    const UpSmallButton::StyleBouton rep = UpMessageBox::Question(nullptr,
+    //! Simple INFORMATION, un seul bouton OK : à ce stade AUCUN mot de passe aléatoire n'existe encore
+    //! (contrairement à proposerRecuperationAleatoire, où la base EST sécurisée et où l'on propose de le
+    //! saisir/importer). Il n'y a donc rien à récupérer ici — on se contente d'inviter à faire la
+    //! sécurisation depuis un poste local ou le serveur (jamais depuis un poste distant).
+    UpMessageBox::Information(nullptr,
         tr("Base de données non sécurisée"),
         tr("Ce poste se connecte au serveur avec le mot de passe générique de mise en route.") + "\n\n" +
-        tr("Pour sécuriser cet accès, il est recommandé de créer un mot de passe sécurisé,") + "\n" +
-        tr("mais cette opération ne peut pas se faire depuis un poste distant.") + "\n\n" +
-        tr("Lancez Rufus depuis un poste du réseau local ou depuis le serveur :") + "\n" +
-        tr("la sécurisation s'y fera automatiquement."),
-        UpDialog::ButtonCancel | UpDialog::ButtonOK,
-        QStringList() << tr("Ne plus afficher ce message") << tr("J'ai compris"));
-    if (rep == UpSmallButton::CANCELBUTTON)                      // « Ne plus afficher ce message »
-        ini.setValue(cleMasque, true);
+        tr("Pour sécuriser cet accès, connectez-vous depuis un poste du réseau local ou depuis le serveur :") + "\n" +
+        tr("la création du mot de passe sécurisé s'y fera automatiquement.") + "\n\n" +
+        tr("Cette sécurisation ne peut pas se faire depuis un poste distant."));
 }
 
 // adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis
