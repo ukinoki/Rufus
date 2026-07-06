@@ -216,6 +216,10 @@ public:
     //  À chaque lancement (local) : rétablit la cohérence des comptes adminrufus entre hosts. Préserve
     //  l'aléatoire s'il fonctionne (correction silencieuse), sinon en crée un neuf. true si nouvel aléatoire.
     bool    normaliserComptesAdminrufusSiIncoherents();
+    //  OPTION B — restreint adminrufus (non-SSL) au réseau local (RFC 1918 + loopback) et supprime
+    //  adminrufus@'%' (exposé au WAN), UNIQUEMENT après une connexion de test prouvant qu'une entrée LAN
+    //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. Silencieux, local.
+    bool    restreindreAdminrufusAuLAN();
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.

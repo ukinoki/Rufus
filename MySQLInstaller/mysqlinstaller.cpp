@@ -44,6 +44,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRandomGenerator>
 #include "database.h"          // DataBase::I()->ModeAccesDataBase() : mode de connexion courant
 #include "dlg_paramconnexion.h" // RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey
+#include <QSqlDatabase>        // connexion de test indépendante (restriction adminrufus au LAN)
+#include <QSqlQuery>
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -2676,6 +2678,104 @@ bool MySQLInstaller::normaliserComptesAdminrufusSiIncoherents()
     return poserEtSauvegarderAleatoire();                     // pas d'aléatoire utilisable → on en crée un neuf
 }
 
+// Vrai si `h` (host vu par MySQL pour une connexion) est une adresse LOCALE ou PRIVÉE (RFC 1918) :
+// loopback, ou l'une des trois plages privées (10/8, 172.16/12, 192.168/16). Toute IP publique en est
+// exclue. Sert à ne restreindre adminrufus au LAN QUE si ce poste se connecte bien depuis une telle
+// adresse (sinon on ne touche à rien : on préfère « ouvert » à « verrouillé »).
+static bool estAdressePriveeOuLocale(const QString& h)
+{
+    if (h == "localhost" || h == "::1") return true;   // loopback
+    if (h.startsWith("127."))           return true;   // 127.0.0.0/8
+    if (h.startsWith("10."))            return true;   // 10.0.0.0/8
+    if (h.startsWith("192.168."))       return true;   // 192.168.0.0/16
+    if (h.startsWith("172."))                          // 172.16.0.0/12 = 172.16.x … 172.31.x
+    {
+        const QStringList parts = h.split('.');
+        bool ok = false;
+        const int second = parts.size() >= 2 ? parts.at(1).toInt(&ok) : 0;
+        if (ok && second >= 16 && second <= 31) return true;
+    }
+    return false;
+}
+
+// Ouvre une connexion INDÉPENDANTE en adminrufus (mot de passe `mdp`) et renvoie l'entrée qui a servi
+// (CURRENT_USER(), ex. "adminrufus@192.168.%"). C'est la PREUVE avant de supprimer adminrufus@'%' :
+// tant que @'%' existe, MySQL choisit l'entrée la PLUS SPÉCIFIQUE ; si une entrée LAN matche, on peut
+// retirer @'%' sans risque. Renvoie "" si la connexion de test échoue (→ on ne supprime rien).
+static QString entreeAyantServiEnTest(const QString& mdp)
+{
+    const QSqlDatabase principale = QSqlDatabase::database(DB_RUFUS, false);
+    if (!principale.isValid()) return QString();
+    const QString host = principale.hostName();
+    const int     port = principale.port();
+
+    QString matched;
+    {
+        QSqlDatabase t = QSqlDatabase::addDatabase("QMYSQL", "rufus_test_lan");
+        t.setHostName(host);
+        t.setPort(port);
+        t.setUserName(QString(LOGIN_SQL));
+        t.setPassword(mdp);
+        if (t.open())
+        {
+            QSqlQuery q(t);
+            if (q.exec("SELECT CURRENT_USER()") && q.next())
+                matched = q.value(0).toString();
+            t.close();
+        }
+    }
+    QSqlDatabase::removeDatabase("rufus_test_lan");   // après destruction de `t` (fin du bloc)
+    return matched;
+}
+
+// OPTION B — restreint adminrufus (compte NON-SSL) au RÉSEAU LOCAL : crée adminrufus sur toutes les
+// plages privées (RFC 1918 + loopback) avec le mot de passe COURANT, puis SUPPRIME adminrufus@'%'
+// (joignable du WAN via la redirection de ports) — mais UNIQUEMENT après avoir PROUVÉ, par une
+// connexion de test, qu'une entrée LAN prend le relais. Impossible de se verrouiller : si le test
+// n'aboutit pas, @'%' est laissé en place. adminrufusSSL@'%' (accès distant, SSL) est intact.
+// Silencieux, réservé au LOCAL. Renvoie true si la migration a été faite.
+bool MySQLInstaller::restreindreAdminrufusAuLAN()
+{
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
+    if (!socleMySQLConforme())                                return false;
+    if (!hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%"))  return false;   // pas d'entrée @'%' → déjà migré
+
+    // Adresse réelle de CETTE connexion, vue par MySQL. On ne restreint QUE si elle est locale/privée.
+    bool ok = false;
+    const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT SUBSTRING_INDEX(USER(),'@',-1)", ok);
+    if (!ok || r.isEmpty())                             return false;
+    if (!estAdressePriveeOuLocale(r.at(0).toString()))  return false;   // hôte non reconnu comme local → on NE touche à rien
+
+    const QString ur      = QString(LOGIN_SQL);
+    const QString legacy  = QString(MDP_SQL);
+    const QString courant = motDePasseSQL();            // mot de passe qui FONCTIONNE (aléatoire OU gaxt78iy)
+
+    // 1) Créer adminrufus sur TOUTES les plages locales/privées (RFC 1918 + loopback), mdp courant
+    //    (+ gaxt78iy conservé en 2e mdp pour le bootstrap des postes qui ne l'ont pas encore).
+    QStringList lanHosts;
+    lanHosts << "localhost" << "127.0.0.1" << "10.%" << "192.168.%";
+    for (int i = 16; i <= 31; ++i) lanHosts << QString("172.%1.%").arg(i);
+    for (const QString& h : lanHosts)
+    {
+        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+        if (courant != legacy)
+            DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, courant));
+        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+    }
+    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
+
+    // 2) PREUVE avant suppression : une entrée LAN doit prendre le relais (CURRENT_USER != adminrufus@%).
+    const QString servie = entreeAyantServiEnTest(courant);
+    if (servie.isEmpty() || servie.endsWith("@%"))
+        return false;   // test non concluant (connexion échouée, ou toujours @'%') → on NE supprime PAS
+
+    // 3) Prouvé : on retire l'entrée trop ouverte (adminrufus@'%' non-SSL, joignable du WAN).
+    DataBase::I()->StandardSQL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
+    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
+    return true;
+}
+
 // À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
 // poste s'est connecté (l'aléatoire ou le générique gaxt78iy). Chaque étape est AUTO-GARDÉE (ses
 // propres conditions), et les deux branches sont MUTUELLEMENT EXCLUSIVES (random vs générique) :
@@ -2693,6 +2793,7 @@ void MySQLInstaller::entretienApresConnexion()
     bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
     if (!vientDeSecuriser)
         vientDeSecuriser = MySQLInstaller().normaliserComptesAdminrufusSiIncoherents();   //! #4 : cohérence des comptes adminrufus entre hosts
+    MySQLInstaller().restreindreAdminrufusAuLAN();   //! Option B : jamais d'adminrufus@'%' (non-SSL) exposé au WAN
     supprimerGaxt78iySiEchue();
     if (!vientDeSecuriser)
         MySQLInstaller().avertirEffacementImminent();
