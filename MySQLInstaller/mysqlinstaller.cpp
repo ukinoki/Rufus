@@ -639,9 +639,6 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
 //  TOUTE PREMIÈRE connexion avec l'aléatoire fraîchement posé par la sécurisation.
 QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
 {
-    const Utils::ModeAcces mode = DataBase::I()->ModeAccesDataBase();
-    const QString randomStocke  = motDePasseStockePourMode(mode);   // "" si aucun aléatoire enregistré
-
     QString err;
     const QStringList candidats = motsDePasseSQLCandidats();
     for (const QString &mdp : candidats)
@@ -652,12 +649,13 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
             setMotDePasseSQL(mdp);                 // mémorise le mdp qui fonctionne
             break;
         }
-        //! Si c'est l'ALÉATOIRE enregistré (.dbkey) qui est REFUSÉ par le serveur (erreur
-        //! d'authentification, pas un serveur injoignable), il est périmé → on l'efface du .dbkey.
-        //! JAMAIS sur une erreur réseau, sinon une coupure passagère jetterait un mdp valide.
-        //! gaxt78iy prend alors le relais.
-        if (!randomStocke.isEmpty() && mdp == randomStocke && estErreurAuthentification(err))
-            supprimerMotDePassePourMode(mode);
+        //! On NE SUPPRIME PLUS le .dbkey si l'aléatoire enregistré est refusé. C'est souvent l'UNIQUE
+        //! copie du mot de passe de la base (le poste qui a sécurisé), et un refus peut être TRANSITOIRE :
+        //! reconnexion juste après un ALTER, aléa SSL, plugin d'auth… Le détruire pouvait VERROUILLER la
+        //! base (perte définitive de l'aléatoire). gaxt78iy (candidat suivant) prend le relais tant qu'il
+        //! existe ; un aléatoire réellement périmé est de toute façon écrasé lors de la récupération
+        //! (proposerRecuperationAleatoire), et le coût d'un .dbkey obsolète est nul (on l'essaie, il
+        //! échoue, on passe au candidat suivant).
     }
     return err;
 }
@@ -2605,6 +2603,20 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     DataBase::I()->StandardSQL("GRANT ALL PRIVILEGES ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
     DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
+
+    //! VÉRIFICATION que la sécurisation a bien pris côté serveur. Le retour des StandardSQL n'est pas
+    //! fiable ici (erreurs silencieuses) ; on interroge donc le serveur : adminrufus a-t-il désormais un
+    //! 2e mot de passe (RETAIN réussi) ? Si NON, les ALTER ont échoué (privilèges, plugin d'auth…) et np
+    //! n'est PAS le mot de passe du serveur. On ANNULE alors tout : on retire np du .dbkey (sinon la
+    //! reconnexion suivante essaierait un np invalide) et on ne montre AUCUN message de succès trompeur.
+    //! La base reste sur gaxt78iy (fonctionnelle, non sécurisée) ; on réessaiera au prochain démarrage.
+    if (!adminrufusEstSecurise())
+    {
+        supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   // retire np du .dbkey + cache
+        s_cacheMDP.insert(cleModeCourant(), QString(MDP_SQL));             // on reste sur gaxt78iy
+        qWarning("Securisation : les ALTER USER n'ont pas pris cote serveur, annulation.");
+        return false;
+    }
 
     inviterANoterMotDePasse(np);
     avertirSecurisationMiseEnPlace();
