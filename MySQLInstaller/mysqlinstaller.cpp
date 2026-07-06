@@ -2725,9 +2725,19 @@ void MySQLInstaller::proposerRecuperationAleatoire()
     msgbox.setIcon(UpMessageBox::Warning);
     UpSmallButton *Annul = new UpSmallButton(); Annul->setText(tr("Plus tard"));
     UpSmallButton *Saisir = new UpSmallButton(); Saisir->setText(tr("Renseigner le nouveau\nmot de passe"));
-    msgbox.addButton(Annul,  UpSmallButton::CLOSEBUTTON);
-    msgbox.addButton(Saisir, UpSmallButton::STARTBUTTON);
+    UpSmallButton *Recreer = new UpSmallButton(); Recreer->setText(tr("Le mot de passe est égaré,\nen créer un nouveau"));
+    msgbox.addButton(Annul,   UpSmallButton::CLOSEBUTTON);
+    msgbox.addButton(Recreer, UpSmallButton::EDITBUTTON);
+    msgbox.addButton(Saisir,  UpSmallButton::STARTBUTTON);
     msgbox.exec();
+
+    //! « Le mot de passe est égaré » : aucun poste ne détient l'aléatoire (typiquement le .dbkey a été
+    //! perdu par le bug de sécurisation). On en RECRÉE un, protégé par le mot de passe Administrateur.
+    if (msgbox.clickedButton() == Recreer)
+    {
+        recreerMotDePasseApresVerifAdmin();
+        return;
+    }
     if (msgbox.clickedButton() != Saisir)
         return;
 
@@ -2738,6 +2748,32 @@ void MySQLInstaller::proposerRecuperationAleatoire()
         tr("Récupérer le mot de passe du cabinet"),
         tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
            "laquelle il a été copié depuis un poste à jour."));
+}
+
+// Recréation MANUELLE du mot de passe aléatoire (bouton « le mot de passe est égaré »). À utiliser
+// quand PLUS AUCUN poste ne détient l'aléatoire (ex. .dbkey perdu par l'ancien bug de sécurisation).
+// Protégée par le mot de passe ADMINISTRATEUR de Rufus (getMDPAdmin, 'bob' par défaut). Réservé au
+// LOCAL (jamais distant) + socle MySQL conforme. Renvoie true si un nouvel aléatoire a été posé.
+bool MySQLInstaller::recreerMotDePasseApresVerifAdmin(QWidget *parent)
+{
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+    {
+        UpMessageBox::Watch(parent, tr("Impossible depuis un poste distant"),
+            tr("La recréation du mot de passe doit se faire depuis un poste du réseau local ou le serveur."));
+        return false;
+    }
+    if (!socleMySQLConforme())
+    {
+        UpMessageBox::Watch(parent, tr("Impossible"),
+            tr("Le serveur MySQL ne prend pas en charge cette opération (version trop ancienne)."));
+        return false;
+    }
+    //! Verrou : on exige le mot de passe Administrateur de Rufus avant de rebattre le mot de passe de
+    //! la base (opération sensible : elle invalide l'ancien aléatoire pour TOUS les postes).
+    QString saisi;
+    if (!Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), saisi, false, parent))
+        return false;   // mauvais mot de passe / annulation
+    return poserEtSauvegarderAleatoire();   // nouvel aléatoire sur tous les hosts + sauvegarde + message
 }
 
 //  Poste DISTANT connecté avec le GÉNÉRIQUE (gaxt78iy) sur une base ENCORE NON sécurisée : on ne

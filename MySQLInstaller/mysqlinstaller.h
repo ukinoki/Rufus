@@ -280,6 +280,10 @@ public:
     //  bouton OK (aucun aléatoire n'existe encore → rien à saisir). Réservé à MySQL >= 8.0.14 (en deçà,
     //  c'est l'avis « serveur à mettre à jour »).
     void      suggererSecurisationDepuisLocal();
+    //  Recréation MANUELLE du mot de passe aléatoire (bouton « le mot de passe est égaré »), quand plus
+    //  aucun poste ne le détient (ex. .dbkey perdu). Protégée par le mot de passe Administrateur de Rufus.
+    //  Réservé au LOCAL + socle conforme. Appelée par proposerRecuperationAleatoire() et par dlg_Param.
+    bool      recreerMotDePasseApresVerifAdmin(QWidget *parent = Q_NULLPTR);
 
     // Résultat de createUserAvecAdmin().
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };
