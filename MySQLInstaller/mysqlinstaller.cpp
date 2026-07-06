@@ -2547,7 +2547,10 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
 
     // 1. Base déjà sécurisée → rien à faire. Le juge fait foi côté serveur (présence d'un
     //    2e mot de passe sur adminrufus) ; le .dbkey local sert de garde-fou supplémentaire.
-    if (adminrufusEstSecurise() || QFile::exists(PATH_FILE_DBKEY))
+    //    NB : on teste un mot de passe NON VIDE pour le mode courant, pas la simple existence du
+    //    fichier — un .dbkey présent mais VIDE (échec d'écriture antérieur) ne doit pas bloquer
+    //    définitivement une nouvelle tentative de sécurisation.
+    if (adminrufusEstSecurise() || !lireDBKey().value(cleModeCourant()).isEmpty())
         return false;
 
     // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD) ?
@@ -2576,6 +2579,25 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     //    RETAIN (plugin désormais inchangé → gaxt78iy bien conservé comme 2e mot de passe).
     const QString np     = genererMotDePasse();
     const QString legacy = QString(MDP_SQL);
+    if (np.isEmpty())                                   // garde-fou : genererMotDePasse ne renvoie jamais vide
+        return false;
+
+    //! ORDRE CRITIQUE — on SAUVEGARDE puis on RELIT le mot de passe (depuis le DISQUE, pas le cache)
+    //! AVANT de le poser sur le serveur. Auparavant l'aléatoire était posé d'abord et le .dbkey écrit
+    //! ensuite : si l'écriture échouait ou que le poste était interrompu entre les deux, la base se
+    //! retrouvait SÉCURISÉE avec un mot de passe PERDU → inaccessible dès l'expiration de gaxt78iy (30 j).
+    //! Désormais, si on ne parvient pas à écrire ET relire le .dbkey, on N'ALTÈRE PAS le serveur : mieux
+    //! vaut une base encore en gaxt78iy (accessible) qu'une base verrouillée.
+    stockerMotDePasse(np);
+    if (lireDBKey().value(cleModeCourant()) != np)
+    {
+        s_cacheMDP.remove(cleModeCourant());            // ne pas laisser un mot de passe fantôme en cache
+        qWarning("Securisation abandonnee : ecriture/relecture du .dbkey impossible.");
+        return false;                                   // écriture impossible → on ne sécurise PAS
+    }
+
+    //! Mot de passe sauvegardé ET relu avec succès : on peut maintenant poser l'aléatoire sur le serveur,
+    //! en CONSERVANT gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD) pour les autres postes.
     DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1'").arg(legacy));
     DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
     DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' REQUIRE SSL").arg(legacy));
@@ -2584,9 +2606,6 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED WITH mysql_native_password BY '%1' RETAIN CURRENT PASSWORD").arg(np));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 
-    // 4. Mémoriser le nouveau mot de passe (mode courant) : ce poste s'y connectera
-    //    désormais ; gaxt78iy reste valable pour les autres postes (2e mot de passe).
-    stockerMotDePasse(np);
     inviterANoterMotDePasse(np);
     avertirSecurisationMiseEnPlace();
     return true;
