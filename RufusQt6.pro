@@ -48,6 +48,14 @@ macx {
     rufus_icon.files = $$PWD/Sunglasses.icns
     rufus_icon.path  = Contents/Resources
     QMAKE_BUNDLE_DATA += rufus_icon
+
+    # Build UNIVERSEL (x86_64 + arm64) + en-tête précompilé : qmake génère un PCH PAR architecture
+    # et l'injecte via « -Xarch_arm64 -include Rufus_arm64.pch » (et l'équivalent x86_64). Lors de la
+    # passe de compilation d'une architecture, l'argument -Xarch_ destiné à l'AUTRE architecture est
+    # vu comme inutilisé → une avalanche de -Wunused-command-line-argument (purement cosmétique, le
+    # binaire est correct). On fait taire cette seule catégorie de warning ; le PCH reste actif.
+    QMAKE_CFLAGS   += -Wno-unused-command-line-argument
+    QMAKE_CXXFLAGS += -Wno-unused-command-line-argument
 }
 
 TEMPLATE = app
