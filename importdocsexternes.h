@@ -16,8 +16,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef IMPORTDOCSEXTERNESTHREAD_H
-#define IMPORTDOCSEXTERNESTHREAD_H
+#ifndef IMPORTDOCSEXTERNES_H
+#define IMPORTDOCSEXTERNES_H
 
 #include "procedures.h"
 #include "utils.h"
@@ -27,7 +27,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 /*!
-\brief ImportDocsExternesThread class
+\brief ImportDocsExternes class
 A. Les différents types de documents
     Tous les documents sont stockés ou indexés dans la table Impressions
     Il existe 2 types de documents.
@@ -245,12 +245,12 @@ III - SUPPRESSION D'UN FICHIER
 
 
 
-class ImportDocsExternesThread : public QObject
+class ImportDocsExternes : public QObject
 {
     Q_OBJECT
 public:
-    explicit                    ImportDocsExternesThread();
-    void                        RapatrieDocumentsThread(AppareilImagerie *appareil, QString nomfiledoc) ;
+    explicit                    ImportDocsExternes();
+    void                        RapatrieDocuments(AppareilImagerie *appareil, QString nomfiledoc) ;
                                 /*! la QStringList newdoc contient 2 éléments: le nom de l'appareil qui a émis l'examen et le nom du fichier émis */
     enum Acces                  {Local, Distant};   Q_ENUM(Acces)
 
@@ -275,4 +275,4 @@ private:
     void                        EchecImport(QString txt);
 };
 
-#endif // IMPORTDOCSEXTERNESTHREAD_H
+#endif // IMPORTDOCSEXTERNES_H

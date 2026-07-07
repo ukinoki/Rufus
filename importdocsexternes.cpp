@@ -15,13 +15,13 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "importdocsexternesthread.h"
+#include "importdocsexternes.h"
 
-ImportDocsExternesThread::ImportDocsExternesThread()
+ImportDocsExternes::ImportDocsExternes()
 {
     //! Malgré son nom, cette classe ne tourne PAS dans un thread séparé — et ne l'a jamais fait
     //! réellement. L'ancien code faisait moveToThread(&m_thread) + m_thread.start(), mais le travail
-    //! (RapatrieDocumentsThread) est lancé par un appel de méthode DIRECT depuis Rufus, donc il
+    //! (RapatrieDocuments) est lancé par un appel de méthode DIRECT depuis Rufus, donc il
     //! s'exécutait de toute façon dans le thread principal ; le QThread démarré tournait à vide.
     //! L'import est rapide et ne fige pas l'interface : on a donc retiré cette mécanique inutile
     //! (et trompeuse) plutôt que de la rendre « vraie » (ce qui aurait imposé une connexion MySQL
@@ -30,7 +30,7 @@ ImportDocsExternesThread::ImportDocsExternesThread()
     m_acces           = (db->ModeAccesDataBase()!=Utils::Distant? Local : Distant);
 }
 
-void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *appareil, QString nomfiledoc)
+void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString nomfiledoc)
 {
     if (m_encours)
         return;
@@ -653,14 +653,14 @@ void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *apparei
     m_encours = false;
 }
 
-/*! \brief bool ImportDocsExternesThread::DefinitDossiersImagerie()
+/*! \brief bool ImportDocsExternes::DefinitDossiersImagerie()
  * Définit l'emplacement des dossiers utilisés
  * \param m_pathdirstockageimagerie =   l'emplacement baseURL où seront stockés les fichiers d'imagerie (directement sur le serveur en mode monoposte ou réseau local - sur un dossier du client en mode sitant
  * \param m_pathdirtransfer =         le resolved URL de l'emplacement de stockage définitif des fichiers
  * \param m_pathdirechectransfer =      le resolved URL de l'emplacement où sont transférés les fichiers qui n'ont pas pu être intégrés dans la BDD
  * \param m_pathdiroriginOKtransfer =   le resolved URL de l'emplacement de stockage des copies des fichiers image d'origine
  */
-bool ImportDocsExternesThread::DefinitDossiersImagerie()
+bool ImportDocsExternes::DefinitDossiersImagerie()
 {
 
     if (!Utils::mkpath(proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + "/" + m_datetransfer))
@@ -699,7 +699,7 @@ bool ImportDocsExternesThread::DefinitDossiersImagerie()
     return true;
 }
 
-void ImportDocsExternesThread::EchecImport(QString txt)
+void ImportDocsExternes::EchecImport(QString txt)
 {
     QString msg = tr("Impossible d'enregistrer le fichier ") + "<font color=\"red\"><b>" + QFileInfo(file_origin).fileName() + "</b></font>" + tr(" dans la base de données");
     QStringList listmsg;

@@ -72,7 +72,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <updoublevalidator.h>
 #include <upstandarditem.h>
 #include <conversionbase.h>
-#include <importdocsexternesthread.h>
+#include <importdocsexternes.h>
 #include <log.h>
 #include <pyxinterf.h>
 #include <styles.h>
@@ -339,7 +339,7 @@ private:
 
     QDialog                 *dlg_msgRepons = Q_NULLPTR;
 
-    ImportDocsExternesThread *m_importdocsexternesthread = Q_NULLPTR;
+    ImportDocsExternes *m_importdocsexternes = Q_NULLPTR;
     bool                    isPosteImport();
     bool                    m_isposteImport = false;
     UpSmallButton           *wdg_modifIdentificationupSmallButton;

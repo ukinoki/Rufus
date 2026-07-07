@@ -2742,10 +2742,10 @@ void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
 {
     if (isPosteImport())
     {
-        if (m_importdocsexternesthread == Q_NULLPTR)
+        if (m_importdocsexternes == Q_NULLPTR)
         {
-            m_importdocsexternesthread = new ImportDocsExternesThread();
-            connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
+            m_importdocsexternes = new ImportDocsExternes();
+            connect(m_importdocsexternes, &ImportDocsExternes::emitmsg, this, &Rufus::AfficheMessageImport);
         }
         QString nomdossier  = appareil->nomdossierechange();
         QStringList filters, listnomsfiles;
@@ -2755,7 +2755,7 @@ void Rufus::ImportNouveauDocExterne(AppareilImagerie *appareil)
         {
             QString nomfiledoc = listnomsfiles.at(it);
             if (!nomfiledoc.contains("smbtest"))
-                m_importdocsexternesthread->RapatrieDocumentsThread(appareil, nomfiledoc);
+                m_importdocsexternes->RapatrieDocuments(appareil, nomfiledoc);
         }
     }
 }
@@ -6168,10 +6168,10 @@ void Rufus::VerifDocsDossiersEchanges()
 {
     if (isPosteImport())
     {
-        if (m_importdocsexternesthread == Q_NULLPTR)
+        if (m_importdocsexternes == Q_NULLPTR)
         {
-            m_importdocsexternesthread = new ImportDocsExternesThread();
-            connect(m_importdocsexternesthread, &ImportDocsExternesThread::emitmsg, this, &Rufus::AfficheMessageImport);
+            m_importdocsexternes = new ImportDocsExternes();
+            connect(m_importdocsexternes, &ImportDocsExternes::emitmsg, this, &Rufus::AfficheMessageImport);
         }
         for (int itr=0; itr<proc->listeappareils().size(); itr++)
         {
@@ -6188,7 +6188,7 @@ void Rufus::VerifDocsDossiersEchanges()
                         {
                             QString nomfiledoc = listnomsfiles.at(it);
                             if (!nomfiledoc.contains("smbtest"))
-                                 m_importdocsexternesthread->RapatrieDocumentsThread(appareil, nomfiledoc);
+                                 m_importdocsexternes->RapatrieDocuments(appareil, nomfiledoc);
                         }
                 }
         }

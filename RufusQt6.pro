@@ -92,7 +92,7 @@ SOURCES += main.cpp\
     procedures.cpp \
     pyxinterf.cpp \
     conversionbase.cpp \
-    importdocsexternesthread.cpp \
+    importdocsexternes.cpp \
     utils.cpp \
     gbl_datas.cpp \
     flags.cpp
@@ -103,7 +103,7 @@ HEADERS += rufus.h \
     pyxinterf.h \
     ressources.h \
     conversionbase.h \
-    importdocsexternesthread.h \
+    importdocsexternes.h \
     macros.h \
     timerthread.h \
     utils.h \
