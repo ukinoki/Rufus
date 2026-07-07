@@ -918,7 +918,8 @@ void dlg_paiementdirect::ModifiePaiement()
             int ik = items.at(0)->row();
             QString B = QLocale().toString(m_montantactesamodifier.at(i).toDouble(),'f',2);
             UpLineEdit* Paye = qobject_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(ik,ui->DetailupTableWidget->columnCount()-2));
-            Paye->setText(B);
+            if (Paye)
+                Paye->setText(B);
         }
         m_listidactes.clear();
         ui->AnnulupPushButton->setText(tr("Annuler et\nrétablir l'écriture"));
@@ -2042,6 +2043,8 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2078,6 +2081,8 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2100,6 +2105,8 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     Paye->setReadOnly(true);
                 }
@@ -2122,6 +2129,8 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2145,6 +2154,8 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setText("0,00");
                     Paye->setReadOnly(true);
                     CalculTotalDetails();
@@ -2169,6 +2180,8 @@ void dlg_paiementdirect::RegleAffichageTypePaiementframe(bool VerifierEmetteur, 
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setText("0,00");
                     Paye->setReadOnly(true);
                 }

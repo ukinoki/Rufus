@@ -2226,6 +2226,8 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();
@@ -2247,6 +2249,8 @@ void dlg_paiementtiers::RegleAffichageTypePaiementframe(bool VerifierEmetteur, b
                 for (int i = 0 ; i < ui->DetailupTableWidget->rowCount();i++)
                 {
                     QLineEdit* Paye = qobject_cast<QLineEdit*>(ui->DetailupTableWidget->cellWidget(i,ui->DetailupTableWidget->columnCount()-2));
+                    if (Paye == Q_NULLPTR)
+                        continue;
                     Paye->setReadOnly(false);
                     Paye->setText(ui->DetailupTableWidget->item(i,ui->DetailupTableWidget->columnCount()-3)->text());
                     CalculTotalDetails();

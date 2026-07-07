@@ -744,6 +744,8 @@ void dlg_gestionusers::EnregistreUser()
         for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
         {
             UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
+            if (butt == Q_NULLPTR)
+                continue;
             if (butt->isChecked())
             {
                 idlieu = butt->iD();
@@ -968,6 +970,8 @@ void dlg_gestionusers::GestLieux()
     for (int i=0; i<ui->AdressupTableWidget->rowCount(); ++i)
     {
         UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
+        if (butt == Q_NULLPTR)
+            continue;
         butt->setChecked(idlieuxlist.contains(butt->iD()));
     }
 }
@@ -1296,6 +1300,8 @@ bool  dlg_gestionusers::AfficheParamUser(int idUser)
     for (int i=0; i<ui->AdressupTableWidget->rowCount(); ++i)
     {
         UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
+        if (butt == Q_NULLPTR)
+            continue;
         butt->setChecked(idlieuxlist.contains(butt->iD()));
     }
     ui->PortableuplineEdit          ->setText(m_userencours->portable());
@@ -1605,6 +1611,8 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
             for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
             {
                 UpRadioButton *butt = qobject_cast<UpRadioButton*>(ui->AdressupTableWidget->cellWidget(i,0));
+                if (butt == Q_NULLPTR)
+                    continue;
                 if (butt->isChecked())
                 {
                     idlieu = butt->iD();

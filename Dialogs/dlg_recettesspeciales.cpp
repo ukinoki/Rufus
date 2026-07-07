@@ -549,6 +549,8 @@ void dlg_recettesspeciales::SupprimerRecette()
             for (int i = 0; i< wdg_bigtable->rowCount(); i++)
             {
                 UpLabel *iddeplbl = qobject_cast<UpLabel *>(wdg_bigtable->cellWidget(i,0));
+                if (iddeplbl == Q_NULLPTR)
+                    continue;
                 if (iddeplbl->text() == QString::number(m_idrecetteencours))
                 {
                     wdg_bigtable->removeRow(i);
@@ -854,6 +856,8 @@ void dlg_recettesspeciales::RedessineBigTable(int idRec)
             for (int row=0; row< wdg_bigtable->rowCount(); row++)
             {
                 UpLabel* idReclbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,0));
+                if (idReclbl == Q_NULLPTR)
+                    continue;
                 if (idReclbl->text() == QString::number(idRec))
                 {
                     wdg_bigtable->setCurrentCell(row,1);
