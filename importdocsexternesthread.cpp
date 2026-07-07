@@ -19,9 +19,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 ImportDocsExternesThread::ImportDocsExternesThread()
 {
-    moveToThread(&m_thread);
+    //! Malgré son nom, cette classe ne tourne PAS dans un thread séparé — et ne l'a jamais fait
+    //! réellement. L'ancien code faisait moveToThread(&m_thread) + m_thread.start(), mais le travail
+    //! (RapatrieDocumentsThread) est lancé par un appel de méthode DIRECT depuis Rufus, donc il
+    //! s'exécutait de toute façon dans le thread principal ; le QThread démarré tournait à vide.
+    //! L'import est rapide et ne fige pas l'interface : on a donc retiré cette mécanique inutile
+    //! (et trompeuse) plutôt que de la rendre « vraie » (ce qui aurait imposé une connexion MySQL
+    //! dédiée au fil de travail). Le nom de la classe est conservé pour ne pas propager un renommage
+    //! dans tout le code appelant.
     m_acces           = (db->ModeAccesDataBase()!=Utils::Distant? Local : Distant);
-    m_thread          .start();
 }
 
 void ImportDocsExternesThread::RapatrieDocumentsThread(AppareilImagerie *appareil, QString nomfiledoc)
