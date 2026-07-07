@@ -1706,7 +1706,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
         if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
         {
             UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow(),0));
-            checked = check->isChecked();
+            if (check)
+                checked = check->isChecked();
         }
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
@@ -1735,7 +1736,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
             {
                 UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
-                checked = check->isChecked();
+                if (check)
+                    checked = check->isChecked();
             }
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
         wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
@@ -3646,7 +3648,11 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
             QString codeCCAM = Actesusrlist.at(i).at(0).toString();
             QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(codeCCAM, Qt::MatchExactly);
             if (listitems.size()>0)
-                qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(listitems.at(0)->row(),0))->setCheckState(Qt::Checked);
+            {
+                UpCheckBox *chk = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(listitems.at(0)->row(),0));
+                if (chk)
+                    chk->setCheckState(Qt::Checked);
+            }
             if (ncol==6)
             {
                 QDoubleValidator *val = new QDoubleValidator(this);

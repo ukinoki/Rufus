@@ -120,6 +120,8 @@ dlg_gestionbanques::~dlg_gestionbanques()
 void dlg_gestionbanques::AfficheBanque()
 {
     UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
+    if (lbl == Q_NULLPTR)                       //! aucune ligne courante (currentRow()==-1) → cellWidget nul
+        return;
     int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
     auto itbq = Datas::I()->banques->banques()->constFind(idBanque);
     if (itbq != Datas::I()->banques->banques()->constEnd())
@@ -194,6 +196,8 @@ void dlg_gestionbanques::ModifBanque()
 void dlg_gestionbanques::SupprBanque()
 {
     UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
+    if (lbl == Q_NULLPTR)                       //! aucune ligne courante (currentRow()==-1) → cellWidget nul
+        return;
     int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
     UpMessageBox msgbox(this);
     UpSmallButton OKBouton(tr("Supprimer"));
@@ -262,6 +266,8 @@ void dlg_gestionbanques::ValideModifBanque()
     else if (m_mode == Modif)
     {
         UpLabel* lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(wdg_bigtable->currentRow(),1));
+        if (lbl == Q_NULLPTR)                   //! aucune ligne courante (currentRow()==-1) → cellWidget nul
+            return;
         int idBanque = wdg_bigtable->item(lbl->Row(),0)->text().toInt();
         Banque * bqamodifier = Datas::I()->banques->getById(idBanque);
         for (auto it = Datas::I()->banques->banques()->constBegin(); it != Datas::I()->banques->banques()->constEnd(); ++it)
@@ -290,6 +296,8 @@ void dlg_gestionbanques::ValideModifBanque()
     for (int i=0; i<wdg_bigtable->rowCount(); i++)
     {
         lbl = qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(i,1));
+        if (lbl == Q_NULLPTR)
+            continue;
         if (lbl->text() == nombanque)
         {
             wdg_bigtable->setCurrentCell(i,1);

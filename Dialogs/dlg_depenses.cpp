@@ -1473,6 +1473,11 @@ void dlg_depenses::ModifierDepense()
                 row = i;
                 break;
             }
+        //! row est resté à -1 si la dépense n'est pas dans la table affichée (filtrée, autre année…) :
+        //! on ne rafraîchit alors pas la ligne (cellWidget(-1,...) serait nul → crash). Les données
+        //! sont déjà enregistrées ; la suite de la fonction gère row=-1 sans risque.
+        if (row >= 0)
+        {
         QString A;
         qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,1))->setText(QLocale::system().toString(dep->date(),tr("d MMM yyyy") + " "));             // Date - col = 1
         qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,2))->setText(" " + dep->objet());                                       // Objet - col = 2
@@ -1506,6 +1511,7 @@ void dlg_depenses::ModifierDepense()
         qobject_cast<UpLabel*>(wdg_bigtable->cellWidget(row,6))->setText(" " + dep->famillefiscale());                              // Famille fiscale - col = 6
         A = dep->date().toString("yyyy-MM-dd");
         wdg_bigtable->item(row,7)->setText(dep->date().toString("yyyy-MM-dd"));                                                    // ClassementparDate - col = 7
+        }
     }
 
     CalculTotalDepenses();
