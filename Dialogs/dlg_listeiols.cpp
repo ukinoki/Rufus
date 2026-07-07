@@ -243,7 +243,10 @@ bool dlg_listeiols::eventFilter(QObject *obj, QEvent *event)
     {
         QKeyEvent *keyEvent = static_cast<QKeyEvent*>(event);
         if (keyEvent->key()==Qt::Key_Space)
-            if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+            //! ATTENTION : ici l'event est un QKeyEvent, PAS un QMouseEvent. L'ancien code testait
+            //! dynamic_cast<QMouseEvent*>(event)->button() — le cast échouait (renvoyait nullptr) et
+            //! ->button() déréférençait nullptr → plantage dès qu'on appuyait sur Espace sur une case.
+            //! Espace sur une case cochable = on bascule la case, sans condition de bouton souris.
             {
                 UpCheckBox *chk = qobject_cast<UpCheckBox*>(obj);
                 if (chk)
@@ -300,6 +303,7 @@ void dlg_listeiols::Annulerlesfiltres()
     wdg_toricchk            ->setChecked(false);
     wdg_edofchk             ->setChecked(false);
     wdg_multifocalchk       ->setChecked(false);
+    wdg_monofocalchk        ->setChecked(false);   //! était oublié → la case Monofocal restait cochée après « Annuler les filtres »
     wdg_pwrchk              ->setChecked(false);
     wdg_rangepwrslider      ->SetLowerValue(m_minpwr*10);
     wdg_rangepwrslider      ->SetUpperValue(m_maxpwr*10);
@@ -392,6 +396,7 @@ void dlg_listeiols::disconnectFiltersSignals()
     wdg_edofchk             ->disconnect();
     wdg_monofocalchk        ->disconnect();
     wdg_multifocalchk       ->disconnect();
+    wdg_pwrchk              ->disconnect();   //! était oublié → ses connexions s'accumulaient à chaque remise à zéro des filtres
     wdg_rangepwrslider           ->disconnect();
 }
 
@@ -1119,6 +1124,13 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
     //for (int i = 0; i<listitem.size();++i)
     //    qDebug()<<listitem.at(i);
     /*! fin mise à jour de la liste des IOLs */
+
+    //! Redimensionnement des images surdimensionnées : UNE SEULE FOIS, ici après l'import, et non au
+    //! survol de la souris comme auparavant (ce qui écrivait en base à chaque passage de souris sur une
+    //! ligne). resizeiolimage ne touche que les images bitmap dépassant le seuil (SIZEMAXIMGIOL).
+    for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
+        resizeiolimage(const_cast<IOL*>(it.value()));
+
     QString totaliol = QString::number(Datas::I()->iols->iols()->size());
     QString msg = "Aucun implant n'a été rajouté à la base";
     switch (newiols) {
@@ -1191,7 +1203,10 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
 {
     int maxsizeimg = SIZEMAXIMGIOL;
     Utils::RemoveProvDir();
-    if (iol->imageformat() != JPG || iol->imageformat() != PNG || iol->imageformat() != JPEG)
+    //! On ne traite que les images bitmap. Il faut des && : « si le format n'est AUCUN des trois, on
+    //! sort ». L'ancien code utilisait ||, condition toujours vraie (un format ne peut différer à la
+    //! fois de JPG, PNG et JPEG) → la fonction sortait systématiquement et ne redimensionnait jamais rien.
+    if (iol->imageformat() != JPG && iol->imageformat() != PNG && iol->imageformat() != JPEG)
         return;
     if (iol->arrayimgiol().size() < maxsizeimg)
         return;
@@ -1383,8 +1398,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                 }
             }
         }
-        m_IOLsmodel->sort(0);
     }
+    m_IOLsmodel->sort(0);   //! une seule fois, APRÈS la boucle (était appelé à chaque tour de boucle)
     int dim = 45;
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
@@ -1489,7 +1504,9 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                                                                                                             IOL*iol = getIOLFromIndex(idx);
                                                                                                             if (iol)
                                                                                                             {
-                                                                                                                resizeiolimage(iol);
+                                                                                                                //! Pas de redimensionnement ici : ce serait une écriture en base à CHAQUE survol
+                                                                                                                //! de souris. Le redimensionnement des images surdimensionnées se fait une seule
+                                                                                                                //! fois, après un import (boucle en fin de ImportListeIOLS).
                                                                                                                 int i = 100;
                                                                                                                 QToolTip::showText(cursor().pos(), iol->tooltip(), this, QRect(cursor().pos(),QSize(i,i)), 5000);
                                                                                                             }
