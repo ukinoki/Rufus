@@ -5166,6 +5166,12 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
     UpLabel *lab4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,4));
     UpLabel *lab5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,5));
     UpLabel *lab6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(row,6));
+    //! En accès distant, la salle d'attente se reconstruit périodiquement (timer). Entre le clic sur
+    //! l'étiquette et ce traitement, la ligne a pu être vidée/reconstruite → cellWidget() renvoie
+    //! nullptr. Sans cette garde, lab->setStyleSheet() sur un pointeur nul plantait Rufus (crash
+    //! observé). Si la ligne n'est pas (ou plus) complète, on renonce simplement à la surbrillance.
+    if (!lab0 || !lab1 || !lab2 || !lab3 || !lab4 || !lab5 || !lab6)
+        return;
     Msg = pat->message();
     if (pat->heurerarrivee().isValid())
     {
@@ -5222,16 +5228,19 @@ void Rufus::SurbrillanceSalDat(UpLabel *lab)
         for (int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)  // on remet à la normale ceux qui étaient en surbrillance et on met l'enregistrement en surbrillance
         {
             UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
+            if (!labi0)                                                  //! cellule absente (ligne en cours de reconstruction) → on saute cette ligne
+                continue;
             if (labi0->styleSheet().contains(backgroundsurbrill))       // l'enregistrement est en surbrillance, on le remet à la normale
             {
                 QString Msgi;
-                UpLabel *labi0   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,0));
                 UpLabel *labi1   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,1));
                 UpLabel *labi2   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,2));
                 UpLabel *labi3   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,3));
                 UpLabel *labi4   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,4));
                 UpLabel *labi5   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,5));
                 UpLabel *labi6   = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+                if (!labi1 || !labi2 || !labi3 || !labi4 || !labi5 || !labi6)   //! ligne incomplète → on saute
+                    continue;
                 QString color2, colorRDV2;
                 Msgi = pat->message();
                 if (pat->heurerarrivee().isValid())
