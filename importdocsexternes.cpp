@@ -404,7 +404,12 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
     file_origin.setFileName(path_file_origin);
     if (!file_origin.open(QIODevice::ReadOnly))
     {
-        UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
+        //! On passe par EchecImport comme tous les autres échecs : il journalise, déplace le fichier
+        //! dans le dossier des échecs, et surtout remet m_encours à false. L'ancien code affichait une
+        //! UpMessageBox modale puis sortait SANS réarmer m_encours → l'importateur restait bloqué
+        //! (« if (m_encours) return » en tête) pour toute la session.
+        commentechec = tr("impossible d'ouvrir le fichier");
+        EchecImport(Titredoc + " - " + nomfiledoc + " - " + commentechec + " - " + Utils::hostName());
         return;
     }
     ba = file_origin.readAll();
@@ -427,8 +432,8 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
         QString mois    = Utils::capitilize(listn.at(3));
         QString annee   = Utils::capitilize(listn.at(4));
         req             = "select " CP_IDPAT_PATIENTS " from " TBL_PATIENTS
-                        " where " CP_NOM_PATIENTS " like '" + nom + "'"
-                        " and " CP_PRENOM_USR " like '" + prenom  + "'"
+                        " where " CP_NOM_PATIENTS " like '" + Utils::correctquoteSQL(nom) + "'"
+                        " and " CP_PRENOM_USR " like '" + Utils::correctquoteSQL(prenom)  + "'"
                         " and " CP_DDN_PATIENTS " = '" + annee + "-" + mois + "-" + jour + "'";
         //qDebug() << req;
         QVariantList patlst = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
