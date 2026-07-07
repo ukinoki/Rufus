@@ -312,6 +312,10 @@ void dlg_docsscanner::ValideFiche()
             ShowMessage::I()->SplashMessage(msg, 3000);
             return;
         }
+        //! Dossier créé sur le serveur (via le partage réseau si ce poste est un poste Windows) :
+        //! on le rend traversable par le compte du serveur MySQL, sinon LOAD_FILE ne pourra pas
+        //! relire les fichiers qu'il contient depuis un poste distant (cf. helper).
+        Utils::rendDossierAccessibleAuServeurSQL(CheminOKTransfrDir);
     }
 
     //! compression du document si c'est un jpg

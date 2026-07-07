@@ -1109,6 +1109,23 @@ void Utils::setPermissions(QFile &file, QFileDevice::Permissions permissions)
     file.setPermissions(permissions);
 }
 
+//! Rend un dossier d'imagerie/factures TRAVERSABLE et lisible par tous les comptes du poste,
+//! y compris le compte système sous lequel tourne le serveur MySQL (« _mysql » sur macOS).
+//! POURQUOI : les fichiers sont écrits en lecture-pour-tous, mais le sous-dossier qui les contient
+//! (Factures/<user>, Images/<date>) est créé par mkpath SANS permissions explicites. S'il naît sans
+//! le bit d'exécution « x » pour « others » — ce qui arrive quand c'est un poste Windows qui le crée
+//! sur le serveur Mac via le partage réseau — MySQL ne peut pas ENTRER dans le dossier, et LOAD_FILE
+//! échoue (fichier « illisible ») alors que le fichier lui-même est parfaitement lisible. On pose donc
+//! rwx pour tous (0777) : lecture + traversée pour le serveur MySQL, écriture pour les autres postes.
+//! À appeler juste après avoir créé un dossier destiné à accueillir des fichiers lus ensuite par MySQL.
+void Utils::rendDossierAccessibleAuServeurSQL(const QString &dirpath)
+{
+    QFile::setPermissions(dirpath,
+                          QFileDevice::ReadOwner | QFileDevice::WriteOwner | QFileDevice::ExeOwner
+                        | QFileDevice::ReadGroup | QFileDevice::WriteGroup | QFileDevice::ExeGroup
+                        | QFileDevice::ReadOther | QFileDevice::WriteOther | QFileDevice::ExeOther);
+}
+
 bool Utils::removeWithoutPermissions(QFile &file)
 {
     file.setPermissions(QFileDevice::ReadOther | QFileDevice::WriteOther

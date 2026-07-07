@@ -1034,7 +1034,18 @@ void dlg_depenses::AfficheFacture(Depense *dep)
                 CalcImageFacture(dep);
             if (m_depenseencours->factureblob() == QByteArray())
             {
-               if (UpMessageBox::Question(this,tr("Facture introuvable!"), tr("Le lien enregistré vers la facture de cette dépense est corrompu!") + "\n" + tr("Voulez-vous le supprimer?")) == UpSmallButton::STARTBUTTON)
+               //! ATTENTION : en accès distant, un blob vide ne signifie PAS que le lien est corrompu.
+               //! Le fichier est peut-être bien présent sur le serveur, mais MySQL n'a pas réussi à le
+               //! LIRE (LOAD_FILE renvoie NULL faute de droits d'accès au fichier — typiquement un
+               //! dossier créé par un poste Windows sans permission pour le compte du serveur MySQL).
+               //! On ne propose donc SURTOUT PAS de supprimer la facture depuis un poste distant : on
+               //! informe, et on renvoie vers un poste local (où la lecture se fait directement sur disque).
+               if (db->ModeAccesDataBase() == Utils::Distant)
+                   UpMessageBox::Watch(this, tr("Facture illisible à distance"),
+                       tr("Cette facture est enregistrée sur le serveur mais le serveur de base de données"
+                          " ne parvient pas à la lire (droits d'accès au fichier).") + "\n"
+                       + tr("Elle reste consultable depuis un poste du réseau local."));
+               else if (UpMessageBox::Question(this,tr("Facture introuvable!"), tr("Le lien enregistré vers la facture de cette dépense est corrompu!") + "\n" + tr("Voulez-vous le supprimer?")) == UpSmallButton::STARTBUTTON)
                {
                     SupprimeFacture(m_depenseencours);
                     /* on efface le contenu de ui->VisuDocupTableWidget, on la cache et on réaffiche les boutons d'ajout de facture et d'échéancier*/

@@ -236,6 +236,7 @@ public:
                                                                                                  | QFileDevice::ReadGroup | QFileDevice::WriteGroup
                                                                                                  | QFileDevice::ExeOwner  | QFileDevice::ReadOwner  | QFileDevice::WriteOwner
                                                                                                  | QFileDevice::ExeUser   | QFileDevice::ReadUser   | QFileDevice::WriteUser);      // définit les permissions énumérées par le flag permissions
+    static void                     rendDossierAccessibleAuServeurSQL(const QString &dirpath);   // rend un dossier traversable+lisible par tous, dont le compte du serveur MySQL (cf. .cpp)
     static bool                     removeWithoutPermissions(QFile &file);      // efface le fichier file vers la destination path même s'il est enlecture seule
     static double                   mmToInches(double mm);
     static QUrl                     getExistingDirectoryUrl(QWidget *parent = Q_NULLPTR, QString title = "", QUrl Dirdefaut = QUrl::fromLocalFile(PATH_DIR_RUFUS), QStringList listnomsaeliminer = QStringList(), bool ExclureNomAvecEspace = true);

@@ -2206,7 +2206,10 @@ void Rufus::ExporteDocs()
                         return;
                 }
             }
-            Utils::setDirPermissions(CheminOKTransfrDirImg);
+            //! Dossier traversable par le compte du serveur MySQL (sinon LOAD_FILE échoue depuis un
+            //! poste distant). setDirPermissions ne convenait pas : il ne pose pas le bit d'exécution
+            //! et n'agit que sur le CONTENU du dossier, pas sur le dossier lui-même (ici vide).
+            Utils::rendDossierAccessibleAuServeurSQL(CheminOKTransfrDirImg);
 
             /*! Création du nom de fichier */
             QString NomFileDoc = QString::number(idpat) + "_" + typedoc + "-"
@@ -2317,7 +2320,10 @@ void Rufus::ExporteDocs()
                         return;
                 }
             }
-            Utils::setDirPermissions(CheminOKTransfrDirImg);
+            //! Dossier traversable par le compte du serveur MySQL (sinon LOAD_FILE échoue depuis un
+            //! poste distant). setDirPermissions ne convenait pas : il ne pose pas le bit d'exécution
+            //! et n'agit que sur le CONTENU du dossier, pas sur le dossier lui-même (ici vide).
+            Utils::rendDossierAccessibleAuServeurSQL(CheminOKTransfrDirImg);
 
             /*! Création du nom de fichier */
             QString NomFileDoc = QString::number(idpat) + "_" + typedoc + "-"
@@ -2502,6 +2508,9 @@ void Rufus::ExporteDocs()
                     if (stopexport(title, msg, title))
                         return;
                 }
+            //! Dossier traversable par le compte du serveur MySQL (indispensable à la relecture
+            //! LOAD_FILE depuis un poste distant, cf. Utils::rendDossierAccessibleAuServeurSQL).
+            Utils::rendDossierAccessibleAuServeurSQL(CheminOKTransfrDirImg);
 
             /*! Création du nom de fichier */
             QString CheminOKTransfrDoc  = CheminOKTransfrDirImg + "/" + NomFileDoc;
@@ -2641,6 +2650,8 @@ void Rufus::ExporteDocs()
                     if (stopexport(title, msg, title))
                     return;
                 }
+            //! Dossier traversable par le compte du serveur MySQL (cf. helper).
+            Utils::rendDossierAccessibleAuServeurSQL(CheminOKTransfrDirImg);
 
             /*! Création du nom de fichier */
             QString CheminOKTransfrDoc      = CheminOKTransfrDirImg + "/" + NomFileDoc;

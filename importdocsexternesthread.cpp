@@ -667,6 +667,9 @@ bool ImportDocsExternesThread::DefinitDossiersImagerie()
         emit emitmsg(listmsg, 3000);
         return false;
     }
+    //! Dossier de date lu ensuite par LOAD_FILE depuis les postes distants : on le rend traversable
+    //! par le compte du serveur MySQL (cf. Utils::rendDossierAccessibleAuServeurSQL).
+    Utils::rendDossierAccessibleAuServeurSQL(proc->AbsolutePathDirImagerie() + NOM_DIR_IMAGES + "/" + m_datetransfer);
 
     if (Utils::EchecDir() == "")
     {
