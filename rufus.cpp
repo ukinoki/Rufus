@@ -2051,6 +2051,8 @@ void Rufus::FiltreSalleDAttente()
         for(int i=0; i<ui->SalleDAttenteupTableWidget->rowCount(); i++)
         {
             UpLabel *lbl = qobject_cast<UpLabel*>(ui->SalleDAttenteupTableWidget->cellWidget(i,6));
+            if (lbl == Q_NULLPTR)               //! cellule absente (ligne en cours de reconstruction) → on ne touche pas à cette ligne
+                continue;
             ui->SalleDAttenteupTableWidget->setRowHidden(i,lbl->text() != usrlog);
         }
 }
