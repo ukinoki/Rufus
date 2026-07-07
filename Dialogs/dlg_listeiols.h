@@ -68,7 +68,6 @@ private:
     WidgetButtonFrame       *wdg_buttonframe        = Q_NULLPTR;
     TreeViewDelegate        m_treedelegate;
     IOL                     *m_currentIOL           = Q_NULLPTR;
-    QImage                  m_nullimage             = QImage("://IOL.png");
     bool                    m_filterbypwr           = false;
     QLabel                  *m_IOLtotalcount        = new QLabel;
 

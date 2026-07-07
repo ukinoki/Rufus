@@ -195,8 +195,11 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
                                                                                             QByteArray ba;
                                                                                             ba = filexml.readAll();
                                                                                             QDomDocument docxml;
-                                                                                            docxml.setContent(ba);
-                                                                                            QDomElement xml = docxml.documentElement();
+                                                                                            if (!docxml.setContent(ba))   //! fichier XML invalide → on prévient au lieu d'importer un document vide
+                                                                                            {
+                                                                                                UpMessageBox::Watch(this, tr("Fichier XML invalide"), path_file_origin);
+                                                                                                return;
+                                                                                            }
                                                                                             ImportListeIOLS(docxml);
                                                                                         }
                                                                                     });
@@ -583,7 +586,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                         QHash <QString, QVariant> sets = bviol->datas().toVariantHash();
                         sets[CP_ARRAYIMG_IOLS] = physioliol->arrayimgiol();
                         DataBase::I()->UpDateImgIOL(bviol->id(), sets);
-                        itbv->cend();
+                        break;   //! le BVI de même modèle est trouvé et mis à jour : inutile de scruter les autres (était « itbv->cend() », sans effet)
                     }
                 }
             }
@@ -1364,6 +1367,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     /*! filtrage du fabricant */
     int idman   = wdg_manufacturerscombo->currentData().toInt();
     UpStandardItem *pitem;
+    QHash<QString, QStandardItem*> manufacturerNodes;   //! nom de fabricant → nœud parent, pour rattacher les implants en O(1)
     for (int i=0; i<  m_manufacturersmodel->rowCount(); ++i)
     {
         UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
@@ -1372,7 +1376,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
             if (man != Q_NULLPTR)
             {
-                if (idman == 0)                                                                 //! tous les fabricants
+                //! « Tous les fabricants » (idman==0) ou le seul fabricant sélectionné.
+                if (idman == 0 || man->id() == idman)
                 {
                     UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
                     manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
@@ -1383,18 +1388,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                     manufacturer2item  ->setEditable(false);
                     manufacturer2item  ->setEnabled(false);
                     m_IOLsmodel->appendRow(QList<QStandardItem*>() << manufactureritem << manufacturer2item);
-                }
-                else if (man->id() == idman)                                                    //! un seul fabricant
-                {
-                    UpStandardItem *manufactureritem = new UpStandardItem(man->nom(), man);
-                    manufactureritem  ->setForeground(QBrush(QColor(Qt::red)));
-                    manufactureritem  ->setEditable(false);
-                    manufactureritem  ->setEnabled(false);
-                    UpStandardItem *manufacturer2item = new UpStandardItem();
-                    manufacturer2item  ->setForeground(QBrush(QColor(Qt::red)));
-                    manufacturer2item  ->setEditable(false);
-                    manufacturer2item  ->setEnabled(false);
-                    m_IOLsmodel->appendRow(QList<QStandardItem*>() << manufactureritem << manufacturer2item);
+                    manufacturerNodes.insert(man->nom(), manufactureritem);   //! index nom→nœud : évite un findItems par implant
                 }
             }
         }
@@ -1471,10 +1465,9 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             Manufacturer *man = Datas::I()->manufacturers->getById(iol->idmanufacturer());
             if (man != Q_NULLPTR)
             {
-                QString fabricant  = man->nom();
-                QList<QStandardItem *> listitems = m_IOLsmodel->findItems(fabricant);
-                if (listitems.size()>0)
-                    listitems.at(0)->appendRow(pitem);
+                QStandardItem *node = manufacturerNodes.value(man->nom(), nullptr);   //! accès direct (remplace findItems, recherche linéaire)
+                if (node)
+                    node->appendRow(pitem);
             }
             IOLtotal ++;
         }
@@ -1499,7 +1492,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     {
         m_IOLsmodel->sort(0);
         m_IOLsmodel->sort(1);
-        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { QStandardItem *item = m_IOLsmodel->itemFromIndex(idx);   //! peut être nul (index invalide) → on garde avant d'appeler hasChildren()
+                                                                                                     if (item && !item->hasChildren())
                                                                                                         {
                                                                                                             IOL*iol = getIOLFromIndex(idx);
                                                                                                             if (iol)
@@ -1513,7 +1507,8 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                                                                                                         }
                                                                                                     } );
         connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listeiols::Enablebuttons);
-        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_IOLsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { QStandardItem *item = m_IOLsmodel->itemFromIndex(idx);   //! peut être nul → on garde
+                                                                                                     if (item && !item->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });
     }
 }void dlg_listeiols::HasNewVersion()
@@ -1527,30 +1522,33 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
             &QNetworkAccessManager::finished,
             this, [=]
             {
-                QByteArray data;
                 if(reply->error() == QNetworkReply::NoError)
                 {
-                    data = reply->readAll();
+                    QByteArray data = reply->readAll();
                     QDomDocument docxml;
-                    docxml.setContent(data);
-                    QDomElement xml = docxml.documentElement();
-                    double lastversion = xml.attribute("fileVersion").toDouble();
-                    double actualversion = DataBase::I()->parametres()->versionbaseiol();
-                    if(actualversion < lastversion)
+                    if (docxml.setContent(data))   //! on ne traite que si le XML est valide (sinon on ignore, au lieu de traiter un document vide en silence)
                     {
-                        if (UpMessageBox::Question
-                            (this,tr("Mise à jour de la liste des implants"),
-                             tr("Vous utilisez la version") + " " + QLocale(QLocale::English).toString(actualversion, 'f',1) + "\n"
-                                 + tr("La version") + " " + QLocale(QLocale::English).toString(lastversion, 'f',1) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
-                                 + tr("Voulez vous l'incorporer dans Rufus?") + "\n"
-                                 + tr("Aucun implant de votre base actuelle ne sera modifié"))
-                            == UpSmallButton::STARTBUTTON)
+                        QDomElement xml = docxml.documentElement();
+                        double lastversion = xml.attribute("fileVersion").toDouble();
+                        double actualversion = DataBase::I()->parametres()->versionbaseiol();
+                        if(actualversion < lastversion)
                         {
-                            ImportListeIOLS(docxml);
-                            DataBase::I()->setversionbaseiol(lastversion);
+                            if (UpMessageBox::Question
+                                (this,tr("Mise à jour de la liste des implants"),
+                                 tr("Vous utilisez la version") + " " + QLocale(QLocale::English).toString(actualversion, 'f',1) + "\n"
+                                     + tr("La version") + " " + QLocale(QLocale::English).toString(lastversion, 'f',1) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
+                                     + tr("Voulez vous l'incorporer dans Rufus?") + "\n"
+                                     + tr("Aucun implant de votre base actuelle ne sera modifié"))
+                                == UpSmallButton::STARTBUTTON)
+                            {
+                                ImportListeIOLS(docxml);
+                                DataBase::I()->setversionbaseiol(lastversion);
+                            }
                         }
                     }
                 }
+                reply->deleteLater();       //! évite la fuite du reply et du manager à chaque ouverture de la boîte
+                manager->deleteLater();
             });
 }
 
