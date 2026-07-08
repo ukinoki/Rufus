@@ -3774,9 +3774,14 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
         "CREATE ROLE", "DROP ROLE"
     };
 
+    //! SHOW GRANTS SANS clause FOR = SHOW GRANTS FOR CURRENT_USER() : on lit les privilèges du COMPTE
+    //! RÉELLEMENT utilisé par la connexion (adminrufus@<host qui matche 127.0.0.1>), quel que soit son
+    //! host. INDISPENSABLE depuis qu'adminrufus n'existe plus en @'%' mais seulement sur les hosts
+    //! LAN/privés (hostsLANprives) : le « SHOW GRANTS FOR 'adminrufus'@'%' » en dur échouait (compte
+    //! inexistant) → SHOW GRANTS ne renvoyait aucune ligne → tous les privilèges signalés manquants.
     QString raw = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
-                "\"SHOW GRANTS FOR '%2'@'%';\" 2>&1")
+                "\"SHOW GRANTS;\" 2>&1")
             .arg(mysqlBin("mysql"), m_login, m_password));
 
     QStringList grantedPrivs;
