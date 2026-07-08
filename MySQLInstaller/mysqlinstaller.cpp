@@ -3055,11 +3055,10 @@ QString MySQLInstaller::downloadOracleDmg()
     const QString fileName = url.section('/', -1);
     QString tmpDmg         = QDir::tempPath() + "/" + fileName;
 
-    //! Téléchargement avec BARRE DE PROGRESSION RÉELLE : downloadFile() pilote
-    //! MySQLProgressDialog::setProgress via QNetworkAccessManager (repli curl). Le DMG macOS pèse
-    //! ~550 Mo ; sans progression chiffrée, l'utilisateur croit l'application figée. (Avant :
-    //! runLongOp + « curl --progress-bar », dont la barre texte part sur stderr et n'était pas
-    //! exploitée → boîte à barre seulement animée.)
+    //! Téléchargement avec BARRE DE PROGRESSION RÉELLE : downloadFile() utilise curl (RAPIDE — QNAM
+    //! plafonnait, très lent sur macOS) et pilote MySQLProgressDialog::setProgress en sondant la
+    //! taille du fichier qui grossit (repli QNAM si curl absent). Le DMG macOS pèse ~550 Mo ; sans
+    //! progression chiffrée, l'utilisateur croit l'application figée.
     downloadFile(url, tmpDmg, tr("Téléchargement de MySQL %1 (Oracle)…").arg(cfg.version));
 
     if (!QFile::exists(tmpDmg) || QFileInfo(tmpDmg).size() < 1'000'000LL) {
@@ -4484,7 +4483,50 @@ void MySQLInstaller::runLongOpProgress(const QString& cmd, const QString& label,
 bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
                                   const QString& label)
 {
-    // ── Tentative 1 : QNetworkAccessManager (progression réelle) ──────────────
+    // ── Tentative 1 : curl (RAPIDE) + barre réelle par sondage de la taille du fichier ──
+    //! curl sature la ligne là où QNetworkAccessManager plafonne (téléchargement TRÈS lent sur
+    //! macOS). On le lance en arrière-plan (QProcess) et on pilote la barre en SONDANT la taille du
+    //! fichier qui grossit — inutile de parser la barre texte de curl (qui part sur stderr). Taille
+    //! totale obtenue par un HEAD préalable (best effort ; sinon barre animée). Repli QNAM ci-dessous
+    //! si curl est absent ou échoue.
+    {
+        MySQLProgressDialog dlg(label);
+        dlg.show();
+        QApplication::processEvents();
+
+        qint64 total = 0;
+        {
+            QProcess head;
+            head.start("curl", {"-sIL", "--connect-timeout", "15", url});
+            if (head.waitForFinished(20000)) {
+                const QString h = QString::fromUtf8(head.readAllStandardOutput());
+                QRegularExpression re("(?i)content-length:\\s*(\\d+)");   // dernière valeur = après redirections
+                auto it = re.globalMatch(h);
+                while (it.hasNext()) total = it.next().captured(1).toLongLong();
+            }
+        }
+
+        QFile::remove(dest);
+        QProcess proc;
+        proc.start("curl", {"-fSL", "--connect-timeout", "20", "-o",
+                            QDir::toNativeSeparators(dest), url});
+        if (proc.waitForStarted(5000)) {           // curl disponible → on l'utilise
+            QEventLoop loop;
+            QObject::connect(&proc, &QProcess::finished, &loop, &QEventLoop::quit);
+            QTimer poll;
+            QObject::connect(&poll, &QTimer::timeout, &dlg,
+                             [&]{ dlg.setProgress(QFileInfo(dest).size(), total); });
+            poll.start(250);
+            loop.exec();
+            poll.stop();
+            dlg.setProgress(QFileInfo(dest).size(), total);
+            if (proc.exitStatus() == QProcess::NormalExit && proc.exitCode() == 0
+                && QFileInfo(dest).size() > 0)
+                return true;
+        }
+    }
+
+    // ── Tentative 2 : QNetworkAccessManager (repli si curl indisponible / échoué) ─────────
     {
         QFile file(dest);
         if (file.open(QIODevice::WriteOnly)) {
@@ -4534,7 +4576,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
         }
     }
 
-    // ── Tentative 2 : repli sur curl (TLS du système) ─────────────────────────
+    // ── Tentative 3 : ultime repli curl bloquant (barre animée, TLS du système) ───────────
     QFile::remove(dest);
     runLongOp(QString("curl -fSL -o \"%1\" \"%2\"")
               .arg(QDir::toNativeSeparators(dest), url), label, 1800000);
