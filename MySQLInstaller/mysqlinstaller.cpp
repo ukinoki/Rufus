@@ -1147,13 +1147,20 @@ bool MySQLInstaller::run()
                 tr("Désinstallation de MySQL…"));
             clean->show();
             QApplication::processEvents();
-            uninstallMySQL();
+            const bool desinstalle = uninstallMySQL();
+            clean->close();
+            delete clean;
+            if (!desinstalle) {
+                //! Annulation (mot de passe administrateur refusé) ou échec : MySQL est TOUJOURS en
+                //! place. On NE wipe PAS ~/.rufus, on NE relance PAS, et on N'affiche PAS « MySQL
+                //! supprimé » (ce serait mentir) : retour au menu « MySQL est déjà présent » (la
+                //! boîte précédente).
+                continue;
+            }
             //! On efface aussi ~/.rufus : il contient le .dbkey (mots de passe MySQL sauvegardés)
             //! — devenu inutile/trompeur puisqu'on repart de zéro — ainsi que les clés SSL et le
             //! journal. Sans ça, le poste réessaierait l'ancien mot de passe au redémarrage.
             QDir(PATH_DIR_RUFUSKEY).removeRecursively();
-            clean->close();
-            delete clean;
             UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
                 tr("MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf."));
             //! On relance AVEC le drapeau « -installMySQL » : au redémarrage, Connexion_A_La_Base()
