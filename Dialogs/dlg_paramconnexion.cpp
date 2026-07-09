@@ -134,7 +134,6 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
         MasqueReseauLocal += "000";
         ui->IPlineEdit->setText(MasqueReseauLocal);
         ui->IPlineEdit->setInputMask("000.000.000.000");
-        ui->IPlineEdit->setFocus();
     }
     else if (butt == ui->DistantradioButton)
     {
@@ -154,7 +153,6 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
                                 UpDialog::ButtonOK, url);
         ui->IPlineEdit->clearMask();
         ui->IPlineEdit->clear();
-        ui->IPlineEdit->setFocus();
     }
 }
 
@@ -236,10 +234,10 @@ bool dlg_paramconnexion::TestConnexion()
         QString DirSSL      = ui->ClesSSLLineEdit->text();
         if ( Login.isEmpty() )    {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre identifiant!"));              ui->LoginlineEdit->setFocus(); return false;}
         if ( Password.isEmpty() ) {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé votre mot de passe!"));             ui->MDPlineEdit->setFocus();   return false;}
-        if ( IP.isEmpty() )       {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé l'adresse du serveur!"));           ui->IPlineEdit->setFocus();    return false;}
+        if ( IP.isEmpty() )       {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé l'adresse du serveur!"));           return false;}
         if (mode == Utils::Distant)
             if ( DirSSL.isEmpty() || !QDir(DirSSL).exists())
-                            {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  ui->IPlineEdit->setFocus();    return false;}
+                            {UpMessageBox::Watch(this,tr("Vous n'avez pas précisé d'adresse valides pour les clés SSL!"));  return false;}
         QString error = TenterConnexionAvecRecuperation();
         if( error.size() )
         {
@@ -420,7 +418,6 @@ bool dlg_paramconnexion::VerifFiche()
             && ui->IPlineEdit->text() == "")
     {
         UpMessageBox::Watch(this, tr("Vous n'avez pas précisé l'adresse du serveur."));
-        ui->IPlineEdit->setFocus();
         return false;
     }
     return true;

@@ -387,9 +387,6 @@
              <height>30</height>
             </size>
            </property>
-           <property name="focusPolicy">
-            <enum>Qt::FocusPolicy::StrongFocus</enum>
-           </property>
            <property name="contextMenuPolicy">
             <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
            </property>
@@ -725,7 +722,6 @@
   <tabstop>PosteradioButton</tabstop>
   <tabstop>LocalradioButton</tabstop>
   <tabstop>DistantradioButton</tabstop>
-  <tabstop>IPlineEdit</tabstop>
   <tabstop>PortcomboBox</tabstop>
   <tabstop>AnnuluppushButton</tabstop>
   <tabstop>TestuppushButton</tabstop>
