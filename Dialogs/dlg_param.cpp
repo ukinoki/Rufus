@@ -4263,32 +4263,21 @@ bool dlg_param::Valide_Modifications()
             return false;
         }
 
-        //! Chaque mode de connexion coché doit avoir son mot de passe MySQL renseigné
-        //! (stocké dans .dbkey, pas dans Rufus.ini).
-        if (ui->PosteServcheckBox->isChecked() && ui->MDPMonouplineEdit->text().isEmpty())
-        {
-            UpMessageBox::Watch(this, tr("Mot de passe MySQL manquant"),
-                                tr("Indiquez le mot de passe MySQL pour le mode « Monoposte »."));
-            ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabMono);
-            ui->MDPMonouplineEdit->setFocus();
-            return false;
-        }
-        if (ui->LocalServcheckBox->isChecked() && ui->MDPLocaluplineEdit->text().isEmpty())
-        {
-            UpMessageBox::Watch(this, tr("Mot de passe MySQL manquant"),
-                                tr("Indiquez le mot de passe MySQL pour le mode « Réseau local »."));
-            ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabLocal);
-            ui->MDPLocaluplineEdit->setFocus();
-            return false;
-        }
-        if (ui->DistantServcheckBox->isChecked() && ui->MDPDistantuplineEdit->text().isEmpty())
-        {
-            UpMessageBox::Watch(this, tr("Mot de passe MySQL manquant"),
-                                tr("Indiquez le mot de passe MySQL pour le mode « Accès distant »."));
-            ui->ParamConnexiontabWidget->setCurrentWidget(ui->tabDistant);
-            ui->MDPDistantuplineEdit->setFocus();
-            return false;
-        }
+        //! Un mot de passe MySQL manquant NE bloque PLUS la sortie. Il peut légitimement manquer :
+        //! quand le poste s'est connecté avec le mot de passe générique, il ne connaît pas encore le
+        //! mot de passe aléatoire de la base sécurisée, donc le champ est vide. Bloquer empêchait
+        //! d'enregistrer TOUTES les autres modifications (appareils, impression…). On se contente
+        //! d'informer, et SURTOUT on ne stockera pas un mot de passe vide plus bas (ce qui écraserait
+        //! le .dbkey existant) : les appels à stockerMotDePassePourMode sont gardés par !isEmpty().
+        QStringList modesSansMDP;
+        if (ui->PosteServcheckBox->isChecked()   && ui->MDPMonouplineEdit->text().isEmpty())    modesSansMDP << tr("Monoposte");
+        if (ui->LocalServcheckBox->isChecked()   && ui->MDPLocaluplineEdit->text().isEmpty())   modesSansMDP << tr("Réseau local");
+        if (ui->DistantServcheckBox->isChecked() && ui->MDPDistantuplineEdit->text().isEmpty()) modesSansMDP << tr("Accès distant");
+        if (!modesSansMDP.isEmpty())
+            UpMessageBox::Watch(this, tr("Mot de passe MySQL non renseigné"),
+                                tr("Aucun mot de passe MySQL n'a été indiqué pour : %1.").arg(modesSansMDP.join(", ")) + "\n"
+                                + tr("Vos autres modifications sont enregistrées ; le mot de passe déjà en place pour ces modes n'est pas modifié.") + "\n"
+                                + tr("Vous pourrez le renseigner plus tard depuis un poste disposant du mot de passe de la base sécurisée."));
 
         //! Mot de passe MySQL : stocké dans .dbkey si le mode est actif, retiré sinon
         //! (mode de connexion abandonné).
@@ -4296,7 +4285,8 @@ bool dlg_param::Valide_Modifications()
         if (ui->PosteServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
-            MySQLInstaller::stockerMotDePassePourMode(Utils::Poste, ui->MDPMonouplineEdit->text());
+            if (!ui->MDPMonouplineEdit->text().isEmpty())   //! champ vide → on NE touche PAS au .dbkey existant (pas d'écrasement par du vide)
+                MySQLInstaller::stockerMotDePassePourMode(Utils::Poste, ui->MDPMonouplineEdit->text());
         }
         else
         {
@@ -4309,7 +4299,8 @@ bool dlg_param::Valide_Modifications()
         if (ui->LocalServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
-            MySQLInstaller::stockerMotDePassePourMode(Utils::ReseauLocal, ui->MDPLocaluplineEdit->text());
+            if (!ui->MDPLocaluplineEdit->text().isEmpty())   //! champ vide → on NE touche PAS au .dbkey existant
+                MySQLInstaller::stockerMotDePassePourMode(Utils::ReseauLocal, ui->MDPLocaluplineEdit->text());
         }
         else
         {
@@ -4324,7 +4315,8 @@ bool dlg_param::Valide_Modifications()
         if (ui->DistantServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
-            MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, ui->MDPDistantuplineEdit->text());
+            if (!ui->MDPDistantuplineEdit->text().isEmpty())   //! champ vide → on NE touche PAS au .dbkey existant
+                MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, ui->MDPDistantuplineEdit->text());
         }
         else
         {
