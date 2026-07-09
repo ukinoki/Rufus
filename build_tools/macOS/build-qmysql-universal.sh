@@ -119,6 +119,12 @@ curl -fL -o mariadb.tar.gz \
 tar xf mariadb.tar.gz
 MARIADB_SRC="${WORK}/mariadb-connector-c-${MARIADB_TAG#v}"
 
+# DEFAULT_SSL_VERIFY_SERVER_CERT=OFF : depuis Connector/C 3.4.0, le client ACTIVE
+# le TLS d'office sur toute connexion NON locale et EXIGE un certificat serveur
+# vérifié — ce qui casse la connexion en réseau local vers un serveur au certificat
+# auto-signé (le poste n'a pas la CA). On rétablit l'ancien défaut « ne pas vérifier » :
+# la liaison reste chiffrée, sans imposer de distribuer la CA sur chaque poste. La
+# vérification reste réservée au mode Distant, qui fournit et vérifie bien la CA.
 "${CMAKE}" -S "${MARIADB_SRC}" -B "${WORK}/mariadb-build" \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
@@ -127,6 +133,7 @@ MARIADB_SRC="${WORK}/mariadb-connector-c-${MARIADB_TAG#v}"
     -DWITH_SSL=OPENSSL \
     -DOPENSSL_ROOT_DIR="${WORK}/ossl" \
     -DOPENSSL_USE_STATIC_LIBS=TRUE \
+    -DDEFAULT_SSL_VERIFY_SERVER_CERT=OFF \
     -DWITH_EXTERNAL_ZLIB=ON \
     -DWITH_UNIT_TESTS=OFF \
     -DCMAKE_DISABLE_FIND_PACKAGE_ZSTD=ON \

@@ -62,9 +62,17 @@ $MariaSrc = Join-Path $Work ("mariadb-connector-c-" + $MARIADB_TAG.TrimStart('v'
 # NB PowerShell : chaque -D... est ENTRE GUILLEMETS, sinon PowerShell peut découper la valeur
 # (ex. « =3.5 » devient « =3 » + « .5 » -> CMAKE_POLICY_VERSION_MINIMUM invalide). Les guillemets
 # forcent le passage d'un seul bloc à cmake.
+# DEFAULT_SSL_VERIFY_SERVER_CERT=OFF : depuis Connector/C 3.4.0, le client ACTIVE le TLS
+# d'office sur toute connexion NON locale et EXIGE un certificat serveur vérifié. Sous Windows
+# (backend Schannel) cela REFUSE la connexion en réseau local vers un serveur au certificat
+# auto-signé (« CERT_E_UNTRUSTEDROOT ») — le poste n'a pas la CA. Pire, le drapeau runtime
+# MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 est IGNORÉ par cette version : seul ce défaut de BUILD
+# rétablit l'ancien comportement « ne pas vérifier ». La liaison reste chiffrée, sans imposer
+# de distribuer la CA sur chaque poste ; la vérification reste réservée au mode Distant.
 cmake -S $MariaSrc -B "$Work\mariadb-build" -G Ninja `
   "-DCMAKE_BUILD_TYPE=Release" `
   "-DCMAKE_POLICY_VERSION_MINIMUM=3.5" `
+  "-DDEFAULT_SSL_VERIFY_SERVER_CERT=OFF" `
   "-DWITH_SSL=SCHANNEL" `
   "-DWITH_UNIT_TESTS=OFF" `
   "-DCMAKE_DISABLE_FIND_PACKAGE_ZSTD=ON" `
