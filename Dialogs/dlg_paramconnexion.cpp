@@ -41,6 +41,10 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
 
     ui->LoginlineEdit   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15,this));
     ui->MDPlineEdit     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12,this));
+    //! Seul contrôle conservé sur le champ IP : un validateur d'adresse IPv4. Toute
+    //! l'ancienne mécanique (masque de saisie, normalisation à zéros, recalcul de l'IP
+    //! au focus-out) est supprimée — c'est elle qui faisait resurgir l'IP du mode précédent.
+    ui->IPlineEdit      ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
     connect(ui->AnnuluppushButton,          &QPushButton::clicked,          this,   &QDialog::reject);
     connect(ui->OKuppushButton,             &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
@@ -48,7 +52,6 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->LocalradioButton);});
     connect(ui->PosteradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->PosteradioButton);});
     connect(ui->DistantradioButton,         &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->DistantradioButton);});
-    connect(ui->IPlineEdit,                 &QLineEdit::editingFinished,    this,   &dlg_paramconnexion::MAJIP);
     connect(ui->ClesSSLuppushButton,        &QPushButton::clicked,          this,   &dlg_paramconnexion::DossierClesSSL);
 
     ui->ClesSSLLineEdit ->useselftextastooltip();
@@ -82,60 +85,13 @@ void dlg_paramconnexion::DossierClesSSL()
     ui->ClesSSLLineEdit ->setImmediateToolTip(ui->ClesSSLLineEdit->text());
 }
 
-void dlg_paramconnexion::CalcIP(QString IP)
-{
-    if (ui->PosteradioButton->isChecked())
-        m_adresseserveur    = "localhost";
-    else if (ui->DistantradioButton->isChecked())
-    {
-        if (Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP))
-            m_adresseserveur  = ui->IPlineEdit->text();
-    }
-    else if (ui->LocalradioButton->isChecked()
-             || (ui->DistantradioButton->isChecked() && !Utils::RegularExpressionMatches(Utils::rgx_IPV4, IP)))
-    {
-        m_IPaveczero        = Utils::calcIP(IP, true);
-        m_adresseserveur    = Utils::calcIP(IP);
-    }
-}
-
-void dlg_paramconnexion::MAJIP()
-{
-    CalcIP(ui->IPlineEdit->text());
-    if (ui->LocalradioButton->isChecked()
-        || (ui->DistantradioButton->isChecked() && Utils::RegularExpressionMatches(Utils::rgx_IPV4, m_IPaveczero)))
-        ui->IPlineEdit->setText(m_IPaveczero);
-}
-
 void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
 {
     ui->IPFrame             ->setVisible(butt!=ui->PosteradioButton);
     ui->ClesSSLuppushButton ->setVisible(butt == ui->DistantradioButton);
     ui->ClesSSLLabel        ->setVisible(butt == ui->DistantradioButton);
     ui->ClesSSLLineEdit     ->setVisible(butt == ui->DistantradioButton);
-    if (butt == ui->LocalradioButton)
-    {
-        QString AdressIP, MasqueReseauLocal;
-        //! On retient la dernière adresse IPv4 non-loopback de la machine.
-        const QList<QHostAddress> adresses = QNetworkInterface::allAddresses();
-        for (const QHostAddress &address : adresses) {
-            if (address.protocol() == QAbstractSocket::IPv4Protocol && address != QHostAddress(QHostAddress::LocalHost))
-                 AdressIP = address.toString();
-        }
-        QStringList listIP = AdressIP.split(".");
-        for (int i=0;i<listIP.size()-1;i++)
-        {
-            if (listIP.at(i).toInt()<100)
-                MasqueReseauLocal += "0";
-            if (listIP.at(i).toInt()<10)
-                MasqueReseauLocal += "0";
-            MasqueReseauLocal += listIP.at(i) + ".";
-        }
-        MasqueReseauLocal += "000";
-        ui->IPlineEdit->setText(MasqueReseauLocal);
-        ui->IPlineEdit->setInputMask("000.000.000.000");
-    }
-    else if (butt == ui->DistantradioButton)
+    if (butt == ui->DistantradioButton)
     {
         // Lien ACTIF et coloré : on passe l'URL en HTML (<a href>) ET en 5e paramètre « link »
         // de Watch, qui active alors l'ouverture externe (setOpenExternalLinks) et le clic.
@@ -151,8 +107,6 @@ void dlg_paramconnexion::RegleAffichage(QRadioButton *butt)
                                 "<a href=\"" + url + "\">" + url + "</a>" + "\n" +
                                 tr("pour savoir comment modifier la configuration du serveur et générer des clés de cryptage."),
                                 UpDialog::ButtonOK, url);
-        ui->IPlineEdit->clearMask();
-        ui->IPlineEdit->clear();
     }
 }
 
@@ -178,6 +132,10 @@ bool dlg_paramconnexion::TestConnexion()
     else if (ui->LocalradioButton->isChecked())      mode = Utils::ReseauLocal;
     else if (ui->DistantradioButton->isChecked())    mode = Utils::Distant;
     DataBase::I()->setModeacces(mode);
+    //! Adresse effective du serveur : localhost en monoposte, sinon l'IP saisie (déjà
+    //! validée IPv4 par le validateur du champ). initParametresConnexionSQL la normalise
+    //! ensuite (Utils::calcIP) — plus besoin de la recalculer ici.
+    m_adresseserveur = (mode == Utils::Poste) ? QStringLiteral("localhost") : ui->IPlineEdit->text();
     switch (mode) {
     case Utils::Poste:
     {

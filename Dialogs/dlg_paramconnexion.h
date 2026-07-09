@@ -80,12 +80,9 @@ public:
                                              bool *reinitialiserDemande = nullptr);
 
 private:
-    QString         m_IPaveczero = "";              //!< adresse du serveur normalisée avec des zéros de remplissage (000.000.000.000)
     QString         m_adresseserveur = "";          //!< adresse effective utilisée pour la connexion (localhost ou IP)
     void            DossierClesSSL();               //!< choisit le dossier des clés SSL (accès distant) et le mémorise dans rufus.ini
-    void            CalcIP(QString IP);             //!< déduit m_adresseserveur / m_IPaveczero du mode d'accès et de l'IP saisie
-    void            MAJIP();                        //!< recalcule et réaffiche l'IP normalisée après saisie
-    void            RegleAffichage(QRadioButton *butt); //!< adapte l'affichage (masque IP, messages) au mode d'accès choisi
+    void            RegleAffichage(QRadioButton *butt); //!< adapte l'affichage (visibilité des champs, message accès distant) au mode d'accès choisi
     void            Test();                         //!< teste les paramètres sans fermer la fiche (bouton « Tester »)
     void            Verif();                        //!< valide les paramètres et ferme la fiche si la connexion réussit (bouton « OK »)
     bool            VerifFiche();                   //!< contrôle que les champs obligatoires sont renseignés
