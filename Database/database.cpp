@@ -187,9 +187,24 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
                 connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/" + nomfich + ";");
         }
         connectSSLoptions += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
-        m_db.setConnectOptions(connectSSLoptions);
         login += "SSL";
     }
+    else
+    {
+        //! ACCÈS LOCAL (monoposte ou réseau local) : MySQL 8 négocie SPONTANÉMENT du TLS avec un
+        //! serveur qui le propose (ssl-mode « preferred »), et le certificat du serveur est
+        //! AUTO-SIGNÉ. Le pilote (MariaDB Connector/C) réagit selon son backend TLS : sous macOS
+        //! (OpenSSL) il ne vérifie pas le certificat et passe ; sous Windows (Schannel) il le
+        //! VÉRIFIE contre le magasin de certificats du système, ne trouve pas la racine et
+        //! REFUSE la connexion (« CERT_E_UNTRUSTEDROOT », code 2026) — d'où l'échec du réseau
+        //! local depuis un poste Windows alors que le même serveur marche depuis un poste macOS.
+        //! On demande donc EXPLICITEMENT de NE PAS vérifier le certificat serveur : la liaison
+        //! reste chiffrée si le serveur le propose, sans imposer de distribuer la CA sur chaque
+        //! poste du cabinet (ce serait un frein d'installation). La vérification n'a de sens que
+        //! sur le réseau ouvert : c'est le rôle du mode Distant, qui, lui, fournit bien la CA.
+        connectSSLoptions = "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
+    }
+    m_db.setConnectOptions(connectSSLoptions);
 
     m_db.setUserName(login);
     m_db.setPassword(password);
@@ -198,7 +213,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     Logs::LogSQL("databaseName - " + m_db.databaseName());
     Logs::LogSQL("Login        - " + m_db.userName());
     Logs::LogSQL("port         - " + QString::number(m_db.port()));
-    Logs::LogSQL("options      - " + (useSSL? connectSSLoptions : "none"));
+    Logs::LogSQL("options      - " + (connectSSLoptions.isEmpty()? "none" : connectSSLoptions));
     QString modetxt = "monoposte (MONO)";
     if (m_modeacces == Utils::ReseauLocal)   modetxt = "réseau local (LAN)";
     else if (m_modeacces == Utils::Distant)  modetxt = "distant (WAN)";
