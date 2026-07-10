@@ -2884,7 +2884,9 @@ void MySQLInstaller::proposerRecuperationAleatoire()
     else
         corps += " " + tr("qui sera prochainement désactivé.");
     //! Si l'attribut securepar est présent, on NOMME le poste détenteur : le praticien sait où aller
-    //! chercher le mot de passe (bouton clé USB de la fiche Paramètres) au lieu de deviner.
+    //! chercher le mot de passe (bouton clé USB de la fiche Paramètres) au lieu de deviner. Sinon
+    //! (base sécurisée par une version antérieure de Rufus, avant cet attribut), on le dit clairement
+    //! et on oriente vers n'importe quel poste à jour, plutôt que de laisser croire à un oubli.
     const QString poste = posteSecurisation();
     corps += "\n\n";
     if (!poste.isEmpty())
@@ -2892,9 +2894,11 @@ void MySQLInstaller::proposerRecuperationAleatoire()
                  tr("Récupérez-le sur ce poste (copié sur une clé USB, ou via le menu Édition / Paramètres) "
                     "et enregistrez-le ici : sans lui, cet accès cessera de fonctionner.");
     else
-        corps += tr("Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste qui "
-                    "a fait la mise à jour, ou disponible via le menu Édition / Paramètres d'un poste à jour) "
-                    "et enregistrez-le : sans lui, cet accès cessera de fonctionner.");
+        corps += tr("Le poste qui a mis en place ce mot de passe n'est pas identifié "
+                    "(sécurisation faite par une version antérieure de Rufus).") + "\n" +
+                 tr("Récupérez-le depuis n'importe quel poste à jour du cabinet (copié sur une clé USB, "
+                    "ou via le menu Édition / Paramètres) et enregistrez-le ici : sans lui, cet accès "
+                    "cessera de fonctionner.");
 
     UpMessageBox msgbox(nullptr);
     msgbox.setText(tr("Mot de passe du cabinet à récupérer"));
