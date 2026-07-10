@@ -2677,23 +2677,39 @@ bool MySQLInstaller::comptesAdminrufusIncoherents()
 
 // À CHAQUE lancement (local) : si les comptes adminrufus sont incohérents entre hosts, on rétablit la
 // cohérence. Détection = une requête (DISTINCT plugin) ; on ne corrige QUE si nécessaire.
-//   • aléatoire FONCTIONNEL (on s'est connecté avec) → on l'IMPOSE à tous les hosts : correction
-//     SILENCIEUSE, le mot de passe ne change pas (rien à renoter) ;
-//   • sinon (on est retombé sur gaxt78iy : le host local était resté sur l'ancien mdp) → on en CRÉE
-//     un neuf (jamais en distant, déjà garanti). Renvoie true dans ce seul cas (nouvel aléatoire posé).
+//   • on CONNAÎT l'aléatoire du cabinet (présent dans .dbkey) → on l'IMPOSE à tous les hosts :
+//     correction SILENCIEUSE, le mot de passe ne change pas (rien à renoter) ;
+//   • on ne connaît AUCUN aléatoire ET la base n'est pas encore sécurisée → filet : on en pose un ;
+//   • on ne connaît aucun aléatoire MAIS la base est DÉJÀ sécurisée (par un autre poste) → on ne
+//     touche à RIEN (la récupération se fera via proposerRecuperationAleatoire). Ne jamais renvoyer
+//     true sans avoir réellement posé un nouvel aléatoire.
 bool MySQLInstaller::normaliserComptesAdminrufusSiIncoherents()
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())               return false;
     if (!comptesAdminrufusIncoherents())     return false;   // cohérent → rien à faire (cas le plus fréquent)
 
-    const QString courant = motDePasseSQL();                 // aléatoire (si on s'est connecté avec) OU gaxt78iy
-    if (courant != QString(MDP_SQL))
+    //! Mot de passe à réimposer = l'ALÉATOIRE du cabinet que ce poste CONNAÎT (enregistré dans .dbkey),
+    //! et NON le mot de passe de CONNEXION. Nuance capitale : quand le host local n'a pas encore
+    //! l'aléatoire, on se connecte avec le générique (retenu comme 2e mot de passe) — motDePasseSQL()
+    //! renverrait alors le GÉNÉRIQUE, et l'ancien code CRÉAIT à tort un NOUVEL aléatoire, écrasant
+    //! celui du cabinet et le désynchronisant des autres postes. On lit donc le .dbkey : s'il contient
+    //! l'aléatoire (par ex. tout juste récupéré par l'utilisateur), on le PROPAGE, jamais un neuf.
+    const QString aleatoireConnu = lireDBKey().value(cleModeCourant());
+    if (!aleatoireConnu.isEmpty())
     {
-        imposerMotDePasseSurTousLesHosts(courant);           // préserve l'aléatoire, correction silencieuse
+        imposerMotDePasseSurTousLesHosts(aleatoireConnu);    // propage l'aléatoire connu sur tous les hosts
         return false;
     }
-    return poserEtSauvegarderAleatoire();                     // pas d'aléatoire utilisable → on en crée un neuf
+
+    //! Ce poste ne détient AUCUN aléatoire (.dbkey vide pour ce mode).
+    //!  • base DÉJÀ sécurisée ailleurs → on ne crée SURTOUT PAS d'aléatoire (il écraserait celui des
+    //!    autres postes) : la récupération passe par proposerRecuperationAleatoire (saisie / clé USB) ;
+    //!  • base réellement NON sécurisée (securiserBaseSiNecessaire a pu être court-circuité par un
+    //!    .dbkey présent mais vide) → filet : on pose l'aléatoire pour de bon.
+    if (adminrufusEstSecurise())
+        return false;
+    return poserEtSauvegarderAleatoire();
 }
 
 // Jeu de hosts LOCAUX/PRIVÉS sur lesquels adminrufus (compte NON-SSL) est autorisé : loopback + les
