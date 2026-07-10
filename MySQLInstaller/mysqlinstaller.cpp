@@ -2663,55 +2663,6 @@ void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 }
 
-// Vrai si les comptes adminrufus/adminrufusSSL n'utilisent PAS tous le même plugin d'auth (mélange
-// mysql_native_password / caching_sha2_password selon les hosts). Signature des bases héritées où la
-// sécurisation n'avait touché que @'%' : @'localhost' / @'192.168.%' restent en caching_sha2 avec
-// l'ANCIEN mot de passe → une connexion locale matche ce host et n'a donc pas l'aléatoire.
-bool MySQLInstaller::comptesAdminrufusIncoherents()
-{
-    bool ok = false;
-    const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
-        "SELECT DISTINCT plugin FROM mysql.user WHERE User IN ('" LOGIN_SQL "','" LOGIN_SQL "SSL')", ok);
-    return ok && rows.size() > 1;   // plus d'un plugin distinct = incohérent
-}
-
-// À CHAQUE lancement (local) : si les comptes adminrufus sont incohérents entre hosts, on rétablit la
-// cohérence. Détection = une requête (DISTINCT plugin) ; on ne corrige QUE si nécessaire.
-//   • on s'est connecté AVEC l'aléatoire (donc il est VÉRIFIÉ) → on l'IMPOSE à tous les hosts :
-//     correction SILENCIEUSE, le mot de passe ne change pas (rien à renoter) ;
-//   • on s'est connecté avec le générique + base DÉJÀ sécurisée ailleurs → on ne touche à RIEN
-//     (on ne détient pas l'aléatoire vérifié ; en poser un neuf écraserait celui du cabinet). La
-//     récupération se fait via proposerRecuperationAleatoire ; une fois reconnecté AVEC l'aléatoire,
-//     la 1re branche le propagera ;
-//   • on s'est connecté avec le générique + base NON sécurisée → filet : on pose l'aléatoire.
-// Cf. spec §III.2 : on ne touche aux comptes QUE tant qu'il subsiste un adminrufus@'%' (sa disparition
-// signifie que la régularisation, Option B, a déjà eu lieu — inutile et risqué de rechambouler).
-bool MySQLInstaller::normaliserComptesAdminrufusSiIncoherents()
-{
-    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
-    if (!socleMySQLConforme())               return false;
-    if (!hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")) return false;   // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
-    if (!comptesAdminrufusIncoherents())     return false;   // cohérent → rien à faire (cas le plus fréquent)
-
-    //! On ne RÉIMPOSE que le mot de passe avec lequel on VIENT DE SE CONNECTER (donc éprouvé). Quand le
-    //! host local n'a pas encore l'aléatoire, on se connecte avec le générique (retenu comme 2e mot de
-    //! passe) : motDePasseSQL() vaut alors le générique. L'ancien code CRÉAIT dans ce cas un NOUVEL
-    //! aléatoire, écrasant celui du cabinet et le désynchronisant des autres postes — c'était le bug.
-    const QString courant = motDePasseSQL();
-    if (courant != QString(MDP_SQL))
-    {
-        imposerMotDePasseSurTousLesHosts(courant);           // aléatoire vérifié → on le propage partout
-        return false;
-    }
-
-    //! Connecté avec le générique : ne SURTOUT PAS créer d'aléatoire si la base est déjà sécurisée
-    //! ailleurs (il écraserait celui du cabinet). On laisse proposerRecuperationAleatoire (saisie /
-    //! clé USB) récupérer l'aléatoire ; au prochain lancement on se connectera AVEC lui et la 1re
-    //! branche ci-dessus rétablira la cohérence. Filet : base réellement NON sécurisée → on pose.
-    if (adminrufusEstSecurise())
-        return false;
-    return poserEtSauvegarderAleatoire();
-}
 
 // Jeu de hosts LOCAUX/PRIVÉS sur lesquels adminrufus (compte NON-SSL) est autorisé : loopback + les
 // trois plages privées RFC 1918 (172.16/12 énuméré 172.16.%…172.31.%). Couvre n'importe quel LAN, quel
@@ -2834,8 +2785,6 @@ void MySQLInstaller::entretienApresConnexion()
     //! l'avertissement « générique bientôt désactivé » (deadline tout juste créée). On le réserve
     //! donc aux démarrages SUIVANTS.
     bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
-    if (!vientDeSecuriser)
-        vientDeSecuriser = MySQLInstaller().normaliserComptesAdminrufusSiIncoherents();   //! #4 : cohérence des comptes adminrufus entre hosts
     MySQLInstaller().restreindreAdminrufusAuLAN();   //! Option B : jamais d'adminrufus@'%' (non-SSL) exposé au WAN
     supprimerGaxt78iySiEchue();
     if (!vientDeSecuriser)

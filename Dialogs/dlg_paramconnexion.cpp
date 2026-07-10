@@ -339,7 +339,20 @@ bool dlg_paramconnexion::RecupererMotDePasseMySQL(QWidget *parent, const QString
     else
         return false;   // annulé
 
-    MySQLInstaller::stockerMotDePasse(mdp);   // écrit .dbkey + met à jour le cache
+    //! On n'INSCRIT le mot de passe dans le .dbkey qu'APRÈS avoir VÉRIFIÉ qu'il fonctionne : on l'écrit,
+    //! on se reconnecte (connecterAvecCandidats essaie le .dbkey en premier), puis on contrôle qu'on
+    //! s'est bien connecté AVEC lui. Sinon (mot de passe faux → on retombe sur le générique, ou serveur
+    //! injoignable), on le RETIRE du .dbkey et on prévient. Le poste ne touche ainsi qu'à son .dbkey, et
+    //! seulement avec un mot de passe éprouvé (cf. spec : « s'il marche et qu'on se connecte avec »).
+    MySQLInstaller::stockerMotDePasse(mdp);                                  // écrit .dbkey + cache
+    const QString err = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);    // reconnecte pour l'éprouver
+    if (!err.isEmpty() || MySQLInstaller::motDePasseSQL() != mdp)
+    {
+        MySQLInstaller::supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   // faux → on le retire
+        UpMessageBox::Watch(parent, tr("Mot de passe incorrect"),
+            tr("Ce mot de passe ne permet pas de se connecter à la base de données."));
+        return false;
+    }
     return true;
 }
 
