@@ -2677,36 +2677,37 @@ bool MySQLInstaller::comptesAdminrufusIncoherents()
 
 // À CHAQUE lancement (local) : si les comptes adminrufus sont incohérents entre hosts, on rétablit la
 // cohérence. Détection = une requête (DISTINCT plugin) ; on ne corrige QUE si nécessaire.
-//   • on CONNAÎT l'aléatoire du cabinet (présent dans .dbkey) → on l'IMPOSE à tous les hosts :
+//   • on s'est connecté AVEC l'aléatoire (donc il est VÉRIFIÉ) → on l'IMPOSE à tous les hosts :
 //     correction SILENCIEUSE, le mot de passe ne change pas (rien à renoter) ;
-//   • on ne connaît AUCUN aléatoire ET la base n'est pas encore sécurisée → filet : on en pose un ;
-//   • on ne connaît aucun aléatoire MAIS la base est DÉJÀ sécurisée (par un autre poste) → on ne
-//     touche à RIEN (la récupération se fera via proposerRecuperationAleatoire). Ne jamais renvoyer
-//     true sans avoir réellement posé un nouvel aléatoire.
+//   • on s'est connecté avec le générique + base DÉJÀ sécurisée ailleurs → on ne touche à RIEN
+//     (on ne détient pas l'aléatoire vérifié ; en poser un neuf écraserait celui du cabinet). La
+//     récupération se fait via proposerRecuperationAleatoire ; une fois reconnecté AVEC l'aléatoire,
+//     la 1re branche le propagera ;
+//   • on s'est connecté avec le générique + base NON sécurisée → filet : on pose l'aléatoire.
+// Cf. spec §III.2 : on ne touche aux comptes QUE tant qu'il subsiste un adminrufus@'%' (sa disparition
+// signifie que la régularisation, Option B, a déjà eu lieu — inutile et risqué de rechambouler).
 bool MySQLInstaller::normaliserComptesAdminrufusSiIncoherents()
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())               return false;
+    if (!hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")) return false;   // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
     if (!comptesAdminrufusIncoherents())     return false;   // cohérent → rien à faire (cas le plus fréquent)
 
-    //! Mot de passe à réimposer = l'ALÉATOIRE du cabinet que ce poste CONNAÎT (enregistré dans .dbkey),
-    //! et NON le mot de passe de CONNEXION. Nuance capitale : quand le host local n'a pas encore
-    //! l'aléatoire, on se connecte avec le générique (retenu comme 2e mot de passe) — motDePasseSQL()
-    //! renverrait alors le GÉNÉRIQUE, et l'ancien code CRÉAIT à tort un NOUVEL aléatoire, écrasant
-    //! celui du cabinet et le désynchronisant des autres postes. On lit donc le .dbkey : s'il contient
-    //! l'aléatoire (par ex. tout juste récupéré par l'utilisateur), on le PROPAGE, jamais un neuf.
-    const QString aleatoireConnu = lireDBKey().value(cleModeCourant());
-    if (!aleatoireConnu.isEmpty())
+    //! On ne RÉIMPOSE que le mot de passe avec lequel on VIENT DE SE CONNECTER (donc éprouvé). Quand le
+    //! host local n'a pas encore l'aléatoire, on se connecte avec le générique (retenu comme 2e mot de
+    //! passe) : motDePasseSQL() vaut alors le générique. L'ancien code CRÉAIT dans ce cas un NOUVEL
+    //! aléatoire, écrasant celui du cabinet et le désynchronisant des autres postes — c'était le bug.
+    const QString courant = motDePasseSQL();
+    if (courant != QString(MDP_SQL))
     {
-        imposerMotDePasseSurTousLesHosts(aleatoireConnu);    // propage l'aléatoire connu sur tous les hosts
+        imposerMotDePasseSurTousLesHosts(courant);           // aléatoire vérifié → on le propage partout
         return false;
     }
 
-    //! Ce poste ne détient AUCUN aléatoire (.dbkey vide pour ce mode).
-    //!  • base DÉJÀ sécurisée ailleurs → on ne crée SURTOUT PAS d'aléatoire (il écraserait celui des
-    //!    autres postes) : la récupération passe par proposerRecuperationAleatoire (saisie / clé USB) ;
-    //!  • base réellement NON sécurisée (securiserBaseSiNecessaire a pu être court-circuité par un
-    //!    .dbkey présent mais vide) → filet : on pose l'aléatoire pour de bon.
+    //! Connecté avec le générique : ne SURTOUT PAS créer d'aléatoire si la base est déjà sécurisée
+    //! ailleurs (il écraserait celui du cabinet). On laisse proposerRecuperationAleatoire (saisie /
+    //! clé USB) récupérer l'aléatoire ; au prochain lancement on se connectera AVEC lui et la 1re
+    //! branche ci-dessus rétablira la cohérence. Filet : base réellement NON sécurisée → on pose.
     if (adminrufusEstSecurise())
         return false;
     return poserEtSauvegarderAleatoire();
