@@ -58,6 +58,7 @@ private:
     bool m_custombasevilles = Datas::I()->villes->iscustomizedbase();
 
     bool                    m_modifposte            = false;
+    bool                    m_alerteMDPencours      = false;   //! garde-fou de ré-entrance de l'alerte « mot de passe de connexion modifié »
     bool                    m_MDPadminverifie       = false;
     bool                    m_MDPuserverifie        = false;
     QString                 m_nouveauMDP            = "nouv";

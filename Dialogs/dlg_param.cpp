@@ -2770,6 +2770,38 @@ void dlg_param::ConnectSignals()
     ConfigureChampMDPMySQL(ui->MDPMonouplineEdit,    ui->MDPMonoUSBupSmallButton);
     ConfigureChampMDPMySQL(ui->MDPLocaluplineEdit,   ui->MDPLocalUSBupSmallButton);
     ConfigureChampMDPMySQL(ui->MDPDistantuplineEdit, ui->MDPDistantUSBupSmallButton);
+
+    //! Garde-fou : le champ du mode de connexion COURANT contient le mot de passe qui a réellement
+    //! servi à se connecter (il a donc fonctionné). Si l'utilisateur le modifie et quitte le champ,
+    //! on l'avertit — une faute de frappe ici couperait ce poste de la base à la prochaine ouverture.
+    //! Ne concerne QUE le mode courant : pour les autres modes, un mot de passe erroné n'a pas d'effet
+    //! immédiat et l'utilisateur peut légitimement en saisir un qu'il ne peut pas vérifier tout de suite.
+    UpLineEdit *champMDPcourant = nullptr;
+    switch (db->ModeAccesDataBase())
+    {
+        case Utils::Poste:       champMDPcourant = ui->MDPMonouplineEdit;    break;
+        case Utils::ReseauLocal: champMDPcourant = ui->MDPLocaluplineEdit;   break;
+        case Utils::Distant:     champMDPcourant = ui->MDPDistantuplineEdit; break;
+        default:                 break;
+    }
+    if (champMDPcourant != nullptr)
+    {
+        const QString mdpConnexion = MySQLInstaller::motDePasseStockePourMode(db->ModeAccesDataBase());
+        connect(champMDPcourant, &QLineEdit::editingFinished, this, [=]() {
+            if (m_alerteMDPencours)                         return;   //! le message vole le focus → éviter une 2e alerte
+            if (champMDPcourant->text() == mdpConnexion)    return;   //! mot de passe inchangé : rien à signaler
+            m_alerteMDPencours = true;
+            if (UpMessageBox::Question(this,
+                                       tr("Modifier le mot de passe de connexion ?"),
+                                       tr("C'est avec ce mot de passe que ce poste est actuellement connecté à la base : il est donc correct.") + "\n"
+                                       + tr("Le modifier risque d'empêcher ce poste de se reconnecter. Êtes-vous sûr de vouloir le changer ?"),
+                                       UpDialog::ButtonCancel | UpDialog::ButtonSuppr,
+                                       QStringList() << tr("Le changer") << tr("Rétablir"))
+                == UpSmallButton::SUPPRBUTTON)
+                champMDPcourant->setText(mdpConnexion);     //! « Rétablir » : on restaure le mot de passe qui fonctionne
+            m_alerteMDPencours = false;
+        });
+    }
     connect(ui->FermepushButton,                    &QPushButton::clicked,                  this,   &dlg_param::FermepushButtonClicked);
     connect(ui->InitMDPAdminpushButton,             &QPushButton::clicked,                  this,   &dlg_param::ModifMDPAdmin);
     connect(ui->ChoixFontupPushButton,              &QPushButton::clicked,                  this,   &dlg_param::ChoixFontpushButtonClicked);
