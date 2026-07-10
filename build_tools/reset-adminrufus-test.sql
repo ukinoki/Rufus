@@ -22,13 +22,15 @@
 -- ============================================================================
 
 -- --- 1. Suppression de toutes les occurrences adminrufus% -------------------
--- On construit dynamiquement les DROP USER (MySQL n'accepte pas de joker sur
--- le host) à partir de mysql.user. QUOTE() échappe proprement user et host.
+-- On construit dynamiquement UNE SEULE instruction DROP USER (MySQL n'accepte
+-- pas de joker sur le host, mais accepte plusieurs comptes séparés par des
+-- virgules). QUOTE() échappe proprement user et host.
+-- ⚠️ PREPARE ne prépare qu'UNE instruction : surtout pas de « ; » entre les
+--    comptes, sinon erreur 1064.
 SET SESSION group_concat_max_len = 100000;
 
-SELECT GROUP_CONCAT(
-           CONCAT('DROP USER IF EXISTS ', QUOTE(User), '@', QUOTE(Host))
-           SEPARATOR '; ')
+SELECT CONCAT('DROP USER IF EXISTS ',
+              GROUP_CONCAT(CONCAT(QUOTE(User), '@', QUOTE(Host)) SEPARATOR ', '))
   INTO @drops
   FROM mysql.user
  WHERE User LIKE 'adminrufus%';
