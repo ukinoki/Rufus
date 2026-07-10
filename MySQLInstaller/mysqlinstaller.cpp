@@ -2649,6 +2649,17 @@ void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
         DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, h));
         DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, h, mdp));
     }
+
+    //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
+    //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
+    //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
+    //! passe) peut ainsi lire QUI le détient — il saura sur quel poste aller le chercher (clé USB).
+    //! ATTRIBUTE FUSIONNE les clés dans User_attributes sans toucher additional_password (posé juste
+    //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
+    //! (dateSecurisation), inutile de la dupliquer ici. On stampe adminrufusSSL@'%', la référence stable.
+    const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
+    DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' ATTRIBUTE '{\"securepar\":\"%3\"}'").arg(urS, "%", posteSql));
+
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 }
 
@@ -2872,10 +2883,18 @@ void MySQLInstaller::proposerRecuperationAleatoire()
         corps += " " + tr("qui sera désactivé le %1 (dans %2 jours).").arg(dateTxt).arg(jours);
     else
         corps += " " + tr("qui sera prochainement désactivé.");
-    corps += "\n\n" +
-        tr("Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste qui "
-           "a fait la mise à jour, ou disponible via le menu Édition / Paramètres d'un poste à jour) "
-           "et enregistrez-le : sans lui, cet accès cessera de fonctionner.");
+    //! Si l'attribut securepar est présent, on NOMME le poste détenteur : le praticien sait où aller
+    //! chercher le mot de passe (bouton clé USB de la fiche Paramètres) au lieu de deviner.
+    const QString poste = posteSecurisation();
+    corps += "\n\n";
+    if (!poste.isEmpty())
+        corps += tr("Le mot de passe sécurisé du cabinet a été mis en place depuis le poste « %1 ».").arg(poste) + "\n" +
+                 tr("Récupérez-le sur ce poste (copié sur une clé USB, ou via le menu Édition / Paramètres) "
+                    "et enregistrez-le ici : sans lui, cet accès cessera de fonctionner.");
+    else
+        corps += tr("Récupérez le mot de passe sécurisé du cabinet (copié sur une clé USB depuis le poste qui "
+                    "a fait la mise à jour, ou disponible via le menu Édition / Paramètres d'un poste à jour) "
+                    "et enregistrez-le : sans lui, cet accès cessera de fonctionner.");
 
     UpMessageBox msgbox(nullptr);
     msgbox.setText(tr("Mot de passe du cabinet à récupérer"));
@@ -2995,6 +3014,20 @@ QDateTime MySQLInstaller::dateSecurisation()
     if (ok && !r.isEmpty())
         return r.at(0).toDateTime();
     return QDateTime();
+}
+
+// Nom du poste qui a posé le mot de passe sécurisé (gravé dans User_attributes par
+// imposerMotDePasseSurTousLesHosts). Sert à indiquer OÙ récupérer le mot de passe. Peut être vide
+// pour une base sécurisée par une version antérieure de Rufus (attribut pas encore posé) — l'appelant
+// se rabat alors sur une formulation générique.
+QString MySQLInstaller::posteSecurisation()
+{
+    bool ok = false;
+    QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+        "SELECT User_attributes->>'$.securepar' FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
+    if (ok && !r.isEmpty())
+        return r.at(0).toString();
+    return QString();
 }
 
 // Supprime gaxt78iy (le 2e mot de passe) si la deadline (sécurisation + 30 j) est passée.

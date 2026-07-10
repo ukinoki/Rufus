@@ -276,6 +276,9 @@ public:
     static bool      adminrufusEstSecurise();
     //  Date de sécurisation = password_last_changed d'adminrufus (côté serveur, fiable).
     static QDateTime dateSecurisation();
+    //  Nom du poste ayant posé le mot de passe sécurisé (grâce à User_attributes.securepar).
+    //  Vide si la base a été sécurisée par une version antérieure (attribut absent).
+    static QString   posteSecurisation();
     //  Supprime gaxt78iy (DISCARD OLD PASSWORD) si la deadline est passée — UNIQUEMENT si
     //  ce poste détient le vrai mot de passe (sinon il se verrouillerait lui-même).
     static void      supprimerGaxt78iySiEchue();
