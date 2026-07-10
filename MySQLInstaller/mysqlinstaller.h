@@ -208,12 +208,18 @@ public:
     //  Utilisé par la 1re sécurisation et le bouton « le mot de passe est égaré ».
     bool    poserEtSauvegarderAleatoire();
     //  Pose `mdp` (+ gaxt78iy en 2e mdp, plugin mysql_native_password) sur TOUS les hosts d'adminrufus/
-    //  adminrufusSSL. Utilisé par la sécurisation (aléatoire neuf) et la recréation « mot de passe égaré ».
+    //  adminrufusSSL. Utilisé par la sécurisation, la recréation « mot de passe égaré » et verifierComptesAdminrufus.
     void    imposerMotDePasseSurTousLesHosts(const QString& mdp);
     //  OPTION B — restreint adminrufus (non-SSL) au réseau local (RFC 1918 + loopback) et supprime
     //  adminrufus@'%' (exposé au WAN), UNIQUEMENT après une connexion de test prouvant qu'une entrée LAN
-    //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. Silencieux, local.
-    bool    restreindreAdminrufusAuLAN();
+    //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. `mdpAleatoire` =
+    //  l'aléatoire éprouvé de la connexion en cours (posé sur les entrées créées). Silencieux, local.
+    bool    restreindreAdminrufusAuLAN(const QString& mdpAleatoire);
+    //  VÉRIFICATION des comptes adminrufus, appelée UNIQUEMENT par DataBase::connectToDataBase quand la
+    //  connexion a réussi AVEC un aléatoire (pas le générique) et en LOCAL. Impose CE même aléatoire sur
+    //  tous les hosts (adminrufus + adminrufusSSL) puis régularise (Option B). Ne fait rien une fois
+    //  adminrufus@'%' supprimé (régularisation déjà faite). Jamais de nouvel aléatoire, jamais en distant.
+    void    verifierComptesAdminrufus(const QString& mdpAleatoire);
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.

@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "database.h"
+#include "mysqlinstaller.h"     //! verifierComptesAdminrufus : régularisation des comptes liée à la connexion (aléatoire, local)
 
 #include <QSqlDatabase>
 #include <QSqlError>
@@ -223,6 +224,13 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
     if( m_db.open() )
     {
         //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
+        //! Vérification des comptes adminrufus INTIMEMENT liée à la connexion : dès qu'on s'est connecté
+        //! AVEC un aléatoire (donc éprouvé) et en LOCAL, on impose CE même aléatoire à tous les comptes
+        //! et on régularise (cf. MySQLInstaller::verifierComptesAdminrufus). Jamais avec le générique,
+        //! jamais en distant → aucun mot de passe divergent, et on rattrape les bases sécurisées mais
+        //! non régularisées. No-op une fois adminrufus@'%' supprimé.
+        if (password != QString(MDP_SQL) && m_modeacces != Utils::Distant)
+            MySQLInstaller().verifierComptesAdminrufus(password);
         return QString();
     }
 

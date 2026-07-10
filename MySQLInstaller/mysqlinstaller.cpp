@@ -2731,7 +2731,7 @@ static QString entreeAyantServiEnTest(const QString& mdp)
 // connexion de test, qu'une entrée LAN prend le relais. Impossible de se verrouiller : si le test
 // n'aboutit pas, @'%' est laissé en place. adminrufusSSL@'%' (accès distant, SSL) est intact.
 // Silencieux, réservé au LOCAL. Renvoie true si la migration a été faite.
-bool MySQLInstaller::restreindreAdminrufusAuLAN()
+bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())                                return false;
@@ -2745,7 +2745,7 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN()
 
     const QString ur      = QString(LOGIN_SQL);
     const QString legacy  = QString(MDP_SQL);
-    const QString courant = motDePasseSQL();            // mot de passe qui FONCTIONNE (aléatoire OU gaxt78iy)
+    const QString courant = mdpAleatoire;               // l'aléatoire ÉPROUVÉ (celui de la connexion en cours)
 
     // 1) Créer adminrufus sur TOUTES les plages locales/privées (RFC 1918 + loopback), mdp courant
     //    (+ gaxt78iy conservé en 2e mdp pour le bootstrap des postes qui ne l'ont pas encore).
@@ -2770,6 +2770,21 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN()
     return true;
 }
 
+// VÉRIFICATION des comptes adminrufus, INTIMEMENT liée à la connexion : appelée UNIQUEMENT par
+// DataBase::connectToDataBase, quand la connexion a réussi AVEC un mot de passe ALÉATOIRE (pas le
+// générique) et en accès LOCAL (jamais distant, vérifié par l'appelant). On impose CE même aléatoire
+// — celui avec lequel on vient de se connecter, donc ÉPROUVÉ — à tous les comptes, puis on régularise
+// (Option B). Comme on n'injecte jamais qu'un aléatoire déjà validé, aucun mot de passe divergent ne
+// peut apparaître ; et on rattrape les installations récentes qui avaient un aléatoire mais pas de
+// régularisation d'adminrufus. Ne fait RIEN dès qu'adminrufus@'%' a disparu (régularisation faite).
+void MySQLInstaller::verifierComptesAdminrufus(const QString& mdpAleatoire)
+{
+    if (!socleMySQLConforme())                              return;   // < 8.0.14 : pas de double mot de passe
+    if (!hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")) return;  // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
+    imposerMotDePasseSurTousLesHosts(mdpAleatoire);   // le MÊME aléatoire sur tous les hosts (adminrufus + adminrufusSSL)
+    restreindreAdminrufusAuLAN(mdpAleatoire);         // Option B : adminrufus sur les plages privées + suppression d'adminrufus@'%'
+}
+
 // À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
 // poste s'est connecté (l'aléatoire ou le générique gaxt78iy). Chaque étape est AUTO-GARDÉE (ses
 // propres conditions), et les deux branches sont MUTUELLEMENT EXCLUSIVES (random vs générique) :
@@ -2785,7 +2800,9 @@ void MySQLInstaller::entretienApresConnexion()
     //! l'avertissement « générique bientôt désactivé » (deadline tout juste créée). On le réserve
     //! donc aux démarrages SUIVANTS.
     bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
-    MySQLInstaller().restreindreAdminrufusAuLAN();   //! Option B : jamais d'adminrufus@'%' (non-SSL) exposé au WAN
+    //! La régularisation des comptes adminrufus (cohérence + Option B) n'est PLUS ici : elle est
+    //! déclenchée par la connexion elle-même (DataBase::connectToDataBase → verifierComptesAdminrufus),
+    //! uniquement quand on s'est connecté AVEC un aléatoire, en local.
     supprimerGaxt78iySiEchue();
     if (!vientDeSecuriser)
         MySQLInstaller().avertirEffacementImminent();
