@@ -4267,8 +4267,11 @@ bool dlg_param::Valide_Modifications()
         //! quand le poste s'est connecté avec le mot de passe générique, il ne connaît pas encore le
         //! mot de passe aléatoire de la base sécurisée, donc le champ est vide. Bloquer empêchait
         //! d'enregistrer TOUTES les autres modifications (appareils, impression…). On se contente
-        //! d'informer, et SURTOUT on ne stockera pas un mot de passe vide plus bas (ce qui écraserait
-        //! le .dbkey existant) : les appels à stockerMotDePassePourMode sont gardés par !isEmpty().
+        //! d'informer.
+        //! Les champs MDP sont pré-remplis à l'ouverture depuis motDePasseStockePourMode(mode) : un
+        //! champ vide signifie donc « pas de mot de passe pour ce mode ». On retire alors la ligne
+        //! correspondante du .dbkey (supprimerMotDePassePourMode) — sans effacer le fichier ni les
+        //! autres modes — au lieu de conserver une valeur que l'utilisateur a délibérément effacée.
         QStringList modesSansMDP;
         if (ui->PosteServcheckBox->isChecked()   && ui->MDPMonouplineEdit->text().isEmpty())    modesSansMDP << tr("Monoposte");
         if (ui->LocalServcheckBox->isChecked()   && ui->MDPLocaluplineEdit->text().isEmpty())   modesSansMDP << tr("Réseau local");
@@ -4276,8 +4279,8 @@ bool dlg_param::Valide_Modifications()
         if (!modesSansMDP.isEmpty())
             UpMessageBox::Watch(this, tr("Mot de passe MySQL non renseigné"),
                                 tr("Aucun mot de passe MySQL n'a été indiqué pour : %1.").arg(modesSansMDP.join(", ")) + "\n"
-                                + tr("Vos autres modifications sont enregistrées ; le mot de passe déjà en place pour ces modes n'est pas modifié.") + "\n"
-                                + tr("Vous pourrez le renseigner plus tard depuis un poste disposant du mot de passe de la base sécurisée."));
+                                + tr("Vos autres modifications sont enregistrées.") + "\n"
+                                + tr("Vous pourrez renseigner le mot de passe plus tard depuis un poste disposant du mot de passe de la base sécurisée."));
 
         //! Mot de passe MySQL : stocké dans .dbkey si le mode est actif, retiré sinon
         //! (mode de connexion abandonné).
@@ -4285,8 +4288,10 @@ bool dlg_param::Valide_Modifications()
         if (ui->PosteServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
-            if (!ui->MDPMonouplineEdit->text().isEmpty())   //! champ vide → on NE touche PAS au .dbkey existant (pas d'écrasement par du vide)
+            if (!ui->MDPMonouplineEdit->text().isEmpty())
                 MySQLInstaller::stockerMotDePassePourMode(Utils::Poste, ui->MDPMonouplineEdit->text());
+            else                                            //! champ vide = pas de mot de passe pour ce mode → on retire sa ligne du .dbkey
+                MySQLInstaller::supprimerMotDePassePourMode(Utils::Poste);
         }
         else
         {
@@ -4299,8 +4304,10 @@ bool dlg_param::Valide_Modifications()
         if (ui->LocalServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
-            if (!ui->MDPLocaluplineEdit->text().isEmpty())   //! champ vide → on NE touche PAS au .dbkey existant
+            if (!ui->MDPLocaluplineEdit->text().isEmpty())
                 MySQLInstaller::stockerMotDePassePourMode(Utils::ReseauLocal, ui->MDPLocaluplineEdit->text());
+            else                                             //! champ vide = pas de mot de passe pour ce mode → on retire sa ligne du .dbkey
+                MySQLInstaller::supprimerMotDePassePourMode(Utils::ReseauLocal);
         }
         else
         {
@@ -4315,8 +4322,10 @@ bool dlg_param::Valide_Modifications()
         if (ui->DistantServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
-            if (!ui->MDPDistantuplineEdit->text().isEmpty())   //! champ vide → on NE touche PAS au .dbkey existant
+            if (!ui->MDPDistantuplineEdit->text().isEmpty())
                 MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, ui->MDPDistantuplineEdit->text());
+            else                                               //! champ vide = pas de mot de passe pour ce mode → on retire sa ligne du .dbkey
+                MySQLInstaller::supprimerMotDePassePourMode(Utils::Distant);
         }
         else
         {
