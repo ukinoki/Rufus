@@ -2791,14 +2791,19 @@ void dlg_param::ConnectSignals()
             if (m_alerteMDPencours)                         return;   //! le message vole le focus → éviter une 2e alerte
             if (champMDPcourant->text() == mdpConnexion)    return;   //! mot de passe inchangé : rien à signaler
             m_alerteMDPencours = true;
+            //! Deux boutons : Oups (rétablir le mot de passe qui marche) et OK (confirmer le changement).
+            //! Le framework impose OK le plus à droite et Oups juste à sa gauche → titresboutonslist[0]
+            //! est affecté au bouton le plus à gauche (Oups), [1] au suivant (OK).
+            //! Seul un clic explicite sur OK conserve la modification ; tout le reste (Oups, fermeture
+            //! de la fenêtre) rétablit le mot de passe de connexion — le choix sûr par défaut.
             if (UpMessageBox::Question(this,
                                        tr("Modifier le mot de passe de connexion ?"),
                                        tr("C'est avec ce mot de passe que ce poste est actuellement connecté à la base : il est donc correct.") + "\n"
-                                       + tr("Le modifier risque d'empêcher ce poste de se reconnecter. Êtes-vous sûr de vouloir le changer ?"),
-                                       UpDialog::ButtonCancel | UpDialog::ButtonSuppr,
-                                       QStringList() << tr("Le changer") << tr("Rétablir"))
-                == UpSmallButton::SUPPRBUTTON)
-                champMDPcourant->setText(mdpConnexion);     //! « Rétablir » : on restaure le mot de passe qui fonctionne
+                                       + tr("Le modifier risque d'empêcher ce poste de se reconnecter."),
+                                       UpDialog::ButtonOK | UpDialog::ButtonOups,
+                                       QStringList() << tr("Oups") << tr("oui, je suis sûr\nde vouloir changer le mot de passe"))
+                != UpSmallButton::STARTBUTTON)                //! STARTBUTTON = style du bouton OK
+                champMDPcourant->setText(mdpConnexion);     //! Oups / fermeture → on restaure le mot de passe qui fonctionne
             m_alerteMDPencours = false;
         });
     }
