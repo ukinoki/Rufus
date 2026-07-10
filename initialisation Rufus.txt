@@ -110,15 +110,15 @@ II LANCEMENT DE RUFUS
 							→ clésSSL présentes
 							→ si pas OK → on corrige
 						→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
-					 	→ MySQL >= 8.014 → enregistrement du mdp dans .dbkey
 						→ on vérifie la cohérence de la base Rufus
 							→ si pas OK → messageBox base de données endommagée
 								→ bouton annuler → fermeture du programme
 								→ bouton restaurer la base → RestaureBase()
 								→ bouton nouvelle base patients → PremierDemarrage() (base vierge / existante)
-							→ si pas OK → messageBox base de données endommagée
+							→ si OK
 								→ MySQL >= 8.0.14
 								 	→ on s’est connecté avec le mdp aléatoire
+					 					enregistrement du mdp dans .dbkey
 										on vérifie si le mdp générique est toujours présent
 											si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
 												message prévenant que l'effacement du mdp est imminent
@@ -179,6 +179,7 @@ II LANCEMENT DE RUFUS
 					→ si OK
 						→ MySQL >= 8.0.14
 							→ on s’est connecté avec le mdp aléatoire
+					 			enregistrement du mdp dans .dbkey
 								on vérifie si le mdp générique est toujours présent
 									si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
 										message prévenant que l'effacement du mdp est imminent
