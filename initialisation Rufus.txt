@@ -284,16 +284,20 @@ III. COMPTES adminrufus (SÉCURITÉ DES ACCÈS MySQL)
 
 	2. À CHAQUE LANCEMENT, en MONOPOSTE ou en RÉSEAU LOCAL (JAMAIS en accès distant)
 	   — silencieux, une fraction de seconde, l'utilisateur n'en entend jamais parler —
-		→ cohérence des plugins d'authentification entre hosts
-			→ tous les comptes adminrufus / adminrufusSSL doivent partager le même plugin
-			→ si un host traîne avec un plugin/mot de passe différent (base héritée),
-			  on réimpose le mot de passe courant sur TOUS les hosts
-			→ (c'est cette incohérence qui produisait un .dbkey vide et pouvait verrouiller le poste)
-		→ restriction d'adminrufus au réseau local (bases héritées où adminrufus@'%' existe encore)
-			→ on crée adminrufus sur toutes les plages privées avec le mot de passe courant
-			→ on PROUVE par une connexion de test qu'une entrée locale prend le relais
-			→ SEULEMENT ALORS on supprime adminrufus@'%'
-			RÈGLE → si le test échoue, on ne supprime rien : impossible de se verrouiller
+	→ SEULEMENT s'il existe encore un adminrufus@'%'
+		 parce que s'il a disparu,
+		 c'est que la régularistion des comptes a déjà eu lieu
+		 et on ne prend pas le risque de chambouler un truc qui marche
+			→ cohérence des plugins d'authentification entre hosts
+				→ tous les comptes adminrufus / adminrufusSSL doivent partager le même plugin
+				→ si un host traîne avec un plugin/mot de passe différent (base héritée),
+			  	on réimpose le mot de passe courant sur TOUS les hosts
+				→ (c'est cette incohérence qui produisait un .dbkey vide et pouvait verrouiller le poste)
+			→ restriction d'adminrufus au réseau local (bases héritées où adminrufus@'%' existe encore)
+				→ on crée adminrufus sur toutes les plages privées avec le mot de passe courant
+				→ on PROUVE par une connexion de test qu'une entrée locale prend le relais
+				→ SEULEMENT ALORS on supprime adminrufus@'%'
+				RÈGLE → si le test échoue, on ne supprime rien : impossible de se verrouiller
 
 	3. EN ACCÈS DISTANT
 		→ AUCUNE modification des comptes adminrufus (un poste distant ne corrige jamais le serveur)
