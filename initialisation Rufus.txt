@@ -132,9 +132,15 @@ II LANCEMENT DE RUFUS
 											→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
 															" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
 															" menu Edition/Paramètres...etc...
-												→ bouton annuler
-												→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
-												→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
+														→ bouton annuler
+														→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+														→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
+													→ on a récupéré un mdp
+														→ on l'enregistre dans .dbkey et on lance rufus
+													→ on n'a pas récupéré de mdp
+														→ on en crée un
+														→ on l’enregistre dans .dbkey
+														→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
 											→ non
 												→ on en crée un
 												→ on l’enregistre dans .dbkey
@@ -195,9 +201,15 @@ II LANCEMENT DE RUFUS
 									→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
 													" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
 													" menu Edition/Paramètres...etc...
-										→ bouton annuler
-										→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
-										→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
+												→ bouton annuler
+												→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+												→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
+											→ on a récupéré un mdp
+												→ on l'enregistre dans .dbkey et on lance rufus
+											→ on n'a pas récupéré de mdp
+												→ on en crée un
+												→ on l’enregistre dans .dbkey
+												→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
 									→ non
 										→ on en crée un
 										→ on l’enregistre dans .dbkey
@@ -237,9 +249,14 @@ II LANCEMENT DE RUFUS
 								→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
 												" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
 												" menu Edition/Paramètres...etc...
-									→ bouton annuler
-									→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
-								→ non, on affiche une boîte de message invitant à se connecter sur un poste local ou sur le serveur pour créer un mdp aléatoire,
+											→ bouton annuler
+											→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+										→ on a récupéré un mdp
+											→ on l'enregistre dans .dbkey et on lance rufus
+										→ on n'a pas récupéré de mdp
+											→ on affiche une boîte de message invitant à se connecter sur un poste local ou sur le serveur pour récupérer ou créer un mdp aléatoire,
+								  			avec un seul bouton OK
+								→ non, on affiche une boîte de message invitant à se connecter sur un poste local ou sur le serveur pour récupérer ou créer un mdp aléatoire,
 								  avec un seul bouton OK
 									RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 					→ MYSQL < 8.0.14 
