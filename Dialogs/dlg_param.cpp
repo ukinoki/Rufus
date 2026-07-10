@@ -4282,22 +4282,21 @@ bool dlg_param::Valide_Modifications()
                                 + tr("Vos autres modifications sont enregistrées.") + "\n"
                                 + tr("Vous pourrez renseigner le mot de passe plus tard depuis un poste disposant du mot de passe de la base sécurisée."));
 
-        //! Mot de passe MySQL : stocké dans .dbkey si le mode est actif, retiré sinon
-        //! (mode de connexion abandonné).
+        //! Mot de passe MySQL. Décocher un mode = on ne l'utilise plus (ACTIVE=NO), mais on CONSERVE
+        //! son mot de passe dans .dbkey comme les autres réglages du mode (serveur, port) : le poste
+        //! pourra recocher le mode plus tard sans avoir à ressaisir le mot de passe.
+        //! On ne retire la ligne du .dbkey que sur un mode actif dont le champ a été vidé volontairement.
         QString Base = Utils::getBaseFromMode(Utils::Poste);
         if (ui->PosteServcheckBox->isChecked())
         {
             proc->settings()->setValue(Base + Param_Active,"YES");
             if (!ui->MDPMonouplineEdit->text().isEmpty())
                 MySQLInstaller::stockerMotDePassePourMode(Utils::Poste, ui->MDPMonouplineEdit->text());
-            else                                            //! champ vide = pas de mot de passe pour ce mode → on retire sa ligne du .dbkey
+            else                                            //! champ vidé sur un mode actif → on retire sa ligne du .dbkey
                 MySQLInstaller::supprimerMotDePassePourMode(Utils::Poste);
         }
         else
-        {
-            proc->settings()->setValue(Base + Param_Active,"NO");
-            MySQLInstaller::supprimerMotDePassePourMode(Utils::Poste);
-        }
+            proc->settings()->setValue(Base + Param_Active,"NO");   //! mode abandonné : on garde le mot de passe stocké
         proc->settings()->setValue(Base + Param_Port,ui->SQLPortPostecomboBox->currentText());
 
         Base = Utils::getBaseFromMode(Utils::ReseauLocal);
@@ -4306,14 +4305,11 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + Param_Active,"YES");
             if (!ui->MDPLocaluplineEdit->text().isEmpty())
                 MySQLInstaller::stockerMotDePassePourMode(Utils::ReseauLocal, ui->MDPLocaluplineEdit->text());
-            else                                             //! champ vide = pas de mot de passe pour ce mode → on retire sa ligne du .dbkey
+            else                                             //! champ vidé sur un mode actif → on retire sa ligne du .dbkey
                 MySQLInstaller::supprimerMotDePassePourMode(Utils::ReseauLocal);
         }
         else
-        {
-            proc->settings()->setValue(Base + Param_Active,"NO");
-            MySQLInstaller::supprimerMotDePassePourMode(Utils::ReseauLocal);
-        }
+            proc->settings()->setValue(Base + Param_Active,"NO");   //! mode abandonné : on garde le mot de passe stocké
         proc->settings()->setValue(Base + Param_Serveur,Utils::calcIP(ui->EmplacementLocaluplineEdit->text(), false));
         db->setadresseserveurlocal(ui->EmplacementLocaluplineEdit->text());
         proc->settings()->setValue(Base + Param_Port,ui->SQLPortLocalcomboBox->currentText());
@@ -4324,14 +4320,11 @@ bool dlg_param::Valide_Modifications()
             proc->settings()->setValue(Base + Param_Active,"YES");
             if (!ui->MDPDistantuplineEdit->text().isEmpty())
                 MySQLInstaller::stockerMotDePassePourMode(Utils::Distant, ui->MDPDistantuplineEdit->text());
-            else                                               //! champ vide = pas de mot de passe pour ce mode → on retire sa ligne du .dbkey
+            else                                               //! champ vidé sur un mode actif → on retire sa ligne du .dbkey
                 MySQLInstaller::supprimerMotDePassePourMode(Utils::Distant);
         }
         else
-        {
-            proc->settings()->setValue(Base + Param_Active,"NO");
-            MySQLInstaller::supprimerMotDePassePourMode(Utils::Distant);
-        }
+            proc->settings()->setValue(Base + Param_Active,"NO");   //! mode abandonné : on garde le mot de passe stocké
         //if (Utils::rgx_IPV4.exactMatch(ui->EmplacementDistantuplineEdit->text()))
         if (!Utils::RegularExpressionMatches(Utils::rgx_IPV4, ui->EmplacementDistantuplineEdit->text()))
             proc->settings()->setValue(Base + Param_Serveur, Utils::calcIP(ui->EmplacementDistantuplineEdit->text(), false));
