@@ -248,7 +248,7 @@ II LANCEMENT DE RUFUS
 								si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
 									message prévenant que l'effacement du mdp est imminent avec date échénace
 								si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp générique existe toujours
-									message prévenant que l'effacement du mdp est imminent
+									message prévenant que l'effacement du mdp est imminent sans préciser la date
 						→ on s’est connecté avec le mdp générique
 							→ on vérifie s'il y a un mdp aléatoire
 								→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
