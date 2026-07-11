@@ -2747,6 +2747,19 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     if (servie.isEmpty() || servie.endsWith("@%"))
         return false;   // test non concluant (connexion échouée, ou toujours @'%') → on NE supprime PAS
 
+    // 2bis) La connexion PRINCIPALE (celle qui exécute cette sécurisation) utilise-t-elle ENCORE
+    //       adminrufus@'%' ? Sur une base neuve/resettée, c'est le seul host existant, donc OUI. La
+    //       supprimer ORPHELINERAIT cette connexion : la suite de la sécurisation (pose sur
+    //       adminrufusSSL@'%', puis contrôle adminrufusEstSecurise) échouerait → rollback → boucle
+    //       « pas de mot de passe » à chaque redémarrage. On DIFFÈRE donc le drop : au prochain
+    //       lancement, ce poste se connectera via adminrufus@localhost (créé ci-dessus) et le drop se
+    //       fera alors sans casser la connexion. (entreeAyantServiEnTest ci-dessus teste une
+    //       connexion NEUVE ; ici on interroge la connexion COURANTE, qui, elle, peut être @'%'.)
+    bool okCU = false;
+    const QVariantList cu = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT CURRENT_USER()", okCU);
+    if (!okCU || cu.isEmpty() || cu.at(0).toString().endsWith("@%"))
+        return false;
+
     // 3) Prouvé : on retire l'entrée trop ouverte (adminrufus@'%' non-SSL, joignable du WAN).
     DataBase::I()->StandardSQL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
