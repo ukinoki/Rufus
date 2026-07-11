@@ -1802,7 +1802,6 @@ void MySQLInstaller::restaurerClesSSLMigration()
 //  qu'on distribue aux postes distants et qu'on a besoin de pouvoir exporter.
 bool MySQLInstaller::clesSSLServeurPresentes()
 {
-    qDebug() << "[SSL-DIAG] clesSSLServeurPresentes() appelée — accès" << QString(PATH_DIR_CLESSSL_SERVEUR);
     const QString d = QString(PATH_DIR_CLESSSL_SERVEUR);
     return QFile::exists(d + "/ca-cert.pem")
         && QFile::exists(d + "/client-cert.pem")
@@ -1834,7 +1833,6 @@ QDateTime MySQLInstaller::dateExpirationCertSSL()
 //  true si la copie client est désormais présente.
 bool MySQLInstaller::extraireClesSSLDepuisDatadir()
 {
-    qDebug() << "[SSL-DIAG] extraireClesSSLDepuisDatadir() appelée — ÉCRIT dans" << QString(PATH_DIR_CLESSSL_SERVEUR);
     const QString datadir = mysqlDataDir();
 #if defined(Q_OS_WIN)
     recolterClesClientSSL(datadir);   // datadir lisible par le process élevé → copie C++ directe
@@ -2679,7 +2677,6 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     poser([](const QString& q){ DataBase::I()->StandardSQL(q); });
     if (percentDroppe())
         return true;
-    qDebug() << "[SSL-DIAG] restreindre : DÉTOUR SSL atteint (voie ordinaire n'a pas retiré adminrufus@'%')";
 
     //! 2) DÉTOUR SSL — atteint SEULEMENT si (1) n'a pas pu retirer adminrufus@'%' : la connexion principale
     //!    était une entrée LAN ordinaire (sans SYSTEM_USER). Seul adminrufusSSL (compte système) peut le
@@ -2782,7 +2779,6 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     poser([](const QString& q){ DataBase::I()->StandardSQL(q); });
     if (adminrufusEstSecurise())
         return true;
-    qDebug() << "[SSL-DIAG] securiserComptes : DÉTOUR SSL atteint (voie ordinaire n'a pas sécurisé)";
 
     //! 2) DÉTOUR SSL — atteint SEULEMENT si la voie ordinaire n'a pas sécurisé : la connexion principale
     //!    n'avait pas SYSTEM_USER (base POLLUÉE — adminrufusSSL@'%' resté compte système, adminrufus@'%'
