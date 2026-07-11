@@ -2706,13 +2706,13 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     //! « localhost » passe par le SOCKET Unix qui ne fait jamais de TLS → « Access denied » (1045) : on force
     //! donc 127.0.0.1 (une IP LAN d'un poste réseau reste inchangée) ; (2) TLS réellement activé → sslOpts ci-dessous.
     const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
-    //! FORCER le TLS : MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 ne fait que désactiver la VÉRIFICATION du cert,
-    //! il n'ACTIVE PAS le chiffrement → REQUIRE SSL échoue même en TCP. Fournir des options SSL_* déclenche
-    //! mysql_ssl_set() côté pilote → TLS réellement activé. On réutilise les certs que le serveur conserve
-    //! localement (PATH_DIR_CLESSSL_SERVEUR, récoltés à l'install) — MÊME construction que le mode Distant.
-    //! Absents (ex. poste LAN sans certs) → on retombe sur la vérif seule, qui échouera (cf. diagnostic).
+    //! FORCER le TLS SANS dépendre de fichiers : le compte est en REQUIRE SSL (pas REQUIRE X509) → le
+    //! serveur exige une liaison CHIFFRÉE, PAS de certificat CLIENT. MYSQL_OPT_SSL_MODE=REQUIRED impose donc
+    //! le chiffrement À LUI SEUL → la connexion marche MÊME sans stash de clés local (ex. poste LAN, qui n'a
+    //! pas les certs du serveur). On ajoute les certs du serveur S'ILS sont là (ceinture+bretelles : déclenche
+    //! aussi mysql_ssl_set côté pilote au cas où celui-ci ignorerait SSL_MODE). VERIFY=0 : cert auto-signé non vérifié.
     const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts;
+    QString sslOpts = "MYSQL_OPT_SSL_MODE=SSL_MODE_REQUIRED;";
     if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
     if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
     if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
@@ -2803,13 +2803,13 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     //! « localhost » passe par le SOCKET Unix qui ne fait jamais de TLS → « Access denied » (1045) : on force
     //! donc 127.0.0.1 (une IP LAN d'un poste réseau reste inchangée) ; (2) TLS réellement activé → sslOpts ci-dessous.
     const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
-    //! FORCER le TLS : MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 ne fait que désactiver la VÉRIFICATION du cert,
-    //! il n'ACTIVE PAS le chiffrement → REQUIRE SSL échoue même en TCP. Fournir des options SSL_* déclenche
-    //! mysql_ssl_set() côté pilote → TLS réellement activé. On réutilise les certs que le serveur conserve
-    //! localement (PATH_DIR_CLESSSL_SERVEUR, récoltés à l'install) — MÊME construction que le mode Distant.
-    //! Absents (ex. poste LAN sans certs) → on retombe sur la vérif seule, qui échouera (cf. diagnostic).
+    //! FORCER le TLS SANS dépendre de fichiers : le compte est en REQUIRE SSL (pas REQUIRE X509) → le
+    //! serveur exige une liaison CHIFFRÉE, PAS de certificat CLIENT. MYSQL_OPT_SSL_MODE=REQUIRED impose donc
+    //! le chiffrement À LUI SEUL → la connexion marche MÊME sans stash de clés local (ex. poste LAN, qui n'a
+    //! pas les certs du serveur). On ajoute les certs du serveur S'ILS sont là (ceinture+bretelles : déclenche
+    //! aussi mysql_ssl_set côté pilote au cas où celui-ci ignorerait SSL_MODE). VERIFY=0 : cert auto-signé non vérifié.
     const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts;
+    QString sslOpts = "MYSQL_OPT_SSL_MODE=SSL_MODE_REQUIRED;";
     if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
     if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
     if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
