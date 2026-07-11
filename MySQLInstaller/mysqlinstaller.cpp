@@ -46,6 +46,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paramconnexion.h" // RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey
 #include <QSqlDatabase>        // connexion de test indépendante (restriction adminrufus au LAN)
 #include <QSqlQuery>
+#include <QSqlError>           // diagnostic de l'échec d'ouverture de la connexion adminrufusSSL
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -2792,11 +2793,23 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
         db.setPort(port);
         db.setUserName(urSSL);
         db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
+        qDebug() << "securiserComptesetMdpViaAdminrufusSSL: tentative connexion" << urSSL << "@" << host << ":" << port
+                 << "options=" << db.connectOptions();
         for (const QString& mdp : { aleatoire, legacy })
         {
             db.setPassword(mdp);
             if (db.open()) { ouverte = true; break; }
+            //! DIAGNOSTIC : pourquoi open() échoue sous adminrufusSSL (typiquement REQUIRE SSL non satisfait
+            //! → « Access denied » ou une erreur SSL). On log l'erreur EXACTE côté serveur/pilote.
+            qDebug() << "  open() KO (mdp"
+                     << (mdp == QString(MDP_SQL) ? "gaxt78iy" : "aleatoire") << ") -"
+                     << "err=" << db.lastError().text()
+                     << "| code=" << db.lastError().nativeErrorCode()
+                     << "| db=" << db.lastError().databaseText()
+                     << "| driver=" << db.lastError().driverText();
         }
+        if (!ouverte)
+            qDebug() << "  => connexion adminrufusSSL IMPOSSIBLE (voir erreurs ci-dessus) : sécurisation abandonnée";
 
         if (ouverte)
         {
