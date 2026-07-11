@@ -2709,7 +2709,6 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())                                return false;
-    if (!Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%"))  return false;   // pas d'entrée @'%' → déjà migré
 
     // Adresse réelle de CETTE connexion, vue par MySQL. On ne restreint QUE si elle est locale/privée.
     bool ok = false;
