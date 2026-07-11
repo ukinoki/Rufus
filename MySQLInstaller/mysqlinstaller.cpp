@@ -2595,7 +2595,7 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
         return false;                                   // écriture impossible → on ne sécurise PAS
     }
     //! Pose np (avec gaxt78iy en 2e mot de passe) sur TOUS les hosts d'adminrufus/adminrufusSSL.
-    imposerMotDePasseSurTousLesHosts(np);
+    securiserComptesetMdpViaAdminrufusSSL(np);
 
     //! VÉRIFICATION que la sécurisation a pris (retours StandardSQL non fiables). Sinon on ANNULE :
     //! retrait de np du .dbkey, retour à gaxt78iy, aucun message trompeur. La base reste fonctionnelle.
@@ -2765,12 +2765,8 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
 // certificat serveur auto-signé (aucun certificat client à distribuer). Si la liaison TLS locale
 // n'aboutit pas, open() échoue sur les deux mots de passe → renvoie false SANS rien casser. Renvoie true
 // si, au final, adminrufusSSL@'%' porte bien son 2e mot de passe (base sécurisée).
-bool MySQLInstaller::securiserViaAdminrufusSSL(const QString& aleatoire)
+bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleatoire)
 {
-    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
-    if (!socleMySQLConforme())                                return false;   // < 8.0.14 : pas de double mot de passe
-    if (aleatoire.isEmpty() || aleatoire == QString(MDP_SQL)) return false;   // il faut un VRAI aléatoire
-
     const QString urSSL    = QString(LOGIN_SQL) + "SSL";
     const QString ur       = QString(LOGIN_SQL);
     const QString legacy   = QString(MDP_SQL);

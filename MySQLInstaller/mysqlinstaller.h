@@ -219,7 +219,7 @@ public:
     //  ouvrant une 2e connexion LOCALE sous adminrufusSSL, qui, LUI, détient SYSTEM_USER. `aleatoire` =
     //  mot de passe à poser (gaxt78iy conservé en 2e mdp). Marche dans tous les cas ; seule exigence : que
     //  la liaison TLS locale s'ouvre (REQUIRE SSL). true si adminrufusSSL@'%' est bien sécurisé au final.
-    bool    securiserViaAdminrufusSSL(const QString& aleatoire);
+    bool    securiserComptesetMdpViaAdminrufusSSL(const QString& aleatoire);
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
