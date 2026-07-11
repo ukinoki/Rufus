@@ -2027,7 +2027,6 @@ void UtilsMessageBox::setIcon(enum Icon icn, bool animatedIcon)
         break;
     case Print:
         wdg_iconlbl     ->setPixmap(QPixmap("://11865.png").scaled(80,80));
-        break;
     }
     if (!resize)
         return;

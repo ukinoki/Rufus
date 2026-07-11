@@ -223,6 +223,8 @@ II LANCEMENT DE RUFUS
 							→ message 	"serveur MySQL à mettre à jour"
 										" cette mise à jour doit se faire depuis le poste serveur"
 	1d. Accès distant 
+		RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
+		RÈGLE → on ne supprime pas le mdp générique depuis un poste WAN
 		→ pas de clés SSL
 			→ on demande où elles se trouvent
 				→ toujours pas de clés → message "impossible de se connecter sans les clés"
@@ -246,9 +248,9 @@ II LANCEMENT DE RUFUS
 							→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 							→ on vérifie si le mdp générique est toujours présent
 								si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
-									message prévenant que l'effacement du mdp est imminent avec date échénace
-								si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp générique existe toujours
-									message prévenant que l'effacement du mdp est imminent sans préciser la date
+									message prévenant que l'effacement du mdp est imminent avec date échéance
+								si la creation du mdp aleatoire remonte à plus de 30 jours et que le mdp générique existe toujours
+									message prévenant que l'effacement du mdp est imminent en précisant le dépassement de la date d'échéance
 						→ on s’est connecté avec le mdp générique
 							→ on vérifie s'il y a un mdp aléatoire
 								→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
@@ -263,7 +265,6 @@ II LANCEMENT DE RUFUS
 								  			avec un seul bouton OK
 								→ non, on affiche une boîte de message invitant à se connecter sur un poste local ou sur le serveur pour récupérer ou créer un mdp aléatoire,
 								  avec un seul bouton OK
-									RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 					→ MYSQL < 8.0.14 
 						→ Après l'affichage de rufus.cpp à l'écran
 							→ message 	"serveur MySQL à mettre à jour"

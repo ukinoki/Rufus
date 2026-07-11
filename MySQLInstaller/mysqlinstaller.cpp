@@ -2557,7 +2557,8 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     //    NB : on teste un mot de passe NON VIDE pour le mode courant, pas la simple existence du
     //    fichier — un .dbkey présent mais VIDE (échec d'écriture antérieur) ne doit pas bloquer
     //    définitivement une nouvelle tentative de sécurisation.
-    if (adminrufusEstSecurise() || !lireDBKey().value(cleModeCourant()).isEmpty())
+    bool empty = lireDBKey().value(cleModeCourant()).isEmpty();
+    if (adminrufusEstSecurise() || !empty)
         return false;
 
     // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD, MySQL >= 8.0.14,
@@ -2954,7 +2955,8 @@ bool MySQLInstaller::adminrufusEstSecurise()
     QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
         "SELECT User_attributes->>'$.additional_password' IS NOT NULL "
         "FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
-    return ok && !r.isEmpty() && r.at(0).toInt() == 1;
+    bool rep = ok && !r.isEmpty() && r.at(0).toInt() == 1;
+    return rep;
 }
 
 // Date de sécurisation = dernier changement du mot de passe d'adminrufus.

@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef UTILS_H
 #define UTILS_H
-#include <QBuffer>
+
 #include <QColorDialog>
 #include <QCryptographicHash>
 #include <QDir>
