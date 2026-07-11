@@ -40,9 +40,10 @@ private:
     QList<QGraphicsPixmapItem*>     m_listgraphicsItem;
     QGraphicsVideoItem              *m_vidItem          = Q_NULLPTR;
     UpMediaPlayer                   *m_mediaPlayer      = Q_NULLPTR;
-    qreal                           m_ScaleFactor;
+    qreal                           m_ScaleFactor       = 1.0;          //! init : checkSize() peut le lire avant le 1er fitImage
     bool                            OKwheelzoom         = false;
     bool                            m_inResize          = false;        //! garde anti-récursion du resizeEvent
+    bool                            m_rebuilding        = false;        //! vrai pendant setListimg/setVideo : la scène est à moitié reconstruite, un resizeEvent concurrent ne doit pas la lire
     QString                         m_text              = "";
     void    fitVideo(QSize size);
     qreal   listImageScaleFactor(qreal w);

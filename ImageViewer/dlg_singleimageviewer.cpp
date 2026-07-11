@@ -303,8 +303,8 @@ void dlg_singleimageviewer::goTo(UpToolBar::Choice choice)
 
 bool dlg_singleimageviewer::eventFilter(QObject *obj, QEvent *event)
 {
-    QResizeEvent *rszevent = dynamic_cast<QResizeEvent*>(event);
-    if (rszevent != Q_NULLPTR)
+    //! type() plutôt que dynamic_cast<QResizeEvent*> sur un QEvent* (RTTI fragile, cf. DisplayWidget).
+    if (event->type() == QEvent::Resize)
     {
         if (m_mode == Normal)
             setOriginalgeometry(geometry());

@@ -80,10 +80,15 @@ qreal DisplayWidget::sizeRatio(QSize size)
 
 void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
 {
+    //! Garde : la reconstruction vide puis reremplit la scène ; un resizeEvent délivré pendant ce
+    //! laps (ex. delete m_mediaPlayer peut traiter des événements) lirait une scène incohérente.
+    m_rebuilding = true;
+    //! On LÂCHE nos pointeurs AVANT de détruire les items : sinon m_listgraphicsItem pointe un court
+    //! instant sur des QGraphicsPixmapItem déjà supprimés par m_scene->clear() (pointeurs pendants).
+    m_listgraphicsItem.clear();
     if (m_scene->items().size() >0)
         m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
-    if (m_listgraphicsItem.size() >0)
-        m_listgraphicsItem.clear();
+    m_vidItem = Q_NULLPTR;            //! détruit par m_scene->clear() (item de la scène) : ne pas garder un pointeur mort (lu par resizeEvent)
     if (m_mediaPlayer != Q_NULLPTR)
     {
         delete m_mediaPlayer;
@@ -104,15 +109,17 @@ void DisplayWidget::setListimg(const QList<QImage> &newListimg, QSize size)
         m_listgraphicsItem << item;
         h += pix.height();
     }
+    m_rebuilding = false;
     fitImage(size);                 //! transform de fit initiale (avant le premier resizeEvent)
 }
 
 void DisplayWidget::setVideo(const QString filename, QSize size)
 {
+    m_rebuilding = true;
+    m_listgraphicsItem.clear();       //! nos pointeurs d'abord (cf. setListimg), puis la scène
     if (m_scene->items().size() >0)
         m_scene->clear();             /*! QGraphicsScene::clear() -> "Removes and deletes all items from the scene..." */
-    if (m_listgraphicsItem.size() >0)
-        m_listgraphicsItem.clear();
+    m_vidItem = Q_NULLPTR;            //! l'ancien item vidéo vient d'être détruit par clear() : pas de pointeur mort
     if (m_mediaPlayer == Q_NULLPTR)
         m_mediaPlayer           = new UpMediaPlayer(filename, this);
     else
@@ -122,6 +129,7 @@ void DisplayWidget::setVideo(const QString filename, QSize size)
     qreal videosizeratio        = sizeRatio(m_mediaPlayer->videosize());
     QSizeF optimalsize          = optimalSizeForVideo(size, videosizeratio);
     m_vidItem                   ->setSize(optimalsize);
+    m_rebuilding = false;
     fitVideo(size);
     m_mediaPlayer               ->setVideoOutput(m_vidItem);
 }
@@ -260,34 +268,32 @@ void DisplayWidget::keyPressEvent(QKeyEvent *event) {
 void DisplayWidget::resizeEvent(QResizeEvent* event) {
     //! Garde anti-récursion : un ajustement peut, sur certaines versions de Qt, ré-émettre un
     //! resizeEvent (barre qui apparaît/disparaît, relayout) -> sans ce garde, récursion -> crash.
-    if (m_inResize)
+    //! m_rebuilding : ne pas mesurer une scène en cours de reconstruction (setListimg/setVideo).
+    if (m_inResize || m_rebuilding)
         return;
     m_inResize = true;
     QGraphicsView::resizeEvent(event);          //! laisse la base poser le viewport AVANT de mesurer
-    if (m_scene->items().size() >0)
+    //! On se fie à NOTRE état (images vs vidéo), jamais à items().at(0) : l'ordre d'empilement et le
+    //! type de l'item de tête ne sont pas garantis, et un cast raté n'ajustait alors rien.
+    if (!m_listgraphicsItem.isEmpty())
     {
-        QGraphicsPixmapItem *itm = dynamic_cast<QGraphicsPixmapItem *>(m_scene->items().at(0));
-        if (itm)
-        {
-            //! On ajuste à la taille du VIEWPORT (zone réellement visible) et NON à celle du widget :
-            //! pixmaps natifs, pas de re-rasterisation, juste la transform de vue.
-            fitImage(viewport()->size());
-            checkSize();
-        }
-        else
-        {
-            QGraphicsVideoItem *itm = dynamic_cast<QGraphicsVideoItem *>(m_scene->items().at(0));
-            if (itm)
-                fitVideo(viewport()->size());
-        }
+        //! On ajuste à la taille du VIEWPORT (zone réellement visible) et NON à celle du widget :
+        //! pixmaps natifs, pas de re-rasterisation, juste la transform de vue.
+        fitImage(viewport()->size());
+        checkSize();
     }
+    else if (m_vidItem != Q_NULLPTR)
+        fitVideo(viewport()->size());
     m_inResize = false;
 }
 
 bool DisplayWidget::eventFilter(QObject *obj, QEvent *event)
 {
+    //! type() puis static_cast : sûr et rapide. dynamic_cast sur un QEvent* est fragile (RTTI, réputé
+    //! capricieux à travers les frontières de DLL sous Windows) et déréférencer son résultat sans garde
+    //! était exposé à un plantage.
     if (event->type() == QEvent::MouseButtonRelease)
-        if (dynamic_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
+        if (static_cast<QMouseEvent*>(event)->button() == Qt::LeftButton)
             emit clicked();
     return QWidget::eventFilter(obj, event);
 }
