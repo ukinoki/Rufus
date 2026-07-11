@@ -2712,7 +2712,7 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     //! pas les certs du serveur). On ajoute les certs du serveur S'ILS sont là (ceinture+bretelles : déclenche
     //! aussi mysql_ssl_set côté pilote au cas où celui-ci ignorerait SSL_MODE). VERIFY=0 : cert auto-signé non vérifié.
     const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts = "MYSQL_OPT_SSL_MODE=REQUIRED;";   // Qt attend la valeur SANS préfixe SSL_MODE_
+    QString sslOpts = "MYSQL_OPT_SSL_MODE=3;";   // 3 = SSL_MODE_REQUIRED — Qt attend ici la valeur NUMÉRIQUE de l'enum
     if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
     if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
     if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
@@ -2809,7 +2809,7 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     //! pas les certs du serveur). On ajoute les certs du serveur S'ILS sont là (ceinture+bretelles : déclenche
     //! aussi mysql_ssl_set côté pilote au cas où celui-ci ignorerait SSL_MODE). VERIFY=0 : cert auto-signé non vérifié.
     const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts = "MYSQL_OPT_SSL_MODE=REQUIRED;";   // Qt attend la valeur SANS préfixe SSL_MODE_
+    QString sslOpts = "MYSQL_OPT_SSL_MODE=3;";   // 3 = SSL_MODE_REQUIRED — Qt attend ici la valeur NUMÉRIQUE de l'enum
     if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
     if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
     if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
