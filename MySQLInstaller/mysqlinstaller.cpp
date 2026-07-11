@@ -2702,11 +2702,21 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     if (!principale.isValid()) return false;
     const QString host = principale.hostName();
     const int     port = principale.port();
-    //! adminrufusSSL est en REQUIRE SSL → la liaison DOIT être chiffrée. « localhost » passe par le SOCKET
-    //! Unix, qui ne négocie JAMAIS de TLS → REQUIRE SSL non satisfait → « Access denied » (1045). On force
-    //! donc une connexion TCP via 127.0.0.1, sur laquelle MySQL 8 négocie le TLS spontanément (cert serveur
-    //! non vérifié, cf. MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0). Une IP LAN (poste distant/réseau) reste inchangée.
+    //! adminrufusSSL est en REQUIRE SSL → la liaison DOIT être chiffrée. DEUX conditions : (1) TCP, car
+    //! « localhost » passe par le SOCKET Unix qui ne fait jamais de TLS → « Access denied » (1045) : on force
+    //! donc 127.0.0.1 (une IP LAN d'un poste réseau reste inchangée) ; (2) TLS réellement activé → sslOpts ci-dessous.
     const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
+    //! FORCER le TLS : MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 ne fait que désactiver la VÉRIFICATION du cert,
+    //! il n'ACTIVE PAS le chiffrement → REQUIRE SSL échoue même en TCP. Fournir des options SSL_* déclenche
+    //! mysql_ssl_set() côté pilote → TLS réellement activé. On réutilise les certs que le serveur conserve
+    //! localement (PATH_DIR_CLESSSL_SERVEUR, récoltés à l'install) — MÊME construction que le mode Distant.
+    //! Absents (ex. poste LAN sans certs) → on retombe sur la vérif seule, qui échouera (cf. diagnostic).
+    const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
+    QString sslOpts;
+    if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
+    if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
+    if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
+    sslOpts += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";   // cert serveur auto-signé : non vérifié
 
     bool ouverte = false;
     bool fait    = false;
@@ -2715,7 +2725,7 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
         db.setHostName(hostSSL);
         db.setPort(port);
         db.setUserName(urSSL);
-        db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
+        db.setConnectOptions(sslOpts);   // SSL_* (si certs présents) ACTIVE le TLS ; VERIFY=0 = cert non vérifié
         for (const QString& mdp : { courant, legacy })
         {
             db.setPassword(mdp);
@@ -2789,11 +2799,21 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     if (!principale.isValid()) return false;
     const QString host = principale.hostName();
     const int     port = principale.port();
-    //! adminrufusSSL est en REQUIRE SSL → la liaison DOIT être chiffrée. « localhost » passe par le SOCKET
-    //! Unix, qui ne négocie JAMAIS de TLS → REQUIRE SSL non satisfait → « Access denied » (1045). On force
-    //! donc une connexion TCP via 127.0.0.1, sur laquelle MySQL 8 négocie le TLS spontanément (cert serveur
-    //! non vérifié, cf. MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0). Une IP LAN (poste distant/réseau) reste inchangée.
+    //! adminrufusSSL est en REQUIRE SSL → la liaison DOIT être chiffrée. DEUX conditions : (1) TCP, car
+    //! « localhost » passe par le SOCKET Unix qui ne fait jamais de TLS → « Access denied » (1045) : on force
+    //! donc 127.0.0.1 (une IP LAN d'un poste réseau reste inchangée) ; (2) TLS réellement activé → sslOpts ci-dessous.
     const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
+    //! FORCER le TLS : MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 ne fait que désactiver la VÉRIFICATION du cert,
+    //! il n'ACTIVE PAS le chiffrement → REQUIRE SSL échoue même en TCP. Fournir des options SSL_* déclenche
+    //! mysql_ssl_set() côté pilote → TLS réellement activé. On réutilise les certs que le serveur conserve
+    //! localement (PATH_DIR_CLESSSL_SERVEUR, récoltés à l'install) — MÊME construction que le mode Distant.
+    //! Absents (ex. poste LAN sans certs) → on retombe sur la vérif seule, qui échouera (cf. diagnostic).
+    const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
+    QString sslOpts;
+    if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
+    if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
+    if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
+    sslOpts += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";   // cert serveur auto-signé : non vérifié
 
     bool ouverte  = false;
     bool securise = false;
@@ -2802,7 +2822,7 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
         db.setHostName(hostSSL);
         db.setPort(port);
         db.setUserName(urSSL);
-        db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
+        db.setConnectOptions(sslOpts);   // SSL_* (si certs présents) ACTIVE le TLS ; VERIFY=0 = cert non vérifié
         qDebug() << "securiserComptesetMdpViaAdminrufusSSL: tentative connexion" << urSSL << "@" << hostSSL << ":" << port
                  << "options=" << db.connectOptions();
         for (const QString& mdp : { aleatoire, legacy })
