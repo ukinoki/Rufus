@@ -2622,9 +2622,8 @@ void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
     const QString legacy = QString(MDP_SQL);
     const QString urS = QString(LOGIN_SQL) + "SSL";
         DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%', legacy));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%',  legacy));
+        //DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%',  legacy));
         DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, '%'));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, '%',  mdp));
         //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
         //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
         //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
@@ -2633,7 +2632,11 @@ void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
         //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
         //! (dateSecurisation), inutile de la dupliquer ici.
         const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' ATTRIBUTE '{\"securepar\":\"%3\"}'").arg(urS, '%',  posteSql));
+        QString query = QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' "
+                                "RETAIN CURRENT PASSWORD ATTRIBUTE '{\"securepar\":\"%4\"}'")
+                                .arg(urS, '%', mdp, posteSql);
+        qDebug() << "ALTER USER ATTRIBUTE:" << query;
+        DataBase::I()->StandardSQL(query);
 
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 }
@@ -2711,12 +2714,6 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())                                return false;
 
-    // Adresse réelle de CETTE connexion, vue par MySQL. On ne restreint QUE si elle est locale/privée.
-    bool ok = false;
-    const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT SUBSTRING_INDEX(USER(),'@',-1)", ok);
-    if (!ok || r.isEmpty())                             return false;
-    if (!estAdressePriveeOuLocale(r.at(0).toString()))  return false;   // hôte non reconnu comme local → on NE touche à rien
-
     const QString ur      = QString(LOGIN_SQL);
     const QString legacy  = QString(MDP_SQL);
     const QString courant = mdpAleatoire;               // l'aléatoire ÉPROUVÉ (celui de la connexion en cours)
@@ -2746,19 +2743,6 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     const QString servie = entreeAyantServiEnTest(courant);
     if (servie.isEmpty() || servie.endsWith("@%"))
         return false;   // test non concluant (connexion échouée, ou toujours @'%') → on NE supprime PAS
-
-    // 2bis) La connexion PRINCIPALE (celle qui exécute cette sécurisation) utilise-t-elle ENCORE
-    //       adminrufus@'%' ? Sur une base neuve/resettée, c'est le seul host existant, donc OUI. La
-    //       supprimer ORPHELINERAIT cette connexion : la suite de la sécurisation (pose sur
-    //       adminrufusSSL@'%', puis contrôle adminrufusEstSecurise) échouerait → rollback → boucle
-    //       « pas de mot de passe » à chaque redémarrage. On DIFFÈRE donc le drop : au prochain
-    //       lancement, ce poste se connectera via adminrufus@localhost (créé ci-dessus) et le drop se
-    //       fera alors sans casser la connexion. (entreeAyantServiEnTest ci-dessus teste une
-    //       connexion NEUVE ; ici on interroge la connexion COURANTE, qui, elle, peut être @'%'.)
-    bool okCU = false;
-    const QVariantList cu = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT CURRENT_USER()", okCU);
-    if (!okCU || cu.isEmpty() || cu.at(0).toString().endsWith("@%"))
-        return false;
 
     // 3) Prouvé : on retire l'entrée trop ouverte (adminrufus@'%' non-SSL, joignable du WAN).
     DataBase::I()->StandardSQL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
@@ -2965,9 +2949,9 @@ bool MySQLInstaller::adminrufusEstSecurise()
     //! sont sécurisés EN MÊME TEMPS (imposerMotDePasseSurTousLesHosts). Interroger adminrufus@'%' ferait
     //! croire, après l'Option B, que la base n'est plus sécurisée (et gaxt78iy ne serait jamais purgé).
     bool ok = false;
-    QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-        "SELECT User_attributes->>'$.additional_password' IS NOT NULL "
-        "FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
+    QString query = QString("SELECT User_attributes->>'$.additional_password' IS NOT NULL FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'");
+    QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(query, ok);
+    qDebug() << query;
     bool rep = ok && !r.isEmpty() && r.at(0).toInt() == 1;
     return rep;
 }

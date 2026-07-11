@@ -110,9 +110,16 @@ qint64 DataBase::countRecords(QString table, QString where)
 
 bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
+    bool a = false;
     if (erreur.type() != QSqlError::NoError)
     {
         Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
+        if (a)
+        {
+            qDebug() << ErrorMessage;
+            qDebug() << "Erreur" << erreur.text();
+            qDebug() << "requete = " << requete;
+        }
         return true;
     }
     return false;
