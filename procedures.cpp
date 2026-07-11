@@ -3269,7 +3269,11 @@ bool Procedures::Connexion_A_La_Base()
     //! périmé ne doit pas bloquer une base qui accepte encore gaxt78iy.
     qDebug() << "[DIAG] Connexion_A_La_Base: AVANT connecterAvecCandidats";
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+<<<<<<< Updated upstream
     qDebug() << "[DIAG] Connexion_A_La_Base: APRÈS connecterAvecCandidats, err=" << errConnexion;
+=======
+
+>>>>>>> Stashed changes
     if (!errConnexion.isEmpty())
     {
         //! Échec d'AUTHENTIFICATION (base sécurisée sur un autre poste / .dbkey périmé) : on propose
