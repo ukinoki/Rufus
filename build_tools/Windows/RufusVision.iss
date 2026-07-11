@@ -5,7 +5,7 @@
 ;   /DMyAppVersion=10-06-2026     numéro de version (= date de publication)
 ;   /DDeploySrc=C:\chemin\Deploy   dossier produit par windeployqt (contenu à empaqueter)
 #ifndef MyAppVersion
-  #define MyAppVersion "23-02-2025"
+  #define MyAppVersion "09-07-2025"
 #endif
 #ifndef DeploySrc
   #define DeploySrc "C:\Users\serge\RufusDeploy"
