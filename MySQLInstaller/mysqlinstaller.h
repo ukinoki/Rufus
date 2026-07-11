@@ -214,6 +214,12 @@ public:
     //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. `mdpAleatoire` =
     //  l'aléatoire éprouvé de la connexion en cours (posé sur les entrées créées). Silencieux, local.
     bool    restreindreAdminrufusAuLAN(const QString& mdpAleatoire);
+    //  Rattrape une base « polluée » (1re sécurisation échouée : adminrufusSSL@'%' resté compte système
+    //  NON sécurisé, adminrufus@'%' droppé → plus aucune connexion ordinaire ne peut le corriger) en
+    //  ouvrant une 2e connexion LOCALE sous adminrufusSSL, qui, LUI, détient SYSTEM_USER. `aleatoire` =
+    //  mot de passe à poser (gaxt78iy conservé en 2e mdp). Marche dans tous les cas ; seule exigence : que
+    //  la liaison TLS locale s'ouvre (REQUIRE SSL). true si adminrufusSSL@'%' est bien sécurisé au final.
+    bool    securiserViaAdminrufusSSL(const QString& aleatoire);
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.

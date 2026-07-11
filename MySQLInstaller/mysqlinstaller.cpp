@@ -2750,6 +2750,96 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     return true;
 }
 
+// Sécurise la base EN SE CONNECTANT COMME adminrufusSSL. À N'UTILISER que pour RATTRAPER une base
+// « polluée » : celle où la 1re sécurisation a échoué à mi-chemin (adminrufusSSL@'%' resté « compte
+// système » NON sécurisé, adminrufus@'%' déjà droppé). Dans ce cas, la connexion adminrufus ordinaire
+// (entrée LAN, non système) ne peut PLUS modifier adminrufusSSL@'%' (compte système). MAIS adminrufusSSL,
+// en tant que compte système, DÉTIENT SYSTEM_USER : une session ouverte SOUS ce compte en hérite et peut
+// donc modifier les comptes système — dont lui-même (le changement s'applique à la reconnexion, la
+// session courante garde ses privilèges en cache). On ouvre donc une 2e connexion, LOCALE et dédiée,
+// sous adminrufusSSL, et on fait TOUTE la sécurisation depuis elle. Aucun root, aucun script manuel.
+//
+// Marche dans TOUS les cas (base polluée, saine ou déjà sécurisée) : on essaie la connexion avec
+// l'aléatoire PUIS gaxt78iy (selon l'état où la base est restée). SEULE condition dure : adminrufusSSL
+// exige SSL — MySQL 8 négocie le TLS SPONTANÉMENT en local, on ne demande donc qu'à NE PAS vérifier le
+// certificat serveur auto-signé (aucun certificat client à distribuer). Si la liaison TLS locale
+// n'aboutit pas, open() échoue sur les deux mots de passe → renvoie false SANS rien casser. Renvoie true
+// si, au final, adminrufusSSL@'%' porte bien son 2e mot de passe (base sécurisée).
+bool MySQLInstaller::securiserViaAdminrufusSSL(const QString& aleatoire)
+{
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
+    if (!socleMySQLConforme())                                return false;   // < 8.0.14 : pas de double mot de passe
+    if (aleatoire.isEmpty() || aleatoire == QString(MDP_SQL)) return false;   // il faut un VRAI aléatoire
+
+    const QString urSSL    = QString(LOGIN_SQL) + "SSL";
+    const QString ur       = QString(LOGIN_SQL);
+    const QString legacy   = QString(MDP_SQL);
+    const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
+    const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
+
+    // Réutilise l'hôte/port de la connexion principale : c'est le MÊME serveur, une 2e session sous un
+    // autre compte. (Cf. entreeAyantServiEnTest, même schéma de connexion indépendante.)
+    const QSqlDatabase principale = QSqlDatabase::database(DB_RUFUS, false);
+    if (!principale.isValid()) return false;
+    const QString host = principale.hostName();
+    const int     port = principale.port();
+
+    bool ouverte  = false;
+    bool securise = false;
+    {
+        QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_secure_ssl");
+        db.setHostName(host);
+        db.setPort(port);
+        db.setUserName(urSSL);
+        db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
+        for (const QString& mdp : { aleatoire, legacy })
+        {
+            db.setPassword(mdp);
+            if (db.open()) { ouverte = true; break; }
+        }
+
+        if (ouverte)
+        {
+            //! Exécute une requête sur CETTE connexion privilégiée (celle qui détient SYSTEM_USER), et NON
+            //! sur la connexion principale (adminrufus, qui ne l'a pas).
+            auto execSSL = [&db](const QString& q) { QSqlQuery s(db); s.exec(q); };
+
+            //! adminrufusSSL@'%' (compte système) : EN DEUX temps (RETAIN est ignoré si le même ALTER change
+            //! le plugin d'auth). 1) plugin natif + gaxt78iy ; 2) bascule sur l'aléatoire en CONSERVANT
+            //! gaxt78iy (RETAIN) et en gravant securepar DANS LE MÊME ALTER (un ATTRIBUTE isolé effacerait
+            //! additional_password). ALTER … IDENTIFIED BY … sans clause REQUIRE laisse REQUIRE SSL intact.
+            execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(urSSL, "%", legacy));
+            execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
+
+            //! adminrufus (non-SSL) sur toutes les plages LOCALES/privées : même aléatoire, gaxt78iy conservé,
+            //! securepar gravé → ces entrées LAN prennent le relais des connexions locales.
+            for (const QString& h : hostsLANprives())
+            {
+                execSSL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+                execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+                execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
+                execSSL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+            }
+            //! Les entrées LAN couvrant tout RFC 1918 + loopback, adminrufus@'%' (joignable du WAN) devient
+            //! inutile et trop ouvert : on le retire (Option B). On est connecté sous adminrufusSSL, pas sous
+            //! adminrufus@'%' : le DROP ne peut pas nous verrouiller nous-mêmes.
+            execSSL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
+            execSSL("FLUSH PRIVILEGES");
+
+            //! Vérifie SUR CETTE connexion que la sécurisation a pris (adminrufusSSL@'%' = référence stable,
+            //! cf. adminrufusEstSecurise) : additional_password non NULL ⇔ 2e mot de passe gaxt78iy conservé.
+            QSqlQuery v(db);
+            if (v.exec("SELECT User_attributes->>'$.additional_password' IS NOT NULL"
+                       " FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'") && v.next())
+                securise = v.value(0).toBool();
+
+            db.close();
+        }
+    }
+    QSqlDatabase::removeDatabase("rufus_secure_ssl");   // après destruction de `db` (fin du bloc)
+    return ouverte && securise;
+}
+
 // À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
 // poste s'est connecté (l'aléatoire ou le générique gaxt78iy). Chaque étape est AUTO-GARDÉE (ses
 // propres conditions), et les deux branches sont MUTUELLEMENT EXCLUSIVES (random vs générique) :
