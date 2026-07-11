@@ -2557,8 +2557,8 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
     //    NB : on teste un mot de passe NON VIDE pour le mode courant, pas la simple existence du
     //    fichier — un .dbkey présent mais VIDE (échec d'écriture antérieur) ne doit pas bloquer
     //    définitivement une nouvelle tentative de sécurisation.
-    bool empty = lireDBKey().value(cleModeCourant()).isEmpty();
-    if (adminrufusEstSecurise() || !empty)
+    //qDebug() << cleModeCourant() << lireDBKey().value(cleModeCourant());
+    if (adminrufusEstSecurise() || motDePasseSQL() != QString(MDP_SQL))
         return false;
 
     // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD, MySQL >= 8.0.14,
