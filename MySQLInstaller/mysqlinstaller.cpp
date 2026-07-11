@@ -2986,7 +2986,8 @@ QString MySQLInstaller::posteSecurisation()
 
 // Supprime gaxt78iy (le 2e mot de passe) si la deadline (sécurisation + 30 j) est passée.
 // Garde-fou : on ne le fait QUE si ce poste détient le vrai mot de passe aléatoire — sinon
-// il se couperait lui-même l'accès.
+// il se couperait lui-même l'accès. En accès DISTANT, on ne supprime jamais (un poste distant
+// ne touche pas aux comptes) : on avertit seulement que l'échéance est dépassée (cf. spec §1d).
 void MySQLInstaller::supprimerGaxt78iySiEchue()
 {
     if (motDePasseSQL() == QString(MDP_SQL))   // on n'a que gaxt78iy → ne pas droper
@@ -2996,6 +2997,23 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
     const QDateTime d = dateSecurisation();
     if (!d.isValid() || d.addDays(30) > QDateTime::currentDateTime())
         return;                                // deadline pas encore atteinte
+
+    //! Poste DISTANT (spec §1d + §III.3) : il ne touche JAMAIS aux comptes adminrufus → il ne supprime
+    //! PAS le générique (c'est à un poste local ou au serveur de le faire). Comme l'échéance est déjà
+    //! DÉPASSÉE, on ne redonne pas de date future : on avertit qu'elle l'est depuis X jours, et que la
+    //! désactivation doit se faire depuis un poste local.
+    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
+    {
+        const int joursDepasse = d.addDays(30).daysTo(QDateTime::currentDateTime());
+        UpMessageBox::Watch(nullptr,
+            tr("Mot de passe générique à désactiver"),
+            tr("Ce poste utilise un mot de passe sécurisé pour accéder à la base de données.") + "\n\n" +
+            tr("Un mot de passe générique de compatibilité est cependant toujours actif, alors que sa "
+               "date d'échéance est dépassée depuis %1 jours.").arg(joursDepasse) + "\n\n" +
+            tr("Sa désactivation ne peut pas se faire depuis un poste distant : connectez-vous depuis un "
+               "poste du réseau local ou depuis le serveur pour la déclencher."));
+        return;
+    }
 
     // Deadline atteinte : on DEMANDE l'autorisation avant de supprimer gaxt78iy (un poste
     // resté sur une ancienne version perdrait l'accès). Si l'utilisateur reporte, on ne
