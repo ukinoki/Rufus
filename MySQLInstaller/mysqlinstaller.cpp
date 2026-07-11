@@ -2673,81 +2673,85 @@ static bool estAdressePriveeOuLocale(const QString& h)
     return false;
 }
 
-// Ouvre une connexion INDÉPENDANTE en adminrufus (mot de passe `mdp`) et renvoie l'entrée qui a servi
-// (CURRENT_USER(), ex. "adminrufus@192.168.%"). C'est la PREUVE avant de supprimer adminrufus@'%' :
-// tant que @'%' existe, MySQL choisit l'entrée la PLUS SPÉCIFIQUE ; si une entrée LAN matche, on peut
-// retirer @'%' sans risque. Renvoie "" si la connexion de test échoue (→ on ne supprime rien).
-static QString entreeAyantServiEnTest(const QString& mdp)
-{
-    const QSqlDatabase principale = QSqlDatabase::database(DB_RUFUS, false);
-    if (!principale.isValid()) return QString();
-    const QString host = principale.hostName();
-    const int     port = principale.port();
-
-    QString matched;
-    {
-        QSqlDatabase t = QSqlDatabase::addDatabase("QMYSQL", "rufus_test_lan");
-        t.setHostName(host);
-        t.setPort(port);
-        t.setUserName(QString(LOGIN_SQL));
-        t.setPassword(mdp);
-        if (t.open())
-        {
-            QSqlQuery q(t);
-            if (q.exec("SELECT CURRENT_USER()") && q.next())
-                matched = q.value(0).toString();
-            t.close();
-        }
-    }
-    QSqlDatabase::removeDatabase("rufus_test_lan");   // après destruction de `t` (fin du bloc)
-    return matched;
-}
-
 // OPTION B — restreint adminrufus (compte NON-SSL) au RÉSEAU LOCAL : crée adminrufus sur toutes les
-// plages privées (RFC 1918 + loopback) avec le mot de passe COURANT, puis SUPPRIME adminrufus@'%'
-// (joignable du WAN via la redirection de ports) — mais UNIQUEMENT après avoir PROUVÉ, par une
-// connexion de test, qu'une entrée LAN prend le relais. Impossible de se verrouiller : si le test
-// n'aboutit pas, @'%' est laissé en place. adminrufusSSL@'%' (accès distant, SSL) est intact.
-// Silencieux, réservé au LOCAL. Renvoie true si la migration a été faite.
+// plages privées (RFC 1918 + loopback) avec le mot de passe COURANT (gaxt78iy conservé en 2e mdp), puis
+// SUPPRIME adminrufus@'%' (joignable du WAN via la redirection de ports). Comme
+// securiserComptesetMdpViaAdminrufusSSL, TOUT passe par une CONNEXION PARALLÈLE SOUS adminrufusSSL
+// (compte système → détient SYSTEM_USER) : le DROP d'adminrufus@'%' (compte système créé par root)
+// réussit ainsi MÊME si la connexion PRINCIPALE est une entrée LAN ORDINAIRE (sans SYSTEM_USER).
+// Connecté sous adminrufusSSL (pas sous adminrufus@'%'), le DROP ne peut pas nous verrouiller nous-mêmes,
+// et les entrées LAN créées couvrent tout le local → plus besoin de « preuve avant suppression ».
+// adminrufusSSL@'%' (accès distant, SSL) n'est PAS touché ici. Seule exigence : que la liaison TLS locale
+// s'ouvre (REQUIRE SSL) ; sinon renvoie false SANS rien casser. Silencieux, réservé au LOCAL. true si la
+// migration a été faite.
 bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())                                return false;
 
-    const QString ur      = QString(LOGIN_SQL);
-    const QString legacy  = QString(MDP_SQL);
-    const QString courant = mdpAleatoire;               // l'aléatoire ÉPROUVÉ (celui de la connexion en cours)
+    const QString ur       = QString(LOGIN_SQL);
+    const QString legacy   = QString(MDP_SQL);
+    const QString courant  = mdpAleatoire;               // l'aléatoire ÉPROUVÉ (celui de la connexion en cours)
+    const QString urSSL    = QString(LOGIN_SQL) + "SSL";
+    const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
+    const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
 
-    // 1) Créer adminrufus sur TOUTES les plages locales/privées (RFC 1918 + loopback), mdp courant
-    //    (+ gaxt78iy conservé en 2e mdp pour le bootstrap des postes qui ne l'ont pas encore).
-    for (const QString& h : hostsLANprives())
+    // Réutilise l'hôte/port de la connexion principale : même serveur, 2e session sous adminrufusSSL.
+    const QSqlDatabase principale = QSqlDatabase::database(DB_RUFUS, false);
+    if (!principale.isValid()) return false;
+    const QString host = principale.hostName();
+    const int     port = principale.port();
+
+    bool ouverte = false;
+    bool fait    = false;
     {
-        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
-        if (courant != legacy)
-            DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, courant));
-        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
-        //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
-        //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
-        //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
-        //! passe) peut ainsi lire QUI le détient — il saura sur quel poste aller le chercher (clé USB).
-        //! ATTRIBUTE FUSIONNE les clés dans User_attributes sans toucher additional_password (posé juste
-        //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
-        //! (dateSecurisation), inutile de la dupliquer ici.
-        const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' ATTRIBUTE '{\"securepar\":\"%3\"}'").arg(h, "%", posteSql));
+        QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_restreindre_ssl");
+        db.setHostName(host);
+        db.setPort(port);
+        db.setUserName(urSSL);
+        db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
+        for (const QString& mdp : { courant, legacy })
+        {
+            db.setPassword(mdp);
+            if (db.open()) { ouverte = true; break; }
+        }
+
+        if (ouverte)
+        {
+            auto execSSL = [&db](const QString& q) { QSqlQuery s(db); s.exec(q); };
+
+            //! 1) adminrufus (non-SSL) sur TOUTES les plages LOCALES/privées (RFC 1918 + loopback) : mot de
+            //!    passe courant, gaxt78iy conservé en 2e mdp (RETAIN), et securepar gravé DANS LE MÊME ALTER
+            //!    (un ATTRIBUTE isolé effacerait additional_password). Deux temps pour la bascule sur
+            //!    l'aléatoire (RETAIN est ignoré si le même ALTER change le plugin d'auth).
+            for (const QString& h : hostsLANprives())
+            {
+                execSSL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+                if (courant != legacy)
+                {
+                    execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
+                    execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, courant, attr));
+                }
+                else
+                    execSSL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'%4").arg(ur, h, legacy, attr));
+                execSSL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+            }
+
+            //! 2) Les entrées LAN couvrant tout le local, adminrufus@'%' (joignable du WAN) devient inutile
+            //!    et trop ouvert : on le retire (Option B).
+            execSSL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
+            execSSL("FLUSH PRIVILEGES");
+
+            //! Contrôle sur CETTE connexion : la migration est faite si adminrufus@'%' a bien disparu.
+            QSqlQuery v(db);
+            if (v.exec("SELECT COUNT(*) FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'") && v.next())
+                fait = (v.value(0).toInt() == 0);
+
+            db.close();
+        }
     }
-    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
-
-    // 2) PREUVE avant suppression : une entrée LAN doit prendre le relais (CURRENT_USER != adminrufus@%).
-    const QString servie = entreeAyantServiEnTest(courant);
-    if (servie.isEmpty() || servie.endsWith("@%"))
-        return false;   // test non concluant (connexion échouée, ou toujours @'%') → on NE supprime PAS
-
-    // 3) Prouvé : on retire l'entrée trop ouverte (adminrufus@'%' non-SSL, joignable du WAN).
-    DataBase::I()->StandardSQL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
-    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
-    return true;
+    QSqlDatabase::removeDatabase("rufus_restreindre_ssl");   // après destruction de `db` (fin du bloc)
+    return ouverte && fait;
 }
 
 // Sécurise la base EN SE CONNECTANT COMME adminrufusSSL. À N'UTILISER que pour RATTRAPER une base
@@ -2774,7 +2778,7 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
 
     // Réutilise l'hôte/port de la connexion principale : c'est le MÊME serveur, une 2e session sous un
-    // autre compte. (Cf. entreeAyantServiEnTest, même schéma de connexion indépendante.)
+    // autre compte. (Même schéma de connexion indépendante que restreindreAdminrufusAuLAN.)
     const QSqlDatabase principale = QSqlDatabase::database(DB_RUFUS, false);
     if (!principale.isValid()) return false;
     const QString host = principale.hostName();
