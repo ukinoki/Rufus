@@ -3187,6 +3187,7 @@ bool Procedures::Connexion_A_La_Base()
         server = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Serveur).toString();
 
     int port = m_settings->value(Utils::getBaseFromMode(db->ModeAccesDataBase()) + Param_Port).toInt();
+    qDebug() << "[DIAG] Connexion_A_La_Base: rufus.ini lu (server=" << server << "port=" << port << ") mode=" << (int)db->ModeAccesDataBase();
 
     db->initParametresConnexionSQL(server, port);
 
@@ -3266,7 +3267,9 @@ bool Procedures::Connexion_A_La_Base()
     //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification (qui n'est QUE le
     //! login). On essaie les mots de passe candidats (.dbkey PUIS gaxt78iy) : un .dbkey absent ou
     //! périmé ne doit pas bloquer une base qui accepte encore gaxt78iy.
+    qDebug() << "[DIAG] Connexion_A_La_Base: AVANT connecterAvecCandidats";
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
+    qDebug() << "[DIAG] Connexion_A_La_Base: APRÈS connecterAvecCandidats, err=" << errConnexion;
     if (!errConnexion.isEmpty())
     {
         //! Échec d'AUTHENTIFICATION (base sécurisée sur un autre poste / .dbkey périmé) : on propose
