@@ -3119,6 +3119,21 @@ bool MySQLInstaller::adminrufusEstSecurise()
     return rep;
 }
 
+// true si AU MOINS un compte adminrufus de plage LOCALE (host ≠ '%') a PERDU SYSTEM_USER (revoke laissé
+// par une version antérieure) : il n'est plus « système ». Les entrées LAN étant créées ENSEMBLE (même
+// sécurisation), leur statut est homogène → une seule requête suffit, pas besoin de les tester une par
+// une. Sert à RE-DÉCLENCHER la régularisation (restreindre) même après l'Option B (adminrufus@'%' déjà
+// droppé), pour ramener ces comptes à l'état système attendu.
+bool MySQLInstaller::unCompteLANaPerduSystemUser()
+{
+    bool ok = false;
+    const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+        "SELECT COUNT(*) FROM mysql.user u WHERE u.User='" LOGIN_SQL "' AND u.Host<>'%'"
+        " AND NOT EXISTS (SELECT 1 FROM mysql.global_grants g"
+        " WHERE g.USER=u.User AND g.HOST=u.Host AND g.PRIV='SYSTEM_USER')", ok);
+    return ok && !r.isEmpty() && r.at(0).toInt() > 0;
+}
+
 // Date de sécurisation = dernier changement du mot de passe d'adminrufus.
 QDateTime MySQLInstaller::dateSecurisation()
 {

@@ -274,6 +274,9 @@ public:
     //  true si adminrufus possède un 2e mot de passe (base déjà sécurisée). Détecté via
     //  mysql.user.User_attributes (sans connaître la valeur du mot de passe).
     static bool      adminrufusEstSecurise();
+    //  true si un compte adminrufus de plage LOCALE (host ≠ '%') a PERDU SYSTEM_USER (revoke d'une
+    //  version antérieure) → à régulariser. Une seule requête, pas de balayage host par host.
+    static bool      unCompteLANaPerduSystemUser();
     //  Date de sécurisation = password_last_changed d'adminrufus (côté serveur, fiable).
     static QDateTime dateSecurisation();
     //  Nom du poste ayant posé le mot de passe sécurisé (grâce à User_attributes.securepar).

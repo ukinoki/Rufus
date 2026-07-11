@@ -238,7 +238,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! non régularisées. No-op une fois adminrufus@'%' supprimé.
         if (password != QString(MDP_SQL)
                 && MySQLInstaller().socleMySQLConforme()                                    // < 8.0.14 : pas de double mot de passe
-                && Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%"))     // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
+                && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")               // adminrufus@'%' encore présent → à restreindre au LAN ; OU
+                    || MySQLInstaller().unCompteLANaPerduSystemUser()))                     // un compte LAN a perdu SYSTEM_USER (revoke ancien) → à régulariser
             MySQLInstaller().restreindreAdminrufusAuLAN(password);                          // le MÊME aléatoire sur tous les hosts (adminrufus + adminrufusSSL)
         return QString();
     }
