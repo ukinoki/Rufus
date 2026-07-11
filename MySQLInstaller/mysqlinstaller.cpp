@@ -3477,30 +3477,6 @@ bool MySQLInstaller::startMySQL()
     return waitForMySQL(30);
 }
 
-void MySQLInstaller::stopMySQL()
-{
-    if (!isServerRunning())   // gère le cas auth_socket d'Ubuntu
-        return;
-#if defined(Q_OS_WIN)
-    runCmdElevated("net stop MySQL");
-#elif defined(Q_OS_LINUX)
-    runCmdElevated("systemctl stop mysql");
-#else
-    if (isOracleInstall()) {
-        QString plist = "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist";
-        if (QFile::exists(plist))
-            runCmdFull(QString("launchctl unload '%1' 2>&1").arg(plist), 15000);
-        else
-            runCmdFull("/usr/local/mysql/support-files/mysql.server stop 2>&1", 15000);
-    } else {
-        runCmdFull("brew services stop mysql@8.4 2>&1", 15000);
-    }
-#endif
-    QEventLoop loop;
-    QTimer::singleShot(2000, &loop, &QEventLoop::quit);
-    loop.exec();
-}
-
 bool MySQLInstaller::waitForMySQL(int maxSeconds)
 {
     for (int i = 0; i < maxSeconds; i++) {
@@ -4329,29 +4305,6 @@ bool MySQLInstaller::askYesNo(const QString& title, const QString& text)
         m_dialog, title, text,
         UpDialog::ButtonCancel | UpDialog::ButtonOK,
         QStringList() << tr("Non") << tr("Oui"));
-    return rep == UpSmallButton::STARTBUTTON;
-}
-
-//  Dialogue de mise à jour nécessaire (mode Verify, version trop ancienne).
-bool MySQLInstaller::askUpdateConfirmation(const QString& currentVer,
-                                           const QString& targetVer)
-{
-    const QString text = tr(
-        "MySQL %1 est installé, mais la version %2 (ou ultérieure) est "
-        "nécessaire.\n\n"
-        "La mise à jour effectue un NETTOYAGE COMPLET : MySQL est entièrement "
-        "désinstallé puis réinstallé proprement. La base de données existante "
-        "sera DÉFINITIVEMENT SUPPRIMÉE.\n\n"
-        "Sauvegardez vos données AVANT de poursuivre. Ne confirmez que si elles "
-        "sont déjà sauvegardées.")
-        .arg(currentVer.isEmpty() ? tr("(version inconnue)") : currentVer,
-             targetVer);
-
-    const UpSmallButton::StyleBouton rep = UpMessageBox::Question(
-        m_dialog, tr("Mise à jour de MySQL nécessaire"), text,
-        UpDialog::ButtonCancel | UpDialog::ButtonOK,
-        QStringList() << tr("Annuler")
-                      << tr("OK, faire la MAJ, mes données sont sauvegardées"));
     return rep == UpSmallButton::STARTBUTTON;
 }
 

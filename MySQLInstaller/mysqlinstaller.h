@@ -407,7 +407,6 @@ private:
     //  invite l'utilisateur à installer MySQL lui-même puis à relancer Rufus, qui
     //  détectera alors le serveur et le configurera.
     void    avertirTelechargementImpossible();
-    void    stopMySQL();
     bool    startMySQL();
     bool    waitForMySQL(int maxSeconds = 30);
 
@@ -467,9 +466,6 @@ private:
     // ── Helpers ────────────────────────────────────────────────────────────────
     //  Question Oui/Non (UpMessageBox::Question, boutons « Non »/« Oui »).
     bool    askYesNo(const QString& title, const QString& text);
-    //  Dialogue de mise à jour : prévient qu'une MAJ est nécessaire, conseille de
-    //  sauvegarder les données. Renvoie true si l'utilisateur confirme.
-    bool    askUpdateConfirmation(const QString& currentVer, const QString& targetVer);
     QString runCmd(const QString& cmd, int timeoutMs = 30000);
     QString runCmdFull(const QString& cmd, int timeoutMs = 30000);
     //  Exécution avec droits admin. stdinData (Linux uniquement) : données
