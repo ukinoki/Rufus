@@ -2702,12 +2702,17 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     if (!principale.isValid()) return false;
     const QString host = principale.hostName();
     const int     port = principale.port();
+    //! adminrufusSSL est en REQUIRE SSL → la liaison DOIT être chiffrée. « localhost » passe par le SOCKET
+    //! Unix, qui ne négocie JAMAIS de TLS → REQUIRE SSL non satisfait → « Access denied » (1045). On force
+    //! donc une connexion TCP via 127.0.0.1, sur laquelle MySQL 8 négocie le TLS spontanément (cert serveur
+    //! non vérifié, cf. MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0). Une IP LAN (poste distant/réseau) reste inchangée.
+    const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
 
     bool ouverte = false;
     bool fait    = false;
     {
         QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_restreindre_ssl");
-        db.setHostName(host);
+        db.setHostName(hostSSL);
         db.setPort(port);
         db.setUserName(urSSL);
         db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
@@ -2784,16 +2789,21 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     if (!principale.isValid()) return false;
     const QString host = principale.hostName();
     const int     port = principale.port();
+    //! adminrufusSSL est en REQUIRE SSL → la liaison DOIT être chiffrée. « localhost » passe par le SOCKET
+    //! Unix, qui ne négocie JAMAIS de TLS → REQUIRE SSL non satisfait → « Access denied » (1045). On force
+    //! donc une connexion TCP via 127.0.0.1, sur laquelle MySQL 8 négocie le TLS spontanément (cert serveur
+    //! non vérifié, cf. MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0). Une IP LAN (poste distant/réseau) reste inchangée.
+    const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
 
     bool ouverte  = false;
     bool securise = false;
     {
         QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_secure_ssl");
-        db.setHostName(host);
+        db.setHostName(hostSSL);
         db.setPort(port);
         db.setUserName(urSSL);
         db.setConnectOptions("MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS spontané, sans vérif du cert auto-signé
-        qDebug() << "securiserComptesetMdpViaAdminrufusSSL: tentative connexion" << urSSL << "@" << host << ":" << port
+        qDebug() << "securiserComptesetMdpViaAdminrufusSSL: tentative connexion" << urSSL << "@" << hostSSL << ":" << port
                  << "options=" << db.connectOptions();
         for (const QString& mdp : { aleatoire, legacy })
         {
