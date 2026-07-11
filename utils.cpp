@@ -974,6 +974,20 @@ QString Utils::calcSHA1(QString mdp)
     }
 }
 
+//  Liste des hosts existants d'un compte MySQL. adminrufus a souvent PLUSIEURS entrées sur les
+//  bases héritées (@'%', @'localhost', @'192.168.%'…). On applique pose ET purge du mot de passe à
+//  CHAQUE variante : une connexion matche le host le plus spécifique, qui doit donc être traité.
+QStringList Utils::hostsDuCompteSQL(const QString& user)
+{
+    QStringList hosts;
+    bool ok = false;
+    const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
+        QString("SELECT Host FROM mysql.user WHERE User='%1'").arg(user), ok);
+    for (const QVariantList& r : rows)
+        if (!r.isEmpty()) hosts << r.at(0).toString();
+    return hosts;
+}
+
 /*---------------------------------------------------------------------------------------------------------------------
     -- Crée le path d'un dossier --------------------------------------------------------------------------------------------
     -----------------------------------------------------------------------------------------------------------------*/

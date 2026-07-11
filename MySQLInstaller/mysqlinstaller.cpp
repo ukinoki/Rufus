@@ -2542,20 +2542,6 @@ QString MySQLInstaller::getMySQLServerVersion()
     return m.hasMatch() ? m.captured(1) : QString();
 }
 
-//  Liste des hosts existants d'un compte MySQL. adminrufus a souvent PLUSIEURS entrées sur les
-//  bases héritées (@'%', @'localhost', @'192.168.%'…). On applique pose ET purge du mot de passe à
-//  CHAQUE variante : une connexion matche le host le plus spécifique, qui doit donc être traité.
-static QStringList hostsDuCompteSQL(const QString& user)
-{
-    QStringList hosts;
-    bool ok = false;
-    const QList<QVariantList> rows = DataBase::I()->StandardSelectSQL(
-        QString("SELECT Host FROM mysql.user WHERE User='%1'").arg(user), ok);
-    for (const QVariantList& r : rows)
-        if (!r.isEmpty()) hosts << r.at(0).toString();
-    return hosts;
-}
-
 //  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
 bool MySQLInstaller::securiserBaseSiNecessaire()
 {
@@ -2607,7 +2593,6 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
         qWarning("Securisation abandonnee : ecriture/relecture du .dbkey impossible.");
         return false;                                   // écriture impossible → on ne sécurise PAS
     }
-
     //! Pose np (avec gaxt78iy en 2e mot de passe) sur TOUS les hosts d'adminrufus/adminrufusSSL.
     imposerMotDePasseSurTousLesHosts(np);
 
@@ -2632,33 +2617,22 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
 // courant préservé).
 void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
 {
+    restreindreAdminrufusAuLAN(mdp);
     const QString legacy = QString(MDP_SQL);
-    const QString ur  = QString(LOGIN_SQL);
     const QString urS = QString(LOGIN_SQL) + "SSL";
-    for (const QString& h : hostsDuCompteSQL(ur))
-    {
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdp));
-    }
-    QStringList hostsS = hostsDuCompteSQL(urS);
-    if (!hostsS.contains("%")) hostsS << "%";            // adminrufusSSL@'%' garanti (créé si absent)
-    for (const QString& h : hostsS)
-    {
-        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, h, legacy));
-        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, h));
-        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, h, mdp));
-    }
-
-    //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
-    //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
-    //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
-    //! passe) peut ainsi lire QUI le détient — il saura sur quel poste aller le chercher (clé USB).
-    //! ATTRIBUTE FUSIONNE les clés dans User_attributes sans toucher additional_password (posé juste
-    //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
-    //! (dateSecurisation), inutile de la dupliquer ici. On stampe adminrufusSSL@'%', la référence stable.
-    const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
-    DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' ATTRIBUTE '{\"securepar\":\"%3\"}'").arg(urS, "%", posteSql));
+        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%', legacy));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%',  legacy));
+        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, '%'));
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(urS, '%',  mdp));
+        //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
+        //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
+        //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
+        //! passe) peut ainsi lire QUI le détient — il saura sur quel poste aller le chercher (clé USB).
+        //! ATTRIBUTE FUSIONNE les clés dans User_attributes sans toucher additional_password (posé juste
+        //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
+        //! (dateSecurisation), inutile de la dupliquer ici.
+        const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' ATTRIBUTE '{\"securepar\":\"%3\"}'").arg(urS, '%',  posteSql));
 
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 }
@@ -2735,7 +2709,7 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
     if (!socleMySQLConforme())                                return false;
-    if (!hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%"))  return false;   // pas d'entrée @'%' → déjà migré
+    if (!Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%"))  return false;   // pas d'entrée @'%' → déjà migré
 
     // Adresse réelle de CETTE connexion, vue par MySQL. On ne restreint QUE si elle est locale/privée.
     bool ok = false;
@@ -2756,6 +2730,15 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
         if (courant != legacy)
             DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, courant));
         DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
+        //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
+        //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
+        //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
+        //! passe) peut ainsi lire QUI le détient — il saura sur quel poste aller le chercher (clé USB).
+        //! ATTRIBUTE FUSIONNE les clés dans User_attributes sans toucher additional_password (posé juste
+        //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
+        //! (dateSecurisation), inutile de la dupliquer ici.
+        const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
+        DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' ATTRIBUTE '{\"securepar\":\"%3\"}'").arg(h, "%", posteSql));
     }
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
 
@@ -2768,21 +2751,6 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     DataBase::I()->StandardSQL(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
     return true;
-}
-
-// VÉRIFICATION des comptes adminrufus, INTIMEMENT liée à la connexion : appelée UNIQUEMENT par
-// DataBase::connectToDataBase, quand la connexion a réussi AVEC un mot de passe ALÉATOIRE (pas le
-// générique) et en accès LOCAL (jamais distant, vérifié par l'appelant). On impose CE même aléatoire
-// — celui avec lequel on vient de se connecter, donc ÉPROUVÉ — à tous les comptes, puis on régularise
-// (Option B). Comme on n'injecte jamais qu'un aléatoire déjà validé, aucun mot de passe divergent ne
-// peut apparaître ; et on rattrape les installations récentes qui avaient un aléatoire mais pas de
-// régularisation d'adminrufus. Ne fait RIEN dès qu'adminrufus@'%' a disparu (régularisation faite).
-void MySQLInstaller::verifierComptesAdminrufus(const QString& mdpAleatoire)
-{
-    if (!socleMySQLConforme())                              return;   // < 8.0.14 : pas de double mot de passe
-    if (!hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")) return;  // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
-    imposerMotDePasseSurTousLesHosts(mdpAleatoire);   // le MÊME aléatoire sur tous les hosts (adminrufus + adminrufusSSL)
-    restreindreAdminrufusAuLAN(mdpAleatoire);         // Option B : adminrufus sur les plages privées + suppression d'adminrufus@'%'
 }
 
 // À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
@@ -3038,9 +3006,9 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
 
     //! Purge de gaxt78iy sur TOUS les hosts (comme la pose de l'aléatoire) : sinon le mot de passe
     //! générique subsisterait sur @'localhost' / @'192.168.%' et resterait un accès valide en local/LAN.
-    for (const QString& h : hostsDuCompteSQL(QString(LOGIN_SQL)))
+    for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL)))
         DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%1' DISCARD OLD PASSWORD").arg(h));
-    for (const QString& h : hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL"))
+    for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL"))
         DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "SSL'@'%1' DISCARD OLD PASSWORD").arg(h));
     DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
     avertirSuppressionGaxt78iyEffectuee();

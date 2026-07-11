@@ -86,7 +86,6 @@ public:
     //  Code de résultat de exec() quand l'utilisateur clique « Supprimer MySQL »
     //  (mode Verify). QDialog réserve Rejected = 0 et Accepted = 1.
     enum DialogResult { ResultSupprimerMySQL = 2 };
-
     // ── Configuration selon le contexte (titre / sous-titre / bouton OK + reset) ─
     //  Création de la base : saisie du futur utilisateur applicatif Rufus.
     void configurerCreateUserRufus(const QString& minVersion);
@@ -215,11 +214,6 @@ public:
     //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. `mdpAleatoire` =
     //  l'aléatoire éprouvé de la connexion en cours (posé sur les entrées créées). Silencieux, local.
     bool    restreindreAdminrufusAuLAN(const QString& mdpAleatoire);
-    //  VÉRIFICATION des comptes adminrufus, appelée UNIQUEMENT par DataBase::connectToDataBase quand la
-    //  connexion a réussi AVEC un aléatoire (pas le générique) et en LOCAL. Impose CE même aléatoire sur
-    //  tous les hosts (adminrufus + adminrufusSSL) puis régularise (Option B). Ne fait rien une fois
-    //  adminrufus@'%' supprimé (régularisation déjà faite). Jamais de nouvel aléatoire, jamais en distant.
-    void    verifierComptesAdminrufus(const QString& mdpAleatoire);
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.

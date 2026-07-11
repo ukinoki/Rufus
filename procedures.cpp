@@ -3879,7 +3879,6 @@ bool Procedures::IdentificationUser()
         filecontents.append(ts.readAll());
         //! (Re)connexion défensive en CASCADE (aléatoire .dbkey PUIS gaxt78iy) avant la vérification
         //! d'identité — la connexion est déjà ouverte par Connexion_A_La_Base, ce rappel ne nuit pas.
-        MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         ok = db->calcidUserConnected(filecontents.split("!!!!").at(0),filecontents.split("!!!!").at(1)) == DataBase::OK;
     }
     if (!ok)

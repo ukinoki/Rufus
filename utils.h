@@ -263,6 +263,9 @@ public:
                                                                     \param le mode d'accès */
     static QString                  calcSHA1(QString mdp);              /*! renvoie la valeur de mdp codée en SHA */
     static bool                     VerifMDP(QString MDP, QString Msg, QString &mdp, bool mdpverified = false, QWidget *parent = Q_NULLPTR);
+    // liste des hosts connus pour user (adminrufus / adminrufusSSL)
+    static QStringList              hostsDuCompteSQL(const QString& user);
+
 
     //! Calcule âge
     static QMap<QString,QVariant> CalculAge(QDate datedenaissance, QDate datedujour = QDate::currentDate(), QString Sexe = "");
