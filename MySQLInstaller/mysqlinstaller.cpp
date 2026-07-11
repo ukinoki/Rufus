@@ -2636,9 +2636,6 @@ static QStringList hostsLANprives()
 // migration a été faite (adminrufus@'%' a disparu).
 bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
 {
-    if (DataBase::I()->ModeAccesDataBase() == Utils::Distant) return false;   // jamais depuis un poste distant
-    if (!socleMySQLConforme())                                return false;
-
     const QString ur       = QString(LOGIN_SQL);
     const QString legacy   = QString(MDP_SQL);
     const QString courant  = mdpAleatoire;               // l'aléatoire ÉPROUVÉ (celui de la connexion en cours)
