@@ -117,7 +117,7 @@ II LANCEMENT DE RUFUS
 							→ si OK
 								→ MySQL >= 8.0.14
 								 	→ on s’est connecté avec le mdp aléatoire
-										→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
+										→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 					 					→ enregistrement du mdp dans .dbkey
 										→ on vérifie si le mdp générique est toujours présent
 											si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
@@ -139,12 +139,12 @@ II LANCEMENT DE RUFUS
 														→ on l'enregistre dans .dbkey et on lance rufus
 													→ on n'a pas récupéré de mdp
 														→ on en crée un
-														→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
+														→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 														→ on l’enregistre dans .dbkey
 														→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
 											→ non
 												→ on en crée un
-												→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
+												→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 												→ on l’enregistre dans .dbkey
 												→ on affiche le message pour pouvoir l'enregistrer
 								→ MYSQL < 8.0.14 
@@ -188,7 +188,7 @@ II LANCEMENT DE RUFUS
 					→ si OK
 						→ MySQL >= 8.0.14
 							→ on s’est connecté avec le mdp aléatoire
-								→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
+								→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 					 			→ enregistrement du mdp dans .dbkey
 								→ on vérifie si le mdp générique est toujours présent
 									si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
@@ -210,12 +210,12 @@ II LANCEMENT DE RUFUS
 												→ on l'enregistre dans .dbkey et on lance rufus
 											→ on n'a pas récupéré de mdp
 												→ on en crée un
-												→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
+												→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 												→ on l’enregistre dans .dbkey
 												→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
 									→ non
 										→ on en crée un
-										→ entretien des comptes adminrufus (cohérence entre hosts + restriction au réseau local) → cf. § III
+										→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
 										→ on l’enregistre dans .dbkey
 										→ on affiche le message pour pouvoir l'enregistrer
 						→ MYSQL < 8.0.14 
@@ -243,11 +243,12 @@ II LANCEMENT DE RUFUS
 								"cette restauration ne peut se faire qu'à partir du poste serveur"
 					→ MySQL >= 8.0.14
 						→ on s’est connecté avec le mdp aléatoire
-							on vérifie si le mdp générique est toujours présent
+							→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
+							→ on vérifie si le mdp générique est toujours présent
 								si la creation du mdp aleatoire remonte à moins de 30 jours et que le mdp générique existe toujours
-									message prévenant que l'effacement du mdp est imminent
+									message prévenant que l'effacement du mdp est imminent avec date échénace
 								si la creation du mdp aleatoire remonte à plus de 30jours et que le mdp générique existe toujours
-									effacement du mdp générique et message recommandant de le noter et de faite une MAJ immédiate de ce mdp sur les autres postes
+									message prévenant que l'effacement du mdp est imminent
 						→ on s’est connecté avec le mdp générique
 							→ on vérifie s'il y a un mdp aléatoire
 								→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
@@ -269,7 +270,7 @@ II LANCEMENT DE RUFUS
 										" cette mise à jour doit se faire depuis le poste serveur"
 
 III. COMPTES adminrufus (SÉCURITÉ DES ACCÈS MySQL)
-
+	RÈGLE → on ne sécurise les comptes adminrufus que si on s'est connecté avec un mdp alééatoire
 	Deux comptes MySQL, jamais mélangés :
 		→ adminrufus       : compte de travail, NON chiffré (mysql_native_password sans SSL),
 		                     restreint au RÉSEAU LOCAL — présent uniquement sur localhost, le
@@ -286,23 +287,5 @@ III. COMPTES adminrufus (SÉCURITÉ DES ACCÈS MySQL)
 		→ et adminrufusSSL@'%' REQUIRE SSL
 		→ aucun adminrufus@'%' n'est jamais créé
 
-	2. À CHAQUE LANCEMENT, en MONOPOSTE ou en RÉSEAU LOCAL (JAMAIS en accès distant)
-	   — silencieux, une fraction de seconde, l'utilisateur n'en entend jamais parler —
-	→ SEULEMENT s'il existe encore un adminrufus@'%' et SEULEMENT si on a pu se connecter avec un mdp aléatoire
-		 parce que s'il a disparu,
-		 c'est que la régularisation des comptes a déjà eu lieu
-		 et on ne prend pas le risque de chambouler un truc qui marche
-			→ cohérence des plugins d'authentification entre hosts
-				→ tous les comptes adminrufus / adminrufusSSL doivent partager le même plugin
-				→ si un host traîne avec un plugin/mot de passe différent (base héritée),
-			  	on réimpose le mot de passe aléatoire courant sur TOUS les hosts
-				→ (c'est cette incohérence qui produisait un .dbkey vide et pouvait verrouiller le poste)
-			→ restriction d'adminrufus au réseau local (bases héritées où adminrufus@'%' existe encore)
-				→ on crée adminrufus sur toutes les plages privées avec le mot de passe courant
-				→ on PROUVE par une connexion de test qu'une entrée locale prend le relais
-				→ SEULEMENT ALORS on supprime adminrufus@'%'
-				RÈGLE → si le test échoue, on ne supprime rien : impossible de se verrouiller
-
-	3. EN ACCÈS DISTANT
-		→ AUCUNE modification des comptes adminrufus (un poste distant ne corrige jamais le serveur)
-		RÈGLE → on ne touche aux comptes que depuis un poste local ou le serveur
+	2. À CHAQUE LANCEMENT
+	   — on revérifie, pour les cas où une install Rufus antérieure aurait créé des mdp aléatoires sans sécuriser les adminrufus
