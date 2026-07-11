@@ -206,9 +206,6 @@ public:
     //  d'adminrufus/adminrufusSSL, vérifie et affiche le mot de passe. Suppose local + socle conforme.
     //  Utilisé par la 1re sécurisation et le bouton « le mot de passe est égaré ».
     bool    poserEtSauvegarderAleatoire();
-    //  Pose `mdp` (+ gaxt78iy en 2e mdp, plugin mysql_native_password) sur TOUS les hosts d'adminrufus/
-    //  adminrufusSSL. Utilisé par la sécurisation, la recréation « mot de passe égaré » et verifierComptesAdminrufus.
-    void    imposerMotDePasseSurTousLesHosts(const QString& mdp);
     //  OPTION B — restreint adminrufus (non-SSL) au réseau local (RFC 1918 + loopback) et supprime
     //  adminrufus@'%' (exposé au WAN), UNIQUEMENT après une connexion de test prouvant qu'une entrée LAN
     //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. `mdpAleatoire` =

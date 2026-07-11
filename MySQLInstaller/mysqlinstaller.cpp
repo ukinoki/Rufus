@@ -46,7 +46,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_paramconnexion.h" // RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey
 #include <QSqlDatabase>        // connexion de test indépendante (restriction adminrufus au LAN)
 #include <QSqlQuery>
-#include <QSqlError>           // diagnostic de l'échec d'ouverture de la connexion adminrufusSSL
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -2613,36 +2612,6 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
     return true;
 }
 
-// Pose `mdp` (avec gaxt78iy en 2e mot de passe, plugin mysql_native_password) sur TOUS les hosts
-// existants d'adminrufus / adminrufusSSL. En DEUX temps par host (RETAIN est ignoré si le même ALTER
-// change le plugin). Partagé par la sécurisation (aléatoire neuf) et la normalisation (aléatoire
-// courant préservé).
-void MySQLInstaller::imposerMotDePasseSurTousLesHosts(const QString& mdp)
-{
-    restreindreAdminrufusAuLAN(mdp);
-    const QString legacy = QString(MDP_SQL);
-    const QString urS = QString(LOGIN_SQL) + "SSL";
-        DataBase::I()->StandardSQL(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%', legacy));
-        //DataBase::I()->StandardSQL(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' REQUIRE SSL").arg(urS, '%',  legacy));
-        DataBase::I()->StandardSQL(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(urS, '%'));
-        //! On grave le NOM DU POSTE qui vient de poser ce mot de passe dans les métadonnées MySQL du compte
-        //! (mysql.user.User_attributes), et NON dans la base Rufus : aucun changement de schéma, aucun
-        //! majbase. Un poste qui n'a pas encore l'aléatoire (mais se connecte encore grâce au double mot de
-        //! passe) peut ainsi lire QUI le détient — il saura sur quel poste aller le chercher (clé USB).
-        //! ATTRIBUTE FUSIONNE les clés dans User_attributes sans toucher additional_password (posé juste
-        //! au-dessus par RETAIN) ; on l'applique donc APRÈS. La date fait foi via password_last_changed
-        //! (dateSecurisation), inutile de la dupliquer ici.
-        const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
-        QString query = QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' "
-                                "RETAIN CURRENT PASSWORD ATTRIBUTE '{\"securepar\":\"%4\"}'")
-                                .arg(urS, '%', mdp, posteSql);
-        qDebug() << "ALTER USER ATTRIBUTE:" << query;
-        DataBase::I()->StandardSQL(query);
-
-    DataBase::I()->StandardSQL("FLUSH PRIVILEGES");
-}
-
-
 // Jeu de hosts LOCAUX/PRIVÉS sur lesquels adminrufus (compte NON-SSL) est autorisé : loopback + les
 // trois plages privées RFC 1918 (172.16/12 énuméré 172.16.%…172.31.%). Couvre n'importe quel LAN, quel
 // que soit son schéma, et EXCLUT toute IP publique. Source unique : createUser + restreindreAdminrufusAuLAN.
@@ -2652,26 +2621,6 @@ static QStringList hostsLANprives()
     h << "localhost" << "127.0.0.1" << "10.%" << "192.168.%";
     for (int i = 16; i <= 31; ++i) h << QString("172.%1.%").arg(i);
     return h;
-}
-
-// Vrai si `h` (host vu par MySQL pour une connexion) est une adresse LOCALE ou PRIVÉE (RFC 1918) :
-// loopback, ou l'une des trois plages privées (10/8, 172.16/12, 192.168/16). Toute IP publique en est
-// exclue. Sert à ne restreindre adminrufus au LAN QUE si ce poste se connecte bien depuis une telle
-// adresse (sinon on ne touche à rien : on préfère « ouvert » à « verrouillé »).
-static bool estAdressePriveeOuLocale(const QString& h)
-{
-    if (h == "localhost" || h == "::1") return true;   // loopback
-    if (h.startsWith("127."))           return true;   // 127.0.0.0/8
-    if (h.startsWith("10."))            return true;   // 10.0.0.0/8
-    if (h.startsWith("192.168."))       return true;   // 192.168.0.0/16
-    if (h.startsWith("172."))                          // 172.16.0.0/12 = 172.16.x … 172.31.x
-    {
-        const QStringList parts = h.split('.');
-        bool ok = false;
-        const int second = parts.size() >= 2 ? parts.at(1).toInt(&ok) : 0;
-        if (ok && second >= 16 && second <= 31) return true;
-    }
-    return false;
 }
 
 // OPTION B — restreint adminrufus (compte NON-SSL) au RÉSEAU LOCAL : crée adminrufus sur toutes les
@@ -2874,23 +2823,11 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
         db.setPort(port);
         db.setUserName(urSSL);
         db.setConnectOptions(sslOpts);   // SSL_* (si certs présents) ACTIVE le TLS ; VERIFY=0 = cert non vérifié
-        qDebug() << "securiserComptesetMdpViaAdminrufusSSL: tentative connexion" << urSSL << "@" << hostSSL << ":" << port
-                 << "options=" << db.connectOptions();
         for (const QString& mdp : { aleatoire, legacy })
         {
             db.setPassword(mdp);
             if (db.open()) { ouverte = true; break; }
-            //! DIAGNOSTIC : pourquoi open() échoue sous adminrufusSSL (typiquement REQUIRE SSL non satisfait
-            //! → « Access denied » ou une erreur SSL). On log l'erreur EXACTE côté serveur/pilote.
-            qDebug() << "  open() KO (mdp"
-                     << (mdp == QString(MDP_SQL) ? "gaxt78iy" : "aleatoire") << ") -"
-                     << "err=" << db.lastError().text()
-                     << "| code=" << db.lastError().nativeErrorCode()
-                     << "| db=" << db.lastError().databaseText()
-                     << "| driver=" << db.lastError().driverText();
         }
-        if (!ouverte)
-            qDebug() << "  => connexion adminrufusSSL IMPOSSIBLE (voir erreurs ci-dessus) : sécurisation abandonnée";
 
         if (ouverte)
         {
@@ -3109,14 +3046,12 @@ bool MySQLInstaller::adminrufusEstSecurise()
 {
     //! On interroge adminrufusSSL@'%' (et NON adminrufus@'%') : c'est la référence STABLE. L'Option B
     //! supprime adminrufus@'%' (restriction au LAN) mais laisse adminrufusSSL@'%' intact ; or les deux
-    //! sont sécurisés EN MÊME TEMPS (imposerMotDePasseSurTousLesHosts). Interroger adminrufus@'%' ferait
-    //! croire, après l'Option B, que la base n'est plus sécurisée (et gaxt78iy ne serait jamais purgé).
+    //! sont sécurisés EN MÊME TEMPS (securiserComptesetMdpViaAdminrufusSSL). Interroger adminrufus@'%'
+    //! ferait croire, après l'Option B, que la base n'est plus sécurisée (et gaxt78iy ne serait jamais purgé).
     bool ok = false;
-    QString query = QString("SELECT User_attributes->>'$.additional_password' IS NOT NULL FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'");
-    QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(query, ok);
-    qDebug() << query;
-    bool rep = ok && !r.isEmpty() && r.at(0).toInt() == 1;
-    return rep;
+    const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+        "SELECT User_attributes->>'$.additional_password' IS NOT NULL FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
+    return ok && !r.isEmpty() && r.at(0).toInt() == 1;
 }
 
 // true si AU MOINS un compte adminrufus de plage LOCALE (host ≠ '%') a PERDU SYSTEM_USER (revoke laissé
@@ -3148,7 +3083,7 @@ QDateTime MySQLInstaller::dateSecurisation()
 }
 
 // Nom du poste qui a posé le mot de passe sécurisé (gravé dans User_attributes par
-// imposerMotDePasseSurTousLesHosts). Sert à indiquer OÙ récupérer le mot de passe. Peut être vide
+// securiserComptesetMdpViaAdminrufusSSL). Sert à indiquer OÙ récupérer le mot de passe. Peut être vide
 // pour une base sécurisée par une version antérieure de Rufus (attribut pas encore posé) — l'appelant
 // se rabat alors sur une formulation générique.
 QString MySQLInstaller::posteSecurisation()
