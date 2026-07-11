@@ -2694,17 +2694,12 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
     //! « localhost » passe par le SOCKET Unix qui ne fait jamais de TLS → « Access denied » (1045) : on force
     //! donc 127.0.0.1 (une IP LAN d'un poste réseau reste inchangée) ; (2) TLS réellement activé → sslOpts ci-dessous.
     const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
-    //! FORCER le TLS SANS dépendre de fichiers : le compte est en REQUIRE SSL (pas REQUIRE X509) → le
-    //! serveur exige une liaison CHIFFRÉE, PAS de certificat CLIENT. MYSQL_OPT_SSL_MODE=REQUIRED impose donc
-    //! le chiffrement À LUI SEUL → la connexion marche MÊME sans stash de clés local (ex. poste LAN, qui n'a
-    //! pas les certs du serveur). On ajoute les certs du serveur S'ILS sont là (ceinture+bretelles : déclenche
-    //! aussi mysql_ssl_set côté pilote au cas où celui-ci ignorerait SSL_MODE). VERIFY=0 : cert auto-signé non vérifié.
-    const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts = "MYSQL_OPT_SSL_MODE=3;";   // 3 = SSL_MODE_REQUIRED — Qt attend ici la valeur NUMÉRIQUE de l'enum
-    if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
-    if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
-    if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
-    sslOpts += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";   // cert serveur auto-signé : non vérifié
+    //! FORCER le TLS SANS AUCUN fichier : le compte est en REQUIRE SSL (pas REQUIRE X509) → le serveur exige
+    //! une liaison CHIFFRÉE, PAS de certificat CLIENT. MYSQL_OPT_SSL_MODE=3 (=REQUIRED, valeur NUMÉRIQUE
+    //! attendue par Qt) impose le chiffrement à lui seul. On NE fournit PLUS les certs du serveur : ils vivent
+    //! sous ~/Documents, dont la simple lecture déclenche l'invite TCC macOS « accès Documents » — qui, au
+    //! 1er lancement après recompile, ÉCHOUE et cassait la connexion locale. VERIFY=0 : cert auto-signé non vérifié.
+    const QString sslOpts = "MYSQL_OPT_SSL_MODE=3;MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
 
     bool ouverte = false;
     bool fait    = false;
@@ -2713,7 +2708,7 @@ bool MySQLInstaller::restreindreAdminrufusAuLAN(const QString& mdpAleatoire)
         db.setHostName(hostSSL);
         db.setPort(port);
         db.setUserName(urSSL);
-        db.setConnectOptions(sslOpts);   // SSL_* (si certs présents) ACTIVE le TLS ; VERIFY=0 = cert non vérifié
+        db.setConnectOptions(sslOpts);   // SSL_MODE=REQUIRED force le TLS (sans fichier) ; VERIFY=0 = cert non vérifié
         for (const QString& mdp : { courant, legacy })
         {
             db.setPassword(mdp);
@@ -2803,17 +2798,12 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
     //! « localhost » passe par le SOCKET Unix qui ne fait jamais de TLS → « Access denied » (1045) : on force
     //! donc 127.0.0.1 (une IP LAN d'un poste réseau reste inchangée) ; (2) TLS réellement activé → sslOpts ci-dessous.
     const QString hostSSL = (host.isEmpty() || host == "localhost") ? QStringLiteral("127.0.0.1") : host;
-    //! FORCER le TLS SANS dépendre de fichiers : le compte est en REQUIRE SSL (pas REQUIRE X509) → le
-    //! serveur exige une liaison CHIFFRÉE, PAS de certificat CLIENT. MYSQL_OPT_SSL_MODE=REQUIRED impose donc
-    //! le chiffrement À LUI SEUL → la connexion marche MÊME sans stash de clés local (ex. poste LAN, qui n'a
-    //! pas les certs du serveur). On ajoute les certs du serveur S'ILS sont là (ceinture+bretelles : déclenche
-    //! aussi mysql_ssl_set côté pilote au cas où celui-ci ignorerait SSL_MODE). VERIFY=0 : cert auto-signé non vérifié.
-    const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts = "MYSQL_OPT_SSL_MODE=3;";   // 3 = SSL_MODE_REQUIRED — Qt attend ici la valeur NUMÉRIQUE de l'enum
-    if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
-    if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
-    if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
-    sslOpts += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";   // cert serveur auto-signé : non vérifié
+    //! FORCER le TLS SANS AUCUN fichier : le compte est en REQUIRE SSL (pas REQUIRE X509) → le serveur exige
+    //! une liaison CHIFFRÉE, PAS de certificat CLIENT. MYSQL_OPT_SSL_MODE=3 (=REQUIRED, valeur NUMÉRIQUE
+    //! attendue par Qt) impose le chiffrement à lui seul. On NE fournit PLUS les certs du serveur : ils vivent
+    //! sous ~/Documents, dont la simple lecture déclenche l'invite TCC macOS « accès Documents » — qui, au
+    //! 1er lancement après recompile, ÉCHOUE et cassait la connexion locale. VERIFY=0 : cert auto-signé non vérifié.
+    const QString sslOpts = "MYSQL_OPT_SSL_MODE=3;MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
 
     bool ouverte  = false;
     bool securise = false;
@@ -2822,7 +2812,7 @@ bool MySQLInstaller::securiserComptesetMdpViaAdminrufusSSL(const QString& aleato
         db.setHostName(hostSSL);
         db.setPort(port);
         db.setUserName(urSSL);
-        db.setConnectOptions(sslOpts);   // SSL_* (si certs présents) ACTIVE le TLS ; VERIFY=0 = cert non vérifié
+        db.setConnectOptions(sslOpts);   // SSL_MODE=REQUIRED force le TLS (sans fichier) ; VERIFY=0 = cert non vérifié
         for (const QString& mdp : { aleatoire, legacy })
         {
             db.setPassword(mdp);
