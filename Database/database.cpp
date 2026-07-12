@@ -236,6 +236,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! et on régularise (cf. MySQLInstaller::verifierComptesAdminrufus). Jamais avec le générique,
         //! jamais en distant → aucun mot de passe divergent, et on rattrape les bases sécurisées mais
         //! non régularisées. No-op une fois adminrufus@'%' supprimé.
+        //! Ce contrôle est imposé à partir du 10/07/2026 parce que des versions précédentes de Rufus implémentaient le mdp aléatoire sans sécuriser en LAN les comptes adminrufus
         if (password != QString(MDP_SQL)
             && MySQLInstaller().socleMySQLConforme()                           // < 8.0.14 : pas de double mot de passe
             && (Utils::hostsDuCompteSQL(QString(LOGIN_SQL)).contains("%")      // plus d'adminrufus@'%' → déjà régularisé, on ne touche à rien
@@ -251,6 +252,7 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     Logs::ERROR(error);
     return error;
+
 }
 bool DataBase::verifglobalvariablesSQL()
 {
