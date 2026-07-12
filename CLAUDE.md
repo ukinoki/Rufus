@@ -7,6 +7,31 @@
 
 ---
 
+## 0. RÈGLE N°1 — <ins>**FAIRE SIMPLE**</ins>
+
+> ## <ins>**ON ESSAIE DE FAIRE DU SIMPLE.**</ins>
+
+Et surtout : **quand on croit avoir trouvé, on regarde une deuxième fois en
+prenant du recul.** On remet la solution dans son contexte réel — on est sur de
+**petits cabinets médicaux**, pas une banque d'affaires, inutile de se blinder
+comme si des millions étaient en jeu — et on se demande : *est-ce qu'on ne peut
+pas faire plus simple ?*
+
+Souvent la vraie réponse n'est pas de raffiner la solution compliquée, mais de
+**changer de tuyau**. Exemple canonique : faire circuler les images par la
+connexion MySQL déjà en place plutôt que de monter un VPN. La voie parallèle
+simple bat la voie savante.
+
+Contre-exemple à ne jamais reproduire : imposer `mysql_native_password` « par
+sécurité » a coûté **trois jours** et cassé la sécurisation sur MySQL 8.4, là où
+un simple `IDENTIFIED BY` (sans clause de plugin) faisait le travail. La clause
+de trop est le défaut par défaut — on la traque.
+
+**La complexité n'est pas de la rigueur, c'est une dette.** À qualité égale, le
+code le plus court gagne toujours : moins de code = moins de risque.
+
+---
+
 ## 1. Ce qu'est Rufus
 
 Logiciel médical **libre et gratuit** (GPL) de gestion des soins en
