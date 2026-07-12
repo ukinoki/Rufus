@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QStringList>
 #include <QHash>
+#include <QMap>
 #include <QDateTime>
 #include <QList>
 #include <QPair>
@@ -206,17 +207,15 @@ public:
     //  d'adminrufus/adminrufusSSL, vérifie et affiche le mot de passe. Suppose local + socle conforme.
     //  Utilisé par la 1re sécurisation et le bouton « le mot de passe est égaré ».
     bool    poserEtSauvegarderAleatoire();
-    //  OPTION B — restreint adminrufus (non-SSL) au réseau local (RFC 1918 + loopback) et supprime
-    //  adminrufus@'%' (exposé au WAN), UNIQUEMENT après une connexion de test prouvant qu'une entrée LAN
-    //  prend le relais (jamais de verrouillage). adminrufusSSL@'%' (distant, SSL) intact. `mdpAleatoire` =
-    //  l'aléatoire éprouvé de la connexion en cours (posé sur les entrées créées). Silencieux, local.
-    bool    restreindreAdminrufusAuLAN(const QString& mdpAleatoire);
-    //  Rattrape une base « polluée » (1re sécurisation échouée : adminrufusSSL@'%' resté compte système
-    //  NON sécurisé, adminrufus@'%' droppé → plus aucune connexion ordinaire ne peut le corriger) en
-    //  ouvrant une 2e connexion LOCALE sous adminrufusSSL, qui, LUI, détient SYSTEM_USER. `aleatoire` =
-    //  mot de passe à poser (gaxt78iy conservé en 2e mdp). Marche dans tous les cas ; seule exigence : que
-    //  la liaison TLS locale s'ouvre (REQUIRE SSL). true si adminrufusSSL@'%' est bien sécurisé au final.
-    bool    securiserComptesetMdpViaAdminrufusSSL(const QString& aleatoire);
+    //  Sécurise les comptes adminrufus + pose `aleatoire` (gaxt78iy conservé en 2e mdp via RETAIN) + grave
+    //  securepar. LANonly=true : ne traite QUE les comptes NON-SSL (entrées LAN + retrait d'adminrufus@'%')
+    //  sans toucher adminrufusSSL@'%' ; LANonly=false (défaut) : sécurise EN PLUS adminrufusSSL@'%'. Joue la
+    //  séquence sur la connexion PRINCIPALE (marche si elle a SYSTEM_USER) puis, si les buts ne sont pas
+    //  tous atteints, sur une 2e connexion sous adminrufusSSL (compte système, TCP forcé + REQUIRE SSL).
+    //  Renvoie true si TOUS les buts (2, ou 3 si !LANonly) sont atteints ; remplit *detailresult (si fourni)
+    //  but par but, pour pouvoir détailler ultérieurement où ça a échoué.
+    bool    securiserAdminrufusEtMdp(const QString& aleatoire, bool LANonly = false,
+                                     QMap<QString, bool>* detailresult = nullptr);
 
     //  true si le serveur MySQL courant atteint le seuil commun (VERSION_MYSQL_MINI = 8.0.14)
     //  et n'est pas MariaDB. L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
