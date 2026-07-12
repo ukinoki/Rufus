@@ -2633,8 +2633,9 @@ static QStringList hostsLANprives()
 //   2) DÉTOUR SSL (connexion parallèle SOUS adminrufusSSL, qui DÉTIENT SYSTEM_USER) — SEULEMENT si (1) n'a
 //      pas suffi (principale sans SYSTEM_USER → base POLLUÉE : adminrufusSSL@'%' resté compte système,
 //      adminrufus@'%' déjà droppé). adminrufusSSL exige SSL : TCP forcé (127.0.0.1 ; « localhost » = socket
-//      sans TLS → 1045) + MYSQL_OPT_SSL_MODE=3 (chiffrement sans fichier ; VERIFY=0 = cert auto-signé non
-//      vérifié). Si le TLS n'aboutit pas → on renvoie le bilan tel quel, sans rien casser.
+//      sans TLS → 1045) et TLS établi via les CLÉS SSL du serveur (récoltées à l'install) — comme le mode
+//      Distant (MYSQL_OPT_SSL_MODE ne marche pas dans ce pilote : « Unknown ssl mode » → SSL désactivé). Si
+//      les clés manquent ou que le TLS n'aboutit pas → on renvoie le bilan tel quel, sans rien casser.
 //
 // Renvoie true si TOUS les buts sont atteints ; remplit *detailresult (si fourni) but par but — pour
 // pouvoir détailler plus tard où ça a échoué : « adminrufus@% supprimé », « adminrufus LAN sécurisés »,
@@ -2668,30 +2669,6 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
         exec(QString("FLUSH PRIVILEGES"));   // active les entrées créées ; adminrufus@'%' PAS encore droppé (cf. sequence)
     };
 
-    //! SÉCURITÉ IMPÉRATIVE (anti-verrouillage) — on ne supprime adminrufus@'%' QUE si le RELAIS est
-    //! fonctionnel : les entrées LAN d'adminrufus (+ adminrufusSSL@'%' si !LANonly) doivent être SÉCURISÉES
-    //! (2e mot de passe posé). Sinon, dropper @'%' rendrait TOUTE connexion impossible. Interrogé via la
-    //! connexion principale (qui voit le serveur dans les deux voies).
-    auto relaisLANpret = [&]() -> bool {
-        bool ok = false;
-        const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
-            "SELECT COUNT(*) FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host<>'%'"
-            " AND User_attributes->>'$.additional_password' IS NOT NULL", ok);
-        const bool lanOK = ok && !r.isEmpty() && r.at(0).toInt() > 0;
-        return lanOK && (LANonly || adminrufusEstSecurise());
-    };
-
-    //! Joue `poser` (création/sécurisation SANS drop), PUIS ne supprime adminrufus@'%' QUE si le relais est
-    //! prêt. C'est le seul endroit où @'%' est droppé — jamais sans relais fonctionnel.
-    auto sequence = [&](auto exec) {
-        poser(exec);
-        if (relaisLANpret())
-        {
-            exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : SEULEMENT si le relais LAN marche
-            exec(QString("FLUSH PRIVILEGES"));
-        }
-    };
-
     //! Bilan but par but, interrogé via la connexion PRINCIPALE (elle voit le serveur dans les DEUX voies).
     //! But (2) — entrées LAN : on vérifie qu'AU MOINS une porte son 2e mot de passe (existe ET sécurisée).
     auto bilan = [&]() -> QMap<QString, bool> {
@@ -2716,6 +2693,18 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
         return true;
     };
 
+    //! Joue `poser` (création/sécurisation SANS drop), PUIS ne supprime adminrufus@'%' QUE si le RELAIS LAN
+    //! est fonctionnel (au moins une entrée LAN sécurisée) — sinon, plus AUCUNE connexion possible. C'est le
+    //! SEUL endroit où @'%' est droppé.
+    auto sequence = [&](auto exec) {
+        poser(exec);
+        if (bilan().value("adminrufus LAN sécurisés"))
+        {
+            exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : SEULEMENT si le relais LAN marche
+            exec(QString("FLUSH PRIVILEGES"));
+        }
+    };
+
     //! 1) VOIE ORDINAIRE — connexion PRINCIPALE (marche si elle a SYSTEM_USER : adminrufus@'%' système).
     sequence([](const QString& q){ DataBase::I()->StandardSQL(q); });
     if (conclure(bilan()))
@@ -2727,12 +2716,23 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
     if (!principale.isValid()) return conclure(bilan());
     const QString hostSSL = (principale.hostName().isEmpty() || principale.hostName() == "localhost")
                           ? QStringLiteral("127.0.0.1") : principale.hostName();
+    //! On établit le TLS via les CLÉS SSL du serveur, récoltées à l'install dans PATH_DIR_CLESSSL_SERVEUR
+    //! (ca-cert / client-cert / client-key) — comme le mode Distant. Fournir une clé SSL_* déclenche
+    //! mysql_ssl_set() côté pilote → TLS réel. (MYSQL_OPT_SSL_MODE ne marche pas ici : « Unknown ssl mode »
+    //! → SSL désactivé.) Clés absentes (poste LAN sans stash) → pas de TLS → open() échouera (sans casser,
+    //! cf. garde-fou). VERIFY=0 : cert serveur auto-signé, on ne vérifie pas son identité.
+    const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
+    QString sslOpts;
+    if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
+    if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
+    if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
+    sslOpts += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
     {
         QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_secure_ssl");
         db.setHostName(hostSSL);
         db.setPort(principale.port());
         db.setUserName(urSSL);
-        db.setConnectOptions("MYSQL_OPT_SSL_MODE=3;MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;");   // TLS forcé sans fichier ; cert non vérifié
+        db.setConnectOptions(sslOpts);   // clés SSL du serveur → mysql_ssl_set → TLS réel (comme le mode Distant)
         bool ouverte = false;
         for (const QString& mdp : { aleatoire, legacy })   // aléatoire (base déjà sécurisée) PUIS gaxt78iy
         {
