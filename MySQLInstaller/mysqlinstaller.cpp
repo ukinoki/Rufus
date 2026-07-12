@@ -2716,23 +2716,22 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
     if (!principale.isValid()) return conclure(bilan());
     const QString hostSSL = (principale.hostName().isEmpty() || principale.hostName() == "localhost")
                           ? QStringLiteral("127.0.0.1") : principale.hostName();
-    //! On établit le TLS via les CLÉS SSL du serveur, récoltées à l'install dans PATH_DIR_CLESSSL_SERVEUR
-    //! (ca-cert / client-cert / client-key) — comme le mode Distant. Fournir une clé SSL_* déclenche
-    //! mysql_ssl_set() côté pilote → TLS réel. (MYSQL_OPT_SSL_MODE ne marche pas ici : « Unknown ssl mode »
-    //! → SSL désactivé.) Clés absentes (poste LAN sans stash) → pas de TLS → open() échouera (sans casser,
-    //! cf. garde-fou). VERIFY=0 : cert serveur auto-signé, on ne vérifie pas son identité.
-    const QString dirCerts = QString(PATH_DIR_CLESSSL_SERVEUR);
-    QString sslOpts;
-    if (QFile::exists(dirCerts + "/client-key.pem"))  sslOpts += "SSL_KEY="  + QDir::toNativeSeparators(dirCerts + "/client-key.pem")  + ";";
-    if (QFile::exists(dirCerts + "/client-cert.pem")) sslOpts += "SSL_CERT=" + QDir::toNativeSeparators(dirCerts + "/client-cert.pem") + ";";
-    if (QFile::exists(dirCerts + "/ca-cert.pem"))     sslOpts += "SSL_CA="   + QDir::toNativeSeparators(dirCerts + "/ca-cert.pem")     + ";";
-    sslOpts += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
+    //! Établir le TLS via la CA du serveur : le compte est en REQUIRE SSL (pas X509) → la CA SEULE suffit
+    //! (fournir SSL_CA déclenche mysql_ssl_set → TLS réel, et le nom d'hôte n'est pas vérifié par défaut).
+    //! On la prend LÀ OÙ ELLE EST LISIBLE, dans l'ordre : le datadir MySQL (source, créée à l'install ; hors
+    //! ~/Documents → aucune invite TCC), puis la copie récoltée dans PATH_DIR_CLESSSL_SERVEUR. Aucune CA
+    //! lisible → pas de TLS → open() échoue proprement (garde-fou : @'%' non droppé). (MYSQL_OPT_SSL_MODE et
+    //! VERIFY_SERVER_CERT ne sont pas gérés par ce pilote Qt — inutiles.)
+    QString ca;
+    for (const QString& c : { mysqlDataDir() + "/ca.pem", QString(PATH_DIR_CLESSSL_SERVEUR) + "/ca-cert.pem" })
+        if (QFileInfo(c).isReadable()) { ca = c; break; }
+    const QString sslOpts = ca.isEmpty() ? QString() : ("SSL_CA=" + QDir::toNativeSeparators(ca) + ";");
     {
         QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_secure_ssl");
         db.setHostName(hostSSL);
         db.setPort(principale.port());
         db.setUserName(urSSL);
-        db.setConnectOptions(sslOpts);   // clés SSL du serveur → mysql_ssl_set → TLS réel (comme le mode Distant)
+        db.setConnectOptions(sslOpts);   // SSL_CA → mysql_ssl_set → TLS réel (comme le mode Distant)
         bool ouverte = false;
         for (const QString& mdp : { aleatoire, legacy })   // aléatoire (base déjà sécurisée) PUIS gaxt78iy
         {
