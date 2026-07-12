@@ -2577,9 +2577,9 @@ bool MySQLInstaller::securiserBaseSiNecessaire()
 // Partagé par securiserBaseSiNecessaire() (1re sécurisation) et (à venir) le bouton « mot de passe égaré ».
 bool MySQLInstaller::poserEtSauvegarderAleatoire()
 {
-    // ⚠️ RETAIN CURRENT PASSWORD est IGNORÉ par MySQL si le MÊME ALTER change le plugin d'auth. Le
-    //    compte peut être en caching_sha2 → on procède en DEUX temps : 1) (re)poser gaxt78iy sous
-    //    mysql_native_password (changement de plugin seul) ; 2) basculer sur l'aléatoire avec RETAIN.
+    // Sécurisation en DEUX temps (cf. securiserAdminrufusEtMdp) : 1) (re)poser gaxt78iy comme mdp courant ;
+    //    2) basculer sur l'aléatoire en RETENANT gaxt78iy comme 2e mdp. Aucun plugin imposé : indisponible
+    //    sur MySQL 8.4 et un changement de plugin ferait rejeter RETAIN (ERROR 3894).
     const QString np = genererMotDePasse();
     if (np.isEmpty())                                   // garde-fou : genererMotDePasse ne renvoie jamais vide
         return false;
@@ -2650,20 +2650,24 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
 
     //! La séquence, PARAMÉTRÉE par l'exécuteur `exec` : écrite UNE seule fois, jouée sur la connexion
-    //! PRINCIPALE puis (si besoin) sur la connexion SSL. Chaque compte en DEUX temps (RETAIN ignoré si le
-    //! même ALTER change le plugin) ; securepar gravé DANS le même ALTER que le mdp (un ATTRIBUTE isolé
-    //! effacerait additional_password) ; ALTER … BY … sans clause REQUIRE laisse REQUIRE SSL intact.
+    //! PRINCIPALE puis (si besoin) sur la connexion SSL. Chaque compte en DEUX temps : on pose d'abord le
+    //! mdp générique, puis on bascule sur l'aléatoire en RETENANT le générique en 2e mdp (fallback réseau).
+    //! securepar gravé DANS le même ALTER que le mdp (un ATTRIBUTE isolé effacerait additional_password) ;
+    //! ALTER … BY … sans clause REQUIRE laisse REQUIRE SSL intact.
+    //! On n'impose PAS de plugin (pas de `WITH mysql_native_password`) : il est indisponible sur MySQL 8.4
+    //! (ERROR 1524) et forcerait aussi un changement de plugin qui fait rejeter RETAIN (ERROR 3894). Sans
+    //! clause plugin, on garde celui déjà choisi par createUser() (native ou caching_sha2 selon le serveur).
     auto poser = [&](auto exec) {
         if (!LANonly)   // adminrufusSSL@'%' (compte système, accès distant) : sécurisé EN PLUS
         {
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(urSSL, "%", legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
+            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(urSSL, "%", legacy));
+            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
         }
         for (const QString& h : hostsLANprives())   // adminrufus (non-SSL) sur toutes les plages LOCALES
         {
-            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3'").arg(ur, h, legacy));
-            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
+            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
+            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
+            exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
             exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
         }
         exec(QString("FLUSH PRIVILEGES"));   // active les entrées créées ; adminrufus@'%' PAS encore droppé (cf. sequence)
