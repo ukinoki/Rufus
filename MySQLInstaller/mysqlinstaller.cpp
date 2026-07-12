@@ -44,8 +44,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRandomGenerator>
 #include "database.h"          // DataBase::I()->ModeAccesDataBase() : mode de connexion courant
 #include "dlg_paramconnexion.h" // RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey
-#include <QSqlDatabase>        // connexion de test indépendante (restriction adminrufus au LAN)
-#include <QSqlQuery>
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
@@ -2625,17 +2623,10 @@ static QStringList hostsLANprives()
 
 // Sécurise les comptes adminrufus + pose l'aléatoire (+ gaxt78iy en 2e mdp, RETAIN) et le tampon
 // securepar. `LANonly` : si true, ne traite QUE les comptes NON-SSL (entrées LAN + retrait
-// d'adminrufus@'%') ; si false (défaut), sécurise EN PLUS adminrufusSSL@'%'. DEUX voies, la 2e n'étant
-// empruntée que si la 1re n'a pas tout atteint :
-//   1) VOIE ORDINAIRE (connexion PRINCIPALE) — cas le plus fréquent (base neuve / ancienne install) : on y
-//      est connecté en adminrufus@'%', compte SYSTÈME qui a SYSTEM_USER → il modifie tout, y compris
-//      adminrufusSSL@'%'. Aucun SSL, aucune dépendance aux certificats.
-//   2) DÉTOUR SSL (connexion parallèle SOUS adminrufusSSL, qui DÉTIENT SYSTEM_USER) — SEULEMENT si (1) n'a
-//      pas suffi (principale sans SYSTEM_USER → base POLLUÉE : adminrufusSSL@'%' resté compte système,
-//      adminrufus@'%' déjà droppé). adminrufusSSL exige SSL : TCP forcé (127.0.0.1 ; « localhost » = socket
-//      sans TLS → 1045) et TLS établi via les CLÉS SSL du serveur (récoltées à l'install) — comme le mode
-//      Distant (MYSQL_OPT_SSL_MODE ne marche pas dans ce pilote : « Unknown ssl mode » → SSL désactivé). Si
-//      les clés manquent ou que le TLS n'aboutit pas → on renvoie le bilan tel quel, sans rien casser.
+// d'adminrufus@'%') ; si false (défaut), sécurise EN PLUS adminrufusSSL@'%'. UNE seule voie : la connexion
+// PRINCIPALE, où l'on est connecté en adminrufus@'%', compte SYSTÈME qui a SYSTEM_USER → il modifie tout,
+// y compris adminrufusSSL@'%'. Aucun SSL, aucune dépendance aux certificats. (Un ancien « détour SSL » sous
+// adminrufusSSL a été retiré : la voie ordinaire suffit dès lors qu'on ne force plus de plugin d'auth.)
 //
 // Renvoie true si TOUS les buts sont atteints ; remplit *detailresult (si fourni) but par but — pour
 // pouvoir détailler plus tard où ça a échoué : « adminrufus@% supprimé », « adminrufus LAN sécurisés »,
@@ -2697,60 +2688,17 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
         return true;
     };
 
-    //! Joue `poser` (création/sécurisation SANS drop), PUIS ne supprime adminrufus@'%' QUE si le RELAIS LAN
-    //! est fonctionnel (au moins une entrée LAN sécurisée) — sinon, plus AUCUNE connexion possible. C'est le
-    //! SEUL endroit où @'%' est droppé.
-    auto sequence = [&](auto exec) {
-        poser(exec);
-        if (bilan().value("adminrufus LAN sécurisés"))
-        {
-            exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : SEULEMENT si le relais LAN marche
-            exec(QString("FLUSH PRIVILEGES"));
-        }
-    };
-
-    //! 1) VOIE ORDINAIRE — connexion PRINCIPALE (marche si elle a SYSTEM_USER : adminrufus@'%' système).
-    sequence([](const QString& q){ DataBase::I()->StandardSQL(q); });
-    if (conclure(bilan()))
-        return true;
-
-    //! 2) DÉTOUR SSL — la voie ordinaire n'a pas tout atteint (principale sans SYSTEM_USER → base polluée).
-    //!    Seul adminrufusSSL (compte système) peut corriger : 2e connexion sous ce compte, TCP + REQUIRE SSL.
-    const QSqlDatabase principale = QSqlDatabase::database(DB_RUFUS, false);
-    if (!principale.isValid()) return conclure(bilan());
-    const QString hostSSL = (principale.hostName().isEmpty() || principale.hostName() == "localhost")
-                          ? QStringLiteral("127.0.0.1") : principale.hostName();
-    //! Établir le TLS via la CA du serveur : le compte est en REQUIRE SSL (pas X509) → la CA SEULE suffit
-    //! (fournir SSL_CA déclenche mysql_ssl_set → TLS réel, et le nom d'hôte n'est pas vérifié par défaut).
-    //! On la prend LÀ OÙ ELLE EST LISIBLE, dans l'ordre : le datadir MySQL (source, créée à l'install ; hors
-    //! ~/Documents → aucune invite TCC), puis la copie récoltée dans PATH_DIR_CLESSSL_SERVEUR. Aucune CA
-    //! lisible → pas de TLS → open() échoue proprement (garde-fou : @'%' non droppé). (MYSQL_OPT_SSL_MODE et
-    //! VERIFY_SERVER_CERT ne sont pas gérés par ce pilote Qt — inutiles.)
-    QString ca;
-    for (const QString& c : { mysqlDataDir() + "/ca.pem", QString(PATH_DIR_CLESSSL_SERVEUR) + "/ca-cert.pem" })
-        if (QFileInfo(c).isReadable()) { ca = c; break; }
-    const QString sslOpts = ca.isEmpty() ? QString() : ("SSL_CA=" + QDir::toNativeSeparators(ca) + ";");
+    //! Connexion PRINCIPALE : on y est en adminrufus@'%', compte SYSTÈME (SYSTEM_USER) → il modifie tout,
+    //! y compris adminrufusSSL@'%'. On pose (création/sécurisation SANS drop), PUIS on ne supprime
+    //! adminrufus@'%' QUE si le RELAIS LAN est fonctionnel (au moins une entrée LAN sécurisée) — sinon plus
+    //! AUCUNE connexion possible. C'est le SEUL endroit où @'%' est droppé.
+    auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
+    poser(exec);
+    if (bilan().value("adminrufus LAN sécurisés"))
     {
-        QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL", "rufus_secure_ssl");
-        db.setHostName(hostSSL);
-        db.setPort(principale.port());
-        db.setUserName(urSSL);
-        db.setConnectOptions(sslOpts);   // SSL_CA → mysql_ssl_set → TLS réel (comme le mode Distant)
-        bool ouverte = false;
-        for (const QString& mdp : { aleatoire, legacy })   // aléatoire (base déjà sécurisée) PUIS gaxt78iy
-        {
-            db.setPassword(mdp);
-            if (db.open()) { ouverte = true; break; }
-        }
-        if (ouverte)
-        {
-            //! MÊME séquence, mais sur la connexion privilégiée (qui, ELLE, détient SYSTEM_USER).
-            auto execSSL = [&db](const QString& q) { QSqlQuery s(db); s.exec(q); };
-            sequence(execSSL);
-            db.close();
-        }
+        exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : SEULEMENT si le relais LAN marche
+        exec(QString("FLUSH PRIVILEGES"));
     }
-    QSqlDatabase::removeDatabase("rufus_secure_ssl");   // après destruction de `db` (fin du bloc)
     return conclure(bilan());
 }
 
