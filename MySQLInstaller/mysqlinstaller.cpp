@@ -2665,8 +2665,31 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
             exec(QString("ALTER USER '%1'@'%2' IDENTIFIED WITH mysql_native_password BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
             exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
         }
-        exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : adminrufus@'%' (exposé WAN) retiré
-        exec(QString("FLUSH PRIVILEGES"));
+        exec(QString("FLUSH PRIVILEGES"));   // active les entrées créées ; adminrufus@'%' PAS encore droppé (cf. sequence)
+    };
+
+    //! SÉCURITÉ IMPÉRATIVE (anti-verrouillage) — on ne supprime adminrufus@'%' QUE si le RELAIS est
+    //! fonctionnel : les entrées LAN d'adminrufus (+ adminrufusSSL@'%' si !LANonly) doivent être SÉCURISÉES
+    //! (2e mot de passe posé). Sinon, dropper @'%' rendrait TOUTE connexion impossible. Interrogé via la
+    //! connexion principale (qui voit le serveur dans les deux voies).
+    auto relaisLANpret = [&]() -> bool {
+        bool ok = false;
+        const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+            "SELECT COUNT(*) FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host<>'%'"
+            " AND User_attributes->>'$.additional_password' IS NOT NULL", ok);
+        const bool lanOK = ok && !r.isEmpty() && r.at(0).toInt() > 0;
+        return lanOK && (LANonly || adminrufusEstSecurise());
+    };
+
+    //! Joue `poser` (création/sécurisation SANS drop), PUIS ne supprime adminrufus@'%' QUE si le relais est
+    //! prêt. C'est le seul endroit où @'%' est droppé — jamais sans relais fonctionnel.
+    auto sequence = [&](auto exec) {
+        poser(exec);
+        if (relaisLANpret())
+        {
+            exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : SEULEMENT si le relais LAN marche
+            exec(QString("FLUSH PRIVILEGES"));
+        }
     };
 
     //! Bilan but par but, interrogé via la connexion PRINCIPALE (elle voit le serveur dans les DEUX voies).
@@ -2694,7 +2717,7 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
     };
 
     //! 1) VOIE ORDINAIRE — connexion PRINCIPALE (marche si elle a SYSTEM_USER : adminrufus@'%' système).
-    poser([](const QString& q){ DataBase::I()->StandardSQL(q); });
+    sequence([](const QString& q){ DataBase::I()->StandardSQL(q); });
     if (conclure(bilan()))
         return true;
 
@@ -2720,7 +2743,7 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
         {
             //! MÊME séquence, mais sur la connexion privilégiée (qui, ELLE, détient SYSTEM_USER).
             auto execSSL = [&db](const QString& q) { QSqlQuery s(db); s.exec(q); };
-            poser(execSSL);
+            sequence(execSSL);
             db.close();
         }
     }
