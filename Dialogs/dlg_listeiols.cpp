@@ -1502,7 +1502,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     QNetworkAccessManager *manager = new QNetworkAccessManager(this);
     QNetworkRequest request;
     request.setUrl(QUrl(LIEN_XML_IOLCONLASTVERSION));
-    request.setUrl(QUrl(LIEN_XML_IOLCONLASTVERSION_TEST));
+    //request.setUrl(QUrl(LIEN_XML_IOLCONLASTVERSION_TEST));
     QNetworkReply *reply = manager->get(request);
 
     connect(manager,

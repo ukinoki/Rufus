@@ -33,8 +33,7 @@ public:
 #define VERSION_MYSQL_MINI                    "8.0.14"  // seuil MySQL commun (tous OS)
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
-#define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport.xml"
-#define LIEN_XML_IOLCONLASTVERSION_TEST       "https://98038824-752416317924639189.preview.editmysite.com/uploads/9/8/0/3/98038824/iolexport2.3.xml"
+#define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport2.3.xml"
 
 // Les bases
 #define DB_CCAM                               "CCAM"
