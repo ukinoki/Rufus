@@ -1217,7 +1217,11 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
         return;
     if (iol->arrayimgiol().size() < maxsizeimg)
         return;
-    QString nomfichresize = Utils::ProvDir() + "/resize" + iol->modele() + "." JPG;
+    //! Nom du fichier temporaire basé sur l'id (unique et toujours valide) et non sur le
+    //! modèle : certains noms d'implants contiennent « / » (ex. Clareon « CNAET0/CCAET0 »)
+    //! ou « < » « > » (ZEISS), caractères interdits dans un nom de fichier → pix.save()
+    //! échouait et l'image était rejetée pour une vingtaine d'implants à l'import du 2.3.
+    QString nomfichresize = Utils::ProvDir() + "/resize" + QString::number(iol->id()) + "." JPG;
     QPixmap pix;
     pix.loadFromData(iol->arrayimgiol());
     /*!
