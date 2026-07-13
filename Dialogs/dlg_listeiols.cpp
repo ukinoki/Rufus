@@ -1229,8 +1229,7 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
     //! puis recopie « à sa place d'origine »). Quand la source était déjà dans ProvDir, fichier
     //! d'origine et fichier compressé étaient le même : la fonction supprimait le résultat puis
     //! recopiait une source inexistante → l'image finale disparaissait et n'était jamais réécrite
-    //! en base. On compresse donc directement le QByteArray, ce qui règle aussi au passage le
-    //! souci des noms de modèle contenant « / » « < » « > ».
+    //! en base. On compresse donc directement le QByteArray.
     QImage img;
     if (!img.loadFromData(iol->arrayimgiol()))
         return;
