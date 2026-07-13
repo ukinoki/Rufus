@@ -30,7 +30,6 @@ class IOLs : public ItemsList
 private:
     QMap<int, IOL*> *map_all = Q_NULLPTR;       //!< la liste de tous les IOLs, y compris ceux qui nes ont plus fabriqués
     bool m_isfull = false;                      //! la liste des IOL a été complètement initialisée
-    void    resizeiolimage(IOL *iol);           //! redimensionne l'image de l'IOL sous le seuil (SIZEMAXIMGIOL), en base
 public:
     //! Récapitulatif d'un import/mise à jour de la liste des implants (pour l'affichage par l'appelant).
     struct ImportResult { int nouveaux = 0; int misAJour = 0; int total = 0; };
@@ -51,6 +50,15 @@ public:
     //! (fabricants, création/mise à jour des IOLs, images) — appelable depuis n'importe quelle classe.
     //! parent ne sert que de parent aux éventuelles boîtes d'erreur. Renvoie un récapitulatif.
     ImportResult ImportListeIOLS(QDomDocument docxml, QWidget *parent = Q_NULLPTR);
+
+    //! Vérifie en ligne (IOLCon) qu'une version plus récente de la liste des implants existe et,
+    //! si l'utilisateur l'accepte, l'incorpore. Appelable depuis n'importe quelle classe ; parent
+    //! sert de parent aux boîtes (question puis récapitulatif).
+    void HasNewVersion(QWidget *parent = Q_NULLPTR);
+
+signals:
+    //! Émis après une mise à jour de la liste des implants, pour que l'IHM se rafraîchisse.
+    void listeModifiee();
 };
 
 

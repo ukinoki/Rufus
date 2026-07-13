@@ -19,6 +19,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "utils.h"
 #include <QtXml>
+#include <QtNetwork>
+#include <QPointer>
 #include <algorithm>
 
 IOLs::IOLs(QObject *parent) : ItemsList(parent)
@@ -843,34 +845,92 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
     //    qDebug()<<listitem.at(i);
     /*! fin mise à jour de la liste des IOLs */
 
-    //! Redimensionnement des images surdimensionnées : UNE SEULE FOIS, ici après l'import, et non au
-    //! survol de la souris comme auparavant (ce qui écrivait en base à chaque passage de souris sur une
-    //! ligne). resizeiolimage ne touche que les images bitmap dépassant le seuil (SIZEMAXIMGIOL).
+    //! Redimensionnement des images surdimensionnées : UNE SEULE FOIS, ici après l'import. Le calcul
+    //! de l'image comprimée est porté par IOL::resizeImage (data d'un seul IOL) ; la persistance passe
+    //! par le mécanisme habituel ItemsList::update.
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
-        resizeiolimage(const_cast<IOL*>(it.value()));
-    return { newiols, updateiols, int(Datas::I()->iols->iols()->size()) };
+    {
+        IOL *iol = const_cast<IOL*>(it.value());
+        QByteArray ba = iol->resizeImage(SIZEMAXIMGIOL);
+        if (!ba.isEmpty())
+        {
+            ItemsList::update(iol, CP_ARRAYIMG_IOLS, ba);
+            ItemsList::update(iol, CP_TYPIMG_IOLS, JPG);
+        }
+    }
+
+    const int total = int(Datas::I()->iols->iols()->size());
+
+    //! Récapitulatif affiché seulement si un parent graphique est fourni (appel interactif) ; un
+    //! appelant sans IHM (parent nul) fait la mise à jour en silence.
+    if (parent != Q_NULLPTR)
+    {
+        QString msg = "Aucun implant n'a été rajouté à la base";
+        switch (newiols) {
+        case 0:
+            break;
+        case 1:
+            msg = tr("Un implant a été rajouté à la base");
+            break;
+        default:
+            msg = QString::number(newiols) + " " + tr("implants ont été rajoutés à la base");
+        }
+        QString msgupdate = tr("Aucun implant n'a été mis à jour");
+        switch (updateiols) {
+        case 0:
+            break;
+        case 1:
+            msgupdate += tr("Un implant a été mis à jour");
+            break;
+        default:
+            msgupdate = QString::number(updateiols) + " " + tr("implants ont été mis à jour");
+        }
+        msg += "\n" + msgupdate;
+        msg += "\n" + tr("Il y a") + " " + QString::number(total) + " " + tr("implants dans la base");
+        UpMessageBox::Watch(parent, tr("Mise à jour de la liste des implants"), msg);
+    }
+
+    emit listeModifiee();
+    return { newiols, updateiols, total };
 }
 
-void IOLs::resizeiolimage(IOL *iol)
+void IOLs::HasNewVersion(QWidget *parent)
 {
-    const int maxsizeimg = SIZEMAXIMGIOL;
-    //! On ne traite que les images bitmap. Il faut des && : « si le format n'est AUCUN des trois, on
-    //! sort ». L'ancien code utilisait ||, condition toujours vraie (un format ne peut différer à la
-    //! fois de JPG, PNG et JPEG) → la fonction sortait systématiquement et ne redimensionnait jamais rien.
-    if (iol->imageformat() != JPG && iol->imageformat() != PNG && iol->imageformat() != JPEG)
-        return;
-    if (iol->arrayimgiol().size() < maxsizeimg)
-        return;
+    //! Le manager est parenté à IOLs (durée de vie du programme) : la vérification survit à la
+    //! fermeture éventuelle du widget appelant. On garde ce widget par QPointer pour ne jamais
+    //! déréférencer un parent détruit pendant l'attente réseau.
+    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
+    QNetworkRequest request;
+    request.setUrl(QUrl(LIEN_XML_IOLCONLASTVERSION));
+    QNetworkReply *reply = manager->get(request);
+    QPointer<QWidget> guard = parent;
 
-    //! Compression entièrement EN MÉMOIRE, déléguée à Utils::CompressImageToJPG (rapide, sans
-    //! fichier temporaire). L'ancienne version passait par CompressFileToJPG avec un fichier posé
-    //! dans ProvDir, ce qui échouait ici (collision fichier d'origine / fichier compressé).
-    QByteArray ba = Utils::CompressImageToJPG(iol->arrayimgiol(), maxsizeimg);
-    if (ba.isEmpty())
-        return;
-
-    QHash<QString, QVariant> m_listbinds;
-    m_listbinds[CP_ARRAYIMG_IOLS] = ba;
-    m_listbinds[CP_TYPIMG_IOLS] = JPG;
-    DataBase::I()->UpDateImgIOL(iol->id(), m_listbinds);
+    connect(manager, &QNetworkAccessManager::finished, this, [=]
+    {
+        if (reply->error() == QNetworkReply::NoError)
+        {
+            QByteArray data = reply->readAll();
+            QDomDocument docxml;
+            if (docxml.setContent(data))   //! on ne traite que si le XML est valide
+            {
+                QDomElement xml = docxml.documentElement();
+                double lastversion = xml.attribute("fileVersion").toDouble();
+                double actualversion = DataBase::I()->parametres()->versionbaseiol();
+                if (guard && actualversion < lastversion
+                    && UpMessageBox::Question
+                        (guard, tr("Mise à jour de la liste des implants"),
+                         tr("Vous utilisez la version") + " " + QLocale(QLocale::English).toString(actualversion, 'f',1) + "\n"
+                             + tr("La version") + " " + QLocale(QLocale::English).toString(lastversion, 'f',1) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
+                             + tr("Voulez vous l'incorporer dans Rufus?") + "\n"
+                             + tr("Aucun implant de votre base actuelle ne sera modifié"))
+                        == UpSmallButton::STARTBUTTON)
+                {
+                    ImportListeIOLS(docxml, guard);
+                    DataBase::I()->setversionbaseiol(lastversion);
+                }
+            }
+        }
+        reply->deleteLater();       //! évite la fuite du reply et du manager
+        manager->deleteLater();
+    });
 }

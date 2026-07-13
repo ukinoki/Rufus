@@ -79,13 +79,11 @@ private:
      void                   Enablebuttons(QModelIndex idx);
     void                    EnregistreNouveauIOL();
     IOL*                    getIOLFromIndex(QModelIndex idx);
-    void                    ImportListeIOLS(QDomDocument docxml);
     void                    ReconstruitListeManufacturers();                // la liste des fabricants
     void                    ModifIOL(IOL *iol);
     void                    scrollToIOL(IOL *iol);
     void                    SupprIOL(IOL *iol);
     void                    ReconstruitTreeViewIOLs(QString filtre = "");
-    void                    HasNewVersion();
 
 };
 

@@ -173,6 +173,7 @@ public:
     double opticdiameter() const                { return m_opticaldiameter; }
     QByteArray arrayimgiol() const              { return m_arrayimgiol; }
     QString imageformat() const                 { return m_imageformat; }
+    QByteArray resizeImage(int maxsize) const;  //! version JPEG comprimée sous maxsize si l'image (bitmap) dépasse le seuil, sinon QByteArray vide (persistance via ItemsList::update côté appelant)
     QString opticalmaterial() const             { return m_opticmaterial; }
     QString hydrofily() const                   { return m_hydrofily; }
     QString hapticalmaterial() const            { return m_hapticmaterial; }

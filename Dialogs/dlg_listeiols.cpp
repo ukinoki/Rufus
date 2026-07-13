@@ -200,7 +200,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
                                                                                                 UpMessageBox::Watch(this, tr("Fichier XML invalide"), path_file_origin);
                                                                                                 return;
                                                                                             }
-                                                                                            ImportListeIOLS(docxml);
+                                                                                            Datas::I()->iols->ImportListeIOLS(docxml, this);
                                                                                         }
                                                                                     });
     connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) {
@@ -224,7 +224,23 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     if (ok)
         for (int i=0; i<listidiols.size(); ++i)
             m_listidiolsutilises << listidiols.at(i).at(0).toInt();
-    HasNewVersion();
+    //! Rafraîchit le combo fabricants quand la liste des implants est modifiée (import/màj),
+    //! quel qu'en soit le déclencheur (this dialogue ou un autre appelant de IOLs).
+    connect(Datas::I()->iols, &IOLs::listeModifiee, this, [this]{
+        wdg_manufacturerscombo->clear();
+        wdg_manufacturerscombo->addItem(tr("Tous"), 0);
+        for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
+        {
+            UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
+            if (itm)
+            {
+                Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
+                if (man)
+                    wdg_manufacturerscombo->addItem(man->nom(), man->id());
+            }
+        }
+    });
+    Datas::I()->iols->HasNewVersion(this);
     setStageCount(1);
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_ListeIOLs);
@@ -470,51 +486,6 @@ IOL* dlg_listeiols::getIOLFromIndex(QModelIndex idx )
 /*-----------------------------------------------------------------------------------------------------------------
 -- // mise à jour de la liste des implants  --------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
-{
-    //! Toute la logique de mise à jour de la base d'implants vit désormais dans IOLs
-    //! (réutilisable hors de ce dialogue). Ici on ne garde que l'appel, l'affichage du
-    //! récapitulatif et le rafraîchissement de l'IHM.
-    IOLs::ImportResult res = Datas::I()->iols->ImportListeIOLS(docxml, this);
-
-    QString totaliol = QString::number(res.total);
-    QString msg = "Aucun implant n'a été rajouté à la base";
-    switch (res.nouveaux) {
-    case 0:
-        break;
-    case 1:
-        msg = tr("Un implant a été rajouté à la base");
-        break;
-    default:
-        msg = QString::number(res.nouveaux) + " " + tr("implants ont été rajoutés à la base");
-    }
-    QString msgupdate = tr("Aucun implant n'a été mis à jour");
-    switch (res.misAJour) {
-    case 0:
-        break;
-    case 1:
-        msgupdate += tr("Un implant a été mis à jour");
-        break;
-    default:
-        msgupdate = QString::number(res.misAJour) + " " + tr("implants ont été mis à jour");
-    }
-    msg += "\n" + msgupdate;
-    msg += "\n" + tr("Il y a") + " " + totaliol + " " + tr("implants dans la base");
-    UpMessageBox::Watch(this,tr("Mise à jour de la liste des implants"),  msg);
-
-    wdg_manufacturerscombo->clear();
-    wdg_manufacturerscombo->addItem(tr("Tous"), 0);
-    for (int i=0; i<m_manufacturersmodel->rowCount(); ++i)
-    {
-        UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_manufacturersmodel->item(i));
-        if (itm)
-        {
-            Manufacturer *man = qobject_cast<Manufacturer*>(itm->rufusitem());
-            if (man)
-                wdg_manufacturerscombo->addItem(man->nom(), man->id());
-        }
-    }
-}
 
 // ------------------------------------------------------------------------------------------
 // Modifie un IOL
@@ -810,45 +781,4 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                                                                                                      if (item && !item->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });
     }
-}void dlg_listeiols::HasNewVersion()
-{
-    QNetworkAccessManager *manager = new QNetworkAccessManager(this);
-    QNetworkRequest request;
-    request.setUrl(QUrl(LIEN_XML_IOLCONLASTVERSION));
-    //request.setUrl(QUrl(LIEN_XML_IOLCONLASTVERSION_TEST));
-    QNetworkReply *reply = manager->get(request);
-
-    connect(manager,
-            &QNetworkAccessManager::finished,
-            this, [=]
-            {
-                if(reply->error() == QNetworkReply::NoError)
-                {
-                    QByteArray data = reply->readAll();
-                    QDomDocument docxml;
-                    if (docxml.setContent(data))   //! on ne traite que si le XML est valide (sinon on ignore, au lieu de traiter un document vide en silence)
-                    {
-                        QDomElement xml = docxml.documentElement();
-                        double lastversion = xml.attribute("fileVersion").toDouble();
-                        double actualversion = DataBase::I()->parametres()->versionbaseiol();
-                        if(actualversion < lastversion)
-                        {
-                            if (UpMessageBox::Question
-                                (this,tr("Mise à jour de la liste des implants"),
-                                 tr("Vous utilisez la version") + " " + QLocale(QLocale::English).toString(actualversion, 'f',1) + "\n"
-                                     + tr("La version") + " " + QLocale(QLocale::English).toString(lastversion, 'f',1) + " " + tr("de la liste des implants est disponible sur le site https://iolcon.org/") + "\n"
-                                     + tr("Voulez vous l'incorporer dans Rufus?") + "\n"
-                                     + tr("Aucun implant de votre base actuelle ne sera modifié"))
-                                == UpSmallButton::STARTBUTTON)
-                            {
-                                ImportListeIOLS(docxml);
-                                DataBase::I()->setversionbaseiol(lastversion);
-                            }
-                        }
-                    }
-                }
-                reply->deleteLater();       //! évite la fuite du reply et du manager à chaque ouverture de la boîte
-                manager->deleteLater();
-            });
 }
-

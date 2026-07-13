@@ -238,3 +238,15 @@ void IOL::resetdatas()
     setimage();
 }
 
+
+//! Si l'image de l'IOL est un bitmap (jpg/png/jpeg) dépassant maxsize, renvoie sa version JPEG
+//! comprimée sous le seuil ; sinon renvoie un QByteArray vide (rien à redimensionner). La
+//! persistance se fait ensuite côté appelant par le mécanisme habituel ItemsList::update.
+QByteArray IOL::resizeImage(int maxsize) const
+{
+    if (m_imageformat != JPG && m_imageformat != PNG && m_imageformat != JPEG)
+        return QByteArray();
+    if (m_arrayimgiol.size() < maxsize)
+        return QByteArray();
+    return Utils::CompressImageToJPG(m_arrayimgiol, maxsize);
+}
