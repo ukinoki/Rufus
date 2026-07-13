@@ -853,9 +853,14 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
         IOL *iol = const_cast<IOL*>(it.value());
         if (iol->imageformat() != PDF && iol->arrayimgiol().size() >= SIZEMAXIMGIOL)
         {
-            iol->setimage(iol->image());
-            ItemsList::update(iol, CP_ARRAYIMG_IOLS, iol->arrayimgiol());
-            ItemsList::update(iol, CP_TYPIMG_IOLS, iol->imageformat());
+            iol->setimage(iol->image());                //! compression en mémoire (data de l'IOL)
+            //! Persistance du blob image en requête PARAMÉTRÉE (bind) : ItemsList::update inline la
+            //! valeur dans la chaîne SQL (OK pour texte/nombres, mais casse un blob binaire).
+            QHash<QString, QVariant> binds;
+            binds[CP_ARRAYIMG_IOLS] = iol->arrayimgiol();
+            binds[CP_TYPIMG_IOLS]   = iol->imageformat();
+            DataBase::I()->UpdateTablebyBinds(TBL_IOLS, binds, CP_ID_IOLS, iol->id(),
+                                              tr("Impossible de mettre à jour l'image de l'implant"));
         }
     }
 
