@@ -388,19 +388,22 @@ void dlg_listeiols::connectFiltersSignals()
 }
 void dlg_listeiols::disconnectFiltersSignals()
 {
-    wdg_manufacturerscombo  ->disconnect();
-    wdg_typebox             ->disconnect();
-    wdg_prechargechk        ->disconnect();
-    wdg_jaunechk            ->disconnect();
-    wdg_clairchk            ->disconnect();
-    wdg_singlepiecechk      ->disconnect();
-    wdg_twopiecechk         ->disconnect();
-    wdg_toricchk            ->disconnect();
-    wdg_edofchk             ->disconnect();
-    wdg_monofocalchk        ->disconnect();
-    wdg_multifocalchk       ->disconnect();
-    wdg_pwrchk              ->disconnect();   //! était oublié → ses connexions s'accumulaient à chaque remise à zéro des filtres
-    wdg_rangepwrslider           ->disconnect();
+    //! disconnect(this) et non disconnect() tout court : on ne coupe QUE les connexions
+    //! que ce dialogue a posées (toutes ont « this » pour destinataire). Un disconnect()
+    //! nu couperait aussi les liaisons internes que Qt établit sur ces widgets.
+    wdg_manufacturerscombo  ->disconnect(this);
+    wdg_typebox             ->disconnect(this);
+    wdg_prechargechk        ->disconnect(this);
+    wdg_jaunechk            ->disconnect(this);
+    wdg_clairchk            ->disconnect(this);
+    wdg_singlepiecechk      ->disconnect(this);
+    wdg_twopiecechk         ->disconnect(this);
+    wdg_toricchk            ->disconnect(this);
+    wdg_edofchk             ->disconnect(this);
+    wdg_monofocalchk        ->disconnect(this);
+    wdg_multifocalchk       ->disconnect(this);
+    wdg_pwrchk              ->disconnect(this);   //! était oublié → ses connexions s'accumulaient à chaque remise à zéro des filtres
+    wdg_rangepwrslider      ->disconnect(this);
 }
 
 void dlg_listeiols::ChoixButtonFrame()
@@ -1193,7 +1196,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
     if (Dlg_IdentIOL->exec() == QDialog::Accepted)
     {
             m_listemodifiee = true;
-            wdg_manufacturerscombo->disconnect();
+            wdg_manufacturerscombo->disconnect(this);
             wdg_manufacturerscombo->setCurrentIndex(0);
             connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
     }
@@ -1318,7 +1321,7 @@ void dlg_listeiols::SupprIOL(IOL *iol)
     {
         Datas::I()->iols->SupprimeIOL(iol);
         m_listemodifiee = true;
-        wdg_manufacturerscombo->disconnect();
+        wdg_manufacturerscombo->disconnect(this);
         wdg_manufacturerscombo->setCurrentIndex(0);
         connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
         ReconstruitTreeViewIOLs();
@@ -1366,8 +1369,11 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
 {
     int IOLtotal = 0;
     ReconstruitListeManufacturers();
-    wdg_itemstree->disconnect();
-    wdg_itemstree->selectionModel()->disconnect();
+    //! Cibler « this » : un disconnect() nu sur la vue et surtout sur son selectionModel
+    //! couperait les liaisons internes de Qt (vue ↔ modèle de sélection) et casserait le
+    //! surlignage / la navigation clavier.
+    wdg_itemstree->disconnect(this);
+    wdg_itemstree->selectionModel()->disconnect(this);
     if (m_IOLsmodel != Q_NULLPTR)
         delete m_IOLsmodel;
     m_IOLsmodel = new QStandardItemModel(this);
