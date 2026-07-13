@@ -82,7 +82,7 @@ void IOLs::SupprimeIOL(IOL *iol)
 
 IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets, QWidget *parent)
 {
-    IOL *iol = Q_NULLPTR;
+    IOL *iol = nullptr;
     int idiol = 0;
     DataBase::I()->locktables(QStringList() << TBL_IOLS);
     idiol = DataBase::I()->selectMaxFromTable(CP_ID_IOLS, TBL_IOLS, m_ok);
@@ -94,7 +94,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets, QWidget *parent)
         result = DataBase::I()->InsertSQLByBinds(TBL_IOLS, sets);
     }
     DataBase::I()->unlocktables();
-    if (!result)
+    if (!result && parent != nullptr)
     {
         UpMessageBox::Watch(parent,tr("Impossible d'enregistrer cet implant dans la base!"), sets[CP_MODELNAME_IOLS].toString());
         return iol;
@@ -164,7 +164,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets, QWidget *parent)
         else if (champ == CP_HOFFERQO_IOLS)                         data[champ] = itset.value().toDouble();
      }
     iol = new IOL(data);
-    if (iol != Q_NULLPTR)
+    if (iol != nullptr)
         map_all->insert(iol->id(), iol);
     return iol;
 }
@@ -316,17 +316,17 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
     }
     /*! fin mise à jour de la liste des IOLs */
 
-    /*! Mise à jour de la liste des IOLs */
+    /*! Mise à jour de la liste des IOLs dans la table MySQL */
     int newiols = 0;
     int updateiols = 0;
     QStringList iolbrandmodellist= QStringList();
     QList<int> iollistid = QList<int>();
     foreach (IOL *iolfromlist, *Datas::I()->iols->iols())
     {
-        if (iolfromlist != Q_NULLPTR)
+        if (iolfromlist != nullptr)
         {
             Manufacturer* man = Datas::I()->manufacturers->getById(iolfromlist->idmanufacturer());
-            if (man != Q_NULLPTR)
+            if (man != nullptr)
                 if (!iolbrandmodellist.contains(man->nom()) && !iolbrandmodellist.contains(man->nom().toUpper()) && !iolbrandmodellist.contains(man->nom().toLower()))
                 {
                     iolbrandmodellist << man->nom().toUpper() + " " + iolfromlist->modele().toUpper();
@@ -700,7 +700,7 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                     }
                 }
             }
-            Manufacturer *man = Q_NULLPTR;
+            Manufacturer *man = nullptr;
             for (auto it = Datas::I()->manufacturers->manufacturers()->constBegin(); it != Datas::I()->manufacturers->manufacturers()->constEnd(); ++it)
             {
                 Manufacturer *manf = const_cast<Manufacturer*>(it.value());
@@ -718,7 +718,7 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
             {
                 //! update existant iol
                 IOL* ioloflist = Datas::I()->iols->getById(iollistid.at(idx));
-                if (ioloflist != Q_NULLPTR)
+                if (ioloflist != nullptr)
                 {
                     //! update existant iol
                     ItemsList::update(ioloflist, CP_MODELNAME_IOLS,       iol.modele());
@@ -863,7 +863,7 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
 
     //! Récapitulatif affiché seulement si un parent graphique est fourni (appel interactif) ; un
     //! appelant sans IHM (parent nul) fait la mise à jour en silence.
-    if (parent != Q_NULLPTR)
+    if (parent != nullptr)
     {
         QString msg = "Aucun implant n'a été rajouté à la base";
         switch (newiols) {

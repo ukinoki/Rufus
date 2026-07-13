@@ -746,7 +746,7 @@ void DataBase::initParametresSysteme()
         m_parametres->setData(paramData);
     }
 
-    //! from versionbase 82
+    //! from versionbase 82 récupération de la version libguistique enregistrée en base
     req = "SELECT COUNT(*) FROM "
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
           "WHERE TABLE_NAME = '" + tablename + "' AND COLUMN_NAME = '" CP_VERSION_PARAMSYSTEME "') as chp;";

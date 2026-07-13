@@ -1038,18 +1038,19 @@ void dlg_identificationIOL::connectSignals()
 
 void dlg_identificationIOL::disconnectSignals()
 {
-    OKButton->disconnect();
-    RecordButton->disconnect();
-    wdg_manufacturercombo->disconnect();
-    wdg_nomiolline->disconnect();
-    wdg_Aoptline->disconnect();
-    wdg_Aecholine->disconnect();
-    wdg_holladayline->disconnect();
-    wdg_haigisaline->disconnect();
-    wdg_haigisbline->disconnect();
-    wdg_haigiscline->disconnect();
-    wdg_materiaubox->lineEdit()->disconnect();
-    wdg_materiaubox->disconnect();
+    disconnect(OKButton,                        &QPushButton::clicked, nullptr, nullptr);
+    disconnect(RecordButton,                    &QPushButton::clicked, nullptr, nullptr);
+    disconnect(wdg_manufacturercombo,           QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
+    disconnect(wdg_nomiolline,                  &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Aoptline,                    &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Aecholine,                   &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_holladayline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_haigisaline,                 &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_haigisbline,                 &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_haigiscline,                 &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_materiaubox->lineEdit(),     &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_materiaubox,                 QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
+
     wdg_hydrofilybox->disconnect();
     wdg_typebox->disconnect();
     wdg_remarquetxt->disconnect();
