@@ -6363,7 +6363,7 @@ void Rufus::VerifLastVersion()
                         //! (m_parametres->version(), déjà connue puisqu'elle a chargé le .qm),
                         //! avec repli sur EN puis FR si elle est absente. Si <Comment> ne contient
                         //! aucune de ces sous-sections (ancien format), on prend son texte brut.
-                        QString langue = m_parametres->version().toUpper();
+                        QString langue = proc->settings()->value(Param_Poste_Version).toString();
                         QString commentLangue, commentEN, commentFR;
                         bool hassections = false;
                         for (int k=0; k<child.childNodes().size(); k++)

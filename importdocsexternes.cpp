@@ -72,7 +72,7 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
     if (jnaltrsferfile.open(QIODevice::Append))
     {
         QTextStream out(&jnaltrsferfile);
-        out << m_currentdate.toString("yyyy-MM-dd") << QTime::currentTime().toString() << " - " + tr ("Rapatriement de ") << Titredoc << " - " << nomfiledoc << " - " << Utils::hostName() << "\n" ;
+        out << m_currentdate.toString("yyyy-MM-dd") << " - " << QTime::currentTime().toString() << " - " + tr ("Rapatriement de ") << Titredoc << " - " << nomfiledoc << " - " << Utils::hostName() << "\n" ;
         jnaltrsferfile.close();
     }
     QString commentechec;

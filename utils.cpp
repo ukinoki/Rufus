@@ -879,6 +879,13 @@ QString Utils::correctquoteSQL(QString text)
     return text.replace("'","\\'");
 }
 
+QString Utils::nomTableDepuisCheminSQL(QString text)
+{
+    if (text.split(".").size()>1)
+        text = text.split(".").last();
+    return text;
+}
+
 QString Utils::getBaseFromMode(ModeAcces mode )
 {
     switch (mode) {

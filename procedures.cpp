@@ -3903,7 +3903,7 @@ bool Procedures::IdentificationUser()
         //! Le français (langue source) ne le voit pas. Invite à signaler les imperfections / à
         //! contribuer via www.rufusvision.org.
         {
-            const QString lang    = m_parametres->version().toUpper();
+            const QString lang    = m_settings->value(Param_Poste_Version).toString();
             const QString cleAvis = QString(Param_Poste) + "/AvisTraductionIA";
             if (lang != "FR" && !m_settings->value(cleAvis, false).toBool())
             {

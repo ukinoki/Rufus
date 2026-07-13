@@ -249,6 +249,7 @@ public:
 
     //! SQL
     static QString                  correctquoteSQL(QString text);
+    static QString                  nomTableDepuisCheminSQL(QString text);
     static QString                  ConvertitModePaiementtotr(QString mode);            // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
     static QString                  ModePaiementtotr(QString mode);        // convertit en clair les abréviations utilisées dans la compta pour les modes de paiement (B= carte de crédit, E = Espèces...etc...)
     static void                     CalcBlobValueSQL(QVariant &newvalue);           // convertit un Qvariant en valeur blob SQL équivalente

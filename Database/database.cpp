@@ -712,10 +712,11 @@ void DataBase::initParametresSysteme()
     paramData[CP_DIRBKUP_PARAMSYSTEME]                = paramdata.at(16).toString();
     m_parametres->setData(paramData);
 
+    QString tablename = Utils::nomTableDepuisCheminSQL(TBL_PARAMSYSTEME);
     //! from versionbase 73
     req = "SELECT COUNT(*) FROM "
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-          "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VILLES_PARAMSYSTEME "') as chp;";
+          "WHERE TABLE_NAME = '" + tablename + "' AND COLUMN_NAME = '" CP_VILLES_PARAMSYSTEME "') as chp;";
     QVariantList listquery = getFirstRecordFromStandardSelectSQL(req,ok);
     if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
@@ -733,7 +734,7 @@ void DataBase::initParametresSysteme()
     //! from versionbase 79
     req = "SELECT COUNT(*) FROM "
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-          "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VERSIONBASEIOL_PARAMSYSTEME "') as chp;";
+          "WHERE TABLE_NAME = '" + tablename + "' AND COLUMN_NAME = '" CP_VERSIONBASEIOL_PARAMSYSTEME "') as chp;";
     listquery = getFirstRecordFromStandardSelectSQL(req,ok);
     if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
@@ -748,7 +749,7 @@ void DataBase::initParametresSysteme()
     //! from versionbase 82
     req = "SELECT COUNT(*) FROM "
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-          "WHERE TABLE_NAME = '" TBL_PARAMSYSTEME "' AND COLUMN_NAME = '" CP_VERSION_PARAMSYSTEME "') as chp;";
+          "WHERE TABLE_NAME = '" + tablename + "' AND COLUMN_NAME = '" CP_VERSION_PARAMSYSTEME "') as chp;";
     listquery = getFirstRecordFromStandardSelectSQL(req,ok);
     if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
@@ -3220,13 +3221,13 @@ QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //!
 {
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                     "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-                                                    "WHERE TABLE_NAME = 'refractions' AND COLUMN_NAME = 'QuickOD') as chp;", ok);
+                                                    "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
     if (ok)
         if (listc.at(0).at(0).toInt() == 0)
         {
-            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOD` INT NULL DEFAULT 0 AFTER `AVPOD`;");
-            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOG` INT NULL DEFAULT 0 AFTER `AVPOG`;");
-            StandardSQL("UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 81;");
+            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOD_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOD`;");
+            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOG_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOG`;");
+            StandardSQL("UPDATE `" TBL_PARAMSYSTEME "` SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
         }
 
     QList<Refraction*> list = QList<Refraction*> ();
@@ -3262,13 +3263,13 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
 {
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                   "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-                                                  "WHERE TABLE_NAME = 'refractions' AND COLUMN_NAME = 'QuickOD') as chp;", ok);
+                                                  "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
     if (ok)
         if (listc.at(0).at(0).toInt() == 0)
         {
-            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOD` INT NULL DEFAULT 0 AFTER `AVPOD`;");
-            StandardSQL("ALTER TABLE `Ophtalmologie`.`refractions` ADD COLUMN `QuickOG` INT NULL DEFAULT 0 AFTER `AVPOG`;");
-            StandardSQL("UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 81;");
+            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOD_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOD`;");
+            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOG_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOG`;");
+            StandardSQL("UPDATE `" TBL_PARAMSYSTEME "` SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
         }
 
     Refraction *ref = Q_NULLPTR;
