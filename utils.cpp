@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "utils.h"
 #include "gbl_datas.h"
+#include <QBuffer>
 
 Utils* Utils::instance =  Q_NULLPTR;
 Utils* Utils::I()
@@ -492,65 +493,89 @@ bool Utils::isFormatRecognized(QFile &fileimg)
     * le fichier d'origine est ajouté dans ce même répertoire
  */
 
+/*!
+ * \brief Utils::CompressImageToJPG
+ * Cœur de compression, ENTIÈREMENT EN MÉMOIRE (aucun accès disque) : décode les octets image
+ * (jpg/png/…), réduit sous 4 Mpixels si besoin en conservant les proportions, puis baisse la
+ * qualité JPEG jusqu'à passer sous maxsizeimg. Renvoie les octets JPEG compressés, ou un
+ * QByteArray vide si les données ne sont pas une image décodable.
+ * Bien plus rapide que la variante fichier : on ne réécrit pas le disque à chaque passe de qualité.
+ */
+QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
+{
+    QImage img;
+    if (!img.loadFromData(imgdata))
+        return QByteArray();
+
+    /*! si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions */
+    if (qint64(img.width()) * img.height() > 4096 * 1024)
+    {
+        double proportion = double(img.width()) / img.height();
+        int y = int(sqrt((4096.0 * 1024.0) / proportion));
+        img = img.scaledToWidth(int(y * proportion), Qt::SmoothTransformation);
+    }
+
+    /*! on baisse la qualité JPEG jusqu'à passer sous le seuil */
+    QByteArray ba;
+    int tauxcompress = 100;
+    do {
+        ba.clear();
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        img.save(&buffer, "jpeg", tauxcompress);
+        buffer.close();
+        tauxcompress -= 10;
+    } while (ba.size() > maxsizeimg && tauxcompress > 1);
+    return ba;
+}
+
 bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError, int maxsizeimg)
 {
     bool displaymsg = (msg == "") ;
-    qint64                  szorigin, szfinal;
     QFile                   file_origin(pathfile);
     QString                 EchecPath   = EchecDir();
-    QString                 ProvPath    = ProvDir();
-
-    szorigin = file_origin.size();
-    szfinal = szorigin;
 
     /*! on vérifie si le dossier des echecs de transferts existe et on le crée au besoin*/
-    if (withRecordError)
+    if (withRecordError && EchecPath == "")
     {
-        if (EchecPath == "")
-        {
-            msg = QObject::tr("Dossier de sauvegarde des erreurs ") + "<font color=\"red\"><b>" + EchecPath + "</b></font>" + QObject::tr(" invalide");
-            if (displaymsg)
-                ShowMessage::I()->SplashMessage(msg, 3000);
-            return false;
-        }
-    }
-    /*! on vérifie si le dossier provisoire existe sur le poste et on le crée au besoin */
-    if (ProvPath == "")
-    {
-        msg = QObject::tr("Dossier de sauvegarde provisoire ") + "<font color=\"red\"><b>" + ProvPath + "</b></font>" + QObject::tr(" invalide");
+        msg = QObject::tr("Dossier de sauvegarde des erreurs ") + "<font color=\"red\"><b>" + EchecPath + "</b></font>" + QObject::tr(" invalide");
         if (displaymsg)
             ShowMessage::I()->SplashMessage(msg, 3000);
         return false;
     }
 
-    QImage                  img(pathfile);
-    QPixmap                 pixmap;
-    double w                = img.width();
-    double h                = img.height();
-    int x                   = w;
-
-    /*! si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions */
-    if (int(w*h)>(4096*1024))
+    /*! Lecture du fichier puis compression EN MÉMOIRE (cf. CompressImageToJPG) : on n'écrit
+     *  le résultat sur le disque qu'UNE fois, au lieu de réécrire à chaque passe de qualité et
+     *  de faire un aller-retour par le dossier provisoire. */
+    QByteArray imgdata;
+    if (file_origin.open(QIODevice::ReadOnly))
     {
-        double proportion = w/h;
-        int y = int(sqrt((4096*1024)/proportion));
-        x = int (y*proportion);
+        imgdata = file_origin.readAll();
+        file_origin.close();
     }
-    pixmap = pixmap.fromImage(img.scaledToWidth(x,Qt::SmoothTransformation));
+    QByteArray compressed = CompressImageToJPG(imgdata, maxsizeimg);
 
-    QString filename        = QFileInfo(pathfile).completeBaseName() + "." JPG;
-    QString nomfichresize   = ProvPath + "/" + filename;
-    QFile                   fileresize(nomfichresize);
-    if (fileresize.exists())
-        removeWithoutPermissions(fileresize);
+    QString filename = QFileInfo(pathfile).completeBaseName() + "." JPG;
+    QString newpath  = QFileInfo(pathfile).absolutePath() + "/" + filename;
 
-    /*! on copie le fichier sur le disque du poste dans le dossier Prov de Rufus
-     * si on n'y arrive pas,
-        * on crée le fichier log des echecstransferts correspondants dans le répertoire des echecs de transfert sur le serveur
-        * on complète ce fichier en ajoutant une ligne correspondant à cet échec
-        * on enregistre dans ce dossier une copie du fichier d'origine
-     */
-    if (!pixmap.save(nomfichresize, "jpeg"))
+    bool ok = !compressed.isEmpty();
+    if (ok)
+    {
+        QFile fileout(newpath);
+        if (fileout.open(QIODevice::WriteOnly))
+        {
+            ok = (fileout.write(compressed) == compressed.size());
+            fileout.close();
+        }
+        else
+            ok = false;
+    }
+    /*! l'original avait une autre extension (ex. .png) → on le retire, le résultat est en .jpg */
+    if (ok && QFileInfo(newpath).absoluteFilePath() != QFileInfo(pathfile).absoluteFilePath())
+        removeWithoutPermissions(file_origin);
+
+    /*! en cas d'échec : on journalise et on met le fichier d'origine de côté dans le dossier des échecs */
+    if (!ok)
     {
         if (withRecordError)
         {
@@ -561,33 +586,13 @@ bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordEr
                 out << file_origin.fileName() << "\n" ;
                 echectrsfer.close();
                 copyWithPermissions(file_origin, EchecDir() + "/" + filename);
-                /*! on efface le fichier origine */
                 removeWithoutPermissions(file_origin);
             }
         }
-        if (QFileInfo(file_origin).absolutePath() != ProvPath)
-            RemoveProvDir();
         return false;
     }
 
-    /*! on convertit en jpg et on comprime */
-    int tauxcompress        = 100;
-    while (szfinal > maxsizeimg && tauxcompress > 1)
-    {
-        tauxcompress -= 10;
-        pixmap.save(nomfichresize, "jpeg",tauxcompress);
-        szfinal = fileresize.size();
-    }
-
-    /*! on efface le fichier origine */
-    removeWithoutPermissions(file_origin);
-
-    /*! on recopie le fichier compressé et exporté en jpg à sa place d'origine */
-    pathfile = QFileInfo(pathfile).absolutePath() + "/" + filename;
-    copyWithPermissions(fileresize, pathfile);
-    fileresize.close();
-    if (QFileInfo(pathfile).absolutePath() != ProvPath)
-        RemoveProvDir();
+    pathfile = newpath;
     return true;
 }
 

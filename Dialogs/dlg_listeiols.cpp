@@ -16,9 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_listeiols.h"
-#include <QBuffer>
-#include <QImage>
-#include <QtMath>
 
 dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     UpDialog(parent)
@@ -1223,38 +1220,10 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
     if (iol->arrayimgiol().size() < maxsizeimg)
         return;
 
-    //! Compression entièrement EN MÉMOIRE (plus de fichier temporaire ni de ProvDir).
-    //! L'ancienne version passait par CompressFileToJPG avec un fichier posé dans ProvDir :
-    //! cette fonction est conçue pour un fichier situé HORS de ProvDir (elle copie vers ProvDir
-    //! puis recopie « à sa place d'origine »). Quand la source était déjà dans ProvDir, fichier
-    //! d'origine et fichier compressé étaient le même : la fonction supprimait le résultat puis
-    //! recopiait une source inexistante → l'image finale disparaissait et n'était jamais réécrite
-    //! en base. On compresse donc directement le QByteArray.
-    QImage img;
-    if (!img.loadFromData(iol->arrayimgiol()))
-        return;
-
-    //! Si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions (comme le faisait
-    //! CompressFileToJPG) avant de comprimer.
-    if (qint64(img.width()) * img.height() > 4096 * 1024)
-    {
-        double proportion = double(img.width()) / img.height();
-        int y = int(qSqrt((4096.0 * 1024.0) / proportion));
-        img = img.scaledToWidth(int(y * proportion), Qt::SmoothTransformation);
-    }
-
-    //! On baisse la qualité JPEG jusqu'à passer sous le seuil (SIZEMAXIMGIOL).
-    QByteArray ba;
-    int tauxcompress = 100;
-    do {
-        ba.clear();
-        QBuffer buffer(&ba);
-        buffer.open(QIODevice::WriteOnly);
-        img.save(&buffer, "jpeg", tauxcompress);
-        buffer.close();
-        tauxcompress -= 10;
-    } while (ba.size() > maxsizeimg && tauxcompress > 1);
-
+    //! Compression entièrement EN MÉMOIRE, déléguée à Utils::CompressImageToJPG (rapide, sans
+    //! fichier temporaire). L'ancienne version passait par CompressFileToJPG avec un fichier posé
+    //! dans ProvDir, ce qui échouait ici (collision fichier d'origine / fichier compressé).
+    QByteArray ba = Utils::CompressImageToJPG(iol->arrayimgiol(), maxsizeimg);
     if (ba.isEmpty())
         return;
 

@@ -211,6 +211,7 @@ public:
     //! Fichiers
     static bool                     isFormatRecognized(QFile &fileimg);              //! true if image file forat is recognized by Rufus
     static bool                     CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError = true, int maxsizeimg = SIZEMAXIMAGES);
+    static QByteArray               CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg = SIZEMAXIMAGES); //! cœur de compression EN MÉMOIRE (jpg/png → jpg sous maxsizeimg), sans accès disque
     static QMap<QString, qint64>    dir_size(const QString DirPath);
     static QString                  getExpressionSize(qint64 size);                 //! convertit en Go, To, Mo ou Ko la taille du qint64 passé en paramètre
     static bool                     mkpath(QString path);
