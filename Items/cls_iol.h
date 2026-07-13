@@ -173,7 +173,6 @@ public:
     double opticdiameter() const                { return m_opticaldiameter; }
     QByteArray arrayimgiol() const              { return m_arrayimgiol; }
     QString imageformat() const                 { return m_imageformat; }
-    QByteArray resizeImage(int maxsize) const;  //! version JPEG comprimée sous maxsize si l'image (bitmap) dépasse le seuil, sinon QByteArray vide (persistance via ItemsList::update côté appelant)
     QString opticalmaterial() const             { return m_opticmaterial; }
     QString hydrofily() const                   { return m_hydrofily; }
     QString hapticalmaterial() const            { return m_hapticmaterial; }
@@ -327,13 +326,29 @@ public:
     }
 
     QImage image() const                        { return m_currentimage; }
+    //! Un setter conforme les données à ce que l'objet attend. Ici : on stocke SYSTÉMATIQUEMENT
+    //! l'image bitmap en JPEG comprimé sous le seuil (SIZEMAXIMGIOL) — une seule fois dans la vie de
+    //! l'image (relue depuis la base, elle est déjà sous le seuil → le test de taille passe, pas de
+    //! recompression). Le champ type (m_imageformat) tranche le cas PDF : un cliché PDF n'est pas
+    //! recomprimé (m_arrayimgiol garde les octets du PDF), setimage n'en fournit que l'affichable.
     void setimage(QImage img = QImage())
     {
         if (img.isNull())
+        {
             m_currentimage = m_nullimage;
-        else
+            m_arrayimgiol  = QByteArray();
+            m_imageformat  = "";
+        }
+        else if (m_imageformat == PDF)
             m_currentimage = img;
-        m_data[CP_ARRAYIMG_IOLS] = Utils::jsonValFromImage(m_currentimage);
+        else
+        {
+            m_currentimage = img;
+            m_arrayimgiol  = Utils::CompressImageToJPG(img, SIZEMAXIMGIOL);
+            m_imageformat  = JPG;
+        }
+        m_data[CP_ARRAYIMG_IOLS] = QLatin1String(m_arrayimgiol.toBase64());
+        m_data[CP_TYPIMG_IOLS]   = m_imageformat;
     }
     void resetdatas();
     bool isnull() const                         { return m_id == 0; }

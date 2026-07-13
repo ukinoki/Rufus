@@ -501,11 +501,11 @@ bool Utils::isFormatRecognized(QFile &fileimg)
  * QByteArray vide si les données ne sont pas une image décodable.
  * Bien plus rapide que la variante fichier : on ne réécrit pas le disque à chaque passe de qualité.
  */
-QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
+QByteArray Utils::CompressImageToJPG(const QImage &source, int maxsizeimg)
 {
-    QImage img;
-    if (!img.loadFromData(imgdata))
+    if (source.isNull())
         return QByteArray();
+    QImage img = source;
 
     /*! si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions */
     if (qint64(img.width()) * img.height() > 4096 * 1024)
@@ -527,6 +527,15 @@ QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
         tauxcompress -= 10;
     } while (ba.size() > maxsizeimg && tauxcompress > 1);
     return ba;
+}
+
+//! Variante « octets » : décode les données image puis délègue à la variante QImage.
+QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
+{
+    QImage img;
+    if (!img.loadFromData(imgdata))
+        return QByteArray();
+    return CompressImageToJPG(img, maxsizeimg);
 }
 
 bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError, int maxsizeimg)

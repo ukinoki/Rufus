@@ -845,17 +845,17 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
     //    qDebug()<<listitem.at(i);
     /*! fin mise à jour de la liste des IOLs */
 
-    //! Redimensionnement des images surdimensionnées : UNE SEULE FOIS, ici après l'import. Le calcul
-    //! de l'image comprimée est porté par IOL::resizeImage (data d'un seul IOL) ; la persistance passe
-    //! par le mécanisme habituel ItemsList::update.
+    //! Redimensionnement des images surdimensionnées héritées d'anciens imports : UNE SEULE FOIS ici.
+    //! setimage comprime l'image (data d'un seul IOL) ; ItemsList::update la persiste. On ne touche
+    //! qu'aux bitmaps encore au-dessus du seuil (les PDF ne sont pas comprimés).
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
         IOL *iol = const_cast<IOL*>(it.value());
-        QByteArray ba = iol->resizeImage(SIZEMAXIMGIOL);
-        if (!ba.isEmpty())
+        if (iol->imageformat() != PDF && iol->arrayimgiol().size() >= SIZEMAXIMGIOL)
         {
-            ItemsList::update(iol, CP_ARRAYIMG_IOLS, ba);
-            ItemsList::update(iol, CP_TYPIMG_IOLS, JPG);
+            iol->setimage(iol->image());
+            ItemsList::update(iol, CP_ARRAYIMG_IOLS, iol->arrayimgiol());
+            ItemsList::update(iol, CP_TYPIMG_IOLS, iol->imageformat());
         }
     }
 
