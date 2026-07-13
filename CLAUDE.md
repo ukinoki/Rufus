@@ -108,6 +108,11 @@ du logiciel — et la grille de lecture de toutes ses décisions.
 - **Version du logiciel = date de sortie**, fixée dans `rufus.cpp` :
   `qApp->setApplicationVersion("jj-MM-aaaa/révision")`. Indépendante de
   `VERSION_BASE` (schéma de la base, `macros.h`).
+- **Modifs de schéma en attente** : les petits changements de base qui ne
+  justifient pas à eux seuls un nouveau `majbase` sont notés dans
+  `assets/Fichiers/REMEMBER_modif_base.md`. À vider dans le prochain
+  `majbaseXX.sql` (avec bump de `VERSION_BASE`). Y jeter un œil avant de créer
+  un majbase.
 - **Langue du poste** : portée par `rufus.ini` (`Param_Poste_Version`), exposée
   via `ParametresSysteme::version()` → `"FR"`/`"EN"`/`"ES"`/`"PT"`/`"BR"`. C'est
   elle qui charge le `.qm`. **Ne pas l'écraser** avec la version (partagée) de la
