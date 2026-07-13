@@ -16,6 +16,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_listeiols.h"
+#include <QBuffer>
+#include <QImage>
+#include <QtMath>
 
 dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     UpDialog(parent)
@@ -1211,8 +1214,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
 
 void dlg_listeiols::resizeiolimage(IOL *iol)
 {
-    int maxsizeimg = SIZEMAXIMGIOL;
-    Utils::RemoveProvDir();
+    const int maxsizeimg = SIZEMAXIMGIOL;
     //! On ne traite que les images bitmap. Il faut des && : « si le format n'est AUCUN des trois, on
     //! sort ». L'ancien code utilisait ||, condition toujours vraie (un format ne peut différer à la
     //! fois de JPG, PNG et JPEG) → la fonction sortait systématiquement et ne redimensionnait jamais rien.
@@ -1220,45 +1222,47 @@ void dlg_listeiols::resizeiolimage(IOL *iol)
         return;
     if (iol->arrayimgiol().size() < maxsizeimg)
         return;
-    //! Nom du fichier temporaire basé sur l'id (unique et toujours valide) et non sur le
-    //! modèle : certains noms d'implants contiennent « / » (ex. Clareon « CNAET0/CCAET0 »)
-    //! ou « < » « > » (ZEISS), caractères interdits dans un nom de fichier → pix.save()
-    //! échouait et l'image était rejetée pour une vingtaine d'implants à l'import du 2.3.
-    QString nomfichresize = Utils::ProvDir() + "/resize" + QString::number(iol->id()) + "." JPG;
-    QPixmap pix;
-    pix.loadFromData(iol->arrayimgiol());
-    /*!
-    * On utilise le passage par les QPixmap parce que le mèthode suivante consistant
-    * à réintégrer le QByteArray directement dans le fichier aboutit à un fichier corrompu...
-    QFile file_image(nomfichresize);
-    if (file_image.open(QIODevice::ReadWrite))
-    {
-        QByteArray ba(iol->arrayimgiol());
-        QTextStream out(&file_image);
-        out << ba;
-    }
-    */
-    if (!pix.save(nomfichresize, "jpeg"))
+
+    //! Compression entièrement EN MÉMOIRE (plus de fichier temporaire ni de ProvDir).
+    //! L'ancienne version passait par CompressFileToJPG avec un fichier posé dans ProvDir :
+    //! cette fonction est conçue pour un fichier situé HORS de ProvDir (elle copie vers ProvDir
+    //! puis recopie « à sa place d'origine »). Quand la source était déjà dans ProvDir, fichier
+    //! d'origine et fichier compressé étaient le même : la fonction supprimait le résultat puis
+    //! recopiait une source inexistante → l'image finale disparaissait et n'était jamais réécrite
+    //! en base. On compresse donc directement le QByteArray, ce qui règle aussi au passage le
+    //! souci des noms de modèle contenant « / » « < » « > ».
+    QImage img;
+    if (!img.loadFromData(iol->arrayimgiol()))
         return;
 
-    QString msg = "";
-    if (Utils::CompressFileToJPG(nomfichresize, msg, false, maxsizeimg))
+    //! Si l'image dépasse 4 Mpixels, on la réduit en conservant les proportions (comme le faisait
+    //! CompressFileToJPG) avant de comprimer.
+    if (qint64(img.width()) * img.height() > 4096 * 1024)
     {
-        QFile file_image(nomfichresize);
-        file_image.setFileName(nomfichresize);
-        if (!file_image.open(QIODevice::ReadOnly))
-             {
-                 UpMessageBox::Watch(this, tr("Impossible d'ouvrir le fichier") + " " + nomfichresize);
-                 return;
-             }
-        QByteArray ba = file_image.readAll();
-        QHash<QString, QVariant> m_listbinds;
-        m_listbinds[CP_ARRAYIMG_IOLS] = ba;
-        m_listbinds[CP_TYPIMG_IOLS] = JPG;
-        DataBase::I()->UpDateImgIOL(iol->id(), m_listbinds);
-        Utils::removeWithoutPermissions(file_image);
+        double proportion = double(img.width()) / img.height();
+        int y = int(qSqrt((4096.0 * 1024.0) / proportion));
+        img = img.scaledToWidth(int(y * proportion), Qt::SmoothTransformation);
     }
-    Utils::RemoveProvDir();
+
+    //! On baisse la qualité JPEG jusqu'à passer sous le seuil (SIZEMAXIMGIOL).
+    QByteArray ba;
+    int tauxcompress = 100;
+    do {
+        ba.clear();
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        img.save(&buffer, "jpeg", tauxcompress);
+        buffer.close();
+        tauxcompress -= 10;
+    } while (ba.size() > maxsizeimg && tauxcompress > 1);
+
+    if (ba.isEmpty())
+        return;
+
+    QHash<QString, QVariant> m_listbinds;
+    m_listbinds[CP_ARRAYIMG_IOLS] = ba;
+    m_listbinds[CP_TYPIMG_IOLS] = JPG;
+    DataBase::I()->UpDateImgIOL(iol->id(), m_listbinds);
 }
 
 void dlg_listeiols::scrollToIOL(IOL *iol)
