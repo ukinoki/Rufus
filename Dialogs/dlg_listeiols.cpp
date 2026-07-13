@@ -596,7 +596,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
             QHash <QString, QVariant> sets = physioliol->datas().toVariantHash();
             sets[CP_IDMANUFACTURER_IOLS] = idbvi;
             sets[CP_ARRAYIMG_IOLS] = physioliol->arrayimgiol();
-            Datas::I()->iols->CreationIOL(sets);
+            Datas::I()->iols->CreationIOL(sets, this);
         }
         if (!m_listidiolsutilises.contains(physioliol->id()))
             Datas::I()->iols->SupprimeIOL(physioliol);
@@ -635,7 +635,11 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                     iol.setstringid(Lensnode.text());
                 else if (Lensnode.tagName() == "Name")
                 {
-                    iol.setmodele(Lensnode.text());
+                    //! La colonne modelname est un varchar(45) et MySQL tourne en STRICT_TRANS_TABLES :
+                    //! un nom trop long ferait échouer l'INSERT (au lieu d'être tronqué en silence).
+                    //! On tronque donc à 45 caractères dès la lecture (ex. IOLexport 2.3 : le Clareon
+                    //! Vivity Toric AutonoMe d'Alcon fait 49 caractères).
+                    iol.setmodele(Lensnode.text().left(45));
                 }
                 else if (Lensnode.tagName() == "Specifications")
                 {
@@ -1119,7 +1123,7 @@ void dlg_listeiols::ImportListeIOLS(QDomDocument docxml)
                 m_listbinds[CP_HOLL1O_IOLS]         = (iol.holladay1_optimized()>0.0?   iol.holladay1_optimized()   : QVariant());
                 m_listbinds[CP_HOFFERQO_IOLS]       = (iol.hofferQ_optimized()>0.0?     iol.hofferQ_optimized()     : QVariant());
                 m_listbinds[CP_TYP_IOLS]            = (iol.type()>0?                    iol.type()                  : QVariant());
-                Datas::I()->iols->CreationIOL(m_listbinds);
+                Datas::I()->iols->CreationIOL(m_listbinds, this);
                 ++newiols;
             }
         }

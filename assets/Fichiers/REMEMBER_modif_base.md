@@ -1,0 +1,19 @@
+# Modifications à apporter au prochain majbase (pense-bête)
+
+Ce fichier recense les changements de schéma à intégrer dans le **prochain**
+script `majbaseXX.sql` (avec le bump de `VERSION_BASE` dans `macros.h`).
+Il n'est **pas** exécuté automatiquement : c'est une simple liste d'attente
+pour ne pas perdre les petites modifs qui ne justifient pas, à elles seules,
+une nouvelle version de base.
+
+## En attente
+
+- **Table `Ophtalmologie.IOLs`, colonne `modelname` : passer de `varchar(45)`
+  à `varchar(60)`.**
+  Raison : certains noms d'implants du fichier IOLexport (IOLCon) dépassent
+  45 caractères — ex. « Clareon Vivity Toric AutonoMe CNAET2-T6/CCAET2-T6 »
+  (49 car.) dans IOLexport 2.3. MySQL tourne en `STRICT_TRANS_TABLES` : un nom
+  trop long fait **échouer** l'INSERT au lieu d'être tronqué.
+  En attendant, l'import tronque à 45 (`dlg_listeiols.cpp`, `ImportListeIOLS`,
+  `iol.setmodele(...left(45))`). Une fois la colonne élargie à 60, relever la
+  troncature de `.left(45)` à `.left(60)`.

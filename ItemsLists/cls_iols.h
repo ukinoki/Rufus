@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_iol.h"
 #include "cls_itemslist.h"
 
+class QWidget;
 
 class IOLs : public ItemsList
 {
@@ -39,7 +40,7 @@ public:
 
     //!> actions sur les enregistrements
     void    SupprimeIOL(IOL *iol);
-    IOL*    CreationIOL(QHash<QString, QVariant> sets);
+    IOL*    CreationIOL(QHash<QString, QVariant> sets, QWidget *parent = Q_NULLPTR);
 };
 
 

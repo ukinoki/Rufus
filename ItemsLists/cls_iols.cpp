@@ -74,7 +74,7 @@ void IOLs::SupprimeIOL(IOL *iol)
     Supprime(map_all, iol);
 }
 
-IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
+IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets, QWidget *parent)
 {
     IOL *iol = Q_NULLPTR;
     int idiol = 0;
@@ -90,7 +90,7 @@ IOL* IOLs::CreationIOL(QHash<QString, QVariant> sets)
     DataBase::I()->unlocktables();
     if (!result)
     {
-        UpMessageBox::Watch(Q_NULLPTR,tr("Impossible d'enregistrer cet implant dans la base!"));
+        UpMessageBox::Watch(parent,tr("Impossible d'enregistrer cet implant dans la base!"), sets[CP_MODELNAME_IOLS].toString());
         return iol;
     }
     QJsonObject  data = QJsonObject{};

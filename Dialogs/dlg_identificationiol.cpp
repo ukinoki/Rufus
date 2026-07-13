@@ -1567,7 +1567,7 @@ bool dlg_identificationIOL::EnregistreIOL()
     m_listbinds[CP_HOFFERQO_IOLS]       = (QLocale().toDouble(wdg_OhofferQline->text()) != 0.0?     QLocale().toDouble(wdg_OhofferQline->text())    : QVariant());
     m_listbinds[CP_RESULTSO_IOLS]       = wdg_ONbCasesline->text().toInt();
     if (m_mode == Creation)
-        m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds);
+        m_currentIOL = Datas::I()->iols->CreationIOL(m_listbinds, this);
     else if (m_mode == Modification)
     {
         DataBase::I()->UpDateImgIOL(m_currentIOL->id(), m_listbinds);
