@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_itemslist.h"
 
 class QWidget;
+class QDomDocument;
 
 class IOLs : public ItemsList
 {
@@ -29,7 +30,11 @@ class IOLs : public ItemsList
 private:
     QMap<int, IOL*> *map_all = Q_NULLPTR;       //!< la liste de tous les IOLs, y compris ceux qui nes ont plus fabriqués
     bool m_isfull = false;                      //! la liste des IOL a été complètement initialisée
+    void    resizeiolimage(IOL *iol);           //! redimensionne l'image de l'IOL sous le seuil (SIZEMAXIMGIOL), en base
 public:
+    //! Récapitulatif d'un import/mise à jour de la liste des implants (pour l'affichage par l'appelant).
+    struct ImportResult { int nouveaux = 0; int misAJour = 0; int total = 0; };
+
     explicit IOLs(QObject *parent = Q_NULLPTR);
 
     QMap<int, IOL*> *iols() const;
@@ -41,6 +46,11 @@ public:
     //!> actions sur les enregistrements
     void    SupprimeIOL(IOL *iol);
     IOL*    CreationIOL(QHash<QString, QVariant> sets, QWidget *parent = Q_NULLPTR);
+
+    //! Met à jour la liste des implants à partir d'un export IOLCon (docxml). Toute la logique base
+    //! (fabricants, création/mise à jour des IOLs, images) — appelable depuis n'importe quelle classe.
+    //! parent ne sert que de parent aux éventuelles boîtes d'erreur. Renvoie un récapitulatif.
+    ImportResult ImportListeIOLS(QDomDocument docxml, QWidget *parent = Q_NULLPTR);
 };
 
 
