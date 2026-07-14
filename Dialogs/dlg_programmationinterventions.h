@@ -135,6 +135,7 @@ private:
     void                ChoixManufacturer(int idx);
     void                FicheListeManufacturers();
     void                ReconstruitListeManufacturers(int idmanufacturer = 0);
+    void                rafraichitWidgetsIOL();                                                         //! (re)peuple combos fabricant/IOL + ranges pwr/cyl : au démarrage de la partie IOL et à chaque MAJ de la liste des implants
 
 /*! les IOLs */
     void                CalcRangeBox(IOL* iol = Q_NULLPTR);

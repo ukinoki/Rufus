@@ -1422,9 +1422,13 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
 
 
     connect(wdg_IOLchk, &QCheckBox::checkStateChanged, dlg_intervention,   [&](int state) {
-        if (state == Qt::Checked) ReconstruitListeManufacturers();
+        if (state == Qt::Checked) rafraichitWidgetsIOL();
         wdg_IOL->setVisible(wdg_IOLchk->isChecked()); wdg_choixIOLbutt->setVisible(wdg_IOLchk->isChecked());
         Datas::I()->iols->HasNewVersion(this);});
+
+    //! Mise à jour asynchrone de la liste des implants (HasNewVersion, ci-dessus, ou depuis une autre
+    //! fiche) : quand elle aboutit, IOLs émet listeModifiee() et on rafraîchit ici les combos/spinbox.
+    connect(Datas::I()->iols, &IOLs::listeModifiee, this, [this]{ rafraichitWidgetsIOL(); });
 
     CalcRangeBox(m_currentIOL);
 
@@ -2173,6 +2177,18 @@ void dlg_programmationinterventions::FicheListeManufacturers()
     if (Dlg_ListManufacturers->listemanufacturersmodifiee())
         AfficheInterventionsSession(wdg_sessionstreeView->currentIndex());
     delete Dlg_ListManufacturers;
+}
+
+void dlg_programmationinterventions::rafraichitWidgetsIOL()
+{
+    //! Point unique de (re)construction des widgets liés aux implants (combos fabricant et IOL,
+    //! ranges des spinbox puissance/cylindre). Appelé au démarrage de la partie IOL et à chaque
+    //! mise à jour de la liste des implants (signal IOLs::listeModifiee). On ne fait rien si la
+    //! partie IOL n'est pas active, et on préserve le fabricant courant.
+    if (wdg_IOLchk == Q_NULLPTR || !wdg_IOLchk->isChecked())
+        return;
+    ReconstruitListeManufacturers(m_currentmanufacturer != Q_NULLPTR ? m_currentmanufacturer->id() : 0);
+    CalcRangeBox(m_currentIOL);
 }
 
 void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufacturer)
