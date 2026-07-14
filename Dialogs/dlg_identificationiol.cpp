@@ -959,7 +959,6 @@ void dlg_identificationIOL::connectSignals()
     connect (wdg_Ohaigisbline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_Ohaigiscline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_OhofferQline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
-    connect (wdg_Uolsenline,        &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
     connect (wdg_ONbCasesline,      &QLineEdit::textEdited,                                 this,   &dlg_identificationIOL::EnableOKpushButton);
 
     connect (wdg_materiaubox,       QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_identificationIOL::EnableOKpushButton);
@@ -1042,39 +1041,74 @@ void dlg_identificationIOL::disconnectSignals()
     disconnect(RecordButton,                    &QPushButton::clicked, nullptr, nullptr);
     disconnect(wdg_manufacturercombo,           QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
     disconnect(wdg_nomiolline,                  &QLineEdit::textEdited, nullptr, nullptr);
+
     disconnect(wdg_Aoptline,                    &QLineEdit::textEdited, nullptr, nullptr);
     disconnect(wdg_Aecholine,                   &QLineEdit::textEdited, nullptr, nullptr);
     disconnect(wdg_holladayline,                &QLineEdit::textEdited, nullptr, nullptr);
     disconnect(wdg_haigisaline,                 &QLineEdit::textEdited, nullptr, nullptr);
     disconnect(wdg_haigisbline,                 &QLineEdit::textEdited, nullptr, nullptr);
     disconnect(wdg_haigiscline,                 &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_barrettDFline,               &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_barrettLFline,               &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_hofferQline,                 &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_olsenline,                   &QLineEdit::textEdited, nullptr, nullptr);
+
+    disconnect(wdg_OAoptline,                   &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Oholladayline,               &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Ohaigisaline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Ohaigisbline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Ohaigiscline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_OhofferQline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_ONbCasesline,                &QLineEdit::textEdited, nullptr, nullptr);
+
+    disconnect(wdg_UAoptline,                   &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_UAecholine,                  &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Uholladayline,               &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Uhaigisaline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Uhaigisbline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Uhaigiscline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_UhofferQline,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_UbarrettDFline,              &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_UbarrettLFline,              &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_Uolsenline,                  &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_UNbCasesline,                &QLineEdit::textEdited, nullptr, nullptr);
+
+    disconnect(wdg_hapticmateriaubox->lineEdit(),&QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_hapticmateriaubox,           QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
     disconnect(wdg_materiaubox->lineEdit(),     &QLineEdit::textEdited, nullptr, nullptr);
     disconnect(wdg_materiaubox,                 QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
+    disconnect(wdg_hydrofilybox,                QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
+    disconnect(wdg_typebox,                     QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
+    disconnect(wdg_remarquetxt,                 &UpTextEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_diaoptique,                  &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_diaht,                       &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_diainjecteur,                &QLineEdit::textEdited, nullptr, nullptr);
+    disconnect(wdg_prechargechk,                &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_edofchk,                     &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_toricchk,                    &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_toricchk2,                   &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_jaunechk,                    &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_inactifchk,                  &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_multifocalchk,               &UpCheckBox::uptoggled, nullptr, nullptr);
+    disconnect(wdg_modifButton,                 &QPushButton::released, nullptr, nullptr);
+    disconnect(wdg_singlepiecechk,              &UpCheckBox::uptoggled, nullptr, nullptr);
 
-    wdg_hydrofilybox->disconnect();
-    wdg_typebox->disconnect();
-    wdg_remarquetxt->disconnect();
-    wdg_diaoptique->disconnect();
-    wdg_diaht->disconnect();
-    wdg_diainjecteur->disconnect();
-    wdg_prechargechk->disconnect();
-    wdg_edofchk->disconnect();
-    wdg_toricchk->disconnect();
-    wdg_toricchk2->disconnect();
-    wdg_jaunechk->disconnect();
-    wdg_inactifchk->disconnect();
-    wdg_multifocalchk->disconnect();
-    wdg_modifButton->disconnect();
-    wdg_singlepiecechk->disconnect();
-    wdg_puissancemaxspin->disconnect();
-    wdg_puissanceminspin->disconnect();
-    wdg_cylindremaxspin->disconnect();
-    wdg_cylindreminspin->disconnect();
-    wdg_imgIOL->disconnect();
+    disconnect(wdg_puissancemaxspin,            QOverload<double>::of(&QDoubleSpinBox::valueChanged),   nullptr, nullptr);
+    disconnect(wdg_puissanceminspin,            QOverload<double>::of(&QDoubleSpinBox::valueChanged),   nullptr, nullptr);
+    disconnect(wdg_cylindremaxspin,             QOverload<double>::of(&QDoubleSpinBox::valueChanged),   nullptr, nullptr);
+    disconnect(wdg_cylindreminspin,             QOverload<double>::of(&QDoubleSpinBox::valueChanged),   nullptr, nullptr);
+    disconnect(wdg_addnearspin,                 QOverload<double>::of(&QDoubleSpinBox::valueChanged),   nullptr, nullptr);
+    disconnect(wdg_addinterspin,                QOverload<double>::of(&QDoubleSpinBox::valueChanged),   nullptr, nullptr);
+
+    disconnect(wdg_imgIOL,                      &QLabel::customContextMenuRequested, nullptr, nullptr);
+    disconnect(wdg_imgIOL,                      &UpLabel::dblclick, nullptr, nullptr);
+    disconnect(wdg_nominalrb,                   &QRadioButton::clicked, nullptr, nullptr);
+    disconnect(wdg_ulibrb,                      &QRadioButton::clicked, nullptr, nullptr);
+    disconnect(wdg_optimizedrb,                 &QRadioButton::clicked, nullptr, nullptr);
     if (wdg_recopiebutton)
-        wdg_recopiebutton->disconnect();
+        disconnect(wdg_recopiebutton,           &UpPushButton::clicked, nullptr, nullptr);
     if (wdg_toolbar)
-        wdg_toolbar->disconnect();
+        disconnect(wdg_toolbar,                 &UpToolBar::TBSignal, nullptr,nullptr);
 }
 
 
@@ -1378,7 +1412,7 @@ void dlg_identificationIOL:: EnableOKpushButton()
         wdg_toolbar         ->setEnabled(a);
     if(wdg_recopiebutton)
         wdg_recopiebutton   ->setEnabled(false);
-    wdg_modifButton->disconnect();
+    disconnect(wdg_modifButton,  &QPushButton::released, nullptr, nullptr);
     OKButton->setShortcut(a? QKeySequence("Meta+Return") : QKeySequence());
 }
 

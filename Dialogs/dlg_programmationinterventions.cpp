@@ -1650,7 +1650,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(dlg_intervention, verifencours, interventioncombo); });
     connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
                                                                                                     {
-                                                                                                        interventioncombo->lineEdit()->disconnect();
+                                                                                                        disconnect(interventioncombo->lineEdit(), &QLineEdit::editingFinished, nullptr, nullptr);
                                                                                                         dlg_intervention->reject();
                                                                                                     });
     timeedit->setFocus();
@@ -2087,7 +2087,8 @@ void dlg_programmationinterventions::ReconstruitListeIOLs(int idmanufacturer, in
 {
     m_currentIOL = Q_NULLPTR;
     m_IOLcompleterlist.clear();
-    wdg_IOLcombo->disconnect();
+    disconnect(wdg_IOLcombo,   QOverload<int>::of(&QComboBox::currentIndexChanged),    nullptr, nullptr);
+    disconnect(wdg_IOLcombo,   QOverload<int>::of(&QComboBox::highlighted),            nullptr, nullptr);
     wdg_IOLcombo->clear();
     if (m_IOLsmodel != Q_NULLPTR)
         delete m_IOLsmodel;
@@ -2196,7 +2197,7 @@ void dlg_programmationinterventions::ReconstruitListeManufacturers(int idmanufac
     if (m_currentmanufacturer != Q_NULLPTR)
         m_currentmanufacturer = Q_NULLPTR;
     m_manufacturercompleterlist.clear();
-    wdg_manufacturercombo->disconnect();
+    disconnect(wdg_manufacturercombo,  QOverload<int>::of(&QComboBox::currentIndexChanged),    nullptr, nullptr);
     wdg_manufacturercombo->clear();
     if (m_manufacturersmodel != Q_NULLPTR)
         delete m_manufacturersmodel;
