@@ -848,6 +848,7 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
     //! Redimensionnement des images surdimensionnées héritées d'anciens imports : UNE SEULE FOIS ici.
     //! setimage comprime l'image (data d'un seul IOL) ; ItemsList::update la persiste. On ne touche
     //! qu'aux bitmaps encore au-dessus du seuil (les PDF ne sont pas comprimés).
+    const int total = int(Datas::I()->iols->iols()->size());
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
         IOL *iol = const_cast<IOL*>(it.value());
@@ -863,8 +864,6 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                                               tr("Impossible de mettre à jour l'image de l'implant"));
         }
     }
-
-    const int total = int(Datas::I()->iols->iols()->size());
 
     //! Récapitulatif affiché seulement si un parent graphique est fourni (appel interactif) ; un
     //! appelant sans IHM (parent nul) fait la mise à jour en silence.
