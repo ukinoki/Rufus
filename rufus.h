@@ -74,7 +74,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <conversionbase.h>
 #include <importdocsexternes.h>
 #include <log.h>
-#include <pyxinterf.h>
 #include <styles.h>
 #include <tcpsocket.h>
 #include "uplabel.h"
@@ -168,7 +167,6 @@ private:
     QTimer                          t_timerfilewatcher;             /*! utilisé à la place du QfileSystemWatcher dont le signal directorychanged bugue trop */
     QFileSystemWatcher              m_filewatcher;                  /*! le QFilesystemwatcher surveille les dossiers où sont enregistrés les nouveaux documents d'imagerie */
 
-    pyxinterf                       *m_pyxi;     // CZ001
     QApplication *app;
     QTranslator *translator;
     void switchTranslator(const QString lang);
@@ -228,8 +226,7 @@ private:
     void        ImprimeDossier(Patient *pat, bool quelepdf = false);
     void        ImprimeListPatients(QVariant var);
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
-    void        LireLaCV();       // CZ001
-    void        LireLaCPS();      // CZ001
+    void        LireLaCV();
     void        ListeCorrespondants();
     void        ListeIOLs();
     void        ListeManufacturers();
@@ -250,7 +247,6 @@ private:
     void        RechercheParMotCle();
     void        ResumeStatut();
     void        RetrouveMontantActe();
-    void        SaisieFSE();
     void        SalleDAttente();
     void        SurbrillanceSalDat(UpLabel *lab);
     void        Apropos();

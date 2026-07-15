@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "rufus.h"
 #include "ui_rufus.h"
+#include "lecteurvitale.h"
 #include <cstdlib>
 #include <QStringConverter>
 
@@ -380,7 +381,6 @@ void Rufus::ConnectSignals()
     connect (ui->EnregistrePaiementpushButton,                      &QPushButton::clicked,                              this,   [=] {AppelPaiementDirect(BoutonPaiement);});
     connect (ui->FermepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
     connect (ui->GratuitpushButton,                                 &QPushButton::clicked,                              this,   &Rufus::ActeGratuit);
-    connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   &Rufus::SaisieFSE);
     connect (ui->IdentPatienttextEdit,                              &QWidget::customContextMenuRequested,               this,   &Rufus::MenuContextuelIdentPatient);
     connect (ui->LFermepushButton,                                  &QPushButton::clicked,                              this,   &Rufus::SortieAppli);
     connect (ui->ListepushButton,                                   &QPushButton::clicked,                              this,   &Rufus::ModeSelectDepuisListe);
@@ -8675,6 +8675,10 @@ void Rufus::InitWidgets()
 
     ui->VitaleupPushButton->setIconSize(QSize(120,100));
 
+    // La saisie de FSE passait par Pyxvital, désormais supprimé. Le bouton est masqué en attendant
+    // qu'on redéfinisse le parcours de facturation.
+    ui->FSEpushButton->setVisible(false);
+
     ui->SalDatlabel     ->setPixmap(Icons::pxSalleAttente().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxSalleAttente 60,60
     ui->Bureauxlabel    ->setPixmap(Icons::pxAVTest().scaled(QSize(100,100), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxAVTest 100,100
     ui->Accueillabel    ->setPixmap(Icons::pxReception().scaled(QSize(70,70), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxReception 70,70
@@ -10830,172 +10834,35 @@ void Rufus::NouvelleMesure(GenericProtocol::TypeMesure TypeMesure) //utilisé po
 
 
 
-// CZ001 début interface avec Pyxvital
 /*-----------------------------------------------------------------------------------------------------------------
-    Lire la CPS avec Pyxvital : Retour = fichier Particien.par
------------------------------------------------------------------------------------------------------------------*/
-void Rufus::LireLaCPS()
-{
-    QString req, numPS;
-    m_pyxi = new pyxinterf(this);
-    QString nomFicPraticienPar = m_pyxi->Lecture_CPS();
-    delete m_pyxi;
-
-    // Récup des infos du médecin dans le fichier ../Pyxvital/Interf/Praticien.par
-    QSettings settingPraticienPar (nomFicPraticienPar, QSettings::IniFormat);
-    //settingPraticienPar.setIniCodec ("ISO 8859-1");
-
-    numPS    = settingPraticienPar.value("PS/Numéro").toString() ; // 8 chiffres sans la clé
-    if (numPS.length() == 0)
-        { //  CPS non lue...
-        return;
-        }
-    // recherche utilisateur avec ce n°ADELI
-    req =   "SELECT " CP_ID_USR " FROM " TBL_UTILISATEURS " WHERE " CP_NUMPS_USR " = '" + numPS + "'" ;
-    QVariantList idusrdata = db->getFirstRecordFromStandardSelectSQL(req,m_ok, tr("Impossible d'ouvrir la table Utilisateurs"));
-    if (!m_ok)
-        return;
-    else
-        {
-        if (idusrdata.size() == 0)  // Aucune mesure trouvee pour ces criteres
-            {
-            UpMessageBox::Watch(this,"Lecture de la CPS", "Lecture de la carte :\n" +
-                                 settingPraticienPar.value("PS/Nom").toString() + " " +
-                                 settingPraticienPar.value("PS/Prénom").toString() + "\n" +
-                                 settingPraticienPar.value("PS/Spécialité").toString() + "\n" +
-                                 "Aucun utilisateur avec le n° de PS : " + numPS);
-            return;
-            }
-        // A REVOIR : faire tout ce qu'il faut pour nouveau user ... mais quoi ???
-        currentuser()->setid(idusrdata.at(0).toInt());
-        setWindowTitle("Rufus - " + currentuser()->login() + " - " + currentuser()->fonction());
-        }
-}
-/*-----------------------------------------------------------------------------------------------------------------
-    Lire la CV avec Pyxvital : Retour = fichier Patient.par
+    Lecture DIRECTE de la carte Vitale (PC/SC, sans Pyxvital ni CPS).
+    Pour l'instant : on se contente d'AFFICHER les informations lues. L'usage (recherche/création
+    de dossier, préremplissage du NIR…) sera défini ensuite, selon l'ergonomie voulue.
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::LireLaCV()
 {
-    QString nomPat, prenomPat, dateNaissPat;
-    QString zdat;
-
-    m_pyxi = new pyxinterf(this);
-    QString nomFicPatientPar = m_pyxi->Lecture_CV();
-    delete m_pyxi;
-    if (nomFicPatientPar.length() ==0)
-        { // pas de CV lue...
-        return;
-        }
-    // Récup des infos du bénéficiaire dans le fichier ../Pyxvital/Interf/Patient.par
-    QSettings settingPatientPar (nomFicPatientPar, QSettings::IniFormat);
-    //settingPatientPar.setIniCodec ("ISO 8859-1");
-
-    nomPat      = settingPatientPar.value("Bénéficiaire/Nom").toString();
-    if (nomPat.length() == 0)
-        { // pas de CV lue...
-        return;
-        }
-    prenomPat   = settingPatientPar.value("Bénéficiaire/Prénom").toString();
-    dateNaissPat= settingPatientPar.value("Bénéficiaire/Date_de_naissance").toString();                     // JJ/MM/AAAA
-    zdat        = dateNaissPat.right(4) + "-" + dateNaissPat.mid(3,2) + "-" + dateNaissPat.left(2) ; // + " 00:00:00";  // AAAA-MM-JJ 00:00:00
-
-
-    // Recherche d'un patient correspondant dans la base
-
-    // première recherche sur le nom + prenom + date naissance
-    QString requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe "
-                      " FROM "  TBL_PATIENTS
-            " WHERE UPPER(PatNom) LIKE '" + nomPat.toUpper() + "%'" +
-            " AND   UPPER(PatPrenom) LIKE '" + prenomPat.toUpper() + "%'" +
-            " AND   PatDDN = '" + zdat + "'";
-    FiltreTable(nomPat.toUpper(), prenomPat.toUpper());
-    if (Datas::I()->patients->patientstable()->size() == 0)       // aucun patient trouvé
+    LecteurVitale lecteur;
+    QString err;
+    if (!lecteur.lire(err))
         {
-        // si rien trouvé, deuxième recherche sur date de naissance seule
-        requete = "SELECT IdPat, PatNom, PatPrenom, PatDDN, Sexe  "
-                  " FROM "  TBL_PATIENTS
-                  " WHERE PatDDN = '" + zdat + "'";
-        FiltreTable();
-        ModeCreationDossier();
-        ui->CreerNomlineEdit->setText(nomPat);
-        ui->CreerPrenomlineEdit->setText(prenomPat);
-        ui->CreerDDNdateEdit->setDate(QDate::fromString(zdat, "yyyy-MM-dd"));
-
-        // aucun patient trouvé
-        // si rien non plus on propose la création du dossier.
-        // A REVOIR
-        // on a trouvé des patients avec la même date de naissance et on les a affichés.
-        // A REVOIR
-        }
-    if (m_listepatientsmodel->rowCount()>0)
-        RecaleTableView(getPatientFromRow(0) ,QAbstractItemView::PositionAtTop);
-}
-/*-----------------------------------------------------------------------------------------------------------------
-    Saisie d'une facture avec Pyxvital : Retour = fichier Facture.par
------------------------------------------------------------------------------------------------------------------*/
-void Rufus::SaisieFSE()
-{
-    m_pyxi = new pyxinterf(this);
-    QString nomFicFacturePar = m_pyxi->Saisie_FSE();
-    delete m_pyxi;
-    if (nomFicFacturePar.length() ==0)
-        { // pas de facture saisie ...
+        UpMessageBox::Watch(this, tr("Carte Vitale"), err);
         return;
         }
-    // Récup des infos de la facture dans le fichier ../Pyxvital/Interf/Facture.par pour alimenter la comptabilité
-    QSettings settingFacturePar (nomFicFacturePar, QSettings::IniFormat);
-    //settingFacturePar.setIniCodec ("ISO 8859-1");
 
-    /*-------- Exemple du contenu du fichier facture.par généré par Pyxvital ------------
-      [Prestation]
-      Date=27/01/15+27/01/15+27/01/15
-      Quantite=1+1+1
-      Code=C+CCAM+CCAM
-      Coefficient=1+1+1
-      Code_CCAM=NÈant+DEQP003+AAQM002
-      Code_compl_CCAM=10+10+10
-      ...
-      [Tarification]
-      Taux=100+100
-      Exoneration=C+C
-      Montant_honoraires=105.59+52.25
-      Base_remboursement_theorique=105.59+52.25
-      Base_remboursement=105.59+52.25
-      Total_honoraires=157.84
-      Montant_remboursable_AMO=105.59+52.25
-      Total_AMO=157.84
-      Total_assure=157.84
-     -------------------------------------------------------------*/
-
-    // Codes des Actes facturés
-    QStringList lCode       = settingFacturePar.value("Prestation/Code").toString().split("+");
-    QStringList lCode_CCAM  = settingFacturePar.value("Prestation/Code_CCAM").toString().split("+");
-    QString zActesFactures  = "";
-    QString zCode;
-    int j = 0;
-    for (int i=0; i<lCode.size(); i++)
-        {zCode = lCode.at(i);
-        if (zCode == "CCAM")
-            zCode = lCode_CCAM.at(j++);
-        if (i > 0) zActesFactures += "+";
-        zActesFactures += zCode;
+    QString msg;
+    const QList<LecteurVitale::Porteur> porteurs = lecteur.porteurs();
+    for (const LecteurVitale::Porteur &p : porteurs)
+        {
+        if (!msg.isEmpty())
+            msg += "\n\n";
+        msg += p.nom + " " + p.prenom;
+        if (!p.dateNaissance.isEmpty())
+            msg += "\n" + tr("Né(e) le ") + p.dateNaissance;
+        if (!p.nir.isEmpty())
+            msg += "\n" + tr("N° SS : ") + LecteurVitale::nirLisible(p.nir);
         }
-
-    // Màj du ComboBox ActeCotation
-    ui->ActeCotationcomboBox->lineEdit()->setText(zActesFactures);
-
-    // total facture
-    QString TotalFacture    = settingFacturePar.value("Tarification/Montant_honoraires").toString();
-    QString PartAMC         = settingFacturePar.value(tr("Tarification/Total_AMC")).toString();
-    QString PartAMO         = settingFacturePar.value(tr("Tarification/Total_AMO")).toString();
-    QString BaseRembousement= settingFacturePar.value(tr("Tarification/Base_remboursement")).toString();
-    QString TotalAssure     = settingFacturePar.value(tr("Tarification/Total_assure")).toString();
-    QString Code            = settingFacturePar.value(tr("Prestation/Code")).toString();
-    QString CodeCCAM        = settingFacturePar.value(tr("Prestation/Code_CCAM")).toString();
-
-    ui->ActeMontantlineEdit->setText(QLocale().toString(TotalAssure.toDouble(),'f',2));
+    UpMessageBox::Watch(this, tr("Carte Vitale"), msg);
 }
-// CZ001 - fin interface Pyxvital
 
 void Rufus::TesteConnexion()
 {

@@ -98,7 +98,7 @@ SOURCES += main.cpp\
     ressources.cpp \
     rufus.cpp \
     procedures.cpp \
-    pyxinterf.cpp \
+    lecteurvitale.cpp \
     conversionbase.cpp \
     importdocsexternes.cpp \
     utils.cpp \
@@ -108,7 +108,7 @@ SOURCES += main.cpp\
 HEADERS += rufus.h \
     ostask.h \
     procedures.h \
-    pyxinterf.h \
+    lecteurvitale.h \
     ressources.h \
     conversionbase.h \
     importdocsexternes.h \
@@ -156,6 +156,12 @@ DEFINES += QAPPLICATION_CLASS=QApplication # cette instruction doit être inclus
 win32 {
 LIBS += -lUser32
 }
+
+# Lecture directe de la carte Vitale via PC/SC (lecteurvitale.cpp). L'API est identique sur les
+# trois plateformes ; seule la bibliothèque à lier change.
+win32:      LIBS += -lwinscard
+macx:       LIBS += -framework PCSC
+unix:!macx: LIBS += -lpcsclite
 
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \

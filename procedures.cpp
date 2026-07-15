@@ -4796,7 +4796,6 @@ void Procedures::PremierParametrageMateriel()
     m_settings->setValue(Imprimante_TaillePieddePage,"20");
     m_settings->setValue(Imprimante_TailleTopMarge,"3");
     m_settings->setValue(Imprimante_ApercuAvantImpression,"NO");
-    m_settings->setValue("PyxInterf/PyxvitalPath", QDir::homePath() + "/Documents/Pyxvital");
     m_settings->setValue(Param_Poste_Autoref,"-");
     m_settings->setValue(Param_Poste_Refracteur,"-");
     m_settings->setValue(Param_Poste_Fronto,"-");
