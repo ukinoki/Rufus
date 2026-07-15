@@ -211,7 +211,19 @@ void dlg_docsscanner::ChangeFile()
 
 bool dlg_docsscanner::searchDir(bool &pathchanged)
 {
-    QString fileName        = QFileDialog::getOpenFileName(dlg_imgviewer, tr("Choisir un fichier"), m_docpath,  tr("Images (*.pdf *.jpg *.jpeg *.png)"));
+    //! Filtres par TYPE MIME plutôt que par chaîne "*.pdf …". Sur macOS, le panneau natif grisait à
+    //! tort des fichiers valides (PDF) quand ce dialogue était ouvert sous la modalité PROFONDE du
+    //! chemin depuis dlg_depenses (Rufus → dlg_depenses modal → dlg_imgviewer modal → panneau) : le
+    //! délégué d'activation piloté par le filtre d'extension est capricieux sous imbrication modale.
+    //! Les types MIME mappent vers les vrais UTI (com.adobe.pdf, public.jpeg, public.png) et sont
+    //! robustes à ce contexte. On garde le panneau natif (aucun DontUseNativeDialog).
+    QFileDialog fdlg(dlg_imgviewer, tr("Choisir un fichier"), m_docpath);
+    fdlg.setFileMode(QFileDialog::ExistingFile);
+    fdlg.setAcceptMode(QFileDialog::AcceptOpen);
+    fdlg.setMimeTypeFilters(QStringList() << "application/pdf" << "image/jpeg" << "image/png");
+    QString fileName;
+    if (fdlg.exec() == QDialog::Accepted && !fdlg.selectedFiles().isEmpty())
+        fileName = fdlg.selectedFiles().first();
     if (fileName != "")
     {
         pathchanged         = (m_docpath != QFileInfo(fileName).dir().absolutePath());
