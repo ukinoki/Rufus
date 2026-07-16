@@ -22,6 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <upstandarditem.h>
 #include <upsmallbutton.h>
 #include "icons.h"
+#include "recherchedossier.h"
 #include "database.h"
 #include "gbl_datas.h"
 #include "cls_patient.h"
@@ -434,7 +435,24 @@ void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
 //-----------------------------------------------------------------------------------------------------
 void FicheVitale::rechercheManuelle()
 {
-    // TODO : ouvrir la recherche manuelle (à préciser).
+    // Fiche de recherche, pré-remplie avec le porteur courant.
+    RechercheDossier dlg(m_porteurCourant.nom, m_porteurCourant.prenom,
+                         QDate::fromString(m_porteurCourant.dateNaissance, "dd/MM/yyyy"), this);
+    if (dlg.exec() != QDialog::Accepted || dlg.idChoisi() <= 0)
+        return;
+    Patient *pat = Datas::I()->patients->getById(dlg.idChoisi(), Item::LoadDetails);
+    if (pat == nullptr)
+        return;
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
+    if (model == nullptr)
+        return;
+    // Le dossier choisi à la main est ajouté en tête des correspondances (confiance maximale, pastille verte).
+    UpStandardItem *c0 = new UpStandardItem(pastille(1.0), nomPrenom(pat->nom(), pat->prenom()), pat);
+    const QString ddnAff = pat->datedenaissance().isValid() ? pat->datedenaissance().toString("dd-MM-yyyy") : QString();
+    UpStandardItem *c1 = new UpStandardItem(ddnAff);
+    c0->setEditable(false);
+    c1->setEditable(false);
+    model->insertRow(0, QList<QStandardItem*>() << c0 << c1);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -446,6 +464,7 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
     QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
     if (model == nullptr)
         return;
+    m_porteurCourant = porteur;                       // mémorisé pour la recherche manuelle
     model->removeRows(0, model->rowCount());          // vide les lignes
 
     const QDate ddnCV = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");

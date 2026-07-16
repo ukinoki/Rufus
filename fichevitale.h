@@ -55,6 +55,7 @@ private slots:
 
 private:
     QList<LecteurVitale::Porteur> m_porteurs;   //!< [0] = assuré ; [1..] = ayants droit
+    LecteurVitale::Porteur        m_porteurCourant;   //!< dernier porteur surbrillé (pré-remplit la recherche manuelle)
     UpTableView *m_tblPorteur = nullptr;        //!< 1 ligne : l'assuré
     UpTableView *m_tblAyants  = nullptr;        //!< les ayants droit
     UpTableView *m_tblCorresp = nullptr;        //!< dossiers correspondants (résultat de recherche)

@@ -100,6 +100,7 @@ SOURCES += main.cpp\
     procedures.cpp \
     lecteurvitale.cpp \
     fichevitale.cpp \
+    recherchedossier.cpp \
     conversionbase.cpp \
     importdocsexternes.cpp \
     utils.cpp \
@@ -111,6 +112,7 @@ HEADERS += rufus.h \
     procedures.h \
     lecteurvitale.h \
     fichevitale.h \
+    recherchedossier.h \
     ressources.h \
     conversionbase.h \
     importdocsexternes.h \
