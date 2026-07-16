@@ -20,6 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <uptableview.h>
 #include <uplabel.h>
 #include <upstandarditem.h>
+#include <upsmallbutton.h>
+#include "icons.h"
 #include "database.h"
 #include "gbl_datas.h"
 #include "cls_patient.h"
@@ -309,7 +311,17 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     m_tblCorresp = new UpTableView();
     m_tblCorresp->setModel(modCorresp);
     styleTableListe(m_tblCorresp, 6, true);              // ~6 lignes visibles, ascenseur si besoin
-    corps->addWidget(m_tblCorresp, 0, Qt::AlignLeft);
+
+    // Table + bouton de recherche manuelle (icône « archives ») à sa droite.
+    QHBoxLayout *ligneCorresp = new QHBoxLayout;
+    ligneCorresp->addWidget(m_tblCorresp, 0, Qt::AlignTop);
+    UpSmallButton *btnRecherche = new UpSmallButton();
+    btnRecherche->setIcon(Icons::icArchive());
+    btnRecherche->setToolTip(tr("Rechercher manuellement un dossier"));
+    connect(btnRecherche, &QPushButton::clicked, this, &FicheVitale::rechercheManuelle);
+    ligneCorresp->addWidget(btnRecherche, 0, Qt::AlignTop);
+    ligneCorresp->addStretch();
+    corps->addLayout(ligneCorresp);
 
     dlglayout()->insertLayout(0, corps);                 // AU-DESSUS de la barre de boutons
 
@@ -414,6 +426,15 @@ void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
     Patient *pat = qobject_cast<Patient*>(it->rufusitem());   // le dossier accroché à la cellule
     if (pat != nullptr)
         QToolTip::showText(QCursor::pos(), pat->texteInfoBulle(QDate::currentDate()));
+}
+
+//-----------------------------------------------------------------------------------------------------
+// Recherche manuelle d'un dossier (bouton « archives »), pour rattraper un dossier que le
+// rapprochement automatique n'aurait pas fait remonter. Comportement à définir.
+//-----------------------------------------------------------------------------------------------------
+void FicheVitale::rechercheManuelle()
+{
+    // TODO : ouvrir la recherche manuelle (à préciser).
 }
 
 //-----------------------------------------------------------------------------------------------------

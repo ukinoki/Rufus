@@ -51,6 +51,7 @@ private slots:
     void selectionPorteurChangee();
     void selectionAyantChangee();
     void afficheBulleCorresp(const QModelIndex &index);   //!< info-bulle du dossier survolé (comme la liste patients)
+    void rechercheManuelle();                             //!< recherche manuelle d'un dossier (bouton archive)
 
 private:
     QList<LecteurVitale::Porteur> m_porteurs;   //!< [0] = assuré ; [1..] = ayants droit
