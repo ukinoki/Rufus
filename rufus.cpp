@@ -437,8 +437,7 @@ void Rufus::ConnectSignals()
     connect (ui->SupprimeActepushButton,                            &QPushButton::clicked,                              this,   [=] {SupprimerActe(currentacte());});
     connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Tonometrie);
     connect (ui->PachymetriepushButton,                             &QPushButton::clicked,                              this,   &Rufus::Pachymetrie);
-    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
-    connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);   // DEV : fausse lecture de carte (sans lecteur)
+    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);   // DEV : fausse lecture (sans lecteur) ; remettre LireLaCV pour la vraie lecture PC/SC
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
@@ -8675,6 +8674,9 @@ void Rufus::InitWidgets()
         ui->tabWidget->removeTab(abc);
 
     ui->VitaleupPushButton->setIconSize(QSize(120,100));
+
+    // Bouton FSE (ex-Pyxvital) masqué : le parcours de facturation sera redéfini plus tard.
+    ui->FSEpushButton->setVisible(false);
 
     ui->SalDatlabel     ->setPixmap(Icons::pxSalleAttente().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxSalleAttente 60,60
     ui->Bureauxlabel    ->setPixmap(Icons::pxAVTest().scaled(QSize(100,100), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxAVTest 100,100
