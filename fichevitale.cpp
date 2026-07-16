@@ -85,6 +85,19 @@ QString ddnAffichee(const QString &jjMMaaaa)
 // large sur la DDN, puis on classe par similarité. Pas d'IA : de simples distances de chaînes,
 // transparentes et réglables, font mieux et se lisent.
 
+// Normalise pour la COMPARAISON (pas pour l'affichage) : majuscules + suppression des accents
+// (é→e, ç→c…). La plupart des dossiers sont saisis sans accents ; on compare donc à égalité.
+QString normalise(const QString &s)
+{
+    const QString d = s.toUpper().normalized(QString::NormalizationForm_D);
+    QString out;
+    out.reserve(d.size());
+    for (const QChar &c : d)
+        if (c.category() != QChar::Mark_NonSpacing)     // retire les accents décomposés
+            out.append(c);
+    return out.trimmed();
+}
+
 // Distance de Jaro (0..1) : proportion de caractères communs, bien placés.
 double jaro(const QString &s1, const QString &s2)
 {
@@ -129,7 +142,7 @@ double jaroWinkler(const QString &a, const QString &b)
 // similarité globale et une similarité par jetons (chaque jeton du plus court retrouvé dans l'autre).
 double simNoms(const QString &a, const QString &b)
 {
-    const QString A = a.toUpper().trimmed(), B = b.toUpper().trimmed();
+    const QString A = normalise(a), B = normalise(b);
     const double global = jaroWinkler(A, B);
     static const QRegularExpression sep("[\\s'\\-]+");
     const QStringList ta = A.split(sep, Qt::SkipEmptyParts);
@@ -156,7 +169,7 @@ double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patie
         const qlonglong nni = cv.nir.toLongLong(&num);
         if (num && nni == pat->NNI()) return 1.0;
     }
-    const double simPrenom = jaroWinkler(cv.prenom.toUpper(), pat->prenom().toUpper());
+    const double simPrenom = jaroWinkler(normalise(cv.prenom), normalise(pat->prenom()));
     const double simNom    = simNoms(cv.nom, pat->nom());
     const double memeDDN   = (pat->datedenaissance() == ddnCV) ? 1.0 : 0.0;
     return 0.45 * memeDDN + 0.35 * simPrenom + 0.20 * simNom;
