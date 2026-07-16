@@ -10819,7 +10819,7 @@ void Rufus::LireLaCV()
         }
     FicheVitale fiche(lecteur.porteurs(), this);
     fiche.exec();
-    ActiverDossierVitale(fiche.idDossierActive(), fiche.ouvrirDossier());
+    ActiverResultatVitale(fiche);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10836,25 +10836,45 @@ void Rufus::SimulerLireCV()
     FicheVitale fiche(porteurs, this);
     fiche.setWindowTitle(tr("Carte Vitale (simulation)"));
     fiche.exec();
-    ActiverDossierVitale(fiche.idDossierActive(), fiche.ouvrirDossier());
+    ActiverResultatVitale(fiche);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
     Dossier choisi dans la fiche Carte Vitale : un soignant l'ouvre, un non-soignant l'inscrit en
     salle d'attente. La décision est prise UNE seule fois, ici, selon le rôle de l'utilisateur.
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::ActiverDossierVitale(int idPat, bool ouvrir)
+void Rufus::ActiverResultatVitale(FicheVitale &fiche)
 {
-    if (idPat <= 0)
-        return;
-    Patient *pat = Datas::I()->patients->getById(idPat, Item::LoadDetails);
-    if (pat == Q_NULLPTR)
-        return;
-    // Ouvrir le dossier n'est possible que pour un soignant (garde-fou) ; sinon, salle d'attente.
-    if (ouvrir && currentuser()->isSoignant())
-        OuvrirDossier(pat);
-    else
-        InscritEnSalDat(pat);
+    switch (fiche.action())
+        {
+        case FicheVitale::Ouvrir:
+        case FicheVitale::SalleAttente:
+            {
+            Patient *pat = Datas::I()->patients->getById(fiche.idDossierActive(), Item::LoadDetails);
+            if (pat == Q_NULLPTR)
+                return;
+            // Ouvrir n'est possible que pour un soignant (garde-fou) ; sinon, salle d'attente.
+            if (fiche.action() == FicheVitale::Ouvrir && currentuser()->isSoignant())
+                OuvrirDossier(pat);
+            else
+                InscritEnSalDat(pat);
+            break;
+            }
+        case FicheVitale::Creer:
+            {
+            // Création d'un dossier pré-rempli avec la personne lue sur la carte.
+            const LecteurVitale::Porteur p = fiche.porteurCourant();
+            ModeCreationDossier();
+            ui->CreerNomlineEdit->setText(p.nom);
+            ui->CreerPrenomlineEdit->setText(p.prenom);
+            const QDate ddn = QDate::fromString(p.dateNaissance, "dd/MM/yyyy");
+            if (ddn.isValid())
+                ui->CreerDDNdateEdit->setDate(ddn);
+            break;
+            }
+        default:
+            break;
+        }
 }
 
 void Rufus::TesteConnexion()

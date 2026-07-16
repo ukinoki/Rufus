@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <uplabel.h>
 #include <upstandarditem.h>
 #include <upsmallbutton.h>
+#include <uppushbutton.h>
 #include "icons.h"
 #include "recherchedossier.h"
 #include "database.h"
@@ -330,10 +331,31 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
 
     dlglayout()->insertLayout(0, corps);                 // AU-DESSUS de la barre de boutons
 
-    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    // ---- 4 boutons en bas : Ouvrir (soignant seulement) / Salle d'attente / Créer / Annuler ----
+    User *u = Datas::I()->users->userconnected();
+    if (u != nullptr && u->isSoignant())
+        {
+        UpPushButton *btnOuvrir = new UpPushButton(tr("Ouvrir le dossier"));
+        AjouteWidgetLayButtons(btnOuvrir);
+        connect(btnOuvrir, &QPushButton::clicked, this, [this] {
+            Patient *pat = correspChoisie();
+            if (pat != nullptr) { m_action = Ouvrir; m_idDossierActive = pat->id(); accept(); } });
+        }
+    UpPushButton *btnSalle = new UpPushButton(tr("Inscrire en salle d'attente"));
+    AjouteWidgetLayButtons(btnSalle);
+    connect(btnSalle, &QPushButton::clicked, this, [this] {
+        Patient *pat = correspChoisie();
+        if (pat != nullptr) { m_action = SalleAttente; m_idDossierActive = pat->id(); accept(); } });
+
+    UpPushButton *btnCreer = new UpPushButton(tr("Créer le dossier"));
+    AjouteWidgetLayButtons(btnCreer);
+    connect(btnCreer, &QPushButton::clicked, this, [this] { m_action = Creer; accept(); });
+
+    UpPushButton *btnAnnuler = new UpPushButton(tr("Annuler"));
+    AjouteWidgetLayButtons(btnAnnuler);
+    connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
+
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
-    connect(OKButton, &QPushButton::clicked, this, &QDialog::accept);
-    // CancelButton est déjà relié à reject() par UpDialog::AjouteLayButtons.
 
     // ---- Surbrillance partagée + navigation clavier + info-bulle ----
     connect(m_tblPorteur->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FicheVitale::selectionPorteurChangee);
@@ -448,7 +470,7 @@ void FicheVitale::activerDepuisCorresp(const QModelIndex &index)
         return;
     User *u = Datas::I()->users->userconnected();
     m_idDossierActive = pat->id();
-    m_ouvrirDossier   = (u != nullptr && u->isSoignant());
+    m_action = (u != nullptr && u->isSoignant()) ? Ouvrir : SalleAttente;
     accept();
 }
 
@@ -467,8 +489,21 @@ void FicheVitale::menuCorresp(const QPoint &pos)
     if (choisi == nullptr)
         return;
     m_idDossierActive = pat->id();
-    m_ouvrirDossier   = (choisi == actOuvrir);
+    m_action = (choisi == actOuvrir) ? Ouvrir : SalleAttente;
     accept();
+}
+
+// Correspondance sur laquelle agissent les boutons Ouvrir / Salle d'attente : la ligne sélectionnée,
+// ou, à défaut de sélection, la première (la plus probable).
+Patient *FicheVitale::correspChoisie() const
+{
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
+    if (model == nullptr || model->rowCount() == 0)
+        return nullptr;
+    const QModelIndexList sel = m_tblCorresp->selectionModel()->selectedRows();
+    const int row = sel.isEmpty() ? 0 : sel.first().row();
+    UpStandardItem *it = static_cast<UpStandardItem*>(model->item(row, 0));
+    return it ? qobject_cast<Patient*>(it->rufusitem()) : nullptr;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -484,7 +519,7 @@ void FicheVitale::rechercheManuelle()
         {
         // Le dossier trouvé manuellement est activé comme une correspondance, avec l'action choisie.
         m_idDossierActive = dlg.idChoisi();
-        m_ouvrirDossier   = dlg.ouvrir();
+        m_action = dlg.ouvrir() ? Ouvrir : SalleAttente;
         accept();
         }
 }

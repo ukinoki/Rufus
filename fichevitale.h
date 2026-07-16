@@ -46,10 +46,13 @@ class FicheVitale : public UpDialog
 public:
     explicit FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget *parent = nullptr);
 
-    //! Dossier que l'utilisateur a choisi d'activer (double-clic / menu). 0 si aucun.
+    //! Action que Rufus doit exécuter après fermeture de la fiche.
+    enum Action { Annuler, Ouvrir, SalleAttente, Creer };
+    Action action() const { return m_action; }
+    //! Dossier choisi (pour Ouvrir / SalleAttente) ; 0 si aucun.
     int idDossierActive() const { return m_idDossierActive; }
-    //! Action demandée : true = ouvrir le dossier ; false = inscrire en salle d'attente.
-    bool ouvrirDossier() const { return m_ouvrirDossier; }
+    //! Personne lue sur la carte (pour Creer : nom / prénom / date de naissance).
+    LecteurVitale::Porteur porteurCourant() const { return m_porteurCourant; }
 
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;   //!< flèches haut/bas d'une table à l'autre
@@ -70,13 +73,14 @@ private:
     UpTableView *m_tblCorresp = nullptr;        //!< dossiers correspondants (résultat de recherche)
     DataBase    *m_db         = nullptr;
     bool         m_majSelection = false;        //!< garde anti-récursion pendant qu'on désélectionne l'autre table
-    int          m_idDossierActive = 0;         //!< dossier choisi à activer après fermeture
-    bool         m_ouvrirDossier   = true;      //!< action choisie : ouvrir (true) ou salle d'attente (false)
+    int          m_idDossierActive = 0;         //!< dossier choisi (Ouvrir / SalleAttente)
+    Action       m_action = Annuler;            //!< action demandée en sortie
 
     void surbrillanceChangee(const LecteurVitale::Porteur &porteur);  //!< recalcule les correspondances
     void selectionnePorteur();
     void selectionneAyant(int row);
     Patient *patientCorresp(const QModelIndex &index) const;          //!< Patient accroché à une ligne de correspondance
+    Patient *correspChoisie() const;                                  //!< correspondance sélectionnée (ou la 1re) pour les boutons
 };
 
 #endif // FICHEVITALE_H

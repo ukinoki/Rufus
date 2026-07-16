@@ -80,6 +80,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "uplabel.h"
 #include <upsystemtrayicon.h>
 
+class FicheVitale;
+
 class RendezVous : public QObject
 {
     Q_OBJECT
@@ -229,7 +231,7 @@ private:
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();
     void        SimulerLireCV();     // DEV : fausse lecture de carte (sans lecteur)
-    void        ActiverDossierVitale(int idPat, bool ouvrir);   // dossier choisi dans la fiche Vitale : ouvrir ou salle d'attente
+    void        ActiverResultatVitale(FicheVitale &fiche);      // exécute l'action choisie dans la fiche Carte Vitale
     void        ListeCorrespondants();
     void        ListeIOLs();
     void        ListeManufacturers();
