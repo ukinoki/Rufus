@@ -438,6 +438,7 @@ void Rufus::ConnectSignals()
     connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Tonometrie);
     connect (ui->PachymetriepushButton,                             &QPushButton::clicked,                              this,   &Rufus::Pachymetrie);
     connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
+    connect (ui->FSEpushButton,                                     &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);   // DEV : fausse lecture de carte (sans lecteur)
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
@@ -8675,10 +8676,6 @@ void Rufus::InitWidgets()
 
     ui->VitaleupPushButton->setIconSize(QSize(120,100));
 
-    // La saisie de FSE passait par Pyxvital, désormais supprimé. Le bouton est masqué en attendant
-    // qu'on redéfinisse le parcours de facturation.
-    ui->FSEpushButton->setVisible(false);
-
     ui->SalDatlabel     ->setPixmap(Icons::pxSalleAttente().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxSalleAttente 60,60
     ui->Bureauxlabel    ->setPixmap(Icons::pxAVTest().scaled(QSize(100,100), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxAVTest 100,100
     ui->Accueillabel    ->setPixmap(Icons::pxReception().scaled(QSize(70,70), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxReception 70,70
@@ -10835,9 +10832,30 @@ void Rufus::NouvelleMesure(GenericProtocol::TypeMesure TypeMesure) //utilisé po
 
 
 /*-----------------------------------------------------------------------------------------------------------------
+    Affichage des informations d'une carte Vitale (réelle ou simulée).
+    Tronc commun aux deux déclencheurs : la vraie lecture (bouton Vitale) et la fausse lecture de
+    développement (bouton FSE). C'est ici qu'on branchera plus tard le traitement Rufus (recherche
+    ou création de dossier, préremplissage du NIR…).
+-----------------------------------------------------------------------------------------------------------------*/
+static void afficheCarteVitale(QWidget *parent, const QString &titre,
+                               const QList<LecteurVitale::Porteur> &porteurs)
+{
+    QString msg;
+    for (const LecteurVitale::Porteur &p : porteurs)
+        {
+        if (!msg.isEmpty())
+            msg += "\n\n";
+        msg += p.nom + " " + p.prenom;
+        if (!p.dateNaissance.isEmpty())
+            msg += "\n" + QObject::tr("Né(e) le ") + p.dateNaissance;
+        if (!p.nir.isEmpty())
+            msg += "\n" + QObject::tr("N° SS : ") + LecteurVitale::nirLisible(p.nir);
+        }
+    UpMessageBox::Watch(parent, titre, msg);
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
     Lecture DIRECTE de la carte Vitale (PC/SC, sans Pyxvital ni CPS).
-    Pour l'instant : on se contente d'AFFICHER les informations lues. L'usage (recherche/création
-    de dossier, préremplissage du NIR…) sera défini ensuite, selon l'ergonomie voulue.
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::LireLaCV()
 {
@@ -10848,20 +10866,21 @@ void Rufus::LireLaCV()
         UpMessageBox::Watch(this, tr("Carte Vitale"), err);
         return;
         }
+    afficheCarteVitale(this, tr("Carte Vitale"), lecteur.porteurs());
+}
 
-    QString msg;
-    const QList<LecteurVitale::Porteur> porteurs = lecteur.porteurs();
-    for (const LecteurVitale::Porteur &p : porteurs)
-        {
-        if (!msg.isEmpty())
-            msg += "\n\n";
-        msg += p.nom + " " + p.prenom;
-        if (!p.dateNaissance.isEmpty())
-            msg += "\n" + tr("Né(e) le ") + p.dateNaissance;
-        if (!p.nir.isEmpty())
-            msg += "\n" + tr("N° SS : ") + LecteurVitale::nirLisible(p.nir);
-        }
-    UpMessageBox::Watch(this, tr("Carte Vitale"), msg);
+/*-----------------------------------------------------------------------------------------------------------------
+    DÉVELOPPEMENT — Fausse lecture de carte, pour travailler le côté Rufus SANS lecteur.
+    Une assurée + deux ayants droit, en dur. À retirer (avec le câblage temporaire du bouton FSE)
+    une fois l'intégration aboutie.
+-----------------------------------------------------------------------------------------------------------------*/
+void Rufus::SimulerLireCV()
+{
+    QList<LecteurVitale::Porteur> porteurs;
+    porteurs.append(LecteurVitale::Porteur{ "SCALETTA", "HELENE",     "21/08/1968", "268081315501324" });  // assurée (NIR = carte de test)
+    porteurs.append(LecteurVitale::Porteur{ "SABAH",    "ANDREA",     "01/03/2000" });                     // ayant droit
+    porteurs.append(LecteurVitale::Porteur{ "GIMENEZ",  "CLEMENTINE", "22/07/2006" });                     // ayant droit
+    afficheCarteVitale(this, tr("Carte Vitale (simulation)"), porteurs);
 }
 
 void Rufus::TesteConnexion()

@@ -227,6 +227,7 @@ private:
     void        ImprimeListPatients(QVariant var);
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();
+    void        SimulerLireCV();     // DEV : fausse lecture de carte (sans lecteur)
     void        ListeCorrespondants();
     void        ListeIOLs();
     void        ListeManufacturers();
