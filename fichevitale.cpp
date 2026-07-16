@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "gbl_datas.h"
 #include "cls_patient.h"
 #include "cls_patients.h"
+#include "cls_parametressysteme.h"
 #include "utils.h"
 #include "macros.h"
 
@@ -36,11 +37,19 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFontMetrics>
 #include <QApplication>
 #include <QPixmap>
+#include <QIcon>
+#include <QPainter>
+#include <QColor>
 #include <QDate>
 #include <QPushButton>
 #include <QToolTip>
 #include <QCursor>
 #include <QModelIndex>
+#include <QRegularExpression>
+#include <QSet>
+#include <QVector>
+#include <QPair>
+#include <algorithm>
 
 // ============================================================================================
 //  Helpers de présentation
@@ -71,11 +80,112 @@ QString ddnAffichee(const QString &jjMMaaaa)
     return d.isValid() ? d.toString("dd-MM-yyyy") : jjMMaaaa;
 }
 
-// Ajoute une ligne (Nom Prénom | Naissance). On accroche à la 1ère cellule le dossier métier
-// (Patient*) via rufusitem() — comme la liste des patients — pour le retrouver au survol.
-void ajouteLigne(QStandardItemModel *model, const QString &nomprenom, const QString &ddn, Item *dossier = nullptr)
+// =========================== Rapprochement approximatif (record linkage) =====================
+// On ne cherche PAS à filtrer sur le nom (un nom change au mariage, se tape mal…). On récupère
+// large sur la DDN, puis on classe par similarité. Pas d'IA : de simples distances de chaînes,
+// transparentes et réglables, font mieux et se lisent.
+
+// Distance de Jaro (0..1) : proportion de caractères communs, bien placés.
+double jaro(const QString &s1, const QString &s2)
 {
-    UpStandardItem *c0 = new UpStandardItem(nomprenom, dossier);
+    if (s1.isEmpty() && s2.isEmpty()) return 1.0;
+    if (s1.isEmpty() || s2.isEmpty()) return 0.0;
+    const int len1 = s1.size(), len2 = s2.size();
+    int fenetre = qMax(len1, len2) / 2 - 1;
+    if (fenetre < 0) fenetre = 0;
+    QVector<bool> m1(len1, false), m2(len2, false);
+    int matches = 0;
+    for (int i = 0; i < len1; ++i) {
+        const int deb = qMax(0, i - fenetre);
+        const int fin = qMin(i + fenetre + 1, len2);
+        for (int j = deb; j < fin; ++j) {
+            if (m2[j] || s1.at(i) != s2.at(j)) continue;
+            m1[i] = m2[j] = true; ++matches; break;
+        }
+    }
+    if (matches == 0) return 0.0;
+    double transpositions = 0; int k = 0;
+    for (int i = 0; i < len1; ++i) {
+        if (!m1[i]) continue;
+        while (!m2[k]) ++k;
+        if (s1.at(i) != s2.at(k)) transpositions += 0.5;
+        ++k;
+    }
+    const double m = matches;
+    return (m / len1 + m / len2 + (m - transpositions) / m) / 3.0;
+}
+
+// Jaro-Winkler : Jaro + bonus de préfixe commun (idéal pour les noms : schmit/schmidt ~0,95).
+double jaroWinkler(const QString &a, const QString &b)
+{
+    const double j = jaro(a, b);
+    int prefixe = 0;
+    const int maxp = qMin(4, int(qMin(a.size(), b.size())));
+    for (int i = 0; i < maxp && a.at(i) == b.at(i); ++i) ++prefixe;
+    return j + prefixe * 0.1 * (1.0 - j);
+}
+
+// Similarité de noms tenant compte des noms composés (Dumont / Dumont D'Urville) : max entre la
+// similarité globale et une similarité par jetons (chaque jeton du plus court retrouvé dans l'autre).
+double simNoms(const QString &a, const QString &b)
+{
+    const QString A = a.toUpper().trimmed(), B = b.toUpper().trimmed();
+    const double global = jaroWinkler(A, B);
+    static const QRegularExpression sep("[\\s'\\-]+");
+    const QStringList ta = A.split(sep, Qt::SkipEmptyParts);
+    const QStringList tb = B.split(sep, Qt::SkipEmptyParts);
+    if (ta.isEmpty() || tb.isEmpty()) return global;
+    const QStringList &court  = (ta.size() <= tb.size()) ? ta : tb;
+    const QStringList &longue = (ta.size() <= tb.size()) ? tb : ta;
+    double somme = 0;
+    for (const QString &t : court) {
+        double best = 0;
+        for (const QString &u : longue) best = qMax(best, jaroWinkler(t, u));
+        somme += best;
+    }
+    return qMax(global, somme / court.size());
+}
+
+// Score de rapprochement (0..1) entre la personne lue sur la CV et un dossier candidat.
+// Pondération réglable : DDN (pivot) + gros poids prénom + poids moyen nom.
+// Roue de secours (France seulement) : un NNI identique vaut quasi-certitude.
+double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patient *pat, bool france)
+{
+    if (france && !cv.nir.isEmpty() && pat->NNI() > 0) {
+        bool num = false;
+        const qlonglong nni = cv.nir.toLongLong(&num);
+        if (num && nni == pat->NNI()) return 1.0;
+    }
+    const double simPrenom = jaroWinkler(cv.prenom.toUpper(), pat->prenom().toUpper());
+    const double simNom    = simNoms(cv.nom, pat->nom());
+    const double memeDDN   = (pat->datedenaissance() == ddnCV) ? 1.0 : 0.0;
+    return 0.45 * memeDDN + 0.35 * simPrenom + 0.20 * simNom;
+}
+
+// Pastille de confiance : vert (≥ 0,85), orange (≥ 0,65), gris en dessous.
+QIcon pastille(double score)
+{
+    const QColor c = score >= 0.85 ? QColor( 40, 180,  70)
+                   : score >= 0.65 ? QColor(240, 170,  40)
+                                   : QColor(170, 170, 170);
+    QPixmap px(14, 14);
+    px.fill(Qt::transparent);
+    QPainter p(&px);
+    p.setRenderHint(QPainter::Antialiasing);
+    p.setBrush(c);
+    p.setPen(Qt::NoPen);
+    p.drawEllipse(2, 2, 10, 10);
+    p.end();
+    return QIcon(px);
+}
+
+// Ajoute une ligne (Nom Prénom | Naissance). On accroche à la 1ère cellule le dossier métier
+// (Patient*) via rufusitem() — comme la liste des patients — pour le retrouver au survol ;
+// icone = pastille de confiance (vide pour les tables porteur/ayants droit).
+void ajouteLigne(QStandardItemModel *model, const QString &nomprenom, const QString &ddn,
+                 Item *dossier = nullptr, const QIcon &icone = QIcon())
+{
+    UpStandardItem *c0 = new UpStandardItem(icone, nomprenom, dossier);
     UpStandardItem *c1 = new UpStandardItem(ddn);
     c0->setEditable(false);
     c1->setEditable(false);
@@ -304,33 +414,48 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
         return;
     model->removeRows(0, model->rowCount());          // vide les lignes
 
-    const QDate ddn = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
-    if (!ddn.isValid())
+    const QDate ddnCV = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
+    if (!ddnCV.isValid())
         return;
 
-    // Échappement des apostrophes pour ne pas casser la requête (noms type O'BRIEN).
-    QString nom    = porteur.nom.toUpper();    nom.replace("'", "''");
-    QString prenom = porteur.prenom.toUpper(); prenom.replace("'", "''");
+    const bool france = m_db->parametres()->cotationsfrance();
 
-    const QString req =
-            "SELECT idPat FROM " TBL_PATIENTS
-            " WHERE UPPER(PatNom) LIKE '" + nom + "%'"
-            " AND UPPER(PatPrenom) LIKE '" + prenom + "%'"
-            " AND PatDDN = '" + ddn.toString("yyyy-MM-dd") + "'";
-
+    // 1) Filet large : tous les dossiers de MÊME DDN (le pivot fiable) ; + ceux de même NNI
+    //    (roue de secours, France uniquement — beaucoup de dossiers saisis à la main n'ont pas de NNI).
+    QSet<int> ids;
     bool ok = false;
-    const QList<QVariantList> resultats = m_db->StandardSelectSQL(req, ok);
-    if (!ok)
-        return;
-    for (const QVariantList &ligne : resultats)
+    for (const QVariantList &l : m_db->StandardSelectSQL(
+             "SELECT idPat FROM " TBL_PATIENTS " WHERE PatDDN = '" + ddnCV.toString("yyyy-MM-dd") + "'", ok))
+        ids.insert(l.at(0).toInt());
+    if (france && !porteur.nir.isEmpty())
         {
-        // On charge le dossier (adresse comprise, pour l'info-bulle) et on l'accroche à la ligne.
-        Patient *pat = Datas::I()->patients->getById(ligne.at(0).toInt(), Item::LoadDetails);
+        bool num = false;
+        const qlonglong nni = porteur.nir.toLongLong(&num);
+        if (num && nni > 0)
+            for (const QVariantList &l : m_db->StandardSelectSQL(
+                     "SELECT idPat FROM " TBL_DONNEESSOCIALESPATIENTS " WHERE " CP_NNI_DSP " = " + QString::number(nni), ok))
+                ids.insert(l.at(0).toInt());
+        }
+
+    // 2) Score de chaque candidat, puis tri par probabilité décroissante.
+    QList<QPair<double, Patient*>> classes;
+    for (int id : ids)
+        {
+        Patient *pat = Datas::I()->patients->getById(id, Item::LoadDetails);
         if (pat == nullptr)
             continue;
+        classes.append(qMakePair(scoreCandidat(porteur, ddnCV, pat, france), pat));
+        }
+    std::sort(classes.begin(), classes.end(),
+              [](const QPair<double, Patient*> &a, const QPair<double, Patient*> &b) { return a.first > b.first; });
+
+    // 3) Remplissage : le plus probable en haut, avec sa pastille de confiance.
+    for (const QPair<double, Patient*> &c : classes)
+        {
+        Patient *pat = c.second;
         const QString ddnAff = pat->datedenaissance().isValid()
                                    ? pat->datedenaissance().toString("dd-MM-yyyy")
                                    : QString();
-        ajouteLigne(model, nomPrenom(pat->nom(), pat->prenom()), ddnAff, pat);
+        ajouteLigne(model, nomPrenom(pat->nom(), pat->prenom()), ddnAff, pat, pastille(c.first));
         }
 }
