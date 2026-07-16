@@ -17,7 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "rufus.h"
 #include "ui_rufus.h"
-#include "lecteurvitale.h"
+#include "fichevitale.h"
 #include <cstdlib>
 #include <QStringConverter>
 
@@ -10832,30 +10832,7 @@ void Rufus::NouvelleMesure(GenericProtocol::TypeMesure TypeMesure) //utilisé po
 
 
 /*-----------------------------------------------------------------------------------------------------------------
-    Affichage des informations d'une carte Vitale (réelle ou simulée).
-    Tronc commun aux deux déclencheurs : la vraie lecture (bouton Vitale) et la fausse lecture de
-    développement (bouton FSE). C'est ici qu'on branchera plus tard le traitement Rufus (recherche
-    ou création de dossier, préremplissage du NIR…).
------------------------------------------------------------------------------------------------------------------*/
-static void afficheCarteVitale(QWidget *parent, const QString &titre,
-                               const QList<LecteurVitale::Porteur> &porteurs)
-{
-    QString msg;
-    for (const LecteurVitale::Porteur &p : porteurs)
-        {
-        if (!msg.isEmpty())
-            msg += "\n\n";
-        msg += p.nom + " " + p.prenom;
-        if (!p.dateNaissance.isEmpty())
-            msg += "\n" + QObject::tr("Né(e) le ") + p.dateNaissance;
-        if (!p.nir.isEmpty())
-            msg += "\n" + QObject::tr("N° SS : ") + LecteurVitale::nirLisible(p.nir);
-        }
-    UpMessageBox::Watch(parent, titre, msg);
-}
-
-/*-----------------------------------------------------------------------------------------------------------------
-    Lecture DIRECTE de la carte Vitale (PC/SC, sans Pyxvital ni CPS).
+    Lecture DIRECTE de la carte Vitale (PC/SC, sans Pyxvital ni CPS) : ouvre la fiche FicheVitale.
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::LireLaCV()
 {
@@ -10866,7 +10843,8 @@ void Rufus::LireLaCV()
         UpMessageBox::Watch(this, tr("Carte Vitale"), err);
         return;
         }
-    afficheCarteVitale(this, tr("Carte Vitale"), lecteur.porteurs());
+    FicheVitale fiche(lecteur.porteurs(), this);
+    fiche.exec();
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10880,7 +10858,9 @@ void Rufus::SimulerLireCV()
     porteurs.append(LecteurVitale::Porteur{ "SCALETTA", "HELENE",     "21/08/1968", "268081315501324" });  // assurée (NIR = carte de test)
     porteurs.append(LecteurVitale::Porteur{ "SABAH",    "ANDREA",     "01/03/2000" });                     // ayant droit
     porteurs.append(LecteurVitale::Porteur{ "GIMENEZ",  "CLEMENTINE", "22/07/2006" });                     // ayant droit
-    afficheCarteVitale(this, tr("Carte Vitale (simulation)"), porteurs);
+    FicheVitale fiche(porteurs, this);
+    fiche.setWindowTitle(tr("Carte Vitale (simulation)"));
+    fiche.exec();
 }
 
 void Rufus::TesteConnexion()

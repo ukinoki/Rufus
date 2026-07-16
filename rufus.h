@@ -74,6 +74,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <conversionbase.h>
 #include <importdocsexternes.h>
 #include <log.h>
+#include "lecteurvitale.h"
 #include <styles.h>
 #include <tcpsocket.h>
 #include "uplabel.h"
