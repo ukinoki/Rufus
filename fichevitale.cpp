@@ -57,6 +57,13 @@ QString nomPrenom(const QString &nom, const QString &prenom)
     return nom.toUpper() + " " + Utils::trimcapitilize(prenom);
 }
 
+// La carte donne la date en jj/MM/aaaa ; la liste des patients l'affiche en jj-MM-aaaa. On aligne.
+QString ddnAffichee(const QString &jjMMaaaa)
+{
+    const QDate d = QDate::fromString(jjMMaaaa, "dd/MM/yyyy");
+    return d.isValid() ? d.toString("dd-MM-yyyy") : jjMMaaaa;
+}
+
 // En-têtes des 2 colonnes (Nom / Date de naissance), comme la liste des patients.
 void poseEntetes(QStandardItemModel *model)
 {
@@ -150,7 +157,7 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     // Table du porteur (1 ligne)
     QStandardItemModel *modPorteur = new QStandardItemModel(this);
     poseEntetes(modPorteur);
-    ajouteLigne(modPorteur, nomPrenom(assure.nom, assure.prenom), assure.dateNaissance);
+    ajouteLigne(modPorteur, nomPrenom(assure.nom, assure.prenom), ddnAffichee(assure.dateNaissance));
     m_tblPorteur = new UpTableView();
     m_tblPorteur->setModel(modPorteur);
     styleTableListe(m_tblPorteur, 1, false);
@@ -161,7 +168,7 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     QStandardItemModel *modAyants = new QStandardItemModel(this);
     poseEntetes(modAyants);
     for (int i = 1; i < m_porteurs.size(); ++i)
-        ajouteLigne(modAyants, nomPrenom(m_porteurs.at(i).nom, m_porteurs.at(i).prenom), m_porteurs.at(i).dateNaissance);
+        ajouteLigne(modAyants, nomPrenom(m_porteurs.at(i).nom, m_porteurs.at(i).prenom), ddnAffichee(m_porteurs.at(i).dateNaissance));
     m_tblAyants = new UpTableView();
     m_tblAyants->setModel(modAyants);
     styleTableListe(m_tblAyants, qMax(1, m_porteurs.size() - 1), false);
