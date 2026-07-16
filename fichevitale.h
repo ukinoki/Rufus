@@ -24,6 +24,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class UpTableView;
 class DataBase;
 class QEvent;
+class QModelIndex;
 
 //-----------------------------------------------------------------------------------------------------
 // Fiche présentant les données d'une carte Vitale lue (réelle ou simulée) :
@@ -49,6 +50,7 @@ protected:
 private slots:
     void selectionPorteurChangee();
     void selectionAyantChangee();
+    void afficheBulleCorresp(const QModelIndex &index);   //!< info-bulle du dossier survolé (comme la liste patients)
 
 private:
     QList<LecteurVitale::Porteur> m_porteurs;   //!< [0] = assuré ; [1..] = ayants droit

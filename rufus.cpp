@@ -1222,37 +1222,9 @@ void Rufus::AfficheToolTip(Patient *pat)
     if (pat == Q_NULLPTR)
         return;
     Datas::I()->patients->loadAll(pat, Item::Update);
-    QString Msg = "";
-    if (pat->datedenaissance().isValid())
-    {
-        QMap<QString,QVariant> mapage = Utils::CalculAge(pat->datedenaissance(), m_currentdate);
-        Msg += mapage["toString"].toString();
-    }
-    if (pat->ville() != "")
-    {
-        if (Msg!="") Msg = "\n" + Msg;
-        Msg = pat->ville() + Msg;
-    }
-    if (pat->adresse3() != "")
-    {
-        if (Msg!="") Msg = "\n" + Msg;
-        Msg = pat->adresse3() + Msg;
-    }
-    if (pat->adresse2() != "")
-    {
-        if (Msg!="") Msg = "\n" + Msg;
-        Msg = pat->adresse2() + Msg;
-    }
-    if (pat->adresse1() != "")
-    {
-        if (Msg!="") Msg = "\n" + Msg;
-        Msg = pat->adresse1() + Msg;
-    }
-    if (Msg!="") Msg += "\n";
-    Msg += QString::number(pat->id());
-
+    const QString Msg = pat->texteInfoBulle(m_currentdate);
     if (Msg != "")
-        QToolTip::showText(cursor().pos(),Msg);
+        QToolTip::showText(cursor().pos(), Msg);
 }
 
 

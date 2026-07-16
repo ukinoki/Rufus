@@ -118,6 +118,10 @@ public:
     bool iscmu() const;
     QString profession() const;
 
+    //! Texte de l'info-bulle du patient (âge, adresse, id), tel qu'affiché au survol de la liste des
+    //! patients. Factorisé ici pour être réutilisé (p.ex. la fiche Carte Vitale) sans le recopier.
+    QString texteInfoBulle(const QDate &datedujour) const;
+
     // Medical data
     int idmg() const;
     int idspe1() const;

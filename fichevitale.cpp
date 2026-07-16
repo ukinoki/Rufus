@@ -19,7 +19,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <uptableview.h>
 #include <uplabel.h>
+#include <upstandarditem.h>
 #include "database.h"
+#include "gbl_datas.h"
+#include "cls_patient.h"
+#include "cls_patients.h"
 #include "utils.h"
 #include "macros.h"
 
@@ -34,6 +38,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPixmap>
 #include <QDate>
 #include <QPushButton>
+#include <QToolTip>
+#include <QCursor>
+#include <QModelIndex>
 
 // ============================================================================================
 //  Helpers de présentation
@@ -64,29 +71,19 @@ QString ddnAffichee(const QString &jjMMaaaa)
     return d.isValid() ? d.toString("dd-MM-yyyy") : jjMMaaaa;
 }
 
-// En-têtes des 2 colonnes (Nom / Date de naissance), comme la liste des patients.
-void poseEntetes(QStandardItemModel *model)
+// Ajoute une ligne (Nom Prénom | Naissance). On accroche à la 1ère cellule le dossier métier
+// (Patient*) via rufusitem() — comme la liste des patients — pour le retrouver au survol.
+void ajouteLigne(QStandardItemModel *model, const QString &nomprenom, const QString &ddn, Item *dossier = nullptr)
 {
-    QStandardItem *hNom = new QStandardItem(QObject::tr("Nom"));
-    QStandardItem *hDdn = new QStandardItem(QObject::tr("Date de naissance"));
-    hNom->setTextAlignment(Qt::AlignLeft);
-    hDdn->setTextAlignment(Qt::AlignLeft);
-    model->setHorizontalHeaderItem(0, hNom);
-    model->setHorizontalHeaderItem(1, hDdn);
-}
-
-void ajouteLigne(QStandardItemModel *model, const QString &nomprenom, const QString &ddn)
-{
-    QStandardItem *c0 = new QStandardItem(nomprenom);
-    QStandardItem *c1 = new QStandardItem(ddn);
+    UpStandardItem *c0 = new UpStandardItem(nomprenom, dossier);
+    UpStandardItem *c1 = new UpStandardItem(ddn);
     c0->setEditable(false);
     c1->setEditable(false);
     model->appendRow(QList<QStandardItem*>() << c0 << c1);
 }
 
-// Applique à une UpTableView le look EXACT de PatientsListeTableView (largeurs 230/122, lignes
-// alternées, sélection par ligne, en-têtes fixes, viewport blanc…), et fige sa hauteur pour
-// afficher lignesVisibles lignes.
+// Applique à une UpTableView le look de PatientsListeTableView (largeurs 230/122, lignes alternées,
+// sélection par ligne, viewport blanc), SANS en-têtes, et fige la hauteur pour lignesVisibles lignes.
 void styleTableListe(UpTableView *tbl, int lignesVisibles, bool scrollVertical)
 {
     tbl->setFrameShape(QFrame::Box);
@@ -100,15 +97,12 @@ void styleTableListe(UpTableView *tbl, int lignesVisibles, bool scrollVertical)
     tbl->setVerticalScrollBarPolicy(scrollVertical ? Qt::ScrollBarAsNeeded : Qt::ScrollBarAlwaysOff);
     tbl->setCursor(Qt::PointingHandCursor);
     tbl->setMouseTracking(true);
+    tbl->horizontalHeader()->setVisible(false);     // pas d'en-têtes de colonnes
+    tbl->verticalHeader()->setVisible(false);
 
     const int h = int(QFontMetrics(qApp->font()).height() * 1.3);
-    QHeaderView *hh = tbl->horizontalHeader();
-    hh->setSectionResizeMode(QHeaderView::Fixed);
-    hh->setFixedHeight(h);
-    QHeaderView *vh = tbl->verticalHeader();
-    vh->setVisible(false);
-    vh->setSectionResizeMode(QHeaderView::Fixed);
-    vh->setDefaultSectionSize(h);
+    tbl->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    tbl->verticalHeader()->setDefaultSectionSize(h);
     tbl->setColumnWidth(0, 230);
     tbl->setColumnWidth(1, 122);
 
@@ -118,7 +112,7 @@ void styleTableListe(UpTableView *tbl, int lignesVisibles, bool scrollVertical)
     pal.setColor(tbl->viewport()->backgroundRole(), Qt::white);
     tbl->viewport()->setPalette(pal);
 
-    tbl->setFixedHeight(h * (lignesVisibles + 1) + 2);   // + l'en-tête
+    tbl->setFixedHeight(h * lignesVisibles + 4);
     tbl->FixLargeurTotale();
 }
 
@@ -135,6 +129,10 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     setWindowTitle(tr("Carte Vitale"));
 
     const LecteurVitale::Porteur assure = m_porteurs.isEmpty() ? LecteurVitale::Porteur() : m_porteurs.first();
+
+    // Tout le contenu va dans un conteneur inséré AU-DESSUS de la barre de boutons (que le
+    // constructeur d'UpDialog place en haut du layout).
+    QVBoxLayout *corps = new QVBoxLayout;
 
     // ---- En-tête : figurine (gauche) + NNI et table du porteur (droite) ----
     QHBoxLayout *entete = new QHBoxLayout;
@@ -156,7 +154,7 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
 
     // Table du porteur (1 ligne)
     QStandardItemModel *modPorteur = new QStandardItemModel(this);
-    poseEntetes(modPorteur);
+    modPorteur->setColumnCount(2);
     ajouteLigne(modPorteur, nomPrenom(assure.nom, assure.prenom), ddnAffichee(assure.dateNaissance));
     m_tblPorteur = new UpTableView();
     m_tblPorteur->setModel(modPorteur);
@@ -166,7 +164,7 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     // Table des ayants droit, séparée par un petit espace
     droite->addSpacing(8);
     QStandardItemModel *modAyants = new QStandardItemModel(this);
-    poseEntetes(modAyants);
+    modAyants->setColumnCount(2);
     for (int i = 1; i < m_porteurs.size(); ++i)
         ajouteLigne(modAyants, nomPrenom(m_porteurs.at(i).nom, m_porteurs.at(i).prenom), ddnAffichee(m_porteurs.at(i).dateNaissance));
     m_tblAyants = new UpTableView();
@@ -176,27 +174,31 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     droite->addStretch();
 
     entete->addLayout(droite);
-    dlglayout()->addLayout(entete);
+    corps->addLayout(entete);
 
     // ---- Correspondances : 3ème table, décalée à gauche (pleine largeur) ----
-    dlglayout()->addSpacing(10);
+    corps->addSpacing(10);
     UpLabel *lblCorresp = new UpLabel();
     lblCorresp->setText(tr("Dossiers correspondants"));
-    dlglayout()->addWidget(lblCorresp, 0, Qt::AlignLeft);
+    corps->addWidget(lblCorresp, 0, Qt::AlignLeft);
     QStandardItemModel *modCorresp = new QStandardItemModel(this);
-    poseEntetes(modCorresp);
+    modCorresp->setColumnCount(2);
     m_tblCorresp = new UpTableView();
     m_tblCorresp->setModel(modCorresp);
     styleTableListe(m_tblCorresp, 6, true);              // ~6 lignes visibles, ascenseur si besoin
-    dlglayout()->addWidget(m_tblCorresp, 0, Qt::AlignLeft);
+    corps->addWidget(m_tblCorresp, 0, Qt::AlignLeft);
 
-    AjouteLayButtons(UpDialog::ButtonOK);
+    dlglayout()->insertLayout(0, corps);                 // AU-DESSUS de la barre de boutons
+
+    AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
     connect(OKButton, &QPushButton::clicked, this, &QDialog::accept);
+    // CancelButton est déjà relié à reject() par UpDialog::AjouteLayButtons.
 
-    // ---- Surbrillance partagée + navigation clavier ----
+    // ---- Surbrillance partagée + navigation clavier + info-bulle ----
     connect(m_tblPorteur->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FicheVitale::selectionPorteurChangee);
     connect(m_tblAyants->selectionModel(),  &QItemSelectionModel::selectionChanged, this, &FicheVitale::selectionAyantChangee);
+    connect(m_tblCorresp, &QTableView::entered, this, &FicheVitale::afficheBulleCorresp);
     m_tblPorteur->installEventFilter(this);
     m_tblAyants->installEventFilter(this);
 
@@ -273,6 +275,25 @@ void FicheVitale::selectionneAyant(int row)
 }
 
 //-----------------------------------------------------------------------------------------------------
+// Info-bulle du dossier survolé dans la table des correspondances : on retrouve l'id porté par la
+// cellule, on charge le patient et on réutilise Patient::texteInfoBulle (comme la liste des patients).
+//-----------------------------------------------------------------------------------------------------
+void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
+{
+    if (!index.isValid())
+        return;
+    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
+    if (model == nullptr)
+        return;
+    UpStandardItem *it = static_cast<UpStandardItem*>(model->item(index.row(), 0));
+    if (it == nullptr)
+        return;
+    Patient *pat = qobject_cast<Patient*>(it->rufusitem());   // le dossier accroché à la cellule
+    if (pat != nullptr)
+        QToolTip::showText(QCursor::pos(), pat->texteInfoBulle(QDate::currentDate()));
+}
+
+//-----------------------------------------------------------------------------------------------------
 // Recalcule les correspondances : cherche en base les dossiers dont nom + prénom + date de naissance
 // collent à la personne surbrillée, et remplit la table du bas.
 //-----------------------------------------------------------------------------------------------------
@@ -281,7 +302,7 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
     QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
     if (model == nullptr)
         return;
-    model->removeRows(0, model->rowCount());          // vide les lignes, garde les en-têtes
+    model->removeRows(0, model->rowCount());          // vide les lignes
 
     const QDate ddn = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
     if (!ddn.isValid())
@@ -292,7 +313,7 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
     QString prenom = porteur.prenom.toUpper(); prenom.replace("'", "''");
 
     const QString req =
-            "SELECT PatNom, PatPrenom, PatDDN FROM " TBL_PATIENTS
+            "SELECT idPat FROM " TBL_PATIENTS
             " WHERE UPPER(PatNom) LIKE '" + nom + "%'"
             " AND UPPER(PatPrenom) LIKE '" + prenom + "%'"
             " AND PatDDN = '" + ddn.toString("yyyy-MM-dd") + "'";
@@ -303,10 +324,13 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
         return;
     for (const QVariantList &ligne : resultats)
         {
-        const QString nomBase    = ligne.at(0).toString();
-        const QString prenomBase = ligne.at(1).toString();
-        const QDate   ddnBase    = ligne.at(2).toDate();
-        const QString ddnAff     = ddnBase.isValid() ? ddnBase.toString("dd-MM-yyyy") : ligne.at(2).toString();
-        ajouteLigne(model, nomPrenom(nomBase, prenomBase), ddnAff);
+        // On charge le dossier (adresse comprise, pour l'info-bulle) et on l'accroche à la ligne.
+        Patient *pat = Datas::I()->patients->getById(ligne.at(0).toInt(), Item::LoadDetails);
+        if (pat == nullptr)
+            continue;
+        const QString ddnAff = pat->datedenaissance().isValid()
+                                   ? pat->datedenaissance().toString("dd-MM-yyyy")
+                                   : QString();
+        ajouteLigne(model, nomPrenom(pat->nom(), pat->prenom()), ddnAff, pat);
         }
 }

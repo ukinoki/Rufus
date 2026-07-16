@@ -16,11 +16,28 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cls_patient.h"
+#include "utils.h"
 
 Patient::Patient(QJsonObject data, QObject *parent) : Item(parent)
 {
     resetdatas();
     setData(data);
+}
+
+//! Info-bulle du patient : âge, puis adresse (ville / lignes d'adresse), puis id — même contenu que
+//! ce qu'affichait Rufus::AfficheToolTip. Le patient doit être chargé (données sociales) au préalable.
+QString Patient::texteInfoBulle(const QDate &datedujour) const
+{
+    QString Msg;
+    if (datedenaissance().isValid())
+        Msg += Utils::CalculAge(datedenaissance(), datedujour).value("toString").toString();
+    if (ville() != "")    { if (Msg != "") Msg = "\n" + Msg; Msg = ville()    + Msg; }
+    if (adresse3() != "") { if (Msg != "") Msg = "\n" + Msg; Msg = adresse3() + Msg; }
+    if (adresse2() != "") { if (Msg != "") Msg = "\n" + Msg; Msg = adresse2() + Msg; }
+    if (adresse1() != "") { if (Msg != "") Msg = "\n" + Msg; Msg = adresse1() + Msg; }
+    if (Msg != "") Msg += "\n";
+    Msg += QString::number(id());
+    return Msg;
 }
 
 //GETTER | SETTER
