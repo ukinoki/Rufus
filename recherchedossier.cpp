@@ -23,6 +23,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <uplabel.h>
 #include <upstandarditem.h>
 #include "database.h"
+#include "gbl_datas.h"
+#include "cls_patient.h"
+#include "cls_patients.h"
+#include "cls_users.h"
+#include "cls_user.h"
 #include "utils.h"
 #include "macros.h"
 
@@ -35,6 +40,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFontMetrics>
 #include <QApplication>
 #include <QPushButton>
+#include <QMenu>
+#include <QToolTip>
+#include <QCursor>
 
 // Look de la table, calqué sur PatientsListeTableView (largeurs 230/122, lignes alternées, en-têtes).
 static void styleTable(UpTableView *tbl)
@@ -48,6 +56,8 @@ static void styleTable(UpTableView *tbl)
     tbl->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tbl->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     tbl->setCursor(Qt::PointingHandCursor);
+    tbl->setMouseTracking(true);                       // pour le signal entered (info-bulle)
+    tbl->setContextMenuPolicy(Qt::CustomContextMenu);
     tbl->verticalHeader()->setVisible(false);
 
     const int h = int(QFontMetrics(qApp->font()).height() * 1.3);
@@ -133,9 +143,9 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
     connect(OKButton, &QPushButton::clicked, this, [this] {
         const QModelIndexList sel = m_table->selectionModel()->selectedRows();
         if (!sel.isEmpty()) {
-            UpStandardItem *it = static_cast<UpStandardItem*>(m_model->item(sel.first().row(), 0));
-            if (it != nullptr)
-                m_idChoisi = it->listids().value(0);
+            m_idChoisi = idDeLigne(sel.first());
+            User *u = Datas::I()->users->userconnected();
+            m_ouvrir = (u != nullptr && u->isSoignant());   // action par défaut selon le rôle
         }
         accept();
     });
@@ -147,7 +157,59 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
     connect(m_parNom, &QCheckBox::toggled,     this, &RechercheDossier::rechercher);
     connect(m_parDdn, &QCheckBox::toggled,     this, &RechercheDossier::rechercher);
 
+    // Sur la table : double-clic (retenir + fermer), clic droit (menu), survol (info-bulle).
+    connect(m_table, &QTableView::doubleClicked,              this, &RechercheDossier::activer);
+    connect(m_table, &QTableView::customContextMenuRequested, this, &RechercheDossier::menuContextuel);
+    connect(m_table, &QTableView::entered,                    this, &RechercheDossier::afficheBulle);
+
     rechercher();
+}
+
+int RechercheDossier::idDeLigne(const QModelIndex &index) const
+{
+    if (!index.isValid() || m_model == nullptr)
+        return 0;
+    UpStandardItem *it = static_cast<UpStandardItem*>(m_model->item(index.row(), 0));
+    return it ? it->listids().value(0) : 0;
+}
+
+void RechercheDossier::activer(const QModelIndex &index)
+{
+    const int id = idDeLigne(index);
+    if (id <= 0)
+        return;
+    User *u = Datas::I()->users->userconnected();
+    m_idChoisi = id;
+    m_ouvrir   = (u != nullptr && u->isSoignant());   // action par défaut selon le rôle
+    accept();
+}
+
+void RechercheDossier::menuContextuel(const QPoint &pos)
+{
+    const int id = idDeLigne(m_table->indexAt(pos));
+    if (id <= 0)
+        return;
+    User *u = Datas::I()->users->userconnected();
+    const bool soignant = (u != nullptr && u->isSoignant());
+    QMenu menu;
+    QAction *actOuvrir = soignant ? menu.addAction(tr("Ouvrir le dossier")) : nullptr;
+    menu.addAction(tr("Inscrire en salle d'attente"));
+    QAction *choisi = menu.exec(m_table->viewport()->mapToGlobal(pos));
+    if (choisi == nullptr)
+        return;
+    m_idChoisi = id;
+    m_ouvrir   = (choisi == actOuvrir);
+    accept();
+}
+
+void RechercheDossier::afficheBulle(const QModelIndex &index)
+{
+    const int id = idDeLigne(index);
+    if (id <= 0)
+        return;
+    Patient *pat = Datas::I()->patients->getById(id, Item::LoadDetails);
+    if (pat != nullptr)
+        QToolTip::showText(QCursor::pos(), pat->texteInfoBulle(QDate::currentDate()));
 }
 
 void RechercheDossier::rechercher()

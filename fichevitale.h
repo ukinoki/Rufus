@@ -19,12 +19,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #define FICHEVITALE_H
 
 #include <updialog.h>
+#include <QModelIndex>
+#include <QPoint>
 #include "lecteurvitale.h"
 
 class UpTableView;
 class DataBase;
 class QEvent;
-class QModelIndex;
+class Patient;
 
 //-----------------------------------------------------------------------------------------------------
 // Fiche présentant les données d'une carte Vitale lue (réelle ou simulée) :
@@ -44,6 +46,11 @@ class FicheVitale : public UpDialog
 public:
     explicit FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget *parent = nullptr);
 
+    //! Dossier que l'utilisateur a choisi d'activer (double-clic / menu). 0 si aucun.
+    int idDossierActive() const { return m_idDossierActive; }
+    //! Action demandée : true = ouvrir le dossier ; false = inscrire en salle d'attente.
+    bool ouvrirDossier() const { return m_ouvrirDossier; }
+
 protected:
     bool eventFilter(QObject *obj, QEvent *ev) override;   //!< flèches haut/bas d'une table à l'autre
 
@@ -51,6 +58,8 @@ private slots:
     void selectionPorteurChangee();
     void selectionAyantChangee();
     void afficheBulleCorresp(const QModelIndex &index);   //!< info-bulle du dossier survolé (comme la liste patients)
+    void activerDepuisCorresp(const QModelIndex &index);  //!< double-clic sur une correspondance → on renvoie le dossier
+    void menuCorresp(const QPoint &pos);                  //!< clic droit : ouvrir le dossier / inscrire en salle d'attente
     void rechercheManuelle();                             //!< recherche manuelle d'un dossier (bouton archive)
 
 private:
@@ -61,10 +70,13 @@ private:
     UpTableView *m_tblCorresp = nullptr;        //!< dossiers correspondants (résultat de recherche)
     DataBase    *m_db         = nullptr;
     bool         m_majSelection = false;        //!< garde anti-récursion pendant qu'on désélectionne l'autre table
+    int          m_idDossierActive = 0;         //!< dossier choisi à activer après fermeture
+    bool         m_ouvrirDossier   = true;      //!< action choisie : ouvrir (true) ou salle d'attente (false)
 
     void surbrillanceChangee(const LecteurVitale::Porteur &porteur);  //!< recalcule les correspondances
     void selectionnePorteur();
     void selectionneAyant(int row);
+    Patient *patientCorresp(const QModelIndex &index) const;          //!< Patient accroché à une ligne de correspondance
 };
 
 #endif // FICHEVITALE_H

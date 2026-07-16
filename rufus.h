@@ -229,6 +229,7 @@ private:
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();
     void        SimulerLireCV();     // DEV : fausse lecture de carte (sans lecteur)
+    void        ActiverDossierVitale(int idPat, bool ouvrir);   // dossier choisi dans la fiche Vitale : ouvrir ou salle d'attente
     void        ListeCorrespondants();
     void        ListeIOLs();
     void        ListeManufacturers();

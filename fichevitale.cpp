@@ -28,8 +28,12 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_patient.h"
 #include "cls_patients.h"
 #include "cls_parametressysteme.h"
+#include "cls_users.h"
+#include "cls_user.h"
 #include "utils.h"
 #include "macros.h"
+
+#include <QMenu>
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -335,6 +339,9 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     connect(m_tblPorteur->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FicheVitale::selectionPorteurChangee);
     connect(m_tblAyants->selectionModel(),  &QItemSelectionModel::selectionChanged, this, &FicheVitale::selectionAyantChangee);
     connect(m_tblCorresp, &QTableView::entered, this, &FicheVitale::afficheBulleCorresp);
+    m_tblCorresp->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_tblCorresp, &QTableView::doubleClicked,              this, &FicheVitale::activerDepuisCorresp);
+    connect(m_tblCorresp, &QTableView::customContextMenuRequested, this, &FicheVitale::menuCorresp);
     m_tblPorteur->installEventFilter(this);
     m_tblAyants->installEventFilter(this);
 
@@ -414,19 +421,54 @@ void FicheVitale::selectionneAyant(int row)
 // Info-bulle du dossier survolé dans la table des correspondances : on retrouve l'id porté par la
 // cellule, on charge le patient et on réutilise Patient::texteInfoBulle (comme la liste des patients).
 //-----------------------------------------------------------------------------------------------------
-void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
+// Patient (dossier) accroché à une ligne de la table des correspondances, ou nullptr.
+Patient *FicheVitale::patientCorresp(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return;
+        return nullptr;
     QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
     if (model == nullptr)
-        return;
+        return nullptr;
     UpStandardItem *it = static_cast<UpStandardItem*>(model->item(index.row(), 0));
-    if (it == nullptr)
-        return;
-    Patient *pat = qobject_cast<Patient*>(it->rufusitem());   // le dossier accroché à la cellule
+    return it ? qobject_cast<Patient*>(it->rufusitem()) : nullptr;
+}
+
+void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
+{
+    Patient *pat = patientCorresp(index);
     if (pat != nullptr)
         QToolTip::showText(QCursor::pos(), pat->texteInfoBulle(QDate::currentDate()));
+}
+
+// Double-clic : action par défaut selon le rôle (soignant → ouvrir ; sinon → salle d'attente).
+void FicheVitale::activerDepuisCorresp(const QModelIndex &index)
+{
+    Patient *pat = patientCorresp(index);
+    if (pat == nullptr)
+        return;
+    User *u = Datas::I()->users->userconnected();
+    m_idDossierActive = pat->id();
+    m_ouvrirDossier   = (u != nullptr && u->isSoignant());
+    accept();
+}
+
+// Clic droit : le soignant a 2 choix (ouvrir / salle d'attente), le non-soignant seulement salle d'attente.
+void FicheVitale::menuCorresp(const QPoint &pos)
+{
+    Patient *pat = patientCorresp(m_tblCorresp->indexAt(pos));
+    if (pat == nullptr)
+        return;
+    User *u = Datas::I()->users->userconnected();
+    const bool soignant = (u != nullptr && u->isSoignant());
+    QMenu menu;
+    QAction *actOuvrir = soignant ? menu.addAction(tr("Ouvrir le dossier")) : nullptr;
+    menu.addAction(tr("Inscrire en salle d'attente"));
+    QAction *choisi = menu.exec(m_tblCorresp->viewport()->mapToGlobal(pos));
+    if (choisi == nullptr)
+        return;
+    m_idDossierActive = pat->id();
+    m_ouvrirDossier   = (choisi == actOuvrir);
+    accept();
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -438,21 +480,13 @@ void FicheVitale::rechercheManuelle()
     // Fiche de recherche, pré-remplie avec le porteur courant.
     RechercheDossier dlg(m_porteurCourant.nom, m_porteurCourant.prenom,
                          QDate::fromString(m_porteurCourant.dateNaissance, "dd/MM/yyyy"), this);
-    if (dlg.exec() != QDialog::Accepted || dlg.idChoisi() <= 0)
-        return;
-    Patient *pat = Datas::I()->patients->getById(dlg.idChoisi(), Item::LoadDetails);
-    if (pat == nullptr)
-        return;
-    QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
-    if (model == nullptr)
-        return;
-    // Le dossier choisi à la main est ajouté en tête des correspondances (confiance maximale, pastille verte).
-    UpStandardItem *c0 = new UpStandardItem(pastille(1.0), nomPrenom(pat->nom(), pat->prenom()), pat);
-    const QString ddnAff = pat->datedenaissance().isValid() ? pat->datedenaissance().toString("dd-MM-yyyy") : QString();
-    UpStandardItem *c1 = new UpStandardItem(ddnAff);
-    c0->setEditable(false);
-    c1->setEditable(false);
-    model->insertRow(0, QList<QStandardItem*>() << c0 << c1);
+    if (dlg.exec() == QDialog::Accepted && dlg.idChoisi() > 0)
+        {
+        // Le dossier trouvé manuellement est activé comme une correspondance, avec l'action choisie.
+        m_idDossierActive = dlg.idChoisi();
+        m_ouvrirDossier   = dlg.ouvrir();
+        accept();
+        }
 }
 
 //-----------------------------------------------------------------------------------------------------

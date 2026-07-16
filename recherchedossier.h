@@ -20,6 +20,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <updialog.h>
 #include <QDate>
+#include <QModelIndex>
+#include <QPoint>
 
 class QLineEdit;
 class QDateEdit;
@@ -41,12 +43,18 @@ class RechercheDossier : public UpDialog
 
 public:
     explicit RechercheDossier(const QString &nom, const QString &prenom, const QDate &ddn, QWidget *parent = nullptr);
-    int idChoisi() const { return m_idChoisi; }
+    int  idChoisi() const { return m_idChoisi; }
+    bool ouvrir()   const { return m_ouvrir; }   //!< true = ouvrir le dossier ; false = inscrire en salle d'attente
 
 private slots:
-    void rechercher();      //!< relance la recherche à chaque changement de critère
+    void rechercher();                          //!< relance la recherche à chaque changement de critère
+    void activer(const QModelIndex &index);     //!< double-clic : on retient le dossier et on ferme
+    void menuContextuel(const QPoint &pos);     //!< clic droit : une entrée, libellée selon le rôle
+    void afficheBulle(const QModelIndex &index);//!< info-bulle du dossier survolé
 
 private:
+    int  idDeLigne(const QModelIndex &index) const;   //!< idPat porté par une ligne (0 si aucun)
+
     QLineEdit          *m_nom      = nullptr;
     QLineEdit          *m_prenom   = nullptr;
     QDateEdit          *m_ddn      = nullptr;
@@ -57,6 +65,7 @@ private:
     UpLabel            *m_total    = nullptr;
     DataBase           *m_db       = nullptr;
     int                 m_idChoisi = 0;
+    bool                m_ouvrir   = true;
 };
 
 #endif // RECHERCHEDOSSIER_H
