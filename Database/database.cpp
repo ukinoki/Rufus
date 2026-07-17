@@ -2971,6 +2971,37 @@ QList<Patient *> DataBase::loadPatientsByDDN(QDate DDN)
     return listpatients;
 }
 
+QList<Patient*> DataBase::loadPatientsCV(QDate DDN, qlonglong NNI)
+{
+    QList<Patient*> listpatients;
+    // Requête légère : identité + NNI seulement (ce qu'on lit sur la carte Vitale), pas de social
+    // ni de médical. Candidats = même DDN, plus (si NNI renseigné) même NNI (jointure sur les
+    // données sociales, seulement pour le NNI).
+    QString req = "SELECT p." CP_IDPAT_PATIENTS ", p." CP_NOM_PATIENTS ", p." CP_PRENOM_PATIENTS
+                  ", p." CP_SEXE_PATIENTS ", p." CP_DDN_PATIENTS ", d." CP_NNI_DSP
+                  " FROM " TBL_PATIENTS " p"
+                  " LEFT JOIN " TBL_DONNEESSOCIALESPATIENTS " d ON d." CP_IDPAT_DSP " = p." CP_IDPAT_PATIENTS
+                  " WHERE p." CP_DDN_PATIENTS " = '" + DDN.toString("yyyy-MM-dd") + "'";
+    if (NNI > 0)
+        req += " OR d." CP_NNI_DSP " = " + QString::number(NNI);
+    QList<QVariantList> patlist = StandardSelectSQL(req, ok);
+    if (!ok)
+        return listpatients;
+    for (int i = 0; i < patlist.size(); ++i)
+    {
+        QJsonObject jData{};
+        jData[CP_IDPAT_PATIENTS]  = patlist.at(i).at(0).toInt();
+        jData[CP_NOM_PATIENTS]    = patlist.at(i).at(1).toString();
+        jData[CP_PRENOM_PATIENTS] = patlist.at(i).at(2).toString();
+        jData[CP_SEXE_PATIENTS]   = patlist.at(i).at(3).toString();
+        jData[CP_DDN_PATIENTS]    = patlist.at(i).at(4).toDate().toString("yyyy-MM-dd");
+        Patient *patient = new Patient(jData);
+        patient->setNNI(patlist.at(i).at(5).toLongLong());   // NNI (donnée sociale) posé à part
+        listpatients << patient;
+    }
+    return listpatients;
+}
+
 /*
  * MDP
 */

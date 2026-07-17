@@ -77,9 +77,6 @@ private:
     Mode                    m_mode = RechercheParNom;
     void                    RegleAffichage();
     QDate                   m_datepardefaut = QDate::fromString("2000-01-01", "yyyy-MM-dd");
-    QSortFilterProxyModel   *m_listepatientsproxymodel      = Q_NULLPTR;
-    QSortFilterProxyModel   *m_DDNsortmodel                 = Q_NULLPTR;
-    QSortFilterProxyModel   *m_prenomfiltersortmodel        = Q_NULLPTR;
 
 
 };

@@ -92,7 +92,7 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
     m_nom       ->setMaxLength(45);
     m_nom       ->setFixedWidth(150);
     lPre        = new UpLabel();
-    lPre        ->setText(tr("PréNom"));
+    lPre        ->setText(tr("Prénom"));
     lPre        ->setAlignment(Qt::AlignCenter);
     m_prenom    = new QLineEdit();
     m_prenom    ->setMaxLength(45);
@@ -258,62 +258,35 @@ void RechercheDossier::afficheBulle(const QModelIndex &index)
 void RechercheDossier::rechercher()
 {
     m_model->removeRows(0, m_model->rowCount());
-    switch (m_mode) {
-    case RechercheParNom:
-        Datas::I()->patients->initListeTable(m_nom->text(), m_prenom->text(), true);
-        UpStandardItem *pitem1, *pitem2, *pitem3;
-        for (auto it = Datas::I()->patients->patientstable()->constBegin(); it != Datas::I()->patients->patientstable()->constEnd(); ++it)
+
+    // Requête DANS DataBase ; liste LOCALE : on ne touche pas à la table partagée des patients
+    // (celle de la fenêtre principale). On libère la liste juste après l'avoir affichée.
+    QList<Patient*> resultats = (m_mode == RechercheParDDN)
+            ? DataBase::I()->loadPatientsByDDN(m_ddn->date())
+            : DataBase::I()->loadPatientsAll(m_nom->text(), m_prenom->text(), true);
+
+    for (Patient *pat : resultats)
         {
-            Patient *pat = const_cast<Patient*>(it.value());
-            pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                  // Nom + Prénom
-            pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);           // date de naissance
-            pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                 // date de naissance inversée   -> utilisé pour le tri => pas de tr()
-            m_model->appendRow(QList<QStandardItem *>() << pitem1 << pitem2 << pitem3);
+        UpStandardItem *c0 = new UpStandardItem(pat->nom().toUpper() + " " + Utils::trimcapitilize(pat->prenom()));
+        c0->setListids(QList<int>{ pat->id() });                                       // idPat porté par la ligne
+        UpStandardItem *c1 = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")));
+        c0->setEditable(false);
+        c1->setEditable(false);
+        m_model->appendRow(QList<QStandardItem*>() << c0 << c1);
         }
-        break;
-    case RechercheParDDN:
-        Datas::I()->patients->initListeByDDN(m_ddn->date());
-        for (auto it = Datas::I()->patients->patientstable()->constBegin(); it != Datas::I()->patients->patientstable()->constEnd(); ++it)
-        {
-            Patient *pat = const_cast<Patient*>(it.value());
-            pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                  // Nom + Prénom
-            pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);           // date de naissance
-            pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                 // date de naissance inversée   -> utilisé pour le tri => pas de tr()
-            m_model->appendRow(QList<QStandardItem *>() << pitem1 << pitem2 << pitem3);
-        }
-        break;
-    default:
-        break;
-    }
-    if (m_DDNsortmodel == Q_NULLPTR)
-        m_DDNsortmodel = new QSortFilterProxyModel();
-    m_DDNsortmodel->setSourceModel(m_model);
-    m_DDNsortmodel->sort(2);
 
-    if (m_prenomfiltersortmodel == Q_NULLPTR)
-        m_prenomfiltersortmodel = new QSortFilterProxyModel();
-    m_prenomfiltersortmodel->setSourceModel(m_DDNsortmodel);
-    m_prenomfiltersortmodel->sort(1);
-    m_prenomfiltersortmodel->setFilterKeyColumn(1);
+    int total = resultats.size();
+    qDeleteAll(resultats);            // liste locale non partagée -> on la libère
+    m_model->sort(0);                 // tri par nom (colonne 0)
 
-    if (m_listepatientsproxymodel == Q_NULLPTR)
-        m_listepatientsproxymodel = new QSortFilterProxyModel();
-    m_listepatientsproxymodel->setSourceModel(m_prenomfiltersortmodel);
-    m_listepatientsproxymodel->sort(0);
-    m_listepatientsproxymodel->setFilterKeyColumn(0);
+    // loadPatientsAll plafonne à 1000 lignes ; au-delà, on demande le vrai total (mode Nom seulement).
+    if (m_mode == RechercheParNom && total == 1000)
+        total = DataBase::I()->countPatientsAll(m_nom->text(), m_prenom->text());
 
-    m_table->setModel(m_listepatientsproxymodel);
-    qint64 a = m_model->rowCount();
-    switch (a) {
-    case 0:
+    if (total == 0)
         m_total->setText(tr("aucun dossier pour ces critères"));
-        break;
-    case 1:
-        m_total->setText("1 dossier");
-        break;
-    default:
-        if (a == 1000)
-            a = DataBase::I()->countPatientsAll(m_nom->text(), m_prenom->text());
-        m_total->setText(QString::number(a) + " " + tr("dossiers"));
-    }
+    else if (total == 1)
+        m_total->setText(tr("1 dossier"));
+    else
+        m_total->setText(QString::number(total) + " " + tr("dossiers"));
 }

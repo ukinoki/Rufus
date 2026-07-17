@@ -374,6 +374,10 @@ public:
     QList<Patient *>        loadPatientsByDDN(QDate DDN);                                                   /*! charge la liste de tous les patients pour une date de naissance
                                                                                                              * \param DDN la date de naissance */
 
+    QList<Patient *>        loadPatientsCV(QDate DDN, qlonglong NNI = 0);                                   /*! requête LÉGÈRE : ne charge que ce qu'on lit sur la carte Vitale
+                                                                                                             * (idPat, nom, prénom, sexe, ddn, NNI), sans données sociales ni médicales.
+                                                                                                             * Candidats = même DDN, plus (si NNI>0) même NNI. Le caller possède la liste. */
+
     /*
      * Mots de passe
     */

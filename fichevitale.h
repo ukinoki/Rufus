@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <updialog.h>
 #include <QModelIndex>
 #include <QPoint>
+#include <QHash>
 #include "lecteurvitale.h"
 
 class UpTableView;
@@ -45,6 +46,7 @@ class FicheVitale : public UpDialog
 
 public:
     explicit FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget *parent = nullptr);
+    ~FicheVitale() override;
 
     //! Action que Rufus doit exécuter après fermeture de la fiche.
     enum Action { Annuler, Ouvrir, SalleAttente, Creer };
@@ -76,11 +78,15 @@ private:
     int          m_idDossierActive = 0;         //!< dossier choisi (Ouvrir / SalleAttente)
     Action       m_action = Annuler;            //!< action demandée en sortie
 
+    //! Candidats déjà chargés, indexés par DDN (+NNI) : on reste en mémoire plutôt que de réinterroger
+    //! le serveur quand on rebascule d'un porteur à l'autre (accès internet lents). La fiche les possède.
+    QHash<QString, QList<Patient*>> m_cacheParDDN;
+
     void surbrillanceChangee(const LecteurVitale::Porteur &porteur);  //!< recalcule les correspondances
     void selectionnePorteur();
     void selectionneAyant(int row);
-    Patient *patientCorresp(const QModelIndex &index) const;          //!< Patient accroché à une ligne de correspondance
-    Patient *correspChoisie() const;                                  //!< correspondance sélectionnée (ou la 1re) pour les boutons
+    int  idCorresp(const QModelIndex &index) const;                   //!< idPat porté par une ligne de correspondance (0 si aucun)
+    int  idCorrespChoisi() const;                                     //!< idPat de la correspondance sélectionnée (ou la 1re) pour les boutons
 };
 
 #endif // FICHEVITALE_H

@@ -54,7 +54,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCursor>
 #include <QModelIndex>
 #include <QRegularExpression>
-#include <QSet>
 #include <QVector>
 #include <QPair>
 #include <algorithm>
@@ -200,13 +199,15 @@ QIcon pastille(double score)
     return QIcon(px);
 }
 
-// Ajoute une ligne (Nom Prénom | Naissance). On accroche à la 1ère cellule le dossier métier
-// (Patient*) via rufusitem() — comme la liste des patients — pour le retrouver au survol ;
-// icone = pastille de confiance (vide pour les tables porteur/ayants droit).
+// Ajoute une ligne (Nom Prénom | Naissance). On accroche à la 1ère cellule l'idPat du dossier via
+// setListids() — le dossier complet est chargé à la demande (survol, action) pour ne pas garder de
+// pointeur susceptible d'être détruit ; icone = pastille de confiance (vide pour porteur/ayants droit).
 void ajouteLigne(QStandardItemModel *model, const QString &nomprenom, const QString &ddn,
-                 Item *dossier = nullptr, const QIcon &icone = QIcon())
+                 int idPat = 0, const QIcon &icone = QIcon())
 {
-    UpStandardItem *c0 = new UpStandardItem(icone, nomprenom, dossier);
+    UpStandardItem *c0 = new UpStandardItem(icone, nomprenom);
+    if (idPat > 0)
+        c0->setListids(QList<int>{ idPat });
     UpStandardItem *c1 = new UpStandardItem(ddn);
     c0->setEditable(false);
     c1->setEditable(false);
@@ -338,14 +339,14 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
         UpPushButton *btnOuvrir = new UpPushButton(tr("Ouvrir le dossier"));
         AjouteWidgetLayButtons(btnOuvrir);
         connect(btnOuvrir, &QPushButton::clicked, this, [this] {
-            Patient *pat = correspChoisie();
-            if (pat != nullptr) { m_action = Ouvrir; m_idDossierActive = pat->id(); accept(); } });
+            const int id = idCorrespChoisi();
+            if (id > 0) { m_action = Ouvrir; m_idDossierActive = id; accept(); } });
         }
     UpPushButton *btnSalle = new UpPushButton(tr("Inscrire en salle d'attente"));
     AjouteWidgetLayButtons(btnSalle);
     connect(btnSalle, &QPushButton::clicked, this, [this] {
-        Patient *pat = correspChoisie();
-        if (pat != nullptr) { m_action = SalleAttente; m_idDossierActive = pat->id(); accept(); } });
+        const int id = idCorrespChoisi();
+        if (id > 0) { m_action = SalleAttente; m_idDossierActive = id; accept(); } });
 
     UpPushButton *btnCreer = new UpPushButton(tr("Créer le dossier"));
     AjouteWidgetLayButtons(btnCreer);
@@ -369,6 +370,13 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
 
     // À l'ouverture : le porteur est en surbrillance (ce qui déclenche la 1ère recherche).
     selectionnePorteur();
+}
+
+// La fiche possède les candidats chargés (loadPatientsCV) et les libère à sa fermeture.
+FicheVitale::~FicheVitale()
+{
+    for (const QList<Patient*> &liste : m_cacheParDDN.values())
+        qDeleteAll(liste);
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -440,24 +448,28 @@ void FicheVitale::selectionneAyant(int row)
 }
 
 //-----------------------------------------------------------------------------------------------------
-// Info-bulle du dossier survolé dans la table des correspondances : on retrouve l'id porté par la
-// cellule, on charge le patient et on réutilise Patient::texteInfoBulle (comme la liste des patients).
+// Info-bulle du dossier survolé dans la table des correspondances : on retrouve l'idPat porté par la
+// cellule, on charge le dossier complet à la demande et on réutilise Patient::texteInfoBulle (comme
+// la liste des patients). On ne charge le détail qu'au survol — les candidats ne portent que l'identité.
 //-----------------------------------------------------------------------------------------------------
-// Patient (dossier) accroché à une ligne de la table des correspondances, ou nullptr.
-Patient *FicheVitale::patientCorresp(const QModelIndex &index) const
+// idPat accroché à une ligne de la table des correspondances, ou 0.
+int FicheVitale::idCorresp(const QModelIndex &index) const
 {
     if (!index.isValid())
-        return nullptr;
+        return 0;
     QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
     if (model == nullptr)
-        return nullptr;
+        return 0;
     UpStandardItem *it = static_cast<UpStandardItem*>(model->item(index.row(), 0));
-    return it ? qobject_cast<Patient*>(it->rufusitem()) : nullptr;
+    return it ? it->listids().value(0) : 0;
 }
 
 void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
 {
-    Patient *pat = patientCorresp(index);
+    const int id = idCorresp(index);
+    if (id <= 0)
+        return;
+    Patient *pat = Datas::I()->patients->getById(id, Item::LoadDetails);
     if (pat != nullptr)
         QToolTip::showText(QCursor::pos(), pat->texteInfoBulle(QDate::currentDate()));
 }
@@ -465,11 +477,11 @@ void FicheVitale::afficheBulleCorresp(const QModelIndex &index)
 // Double-clic : action par défaut selon le rôle (soignant → ouvrir ; sinon → salle d'attente).
 void FicheVitale::activerDepuisCorresp(const QModelIndex &index)
 {
-    Patient *pat = patientCorresp(index);
-    if (pat == nullptr)
+    const int id = idCorresp(index);
+    if (id <= 0)
         return;
     User *u = Datas::I()->users->userconnected();
-    m_idDossierActive = pat->id();
+    m_idDossierActive = id;
     m_action = (u != nullptr && u->isSoignant()) ? Ouvrir : SalleAttente;
     accept();
 }
@@ -477,8 +489,8 @@ void FicheVitale::activerDepuisCorresp(const QModelIndex &index)
 // Clic droit : le soignant a 2 choix (ouvrir / salle d'attente), le non-soignant seulement salle d'attente.
 void FicheVitale::menuCorresp(const QPoint &pos)
 {
-    Patient *pat = patientCorresp(m_tblCorresp->indexAt(pos));
-    if (pat == nullptr)
+    const int id = idCorresp(m_tblCorresp->indexAt(pos));
+    if (id <= 0)
         return;
     User *u = Datas::I()->users->userconnected();
     const bool soignant = (u != nullptr && u->isSoignant());
@@ -488,22 +500,22 @@ void FicheVitale::menuCorresp(const QPoint &pos)
     QAction *choisi = menu.exec(m_tblCorresp->viewport()->mapToGlobal(pos));
     if (choisi == nullptr)
         return;
-    m_idDossierActive = pat->id();
+    m_idDossierActive = id;
     m_action = (choisi == actOuvrir) ? Ouvrir : SalleAttente;
     accept();
 }
 
 // Correspondance sur laquelle agissent les boutons Ouvrir / Salle d'attente : la ligne sélectionnée,
 // ou, à défaut de sélection, la première (la plus probable).
-Patient *FicheVitale::correspChoisie() const
+int FicheVitale::idCorrespChoisi() const
 {
     QStandardItemModel *model = qobject_cast<QStandardItemModel*>(m_tblCorresp->model());
     if (model == nullptr || model->rowCount() == 0)
-        return nullptr;
+        return 0;
     const QModelIndexList sel = m_tblCorresp->selectionModel()->selectedRows();
     const int row = sel.isEmpty() ? 0 : sel.first().row();
     UpStandardItem *it = static_cast<UpStandardItem*>(model->item(row, 0));
-    return it ? qobject_cast<Patient*>(it->rufusitem()) : nullptr;
+    return it ? it->listids().value(0) : 0;
 }
 
 //-----------------------------------------------------------------------------------------------------
@@ -542,32 +554,27 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
 
     const bool france = m_db->parametres()->cotationsfrance();
 
-    // 1) Filet large : tous les dossiers de MÊME DDN (le pivot fiable) ; + ceux de même NNI
-    //    (roue de secours, France uniquement — beaucoup de dossiers saisis à la main n'ont pas de NNI).
-    QSet<int> ids;
-    bool ok = false;
-    for (const QVariantList &l : m_db->StandardSelectSQL(
-             "SELECT idPat FROM " TBL_PATIENTS " WHERE PatDDN = '" + ddnCV.toString("yyyy-MM-dd") + "'", ok))
-        ids.insert(l.at(0).toInt());
+    // NNI : roue de secours France seulement — beaucoup de dossiers saisis à la main n'en ont pas.
+    qlonglong nni = 0;
     if (france && !porteur.nir.isEmpty())
         {
         bool num = false;
-        const qlonglong nni = porteur.nir.toLongLong(&num);
-        if (num && nni > 0)
-            for (const QVariantList &l : m_db->StandardSelectSQL(
-                     "SELECT idPat FROM " TBL_DONNEESSOCIALESPATIENTS " WHERE " CP_NNI_DSP " = " + QString::number(nni), ok))
-                ids.insert(l.at(0).toInt());
+        const qlonglong v = porteur.nir.toLongLong(&num);
+        if (num && v > 0)
+            nni = v;
         }
+
+    // 1) Filet large chargé UNE FOIS par (DDN, NNI) et gardé en mémoire : rebasculer d'un porteur à
+    //    l'autre ne réinterroge pas le serveur (accès internet lents). Requête légère (identité + NNI).
+    const QString cle = ddnCV.toString("yyyy-MM-dd") + "/" + QString::number(nni);
+    if (!m_cacheParDDN.contains(cle))
+        m_cacheParDDN.insert(cle, m_db->loadPatientsCV(ddnCV, nni));
+    const QList<Patient*> &candidats = m_cacheParDDN.value(cle);
 
     // 2) Score de chaque candidat, puis tri par probabilité décroissante.
     QList<QPair<double, Patient*>> classes;
-    for (int id : ids)
-        {
-        Patient *pat = Datas::I()->patients->getById(id, Item::LoadDetails);
-        if (pat == nullptr)
-            continue;
+    for (Patient *pat : candidats)
         classes.append(qMakePair(scoreCandidat(porteur, ddnCV, pat, france), pat));
-        }
     std::sort(classes.begin(), classes.end(),
               [](const QPair<double, Patient*> &a, const QPair<double, Patient*> &b) { return a.first > b.first; });
 
@@ -578,6 +585,6 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
         const QString ddnAff = pat->datedenaissance().isValid()
                                    ? pat->datedenaissance().toString("dd-MM-yyyy")
                                    : QString();
-        ajouteLigne(model, nomPrenom(pat->nom(), pat->prenom()), ddnAff, pat, pastille(c.first));
+        ajouteLigne(model, nomPrenom(pat->nom(), pat->prenom()), ddnAff, pat->id(), pastille(c.first));
         }
 }
