@@ -321,7 +321,7 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     // Table + bouton de recherche manuelle (icône « archives ») à sa droite.
     QHBoxLayout *ligneCorresp = new QHBoxLayout;
     ligneCorresp->addWidget(m_tblCorresp, 0, Qt::AlignTop);
-    UpSmallButton *btnRecherche = new UpSmallButton();
+    UpPushButton *btnRecherche = new UpPushButton(tr("Rechercher dans la base"));
     btnRecherche->setIcon(Icons::icArchive());
     btnRecherche->setToolTip(tr("Rechercher manuellement un dossier"));
     connect(btnRecherche, &QPushButton::clicked, this, &FicheVitale::rechercheManuelle);
