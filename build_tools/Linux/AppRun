@@ -169,10 +169,14 @@ fi
 
 # Liste UNIQUE des paquets requis (référencée par la détection de présence, le bloc
 # pkexec et le message d'installation manuelle — un seul endroit à maintenir).
+# pcscd + libccid : lecture DIRECTE de la carte Vitale (PC/SC). Absents par défaut sous Ubuntu ;
+# pcscd s'active à la demande (socket) après installation, aucun réglage supplémentaire. libpcsclite,
+# contre laquelle Rufus est lié, est embarquée dans l'AppImage — ici on pose le démon + le pilote USB.
 PAQUETS_REQUIS="gsfonts ttf-mscorefonts-installer \
 gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
 gstreamer1.0-plugins-ugly gstreamer1.0-libav gstreamer1.0-tools gstreamer1.0-x \
-gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio"
+gstreamer1.0-alsa gstreamer1.0-gl gstreamer1.0-gtk3 gstreamer1.0-pulseaudio \
+pcscd libccid"
 
 # Client MySQL (sauvegarde / restauration) : ajouté UNIQUEMENT si aucun client mysql n'est déjà
 # présent. Installer celui des dépôts Ubuntu PAR-DESSUS un client d'un autre éditeur (p.ex. un

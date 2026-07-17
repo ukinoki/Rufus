@@ -155,12 +155,6 @@ public:
     //  ou échec.
     bool    run();
 
-    //  Carte Vitale : sous Linux, garantit la couche PC/SC (démon pcscd + pilote CCID des lecteurs
-    //  USB), absente par défaut sous Ubuntu. Ne fait rien si déjà installée ; sinon propose de
-    //  l'installer (une seule élévation pkexec). No-op ailleurs (winscard intégré à Windows, framework
-    //  PCSC intégré à macOS). Renvoie true si la lecture de carte est possible ensuite.
-    bool    assurerLecteurVitale();
-
     //  Identifiant et mot de passe (EN CLAIR) du futur utilisateur APPLICATIF
     //  Rufus, saisis dans le dialogue. L'appelant les écrit dans rufus.utilisateurs
     //  (en hachant le mot de passe en SHA1). Vides si run() a échoué/annulé.

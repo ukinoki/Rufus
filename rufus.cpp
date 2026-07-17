@@ -18,7 +18,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "rufus.h"
 #include "ui_rufus.h"
 #include "fichevitale.h"
-#include "mysqlinstaller.h"     //! assurerLecteurVitale() : couche PC/SC (pcscd/libccid) sous Linux
 #include <cstdlib>
 #include <QStringConverter>
 
@@ -10811,10 +10810,6 @@ void Rufus::NouvelleMesure(GenericProtocol::TypeMesure TypeMesure) //utilisé po
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::LireLaCV()
 {
-    // Sous Linux, la couche PC/SC (pcscd + pilote CCID) est absente par défaut : on l'installe au
-    // besoin avant la première lecture. No-op sous Windows/macOS (déjà intégrée au système).
-    if (!MySQLInstaller().assurerLecteurVitale())
-        return;
     LecteurVitale lecteur;
     QString err;
     if (!lecteur.lire(err))
