@@ -642,4 +642,13 @@ if integration_proposee; then
 fi
 
 # ── Lancement NORMAL (poste déjà installé : démarrage depuis le menu) ──────────
+# Le poste est installé, MAIS une mise à jour de l'AppImage a pu AJOUTER des libs requises
+# (ex. pcscd/libccid pour la carte Vitale) qu'un ancien installeur n'a jamais posées. On
+# revérifie donc la présence de TOUS les composants recensés (PAQUETS_REQUIS + groupe dialout)
+# et on installe ce qui manque AVANT de lancer. Cas courant (tout déjà présent) :
+# composants_systeme_presents est bon marché → on enchaîne directement, sans fenêtre ni délai.
+if ! composants_systeme_presents; then
+    definir_textes                 # textes FR par défaut (aucune fenêtre de choix de langue ici)
+    configurer_systeme || true     # best-effort : on lance Rufus même si l'install échoue/est refusée
+fi
 exec "${BIN}" "$@"
