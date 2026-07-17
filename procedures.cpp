@@ -130,6 +130,7 @@ Procedures::Procedures(QObject *parent) :
         case QLocale::English:    detected = "EN"; break;
         case QLocale::Spanish:    detected = "ES"; break;
         case QLocale::Portuguese: detected = (QLocale::system().territory() == QLocale::Brazil) ? "BR" : "PT"; break;
+        case QLocale::Italian:    detected = "IT"; break;
         default:                  break;
         }
         if (!detected.isEmpty())
@@ -143,12 +144,14 @@ Procedures::Procedures(QObject *parent) :
             QRadioButton *esbutt        = new QRadioButton("Versión española");
             QRadioButton *brbutt        = new QRadioButton("Versão brasileira");
             QRadioButton *ptbutt        = new QRadioButton("Versão portuguesa");
+            QRadioButton *itbutt        = new QRadioButton("Versione italiana");
             QVBoxLayout *version_Lay    = new QVBoxLayout();
             version_Lay                 ->addWidget(frbutt);
             version_Lay                 ->addWidget(enbutt);
             version_Lay                 ->addWidget(esbutt);
             version_Lay                 ->addWidget(brbutt);
             version_Lay                 ->addWidget(ptbutt);
+            version_Lay                 ->addWidget(itbutt);
             gbox                        ->setLayout(version_Lay);
             versiondlg                  ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             versiondlg                  ->setWindowFlags(Qt::Dialog | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
@@ -160,6 +163,7 @@ Procedures::Procedures(QObject *parent) :
             connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
             connect(brbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
             connect(ptbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(itbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
             connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
             connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
                 if (frbutt->isChecked())
@@ -172,6 +176,8 @@ Procedures::Procedures(QObject *parent) :
                         m_version = "BR";
                 else if (ptbutt->isChecked())
                         m_version = "PT";
+                else if (itbutt->isChecked())
+                        m_version = "IT";
                 else
                     return;
                 versiondlg->accept();
@@ -3942,6 +3948,15 @@ bool Procedures::IdentificationUser()
                             "artificial. Algumas expressões podem estar imperfeitas ou pouco naturais; "
                             "obrigado pela sua compreensão.\n\nSe quiser ajudar a melhorar a tradução, será "
                             "bem-vindo: contacte-nos através de "
+                            "<a href=\"https://www.rufusvision.org/contact.html\">www.rufusvision.org</a>.";
+                }
+                else if (lang == "IT")
+                {
+                    titre = "Una nota su questa traduzione";
+                    texte = "Questa versione non francese di Rufus è stata tradotta con l'aiuto "
+                            "dell'intelligenza artificiale. Alcune espressioni potrebbero essere imperfette "
+                            "o poco naturali; grazie per la comprensione.\n\nSe desidera contribuire a "
+                            "migliorare la traduzione, sarà il benvenuto: ci contatti tramite "
                             "<a href=\"https://www.rufusvision.org/contact.html\">www.rufusvision.org</a>.";
                 }
                 if (!texte.isEmpty())

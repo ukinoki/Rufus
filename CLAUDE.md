@@ -119,7 +119,7 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   base. Quand on a besoin de la langue à l'exécution, elle est **déjà connue** :
   ne pas relire `rufus.ini` ni `QLocale`.
 - **Traductions** disponibles (`rufus_*.ts`/`.qm`) : fr, en, es, pt (Portugal),
-  br (brésilien), + ca, it, ro. Repli de langue par défaut : **FR**, puis EN
+  br (brésilien), it (italien). Repli de langue par défaut : **FR**, puis EN
   (>90 % d'utilisateurs francophones).
 - **Notification de nouvelle version** : `build_tools/RufusLastVersion.xml`
   (consulté à chaque ouverture par `Rufus::VerifLastVersion()`). Format **UTF-16
