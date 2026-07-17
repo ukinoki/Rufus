@@ -57,6 +57,9 @@ private:
 
     QLineEdit          *m_nom      = nullptr;
     QLineEdit          *m_prenom   = nullptr;
+    UpLabel            *lNom       = nullptr;
+    UpLabel            *lPre       = nullptr;
+    UpLabel            *lDdn       = nullptr;
     QDateEdit          *m_ddn      = nullptr;
     UpCheckBox         *m_parNom   = nullptr;
     UpCheckBox         *m_parDdn   = nullptr;
@@ -66,6 +69,19 @@ private:
     DataBase           *m_db       = nullptr;
     int                 m_idChoisi = 0;
     bool                m_ouvrir   = true;
+
+    /*-----------------------------------------------------------------------------------------------------------------
+-- Basculer le mode de recherche du dossier (DDN ou Nom/Prenom) -------------
+-----------------------------------------------------------------------------------------------------------------*/
+    enum Mode               {RechercheParNom, RechercheParDDN};
+    Mode                    m_mode = RechercheParNom;
+    void                    RegleAffichage();
+    QDate                   m_datepardefaut = QDate::fromString("2000-01-01", "yyyy-MM-dd");
+    QSortFilterProxyModel   *m_listepatientsproxymodel      = Q_NULLPTR;
+    QSortFilterProxyModel   *m_DDNsortmodel                 = Q_NULLPTR;
+    QSortFilterProxyModel   *m_prenomfiltersortmodel        = Q_NULLPTR;
+
+
 };
 
 #endif // RECHERCHEDOSSIER_H

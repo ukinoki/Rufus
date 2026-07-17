@@ -85,56 +85,77 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
 
     // ---- Haut : champs (gauche) + choix des critères (droite) ----
     QVBoxLayout *champs = new QVBoxLayout;
-    UpLabel *lNom = new UpLabel();    lNom->setText(tr("Nom"));
-    m_nom = new QLineEdit();          m_nom->setMaxLength(45);    m_nom->setFixedWidth(150);   m_nom->setText(nom);
-    UpLabel *lPre = new UpLabel();    lPre->setText(tr("Prénom"));
-    m_prenom = new QLineEdit();       m_prenom->setMaxLength(45); m_prenom->setFixedWidth(150); m_prenom->setText(prenom);
-    UpLabel *lDdn = new UpLabel();    lDdn->setText(tr("Date de naissance"));
-    m_ddn = new QDateEdit();          m_ddn->setCalendarPopup(true); m_ddn->setDisplayFormat("dd/MM/yyyy");
-    m_ddn->setMinimumDate(QDate(1900, 1, 1)); m_ddn->setFixedWidth(150);
-    m_ddn->setDate(ddn.isValid() ? ddn : QDate(1999, 12, 31));
-    champs->addWidget(lNom);   champs->addWidget(m_nom);
-    champs->addWidget(lPre);   champs->addWidget(m_prenom);
-    champs->addWidget(lDdn);   champs->addWidget(m_ddn);
+    lNom        = new UpLabel();
+    lNom        ->setText(tr("Nom"));
+    lNom        ->setAlignment(Qt::AlignCenter);
+    m_nom       = new QLineEdit();
+    m_nom       ->setMaxLength(45);
+    m_nom       ->setFixedWidth(150);
+    lPre        = new UpLabel();
+    lPre        ->setText(tr("PréNom"));
+    lPre        ->setAlignment(Qt::AlignCenter);
+    m_prenom    = new QLineEdit();
+    m_prenom    ->setMaxLength(45);
+    m_prenom    ->setFixedWidth(150);
+    lDdn        = new UpLabel();
+    lDdn        ->setText(tr("Date de naissance"));
+    lDdn        ->setAlignment(Qt::AlignCenter);
+    m_ddn       = new QDateEdit();
+    m_ddn       ->setCalendarPopup(true);
+    m_ddn       ->setDisplayFormat(tr("dd/MM/yyyy"));
+    m_ddn       ->setMinimumDate(QDate(1900, 1, 1));
+    m_ddn       ->setFixedWidth(150);
+    m_ddn       ->setDate(m_datepardefaut);
+
+    champs->addWidget(lNom);
+    champs->addWidget(m_nom);
+    champs->addWidget(lPre);
+    champs->addWidget(m_prenom);
+    champs->addWidget(lDdn);
+    champs->addWidget(m_ddn);
+    champs->setSpacing(5);
+    champs->addSpacerItem(new QSpacerItem(0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
     champs->addStretch();
+    QWidget *widg_crit  = new QWidget();
+    widg_crit           ->setFixedSize(180,120);
+    widg_crit           ->setLayout(champs);
 
-    UpGroupBox *critere = new UpGroupBox();
-    critere->setTitle(tr("Rechercher"));
-    QVBoxLayout *critlay = new QVBoxLayout(critere);
-    m_parNom = new UpCheckBox(tr("par nom / prénom"));
-    m_parDdn = new UpCheckBox(tr("par date de naissance"));
-    m_parNom->setChecked(true);
-    m_parDdn->setChecked(ddn.isValid());
-    critlay->addWidget(m_parNom);
-    critlay->addWidget(m_parDdn);
-    critlay->addStretch();
+    UpGroupBox *critere     = new UpGroupBox();
+    QVBoxLayout *critlay    = new QVBoxLayout(critere);
+    m_parNom                = new UpCheckBox(tr("par nom / prénom"));
+    m_parDdn                = new UpCheckBox(tr("par date de naissance"));
+    m_parNom                ->setAutoExclusive(true);
+    m_parDdn                ->setAutoExclusive(true);
+    critlay                 ->addWidget(m_parNom);
+    critlay                 ->addWidget(m_parDdn);
+    critlay                 ->addStretch();
 
-    QHBoxLayout *haut = new QHBoxLayout;
-    haut->addLayout(champs);
-    haut->addSpacing(20);
-    haut->addWidget(critere, 0, Qt::AlignTop);
-    haut->addStretch();
+    QHBoxLayout *haut       = new QHBoxLayout;
+    haut                    ->addWidget(widg_crit);
+    haut                    ->addSpacing(10);
+    haut                    ->addWidget(critere, 0, Qt::AlignTop);
+    haut                    ->addStretch();
 
     // ---- Table des patients (comme rufus.cpp) ----
-    m_model = new QStandardItemModel(this);
+    m_model             = new QStandardItemModel(this);
     QStandardItem *hNom = new QStandardItem(tr("Nom"));
     QStandardItem *hDdn = new QStandardItem(tr("Date de naissance"));
-    hNom->setTextAlignment(Qt::AlignLeft);
-    hDdn->setTextAlignment(Qt::AlignLeft);
-    m_model->setHorizontalHeaderItem(0, hNom);
-    m_model->setHorizontalHeaderItem(1, hDdn);
-    m_table = new UpTableView();
-    m_table->setModel(m_model);
+    hNom                ->setTextAlignment(Qt::AlignLeft);
+    hDdn                ->setTextAlignment(Qt::AlignLeft);
+    m_model             ->setHorizontalHeaderItem(0, hNom);
+    m_model             ->setHorizontalHeaderItem(1, hDdn);
+    m_table             = new UpTableView();
+    m_table             ->setModel(m_model);
     styleTable(m_table);
 
-    m_total = new UpLabel();
+    m_total             = new UpLabel();
 
     // ---- Assemblage, au-dessus de la barre de boutons ----
-    QVBoxLayout *corps = new QVBoxLayout;
-    corps->addLayout(haut);
-    corps->addWidget(m_table, 0, Qt::AlignLeft);
-    corps->addWidget(m_total, 0, Qt::AlignLeft);
-    dlglayout()->insertLayout(0, corps);
+    QVBoxLayout *corps  = new QVBoxLayout;
+    corps               ->addLayout(haut);
+    corps               ->addWidget(m_table, 0, Qt::AlignLeft);
+    corps               ->addWidget(m_total, 0, Qt::AlignCenter);
+    dlglayout()         ->insertLayout(0, corps);
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
@@ -154,14 +175,36 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
     connect(m_nom,    &QLineEdit::textChanged, this, &RechercheDossier::rechercher);
     connect(m_prenom, &QLineEdit::textChanged, this, &RechercheDossier::rechercher);
     connect(m_ddn,    &QDateEdit::dateChanged, this, &RechercheDossier::rechercher);
-    connect(m_parNom, &QCheckBox::toggled,     this, &RechercheDossier::rechercher);
-    connect(m_parDdn, &QCheckBox::toggled,     this, &RechercheDossier::rechercher);
+    connect(m_parNom, &QCheckBox::toggled,     this, &RechercheDossier::RegleAffichage);
+    connect(m_parDdn, &QCheckBox::toggled,     this, &RechercheDossier::RegleAffichage);
 
     // Sur la table : double-clic (retenir + fermer), clic droit (menu), survol (info-bulle).
     connect(m_table, &QTableView::doubleClicked,              this, &RechercheDossier::activer);
     connect(m_table, &QTableView::customContextMenuRequested, this, &RechercheDossier::menuContextuel);
     connect(m_table, &QTableView::entered,                    this, &RechercheDossier::afficheBulle);
 
+    m_parNom    ->setChecked(true);
+
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
+-- Basculer le mode de recherche du dossier (DDN ou Nom/Prenom) -------------
+-----------------------------------------------------------------------------------------------------------------*/
+void    RechercheDossier::RegleAffichage()
+{
+    m_ddn->setDate(m_datepardefaut);
+    m_mode      = (m_parNom->isChecked()? RechercheParNom : RechercheParDDN);
+    bool a      = (m_mode == RechercheParNom);
+    m_nom       ->setVisible(a);
+    lNom        ->setVisible(a);
+    m_prenom    ->setVisible(a);
+    lPre        ->setVisible(a);
+    m_ddn       ->setVisible(!a);
+    lDdn        ->setVisible(!a);
+    if (a)
+        m_nom   ->setFocus();
+    else
+        m_ddn   ->setFocus();
     rechercher();
 }
 
@@ -215,42 +258,62 @@ void RechercheDossier::afficheBulle(const QModelIndex &index)
 void RechercheDossier::rechercher()
 {
     m_model->removeRows(0, m_model->rowCount());
-
-    // Construction des critères selon les cases cochées.
-    QStringList conds;
-    if (m_parNom->isChecked()) {
-        QString nom = m_nom->text().trimmed().toUpper();
-        QString pre = m_prenom->text().trimmed().toUpper();
-        if (!nom.isEmpty()) { nom.replace("'", "''"); conds << "UPPER(PatNom) LIKE '" + nom + "%'"; }
-        if (!pre.isEmpty()) { pre.replace("'", "''"); conds << "UPPER(PatPrenom) LIKE '" + pre + "%'"; }
+    switch (m_mode) {
+    case RechercheParNom:
+        Datas::I()->patients->initListeTable(m_nom->text(), m_prenom->text(), true);
+        UpStandardItem *pitem1, *pitem2, *pitem3;
+        for (auto it = Datas::I()->patients->patientstable()->constBegin(); it != Datas::I()->patients->patientstable()->constEnd(); ++it)
+        {
+            Patient *pat = const_cast<Patient*>(it.value());
+            pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                  // Nom + Prénom
+            pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);           // date de naissance
+            pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                 // date de naissance inversée   -> utilisé pour le tri => pas de tr()
+            m_model->appendRow(QList<QStandardItem *>() << pitem1 << pitem2 << pitem3);
+        }
+        break;
+    case RechercheParDDN:
+        Datas::I()->patients->initListeByDDN(m_ddn->date());
+        for (auto it = Datas::I()->patients->patientstable()->constBegin(); it != Datas::I()->patients->patientstable()->constEnd(); ++it)
+        {
+            Patient *pat = const_cast<Patient*>(it.value());
+            pitem1  = new UpStandardItem(pat->nom().toUpper() + " " + pat->prenom(), pat);                  // Nom + Prénom
+            pitem2  = new UpStandardItem(pat->datedenaissance().toString(tr("dd-MM-yyyy")), pat);           // date de naissance
+            pitem3  = new UpStandardItem(pat->datedenaissance().toString("yyyyMMdd"), pat);                 // date de naissance inversée   -> utilisé pour le tri => pas de tr()
+            m_model->appendRow(QList<QStandardItem *>() << pitem1 << pitem2 << pitem3);
+        }
+        break;
+    default:
+        break;
     }
-    if (m_parDdn->isChecked())
-        conds << "PatDDN = '" + m_ddn->date().toString("yyyy-MM-dd") + "'";
+    if (m_DDNsortmodel == Q_NULLPTR)
+        m_DDNsortmodel = new QSortFilterProxyModel();
+    m_DDNsortmodel->setSourceModel(m_model);
+    m_DDNsortmodel->sort(2);
 
-    if (conds.isEmpty()) {
-        m_total->setText(tr("Cochez un critère et saisissez une valeur."));
-        return;
+    if (m_prenomfiltersortmodel == Q_NULLPTR)
+        m_prenomfiltersortmodel = new QSortFilterProxyModel();
+    m_prenomfiltersortmodel->setSourceModel(m_DDNsortmodel);
+    m_prenomfiltersortmodel->sort(1);
+    m_prenomfiltersortmodel->setFilterKeyColumn(1);
+
+    if (m_listepatientsproxymodel == Q_NULLPTR)
+        m_listepatientsproxymodel = new QSortFilterProxyModel();
+    m_listepatientsproxymodel->setSourceModel(m_prenomfiltersortmodel);
+    m_listepatientsproxymodel->sort(0);
+    m_listepatientsproxymodel->setFilterKeyColumn(0);
+
+    m_table->setModel(m_listepatientsproxymodel);
+    qint64 a = m_model->rowCount();
+    switch (a) {
+    case 0:
+        m_total->setText(tr("aucun dossier pour ces critères"));
+        break;
+    case 1:
+        m_total->setText("1 dossier");
+        break;
+    default:
+        if (a == 1000)
+            a = DataBase::I()->countPatientsAll(m_nom->text(), m_prenom->text());
+        m_total->setText(QString::number(a) + " " + tr("dossiers"));
     }
-    const QString where = conds.join(" AND ");
-
-    bool ok = false;
-    const QVariantList cnt = m_db->getFirstRecordFromStandardSelectSQL(
-                "SELECT COUNT(*) FROM " TBL_PATIENTS " WHERE " + where, ok);
-    const int total = (ok && !cnt.isEmpty()) ? cnt.at(0).toInt() : 0;
-
-    const QList<QVariantList> lignes = m_db->StandardSelectSQL(
-                "SELECT idPat, PatNom, PatPrenom, PatDDN FROM " TBL_PATIENTS " WHERE " + where
-                + " ORDER BY PatNom, PatPrenom LIMIT 50", ok);
-    for (const QVariantList &l : lignes) {
-        UpStandardItem *c0 = new UpStandardItem(l.at(1).toString().toUpper() + " " + Utils::trimcapitilize(l.at(2).toString()));
-        c0->setListids(QList<int>{ l.at(0).toInt() });
-        const QDate d = l.at(3).toDate();
-        UpStandardItem *c1 = new UpStandardItem(d.isValid() ? d.toString("dd-MM-yyyy") : l.at(3).toString());
-        c0->setEditable(false);
-        c1->setEditable(false);
-        m_model->appendRow(QList<QStandardItem*>() << c0 << c1);
-    }
-
-    m_total->setText(total > 50 ? tr("%1 dossiers (50 affichés)").arg(total)
-                                : tr("%1 dossier(s)").arg(total));
 }
