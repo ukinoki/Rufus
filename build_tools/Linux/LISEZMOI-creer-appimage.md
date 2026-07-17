@@ -1,58 +1,40 @@
-# Fabriquer l'AppImage-installeur de Rufus — mémo
+# Créer l'AppImage d'installation de Rufus
 
-Tout tient avec **3 fichiers de ce dossier** :
-
-| Fichier | Rôle |
-|---|---|
-| **`AppRun`** | L'**installeur** : embarqué dans l'AppImage, il s'exécute au lancement et installe Rufus (libs nécessaires + raccourci dans les menus). |
-| **`creer-appimage-installeur.sh`** | Le **fabricant** : compile Rufus, y fusionne l'`AppRun`, et produit l'AppImage. |
-| **`LISEZMOI-creer-appimage.md`** | Ce mémo. |
-
-Les outils (`linuxdeploy`, son plugin Qt, `appimagetool`) sont téléchargés
-automatiquement au premier lancement et gardés en cache — rien à installer soi-même.
+Ce script **fabrique juste le fichier `.AppImage`**. Il n'installe rien sur ton
+ordinateur.
 
 ---
 
-## Prérequis (une fois)
+## La toute première fois seulement
 
-```bash
-sudo apt-get install -y build-essential libfuse2 \
-  libmariadb3 libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev \
-  libpcsclite-dev
+Ouvre un **Terminal**, colle cette ligne, tape Entrée (mot de passe demandé) :
+
+```
+sudo apt-get install -y build-essential libfuse2 libmariadb3 libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev libpcsclite-dev
 ```
 
-> `libpcsclite-dev` fournit les en-têtes PC/SC nécessaires pour **compiler** la
-> lecture de la carte Vitale. (À ne pas confondre avec `pcscd`/`libccid`, qui
-> s'installent côté poste utilisateur, au lancement de l'AppImage.)
+---
 
-Et **Qt installé**. Le script cherche `qmake` tout seul (PATH, puis l'install Qt Creator
-standard `~/Qt/<version>/gcc_64/`). S'il ne le trouve pas, indique-le une fois :
-```bash
-export PATH="$HOME/Qt/6.10.2/gcc_64/bin:$PATH"     # adapte le chemin à ton install
+## Pour fabriquer l'AppImage
+
+1. Ouvre un **Terminal**.
+2. Tape `bash ` (le mot *bash* suivi d'un **espace**) — **ne tape pas Entrée**.
+3. **Glisse le fichier `creer-appimage-installeur.sh`** depuis le gestionnaire de
+   fichiers **dans le Terminal** : son chemin s'écrit tout seul.
+4. Tape **Entrée**. Attends quelques minutes (ça compile).
+
+---
+
+## Où est mon AppImage ?
+
+À la fin, le Terminal affiche :
+
+```
+  AppImage créée : /…/Rufus-JJ-MM-AAAA-x86_64.AppImage
 ```
 
-## Fabriquer
+C'est **ce fichier `Rufus-…-x86_64.AppImage`** (dans le dossier Rufus). C'est lui
+que tu copies sur une clé / que tu installes sur un poste.
 
-```bash
-./build_tools/Linux/creer-appimage-installeur.sh
-```
-
-À la fin : `Rufus-<date>-x86_64.AppImage` à la racine du dépôt.
-
-> Déjà compilé dans Qt Creator ? Passe le binaire pour éviter de recompiler :
-> `./build_tools/Linux/creer-appimage-installeur.sh /chemin/vers/Rufus`
-
-## Installer sur un poste
-
-Lance l'AppImage produite (double-clic, ou `./Rufus-<date>-x86_64.AppImage`).
-Elle s'installe toute seule.
-
-## Si ça coince
-
-- **qmake introuvable** → `export PATH=...` (voir Prérequis).
-- **L'AppImage ne démarre pas** → il manque `libfuse2` sur le poste
-  (`sudo apt-get install -y libfuse2`) : c'est le seul prérequis qui ne peut pas
-  s'auto-installer.
-- Journal d'installation sur un poste : `~/.rufus/install-systeme.log`.
-
-*(Le dossier `old/` contient l'ancien procédé, périmé — à ignorer.)*
+*(Pour installer Rufus sur un poste, ça se passe plus tard, en lançant cette
+AppImage-là — ce n'est pas le rôle de ce script.)*

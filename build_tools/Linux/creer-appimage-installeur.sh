@@ -98,5 +98,6 @@ OUT="${REPO}/Rufus-${VER}-x86_64.AppImage"
 ARCH=x86_64 "${TOOLS}/appimagetool.AppImage" "${APPDIR}" "${OUT}"
 chmod +x "${OUT}"
 echo
-echo "Terminé : ${OUT}"
-echo "Pour installer Rufus : lance simplement cette AppImage (elle s'installe toute seule)."
+echo "======================================================================"
+echo "  AppImage créée : ${OUT}"
+echo "======================================================================"
