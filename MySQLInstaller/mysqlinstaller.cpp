@@ -4154,6 +4154,52 @@ bool MySQLInstaller::setupSharedFolder()
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  Carte Vitale : couche PC/SC (Linux uniquement)
+// ─────────────────────────────────────────────────────────────────────────────
+bool MySQLInstaller::assurerLecteurVitale()
+{
+#if defined(Q_OS_LINUX)
+    // La lecture directe de la carte Vitale s'appuie sur PC/SC : le démon pcscd et le pilote
+    // générique des lecteurs USB (libccid). Sous Ubuntu, aucun des deux n'est présent par défaut.
+    auto estInstalle = [this](const QString& paquet) {
+        return runCmd("dpkg -s " + paquet + " 2>/dev/null").contains("Status: install ok");
+    };
+    if (estInstalle("pcscd") && estInstalle("libccid"))
+        return true;                                    // déjà prêt : aucune invite
+
+    if (!askYesNo(tr("Lecteur de carte Vitale"),
+                  tr("La lecture des cartes Vitale nécessite un composant système (pcscd, libccid), "
+                     "absent de cette machine.\nL'installer maintenant ?")))
+        return false;
+
+    // Une seule élévation (pkexec) : apt-get install + activation du démon pcscd, avec barre de
+    // progression réelle (apt écrit son avancement sur APT::Status-Fd), comme l'installation MySQL.
+    const QString aptScript = QDir::tempPath() + "/rufus_pcsc_install.sh";
+    {
+        QFile f(aptScript);
+        if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream ts(&f);
+            ts << "#!/bin/sh\n"
+               << "apt-get update >/dev/null 2>&1\n"
+               << "DEBIAN_FRONTEND=noninteractive apt-get -o APT::Status-Fd=1 "
+                  "install -y pcscd libccid 2>/dev/null | "
+                  "awk -F: '/^(pmstatus|dlstatus)/ { printf \"PROGRESS %d 100\\n\", $3; fflush() }'\n"
+               << "systemctl enable --now pcscd.socket 2>/dev/null "
+                  "|| systemctl enable --now pcscd 2>/dev/null || true\n";
+            f.close();
+        }
+    }
+    runLongOpProgress("pkexec sh '" + aptScript + "'",
+                      tr("Installation du lecteur de carte Vitale…"), 300000);
+    QFile::remove(aptScript);
+
+    return estInstalle("pcscd") && estInstalle("libccid");
+#else
+    return true;   // Windows : winscard intégré ; macOS : framework PCSC intégré
+#endif
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  Variables MySQL
 // ─────────────────────────────────────────────────────────────────────────────
 QString MySQLInstaller::writeCnfToTemp(const QList<QPair<QString, QString>>& vars)
