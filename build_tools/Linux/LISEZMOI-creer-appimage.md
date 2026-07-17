@@ -17,8 +17,13 @@ automatiquement au premier lancement et gardés en cache — rien à installer s
 
 ```bash
 sudo apt-get install -y build-essential libfuse2 \
-  libmariadb3 libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev
+  libmariadb3 libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev \
+  libpcsclite-dev
 ```
+
+> `libpcsclite-dev` fournit les en-têtes PC/SC nécessaires pour **compiler** la
+> lecture de la carte Vitale. (À ne pas confondre avec `pcscd`/`libccid`, qui
+> s'installent côté poste utilisateur, au lancement de l'AppImage.)
 
 Et **Qt installé**. Le script cherche `qmake` tout seul (PATH, puis l'install Qt Creator
 standard `~/Qt/<version>/gcc_64/`). S'il ne le trouve pas, indique-le une fois :

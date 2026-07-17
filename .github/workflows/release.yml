@@ -62,9 +62,13 @@ jobs:
           # « Conflicts » et feraient échouer apt) pour qu'il se charge au runtime,
           # quel que soit celui contre lequel Qt a été construit. linuxdeploy
           # embarquera ensuite la lib utile dans l'AppImage.
+          # libpcsclite-dev : en-têtes PC/SC + lib pour compiler/lier lecteurvitale.cpp
+          # (lecture directe de la carte Vitale). linuxdeploy embarque ensuite
+          # libpcsclite.so.1 dans l'AppImage ; le démon pcscd, lui, s'installe côté poste.
           sudo apt-get install -y \
             libmariadb3 libmysqlclient21 \
-            libfuse2 libgl1-mesa-dev libxkbcommon-dev
+            libfuse2 libgl1-mesa-dev libxkbcommon-dev \
+            libpcsclite-dev
 
       - name: Compiler (qmake + make, Release)
         run: |
