@@ -166,7 +166,10 @@ LIBS += -lUser32
 # trois plateformes ; seule la bibliothèque à lier change.
 win32:      LIBS += -lwinscard
 macx:       LIBS += -framework PCSC
-unix:!macx: LIBS += -lpcsclite
+# Linux (pcsc-lite) : les en-têtes sont dans /usr/include/PCSC, et winscard.h y inclut <pcsclite.h>
+# SANS préfixe -> il faut ce dossier dans le chemin d'inclusion (fourni par libpcsclite-dev).
+unix:!macx: INCLUDEPATH += /usr/include/PCSC
+unix:!macx: LIBS        += -lpcsclite
 
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \
