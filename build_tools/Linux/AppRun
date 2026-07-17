@@ -198,6 +198,19 @@ composants_systeme_presents() {
     return 0
 }
 
+# Combien de composants requis manquent (paquets absents + éventuellement le groupe dialout) ?
+# Sert à adapter le message : « un composant manque » (court) vs « installer tous les composants ».
+nb_composants_manquants() {
+    local n=0 p
+    if command -v dpkg-query >/dev/null 2>&1; then
+        for p in ${PAQUETS_REQUIS}; do
+            [ "$(dpkg-query -W -f='${db:Status-Status}' "$p" 2>/dev/null)" = "installed" ] || n=$((n+1))
+        done
+    fi
+    id -nG "$(id -un)" 2>/dev/null | tr ' ' '\n' | grep -qx dialout || n=$((n+1))
+    echo "${n}"
+}
+
 # ── Choix de la langue de l'installation (1re fenêtre) ────────────────────────
 # Présélection : 1) langue du POSTE si Rufus.ini existe (clé [Param_Poste] Version,
 # cohérent avec les preinstallers macOS/Windows) ; 2) sinon locale du système ;
@@ -256,6 +269,8 @@ definir_textes() {
     MSG_CFG_BODY="Rufus va installer quelques composants système nécessaires :\n  •  polices (affichage et impression des documents)\n  •  lecture des vidéos (GStreamer)\n  •  client MySQL (sauvegarde / restauration)\n  •  accès aux appareils de mesure sur port série\n\nLe mot de passe administrateur vous sera demandé."
     MSG_CFG_OK="Installer maintenant"
     MSG_CFG_CANCEL="Annuler"
+    MSG_MAJ_TITLE="Mise à jour de Rufus"
+    MSG_MAJ_BODY="Un composant système manque et va être installé.\n\nLe mot de passe administrateur vous sera demandé."
     MSG_CANCEL_TITLE="Installation interrompue"
     MSG_CANCEL_BODY="La configuration du système a été annulée.\n\nRufus a besoin de ces composants pour fonctionner :\nrelancez l'installation quand vous serez prêt."
     MSG_PKEXEC_TITLE="Installation manuelle requise"
@@ -287,6 +302,8 @@ definir_textes() {
         MSG_CFG_BODY="Rufus will install a few required system components:\n  •  fonts (display and printing of documents)\n  •  video playback (GStreamer)\n  •  MySQL client (backup / restore)\n  •  access to serial measurement devices\n\nYou will be asked for the administrator password."
         MSG_CFG_OK="Install now"
         MSG_CFG_CANCEL="Cancel"
+        MSG_MAJ_TITLE="Updating Rufus"
+        MSG_MAJ_BODY="One system component is missing and will be installed.\n\nYou will be asked for the administrator password."
         MSG_CANCEL_TITLE="Installation cancelled"
         MSG_CANCEL_BODY="System configuration was cancelled.\n\nRufus needs these components to work:\nrun the installation again when you are ready."
         MSG_PKEXEC_TITLE="Manual installation required"
@@ -317,6 +334,8 @@ definir_textes() {
         MSG_CFG_BODY="Rufus instalará algunos componentes del sistema necesarios:\n  •  tipografías (visualización e impresión de documentos)\n  •  reproducción de vídeo (GStreamer)\n  •  cliente MySQL (copia de seguridad / restauración)\n  •  acceso a los dispositivos de medición por puerto serie\n\nSe le pedirá la contraseña de administrador."
         MSG_CFG_OK="Instalar ahora"
         MSG_CFG_CANCEL="Cancelar"
+        MSG_MAJ_TITLE="Actualización de Rufus"
+        MSG_MAJ_BODY="Falta un componente del sistema y se instalará.\n\nSe le pedirá la contraseña de administrador."
         MSG_CANCEL_TITLE="Instalación interrumpida"
         MSG_CANCEL_BODY="La configuración del sistema se canceló.\n\nRufus necesita estos componentes para funcionar:\nvuelva a ejecutar la instalación cuando esté listo."
         MSG_PKEXEC_TITLE="Instalación manual necesaria"
@@ -347,6 +366,8 @@ definir_textes() {
         MSG_CFG_BODY="O Rufus vai instalar alguns componentes de sistema necessários:\n  •  tipos de letra (visualização e impressão de documentos)\n  •  reprodução de vídeo (GStreamer)\n  •  cliente MySQL (cópia de segurança / restauro)\n  •  acesso aos aparelhos de medição na porta série\n\nA palavra-passe de administrador ser-lhe-á pedida."
         MSG_CFG_OK="Instalar agora"
         MSG_CFG_CANCEL="Cancelar"
+        MSG_MAJ_TITLE="Atualização do Rufus"
+        MSG_MAJ_BODY="Falta um componente de sistema e vai ser instalado.\n\nA palavra-passe de administrador ser-lhe-á pedida."
         MSG_CANCEL_TITLE="Instalação interrompida"
         MSG_CANCEL_BODY="A configuração do sistema foi cancelada.\n\nO Rufus precisa destes componentes para funcionar:\nexecute novamente a instalação quando estiver pronto."
         MSG_PKEXEC_TITLE="Instalação manual necessária"
@@ -399,8 +420,16 @@ configurer_systeme() {
         return 0
     fi
 
-    zenity --question --no-wrap --title="${MSG_CFG_TITLE}" \
-        --text="${MSG_CFG_BODY}" \
+    # Un seul composant manquant (typiquement une mise à jour qui a ajouté une lib, ex. pcscd) :
+    # message COURT, pour ne pas laisser croire à une réinstallation complète. Plusieurs manquants
+    # (première installation) : message détaillé listant les composants.
+    local titre_cfg="${MSG_CFG_TITLE}" corps_cfg="${MSG_CFG_BODY}"
+    if [ "$(nb_composants_manquants)" -le 1 ]; then
+        titre_cfg="${MSG_MAJ_TITLE}"
+        corps_cfg="${MSG_MAJ_BODY}"
+    fi
+    zenity --question --no-wrap --title="${titre_cfg}" \
+        --text="${corps_cfg}" \
         --ok-label="${MSG_CFG_OK}" --cancel-label="${MSG_CFG_CANCEL}" 2>/dev/null || {
             zenity --error --no-wrap --title="${MSG_CANCEL_TITLE}" \
                 --text="${MSG_CANCEL_BODY}" 2>/dev/null
