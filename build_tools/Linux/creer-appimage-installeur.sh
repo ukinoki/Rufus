@@ -25,10 +25,15 @@ TOOLS="${HOME}/.cache/rufus-appimage-tools"   # outils téléchargés une fois
 # Version = date de sortie, lue dans rufus.cpp : setApplicationVersion("10-06-2026/1")
 VER="$(grep -oP 'setApplicationVersion\("\K[^"/]+' "${REPO}/rufus.cpp" | head -n1)"
 
-# Qt : nécessaire pour compiler ET pour embarquer Qt dans l'AppImage.
+# Qt : nécessaire pour compiler ET pour embarquer Qt dans l'AppImage. On cherche qmake dans
+# l'ordre : 1) variable QMAKE si tu l'as posée ; 2) qmake/qmake6 dans le PATH ; 3) repli sur
+# l'install Qt Creator standard ~/Qt/<version>/gcc_64/bin (on prend la version la plus récente).
 QMAKE="${QMAKE:-$(command -v qmake6 || command -v qmake || true)}"
 if [ -z "${QMAKE}" ]; then
-    echo "ERREUR : qmake introuvable. Ajoute Qt au PATH, ex :" >&2
+    QMAKE="$(ls -d "${HOME}"/Qt/*/gcc_64/bin/qmake 2>/dev/null | sort -V | tail -n1)"
+fi
+if [ -z "${QMAKE}" ]; then
+    echo "ERREUR : qmake introuvable. Indique Qt, par exemple :" >&2
     echo '   export PATH="$HOME/Qt/6.10.2/gcc_64/bin:$PATH"' >&2
     exit 1
 fi

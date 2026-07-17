@@ -20,7 +20,8 @@ sudo apt-get install -y build-essential libfuse2 \
   libmariadb3 libmysqlclient21 libgl1-mesa-dev libxkbcommon-dev
 ```
 
-Et **Qt accessible** (qmake dans le PATH). Si besoin :
+Et **Qt installé**. Le script cherche `qmake` tout seul (PATH, puis l'install Qt Creator
+standard `~/Qt/<version>/gcc_64/`). S'il ne le trouve pas, indique-le une fois :
 ```bash
 export PATH="$HOME/Qt/6.10.2/gcc_64/bin:$PATH"     # adapte le chemin à ton install
 ```
