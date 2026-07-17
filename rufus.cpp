@@ -7763,7 +7763,7 @@ void    Rufus::CalcNbDossiers()
         ui->label_15->setText(tr("aucun dossier pour ces critères"));
         break;
     case 1:
-        ui->label_15->setText("1 dossier");
+        ui->label_15->setText(tr("1 dossier"));
         break;
     default:
         if (a == 1000)
