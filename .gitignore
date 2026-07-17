@@ -8,6 +8,9 @@ build
 build/
 bin/
 obj/
+# Fabrication locale de l'AppImage (creer-appimage-installeur.sh)
+build-appimage/
+Rufus-*-x86_64.AppImage
 assets/Fichiers/.DS_Store
 assets/.DS_Store
 assets/Fichiers/.DS_Store
