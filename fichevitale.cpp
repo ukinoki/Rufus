@@ -337,22 +337,26 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     if (u != nullptr && u->isSoignant())
         {
         UpPushButton *btnOuvrir = new UpPushButton(tr("Ouvrir le dossier"));
+        btnOuvrir->setIcon(Icons::icSortirDossier());
         AjouteWidgetLayButtons(btnOuvrir);
         connect(btnOuvrir, &QPushButton::clicked, this, [this] {
             const int id = idCorrespChoisi();
             if (id > 0) { m_action = Ouvrir; m_idDossierActive = id; accept(); } });
         }
     UpPushButton *btnSalle = new UpPushButton(tr("Inscrire en salle d'attente"));
+    btnSalle->setIcon(Icons::icAttente());
     AjouteWidgetLayButtons(btnSalle);
     connect(btnSalle, &QPushButton::clicked, this, [this] {
         const int id = idCorrespChoisi();
         if (id > 0) { m_action = SalleAttente; m_idDossierActive = id; accept(); } });
 
     UpPushButton *btnCreer = new UpPushButton(tr("Créer le dossier"));
+    btnCreer->setIcon(Icons::icCreer());
     AjouteWidgetLayButtons(btnCreer);
     connect(btnCreer, &QPushButton::clicked, this, [this] { m_action = Creer; accept(); });
 
     UpPushButton *btnAnnuler = new UpPushButton(tr("Annuler"));
+    btnAnnuler->setIcon(Icons::icAnnuler());
     AjouteWidgetLayButtons(btnAnnuler);
     connect(btnAnnuler, &QPushButton::clicked, this, &QDialog::reject);
 

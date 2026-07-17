@@ -36,6 +36,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QStandardItemModel>
+#include <QItemSelectionModel>
 #include <QHeaderView>
 #include <QFontMetrics>
 #include <QApplication>
@@ -159,6 +160,11 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+
+    // OK n'a de sens qu'avec un dossier sélectionné : grisé tant qu'aucune ligne n'est choisie.
+    OKButton->setEnabled(false);
+    connect(m_table->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
+        OKButton->setEnabled(!m_table->selectionModel()->selectedRows().isEmpty()); });
 
     // OK : on mémorise le dossier sélectionné puis on ferme.
     connect(OKButton, &QPushButton::clicked, this, [this] {

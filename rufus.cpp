@@ -10817,9 +10817,7 @@ void Rufus::LireLaCV()
         UpMessageBox::Watch(this, tr("Carte Vitale"), err);
         return;
         }
-    FicheVitale fiche(lecteur.porteurs(), this);
-    fiche.exec();
-    ActiverResultatVitale(fiche);
+    ExploiteCarteVitale(lecteur.porteurs(), tr("Carte Vitale"));
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10833,17 +10831,35 @@ void Rufus::SimulerLireCV()
     porteurs.append(LecteurVitale::Porteur{ "SCALETTA", "HELENE",     "21/08/1968", "268081315501324" });  // assurée (NIR = carte de test)
     porteurs.append(LecteurVitale::Porteur{ "SABAH",    "ANDREA",     "01/03/2000" });                     // ayant droit
     porteurs.append(LecteurVitale::Porteur{ "GIMENEZ",  "CLEMENTINE", "22/07/2006" });                     // ayant droit
-    FicheVitale fiche(porteurs, this);
-    fiche.setWindowTitle(tr("Carte Vitale (simulation)"));
-    fiche.exec();
-    ActiverResultatVitale(fiche);
+    ExploiteCarteVitale(porteurs, tr("Carte Vitale (simulation)"));
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
+    Affiche la fiche Carte Vitale et la RÉ-AFFICHE tant que l'action choisie a été annulée (création
+    abandonnée, motif de salle d'attente annulé…) : on revient à la fiche, pas à la fenêtre principale.
+    On sort dès que l'action aboutit ou que l'utilisateur ferme la fiche (Annuler).
+-----------------------------------------------------------------------------------------------------------------*/
+void Rufus::ExploiteCarteVitale(const QList<LecteurVitale::Porteur> &porteurs, const QString &titre)
+{
+    forever
+        {
+        FicheVitale fiche(porteurs, this);
+        fiche.setWindowTitle(titre);
+        if (fiche.exec() != QDialog::Accepted)      // Annuler / fermeture de la fiche
+            return;
+        if (ActiverResultatVitale(fiche))           // action menée à bien
+            return;
+        // sinon : action annulée -> on ré-affiche la fiche
+        }
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
     Dossier choisi dans la fiche Carte Vitale : un soignant l'ouvre, un non-soignant l'inscrit en
-    salle d'attente. La décision est prise UNE seule fois, ici, selon le rôle de l'utilisateur.
+    salle d'attente ; « Créer » lance une création pré-remplie. La décision est prise UNE seule fois,
+    ici, selon le rôle de l'utilisateur. Au passage, on complète le NNI du dossier s'il manque.
+    Renvoie false si l'action a été annulée (pour revenir à la fiche).
 -----------------------------------------------------------------------------------------------------------------*/
-void Rufus::ActiverResultatVitale(FicheVitale &fiche)
+bool Rufus::ActiverResultatVitale(FicheVitale &fiche)
 {
     switch (fiche.action())
         {
@@ -10852,29 +10868,126 @@ void Rufus::ActiverResultatVitale(FicheVitale &fiche)
             {
             Patient *pat = Datas::I()->patients->getById(fiche.idDossierActive(), Item::LoadDetails);
             if (pat == Q_NULLPTR)
-                return;
+                return true;                        // dossier introuvable : rien à refaire
+            CompleteNNIdepuisCV(pat, fiche.porteurCourant());
             // Ouvrir n'est possible que pour un soignant (garde-fou) ; sinon, salle d'attente.
             if (fiche.action() == FicheVitale::Ouvrir && currentuser()->isSoignant())
+                {
                 OuvrirDossier(pat);
-            else
-                InscritEnSalDat(pat);
-            break;
+                return true;
+                }
+            return InscritEnSalDat(pat);            // false (motif annulé) -> retour à la fiche
             }
         case FicheVitale::Creer:
-            {
-            // Création d'un dossier pré-rempli avec la personne lue sur la carte.
-            const LecteurVitale::Porteur p = fiche.porteurCourant();
-            ModeCreationDossier();
-            ui->CreerNomlineEdit->setText(p.nom);
-            ui->CreerPrenomlineEdit->setText(p.prenom);
-            const QDate ddn = QDate::fromString(p.dateNaissance, "dd/MM/yyyy");
-            if (ddn.isValid())
-                ui->CreerDDNdateEdit->setDate(ddn);
-            break;
-            }
+            return CreerDossierDepuisCV(fiche.porteurCourant());
         default:
-            break;
+            return true;
         }
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
+    Complète le NNI d'un dossier à partir de la carte, UNIQUEMENT s'il est absent et en France (le NNI
+    est franco-français). On ne demande rien à l'utilisateur : la carte fait foi.
+-----------------------------------------------------------------------------------------------------------------*/
+void Rufus::CompleteNNIdepuisCV(Patient *pat, const LecteurVitale::Porteur &porteur)
+{
+    if (pat == Q_NULLPTR || pat->NNI() > 0)         // déjà renseigné : on ne touche à rien
+        return;
+    if (!db->parametres()->cotationsfrance())
+        return;
+    bool num = false;
+    const qlonglong nni = porteur.nir.toLongLong(&num);
+    if (num && nni > 0)
+        {
+        ItemsList::update(pat, CP_NNI_DSP, nni);
+        pat->setNNI(nni);
+        }
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
+    Création d'un dossier pré-rempli avec la personne lue sur la carte, calquée sur CreerDossier() : on
+    cherche d'abord un dossier déjà existant, sinon on ébauche le dossier et on ouvre la fiche d'identité
+    (modale). Renvoie false si la création est annulée -> on revient à la fiche Carte Vitale.
+-----------------------------------------------------------------------------------------------------------------*/
+bool Rufus::CreerDossierDepuisCV(const LecteurVitale::Porteur &porteur)
+{
+    const QString nom    = Utils::trimcapitilize(porteur.nom, true);
+    const QString prenom = Utils::trimcapitilize(porteur.prenom, true);
+    const QDate   ddn    = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
+    const QString ddnSQL = ddn.toString("yyyy-MM-dd");
+
+    // 1) Le dossier existe-t-il déjà ? (même filet que la création normale)
+    const int idPat = RecherchePatient(nom, prenom, ddnSQL, tr("Impossible de rechercher le dossier"));
+    if (idPat == -1)
+        return false;                               // erreur pendant la recherche -> retour à la fiche
+    if (idPat > 0)                                  // déjà présent : on complète le NNI et on l'active
+        {
+        UpMessageBox::Watch(this, tr("Ce patient est déjà venu!"));
+        Patient *pat = Datas::I()->patients->getById(idPat, Item::LoadDetails);
+        CompleteNNIdepuisCV(pat, porteur);
+        if (currentuser()->isSoignant())
+            {
+            OuvrirDossier(pat);
+            return true;
+            }
+        return InscritEnSalDat(pat);
+        }
+
+    // 2) Création : on ébauche le dossier puis on ouvre la fiche d'identité (modale).
+    QHash<QString, QVariant> binds;
+    binds[CP_NOM_PATIENTS]    = nom;
+    binds[CP_PRENOM_PATIENTS] = prenom;
+    binds[CP_DDN_PATIENTS]    = ddnSQL;
+    Patient *pat = Patients::CreationPatient(binds);
+    if (pat == Q_NULLPTR)
+        return false;
+
+    if (!IdentificationPatient(dlg_identificationpatient::Creation, pat))
+        {
+        // Annulé : on supprime l'ébauche et on revient à la fiche Carte Vitale.
+        Datas::I()->patientsencours->SupprimePatientEnCours(Datas::I()->patientsencours->getById(pat->id()));
+        Datas::I()->patients->SupprimePatient(pat);
+        return false;
+        }
+
+    CompleteNNIdepuisCV(pat, porteur);
+    FiltreTable(pat->nom(), pat->prenom());
+
+    // 3) Après création : soignant -> ouvrir ou salle d'attente ; sinon -> salle d'attente (comme CreerDossier).
+    if (currentuser()->isSoignant())
+        {
+        UpMessageBox msgbox(this);
+        msgbox.setText(tr("Dossier ") + pat->prenom() + " " + pat->nom() + tr(" créé"));
+        msgbox.setInformativeText(tr("Ouvrir le dossier ou inscrire le dossier en salle d'attente?"));
+        msgbox.setIcon(UpMessageBox::Quest);
+        UpSmallButton SalDatBouton(tr("Inscrire le dossier\nen salle d'attente"));
+        UpSmallButton OuvrirBouton(tr("Ouvrir le dossier"));
+        UpSmallButton NeRienFaireBouton(tr("Ne rien faire"));
+        msgbox.addButton(&NeRienFaireBouton, UpSmallButton::CLOSEBUTTON);
+        msgbox.addButton(&SalDatBouton, UpSmallButton::NOBUTTON);
+        msgbox.addButton(&OuvrirBouton, UpSmallButton::NOBUTTON);
+        SalDatBouton.setIcon(Icons::icAttente());
+        OuvrirBouton.setIcon(Icons::icSortirDossier());
+        msgbox.setDefaultButton(&NeRienFaireBouton);
+        msgbox.exec();
+        if (msgbox.clickedButton() == &SalDatBouton)
+            {
+            if (!InscritEnSalDat(pat))
+                RecaleTableView(pat);
+            }
+        else if (msgbox.clickedButton() == &OuvrirBouton)
+            {
+            Datas::I()->patients->setcurrentpatient(pat);
+            CreerActe(pat);
+            AfficheDossier(pat);
+            }
+        else
+            RecaleTableView(pat);
+        }
+    else
+        if (!InscritEnSalDat(pat))
+            RecaleTableView(pat);
+    return true;
 }
 
 void Rufus::TesteConnexion()

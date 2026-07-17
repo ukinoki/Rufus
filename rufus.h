@@ -231,7 +231,10 @@ private:
     void        ImprimeListActes(QList<Acte *> listeactes, bool toutledossier = true, bool queLePdf = false, QString  nomdossier = "");
     void        LireLaCV();
     void        SimulerLireCV();     // DEV : fausse lecture de carte (sans lecteur)
-    void        ActiverResultatVitale(FicheVitale &fiche);      // exécute l'action choisie dans la fiche Carte Vitale
+    void        ExploiteCarteVitale(const QList<LecteurVitale::Porteur> &porteurs, const QString &titre);  // affiche la fiche et la ré-affiche tant que l'action est annulée
+    bool        ActiverResultatVitale(FicheVitale &fiche);      // exécute l'action choisie ; false = annulée -> on revient à la fiche
+    bool        CreerDossierDepuisCV(const LecteurVitale::Porteur &porteur);   // création pré-remplie ; false = annulée -> on revient à la fiche
+    void        CompleteNNIdepuisCV(Patient *pat, const LecteurVitale::Porteur &porteur);   // complète le NNI du dossier s'il manque (France)
     void        ListeCorrespondants();
     void        ListeIOLs();
     void        ListeManufacturers();
