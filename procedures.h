@@ -37,6 +37,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPlainTextEdit>
 #include <QPainter>
 #include <QPrinter>
+#include <functional>
 #include <QPrintPreviewDialog>
 #include <QPrintDialog>
 #include <QProgressBar>
@@ -421,8 +422,9 @@ signals:
                                 /*! calcule la durée approximative du backup */
         void                    DefinitScriptBackup(QString pathbackupbase);
                                 /*! crée le script RufusScriptBackup.sh qui va éxécuter la sauvegarde */
-        int                     ExecuteScriptSQL(QStringList ListScripts);
-                                /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.) */
+        int                     ExecuteScriptSQL(QStringList ListScripts, std::function<void()> onProgress = nullptr);
+                                /*! Exécute une liste de scripts SQL (restauration de la base MySQL p.e.).
+                                    onProgress (optionnel) est appelé régulièrement pendant l'exécution → suivi de progression. */
 
     /*! fin sauvegardes -------------------------------------------------------------------------------------------------------- */
 

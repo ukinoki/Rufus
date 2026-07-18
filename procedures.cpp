@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "mysqlinstaller.h"
+#include <QElapsedTimer>
 #include <QEventLoop>
 
 Procedures* Procedures::instance =  Q_NULLPTR;
@@ -1087,7 +1088,7 @@ void Procedures::setDirSSLKeys()
  * \param ListScripts
  * Execute une liste de scripts SQL
  */
-int Procedures::ExecuteScriptSQL(QStringList ListScripts)
+int Procedures::ExecuteScriptSQL(QStringList ListScripts, std::function<void()> onProgress)
 {
     int a = 99;
 
@@ -1141,6 +1142,7 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             {
                 if (dumpProcess.waitForFinished(50))
                     break;
+                if (onProgress) onProgress();   //! suivi de progression (ex. tables déjà restaurées)
                 QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 40);
             }
 
@@ -2503,6 +2505,28 @@ static QString libelleTablesFichierSQL(const QString& chemin)
     return tables.isEmpty() ? base : base + " : " + tables.join(", ");
 }
 
+//! Nombre de tables d'un fichier .sql, en comptant le marqueur mysqldump « Table structure for table `X` »
+//! par LECTURE EN MORCEAUX (64 Ko) : mémoire bornée, indispensable pour les sauvegardes qui peuvent peser
+//! plusieurs Go. `reste` reporte la fin d'un morceau au suivant pour ne pas rater un marqueur à cheval.
+static int compterTablesFichierSQL(const QString& chemin)
+{
+    QFile f(chemin);
+    if (!f.open(QIODevice::ReadOnly))
+        return 0;
+    static const QByteArray marqueur = "Table structure for table `";
+    int n = 0;
+    QByteArray reste;
+    while (!f.atEnd())
+    {
+        const QByteArray morceau = reste + f.read(1 << 16);
+        int idx = 0;
+        while ((idx = morceau.indexOf(marqueur, idx)) != -1) { ++n; idx += marqueur.size(); }
+        reste = morceau.right(marqueur.size() - 1);   // < taille d'un marqueur → jamais de double comptage
+    }
+    f.close();
+    return n;
+}
+
 bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
     UpMessageBox    msgbox(parent);
@@ -2818,24 +2842,49 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             db->VideDatabases();
 
-                            //! Restauration base par base, avec la MÊME fiche de progression que la base
-                            //! vierge (une base = un fichier .sql, restauré l'un après l'autre). On affiche
-                            //! le NOM de la base en cours ; on ne lit PAS le contenu des .sql — ceux d'une
-                            //! sauvegarde peuvent être très gros (données), coûteux à parcourir.
-                            UpProgressDialog *progdial = new UpProgressDialog(0, listnomsfilestorestore.size(), parent);
+                            //! Progression PAR TABLE, comme la sauvegarde. Ici mysql LIT un .sql déjà
+                            //! complet : on ne peut pas suivre sa position. Le bon signal est la base qui se
+                            //! REMPLIT → on interroge information_schema (tables créées) pendant que mysql
+                            //! travaille (callback appelé par ExecuteScriptSQL). Total N = nombre de marqueurs
+                            //! « Table structure » dans les .sql (comptés en morceaux → mémoire bornée).
+                            int totalTables = 0;
+                            for (const QString& f : listnomsfilestorestore)
+                                totalTables += compterTablesFichierSQL(f);
+                            totalTables = qMax(1, totalTables);
+                            const QString schemas = "'" DB_RUFUS "','" DB_COMPTA "','" DB_IMAGES "','" DB_OPHTA "'";
+
+                            UpProgressDialog *progdial = new UpProgressDialog(0, totalTables, parent);
+                            progdial->setLabelText(tr("Restauration de la base en cours…"));
                             progdial->show();
+                            qApp->processEvents();
+
+                            //! Appelé régulièrement par ExecuteScriptSQL : compte les tables déjà restaurées
+                            //! et la dernière créée. Limité à ~1 interrogation / 400 ms (ne pas surcharger le
+                            //! serveur qui restaure en même temps).
+                            QElapsedTimer chrono; chrono.start();
+                            auto majProgres = [&]() {
+                                if (chrono.elapsed() < 400) return;
+                                chrono.restart();
+                                bool ok = false;
+                                QVariantList c = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+                                    "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA IN (" + schemas + ")", ok);
+                                const int done = (ok && !c.isEmpty()) ? c.at(0).toInt() : progdial->value();
+                                ok = false;
+                                QVariantList t = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+                                    "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA IN (" + schemas + ") ORDER BY CREATE_TIME DESC, TABLE_NAME DESC LIMIT 1", ok);
+                                const QString table = (ok && !t.isEmpty()) ? t.at(0).toString() : QString();
+                                progdial->setValue(done);
+                                progdial->setLabelText(tr("Restauration de la base en cours…") + "\n\n"
+                                    + QString("%1/%2   —   ").arg(done).arg(totalTables) + tr("table ") + table);
+                            };
                             int a = 0;
                             for (int i = 0; i < listnomsfilestorestore.size(); i++)
                             {
-                                progdial->setValue(i);
-                                progdial->setLabelText(tr("Restauration de la base en cours…") + "\n\n"
-                                                       + QFileInfo(listnomsfilestorestore.at(i)).completeBaseName());
-                                qApp->processEvents();
-                                a = ExecuteScriptSQL(QStringList() << listnomsfilestorestore.at(i));
+                                a = ExecuteScriptSQL(QStringList() << listnomsfilestorestore.at(i), majProgres);
                                 if (a != 0)
                                     break;
                             }
-                            progdial->setValue(listnomsfilestorestore.size());
+                            progdial->setValue(totalTables);
                             delete progdial;
                             if (a != 0)
                             {
