@@ -604,7 +604,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         if (!Utils::VerifMDP(MDPAdmin(),tr("Saisissez le mot de passe Administrateur"), mdp, false, parent))
             return false;
     }
-    ShowMessage::I()->PriorityMessage(tr("Sauvegarde de la base Rufus"),handledlg);
     emit ConnectTimers(false);
 
     //On vide les champs blob de la table factures et la table EchangeImages
@@ -655,8 +654,8 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! Boîte de progression PAR TABLE. mysqldump écrit, avant chaque table, le commentaire
         //! « Table structure for table `X` » dans le .sql : on lit toutes les 300 ms les NOUVEAUX
         //! octets de chaque fichier (pas tout le fichier → léger même sur gros dump) pour compter
-        //! les tables déjà écrites et retenir la dernière → « xxx/N — table X ». On ne touche pas au
-        //! dump asynchrone. Les petites tables défilent trop vite pour être lues : peu importe, le
+        //! les tables déjà écrites et retenir la dernière → « xxx/N — table X ». Sans changer le script
+        //! de dump. Les petites tables défilent trop vite pour être lues : peu importe, le
         //! but est de montrer que la machine avance. `etat` = état partagé (offsets, compteur, table).
         EtatBkp *etat = new EtatBkp();
         UpProgressDialog *bkpdial = new UpProgressDialog(0, totalTables, parent);
@@ -695,20 +694,25 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         });
         pollbkp->start(300);
 
-        m_ostask.disconnect(SIGNAL(result(const int &)));
-        connect(&m_ostask, &OsTask::result, this, [=](int a) {
-            pollbkp->stop();
-            pollbkp->deleteLater();
-            bkpdial->setValue(totalTables);
-            bkpdial->close();
-            delete bkpdial;
-            delete etat;
-            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msg : msgEchec), Icons::icSunglasses(), 3000);
-            result(handledlg, this);
-            QFile::remove(PATH_FILE_SCRIPTBACKUP);
-            return true;
-        });
+        //! Dump SYNCHRONE : on lance puis on ATTEND la fin AVANT de poursuivre — sinon le récap final
+        //! et la sauvegarde des fichiers s'afficheraient PAR-DESSUS la boîte de progression. On boucle
+        //! sur l'état du process (NotRunning même s'il n'a pas pu démarrer → aucun risque de blocage) en
+        //! laissant tourner le timer (la barre se met à jour) sans traiter la saisie. Nettoyage INLINE
+        //! ensuite : toujours exécuté (contrairement à un slot `finished` qui ne se déclenche pas si le
+        //! process ne démarre pas).
         m_ostask.execute(task);
+        while (m_ostask.state() != QProcess::NotRunning)
+            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 50);
+        pollbkp->stop();
+        delete pollbkp;
+        const int a = (m_ostask.exitStatus() == QProcess::NormalExit) ? m_ostask.exitCode() : 99;
+        bkpdial->setValue(totalTables);
+        bkpdial->close();
+        delete bkpdial;
+        delete etat;
+        UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0 ? msg : msgEchec), Icons::icSunglasses(), 3000);
+        result(handledlg, this);
+        QFile::remove(PATH_FILE_SCRIPTBACKUP);
 
         /*! élimination des anciennes sauvegardes */
         QDir dir(pathdirdestination);
@@ -3043,8 +3047,8 @@ bool Procedures::MettreAJourSocleMySQL()
                 tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
             return false;
         }
-        //! Backup lance le dump de façon ASYNCHRONE (m_ostask) : on ATTEND sa fin avant de
-        //! valider, sinon on lirait un fichier .sql encore incomplet.
+        //! Backup attend désormais la fin du dump avant de rendre la main : ce waitForFinished est un
+        //! simple garde-fou (no-op si le dump est déjà terminé) garantissant un .sql complet à valider.
         m_ostask.waitForFinished(-1);
 
         // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
