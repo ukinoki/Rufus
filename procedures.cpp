@@ -658,68 +658,64 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! de dump. Les petites tables défilent trop vite pour être lues : peu importe, le
         //! but est de montrer que la machine avance. `etat` = état du comptage (offsets déjà lus par
         //! fichier, nombre de tables écrites, dernière table vue).
-        EtatBkp etat;
+        EtatBkp *etat = new EtatBkp();       // sur le TAS : partagé par le timer ET le slot de fin (asynchrones)
         UpProgressDialog *bkpdial = new UpProgressDialog(0, totalTables, parent);
         bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…"));
+        bkpdial->setValue(0);
         bkpdial->show();
 
-        //! Comptage incrémental des tables déjà écrites (marqueur mysqldump « Table structure for
-        //! table `X` »), en ne lisant que les NOUVEAUX octets de chaque .sql (léger même sur gros dump).
-        auto compterTables = [&]() {
+        //! Rafraîchissement PAR TABLE : un timer relit les NOUVEAUX octets de chaque .sql (léger même
+        //! sur gros dump), compte les marqueurs mysqldump « Table structure for table `X` » et affiche
+        //! « xxx/N — table X ».
+        QTimer *pollbkp = new QTimer(this);
+        connect(pollbkp, &QTimer::timeout, this, [=]() {
             const QByteArray marqueur = "Table structure for table `";
             for (const QString& f : QDir(pathbackupbase).entryList(QStringList() << "*.sql", QDir::Files))
             {
                 QFile file(pathbackupbase + "/" + f);
                 if (!file.open(QIODevice::ReadOnly))
                     continue;
-                const qint64 from = etat.offsets.value(f, 0);
+                const qint64 from = etat->offsets.value(f, 0);
                 if (file.size() > from)
                 {
                     file.seek(from);
                     const QByteArray chunk = file.readAll();
-                    etat.offsets.insert(f, from + chunk.size());
+                    etat->offsets.insert(f, from + chunk.size());
                     int idx = 0;
                     while ((idx = chunk.indexOf(marqueur, idx)) != -1)
                     {
                         idx += marqueur.size();
                         const int fin = chunk.indexOf('`', idx);
-                        if (fin != -1) etat.table = QString::fromUtf8(chunk.mid(idx, fin - idx));
-                        etat.done++;
+                        if (fin != -1) etat->table = QString::fromUtf8(chunk.mid(idx, fin - idx));
+                        etat->done++;
                         idx = (fin != -1 ? fin : idx + 1);
                     }
                 }
                 file.close();
             }
-        };
-
-        //! EXACTEMENT la technique de la restauration / copie de fichiers (qui, ELLE, affiche bien sa
-        //! popup) : un QProcess LOCAL dont on suit l'avancement dans une boucle qui, À CHAQUE TOUR, met à
-        //! jour la fiche (setValue/setLabelText) et laisse respirer l'IHM (qApp->processEvents NORMAL) —
-        //! c'est ça qui affiche et anime la popup (un process async suivi par un QEventLoop, non). On compte les tables au
-        //! passage → « xxx/N — table X ». Boucle bornée par l'état du process (NotRunning même s'il ne
-        //! démarre pas → aucun blocage). Synchrone → pas de superposition avec le récap / les fichiers.
-        bkpdial->setValue(0);
-        qApp->processEvents();               // premier affichage de la popup
-        QProcess dumpProcess;                // process LOCAL (pile) : détruit en fin de bloc, pas de parent nécessaire
-        dumpProcess.startCommand(task);
-        while (dumpProcess.state() != QProcess::NotRunning)
-        {
-            if (dumpProcess.waitForFinished(50))
-                break;
-            compterTables();
-            bkpdial->setValue(etat.done);
+            bkpdial->setValue(etat->done);
             bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
-                + QString("%1/%2   —   ").arg(etat.done).arg(totalTables) + tr("table ") + etat.table);
-            qApp->processEvents();
-        }
-        compterTables();                     // dernières tables écrites depuis le dernier rafraîchissement
-        const int a = (dumpProcess.exitStatus() == QProcess::NormalExit) ? dumpProcess.exitCode() : 99;
-        bkpdial->setValue(totalTables);
-        bkpdial->close();
-        delete bkpdial;
-        UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0 ? msg : msgEchec), Icons::icSunglasses(), 3000);
-        result(handledlg, this);
-        QFile::remove(PATH_FILE_SCRIPTBACKUP);
+                + QString("%1/%2   —   ").arg(etat->done).arg(totalTables) + tr("table ") + etat->table);
+        });
+        pollbkp->start(300);
+
+        //! Dump ASYNCHRONE (m_ostask) : Backup rend la main → c'est la BOUCLE PRINCIPALE de Qt qui
+        //! affiche et anime la fiche popup (elle ne s'affiche PAS de façon fiable dans un processEvents
+        //! manuel — d'où l'échec des versions synchrones). Le slot `result`, à la fin du dump, ferme la
+        //! fiche, notifie, et libère timer/fiche/état.
+        m_ostask.disconnect(SIGNAL(result(const int &)));
+        connect(&m_ostask, &OsTask::result, this, [=](int a) {
+            pollbkp->stop();
+            pollbkp->deleteLater();
+            bkpdial->setValue(totalTables);
+            bkpdial->close();
+            delete bkpdial;
+            delete etat;
+            UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0 ? msg : msgEchec), Icons::icSunglasses(), 3000);
+            result(handledlg, this);
+            QFile::remove(PATH_FILE_SCRIPTBACKUP);
+        });
+        m_ostask.execute(task);
 
         /*! élimination des anciennes sauvegardes */
         QDir dir(pathdirdestination);
@@ -801,8 +797,14 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         result(handledlg, this);
         return false;
     }
-    qintptr z = 0;
-    ShowMessage::I()->PriorityMessage(msg,z, 10000);
+    //! Récap final SEULEMENT hors sauvegarde de base : quand OKBase, le dump tourne encore en tâche de
+    //! fond et ce récap s'afficherait PAR-DESSUS la fiche de progression (superposition). Dans ce cas,
+    //! c'est le slot `result` (fin du dump) qui notifie, via l'icône de la barre des tâches.
+    if (!OKBase)
+    {
+        qintptr z = 0;
+        ShowMessage::I()->PriorityMessage(msg,z, 10000);
+    }
     return true;
 }
 
@@ -3054,8 +3056,9 @@ bool Procedures::MettreAJourSocleMySQL()
                 tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
             return false;
         }
-        //! Backup fait désormais le dump de façon SYNCHRONE : quand il rend la main, les .sql sont
-        //! complets — plus besoin d'attendre avant de valider la sauvegarde.
+        //! Backup lance le dump de la base de façon ASYNCHRONE (m_ostask) : on ATTEND sa fin avant de
+        //! valider, sinon on lirait un .sql encore incomplet.
+        m_ostask.waitForFinished(-1);
 
         // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
         QDir d(dossierMig);
