@@ -167,19 +167,40 @@ double simNoms(const QString &a, const QString &b)
 }
 
 // Score de rapprochement (0..1) entre la personne lue sur la CV et un dossier candidat.
-// Pondération réglable : DDN (pivot) + gros poids prénom + poids moyen nom.
-// Roue de secours (France seulement) : un NNI identique vaut quasi-certitude.
+// IMPORTANT : la DDN a DÉJÀ servi de filtre (tous les candidats la partagent, ou ont le même NNI) ;
+// on ne la RECOMPTE PAS dans le score, sinon tout le monde démarrerait artificiellement gonflé (un
+// simple hasard de même date suffirait à faire passer un inconnu à l'orange). Le score = ressemblance
+// nom + prénom seulement (prénom un peu plus lourd : il ne change pas au mariage).
 double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patient *pat, bool france)
 {
-    if (france && !cv.nir.isEmpty() && pat->NNI() > 0) {
-        bool num = false;
-        const qlonglong nni = cv.nir.toLongLong(&num);
-        if (num && nni == pat->NNI()) return 1.0;
-    }
     const double simPrenom = jaroWinkler(normalise(cv.prenom), normalise(pat->prenom()));
     const double simNom    = simNoms(cv.nom, pat->nom());
-    const double memeDDN   = (pat->datedenaissance() == ddnCV) ? 1.0 : 0.0;
-    return 0.45 * memeDDN + 0.35 * simPrenom + 0.20 * simNom;
+    const double simIdentite = 0.55 * simPrenom + 0.45 * simNom;
+    const bool   memeDDN   = (pat->datedenaissance() == ddnCV);
+
+    // Roue de secours (France seulement) : un NNI identique vaut quasi-certitude — SAUF si NI la date
+    // NI le nom/prénom ne corroborent (dossier manifestement incohérent, ou NNI erroné) : on refuse
+    // alors le faux positif. Un vrai NNI est corroboré soit par la DDN, soit par une identité proche
+    // (cas « DDN mal saisie mais bonne personne », qui est justement le rôle de la roue de secours).
+    // Testé AVANT la pénalité de sexe : un NNI qui colle prime (un sexe erroné dans le dossier sera
+    // d'ailleurs proposé à la correction ensuite).
+    if (france && !cv.nir.isEmpty() && pat->NNI() > 0)
+        {
+        bool num = false;
+        const qlonglong nni = cv.nir.toLongLong(&num);
+        if (num && nni == pat->NNI() && (memeDDN || simIdentite >= 0.60))
+            return 1.0;
+        }
+
+    // Sexe : une erreur de sexe est rarissime, donc un sexe DIFFÉRENT est un fort signal « pas la même
+    // personne » (typiquement des jumeaux : même nom, même date, sexe opposé) -> on minore de moitié.
+    // Sexe de la carte = 1er chiffre du NIR (1 = H, 2 = F) ; on ne pénalise que s'il est connu des deux
+    // côtés (les ayants droit, sans NIR, ne sont donc pas pénalisés).
+    const QString sexeCV = sexeDepuisNIR(cv.nir);
+    if (!sexeCV.isEmpty() && !pat->sexe().isEmpty() && pat->sexe().toUpper() != sexeCV)
+        return simIdentite * 0.5;
+
+    return simIdentite;
 }
 
 // Pastille de confiance : vert (≥ 0,85), orange (≥ 0,65), gris en dessous.
