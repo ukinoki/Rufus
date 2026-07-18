@@ -1059,7 +1059,15 @@ int Procedures::ExecuteScriptSQL(QStringList ListScripts)
             QString bat = "bash -c \"" + command + "\"";
             dumpProcess.startCommand(bat);
 #endif
-            dumpProcess.waitForFinished(1000000);
+            //! Attente qui laisse VIVRE l'interface (la fenêtre de progression reste affichée et
+            //! animée, pas de « ne répond pas ») : on fait tourner la boucle d'événements pendant le
+            //! chargement, qui peut être long sur une machine lente.
+            while (dumpProcess.state() != QProcess::NotRunning)
+            {
+                if (dumpProcess.waitForFinished(50))
+                    break;
+                QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 40);
+            }
 
 
             if (dumpProcess.error() == QProcess::FailedToStart)
@@ -2401,6 +2409,25 @@ void Procedures::CalcTimeBupRestore()
     dlg_buprestore->OKButton->setEnabled(m_freespace>volume);
 }
 
+//! Libellé « base : table1, table2, … » d'un fichier .sql, affiché dans la fenêtre de progression
+//! pendant la création de la base (les fichiers de base vierge sont petits : lecture sans souci).
+static QString libelleTablesFichierSQL(const QString& chemin)
+{
+    const QString base = QFileInfo(chemin).completeBaseName();
+    QFile f(chemin);
+    if (!f.open(QIODevice::ReadOnly | QIODevice::Text))
+        return base;
+    const QString contenu = QString::fromUtf8(f.readAll());
+    f.close();
+    static const QRegularExpression rx("CREATE TABLE (?:IF NOT EXISTS )?[`\"]?([A-Za-z0-9_]+)",
+                                       QRegularExpression::CaseInsensitiveOption);
+    QStringList tables;
+    QRegularExpressionMatchIterator it = rx.globalMatch(contenu);
+    while (it.hasNext())
+        tables << it.next().captured(1);
+    return tables.isEmpty() ? base : base + " : " + tables.join(", ");
+}
+
 bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool VerifPostesConnectes, QWidget *parent, QString cheminRestauration)
 {
     UpMessageBox    msgbox(parent);
@@ -2494,8 +2521,25 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
             db->StandardSQL("ALTER USER '" LOGIN_SQL "SSL'@'%' IDENTIFIED BY '" + MySQLInstaller::motDePasseSQL() + "' REQUIRE SSL");
             db->StandardSQL("GRANT ALL ON *.* TO '" LOGIN_SQL "SSL'@'%' WITH GRANT OPTION");
 
-            //! Restauration à partir du dossier sélectionné
-            int a = ExecuteScriptSQL(listnomsfilestorestore);
+            //! Restauration base par base (un fichier .sql = une base), avec la MÊME fenêtre de
+            //! progression que pour les fichiers, mais montrant les tables de chaque base. Sur une
+            //! machine lente la création peut être longue : sans fenêtre visible, on croit à un
+            //! plantage. ExecuteScriptSQL laisse tourner la boucle d'événements → la fiche reste vivante.
+            UpProgressDialog *progdial = new UpProgressDialog(0, listnomsfilestorestore.size(), parent);
+            progdial->show();
+            int a = 0;
+            for (int i = 0; i < listnomsfilestorestore.size(); i++)
+            {
+                progdial->setValue(i);
+                progdial->setLabelText(tr("Création de la base en cours…") + "\n\n"
+                                       + libelleTablesFichierSQL(listnomsfilestorestore.at(i)));
+                qApp->processEvents();
+                a = ExecuteScriptSQL(QStringList() << listnomsfilestorestore.at(i));
+                if (a != 0)
+                    break;
+            }
+            progdial->setValue(listnomsfilestorestore.size());
+            delete progdial;
             if (a != 0)
             {
                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
