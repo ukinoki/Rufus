@@ -656,60 +656,62 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! octets de chaque fichier (pas tout le fichier → léger même sur gros dump) pour compter
         //! les tables déjà écrites et retenir la dernière → « xxx/N — table X ». Sans changer le script
         //! de dump. Les petites tables défilent trop vite pour être lues : peu importe, le
-        //! but est de montrer que la machine avance. `etat` = état partagé (offsets, compteur, table).
-        EtatBkp *etat = new EtatBkp();
+        //! but est de montrer que la machine avance. `etat` = état du comptage (offsets déjà lus par
+        //! fichier, nombre de tables écrites, dernière table vue).
+        EtatBkp etat;
         UpProgressDialog *bkpdial = new UpProgressDialog(0, totalTables, parent);
         bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…"));
-        bkpdial->setValue(0);
         bkpdial->show();
-        QTimer *pollbkp = new QTimer(this);
-        connect(pollbkp, &QTimer::timeout, this, [=]() {
+        qApp->processEvents();               // AFFICHE la fiche popup AVANT de lancer le dump
+
+        //! Comptage incrémental des tables déjà écrites (marqueur mysqldump « Table structure for
+        //! table `X` »), en ne lisant que les NOUVEAUX octets de chaque .sql (léger même sur gros dump).
+        auto compterTables = [&]() {
             const QByteArray marqueur = "Table structure for table `";
             for (const QString& f : QDir(pathbackupbase).entryList(QStringList() << "*.sql", QDir::Files))
             {
                 QFile file(pathbackupbase + "/" + f);
                 if (!file.open(QIODevice::ReadOnly))
                     continue;
-                const qint64 from = etat->offsets.value(f, 0);
+                const qint64 from = etat.offsets.value(f, 0);
                 if (file.size() > from)
                 {
                     file.seek(from);
                     const QByteArray chunk = file.readAll();
-                    etat->offsets.insert(f, from + chunk.size());
+                    etat.offsets.insert(f, from + chunk.size());
                     int idx = 0;
                     while ((idx = chunk.indexOf(marqueur, idx)) != -1)
                     {
                         idx += marqueur.size();
                         const int fin = chunk.indexOf('`', idx);
-                        if (fin != -1) etat->table = QString::fromUtf8(chunk.mid(idx, fin - idx));
-                        etat->done++;
+                        if (fin != -1) etat.table = QString::fromUtf8(chunk.mid(idx, fin - idx));
+                        etat.done++;
                         idx = (fin != -1 ? fin : idx + 1);
                     }
                 }
                 file.close();
             }
-            bkpdial->setValue(etat->done);
-            bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
-                + QString("%1/%2   —   ").arg(etat->done).arg(totalTables) + tr("table ") + etat->table);
-        });
-        pollbkp->start(300);
+        };
 
-        //! Dump SYNCHRONE : on lance puis on ATTEND la fin AVANT de poursuivre — sinon le récap final
-        //! et la sauvegarde des fichiers s'afficheraient PAR-DESSUS la boîte de progression. On boucle
-        //! sur l'état du process (NotRunning même s'il n'a pas pu démarrer → aucun risque de blocage) en
-        //! laissant tourner le timer (la barre se met à jour) sans traiter la saisie. Nettoyage INLINE
-        //! ensuite : toujours exécuté (contrairement à un slot `finished` qui ne se déclenche pas si le
-        //! process ne démarre pas).
+        //! Dump SYNCHRONE, fiche mise à jour DANS la boucle — MÊME principe que la restauration :
+        //! qApp->processEvents() peint la popup (ExcludeUserInputEvents l'empêchait d'apparaître).
+        //! waitForFinished(150) rythme les rafraîchissements en laissant le dump avancer ; on sort sur
+        //! NotRunning (même si le process n'a pas démarré → pas de blocage). Nettoyage INLINE ensuite.
         m_ostask.execute(task);
         while (m_ostask.state() != QProcess::NotRunning)
-            QCoreApplication::processEvents(QEventLoop::ExcludeUserInputEvents, 50);
-        pollbkp->stop();
-        delete pollbkp;
+        {
+            m_ostask.waitForFinished(150);
+            compterTables();
+            bkpdial->setValue(etat.done);
+            bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
+                + QString("%1/%2   —   ").arg(etat.done).arg(totalTables) + tr("table ") + etat.table);
+            qApp->processEvents();
+        }
+        compterTables();                     // dernières tables écrites depuis le dernier rafraîchissement
         const int a = (m_ostask.exitStatus() == QProcess::NormalExit) ? m_ostask.exitCode() : 99;
         bkpdial->setValue(totalTables);
         bkpdial->close();
         delete bkpdial;
-        delete etat;
         UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0 ? msg : msgEchec), Icons::icSunglasses(), 3000);
         result(handledlg, this);
         QFile::remove(PATH_FILE_SCRIPTBACKUP);
