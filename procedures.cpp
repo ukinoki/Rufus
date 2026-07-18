@@ -692,31 +692,28 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             }
         };
 
-        //! Timer de rafraîchissement de la fiche (compte les tables + nom de la dernière).
-        QTimer *pollbkp = new QTimer(this);
-        connect(pollbkp, &QTimer::timeout, this, [&]() {
+        //! EXACTEMENT la technique de la restauration / copie de fichiers (qui, ELLE, affiche bien sa
+        //! popup) : un QProcess LOCAL dont on suit l'avancement dans une boucle qui, À CHAQUE TOUR, met à
+        //! jour la fiche (setValue/setLabelText) et laisse respirer l'IHM (qApp->processEvents NORMAL) —
+        //! c'est ça qui affiche et anime la popup (un process async suivi par un QEventLoop, non). On compte les tables au
+        //! passage → « xxx/N — table X ». Boucle bornée par l'état du process (NotRunning même s'il ne
+        //! démarre pas → aucun blocage). Synchrone → pas de superposition avec le récap / les fichiers.
+        bkpdial->setValue(0);
+        qApp->processEvents();               // premier affichage de la popup
+        QProcess dumpProcess(parent());
+        dumpProcess.startCommand(task);
+        while (dumpProcess.state() != QProcess::NotRunning)
+        {
+            if (dumpProcess.waitForFinished(50))
+                break;
             compterTables();
             bkpdial->setValue(etat.done);
             bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
                 + QString("%1/%2   —   ").arg(etat.done).arg(totalTables) + tr("table ") + etat.table);
-        });
-        pollbkp->start(200);
-
-        //! On attend la fin du dump dans une VRAIE boucle d'événements (QEventLoop::exec, comme
-        //! QDialog::exec) : c'est ELLE qui affiche la fiche popup — un processEvents() manuel ne suffit
-        //! pas pour une Qt::Popup — et qui fait tourner le timer. On sort à la fin du dump (result) OU
-        //! s'il ne démarre pas (errorOccurred) → aucun blocage. On ATTEND avant de poursuivre → pas de
-        //! superposition des boîtes.
-        QEventLoop boucleDump;
-        connect(&m_ostask, &OsTask::result,          &boucleDump, &QEventLoop::quit);
-        connect(&m_ostask, &QProcess::errorOccurred, &boucleDump, &QEventLoop::quit);
-        m_ostask.execute(task);
-        boucleDump.exec();
-
-        pollbkp->stop();
-        delete pollbkp;
+            qApp->processEvents();
+        }
         compterTables();                     // dernières tables écrites depuis le dernier rafraîchissement
-        const int a = (m_ostask.exitStatus() == QProcess::NormalExit) ? m_ostask.exitCode() : 99;
+        const int a = (dumpProcess.exitStatus() == QProcess::NormalExit) ? dumpProcess.exitCode() : 99;
         bkpdial->setValue(totalTables);
         bkpdial->close();
         delete bkpdial;
@@ -3057,9 +3054,8 @@ bool Procedures::MettreAJourSocleMySQL()
                 tr("La sauvegarde a échoué. La mise à jour est annulée : rien n'a été désinstallé."));
             return false;
         }
-        //! Backup attend désormais la fin du dump avant de rendre la main : ce waitForFinished est un
-        //! simple garde-fou (no-op si le dump est déjà terminé) garantissant un .sql complet à valider.
-        m_ostask.waitForFinished(-1);
+        //! Backup fait désormais le dump de façon SYNCHRONE : quand il rend la main, les .sql sont
+        //! complets — plus besoin d'attendre avant de valider la sauvegarde.
 
         // 3. Localiser le sous-dossier horodaté que Backup vient de créer (le plus récent).
         QDir d(dossierMig);
