@@ -639,8 +639,19 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         const QString task = "sh " + PATH_FILE_SCRIPTBACKUP;
 #endif
         msg += tr("Base de données sauvegardée!\n");
+
+        //! Boîte de progression pendant le dump : sur une machine lente c'est long. On affiche les
+        //! bases en cours de sauvegarde, barre ANIMÉE (le dump tourne en tâche de fond → la boucle
+        //! d'événements vit et l'anime). Fermée à la fin du dump, dans le slot result ci-dessous.
+        UpProgressDialog *bkpdial = new UpProgressDialog(0, 0, parent);
+        bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
+                              + tr("Bases : Rufus, Comptabilité, Imagerie, Ophtalmologie"));
+        bkpdial->show();
+
         m_ostask.disconnect(SIGNAL(result(const int &)));
         connect(&m_ostask, &OsTask::result, this, [=](int a) {
+            bkpdial->close();
+            delete bkpdial;
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msg : msgEchec), Icons::icSunglasses(), 3000);
             result(handledlg, this);
             QFile::remove(PATH_FILE_SCRIPTBACKUP);
