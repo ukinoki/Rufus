@@ -583,6 +583,10 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     CalcTimeBupRestore();
 }
 
+//! État partagé du suivi « par table » de la sauvegarde (lu/écrit par le timer de progression) :
+//! offset déjà lu de chaque .sql, nombre de tables déjà écrites, dernière table vue.
+namespace { struct EtatBkp { QMap<QString, qint64> offsets; int done = 0; QString table; }; }
+
 bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, bool OKVideos, bool OKFactures, bool verifmdp, QWidget *parent)
 {
     auto result = [] (qintptr handle, Procedures *proc)
@@ -640,18 +644,54 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 #endif
         msg += tr("Base de données sauvegardée!\n");
 
-        //! Boîte de progression pendant le dump. Le script écrit les 5 fichiers .sql (les 4 bases +
-        //! la table user) l'un APRÈS l'autre : on fait donc AVANCER la barre en comptant, toutes les
-        //! 300 ms, les fichiers déjà créés dans le dossier de sauvegarde. Simple et fiable, sans
-        //! toucher au dump asynchrone. Barre et timer libérés à la fin du dump (slot result ci-dessous).
-        UpProgressDialog *bkpdial = new UpProgressDialog(0, 5, parent);   // 4 bases + table user = 5 fichiers .sql
-        bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
-                              + tr("Bases : Rufus, Comptabilité, Imagerie, Ophtalmologie"));
+        //! Total de tables à sauvegarder — RECALCULÉ à chaque fois (la base peut avoir changé) : sert
+        //! à chiffrer l'avancement « xxx/N ». +1 pour la table `user` (fichier user.sql).
+        bool okc = false;
+        QVariantList rc = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+            "SELECT COUNT(*) FROM information_schema.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_SCHEMA IN "
+            "('" DB_RUFUS "','" DB_COMPTA "','" DB_IMAGES "','" DB_OPHTA "')", okc);
+        const int totalTables = qMax(1, (okc && !rc.isEmpty() ? rc.at(0).toInt() : 0) + 1);
+
+        //! Boîte de progression PAR TABLE. mysqldump écrit, avant chaque table, le commentaire
+        //! « Table structure for table `X` » dans le .sql : on lit toutes les 300 ms les NOUVEAUX
+        //! octets de chaque fichier (pas tout le fichier → léger même sur gros dump) pour compter
+        //! les tables déjà écrites et retenir la dernière → « xxx/N — table X ». On ne touche pas au
+        //! dump asynchrone. Les petites tables défilent trop vite pour être lues : peu importe, le
+        //! but est de montrer que la machine avance. `etat` = état partagé (offsets, compteur, table).
+        EtatBkp *etat = new EtatBkp();
+        UpProgressDialog *bkpdial = new UpProgressDialog(0, totalTables, parent);
+        bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…"));
         bkpdial->setValue(0);
         bkpdial->show();
         QTimer *pollbkp = new QTimer(this);
         connect(pollbkp, &QTimer::timeout, this, [=]() {
-            bkpdial->setValue(QDir(pathbackupbase).entryList(QStringList() << "*.sql").size());
+            const QByteArray marqueur = "Table structure for table `";
+            for (const QString& f : QDir(pathbackupbase).entryList(QStringList() << "*.sql", QDir::Files))
+            {
+                QFile file(pathbackupbase + "/" + f);
+                if (!file.open(QIODevice::ReadOnly))
+                    continue;
+                const qint64 from = etat->offsets.value(f, 0);
+                if (file.size() > from)
+                {
+                    file.seek(from);
+                    const QByteArray chunk = file.readAll();
+                    etat->offsets.insert(f, from + chunk.size());
+                    int idx = 0;
+                    while ((idx = chunk.indexOf(marqueur, idx)) != -1)
+                    {
+                        idx += marqueur.size();
+                        const int fin = chunk.indexOf('`', idx);
+                        if (fin != -1) etat->table = QString::fromUtf8(chunk.mid(idx, fin - idx));
+                        etat->done++;
+                        idx = (fin != -1 ? fin : idx + 1);
+                    }
+                }
+                file.close();
+            }
+            bkpdial->setValue(etat->done);
+            bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
+                + QString("%1/%2   —   ").arg(etat->done).arg(totalTables) + tr("table ") + etat->table);
         });
         pollbkp->start(300);
 
@@ -659,9 +699,10 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         connect(&m_ostask, &OsTask::result, this, [=](int a) {
             pollbkp->stop();
             pollbkp->deleteLater();
-            bkpdial->setValue(5);
+            bkpdial->setValue(totalTables);
             bkpdial->close();
             delete bkpdial;
+            delete etat;
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msg : msgEchec), Icons::icSunglasses(), 3000);
             result(handledlg, this);
             QFile::remove(PATH_FILE_SCRIPTBACKUP);
