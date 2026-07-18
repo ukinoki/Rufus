@@ -10830,7 +10830,7 @@ void Rufus::LireLaCV()
 void Rufus::SimulerLireCV()
 {
     QList<LecteurVitale::Porteur> porteurs;
-    porteurs.append(LecteurVitale::Porteur{ "SCOLETTA", "HELENE",     "21/08/1968", "268081315501324" });  // assurée (NIR = carte de test)
+    porteurs.append(LecteurVitale::Porteur{ "SCOTTO D'APPOLONIA", "NADINE",     "24/03/1947", "247031315501324" });  // assurée (NIR = carte de test)
     porteurs.append(LecteurVitale::Porteur{ "SABAH",    "ANDREA",     "01/03/2000" });                     // ayant droit
     porteurs.append(LecteurVitale::Porteur{ "GIMENEZ",  "CLEMENTINE", "22/07/2006" });                     // ayant droit
     ExploiteCarteVitale(porteurs, tr("Carte Vitale (simulation)"));
