@@ -236,9 +236,8 @@ II LANCEMENT DE RUFUS
 					→ dont le texte est Connexion à une base patients
 					→ dont le click oriente vers la vérification des paramètres de connexion (Procedures::VerifParamconnexion())
 			→ connexion OK
-				→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ;
-			   	ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
-				→ comptes adminrufus NON modifiés depuis un poste distant → cf. § III (règle « jamais depuis le WAN »)
+				→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ; ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
+				→ pas d'implantation de mdp sécurisé depuis un post distant
 				→ on vérifie la cohérence de la base Rufus
 					→ si pas OK → messageBox "base de données endommagée"
 								"vous devez restaurer une base patients"
