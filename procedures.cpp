@@ -700,7 +700,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! démarre pas → aucun blocage). Synchrone → pas de superposition avec le récap / les fichiers.
         bkpdial->setValue(0);
         qApp->processEvents();               // premier affichage de la popup
-        QProcess dumpProcess(parent());
+        QProcess dumpProcess;                // process LOCAL (pile) : détruit en fin de bloc, pas de parent nécessaire
         dumpProcess.startCommand(task);
         while (dumpProcess.state() != QProcess::NotRunning)
         {
