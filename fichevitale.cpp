@@ -182,6 +182,8 @@ double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patie
     // NI le nom/prénom ne corroborent (dossier manifestement incohérent, ou NNI erroné) : on refuse
     // alors le faux positif. Un vrai NNI est corroboré soit par la DDN, soit par une identité proche
     // (cas « DDN mal saisie mais bonne personne », qui est justement le rôle de la roue de secours).
+    // Testé AVANT la pénalité de sexe : un NNI qui colle prime (un sexe erroné dans le dossier sera
+    // d'ailleurs proposé à la correction ensuite).
     if (france && !cv.nir.isEmpty() && pat->NNI() > 0)
         {
         bool num = false;
@@ -189,6 +191,14 @@ double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patie
         if (num && nni == pat->NNI() && (memeDDN || simIdentite >= 0.60))
             return 1.0;
         }
+
+    // Sexe : une erreur de sexe est rarissime, donc un sexe DIFFÉRENT est un fort signal « pas la même
+    // personne » (typiquement des jumeaux : même nom, même date, sexe opposé) -> on minore de moitié.
+    // Sexe de la carte = 1er chiffre du NIR (1 = H, 2 = F) ; on ne pénalise que s'il est connu des deux
+    // côtés (les ayants droit, sans NIR, ne sont donc pas pénalisés).
+    const QString sexeCV = sexeDepuisNIR(cv.nir);
+    if (!sexeCV.isEmpty() && !pat->sexe().isEmpty() && pat->sexe().toUpper() != sexeCV)
+        return simIdentite * 0.5;
 
     return simIdentite;
 }
