@@ -1135,8 +1135,13 @@ void Utils::setDirPermissions(QString dirpath, QFileDevice::Permissions permissi
 void Utils::copyWithPermissions(QFile &file, QString path, QFileDevice::Permissions permissions)
 {
     file.copy(path);
-    QFile CO(path);
-    CO.setPermissions(permissions);
+#ifndef Q_OS_WIN                 //! sous Windows, setPermissions écrit une ACL NTFS que macOS traduit
+    QFile CO(path);              //! en 0600 (propriétaire seul) sur le partage SMB → _mysql ne lit plus.
+    CO.setPermissions(permissions);   //! On laisse le mode par défaut du partage (o+r) s'appliquer.
+#else
+    Q_UNUSED(permissions);
+#endif
+    file.copy(path);
 }
 
 void Utils::setPermissions(QFile &file, QFileDevice::Permissions permissions)
