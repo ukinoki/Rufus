@@ -2866,6 +2866,18 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         //qDebug() << msg;
         UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
+        //! Restauration depuis une sauvegarde réussie : on relance Rufus pour repartir proprement sur
+        //! la base restaurée. Contrairement à la base VIERGE, aucun CreerPremierUser à faire ici — la
+        //! sauvegarde contient déjà les utilisateurs. En mode migration AUTOMATIQUE (cheminRestauration
+        //! fourni), on laisse l'appelant gérer sa propre relance (message dédié « MySQL mis à jour »).
+        if (result > 0 && cheminRestauration.isEmpty())
+        {
+            Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+            UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
+                                tr("La base de données a été restaurée. Rufus va redémarrer."));
+            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+            exit(0);
+        }
         return (result > 0);
     }
 }
