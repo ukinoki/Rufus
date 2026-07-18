@@ -126,9 +126,16 @@ protected:
     //! protected (et non public) : seul un viewer (sous-classe) en a besoin. Aucun appelant externe.
     QSize           deltas() const;
 
+    //! À l'affichage, on aligne la hauteur des boutons de la rangée (cf. uniformiserHauteurBoutons).
+    void            showEvent(QShowEvent *event) override;
+
 private:
     int             stageheight() const;
     void            addnbbuttons(int add = 1) { m_nbbuttons += add;}
+    //! Aligne tous les UpSmallButton de la rangée sur le PLUS HAUT. Corrige le défaut historique où un
+    //! bouton avec texte (hauteur 45) et un bouton à icône seule (hauteur 35) n'étaient pas à la même
+    //! hauteur. On n'aligne QUE vers le haut (jamais au-delà du plus grand) : la rangée ne grandit pas.
+    void            uniformiserHauteurBoutons();
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(UpDialog::Buttons)

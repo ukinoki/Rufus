@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "updialog.h"
 #include <QtCore/qdir.h>
+#include <QShowEvent>
 
 UpDialog::UpDialog(QWidget *parent) : QDialog(parent)
 {
@@ -168,6 +169,35 @@ void UpDialog::AjouteLayButtons(Buttons Button)
         connect(CancelButton,   &QPushButton::clicked, this, &UpDialog::reject);
     }
     UpdateTabOrder();
+}
+
+void UpDialog::showEvent(QShowEvent *event)
+{
+    QDialog::showEvent(event);
+    //! À l'affichage, le texte des boutons (donc leur hauteur) est fixé : c'est le bon moment pour
+    //! aligner la rangée. Idempotent → sans effet aux affichages suivants (déjà uniformes).
+    uniformiserHauteurBoutons();
+}
+
+//! Défaut historique : dans une rangée, un bouton AVEC texte passe en hauteur 45 (UpSmallButton) tandis
+//! qu'un bouton à icône seule reste à 35 → ils n'étaient pas à la même hauteur (typiquement OK « Se
+//! connecter » à côté d'Annuler). On aligne tout le monde sur le PLUS HAUT : comme le plus grand bouton
+//! imposait déjà cette hauteur au conteneur, la rangée ne grandit pas et rien ne peut être tronqué.
+void UpDialog::uniformiserHauteurBoutons()
+{
+    const QList<UpSmallButton*> boutons = wdg_buttonswidget->findChildren<UpSmallButton*>();
+    int hmax = 0;
+    for (UpSmallButton* b : boutons)
+    {
+        const int h = b->maximumHeight();               // = hauteur FIXÉE du bouton (35 ou 45)
+        if (h > 0 && h < QWIDGETSIZE_MAX)               // garde-fou : ignore un bouton sans hauteur fixée
+            hmax = qMax(hmax, h);
+    }
+    if (hmax <= 0)
+        return;
+    for (UpSmallButton* b : boutons)
+        if (b->maximumHeight() != hmax)
+            b->setFixedHeight(hmax);
 }
 
 QVBoxLayout* UpDialog::dlglayout() const
