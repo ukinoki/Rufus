@@ -10929,7 +10929,9 @@ void Rufus::ProposeMajDossierDepuisCV(Patient *pat, const LecteurVitale::Porteur
         if (porteur.nir.at(0) == '1')      sexeCV = "M";
         else if (porteur.nir.at(0) == '2') sexeCV = "F";
         }
-    const QString nomCV    = porteur.nom.trimmed().toUpper();
+    // Nom/prénom mis en forme comme Rufus les stocke : 1re lettre de chaque mot en majuscule, reste
+    // en minuscule (la carte les donne en MAJUSCULES) — cf. trimcapitilize, comme CreerDossier.
+    const QString nomCV    = Utils::trimcapitilize(porteur.nom);
     const QString prenomCV = Utils::trimcapitilize(porteur.prenom);
     const QDate   ddnCV    = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
 

@@ -170,13 +170,20 @@ double simNoms(const QString &a, const QString &b)
 // IMPORTANT : la DDN a DÉJÀ servi de filtre (tous les candidats la partagent, ou ont le même NNI) ;
 // on ne la RECOMPTE PAS dans le score, sinon tout le monde démarrerait artificiellement gonflé (un
 // simple hasard de même date suffirait à faire passer un inconnu à l'orange). Le score = ressemblance
-// nom + prénom seulement (prénom un peu plus lourd : il ne change pas au mariage).
+// nom + prénom, pondérée selon le sexe (cf. ci-dessous).
 double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patient *pat, bool france)
 {
     const double simPrenom = jaroWinkler(normalise(cv.prenom), normalise(pat->prenom()));
     const double simNom    = simNoms(cv.nom, pat->nom());
-    const double simIdentite = 0.55 * simPrenom + 0.45 * simNom;
+    const QString sexeCV   = sexeDepuisNIR(cv.nir);        // "M"/"F"/"" d'après le 1er chiffre du NIR
     const bool   memeDDN   = (pat->datedenaissance() == ddnCV);
+
+    // Poids nom/prénom selon le SEXE : une FEMME change souvent de nom (mariage) -> le nom pèse peu et
+    // le prénom (stable) domine, pour rester tolérant à un nom différent ; un HOMME (ou sexe inconnu,
+    // par prudence) -> le nom pèse davantage, car un nom différent y est nettement plus suspect.
+    const double wPrenom = (sexeCV == "F") ? 0.70 : 0.45;
+    const double wNom    = (sexeCV == "F") ? 0.30 : 0.55;
+    const double simIdentite = wPrenom * simPrenom + wNom * simNom;
 
     // Roue de secours (France seulement) : un NNI identique vaut quasi-certitude — SAUF si NI la date
     // NI le nom/prénom ne corroborent (dossier manifestement incohérent, ou NNI erroné) : on refuse
@@ -192,11 +199,9 @@ double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patie
             return 1.0;
         }
 
-    // Sexe : une erreur de sexe est rarissime, donc un sexe DIFFÉRENT est un fort signal « pas la même
+    // Sexe DIFFÉRENT : une erreur de sexe est rarissime, donc c'est un fort signal « pas la même
     // personne » (typiquement des jumeaux : même nom, même date, sexe opposé) -> on minore de moitié.
-    // Sexe de la carte = 1er chiffre du NIR (1 = H, 2 = F) ; on ne pénalise que s'il est connu des deux
-    // côtés (les ayants droit, sans NIR, ne sont donc pas pénalisés).
-    const QString sexeCV = sexeDepuisNIR(cv.nir);
+    // Uniquement si le sexe est connu des deux côtés (les ayants droit, sans NIR, ne sont pas pénalisés).
     if (!sexeCV.isEmpty() && !pat->sexe().isEmpty() && pat->sexe().toUpper() != sexeCV)
         return simIdentite * 0.5;
 
