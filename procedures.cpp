@@ -652,7 +652,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         const int totalTables = qMax(1, (okc && !rc.isEmpty() ? rc.at(0).toInt() : 0) + 1);
 
         //! Boîte de progression PAR TABLE. mysqldump écrit, avant chaque table, le commentaire
-        //! « Table structure for table `X` » dans le .sql : on lit toutes les 300 ms les NOUVEAUX
+        //! « Table structure for table `X` » dans le .sql : on relit régulièrement les NOUVEAUX
         //! octets de chaque fichier (pas tout le fichier → léger même sur gros dump) pour compter
         //! les tables déjà écrites et retenir la dernière → « xxx/N — table X ». Sans changer le script
         //! de dump. Les petites tables défilent trop vite pour être lues : peu importe, le
@@ -662,7 +662,6 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         UpProgressDialog *bkpdial = new UpProgressDialog(0, totalTables, parent);
         bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…"));
         bkpdial->show();
-        qApp->processEvents();               // AFFICHE la fiche popup AVANT de lancer le dump
 
         //! Comptage incrémental des tables déjà écrites (marqueur mysqldump « Table structure for
         //! table `X` »), en ne lisant que les NOUVEAUX octets de chaque .sql (léger même sur gros dump).
@@ -693,20 +692,29 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
             }
         };
 
-        //! Dump SYNCHRONE, fiche mise à jour DANS la boucle — MÊME principe que la restauration :
-        //! qApp->processEvents() peint la popup (ExcludeUserInputEvents l'empêchait d'apparaître).
-        //! waitForFinished(150) rythme les rafraîchissements en laissant le dump avancer ; on sort sur
-        //! NotRunning (même si le process n'a pas démarré → pas de blocage). Nettoyage INLINE ensuite.
-        m_ostask.execute(task);
-        while (m_ostask.state() != QProcess::NotRunning)
-        {
-            m_ostask.waitForFinished(150);
+        //! Timer de rafraîchissement de la fiche (compte les tables + nom de la dernière).
+        QTimer *pollbkp = new QTimer(this);
+        connect(pollbkp, &QTimer::timeout, this, [&]() {
             compterTables();
             bkpdial->setValue(etat.done);
             bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
                 + QString("%1/%2   —   ").arg(etat.done).arg(totalTables) + tr("table ") + etat.table);
-            qApp->processEvents();
-        }
+        });
+        pollbkp->start(200);
+
+        //! On attend la fin du dump dans une VRAIE boucle d'événements (QEventLoop::exec, comme
+        //! QDialog::exec) : c'est ELLE qui affiche la fiche popup — un processEvents() manuel ne suffit
+        //! pas pour une Qt::Popup — et qui fait tourner le timer. On sort à la fin du dump (result) OU
+        //! s'il ne démarre pas (errorOccurred) → aucun blocage. On ATTEND avant de poursuivre → pas de
+        //! superposition des boîtes.
+        QEventLoop boucleDump;
+        connect(&m_ostask, &OsTask::result,          &boucleDump, &QEventLoop::quit);
+        connect(&m_ostask, &QProcess::errorOccurred, &boucleDump, &QEventLoop::quit);
+        m_ostask.execute(task);
+        boucleDump.exec();
+
+        pollbkp->stop();
+        delete pollbkp;
         compterTables();                     // dernières tables écrites depuis le dernier rafraîchissement
         const int a = (m_ostask.exitStatus() == QProcess::NormalExit) ? m_ostask.exitCode() : 99;
         bkpdial->setValue(totalTables);
