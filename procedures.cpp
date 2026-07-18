@@ -2790,9 +2790,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             break;
                         }
 
-                        qintptr handledlg = 0;
-                        ShowMessage::I()->PriorityMessage(tr("Restauration de la base en cours"),handledlg);
-
                         bool echecfile = true;
                         QStringList filters;
                         filters << "*.sql";
@@ -2821,8 +2818,25 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             UpSystemTrayIcon::I()->showMessage(tr("Messages"), Msg, Icons::icSunglasses(), 3000);
                             db->VideDatabases();
 
-                            //! Restauration à partir du dossier sélectionné
-                            int a = ExecuteScriptSQL(listnomsfilestorestore);
+                            //! Restauration base par base, avec la MÊME fiche de progression que la base
+                            //! vierge (une base = un fichier .sql, restauré l'un après l'autre). On affiche
+                            //! le NOM de la base en cours ; on ne lit PAS le contenu des .sql — ceux d'une
+                            //! sauvegarde peuvent être très gros (données), coûteux à parcourir.
+                            UpProgressDialog *progdial = new UpProgressDialog(0, listnomsfilestorestore.size(), parent);
+                            progdial->show();
+                            int a = 0;
+                            for (int i = 0; i < listnomsfilestorestore.size(); i++)
+                            {
+                                progdial->setValue(i);
+                                progdial->setLabelText(tr("Restauration de la base en cours…") + "\n\n"
+                                                       + QFileInfo(listnomsfilestorestore.at(i)).completeBaseName());
+                                qApp->processEvents();
+                                a = ExecuteScriptSQL(QStringList() << listnomsfilestorestore.at(i));
+                                if (a != 0)
+                                    break;
+                            }
+                            progdial->setValue(listnomsfilestorestore.size());
+                            delete progdial;
                             if (a != 0)
                             {
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
@@ -2831,7 +2845,6 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             else
                                 msg += tr("Base de données Rufus restaurée\n");
                         }
-                        ShowMessage::I()->ClosePriorityMessage(handledlg);
                     }
                 }
             }
