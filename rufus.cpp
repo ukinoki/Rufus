@@ -10871,7 +10871,8 @@ bool Rufus::ActiverResultatVitale(FicheVitale &fiche)
             Patient *pat = Datas::I()->patients->getById(fiche.idDossierActive(), Item::LoadDetails);
             if (pat == Q_NULLPTR)
                 return true;                        // dossier introuvable : rien à refaire
-            CompleteNNIdepuisCV(pat, fiche.porteurCourant());
+            CompleteNNIdepuisCV(pat, fiche.porteurCourant());        // NNI : silencieux (vide ou différent)
+            ProposeMajDossierDepuisCV(pat, fiche.porteurCourant());  // autres champs : cases à cocher
             // Ouvrir n'est possible que pour un soignant (garde-fou) ; sinon, salle d'attente.
             if (fiche.action() == FicheVitale::Ouvrir && currentuser()->isSoignant())
                 {
@@ -10888,22 +10889,91 @@ bool Rufus::ActiverResultatVitale(FicheVitale &fiche)
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
-    Complète le NNI d'un dossier à partir de la carte, UNIQUEMENT s'il est absent et en France (le NNI
-    est franco-français). On ne demande rien à l'utilisateur : la carte fait foi.
+    Complète le NNI d'un dossier à partir de la carte, s'il est ABSENT OU DIFFÉRENT, et en France (le
+    NNI est franco-français). Silencieux : aucune question ni message pour le NNI (la carte fait foi).
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::CompleteNNIdepuisCV(Patient *pat, const LecteurVitale::Porteur &porteur)
 {
-    if (pat == Q_NULLPTR || pat->NNI() > 0)         // déjà renseigné : on ne touche à rien
+    if (pat == Q_NULLPTR)
         return;
     if (!db->parametres()->cotationsfrance())
         return;
     bool num = false;
     const qlonglong nni = porteur.nir.toLongLong(&num);
-    if (num && nni > 0)
+    if (num && nni > 0 && pat->NNI() != nni)            // champ vide (0) ou différent -> on récupère
+        ItemsList::update(pat, CP_NNI_DSP, nni);        // met à jour la base ET l'objet en mémoire
+}
+
+/*-----------------------------------------------------------------------------------------------------------------
+    Propose de remplacer les renseignements du dossier (nom / prénom / naissance / sexe) par ceux de la
+    carte, UNIQUEMENT pour les champs réellement différents : une différence portant seulement sur la
+    casse ou les accents est ignorée (la carte est en MAJUSCULES sans accents, souvent moins précise que
+    le dossier). L'utilisateur coche, champ par champ, ce qu'il accepte de remplacer. Le NNI, lui, est
+    traité à part, sans message (cf. CompleteNNIdepuisCV).
+-----------------------------------------------------------------------------------------------------------------*/
+void Rufus::ProposeMajDossierDepuisCV(Patient *pat, const LecteurVitale::Porteur &porteur)
+{
+    if (pat == Q_NULLPTR)
+        return;
+
+    // Égalité de deux textes en ignorant la casse ET les accents (la carte n'a ni l'un ni l'autre).
+    auto memeTexte = [](const QString &a, const QString &b) {
+        return Utils::retirecaracteresaccentues(a).toUpper().trimmed()
+            == Utils::retirecaracteresaccentues(b).toUpper().trimmed();
+    };
+
+    // Sexe d'après le 1er chiffre du NIR (1 = homme, 2 = femme ; vide sinon).
+    QString sexeCV;
+    if (!porteur.nir.isEmpty())
         {
-        ItemsList::update(pat, CP_NNI_DSP, nni);
-        pat->setNNI(nni);
+        if (porteur.nir.at(0) == '1')      sexeCV = "M";
+        else if (porteur.nir.at(0) == '2') sexeCV = "F";
         }
+    const QString nomCV    = porteur.nom.trimmed().toUpper();
+    const QString prenomCV = Utils::trimcapitilize(porteur.prenom);
+    const QDate   ddnCV    = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
+
+    // Renseignements réellement différents : champ, libellé (ancien -> nouveau), nouvelle valeur.
+    struct Diff { QString champ; QString libelle; QVariant valeur; };
+    QList<Diff> diffs;
+    if (!memeTexte(pat->nom(), porteur.nom))
+        diffs << Diff{ CP_NOM_PATIENTS,    tr("Nom : ")       + pat->nom()    + "  →  " + nomCV,    nomCV };
+    if (!memeTexte(pat->prenom(), porteur.prenom))
+        diffs << Diff{ CP_PRENOM_PATIENTS, tr("Prénom : ")    + pat->prenom() + "  →  " + prenomCV, prenomCV };
+    if (ddnCV.isValid() && pat->datedenaissance() != ddnCV)
+        diffs << Diff{ CP_DDN_PATIENTS,    tr("Naissance : ") + pat->datedenaissance().toString("dd-MM-yyyy") + "  →  " + ddnCV.toString("dd-MM-yyyy"), ddnCV };
+    if (!sexeCV.isEmpty() && pat->sexe().toUpper() != sexeCV)
+        diffs << Diff{ CP_SEXE_PATIENTS,   tr("Sexe : ")      + pat->sexe()   + "  →  " + sexeCV,   sexeCV };
+
+    if (diffs.isEmpty())
+        return;                                         // rien de significatif (ou juste casse/accents)
+
+    // Boîte avec une case à cocher par renseignement modifié (toutes cochées au départ).
+    UpDialog dlg(this);
+    dlg.setWindowModality(Qt::WindowModal);
+    dlg.setWindowTitle(tr("Mise à jour depuis la carte Vitale"));
+    QVBoxLayout *corps = new QVBoxLayout;
+    UpLabel *intro = new UpLabel();
+    intro->setText(tr("Ces renseignements diffèrent de la carte.\nCochez ceux à remplacer :"));
+    corps->addWidget(intro);
+    QList<UpCheckBox*> cases;
+    for (const Diff &d : diffs)
+        {
+        UpCheckBox *cb = new UpCheckBox(d.libelle);
+        cb->setChecked(true);
+        corps->addWidget(cb);
+        cases << cb;
+        }
+    dlg.dlglayout()->insertLayout(0, corps);
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    connect(dlg.OKButton, &QPushButton::clicked, &dlg, &QDialog::accept);
+    if (dlg.exec() != QDialog::Accepted)
+        return;
+
+    // On n'applique QUE les cases cochées (base + objet, via ItemsList::update).
+    for (int i = 0; i < diffs.size(); ++i)
+        if (cases.at(i)->isChecked())
+            ItemsList::update(pat, diffs.at(i).champ, diffs.at(i).valeur);
 }
 
 /*-----------------------------------------------------------------------------------------------------------------
@@ -10927,6 +10997,7 @@ bool Rufus::CreerDossierDepuisCV(const LecteurVitale::Porteur &porteur)
         UpMessageBox::Watch(this, tr("Ce patient est déjà venu!"));
         Patient *pat = Datas::I()->patients->getById(idPat, Item::LoadDetails);
         CompleteNNIdepuisCV(pat, porteur);
+        ProposeMajDossierDepuisCV(pat, porteur);
         if (currentuser()->isSoignant())
             {
             OuvrirDossier(pat);
