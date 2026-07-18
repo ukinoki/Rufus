@@ -640,16 +640,26 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
 #endif
         msg += tr("Base de données sauvegardée!\n");
 
-        //! Boîte de progression pendant le dump : sur une machine lente c'est long. On affiche les
-        //! bases en cours de sauvegarde, barre ANIMÉE (le dump tourne en tâche de fond → la boucle
-        //! d'événements vit et l'anime). Fermée à la fin du dump, dans le slot result ci-dessous.
-        UpProgressDialog *bkpdial = new UpProgressDialog(0, 0, parent);
+        //! Boîte de progression pendant le dump. Le script écrit les 5 fichiers .sql (les 4 bases +
+        //! la table user) l'un APRÈS l'autre : on fait donc AVANCER la barre en comptant, toutes les
+        //! 300 ms, les fichiers déjà créés dans le dossier de sauvegarde. Simple et fiable, sans
+        //! toucher au dump asynchrone. Barre et timer libérés à la fin du dump (slot result ci-dessous).
+        UpProgressDialog *bkpdial = new UpProgressDialog(0, 5, parent);   // 4 bases + table user = 5 fichiers .sql
         bkpdial->setLabelText(tr("Sauvegarde de la base de données en cours…") + "\n\n"
                               + tr("Bases : Rufus, Comptabilité, Imagerie, Ophtalmologie"));
+        bkpdial->setValue(0);
         bkpdial->show();
+        QTimer *pollbkp = new QTimer(this);
+        connect(pollbkp, &QTimer::timeout, this, [=]() {
+            bkpdial->setValue(QDir(pathbackupbase).entryList(QStringList() << "*.sql").size());
+        });
+        pollbkp->start(300);
 
         m_ostask.disconnect(SIGNAL(result(const int &)));
         connect(&m_ostask, &OsTask::result, this, [=](int a) {
+            pollbkp->stop();
+            pollbkp->deleteLater();
+            bkpdial->setValue(5);
             bkpdial->close();
             delete bkpdial;
             UpSystemTrayIcon::I()->showMessage(tr("Messages"), (a == 0? msg : msgEchec), Icons::icSunglasses(), 3000);
