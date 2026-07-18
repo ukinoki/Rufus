@@ -190,6 +190,15 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
         applyStepLabel(i);
     }
 
+    // Sablier : barre de progression INDÉTERMINÉE (range 0,0 → animation perpétuelle), masquée par
+    // défaut. Affichée par setBusy() pendant les attentes bloquantes (connexion, création de comptes).
+    // Elle s'anime toute seule car waitProcessResponsive fait tourner la boucle d'événements.
+    m_busy = new QProgressBar(this);
+    m_busy->setRange(0, 0);
+    m_busy->setTextVisible(false);
+    m_busy->setVisible(false);
+    dlglayout()->insertWidget(row++, m_busy);
+
     // Boutons « Annuler » + « OK » (le libellé d'OK est ajusté par configurer*()).
     // AjouteLayButtons relie déjà Annuler à reject() ; on relie OK à accept().
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -241,6 +250,35 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
     if (OKButton)        OKButton->hide();
     if (CancelButton)    CancelButton->hide();
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
+    if (m_busy)          m_busy->setVisible(false);   // la checklist prend le relais du sablier
+    unsetCursor();
+    QApplication::processEvents();
+}
+
+//  Indicateur d'attente. `on` : sablier visible, saisie grisée, OK/Annuler désactivés (login/mdp
+//  CONSERVÉS) → la fiche reste à l'écran et montre qu'elle travaille pendant une étape bloquante.
+//  `off` : on rétablit tout. Le sablier s'anime car les opérations bloquantes (runCmd) laissent
+//  tourner la boucle d'événements (waitProcessResponsive).
+void MySQLInstallerDialog::setBusy(bool on, const QString& message)
+{
+    // Sous-titre : on affiche le message d'attente en entrant, on restaure l'ancien en sortant
+    // (sinon la fiche garderait « Connexion en cours… » après un échec, avant un nouvel essai).
+    if (on) {
+        if (!message.isEmpty() && m_subtitle && m_subtitleSauve.isEmpty()) {
+            m_subtitleSauve = m_subtitle->text();
+            m_subtitle->setText(message);
+        }
+    } else if (!m_subtitleSauve.isEmpty() && m_subtitle) {
+        m_subtitle->setText(m_subtitleSauve);
+        m_subtitleSauve.clear();
+    }
+    if (m_busy)       m_busy->setVisible(on);
+    if (OKButton)     OKButton->setEnabled(!on);
+    if (CancelButton) CancelButton->setEnabled(!on);
+    if (m_login)      m_login->setEnabled(!on);
+    if (m_mdp)        m_mdp->setEnabled(!on);
+    if (m_mdpConfirm) m_mdpConfirm->setEnabled(!on);
+    if (on) setCursor(Qt::WaitCursor); else unsetCursor();
     QApplication::processEvents();
 }
 
@@ -1526,10 +1564,18 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerT
     QString adminLogin, adminMdp;
     forever {
         if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+        //! exec() vient de masquer la fiche (OK → accept) : on la RÉ-AFFICHE aussitôt — avant tout
+        //! rafraîchissement d'écran, donc sans clignotement visible.
+        m_dialog->show();
         adminLogin = m_dialog->login();
         adminMdp   = m_dialog->password();
         if (!m_dialog->validerSaisie()) continue;
+        //! Mode « attente » (sablier animé, OK grisé, login/mdp CONSERVÉS) le temps de la connexion,
+        //! qui est bloquante (plusieurs secondes). Sans ça, l'écran restait vide et laissait croire à
+        //! un échec. Sablier maintenu au succès jusqu'à ce que la 1re case de la checklist se coche.
+        m_dialog->setBusy(true, tr("Connexion au serveur MySQL en cours…"));
         if (tryConnectAs(adminLogin, adminMdp)) break;
+        m_dialog->setBusy(false);   // échec : on réactive la saisie pour réessayer, champs conservés
         UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
             tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
     }

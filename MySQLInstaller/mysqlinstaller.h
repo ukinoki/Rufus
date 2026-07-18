@@ -116,6 +116,12 @@ public:
     void setMinVersion(const QString& v);           // re-libelle l'étape 0
     bool wasCancelled() const { return m_cancelled; }
 
+    //  Indicateur d'attente : `on` = grise la saisie + désactive OK/Annuler + affiche une barre
+    //  ANIMÉE (sablier), en gardant login/mdp remplis. À poser AVANT une opération bloquante
+    //  (connexion, création de comptes) pour que la fiche NE disparaisse PAS et signale qu'elle
+    //  travaille ; `off` la réactive. `message` (optionnel) remplace le sous-titre le temps de l'attente.
+    void setBusy(bool on, const QString& message = QString());
+
 protected:
     void reject() override;                         // marque l'annulation
 
@@ -136,6 +142,8 @@ private:
     bool           m_confirmMdpRequis = false;  // true en mode CRÉATION : validerSaisie() exige mdp == confirmation
     UpSmallButton* m_btnSupprMySQL = nullptr;   // « Supprimer MySQL » (mode Verify)
     UpCheckBox* m_steps[7];          // 0..5 = config ; 6 = clés SSL pour l'accès distant
+    QProgressBar* m_busy = nullptr;  // sablier : barre indéterminée pendant les attentes bloquantes
+    QString     m_subtitleSauve;     // sous-titre mémorisé pendant l'attente (restauré à la sortie)
     QString     m_stepDetail[7];
     QString     m_minVersion = VERSION_MYSQL_MINI;   // seuil commun (8.0.14), écrasé par setMinVersion()
     bool        m_cancelled  = false;
