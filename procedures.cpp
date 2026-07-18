@@ -2670,6 +2670,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         /*! 4 - choix des éléments à restaurer */
         AskBupRestore(RestoreOp, dirtorestore.absolutePath(), dirimagerie, OKini, OKImages, OKVideos, OKFactures);
         int result;
+        bool erreurRestauration = false;   //! passe à true si la restauration de la BASE échoue (→ pas de redémarrage auto)
         if (!cheminRestauration.isEmpty())
         {
             //! Migration AUTOMATIQUE : on restaure UNIQUEMENT la base, sans afficher la boîte
@@ -2734,6 +2735,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             if (echecfile)
                             {
                                 msg += tr("Base non restaurée") + "\n" + msg;
+                                erreurRestauration = true;
                                 break;
                             }
                         }
@@ -2747,7 +2749,10 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
                             //! Restauration à partir du dossier sélectionné
                             int a = ExecuteScriptSQL(listnomsfilestorestore);
                             if (a != 0)
+                            {
                                 UpSystemTrayIcon::I()->showMessage(tr("Messages"), tr("Incident pendant la restauration"), Icons::icSunglasses(), 3000);
+                                erreurRestauration = true;
+                            }
                             else
                                 msg += tr("Base de données Rufus restaurée\n");
                         }
@@ -2866,15 +2871,17 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         //qDebug() << msg;
         UpMessageBox::Watch(parent,tr("Restauration terminée"),msg);
         emit ConnectTimers(true);
-        //! Restauration depuis une sauvegarde réussie : on relance Rufus pour repartir proprement sur
-        //! la base restaurée. Contrairement à la base VIERGE, aucun CreerPremierUser à faire ici — la
-        //! sauvegarde contient déjà les utilisateurs. En mode migration AUTOMATIQUE (cheminRestauration
-        //! fourni), on laisse l'appelant gérer sa propre relance (message dédié « MySQL mis à jour »).
-        if (result > 0 && cheminRestauration.isEmpty())
+        //! Restauration depuis une sauvegarde réussie (base sans erreur) : on relance Rufus tout seul
+        //! pour repartir proprement sur la base restaurée. Contrairement à la base VIERGE, aucun
+        //! CreerPremierUser à faire ici — la sauvegarde contient déjà les utilisateurs. En mode migration
+        //! AUTOMATIQUE (cheminRestauration fourni), on laisse l'appelant gérer sa propre relance.
+        //! Message d'attente NON bloquant (splash 3 s, pas de clic) puis relance automatique : on laisse
+        //! le splash s'afficher ~2,5 s (Utils::Pause fait vivre l'UI) avant de quitter.
+        if (result > 0 && cheminRestauration.isEmpty() && !erreurRestauration)
         {
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
-                                tr("La base de données a été restaurée. Rufus va redémarrer."));
+            ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000);
+            Utils::Pause(2500);
             QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
             exit(0);
         }
