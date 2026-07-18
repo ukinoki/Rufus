@@ -4912,16 +4912,16 @@ void Procedures::SauvegardeIni()
 bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIni, bool RecupIni, bool ReconstruitIni, bool PremDemarrage, bool RestaurerBase)
 {
     UpSmallButton AnnulBouton              (tr("Abandonner et\nquitter Rufus"));
-    UpSmallButton RecupIniBouton           (tr("Restaurer le fichier Rufus.ini\nà partir d'une sauvegarde"));
+    UpSmallButton RecupIniBouton           (tr("Restaurer les paramétrages de Rufus\nà partir d'une sauvegarde"));
     UpSmallButton RestaureBaseBouton       (tr("Restaurer la base de données\nà partir d'une sauvegarde"));
-    UpSmallButton ReconstruitIniBouton     (tr("Reconstruire le fichier\nRufus.ini"));
+    UpSmallButton ReconstruitIniBouton     (tr("Reparamétrer Rufus"));
     //! Libellé NEUTRE, vrai dans TOUS les modes : le bouton mène à « une base patients
     //! exploitable », qu'on s'y connecte ou qu'on la crée. On NE fait PAS dépendre le TEXTE du
     //! contexte réseau. Aujourd'hui un client ne peut que se connecter (pas créer), mais c'est une
     //! règle de COMPORTEMENT (ci-dessous), pas un fait à graver dans le libellé : le jour où un
     //! client pourra créer une base, seul le comportement changera — pas de libellé resté faux.
     //! Le détail (se connecter / créer) est présenté à l'écran suivant.
-    UpSmallButton PremierDemarrageBouton    (tr("Accéder à une\nbase patients"));
+    UpSmallButton PremierDemarrageBouton    (tr("Créer ou se connecter à\nune base patients"));
     PremierDemarrageBouton.setImmediateToolTip(tr("Mettre en place l'accès de ce poste à sa base patients."));
 
     //! Le COMPORTEMENT, lui, dépend légitimement du mode (déjà connu par db) :
@@ -4975,7 +4975,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
             source = PATH_FILE_INI_BACKUP;
         else
         {
-            QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
+            QFileDialog dialog(Q_NULLPTR, tr("Choisir le fichier d'initialisation Rufus.ini"), PATH_DIR_RUFUS,"Text files (Rufus*.ini)");
             dialog.setViewMode(QFileDialog::List);
             dialog.setFileMode(QFileDialog::ExistingFile);
             if (dialog.exec() == QDialog::Accepted)

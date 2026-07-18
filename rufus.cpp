@@ -437,7 +437,9 @@ void Rufus::ConnectSignals()
     connect (ui->SupprimeActepushButton,                            &QPushButton::clicked,                              this,   [=] {SupprimerActe(currentacte());});
     connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Tonometrie);
     connect (ui->PachymetriepushButton,                             &QPushButton::clicked,                              this,   &Rufus::Pachymetrie);
-    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);   // DEV : fausse lecture (sans lecteur) ; remettre LireLaCV pour la vraie lecture PC/SC
+    /*!    // DEV : fausse lecture (sans lecteur) ; remettre LireLaCV pour la vraie lecture PC/SC */
+    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);
+    //connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
@@ -10828,7 +10830,7 @@ void Rufus::LireLaCV()
 void Rufus::SimulerLireCV()
 {
     QList<LecteurVitale::Porteur> porteurs;
-    porteurs.append(LecteurVitale::Porteur{ "SCALETTA", "HELENE",     "21/08/1968", "268081315501324" });  // assurée (NIR = carte de test)
+    porteurs.append(LecteurVitale::Porteur{ "SCOLETTA", "HELENE",     "21/08/1968", "268081315501324" });  // assurée (NIR = carte de test)
     porteurs.append(LecteurVitale::Porteur{ "SABAH",    "ANDREA",     "01/03/2000" });                     // ayant droit
     porteurs.append(LecteurVitale::Porteur{ "GIMENEZ",  "CLEMENTINE", "22/07/2006" });                     // ayant droit
     ExploiteCarteVitale(porteurs, tr("Carte Vitale (simulation)"));

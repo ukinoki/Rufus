@@ -117,9 +117,9 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
     champs->setSpacing(5);
     champs->addSpacerItem(new QSpacerItem(0, 10, QSizePolicy::Minimum, QSizePolicy::Expanding));
     champs->addStretch();
-    QWidget *widg_crit  = new QWidget();
-    widg_crit           ->setFixedSize(180,120);
-    widg_crit           ->setLayout(champs);
+    QWidget *widg_champ  = new QWidget();
+    widg_champ           ->setFixedSize(160,100);
+    widg_champ           ->setLayout(champs);
 
     UpGroupBox *critere     = new UpGroupBox();
     QVBoxLayout *critlay    = new QVBoxLayout(critere);
@@ -132,9 +132,9 @@ RechercheDossier::RechercheDossier(const QString &nom, const QString &prenom, co
     critlay                 ->addStretch();
 
     QHBoxLayout *haut       = new QHBoxLayout;
-    haut                    ->addWidget(widg_crit);
+    haut                    ->addWidget(widg_champ);
     haut                    ->addSpacing(10);
-    haut                    ->addWidget(critere, 0, Qt::AlignTop);
+    haut                    ->addWidget(critere, 0, Qt::AlignCenter);
     haut                    ->addStretch();
 
     // ---- Table des patients (comme rufus.cpp) ----
