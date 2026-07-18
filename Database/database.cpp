@@ -194,8 +194,11 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
             if ((nomfich == "ca-cert.pem" || nomfich == "ca.pem") && !connectSSLoptions.contains("SSL_CA="))
                 connectSSLoptions += "SSL_CA=" + QDir::toNativeSeparators(dirkey + "/" + nomfich + ";");
         }
-        //connectSSLoptions += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";   //! ancien jeton — refusé par Qt 6.11 (« Illegal connect option value »), ignoré → remettre pour revenir en arrière
-        connectSSLoptions += "MYSQL_OPT_SSL_MODE=SSL_MODE_REQUIRED;";     //! TLS EXIGÉ (cert client présenté), serveur NON vérifié : même effet net que VERIFY_SERVER_CERT=0, jeton accepté par Qt 6.11
+        //! NB : Qt 6.11 rejette ce jeton (warning « Illegal connect option value ») et l'IGNORE — la
+        //! connexion se fait alors sur le comportement SSL PAR DÉFAUT du client, qui convient au distant.
+        //! Le remplacer par MYSQL_OPT_SSL_MODE=SSL_MODE_REQUIRED (réellement appliqué, lui) CASSE l'accès
+        //! distant : on garde donc l'ancien jeton, warning cosmétique inclus. Voir historique du dépôt.
+        connectSSLoptions += "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
         login += "SSL";
     }
     else
@@ -211,8 +214,9 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
         //! reste chiffrée si le serveur le propose, sans imposer de distribuer la CA sur chaque
         //! poste du cabinet (ce serait un frein d'installation). La vérification n'a de sens que
         //! sur le réseau ouvert : c'est le rôle du mode Distant, qui, lui, fournit bien la CA.
-        //connectSSLoptions = "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";   //! ancien jeton — refusé par Qt 6.11 (« Illegal connect option value »), ignoré → remettre pour revenir en arrière
-        connectSSLoptions = "MYSQL_OPT_SSL_MODE=SSL_MODE_PREFERRED;";     //! chiffre SI le serveur le propose, sans vérifier le certificat serveur : même effet net que VERIFY_SERVER_CERT=0, jeton accepté par Qt 6.11
+        //! Idem branche distante : Qt 6.11 ignore ce jeton (warning cosmétique), la connexion locale
+        //! se fait sur le défaut. On ne le remplace PAS par MYSQL_OPT_SSL_MODE (cassait le distant).
+        connectSSLoptions = "MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0;";
     }
     m_db.setConnectOptions(connectSSLoptions);
 
