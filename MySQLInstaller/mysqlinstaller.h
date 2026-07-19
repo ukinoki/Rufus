@@ -115,9 +115,7 @@ public:
     void setStepDetail(int i, const QString& detail);   // ajoute « : detail » au libellé
     void setMinVersion(const QString& v);           // re-libelle l'étape 0
     bool wasCancelled() const { return m_cancelled; }
-
-protected:
-    void reject() override;                         // marque l'annulation
+    void reject() override;                         // marque l'annulation (slot public, comme QDialog)
 
 private:
     QString baseStepLabel(int i) const;
