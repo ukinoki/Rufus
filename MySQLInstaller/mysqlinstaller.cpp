@@ -190,15 +190,6 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
         applyStepLabel(i);
     }
 
-    // Sablier : barre de progression INDÉTERMINÉE (range 0,0 → animation perpétuelle), masquée par
-    // défaut. Affichée par setBusy() pendant les attentes bloquantes (connexion, création de comptes).
-    // Elle s'anime toute seule car waitProcessResponsive fait tourner la boucle d'événements.
-    m_busy = new QProgressBar(this);
-    m_busy->setRange(0, 0);
-    m_busy->setTextVisible(false);
-    m_busy->setVisible(false);
-    dlglayout()->insertWidget(row++, m_busy);
-
     // Boutons « Annuler » + « OK » (le libellé d'OK est ajusté par configurer*()).
     // AjouteLayButtons relie déjà Annuler à reject() ; on relie OK à accept().
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
@@ -250,35 +241,7 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
     if (OKButton)        OKButton->hide();
     if (CancelButton)    CancelButton->hide();
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
-    if (m_busy)          m_busy->setVisible(false);   // la checklist prend le relais du sablier
     unsetCursor();
-    QApplication::processEvents();
-}
-
-//  Indicateur d'attente. `on` : sablier visible, saisie grisée, OK/Annuler désactivés (login/mdp
-//  CONSERVÉS) → la fiche reste à l'écran et montre qu'elle travaille pendant une étape bloquante.
-//  `off` : on rétablit tout. Le sablier s'anime car les opérations bloquantes (runCmd) laissent
-//  tourner la boucle d'événements (waitProcessResponsive).
-void MySQLInstallerDialog::setBusy(bool on, const QString& message)
-{
-    // Sous-titre : on affiche le message d'attente en entrant, on restaure l'ancien en sortant
-    // (sinon la fiche garderait « Connexion en cours… » après un échec, avant un nouvel essai).
-    if (on) {
-        if (!message.isEmpty() && m_subtitle && m_subtitleSauve.isEmpty()) {
-            m_subtitleSauve = m_subtitle->text();
-            m_subtitle->setText(message);
-        }
-    } else if (!m_subtitleSauve.isEmpty() && m_subtitle) {
-        m_subtitle->setText(m_subtitleSauve);
-        m_subtitleSauve.clear();
-    }
-    if (m_busy)       m_busy->setVisible(on);
-    if (OKButton)     OKButton->setEnabled(!on);
-    if (CancelButton) CancelButton->setEnabled(!on);
-    if (m_login)      m_login->setEnabled(!on);
-    if (m_mdp)        m_mdp->setEnabled(!on);
-    if (m_mdpConfirm) m_mdpConfirm->setEnabled(!on);
-    if (on) setCursor(Qt::WaitCursor); else unsetCursor();
     QApplication::processEvents();
 }
 
@@ -1563,13 +1526,17 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [this] {
         if (!m_dialog->validerSaisie()) return;
-        m_dialog->setBusy(true);
+        m_dialog->OKButton->setEnabled(false);
+        m_dialog->CancelButton->setEnabled(false);
+        m_dialog->setCursor(Qt::WaitCursor);
         if (tryConnectAs(m_dialog->login(), m_dialog->password())) {
             m_dialog->checkStep(0);
             m_dialog->accept();
         }
         else {
-            m_dialog->setBusy(false);
+            m_dialog->OKButton->setEnabled(true);
+            m_dialog->CancelButton->setEnabled(true);
+            m_dialog->unsetCursor();
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                 tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
         }
@@ -1611,8 +1578,8 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     if (effacerTout)
         effacerToutesBasesUtilisateur(adminLogin, adminMdp);
 
-    // La fiche est DÉJÀ figée par setBusy (champs grisés, OK/Annuler désactivés) : on ne masque rien
-    // de plus. Masquer les boutons ferait rétrécir la fiche et tronquerait le sous-titre word-wrap.
+    // OK/Annuler déjà désactivés depuis le clic : on ne masque rien de plus (masquer ferait rétrécir
+    // la fiche et tronquerait le sous-titre word-wrap). La checklist se coche pendant la config.
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
     // Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche
