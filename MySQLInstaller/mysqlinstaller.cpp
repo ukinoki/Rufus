@@ -1558,27 +1558,23 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerT
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
     m_dialog->setMinVersion(cfg.minVersion);
-    m_dialog->show();
-    QApplication::processEvents();
-
-    QString adminLogin, adminMdp;
-    forever {
-        if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
-        //! exec() vient de masquer la fiche (OK → accept) : on la RÉ-AFFICHE aussitôt — avant tout
-        //! rafraîchissement d'écran, donc sans clignotement visible.
-        m_dialog->show();
-        adminLogin = m_dialog->login();
-        adminMdp   = m_dialog->password();
-        if (!m_dialog->validerSaisie()) continue;
-        //! Mode « attente » (sablier animé, OK grisé, login/mdp CONSERVÉS) le temps de la connexion,
-        //! qui est bloquante (plusieurs secondes). Sans ça, l'écran restait vide et laissait croire à
-        //! un échec. Sablier maintenu au succès jusqu'à ce que la 1re case de la checklist se coche.
+    // OK ne ferme plus la fiche : il tente la connexion, et ne l'accepte qu'au succès.
+    QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
+    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [this] {
+        if (!m_dialog->validerSaisie()) return;
         m_dialog->setBusy(true, tr("Connexion au serveur MySQL en cours…"));
-        if (tryConnectAs(adminLogin, adminMdp)) break;
-        m_dialog->setBusy(false);   // échec : on réactive la saisie pour réessayer, champs conservés
-        UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
-            tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
-    }
+        if (tryConnectAs(m_dialog->login(), m_dialog->password()))
+            m_dialog->accept();
+        else {
+            m_dialog->setBusy(false);
+            UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
+                tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
+        }
+    });
+
+    if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+    const QString adminLogin = m_dialog->login();
+    const QString adminMdp   = m_dialog->password();
 
     m_dialog->show();
     QApplication::processEvents();
