@@ -45,11 +45,11 @@ DEALLOCATE PREPARE st;
 
 -- --- 2. Recréation de l'état antérieur (générique seul, non sécurisé) -------
 CREATE USER 'adminrufus'@'%'
-       IDENTIFIED WITH mysql_native_password BY 'gaxt78iy';
+       IDENTIFIED BY 'gaxt78iy';
 GRANT ALL PRIVILEGES ON *.* TO 'adminrufus'@'%' WITH GRANT OPTION;
 
 CREATE USER 'adminrufusSSL'@'%'
-       IDENTIFIED WITH mysql_native_password BY 'gaxt78iy' REQUIRE SSL;
+       IDENTIFIED BY 'gaxt78iy' REQUIRE SSL;
 GRANT ALL PRIVILEGES ON *.* TO 'adminrufusSSL'@'%' WITH GRANT OPTION;
 
 FLUSH PRIVILEGES;
