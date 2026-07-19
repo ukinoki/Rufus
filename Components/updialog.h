@@ -58,7 +58,7 @@ public:
     enum Mode {NullMode, Modification,  Creation}; Q_ENUM(Mode)
 
 private:
-    void            mouseMoveEvent(QMouseEvent* event);
+    void            mouseMoveEvent(QMouseEvent* event) override;
     bool            m_enregistreposition    = false;
     Mode            m_mode;
     QString         m_nomfichierini;
