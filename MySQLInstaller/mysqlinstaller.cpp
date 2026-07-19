@@ -1522,25 +1522,37 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
-    // OK ne ferme plus la fiche : il tente la connexion, coche « Connexion OK », et ne l'accepte qu'au succès.
+    m_dialog->setModal(true);
+    m_dialog->show();
+    QApplication::processEvents();
+
+    // OK ne ferme PLUS la fiche et surtout ne l'accepte pas : accept() la masquerait, et il faudrait
+    // la ré-afficher juste après (show()) → un clignotement au démarrage de la config, visible au
+    // moment où la 1re case se coche. On attend le clic dans une boucle locale qu'on quitte SANS
+    // masquer la fiche : elle reste affichée en continu, la checklist se coche par-dessus.
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
-    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [this] {
+    QEventLoop attenteConnexion;
+    bool connexionOK = false;
+    connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
         if (!m_dialog->validerSaisie()) return;
         if (tryConnectAs(m_dialog->login(), m_dialog->password())) {
             m_dialog->checkStep(0);
-            m_dialog->accept();
+            connexionOK = true;
+            attenteConnexion.quit();
         }
         else
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                 tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
     });
-
-    if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
+    // Annuler / fermeture de la fenêtre : reject() (déjà câblé sur Annuler) émet rejected() → on quitte
+    // aussi la boucle, connexionOK restant faux.
+    const QMetaObject::Connection cRejet =
+        connect(m_dialog, &QDialog::rejected, &attenteConnexion, &QEventLoop::quit);
+    attenteConnexion.exec();
+    QObject::disconnect(cRejet);
+    if (!connexionOK) { cleanupDialog(); return false; }
     const QString adminLogin = m_dialog->login();
     const QString adminMdp   = m_dialog->password();
-
-    m_dialog->show();
-    QApplication::processEvents();
 
     m_login    = LOGIN_SQL;
     m_password = genererMotDePasse();
