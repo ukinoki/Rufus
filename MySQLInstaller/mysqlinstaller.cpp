@@ -1522,70 +1522,63 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
-    m_dialog->setModal(true);
-    m_dialog->show();
-    QApplication::processEvents();
 
-    // OK ne ferme PLUS la fiche et surtout ne l'accepte pas : accept() la masquerait, et il faudrait
-    // la ré-afficher juste après (show()) → un clignotement au démarrage de la config, visible au
-    // moment où la 1re case se coche. On attend le clic dans une boucle locale qu'on quitte SANS
-    // masquer la fiche : elle reste affichée en continu, la checklist se coche par-dessus.
+    // Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : il vérifie la
+    // connexion admin (coche la case 0) puis enchaîne la configuration (cases 1 à 6, cochées une par
+    // une). accept() n'est appelé qu'à la toute fin, quand tout est coché. Ainsi la fiche ne se ferme
+    // et ne se rouvre jamais entre deux cases — c'est ça qui la faisait clignoter.
+    // Connexion refusée → on laisse la fiche ouverte pour réessayer ; erreur bloquante → reject()
+    // (retour à la boîte de choix).
+    QString adminLogin, adminMdp;
+    bool configReussie = false;
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
-    QEventLoop attenteConnexion;
-    bool connexionOK = false;
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [&] {
         if (!m_dialog->validerSaisie()) return;
-        if (tryConnectAs(m_dialog->login(), m_dialog->password())) {
-            m_dialog->checkStep(0);
-            connexionOK = true;
-            attenteConnexion.quit();
-        }
-        else
+        if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                 tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
+            return;                                 // fiche ouverte : on réessaie
+        }
+        m_dialog->checkStep(0);
+
+        adminLogin = m_dialog->login();
+        adminMdp   = m_dialog->password();
+        m_login    = LOGIN_SQL;
+        m_password = genererMotDePasse();
+        if (!isServerRunning()) startMySQL();
+
+        const CreateUserResult r = createUserAvecAdmin(adminLogin, adminMdp);
+        if (r == CreateUserResult::NoCreateUserRight) {
+            UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
+                tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
+                   "(CREATE USER). Réessayez avec un compte administrateur MySQL "
+                   "(par ex. root).").arg(adminLogin));
+            m_dialog->reject();                     // → retour à la boîte de choix
+            return;
+        }
+        if (r != CreateUserResult::Ok) {
+            UpMessageBox::Watch(m_dialog, tr("Erreur"),
+                tr("Impossible de créer les comptes Rufus."));
+            m_dialog->reject();
+            return;
+        }
+        // adminrufus/adminrufusSSL créés : on mémorise leur mot de passe aléatoire.
+        stockerMotDePasse(m_password);
+        m_comptesDejaCrees = true;
+
+        // EFFACER : on supprime aussi les bases NON-Rufus (données étrangères). Les bases Rufus,
+        // elles, sont (re)créées vierges par RestaureBase. CONSERVER : on n'y touche pas.
+        if (effacerTout)
+            effacerToutesBasesUtilisateur(adminLogin, adminMdp);
+
+        if (!executerEtapesConfig()) { m_dialog->reject(); return; }
+
+        configReussie = true;
+        m_dialog->accept();                         // tout est coché : on ferme enfin
     });
-    // Annuler / fermeture de la fenêtre : reject() (déjà câblé sur Annuler) émet rejected() → on quitte
-    // aussi la boucle, connexionOK restant faux.
-    const QMetaObject::Connection cRejet =
-        connect(m_dialog, &QDialog::rejected, &attenteConnexion, &QEventLoop::quit);
-    attenteConnexion.exec();
-    QObject::disconnect(cRejet);
-    if (!connexionOK) { cleanupDialog(); return false; }
-    const QString adminLogin = m_dialog->login();
-    const QString adminMdp   = m_dialog->password();
 
-    m_login    = LOGIN_SQL;
-    m_password = genererMotDePasse();
-    if (!isServerRunning()) startMySQL();
-
-    const CreateUserResult r = createUserAvecAdmin(adminLogin, adminMdp);
-    if (r == CreateUserResult::NoCreateUserRight) {
-        UpMessageBox::Watch(m_dialog, tr("Droits insuffisants"),
-            tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
-               "(CREATE USER). Réessayez avec un compte administrateur MySQL "
-               "(par ex. root).").arg(adminLogin));
-        cleanupDialog();
-        return false;                           // → retour à la boîte de choix
-    }
-    if (r != CreateUserResult::Ok) {
-        UpMessageBox::Watch(m_dialog, tr("Erreur"),
-            tr("Impossible de créer les comptes Rufus."));
-        cleanupDialog();
-        return false;
-    }
-    // adminrufus/adminrufusSSL créés : on mémorise leur mot de passe aléatoire.
-    stockerMotDePasse(m_password);
-    m_comptesDejaCrees = true;
-
-    // EFFACER : on supprime aussi les bases NON-Rufus (données étrangères). Les bases
-    // Rufus, elles, sont (re)créées vierges par RestaureBase. CONSERVER : on n'y touche
-    // pas (les autres schémas restent).
-    if (effacerTout)
-        effacerToutesBasesUtilisateur(adminLogin, adminMdp);
-
-    // OK/Annuler déjà désactivés depuis le clic : on ne masque rien de plus (masquer ferait rétrécir
-    // la fiche et tronquerait le sous-titre word-wrap). La checklist se coche pendant la config.
-    if (!executerEtapesConfig()) { cleanupDialog(); return false; }
+    m_dialog->exec();
+    if (!configReussie) { cleanupDialog(); return false; }
 
     // Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche
     // d'installation (avec sa checklist) puis on ouvre une petite fiche dédiée
@@ -2101,8 +2094,6 @@ bool MySQLInstaller::executerEtapesConfig()
             .arg(sharedFolderPath()));
         return false;
     }
-    // Révèle le chemin du dossier partagé en face de la case (une fois cochée).
-    m_dialog->setStepDetail(2, QDir::toNativeSeparators(sharedFolderPath()));
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(2);
 
