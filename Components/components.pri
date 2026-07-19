@@ -58,5 +58,6 @@ HEADERS += $$PWD/upcheckbox.h \
     $$PWD/upstandarditem.h \
     $$PWD/uptableview.h \
     $$PWD/uptreeview.h \
-    $$PWD/upvideowidget.h
+    $$PWD/upvideowidget.h \
+    $$PWD/upwaitoverlay.h
 
