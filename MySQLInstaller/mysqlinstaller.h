@@ -97,7 +97,7 @@ public:
     //  Bascule la fiche en mode « paramétrage en cours » : titre dédié, champs
     //  login/mdp désactivés (déjà choisis) et boutons OK/Annuler masqués — la
     //  séquence de configuration se déroule alors sans aucun clic à faire.
-    void passerEnConfiguration(const QString& titre = QString(), const QString& sousTitre = QString());
+    void passerEnConfiguration(const QString& titre, const QString& sousTitre);
     //  Cache la ligne de saisie identifiant/mot de passe (labels + champs) : utilisé pour
     //  la RÉINSTALLATION lors d'une migration, où aucun nouvel utilisateur n'est saisi.
     void masquerSaisieUtilisateur();

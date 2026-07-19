@@ -242,8 +242,8 @@ void MySQLInstallerDialog::configurer(const QString& titre,
 void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
                                                  const QString& sousTitre)
 {
-    if (!titre.isEmpty())    m_title->setText(titre);        // vide → on garde le texte en place (pas de sursaut)
-    if (!sousTitre.isEmpty()) m_subtitle->setText(sousTitre);
+    m_title->setText(titre);
+    m_subtitle->setText(sousTitre);
     if (m_login)      m_login->setEnabled(false);
     if (m_mdp)        m_mdp->setEnabled(false);
     if (m_mdpConfirm) m_mdpConfirm->setEnabled(false);
@@ -1611,9 +1611,8 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     if (effacerTout)
         effacerToutesBasesUtilisateur(adminLogin, adminMdp);
 
-    // Plus aucune saisie pendant la configuration : fiche grisée, sans bouton OK. On garde le texte
-    // en place (pas de sursaut) ; la connexion, elle, est déjà cochée par l'étape 0.
-    m_dialog->passerEnConfiguration();
+    // La fiche est DÉJÀ figée par setBusy (champs grisés, OK/Annuler désactivés) : on ne masque rien
+    // de plus. Masquer les boutons ferait rétrécir la fiche et tronquerait le sous-titre word-wrap.
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
     // Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche
