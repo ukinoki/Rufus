@@ -242,8 +242,8 @@ void MySQLInstallerDialog::configurer(const QString& titre,
 void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
                                                  const QString& sousTitre)
 {
-    m_title->setText(titre);
-    m_subtitle->setText(sousTitre);
+    if (!titre.isEmpty())    m_title->setText(titre);        // vide → on garde le texte en place (pas de sursaut)
+    if (!sousTitre.isEmpty()) m_subtitle->setText(sousTitre);
     if (m_login)      m_login->setEnabled(false);
     if (m_mdp)        m_mdp->setEnabled(false);
     if (m_mdpConfirm) m_mdpConfirm->setEnabled(false);
@@ -333,6 +333,8 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
     // Le choix « réinstaller / effacer » est désormais fait en amont par la boîte
     // « que faire de MySQL ? » : cette fiche ne sert plus qu'à saisir les identifiants.
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
+    // La version MySQL est déjà connue à ce stade : l'étape 0 sert de statut de connexion.
+    m_steps[0]->setText(tr("Connexion OK"));
 }
 
 void MySQLInstallerDialog::configurerNewUserRufus()
@@ -1553,18 +1555,19 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
 //  compte admin MySQL, crée adminrufus/SSL, (option : efface les bases non-Rufus),
 //  déroule la config, puis la saisie du futur utilisateur Rufus.
 // ═════════════════════════════════════════════════════════════════════════════
-bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerTout)
+bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout)
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
-    m_dialog->setMinVersion(cfg.minVersion);
-    // OK ne ferme plus la fiche : il tente la connexion, et ne l'accepte qu'au succès.
+    // OK ne ferme plus la fiche : il tente la connexion, coche « Connexion OK », et ne l'accepte qu'au succès.
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [this] {
         if (!m_dialog->validerSaisie()) return;
-        m_dialog->setBusy(true, tr("Connexion au serveur MySQL en cours…"));
-        if (tryConnectAs(m_dialog->login(), m_dialog->password()))
+        m_dialog->setBusy(true);
+        if (tryConnectAs(m_dialog->login(), m_dialog->password())) {
+            m_dialog->checkStep(0);
             m_dialog->accept();
+        }
         else {
             m_dialog->setBusy(false);
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
@@ -1608,11 +1611,9 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& cfg, bool effacerT
     if (effacerTout)
         effacerToutesBasesUtilisateur(adminLogin, adminMdp);
 
-    m_dialog->checkStep(0);
-    // Plus aucune saisie pendant la configuration : fiche grisée, sans bouton OK.
-    m_dialog->passerEnConfiguration(
-        tr("Serveur MySQL prêt"),
-        tr("Paramétrage de l'installation pour Rufus en cours…"));
+    // Plus aucune saisie pendant la configuration : fiche grisée, sans bouton OK. On garde le texte
+    // en place (pas de sursaut) ; la connexion, elle, est déjà cochée par l'étape 0.
+    m_dialog->passerEnConfiguration();
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
     // Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche
