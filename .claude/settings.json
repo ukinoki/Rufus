@@ -1,0 +1,14 @@
+{
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo \"⛔ RÈGLE (CLAUDE.md §0) — avant d'écrire une solution : cherche si ça marche déjà dans le code et COPIE-le, ne réinvente pas. 2e essai raté sur le même point = STOP : reviens à la dernière version qui marchait ou copie l'analogue, n'écris pas une 3e variante. « Ça marche » = observé, jamais supposé.\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -30,6 +30,23 @@ de trop est le défaut par défaut — on la traque.
 **La complexité n'est pas de la rigueur, c'est une dette.** À qualité égale, le
 code le plus court gagne toujours : moins de code = moins de risque.
 
+### Fil-piège (règle *comptable*, pas une maxime)
+
+Un principe ne se déclenche pas au bon moment ; un compteur, si. Donc, concret :
+
+1. **Avant d'écrire une solution** : *« ça marche déjà quelque part dans le
+   code ? »* Si oui → **on le copie**, on ne réinvente pas (ex. la fiche de
+   progression : le multiviewer / la copie de fichiers l'affichaient déjà, il
+   fallait partir de là, pas inventer trois variantes).
+2. **2ᵉ essai raté sur le même point = STOP.** On n'écrit pas une 3ᵉ variante :
+   on **revient à la dernière version qui marchait**, ou on copie l'analogue qui
+   marche. Deux échecs, c'est comptable — contrairement à « faire simple ».
+3. **« Ça marche » = observé, jamais supposé.** Tant que ce n'est pas constaté,
+   c'est « pas encore vérifié », pas « fait ».
+
+> Cette règle est si souvent enfreinte qu'un *hook* (`.claude/settings.json`) la
+> réinjecte à chaque tour : le document seul ne suffisait pas.
+
 ---
 
 ## 1. Ce qu'est Rufus
