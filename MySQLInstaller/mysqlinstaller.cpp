@@ -1526,20 +1526,13 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [this] {
         if (!m_dialog->validerSaisie()) return;
-        m_dialog->OKButton->setEnabled(false);
-        m_dialog->CancelButton->setEnabled(false);
-        m_dialog->setCursor(Qt::WaitCursor);
         if (tryConnectAs(m_dialog->login(), m_dialog->password())) {
             m_dialog->checkStep(0);
             m_dialog->accept();
         }
-        else {
-            m_dialog->OKButton->setEnabled(true);
-            m_dialog->CancelButton->setEnabled(true);
-            m_dialog->unsetCursor();
+        else
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                 tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
-        }
     });
 
     if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
