@@ -16,7 +16,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "mysqlinstaller.h"
-#include "upwaitoverlay.h"
 
 #include <QApplication>
 #include <QVBoxLayout>
@@ -1527,9 +1526,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
     connect(m_dialog->OKButton, &QPushButton::clicked, m_dialog, [this] {
         if (!m_dialog->validerSaisie()) return;
-        bool ok;
-        { UpWaitOverlay sablier(m_dialog); ok = tryConnectAs(m_dialog->login(), m_dialog->password()); }
-        if (ok) {
+        if (tryConnectAs(m_dialog->login(), m_dialog->password())) {
             m_dialog->checkStep(0);
             m_dialog->accept();
         }
