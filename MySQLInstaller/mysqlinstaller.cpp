@@ -3352,6 +3352,11 @@ bool MySQLInstaller::initOracleDataDir()
     return ok;
 }
 
+/*!
+ * \brief MySQLInstaller::installMySQL
+ * Installe MySQL selon l'OS : archive ZIP scriptée (Windows), apt-get via pkexec (Linux), .dmg Oracle
+ * (macOS). Récolte au passage les clés client SSL. true si le serveur est installé.
+ */
 bool MySQLInstaller::installMySQL()
 {
 #if defined(Q_OS_WIN)
@@ -3380,11 +3385,11 @@ bool MySQLInstaller::installMySQL()
         return QString::fromLocal8Bit(lf.readAll()).right(1500);
     };
 
-    // 0. Nettoyage défensif (autorise les ré-essais).
+    /*! 0. Nettoyage défensif (autorise les ré-essais). */
     runCmdFull("net stop MySQL " + NUL());
     runCmdFull("sc delete MySQL " + NUL());
     runCmdFull("taskkill /F /IM mysqld.exe " + NUL());
-    // Laisser Windows libérer les verrous de fichiers avant de supprimer.
+    /*! Laisser Windows libérer les verrous de fichiers avant de supprimer. */
     runCmd("powershell -NoProfile -Command \"Start-Sleep -Seconds 2\"");
     runCmd(QString("powershell -NoProfile -Command \""
         "Remove-Item -LiteralPath '%1','%2','%3' -Recurse -Force "
@@ -3393,7 +3398,7 @@ bool MySQLInstaller::installMySQL()
              QDir::toNativeSeparators(progData),
              QDir::toNativeSeparators(extract)));
 
-    // 1. Téléchargement de l'archive ZIP (~250 Mo) avec barre de progression.
+    /*! 1. Téléchargement de l'archive ZIP (~250 Mo) avec barre de progression. */
     downloadFile(url, zipPath, tr("Téléchargement de MySQL %1…").arg(version));
     if (!QFile::exists(zipPath) || QFileInfo(zipPath).size() < 1'000'000LL) {
         QFile::remove(zipPath);
@@ -3401,7 +3406,7 @@ bool MySQLInstaller::installMySQL()
         return false;
     }
 
-    // 2. Extraction entrée par entrée (avec barre de progression) puis déplacement.
+    /*! 2. Extraction entrée par entrée (avec barre de progression) puis déplacement. */
     const QString extractPs  = QDir::tempPath() + "/mysql_extract.ps1";
     const QString extractLog = QDir::tempPath() + "/mysql_extract.log";
     QFile::remove(extractLog);
@@ -3464,7 +3469,7 @@ bool MySQLInstaller::installMySQL()
     }
     QFile::remove(extractLog);
 
-    // 3. Fichier de configuration minimal (basedir + datadir).
+    /*! 3. Fichier de configuration minimal (basedir + datadir). */
     QDir().mkpath(progData);
     {
         QFile f(cnfPath);
@@ -3478,24 +3483,24 @@ bool MySQLInstaller::installMySQL()
            << "basedir=" << base    << "\n"
            << "datadir=" << dataDir << "\n"
            << "port=3306\n"
-           // MySQL 8.4 désactive mysql_native_password par défaut : on le réactive, car
-           // createUser() crée adminrufus dans ce plugin (le driver Qt ne sait pas
-           // authentifier caching_sha2_password en TCP non chiffré). Cf. createUser().
+           /*! MySQL 8.4 désactive mysql_native_password par défaut : on le réactive, car createUser() crée
+            *  adminrufus dans ce plugin (le driver Qt ne sait pas authentifier caching_sha2_password en TCP
+            *  non chiffré). Cf. createUser(). */
            << "mysql_native_password=ON\n";
     }
 
-    // 4. Initialisation du datadir (crée root@localhost SANS mot de passe).
+    /*! 4. Initialisation du datadir (crée root@localhost SANS mot de passe). */
     runLongOp(QString("\"%1\" --defaults-file=\"%2\" --initialize-insecure --console")
               .arg(QDir::toNativeSeparators(mysqld), QDir::toNativeSeparators(cnfPath)),
               tr("Initialisation de la base de données,\n"
                  "cela peut prendre quelques instants…"), 300000);
-    if (!QFile::exists(dataDir + "/mysql")) {     // schéma système créé ?
+    if (!QFile::exists(dataDir + "/mysql")) {     /*!< schéma système créé ? */
         UpMessageBox::Watch(nullptr, tr("Initialisation échouée"),
             tr("L'initialisation du datadir MySQL a échoué.\n\n%1").arg(lastErrLog()));
         return false;
     }
 
-    // 5. Enregistrement et démarrage du service Windows.
+    /*! 5. Enregistrement et démarrage du service Windows. */
     runCmdElevated(QString("\"%1\" --install MySQL --defaults-file=\"%2\"")
                    .arg(QDir::toNativeSeparators(mysqld),
                         QDir::toNativeSeparators(cnfPath)));
@@ -3514,20 +3519,20 @@ bool MySQLInstaller::installMySQL()
         return false;
     }
 
-    // SSL (étape 7, point 2) : récolte des clés client auto-générées dans le datadir, pour
-    // pouvoir les exporter ensuite vers les postes distants. Best-effort.
+    /*! SSL (étape 7, point 2) : récolte des clés client auto-générées dans le datadir, pour pouvoir les
+     *  exporter ensuite vers les postes distants. Best-effort. */
     recolterClesClientSSL(dataDir);
 
-    // Rendre MySQL désinstallable depuis « Applications et fonctionnalités ».
+    /*! Rendre MySQL désinstallable depuis « Applications et fonctionnalités ». */
     registerWindowsUninstaller(base, progData, version);
     return true;
 #elif defined(Q_OS_LINUX)
-    // Installation via apt-get (droits root → pkexec), avec barre de progression
-    // RÉELLE : apt écrit son avancement (0-100) sur APT::Status-Fd.
+    /*! Installation via apt-get (droits root → pkexec), avec barre de progression RÉELLE : apt écrit son
+     *  avancement (0-100) sur APT::Status-Fd. */
     const QString aptScript = QDir::tempPath() + "/mysql_apt_install.sh";
-    // SSL (étape 7, points 2 et 5) : récolte des clés CLIENT, côté ROOT (le datadir
-    // /var/lib/mysql et client-key.pem en 0600 appartiennent à mysql), puis restitution
-    // à l'utilisateur. UNIQUEMENT les clés client ; jamais server-*.pem ni ca-key.pem.
+    /*! SSL (étape 7, points 2 et 5) : récolte des clés CLIENT, côté ROOT (le datadir /var/lib/mysql et
+     *  client-key.pem en 0600 appartiennent à mysql), puis restitution à l'utilisateur. UNIQUEMENT les clés
+     *  client ; jamais server-*.pem ni ca-key.pem. */
     const QString sslDest  = QString(PATH_DIR_CLESSSL_SERVEUR);
     const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));
     {
@@ -3558,11 +3563,11 @@ bool MySQLInstaller::installMySQL()
 #else
     QString dmg = downloadOracleDmg();
     if (dmg.isEmpty()) { avertirTelechargementImpossible(); return false; }
-    // installFromDmg installe le pkg PUIS initialise le datadir et démarre le
-    // serveur dans la même élévation.
+    /*! installFromDmg installe le pkg PUIS initialise le datadir et démarre le serveur dans la même
+     *  élévation. */
     if (!installFromDmg(dmg)) return false;
 
-    // L'init a-t-elle réussi ? (mysql.ibd = dictionnaire de données InnoDB.)
+    /*! L'init a-t-elle réussi ? (mysql.ibd = dictionnaire de données InnoDB.) */
     if (!QFileInfo::exists("/usr/local/mysql/data/mysql.ibd")) {
         QString detail;
         QFile lf(m_initLog);
