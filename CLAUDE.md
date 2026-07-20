@@ -109,21 +109,32 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   qu'ajouter.
 - Commenter le **pourquoi** d'un choix non évident (les commentaires existants du
   code le font déjà — garder ce style, en français).
+- **Lisibilité d'abord.** Tout ce qui suit ne vise qu'un but : qu'on comprenne le
+  code sans le dérouler en entier. Règle transverse : **préférer les commentaires
+  `/* … */` aux `//`** (dans l'éditeur Qt, le bleu foncé des `/* */` est plus
+  lisible).
 - **Résumé de classe en tête de chaque `.h`.** Après les `#include` et avant la
-  déclaration de la classe, un bloc `/*! … */` résume **ce que fait la classe**
-  et **le rôle des fonctions principales**, de façon à faire comprendre son
-  **mécanisme** d'un coup d'œil (structures de données clés, enchaînement,
-  interaction avec les appelants). Modèle à suivre : le bloc en tête de
-  `Dialogs/dlg_impressions.h`. Forme exacte :
+  déclaration de la classe, un bloc `/*! … */` résume **ce que fait la classe** et
+  **le rôle des fonctions principales**, pour saisir son **mécanisme** d'un coup
+  d'œil (structures de données clés, enchaînement, interaction avec les appelants).
+  Modèle : le bloc en tête de `Dialogs/dlg_impressions.h`. Forme exacte :
     - Bloc encadré par `/*!` et `*/`.
     - Chaque ligne commence par `* ` ; les **sous-chapitres** sont marqués par des
       **tabulations** (indentation croissante).
     - **Concis et précis** : les grandes lignes, pas des tartines interminables.
-- **Dans le `.h`, ordonner et documenter les fonctions.**
-    - Les **fonctions principales** sont précédées d'une **très courte** explication
-      (mode *brief*).
+- **Documenter les fonctions — au plus léger.**
+    - Le commentaire *brief* (`\brief`) développé vit dans le **`.cpp`**, au-dessus
+      de la définition — pas dans le `.h`.
+    - Dans le `.h`, une fonction n'a un *brief* que si elle est **complexe**. Si elle
+      est assez claire, un **commentaire d'une seule ligne** en forme `/*!< … */`,
+      **sur la même ligne** que la déclaration, suffit.
+    - Ces commentaires courts d'une ligne s'**alignent en colonne** d'une ligne à
+      l'autre (tabulations), à la manière de `Items/cls_acte.h` — mais en forme
+      `/* */` plutôt que `//`.
     - Chaque fonction est **suivie d'une ligne vide**.
     - Les fonctions sont **groupées par rôle** (comme dans `mysqlinstaller.h`).
+- **À l'intérieur d'une fonction (`.cpp`), commentaires extrêmement brefs**, sauf
+  quand un *pourquoi* non évident l'impose.
 - **Sécurité** : MySQL avec mot de passe aléatoire fort, connexions chiffrées
   SSL entre postes. Voir `docs/INITIALISATION_ET_SECURITE.md`.
 
