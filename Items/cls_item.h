@@ -47,6 +47,10 @@ public:
     QString stringid() const            { return m_stringid; }
     void setstringid(QString strid)     { m_stringid = strid; }
     QJsonObject datas() const           { return m_data; }
+    /*! réinjecte un instantané de datas dans l'item. Chaque type le surcharge (User, Acte...) ;
+     *  rendue virtuelle pour permettre une restauration générique des attributs via Item*
+     *  (cf. ItemsList::updateBlob : retour à l'état d'avant en cas d'échec d'écriture en base). */
+    virtual void setData(QJsonObject data) { Q_UNUSED(data) }
 
     //! convertit un côté en QString : droit = "D", Gauche = "G", Les 2 = "2"
     static Cote ConvertCote(QString cote)

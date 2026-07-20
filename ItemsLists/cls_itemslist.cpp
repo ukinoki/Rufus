@@ -1576,24 +1576,42 @@ bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
 {
     if (item == Q_NULLPTR)
         return false;
+
+    /*! instantané des attributs AVANT modification : permet, en cas d'échec de l'écriture
+     *  en base, de régénérer l'ancienne valeur de façon générique (setData réapplique tous
+     *  les attributs), sans avoir à traiter chaque champ. */
+    QJsonObject saved = item->datas();
+
     QString table   = "";
     QString idfield = "";
-    bool ok         = false;
+    bool known      = true;
 
     User *usr = qobject_cast<User*>(item);
     if (usr)
     {
         table   = TBL_UTILISATEURS;
         idfield = CP_ID_USR;
-        ok      = true;
         if (field == CP_SIGNATURE_USR)      usr->setSignature(blob);
         else if (field == CP_USERLOGO_USR)  usr->setLogo(blob);
-        else                                ok = false;
+        else                                known = false;
     }
-    if (!ok)
+    else
+        known = false;
+    if (!known)
         return false;
 
     QHash<QString, QVariant> sets;
     sets[field] = blob.isEmpty() ? QVariant() : QVariant(blob);   /*!< vide -> NULL en base */
-    return DataBase::I()->UpdateTablebyBinds(table, sets, idfield, item->id(), tr("Enregistrement impossible"));
+    bool ok = DataBase::I()->UpdateTablebyBinds(table, sets, idfield, item->id(), tr("Enregistrement impossible"));
+
+    /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique)
+     *  et on prévient, sinon l'objet en mémoire diverge silencieusement de la base */
+    if (!ok)
+    {
+        item->setData(saved);
+        UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+            tr("La modification n'a pas pu être enregistrée dans la base de données "
+               "(le serveur est peut-être momentanément indisponible)."));
+    }
+    return ok;
 }

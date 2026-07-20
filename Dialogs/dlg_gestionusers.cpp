@@ -487,8 +487,10 @@ void dlg_gestionusers::changeSignature()
         UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
         return;
     }
-    m_userencours->setSignature(QImage::fromData(ba));               /*!< l'attribut image du user, pour l'affichage immédiat */
-    ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR, ba);      /*!< enregistre le blob en base (bindvalue) et sur l'attribut octets */
+    /*! d'abord l'enregistrement (bindvalue) : s'il réussit, on met l'attribut image pour l'affichage ;
+     *  s'il échoue, updateBlob a déjà restauré l'ancienne valeur et rien ne change à l'écran */
+    if (ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR, ba))
+        m_userencours->setSignature(QImage::fromData(ba));
     AfficheSignature();
     ui->OKupSmallButton->setEnabled(true);
 }
@@ -500,8 +502,9 @@ void dlg_gestionusers::delSignature()
                                tr("Confirmez-vous la suppression de la signature") + "?")
         != UpSmallButton::STARTBUTTON)
         return;
-    m_userencours->setSignature(QImage());                              /*!< vide l'attribut image du user */
-    ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR);              /*!< blob vide -> NULL en base, et vide l'attribut octets */
+    /*! suppression : NULL en base ; l'attribut image n'est vidé que si l'écriture réussit */
+    if (ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR))
+        m_userencours->setSignature(QImage());
     AfficheSignature();
     ui->OKupSmallButton->setEnabled(true);
 }
