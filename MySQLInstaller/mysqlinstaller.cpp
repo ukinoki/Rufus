@@ -3588,7 +3588,7 @@ bool MySQLInstaller::installMySQL()
 
 bool MySQLInstaller::startMySQL()
 {
-    // Déjà démarré ? (isServerRunning gère le cas auth_socket d'Ubuntu.)
+    /*! Déjà démarré ? (isServerRunning gère le cas auth_socket d'Ubuntu.) */
     if (isServerRunning())
         return true;
 
@@ -3598,8 +3598,7 @@ bool MySQLInstaller::startMySQL()
     runCmdElevated("systemctl start mysql");
 #else
     if (isOracleInstall()) {
-        // Démon système macOS : démarrage (et init du datadir si nécessaire) en
-        // UNE élévation idempotente.
+        /*! Démon système macOS : démarrage (et init du datadir si nécessaire) en UNE élévation idempotente. */
         initOracleDataDir();
     } else {
         runCmdFull("brew services start mysql@8.4 2>&1", 15000);
@@ -3623,13 +3622,13 @@ bool MySQLInstaller::waitForMySQL(int maxSeconds)
 void MySQLInstaller::restartMySQL()
 {
 #if defined(Q_OS_WIN)
-    // Service Windows : arrêt puis démarrage (l'app est déjà élevée).
+    /*! Service Windows : arrêt puis démarrage (l'app est déjà élevée). */
     runCmdElevated("net stop MySQL & net start MySQL");
 #elif defined(Q_OS_LINUX)
     runCmdElevated("systemctl restart mysql");
 #else
     if (isOracleInstall()) {
-        // Démon système (/Library/LaunchDaemons) : le redémarrage exige root.
+        /*! Démon système (/Library/LaunchDaemons) : le redémarrage exige root. */
         const QString plist = "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist";
         if (QFile::exists(plist))
             runCmdElevated(
@@ -3644,9 +3643,7 @@ void MySQLInstaller::restartMySQL()
     waitForMySQL(15);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Dossier partagé /Users/Shared : secure_file_priv + test lecture/écriture
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Dossier partagé /Users/Shared : secure_file_priv + test lecture/écriture ─── */
 QList<QPair<QString, QString>> MySQLInstaller::rufusCnfVars()
 {
     QList<QPair<QString, QString>> vars = {
@@ -3665,35 +3662,31 @@ bool MySQLInstaller::ensureSecureFilePriv()
     const QString target = sharedFolderPath();
     const QList<QPair<QString, QString>> vars = rufusCnfVars();
 
-    // secure_file_priv TEL QUE LE SERVEUR L'APPLIQUE (et non tel qu'écrit dans le fichier) : c'est
-    // la SEULE preuve que le my.cnf a été lu. Un fichier correct mais hors de la chaîne de config du
-    // serveur (cf. bug getCnfPath) laissait la variable à NULL côté serveur tout en validant le
-    // fichier → fausse réussite, puis fausse fenêtre « Full Disk Access ». Le serveur renvoie souvent
-    // le chemin avec un « / » final → on normalise avant de comparer.
-    // Normalise un chemin pour comparaison robuste, quelle que soit la forme renvoyée par
-    // le serveur. On force d'abord « \ » → « / » (QDir::cleanPath ne le fait pas hors Windows),
-    // puis QDir::cleanPath collapse les séparateurs MULTIPLES — ce qui avale aussi les antislashs
-    // DOUBLÉS par le client mysql en mode -B (« C:\Users\Public\ » sort « C:\\Users\\Public\\ »,
-    // devient « C://Users//Public// » puis « C:/Users/Public ») — et retire le séparateur final.
-    // La comparaison qui suit est CASse-insensitive (chemins Windows insensibles à la casse).
+    /*! secure_file_priv TEL QUE LE SERVEUR L'APPLIQUE (et non tel qu'écrit dans le fichier) : SEULE preuve
+     *  que le my.cnf a été lu. Un fichier correct mais hors de la chaîne de config (cf. bug getCnfPath)
+     *  laissait la variable à NULL côté serveur tout en validant le fichier → fausse réussite, puis fausse
+     *  fenêtre « Full Disk Access ». Le serveur renvoie souvent le chemin avec un « / » final → on normalise. */
+    /*! normChemin : normalise un chemin pour comparaison robuste. On force « \ » → « / » (QDir::cleanPath
+     *  ne le fait pas hors Windows), puis cleanPath collapse les séparateurs MULTIPLES — ce qui avale aussi
+     *  les antislashs DOUBLÉS par le client mysql en mode -B — et retire le séparateur final. La comparaison
+     *  qui suit est insensible à la casse (chemins Windows). */
     auto normChemin = [](QString s) { return QDir::cleanPath(s.replace('\\', '/')); };
-    QString liveVu;     // dernière valeur lue côté serveur (conservée pour le diagnostic)
+    QString liveVu;     /*!< dernière valeur lue côté serveur (conservée pour le diagnostic) */
     auto serveurOk = [&]() -> bool {
         const QString out = runCmdFull(QString(
             "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
             "\"SELECT @@GLOBAL.secure_file_priv;\" 2>&1")
             .arg(mysqlBin("mysql"), m_login, m_password));
-        // runCmdFull fusionne stderr : le client mysql lancé avec -p<motdepasse> imprime
-        // TOUJOURS « [Warning] Using a password on the command line interface can be
-        // insecure » AVANT le résultat. La valeur est donc sur la DERNIÈRE ligne non vide ;
-        // une comparaison sur la sortie brute échouerait à cause de cette ligne parasite.
+        /*! runCmdFull fusionne stderr : le client mysql lancé avec -p<motdepasse> imprime TOUJOURS
+         *  « [Warning] Using a password on the command line… » AVANT le résultat. La valeur est donc sur la
+         *  DERNIÈRE ligne non vide ; comparer la sortie brute échouerait à cause de cette ligne parasite. */
         const QStringList lignes = out.split('\n', Qt::SkipEmptyParts);
         liveVu = lignes.isEmpty() ? QString() : lignes.last().trimmed();
         return !liveVu.isEmpty() && liveVu.compare("NULL", Qt::CaseInsensitive) != 0
             && normChemin(liveVu).compare(normChemin(target), Qt::CaseInsensitive) == 0;
     };
-    // Diagnostic posé sur CHAQUE échec : on saura, à l'écran, POURQUOI ça a raté (valeur
-    // réelle du serveur vs. attendue, et ce que contient le fichier de config réellement lu).
+    /*! Diagnostic posé sur CHAQUE échec : on saura, à l'écran, POURQUOI ça a raté (valeur réelle du serveur
+     *  vs attendue, et ce que contient le fichier de config réellement lu). */
     auto noteEchec = [&](const QString& etape) {
         m_secureFilePrivErr =
             tr("Étape : %1").arg(etape) + "\n"
@@ -3705,7 +3698,7 @@ bool MySQLInstaller::ensureSecureFilePriv()
     };
     m_secureFilePrivErr.clear();
 
-    // Déjà bon ? Le FICHIER doit contenir nos réglages ET le SERVEUR doit les appliquer réellement.
+    /*! Déjà bon ? Le FICHIER doit contenir nos réglages ET le SERVEUR doit les appliquer réellement. */
     bool fichierOk = true;
     for (const auto& kv : vars)
         if (getCnfVar(kv.first) != kv.second) { fichierOk = false; break; }
@@ -3721,7 +3714,7 @@ bool MySQLInstaller::ensureSecureFilePriv()
     bool ok;
 
 #if defined(Q_OS_LINUX)
-    // Copie + redémarrage en UNE SEULE élévation (pkexec).
+    /*! Copie + redémarrage en UNE SEULE élévation (pkexec). */
     ok = runCmdElevated(QString(
         "cp '%1' '%2' && chmod 644 '%2' && systemctl restart mysql")
         .arg(tmp, path));
@@ -3743,9 +3736,9 @@ bool MySQLInstaller::ensureSecureFilePriv()
         noteEchec(tr("copie du my.ini / redémarrage du serveur (commande élevée en échec)"));
         return false;
     }
-    // Preuve finale sur le SERVEUR VIVANT (après redémarrage), pas sur le fichier : si le serveur
-    // ne lit toujours pas le my.cnf, on le sait ICI (et on échoue honnêtement) au lieu de glisser
-    // vers une fausse fenêtre Full Disk Access.
+    /*! Preuve finale sur le SERVEUR VIVANT (après redémarrage), pas sur le fichier : si le serveur ne lit
+     *  toujours pas le my.cnf, on le sait ICI (et on échoue honnêtement) au lieu de glisser vers une fausse
+     *  fenêtre Full Disk Access. */
     if (!serveurOk()) {
         noteEchec(tr("vérification de la variable serveur après redémarrage"));
         return false;
@@ -3753,16 +3746,19 @@ bool MySQLInstaller::ensureSecureFilePriv()
     return true;
 }
 
-//  Vérifie que mysql sait ÉCRIRE puis RELIRE un fichier dans /Users/Shared.
+/*!
+ * \brief MySQLInstaller::testSharedFolderRW
+ * Vérifie que mysql sait ÉCRIRE puis RELIRE un fichier dans le dossier partagé.
+ */
 bool MySQLInstaller::testSharedFolderRW()
 {
     const QString sub   = sharedFolderPath() + "/.mysql_rwtest";
     const QString token = "MYSQLD_RW_OK";
-    const QString file  = sub + "/probe.txt";   // écrit ET relu par le serveur
+    const QString file  = sub + "/probe.txt";   /*!< écrit ET relu par le serveur */
 
     QDir().mkpath(sub);
 #if !defined(Q_OS_WIN)
-    // macOS : rendre le sous-dossier inscriptible par le compte _mysql (0777).
+    /*! macOS : rendre le sous-dossier inscriptible par le compte _mysql (0777). */
     runCmd("chmod 777 '" + sub + "'");
 #endif
 
