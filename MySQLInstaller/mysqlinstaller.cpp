@@ -548,21 +548,25 @@ static bool versionAtLeast(const QString& ver, const QString& minVer)
     return true;   // égalité exacte => au moins la version minimale
 }
 
-//  Seuil minimal de version MySQL exigé, COMMUN à tous les OS (cf. VERSION_MYSQL_MINI) : 8.0.14,
-//  le minimum fonctionnel des fonctions de sécurité (double mot de passe). On ne distingue plus
-//  l'OS : ce qui compte est la version du serveur MySQL, pas la plateforme qui l'héberge.
+/*!
+ * \brief seuilVersionMySQL
+ * Seuil minimal de version MySQL exigé, COMMUN à tous les OS (VERSION_MYSQL_MINI = 8.0.14) : minimum
+ * fonctionnel des fonctions de sécurité (double mot de passe). Ce qui compte est la version du serveur,
+ * pas la plateforme qui l'héberge.
+ */
 static QString seuilVersionMySQL()
 {
     return VERSION_MYSQL_MINI;
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Mot de passe aléatoire (helpers statiques)
-// ═════════════════════════════════════════════════════════════════════════════
-//  Mot de passe alphanumérique fort (12 caractères, [A-Za-z0-9]), tiré d'un
-//  générateur semé de façon sécurisée. 12 car. (et non 24) pour tenir dans la
-//  contrainte de saisie 5-12 des champs login/mdp (mêmes que rufus.utilisateurs) :
-//  62^12 ≈ 3·10^21 → reste largement assez fort pour ce compte.
+/*! ═══ Mot de passe aléatoire (helpers statiques) ═════════════════════════════════════════════════ */
+
+/*!
+ * \brief MySQLInstaller::genererMotDePasse
+ * Mot de passe alphanumérique fort (12 caractères, [A-Za-z0-9]) tiré d'un générateur semé de façon
+ * sécurisée. 12 car. (et non 24) pour tenir dans la contrainte de saisie 5-12 des champs login/mdp ;
+ * 62^12 ≈ 3·10^21 reste largement assez fort pour ce compte.
+ */
 QString MySQLInstaller::genererMotDePasse()
 {
     static const QString alphabet =
@@ -575,22 +579,24 @@ QString MySQLInstaller::genererMotDePasse()
     return pwd;
 }
 
-//  Le mot de passe MySQL est lu dans le fichier CACHÉ PATH_FILE_DBKEY (~/.rufus/.dbkey),
-//  PAS dans Rufus.ini : il doit survivre à une réinitialisation par suppression de
-//  Rufus.ini. Un même poste peut se connecter à PLUSIEURS bases (une par mode d'accès :
-//  monoposte, réseau local, distant) ; le .dbkey contient donc une ligne par mode :
-//      MONO=xxxxxxxxxxxx
-//      LAN=yyyyyyyyyyyy
-//      WAN=zzzzzzzzzzzz
-//  (rare, mais réel : portable de test en monoposte + base du cabinet en local/distant).
-//  Rétro-compat : un .dbkey d'une seule ligne BRUTE (sans « = »), ou l'ancien format
-//  INI « [Connexion]/MDPSQL=… », est interprété comme l'entrée MONO (monoposte).
-//  Repli legacy gaxt78iy (MDP_SQL) si le mode courant n'a pas d'entrée.
+/*! Le mot de passe MySQL est lu dans le fichier CACHÉ PATH_FILE_DBKEY (~/.rufus/.dbkey), PAS dans
+ *  Rufus.ini : il doit survivre à une réinitialisation par suppression de Rufus.ini. Un même poste peut
+ *  se connecter à PLUSIEURS bases (une par mode d'accès) ; le .dbkey contient donc une ligne par mode :
+ *      MONO=xxxxxxxxxxxx
+ *      LAN=yyyyyyyyyyyy
+ *      WAN=zzzzzzzzzzzz
+ *  (rare mais réel : portable de test en monoposte + base du cabinet en local/distant). Rétro-compat :
+ *  une ligne BRUTE (sans « = »), ou l'ancien INI « [Connexion]/MDPSQL=… », = entrée MONO. Repli legacy
+ *  gaxt78iy (MDP_SQL) si le mode courant n'a pas d'entrée. */
 
-//  Cache mémoire des mots de passe, par clé de mode (MONO/LAN/WAN).
+/*! Cache mémoire des mots de passe, par clé de mode (MONO/LAN/WAN). */
 QHash<QString,QString> MySQLInstaller::s_cacheMDP;
 
-//  Clé .dbkey correspondant à un mode d'accès.
+/*!
+ * \brief cleDepuisMode
+ * Clé .dbkey correspondant à un mode d'accès (MONO / LAN / WAN).
+ * \param mode  mode d'accès
+ */
 static QString cleDepuisMode(Utils::ModeAcces mode)
 {
     switch (mode) {
@@ -601,14 +607,17 @@ static QString cleDepuisMode(Utils::ModeAcces mode)
     }
 }
 
-//  Clé du mode de connexion courant (porté par DataBase).
+/*! Clé du mode de connexion courant (porté par DataBase). */
 static QString cleModeCourant()
 {
     return cleDepuisMode(DataBase::I()->ModeAccesDataBase());
 }
 
-//  Lit tout le .dbkey dans une table clé→mdp (clés MONO/LAN/WAN). Gère les formats
-//  hérités (ligne brute ou « MDPSQL=… » → MONO).
+/*!
+ * \brief lireDBKey
+ * Lit tout le .dbkey dans une table clé→mdp (clés MONO/LAN/WAN). Gère les formats hérités (ligne brute
+ * ou « MDPSQL=… » → MONO).
+ */
 static QHash<QString,QString> lireDBKey()
 {
     QHash<QString,QString> table;
@@ -636,8 +645,11 @@ static QHash<QString,QString> lireDBKey()
     return table;
 }
 
-//  Mot de passe du MODE COURANT. Résolu une fois par mode (lecture .dbkey) puis mis en
-//  cache. Fonction PURE (aucune connexion, aucune UI). Repli gaxt78iy si pas d'entrée.
+/*!
+ * \brief MySQLInstaller::motDePasseSQL
+ * Mot de passe du MODE COURANT, résolu une fois par mode (lecture .dbkey) puis mis en cache. Fonction
+ * PURE (aucune connexion, aucune UI). Repli gaxt78iy si pas d'entrée.
+ */
 QString MySQLInstaller::motDePasseSQL()
 {
     const QString cle = cleModeCourant();
@@ -652,15 +664,21 @@ QString MySQLInstaller::motDePasseSQL()
     return mdp;
 }
 
-//  Met à jour, en mémoire, le mdp du mode courant (sans toucher au disque : cf.
-//  stockerMotDePasse).
+/*!
+ * \brief MySQLInstaller::setMotDePasseSQL
+ * Met à jour, EN MÉMOIRE, le mdp du mode courant (sans toucher au disque : cf. stockerMotDePasse).
+ * \param mdp  mot de passe à mettre en cache
+ */
 void MySQLInstaller::setMotDePasseSQL(const QString& mdp)
 {
     s_cacheMDP.insert(cleModeCourant(), mdp);
 }
 
-//  Mots de passe à essayer dans le mode courant, dans l'ordre : celui que ce poste
-//  connaît (.dbkey du mode) puis gaxt78iy.
+/*!
+ * \brief MySQLInstaller::motsDePasseSQLCandidats
+ * Mots de passe à essayer dans le mode courant, dans l'ordre : celui que ce poste connaît (.dbkey du
+ * mode) puis gaxt78iy.
+ */
 QStringList MySQLInstaller::motsDePasseSQLCandidats()
 {
     QStringList candidats;
@@ -671,7 +689,11 @@ QStringList MySQLInstaller::motsDePasseSQLCandidats()
     return candidats;
 }
 
-//  Écrit toute la table clé→mdp dans le .dbkey (une ligne CLE=mdp par mode présent).
+/*!
+ * \brief ecrireDBKey
+ * Écrit toute la table clé→mdp dans le .dbkey (une ligne CLE=mdp par mode présent).
+ * \param table  table clé→mot de passe à écrire
+ */
 static void ecrireDBKey(const QHash<QString,QString>& table)
 {
     QDir().mkpath(PATH_DIR_RUFUSKEY);             // dossier caché ~/.rufus (créé au besoin)
@@ -684,9 +706,13 @@ static void ecrireDBKey(const QHash<QString,QString>& table)
     }
 }
 
-//  Connexion en cascade : essaie les mots de passe candidats (aléatoire .dbkey PUIS
-//  gaxt78iy) et mémorise celui qui marche. Cf. en-tête : protège contre l'échec de la
-//  TOUTE PREMIÈRE connexion avec l'aléatoire fraîchement posé par la sécurisation.
+/*!
+ * \brief MySQLInstaller::connecterAvecCandidats
+ * Connexion en cascade : essaie les mots de passe candidats (aléatoire .dbkey PUIS gaxt78iy) et mémorise
+ * celui qui marche. Protège contre l'échec de la TOUTE PREMIÈRE connexion avec l'aléatoire fraîchement
+ * posé par la sécurisation.
+ * \param basename  base à laquelle se connecter
+ */
 QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
 {
     QString err;
@@ -696,92 +722,112 @@ QString MySQLInstaller::connecterAvecCandidats(const QString& basename)
         err = DataBase::I()->connectToDataBase(basename, LOGIN_SQL, mdp);
         if (err.isEmpty())
         {
-            setMotDePasseSQL(mdp);                 // mémorise le mdp qui fonctionne
+            setMotDePasseSQL(mdp);                 /*!< mémorise le mdp qui fonctionne */
             break;
         }
-        //! On NE SUPPRIME PLUS le .dbkey si l'aléatoire enregistré est refusé. C'est souvent l'UNIQUE
-        //! copie du mot de passe de la base (le poste qui a sécurisé), et un refus peut être TRANSITOIRE :
-        //! reconnexion juste après un ALTER, aléa SSL, plugin d'auth… Le détruire pouvait VERROUILLER la
-        //! base (perte définitive de l'aléatoire). gaxt78iy (candidat suivant) prend le relais tant qu'il
-        //! existe ; un aléatoire réellement périmé est de toute façon écrasé lors de la récupération
-        //! (proposerRecuperationAleatoire), et le coût d'un .dbkey obsolète est nul (on l'essaie, il
-        //! échoue, on passe au candidat suivant).
+        /*! On NE SUPPRIME PLUS le .dbkey si l'aléatoire enregistré est refusé : c'est souvent l'UNIQUE
+         *  copie du mot de passe (le poste qui a sécurisé), et un refus peut être TRANSITOIRE (reconnexion
+         *  juste après un ALTER, aléa SSL, plugin d'auth…). Le détruire pouvait VERROUILLER la base. gaxt78iy
+         *  (candidat suivant) prend le relais tant qu'il existe ; un aléatoire périmé est de toute façon
+         *  écrasé à la récupération (proposerRecuperationAleatoire), et le coût d'un .dbkey obsolète est nul. */
     }
     return err;
 }
 
-//  Refus d'authentification (mauvais mdp : MySQL 1045 / « Access denied ») vs serveur injoignable.
+/*!
+ * \brief MySQLInstaller::estErreurAuthentification
+ * Refus d'authentification (mauvais mdp : MySQL 1045 / « Access denied ») vs serveur injoignable.
+ * \param erreur  message d'erreur de connexion à classer
+ */
 bool MySQLInstaller::estErreurAuthentification(const QString& erreur)
 {
     return erreur.contains("denied", Qt::CaseInsensitive)
         || erreur.contains("1045");
 }
 
-//  Stocke le mot de passe du MODE COURANT (cf. stockerMotDePassePourMode).
+/*!
+ * \brief MySQLInstaller::stockerMotDePasse
+ * Stocke le mot de passe du MODE COURANT (cf. stockerMotDePassePourMode).
+ * \param mdp  mot de passe à stocker
+ */
 void MySQLInstaller::stockerMotDePasse(const QString& mdp)
 {
     stockerMotDePassePourMode(DataBase::I()->ModeAccesDataBase(), mdp);
 }
 
-//  Valeur BRUTE stockée pour un mode (pour configurer/afficher), "" si aucune.
+/*!
+ * \brief MySQLInstaller::motDePasseStockePourMode
+ * Valeur BRUTE stockée pour un mode (pour configurer/afficher), "" si aucune.
+ * \param mode  mode d'accès interrogé
+ */
 QString MySQLInstaller::motDePasseStockePourMode(Utils::ModeAcces mode)
 {
     return lireDBKey().value(cleDepuisMode(mode));
 }
 
-//  Stocke le mot de passe d'un mode explicite dans le .dbkey, en PRÉSERVANT les autres
-//  modes, puis met à jour le cache.
+/*!
+ * \brief MySQLInstaller::stockerMotDePassePourMode
+ * Stocke le mot de passe d'un mode explicite dans le .dbkey en PRÉSERVANT les autres modes, puis met à
+ * jour le cache.
+ * \param mode  mode d'accès concerné
+ * \param mdp   mot de passe à stocker
+ */
 void MySQLInstaller::stockerMotDePassePourMode(Utils::ModeAcces mode, const QString& mdp)
 {
     const QString cle = cleDepuisMode(mode);
-    QHash<QString,QString> table = lireDBKey();   // entrées existantes (autres modes)
+    QHash<QString,QString> table = lireDBKey();   /*!< entrées existantes (autres modes) */
     table.insert(cle, mdp);
     ecrireDBKey(table);
-    s_cacheMDP.insert(cle, mdp);                  // garde le cache cohérent avec le disque
+    s_cacheMDP.insert(cle, mdp);                  /*!< garde le cache cohérent avec le disque */
 }
 
-//  Retire l'entrée d'un mode du .dbkey (mode de connexion abandonné) et du cache.
+/*!
+ * \brief MySQLInstaller::supprimerMotDePassePourMode
+ * Retire l'entrée d'un mode du .dbkey (mode de connexion abandonné) et du cache.
+ * \param mode  mode d'accès à oublier
+ */
 void MySQLInstaller::supprimerMotDePassePourMode(Utils::ModeAcces mode)
 {
     const QString cle = cleDepuisMode(mode);
     s_cacheMDP.remove(cle);
     QHash<QString,QString> table = lireDBKey();
     if (!table.contains(cle))
-        return;                                   // rien à retirer
+        return;                                   /*!< rien à retirer */
     table.remove(cle);
     ecrireDBKey(table);
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Config MySQL distante
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═══ Config MySQL distante ═══════════════════════════════════════════════════════════════════════ */
 MySQLRemoteConfig MySQLInstaller::defaultMySQLConfig()
 {
     MySQLRemoteConfig c;
     c.version     = "8.4.2";
-    // Seuil minimal accepté : 8.0.14, commun à tous les OS (cf. VERSION_MYSQL_MINI). La version
-    // POSÉE en cas d'install est le 8.4.2 LTS (c.version ci-dessus), mais un serveur déjà >= 8.0.14
-    // est accepté tel quel (le 8.0 d'apt suffit, il sait déjà le double mot de passe).
+    /*! Seuil minimal accepté : 8.0.14, commun à tous les OS (VERSION_MYSQL_MINI). La version POSÉE en cas
+     *  d'install est le 8.4.2 LTS (c.version), mais un serveur déjà >= 8.0.14 est accepté tel quel (le 8.0
+     *  d'apt suffit, il sait déjà le double mot de passe). */
     c.minVersion  = seuilVersionMySQL();
-    // Binaires auto-hébergés sur la Release GitHub « mysqlinstaller-for-rufus » : URLs PERMANENTES
-    // (on les contrôle), téléchargeables en automatique (pas de blocage CDN/Akamai comme sur
-    // dev.mysql.com), et qui ne « rotent » pas au prochain point-release de MySQL. Le JSON distant
-    // (mysql_config.json) peut surcharger ces valeurs sans recompiler. macOS : un seul DMG par
-    // archi ; le build « macos14 » d'Oracle est compatible Ventura 13 (indiqué sur la page MySQL).
+    /*! Binaires auto-hébergés sur la Release GitHub « mysqlinstaller-for-rufus » : URLs PERMANENTES (on
+     *  les contrôle), téléchargeables en automatique (pas de blocage CDN/Akamai comme dev.mysql.com), qui
+     *  ne « rotent » pas au prochain point-release. Le JSON distant (mysql_config.json) peut surcharger
+     *  ces valeurs sans recompiler. macOS : un DMG par archi ; le build « macos14 » d'Oracle est
+     *  compatible Ventura 13. */
     c.winUrl      = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-winx64.zip";
     c.macArm64Url = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-macos14-arm64.dmg";
     c.macX86Url   = "https://github.com/ukinoki/mysqlinstaller-for-rufus/releases/download/mysql-8.4.2/mysql-8.4.2-macos14-x86_64.dmg";
     return c;
 }
 
-//  Charge la config MySQL distante la première fois, puis renvoie le cache.
-//  Timeout 5 s ; en cas d'échec, utilise defaultMySQLConfig().
+/*!
+ * \brief MySQLInstaller::fetchRemoteConfig
+ * Charge la config MySQL distante la première fois puis renvoie le cache. Timeout 5 s ; en cas d'échec,
+ * utilise defaultMySQLConfig().
+ */
 MySQLRemoteConfig MySQLInstaller::fetchRemoteConfig()
 {
     if (m_remoteConfigLoaded)
         return m_remoteConfig;
 
-    m_remoteConfig = defaultMySQLConfig();    // pré-remplir avec les valeurs de fallback
+    m_remoteConfig = defaultMySQLConfig();    /*!< pré-remplir avec les valeurs de fallback */
 
     const QString configUrl =
         "https://raw.githubusercontent.com/ukinoki/mysqlinstaller-for-rufus/main/mysql_config.json";
@@ -809,7 +855,7 @@ MySQLRemoteConfig MySQLInstaller::fetchRemoteConfig()
             if (obj.contains("mysql_version"))  m_remoteConfig.version     = obj["mysql_version"].toString();
             if (obj.contains("min_version"))     m_remoteConfig.minVersion  = obj["min_version"].toString();
 #if defined(Q_OS_LINUX)
-            // Sous Linux, un seuil dédié (plus tolérant) prime s'il est défini.
+            /*! Sous Linux, un seuil dédié (plus tolérant) prime s'il est défini. */
             if (obj.contains("min_version_linux")) m_remoteConfig.minVersion = obj["min_version_linux"].toString();
 #endif
             if (obj.contains("win_url"))         m_remoteConfig.winUrl      = obj["win_url"].toString();
@@ -822,33 +868,34 @@ MySQLRemoteConfig MySQLInstaller::fetchRemoteConfig()
     return m_remoteConfig;
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═════════════════════════════════════════════════════════════════════════════════════════════════ */
 MySQLInstaller::MySQLInstaller(QObject* parent)
     : QObject(parent)
 {}
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Multi-plateforme : dossier partagé
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Multi-plateforme : dossier partagé ───────────────────────────────────────── */
 QString MySQLInstaller::sharedFolderPath()
 {
 #if defined(Q_OS_WIN)
-    return "C:/Users/Public";   // slashes avant : acceptés par Qt et MySQL sous Windows
+    return "C:/Users/Public";   /*!< slashes avant : acceptés par Qt et MySQL sous Windows */
 #else
     return "/Users/Shared";
 #endif
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Pré-requis : droits administrateur
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Pré-requis : droits administrateur ───────────────────────────────────────── */
+
+/*!
+ * \brief MySQLInstaller::isAdminUser
+ * Le processus tourne-t-il avec les droits administrateur (jeton élevé sous Windows, root ou groupe
+ * sudo/admin sous Linux/macOS) ?
+ */
 bool MySQLInstaller::isAdminUser()
 {
 #if defined(Q_OS_WIN)
-    // Le processus est-il élevé ? On interroge directement le jeton d'accès via
-    // l'API Win32 (TokenElevation), fiable — contrairement à un appel PowerShell
-    // passé par cmd.exe, dont les guillemets imbriqués étaient mal transmis et
-    // faisaient systématiquement échouer la détection.
+    /*! Le processus est-il élevé ? On interroge directement le jeton d'accès via l'API Win32
+     *  (TokenElevation), fiable — contrairement à un appel PowerShell via cmd.exe dont les guillemets
+     *  imbriqués étaient mal transmis et faisaient échouer la détection. */
     BOOL elevated = FALSE;
     HANDLE token  = nullptr;
     if (OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &token)) {
@@ -861,7 +908,7 @@ bool MySQLInstaller::isAdminUser()
     }
     return elevated;
 #elif defined(Q_OS_LINUX)
-    // root, ou membre du groupe « sudo » (Ubuntu) / « admin ».
+    /*! root, ou membre du groupe « sudo » (Ubuntu) / « admin ». */
     if (runCmd("id -u 2>/dev/null").trimmed() == "0")
         return true;
     const QStringList groups =
@@ -869,7 +916,7 @@ bool MySQLInstaller::isAdminUser()
                                            Qt::SkipEmptyParts);
     return groups.contains("sudo") || groups.contains("admin");
 #else
-    // Les administrateurs macOS sont membres du groupe « admin » (gid 80).
+    /*! Les administrateurs macOS sont membres du groupe « admin » (gid 80). */
     const QStringList groups =
         runCmd("id -Gn 2>/dev/null").split(QRegularExpression("\\s+"),
                                            Qt::SkipEmptyParts);
@@ -878,11 +925,12 @@ bool MySQLInstaller::isAdminUser()
 }
 
 #if defined(Q_OS_WIN)
-//  Relance l'exécutable Rufus courant AVEC élévation, via le verbe « runas » de
-//  ShellExecuteEx : Windows affiche l'invite UAC. Sur un compte standard, l'invite
-//  permet de SAISIR un compte administrateur — c'est exactement le comportement
-//  demandé. true si l'instance élevée a démarré (UAC acceptée) ; false si l'utilisateur
-//  a annulé (ERROR_CANCELLED) ou en cas d'échec.
+/*!
+ * \brief MySQLInstaller::relancerEnAdministrateur
+ * Relance l'exécutable Rufus courant AVEC élévation, via le verbe « runas » de ShellExecuteEx (invite
+ * UAC ; sur un compte standard, l'invite permet de SAISIR un compte administrateur). true si l'instance
+ * élevée a démarré (UAC acceptée) ; false si annulation/échec.
+ */
 bool MySQLInstaller::relancerEnAdministrateur()
 {
     const QString exe = QDir::toNativeSeparators(QCoreApplication::applicationFilePath());
@@ -892,21 +940,21 @@ bool MySQLInstaller::relancerEnAdministrateur()
     ZeroMemory(&sei, sizeof(sei));
     sei.cbSize = sizeof(sei);
     sei.fMask  = SEE_MASK_NOCLOSEPROCESS;
-    sei.lpVerb = L"runas";              // déclenche l'élévation UAC
+    sei.lpVerb = L"runas";              /*!< déclenche l'élévation UAC */
     sei.lpFile = exeW.c_str();
     sei.nShow  = SW_SHOWNORMAL;
 
     if (ShellExecuteExW(&sei)) {
         if (sei.hProcess)
             CloseHandle(sei.hProcess);
-        return true;                    // instance élevée lancée
+        return true;                    /*!< instance élevée lancée */
     }
-    return false;                       // annulation (UAC) ou échec
+    return false;                       /*!< annulation (UAC) ou échec */
 }
 #endif
 
 #if defined(Q_OS_LINUX)
-//  Ubuntu 22.04 (LTS) ou ultérieure (selon /etc/os-release).
+/*! Ubuntu 22.04 (LTS) ou ultérieure (selon /etc/os-release). */
 bool MySQLInstaller::isUbuntuVersionSupported()
 {
     const QString ver =
@@ -916,17 +964,15 @@ bool MySQLInstaller::isUbuntuVersionSupported()
         return false;
     const int major = p[0].toInt();
     const int minor = p[1].toInt();
-    return (major > 22) || (major == 22 && minor >= 4);   // ≥ 22.04
+    return (major > 22) || (major == 22 && minor >= 4);   /*!< ≥ 22.04 */
 }
 #endif
 
 #if defined(Q_OS_WIN)
-// ─────────────────────────────────────────────────────────────────────────────
-//  Windows : Visual C++ Redistributable 2022 (x64)
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Windows : Visual C++ Redistributable 2022 (x64) ──────────────────────────── */
 bool MySQLInstaller::isVCRedist2022Installed()
 {
-    // Clé posée par le runtime VC++ 14.x (2015-2022, binairement compatibles).
+    /*! Clé posée par le runtime VC++ 14.x (2015-2022, binairement compatibles). */
     const QStringList keys = {
         "HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\X64",
         "HKLM\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\X64"
