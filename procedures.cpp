@@ -1411,12 +1411,19 @@ QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
 {
     if (signature.isNull())
         return textcorps;
-    QImage img = signature.scaledToWidth(200, Qt::SmoothTransformation);   /*!< largeur d'impression raisonnable */
+    /*! on garde l'image en pleine qualité dans le blob ; la TAILLE d'impression est fixée
+     *  ici par l'attribut width de la balise <img> (constante réglable SIGNATURE_LARGEUR_IMPRESSION),
+     *  la hauteur suit pour respecter les proportions */
+    int largeur = SIGNATURE_LARGEUR_IMPRESSION;
+    int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
+    /*! résolution embarquée bornée (pour ne pas gonfler le HTML archivé), assez fine pour l'impression */
+    QImage emb = (signature.width() > 600) ? signature.scaledToWidth(600, Qt::SmoothTransformation) : signature;
     QByteArray data;
     QBuffer buffer(&data);
-    img.save(&buffer, "PNG", 100);
-    QString imgtag = "<br /><p align=\"right\"><img src='data:image/png;base64, "
-                     + QString(data.toBase64()) + "'></p>";
+    emb.save(&buffer, "PNG", 100);
+    QString imgtag = "<br /><p align=\"right\"><img width=\"" + QString::number(largeur)
+                     + "\" height=\"" + QString::number(hauteur)
+                     + "\" src='data:image/png;base64, " + QString(data.toBase64()) + "'></p>";
     int pos = textcorps.lastIndexOf("</body>", -1, Qt::CaseInsensitive);
     if (pos >= 0)
         textcorps.insert(pos, imgtag);
