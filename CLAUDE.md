@@ -110,9 +110,10 @@ du logiciel — et la grille de lecture de toutes ses décisions.
 - Commenter le **pourquoi** d'un choix non évident (les commentaires existants du
   code le font déjà — garder ce style, en français).
 - **Lisibilité d'abord.** Tout ce qui suit ne vise qu'un but : qu'on comprenne le
-  code sans le dérouler en entier. Règle transverse : **préférer les commentaires
-  `/* … */` aux `//`** (dans l'éditeur Qt, le bleu foncé des `/* */` est plus
-  lisible).
+  code sans le dérouler en entier. Règle transverse sur la **forme** du commentaire :
+  utiliser **`/*! … */`** (et `/*!< … */` en fin de ligne). Dans l'éditeur Qt, `//`
+  et `/* */` **nus** s'affichent en **vert**, peu lisible ; `/*!` donne un **bleu
+  foncé** bien plus lisible. Donc on **bannit `//` et `/*` nus** au profit de `/*!`.
 - **Résumé de classe en tête de chaque `.h`.** Après les `#include` et avant la
   déclaration de la classe, un bloc `/*! … */` résume **ce que fait la classe** et
   **le rôle des fonctions principales**, pour saisir son **mécanisme** d'un coup
@@ -129,8 +130,9 @@ du logiciel — et la grille de lecture de toutes ses décisions.
       est assez claire, un **commentaire d'une seule ligne** en forme `/*!< … */`,
       **sur la même ligne** que la déclaration, suffit.
     - Ces commentaires courts d'une ligne s'**alignent en colonne** d'une ligne à
-      l'autre (tabulations), à la manière de `Items/cls_acte.h` — mais en forme
-      `/* */` plutôt que `//`.
+      l'autre, à la manière de `Items/cls_acte.h` — mais en forme `/*!< … */`. On
+      **cale toute la colonne** (nom **et** commentaire) sur la déclaration la plus
+      large du groupe, avec autant de tabulations/espaces que nécessaire.
     - **Regroupement (`.h`)** : fonctions **groupées par rôle** (comme dans
       `mysqlinstaller.h`) et, **dans un même groupe, sans ligne vide** — les
       fonctions qui vont ensemble (getters/setters, surtout quand leur rôle est
