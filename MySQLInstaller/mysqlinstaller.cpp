@@ -475,7 +475,7 @@ static inline QStringList shellArgs(const QString& cmd)
 #endif
 }
 
-//  Redirection « rien » pour masquer stderr selon la plateforme.
+/*! Redirection « rien » pour masquer stderr selon la plateforme. */
 static inline QString NUL()
 {
 #if defined(Q_OS_WIN)
@@ -485,16 +485,15 @@ static inline QString NUL()
 #endif
 }
 
-//  Démarre « cmd » dans le shell système.
-//
-//  Sous Windows, on passe la ligne de commande TELLE QUELLE à cmd.exe via
-//  setNativeArguments() (QProcess ré-échapperait sinon les guillemets selon les
-//  règles du runtime C, différentes de cmd.exe). De plus, on encadre toute la
-//  commande d'une paire de guillemets externe : cmd.exe /C retire le premier et
-//  le dernier guillemet dès qu'il y en a plus de deux ; sans cet encadrement,
-//  une commande combinant un chemin quoté ET des arguments quotés (ex.
-//  « "…mysqladmin.exe" -u "login" -p"pass" ») serait corrompue. Avec
-//  « /C "…" », cmd retire la paire externe et exécute l'intérieur verbatim.
+/*!
+ * \brief startShellProcess
+ * Démarre « cmd » dans le shell système. Sous Windows, la ligne est passée TELLE QUELLE à cmd.exe via
+ * setNativeArguments() et encadrée d'une paire de guillemets externe (cmd /C retire cette paire et
+ * exécute l'intérieur verbatim) — sinon une commande mêlant chemin quoté et arguments quotés serait
+ * corrompue.
+ * \param p    processus à démarrer
+ * \param cmd  ligne de commande
+ */
 static inline void startShellProcess(QProcess& p, const QString& cmd)
 {
 #if defined(Q_OS_WIN)
@@ -506,9 +505,13 @@ static inline void startShellProcess(QProcess& p, const QString& cmd)
 #endif
 }
 
-//  Attend la fin de « p » SANS geler l'interface : on laisse Qt rafraîchir la
-//  fenêtre (événements de peinture uniquement, pas les clics → aucune réentrance)
-//  pendant que la commande tourne. Évite le « (l'application ne répond pas) ».
+/*!
+ * \brief waitProcessResponsive
+ * Attend la fin de « p » SANS geler l'interface : Qt continue de repeindre (événements de peinture
+ * seulement, pas les clics → aucune réentrance). Évite le « (l'application ne répond pas) ».
+ * \param p          processus attendu
+ * \param timeoutMs  délai max avant kill (0 = illimité)
+ */
 static void waitProcessResponsive(QProcess& p, int timeoutMs)
 {
     QElapsedTimer t;
@@ -525,9 +528,13 @@ static void waitProcessResponsive(QProcess& p, int timeoutMs)
     }
 }
 
-//  Compare deux numéros de version « pointés » (ex. « 8.0.40 » vs « 8.0.14 »).
-//  Renvoie true si « ver » est supérieur OU égal à « minVer », composant par
-//  composant. Une version vide/inconnue est considérée comme inférieure.
+/*!
+ * \brief versionAtLeast
+ * Compare deux versions « pointées » composant par composant ; true si ver >= minVer (version
+ * vide/inconnue = inférieure).
+ * \param ver     version à tester (ex. « 8.0.40 »)
+ * \param minVer  seuil minimal (ex. « 8.0.14 »)
+ */
 static bool versionAtLeast(const QString& ver, const QString& minVer)
 {
     const QStringList a = ver.split('.', Qt::SkipEmptyParts);

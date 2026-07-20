@@ -137,12 +137,14 @@ du logiciel — et la grille de lecture de toutes ses décisions.
       /*!
        * \brief Classe::fonction
        * description concise de ce que fait la fonction
-       * \param nom  rôle du paramètre (seulement s'il n'est pas évident)
+       * \param nom  rôle du paramètre
        */
       ```
-      **Concis** (souvent plus court encore que dans le `.h`) ; `\param` uniquement
-      quand le paramètre mérite un mot. On l'**omet complètement** pour l'évident
-      (getter/setter, fonction ultra-courte).
+    - **On ne met un brief que s'il AIDE** : si le rôle est évident au nom + à la
+      signature (getter/setter, fonction ultra-courte), **pas de brief du tout**.
+    - **Description : 1 phrase** en général ; 2-3 lignes **seulement si c'est
+      indispensable** (fonction vraiment complexe).
+    - Quand il y a un brief, **un `\param` par paramètre** (systématique).
     - Dans le `.h`, une fonction n'a un *brief* que si elle est **complexe**. Si elle
       est assez claire, un **commentaire d'une seule ligne** en forme `/*!< … */`,
       **sur la même ligne** que la déclaration, suffit.
