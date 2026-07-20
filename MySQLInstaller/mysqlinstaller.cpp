@@ -2777,32 +2777,30 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
     const QString posteSql = Utils::correctquoteSQL(Utils::hostName());
     const QString attr     = QString(" ATTRIBUTE '{\"securepar\":\"%1\"}'").arg(posteSql);
 
-    //! La séquence, PARAMÉTRÉE par l'exécuteur `exec` : écrite UNE seule fois, jouée sur la connexion
-    //! PRINCIPALE puis (si besoin) sur la connexion SSL. Chaque compte en DEUX temps : on pose d'abord le
-    //! mdp générique, puis on bascule sur l'aléatoire en RETENANT le générique en 2e mdp (fallback réseau).
-    //! securepar gravé DANS le même ALTER que le mdp (un ATTRIBUTE isolé effacerait additional_password) ;
-    //! ALTER … BY … sans clause REQUIRE laisse REQUIRE SSL intact.
-    //! On n'impose PAS de plugin (pas de `WITH mysql_native_password`) : il est indisponible sur MySQL 8.4
-    //! (ERROR 1524) et forcerait aussi un changement de plugin qui fait rejeter RETAIN (ERROR 3894). Sans
-    //! clause plugin, on garde celui déjà choisi par createUser() (native ou caching_sha2 selon le serveur).
+    /*! La séquence, PARAMÉTRÉE par l'exécuteur `exec` : écrite UNE fois, jouée sur la connexion PRINCIPALE.
+     *  Chaque compte en DEUX temps : on pose d'abord le mdp générique, puis on bascule sur l'aléatoire en
+     *  RETENANT le générique en 2e mdp (fallback réseau). securepar gravé DANS le même ALTER que le mdp (un
+     *  ATTRIBUTE isolé effacerait additional_password) ; ALTER … BY … sans REQUIRE laisse REQUIRE SSL intact.
+     *  On n'impose PAS de plugin (indisponible sur MySQL 8.4, ERROR 1524 ; forcer un plugin ferait rejeter
+     *  RETAIN, ERROR 3894) → on garde celui déjà choisi par createUser(). */
     auto poser = [&](auto exec) {
-        if (!LANonly)   // adminrufusSSL@'%' (compte système, accès distant) : sécurisé EN PLUS
+        if (!LANonly)   /*!< adminrufusSSL@'%' (compte système, accès distant) : sécurisé EN PLUS */
         {
             exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(urSSL, "%", legacy));
             exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(urSSL, "%", aleatoire, attr));
         }
-        for (const QString& h : hostsLANprives())   // adminrufus (non-SSL) sur toutes les plages LOCALES
+        for (const QString& h : hostsLANprives())   /*!< adminrufus (non-SSL) sur toutes les plages LOCALES */
         {
             exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
             exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, legacy));
             exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD%4").arg(ur, h, aleatoire, attr));
             exec(QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION").arg(ur, h));
         }
-        exec(QString("FLUSH PRIVILEGES"));   // active les entrées créées ; adminrufus@'%' PAS encore droppé (cf. sequence)
+        exec(QString("FLUSH PRIVILEGES"));   /*!< active les entrées créées ; adminrufus@'%' PAS encore droppé */
     };
 
-    //! Bilan but par but, interrogé via la connexion PRINCIPALE (elle voit le serveur dans les DEUX voies).
-    //! But (2) — entrées LAN : on vérifie qu'AU MOINS une porte son 2e mot de passe (existe ET sécurisée).
+    /*! Bilan but par but, interrogé via la connexion PRINCIPALE (elle voit le serveur dans les DEUX voies).
+     *  But (2) — entrées LAN : on vérifie qu'AU MOINS une porte son 2e mot de passe (existe ET sécurisée). */
     auto bilan = [&]() -> QMap<QString, bool> {
         QMap<QString, bool> res;
         bool ok = false;
@@ -2818,45 +2816,44 @@ bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LAN
             res["adminrufusSSL sécurisé"] = adminrufusEstSecurise();
         return res;
     };
-    //! Renseigne *detailresult (si fourni) et renvoie true SEULEMENT si TOUS les buts sont atteints.
+    /*! Renseigne *detailresult (si fourni) et renvoie true SEULEMENT si TOUS les buts sont atteints. */
     auto conclure = [&](const QMap<QString, bool>& res) -> bool {
         if (detailresult) *detailresult = res;
         for (bool v : res) if (!v) return false;
         return true;
     };
 
-    //! Connexion PRINCIPALE : on y est en adminrufus@'%', compte SYSTÈME (SYSTEM_USER) → il modifie tout,
-    //! y compris adminrufusSSL@'%'. On pose (création/sécurisation SANS drop), PUIS on ne supprime
-    //! adminrufus@'%' QUE si le RELAIS LAN est fonctionnel (au moins une entrée LAN sécurisée) — sinon plus
-    //! AUCUNE connexion possible. C'est le SEUL endroit où @'%' est droppé.
+    /*! Connexion PRINCIPALE : on y est en adminrufus@'%', compte SYSTÈME (SYSTEM_USER) → il modifie tout, y
+     *  compris adminrufusSSL@'%'. On pose (création/sécurisation SANS drop), PUIS on ne supprime adminrufus@'%'
+     *  QUE si le RELAIS LAN est fonctionnel (≥ 1 entrée LAN sécurisée) — sinon plus AUCUNE connexion possible.
+     *  C'est le SEUL endroit où @'%' est droppé. */
     auto exec = [](const QString& q){ DataBase::I()->StandardSQL(q); };
     poser(exec);
     if (bilan().value("adminrufus LAN sécurisés"))
     {
-        exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   // Option B : SEULEMENT si le relais LAN marche
+        exec(QString("DROP USER IF EXISTS '%1'@'%'").arg(ur));   /*!< Option B : SEULEMENT si le relais LAN marche */
         exec(QString("FLUSH PRIVILEGES"));
     }
     return conclure(bilan());
 }
 
-// À appeler après toute connexion réussie. Entretien du mot de passe MySQL, selon CE avec quoi ce
-// poste s'est connecté (l'aléatoire ou le générique gaxt78iy). Chaque étape est AUTO-GARDÉE (ses
-// propres conditions), et les deux branches sont MUTUELLEMENT EXCLUSIVES (random vs générique) :
-//   • securiserBaseSiNecessaire   : générique + base non sécurisée + local + ≥8.0.14 → pose l'aléatoire ;
-//   • supprimerGaxt78iySiEchue    : aléatoire + gaxt78iy présent + deadline PASSÉE → retire gaxt78iy ;
-//   • avertirEffacementImminent   : aléatoire + gaxt78iy présent + deadline PROCHE → avertit (informatif) ;
-//   • proposerRecuperationAleatoire : générique + base sécurisée → propose de récupérer l'aléatoire ;
-//   • suggererSecurisationDepuisLocal : DISTANT + générique + base NON sécurisée → suggère de sécuriser depuis un poste local.
+/*!
+ * \brief MySQLInstaller::entretienApresConnexion
+ * À appeler après toute connexion réussie. Entretien du mot de passe MySQL selon CE avec quoi ce poste
+ * s'est connecté (aléatoire ou générique gaxt78iy). Chaque étape est AUTO-GARDÉE et les branches sont
+ * MUTUELLEMENT EXCLUSIVES : securiserBaseSiNecessaire (pose l'aléatoire) / supprimerGaxt78iySiEchue
+ * (retire gaxt78iy à échéance) / avertirEffacementImminent / proposerRecuperationAleatoire /
+ * suggererSecurisationDepuisLocal.
+ */
 void MySQLInstaller::entretienApresConnexion()
 {
-    //! Si la sécurisation vient d'être posée DANS cet appel, securiser a déjà affiché ses propres
-    //! messages (mot de passe à noter + sécurisation en place) : inutile d'y ajouter aussitôt
-    //! l'avertissement « générique bientôt désactivé » (deadline tout juste créée). On le réserve
-    //! donc aux démarrages SUIVANTS.
+    /*! Si la sécurisation vient d'être posée DANS cet appel, securiser a déjà affiché ses messages (mot de
+     *  passe à noter + sécurisation en place) : inutile d'y ajouter aussitôt l'avertissement « générique
+     *  bientôt désactivé » (deadline tout juste créée). On le réserve aux démarrages SUIVANTS. */
     bool vientDeSecuriser = MySQLInstaller().securiserBaseSiNecessaire();
-    //! La régularisation des comptes adminrufus (cohérence + Option B) n'est PLUS ici : elle est
-    //! déclenchée par la connexion elle-même (DataBase::connectToDataBase → verifierComptesAdminrufus),
-    //! uniquement quand on s'est connecté AVEC un aléatoire, en local.
+    /*! La régularisation des comptes adminrufus (cohérence + Option B) n'est PLUS ici : elle est déclenchée
+     *  par la connexion elle-même (DataBase::connectToDataBase → verifierComptesAdminrufus), uniquement
+     *  quand on s'est connecté AVEC un aléatoire, en local. */
     supprimerGaxt78iySiEchue();
     if (!vientDeSecuriser)
         MySQLInstaller().avertirEffacementImminent();
@@ -2864,27 +2861,30 @@ void MySQLInstaller::entretienApresConnexion()
     MySQLInstaller().suggererSecurisationDepuisLocal();
 }
 
-//  Poste détenant l'ALÉATOIRE, gaxt78iy encore en 2e mot de passe, deadline NON atteinte : on
-//  prévient simplement que le générique sera bientôt effacé (cf. supprimerGaxt78iySiEchue, qui le
-//  retirera une fois la deadline passée). Purement informatif.
+/*!
+ * \brief MySQLInstaller::avertirEffacementImminent
+ * Poste détenant l'ALÉATOIRE, gaxt78iy encore en 2e mot de passe, deadline NON atteinte : prévient que le
+ * générique sera bientôt effacé (cf. supprimerGaxt78iySiEchue, qui le retirera une fois la deadline
+ * passée). Purement informatif.
+ */
 void MySQLInstaller::avertirEffacementImminent()
 {
-    if (motDePasseSQL() == QString(MDP_SQL)) return;   // on n'a que le générique → pas concerné
-    if (!adminrufusEstSecurise())            return;   // gaxt78iy déjà retiré
+    if (motDePasseSQL() == QString(MDP_SQL)) return;   /*!< on n'a que le générique → pas concerné */
+    if (!adminrufusEstSecurise())            return;   /*!< gaxt78iy déjà retiré */
     const QDateTime d = dateSecurisation();
     if (!d.isValid())                        return;
     const QDateTime echeance = d.addDays(30);
-    if (echeance <= QDateTime::currentDateTime()) return;   // deadline passée → c'est supprimerGaxt78iySiEchue qui agit
+    if (echeance <= QDateTime::currentDateTime()) return;   /*!< deadline passée → c'est supprimerGaxt78iySiEchue qui agit */
 
-    //! « Ne plus afficher » : mémorisé dans rufus.ini DANS LA RUBRIQUE DE LA BASE COURANTE
-    //! (getBaseFromMode) — l'avis concerne LA base à laquelle on se connecte, et un poste peut viser
-    //! plusieurs bases (locale / réseau / distant), chacune avec sa PROPRE sécurisation. Masquer l'avis
-    //! sur une base ne le masque donc PAS sur une autre. La VALEUR est la date de sécurisation : si la
-    //! base est re-sécurisée plus tard (nouvelle date → nouvelle échéance), l'avis réapparaît.
+    /*! « Ne plus afficher » : mémorisé dans rufus.ini DANS LA RUBRIQUE DE LA BASE COURANTE (getBaseFromMode)
+     *  — l'avis concerne LA base à laquelle on se connecte, et un poste peut viser plusieurs bases, chacune
+     *  avec sa PROPRE sécurisation. Masquer l'avis sur une base ne le masque pas sur une autre. La VALEUR
+     *  est la date de sécurisation : si la base est re-sécurisée (nouvelle date → nouvelle échéance), l'avis
+     *  réapparaît. */
     const QString cleMasque = Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + "/AvisGeneriqueMasque";
     const QString signature = d.toString(Qt::ISODate);
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
-    if (ini.value(cleMasque).toString() == signature) return;   // déjà masqué pour cette sécurisation
+    if (ini.value(cleMasque).toString() == signature) return;   /*!< déjà masqué pour cette sécurisation */
 
     const int jours = QDateTime::currentDateTime().daysTo(echeance);
     const UpSmallButton::StyleBouton rep = UpMessageBox::Question(nullptr,
@@ -2901,14 +2901,16 @@ void MySQLInstaller::avertirEffacementImminent()
         ini.setValue(cleMasque, signature);
 }
 
-//  Poste connecté avec le GÉNÉRIQUE (gaxt78iy) alors que la base est SÉCURISÉE (un aléatoire existe
-//  côté serveur) — TOUS modes (monoposte, réseau local, distant). On l'informe de l'échéance et on
-//  lui propose de récupérer DÈS MAINTENANT l'aléatoire (saisie ou clé USB → .dbkey), avant que
-//  gaxt78iy ne soit retiré par un poste local et que cet accès ne cesse de fonctionner.
+/*!
+ * \brief MySQLInstaller::proposerRecuperationAleatoire
+ * Poste connecté avec le GÉNÉRIQUE (gaxt78iy) alors que la base est SÉCURISÉE (un aléatoire existe côté
+ * serveur) — TOUS modes. On l'informe de l'échéance et propose de récupérer DÈS MAINTENANT l'aléatoire
+ * (saisie ou clé USB → .dbkey), avant que gaxt78iy ne soit retiré par un poste local.
+ */
 void MySQLInstaller::proposerRecuperationAleatoire()
 {
-    if (motDePasseSQL() != QString(MDP_SQL)) return;   // ce poste détient déjà l'aléatoire
-    if (!adminrufusEstSecurise())            return;   // base pas (encore) sécurisée : rien à récupérer
+    if (motDePasseSQL() != QString(MDP_SQL)) return;   /*!< ce poste détient déjà l'aléatoire */
+    if (!adminrufusEstSecurise())            return;   /*!< base pas (encore) sécurisée : rien à récupérer */
     const QDateTime d = dateSecurisation();
     const QDateTime echeance = d.isValid() ? d.addDays(30) : QDateTime();
     const QString dateTxt = echeance.isValid() ? QLocale().toString(echeance.date(), "dd MMMM yyyy")
@@ -2920,10 +2922,10 @@ void MySQLInstaller::proposerRecuperationAleatoire()
         corps += " " + tr("qui sera désactivé le %1 (dans %2 jours).").arg(dateTxt).arg(jours);
     else
         corps += " " + tr("qui sera prochainement désactivé.");
-    //! Si l'attribut securepar est présent, on NOMME le poste détenteur : le praticien sait où aller
-    //! chercher le mot de passe (bouton clé USB de la fiche Paramètres) au lieu de deviner. Sinon
-    //! (base sécurisée par une version antérieure de Rufus, avant cet attribut), on le dit clairement
-    //! et on oriente vers n'importe quel poste à jour, plutôt que de laisser croire à un oubli.
+    /*! Si l'attribut securepar est présent, on NOMME le poste détenteur : le praticien sait où aller
+     *  chercher le mot de passe (bouton clé USB de Paramètres) au lieu de deviner. Sinon (base sécurisée
+     *  par une version antérieure, avant cet attribut), on le dit clairement et on oriente vers n'importe
+     *  quel poste à jour, plutôt que de laisser croire à un oubli. */
     const QString poste = posteSecurisation();
     corps += "\n\n";
     if (!poste.isEmpty())
@@ -2949,8 +2951,8 @@ void MySQLInstaller::proposerRecuperationAleatoire()
     msgbox.addButton(Saisir,  UpSmallButton::STARTBUTTON);
     msgbox.exec();
 
-    //! « Le mot de passe est égaré » : aucun poste ne détient l'aléatoire (typiquement le .dbkey a été
-    //! perdu par le bug de sécurisation). On en RECRÉE un, protégé par le mot de passe Administrateur.
+    /*! « Le mot de passe est égaré » : aucun poste ne détient l'aléatoire (typiquement le .dbkey a été
+     *  perdu par le bug de sécurisation). On en RECRÉE un, protégé par le mot de passe Administrateur. */
     if (msgbox.clickedButton() == Recreer)
     {
         recreerMotDePasseApresVerifAdmin();
@@ -2959,9 +2961,8 @@ void MySQLInstaller::proposerRecuperationAleatoire()
     if (msgbox.clickedButton() != Saisir)
         return;
 
-    //! Réutilise la collecte saisie/clé USB → stockerMotDePasse(.dbkey) de dlg_paramconnexion, mais
-    //! avec un message d'introduction adapté à CE contexte (le générique fonctionne encore — ce
-    //! n'est pas un échec de connexion).
+    /*! Réutilise la collecte saisie/clé USB → stockerMotDePasse(.dbkey) de dlg_paramconnexion, mais avec un
+     *  message adapté à CE contexte (le générique fonctionne encore — ce n'est pas un échec de connexion). */
     dlg_paramconnexion::RecupererMotDePasseMySQL(nullptr,
         tr("Récupérer le mot de passe du cabinet"),
         tr("Saisissez le mot de passe sécurisé du cabinet, ou importez-le depuis la clé USB sur "
