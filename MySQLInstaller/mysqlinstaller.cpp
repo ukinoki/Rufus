@@ -1001,7 +1001,14 @@ bool MySQLInstaller::installVCRedist2022()
     return isVCRedist2022Installed();
 }
 
-//  Rend MySQL désinstallable depuis « Applications et fonctionnalités ».
+/*!
+ * \brief MySQLInstaller::registerWindowsUninstaller
+ * Rend MySQL désinstallable depuis « Applications et fonctionnalités » (script PowerShell + entrée de
+ * registre).
+ * \param base      dossier d'installation de MySQL
+ * \param progData  dossier de données (ProgramData)
+ * \param version   version installée (affichée dans le gestionnaire)
+ */
 void MySQLInstaller::registerWindowsUninstaller(const QString& base,
                                                 const QString& progData,
                                                 const QString& version)
@@ -1012,7 +1019,7 @@ void MySQLInstaller::registerWindowsUninstaller(const QString& base,
     const QString nps    = QDir::toNativeSeparators(psPath);
     const QString binDir = nbase + "\\bin";
 
-    // 1. Script de désinstallation (PowerShell, ré-élève si lancé sans droits).
+    /*! 1. Script de désinstallation (PowerShell, ré-élève si lancé sans droits). */
     QFile f(psPath);
     if (f.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream ts(&f);
@@ -1038,7 +1045,7 @@ void MySQLInstaller::registerWindowsUninstaller(const QString& base,
         f.close();
     }
 
-    // 2. Entrée « Applications et fonctionnalités ».
+    /*! 2. Entrée « Applications et fonctionnalités ». */
     QSettings reg("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
                   "\\Uninstall\\MySQLForRufus", QSettings::NativeFormat);
     reg.setValue("DisplayName",     QString("MySQL %1 (pour Rufus)").arg(version));
@@ -1051,7 +1058,7 @@ void MySQLInstaller::registerWindowsUninstaller(const QString& base,
     reg.setValue("NoModify", 1);
     reg.setValue("NoRepair", 1);
 
-    // Taille installée (Ko) → colonne « Taille » du gestionnaire d'applications.
+    /*! Taille installée (Ko) → colonne « Taille » du gestionnaire d'applications. */
     auto dirSizeKB = [](const QString& path) -> quint64 {
         quint64 total = 0;
         QDirIterator it(path, QDir::Files | QDir::NoSymLinks,
@@ -1064,10 +1071,7 @@ void MySQLInstaller::registerWindowsUninstaller(const QString& base,
 }
 #endif  // Q_OS_WIN
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  run() : point d'entrée synchrone. Phase 1 (pré-requis + détection + install
-//  éventuelle), puis phase 2 (les 6 critères). Renvoie true si MySQL conforme.
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═══ run() : point d'entrée synchrone (pré-requis + détection + install éventuelle, puis les 6 critères) ═══ */
 void MySQLInstaller::cleanupDialog()
 {
     if (m_dialog) {
@@ -1077,11 +1081,12 @@ void MySQLInstaller::cleanupDialog()
     }
 }
 
-//  Garantit les droits administrateur, requis UNIQUEMENT pour installer ou
-//  désinstaller MySQL. Si le processus n'est pas élevé, propose l'élévation UAC
-//  (Windows) : l'utilisateur peut saisir un compte administrateur à cet instant ;
-//  l'instance élevée prend alors le relais (exit de l'instance courante). Renvoie
-//  true si on a (ou vient d'obtenir) les droits, false si l'utilisateur refuse.
+/*!
+ * \brief MySQLInstaller::assurerDroitsAdmin
+ * Garantit les droits administrateur, requis UNIQUEMENT pour (dés)installer MySQL. Si le processus n'est
+ * pas élevé, propose l'élévation UAC (Windows) — l'instance élevée prend le relais (exit de la courante).
+ * true si on a (ou vient d'obtenir) les droits, false si refus.
+ */
 bool MySQLInstaller::assurerDroitsAdmin()
 {
     if (isAdminUser())
@@ -1094,8 +1099,8 @@ bool MySQLInstaller::assurerDroitsAdmin()
                "maintenant ?\n\nUne fenêtre Windows vous demandera alors un compte "
                "administrateur de l'ordinateur."))) {
         if (relancerEnAdministrateur())
-            exit(0);                    // l'instance élevée prend le relais
-        // UAC refusée / échec : on bascule sur la consigne manuelle.
+            exit(0);                    /*!< l'instance élevée prend le relais */
+        /*! UAC refusée / échec : on bascule sur la consigne manuelle. */
         UpMessageBox::Watch(nullptr, tr("Élévation refusée"),
             tr("Rufus n'a pas pu obtenir les droits administrateur.\n\n"
                "Faites un clic droit sur l'application puis « Exécuter en tant "
@@ -1112,17 +1117,22 @@ bool MySQLInstaller::assurerDroitsAdmin()
 #endif
 }
 
+/*!
+ * \brief MySQLInstaller::run
+ * Point d'entrée synchrone : pré-requis plateforme, détection de MySQL, puis création complète
+ * (faireCreate) ou réutilisation de l'existant (faireReutiliser) selon le choix de l'utilisateur.
+ * Renvoie true si un MySQL conforme à Rufus est prêt.
+ */
 bool MySQLInstaller::run()
 {
-    // NB : on ne vérifie PAS les droits administrateur ici. Ils ne sont requis que
-    // pour INSTALLER ou DÉSINSTALLER MySQL. La vérification (et l'offre d'élévation
-    // UAC) se fait donc juste avant ces opérations, via assurerDroitsAdmin() — pas
-    // en tête de run(), sinon le mode Verify (qui ne fait que se connecter à un
-    // MySQL déjà présent) serait bloqué pour rien sur un compte non-administrateur.
+    /*! On ne vérifie PAS les droits administrateur ici : ils ne sont requis que pour (DÉS)INSTALLER
+     *  MySQL. La vérification (+ offre d'élévation UAC) se fait juste avant ces opérations, via
+     *  assurerDroitsAdmin() — sinon le mode Verify (simple connexion à un MySQL présent) serait bloqué
+     *  pour rien sur un compte non-administrateur. */
 
 #if defined(Q_OS_WIN)
-    // Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et
-    // on l'installe AVANT toute opération MySQL.
+    /*! Windows : MySQL dépend de Visual C++ Redistributable 2022. On le vérifie et l'installe AVANT toute
+     *  opération MySQL. */
     if (!isVCRedist2022Installed()) {
         if (!installVCRedist2022()) {
             UpMessageBox::Watch(nullptr,
@@ -1133,7 +1143,7 @@ bool MySQLInstaller::run()
         }
     }
 #elif defined(Q_OS_LINUX)
-    // Linux : ce programme cible Ubuntu (≥ 22.04 LTS).
+    /*! Linux : ce programme cible Ubuntu (≥ 22.04 LTS). */
     if (!isUbuntuVersionSupported()) {
         UpMessageBox::Watch(nullptr,
             tr("Version d'Ubuntu non compatible"),
@@ -1142,22 +1152,17 @@ bool MySQLInstaller::run()
     }
 #endif
 
-    // NB : on ne vérifie PAS l'accès réseau ici. Il n'est nécessaire que pour
-    // TÉLÉCHARGER MySQL (mode Create), et ce cas est déjà couvert par
-    // checkDownloadConnectivity() (appelé dans faireCreate(), qui appelle lui-même
-    // hasNetworkAccess()). Vérifier le réseau dès run() bloquerait inutilement un
-    // poste hors-ligne qui a DÉJÀ MySQL (mode Verify) ou une base Rufus complète.
+    /*! On ne vérifie PAS l'accès réseau ici : il n'est nécessaire que pour TÉLÉCHARGER MySQL (mode
+     *  Create), cas déjà couvert par checkDownloadConnectivity() dans faireCreate(). Le vérifier dès
+     *  run() bloquerait pour rien un poste hors-ligne qui a DÉJÀ MySQL (Verify) ou une base complète. */
 
-    // Config distante (version cible + seuil minimal). La checklist affiche le
-    // seuil dans le libellé de la case « MySQL ≥ <min> installé ».
-    // fetchRemoteConfig() se replie sur les valeurs par défaut si le réseau manque.
+    /*! Config distante (version cible + seuil minimal). La checklist affiche le seuil dans la case « MySQL
+     *  ≥ <min> installé ». fetchRemoteConfig() se replie sur les valeurs par défaut si le réseau manque. */
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
 
     const bool installed = isMySQLInstalled();
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  A. Aucun MySQL → CRÉATION complète.
-    // ════════════════════════════════════════════════════════════════════════
+    /*! A. Aucun MySQL → CRÉATION complète. */
     if (!installed) {
         if (!askYesNo(tr("Installation de MySQL"),
                 tr("Pour installer Rufus, il est nécessaire d'installer une base de "
@@ -1169,16 +1174,13 @@ bool MySQLInstaller::run()
         return faireCreate(cfg);
     }
 
-    // ════════════════════════════════════════════════════════════════════════
-    //  MySQL DÉJÀ présent → on demande à l'utilisateur quoi en faire. Plus de
-    //  « mode Verify » automatique : on reste toujours en logique Create, avec ou
-    //  sans (ré)installation de MySQL, avec ou sans effacement des données.
-    // ════════════════════════════════════════════════════════════════════════
+    /*! MySQL DÉJÀ présent → on demande quoi en faire. Plus de « mode Verify » automatique : on reste en
+     *  logique Create, avec ou sans (ré)installation, avec ou sans effacement des données. */
     if (!isServerRunning()) startMySQL();
 
-    // Une base Rufus COMPLÈTE existe déjà ? (cf. doc II.A.1.A.1.a) On propose de la
-    // CONSERVER, la SUPPRIMER, ou ANNULER. Conserver/Annuler → retour à PremierDemarrage()
-    // (return false) ; Supprimer → on retire les bases Rufus puis on continue le flux.
+    /*! Une base Rufus COMPLÈTE existe déjà ? On propose de la CONSERVER, la SUPPRIMER ou ANNULER.
+     *  Conserver/Annuler → retour à PremierDemarrage() (return false) ; Supprimer → on retire les bases
+     *  Rufus puis on continue le flux. */
     if (baseRufusComplete()) {
         UpMessageBox msgbox(nullptr);
         msgbox.setIcon(UpMessageBox::Quest);
@@ -1196,17 +1198,17 @@ bool MySQLInstaller::run()
         msgbox.addButton(bConserver, UpSmallButton::STARTBUTTON);
         msgbox.exec();
         if (msgbox.clickedButton() != bSupprimer)
-            return false;                       // Conserver / Annuler → PremierDemarrage()
+            return false;                       /*!< Conserver / Annuler → PremierDemarrage() */
 
-        // Suppression : action IRRÉVERSIBLE (données patients) → confirmation explicite.
+        /*! Suppression : action IRRÉVERSIBLE (données patients) → confirmation explicite. */
         if (!askYesNo(tr("Supprimer la base Rufus ?"),
                 tr("Cette opération supprimera DÉFINITIVEMENT la base de données Rufus "
                    "(patients, comptabilité, ophtalmologie, imagerie) présente sur ce "
                    "serveur.\n\nCette action est IRRÉVERSIBLE. Voulez-vous continuer ?")))
-            return false;                       // non confirmé → PremierDemarrage()
+            return false;                       /*!< non confirmé → PremierDemarrage() */
 
-        // On retire les bases Rufus via le mot de passe qui a permis la détection
-        // (LOGIN_SQL + motDePasseSQL(), cf. baseRufusComplete), puis on continue.
+        /*! On retire les bases Rufus via le mot de passe qui a permis la détection (LOGIN_SQL +
+         *  motDePasseSQL(), cf. baseRufusComplete), puis on continue. */
         const QString mdp = motDePasseSQL();
         const QString dropSql =
             "DROP DATABASE IF EXISTS " DB_RUFUS ";"
@@ -1217,8 +1219,8 @@ bool MySQLInstaller::run()
             .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, dropSql));
     }
 
-    // Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) :
-    // MySQL >= 8.0.14 et PAS MariaDB.
+    /*! Compatibilité DÉTECTÉE par Rufus (on ne demande pas à l'utilisateur de juger) : MySQL >= 8.0.14 et
+     *  PAS MariaDB. */
     const QString ver = getMySQLServerVersion();
     const bool compatible = versionAtLeast(ver, seuilVersionMySQL()) && !isMariaDB();
 
@@ -1226,16 +1228,15 @@ bool MySQLInstaller::run()
         switch (demanderQueFaireMySQL(compatible)) {
 
         case QueFaireMySQL::Annuler:
-            return false;                       // retour au menu précédent
+            return false;                       /*!< retour au menu précédent */
 
         case QueFaireMySQL::Reinstaller: {
-            // « Réinitialiser totalement MySQL » : sert AUX DEUX cas — version incompatible
-            // (< 8.0.14 / MariaDB) ET version compatible mais SANS mot de passe valide. On
-            // avertit (perte des données non-Rufus), l'utilisateur sauvegarde lui-même, puis
-            // on DÉSINSTALLE simplement MySQL et on RELANCE Rufus : au redémarrage, le flux
-            // normal ne trouve aucun serveur → installation neuve. Pas de logique en double
-            // (on ne réinstalle pas en ligne) et aucune connexion requise.
-            offrirSauvegardeAvantEffacement();  // (quitte Rufus s'il veut sauvegarder)
+            /*! « Réinitialiser totalement MySQL » : sert AUX DEUX cas — version incompatible (< 8.0.14 /
+             *  MariaDB) ET version compatible mais SANS mot de passe valide. On avertit (perte des données
+             *  non-Rufus), l'utilisateur sauvegarde lui-même, puis on DÉSINSTALLE MySQL et on RELANCE
+             *  Rufus : au redémarrage, le flux normal ne trouve aucun serveur → installation neuve. Pas de
+             *  logique en double et aucune connexion requise. */
+            offrirSauvegardeAvantEffacement();  /*!< (quitte Rufus s'il veut sauvegarder) */
             if (!assurerDroitsAdmin()) continue;
             MySQLProgressDialog* clean = new MySQLProgressDialog(
                 tr("Désinstallation de MySQL…"));
@@ -1245,42 +1246,39 @@ bool MySQLInstaller::run()
             clean->close();
             delete clean;
             if (!desinstalle) {
-                //! Annulation (mot de passe administrateur refusé) ou échec : MySQL est TOUJOURS en
-                //! place. On NE wipe PAS ~/.rufus, on NE relance PAS, et on N'affiche PAS « MySQL
-                //! supprimé » (ce serait mentir) : retour au menu « MySQL est déjà présent » (la
-                //! boîte précédente).
+                /*! Annulation (mot de passe administrateur refusé) ou échec : MySQL est TOUJOURS en place.
+                 *  On NE wipe PAS ~/.rufus, on NE relance PAS, et on N'affiche PAS « MySQL supprimé » (ce
+                 *  serait mentir) : retour au menu « MySQL est déjà présent ». */
                 continue;
             }
-            //! On efface aussi ~/.rufus : il contient le .dbkey (mots de passe MySQL sauvegardés)
-            //! — devenu inutile/trompeur puisqu'on repart de zéro — ainsi que les clés SSL et le
-            //! journal. Sans ça, le poste réessaierait l'ancien mot de passe au redémarrage.
+            /*! On efface aussi ~/.rufus : il contient le .dbkey (mots de passe MySQL) — devenu
+             *  inutile/trompeur puisqu'on repart de zéro — ainsi que les clés SSL et le journal. Sans ça,
+             *  le poste réessaierait l'ancien mot de passe au redémarrage. */
             QDir(PATH_DIR_RUFUSKEY).removeRecursively();
             UpMessageBox::Watch(nullptr, tr("MySQL supprimé"),
                 tr("MySQL a été supprimé. Rufus va redémarrer pour installer un serveur neuf."));
-            //! On relance AVEC le drapeau « -installMySQL » : au redémarrage, Connexion_A_La_Base()
-            //! va DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le
-            //! carrefour « Aucun serveur » ni le choix vierge/existante (ergonomie après un
-            //! « tout effacer et réinstaller » délibéré). Drapeau posé À CE SEUL endroit.
+            /*! On relance AVEC le drapeau « -installMySQL » : au redémarrage, Connexion_A_La_Base() va
+             *  DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le carrefour
+             *  « Aucun serveur » ni le choix vierge/existante (ergonomie après un « tout effacer et
+             *  réinstaller » délibéré). Drapeau posé À CE SEUL endroit. */
             QProcess::startDetached(QApplication::applicationFilePath(), QStringList{"-installMySQL"});
             exit(0);
-            return true;                        // jamais atteint
+            return true;                        /*!< jamais atteint */
         }
 
         case QueFaireMySQL::Effacer:
             offrirSauvegardeAvantEffacement();
             if (faireReutiliser(cfg, /*effacerTout=*/true)) return true;
-            break;                              // échec/annulation → retour au choix
+            break;                              /*!< échec/annulation → retour au choix */
 
         case QueFaireMySQL::Conserver:
             if (faireReutiliser(cfg, /*effacerTout=*/false)) return true;
-            break;                              // échec/annulation → retour au choix
+            break;                              /*!< échec/annulation → retour au choix */
         }
     }
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Boîte « MySQL est déjà présent… que voulez-vous faire ? »
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═══ Boîte « MySQL est déjà présent… que voulez-vous faire ? » ═══════════════════════════════════ */
 MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compatible)
 {
     UpMessageBox msgbox(nullptr);
@@ -1297,10 +1295,10 @@ MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compati
             tr("L'utiliser en EFFAÇANT toutes les données déjà présentes"));
         UpSmallButton* bConserver = new UpSmallButton(
             tr("L'utiliser en CONSERVANT les données déjà présentes"));
-        //! Échappatoire pour une base compatible dont on n'a PAS le mot de passe : « Effacer » et
-        //! « Conserver » exigent tous deux de se connecter (drop / configuration). Sans identifiants
-        //! valides, on serait bloqué → on offre la réinstallation COMPLÈTE (désinstall + install
-        //! neuve), qui ne demande aucune connexion. Réutilise le chemin Reinstaller.
+        /*! Échappatoire pour une base compatible dont on n'a PAS le mot de passe : « Effacer » et
+         *  « Conserver » exigent de se connecter (drop / configuration). Sans identifiants valides, on
+         *  serait bloqué → on offre la réinstallation COMPLÈTE (désinstall + install neuve), sans
+         *  connexion. Réutilise le chemin Reinstaller. */
         UpSmallButton* bReinstall = new UpSmallButton(
             tr("Réinstaller entièrement MySQL\n(si le mot de passe est perdu)"));
         msgbox.addButton(bAnnuler,   UpSmallButton::CANCELBUTTON);
@@ -1326,25 +1324,31 @@ MySQLInstaller::QueFaireMySQL MySQLInstaller::demanderQueFaireMySQL(bool compati
     return QueFaireMySQL::Annuler;
 }
 
-//  Le serveur MySQL local est-il MariaDB ? (incompatible : pas de RETAIN/double mdp.)
+/*!
+ * \brief MySQLInstaller::isMariaDB
+ * Le serveur MySQL local est-il MariaDB ? (incompatible : pas de RETAIN / double mot de passe.)
+ */
 bool MySQLInstaller::isMariaDB()
 {
-    //  Fiable : la chaîne VERSION() du serveur en cours contient « MariaDB » si c'en est un. Le client
-    //  mysql posé par l'installeur étant un vrai MySQL, l'interroger LUI dirait « pas MariaDB » même
-    //  face à un serveur MariaDB — d'où la priorité au serveur (cf. serverVersionString).
+    /*! Fiable : la chaîne VERSION() du serveur en cours contient « MariaDB » si c'en est un. Le client
+     *  mysql posé par l'installeur étant un vrai MySQL, l'interroger LUI dirait « pas MariaDB » même face
+     *  à un serveur MariaDB — d'où la priorité au serveur (cf. serverVersionString). */
     const QString srv = serverVersionString();
     if (!srv.isEmpty())
         return srv.contains("mariadb", Qt::CaseInsensitive);
 
-    //  Repli (serveur injoignable) : binaire mysqld puis client. Timeout court (blocage AppImage).
+    /*! Repli (serveur injoignable) : binaire mysqld puis client. Timeout court (blocage AppImage). */
     QString out = runCmd("\"" + mysqlBin("mysqld") + "\" --version " + NUL(), 5000);
     if (out.contains("mariadb", Qt::CaseInsensitive)) return true;
     out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL(), 5000);
     return out.contains("mariadb", Qt::CaseInsensitive);
 }
 
-//  Avertit que des données NON-Rufus vont être effacées ; propose d'arrêter Rufus
-//  pour les sauvegarder soi-même (→ exit), sinon on continue.
+/*!
+ * \brief MySQLInstaller::offrirSauvegardeAvantEffacement
+ * Avertit que des données NON-Rufus vont être effacées ; propose d'arrêter Rufus pour les sauvegarder
+ * soi-même (→ exit), sinon on continue.
+ */
 void MySQLInstaller::offrirSauvegardeAvantEffacement()
 {
     UpMessageBox msgbox(m_dialog);
@@ -1364,11 +1368,16 @@ void MySQLInstaller::offrirSauvegardeAvantEffacement()
     msgbox.exec();
     if (msgbox.clickedButton() == bContinuer)
         return;
-    exit(0);   // « Arrêter » : on quitte pour laisser l'utilisateur sauvegarder
+    exit(0);   /*!< « Arrêter » : on quitte pour laisser l'utilisateur sauvegarder */
 }
 
-//  Supprime toutes les bases NON système (les bases Rufus, elles, seront recréées
-//  vierges par RestaureBase). Utilisé pour le choix « Effacer ».
+/*!
+ * \brief MySQLInstaller::effacerToutesBasesUtilisateur
+ * Supprime toutes les bases NON système (les bases Rufus seront recréées vierges par RestaureBase).
+ * Utilisé pour le choix « Effacer ».
+ * \param adminLogin  compte admin MySQL utilisé pour le DROP
+ * \param adminMdp    son mot de passe
+ */
 void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
                                                    const QString& adminMdp)
 {
@@ -1392,19 +1401,19 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
         .arg(mysqlBin("mysql"), adminLogin, adminMdp, sql));
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Invite l'utilisateur à CONSERVER le mot de passe (aléatoire) de connexion à la base : il en
-//  aura besoin pour brancher un autre poste au cabinet, ou pour dépanner cet ordinateur. Appelée
-//  après chaque création/rotation du mot de passe (install neuve, réutilisation, migration,
-//  sécurisation d'une base existante).
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief inviterANoterMotDePasse
+ * Invite à CONSERVER le mot de passe (aléatoire) de connexion à la base : nécessaire pour brancher un
+ * autre poste au cabinet ou dépanner l'ordinateur. Appelée après chaque création/rotation du mot de
+ * passe (install neuve, réutilisation, migration, sécurisation).
+ * \param mdp  mot de passe à afficher / faire noter
+ */
 static void inviterANoterMotDePasse(const QString& mdp)
 {
-    //! Le mot de passe est mis en évidence (sur sa propre ligne, centré, gras, rouge, police
-    //! agrandie) pour faciliter sa transcription. InfoText est interprété en HTML par UpMessageBox
-    //! (UpTextEdit::setHtml) ; le mot de passe est purement alphanumérique (cf. genererMotDePasse),
-    //! donc sans risque d'injection HTML. Le <b> sert aussi à CalcSize (correction de hauteur 1.2),
-    //! ce qui réserve la place nécessaire à la police agrandie.
+    /*! Le mot de passe est mis en évidence (propre ligne, centré, gras, rouge, police agrandie) pour
+     *  faciliter sa transcription. InfoText est interprété en HTML par UpMessageBox (UpTextEdit::setHtml) ;
+     *  le mot de passe est purement alphanumérique (cf. genererMotDePasse), donc sans risque d'injection.
+     *  Le <b> sert aussi à CalcSize (correction de hauteur 1.2), réservant la place de la police agrandie. */
     UpMessageBox::Watch(nullptr,
         QObject::tr("Notez le mot de passe de la base de données"),
         QObject::tr("Rufus a créé un mot de passe de connexion à votre base de données patients.\n"
@@ -1417,23 +1426,22 @@ static void inviterANoterMotDePasse(const QString& mdp)
                                "depuis Paramètres ▸ onglet « Ce poste »."));
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  SSL — RÉCOLTE DES CLÉS CLIENT (étape 7, point 2).
-//  MySQL auto-génère ses certificats dans le datadir à l'--initialize (via SA propre
-//  OpenSSL, sans openssl système). On en place une copie des SEULES clés CLIENT dans le
-//  dossier du serveur (PATH_DIR_CLESSSL_SERVEUR), pour pouvoir ensuite les exporter vers
-//  les postes distants. On ne copie JAMAIS server-cert.pem / server-key.pem / ca-key.pem.
-//  ca.pem est renommé ca-cert.pem (nom attendu côté client, cf. database.cpp).
-//  Best-effort : un échec n'interrompt pas l'installation. datadir = répertoire de données
-//  MySQL où sont déposés les .pem.
-[[maybe_unused]] static bool recolterClesClientSSL(const QString& datadir)  // appelée selon l'OS (Windows ici ; macOS à venir, étape 5)
+/*!
+ * \brief recolterClesClientSSL
+ * SSL — RÉCOLTE DES CLÉS CLIENT (étape 7, point 2). MySQL auto-génère ses certificats dans le datadir à
+ * l'--initialize ; on copie les SEULES clés CLIENT dans PATH_DIR_CLESSSL_SERVEUR pour pouvoir les
+ * exporter vers les postes distants (JAMAIS server-cert/server-key/ca-key ; ca.pem renommé ca-cert.pem,
+ * nom attendu côté client). Best-effort : un échec n'interrompt pas l'installation.
+ * \param datadir  répertoire de données MySQL où sont déposés les .pem
+ */
+[[maybe_unused]] static bool recolterClesClientSSL(const QString& datadir)  /*!< appelée selon l'OS (Windows ici) */
 {
     const QString dest = PATH_DIR_CLESSSL_SERVEUR;
     if (!QDir().mkpath(dest))
         return false;
-    // { fichier dans le datadir, nom de destination } — UNIQUEMENT les clés client.
+    /*! { fichier dans le datadir, nom de destination } — UNIQUEMENT les clés client. */
     const char* paires[3][2] = {
-        { "ca.pem",          "ca-cert.pem"     },   // ca.pem -> ca-cert.pem
+        { "ca.pem",          "ca-cert.pem"     },   /*!< ca.pem -> ca-cert.pem */
         { "client-cert.pem", "client-cert.pem" },
         { "client-key.pem",  "client-key.pem"  },
     };
@@ -1442,15 +1450,17 @@ static void inviterANoterMotDePasse(const QString& mdp)
         const QString src = datadir + "/" + QString::fromLatin1(paires[i][0]);
         const QString dst = dest    + "/" + QString::fromLatin1(paires[i][1]);
         if (!QFile::exists(src)) { ok = false; continue; }
-        QFile::remove(dst);                          // QFile::copy échoue si la cible existe déjà
+        QFile::remove(dst);                          /*!< QFile::copy échoue si la cible existe déjà */
         if (!QFile::copy(src, dst)) ok = false;
     }
     return ok;
 }
 
-//  Répertoire de données (datadir) du MySQL installé par Rufus, selon l'OS — là où sont
-//  déposés les certificats SSL auto-générés. Utilisé par la conservation des clés lors d'un
-//  remplacement de socle (étape 7, point 4).
+/*!
+ * \brief mysqlDataDir
+ * Répertoire de données (datadir) du MySQL installé par Rufus, selon l'OS — là où sont déposés les
+ * certificats SSL auto-générés. Utilisé par la conservation des clés lors d'un remplacement de socle.
+ */
 [[maybe_unused]] static QString mysqlDataDir()
 {
 #if defined(Q_OS_WIN)
@@ -1462,12 +1472,12 @@ static void inviterANoterMotDePasse(const QString& mdp)
 #endif
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Message affiché quand CE poste vient de SÉCURISER la base (mise en place du mot de
-//  passe aléatoire). Prévient que les AUTRES postes du réseau devront être mis à jour
-//  vers cette version dans le délai (deadline) avant la purge de gaxt78iy. Texte rédigé
-//  au conditionnel (« s'il existe d'autres postes… ») : inoffensif en monoposte pur.
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief avertirSecurisationMiseEnPlace
+ * Message affiché quand CE poste vient de SÉCURISER la base (pose du mot de passe aléatoire). Prévient
+ * que les AUTRES postes du réseau devront être mis à jour dans le délai avant la purge de gaxt78iy.
+ * Rédigé au conditionnel (« s'il existe d'autres postes… ») : inoffensif en monoposte pur.
+ */
 static void avertirSecurisationMiseEnPlace()
 {
     UpMessageBox::Watch(nullptr,
