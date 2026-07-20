@@ -1604,14 +1604,19 @@ bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
     sets[field] = blob.isEmpty() ? QVariant() : QVariant(blob);   /*!< vide -> NULL en base */
     bool ok = DataBase::I()->UpdateTablebyBinds(table, sets, idfield, item->id(), tr("Enregistrement impossible"));
 
-    /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique)
-     *  et on prévient, sinon l'objet en mémoire diverge silencieusement de la base */
     if (!ok)
     {
+        /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique)
+         *  et on prévient, sinon l'objet en mémoire diverge silencieusement de la base */
         item->setData(saved);
         UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
             tr("La modification n'a pas pu être enregistrée dans la base de données "
                "(le serveur est peut-être momentanément indisponible)."));
     }
+    else
+        /*! succès -> on met AUSSI le blob dans le QJson de l'item (base64, comme au chargement),
+         *  sinon un setData(instantané) ultérieur, dû à l'échec d'une autre modif, écraserait ce blob */
+        item->setDataValue(field, QString::fromLatin1(blob.toBase64()));
+
     return ok;
 }
