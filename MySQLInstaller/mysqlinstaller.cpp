@@ -3180,10 +3180,10 @@ QString MySQLInstaller::downloadOracleDmg()
     const QString fileName = url.section('/', -1);
     QString tmpDmg         = QDir::tempPath() + "/" + fileName;
 
-    //! Téléchargement avec BARRE DE PROGRESSION RÉELLE : downloadFile() utilise curl (RAPIDE — QNAM
-    //! plafonnait, très lent sur macOS) et pilote MySQLProgressDialog::setProgress en sondant la
-    //! taille du fichier qui grossit (repli QNAM si curl absent). Le DMG macOS pèse ~550 Mo ; sans
-    //! progression chiffrée, l'utilisateur croit l'application figée.
+    /*! Téléchargement avec BARRE DE PROGRESSION RÉELLE : downloadFile() utilise curl (RAPIDE — QNAM
+     *  plafonnait, très lent sur macOS) et pilote MySQLProgressDialog::setProgress en sondant la taille du
+     *  fichier qui grossit (repli QNAM si curl absent). Le DMG macOS pèse ~550 Mo ; sans progression
+     *  chiffrée, l'utilisateur croit l'application figée. */
     downloadFile(url, tmpDmg, tr("Téléchargement de MySQL %1 (Oracle)…").arg(cfg.version));
 
     if (!QFile::exists(tmpDmg) || QFileInfo(tmpDmg).size() < 1'000'000LL) {
@@ -3193,9 +3193,15 @@ QString MySQLInstaller::downloadOracleDmg()
     return tmpDmg;
 }
 
+/*!
+ * \brief MySQLInstaller::installFromDmg
+ * macOS : monte le .dmg Oracle, localise le .pkg, l'installe + initialise le datadir + démarre le serveur
+ * dans UNE seule élévation (osascript). true si l'install Oracle est en place.
+ * \param dmgPath  chemin du .dmg téléchargé
+ */
 bool MySQLInstaller::installFromDmg(const QString& dmgPath)
 {
-    // Montage
+    /*! Montage */
     QString mountOut = runCmdFull(
         QString("hdiutil attach -nobrowse '%1' 2>&1").arg(dmgPath));
     QString volumePath;
@@ -3207,7 +3213,7 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
     }
     if (volumePath.isEmpty()) { QFile::remove(dmgPath); return false; }
 
-    // Localiser le .pkg
+    /*! Localiser le .pkg */
     QString pkgPath;
     for (const QString& f : QDir(volumePath).entryList({"*.pkg"}, QDir::Files)) {
         pkgPath = volumePath + "/" + f; break;
@@ -3218,14 +3224,14 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
         return false;
     }
 
-    // Journal d'init (réinitialisé ici : installation neuve).
+    /*! Journal d'init (réinitialisé ici : installation neuve). */
     { QFile f(m_initLog);
       if (f.open(QIODevice::WriteOnly | QIODevice::Text))
           QTextStream(&f) << "== installFromDmg : installer + init + start ==\n"
                           << "pkg = " << pkgPath << "\n"; }
 
-    // Script shell temporaire : installateur PUIS init du datadir + démarrage du
-    // serveur, le tout dans la MÊME élévation → une seule invite de mot de passe.
+    /*! Script shell temporaire : installateur PUIS init du datadir + démarrage du serveur, le tout dans la
+     *  MÊME élévation → une seule invite de mot de passe. */
     QString scriptPath = QDir::tempPath() + "/mysql_oracle_install.sh";
     {
         QFile s(scriptPath);
@@ -3237,7 +3243,7 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
     }
     runCmd("chmod +x '" + scriptPath + "'");
 
-    // Installation avec élévation
+    /*! Installation avec élévation */
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
         tr("Installation et configuration de MySQL…\n"
            "(Autorisez l'opération dans la fenêtre qui s'affiche)"));
@@ -3261,30 +3267,34 @@ bool MySQLInstaller::installFromDmg(const QString& dmgPath)
     runCmd(QString("hdiutil detach '%1' -force 2>/dev/null").arg(volumePath));
     QFile::remove(dmgPath);
 
-    waitForMySQL(20);             // le script a aussi initialisé et démarré le serveur
+    waitForMySQL(20);             /*!< le script a aussi initialisé et démarré le serveur */
     return isOracleInstall();
 }
 
-// Fragment shell (exécuté en ROOT) qui, depuis MySQL 8.4.x, supplée le pkg Oracle
-// macOS — lequel n'initialise plus automatiquement /usr/local/mysql/data.
+/*!
+ * \brief MySQLInstaller::oracleInitStartScript
+ * Fragment shell (exécuté en ROOT) qui, depuis MySQL 8.4.x, supplée le pkg Oracle macOS — lequel
+ * n'initialise plus automatiquement /usr/local/mysql/data — puis démarre le serveur et récolte les clés
+ * client SSL.
+ */
 QString MySQLInstaller::oracleInitStartScript() const
 {
-    // SSL (étape 7, points 2 et 5) : la récolte des clés CLIENT se fait ICI, côté ROOT, car le
-    // datadir (et client-key.pem en 0600) appartient à _mysql et n'est pas lisible par l'utilisateur.
-    // On copie les 3 clés client vers le dossier du serveur, puis on les rend à l'utilisateur (chown).
+    /*! SSL (étape 7, points 2 et 5) : la récolte des clés CLIENT se fait ICI, côté ROOT, car le datadir (et
+     *  client-key.pem en 0600) appartient à _mysql et n'est pas lisible par l'utilisateur. On copie les 3
+     *  clés client vers le dossier du serveur, puis on les rend à l'utilisateur (chown). */
     const QString sslDest  = QString(PATH_DIR_CLESSSL_SERVEUR);
-    const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));   // utilisateur lançant Rufus
+    const QString sslOwner = QString::fromLocal8Bit(qgetenv("USER"));   /*!< utilisateur lançant Rufus */
     return QStringLiteral(
         "PREFIX=/usr/local/mysql; DATA=\"$PREFIX/data\"\n"
-        // Compte exécutant mysqld : « _mysql » (créé par le pkg), repli « mysql ».
+        /*! Compte exécutant mysqld : « _mysql » (créé par le pkg), repli « mysql ». */
         "OWNER=$(id -u _mysql >/dev/null 2>&1 && echo _mysql || echo mysql)\n"
         "{\n"
         "  echo \"-- init+start (owner=$OWNER) --\"\n"
         "  if [ ! -f \"$DATA/mysql.ibd\" ]; then\n"
         "    id \"$OWNER\" || echo \"(compte $OWNER introuvable)\"\n"
         "    rm -rf \"$DATA\"; mkdir -p \"$DATA\"; chown -R \"$OWNER\":\"$OWNER\" \"$DATA\"\n"
-        // TMPDIR de session = /var/folders/<user>/T (privé, inaccessible à _mysql →
-        // InnoDB échoue errno 13). On force /tmp (sticky) pour l'env ET via --tmpdir.
+        /*! TMPDIR de session = /var/folders/<user>/T (privé, inaccessible à _mysql → InnoDB échoue errno
+         *  13). On force /tmp (sticky) pour l'env ET via --tmpdir. */
         "    export TMPDIR=/tmp\n"
         "    \"$PREFIX/bin/mysqld\" --no-defaults --initialize-insecure "
         "--user=\"$OWNER\" --basedir=\"$PREFIX\" --datadir=\"$DATA\" --tmpdir=/tmp\n"
@@ -3293,13 +3303,13 @@ QString MySQLInstaller::oracleInitStartScript() const
         "  else\n"
         "    echo 'datadir déjà initialisé'\n"
         "  fi\n"
-        // Démarrage (root) : LaunchDaemon si présent (persiste au redémarrage),
-        // sinon mysql.server (TMPDIR=/tmp en renfort contre l'errno 13).
+        /*! Démarrage (root) : LaunchDaemon si présent (persiste au redémarrage), sinon mysql.server
+         *  (TMPDIR=/tmp en renfort contre l'errno 13). */
         "  PLIST=/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist\n"
         "  if [ -f \"$PLIST\" ]; then echo '-- launchctl load --'; launchctl load -w \"$PLIST\"; "
         "else echo '-- mysql.server start --'; TMPDIR=/tmp \"$PREFIX/support-files/mysql.server\" start; fi\n"
-        // Récolte des SEULES clés client (ca.pem -> ca-cert.pem, client-cert.pem, client-key.pem),
-        // puis restitution à l'utilisateur. JAMAIS server-*.pem ni ca-key.pem.
+        /*! Récolte des SEULES clés client (ca.pem -> ca-cert.pem, client-cert.pem, client-key.pem), puis
+         *  restitution à l'utilisateur. JAMAIS server-*.pem ni ca-key.pem. */
         "  echo '-- recolte cles client SSL --'\n"
         "  SSLDEST='%2'; SSLOWNER='%3'\n"
         "  mkdir -p \"$SSLDEST\"\n"
@@ -3312,10 +3322,13 @@ QString MySQLInstaller::oracleInitStartScript() const
         "chmod 644 '%1' 2>/dev/null\n").arg(m_initLog).arg(sslDest).arg(sslOwner);
 }
 
-// Initialise (si besoin) le datadir Oracle PUIS démarre le serveur, en UNE élévation.
+/*!
+ * \brief MySQLInstaller::initOracleDataDir
+ * Initialise (si besoin) le datadir Oracle PUIS démarre le serveur, en UNE élévation.
+ */
 bool MySQLInstaller::initOracleDataDir()
 {
-    const QString prefix = oraclePrefix();          // /usr/local/mysql (ou vide)
+    const QString prefix = oraclePrefix();          /*!< /usr/local/mysql (ou vide) */
     const QString data   = prefix + "/data";
 
     {
@@ -3335,19 +3348,19 @@ bool MySQLInstaller::initOracleDataDir()
     runCmdElevated(oracleInitStartScript());
 
     const bool ok = QFileInfo::exists(data + "/mysql.ibd");
-    if (ok) waitForMySQL(20);            // le script root a démarré le serveur
+    if (ok) waitForMySQL(20);            /*!< le script root a démarré le serveur */
     return ok;
 }
 
 bool MySQLInstaller::installMySQL()
 {
 #if defined(Q_OS_WIN)
-    // ── Installation Windows par archive ZIP (entièrement scriptable) ─────────
+    /*! ── Installation Windows par archive ZIP (entièrement scriptable) ───────── */
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
     const QString version  = cfg.version;
     const QString url      = cfg.winUrl;
     const QString zipName  = url.section('/', -1);
-    const QString innerDir = zipName.chopped(4);   // retire ".zip" → dossier racine du zip
+    const QString innerDir = zipName.chopped(4);   /*!< retire ".zip" → dossier racine du zip */
     const QString zipPath  = QDir::tempPath() + "/" + zipName;
     const QString extract  = QDir::tempPath() + "/mysql_extract";
 
@@ -3357,7 +3370,7 @@ bool MySQLInstaller::installMySQL()
     const QString cnfPath  = progData + "/my.ini";
     const QString mysqld   = base + "/bin/mysqld.exe";
 
-    //  Lit le journal d'erreur le plus récent du serveur (datadir/*.err).
+    /*! Lit le journal d'erreur le plus récent du serveur (datadir/*.err). */
     auto lastErrLog = [&]() -> QString {
         const auto errs = QDir(dataDir).entryInfoList(
             {"*.err"}, QDir::Files, QDir::Time);
