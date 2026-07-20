@@ -480,8 +480,10 @@ void dlg_gestionusers::changeSignature()
         return;
     }
 
-    /*! fond clair rendu transparent + encodage PNG (pas de rectangle blanc/gris à l'impression) */
-    QByteArray ba = Utils::SignatureVersPngTransparent(img, 600);
+    /*! on enregistre à la résolution dont l'impression a besoin (mm x dpi, même calcul qu'à la sortie),
+     *  pour ne jamais agrandir/flouter à l'impression ; fond clair rendu transparent + encodage PNG */
+    int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * QPrinter(QPrinter::HighResolution).resolution() / 25.4);
+    QByteArray ba = Utils::SignatureVersPngTransparent(img, wpx);
     if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
     {
         UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("La signature doit pouvoir tenir en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
