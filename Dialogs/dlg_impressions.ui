@@ -208,7 +208,7 @@
   <widget class="QDateEdit" name="dateImpressiondateEdit">
    <property name="geometry">
     <rect>
-     <x>840</x>
+     <x>880</x>
      <y>318</y>
      <width>120</width>
      <height>24</height>
@@ -221,9 +221,9 @@
   <widget class="UpCheckBox" name="SignerupCheckBox">
    <property name="geometry">
     <rect>
-     <x>840</x>
-     <y>344</y>
-     <width>120</width>
+     <x>880</x>
+     <y>345</y>
+     <width>81</width>
      <height>20</height>
     </rect>
    </property>
@@ -333,7 +333,7 @@ la sélection</string>
     <rect>
      <x>750</x>
      <y>345</y>
-     <width>201</width>
+     <width>111</width>
      <height>20</height>
     </rect>
    </property>
@@ -432,6 +432,11 @@ et documents publics</string>
    <header>uppushbutton.h</header>
   </customwidget>
   <customwidget>
+   <class>UpCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>upcheckbox.h</header>
+  </customwidget>
+  <customwidget>
    <class>UpTextEdit</class>
    <extends>QTextEdit</extends>
    <header>uptextedit.h</header>
@@ -440,11 +445,6 @@ et documents publics</string>
    <class>UpTableView</class>
    <extends>QTableView</extends>
    <header>uptableview.h</header>
-  </customwidget>
-  <customwidget>
-   <class>UpCheckBox</class>
-   <extends>QCheckBox</extends>
-   <header location="global">upcheckbox.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

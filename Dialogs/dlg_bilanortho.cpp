@@ -210,8 +210,6 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui->OKupPushButton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Small);
     ui->ImprimeupPushButton->setUpButtonStyle(UpPushButton::IMPRIMEBUTTON,UpPushButton::Small);
 
-    /*! « Signer » n'apparaît que si l'utilisateur a une signature enregistrée ;
-     *  précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
     bool asignature = !Datas::I()->users->userconnected()->signatureimg().isNull();
     ui->SignerupCheckBox->setVisible(asignature);
     ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
@@ -294,7 +292,6 @@ void dlg_bilanortho::ImprimeBOClicked()
     textHtml->setText(textHtml->toHtml().replace(QRegularExpression::wildcardToRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
 
     QString textcorps = textHtml->toHtml();
-    /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
     QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
     textcorps = proc->AjouteSignatureCorps(textcorps, signature);
     bool aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,

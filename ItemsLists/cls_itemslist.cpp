@@ -1564,10 +1564,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
 
 /*!
  * \brief ItemsList::updateBlob
- * Jumelle de update() pour les champs blob : un QByteArray binaire ne peut pas
- * être concaténé dans une requête SQL, il faut le passer par bindvalue. On met
- * à jour l'attribut de l'objet ET la base (via UpdateTablebyBinds). Un blob vide
- * enregistre NULL. Premier champ géré : la signature de l'utilisateur.
+ * Jumelle de update() pour les champs blob : utilisation des bindvalue.
  * \param item  l'item concerné (seul User est géré pour l'instant)
  * \param field le champ blob à mettre à jour
  * \param blob  les octets à enregistrer (vide -> NULL)
@@ -1589,8 +1586,8 @@ bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
     User *usr = qobject_cast<User*>(item);
     if (usr)
     {
-        table   = TBL_UTILISATEURS;
-        idfield = CP_ID_USR;
+        table       = TBL_UTILISATEURS;
+        idfield     = CP_ID_USR;
         if (field == CP_SIGNATURE_USR)      usr->setSignature(blob);
         else if (field == CP_USERLOGO_USR)  usr->setLogo(blob);
         else                                known = false;
@@ -1601,21 +1598,19 @@ bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
         return false;
 
     QHash<QString, QVariant> sets;
-    sets[field] = blob.isEmpty() ? QVariant() : QVariant(blob);   /*!< vide -> NULL en base */
+    sets[field] = blob.isEmpty() ? QVariant() : QVariant(blob);
     bool ok = DataBase::I()->UpdateTablebyBinds(table, sets, idfield, item->id(), tr("Enregistrement impossible"));
 
     if (!ok)
     {
-        /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique)
-         *  et on prévient, sinon l'objet en mémoire diverge silencieusement de la base */
+        /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique) */
         item->setData(saved);
         UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
             tr("La modification n'a pas pu être enregistrée dans la base de données "
                "(le serveur est peut-être momentanément indisponible)."));
     }
     else
-        /*! succès -> on met AUSSI le blob dans le QJson de l'item (base64, comme au chargement),
-         *  sinon un setData(instantané) ultérieur, dû à l'échec d'une autre modif, écraserait ce blob */
+        /*! succès -> on met AUSSI le blob dans le QJson de l'item (base64, comme au chargement) */
         item->setDataValue(field, QString::fromLatin1(blob.toBase64()));
 
     return ok;

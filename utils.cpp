@@ -539,15 +539,14 @@ QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
 }
 
 /*!
- * \brief Utils::SignatureVersPngTransparent
- * Rend le fond clair d'une signature transparent pour qu'il n'imprime pas de rectangle
- * blanc/gris : l'opacité (alpha) de chaque pixel est déduite de sa clarté (encre foncée
- * -> opaque, fond clair -> transparent), avec une rampe pour des bords lissés. Encode en
- * PNG (seul format courant avec canal alpha ; le JPG ne gère pas la transparence).
- * \param img       l'image source (photo/scan/pdf de la signature)
+ * \brief Utils::ImageVersPngTransparent
+ * ramène sa largeur en pixels à maxwidth
+ * remplace les blancs par de la transparence
+ * Encode en PNG pour conserver la transparence
+ * \param img       l'image source
  * \param maxwidth  largeur maxi conservée (on ne stocke pas plus de pixels que nécessaire)
  */
-QByteArray Utils::SignatureVersPngTransparent(QImage img, int maxwidth)
+QByteArray Utils::ImageVersPngTransparent(QImage img, int maxwidth)
 {
     if (img.isNull())
         return QByteArray();
@@ -574,7 +573,7 @@ QByteArray Utils::SignatureVersPngTransparent(QImage img, int maxwidth)
 
     QByteArray data;
     QBuffer buffer(&data);
-    img.save(&buffer, "PNG");
+    img.save(&buffer, PNG);
     return data;
 }
 

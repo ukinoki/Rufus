@@ -1022,11 +1022,11 @@ public:
 #define LIEN_CCAM                               "https://www.ameli.fr/accueil-de-la-ccam/trouver-un-acte/consultation-par-chapitre.php?chap=a%3A0%3A%7B%7D&add=2#chapitre_2"
 
 // la taille maximale des images
-#define SIZEMAXIMAGES                           262144  // 256 Ko
-#define SIZEMAXIMGIOL                           16284   // 16 Ko
-#define SIZEMAXILOGO                         8192    // 8 Ko
-#define SIZEMAXISIGNATURE                    196608  // 192 Ko (png transparent à la résolution d'impression)
-#define SIGNATURE_LARGEUR_IMPRESSION_MM      40      /*!< largeur (mm) de la signature apposée sur le document imprimé ; convertie en pixels selon la résolution de l'imprimante */
+#define SIZEMAXIMAGES                           262144      // 256 Ko
+#define SIZEMAXIMGIOL                           16284       // 16 Ko
+#define SIZEMAXILOGO                            8192        // 8 Ko
+#define SIZEMAXISIGNATURE                       65536       // 64 Ko (png transparent à la résolution d'impression)
+#define SIGNATURE_LARGEUR_IMPRESSION_MM         40          /*!< largeur (mm) de la signature apposée sur le document imprimé ; convertie en pixels selon la résolution de l'imprimante */
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"

@@ -1403,7 +1403,6 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD, QImage signature
  * \brief Procedures::AjouteSignatureCorps
  * Insère l'image de signature sous le corps html : image encodée en data-URI base64,
  * placée juste avant </body> (donc en bas du corps). Le HTML étant aussi ré-archivé,
- * le document reste ré-imprimable tel quel. Cf. précédent cls_iol.cpp.
  * \param textcorps  le corps html du document
  * \param signature  l'image de la signature (vide -> corps inchangé)
  */
@@ -1411,16 +1410,10 @@ QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
 {
     if (signature.isNull())
         return textcorps;
-    /*! on garde l'image en pleine qualité dans le blob ; la TAILLE d'impression est fixée
-     *  ici par l'attribut width de la balise <img> (constante réglable SIGNATURE_LARGEUR_IMPRESSION),
-     *  la hauteur suit pour respecter les proportions */
-    /*! largeur voulue en mm convertie en pixels selon la résolution de l'imprimante (comme les marges),
-     *  pour une taille physique stable quelle que soit l'imprimante */
     QPrinter p(QPrinter::HighResolution);
     int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * p.resolution() / 25.4);
     int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
-    /*! on n'embarque pas plus de pixels que nécessaire à l'affichage (ni n'agrandit la source) :
-     *  évite de gonfler le HTML archivé tout en restant net à l'impression */
+
     QImage emb = (signature.width() > largeur) ? signature.scaledToWidth(largeur, Qt::SmoothTransformation) : signature;
     QByteArray data;
     QBuffer buffer(&data);

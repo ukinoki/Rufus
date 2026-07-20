@@ -483,18 +483,16 @@ void dlg_gestionusers::changeSignature()
     /*! on enregistre à la résolution dont l'impression a besoin (mm x dpi, même calcul qu'à la sortie),
      *  pour ne jamais agrandir/flouter à l'impression ; fond clair rendu transparent + encodage PNG */
     int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * QPrinter(QPrinter::HighResolution).resolution() / 25.4);
-    QByteArray ba = Utils::SignatureVersPngTransparent(img, wpx);
-    if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
+    QByteArray ba = Utils::ImageVersPngTransparent(img, wpx);
+    int i = ba.size();
+    if (!ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
     {
-        UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("La signature doit pouvoir tenir en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
+        UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Impossible de réduire le fichier a une taille utilisbale"));
         return;
     }
-    /*! d'abord l'enregistrement (bindvalue) : s'il réussit, on met l'attribut image pour l'affichage ;
-     *  s'il échoue, updateBlob a déjà restauré l'ancienne valeur et rien ne change à l'écran */
-    if (ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR, ba))
-        m_userencours->setSignature(QImage::fromData(ba));
+    ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR, ba);
     AfficheSignature();
-    ui->OKupSmallButton->setEnabled(true);
+    ui->OKupSmallButton ->setEnabled(true);
 }
 
 void dlg_gestionusers::delSignature()
@@ -504,9 +502,7 @@ void dlg_gestionusers::delSignature()
                                tr("Confirmez-vous la suppression de la signature") + "?")
         != UpSmallButton::STARTBUTTON)
         return;
-    /*! suppression : NULL en base ; l'attribut image n'est vidé que si l'écriture réussit */
-    if (ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR))
-        m_userencours->setSignature(QImage());
+    ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR);
     AfficheSignature();
     ui->OKupSmallButton->setEnabled(true);
 }

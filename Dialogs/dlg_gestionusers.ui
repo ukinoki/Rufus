@@ -566,38 +566,46 @@
                </property>
                <item>
                 <widget class="UpPushButton" name="SignatureupPushButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>0</height>
+                  </size>
+                 </property>
+                 <property name="maximumSize">
+                  <size>
+                   <width>200</width>
+                   <height>16777215</height>
+                  </size>
+                 </property>
                  <property name="text">
                   <string>Enregistrer une signature</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <widget class="UpCheckBox" name="SignatureAutoCheckBox">
+                <widget class="UpPushButton" name="supprimSignatureupPushButton">
+                 <property name="minimumSize">
+                  <size>
+                   <width>200</width>
+                   <height>0</height>
+                  </size>
+                 </property>
                  <property name="text">
-                  <string>Signature automatique</string>
+                  <string>Supprimer la signature</string>
                  </property>
                 </widget>
                </item>
                <item>
-                <spacer name="verticalSpacer_2">
-                 <property name="orientation">
-                  <enum>Qt::Orientation::Vertical</enum>
-                 </property>
-                 <property name="sizeType">
-                  <enum>QSizePolicy::Policy::Maximum</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
+                <widget class="UpCheckBox" name="SignatureAutoCheckBox">
+                 <property name="maximumSize">
                   <size>
-                   <width>20</width>
-                   <height>5</height>
+                   <width>160</width>
+                   <height>16777215</height>
                   </size>
                  </property>
-                </spacer>
-               </item>
-               <item>
-                <widget class="UpPushButton" name="supprimSignatureupPushButton">
                  <property name="text">
-                  <string>Supprimer la signature</string>
+                  <string>Signature automatique</string>
                  </property>
                 </widget>
                </item>

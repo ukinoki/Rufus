@@ -308,13 +308,22 @@ public:
     }
 
     QImage signatureimg() const               { return m_signatureimg; }
-    void setSignature(QImage img = QImage())
+    void setImageSignature(QImage img = QImage())
     {
         if (img.isNull())
             m_signatureimg = QImage();
         else
             m_signatureimg = img;
         m_data[CP_SIGNATURE_USR] = Utils::jsonValFromImage(m_signatureimg);
+    }
+    QByteArray signature() const;
+    void setSignature(const QByteArray &newSignature);
+    qlonglong AMnumberforSite(int id) {
+        qlonglong amnumber = 0;
+        auto it = m_mapidSiteAM.find(id);
+        if (it != m_mapidSiteAM.end())
+            amnumber = it.value();
+        return amnumber;
     }
     /*! concernant tout le monde */
     bool isComptableActes();
@@ -351,15 +360,6 @@ public:
     void setidcomptableactes(int idusr)         { m_idComptableActes = idusr; }
     QByteArray logo() const;
     void setLogo(const QByteArray &newLogo);
-    QByteArray signature() const;
-    void setSignature(const QByteArray &newSignature);
-    qlonglong AMnumberforSite(int id) {
-        qlonglong amnumber = 0;
-        auto it = m_mapidSiteAM.find(id);
-        if (it != m_mapidSiteAM.end())
-            amnumber = it.value();
-        return amnumber;
-    }
     qlonglong currentAMnumber()                { return AMnumberforSite(m_idsite); }
     void setidSite(int id) { m_idsite = id; }
     bool usenum() const;
