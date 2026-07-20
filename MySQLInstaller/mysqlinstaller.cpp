@@ -2029,11 +2029,13 @@ bool MySQLInstaller::regenererClesSSL()
     return clesSSLServeurPresentes();
 }
 
-//  Contrôle des clés SSL au démarrage (MONOPOSTE). Cf. l'exigence : le serveur doit rattraper des
-//  clés effacées par erreur, jamais créées, ou expirées. On distingue le cas BÉNIN (copie client
-//  manquante alors que le serveur a déjà ses certificats → simple réextraction, sans coupure) du
-//  cas DESTRUCTIF (certificats expirés ou absents → régénération, qui invalide les clés distribuées
-//  → consentement + relance).
+/*!
+ * \brief MySQLInstaller::controlerClesSSLMonoposte
+ * Contrôle des clés SSL au démarrage (MONOPOSTE) : rattrape des clés effacées par erreur, jamais créées,
+ * ou expirées. Distingue le cas BÉNIN (copie client manquante mais serveur a ses certificats → simple
+ * réextraction, sans coupure) du cas DESTRUCTIF (certificats expirés/absents → régénération, qui invalide
+ * les clés distribuées → consentement + relance).
+ */
 void MySQLInstaller::controlerClesSSLMonoposte()
 {
     if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
@@ -2044,21 +2046,21 @@ void MySQLInstaller::controlerClesSSLMonoposte()
     const bool      presentes = clesSSLServeurPresentes();
 
     if (presentes && !expire)
-        return;                                   //! tout va bien : rien
+        return;                                   /*!< tout va bien : rien */
 
-    //! Cas BÉNIN : la copie client exportable manque, mais le serveur a des certificats VALIDES
-    //! (« effacée par erreur »/« jamais récoltée » — typiquement un ancien Rufus + MySQL 8 déjà
-    //! présent). On RÉEXTRAIT simplement, sans toucher au serveur (aucune coupure, aucune relance).
+    /*! Cas BÉNIN : la copie client exportable manque, mais le serveur a des certificats VALIDES (« effacée
+     *  par erreur » / « jamais récoltée » — typiquement un ancien Rufus + MySQL 8 déjà présent). On
+     *  RÉEXTRAIT simplement, sans toucher au serveur (aucune coupure, aucune relance). */
     if (!presentes && !expire)
     {
         if (extraireClesSSLDepuisDatadir())
             return;
-        //! Échec → le datadir n'a pas (ou plus) de certificats : on bascule sur la régénération.
+        /*! Échec → le datadir n'a pas (ou plus) de certificats : on bascule sur la régénération. */
     }
 
-    //! Cas DESTRUCTIF : certificats expirés, ou aucun certificat. La régénération crée de NOUVELLES
-    //! clés → les postes distants déjà configurés devront recevoir les nouvelles. On avertit
-    //! sévèrement et on n'agit que sur consentement.
+    /*! Cas DESTRUCTIF : certificats expirés, ou aucun certificat. La régénération crée de NOUVELLES clés →
+     *  les postes distants déjà configurés devront recevoir les nouvelles. On avertit sévèrement et on
+     *  n'agit que sur consentement. */
     UpMessageBox msgbox(Q_NULLPTR);
     msgbox.setText(expire ? tr("Certificats SSL expirés") : tr("Clés SSL absentes"));
     msgbox.setInformativeText(
@@ -2075,7 +2077,7 @@ void MySQLInstaller::controlerClesSSLMonoposte()
     msgbox.addButton(Gen,  UpSmallButton::STARTBUTTON);
     msgbox.exec();
     if (msgbox.clickedButton() != Gen)
-        return;                                   //! reporté : on retentera au prochain démarrage
+        return;                                   /*!< reporté : on retentera au prochain démarrage */
 
     if (regenererClesSSL())
     {
@@ -2091,21 +2093,22 @@ void MySQLInstaller::controlerClesSSLMonoposte()
         tr("Les clés SSL n'ont pas pu être générées."));
 }
 
-//  ACCÈS DISTANT : avertissement PROACTIF d'expiration des clés SSL. Indispensable car le serveur
-//  (souvent une machine dédiée jamais utilisée pour Rufus) ne déclenche jamais controlerClesSSLMonoposte()
-//  → sans ce rappel côté client, l'accès distant tomberait sans préavis le jour de l'expiration.
-//  On lit la date via le statut SSL de la connexion (certs serveur et client partagent la même
-//  validité, générés ensemble). La régénération se fait sur le SERVEUR : ici on ne fait qu'alerter.
+/*!
+ * \brief MySQLInstaller::avertirExpirationClesSSLDistant
+ * ACCÈS DISTANT : avertissement PROACTIF d'expiration des clés SSL. Indispensable car le serveur (machine
+ * dédiée qui ne lance jamais Rufus) ne déclenche pas controlerClesSSLMonoposte() → sans ce rappel côté
+ * client, l'accès distant tomberait sans préavis. La régénération se fait sur le SERVEUR : ici on alerte.
+ */
 void MySQLInstaller::avertirExpirationClesSSLDistant()
 {
     if (DataBase::I()->ModeAccesDataBase() != Utils::Distant)
         return;
     const QDateTime exp = dateExpirationCertSSL();
     if (!exp.isValid())
-        return;                                   //! statut indisponible → on n'invente rien
+        return;                                   /*!< statut indisponible → on n'invente rien */
     const qint64 jours = QDateTime::currentDateTimeUtc().daysTo(exp);
     if (jours > 60)
-        return;                                   //! encore large (certs valides ~10 ans) → silence
+        return;                                   /*!< encore large (certs valides ~10 ans) → silence */
 
     const QString quand = (jours <= 0)
         ? tr("ont expiré")
@@ -2119,28 +2122,33 @@ void MySQLInstaller::avertirExpirationClesSSLDistant()
              "clés et indiquez leur dossier ici."));
 }
 
-//  Orchestration destructive de la migration du socle : (droits admin) -> désinstallation
-//  de l'ancien MySQL -> réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde
-//  VALIDÉE (cf. Procedures). Renvoie true si le nouveau socle est prêt.
+/*!
+ * \brief MySQLInstaller::reinstallerSocleMySQLpourMigration
+ * Orchestration destructive de la migration du socle : (droits admin) → désinstallation de l'ancien MySQL
+ * → réinstallation + adminrufus. À N'APPELER QU'APRÈS une sauvegarde VALIDÉE (cf. Procedures). true si le
+ * nouveau socle est prêt.
+ */
 bool MySQLInstaller::reinstallerSocleMySQLpourMigration()
 {
     if (!assurerDroitsAdmin())
         return false;
     const MySQLRemoteConfig cfg = fetchRemoteConfig();
-    // SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir).
+    /*! SSL (étape 7, point 4) : conserver les clés AVANT la désinstallation (qui détruit le datadir). */
     const bool clesConservees = sauvegarderClesSSLMigration();
     uninstallMySQL();
     if (!reinstallerSocleMySQL(cfg))
         return false;
-    // Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides.
+    /*! Réinjecter les anciennes clés (même CA) : les postes distants existants restent valides. */
     if (clesConservees)
         restaurerClesSSLMigration();
     return true;
 }
 
-//  true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil commun
-//  (VERSION_MYSQL_MINI = 8.0.14) et n'est pas MariaDB. False si trop ancien / illisible.
-//  L'OS du serveur n'entre pas en jeu : seule compte la version MySQL.
+/*!
+ * \brief MySQLInstaller::socleMySQLConforme
+ * true si le serveur MySQL courant (via la connexion Qt ouverte) atteint le seuil commun
+ * (VERSION_MYSQL_MINI = 8.0.14) et n'est pas MariaDB. False si trop ancien / illisible.
+ */
 bool MySQLInstaller::socleMySQLConforme()
 {
     bool ok = false;
@@ -2155,28 +2163,29 @@ bool MySQLInstaller::socleMySQLConforme()
     return mv.hasMatch() && versionAtLeast(mv.captured(1), seuilVersionMySQL());
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Étapes de configuration post-install/verify. true si toutes validées.
-//  En mode CREATE (absent) : les comptes sont créés ici par createUser()
-//  (root/pkexec). En mode VERIFY (B2) : ils l'ont déjà été par createUserAvecAdmin()
-//  → on NE recrée PAS (garde m_comptesDejaCrees).
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief MySQLInstaller::executerEtapesConfig
+ * Étapes de configuration post-install/verify (PATH, dossier partagé, secure_file_priv, lecture/écriture,
+ * privilèges…), avec mise à jour de la checklist. En mode CREATE : les comptes sont créés ici par
+ * createUser() (root/pkexec) ; en mode VERIFY : ils l'ont déjà été par createUserAvecAdmin() (garde
+ * m_comptesDejaCrees). true si toutes les étapes sont validées.
+ */
 bool MySQLInstaller::executerEtapesConfig()
 {
-    // Login = LOGIN_SQL. m_password a déjà été fixé (aléatoire) par l'appelant.
+    /*! Login = LOGIN_SQL. m_password a déjà été fixé (aléatoire) par l'appelant. */
     m_login = LOGIN_SQL;
 
     if (!isServerRunning()) startMySQL();
 
 #if defined(Q_OS_MACOS)
-    // macOS, installation neuve : regrouper TOUT le paramétrage root (my.cnf,
-    // /etc/paths.d, dossier + partage SMB, redémarrage) en UNE seule invite admin,
-    // AVANT les étapes ci-dessous qui, sinon, élèveraient chacune séparément.
+    /*! macOS, installation neuve : regrouper TOUT le paramétrage root (my.cnf, /etc/paths.d, dossier +
+     *  partage SMB, redémarrage) en UNE seule invite admin, AVANT les étapes ci-dessous qui, sinon,
+     *  élèveraient chacune séparément. */
     if (m_freshInstall)
         prepareCreateModeMacOS();
 #endif
 
-    // ── Étape 2 : le chemin de mysql est dans la variable d'environnement PATH ─
+    /*! ── Étape 2 : le chemin de mysql est dans la variable d'environnement PATH ─ */
     if (!ensureMysqlInPath()) {
         UpMessageBox::Watch(m_dialog, tr("PATH non configuré"),
             tr("Impossible d'ajouter le chemin de mysql à la variable PATH."));
@@ -2186,16 +2195,15 @@ bool MySQLInstaller::executerEtapesConfig()
     m_dialog->checkStep(1);
 
 #if defined(Q_OS_LINUX)
-    // Installation neuve sous Linux : regrouper TOUT le paramétrage root en UNE
-    // seule élévation, pour ne demander le mot de passe système qu'une fois.
+    /*! Installation neuve sous Linux : regrouper TOUT le paramétrage root en UNE seule élévation, pour ne
+     *  demander le mot de passe système qu'une fois. */
     if (m_freshInstall)
-        prepareCreateModeLinux();   // (affiche son propre indicateur + attend mysqld)
+        prepareCreateModeLinux();   /*!< (affiche son propre indicateur + attend mysqld) */
 #endif
 
-    // Installation neuve : créer l'utilisateur — les étapes suivantes ont besoin
-    // d'une connexion valide. (Sous Linux, createUser() court-circuite si
-    // prepareCreateModeLinux l'a créé.) En mode VERIFY (B2), les comptes ont déjà
-    // été créés par createUserAvecAdmin() → on ne les recrée pas.
+    /*! Installation neuve : créer l'utilisateur — les étapes suivantes ont besoin d'une connexion valide.
+     *  (Sous Linux, createUser() court-circuite si prepareCreateModeLinux l'a créé.) En mode VERIFY, les
+     *  comptes ont déjà été créés par createUserAvecAdmin() → on ne les recrée pas. */
     if (m_freshInstall && !m_comptesDejaCrees && !createUser()) {
         UpMessageBox::Watch(m_dialog, tr("Création d'utilisateur impossible"),
             tr("Impossible de créer l'utilisateur '%1'.").arg(m_login)
@@ -2205,7 +2213,7 @@ bool MySQLInstaller::executerEtapesConfig()
         return false;
     }
 
-    // ── Étape 3 : le dossier partagé existe et est partagé ────────────────
+    /*! ── Étape 3 : le dossier partagé existe et est partagé ──────────────── */
     if (!setupSharedFolder()) {
         UpMessageBox::Watch(m_dialog, tr("Dossier partagé impossible"),
             tr("Impossible de créer ou de partager le dossier %1.")
@@ -2215,7 +2223,7 @@ bool MySQLInstaller::executerEtapesConfig()
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(2);
 
-    // ── Étape 4 : secure_file_priv pointe sur le dossier partagé ──────────
+    /*! ── Étape 4 : secure_file_priv pointe sur le dossier partagé ────────── */
     if (!ensureSecureFilePriv()) {
         UpMessageBox::Watch(m_dialog, tr("secure_file_priv impossible"),
             tr("Impossible de configurer secure_file_priv sur %1.")
@@ -2228,12 +2236,11 @@ bool MySQLInstaller::executerEtapesConfig()
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(3);
 
-    // ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
-    // secure_file_priv est désormais VÉRIFIÉ côté serveur par ensureSecureFilePriv (étape 4) : si on
-    // arrive ici, le serveur l'applique. Un échec d'écriture ne vient donc PLUS du « Full Disk
-    // Access » (faux diagnostic : /Users/Shared n'est pas protégé par TCC) mais d'une cause réelle —
-    // privilège FILE manquant, ou droits du dossier. On le dit honnêtement, sans boucle ni renvoi
-    // vers les Réglages Système (les 3 plateformes traitées pareil).
+    /*! ── Étape 5 : mysql lit et écrit dans le dossier partagé (fichier test) ───────
+     *  secure_file_priv est VÉRIFIÉ côté serveur par ensureSecureFilePriv (étape 4) : si on arrive ici, le
+     *  serveur l'applique. Un échec d'écriture ne vient donc PLUS du « Full Disk Access » (faux diagnostic :
+     *  /Users/Shared n'est pas protégé par TCC) mais d'une cause réelle — privilège FILE manquant, ou droits
+     *  du dossier. On le dit honnêtement, sans boucle ni renvoi vers les Réglages Système. */
     if (!testSharedFolderRW()) {
         if (!tryConnect()) {
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
@@ -2250,7 +2257,7 @@ bool MySQLInstaller::executerEtapesConfig()
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(4);
 
-    // ── Étape 6 : privilèges ALL + GRANT OPTION ───────────────────────────
+    /*! ── Étape 6 : privilèges ALL + GRANT OPTION ─────────────────────────── */
     QStringList missing;
     if (!checkPrivileges(missing)) {
         UpMessageBox::Watch(m_dialog, tr("Privilèges manquants"),
@@ -2261,32 +2268,31 @@ bool MySQLInstaller::executerEtapesConfig()
     if (m_dialog->wasCancelled()) return false;
     m_dialog->checkStep(5);
 
-    // ── Étape 7 : clés SSL pour l'accès distant ───────────────────────────
-    // Les certificats sont auto-générés par MySQL dans le datadir ; on récolte la copie CLIENT
-    // (exportable) si elle n'a pas déjà été faite à l'installation. BEST-EFFORT : l'accès distant
-    // est optionnel, on ne fait pas échouer la config s'il manque (le contrôle au démarrage,
-    // controlerClesSSLMonoposte(), rattrapera au besoin).
+    /*! ── Étape 7 : clés SSL pour l'accès distant ───────────────────────────
+     *  Certificats auto-générés par MySQL dans le datadir ; on récolte la copie CLIENT (exportable) si elle
+     *  n'a pas déjà été faite à l'installation. BEST-EFFORT : l'accès distant est optionnel, on ne fait pas
+     *  échouer la config s'il manque (controlerClesSSLMonoposte() rattrapera au démarrage). */
     if (!clesSSLServeurPresentes())
         extraireClesSSLDepuisDatadir();
     m_dialog->checkStep(6);
 
-    // ── Toutes les étapes de configuration sont validées ─────────────────────
+    /*! ── Toutes les étapes de configuration sont validées ───────────────────── */
     return true;
 }
 
-// Désinstalle MySQL et la configuration ajoutée par l'outil. NON destructif pour
-// le dossier partagé /Users/Shared (susceptible de contenir les données de
-// l'utilisateur). Une seule élévation par plateforme.
+/*!
+ * \brief MySQLInstaller::uninstallMySQL
+ * Désinstalle MySQL et la configuration ajoutée par l'outil. NON destructif pour le dossier partagé
+ * /Users/Shared (susceptible de contenir les données de l'utilisateur). Une seule élévation par plateforme.
+ */
 bool MySQLInstaller::uninstallMySQL()
 {
 #if defined(Q_OS_WIN)
-    // L'application tourne déjà en administrateur. On NE code PAS la version ni le nom du service
-    // en dur : l'utilisateur peut avoir « MySQL Server 8.0 » + service « MySQL80 » (et non 8.4 /
-    // « MySQL »). On DÉCOUVRE donc le service réel par son ImagePath (mysqld.exe), on le stoppe et
-    // le supprime, on retire le dossier qu'il pointe, PUIS on balaie les installations SERVEUR de
-    // TOUTE version (Program Files\MySQL\MySQL Server * et ProgramData\MySQL\MySQL Server *), on
-    // nettoie le PATH machine et la clé de désinstallation Rufus.
-    // (Aucun guillemet double DANS $ps : tout est en quotes simples ou via [char]34.)
+    /*! L'application tourne déjà en administrateur. On NE code PAS la version ni le nom du service en dur :
+     *  l'utilisateur peut avoir « MySQL Server 8.0 » + service « MySQL80 ». On DÉCOUVRE le service réel par
+     *  son ImagePath (mysqld.exe), on le stoppe/supprime, on retire son dossier, PUIS on balaie les
+     *  installations SERVEUR de TOUTE version, on nettoie le PATH machine et la clé de désinstallation.
+     *  (Aucun guillemet double DANS $ps : tout en quotes simples ou via [char]34.) */
     const QString ps =
         "$ErrorActionPreference='SilentlyContinue';"
         "$base=$null;"
@@ -2315,9 +2321,9 @@ bool MySQLInstaller::uninstallMySQL()
             "'Machine')};"
         "Remove-Item -Path 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion"
         "\\Uninstall\\MySQLForRufus' -Recurse -Force";
-    // On exécute via un FICHIER .ps1 (-File), PAS en ligne (-Command "…") : passer un script long
-    // et truffé de | { } ' à travers cmd.exe → powershell casse l'imbrication de guillemets en
-    // silence. On écrit donc le script dans le dossier temporaire et on le lance par chemin.
+    /*! On exécute via un FICHIER .ps1 (-File), PAS en ligne (-Command "…") : un script long truffé de
+     *  | { } ' passé à cmd.exe → powershell casse l'imbrication de guillemets en silence. On écrit donc le
+     *  script dans le dossier temporaire et on le lance par chemin. */
     const QString script = QDir::toNativeSeparators(QDir::tempPath() + "/rufus_uninstall_mysql.ps1");
     {
         QFile f(script);
@@ -2328,14 +2334,11 @@ bool MySQLInstaller::uninstallMySQL()
     QFile::remove(script);
     return !isMySQLInstalled();
 #elif defined(Q_OS_LINUX)
-    // apt purge (par motif individuel) + suppression données/config. On RETIRE le
-    // partage [Rufus] de Samba mais on NE purge PAS samba/wsdd ni le dossier
-    // partagé (l'utilisateur peut s'en servir par ailleurs).
-    // On NE purge PAS 'libmysqlclient.*' : la réinstallation de mysql-server ramène la
-    // bonne version de toute façon, et purger la lib cliente faisait des DÉGÂTS COLLATÉRAUX
-    // (libmysqlclient-dev d'un développeur, lib cliente partagée par d'autres applis du poste).
-    // De même 'mysql.*' (filet trop large : mysql-workbench, php-mysql…) est remplacé par le
-    // ciblage 'mysql-community-*' (paquets du dépôt Oracle), serveur/client/common restant couverts.
+    /*! apt purge (par motif individuel) + suppression données/config. On RETIRE le partage [Rufus] de
+     *  Samba mais on NE purge PAS samba/wsdd ni le dossier partagé (l'utilisateur peut s'en servir). On NE
+     *  purge PAS 'libmysqlclient.*' (la réinstall de mysql-server la ramène ; la purger faisait des dégâts
+     *  collatéraux). De même 'mysql.*' (filet trop large : mysql-workbench, php-mysql…) est remplacé par le
+     *  ciblage 'mysql-community-*' (dépôt Oracle), serveur/client/common restant couverts. */
     const QString script =
         "systemctl stop mysql mysqld mariadb 2>/dev/null;"
         "for pat in 'mysql-server.*' 'mysql-client.*' 'mysql-common' "
@@ -2359,9 +2362,8 @@ bool MySQLInstaller::uninstallMySQL()
     runCmdElevated(script);
     return !isMySQLInstalled();
 #else
-    // macOS (installeur Oracle .dmg) : arrêt du démon, suppression du pkg (toutes
-    // versions via glob), config et reçus pkgutil. Le compte système _mysql (natif
-    // à macOS) est conservé.
+    /*! macOS (installeur Oracle .dmg) : arrêt du démon, suppression du pkg (toutes versions via glob),
+     *  config et reçus pkgutil. Le compte système _mysql (natif à macOS) est conservé. */
     const QString script =
         "launchctl bootout system "
           "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist 2>/dev/null || "
@@ -2370,7 +2372,7 @@ bool MySQLInstaller::uninstallMySQL()
         "pkill -f /usr/local/mysql/bin/mysqld 2>/dev/null; sleep 2;"
         "rm -f /Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist;"
         "rm -rf /Library/PreferencePanes/MySQL.prefPane;"
-        "rm -rf /usr/local/mysql /usr/local/mysql-*;"   // symlink + dossier(s) versionné(s)
+        "rm -rf /usr/local/mysql /usr/local/mysql-*;"   /*!< symlink + dossier(s) versionné(s) */
         "rm -f /etc/my.cnf /etc/paths.d/mysql /tmp/mysql.sock /tmp/mysql.sock.lock;"
         "for p in com.mysql.launchd com.mysql.mysql com.mysql.prefpane "
                  "com.oracle.oss.mysql.mysqld; do pkgutil --forget \"$p\" 2>/dev/null; done";
