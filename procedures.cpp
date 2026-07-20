@@ -748,6 +748,15 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         Utils::copyWithPermissions(file, pathbackupbase + "/" NOM_FILE_INI);
         msg += tr("Fichier de paramétrage Rufus.ini sauvegardé\n");
     }
+    //! Le dump de la base tourne en tâche de fond (m_ostask, asynchrone). On ATTEND sa fin AVANT
+    //! d'enchaîner sur les fichiers — en laissant vivre la fiche des tables (le timer l'anime, le slot
+    //! `result` la referme quand le dump se termine). Sans cette attente, la 1re fiche de fichiers
+    //! s'afficherait PAR-DESSUS celle des tables encore ouverte (le défaut constaté). On retrouve ainsi
+    //! l'enchaînement propre de la restauration : une fiche à la fois.
+    if (OKBase)
+        while (m_ostask.state() != QProcess::NotRunning)
+            qApp->processEvents(QEventLoop::ExcludeUserInputEvents, 50);
+
     if (OKImages || OKVideos || OKFactures)
     {
         QString dirNomSource;
