@@ -3762,26 +3762,30 @@ bool MySQLInstaller::testSharedFolderRW()
     runCmd("chmod 777 '" + sub + "'");
 #endif
 
-    // ── Écriture par le serveur ───────────────────────────────────────────────
-    QFile::remove(file);   // INTO OUTFILE refuse un fichier existant
+    /*! ── Écriture par le serveur ─────────────────────────────────────────────── */
+    QFile::remove(file);   /*!< INTO OUTFILE refuse un fichier existant */
     runCmdFull(QString(
         "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT '%4' INTO OUTFILE '%5';\" 2>&1")
         .arg(mysqlBin("mysql"), m_login, m_password, token, file));
 
-    // ── Relecture par le serveur (et non par l'app) ───────────────────────────
+    /*! ── Relecture par le serveur (et non par l'app) ─────────────────────────── */
     const QString out = runCmdFull(QString(
         "\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e \"SELECT LOAD_FILE('%4');\" 2>&1")
         .arg(mysqlBin("mysql"), m_login, m_password, file));
 
-    // ── Nettoyage ─────────────────────────────────────────────────────────────
+    /*! ── Nettoyage ───────────────────────────────────────────────────────────── */
     QFile::remove(file);
     QDir().rmdir(sub);
 
-    // Écriture ET lecture réussies si le jeton est revenu intact.
+    /*! Écriture ET lecture réussies si le jeton est revenu intact. */
     return out.contains(token);
 }
 
-//  Lit la valeur d'une clé dans la section [mysqld] de my.cnf (sans connexion).
+/*!
+ * \brief MySQLInstaller::getCnfVar
+ * Lit la valeur d'une clé dans la section [mysqld] de my.cnf (sans connexion).
+ * \param key  nom de la variable recherchée
+ */
 QString MySQLInstaller::getCnfVar(const QString& key)
 {
     QFile f(getCnfPath());
@@ -3796,7 +3800,7 @@ QString MySQLInstaller::getCnfVar(const QString& key)
         if (line.startsWith('[')) { inMysqld = false; continue; }
         if (inMysqld) {
             const int eq = line.indexOf('=');
-            // MySQL accepte « secure_file_priv » et « secure-file-priv ».
+            /*! MySQL accepte « secure_file_priv » et « secure-file-priv ». */
             if (eq > 0) {
                 const QString k = line.left(eq).trimmed().replace('-', '_');
                 if (k == QString(key).replace('-', '_'))
@@ -3805,16 +3809,14 @@ QString MySQLInstaller::getCnfVar(const QString& key)
         }
     }
     f.close();
-    // Retirer d'éventuels guillemets (fréquents sous Windows) et un slash final.
+    /*! Retirer d'éventuels guillemets (fréquents sous Windows) et un slash final. */
     if (value.size() >= 2 && value.startsWith('"') && value.endsWith('"'))
         value = value.mid(1, value.size() - 2);
     if (value.endsWith('/')) value.chop(1);
     return value;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Identifiants
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Identifiants ─────────────────────────────────────────────────────────────── */
 bool MySQLInstaller::isServerRunning()
 {
     QString bin = mysqlBin("mysqladmin");
@@ -3831,7 +3833,12 @@ bool MySQLInstaller::tryConnect()
     return out.contains("mysqld is alive");
 }
 
-//  Comme tryConnect() mais avec des identifiants arbitraires (compte admin saisi).
+/*!
+ * \brief MySQLInstaller::tryConnectAs
+ * Comme tryConnect() mais avec des identifiants arbitraires (compte admin saisi).
+ * \param login  identifiant à tester
+ * \param mdp    mot de passe à tester
+ */
 bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
 {
     const QString out = runCmdFull(
@@ -3840,20 +3847,23 @@ bool MySQLInstaller::tryConnectAs(const QString& login, const QString& mdp)
     return out.contains("mysqld is alive");
 }
 
-//  true ssi adminrufus se connecte avec motDePasseSQL() ET la base Rufus
-//  (DB_RUFUS) existe avec au moins une table → base Rufus complète.
+/*!
+ * \brief MySQLInstaller::baseRufusComplete
+ * true ssi adminrufus se connecte avec motDePasseSQL() ET la base Rufus (DB_RUFUS) existe avec au moins
+ * une table → base Rufus complète.
+ */
 bool MySQLInstaller::baseRufusComplete()
 {
     const QString mdp = motDePasseSQL();
 
-    // adminrufus se connecte-t-il ?
+    /*! adminrufus se connecte-t-il ? */
     const QString ping = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" ping 2>&1")
             .arg(mysqlBin("mysqladmin"), QString(LOGIN_SQL), mdp));
     if (!ping.contains("mysqld is alive"))
         return false;
 
-    // La base DB_RUFUS existe-t-elle ?
+    /*! La base DB_RUFUS existe-t-elle ? */
     const QString dbs = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW DATABASES LIKE '%4';\" 2>&1")
@@ -3864,7 +3874,7 @@ bool MySQLInstaller::baseRufusComplete()
     if (!dbFound)
         return false;
 
-    // …et contient-elle au moins une table ?
+    /*! …et contient-elle au moins une table ? */
     const QString tables = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW TABLES FROM %4;\" 2>&1")
@@ -3889,11 +3899,11 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
         "CREATE ROLE", "DROP ROLE"
     };
 
-    //! SHOW GRANTS SANS clause FOR = SHOW GRANTS FOR CURRENT_USER() : on lit les privilèges du COMPTE
-    //! RÉELLEMENT utilisé par la connexion (adminrufus@<host qui matche 127.0.0.1>), quel que soit son
-    //! host. INDISPENSABLE depuis qu'adminrufus n'existe plus en @'%' mais seulement sur les hosts
-    //! LAN/privés (hostsLANprives) : le « SHOW GRANTS FOR 'adminrufus'@'%' » en dur échouait (compte
-    //! inexistant) → SHOW GRANTS ne renvoyait aucune ligne → tous les privilèges signalés manquants.
+    /*! SHOW GRANTS SANS clause FOR = SHOW GRANTS FOR CURRENT_USER() : on lit les privilèges du COMPTE
+     *  RÉELLEMENT utilisé par la connexion (adminrufus@<host qui matche 127.0.0.1>), quel que soit son host.
+     *  INDISPENSABLE depuis qu'adminrufus n'existe plus en @'%' mais seulement sur les hosts LAN/privés :
+     *  « SHOW GRANTS FOR 'adminrufus'@'%' » en dur échouait (compte inexistant) → aucune ligne → tous les
+     *  privilèges signalés manquants. */
     QString raw = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW GRANTS;\" 2>&1")
@@ -3931,35 +3941,27 @@ bool MySQLInstaller::checkPrivileges(QStringList& outMissing)
 bool MySQLInstaller::createUser()
 {
 #if defined(Q_OS_LINUX)
-    // Déjà créé (ex. par prepareCreateModeLinux) ? On court-circuite pour ne pas
-    // redemander le mot de passe système.
+    /*! Déjà créé (ex. par prepareCreateModeLinux) ? On court-circuite pour ne pas redemander le mot de
+     *  passe système. */
     if (tryConnect())
         return true;
 #endif
 
-    // Crée DEUX comptes en @'%' (réseau), avec un DOUBLE mot de passe :
-    //   • mot de passe PRIMAIRE = m_password (aléatoire, stocké dans ~/.rufus/.dbkey) ;
-    //   • mot de passe SECONDAIRE = gaxt78iy (MDP_SQL), conservé via RETAIN CURRENT
-    //     PASSWORD pour qu'un futur poste réseau puisse se connecter (bootstrap) tant
-    //     que la deadline de 30 jours n'a pas supprimé gaxt78iy.
-    //   • adminrufus       → ALL PRIVILEGES … WITH GRANT OPTION ;
-    //   • adminrufusSSL    → idem + REQUIRE SSL.
-    // On pose d'abord gaxt78iy comme mot de passe courant (que le compte existe déjà ou
-    // non), puis on bascule sur l'aléatoire EN CONSERVANT gaxt78iy comme 2e mot de passe.
-    // (RETAIN CURRENT PASSWORD : MySQL >= 8.0.14, garanti par l'install d'un serveur 8.x.)
-    //
-    // IMPORTANT — plugin d'authentification. On PRÉFÈRE « mysql_native_password » : le driver Qt
-    // (QMYSQL) en a besoin pour les POSTES RÉSEAU (connexion TCP en clair, cache d'auth froid, où
-    // caching_sha2_password refuse). Mais sur MySQL 8.4 ce plugin est DÉSACTIVÉ par défaut, et si le
-    // « mysql_native_password=ON » écrit dans my.cnf n'est pas pris en compte par le serveur lancé
-    // (cas macOS via launchd), « WITH mysql_native_password » échoue (ERROR 1524). On REVIENT alors
-    // au plugin par défaut (caching_sha2) : le monoposte se connecte par le socket localhost
-    // (caching_sha2 OK) ; l'accès réseau, lui, exigera un serveur où native est actif.
+    /*! Crée les comptes adminrufus / adminrufusSSL avec un DOUBLE mot de passe : PRIMAIRE = m_password
+     *  (aléatoire, .dbkey) ; SECONDAIRE = gaxt78iy (MDP_SQL) conservé via RETAIN CURRENT PASSWORD pour
+     *  qu'un futur poste réseau puisse se connecter (bootstrap) tant que la deadline de 30 j n'a pas purgé
+     *  gaxt78iy. adminrufus → ALL PRIVILEGES … WITH GRANT OPTION ; adminrufusSSL → idem + REQUIRE SSL. On
+     *  pose d'abord gaxt78iy comme mdp courant, puis on bascule sur l'aléatoire EN CONSERVANT gaxt78iy en 2e. */
+    /*! Plugin d'authentification : on PRÉFÈRE « mysql_native_password » (le driver Qt en a besoin pour les
+     *  POSTES RÉSEAU — TCP en clair, cache froid, où caching_sha2 refuse). Mais sur MySQL 8.4 il est
+     *  DÉSACTIVÉ par défaut : si le « mysql_native_password=ON » du my.cnf n'est pas pris en compte (macOS
+     *  launchd), « WITH mysql_native_password » échoue (ERROR 1524) → on REVIENT au défaut (caching_sha2) :
+     *  le monoposte se connecte par socket localhost ; l'accès réseau exigera un serveur où native est actif. */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    //! adminrufus (NON-SSL) n'est créé QUE sur les hosts LOCAUX/PRIVÉS (jamais @'%', qui serait joignable
-    //! du WAN via la redirection de ports). adminrufusSSL@'%' (SSL) sert l'accès distant. Double mot de
-    //! passe partout : aléatoire (m_password) primaire + gaxt78iy en 2e (bootstrap réseau, 30 j).
+    /*! adminrufus (NON-SSL) n'est créé QUE sur les hosts LOCAUX/PRIVÉS (jamais @'%', joignable du WAN via
+     *  redirection de ports). adminrufusSSL@'%' (SSL) sert l'accès distant. Double mot de passe partout :
+     *  aléatoire (m_password) primaire + gaxt78iy en 2e (bootstrap réseau, 30 j). */
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
         for (const QString& h : hostsLANprives())
