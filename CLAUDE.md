@@ -114,9 +114,16 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   et **le rôle des fonctions principales**, de façon à faire comprendre son
   **mécanisme** d'un coup d'œil (structures de données clés, enchaînement,
   interaction avec les appelants). Modèle à suivre : le bloc en tête de
-  `Dialogs/dlg_impressions.h` — prose courte en français, sous-niveaux marqués
-  par des `*` indentés. Le but : qu'on saisisse le fonctionnement sans lire tout
-  le code.
+  `Dialogs/dlg_impressions.h`. Forme exacte :
+    - Bloc encadré par `/*!` et `*/`.
+    - Chaque ligne commence par `* ` ; les **sous-chapitres** sont marqués par des
+      **tabulations** (indentation croissante).
+    - **Concis et précis** : les grandes lignes, pas des tartines interminables.
+- **Dans le `.h`, ordonner et documenter les fonctions.**
+    - Les **fonctions principales** sont précédées d'une **très courte** explication
+      (mode *brief*).
+    - Chaque fonction est **suivie d'une ligne vide**.
+    - Les fonctions sont **groupées par rôle** (comme dans `mysqlinstaller.h`).
 - **Sécurité** : MySQL avec mot de passe aléatoire fort, connexions chiffrées
   SSL entre postes. Voir `docs/INITIALISATION_ET_SECURITE.md`.
 
