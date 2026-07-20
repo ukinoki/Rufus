@@ -1151,6 +1151,19 @@ alternée</string>
     <bool>false</bool>
    </property>
   </widget>
+  <widget class="UpCheckBox" name="SignerupCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>590</x>
+     <y>556</y>
+     <width>120</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Signer</string>
+   </property>
+  </widget>
   <widget class="QLabel" name="Motiflabel">
    <property name="geometry">
     <rect>
@@ -1818,6 +1831,11 @@ alternée</string>
    <class>UpComboBox</class>
    <extends>QComboBox</extends>
    <header>upcombobox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>upcheckbox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

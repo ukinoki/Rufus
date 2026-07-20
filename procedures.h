@@ -248,6 +248,7 @@ public:
     int                     TailleTopMarge();
             /*! a - Impression d'un texte */
     QString                 CalcCorpsImpression(QString text, bool ALD = false, QImage signature = QImage());   /*!< si signature non nulle, l'image est ajoutée sous le texte du corps (data-URI) */
+    QString                 AjouteSignatureCorps(QString textcorps, QImage signature);                          /*!< insère l'image de signature (data-URI) sous le corps html, avant </body> */
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
     QString                 CalcPiedImpression(User* user);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,

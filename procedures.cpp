@@ -1396,23 +1396,32 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD, QImage signature
     textcorps.replace("{{TEXTE ORDO}}",text);
     textcorps.replace("{{TEXTE ORDO HORS ALD}}", "");
 
-    /*! signature apposée sous le texte : image encodée en data-URI base64 dans le HTML,
-     *  insérée juste avant </body> pour être en bas du corps (le HTML est aussi ré-archivé,
-     *  donc le document reste ré-imprimable tel quel). Cf. précédent cls_iol.cpp. */
-    if (!signature.isNull())
-    {
-        QImage img = signature.scaledToWidth(200, Qt::SmoothTransformation);   /*!< largeur d'impression raisonnable */
-        QByteArray data;
-        QBuffer buffer(&data);
-        img.save(&buffer, "PNG", 100);
-        QString imgtag = "<br /><p align=\"right\"><img src='data:image/png;base64, "
-                         + QString(data.toBase64()) + "'></p>";
-        int pos = textcorps.lastIndexOf("</body>", -1, Qt::CaseInsensitive);
-        if (pos >= 0)
-            textcorps.insert(pos, imgtag);
-        else
-            textcorps += imgtag;
-    }
+    return AjouteSignatureCorps(textcorps, signature);
+}
+
+/*!
+ * \brief Procedures::AjouteSignatureCorps
+ * Insère l'image de signature sous le corps html : image encodée en data-URI base64,
+ * placée juste avant </body> (donc en bas du corps). Le HTML étant aussi ré-archivé,
+ * le document reste ré-imprimable tel quel. Cf. précédent cls_iol.cpp.
+ * \param textcorps  le corps html du document
+ * \param signature  l'image de la signature (vide -> corps inchangé)
+ */
+QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
+{
+    if (signature.isNull())
+        return textcorps;
+    QImage img = signature.scaledToWidth(200, Qt::SmoothTransformation);   /*!< largeur d'impression raisonnable */
+    QByteArray data;
+    QBuffer buffer(&data);
+    img.save(&buffer, "PNG", 100);
+    QString imgtag = "<br /><p align=\"right\"><img src='data:image/png;base64, "
+                     + QString(data.toBase64()) + "'></p>";
+    int pos = textcorps.lastIndexOf("</body>", -1, Qt::CaseInsensitive);
+    if (pos >= 0)
+        textcorps.insert(pos, imgtag);
+    else
+        textcorps += imgtag;
     return textcorps;
 }
 
