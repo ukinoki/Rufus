@@ -1693,11 +1693,13 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
     return true;
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Chemin « création » : MySQL absent (ou trop vieux après nettoyage). Saisie du
-//  futur utilisateur Rufus, installation de MySQL, création d'adminrufus
-//  (root/pkexec) puis configuration. true si la base Rufus est prête.
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief MySQLInstaller::faireCreate
+ * Chemin « création » : MySQL absent (ou trop vieux après nettoyage). Saisie du futur utilisateur Rufus,
+ * installation de MySQL, création d'adminrufus (root/pkexec) puis configuration. true si la base Rufus
+ * est prête.
+ * \param cfg  config distante (version cible, seuil, URLs de téléchargement)
+ */
 bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog();
@@ -1705,7 +1707,7 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     m_dialog->show();
     QApplication::processEvents();
 
-    // Saisie du futur utilisateur applicatif Rufus.
+    /*! Saisie du futur utilisateur applicatif Rufus. */
     forever {
         if (m_dialog->exec() != QDialog::Accepted) { cleanupDialog(); return false; }
         if (m_dialog->validerSaisie()) break;
@@ -1713,24 +1715,22 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     m_loginRufus = m_dialog->login();
     m_mdpRufus   = m_dialog->password();
 
-    // Le login/mdp Rufus est choisi : la fiche passe en « paramétrage en cours »
-    // (champs grisés, plus de bouton OK). L'installation puis la configuration se
-    // poursuivent SANS clic — seule une éventuelle saisie du code administrateur de
-    // l'ordinateur (élévation système) peut être demandée. On la ré-affiche pour que
-    // la checklist se coche visiblement.
+    /*! Le login/mdp Rufus est choisi : la fiche passe en « paramétrage en cours » (champs grisés, plus de
+     *  bouton OK). Installation puis config SANS clic — seule une éventuelle saisie du code administrateur
+     *  (élévation système) peut être demandée. On la ré-affiche pour que la checklist se coche visiblement. */
     m_dialog->passerEnConfiguration(
         tr("Installation de MySQL"),
         tr("Téléchargement et installation du serveur MySQL en cours…"));
     m_dialog->show();
     QApplication::processEvents();
 
-    // Comptes Rufus techniques : login fixe + mot de passe aléatoire (fixé AVANT
-    // createUser/prepareCreateMode* qui s'en servent).
+    /*! Comptes Rufus techniques : login fixe + mot de passe aléatoire (fixé AVANT
+     *  createUser/prepareCreateMode* qui s'en servent). */
     m_login    = LOGIN_SQL;
     m_password = genererMotDePasse();
 
-    // Pré-requis réseau : sans accès WAN ou si le lien de téléchargement ne se
-    // résout pas, l'installation est impossible.
+    /*! Pré-requis réseau : sans accès WAN ou si le lien de téléchargement ne se résout pas, l'installation
+     *  est impossible. */
     QString dlUrl;
 #if defined(Q_OS_WIN)
     dlUrl = cfg.winUrl;
@@ -1738,14 +1738,13 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     dlUrl = (runCmd("uname -m 2>/dev/null").trimmed() == "arm64")
                 ? cfg.macArm64Url : cfg.macX86Url;
 #else
-    // Linux (apt) : à défaut d'URL directe, on contrôle au moins la résolution de
-    // l'hôte officiel MySQL.
+    /*! Linux (apt) : à défaut d'URL directe, on contrôle au moins la résolution de l'hôte officiel MySQL. */
     dlUrl = cfg.winUrl;
 #endif
     if (!checkDownloadConnectivity(dlUrl)) { cleanupDialog(); return false; }
 
     if (!installMySQL()) {
-        // installMySQL() affiche déjà un message détaillé en cas d'échec.
+        /*! installMySQL() affiche déjà un message détaillé en cas d'échec. */
         cleanupDialog();
         return false;
     }
@@ -1753,31 +1752,33 @@ bool MySQLInstaller::faireCreate(const MySQLRemoteConfig& cfg)
     startMySQL();
     m_dialog->checkStep(0);
 
-    // MySQL est installé : on l'annonce et on bascule sur le libellé « paramétrage ».
+    /*! MySQL est installé : on l'annonce et on bascule sur le libellé « paramétrage ». */
     m_dialog->passerEnConfiguration(
         tr("Serveur MySQL installé"),
         tr("Paramétrage de l'installation pour Rufus en cours…"));
 
     if (!executerEtapesConfig()) { cleanupDialog(); return false; }
 
-    // Comptes adminrufus/adminrufusSSL créés avec le mot de passe aléatoire : on le
-    // mémorise dans le fichier caché pour les connexions ultérieures.
+    /*! Comptes adminrufus/adminrufusSSL créés avec le mot de passe aléatoire : on le mémorise dans le
+     *  fichier caché pour les connexions ultérieures. */
     stockerMotDePasse(m_password);
 
     cleanupDialog();
     return true;
 }
 
-//  Réinstallation du SOCLE MySQL pour une MIGRATION : installe le serveur puis crée
-//  adminrufus/adminrufusSSL (mot de passe aléatoire + gaxt78iy en 2e), SANS demander de
-//  nouvel utilisateur applicatif ni créer de base vierge — les bases Rufus (et leurs
-//  utilisateurs) sont restaurées ENSUITE depuis la sauvegarde par RestaureBase.
-//  C'est la section « install » de faireCreate(), sans la saisie d'utilisateur.
+/*!
+ * \brief MySQLInstaller::reinstallerSocleMySQL
+ * Réinstallation du SOCLE MySQL pour une MIGRATION : installe le serveur puis crée adminrufus/adminrufusSSL
+ * (aléatoire + gaxt78iy en 2e), SANS nouvel utilisateur applicatif ni base vierge — les bases Rufus sont
+ * restaurées ENSUITE par RestaureBase. C'est la section « install » de faireCreate(), sans la saisie.
+ * \param cfg  config distante (version cible, seuil, URLs de téléchargement)
+ */
 bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerCreateUserRufus(cfg.minVersion);
-    m_dialog->masquerSaisieUtilisateur();   // migration : pas de saisie d'un nouvel utilisateur
+    m_dialog->masquerSaisieUtilisateur();   /*!< migration : pas de saisie d'un nouvel utilisateur */
     m_dialog->passerEnConfiguration(
         tr("Réinstallation de MySQL"),
         tr("Installation du serveur MySQL en cours…"));
@@ -1800,7 +1801,7 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     if (!installMySQL())          { cleanupDialog(); return false; }
     m_freshInstall = true;
     startMySQL();
-    m_dialog->checkStep(0);       // « MySQL X installé » (cf. faireCreate/faireVerify)
+    m_dialog->checkStep(0);       /*!< « MySQL X installé » (cf. faireCreate/faireVerify) */
     if (!executerEtapesConfig())  { cleanupDialog(); return false; }
     stockerMotDePasse(m_password);
     cleanupDialog();
@@ -1808,10 +1809,13 @@ bool MySQLInstaller::reinstallerSocleMySQL(const MySQLRemoteConfig& cfg)
     return true;
 }
 
-//  SSL (étape 7, point 4) — Sauvegarde des 6 .pem du datadir AVANT désinstallation (qui détruit
-//  le datadir). On conserve TOUTE la chaîne (CA + serveur + client) pour que le nouveau serveur
-//  présente le MÊME CA : les clés client déjà déployées sur les postes distants restent valides.
-//  true si au moins le CA a pu être conservé. Stash dans ~/.rufus (survit à la désinstallation).
+/*!
+ * \brief MySQLInstaller::sauvegarderClesSSLMigration
+ * SSL (étape 7, point 4) — Sauvegarde les 6 .pem du datadir AVANT désinstallation (qui détruit le
+ * datadir). On conserve TOUTE la chaîne (CA + serveur + client) pour que le nouveau serveur présente le
+ * MÊME CA → les clés client déjà déployées restent valides. true si au moins le CA a pu être conservé
+ * (stash dans ~/.rufus, qui survit à la désinstallation).
+ */
 bool MySQLInstaller::sauvegarderClesSSLMigration()
 {
     const QString datadir = mysqlDataDir();
@@ -1820,7 +1824,7 @@ bool MySQLInstaller::sauvegarderClesSSLMigration()
         << "ca.pem" << "ca-key.pem" << "server-cert.pem"
         << "server-key.pem" << "client-cert.pem" << "client-key.pem";
 #if defined(Q_OS_WIN)
-    // Datadir lisible par le processus (élevé) : copie directe en C++.
+    /*! Datadir lisible par le processus (élevé) : copie directe en C++. */
     QDir().mkpath(stash);
     for (const QString& f : pem) {
         const QString dst = stash + "/" + f;
@@ -1829,7 +1833,7 @@ bool MySQLInstaller::sauvegarderClesSSLMigration()
             QFile::copy(datadir + "/" + f, dst);
     }
 #else
-    // Datadir root-only (mysql/_mysql, clés en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur.
+    /*! Datadir root-only (mysql/_mysql, clés en 0600) : copie ÉLEVÉE puis restitution à l'utilisateur. */
     const QString owner = QString::fromLocal8Bit(qgetenv("USER"));
     QString sh = "DATA='" + datadir + "'; STASH='" + stash + "'; OWNER='" + owner + "'\n"
                  "mkdir -p \"$STASH\"\n";
@@ -1841,9 +1845,12 @@ bool MySQLInstaller::sauvegarderClesSSLMigration()
     return QFile::exists(stash + "/ca.pem");
 }
 
-//  Réinjecte les .pem conservés dans le NOUVEAU datadir, fixe droits/propriétaire, redémarre
-//  MySQL (-> il sert le MÊME CA) et réactualise la copie CLIENT rendue à l'utilisateur
-//  (PATH_DIR_CLESSSL_SERVEUR). Ne fait rien si aucun stash n'existe. Nettoie le stash ensuite.
+/*!
+ * \brief MySQLInstaller::restaurerClesSSLMigration
+ * Réinjecte les .pem conservés dans le NOUVEAU datadir, fixe droits/propriétaire, redémarre MySQL (→ il
+ * sert le MÊME CA) et réactualise la copie CLIENT rendue à l'utilisateur (PATH_DIR_CLESSSL_SERVEUR). Ne
+ * fait rien si aucun stash n'existe. Nettoie le stash ensuite.
+ */
 void MySQLInstaller::restaurerClesSSLMigration()
 {
     const QString datadir = mysqlDataDir();
@@ -1865,7 +1872,7 @@ void MySQLInstaller::restaurerClesSSLMigration()
     }
     runCmdElevated("net start MySQL");
     waitForMySQL(15);
-    recolterClesClientSSL(datadir);            // la copie client reflète les ANCIENNES clés
+    recolterClesClientSSL(datadir);            /*!< la copie client reflète les ANCIENNES clés */
 #else
     const QString user = QString::fromLocal8Bit(qgetenv("USER"));
     QString sh = "DATA='" + datadir + "'; STASH='" + stash + "'; SSLDEST='" + sslDest + "'; USERN='" + user + "'\n";
@@ -1883,7 +1890,7 @@ void MySQLInstaller::restaurerClesSSLMigration()
           "for c in ca.pem server-cert.pem client-cert.pem; do chmod 644 \"$DATA/$c\" 2>/dev/null; done\n"
           "chown \"$OWNER\":\"$OWNER\" \"$DATA\"/ca.pem \"$DATA\"/ca-key.pem \"$DATA\"/server-cert.pem "
           "\"$DATA\"/server-key.pem \"$DATA\"/client-cert.pem \"$DATA\"/client-key.pem 2>/dev/null\n"
-          // réactualiser la copie CLIENT rendue à l'utilisateur (mêmes clés qu'avant la migration)
+          /*! réactualiser la copie CLIENT rendue à l'utilisateur (mêmes clés qu'avant la migration) */
           "mkdir -p \"$SSLDEST\"\n"
           "cp -f \"$STASH/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
           "cp -f \"$STASH/client-cert.pem\" \"$SSLDEST/client-cert.pem\" 2>/dev/null\n"
@@ -1902,12 +1909,13 @@ void MySQLInstaller::restaurerClesSSLMigration()
     QDir(stash).removeRecursively();
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  SSL — contrôle et (re)génération des clés (serveur / monoposte)
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── SSL — contrôle et (re)génération des clés (serveur / monoposte) ──────────── */
 
-//  La copie CLIENT exportable (récoltée du datadir) est-elle présente ? Ce sont ces 3 fichiers
-//  qu'on distribue aux postes distants et qu'on a besoin de pouvoir exporter.
+/*!
+ * \brief MySQLInstaller::clesSSLServeurPresentes
+ * La copie CLIENT exportable (récoltée du datadir) est-elle présente ? Ce sont les 3 fichiers qu'on
+ * distribue aux postes distants.
+ */
 bool MySQLInstaller::clesSSLServeurPresentes()
 {
     const QString d = QString(PATH_DIR_CLESSSL_SERVEUR);
@@ -1916,8 +1924,11 @@ bool MySQLInstaller::clesSSLServeurPresentes()
         && QFile::exists(d + "/client-key.pem");
 }
 
-//  Date d'expiration du certificat SERVEUR, lue via l'état SSL du serveur (aucun accès au datadir
-//  requis). Renvoie une QDateTime INVALIDE si SSL est inactif / le certificat est absent / illisible.
+/*!
+ * \brief MySQLInstaller::dateExpirationCertSSL
+ * Date d'expiration du certificat SERVEUR, lue via l'état SSL du serveur (aucun accès au datadir requis).
+ * QDateTime INVALIDE si SSL inactif / certificat absent / illisible.
+ */
 QDateTime MySQLInstaller::dateExpirationCertSSL()
 {
     bool ok = false;
@@ -1925,27 +1936,29 @@ QDateTime MySQLInstaller::dateExpirationCertSSL()
         "SHOW STATUS LIKE 'Ssl_server_not_after'", ok);
     if (!ok || r.size() < 2)
         return QDateTime();
-    QString v = r.at(1).toString().trimmed();   // p.ex. « Apr 14 12:00:00 2034 GMT »
+    QString v = r.at(1).toString().trimmed();   /*!< p.ex. « Apr 14 12:00:00 2034 GMT » */
     if (v.isEmpty())
         return QDateTime();
     v.remove(" GMT").remove(" UTC");
-    v = v.simplified();                          // « Apr 1 … » (jour sur 1 chiffre) → un seul espace
+    v = v.simplified();                          /*!< « Apr 1 … » (jour sur 1 chiffre) → un seul espace */
     QDateTime dt = QLocale(QLocale::C).toDateTime(v, "MMM d HH:mm:ss yyyy");
     if (dt.isValid()) dt.setTimeSpec(Qt::UTC);
     return dt;
 }
 
-//  (Ré)extrait les clés CLIENT du datadir vers PATH_DIR_CLESSSL_SERVEUR, SANS arrêter le serveur
-//  (les .pem sont lisibles pendant qu'il tourne) → AUCUNE coupure de la connexion. Cas d'usage : la
-//  copie exportable a été effacée par erreur alors que le serveur a toujours ses certificats.
-//  true si la copie client est désormais présente.
+/*!
+ * \brief MySQLInstaller::extraireClesSSLDepuisDatadir
+ * (Ré)extrait les clés CLIENT du datadir vers PATH_DIR_CLESSSL_SERVEUR SANS arrêter le serveur (les .pem
+ * restent lisibles pendant qu'il tourne → AUCUNE coupure). Cas d'usage : la copie exportable a été
+ * effacée par erreur alors que le serveur a toujours ses certificats. true si la copie client est là.
+ */
 bool MySQLInstaller::extraireClesSSLDepuisDatadir()
 {
     const QString datadir = mysqlDataDir();
 #if defined(Q_OS_WIN)
-    recolterClesClientSSL(datadir);   // datadir lisible par le process élevé → copie C++ directe
+    recolterClesClientSSL(datadir);   /*!< datadir lisible par le process élevé → copie C++ directe */
 #else
-    //! Datadir root-only (mysql/_mysql, client-key.pem en 0600) : extraction ÉLEVÉE puis restitution.
+    /*! Datadir root-only (mysql/_mysql, client-key.pem en 0600) : extraction ÉLEVÉE puis restitution. */
     const QString sslDest = QString(PATH_DIR_CLESSSL_SERVEUR);
     const QString user    = QString::fromLocal8Bit(qgetenv("USER"));
     QString sh =
@@ -1961,11 +1974,13 @@ bool MySQLInstaller::extraireClesSSLDepuisDatadir()
     return clesSSLServeurPresentes();
 }
 
-//  DESTRUCTIF : régénère DE NOUVELLES clés SSL. Arrête le serveur, SUPPRIME les certificats du
-//  datadir, redémarre (MySQL les recrée tout seul via auto_generate_certs, sans openssl externe),
-//  attend leur (ré)apparition, puis réextrait la copie client. INVALIDE toute clé déjà distribuée :
-//  l'appelant DOIT prévenir l'utilisateur et RELANCER Rufus (le redémarrage du serveur a coupé la
-//  connexion en cours). true si une nouvelle copie client est disponible.
+/*!
+ * \brief MySQLInstaller::regenererClesSSL
+ * DESTRUCTIF : régénère DE NOUVELLES clés SSL. Arrête le serveur, SUPPRIME les certificats du datadir,
+ * redémarre (MySQL les recrée via auto_generate_certs), attend leur réapparition, puis réextrait la copie
+ * client. INVALIDE toute clé déjà distribuée : l'appelant DOIT prévenir l'utilisateur et RELANCER Rufus
+ * (le redémarrage a coupé la connexion). true si une nouvelle copie client est disponible.
+ */
 bool MySQLInstaller::regenererClesSSL()
 {
     const QString datadir = mysqlDataDir();
@@ -1978,7 +1993,7 @@ bool MySQLInstaller::regenererClesSSL()
         QFile::remove(datadir + "/" + f);
     runCmdElevated("net start MySQL");
     waitForMySQL(15);
-    //! Laisser à mysqld le temps de régénérer les certificats avant de les récolter.
+    /*! Laisser à mysqld le temps de régénérer les certificats avant de les récolter. */
     for (int i = 0; i < 20 && !QFile::exists(datadir + "/ca.pem"); ++i)
         Utils::Pause(1000);
     recolterClesClientSSL(datadir);
@@ -2000,7 +2015,7 @@ bool MySQLInstaller::regenererClesSSL()
   #else
     sh += "systemctl start mysql 2>/dev/null\n";
   #endif
-    //! Attendre la régénération automatique des certificats (auto_generate_certs) puis récolter.
+    /*! Attendre la régénération automatique des certificats (auto_generate_certs) puis récolter. */
     sh += "for i in $(seq 1 20); do [ -f \"$DATA/ca.pem\" ] && break; sleep 1; done\n"
           "mkdir -p \"$SSLDEST\"\n"
           "cp -f \"$DATA/ca.pem\"          \"$SSLDEST/ca-cert.pem\"     2>/dev/null\n"
