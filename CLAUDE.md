@@ -138,8 +138,16 @@ du logiciel — et la grille de lecture de toutes ses décisions.
     - **Espacement (`.cpp`)** : une **ligne vide après chaque fonction**.
 - **À l'intérieur d'une fonction (`.cpp`), commentaires extrêmement brefs**, sauf
   quand un *pourquoi* non évident l'impose.
-- **Sécurité** : MySQL avec mot de passe aléatoire fort, connexions chiffrées
-  SSL entre postes. Voir `docs/INITIALISATION_ET_SECURITE.md`.
+- **Aligner le code aux tabulations** — même finalité : la lisibilité (et, l'auteur
+  l'assume, une manie personnelle assumée ; le résultat est réellement plus lisible).
+    - **`.h`** : colonnes alignées d'une ligne à l'autre — **type**, **nom**,
+      `= valeur`, puis commentaire `/*!< … */` — et membres **regroupés par rôle**
+      sous un intitulé (`/*! les items */`, `/*! les widgets */`…). Modèle :
+      `Dialogs/dlg_programmationinterventions.h`.
+    - **`.cpp`** : **séparer l'objet de sa fonction** par des tabulations
+      (`objet⇥->methode(...)`) et **aligner les `->`** d'une ligne à l'autre autant
+      que possible ; **regrouper en blocs** les appels portant sur la même chose (un
+      bloc par objet/but), séparés par une ligne vide.
 
 ---
 
