@@ -52,19 +52,15 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #  include <shellapi.h>   // ShellExecuteEx (élévation UAC « runas »)
 #endif
 
-// Arguments de transport des clients mysql/mysqladmin pour les connexions
-// AVEC IDENTIFIANTS. nbp est toujours mono-poste/local : on force TCP vers
-// 127.0.0.1:3306, exactement comme s'y connecte le pilote Qt de Rufus (et comme
-// MySQL Workbench). Sans cela, ces clients passent par le socket Unix local
-// (hôte « localhost ») : un compte défini pour 'user'@'127.0.0.1' ou masqué par
-// un compte anonyme ''@'localhost' se voit alors refusé, alors qu'il se connecte
-// très bien en TCP. (À ne PAS utiliser pour « mysql -u root » via pkexec en mode
-// Create, qui repose volontairement sur l'authentification socket d'Ubuntu.)
+/*! Arguments de transport des clients mysql/mysqladmin pour les connexions AVEC IDENTIFIANTS. nbp est
+ *  toujours mono-poste/local : on force TCP vers 127.0.0.1:3306, comme le pilote Qt de Rufus (et MySQL
+ *  Workbench). Sinon ces clients passent par le socket Unix local (hôte « localhost ») : un compte
+ *  'user'@'127.0.0.1', ou masqué par un anonyme ''@'localhost', est refusé alors qu'il se connecte très
+ *  bien en TCP. (À ne PAS utiliser pour « mysql -u root » via pkexec en mode Create, qui repose
+ *  volontairement sur l'authentification socket d'Ubuntu.) */
 #define LOCAL_TCP_ARGS "--protocol=TCP -h 127.0.0.1 -P 3306"
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  MySQLProgressDialog (porté de ProgressDialog)
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═══ MySQLProgressDialog (porté de ProgressDialog) ══════════════════════════════════════════════ */
 MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* parent)
     : QDialog(parent, Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint)
 {
@@ -73,17 +69,17 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
     setModal(true);
 
     auto* root = new QVBoxLayout(this);
-    root->setContentsMargins(28, 28, 28, 28);
-    root->setSpacing(18);
+    root    ->setContentsMargins(28, 28, 28, 28);
+    root    ->setSpacing(18);
 
     m_label = new QLabel(operation);
-    m_label->setStyleSheet("font-size: 14px; font-weight: 600; color: #1C1B18;");
-    m_label->setWordWrap(true);
-    m_label->setAlignment(Qt::AlignCenter);
-    root->addWidget(m_label);
+    m_label ->setStyleSheet("font-size: 14px; font-weight: 600; color: #1C1B18;");
+    m_label ->setWordWrap(true);
+    m_label ->setAlignment(Qt::AlignCenter);
+    root    ->addWidget(m_label);
 
     m_progress = new QProgressBar();
-    m_progress->setRange(0, 0);   // indéterminé (barre animée)
+    m_progress->setRange(0, 0);   /*!< indéterminé (barre animée) */
     m_progress->setFixedHeight(10);
     m_progress->setTextVisible(false);
     m_progress->setStyleSheet(R"(
@@ -97,48 +93,46 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
                 stop:0 #7F77DD, stop:1 #534AB7);
         }
     )");
-    root->addWidget(m_progress);
+    root      ->addWidget(m_progress);
 
-    //  Ligne de détail sous la barre : taille téléchargée (rassure sur un gros téléchargement,
-    //  ~550 Mo pour le DMG macOS). Vide tant qu'on n'a pas de progression chiffrée.
+    /*! Détail sous la barre : taille téléchargée (rassure sur un gros téléchargement, ~550 Mo pour le
+     *  DMG macOS). Vide tant qu'on n'a pas de progression chiffrée. */
     m_detail = new QLabel(QString());
-    m_detail->setStyleSheet("font-size: 12px; color: #6B6A63;");
-    m_detail->setAlignment(Qt::AlignCenter);
-    root->addWidget(m_detail);
+    m_detail ->setStyleSheet("font-size: 12px; color: #6B6A63;");
+    m_detail ->setAlignment(Qt::AlignCenter);
+    root     ->addWidget(m_detail);
 }
 
 void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
 {
-    if (total <= 0) {                 // taille inconnue → barre animée
+    if (total <= 0) {                 /*!< taille inconnue → barre animée */
         m_progress->setRange(0, 0);
-        m_detail->clear();
+        m_detail  ->clear();
         return;
     }
     m_progress->setRange(0, 100);
     m_progress->setValue(int(received * 100 / total));
-    //  « X / Y Mo » : un téléchargement de plusieurs centaines de Mo qui n'affiche rien donne
-    //  l'impression d'un programme figé.
+
+    /*! « X / Y Mo » : un gros téléchargement (centaines de Mo) qui n'affiche rien paraît figé. */
     const double mo = 1024.0 * 1024.0;
     m_detail->setText(tr("%1 / %2 Mo").arg(received / mo, 0, 'f', 0).arg(total / mo, 0, 'f', 0));
 }
 
-//  Progression en FRACTION (ex. fichiers extraits) : on remplit la barre, SANS afficher de volume
-//  en Mo — ces valeurs ne sont pas des octets (à l'extraction, c'était « 0 / 0 Mo » trompeur).
+/*! Progression en FRACTION (ex. fichiers extraits) : remplit la barre SANS volume en Mo — ces valeurs
+ *  ne sont pas des octets (à l'extraction, « 0 / 0 Mo » était trompeur). */
 void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 {
-    if (total <= 0) {                 // total inconnu → barre animée
+    if (total <= 0) {                 /*!< total inconnu → barre animée */
         m_progress->setRange(0, 0);
-        m_detail->clear();
+        m_detail  ->clear();
         return;
     }
     m_progress->setRange(0, 100);
     m_progress->setValue(int(done * 100 / total));
-    m_detail->clear();
+    m_detail  ->clear();
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  MySQLInstallerDialog : checklist des 6 critères (composants Rufus up*)
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═══ MySQLInstallerDialog : checklist des 6 critères (composants Rufus up*) ═════════════════════ */
 MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
     : UpDialog(parent)
 {
