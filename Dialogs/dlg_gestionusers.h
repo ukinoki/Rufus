@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upheaderview.h"
 #include <QPainter>
 #include "procedures.h"
+#include "upcheckbox.h"
 
 /* sert à gérer les comptes utilisateurs
  * QUASI-IDENTIQUE POUR RUFUS ET RUFUSADMIN*/

@@ -463,30 +463,6 @@
           <bool>true</bool>
          </property>
         </widget>
-        <widget class="UpPushButton" name="GestLieuxpushButton">
-         <property name="geometry">
-          <rect>
-           <x>220</x>
-           <y>345</y>
-           <width>251</width>
-           <height>51</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Gestion des
-lieux d'activité</string>
-         </property>
-         <property name="icon">
-          <iconset resource="../assets/Images/images.qrc">
-           <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>30</width>
-           <height>30</height>
-          </size>
-         </property>
-        </widget>
         <widget class="UpTableWidget" name="AdressupTableWidget">
          <property name="geometry">
           <rect>
@@ -497,65 +473,13 @@ lieux d'activité</string>
           </rect>
          </property>
         </widget>
-        <widget class="UpLabel" name="Signaturelabel">
-         <property name="geometry">
-          <rect>
-           <x>20</x>
-           <y>292</y>
-           <width>75</width>
-           <height>46</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
-        <widget class="UpPushButton" name="SignatureupPushButton">
-         <property name="geometry">
-          <rect>
-           <x>105</x>
-           <y>298</y>
-           <width>190</width>
-           <height>34</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Enregistrer une signature</string>
-         </property>
-        </widget>
-        <widget class="QCheckBox" name="SignatureAutoCheckBox">
-         <property name="geometry">
-          <rect>
-           <x>305</x>
-           <y>305</y>
-           <width>160</width>
-           <height>20</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Signature automatique</string>
-         </property>
-        </widget>
-        <widget class="UpLabel" name="Logolabel">
-         <property name="geometry">
-          <rect>
-           <x>40</x>
-           <y>350</y>
-           <width>58</width>
-           <height>41</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-        </widget>
         <widget class="UpPushButton" name="LogoupPushButton">
          <property name="geometry">
           <rect>
-           <x>140</x>
-           <y>355</y>
-           <width>35</width>
-           <height>32</height>
+           <x>429</x>
+           <y>147</y>
+           <width>31</width>
+           <height>21</height>
           </rect>
          </property>
          <property name="text">
@@ -571,6 +495,165 @@ lieux d'activité</string>
            <height>32</height>
           </size>
          </property>
+        </widget>
+        <widget class="UpLabel" name="Logolabel">
+         <property name="geometry">
+          <rect>
+           <x>410</x>
+           <y>80</y>
+           <width>61</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="QWidget" name="">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>290</y>
+           <width>451</width>
+           <height>101</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QWidget" name="signaturewidget" native="true">
+            <property name="minimumSize">
+             <size>
+              <width>260</width>
+              <height>0</height>
+             </size>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="leftMargin">
+              <number>5</number>
+             </property>
+             <property name="topMargin">
+              <number>5</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="UpLabel" name="Signaturelabel">
+               <property name="minimumSize">
+                <size>
+                 <width>80</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>80</width>
+                 <height>80</height>
+                </size>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_2">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+               <item>
+                <widget class="UpPushButton" name="SignatureupPushButton">
+                 <property name="text">
+                  <string>Enregistrer une signature</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="UpCheckBox" name="SignatureAutoCheckBox">
+                 <property name="text">
+                  <string>Signature automatique</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Vertical</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Policy::Maximum</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>5</height>
+                  </size>
+                 </property>
+                </spacer>
+               </item>
+               <item>
+                <widget class="UpPushButton" name="supprimSignatureupPushButton">
+                 <property name="text">
+                  <string>Enregistrer une signature</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="UpPushButton" name="GestLieuxpushButton">
+              <property name="maximumSize">
+               <size>
+                <width>180</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Gestion des
+lieux d'activité</string>
+              </property>
+              <property name="icon">
+               <iconset resource="../assets/Images/images.qrc">
+                <normaloff>:/address-book.png</normaloff>:/address-book.png</iconset>
+              </property>
+              <property name="iconSize">
+               <size>
+                <width>30</width>
+                <height>30</height>
+               </size>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Orientation::Vertical</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Policy::Maximum</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+         </layout>
         </widget>
        </widget>
       </item>
@@ -1536,6 +1619,11 @@ inactifs</string>
    <class>UpRadioButton</class>
    <extends>QRadioButton</extends>
    <header>upradiobutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>upcheckbox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
