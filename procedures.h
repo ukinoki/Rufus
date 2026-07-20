@@ -236,7 +236,8 @@ public:
     bool                    createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map = QMap<QString, QString>(), QWidget *parent = Q_NULLPTR);
     bool                    ApercuAvantImpression();                                                /*! les impressions passent par un aperçu avant d'être lancées */
     bool                    Imprimer_Document(QWidget *parent, Patient *pat, User *user, QString titre, QString textorigine, QDate date,
-                                              bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true);
+                                              bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante = false, bool Administratif = true,
+                                              QImage signature = QImage());   /*!< signature à apposer sous le corps (vide = pas de signature) */
     void                    setNomImprimante(QString NomImprimante);
     QString                 nomImprimante();
 
@@ -246,7 +247,7 @@ public:
     int                     TaillePieddePage();
     int                     TailleTopMarge();
             /*! a - Impression d'un texte */
-    QString                 CalcCorpsImpression(QString text, bool ALD = false);
+    QString                 CalcCorpsImpression(QString text, bool ALD = false, QImage signature = QImage());   /*!< si signature non nulle, l'image est ajoutée sous le texte du corps (data-URI) */
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
     QString                 CalcPiedImpression(User* user);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,

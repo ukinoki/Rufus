@@ -1517,7 +1517,9 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     if (textpied == "") return false;
 
     // creation du corps de l'ordonnance
-    textcorps = proc->CalcCorpsImpression(textorigine);
+    /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
+    QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
+    textcorps = proc->CalcCorpsImpression(textorigine, false, signature);
     if (textcorps == "") return false;
 
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,

@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "procedures.h"
 #include "mysqlinstaller.h"
+#include <QBuffer>
 #include <QElapsedTimer>
 #include <QEventLoop>
 
@@ -1382,7 +1383,7 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
-QString Procedures::CalcCorpsImpression(QString text, bool ALD)
+QString Procedures::CalcCorpsImpression(QString text, bool ALD, QImage signature)
 {
     QString textcorps = (ALD? Ressources::I()->BodyOrdoALD() : Ressources::I()->BodyOrdo());
     textcorps.replace("{{POLICE}}", qApp->font().family());
@@ -1394,6 +1395,24 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 
     textcorps.replace("{{TEXTE ORDO}}",text);
     textcorps.replace("{{TEXTE ORDO HORS ALD}}", "");
+
+    /*! signature apposée sous le texte : image encodée en data-URI base64 dans le HTML,
+     *  insérée juste avant </body> pour être en bas du corps (le HTML est aussi ré-archivé,
+     *  donc le document reste ré-imprimable tel quel). Cf. précédent cls_iol.cpp. */
+    if (!signature.isNull())
+    {
+        QImage img = signature.scaledToWidth(200, Qt::SmoothTransformation);   /*!< largeur d'impression raisonnable */
+        QByteArray data;
+        QBuffer buffer(&data);
+        img.save(&buffer, "PNG", 100);
+        QString imgtag = "<br /><p align=\"right\"><img src='data:image/png;base64, "
+                         + QString(data.toBase64()) + "'></p>";
+        int pos = textcorps.lastIndexOf("</body>", -1, Qt::CaseInsensitive);
+        if (pos >= 0)
+            textcorps.insert(pos, imgtag);
+        else
+            textcorps += imgtag;
+    }
     return textcorps;
 }
 
@@ -1896,7 +1915,8 @@ void Procedures::EditHtml(QString txt)
 
 
 bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, QString titre, QString textorigine, QDate date,
-                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif)
+                                   bool Prescription, bool ALD, bool AvecDupli, bool pdf, bool AvecChoixImprimante, bool Administratif,
+                                   QImage signature)
 {
     if (pat == Q_NULLPTR || user == Q_NULLPTR)
         return false;
@@ -1920,7 +1940,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         return false;
 
     // creation du corps
-    textcorps = CalcCorpsImpression(textorigine, ALD);
+    textcorps = CalcCorpsImpression(textorigine, ALD, signature);
     if (ALD)
     {
         textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));

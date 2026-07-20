@@ -9128,10 +9128,12 @@ void    Rufus::ImprimeDocument(Patient *pat)
             QMap<dlg_impressions::DATASAIMPRIMER, QString> mapdocfirst = listdocs.first();
             bool AvecChoixImprimante    = (mapdoc == mapdocfirst);            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
+            /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
+            QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
             proc                        ->setNomImprimante(imprimante);
             success                     = proc->Imprimer_Document(this, pat, userEntete, Titre,
                                                                   TxtDocument, DateDoc, Prescription, ALD,
-                                                                  AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif);
+                                                                  AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif, signature);
             if (!success)
                 break;
             imprimante = proc->nomImprimante();

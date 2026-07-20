@@ -1687,10 +1687,12 @@ void dlg_programmationinterventions::FicheImpressions(Patient *pat, Intervention
             QMap<int, QMap<dlg_impressions::DATASAIMPRIMER, QString>> map = Dlg_Imprs->mapdocsaimprimer();
             bool AvecChoixImprimante    = (mapdoc == map.first());            // s'il y a plusieurs documents à imprimer on détermine l'imprimante pour le premier et on garde ce choix pour les autres
             ALD                         = Dlg_Imprs->ui->ALDcheckBox->checkState() == Qt::Checked && Prescription && db->parametres()->cotationsfrance();
+            /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
+            QImage signature            = Dlg_Imprs->ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
             proc                        ->setNomImprimante(imprimante);
             if (Dlg_Imprs->printPdf())
                 proc->setDirnamepdf(tr("Session opératoire") + " - " + QLocale::system().toString(currentsession()->date(),"dd MMM yyyy"));
-            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif);
+            m_docimprime                = proc->Imprimer_Document(this, pat, userEntete, Titre, TxtDocument, DateDoc, Prescription, ALD, AvecDupli, Dlg_Imprs->printPdf(), AvecChoixImprimante, Administratif, signature);
             if (!m_docimprime)
                 break;
             imprimante = proc->nomImprimante();
