@@ -1414,7 +1414,9 @@ QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
     int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * p.resolution() / 25.4);
     int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
 
-    QImage emb = (signature.width() > largeur) ? signature.scaledToWidth(largeur, Qt::SmoothTransformation) : signature;
+    /*! taille physique = pixels natifs / dpi (l'attribut width est ignoré) : on force donc
+     *  l'image à largeur px, quitte à agrandir, pour obtenir toujours SIGNATURE_LARGEUR_IMPRESSION_MM */
+    QImage emb = signature.scaledToWidth(largeur, Qt::SmoothTransformation);
     QByteArray data;
     QBuffer buffer(&data);
     emb.save(&buffer, "PNG", 100);
