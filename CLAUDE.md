@@ -131,8 +131,11 @@ du logiciel — et la grille de lecture de toutes ses décisions.
     - Ces commentaires courts d'une ligne s'**alignent en colonne** d'une ligne à
       l'autre (tabulations), à la manière de `Items/cls_acte.h` — mais en forme
       `/* */` plutôt que `//`.
-    - Chaque fonction est **suivie d'une ligne vide**.
-    - Les fonctions sont **groupées par rôle** (comme dans `mysqlinstaller.h`).
+    - **Regroupement (`.h`)** : fonctions **groupées par rôle** (comme dans
+      `mysqlinstaller.h`) et, **dans un même groupe, sans ligne vide** — les
+      fonctions qui vont ensemble (getters/setters, surtout quand leur rôle est
+      évident) restent collées, ce qui garde les colonnes de commentaires alignées.
+    - **Espacement (`.cpp`)** : une **ligne vide après chaque fonction**.
 - **À l'intérieur d'une fonction (`.cpp`), commentaires extrêmement brefs**, sauf
   quand un *pourquoi* non évident l'impose.
 - **Sécurité** : MySQL avec mot de passe aléatoire fort, connexions chiffrées
