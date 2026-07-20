@@ -119,9 +119,12 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   **le rôle des fonctions principales**, pour saisir son **mécanisme** d'un coup
   d'œil (structures de données clés, enchaînement, interaction avec les appelants).
   Modèle : le bloc en tête de `Dialogs/dlg_impressions.h`. Forme exacte :
-    - Bloc encadré par `/*!` et `*/`.
-    - Chaque ligne commence par `* ` ; les **sous-chapitres** sont marqués par des
-      **tabulations** (indentation croissante).
+    - Ouvert par `/*!`, fermé par `*/` ; **pas de `*` de marge** en début de ligne
+      (style Doxygen) — inutile et fatigant pour l'œil.
+    - **Un `*` = un vrai item** (bullet), à son niveau d'indentation ; les
+      **sous-chapitres** sont plus **indentés** (tabulations). Une ligne qui n'est
+      que la *suite* d'un item est simplement **indentée sous son texte, sans `*`**
+      (pas d'étoile orpheline qui ramène l'œil au début de ligne pour rien).
     - **Concis et précis** : les grandes lignes, pas des tartines interminables.
 - **Documenter les fonctions — au plus léger.**
     - Le commentaire *brief* (`\brief`) développé vit dans le **`.cpp`**, au-dessus

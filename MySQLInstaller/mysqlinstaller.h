@@ -48,9 +48,9 @@ struct MySQLRemoteConfig {
 };
 
 /*! MySQLProgressDialog — petite fiche de progression (téléchargement / installation).
- *      * total <= 0 -> barre animée (indéterminée) ; sinon pourcentage.
- *      * setProgress affiche en plus le volume « X / Y Mo » (gros DMG macOS ~550 Mo).
- */
+    * total <= 0 -> barre animée (indéterminée) ; sinon pourcentage.
+    * setProgress affiche en plus le volume « X / Y Mo » (gros DMG macOS ~550 Mo).
+*/
 class MySQLProgressDialog : public QDialog {
     Q_OBJECT
 public:
@@ -66,14 +66,14 @@ private:
 };
 
 /*! MySQLInstallerDialog — la fiche de l'installeur (dérive d'UpDialog).
- *      * Haut : titre + sous-titre. Milieu : saisie identifiant + mot de passe (2 UpLineEdit, plus une
- *        confirmation en mode création). Bas : checklist des 7 critères (affichage seul, cochée par le
- *        moteur MySQLInstaller via checkStep).
- *      * Une même fiche, plusieurs contextes : les configurer*() règlent titre / sous-titre / libellé du
- *        bouton OK et vident les champs (saisie utilisateur Rufus, compte admin MySQL, nouvel utilisateur).
- *      * Deux usages : exec() (modal) pour SAISIR des identifiants ; show() pendant que le moteur déroule
- *        les étapes et coche les cases.
- */
+    * Haut : titre + sous-titre. Milieu : saisie identifiant + mot de passe (2 UpLineEdit, plus une
+      confirmation en mode création). Bas : checklist des 7 critères (affichage seul, cochée par le
+      moteur MySQLInstaller via checkStep).
+    * Une même fiche, plusieurs contextes : les configurer*() règlent titre / sous-titre / libellé du
+      bouton OK et vident les champs (saisie utilisateur Rufus, compte admin MySQL, nouvel utilisateur).
+    * Deux usages : exec() (modal) pour SAISIR des identifiants ; show() pendant que le moteur déroule
+      les étapes et coche les cases.
+*/
 class MySQLInstallerDialog : public UpDialog {
     Q_OBJECT
 public:
@@ -125,39 +125,33 @@ private:
 };
 
 /*! MySQLInstaller — moteur d'installation, de vérification et de sécurisation du serveur MySQL de Rufus.
- *  BUT : garantir au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et
- *  fournir l'entretien qui suit (mot de passe, clés SSL). Tout est LOCAL : les données ne quittent jamais
- *  le cabinet.
- *
- *      * POINT D'ENTRÉE — run() (synchrone) :
- *              * MySQL absent / trop vieux  -> faireCreate()      : installe MySQL, crée les comptes, configure.
- *              * MySQL présent & compatible  -> demanderQueFaireMySQL (Effacer / Conserver / Réinstaller)
- *                                              puis faireReutiliser() : réutilise l'existant, crée les comptes, configure.
- *              * renvoie true si un MySQL conforme est prêt.
- *
- *      * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
- *              * 0 connexion admin   1 PATH   2 dossier partagé   3 secure_file_priv
- *              * 4 lecture/écriture   5 privilèges                6 clés SSL (accès distant)
- *
- *      * COMPTES & MOTS DE PASSE (le cœur « sécurité ») :
- *              * comptes techniques adminrufus (local/LAN) et adminrufusSSL (accès distant, REQUIRE SSL).
- *              * chaque poste connaît le mot de passe ALÉATOIRE de son mode (MONO/LAN/WAN) via .dbkey
- *                (une ligne CLE=mdp par mode) ; cache mémoire s_cacheMDP.
- *              * gaxt78iy = mot de passe GÉNÉRIQUE de secours, conservé comme 2e mot de passe (RETAIN
- *                CURRENT PASSWORD) 30 j après la sécurisation puis effacé -> laisse le temps aux autres
- *                postes (et à la 1re connexion, cache caching_sha2 « froid ») de récupérer l'aléatoire.
- *              * securiser* posent l'aléatoire ; JAMAIS depuis un poste distant. connecterAvecCandidats
- *                essaie [aléatoire, gaxt78iy] et retient celui qui marche.
- *
- *      * CLÉS SSL (accès distant chiffré) : contrôle d'expiration au démarrage, (ré)extraction/régénération,
- *        conservation lors d'une migration de socle.
- *
- *      * ENTRETIEN AU DÉMARRAGE — entretienApresConnexion() : sécurise au besoin puis efface gaxt78iy à
- *        échéance ; helpers d'avertissement / récupération quand un poste n'a pas l'aléatoire.
- *
- *      * PLATEFORMES : Windows / macOS / Linux(Ubuntu). Le paramétrage root est regroupé en UNE élévation
- *        par plateforme (prepareCreateMode*) pour ne demander le mot de passe système qu'une fois.
- */
+    Garantit au démarrage qu'un serveur MySQL conforme est prêt (installé, configuré, sécurisé), et fournit
+    l'entretien qui suit (mot de passe, clés SSL). Tout est LOCAL : les données ne quittent jamais le cabinet.
+
+    * POINT D'ENTRÉE — run() (synchrone) :
+        * MySQL absent / trop vieux   -> faireCreate()      : installe MySQL, crée les comptes, configure.
+        * MySQL présent & compatible  -> demanderQueFaireMySQL (Effacer / Conserver / Réinstaller) puis
+          faireReutiliser() : réutilise l'existant, crée les comptes, configure.
+        * renvoie true si un MySQL conforme est prêt.
+    * ÉTAPES DE CONFIG — executerEtapesConfig(), affichées dans la checklist de MySQLInstallerDialog :
+        * 0 connexion admin   1 PATH   2 dossier partagé   3 secure_file_priv
+        * 4 lecture/écriture   5 privilèges                6 clés SSL (accès distant)
+    * COMPTES & MOTS DE PASSE (le cœur « sécurité ») :
+        * comptes techniques adminrufus (local/LAN) et adminrufusSSL (accès distant, REQUIRE SSL).
+        * chaque poste connaît le mot de passe ALÉATOIRE de son mode (MONO/LAN/WAN) via .dbkey (une ligne
+          CLE=mdp par mode) ; cache mémoire s_cacheMDP.
+        * gaxt78iy = mot de passe GÉNÉRIQUE de secours, conservé comme 2e mot de passe (RETAIN CURRENT
+          PASSWORD) 30 j après la sécurisation puis effacé -> laisse aux autres postes (et à la 1re
+          connexion, cache caching_sha2 « froid ») le temps de récupérer l'aléatoire.
+        * securiser* posent l'aléatoire ; JAMAIS depuis un poste distant. connecterAvecCandidats essaie
+          [aléatoire, gaxt78iy] et retient celui qui marche.
+    * CLÉS SSL (accès distant chiffré) : contrôle d'expiration au démarrage, (ré)extraction / régénération,
+      conservation lors d'une migration de socle.
+    * ENTRETIEN AU DÉMARRAGE — entretienApresConnexion() : sécurise au besoin puis efface gaxt78iy à
+      échéance ; helpers d'avertissement / récupération quand un poste n'a pas l'aléatoire.
+    * PLATEFORMES : Windows / macOS / Linux(Ubuntu). Le paramétrage root est regroupé en UNE élévation par
+      plateforme (prepareCreateMode*) pour ne demander le mot de passe système qu'une fois.
+*/
 class MySQLInstaller : public QObject {
     Q_OBJECT
 public:
