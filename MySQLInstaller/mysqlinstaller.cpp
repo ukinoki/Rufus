@@ -2969,10 +2969,13 @@ void MySQLInstaller::proposerRecuperationAleatoire()
            "laquelle il a été copié depuis un poste à jour."));
 }
 
-// Recréation MANUELLE du mot de passe aléatoire (bouton « le mot de passe est égaré »). À utiliser
-// quand PLUS AUCUN poste ne détient l'aléatoire (ex. .dbkey perdu par l'ancien bug de sécurisation).
-// Protégée par le mot de passe ADMINISTRATEUR de Rufus (getMDPAdmin, 'bob' par défaut). Réservé au
-// LOCAL (jamais distant) + socle MySQL conforme. Renvoie true si un nouvel aléatoire a été posé.
+/*!
+ * \brief MySQLInstaller::recreerMotDePasseApresVerifAdmin
+ * Recréation MANUELLE du mot de passe aléatoire (bouton « le mot de passe est égaré ») quand PLUS AUCUN
+ * poste ne le détient (ex. .dbkey perdu). Protégée par le mot de passe ADMINISTRATEUR de Rufus. Réservé au
+ * LOCAL + socle conforme. true si un nouvel aléatoire a été posé.
+ * \param parent  fenêtre parente des boîtes de dialogue
+ */
 bool MySQLInstaller::recreerMotDePasseApresVerifAdmin(QWidget *parent)
 {
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
@@ -2987,28 +2990,28 @@ bool MySQLInstaller::recreerMotDePasseApresVerifAdmin(QWidget *parent)
             tr("Le serveur MySQL ne prend pas en charge cette opération (version trop ancienne)."));
         return false;
     }
-    //! Verrou : on exige le mot de passe Administrateur de Rufus avant de rebattre le mot de passe de
-    //! la base (opération sensible : elle invalide l'ancien aléatoire pour TOUS les postes).
+    /*! Verrou : on exige le mot de passe Administrateur de Rufus avant de rebattre le mot de passe de la
+     *  base (opération sensible : elle invalide l'ancien aléatoire pour TOUS les postes). */
     QString saisi;
     if (!Utils::VerifMDP(DataBase::I()->getMDPAdmin(), tr("Saisissez le mot de passe Administrateur"), saisi, false, parent))
-        return false;   // mauvais mot de passe / annulation
-    return poserEtSauvegarderAleatoire();   // nouvel aléatoire sur tous les hosts + sauvegarde + message
+        return false;   /*!< mauvais mot de passe / annulation */
+    return poserEtSauvegarderAleatoire();   /*!< nouvel aléatoire sur tous les hosts + sauvegarde + message */
 }
 
-//  Poste DISTANT connecté avec le GÉNÉRIQUE (gaxt78iy) sur une base ENCORE NON sécurisée : on ne
-//  sécurise JAMAIS depuis un poste distant (WAN) — cf. securiserBaseSiNecessaire, garde-fou n°0, qui
-//  refuse d'agir en Distant, ce qui laissait ce cas SANS aucun message. On SUGGÈRE donc de faire la
-//  sécurisation depuis un poste du réseau local ou le serveur. Purement informatif (aucune action
-//  possible d'ici). Réservé à MySQL >= 8.0.14 : en deçà, la sécurisation est impossible et c'est
-//  l'avis « serveur à mettre à jour » (ControleSocleMySQLApresAffichage) qui s'applique.
+/*!
+ * \brief MySQLInstaller::suggererSecurisationDepuisLocal
+ * Poste DISTANT connecté avec le GÉNÉRIQUE sur une base ENCORE NON sécurisée : on ne sécurise JAMAIS
+ * depuis un poste distant (garde-fou n°0), ce qui laissait ce cas sans message → on SUGGÈRE de sécuriser
+ * depuis un poste local ou le serveur. Purement informatif. Réservé à MySQL >= 8.0.14.
+ */
 void MySQLInstaller::suggererSecurisationDepuisLocal()
 {
-    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant) return;   // uniquement en accès distant
-    if (motDePasseSQL() != QString(MDP_SQL))                  return;   // ce poste détient déjà l'aléatoire
-    if (adminrufusEstSecurise())                             return;   // base déjà sécurisée → proposerRecuperationAleatoire s'en charge
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Distant) return;   /*!< uniquement en accès distant */
+    if (motDePasseSQL() != QString(MDP_SQL))                  return;   /*!< ce poste détient déjà l'aléatoire */
+    if (adminrufusEstSecurise())                             return;   /*!< base déjà sécurisée → proposerRecuperationAleatoire s'en charge */
 
-    //! MySQL >= 8.0.14 requis pour la sécurisation (double mot de passe). En deçà, ne rien suggérer :
-    //! l'avis « serveur à mettre à jour » couvre déjà ce cas (et sécuriser serait de toute façon impossible).
+    /*! MySQL >= 8.0.14 requis pour la sécurisation (double mot de passe). En deçà, ne rien suggérer :
+     *  l'avis « serveur à mettre à jour » couvre déjà ce cas (sécuriser serait de toute façon impossible). */
     bool ok = false;
     QVariantList rv = DataBase::I()->getFirstRecordFromStandardSelectSQL("SELECT VERSION()", ok);
     if (!ok || rv.isEmpty())                         return;
@@ -3018,10 +3021,9 @@ void MySQLInstaller::suggererSecurisationDepuisLocal()
     const auto mv = re.match(sv);
     if (!mv.hasMatch() || !versionAtLeast(mv.captured(1), seuilVersionMySQL())) return;
 
-    //! Simple INFORMATION, un seul bouton OK : à ce stade AUCUN mot de passe aléatoire n'existe encore
-    //! (contrairement à proposerRecuperationAleatoire, où la base EST sécurisée et où l'on propose de le
-    //! saisir/importer). Il n'y a donc rien à récupérer ici — on se contente d'inviter à faire la
-    //! sécurisation depuis un poste local ou le serveur (jamais depuis un poste distant).
+    /*! Simple INFORMATION, un seul bouton OK : à ce stade AUCUN mot de passe aléatoire n'existe encore
+     *  (contrairement à proposerRecuperationAleatoire, où la base EST sécurisée). Rien à récupérer ici — on
+     *  invite juste à faire la sécurisation depuis un poste local ou le serveur. */
     UpMessageBox::Information(nullptr,
         tr("Base de données non sécurisée"),
         tr("Ce poste se connecte au serveur avec le mot de passe générique de mise en route.") + "\n\n" +
@@ -3030,25 +3032,29 @@ void MySQLInstaller::suggererSecurisationDepuisLocal()
         tr("Cette sécurisation ne peut pas se faire depuis un poste distant."));
 }
 
-// adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis
-// MySQL 8.0.21 ; nos serveurs cibles (8.0.3x apt / 8.4.x Oracle) le fournissent.
+/*!
+ * \brief MySQLInstaller::adminrufusEstSecurise
+ * adminrufus a-t-il un 2e mot de passe ? (base sécurisée). User_attributes existe depuis MySQL 8.0.21 ;
+ * nos serveurs cibles (8.0.3x apt / 8.4.x Oracle) le fournissent.
+ */
 bool MySQLInstaller::adminrufusEstSecurise()
 {
-    //! On interroge adminrufusSSL@'%' (et NON adminrufus@'%') : c'est la référence STABLE. L'Option B
-    //! supprime adminrufus@'%' (restriction au LAN) mais laisse adminrufusSSL@'%' intact ; or les deux
-    //! sont sécurisés EN MÊME TEMPS (securiserAdminrufusEtMdp). Interroger adminrufus@'%'
-    //! ferait croire, après l'Option B, que la base n'est plus sécurisée (et gaxt78iy ne serait jamais purgé).
+    /*! On interroge adminrufusSSL@'%' (et NON adminrufus@'%') : référence STABLE. L'Option B supprime
+     *  adminrufus@'%' (restriction au LAN) mais laisse adminrufusSSL@'%' intact ; or les deux sont sécurisés
+     *  EN MÊME TEMPS. Interroger adminrufus@'%' ferait croire, après l'Option B, que la base n'est plus
+     *  sécurisée (et gaxt78iy ne serait jamais purgé). */
     bool ok = false;
     const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
         "SELECT User_attributes->>'$.additional_password' IS NOT NULL FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
     return ok && !r.isEmpty() && r.at(0).toInt() == 1;
 }
 
-// true si AU MOINS un compte adminrufus de plage LOCALE (host ≠ '%') a PERDU SYSTEM_USER (revoke laissé
-// par une version antérieure) : il n'est plus « système ». Les entrées LAN étant créées ENSEMBLE (même
-// sécurisation), leur statut est homogène → une seule requête suffit, pas besoin de les tester une par
-// une. Sert à RE-DÉCLENCHER la régularisation (restreindre) même après l'Option B (adminrufus@'%' déjà
-// droppé), pour ramener ces comptes à l'état système attendu.
+/*!
+ * \brief MySQLInstaller::unCompteLANaPerduSystemUser
+ * true si AU MOINS un compte adminrufus de plage LOCALE (host ≠ '%') a PERDU SYSTEM_USER (revoke d'une
+ * version antérieure). Les entrées LAN étant créées ensemble, leur statut est homogène → une requête
+ * suffit. Sert à re-déclencher la régularisation même après l'Option B.
+ */
 bool MySQLInstaller::unCompteLANaPerduSystemUser()
 {
     bool ok = false;
@@ -3059,11 +3065,14 @@ bool MySQLInstaller::unCompteLANaPerduSystemUser()
     return ok && !r.isEmpty() && r.at(0).toInt() > 0;
 }
 
-// Date de sécurisation = dernier changement du mot de passe d'adminrufus.
+/*!
+ * \brief MySQLInstaller::dateSecurisation
+ * Date de sécurisation = dernier changement du mot de passe d'adminrufus.
+ */
 QDateTime MySQLInstaller::dateSecurisation()
 {
-    //! adminrufusSSL@'%' : référence stable (cf. adminrufusEstSecurise) — adminrufus@'%' peut avoir été
-    //! supprimé par l'Option B. Les deux comptes sont (re)sécurisés ensemble, donc la date fait foi.
+    /*! adminrufusSSL@'%' : référence stable (cf. adminrufusEstSecurise) — adminrufus@'%' peut avoir été
+     *  supprimé par l'Option B. Les deux comptes sont (re)sécurisés ensemble, donc la date fait foi. */
     bool ok = false;
     QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
         "SELECT password_last_changed FROM mysql.user WHERE User='" LOGIN_SQL "SSL' AND Host='%'", ok);
@@ -3072,10 +3081,12 @@ QDateTime MySQLInstaller::dateSecurisation()
     return QDateTime();
 }
 
-// Nom du poste qui a posé le mot de passe sécurisé (gravé dans User_attributes par
-// securiserAdminrufusEtMdp). Sert à indiquer OÙ récupérer le mot de passe. Peut être vide
-// pour une base sécurisée par une version antérieure de Rufus (attribut pas encore posé) — l'appelant
-// se rabat alors sur une formulation générique.
+/*!
+ * \brief MySQLInstaller::posteSecurisation
+ * Nom du poste qui a posé le mot de passe sécurisé (gravé dans User_attributes par
+ * securiserAdminrufusEtMdp). Indique OÙ récupérer le mot de passe. Vide pour une base sécurisée par une
+ * version antérieure (attribut pas encore posé) → l'appelant se rabat sur une formulation générique.
+ */
 QString MySQLInstaller::posteSecurisation()
 {
     bool ok = false;
@@ -3086,24 +3097,25 @@ QString MySQLInstaller::posteSecurisation()
     return QString();
 }
 
-// Supprime gaxt78iy (le 2e mot de passe) si la deadline (sécurisation + 30 j) est passée.
-// Garde-fou : on ne le fait QUE si ce poste détient le vrai mot de passe aléatoire — sinon
-// il se couperait lui-même l'accès. En accès DISTANT, on ne supprime jamais (un poste distant
-// ne touche pas aux comptes) : on avertit seulement que l'échéance est dépassée (cf. spec §1d).
+/*!
+ * \brief MySQLInstaller::supprimerGaxt78iySiEchue
+ * Supprime gaxt78iy (le 2e mot de passe) si la deadline (sécurisation + 30 j) est passée. Garde-fou : on
+ * ne le fait QUE si ce poste détient le vrai aléatoire (sinon il se couperait l'accès). En accès DISTANT
+ * on ne supprime jamais : on avertit seulement que l'échéance est dépassée.
+ */
 void MySQLInstaller::supprimerGaxt78iySiEchue()
 {
-    if (motDePasseSQL() == QString(MDP_SQL))   // on n'a que gaxt78iy → ne pas droper
+    if (motDePasseSQL() == QString(MDP_SQL))   /*!< on n'a que gaxt78iy → ne pas droper */
         return;
-    if (!adminrufusEstSecurise())              // déjà droppé, ou jamais sécurisé
+    if (!adminrufusEstSecurise())              /*!< déjà droppé, ou jamais sécurisé */
         return;
     const QDateTime d = dateSecurisation();
     if (!d.isValid() || d.addDays(30) > QDateTime::currentDateTime())
-        return;                                // deadline pas encore atteinte
+        return;                                /*!< deadline pas encore atteinte */
 
-    //! Poste DISTANT (spec §1d + §III.3) : il ne touche JAMAIS aux comptes adminrufus → il ne supprime
-    //! PAS le générique (c'est à un poste local ou au serveur de le faire). Comme l'échéance est déjà
-    //! DÉPASSÉE, on ne redonne pas de date future : on avertit qu'elle l'est depuis X jours, et que la
-    //! désactivation doit se faire depuis un poste local.
+    /*! Poste DISTANT : il ne touche JAMAIS aux comptes adminrufus → il ne supprime PAS le générique (c'est
+     *  à un poste local ou au serveur de le faire). L'échéance étant déjà DÉPASSÉE, on avertit qu'elle l'est
+     *  depuis X jours et que la désactivation doit se faire depuis un poste local. */
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
     {
         const int joursDepasse = d.addDays(30).daysTo(QDateTime::currentDateTime());
@@ -3117,14 +3129,14 @@ void MySQLInstaller::supprimerGaxt78iySiEchue()
         return;
     }
 
-    // Deadline atteinte : on DEMANDE l'autorisation avant de supprimer gaxt78iy (un poste
-    // resté sur une ancienne version perdrait l'accès). Si l'utilisateur reporte, on ne
-    // supprime rien : la demande se représentera telle quelle à la prochaine connexion.
+    /*! Deadline atteinte : on DEMANDE l'autorisation avant de supprimer gaxt78iy (un poste resté sur une
+     *  ancienne version perdrait l'accès). Si l'utilisateur reporte, on ne supprime rien : la demande se
+     *  représentera à la prochaine connexion. */
     if (!confirmerSuppressionGaxt78iy())
         return;
 
-    //! Purge de gaxt78iy sur TOUS les hosts (comme la pose de l'aléatoire) : sinon le mot de passe
-    //! générique subsisterait sur @'localhost' / @'192.168.%' et resterait un accès valide en local/LAN.
+    /*! Purge de gaxt78iy sur TOUS les hosts (comme la pose de l'aléatoire) : sinon le générique subsisterait
+     *  sur @'localhost' / @'192.168.%' et resterait un accès valide en local/LAN. */
     for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL)))
         DataBase::I()->StandardSQL(QString("ALTER USER '" LOGIN_SQL "'@'%1' DISCARD OLD PASSWORD").arg(h));
     for (const QString& h : Utils::hostsDuCompteSQL(QString(LOGIN_SQL) + "SSL"))
@@ -3140,9 +3152,8 @@ QString MySQLInstaller::downloadOracleDmg()
     const QString arch    = runCmd("uname -m 2>/dev/null").trimmed();
     const QString baseUrl = (arch == "arm64") ? cfg.macArm64Url : cfg.macX86Url;
 
-    // Oracle nomme ses DMG avec un suffixe « macosNN » correspondant à la version
-    // de macOS contre laquelle le binaire est compilé. On construit une liste de
-    // candidats et on retient la première réellement servie par Oracle.
+    /*! Oracle nomme ses DMG avec un suffixe « macosNN » (version de macOS de compilation). On construit une
+     *  liste de candidats et on retient le premier réellement servi par Oracle. */
     QStringList candidates;
     candidates << baseUrl;
     QRegularExpression macRe(R"(macos\d+)");
@@ -3156,10 +3167,10 @@ QString MySQLInstaller::downloadOracleDmg()
         }
     }
 
-    QString url = baseUrl;   // dernier recours si aucune sonde n'aboutit
+    QString url = baseUrl;   /*!< dernier recours si aucune sonde n'aboutit */
     for (const QString& cand : candidates) {
-        // -r 0-0 : ne télécharge qu'un octet ; -L : suit la redirection vers le
-        // miroir CDN ; on inspecte le code HTTP final (200 ou 206 = disponible).
+        /*! -r 0-0 : ne télécharge qu'un octet ; -L : suit la redirection vers le miroir CDN ; on inspecte
+         *  le code HTTP final (200 ou 206 = disponible). */
         const QString code = runCmdFull(
             QString("curl -sSL -r 0-0 -o /dev/null -w '%{http_code}' '%1' 2>/dev/null")
                 .arg(cand)).trimmed();
