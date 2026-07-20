@@ -90,6 +90,10 @@ void User::setData(QJsonObject data)
     if (m_logo.size())
         m_logoimg.loadFromData(m_logo);
 
+    setDataByteArray(data, CP_SIGNATURE_USR, m_signature);
+    if (m_signature.size())
+        m_signatureimg.loadFromData(m_signature);
+
     m_data = data;
     /*qDebug() << login();
 
@@ -126,6 +130,16 @@ User::METIER User::metier() const
     }
     return NoMetier;
 }
+QByteArray User::signature() const
+{
+    return m_signature;
+}
+
+void User::setSignature(const QByteArray &newSignature)
+{
+    m_signature = newSignature;
+}
+
 QByteArray User::logo() const
 {
     return m_logo;

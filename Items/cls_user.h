@@ -133,6 +133,8 @@ private:
     bool m_affichecommentslunettespublics = true;   //!> affiche les commentaires publics des autres utilisateurs dans la fiche commentaires lunettes
     QByteArray m_logo = QByteArray();               //! le logo de l'utilistaeur
     QImage m_logoimg = QImage();
+    QByteArray m_signature = QByteArray();           //! l'image de la signature de l'utilisateur
+    QImage m_signatureimg = QImage();
     QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>();              //! identifiants pour les codes barre
     QMap<int,qlonglong> m_mapidSiteAM   = QMap<int,qlonglong>();                //! identifiants ADELI pour chaque site d'exercice key() = id du site value() = numero AM
 
@@ -304,6 +306,16 @@ public:
             m_logoimg = img;
         m_data[CP_USERLOGO_USR] = Utils::jsonValFromImage(m_logoimg);
     }
+
+    QImage signatureimg() const               { return m_signatureimg; }
+    void setSignature(QImage img = QImage())
+    {
+        if (img.isNull())
+            m_signatureimg = QImage();
+        else
+            m_signatureimg = img;
+        m_data[CP_SIGNATURE_USR] = Utils::jsonValFromImage(m_signatureimg);
+    }
     /*! concernant tout le monde */
     bool isComptableActes();
     bool isLiberal();
@@ -339,6 +351,8 @@ public:
     void setidcomptableactes(int idusr)         { m_idComptableActes = idusr; }
     QByteArray logo() const;
     void setLogo(const QByteArray &newLogo);
+    QByteArray signature() const;
+    void setSignature(const QByteArray &newSignature);
     qlonglong AMnumberforSite(int id) {
         qlonglong amnumber = 0;
         auto it = m_mapidSiteAM.find(id);

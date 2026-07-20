@@ -493,8 +493,47 @@ lieux d'activité</string>
            <x>20</x>
            <y>170</y>
            <width>451</width>
-           <height>171</height>
+           <height>115</height>
           </rect>
+         </property>
+        </widget>
+        <widget class="UpLabel" name="Signaturelabel">
+         <property name="geometry">
+          <rect>
+           <x>20</x>
+           <y>292</y>
+           <width>75</width>
+           <height>46</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+        </widget>
+        <widget class="UpPushButton" name="SignatureupPushButton">
+         <property name="geometry">
+          <rect>
+           <x>105</x>
+           <y>298</y>
+           <width>190</width>
+           <height>34</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Enregistrer une signature</string>
+         </property>
+        </widget>
+        <widget class="QCheckBox" name="SignatureAutoCheckBox">
+         <property name="geometry">
+          <rect>
+           <x>305</x>
+           <y>305</y>
+           <width>160</width>
+           <height>20</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Signature automatique</string>
          </property>
         </widget>
         <widget class="UpLabel" name="Logolabel">

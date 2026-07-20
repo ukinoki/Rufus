@@ -22,7 +22,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "dlg_listelieux.h"
 #include "upheaderview.h"
 #include <QPainter>
-//#include "procedures.h"
+#include "procedures.h"
 
 /* sert à gérer les comptes utilisateurs
  * QUASI-IDENTIQUE POUR RUFUS ET RUFUSADMIN*/
@@ -119,6 +119,11 @@ private:
 
     void                    changeLogo();
     void                    delLogo();
+
+    void                    menuChangeUserSignature();          /*!< menu contextuel du QLabel signature (modifier/supprimer) */
+    void                    changeSignature();                  /*!< choisit une image de signature et l'enregistre dans les binds */
+    void                    delSignature();                     /*!< supprime la signature enregistrée */
+    void                    AfficheSignature();                 /*!< met à jour le QLabel, le libellé du bouton et la checkbox selon l'état de la signature */
 
 };
 
