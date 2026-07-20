@@ -79,16 +79,18 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->Logolabel               ->setImmediateToolTip(tr("votre logo\nclic droit pour modifier"));
     connect (ui->Logolabel,            &QLabel::customContextMenuRequested,                    this,   &dlg_gestionusers::menuChangeUserLogo);
 
-    ui->Signaturelabel          ->setContextMenuPolicy(Qt::CustomContextMenu);
-    ui->Signaturelabel          ->setImmediateToolTip(tr("votre signature\nclic droit pour modifier"));
+    ui->Signaturelabel          ->setAlignment(Qt::AlignCenter);
+    ui->Signaturelabel          ->setStyleSheet("background-color:white; border:1px solid lightgray;");
+    ui->Signaturelabel          ->setImmediateToolTip(tr("votre signature"));
     ui->SignatureAutoCheckBox   ->setImmediateToolTip(tr("Signer automatiquement les courriers et ordonnances"));
     /*! les widgets de signature n'apparaissent qu'en mode MODIFUSER (réglé dans setConfig et AfficheSignature) */
     ui->Signaturelabel          ->setVisible(false);
     ui->SignatureupPushButton   ->setVisible(false);
     ui->SignatureAutoCheckBox   ->setVisible(false);
-    connect (ui->Signaturelabel,       &QLabel::customContextMenuRequested,                    this,   &dlg_gestionusers::menuChangeUserSignature);
-    connect (ui->SignatureupPushButton,&QPushButton::clicked,                                  this,   &dlg_gestionusers::changeSignature);
-    connect (ui->SignatureAutoCheckBox,&QCheckBox::clicked,                                    this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+    ui->supprimSignatureupPushButton->setVisible(false);
+    connect (ui->SignatureupPushButton,      &QPushButton::clicked,                            this,   &dlg_gestionusers::changeSignature);
+    connect (ui->supprimSignatureupPushButton,&QPushButton::clicked,                           this,   &dlg_gestionusers::delSignature);
+    connect (ui->SignatureAutoCheckBox,      &QCheckBox::clicked,                              this,   [=] {ui->OKupSmallButton->setEnabled(true);});
 
     QStringList ListTitres;
     ListTitres                      << tr("Docteur") << tr("Professeur");
@@ -421,9 +423,10 @@ void dlg_gestionusers::delLogo()
 
 /*!
  * \brief dlg_gestionusers::AfficheSignature
- * met à jour l'affichage des widgets de signature selon l'état courant :
- * les widgets ne sont visibles qu'en mode MODIFUSER, la vignette et la
- * checkbox « signature automatique » seulement si une signature existe.
+ * met à jour l'affichage des widgets de signature selon l'état courant.
+ * La zone n'existe qu'en mode MODIFUSER. Sans signature enregistrée, le
+ * QLabel reste blanc avec le crayon (invite à en déposer une) et la checkbox
+ * « signature automatique » comme le bouton « Supprimer » sont masqués.
  */
 void dlg_gestionusers::AfficheSignature()
 {
@@ -431,59 +434,61 @@ void dlg_gestionusers::AfficheSignature()
     QImage img      = (m_userencours != Q_NULLPTR) ? m_userencours->signatureimg() : QImage();
     bool asignature = modif && (img != QImage());
 
-    ui->Signaturelabel          ->setVisible(asignature);
+    ui->Signaturelabel              ->setVisible(modif);
     if (asignature)
-        ui->Signaturelabel      ->setPixmap(QPixmap::fromImage(img.scaled(ui->Signaturelabel->width(), ui->Signaturelabel->height(), Qt::KeepAspectRatio)));
+        ui->Signaturelabel          ->setPixmap(QPixmap::fromImage(img.scaled(ui->Signaturelabel->width(), ui->Signaturelabel->height(), Qt::KeepAspectRatio, Qt::SmoothTransformation)));
     else
-        ui->Signaturelabel      ->setPixmap(QPixmap());
-    ui->SignatureupPushButton   ->setVisible(modif);
-    ui->SignatureupPushButton   ->setText(asignature ? tr("Modifier la signature") : tr("Enregistrer une signature"));
-    ui->SignatureAutoCheckBox   ->setVisible(asignature);
+        ui->Signaturelabel          ->setPixmap(Icons::pxEditer().scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));   /*!< crayon : invite à déposer une signature */
+
+    ui->SignatureupPushButton       ->setVisible(modif);
+    ui->SignatureupPushButton       ->setText(asignature ? tr("Modifier la signature") : tr("Enregistrer une signature"));
+    ui->supprimSignatureupPushButton->setVisible(asignature);
+    ui->SignatureAutoCheckBox       ->setVisible(asignature);
     if (asignature)
-        ui->SignatureAutoCheckBox->setChecked(Procedures::I()->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+        ui->SignatureAutoCheckBox   ->setChecked(Procedures::I()->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
 }
 
-void dlg_gestionusers::menuChangeUserSignature()
-{
-    QMenu m_menuContextuel;
-    QAction *pAction_Change = m_menuContextuel.addAction(tr("Modifier la signature"));
-    connect (pAction_Change,  &QAction::triggered,    this, &dlg_gestionusers::changeSignature);
-    if (m_userencours->signatureimg() != QImage())
-    {
-        QAction *pAction_Suppr = m_menuContextuel.addAction(tr("Supprimer la signature"));
-        connect (pAction_Suppr,  &QAction::triggered,    this, &dlg_gestionusers::delSignature);
-    }
-    m_menuContextuel.exec(cursor().pos());
-}
-
+/*!
+ * \brief dlg_gestionusers::changeSignature
+ * choisit un fichier image (jpg/jpeg/png) ou pdf, le convertit en QImage
+ * (première page pour un pdf), le comprime en jpg sous 64 Ko et le range dans
+ * les binds d'enregistrement. Le user reçoit un QImage issu du blob comprimé.
+ */
 void dlg_gestionusers::changeSignature()
 {
-    UpMessageBox::Watch(this, tr("Choix d'une signature"),tr("Dans la boîte de dialogue suivante") + "\n" + tr("choisissez un fichier image au format .jpg, .jpeg ou .png"));
+    UpMessageBox::Watch(this, tr("Choix d'une signature"),tr("Dans la boîte de dialogue suivante") + "\n" + tr("choisissez un fichier image (.jpg, .jpeg, .png) ou .pdf"));
     QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
-    QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images) (*.jpg *.jpeg *.png)"));
-    if (path_file_origin != "")
+    QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Images et pdf (*.jpg *.jpeg *.png *.pdf)"));
+    if (path_file_origin == "")
+        return;
+
+    /*! un pdf → première page rendue en image ; sinon lecture directe de l'image */
+    QImage img;
+    if (path_file_origin.endsWith(".pdf", Qt::CaseInsensitive))
     {
-        QString msg = "";
-        if (!Utils::CompressFileToJPG(path_file_origin, msg, false, SIZEMAXILOGO))
-            return;
-        QFile       file_origin(path_file_origin);
-        if (file_origin.size() > SIZEMAXILOGO)
-        {
-            UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXILOGO/1024) + "Ko");
-            return;
-        }
-        if (!file_origin .open(QIODevice::ReadOnly))
-        {
-            UpMessageBox::Watch(Q_NULLPTR, tr("Impossible d'ouvrir le fichier") + " " + path_file_origin);
-            return;
-        }
-        QImage img(path_file_origin);
-        m_userencours->setSignature(img);
-        m_listlogobinds[CP_SIGNATURE_USR] = file_origin.readAll();
-        file_origin.close();
-        AfficheSignature();
-        ui->OKupSmallButton->setEnabled(true);
+        QList<QImage> pages = Utils::calcImagefromPdf(path_file_origin);
+        if (pages.size() > 0)
+            img = pages.first();
     }
+    else
+        img.load(path_file_origin);
+    if (img.isNull())
+    {
+        UpMessageBox::Watch(this, tr("Fichier illisible"), tr("Impossible de lire une image dans ce fichier"));
+        return;
+    }
+
+    /*! compression en mémoire → jpg sous 64 Ko (cf. logo, mais taille signature) */
+    QByteArray ba = Utils::CompressImageToJPG(img, SIZEMAXISIGNATURE);
+    if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
+    {
+        UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
+        return;
+    }
+    m_userencours->setSignature(QImage::fromData(ba));
+    m_listlogobinds[CP_SIGNATURE_USR] = ba;
+    AfficheSignature();
+    ui->OKupSmallButton->setEnabled(true);
 }
 
 void dlg_gestionusers::delSignature()
