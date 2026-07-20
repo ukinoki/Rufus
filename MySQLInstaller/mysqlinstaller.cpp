@@ -2383,7 +2383,10 @@ bool MySQLInstaller::uninstallMySQL()
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  MySQL : détection, installation, démarrage
-// ─────────────────────────────────────────────────────────────────────────────
+/*!
+ * \brief MySQLInstaller::isMySQLInstalled
+ * Un SERVEUR MySQL (ou MariaDB) est-il installé sur ce poste ? (service/binaire/pkg selon l'OS.)
+ */
 bool MySQLInstaller::isMySQLInstalled()
 {
 #if defined(Q_OS_WIN)
@@ -2393,7 +2396,7 @@ bool MySQLInstaller::isMySQLInstalled()
         return true;
     return runCmd("mysql --version " + NUL()).contains("mysql", Qt::CaseInsensitive);
 #elif defined(Q_OS_LINUX)
-    // Détecter le SERVEUR (mysql-server / mariadb-server), PAS le client seul.
+    /*! Détecter le SERVEUR (mysql-server / mariadb-server), PAS le client seul. */
     if (!runCmd("dpkg -l 2>/dev/null | "
                 "grep -E '^ii +(mysql-server|mariadb-server)'").trimmed().isEmpty())
         return true;
@@ -2416,33 +2419,36 @@ bool MySQLInstaller::isOracleInstall()
     return !oraclePrefix().isEmpty();
 }
 
-//  Enveloppe STATIQUE de isMySQLInstalled() : permet le pré-contrôle « y a-t-il un serveur ? »
-//  au démarrage (Procedures::Connexion_A_La_Base) sans exposer le détail d'implémentation.
+/*!
+ * \brief MySQLInstaller::serveurLocalPresent
+ * Enveloppe STATIQUE de isMySQLInstalled() : pré-contrôle « y a-t-il un serveur ? » au démarrage
+ * (Procedures::Connexion_A_La_Base) sans exposer le détail d'implémentation.
+ */
 bool MySQLInstaller::serveurLocalPresent()
 {
     return MySQLInstaller().isMySQLInstalled();
 }
 
-//  MONOPOSTE : vérification SILENCIEUSE de la config serveur à chaque démarrage, puis réparation
-//  SUR CONSENTEMENT si nécessaire. Cf. DEROULE_REEL_DEMARRAGE.md §5 : seul le monoposte corrige la
-//  config (un client ne peut pas toucher au serveur).
+/*!
+ * \brief MySQLInstaller::verifierEtReparerConfigMonoposte
+ * MONOPOSTE : vérification SILENCIEUSE de la config serveur à chaque démarrage, puis réparation SUR
+ * CONSENTEMENT si nécessaire. Seul le monoposte corrige la config (un client ne peut pas toucher au serveur).
+ */
 void MySQLInstaller::verifierEtReparerConfigMonoposte()
 {
     if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
-        return;                                   //! correction réservée au poste qui héberge la base
+        return;                                   /*!< correction réservée au poste qui héberge la base */
 
     m_login    = LOGIN_SQL;
     m_password = motDePasseSQL();
 
-    //! ── Vérification BON MARCHÉ et SILENCIEUSE (filesystem + 1 requête, aucune élévation, aucun
-    //! sous-processus) ── On ne retient QUE deux signaux ROBUSTES de dérive (sans faux positif) :
-    //!   • le dossier partagé a disparu ;
-    //!   • secure_file_priv ne pointe plus sur un dossier valide (DataBase::dirsecure_file_priv(),
-    //!     la même validation que le reste de Rufus).
-    //! Le PATH du client mysql n'est PAS testé ici (mysqlBin() peut renvoyer un nom relatif résolu
-    //! via le PATH du process → faux positif ; et l'absence est déjà signalée plus loin par
-    //! dirSQLExecutable()). Les contrôles plus lourds (écriture réelle, privilèges) sont (re)faits
-    //! par executerEtapesConfig() PENDANT la réparation. But : un démarrage normal ne paie rien.
+    /*! Vérification BON MARCHÉ et SILENCIEUSE (filesystem + 1 requête, aucune élévation, aucun
+     *  sous-processus). Deux signaux ROBUSTES de dérive (sans faux positif) : le dossier partagé a disparu ;
+     *  secure_file_priv ne pointe plus sur un dossier valide (DataBase::dirsecure_file_priv(), même
+     *  validation que le reste de Rufus). Le PATH du client mysql n'est PAS testé ici (mysqlBin() peut
+     *  renvoyer un nom relatif → faux positif ; l'absence est déjà signalée par dirSQLExecutable()). Les
+     *  contrôles lourds (écriture, privilèges) sont (re)faits par executerEtapesConfig() PENDANT la
+     *  réparation. But : un démarrage normal ne paie rien. */
     QStringList problemes;
     if (!QDir(sharedFolderPath()).exists())
         problemes << tr("le dossier partagé est introuvable");
@@ -2450,9 +2456,9 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
         problemes << tr("la variable serveur secure_file_priv n'est pas correctement positionnée");
 
     if (problemes.isEmpty())
-        return;                                   //! cas courant : tout est conforme, RIEN (silencieux)
+        return;                                   /*!< cas courant : tout est conforme, RIEN (silencieux) */
 
-    //! ── Anomalie détectée : on PROPOSE de corriger (peut demander le mdp administrateur du poste) ──
+    /*! Anomalie détectée : on PROPOSE de corriger (peut demander le mdp administrateur du poste). */
     UpMessageBox msgbox(Q_NULLPTR);
     msgbox.setText(tr("Configuration du serveur MySQL à corriger"));
     msgbox.setInformativeText(
@@ -2471,8 +2477,8 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
     if (msgbox.clickedButton() != Rep)
         return;
 
-    //! ── Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
-    //! lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false).
+    /*! Réparation : on REJOUE les étapes de config (PATH, dossier partagé, secure_file_priv,
+     *  lecture/écriture, privilèges) SANS réinstaller ni recréer d'utilisateur (m_freshInstall=false). */
     m_dialog = new MySQLInstallerDialog();
     m_dialog->passerEnConfiguration(tr("Correction de la configuration MySQL"),
                                     tr("Vérification et correction de la configuration en cours…"));
@@ -2491,8 +2497,11 @@ void MySQLInstaller::verifierEtReparerConfigMonoposte()
             + tr("Rufus continue ; certaines fonctions (imagerie, sauvegarde) peuvent être affectées."));
 }
 
-//  Vérifie que le dossier de l'exécutable mysql figure dans la variable PATH.
-//  Sinon l'y ajoute de façon persistante (écriture privilégiée ; admin requis).
+/*!
+ * \brief MySQLInstaller::ensureMysqlInPath
+ * Vérifie que le dossier de l'exécutable mysql figure dans le PATH ; sinon l'y ajoute de façon
+ * persistante (écriture privilégiée ; admin requis).
+ */
 bool MySQLInstaller::ensureMysqlInPath()
 {
     QString mysqlPath = mysqlBin("mysql");
@@ -2525,8 +2534,8 @@ bool MySQLInstaller::ensureMysqlInPath()
         .arg(winBin));
     return inMachinePath();
 #elif defined(Q_OS_LINUX)
-    // Sous Ubuntu, apt installe mysql dans /usr/bin (déjà dans le PATH). Au cas
-    // où, on persiste via /etc/profile.d/mysql.sh.
+    /*! Sous Ubuntu, apt installe mysql dans /usr/bin (déjà dans le PATH). Au cas où, on persiste via
+     *  /etc/profile.d/mysql.sh. */
     auto inLoginPath = [this, &binDir]() {
         const QStringList dirs =
             runCmd("bash -lc 'echo $PATH' 2>/dev/null").split(':', Qt::SkipEmptyParts);
@@ -2565,7 +2574,7 @@ bool MySQLInstaller::ensureMysqlInPath()
 QString MySQLInstaller::oraclePrefix() const
 {
 #if defined(Q_OS_WIN)
-    // Emplacement par défaut de l'installation MySQL 8.4 sous Windows.
+    /*! Emplacement par défaut de l'installation MySQL 8.4 sous Windows. */
     for (const QString& p : {QString("C:/Program Files/MySQL/MySQL Server 8.4"),
                              QString("C:/Program Files/MySQL/MySQL Server 8.0")})
         if (QFile::exists(p + "/bin/mysql.exe"))
@@ -2578,21 +2587,20 @@ QString MySQLInstaller::oraclePrefix() const
 #endif
 }
 
-//  Chaîne VERSION() telle que rapportée par le SERVEUR EN COURS d'exécution (ex. « 8.0.13 » ou
-//  « 10.5.8-MariaDB »). On INTERROGE le serveur via le client mysql : la valeur renvoyée est celle
-//  du serveur, indépendante de la version du binaire client. Vide si le serveur est injoignable
-//  (arrêté, ou aucun mot de passe candidat ne convient).
-//
-//  C'est la méthode FIABLE, en particulier sous AppImage : Rufus tournant en AppImage exporte son
-//  propre LD_LIBRARY_PATH (libs embarquées) ; tout binaire serveur qu'il lance (mysqld) hérite de
-//  cet environnement et échoue à se charger — « mysqld --version » reste alors muet jusqu'au timeout.
-//  Interroger le serveur déjà lancé évite à la fois ce blocage et la lecture trompeuse du client.
+/*!
+ * \brief MySQLInstaller::serverVersionString
+ * Chaîne VERSION() du SERVEUR EN COURS (ex. « 8.0.13 » ou « 10.5.8-MariaDB »), interrogée via le client
+ * mysql : valeur du serveur, indépendante de la version du binaire client ; vide si serveur injoignable.
+ * Méthode FIABLE sous AppImage : Rufus exporte son propre LD_LIBRARY_PATH ; un mysqld qu'il lance hérite
+ * de cet environnement et « mysqld --version » reste muet jusqu'au timeout — interroger le serveur déjà
+ * lancé évite ce blocage ET la lecture trompeuse du client.
+ */
 QString MySQLInstaller::serverVersionString()
 {
-    const QRegularExpression re(R"((\d+\.\d+\.\d+[^\s]*))");   // « 8.0.13 », « 10.5.8-MariaDB »…
+    const QRegularExpression re(R"((\d+\.\d+\.\d+[^\s]*))");   /*!< « 8.0.13 », « 10.5.8-MariaDB »… */
 
-    //  Essaie « SELECT VERSION() » avec chaque mot de passe candidat, via la chaîne de connexion
-    //  donnée et le timeout donné. Renvoie la version trouvée, ou vide.
+    /*! Essaie « SELECT VERSION() » avec chaque mot de passe candidat, via la chaîne de connexion et le
+     *  timeout donnés. Renvoie la version trouvée, ou vide. */
     auto interroge = [&](const QString& conn, int timeoutMs) -> QString {
         for (const QString& mdp : motsDePasseSQLCandidats()) {
             const QString out = runCmdFull(
@@ -2606,28 +2614,28 @@ QString MySQLInstaller::serverVersionString()
     };
 
 #if !defined(Q_OS_WIN)
-    //  1. SOCKET Unix (pas de -h : connexion « localhost »). Sans adresse IP, le serveur ne fait
-    //     AUCUNE résolution DNS inverse → réponse IMMÉDIATE. C'est le point clé : en TCP, un serveur
-    //     dont le DNS inverse traîne (fréquent en VM) ne répond qu'au bout de ~30 s — ce qui
-    //     dépassait le timeout de runCmd et faisait échouer la lecture (d'où la version fausse).
+    /*! 1. SOCKET Unix (pas de -h : connexion « localhost »). Sans adresse IP, le serveur ne fait AUCUNE
+     *  résolution DNS inverse → réponse IMMÉDIATE. En TCP, un serveur dont le DNS inverse traîne (fréquent
+     *  en VM) ne répond qu'au bout de ~30 s — ce qui dépassait le timeout et faisait lire une version fausse. */
     const QString viaSocket = interroge(QStringLiteral("--connect-timeout=5"), 8000);
     if (!viaSocket.isEmpty())
         return viaSocket;
 #endif
-    //  2. Repli TCP (réseau/local, ou socket indisponible). Timeout LONG : si le serveur traîne sur
-    //     la résolution DNS inverse, il finit par répondre (~30 s) — lent mais correct, infiniment
-    //     mieux qu'une version fausse.
+    /*! 2. Repli TCP (réseau/local, ou socket indisponible). Timeout LONG : si le serveur traîne sur la
+     *  résolution DNS inverse, il finit par répondre (~30 s) — lent mais correct, mieux qu'une version fausse. */
     return interroge(QStringLiteral(LOCAL_TCP_ARGS), 35000);
 }
 
-//  Version du SERVEUR MySQL (X.Y.Z), et NON du client. C'est la version du SERVEUR qui décide de la
-//  compatibilité (double mot de passe « RETAIN CURRENT PASSWORD » apparu en 8.0.14). Sous Ubuntu,
-//  l'installeur Rufus pose le paquet « mysql-client » des dépôts, qui écrase /usr/bin/mysql par une
-//  version récente (p.ex. 8.0.4x) sans toucher au serveur en place (p.ex. 8.0.13) : « mysql --version »
-//  renverrait donc une version trompeuse, plus haute que le serveur réel.
+/*!
+ * \brief MySQLInstaller::getMySQLServerVersion
+ * Version du SERVEUR MySQL (X.Y.Z), et NON du client — c'est elle qui décide de la compatibilité (RETAIN
+ * CURRENT PASSWORD apparu en 8.0.14). Sous Ubuntu, l'installeur pose « mysql-client » qui écrase
+ * /usr/bin/mysql par une version récente sans toucher au serveur en place → « mysql --version » serait
+ * trompeur.
+ */
 QString MySQLInstaller::getMySQLServerVersion()
 {
-    //  1. Le plus fiable : demander sa version au SERVEUR en cours d'exécution (cf. serverVersionString).
+    /*! 1. Le plus fiable : demander sa version au SERVEUR en cours (cf. serverVersionString). */
     const QString srv = serverVersionString();
     const QRegularExpression reXYZ(R"((\d+\.\d+\.\d+))");
     {
@@ -2635,17 +2643,16 @@ QString MySQLInstaller::getMySQLServerVersion()
         if (m.hasMatch()) return m.captured(1);
     }
 
-    //  2. Repli (serveur injoignable) : binaire serveur mysqld. « --version » ne fait qu'afficher la
-    //  version et quitter (il ne démarre rien). Timeout COURT : sous AppImage, ce binaire peut rester
-    //  bloqué (cf. serverVersionString) — inutile d'attendre 30 s. Chemins usuels où mysqld n'est pas
-    //  dans le PATH d'un utilisateur normal (Debian/Ubuntu : /usr/sbin).
+    /*! 2. Repli (serveur injoignable) : binaire serveur mysqld. « --version » affiche la version et quitte
+     *  (ne démarre rien). Timeout COURT : sous AppImage ce binaire peut rester bloqué. Chemins usuels où
+     *  mysqld n'est pas dans le PATH d'un utilisateur normal (Debian/Ubuntu : /usr/sbin). */
     QStringList candidats;
     candidats << mysqlBin("mysqld");
 #if !defined(Q_OS_WIN)
     candidats << "/usr/sbin/mysqld" << "/usr/local/mysql/bin/mysqld";
 #endif
-    const QRegularExpression reDistrib(R"(Distrib\s+([\d.]+))");  // format MariaDB / anciens MySQL
-    const QRegularExpression reVer(R"(Ver\s+([\d.]+))");          // format MySQL 8.x
+    const QRegularExpression reDistrib(R"(Distrib\s+([\d.]+))");  /*!< format MariaDB / anciens MySQL */
+    const QRegularExpression reVer(R"(Ver\s+([\d.]+))");          /*!< format MySQL 8.x */
     for (const QString& bin : candidats) {
         const QString out = runCmd("\"" + bin + "\" --version " + NUL(), 5000);
         if (out.trimmed().isEmpty())
@@ -2656,8 +2663,7 @@ QString MySQLInstaller::getMySQLServerVersion()
         if (m.hasMatch()) return m.captured(1);
     }
 
-    //  3. Repli ultime : version du client (mieux que rien). Trompeuse sous Ubuntu (cf. ci-dessus),
-    //  d'où son rang de dernier recours uniquement.
+    /*! 3. Repli ultime : version du client (mieux que rien). Trompeuse sous Ubuntu, d'où le dernier rang. */
     const QString out = runCmd("\"" + mysqlBin("mysql") + "\" --version " + NUL(), 5000);
     auto m = reDistrib.match(out);
     if (m.hasMatch()) return m.captured(1);
@@ -2665,67 +2671,70 @@ QString MySQLInstaller::getMySQLServerVersion()
     return m.hasMatch() ? m.captured(1) : QString();
 }
 
-//  Sécurisation à la volée d'une base existante (monoposte). Cf. en-tête.
+/*!
+ * \brief MySQLInstaller::securiserBaseSiNecessaire
+ * Sécurisation à la volée d'une base existante (monoposte / LAN). Pose l'aléatoire si la base ne l'a pas
+ * encore, jamais depuis un poste distant, jamais si le socle ne supporte pas le double mot de passe.
+ */
 bool MySQLInstaller::securiserBaseSiNecessaire()
 {
-    // 0. JAMAIS depuis un poste en accès DISTANT (WAN). La sécurisation (poser l'aléatoire et
-    //    devenir « propriétaire » du mot de passe) doit être faite par un poste LOCAL (monoposte
-    //    ou réseau local), pas par un client distant — sinon, via la deadline des 30 jours, ce
-    //    poste distant pourrait verrouiller l'accès des postes locaux qui n'ont pas l'aléatoire.
+    /*! 0. JAMAIS depuis un poste en accès DISTANT (WAN) : la sécurisation (poser l'aléatoire, devenir
+     *  « propriétaire » du mot de passe) doit être faite par un poste LOCAL — sinon, via la deadline des
+     *  30 jours, ce poste distant pourrait verrouiller l'accès des postes locaux sans l'aléatoire. */
     if (DataBase::I()->ModeAccesDataBase() == Utils::Distant)
         return false;
 
-    // 1. Base déjà sécurisée → rien à faire. Le juge fait foi côté serveur (présence d'un
-    //    2e mot de passe sur adminrufus) ; le .dbkey local sert de garde-fou supplémentaire.
-    //    NB : on teste un mot de passe NON VIDE pour le mode courant, pas la simple existence du
-    //    fichier — un .dbkey présent mais VIDE (échec d'écriture antérieur) ne doit pas bloquer
-    //    définitivement une nouvelle tentative de sécurisation.
+    /*! 1. Base déjà sécurisée → rien. Le juge fait foi côté serveur (2e mot de passe sur adminrufus) ; le
+     *  .dbkey local sert de garde-fou. NB : on teste un mot de passe NON VIDE pour le mode courant, pas la
+     *  simple existence du fichier — un .dbkey présent mais VIDE ne doit pas bloquer une nouvelle tentative. */
     //qDebug() << cleModeCourant() << lireDBKey().value(cleModeCourant());
     if (adminrufusEstSecurise() || motDePasseSQL() != QString(MDP_SQL))
         return false;
 
-    // 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD, MySQL >= 8.0.14,
-    //    pas MariaDB) ? Sinon, rotater bloquerait les autres postes → on laisse la base telle quelle.
+    /*! 2. Le serveur supporte-t-il le double mot de passe (RETAIN CURRENT PASSWORD, MySQL >= 8.0.14, pas
+     *  MariaDB) ? Sinon rotater bloquerait les autres postes → on laisse la base telle quelle. */
     if (!socleMySQLConforme())
         return false;
 
-    // 3. Pose de l'aléatoire + sauvegarde (cœur commun avec l'auto-réparation).
+    /*! 3. Pose de l'aléatoire + sauvegarde (cœur commun avec l'auto-réparation). */
     return poserEtSauvegarderAleatoire();
 }
 
-// Cœur de la sécurisation : génère un aléatoire, le SAUVEGARDE (et le relit) AVANT de le poser sur le
-// serveur, le pose sur TOUS les hosts d'adminrufus/adminrufusSSL (en conservant gaxt78iy comme 2e mot
-// de passe), VÉRIFIE que ça a pris, et affiche le mot de passe à noter. Renvoie true si OK.
-// Suppose déjà contrôlé par l'appelant : accès NON distant + socle MySQL conforme (>= 8.0.14).
-// Partagé par securiserBaseSiNecessaire() (1re sécurisation) et (à venir) le bouton « mot de passe égaré ».
+/*!
+ * \brief MySQLInstaller::poserEtSauvegarderAleatoire
+ * Cœur de la sécurisation : génère un aléatoire, le SAUVEGARDE (et le relit) AVANT de le poser sur le
+ * serveur, le pose sur TOUS les hosts d'adminrufus/adminrufusSSL (gaxt78iy conservé en 2e mdp), VÉRIFIE
+ * que ça a pris, et affiche le mot de passe à noter. Suppose l'accès NON distant + socle conforme. true
+ * si OK. Partagé par securiserBaseSiNecessaire() et le bouton « mot de passe égaré ».
+ */
 bool MySQLInstaller::poserEtSauvegarderAleatoire()
 {
-    // Sécurisation en DEUX temps (cf. securiserAdminrufusEtMdp) : 1) (re)poser gaxt78iy comme mdp courant ;
-    //    2) basculer sur l'aléatoire en RETENANT gaxt78iy comme 2e mdp. Aucun plugin imposé : indisponible
-    //    sur MySQL 8.4 et un changement de plugin ferait rejeter RETAIN (ERROR 3894).
+    /*! Sécurisation en DEUX temps (cf. securiserAdminrufusEtMdp) : 1) (re)poser gaxt78iy comme mdp
+     *  courant ; 2) basculer sur l'aléatoire en RETENANT gaxt78iy comme 2e mdp. Aucun plugin imposé
+     *  (indisponible sur MySQL 8.4 ; un changement de plugin ferait rejeter RETAIN, ERROR 3894). */
     const QString np = genererMotDePasse();
-    if (np.isEmpty())                                   // garde-fou : genererMotDePasse ne renvoie jamais vide
+    if (np.isEmpty())                                   /*!< garde-fou : genererMotDePasse ne renvoie jamais vide */
         return false;
 
-    //! ORDRE CRITIQUE — on SAUVEGARDE puis on RELIT le mot de passe (DISQUE, pas cache) AVANT de le
-    //! poser sur le serveur : si l'écriture échoue, on N'ALTÈRE PAS le serveur (sinon base sécurisée
-    //! avec un mot de passe perdu → verrouillage à l'expiration de gaxt78iy).
+    /*! ORDRE CRITIQUE — on SAUVEGARDE puis on RELIT le mot de passe (DISQUE, pas cache) AVANT de le poser
+     *  sur le serveur : si l'écriture échoue, on N'ALTÈRE PAS le serveur (sinon base sécurisée avec un mot
+     *  de passe perdu → verrouillage à l'expiration de gaxt78iy). */
     stockerMotDePasse(np);
     if (lireDBKey().value(cleModeCourant()) != np)
     {
-        s_cacheMDP.remove(cleModeCourant());            // ne pas laisser un mot de passe fantôme en cache
+        s_cacheMDP.remove(cleModeCourant());            /*!< ne pas laisser un mot de passe fantôme en cache */
         qWarning("Securisation abandonnee : ecriture/relecture du .dbkey impossible.");
-        return false;                                   // écriture impossible → on ne sécurise PAS
+        return false;                                   /*!< écriture impossible → on ne sécurise PAS */
     }
-    //! Pose np (avec gaxt78iy en 2e mot de passe) sur TOUS les hosts d'adminrufus/adminrufusSSL.
-    securiserAdminrufusEtMdp(np);   // LANonly=false → adminrufus LAN + adminrufusSSL@'%'
+    /*! Pose np (avec gaxt78iy en 2e mot de passe) sur TOUS les hosts d'adminrufus/adminrufusSSL. */
+    securiserAdminrufusEtMdp(np);   /*!< LANonly=false → adminrufus LAN + adminrufusSSL@'%' */
 
-    //! VÉRIFICATION que la sécurisation a pris (retours StandardSQL non fiables). Sinon on ANNULE :
-    //! retrait de np du .dbkey, retour à gaxt78iy, aucun message trompeur. La base reste fonctionnelle.
+    /*! VÉRIFICATION que la sécurisation a pris (retours StandardSQL non fiables). Sinon on ANNULE : retrait
+     *  de np du .dbkey, retour à gaxt78iy, aucun message trompeur. La base reste fonctionnelle. */
     if (!adminrufusEstSecurise())
     {
-        supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   // retire np du .dbkey + cache
-        s_cacheMDP.insert(cleModeCourant(), QString(MDP_SQL));             // on reste sur gaxt78iy
+        supprimerMotDePassePourMode(DataBase::I()->ModeAccesDataBase());   /*!< retire np du .dbkey + cache */
+        s_cacheMDP.insert(cleModeCourant(), QString(MDP_SQL));             /*!< on reste sur gaxt78iy */
         qWarning("Securisation : les ALTER USER n'ont pas pris cote serveur, annulation.");
         return false;
     }
@@ -2735,9 +2744,12 @@ bool MySQLInstaller::poserEtSauvegarderAleatoire()
     return true;
 }
 
-// Jeu de hosts LOCAUX/PRIVÉS sur lesquels adminrufus (compte NON-SSL) est autorisé : loopback + les
-// trois plages privées RFC 1918 (172.16/12 énuméré 172.16.%…172.31.%). Couvre n'importe quel LAN, quel
-// que soit son schéma, et EXCLUT toute IP publique. Source unique : createUser + securiserAdminrufusEtMdp.
+/*!
+ * \brief hostsLANprives
+ * Jeu de hosts LOCAUX/PRIVÉS où adminrufus (compte NON-SSL) est autorisé : loopback + les trois plages
+ * privées RFC 1918 (172.16/12 énuméré 172.16.%…172.31.%). Couvre n'importe quel LAN et EXCLUT toute IP
+ * publique. Source unique : createUser + securiserAdminrufusEtMdp.
+ */
 static QStringList hostsLANprives()
 {
     QStringList h;
@@ -2746,16 +2758,16 @@ static QStringList hostsLANprives()
     return h;
 }
 
-// Sécurise les comptes adminrufus + pose l'aléatoire (+ gaxt78iy en 2e mdp, RETAIN) et le tampon
-// securepar. `LANonly` : si true, ne traite QUE les comptes NON-SSL (entrées LAN + retrait
-// d'adminrufus@'%') ; si false (défaut), sécurise EN PLUS adminrufusSSL@'%'. UNE seule voie : la connexion
-// PRINCIPALE, où l'on est connecté en adminrufus@'%', compte SYSTÈME qui a SYSTEM_USER → il modifie tout,
-// y compris adminrufusSSL@'%'. Aucun SSL, aucune dépendance aux certificats. (Un ancien « détour SSL » sous
-// adminrufusSSL a été retiré : la voie ordinaire suffit dès lors qu'on ne force plus de plugin d'auth.)
-//
-// Renvoie true si TOUS les buts sont atteints ; remplit *detailresult (si fourni) but par but — pour
-// pouvoir détailler plus tard où ça a échoué : « adminrufus@% supprimé », « adminrufus LAN sécurisés »,
-// et (si !LANonly) « adminrufusSSL sécurisé ».
+/*!
+ * \brief MySQLInstaller::securiserAdminrufusEtMdp
+ * Sécurise les comptes adminrufus + pose l'aléatoire (+ gaxt78iy en 2e mdp, RETAIN) et le tampon securepar.
+ * UNE seule voie : la connexion PRINCIPALE en adminrufus@'%' (compte SYSTÈME avec SYSTEM_USER) qui modifie
+ * tout, y compris adminrufusSSL@'%'. Aucun SSL, aucune dépendance aux certificats. true si TOUS les buts
+ * sont atteints.
+ * \param aleatoire     nouveau mot de passe à poser
+ * \param LANonly       true = ne traite QUE les comptes NON-SSL (LAN + retrait d'adminrufus@'%') ; false = sécurise EN PLUS adminrufusSSL@'%'
+ * \param detailresult  si fourni, rempli but par but (pour détailler où ça a échoué)
+ */
 bool MySQLInstaller::securiserAdminrufusEtMdp(const QString& aleatoire, bool LANonly,
                                               QMap<QString, bool>* detailresult)
 {
