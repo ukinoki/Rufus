@@ -18,6 +18,7 @@ public:
     enum POSITION {Debut, Prec, Suiv, Fin};     Q_ENUM(POSITION)
 
     static bool update(Item*item, QString field, QVariant newvalue = QVariant());
+    static bool updateBlob(Item*item, QString field, QByteArray blob = QByteArray());   /*!< jumelle de update() pour les champs blob (QByteArray) : passe par bindvalue (UpdateTablebyBinds) car un binaire ne peut pas être concaténé dans une requête SQL. Met à jour la base ET l'attribut de l'objet. Blob vide -> NULL en base. */
 
 /*!
 * \brief ItemsList::clearAll

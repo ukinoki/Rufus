@@ -485,8 +485,8 @@ void dlg_gestionusers::changeSignature()
         UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
         return;
     }
-    m_userencours->setSignature(QImage::fromData(ba));
-    m_listlogobinds[CP_SIGNATURE_USR] = ba;
+    m_userencours->setSignature(QImage::fromData(ba));               /*!< l'attribut image du user, pour l'affichage immédiat */
+    ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR, ba);      /*!< enregistre le blob en base (bindvalue) et sur l'attribut octets */
     AfficheSignature();
     ui->OKupSmallButton->setEnabled(true);
 }
@@ -498,8 +498,8 @@ void dlg_gestionusers::delSignature()
                                tr("Confirmez-vous la suppression de la signature") + "?")
         != UpSmallButton::STARTBUTTON)
         return;
-    m_userencours->setSignature(QImage());
-    m_listlogobinds[CP_SIGNATURE_USR] = QByteArray();
+    m_userencours->setSignature(QImage());                              /*!< vide l'attribut image du user */
+    ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR);              /*!< blob vide -> NULL en base, et vide l'attribut octets */
     AfficheSignature();
     ui->OKupSmallButton->setEnabled(true);
 }

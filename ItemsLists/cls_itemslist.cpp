@@ -1561,3 +1561,39 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     }
     return ok;
 }
+
+/*!
+ * \brief ItemsList::updateBlob
+ * Jumelle de update() pour les champs blob : un QByteArray binaire ne peut pas
+ * être concaténé dans une requête SQL, il faut le passer par bindvalue. On met
+ * à jour l'attribut de l'objet ET la base (via UpdateTablebyBinds). Un blob vide
+ * enregistre NULL. Premier champ géré : la signature de l'utilisateur.
+ * \param item  l'item concerné (seul User est géré pour l'instant)
+ * \param field le champ blob à mettre à jour
+ * \param blob  les octets à enregistrer (vide -> NULL)
+ */
+bool ItemsList::updateBlob(Item* item, QString field, QByteArray blob)
+{
+    if (item == Q_NULLPTR)
+        return false;
+    QString table   = "";
+    QString idfield = "";
+    bool ok         = false;
+
+    User *usr = qobject_cast<User*>(item);
+    if (usr)
+    {
+        table   = TBL_UTILISATEURS;
+        idfield = CP_ID_USR;
+        ok      = true;
+        if (field == CP_SIGNATURE_USR)      usr->setSignature(blob);
+        else if (field == CP_USERLOGO_USR)  usr->setLogo(blob);
+        else                                ok = false;
+    }
+    if (!ok)
+        return false;
+
+    QHash<QString, QVariant> sets;
+    sets[field] = blob.isEmpty() ? QVariant() : QVariant(blob);   /*!< vide -> NULL en base */
+    return DataBase::I()->UpdateTablebyBinds(table, sets, idfield, item->id(), tr("Enregistrement impossible"));
+}
