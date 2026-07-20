@@ -103,6 +103,12 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
     root     ->addWidget(m_detail);
 }
 
+/*!
+ * \brief MySQLProgressDialog::setProgress
+ * Progression en pourcentage + volume « X / Y Mo » sous la barre.
+ * \param received  octets déjà reçus
+ * \param total     taille totale (<= 0 → barre animée indéterminée)
+ */
 void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
 {
     if (total <= 0) {                 /*!< taille inconnue → barre animée */
@@ -118,8 +124,13 @@ void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
     m_detail ->setText(tr("%1 / %2 Mo").arg(received / mo, 0, 'f', 0).arg(total / mo, 0, 'f', 0));
 }
 
-/*! Progression en FRACTION (ex. fichiers extraits) : remplit la barre SANS volume en Mo — ces valeurs
- *  ne sont pas des octets (à l'extraction, « 0 / 0 Mo » était trompeur). */
+/*!
+ * \brief MySQLProgressDialog::setProgressBar
+ * Progression en FRACTION (ex. fichiers extraits) : remplit la barre SANS volume en Mo (ces valeurs ne
+ * sont pas des octets → « 0 / 0 Mo » serait trompeur).
+ * \param done   nombre d'éléments traités
+ * \param total  nombre total (<= 0 → barre animée)
+ */
 void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 {
     if (total <= 0) {                 /*!< total inconnu → barre animée */
@@ -201,6 +212,15 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
 }
 
 /*! ── Configuration selon le contexte ──────────────────────────────────────────── */
+
+/*!
+ * \brief MySQLInstallerDialog::configurer
+ * Base commune aux configurer*() : applique titre / sous-titre / libellé du bouton OK et remet les
+ * champs en état interactif (éditables, vidés).
+ * \param titre      titre de la fiche
+ * \param sousTitre  texte explicatif sous le titre
+ * \param okLabel    libellé du bouton OK selon le contexte
+ */
 void MySQLInstallerDialog::configurer(const QString& titre,
                                       const QString& sousTitre,
                                       const QString& okLabel)
@@ -220,9 +240,14 @@ void MySQLInstallerDialog::configurer(const QString& titre,
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
 
-/*! Mode « paramétrage en cours » : la fiche n'attend plus aucune saisie ni clic. Les login/mdp (déjà
- *  choisis) restent affichés mais GRISÉS, les boutons OK/Annuler (et « Supprimer MySQL ») masqués ;
- *  seule la checklist se coche en direct. */
+/*!
+ * \brief MySQLInstallerDialog::passerEnConfiguration
+ * Bascule en mode « paramétrage en cours » : plus aucune saisie ni clic attendus. Login/mdp (déjà
+ * choisis) restent affichés mais GRISÉS, boutons OK/Annuler (et « Supprimer MySQL ») masqués ; seule la
+ * checklist se coche en direct.
+ * \param titre      titre affiché en haut de la fiche
+ * \param sousTitre  sous-titre explicatif
+ */
 void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
                                                  const QString& sousTitre)
 {
@@ -238,7 +263,13 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
     QApplication::processEvents();
 }
 
-/*! Format imposé pour un identifiant Rufus à CRÉER (5-15 / 5-12 alphanumériques). */
+/*!
+ * \brief appliquerValidateursRufus
+ * Impose le format d'un identifiant Rufus à CRÉER (5-15 / 5-12 caractères alphanumériques).
+ * \param login   champ identifiant
+ * \param mdp     champ mot de passe
+ * \param parent  parent Qt des validateurs
+ */
 static void appliquerValidateursRufus(UpLineEdit* login, UpLineEdit* mdp, QObject* parent)
 {
     login ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, parent));
@@ -323,6 +354,11 @@ QString MySQLInstallerDialog::password() const
     return m_mdp ? m_mdp ->text() : QString();
 }
 
+/*!
+ * \brief MySQLInstallerDialog::validerSaisie
+ * Vérifie que login et mot de passe sont renseignés, et — en mode création — que le mot de passe et sa
+ * confirmation coïncident. Affiche un message et renvoie false sinon.
+ */
 bool MySQLInstallerDialog::validerSaisie()
 {
     if (login().isEmpty() || password().isEmpty()) {
@@ -368,6 +404,12 @@ void MySQLInstallerDialog::applyStepLabel(int i)
     m_steps[i] ->setText(label);
 }
 
+/*!
+ * \brief MySQLInstallerDialog::checkStep
+ * Coche la case i de la checklist, force le rafraîchissement immédiat et marque une courte pause pour
+ * qu'on voie la coche se poser.
+ * \param i  index de la case (0..6)
+ */
 void MySQLInstallerDialog::checkStep(int i)
 {
     if (i < 0 || i > 6) return;

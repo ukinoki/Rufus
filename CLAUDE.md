@@ -132,8 +132,17 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   que les fonctions qui font vraiment quelque chose.
 - **Documenter les fonctions — au plus léger.**
     - Le *brief* d'une fonction vit dans le **`.cpp`**, au-dessus de la définition,
-      et reste **concis** (souvent plus court encore que ce qu'on mettrait dans le
-      `.h`) ; on l'**omet pour l'évident** (un getter/setter n'a pas de brief).
+      au **format Doxygen** (modèle `ItemsLists/cls_itemslist.h`) :
+      ```
+      /*!
+       * \brief Classe::fonction
+       * description concise de ce que fait la fonction
+       * \param nom  rôle du paramètre (seulement s'il n'est pas évident)
+       */
+      ```
+      **Concis** (souvent plus court encore que dans le `.h`) ; `\param` uniquement
+      quand le paramètre mérite un mot. On l'**omet complètement** pour l'évident
+      (getter/setter, fonction ultra-courte).
     - Dans le `.h`, une fonction n'a un *brief* que si elle est **complexe**. Si elle
       est assez claire, un **commentaire d'une seule ligne** en forme `/*!< … */`,
       **sur la même ligne** que la déclaration, suffit.
