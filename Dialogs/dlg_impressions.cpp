@@ -122,6 +122,12 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->DupliOrdocheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     ui->DocsPublicscheckBox->setChecked(currentuser()->affichedocspublics());
 
+    /*! « Signer » n'apparaît que si l'utilisateur a une signature enregistrée ;
+     *  précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
+    bool asignature = !currentuser()->signatureimg().isNull();
+    ui->SignerupCheckBox->setVisible(asignature);
+    ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+
 
     ui->textFrame->installEventFilter(this);
     m_opacityeffect  = new QGraphicsOpacityEffect();

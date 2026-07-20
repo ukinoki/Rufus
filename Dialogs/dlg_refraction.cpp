@@ -947,6 +947,12 @@ void dlg_refraction::Init_variables()
     ui->DateDateEdit        ->setDate(m_currentdate);
     m_commentaireresume     = "";
     m_escapeflag              = true;
+
+    /*! « Signer » n'apparaît que si l'utilisateur a une signature enregistrée ;
+     *  précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
+    bool asignature = !Datas::I()->users->userconnected()->signatureimg().isNull();
+    ui->SignerupCheckBox    ->setVisible(asignature);
+    ui->SignerupCheckBox    ->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
 }
 
 //--------------------------------------------------------------------------------------------

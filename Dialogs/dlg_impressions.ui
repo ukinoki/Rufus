@@ -218,6 +218,19 @@
     <bool>true</bool>
    </property>
   </widget>
+  <widget class="UpCheckBox" name="SignerupCheckBox">
+   <property name="geometry">
+    <rect>
+     <x>840</x>
+     <y>344</y>
+     <width>120</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Signer</string>
+   </property>
+  </widget>
   <widget class="QCheckBox" name="ALDcheckBox">
    <property name="geometry">
     <rect>

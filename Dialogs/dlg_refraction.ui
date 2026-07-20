@@ -1766,6 +1766,19 @@ prédéfini</string>
        </date>
       </property>
      </widget>
+     <widget class="UpCheckBox" name="SignerupCheckBox">
+      <property name="geometry">
+       <rect>
+        <x>730</x>
+        <y>65</y>
+        <width>125</width>
+        <height>20</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Signer</string>
+      </property>
+     </widget>
      <widget class="UpGroupBox" name="QuelleMontureGroupBox">
       <property name="geometry">
        <rect>
@@ -1959,6 +1972,11 @@ prédéfini</string>
    <class>UpSpinBox</class>
    <extends>QSpinBox</extends>
    <header>upspinbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>upcheckbox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
