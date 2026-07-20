@@ -109,6 +109,14 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   qu'ajouter.
 - Commenter le **pourquoi** d'un choix non évident (les commentaires existants du
   code le font déjà — garder ce style, en français).
+- **Résumé de classe en tête de chaque `.h`.** Après les `#include` et avant la
+  déclaration de la classe, un bloc `/*! … */` résume **ce que fait la classe**
+  et **le rôle des fonctions principales**, de façon à faire comprendre son
+  **mécanisme** d'un coup d'œil (structures de données clés, enchaînement,
+  interaction avec les appelants). Modèle à suivre : le bloc en tête de
+  `Dialogs/dlg_impressions.h` — prose courte en français, sous-niveaux marqués
+  par des `*` indentés. Le but : qu'on saisisse le fonctionnement sans lire tout
+  le code.
 - **Sécurité** : MySQL avec mot de passe aléatoire fort, connexions chiffrées
   SSL entre postes. Voir `docs/INITIALISATION_ET_SECURITE.md`.
 
