@@ -88,6 +88,8 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->SignatureupPushButton   ->setVisible(false);
     ui->SignatureAutoCheckBox   ->setVisible(false);
     ui->supprimSignatureupPushButton->setVisible(false);
+    ui->SignatureupPushButton       ->setIcon(Icons::icEditer());       /*!< crayon : enregistrer/modifier */
+    ui->supprimSignatureupPushButton->setIcon(Icons::icPoubelle(QSize(25,25)));   /*!< poubelle : supprimer */
     connect (ui->SignatureupPushButton,      &QPushButton::clicked,                            this,   &dlg_gestionusers::changeSignature);
     connect (ui->supprimSignatureupPushButton,&QPushButton::clicked,                           this,   &dlg_gestionusers::delSignature);
     connect (ui->SignatureAutoCheckBox,      &QCheckBox::clicked,                              this,   [=] {ui->OKupSmallButton->setEnabled(true);});
