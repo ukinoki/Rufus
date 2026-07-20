@@ -4157,63 +4157,71 @@ bool MySQLInstaller::prepareCreateModeLinux()
     return ok;
 }
 
-//  Fragment shell (root) du paramétrage dossier + Samba (mot de passe Samba dans $PW).
+/*!
+ * \brief MySQLInstaller::linuxFolderSambaScript
+ * Fragment shell (root) du paramétrage dossier + Samba (mot de passe Samba dans $PW). Réutilisé par
+ * setupSharedFolder() et prepareCreateModeLinux().
+ * \param path  dossier partagé (/Users/Shared)
+ * \param user  compte Ubuntu propriétaire / utilisateur Samba
+ */
 QString MySQLInstaller::linuxFolderSambaScript(const QString& path,
                                                const QString& user) const
 {
     return QString(
-        // Arborescence Rufus + droits : chmod -R 755, chown -R sur tout /Users.
+        /*! Arborescence Rufus + droits : chmod -R 755, chown -R sur tout /Users. */
         "mkdir -p '%1/Rufus/Imagerie'; chmod -R 755 '%1'; chown -R %2 /Users; "
-        // — AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). —
+        /*! AppArmor : DÉSACTIVER le profil mysqld (sinon lecture des images bloquée). */
         "mkdir -p /etc/apparmor.d/disable; "
         "if [ -f /etc/apparmor.d/usr.sbin.mysqld ]; then "
           "ln -sf /etc/apparmor.d/usr.sbin.mysqld /etc/apparmor.d/disable/; "
           "apparmor_parser -R /etc/apparmor.d/usr.sbin.mysqld 2>/dev/null || true; "
         "fi; "
-        // — pare-feu : ouvrir le port MySQL —
+        /*! pare-feu : ouvrir le port MySQL */
         "ufw allow 3306 || true; "
-        // — Samba + wsdd : installés ENSEMBLE si l'un manque. —
+        /*! Samba + wsdd : installés ENSEMBLE si l'un manque. */
         "if ! dpkg -s samba >/dev/null 2>&1 || ! dpkg -s wsdd >/dev/null 2>&1; then "
           "apt-get update </dev/null; "
           "DEBIAN_FRONTEND=noninteractive apt-get install -y samba wsdd </dev/null; "
         "fi; "
-        // — protocole NT1/SMB1 (appareils de mesure anciens) —
+        /*! protocole NT1/SMB1 (appareils de mesure anciens) */
         "grep -q 'server min protocol' /etc/samba/smb.conf 2>/dev/null || "
           "sed -i '/^\\[global\\]/a server min protocol = NT1' /etc/samba/smb.conf; "
-        // — partage [Rufus] -> /Users/Shared/Rufus —
+        /*! partage [Rufus] -> /Users/Shared/Rufus */
         "grep -q '^\\[Rufus\\]' /etc/samba/smb.conf 2>/dev/null || "
           "printf '\\n[Rufus]\\n   comment = Rufus\\n   path = %1/Rufus\\n"
           "   browseable = yes\\n   read only = no\\n   guest ok = yes\\n"
           "   create mask = 0755\\n   directory mask = 0755\\n' >> /etc/samba/smb.conf; "
-        // — utilisateur Samba = compte Ubuntu ; mot de passe = $PW. —
+        /*! utilisateur Samba = compte Ubuntu ; mot de passe = $PW. */
         "printf '%s\\n%s\\n' \"$PW\" \"$PW\" | smbpasswd -s -a '%2' >/dev/null 2>&1 || true; "
         "systemctl restart smbd 2>/dev/null || service smbd restart 2>/dev/null || true; "
-        // — wsdd : activer le service —
+        /*! wsdd : activer le service */
         "systemctl enable --now wsdd 2>/dev/null || true"
         ).arg(path, user);
 }
 #endif
 
 #if defined(Q_OS_MACOS)
-//  Mode Create (macOS) : exécute TOUT le paramétrage root en UNE SEULE invite admin.
+/*!
+ * \brief MySQLInstaller::prepareCreateModeMacOS
+ * Mode Create (macOS) : exécute TOUT le paramétrage root en UNE SEULE invite admin.
+ */
 bool MySQLInstaller::prepareCreateModeMacOS()
 {
-    const QString path = sharedFolderPath();            // /Users/Shared
+    const QString path = sharedFolderPath();            /*!< /Users/Shared */
     QDir().mkpath(path + "/Rufus/Imagerie");
 
-    // my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv) +
-    // réactivation de mysql_native_password : sur MySQL 8.4 (installé ici sur macOS) ce
-    // plugin est DÉSACTIVÉ par défaut, or createUser() en a besoin pour que le driver Qt
-    // puisse se connecter en TCP non chiffré (cf. createUser). Sans danger : on n'écrit
-    // jamais ce my.cnf sur un serveur 8.0 préexistant (réservé à l'installation neuve 8.4).
+    /*! my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv) + réactivation de
+     *  mysql_native_password : sur MySQL 8.4 (installé ici sur macOS) ce plugin est DÉSACTIVÉ par défaut,
+     *  or createUser() en a besoin pour que le driver Qt se connecte en TCP non chiffré. Sans danger : on
+     *  n'écrit jamais ce my.cnf sur un serveur 8.0 préexistant (réservé à l'installation neuve 8.4). */
     QList<QPair<QString, QString>> cnfVars = rufusCnfVars();
     cnfVars << qMakePair(QStringLiteral("mysql_native_password"), QStringLiteral("ON"));
     const QString cnfTmp = writeCnfToTemp(cnfVars);
-    const QString cnfDst = getCnfPath();                 // /etc/my.cnf (Oracle)
+    const QString cnfDst = getCnfPath();                 /*!< /etc/my.cnf (Oracle) */
     if (cnfTmp.isEmpty())
         return false;
 
-    // Chemin du binaire mysql → fichier temporaire copié ensuite dans /etc/paths.d.
+    /*! Chemin du binaire mysql → fichier temporaire copié ensuite dans /etc/paths.d. */
     QString mysqlPath = mysqlBin("mysql");
     if (!QDir::isAbsolutePath(mysqlPath))
         mysqlPath = runCmd("command -v mysql " + NUL()).trimmed();
@@ -4224,22 +4232,22 @@ bool MySQLInstaller::prepareCreateModeMacOS()
           QTextStream ts(&f); ts << binDir << '\n';
       } }
 
-    // (Re)démarrage du serveur : démon launchd si présent, sinon mysql.server.
+    /*! (Re)démarrage du serveur : démon launchd si présent, sinon mysql.server. */
     const QString plist = "/Library/LaunchDaemons/com.oracle.oss.mysql.mysqld.plist";
     const QString restart = QFile::exists(plist)
         ? QString("launchctl unload '%1' 2>/dev/null; launchctl load -w '%1'").arg(plist)
         : QString("TMPDIR=/tmp '%1/support-files/mysql.server' restart").arg(oraclePrefix());
 
     const QString script = QString(
-        "cp '%1' '%2' && chmod 644 '%2'\n"                                   // my.cnf
-        "cp '%3' /etc/paths.d/mysql && chmod 644 /etc/paths.d/mysql\n"       // PATH
-        "mkdir -p '%4/Rufus/Imagerie'; chmod -R 755 '%4/Rufus'\n"            // dossier
-        // Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows.
+        "cp '%1' '%2' && chmod 644 '%2'\n"                                   /*!< my.cnf */
+        "cp '%3' /etc/paths.d/mysql && chmod 644 /etc/paths.d/mysql\n"       /*!< PATH */
+        "mkdir -p '%4/Rufus/Imagerie'; chmod -R 755 '%4/Rufus'\n"            /*!< dossier */
+        /*! Partage SMB de /Users/Shared (lecture/écriture invité), pour Windows. */
         "launchctl enable system/com.apple.smbd 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null; "
         "sharing -a '%4' -n 'Partagé' -s 001 -g 000 2>/dev/null; "
         "launchctl kickstart -k system/com.apple.smbd 2>/dev/null\n"
-        "%5\n")                                                             // restart
+        "%5\n")                                                             /*!< restart */
         .arg(cnfTmp, cnfDst, pathTmp, path, restart);
 
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
@@ -4251,7 +4259,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
     const bool ok = runCmdElevated(script);
     QFile::remove(cnfTmp);
     QFile::remove(pathTmp);
-    waitForMySQL(20);                 // le serveur vient d'être redémarré
+    waitForMySQL(20);                 /*!< le serveur vient d'être redémarré */
 
     dlg->close();
     delete dlg;
@@ -4259,9 +4267,7 @@ bool MySQLInstaller::prepareCreateModeMacOS()
 }
 #endif
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Dossier partagé : existe et est partagé
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Dossier partagé : existe et est partagé ──────────────────────────────────── */
 bool MySQLInstaller::setupSharedFolder()
 {
     const QString path = sharedFolderPath();
@@ -4269,11 +4275,11 @@ bool MySQLInstaller::setupSharedFolder()
         QDir().mkpath(path);
 
 #if defined(Q_OS_WIN)
-    // C:\Users\Public existe par défaut et est accessible en lecture/écriture à
-    // tous les comptes Windows : aucun partage supplémentaire à configurer.
+    /*! C:\Users\Public existe par défaut et est accessible en lecture/écriture à tous les comptes
+     *  Windows : aucun partage supplémentaire à configurer. */
     return QDir(path).exists();
 #elif defined(Q_OS_LINUX)
-    // Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec).
+    /*! Déjà configuré ? Vérifications NON privilégiées (aucune invite pkexec). */
     auto alreadyConfigured = [&]() -> bool {
         if (!QDir(path + "/Rufus/Imagerie").exists())
             return false;
@@ -4295,17 +4301,17 @@ bool MySQLInstaller::setupSharedFolder()
     if (alreadyConfigured())
         return true;
 
-    // Sinon, tout le paramétrage privilégié en une seule élévation (pkexec).
+    /*! Sinon, tout le paramétrage privilégié en une seule élévation (pkexec). */
     const QString user = runCmd("id -un 2>/dev/null").trimmed();
     runCmdElevated("IFS= read -r PW\n" + linuxFolderSambaScript(path, user),
                    m_password + "\n");
     return QDir(path).exists();
 #else
-    // Déjà partagé ? (lecture seule, aucune élévation)
+    /*! Déjà partagé ? (lecture seule, aucune élévation) */
     if (runCmd("sharing -l 2>/dev/null").contains(path))
         return true;
 
-    // Activer SMB et déclarer le partage — opérations privilégiées (une invite macOS).
+    /*! Activer SMB et déclarer le partage — opérations privilégiées (une invite macOS). */
     runCmdElevated(
         "launchctl enable system/com.apple.smbd; "
         "launchctl kickstart -k system/com.apple.smbd; "
@@ -4316,16 +4322,14 @@ bool MySQLInstaller::setupSharedFolder()
 #endif
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Variables MySQL
-// ─────────────────────────────────────────────────────────────────────────────
+/*! ── Variables MySQL ──────────────────────────────────────────────────────────── */
 QString MySQLInstaller::writeCnfToTemp(const QList<QPair<QString, QString>>& vars)
 {
     const QString path = getCnfPath();
     QFile   f(path);
     QStringList lines;
     bool inMysqld = false;
-    QStringList remaining;                 // clés pas encore rencontrées
+    QStringList remaining;                 /*!< clés pas encore rencontrées */
     for (const auto& kv : vars) remaining << kv.first;
 
     if (f.open(QIODevice::ReadOnly | QIODevice::Text)) {
