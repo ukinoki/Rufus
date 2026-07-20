@@ -1026,7 +1026,7 @@ public:
 #define SIZEMAXIMGIOL                           16284   // 16 Ko
 #define SIZEMAXILOGO                         8192    // 8 Ko
 #define SIZEMAXISIGNATURE                    65536   // 64 Ko
-#define SIGNATURE_LARGEUR_IMPRESSION         220     /*!< largeur (px) de la signature apposée sur le document imprimé ; à ajuster après une impression d'essai */
+#define SIGNATURE_LARGEUR_IMPRESSION_MM      40      /*!< largeur (mm) de la signature apposée sur le document imprimé ; convertie en pixels selon la résolution de l'imprimante */
 
 // la police d'écran par défaut et le facteur de correction des td width html en impression qui varie entre Linux et OSX (???)
 #define POLICEPARDEFAUT         "Comic Sans MS"

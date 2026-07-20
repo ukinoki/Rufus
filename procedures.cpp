@@ -1414,10 +1414,14 @@ QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
     /*! on garde l'image en pleine qualité dans le blob ; la TAILLE d'impression est fixée
      *  ici par l'attribut width de la balise <img> (constante réglable SIGNATURE_LARGEUR_IMPRESSION),
      *  la hauteur suit pour respecter les proportions */
-    int largeur = SIGNATURE_LARGEUR_IMPRESSION;
+    /*! largeur voulue en mm convertie en pixels selon la résolution de l'imprimante (comme les marges),
+     *  pour une taille physique stable quelle que soit l'imprimante */
+    QPrinter p(QPrinter::HighResolution);
+    int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * p.resolution() / 25.4);
     int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
-    /*! résolution embarquée bornée (pour ne pas gonfler le HTML archivé), assez fine pour l'impression */
-    QImage emb = (signature.width() > 600) ? signature.scaledToWidth(600, Qt::SmoothTransformation) : signature;
+    /*! on n'embarque pas plus de pixels que nécessaire à l'affichage (ni n'agrandit la source) :
+     *  évite de gonfler le HTML archivé tout en restant net à l'impression */
+    QImage emb = (signature.width() > largeur) ? signature.scaledToWidth(largeur, Qt::SmoothTransformation) : signature;
     QByteArray data;
     QBuffer buffer(&data);
     emb.save(&buffer, "PNG", 100);
