@@ -126,9 +126,14 @@ du logiciel — et la grille de lecture de toutes ses décisions.
       *suite* d'un item est simplement **indentée sous son texte, sans `*`** (pas
       d'étoile orpheline qui ramène l'œil au début de ligne pour rien).
     - **Concis et précis** : les grandes lignes, pas des tartines interminables.
+- **Getters / setters (et petits accesseurs triviaux) : définis *inline dans le
+  `.h`***, corps en accolades sur la ligne (modèle `Items/cls_intervention.h`) —
+  pour ne PAS encombrer le `.cpp` de définitions évidentes. Le `.cpp` ne contient
+  que les fonctions qui font vraiment quelque chose.
 - **Documenter les fonctions — au plus léger.**
-    - Le commentaire *brief* (`\brief`) développé vit dans le **`.cpp`**, au-dessus
-      de la définition — pas dans le `.h`.
+    - Le *brief* d'une fonction vit dans le **`.cpp`**, au-dessus de la définition,
+      et reste **concis** (souvent plus court encore que ce qu'on mettrait dans le
+      `.h`) ; on l'**omet pour l'évident** (un getter/setter n'a pas de brief).
     - Dans le `.h`, une fonction n'a un *brief* que si elle est **complexe**. Si elle
       est assez claire, un **commentaire d'une seule ligne** en forme `/*!< … */`,
       **sur la même ligne** que la déclaration, suffit.
