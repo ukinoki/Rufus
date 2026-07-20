@@ -159,10 +159,11 @@ du logiciel — et la grille de lecture de toutes ses décisions.
       `= valeur`, puis commentaire `/*!< … */` — et membres **regroupés par rôle**
       sous un intitulé (`/*! les items */`, `/*! les widgets */`…). Modèle :
       `Dialogs/dlg_programmationinterventions.h`.
-    - **`.cpp`** : **séparer l'objet de sa fonction** par des tabulations
-      (`objet⇥->methode(...)`) et **aligner les `->`** d'une ligne à l'autre autant
-      que possible ; **regrouper en blocs** les appels portant sur la même chose (un
-      bloc par objet/but), séparés par une ligne vide.
+    - **`.cpp`** : **toujours au moins une tabulation entre l'objet et sa méthode**
+      (`objet⇥->methode(...)`) — comme un espace entre le sujet et le verbe — et
+      **aligner les `->`** d'une ligne à l'autre autant que possible ; **regrouper en
+      blocs** les appels portant sur la même chose (un bloc par objet/but), séparés
+      par une ligne vide.
 
 ---
 

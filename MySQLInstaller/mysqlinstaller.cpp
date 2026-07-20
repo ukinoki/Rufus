@@ -79,10 +79,10 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
     root    ->addWidget(m_label);
 
     m_progress = new QProgressBar();
-    m_progress->setRange(0, 0);   /*!< indéterminé (barre animée) */
-    m_progress->setFixedHeight(10);
-    m_progress->setTextVisible(false);
-    m_progress->setStyleSheet(R"(
+    m_progress ->setRange(0, 0);   /*!< indéterminé (barre animée) */
+    m_progress ->setFixedHeight(10);
+    m_progress ->setTextVisible(false);
+    m_progress ->setStyleSheet(R"(
         QProgressBar {
             border: none; border-radius: 5px;
             background: #D3D1C7;
@@ -93,7 +93,7 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
                 stop:0 #7F77DD, stop:1 #534AB7);
         }
     )");
-    root      ->addWidget(m_progress);
+    root       ->addWidget(m_progress);
 
     /*! Détail sous la barre : taille téléchargée (rassure sur un gros téléchargement, ~550 Mo pour le
      *  DMG macOS). Vide tant qu'on n'a pas de progression chiffrée. */
@@ -106,16 +106,16 @@ MySQLProgressDialog::MySQLProgressDialog(const QString& operation, QWidget* pare
 void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
 {
     if (total <= 0) {                 /*!< taille inconnue → barre animée */
-        m_progress->setRange(0, 0);
-        m_detail  ->clear();
+        m_progress ->setRange(0, 0);
+        m_detail   ->clear();
         return;
     }
-    m_progress->setRange(0, 100);
-    m_progress->setValue(int(received * 100 / total));
+    m_progress ->setRange(0, 100);
+    m_progress ->setValue(int(received * 100 / total));
 
     /*! « X / Y Mo » : un gros téléchargement (centaines de Mo) qui n'affiche rien paraît figé. */
     const double mo = 1024.0 * 1024.0;
-    m_detail->setText(tr("%1 / %2 Mo").arg(received / mo, 0, 'f', 0).arg(total / mo, 0, 'f', 0));
+    m_detail ->setText(tr("%1 / %2 Mo").arg(received / mo, 0, 'f', 0).arg(total / mo, 0, 'f', 0));
 }
 
 /*! Progression en FRACTION (ex. fichiers extraits) : remplit la barre SANS volume en Mo — ces valeurs
@@ -123,13 +123,13 @@ void MySQLProgressDialog::setProgress(qint64 received, qint64 total)
 void MySQLProgressDialog::setProgressBar(qint64 done, qint64 total)
 {
     if (total <= 0) {                 /*!< total inconnu → barre animée */
-        m_progress->setRange(0, 0);
-        m_detail  ->clear();
+        m_progress ->setRange(0, 0);
+        m_detail   ->clear();
         return;
     }
-    m_progress->setRange(0, 100);
-    m_progress->setValue(int(done * 100 / total));
-    m_detail  ->clear();
+    m_progress ->setRange(0, 100);
+    m_progress ->setValue(int(done * 100 / total));
+    m_detail   ->clear();
 }
 
 /*! ═══ MySQLInstallerDialog : checklist des 6 critères (composants Rufus up*) ═════════════════════ */
@@ -140,95 +140,94 @@ MySQLInstallerDialog::MySQLInstallerDialog(QWidget* parent)
 
     int row = 0;
 
-    // Titre + sous-titre (libellés pilotés par les méthodes configurer*()).
+    /*! Titre + sous-titre (libellés pilotés par les configurer*()). */
     m_title = new UpLabel(this, tr("Préparation de MySQL pour Rufus"));
-    m_title->setStyleSheet("font-size: 16px; font-weight: 700; color: #1C1B18;");
-    m_title->setWordWrap(true);
-    dlglayout()->insertWidget(row++, m_title);
+    m_title     ->setStyleSheet("font-size: 16px; font-weight: 700; color: #1C1B18;");
+    m_title     ->setWordWrap(true);
+    dlglayout() ->insertWidget(row++, m_title);
 
     m_subtitle = new UpLabel(this, QString());
-    m_subtitle->setStyleSheet("font-size: 12px; color: #1C1B18;");
-    m_subtitle->setWordWrap(true);
-    dlglayout()->insertWidget(row++, m_subtitle);
+    m_subtitle  ->setStyleSheet("font-size: 12px; color: #1C1B18;");
+    m_subtitle  ->setWordWrap(true);
+    dlglayout() ->insertWidget(row++, m_subtitle);
 
-    // Saisie : identifiant + mot de passe (mêmes validateurs que dlg_paramconnexion).
+    /*! Saisie : identifiant + mot de passe (mêmes validateurs que dlg_paramconnexion). */
     m_loginLbl = new UpLabel(this, tr("Identifiant :"));
-    dlglayout()->insertWidget(row++, m_loginLbl);
+    dlglayout() ->insertWidget(row++, m_loginLbl);
     m_login = new UpLineEdit(this);
-    m_login->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, this));
-    dlglayout()->insertWidget(row++, m_login);
+    m_login     ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, this));
+    dlglayout() ->insertWidget(row++, m_login);
 
     m_mdpLbl = new UpLabel(this, tr("Mot de passe :"));
-    dlglayout()->insertWidget(row++, m_mdpLbl);
+    dlglayout() ->insertWidget(row++, m_mdpLbl);
     m_mdp = new UpLineEdit(this);
-    m_mdp->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
-    m_mdp->setEchoMode(QLineEdit::Password);
-    dlglayout()->insertWidget(row++, m_mdp);
+    m_mdp       ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
+    m_mdp       ->setEchoMode(QLineEdit::Password);
+    dlglayout() ->insertWidget(row++, m_mdp);
 
-    // Confirmation du mot de passe (seulement à la CRÉATION d'un compte : voir configurer*()).
-    // Masquée par défaut ; affichée par configurerCreateUserRufus / configurerNewUserRufus.
+    /*! Confirmation du mot de passe : seulement à la CRÉATION d'un compte (voir configurer*()). Masquée
+     *  par défaut ; affichée par configurerCreateUserRufus / configurerNewUserRufus. */
     m_mdpConfirmLbl = new UpLabel(this, tr("Confirmez le mot de passe :"));
-    dlglayout()->insertWidget(row++, m_mdpConfirmLbl);
+    dlglayout()     ->insertWidget(row++, m_mdpConfirmLbl);
     m_mdpConfirm = new UpLineEdit(this);
-    m_mdpConfirm->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
-    m_mdpConfirm->setEchoMode(QLineEdit::Password);
-    dlglayout()->insertWidget(row++, m_mdpConfirm);
-    m_mdpConfirmLbl->setVisible(false);
-    m_mdpConfirm->setVisible(false);
+    m_mdpConfirm    ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, this));
+    m_mdpConfirm    ->setEchoMode(QLineEdit::Password);
+    dlglayout()     ->insertWidget(row++, m_mdpConfirm);
+    m_mdpConfirmLbl ->setVisible(false);
+    m_mdpConfirm    ->setVisible(false);
 
-    // Les 7 cases (affichage seul) insérées entre la saisie et les boutons.
+    /*! Les 7 cases (affichage seul) insérées entre la saisie et les boutons. */
     for (int i = 0; i < 7; i++) {
         m_steps[i] = new UpCheckBox();
-        m_steps[i]->setToggleable(false);   // pilotée par l'engine, non cliquable
-        dlglayout()->insertWidget(row++, m_steps[i]);
+        m_steps[i]  ->setToggleable(false);   /*!< pilotée par l'engine, non cliquable */
+        dlglayout() ->insertWidget(row++, m_steps[i]);
         applyStepLabel(i);
     }
 
-    // Boutons « Annuler » + « OK » (le libellé d'OK est ajusté par configurer*()).
-    // AjouteLayButtons relie déjà Annuler à reject() ; on relie OK à accept().
+    /*! Boutons « Annuler » + « OK » (libellé d'OK ajusté par configurer*()). AjouteLayButtons relie déjà
+     *  Annuler à reject() ; on relie OK à accept(). */
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     if (OKButton)
         connect(OKButton, &QPushButton::clicked, this, &MySQLInstallerDialog::accept);
 
-    // Bouton « Supprimer MySQL » (mode Verify uniquement) : permet de tout remettre
-    // à zéro — désinstaller le MySQL existant pour repartir sur une base neuve.
-    // Placé à gauche (loin des boutons OK/Annuler) ; masqué par défaut, affiché par
-    // configurerVerifyAdminMySQL(). Le clic clôt exec() avec ResultSupprimerMySQL.
+    /*! « Supprimer MySQL » (mode Verify) : désinstalle le MySQL existant pour repartir neuf. Placé à
+     *  gauche (loin d'OK/Annuler) ; masqué par défaut, affiché par configurerVerifyAdminMySQL(). Le clic
+     *  clôt exec() avec ResultSupprimerMySQL. */
     m_btnSupprMySQL = new UpSmallButton(tr("Supprimer MySQL"), this);
-    m_btnSupprMySQL->setVisible(false);
-    AjouteWidgetLayButtons(m_btnSupprMySQL, false);   // false = inséré tout à gauche
+    m_btnSupprMySQL ->setVisible(false);
+    AjouteWidgetLayButtons(m_btnSupprMySQL, false);   /*!< false = inséré tout à gauche */
     connect(m_btnSupprMySQL, &QPushButton::clicked, this,
             [this]{ done(ResultSupprimerMySQL); });
 }
 
-// ── Configuration selon le contexte ──────────────────────────────────────────
+/*! ── Configuration selon le contexte ──────────────────────────────────────────── */
 void MySQLInstallerDialog::configurer(const QString& titre,
                                       const QString& sousTitre,
                                       const QString& okLabel)
 {
-    m_title->setText(titre);
-    m_subtitle->setText(sousTitre);
+    m_title    ->setText(titre);
+    m_subtitle ->setText(sousTitre);
     if (OKButton) { OKButton->setText(okLabel); OKButton->show(); }
     if (CancelButton) CancelButton->show();
-    // Mode interactif : champs éditables (restaure l'état après un éventuel passage
-    // en « paramétrage en cours »).
+
+    /*! Mode interactif : champs éditables (restaure l'état après un « paramétrage en cours »). */
     if (m_login)      { m_login->setEnabled(true);      m_login->clear(); }
     if (m_mdp)        { m_mdp->setEnabled(true);        m_mdp->clear(); }
     if (m_mdpConfirm) { m_mdpConfirm->setEnabled(true); m_mdpConfirm->clear(); }
     if (m_login) m_login->setFocus();
-    // « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué par défaut, ré-
-    // affiché explicitement par configurerVerifyAdminMySQL().
+
+    /*! « Supprimer MySQL » n'a de sens qu'en mode Verify : masqué ici, ré-affiché par configurerVerifyAdminMySQL(). */
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
 }
 
-//  Mode « paramétrage en cours » : la fiche n'attend plus aucune saisie ni clic.
-//  Les login/mdp (déjà choisis) sont affichés mais GRISÉS, les boutons OK/Annuler
-//  (et « Supprimer MySQL ») masqués ; seule la checklist se coche en direct.
+/*! Mode « paramétrage en cours » : la fiche n'attend plus aucune saisie ni clic. Les login/mdp (déjà
+ *  choisis) restent affichés mais GRISÉS, les boutons OK/Annuler (et « Supprimer MySQL ») masqués ;
+ *  seule la checklist se coche en direct. */
 void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
                                                  const QString& sousTitre)
 {
-    m_title->setText(titre);
-    m_subtitle->setText(sousTitre);
+    m_title    ->setText(titre);
+    m_subtitle ->setText(sousTitre);
     if (m_login)      m_login->setEnabled(false);
     if (m_mdp)        m_mdp->setEnabled(false);
     if (m_mdpConfirm) m_mdpConfirm->setEnabled(false);
@@ -239,11 +238,11 @@ void MySQLInstallerDialog::passerEnConfiguration(const QString& titre,
     QApplication::processEvents();
 }
 
-//  Format imposé pour un identifiant Rufus à CRÉER (5-15 / 5-12 alphanumériques).
+/*! Format imposé pour un identifiant Rufus à CRÉER (5-15 / 5-12 alphanumériques). */
 static void appliquerValidateursRufus(UpLineEdit* login, UpLineEdit* mdp, QObject* parent)
 {
-    login->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, parent));
-    mdp  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, parent));
+    login ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, parent));
+    mdp   ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, parent));
 }
 
 void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
@@ -253,8 +252,9 @@ void MySQLInstallerDialog::configurerCreateUserRufus(const QString& minVersion)
                tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
                   "dans Rufus."),
                tr("Installer"));
-    appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
-    //! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation.
+    appliquerValidateursRufus(m_login, m_mdp, this);   /*!< user Rufus → format imposé */
+
+    /*! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation. */
     m_confirmMdpRequis = true;
     if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
     if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
@@ -279,19 +279,23 @@ void MySQLInstallerDialog::configurerVerifyAdminMySQL()
                   "de passe d'un compte MySQL administrateur (capable de créer des "
                   "utilisateurs)."),
                tr("Se connecter"));
-    // Compte MySQL EXISTANT : aucun format imposé (ex. « root » — 4 car. —, ou mot de
-    // passe non alphanumérique) → on RETIRE les validateurs.
-    m_login->setValidator(nullptr);
-    m_mdp  ->setValidator(nullptr);
-    //! On SAISIT un mot de passe existant (pas de création) → pas de confirmation.
+
+    /*! Compte MySQL EXISTANT : aucun format imposé (ex. « root » — 4 car. —, ou mdp non alphanumérique)
+     *  → on RETIRE les validateurs. */
+    m_login ->setValidator(nullptr);
+    m_mdp   ->setValidator(nullptr);
+
+    /*! On SAISIT un mot de passe existant (pas de création) → pas de confirmation. */
     m_confirmMdpRequis = false;
     if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(false);
     if (m_mdpConfirm)    m_mdpConfirm->setVisible(false);
-    // Le choix « réinstaller / effacer » est désormais fait en amont par la boîte
-    // « que faire de MySQL ? » : cette fiche ne sert plus qu'à saisir les identifiants.
+
+    /*! Le choix « réinstaller / effacer » est fait en amont (boîte « que faire de MySQL ? ») : cette
+     *  fiche ne sert plus qu'à saisir les identifiants. */
     if (m_btnSupprMySQL) m_btnSupprMySQL->setVisible(false);
-    // La version MySQL est déjà connue à ce stade : l'étape 0 sert de statut de connexion.
-    m_steps[0]->setText(tr("Connexion OK"));
+
+    /*! La version MySQL est déjà connue : l'étape 0 sert de statut de connexion. */
+    m_steps[0] ->setText(tr("Connexion OK"));
 }
 
 void MySQLInstallerDialog::configurerNewUserRufus()
@@ -300,8 +304,9 @@ void MySQLInstallerDialog::configurerNewUserRufus()
                tr("Choisissez l'identifiant et le mot de passe que vous utiliserez "
                   "dans Rufus."),
                tr("Créer le compte"));
-    appliquerValidateursRufus(m_login, m_mdp, this);   // user Rufus → format imposé
-    //! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation.
+    appliquerValidateursRufus(m_login, m_mdp, this);   /*!< user Rufus → format imposé */
+
+    /*! CRÉATION d'un compte → champ de confirmation du mot de passe visible ET exigé à la validation. */
     m_confirmMdpRequis = true;
     if (m_mdpConfirmLbl) m_mdpConfirmLbl->setVisible(true);
     if (m_mdpConfirm)    { m_mdpConfirm->setVisible(true);
@@ -310,12 +315,12 @@ void MySQLInstallerDialog::configurerNewUserRufus()
 
 QString MySQLInstallerDialog::login() const
 {
-    return m_login ? m_login->text() : QString();
+    return m_login ? m_login ->text() : QString();
 }
 
 QString MySQLInstallerDialog::password() const
 {
-    return m_mdp ? m_mdp->text() : QString();
+    return m_mdp ? m_mdp ->text() : QString();
 }
 
 bool MySQLInstallerDialog::validerSaisie()
@@ -325,15 +330,16 @@ bool MySQLInstallerDialog::validerSaisie()
             tr("Veuillez renseigner un identifiant et un mot de passe."));
         return false;
     }
-    //! Confirmation : uniquement à la CRÉATION (m_confirmMdpRequis). On vérifie que les deux saisies
-    //! coïncident — on n'enregistre pas un mot de passe que l'utilisateur aurait mal tapé. NB : on ne
-    //! teste PAS isVisible() (validerSaisie() est appelée APRÈS exec(), fiche déjà masquée → faux).
+
+    /*! Confirmation : uniquement à la CRÉATION (m_confirmMdpRequis). On vérifie que les deux saisies
+     *  coïncident — pas question d'enregistrer un mot de passe mal tapé. NB : on ne teste PAS isVisible()
+     *  (validerSaisie() est appelée APRÈS exec(), fiche déjà masquée → faux). */
     if (m_confirmMdpRequis && m_mdpConfirm
         && password() != m_mdpConfirm->text()) {
         UpMessageBox::Watch(this, tr("Confirmation incorrecte"),
             tr("Le mot de passe et sa confirmation ne sont pas identiques."));
-        m_mdpConfirm->clear();
-        m_mdpConfirm->setFocus();
+        m_mdpConfirm ->clear();
+        m_mdpConfirm ->setFocus();
         return false;
     }
     return true;
@@ -359,31 +365,31 @@ void MySQLInstallerDialog::applyStepLabel(int i)
     QString label = baseStepLabel(i);
     if (!m_stepDetail[i].isEmpty())
         label += " : " + m_stepDetail[i];
-    m_steps[i]->setText(label);
+    m_steps[i] ->setText(label);
 }
 
 void MySQLInstallerDialog::checkStep(int i)
 {
     if (i < 0 || i > 6) return;
-    m_steps[i]->setChecked(true);
-    //! Peinture SYNCHRONE : sous Windows, après une étape qui bloque longuement le thread UI
-    //! (typiquement secure_file_priv, qui redémarre le service MySQL via un appel élevé),
-    //! QApplication::processEvents() seul ne rafraîchit pas toujours la case → l'utilisateur ne
-    //! voyait pas les dernières coches se poser. repaint() force l'affichage immédiat de la case
-    //! ET du dialogue. macOS, lui, repeignait déjà correctement.
-    m_steps[i]->repaint();
+    m_steps[i] ->setChecked(true);
+
+    /*! Peinture SYNCHRONE : sous Windows, après une étape qui bloque longuement le thread UI (typiquement
+     *  secure_file_priv, qui redémarre le service MySQL via un appel élevé), processEvents() seul ne
+     *  rafraîchit pas toujours la case → les dernières coches ne se voyaient pas. repaint() force
+     *  l'affichage immédiat. macOS repeignait déjà correctement. */
+    m_steps[i] ->repaint();
     QApplication::processEvents();
-    //! Pause pour qu'on VOIE chaque coche se poser (comme dlg_identificationuser) : sinon les
-    //! étapes défilent trop vite et l'utilisateur ne distingue pas ce qui se passe. La pause est
-    //! DANS checkStep (et non entre les appels) → elle s'applique AUSSI à la dernière coche, avant
-    //! que la fiche ne se referme. Utils::Pause traite les événements (l'UI reste vivante).
+
+    /*! Pause pour qu'on VOIE chaque coche se poser (comme dlg_identificationuser). DANS checkStep (pas
+     *  entre les appels) → s'applique AUSSI à la dernière coche avant fermeture. Utils::Pause traite les
+     *  événements (l'UI reste vivante). */
     Utils::Pause(450);
 }
 
 void MySQLInstallerDialog::uncheckAllSteps()
 {
     for (int i = 0; i < 7; i++)
-        m_steps[i]->setChecked(false);
+        m_steps[i] ->setChecked(false);
     QApplication::processEvents();
 }
 
@@ -407,10 +413,8 @@ void MySQLInstallerDialog::reject()
     UpDialog::reject();
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Helpers d'exécution dépendants de la plateforme (déclarés tôt : utilisés par
-//  de nombreuses méthodes plus bas).
-// ═════════════════════════════════════════════════════════════════════════════
+/*! ═══ Helpers d'exécution dépendants de la plateforme ════════════════════════════════════════════════
+    Déclarés tôt : utilisés par de nombreuses méthodes plus bas. */
 static inline QString shellProgram()
 {
 #if defined(Q_OS_WIN)
