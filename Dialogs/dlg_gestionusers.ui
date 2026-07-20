@@ -597,7 +597,7 @@
                <item>
                 <widget class="UpPushButton" name="supprimSignatureupPushButton">
                  <property name="text">
-                  <string>Enregistrer une signature</string>
+                  <string>Supprimer la signature</string>
                  </property>
                 </widget>
                </item>
