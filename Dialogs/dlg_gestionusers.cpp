@@ -484,8 +484,7 @@ void dlg_gestionusers::changeSignature()
      *  pour ne jamais agrandir/flouter à l'impression ; fond clair rendu transparent + encodage PNG */
     int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * QPrinter(QPrinter::HighResolution).resolution() / 25.4);
     QByteArray ba = Utils::ImageVersPngTransparent(img, wpx);
-    int i = ba.size();
-    if (!ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
+    if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
     {
         UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Impossible de réduire le fichier a une taille utilisbale"));
         return;

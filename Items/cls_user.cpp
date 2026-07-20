@@ -138,6 +138,7 @@ QByteArray User::signature() const
 void User::setSignature(const QByteArray &newSignature)
 {
     m_signature = newSignature;
+    m_signatureimg.loadFromData(m_signature);
 }
 
 QByteArray User::logo() const
