@@ -1490,11 +1490,11 @@ static void avertirSecurisationMiseEnPlace()
                       "utiliser Rufus."));
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Demande l'AUTORISATION de supprimer le mot de passe générique (gaxt78iy) une fois la
-//  deadline atteinte. Renvoie true si l'utilisateur confirme la suppression, false s'il
-//  préfère la reporter (dans ce cas la suppression sera reproposée à chaque connexion).
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief confirmerSuppressionGaxt78iy
+ * Demande l'AUTORISATION de supprimer le mot de passe générique (gaxt78iy) une fois la deadline atteinte.
+ * true si l'utilisateur confirme, false s'il préfère reporter (reproposé à chaque connexion).
+ */
 static bool confirmerSuppressionGaxt78iy()
 {
     UpMessageBox msgbox(nullptr);
@@ -1515,9 +1515,7 @@ static bool confirmerSuppressionGaxt78iy()
     return msgbox.clickedButton() == bSupprimer;
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Message affiché juste APRÈS la suppression effective du mot de passe générique.
-// ═════════════════════════════════════════════════════════════════════════════
+/*! Message affiché juste APRÈS la suppression effective du mot de passe générique. */
 static void avertirSuppressionGaxt78iyEffectuee()
 {
     UpMessageBox::Watch(nullptr,
@@ -1530,16 +1528,19 @@ static void avertirSuppressionGaxt78iyEffectuee()
                       "utiliser Rufus."));
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  Petite fiche DÉDIÉE à la saisie du futur utilisateur Rufus (identifiant / mot de passe /
-//  confirmation), utilisée après la (ré)installation de MySQL. On n'utilise PAS la fiche
-//  MySQLInstallerDialog (avec sa checklist d'installation) : afficher ces cases à cette étape
-//  est inutile et prête à confusion. Renvoie true si validé ; remplit outLogin / outMdp.
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief demanderNouvelUtilisateurRufus
+ * Petite fiche DÉDIÉE à la saisie du futur utilisateur Rufus (identifiant / mot de passe / confirmation),
+ * après la (ré)installation. On n'utilise PAS MySQLInstallerDialog (sa checklist n'a plus de sens ici).
+ * true si validé.
+ * \param outLogin  reçoit l'identifiant saisi
+ * \param outMdp    reçoit le mot de passe saisi
+ * \param parent    fenêtre parente
+ */
 static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, QWidget* parent)
 {
-    // Design repris de dlg_gestionusers::CreerUser() : libellés explicatifs centrés au-dessus de
-    // chaque champ (login / mot de passe / confirmation), champs centrés, mots de passe masqués.
+    /*! Design repris de dlg_gestionusers::CreerUser() : libellés explicatifs centrés au-dessus de chaque
+     *  champ (login / mot de passe / confirmation), champs centrés, mots de passe masqués. */
     UpDialog dlg(parent);
     dlg.setWindowModality(Qt::WindowModal);
     dlg.setFixedSize(300, 300);
@@ -1552,47 +1553,47 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
     UpLineEdit* Line2  = new UpLineEdit();
     UpLineEdit* Line3  = new UpLineEdit();
 
-    Line ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, &dlg));
-    Line2->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
-    Line3->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
-    Line ->setAlignment(Qt::AlignCenter);
-    Line2->setAlignment(Qt::AlignCenter);
-    Line3->setAlignment(Qt::AlignCenter);
-    Line ->setMaxLength(15);
-    Line2->setMaxLength(12);
-    Line3->setMaxLength(12);
-    Line ->setFixedHeight(20);
-    Line2->setFixedHeight(20);
-    Line3->setFixedHeight(20);
-    Line2->setEchoMode(QLineEdit::Password);
-    Line3->setEchoMode(QLineEdit::Password);
-    label ->setMinimumHeight(46);
-    label2->setMinimumHeight(46);
-    label3->setFixedHeight(16);
-    label ->setAlignment(Qt::AlignCenter);
-    label2->setAlignment(Qt::AlignCenter);
-    label3->setAlignment(Qt::AlignCenter);
+    Line  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_15, &dlg));
+    Line2 ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line3 ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line  ->setAlignment(Qt::AlignCenter);
+    Line2 ->setAlignment(Qt::AlignCenter);
+    Line3 ->setAlignment(Qt::AlignCenter);
+    Line  ->setMaxLength(15);
+    Line2 ->setMaxLength(12);
+    Line3 ->setMaxLength(12);
+    Line  ->setFixedHeight(20);
+    Line2 ->setFixedHeight(20);
+    Line3 ->setFixedHeight(20);
+    Line2 ->setEchoMode(QLineEdit::Password);
+    Line3 ->setEchoMode(QLineEdit::Password);
+    label  ->setMinimumHeight(46);
+    label2 ->setMinimumHeight(46);
+    label3 ->setFixedHeight(16);
+    label  ->setAlignment(Qt::AlignCenter);
+    label2 ->setAlignment(Qt::AlignCenter);
+    label3 ->setAlignment(Qt::AlignCenter);
 
-    label ->setText(QObject::tr("Choisissez un login pour le nouvel utilisateur\n- mini 5 maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label2->setText(QObject::tr("Choisissez un mot de passe\n- mini 5 maxi 12 caractères -\n- pas de caractères spéciaux ou accentués -"));
-    label3->setText(QObject::tr("Confirmez le mot de passe"));
+    label  ->setText(QObject::tr("Choisissez un login pour le nouvel utilisateur\n- mini 5 maxi 15 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label2 ->setText(QObject::tr("Choisissez un mot de passe\n- mini 5 maxi 12 caractères -\n- pas de caractères spéciaux ou accentués -"));
+    label3 ->setText(QObject::tr("Confirmez le mot de passe"));
 
     QVBoxLayout* lay = new QVBoxLayout();
-    lay->setContentsMargins(5, 5, 5, 5);
-    lay->setSpacing(5);
-    lay->addWidget(label);
-    lay->addWidget(Line);
-    lay->addWidget(label2);
-    lay->addWidget(Line2);
-    lay->addWidget(label3);
-    lay->addWidget(Line3);
-    lay->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
+    lay ->setContentsMargins(5, 5, 5, 5);
+    lay ->setSpacing(5);
+    lay ->addWidget(label);
+    lay ->addWidget(Line);
+    lay ->addWidget(label2);
+    lay ->addWidget(Line2);
+    lay ->addWidget(label3);
+    lay ->addWidget(Line3);
+    lay ->addSpacerItem(new QSpacerItem(0, 0, QSizePolicy::Expanding));
 
     dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
     QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
 
-    dlg.dlglayout()->insertLayout(0, lay);   // contenu AU-DESSUS de la barre de boutons
+    dlg.dlglayout()->insertLayout(0, lay);   /*!< contenu AU-DESSUS de la barre de boutons */
     Line->setFocus();
 
     forever {
@@ -1616,22 +1617,22 @@ static bool demanderNouvelUtilisateurRufus(QString& outLogin, QString& outMdp, Q
     }
 }
 
-// ═════════════════════════════════════════════════════════════════════════════
-//  RÉUTILISER un MySQL existant compatible (choix Effacer/Conserver). Demande un
-//  compte admin MySQL, crée adminrufus/SSL, (option : efface les bases non-Rufus),
-//  déroule la config, puis la saisie du futur utilisateur Rufus.
-// ═════════════════════════════════════════════════════════════════════════════
+/*!
+ * \brief MySQLInstaller::faireReutiliser
+ * RÉUTILISE un MySQL existant compatible (choix Effacer/Conserver) : demande un compte admin MySQL, crée
+ * adminrufus/SSL, (option : efface les bases non-Rufus), déroule la config, puis la saisie du futur
+ * utilisateur Rufus.
+ * \param effacerTout  true = supprime aussi les bases non-Rufus (choix « Effacer »)
+ */
 bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effacerTout)
 {
     m_dialog = new MySQLInstallerDialog();
     m_dialog->configurerVerifyAdminMySQL();
 
-    // Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : il vérifie la
-    // connexion admin (coche la case 0) puis enchaîne la configuration (cases 1 à 6, cochées une par
-    // une). accept() n'est appelé qu'à la toute fin, quand tout est coché. Ainsi la fiche ne se ferme
-    // et ne se rouvre jamais entre deux cases — c'est ça qui la faisait clignoter.
-    // Connexion refusée → on laisse la fiche ouverte pour réessayer ; erreur bloquante → reject()
-    // (retour à la boîte de choix).
+    /*! Le clic sur OK fait TOUT d'un trait, sans jamais fermer ni rouvrir la fiche : vérifie la connexion
+     *  admin (coche la case 0) puis enchaîne la config (cases 1 à 6). accept() seulement à la toute fin,
+     *  quand tout est coché — sinon la fiche se fermerait/rouvrirait entre deux cases (clignotement).
+     *  Connexion refusée → fiche laissée ouverte pour réessayer ; erreur bloquante → reject(). */
     QString adminLogin, adminMdp;
     bool configReussie = false;
     QObject::disconnect(m_dialog->OKButton, &QPushButton::clicked, nullptr, nullptr);
@@ -1656,7 +1657,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
                 tr("Le compte MySQL « %1 » n'a pas le droit de créer des utilisateurs "
                    "(CREATE USER). Réessayez avec un compte administrateur MySQL "
                    "(par ex. root).").arg(adminLogin));
-            m_dialog->reject();                     // → retour à la boîte de choix
+            m_dialog->reject();                     /*!< → retour à la boîte de choix */
             return;
         }
         if (r != CreateUserResult::Ok) {
@@ -1665,27 +1666,26 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
             m_dialog->reject();
             return;
         }
-        // adminrufus/adminrufusSSL créés : on mémorise leur mot de passe aléatoire.
+        /*! adminrufus/adminrufusSSL créés : on mémorise leur mot de passe aléatoire. */
         stockerMotDePasse(m_password);
         m_comptesDejaCrees = true;
 
-        // EFFACER : on supprime aussi les bases NON-Rufus (données étrangères). Les bases Rufus,
-        // elles, sont (re)créées vierges par RestaureBase. CONSERVER : on n'y touche pas.
+        /*! EFFACER : on supprime aussi les bases NON-Rufus (données étrangères) ; les bases Rufus sont
+         *  (re)créées vierges par RestaureBase. CONSERVER : on n'y touche pas. */
         if (effacerTout)
             effacerToutesBasesUtilisateur(adminLogin, adminMdp);
 
         if (!executerEtapesConfig()) { m_dialog->reject(); return; }
 
         configReussie = true;
-        m_dialog->accept();                         // tout est coché : on ferme enfin
+        m_dialog->accept();                         /*!< tout est coché : on ferme enfin */
     });
 
     m_dialog->exec();
     if (!configReussie) { cleanupDialog(); return false; }
 
-    // Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche
-    // d'installation (avec sa checklist) puis on ouvre une petite fiche dédiée
-    // (identifiant / mot de passe / confirmation) — plus de cases sans rapport ni confusion.
+    /*! Saisie du futur utilisateur applicatif Rufus (2e étape) : on FERME d'abord la fiche d'installation
+     *  (avec sa checklist) puis on ouvre une petite fiche dédiée — plus de cases sans rapport. */
     cleanupDialog();
     if (!demanderNouvelUtilisateurRufus(m_loginRufus, m_mdpRufus, nullptr))
         return false;
