@@ -538,6 +538,46 @@ QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
     return CompressImageToJPG(img, maxsizeimg);
 }
 
+/*!
+ * \brief Utils::SignatureVersPngTransparent
+ * Rend le fond clair d'une signature transparent pour qu'il n'imprime pas de rectangle
+ * blanc/gris : l'opacité (alpha) de chaque pixel est déduite de sa clarté (encre foncée
+ * -> opaque, fond clair -> transparent), avec une rampe pour des bords lissés. Encode en
+ * PNG (seul format courant avec canal alpha ; le JPG ne gère pas la transparence).
+ * \param img       l'image source (photo/scan/pdf de la signature)
+ * \param maxwidth  largeur maxi conservée (on ne stocke pas plus de pixels que nécessaire)
+ */
+QByteArray Utils::SignatureVersPngTransparent(QImage img, int maxwidth)
+{
+    if (img.isNull())
+        return QByteArray();
+    if (img.width() > maxwidth)
+        img = img.scaledToWidth(maxwidth, Qt::SmoothTransformation);
+    img = img.convertToFormat(QImage::Format_ARGB32);
+
+    /*! rampe de transparence sur la clarté : au-dessus de seuilHaut (fond clair/gris) -> invisible,
+     *  en dessous de seuilBas (encre) -> plein, dégradé entre les deux pour des bords propres */
+    const int seuilHaut = 220;
+    const int seuilBas  = 120;
+    for (int y = 0; y < img.height(); ++y)
+        for (int x = 0; x < img.width(); ++x)
+        {
+            QColor c   = img.pixelColor(x, y);
+            int    lum = qRound(0.299*c.red() + 0.587*c.green() + 0.114*c.blue());
+            int    a;
+            if (lum >= seuilHaut)       a = 0;
+            else if (lum <= seuilBas)   a = 255;
+            else                        a = 255 * (seuilHaut - lum) / (seuilHaut - seuilBas);
+            c.setAlpha(a * c.alpha() / 255);   /*!< respecte une transparence déjà présente dans la source */
+            img.setPixelColor(x, y, c);
+        }
+
+    QByteArray data;
+    QBuffer buffer(&data);
+    img.save(&buffer, "PNG");
+    return data;
+}
+
 bool Utils::CompressFileToJPG(QString &pathfile, QString &msg, bool withRecordError, int maxsizeimg)
 {
     bool displaymsg = (msg == "") ;

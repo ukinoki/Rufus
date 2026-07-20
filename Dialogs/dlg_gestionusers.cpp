@@ -480,11 +480,11 @@ void dlg_gestionusers::changeSignature()
         return;
     }
 
-    /*! compression en mémoire → jpg sous 64 Ko (cf. logo, mais taille signature) */
-    QByteArray ba = Utils::CompressImageToJPG(img, SIZEMAXISIGNATURE);
+    /*! fond clair rendu transparent + encodage PNG (pas de rectangle blanc/gris à l'impression) */
+    QByteArray ba = Utils::SignatureVersPngTransparent(img, 600);
     if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
     {
-        UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Le fichier doit pouvoir être comprimé en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
+        UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("La signature doit pouvoir tenir en dessous de ") + QString::number(SIZEMAXISIGNATURE/1024) + "Ko");
         return;
     }
     /*! d'abord l'enregistrement (bindvalue) : s'il réussit, on met l'attribut image pour l'affichage ;
