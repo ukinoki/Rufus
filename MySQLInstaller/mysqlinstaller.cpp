@@ -3980,10 +3980,9 @@ bool MySQLInstaller::createUser()
     };
 
 #if defined(Q_OS_LINUX)
-    // Sur Ubuntu, root@localhost utilise auth_socket : « mysql -u root » ne
-    // fonctionne QUE lancé en tant que root. On exécute donc mysql via pkexec, et
-    // on transmet le SQL (qui contient le mot de passe) par l'ENTRÉE STANDARD.
-    // (MySQL d'apt = 8.0, mysql_native_password actif → pas de repli nécessaire ici.)
+    /*! Sur Ubuntu, root@localhost utilise auth_socket : « mysql -u root » ne fonctionne QUE lancé en tant
+     *  que root. On exécute donc mysql via pkexec et on transmet le SQL (qui contient le mot de passe) par
+     *  l'ENTRÉE STANDARD. (MySQL d'apt = 8.0, mysql_native_password actif → pas de repli nécessaire ici.) */
     const QString sql = sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY");
     QProcess p;
     p.setProcessChannelMode(QProcess::MergedChannels);
@@ -4004,7 +4003,7 @@ bool MySQLInstaller::createUser()
     };
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
     const QString up = out.toUpper();
-    // Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli sur le plugin serveur.
+    /*! Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli sur le plugin serveur. */
     if (up.contains("ERROR 1524")
         || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
         out = executer(sqlAvecAuth("IDENTIFIED BY"));
@@ -4013,28 +4012,28 @@ bool MySQLInstaller::createUser()
 #endif
 }
 
-//  Crée adminrufus/adminrufusSSL @'%' (avec m_password) en se connectant au serveur
-//  via le compte ADMINISTRATEUR MySQL fourni (login/mdp). Sur les TROIS plateformes
-//  on passe directement par « mysql -u <admin> -p<mdp> » (pas de root/pkexec ici).
-//  Distingue l'absence du droit CREATE USER (NoCreateUserRight) des autres erreurs.
+/*!
+ * \brief MySQLInstaller::createUserAvecAdmin
+ * Crée adminrufus/adminrufusSSL (avec m_password) en se connectant via le compte ADMINISTRATEUR MySQL
+ * fourni (« mysql -u <admin> -p<mdp> », pas de root/pkexec). Distingue l'absence du droit CREATE USER
+ * (NoCreateUserRight) des autres erreurs.
+ * \param adminLogin  compte admin MySQL utilisé pour la création
+ * \param adminMdp    son mot de passe
+ */
 MySQLInstaller::CreateUserResult
 MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& adminMdp)
 {
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    // DOUBLE mot de passe (comme createUser) : on pose d'abord gaxt78iy comme mot de passe
-    // courant — que le compte existe déjà ou non — puis on bascule sur l'aléatoire (%2) EN
-    // CONSERVANT gaxt78iy comme 2e mot de passe (RETAIN CURRENT PASSWORD). INDISPENSABLE :
-    // les autres postes du réseau se connectent d'abord avec gaxt78iy (bootstrap) avant de
-    // récupérer l'aléatoire (papier/USB). RETAIN CURRENT PASSWORD : MySQL >= 8.0.14.
-    // mysql_native_password : on le PRÉFÈRE (le driver Qt ne sait pas faire caching_sha2 en
-    // TCP non chiffré — utile pour les postes réseau). MAIS ici le serveur est PRÉEXISTANT et
-    // on ne contrôle pas son my.cnf : sur MySQL 8.4, ce plugin est désactivé par défaut et le
-    // « CREATE USER … WITH mysql_native_password » échoue (ERROR 1524, plugin non chargé). Dans
-    // ce cas on REVIENT au plugin par défaut du serveur. En monoposte la connexion passe par le
-    // socket localhost (caching_sha2 OK) ; en réseau, il faudra un serveur où native est actif.
-    //! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%' — cf. createUser) ;
-    //! adminrufusSSL@'%' (SSL) pour l'accès distant. Double mot de passe : aléatoire + gaxt78iy (2e).
+    /*! DOUBLE mot de passe (comme createUser) : on pose d'abord gaxt78iy comme mdp courant, puis on
+     *  bascule sur l'aléatoire EN CONSERVANT gaxt78iy en 2e (RETAIN CURRENT PASSWORD). INDISPENSABLE : les
+     *  autres postes se connectent d'abord avec gaxt78iy (bootstrap) avant de récupérer l'aléatoire.
+     *  mysql_native_password : PRÉFÉRÉ (le driver Qt ne fait pas caching_sha2 en TCP non chiffré), mais le
+     *  serveur est PRÉEXISTANT et sur MySQL 8.4 ce plugin est désactivé par défaut → « WITH
+     *  mysql_native_password » échoue (ERROR 1524) → on REVIENT au plugin par défaut (caching_sha2 : socket
+     *  localhost OK ; réseau exigera un serveur où native est actif). */
+    /*! adminrufus (NON-SSL) uniquement sur les hosts LOCAUX/PRIVÉS (jamais @'%' — cf. createUser) ;
+     *  adminrufusSSL@'%' (SSL) pour l'accès distant. Double mot de passe : aléatoire + gaxt78iy (2e). */
     auto sqlAvecAuth = [&](const QString& auth) {
         QString sql;
         for (const QString& h : hostsLANprives())
@@ -4058,7 +4057,7 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
 
     QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
     QString up  = out.toUpper();
-    // Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli plugin serveur.
+    /*! Plugin mysql_native_password indisponible (MySQL 8.4 par défaut) → repli plugin serveur. */
     if (up.contains("ERROR 1524")
         || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
     {
@@ -4069,10 +4068,8 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
     if (!out.contains("ERROR", Qt::CaseInsensitive))
         return CreateUserResult::Ok;
 
-    // Manque du droit de créer des utilisateurs ? MySQL renvoie typiquement :
-    //   ERROR 1227 (42000): Access denied; you need (at least one of) the CREATE
-    //                       USER privilege(s) for this operation
-    //   ERROR 1044/1142 : accès refusé sur l'objet / privilège manquant.
+    /*! Manque du droit de créer des utilisateurs ? MySQL renvoie typiquement ERROR 1227 (« you need the
+     *  CREATE USER privilege »), ou ERROR 1044/1142 (accès refusé sur l'objet / privilège manquant). */
     const bool accessDeniedCreateUser =
         up.contains("ACCESS DENIED") && up.contains("CREATE USER");
     if (accessDeniedCreateUser
@@ -4085,32 +4082,33 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
 }
 
 #if defined(Q_OS_LINUX)
-//  Mode Create (Linux) : exécute TOUT le paramétrage root en UNE SEULE élévation
-//  pkexec, pour ne demander le mot de passe système qu'une fois.
+/*!
+ * \brief MySQLInstaller::prepareCreateModeLinux
+ * Mode Create (Linux) : exécute TOUT le paramétrage root en UNE SEULE élévation pkexec, pour ne demander
+ * le mot de passe système qu'une fois.
+ */
 bool MySQLInstaller::prepareCreateModeLinux()
 {
     const QString path = sharedFolderPath();
     const QString user = runCmd("id -un 2>/dev/null").trimmed();
     QDir().mkpath(path);
 
-    // my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv).
+    /*! my.cnf préparé hors élévation (mêmes variables que ensureSecureFilePriv). */
     const QString cnfTmp = writeCnfToTemp(rufusCnfVars());
     const QString cnfDst = getCnfPath();
     if (cnfTmp.isEmpty())
         return false;
 
-    // 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL) avec un DOUBLE
-    //    mot de passe : on pose d'abord gaxt78iy (MDP_SQL, %3 — littéral, pas un secret), puis
-    //    on bascule sur l'aléatoire $PW (placeholder printf %s) EN CONSERVANT gaxt78iy comme 2e
-    //    mot de passe (RETAIN CURRENT PASSWORD). INDISPENSABLE : les autres postes du réseau se
-    //    connectent d'abord avec gaxt78iy avant de récupérer l'aléatoire (papier/USB). Sans ce
-    //    2e mot de passe ici, le court-circuit « if (tryConnect()) return true; » de createUser()
-    //    ferait qu'adminrufus n'aurait jamais que l'aléatoire sous Linux.
+    /*! 1. SQL de création des DEUX utilisateurs (adminrufus + adminrufusSSL) avec un DOUBLE mot de passe :
+     *  on pose d'abord gaxt78iy (MDP_SQL, %3 — littéral, pas un secret), puis on bascule sur l'aléatoire
+     *  $PW (placeholder printf %s) EN CONSERVANT gaxt78iy en 2e. INDISPENSABLE : les autres postes se
+     *  connectent d'abord avec gaxt78iy avant de récupérer l'aléatoire. Sans ce 2e mot de passe, le
+     *  court-circuit « if (tryConnect()) return true; » de createUser() priverait adminrufus de gaxt78iy. */
     const QString sslLogin = QString(LOGIN_SQL "SSL");
     const QString legacy   = QString(MDP_SQL);
-    // mysql_native_password : cf. createUser() — indispensable pour que le driver Qt
-    // (connexion TCP en clair) puisse se connecter. Actif par défaut sur le MySQL 8.0 d'apt.
-    // %1=adminrufus, %2=adminrufusSSL, %3=gaxt78iy ; %s (printf) = $PW (aléatoire), 2 occurrences.
+    /*! mysql_native_password : cf. createUser() — indispensable pour que le driver Qt (TCP en clair) puisse
+     *  se connecter. Actif par défaut sur le MySQL 8.0 d'apt. %1=adminrufus, %2=adminrufusSSL, %3=gaxt78iy ;
+     *  %s (printf) = $PW (aléatoire), 2 occurrences. */
     const QString userSql = QString(
         "printf \"CREATE USER IF NOT EXISTS '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%3'; "
         "ALTER USER '%1'@'%%' IDENTIFIED WITH mysql_native_password BY '%3'; "
@@ -4123,15 +4121,15 @@ bool MySQLInstaller::prepareCreateModeLinux()
         "FLUSH PRIVILEGES;\\n\" \"$PW\" \"$PW\" | mysql -u root; ")
         .arg(m_login, sslLogin, legacy);
 
-    // 3. Copie de my.cnf en place + redémarrage du serveur.
+    /*! 3. Copie de my.cnf en place + redémarrage du serveur. */
     const QString cnfFragment = QString(
         "cp '%1' '%2' && chmod 644 '%2' && systemctl restart mysql; ")
         .arg(cnfTmp, cnfDst);
 
     const QString script =
         "IFS= read -r PW\n"
-        // Journal de support /tmp/rufus_prepare.log : conserve la sortie de
-        // l'install. Le mot de passe n'y apparaît JAMAIS.
+        /*! Journal de support /tmp/rufus_prepare.log : conserve la sortie de l'install. Le mot de passe n'y
+         *  apparaît JAMAIS. */
         "exec >/tmp/rufus_prepare.log 2>&1\n"
         "echo '### createUser ###'; "
         + userSql
@@ -4143,7 +4141,7 @@ bool MySQLInstaller::prepareCreateModeLinux()
         + cnfFragment
         + " echo \"### cnf rc=$? ###\"; echo '### DONE ###'\n";
 
-    // Indicateur d'activité pendant l'opération.
+    /*! Indicateur d'activité pendant l'opération. */
     MySQLProgressDialog* dlg = new MySQLProgressDialog(
         tr("Préparation du serveur…\n"
            "Cela peut durer plusieurs minutes."));
@@ -4152,7 +4150,7 @@ bool MySQLInstaller::prepareCreateModeLinux()
 
     const bool ok = runCmdElevated(script, m_password + "\n");
     QFile::remove(cnfTmp);
-    waitForMySQL(20);                 // le serveur redémarre en fin de script
+    waitForMySQL(20);                 /*!< le serveur redémarre en fin de script */
 
     dlg->close();
     delete dlg;
