@@ -121,10 +121,10 @@ du logiciel — et la grille de lecture de toutes ses décisions.
   Modèle : le bloc en tête de `Dialogs/dlg_impressions.h`. Forme exacte :
     - Ouvert par `/*!`, fermé par `*/` ; **pas de `*` de marge** en début de ligne
       (style Doxygen) — inutile et fatigant pour l'œil.
-    - **Un `*` = un vrai item** (bullet), à son niveau d'indentation ; les
-      **sous-chapitres** sont plus **indentés** (tabulations). Une ligne qui n'est
-      que la *suite* d'un item est simplement **indentée sous son texte, sans `*`**
-      (pas d'étoile orpheline qui ramène l'œil au début de ligne pour rien).
+    - **Un `*` = un vrai item** (bullet), à son niveau d'indentation ; chaque **cran
+      de hiérarchie = exactement UNE tabulation de plus**. Une ligne qui n'est que la
+      *suite* d'un item est simplement **indentée sous son texte, sans `*`** (pas
+      d'étoile orpheline qui ramène l'œil au début de ligne pour rien).
     - **Concis et précis** : les grandes lignes, pas des tartines interminables.
 - **Documenter les fonctions — au plus léger.**
     - Le commentaire *brief* (`\brief`) développé vit dans le **`.cpp`**, au-dessus
@@ -136,6 +136,11 @@ du logiciel — et la grille de lecture de toutes ses décisions.
       l'autre, à la manière de `Items/cls_acte.h` — mais en forme `/*!< … */`. On
       **cale toute la colonne** (nom **et** commentaire) sur la déclaration la plus
       large du groupe, avec autant de tabulations/espaces que nécessaire.
+    - **Brief sur plusieurs lignes** (fonction complexe) : bloc `/*! … */` **au-dessus**
+      de la déclaration, avec un `*` de marge **aligné** sur chaque ligne — ce `*` sert
+      justement à **dégager le bloc** du code alentour. Un tel bloc en début de ligne se
+      **sépare de la fonction précédente par une ligne vide** (sinon il colle et l'œil ne
+      voit plus où commence quoi).
     - **Regroupement (`.h`)** : fonctions **groupées par rôle** (comme dans
       `mysqlinstaller.h`) et, **dans un même groupe, sans ligne vide** — les
       fonctions qui vont ensemble (getters/setters, surtout quand leur rôle est

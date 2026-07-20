@@ -177,6 +177,7 @@ public:
     /*! ── Sécurisation de la base ─────────────────────────────────────────────────────────────────────── */
     bool securiserBaseSiNecessaire();     /*!< pose l'aléatoire si la base ne l'a pas encore (gaxt78iy retenu 2e mdp) ; no-op si déjà fait / socle non compatible */
     bool poserEtSauvegarderAleatoire();   /*!< génère + sauve + pose un aléatoire sur adminrufus/SSL (local, socle conforme) */
+
     /*! Pose `aleatoire` sur adminrufus (+ adminrufusSSL si !LANonly), gaxt78iy retenu ; true si tous les
      * buts atteints, *detailresult renseigné but par but. */
     bool securiserAdminrufusEtMdp(const QString& aleatoire, bool LANonly = false,
@@ -286,6 +287,7 @@ private:
     bool baseRufusComplete();                                      /*!< adminrufus se connecte ET le schéma Rufus (>=1 table) existe ? */
     bool checkPrivileges(QStringList& outMissing);                 /*!< adminrufus a-t-il tous les privilèges requis ? (manquants -> outMissing) */
     bool createUser();                                             /*!< crée adminrufus/SSL (mode création) */
+
     /*! Crée adminrufus/SSL via le compte admin MySQL fourni ; distingue le manque de CREATE USER des autres erreurs. */
     CreateUserResult createUserAvecAdmin(const QString& adminLogin,
                                          const QString& adminMdp);
@@ -315,8 +317,10 @@ private:
     bool    askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
     QString runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
     QString runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
-    /*! Exécute avec droits admin. stdinData (Linux) : passé sur l'entrée standard du processus élevé
-     * (ex. mot de passe smbpasswd) — jamais sur disque, ni en argument, ni dans les logs. */
+
+    /*! Exécute avec droits admin. stdinData (Linux) :
+     *  passé sur l'entrée standard du processus élevé (ex. mot de passe smbpasswd)
+     *  — jamais sur disque, ni en argument, ni dans les logs. */
     bool    runCmdElevated(const QString& cmd, const QString& stdinData = {});
     void    runLongOp(const QString& cmd, const QString& label,
                       int timeoutMs = 360000);           /*!< commande longue avec fiche d'attente */
