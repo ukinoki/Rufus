@@ -42,14 +42,14 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRandomGenerator>
-#include "database.h"          // DataBase::I()->ModeAccesDataBase() : mode de connexion courant
-#include "dlg_paramconnexion.h" // RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey
+#include "database.h"           /*!< DataBase::I()->ModeAccesDataBase() : mode de connexion courant */
+#include "dlg_paramconnexion.h" /*!< RecupererMotDePasseMySQL() : collecte saisie/clé USB → .dbkey */
 
 #if defined(Q_OS_WIN)
 #  define WIN32_LEAN_AND_MEAN
 #  define NOMINMAX
 #  include <windows.h>
-#  include <shellapi.h>   // ShellExecuteEx (élévation UAC « runas »)
+#  include <shellapi.h>   /*!< ShellExecuteEx (élévation UAC « runas ») */
 #endif
 
 /*! Arguments de transport des clients mysql/mysqladmin pour les connexions AVEC IDENTIFIANTS. nbp est
@@ -545,7 +545,7 @@ static bool versionAtLeast(const QString& ver, const QString& minVer)
         const int vb = (i < b.size()) ? b.at(i).toInt() : 0;
         if (va != vb) return va > vb;
     }
-    return true;   // égalité exacte => au moins la version minimale
+    return true;   /*!< égalité exacte => au moins la version minimale */
 }
 
 /*!
@@ -603,7 +603,7 @@ static QString cleDepuisMode(Utils::ModeAcces mode)
     case Utils::ReseauLocal: return "LAN";
     case Utils::Distant:     return "WAN";
     case Utils::Poste:
-    default:                 return "MONO";     // monoposte (poste itinérant) : clé fixe
+    default:                 return "MONO";     /*!< monoposte (poste itinérant) : clé fixe */
     }
 }
 
@@ -628,18 +628,18 @@ static QHash<QString,QString> lireDBKey()
     f.close();
     for (const QString &ligne : lignes) {
         const QString l = ligne.trimmed();
-        if (l.isEmpty() || l.startsWith('['))     // ignore lignes vides et sections INI
+        if (l.isEmpty() || l.startsWith('['))     /*!< ignore lignes vides et sections INI */
             continue;
         const int eq = l.indexOf('=');
         if (eq > 0) {
             QString cle = l.left(eq).trimmed().toUpper();
             const QString val = l.mid(eq + 1).trimmed();
-            if (cle == "MDPSQL")                  // ancien format INI → monoposte
+            if (cle == "MDPSQL")                  /*!< ancien format INI → monoposte */
                 cle = "MONO";
             if ((cle == "MONO" || cle == "LAN" || cle == "WAN") && !val.isEmpty())
                 table.insert(cle, val);
         } else if (!table.contains("MONO")) {
-            table.insert("MONO", l);              // ancienne ligne brute = monoposte
+            table.insert("MONO", l);              /*!< ancienne ligne brute = monoposte */
         }
     }
     return table;
@@ -655,11 +655,11 @@ QString MySQLInstaller::motDePasseSQL()
     const QString cle = cleModeCourant();
     auto it = s_cacheMDP.constFind(cle);
     if (it != s_cacheMDP.constEnd())
-        return it.value();                        // déjà résolu en mémoire : pas d'accès disque
+        return it.value();                        /*!< déjà résolu en mémoire : pas d'accès disque */
 
     QString mdp = lireDBKey().value(cle);
     if (mdp.isEmpty())
-        mdp = QString(MDP_SQL);                   // absent → repli legacy gaxt78iy
+        mdp = QString(MDP_SQL);                   /*!< absent → repli legacy gaxt78iy */
     s_cacheMDP.insert(cle, mdp);
     return mdp;
 }
@@ -682,10 +682,10 @@ void MySQLInstaller::setMotDePasseSQL(const QString& mdp)
 QStringList MySQLInstaller::motsDePasseSQLCandidats()
 {
     QStringList candidats;
-    candidats << motDePasseSQL();                 // .dbkey du mode (ou déjà gaxt78iy si absent)
+    candidats << motDePasseSQL();                 /*!< .dbkey du mode (ou déjà gaxt78iy si absent) */
     const QString legacy = QString(MDP_SQL);
     if (!candidats.contains(legacy))
-        candidats << legacy;                      // gaxt78iy en dernier repli
+        candidats << legacy;                      /*!< gaxt78iy en dernier repli */
     return candidats;
 }
 
@@ -696,7 +696,7 @@ QStringList MySQLInstaller::motsDePasseSQLCandidats()
  */
 static void ecrireDBKey(const QHash<QString,QString>& table)
 {
-    QDir().mkpath(PATH_DIR_RUFUSKEY);             // dossier caché ~/.rufus (créé au besoin)
+    QDir().mkpath(PATH_DIR_RUFUSKEY);             /*!< dossier caché ~/.rufus (créé au besoin) */
     QFile f(PATH_FILE_DBKEY);
     if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text)) {
         for (const QString &k : { QStringLiteral("MONO"), QStringLiteral("LAN"), QStringLiteral("WAN") })
@@ -1069,7 +1069,7 @@ void MySQLInstaller::registerWindowsUninstaller(const QString& base,
     reg.setValue("EstimatedSize",
                  uint(dirSizeKB(base) + dirSizeKB(progData)));
 }
-#endif  // Q_OS_WIN
+#endif  /*! Q_OS_WIN */
 
 /*! ═══ run() : point d'entrée synchrone (pré-requis + détection + install éventuelle, puis les 6 critères) ═══ */
 void MySQLInstaller::cleanupDialog()
@@ -1169,7 +1169,7 @@ bool MySQLInstaller::run()
                    "données MySQL sur cet ordinateur.\n\nVoulez-vous l'installer "
                    "maintenant ?")))
             return false;
-        if (!assurerDroitsAdmin())   // l'installation exige les droits admin
+        if (!assurerDroitsAdmin())   /*!< l'installation exige les droits admin */
             return false;
         return faireCreate(cfg);
     }
@@ -1641,7 +1641,7 @@ bool MySQLInstaller::faireReutiliser(const MySQLRemoteConfig& /*cfg*/, bool effa
         if (!tryConnectAs(m_dialog->login(), m_dialog->password())) {
             UpMessageBox::Watch(m_dialog, tr("Connexion impossible"),
                 tr("Connexion refusée avec cet identifiant / mot de passe. Réessayez."));
-            return;                                 // fiche ouverte : on réessaie
+            return;                                 /*!< fiche ouverte : on réessaie */
         }
         m_dialog->checkStep(0);
 
@@ -2381,8 +2381,8 @@ bool MySQLInstaller::uninstallMySQL()
 #endif
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  MySQL : détection, installation, démarrage
+/*! ── MySQL : détection, installation, démarrage ───────────────────────────────── */
+
 /*!
  * \brief MySQLInstaller::isMySQLInstalled
  * Un SERVEUR MySQL (ou MariaDB) est-il installé sur ce poste ? (service/binaire/pkg selon l'OS.)
@@ -2897,7 +2897,7 @@ void MySQLInstaller::avertirEffacementImminent()
         tr("Assurez-vous d'ici là que les autres postes qui ont accès à ce serveur ont bien récupéré le mot de passe sécurisé."),
         UpDialog::ButtonCancel | UpDialog::ButtonOK,
         QStringList() << tr("Ne plus afficher ce message") << tr("J'ai compris"));
-    if (rep == UpSmallButton::CANCELBUTTON)                      // « Ne plus afficher ce message »
+    if (rep == UpSmallButton::CANCELBUTTON)                      /*!< « Ne plus afficher ce message » */
         ini.setValue(cleMasque, signature);
 }
 
@@ -4362,7 +4362,7 @@ QString MySQLInstaller::writeCnfToTemp(const QList<QPair<QString, QString>>& var
         f.close();
     }
 
-    // Clés non présentes : insérées juste après [mysqld] (créé si absent).
+    /*! Clés non présentes : insérées juste après [mysqld] (créé si absent). */
     if (!remaining.isEmpty()) {
         QStringList toInsert;
         for (const auto& kv : vars)
@@ -4401,20 +4401,20 @@ QString MySQLInstaller::getCnfPath()
         if (QFile::exists(p)) return p;
     return "C:/ProgramData/MySQL/MySQL Server 8.4/my.ini";
 #elif defined(Q_OS_LINUX)
-    // Ubuntu (apt) : la section [mysqld] vit dans mysql.conf.d/mysqld.cnf.
+    /*! Ubuntu (apt) : la section [mysqld] vit dans mysql.conf.d/mysqld.cnf. */
     for (const QString& p : {QString("/etc/mysql/mysql.conf.d/mysqld.cnf"),
                              QString("/etc/mysql/my.cnf")})
         if (QFile::exists(p)) return p;
     return "/etc/mysql/mysql.conf.d/mysqld.cnf";
 #else
-    // Installation Oracle (.dmg) : son mysqld, lancé par launchd SANS --defaults-file, lit la chaîne
-    // de config par défaut où /etc/my.cnf vient en PREMIER. On y écrit DONC nos réglages, sans se
-    // laisser détourner par un Homebrew présent sur la machine : un Mac de dev a souvent brew, mais
-    // NOTRE serveur est l'Oracle — écrire dans le my.cnf de brew laisserait le serveur Oracle aveugle
-    // (c'était la cause de secure_file_priv=NULL et de mysql_native_password désactivé).
+    /*! Installation Oracle (.dmg) : son mysqld, lancé par launchd SANS --defaults-file, lit la chaîne de
+     *  config par défaut où /etc/my.cnf vient en PREMIER. On y écrit DONC nos réglages, sans se laisser
+     *  détourner par un Homebrew présent (un Mac de dev a souvent brew, mais NOTRE serveur est l'Oracle —
+     *  écrire dans le my.cnf de brew laisserait le serveur Oracle aveugle : cause de secure_file_priv=NULL
+     *  et de mysql_native_password désactivé). */
     if (isOracleInstall())
         return "/etc/my.cnf";
-    const QString prefix = getBrewPrefix();     // MySQL installé via Homebrew (brew install mysql)
+    const QString prefix = getBrewPrefix();     /*!< MySQL installé via Homebrew (brew install mysql) */
     if (!prefix.isEmpty()) return prefix + "/etc/my.cnf";
     for (auto& p : {QString("/etc/my.cnf"),
                     QString("/etc/mysql/my.cnf"),
@@ -4425,11 +4425,14 @@ QString MySQLInstaller::getCnfPath()
 #endif
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Helpers
-// ─────────────────────────────────────────────────────────────────────────────
-//  Question Oui/Non via UpMessageBox::Question (boutons « Non »/« Oui »).
-//  Le bouton OK (STARTBUTTON) correspond à « Oui ».
+/*! ── Helpers ──────────────────────────────────────────────────────────────────── */
+
+/*!
+ * \brief MySQLInstaller::askYesNo
+ * Question Oui/Non via UpMessageBox::Question (boutons « Non »/« Oui »). true = « Oui ».
+ * \param title  titre de la boîte
+ * \param text   texte de la question
+ */
 bool MySQLInstaller::askYesNo(const QString& title, const QString& text)
 {
     const UpSmallButton::StyleBouton rep = UpMessageBox::Question(
@@ -4459,14 +4462,14 @@ QString MySQLInstaller::runCmdFull(const QString& cmd, int timeoutMs)
 bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData)
 {
 #if defined(Q_OS_WIN)
-    // L'application Windows tourne déjà en tant qu'administrateur.
+    /*! L'application Windows tourne déjà en tant qu'administrateur. */
     Q_UNUSED(stdinData);
     const QString out = runCmdFull(cmd);
     return !out.contains("Access is denied", Qt::CaseInsensitive)
         && !out.contains("denied",           Qt::CaseInsensitive);
 #elif defined(Q_OS_LINUX)
-    // Élévation via pkexec (invite graphique PolicyKit). La commande est déposée
-    // dans un script temporaire pour éviter les soucis de guillemets.
+    /*! Élévation via pkexec (invite graphique PolicyKit). La commande est déposée dans un script
+     *  temporaire pour éviter les soucis de guillemets. */
     const QString scriptPath = QDir::tempPath() + "/mysqlinstaller_priv.sh";
     QFile s(scriptPath);
     if (!s.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -4479,7 +4482,7 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
     if (stdinData.isEmpty()) {
         out = runCmdFull("pkexec sh '" + scriptPath + "' 2>&1", 900000);
     } else {
-        // stdinData transmis à l'entrée standard du processus élevé.
+        /*! stdinData transmis à l'entrée standard du processus élevé. */
         QProcess p;
         p.setProcessChannelMode(QProcess::MergedChannels);
         p.start("pkexec", QStringList{"sh", scriptPath});
@@ -4496,7 +4499,7 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
         && !out.contains("dismissed",             Qt::CaseInsensitive);
 #else
     Q_UNUSED(stdinData);
-    // Exécute « cmd » avec les droits administrateur via une seule invite macOS.
+    /*! Exécute « cmd » avec les droits administrateur via une seule invite macOS. */
     const QString scriptPath = QDir::tempPath() + "/mysqlinstaller_priv.sh";
     QFile s(scriptPath);
     if (!s.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -4508,19 +4511,17 @@ bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData
     s.close();
     runCmd("chmod +x '" + scriptPath + "'");
 
-    // Timeout LARGE (15 min) : l'invite de mot de passe administrateur est
-    // interactive. Avec le défaut de runCmdFull (30 s), si l'invite tardait à
-    // s'afficher ou que la saisie du mot de passe + l'opération dépassaient 30 s,
-    // waitProcessResponsive tuait osascript EN PLEIN MILIEU : la sortie tronquée ne
-    // contenant ni « User canceled » ni « execution error », on renvoyait « succès »
-    // à tort alors que le script (ex. désinstallation) n'avait pas fini → « MySQL
-    // toujours présent » malgré le message de confirmation (bug uninstall fantôme).
+    /*! Timeout LARGE (15 min) : l'invite de mot de passe administrateur est interactive. Avec le défaut de
+     *  runCmdFull (30 s), si l'invite tardait ou que saisie + opération dépassaient 30 s,
+     *  waitProcessResponsive tuait osascript EN PLEIN MILIEU : la sortie tronquée ne contenant ni « User
+     *  canceled » ni « execution error », on renvoyait « succès » à tort alors que le script (ex.
+     *  désinstallation) n'avait pas fini → « MySQL toujours présent » (bug uninstall fantôme). */
     const QString out = runCmdFull(QString(
         "osascript -e 'do shell script \"%1\" with administrator privileges' 2>&1")
         .arg(scriptPath), 900000);
     QFile::remove(scriptPath);
 
-    // Succès = l'utilisateur n'a pas annulé l'invite et osascript n'a pas échoué.
+    /*! Succès = l'utilisateur n'a pas annulé l'invite et osascript n'a pas échoué. */
     return !out.contains("User canceled", Qt::CaseInsensitive)
         && !out.contains("execution error", Qt::CaseInsensitive);
 #endif
@@ -4546,8 +4547,14 @@ void MySQLInstaller::runLongOp(const QString& cmd, const QString& label, int tim
     delete dlg;
 }
 
-//  Variante de runLongOp() avec barre de progression réelle : la commande doit
-//  émettre sur sa sortie standard des lignes « PROGRESS <fait> <total> ».
+/*!
+ * \brief MySQLInstaller::runLongOpProgress
+ * Variante de runLongOp() avec barre de progression réelle : la commande doit émettre sur sa sortie
+ * standard des lignes « PROGRESS <fait> <total> ».
+ * \param cmd        commande à exécuter
+ * \param label      texte affiché dans la fiche
+ * \param timeoutMs  délai max avant kill
+ */
 void MySQLInstaller::runLongOpProgress(const QString& cmd, const QString& label,
                                        int timeoutMs)
 {
@@ -4579,17 +4586,21 @@ void MySQLInstaller::runLongOpProgress(const QString& cmd, const QString& label,
     loop.exec();
 }
 
-//  Téléchargement HTTP(S) robuste : QNetworkAccessManager (progression réelle),
-//  repli automatique sur curl en cas d'échec.
+/*!
+ * \brief MySQLInstaller::downloadFile
+ * Téléchargement HTTP(S) robuste : curl d'abord (RAPIDE, barre réelle), repli QNetworkAccessManager.
+ * \param url    adresse à télécharger
+ * \param dest   fichier de destination
+ * \param label  texte affiché dans la fiche de progression
+ */
 bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
                                   const QString& label)
 {
-    // ── Tentative 1 : curl (RAPIDE) + barre réelle par sondage de la taille du fichier ──
-    //! curl sature la ligne là où QNetworkAccessManager plafonne (téléchargement TRÈS lent sur
-    //! macOS). On le lance en arrière-plan (QProcess) et on pilote la barre en SONDANT la taille du
-    //! fichier qui grossit — inutile de parser la barre texte de curl (qui part sur stderr). Taille
-    //! totale obtenue par un HEAD préalable (best effort ; sinon barre animée). Repli QNAM ci-dessous
-    //! si curl est absent ou échoue.
+    /*! ── Tentative 1 : curl (RAPIDE) + barre réelle par sondage de la taille du fichier ──
+     *  curl sature la ligne là où QNetworkAccessManager plafonne (TRÈS lent sur macOS). On le lance en
+     *  arrière-plan (QProcess) et on pilote la barre en SONDANT la taille du fichier qui grossit — inutile
+     *  de parser la barre texte de curl (sur stderr). Taille totale via un HEAD préalable (best effort ;
+     *  sinon barre animée). Repli QNAM ci-dessous si curl est absent ou échoue. */
     {
         MySQLProgressDialog dlg(label);
         dlg.show();
@@ -4601,7 +4612,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
             head.start("curl", {"-sIL", "--connect-timeout", "15", url});
             if (head.waitForFinished(20000)) {
                 const QString h = QString::fromUtf8(head.readAllStandardOutput());
-                QRegularExpression re("(?i)content-length:\\s*(\\d+)");   // dernière valeur = après redirections
+                QRegularExpression re("(?i)content-length:\\s*(\\d+)");   /*!< dernière valeur = après redirections */
                 auto it = re.globalMatch(h);
                 while (it.hasNext()) total = it.next().captured(1).toLongLong();
             }
@@ -4611,7 +4622,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
         QProcess proc;
         proc.start("curl", {"-fSL", "--connect-timeout", "20", "-o",
                             QDir::toNativeSeparators(dest), url});
-        if (proc.waitForStarted(5000)) {           // curl disponible → on l'utilise
+        if (proc.waitForStarted(5000)) {           /*!< curl disponible → on l'utilise */
             QEventLoop loop;
             QObject::connect(&proc, &QProcess::finished, &loop, &QEventLoop::quit);
             QTimer poll;
@@ -4627,7 +4638,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
         }
     }
 
-    // ── Tentative 2 : QNetworkAccessManager (repli si curl indisponible / échoué) ─────────
+    /*! ── Tentative 2 : QNetworkAccessManager (repli si curl indisponible / échoué) ───────── */
     {
         QFile file(dest);
         if (file.open(QIODevice::WriteOnly)) {
@@ -4639,19 +4650,18 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
             QNetworkRequest req{QUrl(url)};
             req.setAttribute(QNetworkRequest::RedirectPolicyAttribute,
                              QNetworkRequest::NoLessSafeRedirectPolicy);
-            // Forcer HTTP/1.1 : le HTTP/2 de Qt fait parfois échouer un gros
-            // téléchargement en cours de route avec le CDN MySQL.
+            /*! Forcer HTTP/1.1 : le HTTP/2 de Qt fait parfois échouer un gros téléchargement en cours de
+             *  route avec le CDN MySQL. */
             req.setAttribute(QNetworkRequest::Http2AllowedAttribute, false);
             req.setHeader(QNetworkRequest::UserAgentHeader, "MySQLInstaller/1.0");
             QNetworkReply* reply = nam.get(req);
 
             QEventLoop loop;
-            //! WATCHDOG anti-blocage : sans lui, si tous les octets arrivent (barre à 100 %) mais
-            //! que la connexion ne se referme pas proprement (FIN retardé/perdu sur un lien lent),
-            //! le signal finished() n'est JAMAIS émis et loop.exec() reste figé indéfiniment — c'est
-            //! le « figé à 100 % » observé. On (ré)arme un délai à chaque octet reçu ; passé ce
-            //! délai SANS le moindre progrès, on abandonne (reply->abort() → finished en erreur →
-            //! repli sur curl, qui a son propre timeout).
+            /*! WATCHDOG anti-blocage : sans lui, si tous les octets arrivent (barre à 100 %) mais que la
+             *  connexion ne se referme pas proprement (FIN retardé/perdu sur un lien lent), finished() n'est
+             *  JAMAIS émis et loop.exec() reste figé — c'est le « figé à 100 % » observé. On (ré)arme un
+             *  délai à chaque octet reçu ; passé ce délai SANS progrès, on abandonne (reply->abort() →
+             *  finished en erreur → repli sur curl, qui a son propre timeout). */
             QTimer watchdog;
             watchdog.setSingleShot(true);
             QObject::connect(&watchdog, &QTimer::timeout, reply, &QNetworkReply::abort);
@@ -4660,7 +4670,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
             });
             QObject::connect(reply, &QNetworkReply::downloadProgress,
                              [&](qint64 r, qint64 t){
-                watchdog.start(120000);     //! 120 s sans le moindre octet → on lâche QNAM
+                watchdog.start(120000);     /*!< 120 s sans le moindre octet → on lâche QNAM */
                 dlg.setProgress(r, t);
             });
             QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
@@ -4668,7 +4678,7 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
             loop.exec();
             watchdog.stop();
 
-            file.write(reply->readAll());      // reliquat éventuel
+            file.write(reply->readAll());      /*!< reliquat éventuel */
             file.close();
             const bool ok = (reply->error() == QNetworkReply::NoError);
             reply->deleteLater();
@@ -4677,16 +4687,17 @@ bool MySQLInstaller::downloadFile(const QString& url, const QString& dest,
         }
     }
 
-    // ── Tentative 3 : ultime repli curl bloquant (barre animée, TLS du système) ───────────
+    /*! ── Tentative 3 : ultime repli curl bloquant (barre animée, TLS du système) ─────────── */
     QFile::remove(dest);
     runLongOp(QString("curl -fSL -o \"%1\" \"%2\"")
               .arg(QDir::toNativeSeparators(dest), url), label, 1800000);
     return QFile::exists(dest) && QFileInfo(dest).size() > 0;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Accès réseau (WAN) : connexion TCP/443 vers une IP publique fiable, SANS DNS.
-// ─────────────────────────────────────────────────────────────────────────────
+/*!
+ * \brief MySQLInstaller::hasNetworkAccess
+ * Accès réseau (WAN) présent ? Connexion TCP/443 vers une IP publique fiable, SANS DNS.
+ */
 bool MySQLInstaller::hasNetworkAccess()
 {
     const QStringList ips = {"1.1.1.1", "8.8.8.8"};
@@ -4701,12 +4712,15 @@ bool MySQLInstaller::hasNetworkAccess()
     return false;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Pré-requis réseau juste avant un téléchargement d'installation MySQL.
-// ─────────────────────────────────────────────────────────────────────────────
+/*!
+ * \brief MySQLInstaller::checkDownloadConnectivity
+ * Pré-requis réseau juste avant un téléchargement d'installation MySQL : accès WAN + résolution DNS de
+ * l'hôte du lien. Affiche un message et renvoie false si l'un manque.
+ * \param downloadUrl  lien de téléchargement à contrôler
+ */
 bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
 {
-    // 1. Accès WAN.
+    /*! 1. Accès WAN. */
     if (!hasNetworkAccess()) {
         UpMessageBox::Watch(nullptr, tr("Pas d'accès réseau"),
             tr("Absence d'accès réseau. Le programme ne peut pas télécharger "
@@ -4714,7 +4728,7 @@ bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
         return false;
     }
 
-    // 2. Résolution DNS de l'hôte du lien de téléchargement.
+    /*! 2. Résolution DNS de l'hôte du lien de téléchargement. */
     const QString host = QUrl(downloadUrl).host();
     const QHostInfo info = QHostInfo::fromName(host);
     if (info.error() != QHostInfo::NoError || info.addresses().isEmpty()) {
@@ -4727,12 +4741,12 @@ bool MySQLInstaller::checkDownloadConnectivity(const QString& downloadUrl)
     return true;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-//  Alarme commune quand le téléchargement automatique de MySQL n'aboutit pas
-//  (site momentanément inaccessible, blocage CDN, coupure en cours de route…).
-//  On ne laisse pas l'utilisateur dans le noir : on lui explique qu'il peut
-//  installer MySQL lui-même et que Rufus prendra le relais au prochain lancement.
-// ─────────────────────────────────────────────────────────────────────────────
+/*!
+ * \brief MySQLInstaller::avertirTelechargementImpossible
+ * Alarme commune quand le téléchargement automatique de MySQL n'aboutit pas (site inaccessible, blocage
+ * CDN, coupure…). On explique à l'utilisateur qu'il peut installer MySQL lui-même et que Rufus prendra le
+ * relais au prochain lancement.
+ */
 void MySQLInstaller::avertirTelechargementImpossible()
 {
     UpMessageBox::Watch(nullptr, tr("Téléchargement de MySQL impossible"),
@@ -4748,7 +4762,7 @@ void MySQLInstaller::avertirTelechargementImpossible()
 QString MySQLInstaller::getBrewPrefix()
 {
 #if defined(Q_OS_WIN) || defined(Q_OS_LINUX)
-    return {};   // pas de Homebrew sous Windows/Linux
+    return {};   /*!< pas de Homebrew sous Windows/Linux */
 #else
     if (m_brewPrefix.isNull()) {
         QProcess p;
@@ -4773,7 +4787,7 @@ QString MySQLInstaller::mysqlBin(const QString& binary)
         const QString full = oracle + "/bin/" + binary + ".exe";
         if (QFile::exists(full)) return full;
     }
-    return binary;   // supposé présent dans le PATH
+    return binary;   /*!< supposé présent dans le PATH */
 #else
     QString oracle = oraclePrefix();
     if (!oracle.isEmpty()) {
