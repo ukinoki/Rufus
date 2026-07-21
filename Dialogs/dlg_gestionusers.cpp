@@ -443,7 +443,7 @@ void dlg_gestionusers::AfficheSignature()
         ui->Signaturelabel          ->setPixmap(Icons::pxEditer().scaled(30, 30, Qt::KeepAspectRatio, Qt::SmoothTransformation));   /*!< crayon : invite à déposer une signature */
 
     ui->SignatureupPushButton       ->setVisible(modif);
-    ui->SignatureupPushButton       ->setText(asignature ? tr("Modifier la signature") : tr("Enregistrer une signature"));
+    ui->SignatureupPushButton       ->setText(asignature ? tr("Modifier la signature") : tr("Enregistrer signature"));
     ui->supprimSignatureupPushButton->setVisible(asignature);
     ui->SignatureAutoCheckBox       ->setVisible(asignature);
     if (asignature)

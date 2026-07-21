@@ -585,7 +585,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Enregistrer une signature</string>
+                  <string>Enregistrer signature</string>
                  </property>
                 </widget>
                </item>
@@ -598,7 +598,7 @@
                   </size>
                  </property>
                  <property name="text">
-                  <string>Supprimer la signature</string>
+                  <string>Supprimer signature</string>
                  </property>
                 </widget>
                </item>
@@ -645,7 +645,7 @@
              <widget class="UpPushButton" name="GestLieuxpushButton">
               <property name="maximumSize">
                <size>
-                <width>180</width>
+                <width>160</width>
                 <height>16777215</height>
                </size>
               </property>
