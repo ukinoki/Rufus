@@ -525,10 +525,8 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
     QRectF clip(0, (pagenum-1) * rect.height(), rect.width(), rect.height());
     tempdoc_->drawContents(painter, clip);
 
-    /*! signature : dessinée directement (taille en mm x dpi, maîtrisée), sous le texte et à droite,
+    /*! signature : dessinée directement (taille en mm x dpi, maîtrisée), centrée sous le texte,
      *  sur la dernière page. Même repère que le contenu -> elle suit la fin du texte */
-    qDebug() << "SIGN page" << pagenum << "/" << nbpages << "null?" << m_signature.isNull()
-             << "size" << m_signature.size() << "mm" << m_signatureWidthMM;
     if (pagenum == nbpages && !m_signature.isNull() && m_signatureWidthMM > 0 && m_signature.width() > 0)
     {
         double dpi  = painter->device()->logicalDpiY();
@@ -536,10 +534,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         double h    = w * m_signature.height() / m_signature.width();
         double docH = tempdoc_->documentLayout()->documentSize().height();
         double gap  = 3 * toinchfactor_ * dpi;                          /*!< 3 mm sous la dernière ligne */
-        qDebug() << "SIGN draw  dpi" << dpi << "w,h" << w << h << "docH" << docH
-                 << "rectW" << rect.width() << "x" << rect.width()-w << "y" << docH+gap;
-        painter->fillRect(QRectF(rect.width() - w, docH + gap, w, h), QColor(255,0,0,120));   /*!< DEBUG : repère rouge */
-        painter->drawImage(QRectF(rect.width() - w, docH + gap, w, h), m_signature);
+        painter->drawImage(QRectF((rect.width() - w) / 2, docH + gap, w, h), m_signature);
     }
     painter->restore();
 }
