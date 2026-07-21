@@ -27,3 +27,10 @@ une nouvelle version de base.
   En attendant, l'import tronque à 45 (`dlg_listeiols.cpp`, `ImportListeIOLS`,
   `iol.setmodele(...left(45))`). Une fois la colonne élargie à 60, relever la
   troncature de `.left(45)` à `.left(60)`.
+
+- **Table `ParametresSysteme`, nouveau champ `VersionCCAM`.**
+  Raison : mémoriser en base la version de la nomenclature CCAM chargée, sur le
+  modèle des champs de version déjà présents (`VersionBase`, `VersionBaseIOL`).
+  Une fois le champ créé : ajouter la macro `CP_VERSIONCCAM_PARAMSYSTEME`
+  (`"VersionCCAM"`) dans `macros.h`, à côté des autres colonnes de
+  `ParametresSysteme`, puis le lire/écrire là où la version CCAM est gérée.
