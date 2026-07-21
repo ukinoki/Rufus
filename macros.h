@@ -342,6 +342,7 @@ public:
 #define CP_DOCSCOMPRIMES_PARAMSYSTEME                   "DocsComprimes"
 #define CP_VERSIONBASE_PARAMSYSTEME                     "VersionBase"
 #define CP_VERSIONBASEIOL_PARAMSYSTEME                  "VersionBaseIOL"
+#define CP_VERSIONCCAM_PARAMSYSTEME                     "VersionCCAM"
 #define CP_SANSCOMPTA_PARAMSYSTEME                      "SansCompta"
 #define CP_ADRESSELOCALSERVEUR_PARAMSYSTEME             "AdresseServeurLocal"
 #define CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME           "AdresseServeurDistant"

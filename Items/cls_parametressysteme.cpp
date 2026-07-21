@@ -32,6 +32,7 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataBool(data, CP_DOCSCOMPRIMES_PARAMSYSTEME, m_docscomprimes);
     setDataInt(data, CP_VERSIONBASE_PARAMSYSTEME, m_versionbase);
     setDataDouble(data, CP_VERSIONBASEIOL_PARAMSYSTEME, m_versionbaseiol);
+    setDataDouble(data, CP_VERSIONCCAM_PARAMSYSTEME, m_versionCCAM);
     setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
     setDataString(data, CP_ADRESSELOCALSERVEUR_PARAMSYSTEME, m_adresseserveurlocal);
     setDataString(data, CP_ADRESSEDISTANTSERVEUR_PARAMSYSTEME, m_adresseserveurdistant);
@@ -57,6 +58,7 @@ int ParametresSysteme::idlieupardefaut() const                  { return m_idlie
 bool ParametresSysteme::docscomprimes() const                   { return m_docscomprimes; }
 int ParametresSysteme::versionbase() const                      { return m_versionbase; }
 double ParametresSysteme::versionbaseiol() const                { return m_versionbaseiol; }
+double ParametresSysteme::versionCCAM() const                   { return m_versionCCAM; }
 bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
 QString ParametresSysteme::adresseserveurlocal() const          { return m_adresseserveurlocal; }
 QString ParametresSysteme::adresseserveurdistant() const        { return m_adresseserveurdistant; }
@@ -79,6 +81,8 @@ void ParametresSysteme::setversionbase(int version)             { m_versionbase 
                                                                   m_data[CP_VERSIONBASE_PARAMSYSTEME] = version; }
 void ParametresSysteme::setversionbaseiol(double version)       { m_versionbaseiol = version;
                                                                   m_data[CP_VERSIONBASEIOL_PARAMSYSTEME] = version; }
+void ParametresSysteme::setversionCCAM(double version)          { m_versionCCAM = version;
+                                                                  m_data[CP_VERSIONCCAM_PARAMSYSTEME] = version; }
 void ParametresSysteme::setsanscompta(bool one)                 { m_sanscompta = one;
                                                                   m_data[CP_SANSCOMPTA_PARAMSYSTEME] = one; }
 void ParametresSysteme::setadresseserveurlocal(QString  adress) { m_adresseserveurlocal = adress;

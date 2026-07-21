@@ -37,6 +37,7 @@ private:
     bool m_docscomprimes = false;           //!> utilise la compression des pdf - pas utilisé
     int m_versionbase = 0;                  //!> la version de la base de données
     double m_versionbaseiol = 1;            //!> la version de la base de données des IOL
+    double m_versionCCAM = 77;              //!> la version de la nomenclature CCAM chargée
     bool m_sanscompta = true;               //!> utilise ou non la compta
     QString m_adresseserveurlocal = "";     //!> l'adresse IP du serveur dans le réseau local
     QString m_adresseserveurdistant = "";   //!> l'adresse IP ou DNS du lieu où se trouve le serveur
@@ -58,6 +59,7 @@ public:
     bool docscomprimes() const;
     int versionbase() const;
     double versionbaseiol() const;
+    double versionCCAM() const;
     bool sanscompta() const;
     QString adresseserveurlocal() const;
     QString adresseserveurdistant() const;
@@ -76,6 +78,7 @@ public:
     void setdocscomprimes(bool one);
     void setversionbase(int version);
     void setversionbaseiol(double version);
+    void setversionCCAM(double version);
     void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress);
     void setadresseserveurdistant(QString adress);

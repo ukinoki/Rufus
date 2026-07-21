@@ -205,6 +205,7 @@ public:
     void setdocscomprimes(bool one);
     void setversionbase(int version);
     void setversionbaseiol(double version);
+    void setversionCCAM(double version);
     void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
@@ -217,6 +218,7 @@ public:
     void setcomptafrance(bool one= true);
     void setVersion (QString newversion);
     double versionbaseiol();
+    double versionCCAM();
 
     /*
      * Donnees ophta patient

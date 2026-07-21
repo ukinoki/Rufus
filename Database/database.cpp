@@ -766,6 +766,21 @@ void DataBase::initParametresSysteme()
         paramData[CP_VERSION_PARAMSYSTEME]         = (paramdata.at(0).toString());
         m_parametres->setData(paramData);
     }
+
+    //! from versionbase 83 récupération de la version CCAM enregistrée en base
+    req = "SELECT COUNT(*) FROM "
+          "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+          "WHERE TABLE_NAME = '" + tablename + "' AND COLUMN_NAME = '" CP_VERSIONCCAM_PARAMSYSTEME "') as chp;";
+    listquery = getFirstRecordFromStandardSelectSQL(req,ok);
+    if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
+    {
+        req = "select " CP_VERSIONCCAM_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
+        paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
+        if(!ok || paramdata.size() == 0)
+            return ;
+        paramData[CP_VERSIONCCAM_PARAMSYSTEME]         = (paramdata.at(0).toDouble());
+        m_parametres->setData(paramData);
+    }
 }
 
 ParametresSysteme* DataBase::parametres()
@@ -829,6 +844,25 @@ double DataBase::versionbaseiol()
     if (!m_db.isOpen())
         return 0.0;
     QString req = "SELECT " CP_VERSIONBASEIOL_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
+    bool ok = false;
+    QList<QVariantList> query = StandardSelectSQL(req, ok);
+    if (ok && query.size() > 0)
+        if (query.at(0).size() > 0)
+            return query.at(0).at(0).toDouble();
+    return 0.0;
+}
+void DataBase::setversionCCAM(double version)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONCCAM_PARAMSYSTEME " = " + QString::number(version));
+    parametres()->setversionCCAM(version);
+}
+double DataBase::versionCCAM()
+{
+    if (!m_db.isOpen())
+        return 0.0;
+    QString req = "SELECT " CP_VERSIONCCAM_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
     bool ok = false;
     QList<QVariantList> query = StandardSelectSQL(req, ok);
     if (ok && query.size() > 0)
