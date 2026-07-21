@@ -129,7 +129,10 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
     if (!asignature)
         ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
-                                                  + tr("Pour en enregistrer une : menu Édition / Paramètres."), true);
+                                                  + tr("Pour en enregistrer une :") + "\n"
+                                                  + tr("menu Édition / Paramètres / Modifier mes données")
+                                                  + tr("après avoir déverrouillé avec votre mot de passe")
+                                                  , true);
 
 
     ui->textFrame->installEventFilter(this);

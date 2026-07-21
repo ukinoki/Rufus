@@ -42,7 +42,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
 {
     //! la version du programme correspond à la date de publication, suivie de "/" puis d'un sous-n° - p.e. "23-6-2017/3"
     //! la date doit impérativement être composée au format "00-00-0000" / n°version
-    qApp->setApplicationVersion("10-07-2026/1");
+    qApp->setApplicationVersion("21-07-2026/1");
     ui = new Ui::Rufus;
     ui->setupUi(this);
     setWindowFlags(Qt::Window | Qt::WindowTitleHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint);
@@ -9109,7 +9109,6 @@ void    Rufus::ImprimeDocument(Patient *pat)
             UpMessageBox::Watch(this, tr("Impossible d'imprimer"),tr("Aucun émetteur n'est précisé pour l'impression"));
             return;
         }
-        //qDebug() << userEntete->login() << pat->nomcomplet();
         QDate DateDoc = Dlg_Imprs->ui->dateImpressiondateEdit->date();
 
         bool ALD;
