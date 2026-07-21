@@ -509,7 +509,7 @@
           <string/>
          </property>
         </widget>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>20</x>
@@ -519,6 +519,9 @@
           </rect>
          </property>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <property name="spacing">
+           <number>1</number>
+          </property>
           <item>
            <widget class="QWidget" name="signaturewidget" native="true">
             <property name="minimumSize">
@@ -528,6 +531,9 @@
              </size>
             </property>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <property name="spacing">
+              <number>0</number>
+             </property>
              <property name="leftMargin">
               <number>5</number>
              </property>
@@ -562,7 +568,7 @@
              <item>
               <layout class="QVBoxLayout" name="verticalLayout_2">
                <property name="spacing">
-                <number>0</number>
+                <number>2</number>
                </property>
                <item>
                 <widget class="UpPushButton" name="SignatureupPushButton">
@@ -608,6 +614,22 @@
                   <string>Signature automatique</string>
                  </property>
                 </widget>
+               </item>
+               <item>
+                <spacer name="verticalSpacer_2">
+                 <property name="orientation">
+                  <enum>Qt::Orientation::Vertical</enum>
+                 </property>
+                 <property name="sizeType">
+                  <enum>QSizePolicy::Policy::Maximum</enum>
+                 </property>
+                 <property name="sizeHint" stdset="0">
+                  <size>
+                   <width>20</width>
+                   <height>5</height>
+                  </size>
+                 </property>
+                </spacer>
                </item>
               </layout>
              </item>
