@@ -841,6 +841,9 @@ void dlg_gestionusers::EnregistreUser()
     if (m_usermode == MODIFUSER)
         Procedures::I()->settings()->setValue(Param_Poste_SignatureAuto, ui->SignatureAutoCheckBox->isChecked() ? "YES" : "NO");
     int idlieu=-1;
+    //! On mémorise les numéros AM (idlieu -> AMnumber) AVANT de tout supprimer : la réinsertion ne
+    //! recopiait que (iduser, idlieu), donc AMnumber repassait à null à chaque enregistrement.
+    QMap<int,qlonglong> mapAM = db->loadidSitesByUser(ui->idUseruplineEdit->text().toInt());
     db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", TBL_JOINTURESLIEUX);
     if (!m_neutre)
         for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
@@ -851,7 +854,10 @@ void dlg_gestionusers::EnregistreUser()
             if (butt->isChecked())
             {
                 idlieu = butt->iD();
-                db->StandardSQL("insert into " TBL_JOINTURESLIEUX "(iduser, idlieu) values (" + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ")");
+                qlonglong am = mapAM.value(idlieu, 0);   //! numéro AM conservé (null si 0/absent)
+                db->StandardSQL("insert into " TBL_JOINTURESLIEUX "(iduser, idlieu, " CP_AMNUMBER_JOINTSITE ") values ("
+                                + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ", "
+                                + (am == 0 ? "null" : QString::number(am)) + ")");
             }
         }
 
@@ -1710,6 +1716,9 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
         connect(buttn, &QPushButton::clicked, this, [=]
         {
             int idlieu=-1;
+            //! Idem enregistrement : on conserve les numéros AM (idlieu -> AMnumber) avant de tout
+            //! supprimer, sinon un simple clic sur un lieu remettrait AMnumber à null.
+            QMap<int,qlonglong> mapAM = db->loadidSitesByUser(ui->idUseruplineEdit->text().toInt());
             db->SupprRecordFromTable(ui->idUseruplineEdit->text().toInt(), "idUser", TBL_JOINTURESLIEUX);
             for(int i=0; i< ui->AdressupTableWidget->rowCount(); i++)
             {
@@ -1719,7 +1728,10 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
                 if (butt->isChecked())
                 {
                     idlieu = butt->iD();
-                    db->StandardSQL("insert into " TBL_JOINTURESLIEUX "(iduser, idlieu) values (" + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ")");
+                    qlonglong am = mapAM.value(idlieu, 0);
+                    db->StandardSQL("insert into " TBL_JOINTURESLIEUX "(iduser, idlieu, " CP_AMNUMBER_JOINTSITE ") values ("
+                                    + ui->idUseruplineEdit->text() + ", " + QString::number(idlieu) + ", "
+                                    + (am == 0 ? "null" : QString::number(am)) + ")");
                 }
             }
             ui->OKupSmallButton->setEnabled(true);
