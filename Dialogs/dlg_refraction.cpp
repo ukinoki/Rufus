@@ -949,10 +949,10 @@ void dlg_refraction::Init_variables()
     m_escapeflag              = true;
 
     /*! « Signer » désactivée si l'utilisateur n'a pas de signature enregistrée ;
-     *  sinon précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
+     *  sinon précochée selon la préférence propre à l'utilisateur, décochable ponctuellement */
     bool asignature = !Datas::I()->users->userconnected()->signatureimg().isNull();
     ui->SignerupCheckBox    ->setEnabled(asignature);
-    ui->SignerupCheckBox    ->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+    ui->SignerupCheckBox    ->setChecked(asignature && Datas::I()->users->userconnected()->autosign());
     if (!asignature)
         ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
                                                   + tr("Pour en enregistrer une :") + "\n"

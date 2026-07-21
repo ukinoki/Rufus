@@ -447,7 +447,7 @@ void dlg_gestionusers::AfficheSignature()
     ui->supprimSignatureupPushButton->setVisible(asignature);
     ui->SignatureAutoCheckBox       ->setVisible(asignature);
     if (asignature)
-        ui->SignatureAutoCheckBox   ->setChecked(Procedures::I()->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+        ui->SignatureAutoCheckBox   ->setChecked(m_userencours->autosign());
 }
 
 /*!
@@ -832,14 +832,16 @@ void dlg_gestionusers::EnregistreUser()
         }
     }
     req += CP_SECTEUR_USR " = " + secteur + ",\n";
-    req += CP_ISOPTAM_USR " = " + Optam + "\n";
-    req +=  " where " CP_ID_USR " = " + ui->idUseruplineEdit->text();
+    req += CP_ISOPTAM_USR " = " + Optam;
+    /*! préférence de signature automatique : propre à chaque utilisateur, réglée par lui-même (mode MODIFUSER) */
+    if (m_usermode == MODIFUSER)
+        req += ",\n" CP_SIGNATUREAUTO_USR " = " + QString(ui->SignatureAutoCheckBox->isChecked() ? "1" : "null");
+    req += "\n where " CP_ID_USR " = " + ui->idUseruplineEdit->text();
     //Procedures::I()->Edit(req);
     db->StandardSQL(req);
+    if (m_usermode == MODIFUSER)   //! synchro mémoire : m_userencours est l'utilisateur connecté, lu par les fiches d'impression
+        m_userencours->setautosign(ui->SignatureAutoCheckBox->isChecked());
     DataBase::I()->UpDateLogoUser(m_userencours->id(), m_listlogobinds);  //! On ne peut pas intégrer des QByteArray dans une requête sans passer par les bindvalue
-    /*! préférence de signature automatique : locale au poste (rufus.ini), seul l'utilisateur connecté règle la sienne (mode MODIFUSER) */
-    if (m_usermode == MODIFUSER)
-        Procedures::I()->settings()->setValue(Param_Poste_SignatureAuto, ui->SignatureAutoCheckBox->isChecked() ? "YES" : "NO");
     int idlieu=-1;
     //! On mémorise les numéros AM (idlieu -> AMnumber) AVANT de tout supprimer : la réinsertion ne
     //! recopiait que (iduser, idlieu), donc AMnumber repassait à null à chaque enregistrement.

@@ -15,13 +15,15 @@ une nouvelle version de base.
 
 - **Table `utilisateurs`, nouveau champ `SignatureAuto` (bool / tinyint).**
   Raison : le drapeau « signer automatiquement les courriers et ordonnances »
-  est pour l'instant stocké dans `rufus.ini` (`Param_Poste_SignatureAuto`),
-  donc **lié au poste** et non à l'utilisateur — sur un autre poste il faut le
-  régler à nouveau. Le déplacer dans `utilisateurs` le ferait suivre
-  l'utilisateur partout (cohérent avec la signature elle-même, déjà en base
-  dans `utilisateurs.Signature`). Une fois le champ créé : le lire/écrire dans
-  `dlg_gestionusers` (checkbox `SignatureAutoCheckBox`) et dans `dlg_impressions`
-  à la place de la clé rufus.ini.
+  était stocké dans `rufus.ini` (`Param_Poste_SignatureAuto`), donc **lié au
+  poste** et non à l'utilisateur — sur un autre poste il fallait le régler à
+  nouveau. Déplacé dans `utilisateurs`, il suit l'utilisateur partout (cohérent
+  avec la signature elle-même, déjà en base dans `utilisateurs.Signature`).
+  **Fait côté code** : champ câblé dans `cls_user` (`m_autosign`/`autosign()`),
+  `setData`, `loadUserData`/`loadUsers`, `ItemsList::update`, lu/écrit dans
+  `dlg_gestionusers` (checkbox `SignatureAutoCheckBox`) et lu dans
+  `dlg_impressions`, `dlg_refraction`, `dlg_bilanortho`. La clé rufus.ini
+  `Param_Poste_SignatureAuto` n'est plus utilisée (macro conservée, inoffensive).
 
 - **Table `Ophtalmologie.IOLs`, colonne `modelname` : passer de `varchar(45)`
   à `varchar(60)`.**

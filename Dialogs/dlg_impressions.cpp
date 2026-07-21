@@ -123,10 +123,10 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->DocsPublicscheckBox->setChecked(currentuser()->affichedocspublics());
 
     /*! « Signer » désactivée si l'utilisateur n'a pas de signature enregistrée ;
-     *  sinon précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
+     *  sinon précochée selon la préférence propre à l'utilisateur, décochable ponctuellement */
     bool asignature = !currentuser()->signatureimg().isNull();
     ui->SignerupCheckBox->setEnabled(asignature);
-    ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+    ui->SignerupCheckBox->setChecked(asignature && currentuser()->autosign());
     if (!asignature)
         ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
                                                   + tr("Pour en enregistrer une :") + "\n"
