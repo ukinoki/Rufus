@@ -1517,18 +1517,18 @@ bool    dlg_refraction::Imprimer_Ordonnance(Refraction *ref, bool enregtable)
     if (textpied == "") return false;
 
     // creation du corps de l'ordonnance
-    /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
-    QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-    textcorps = proc->CalcCorpsImpression(textorigine, false, signature);
+    textcorps = proc->CalcCorpsImpression(textorigine);
     if (textcorps == "") return false;
 
+    /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
+    QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
     bool a = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), userEntete->mapBarCodes(),
-                       AvecDupli, AvecNumPage);
+                       AvecDupli, AvecNumPage, true, signature);
     // stockage de l'ordonnance dans la base de donnees - table impressions
     if (a && enregtable)
     {
-        QByteArray ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, userEntete);
+        QByteArray ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, userEntete, false, signature);
         QHash<QString, QVariant> listbinds;
         listbinds[CP_IDUSER_DOCSEXTERNES]           = Datas::I()->users->userconnected()->id();
         listbinds[CP_IDPAT_DOCSEXTERNES]            = Datas::I()->patients->currentpatient()->id();

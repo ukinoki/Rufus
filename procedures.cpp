@@ -1384,7 +1384,7 @@ void Procedures::ProgrammeSQLVideImagesTemp(QTime timebackup) /*!  - abandonné 
 /*---------------------------------------------------------------------------------
     Retourne le corps du document à imprimer
 -----------------------------------------------------------------------------------*/
-QString Procedures::CalcCorpsImpression(QString text, bool ALD, QImage signature)
+QString Procedures::CalcCorpsImpression(QString text, bool ALD)
 {
     QString textcorps = (ALD? Ressources::I()->BodyOrdoALD() : Ressources::I()->BodyOrdo());
     textcorps.replace("{{POLICE}}", qApp->font().family());
@@ -1396,56 +1396,20 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD, QImage signature
 
     textcorps.replace("{{TEXTE ORDO}}",text);
     textcorps.replace("{{TEXTE ORDO HORS ALD}}", "");
-
-    return AjouteSignatureCorps(textcorps, signature);
+    return textcorps;
 }
 
 /*!
  * \brief Procedures::ResolutionRendu
- * Renvoie la résolution (dpi) du QPdfWriter, seul périphérique par lequel TextPrinter rend le
- * document (print, preview et exportPdf appellent tous getPDFByteArray). C'est donc elle qui
- * détermine la taille physique d'une image (pixels natifs / dpi), et non un QPrinter quelconque.
+ * Résolution (dpi) du QPdfWriter, seul périphérique par lequel TextPrinter rend le document
+ * (print, preview et exportPdf passent tous par getPDFByteArray). C'est elle qui sert à
+ * calibrer la résolution d'enregistrement de la signature.
  */
 int Procedures::ResolutionRendu()
 {
     QBuffer buf;
     QPdfWriter pw(&buf);
     return pw.resolution();
-}
-
-/*!
- * \brief Procedures::AjouteSignatureCorps
- * Insère l'image de signature sous le corps html : image encodée en data-URI base64,
- * placée juste avant </body> (donc en bas du corps). Le HTML étant aussi ré-archivé,
- * \param textcorps  le corps html du document
- * \param signature  l'image de la signature (vide -> corps inchangé)
- */
-QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
-{
-    if (signature.isNull())
-        return textcorps;
-    /*! QTextDocument dessine l'image à sa taille INTRINSÈQUE (pixels natifs / DPI de l'image),
-     *  en ignorant l'attribut width. On fixe donc largeur px ET le DPI de l'image au dpi du rendu :
-     *  taille physique = largeur / dpi = SIGNATURE_LARGEUR_IMPRESSION_MM, stable */
-    int dpi     = ResolutionRendu();
-    int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * dpi / 25.4);
-    int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
-    QImage emb  = signature.scaledToWidth(largeur, Qt::SmoothTransformation);
-    int dpm     = qRound(dpi / 0.0254);   /*!< dpi -> points par mètre (scaledToWidth a remis le DPI à 72) */
-    emb.setDotsPerMeterX(dpm);
-    emb.setDotsPerMeterY(dpm);
-    QByteArray data;
-    QBuffer buffer(&data);
-    emb.save(&buffer, "PNG", 100);
-    QString imgtag = "<br /><p align=\"right\"><img width=\"" + QString::number(largeur)
-                     + "\" height=\"" + QString::number(hauteur)
-                     + "\" src='data:image/png;base64, " + QString(data.toBase64()) + "'></p>";
-    int pos = textcorps.lastIndexOf("</body>", -1, Qt::CaseInsensitive);
-    if (pos >= 0)
-        textcorps.insert(pos, imgtag);
-    else
-        textcorps += imgtag;
-    return textcorps;
 }
 
 /*---------------------------------------------------------------------------------
@@ -1655,7 +1619,7 @@ QString Procedures::CalcPiedImpression(User *user)
  * \param QString nomdossier = dossier où est enregistré le fichier
  * \return
  */
-bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, User *usr, bool ALD, QString nomdossier)
+bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString textpied, QString nomfichier, User *usr, bool ALD, QString nomdossier, QImage signature)
 {
     bool a = false;
     QTextEdit *Etat = new QTextEdit;
@@ -1674,6 +1638,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     TexteAImprimer->setHeaderSize(tailleEnTete);
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
+    TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
     if (usr != Q_NULLPTR)
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
@@ -1699,7 +1664,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
  * \param QString textpied
  * \return
  */
-QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, QString textpied, User *usr, bool ALD)
+QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, QString textpied, User *usr, bool ALD, QImage signature)
 {
     QTextEdit *Etat = new QTextEdit;
     Etat->setHtml(textcorps);
@@ -1713,6 +1678,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     TexteAImprimer->setHeaderSize(tailleEnTete);
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
+    TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
     if (usr != Q_NULLPTR)
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
@@ -1740,7 +1706,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
  */
 bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                               int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString, QString> mapbarcodes,
-                              bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante)
+                              bool AvecDupli, bool AvecNumPage, bool AvecChoixImprimante, QImage signature)
 {
     TextPrinter *TexteAImprimer = new TextPrinter(parent);
     QTextEdit *Etat = new QTextEdit;
@@ -1759,6 +1725,7 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
     TexteAImprimer->setmapBarcodes(mapbarcodes);
+    TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
 
@@ -1972,7 +1939,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         return false;
 
     // creation du corps
-    textcorps = CalcCorpsImpression(textorigine, ALD, signature);
+    textcorps = CalcCorpsImpression(textorigine, ALD);
     if (ALD)
     {
         textcorps.replace("{{PRENOM PATIENT}}", (Prescription? pat->prenom()        : ""));
@@ -1997,7 +1964,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         QString msgOK       = tr("fichier") +" " + QDir::toNativeSeparators(filename) + "\n" +
                               tr ("sauvegardé sur le bureau dans le dossier ") + "\n" +
                               m_dirnamepdf;
-        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : Q_NULLPTR), ALD, dirname);
+        Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? user : Q_NULLPTR), ALD, dirname, signature);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(parent,
@@ -2010,7 +1977,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
         if (ALD) tailleEnTete = TailleEnTeteALD();
         aa = Imprime_Etat(parent, textcorps, textentete, textpied,
                             TaillePieddePage(), tailleEnTete, TailleTopMarge(), (Prescription? user->mapBarCodes() : QMap<QString,QString>()),
-                            AvecDupli, AvecNumPage, AvecChoixImprimante);
+                            AvecDupli, AvecNumPage, AvecChoixImprimante, signature);
     }
 
     // stockage du document dans la base de donnees - table impressions

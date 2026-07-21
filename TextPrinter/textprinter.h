@@ -122,6 +122,7 @@ public:
     //added by Javier
     void                    setUnits(const Unit);
 
+    void                    setSignature(QImage img, double widthMM)     { m_signature = img; m_signatureWidthMM = widthMM; }   /*!< image dessinée sous le texte, largeur en mm (0 = aucune) */
     void                    setmapBarcodes (QMap<QString,QString> map)   { m_mapBarCodes = map; }
     void                    setBarCodesWidth(int w)         {m_BarCodesWidth = w;}
     void                    setBarCodesHeight(int h)        {m_BarCodesHeight = h;}
@@ -206,6 +207,9 @@ private:
     //added by Javier
     double                  toinchfactor_;
     void                    PrintPageList(QPrinter *Imprimante, QList<QImage> pagelist);
+
+    QImage                  m_signature = QImage();          /*!< signature à dessiner sous le texte (dessin direct, taille maîtrisée) */
+    double                  m_signatureWidthMM = 0;          /*!< sa largeur en mm (0 = pas de signature) */
 
     QMap<QString,QString>   m_mapBarCodes = QMap<QString,QString>();
     int                     m_BarCodesWidth = 1800;

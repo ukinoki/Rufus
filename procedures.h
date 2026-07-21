@@ -248,18 +248,17 @@ public:
     int                     TailleTopMarge();
     int                     ResolutionRendu();                                                                      /*!< dpi du QPdfWriter : seul périphérique de rendu (print/preview/exportPdf y passent tous), donc c'est lui qui fixe la taille physique des images */
             /*! a - Impression d'un texte */
-    QString                 CalcCorpsImpression(QString text, bool ALD = false, QImage signature = QImage());   /*!< si signature non nulle, l'image est ajoutée sous le texte du corps (data-URI) */
-    QString                 AjouteSignatureCorps(QString textcorps, QImage signature);                          /*!< insère l'image de signature (data-URI) sous le corps html, avant </body> */
+    QString                 CalcCorpsImpression(QString text, bool ALD = false);
     QMap<QString,QString>   CalcEnteteImpression(QDate date, User* user, bool withBarCodes);
     QString                 CalcPiedImpression(User* user);
     bool                    Imprime_Etat(QWidget *parent, QString textcorps, QString textentete, QString textpied,
                       int TaillePieddePage, int TailleEnTete, int TailleTopMarge, QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>(),
                       bool AvecDupli = false, bool AvecNumPage = false,
-                      bool AvecChoixImprimante = true);
+                      bool AvecChoixImprimante = true, QImage signature = QImage());   /*!< signature dessinée sous le texte (vide = aucune) */
             /*! b - Création d'un pdf */
-    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = Q_NULLPTR, bool ALD = false, QString nomdossier = "");
+    bool                    Cree_pdffile(QString textcorps, QString EnTete, QString Pied, QString nomfichier, User *usr = Q_NULLPTR, bool ALD = false, QString nomdossier = "", QImage signature = QImage());
             /*! c - Création d'un pdf QByteArray à stocker dans la base */
-    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false);
+    QByteArray              Cree_pdfByteArray(QString textcorps, QString EnTete, QString Pied, User *usr = Q_NULLPTR, bool ALD = false, QImage signature = QImage());
             /*! d - Choice: print or pdf */
     bool                    QuestionPdfOrPrint(QWidget *parent, bool &ok);
 

@@ -292,11 +292,11 @@ void dlg_bilanortho::ImprimeBOClicked()
     textHtml->setText(textHtml->toHtml().replace(QRegularExpression::wildcardToRegularExpression("font-size( *: *[\\d]{1,2} *)pt"),"font-size:9pt"));
 
     QString textcorps = textHtml->toHtml();
+    /*! signature de l'utilisateur connecté si la case « Signer » est cochée */
     QImage signature = ui->SignerupCheckBox->isChecked() ? Datas::I()->users->userconnected()->signatureimg() : QImage();
-    textcorps = proc->AjouteSignatureCorps(textcorps, signature);
     bool aa = proc->Imprime_Etat(this, textcorps, textentete, textpied,
                        proc->TaillePieddePage(), proc->TailleEnTete(), proc->TailleTopMarge(), QMap<QString,QString>(),
-                       AvecDupli, AvecNumPage);
+                       AvecDupli, AvecNumPage, true, signature);
 
     // stockage du document dans la base de donnees - table impressions
     if (aa)
