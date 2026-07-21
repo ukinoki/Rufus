@@ -43,6 +43,14 @@ Un principe ne se déclenche pas au bon moment ; un compteur, si. Donc, concret 
    marche. Deux échecs, c'est comptable — contrairement à « faire simple ».
 3. **« Ça marche » = observé, jamais supposé.** Tant que ce n'est pas constaté,
    c'est « pas encore vérifié », pas « fait ».
+4. **Diagnostiquer = mesurer, pas conjecturer.** Devant un bug, ne pas raisonner
+   par « ce qui se passe le plus souvent » : **modéliser** le mécanisme de bout en
+   bout (quelle grandeur détermine physiquement le résultat ?) et **instrumenter**
+   pour le constater (un `qDebug`, une trace, une valeur extraite du fichier
+   produit). Deux hypothèses opposées se tranchent par **une** mesure, pas par
+   une intuition. Cas d'école : la taille de la signature à l'impression — cinq
+   suppositions successives sur le DPI/`QTextDocument` ratées, réglées d'un coup
+   en lisant les matrices du PDF et un `qDebug` du rendu.
 
 > Cette règle est si souvent enfreinte qu'un *hook* (`.claude/settings.json`) la
 > réinjecte à chaque tour : le document seul ne suffisait pas.
