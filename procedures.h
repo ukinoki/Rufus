@@ -246,6 +246,7 @@ public:
     int                     TailleEnTeteALD();
     int                     TaillePieddePage();
     int                     TailleTopMarge();
+    int                     ResolutionRendu();                                                                      /*!< dpi du QPdfWriter : seul périphérique de rendu (print/preview/exportPdf y passent tous), donc c'est lui qui fixe la taille physique des images */
             /*! a - Impression d'un texte */
     QString                 CalcCorpsImpression(QString text, bool ALD = false, QImage signature = QImage());   /*!< si signature non nulle, l'image est ajoutée sous le texte du corps (data-URI) */
     QString                 AjouteSignatureCorps(QString textcorps, QImage signature);                          /*!< insère l'image de signature (data-URI) sous le corps html, avant </body> */

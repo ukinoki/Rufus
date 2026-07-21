@@ -480,10 +480,9 @@ void dlg_gestionusers::changeSignature()
         return;
     }
 
-    /*! l'attribut width du <img> est ignoré à l'impression : la taille physique dépend du
-     *  nombre de pixels natifs. On stocke donc à la résolution du périphérique (mm x dpi)
-     *  pour obtenir la largeur voulue, nette */
-    int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * QPrinter(QPrinter::HighResolution).resolution() / 25.4);
+    /*! on stocke à la résolution du rendu (QPdfWriter, cf. Procedures::ResolutionRendu) pour que
+     *  l'image imprimée soit à sa taille native, sans agrandissement/flou */
+    int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * Procedures::I()->ResolutionRendu() / 25.4);
     QByteArray ba = Utils::ImageVersPngTransparent(img, wpx);
     if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
     {

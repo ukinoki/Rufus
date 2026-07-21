@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "procedures.h"
 #include "mysqlinstaller.h"
 #include <QBuffer>
+#include <QPdfWriter>
 #include <QElapsedTimer>
 #include <QEventLoop>
 
@@ -1400,6 +1401,19 @@ QString Procedures::CalcCorpsImpression(QString text, bool ALD, QImage signature
 }
 
 /*!
+ * \brief Procedures::ResolutionRendu
+ * Renvoie la résolution (dpi) du QPdfWriter, seul périphérique par lequel TextPrinter rend le
+ * document (print, preview et exportPdf appellent tous getPDFByteArray). C'est donc elle qui
+ * détermine la taille physique d'une image (pixels natifs / dpi), et non un QPrinter quelconque.
+ */
+int Procedures::ResolutionRendu()
+{
+    QBuffer buf;
+    QPdfWriter pw(&buf);
+    return pw.resolution();
+}
+
+/*!
  * \brief Procedures::AjouteSignatureCorps
  * Insère l'image de signature sous le corps html : image encodée en data-URI base64,
  * placée juste avant </body> (donc en bas du corps). Le HTML étant aussi ré-archivé,
@@ -1410,12 +1424,10 @@ QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
 {
     if (signature.isNull())
         return textcorps;
-    QPrinter p(QPrinter::HighResolution);
-    int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * p.resolution() / 25.4);
+    /*! taille physique = pixels natifs / dpi du rendu (QPdfWriter) : on force l'image à
+     *  largeur px pour obtenir toujours SIGNATURE_LARGEUR_IMPRESSION_MM sur le papier */
+    int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * ResolutionRendu() / 25.4);
     int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
-
-    /*! taille physique = pixels natifs / dpi (l'attribut width est ignoré) : on force donc
-     *  l'image à largeur px, quitte à agrandir, pour obtenir toujours SIGNATURE_LARGEUR_IMPRESSION_MM */
     QImage emb = signature.scaledToWidth(largeur, Qt::SmoothTransformation);
     QByteArray data;
     QBuffer buffer(&data);
