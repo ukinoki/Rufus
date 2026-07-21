@@ -533,7 +533,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         double w    = m_signatureWidthMM * dpi / 25.4;
         double h    = w * m_signature.height() / m_signature.width();
         double docH = tempdoc_->documentLayout()->documentSize().height();
-        double gap  = 3 * toinchfactor_ * dpi;                          /*!< 3 mm sous la dernière ligne */
+        double gap  = 13 * toinchfactor_ * dpi;                         /*!< 13 mm sous la dernière ligne */
         painter->drawImage(QRectF((rect.width() - w) / 2, docH + gap, w, h), m_signature);
     }
     painter->restore();
