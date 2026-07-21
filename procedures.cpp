@@ -1424,11 +1424,16 @@ QString Procedures::AjouteSignatureCorps(QString textcorps, QImage signature)
 {
     if (signature.isNull())
         return textcorps;
-    /*! taille physique = pixels natifs / dpi du rendu (QPdfWriter) : on force l'image à
-     *  largeur px pour obtenir toujours SIGNATURE_LARGEUR_IMPRESSION_MM sur le papier */
-    int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * ResolutionRendu() / 25.4);
+    /*! QTextDocument dessine l'image à sa taille INTRINSÈQUE (pixels natifs / DPI de l'image),
+     *  en ignorant l'attribut width. On fixe donc largeur px ET le DPI de l'image au dpi du rendu :
+     *  taille physique = largeur / dpi = SIGNATURE_LARGEUR_IMPRESSION_MM, stable */
+    int dpi     = ResolutionRendu();
+    int largeur = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * dpi / 25.4);
     int hauteur = (signature.width() > 0) ? largeur * signature.height() / signature.width() : largeur;
-    QImage emb = signature.scaledToWidth(largeur, Qt::SmoothTransformation);
+    QImage emb  = signature.scaledToWidth(largeur, Qt::SmoothTransformation);
+    int dpm     = qRound(dpi / 0.0254);   /*!< dpi -> points par mètre (scaledToWidth a remis le DPI à 72) */
+    emb.setDotsPerMeterX(dpm);
+    emb.setDotsPerMeterY(dpm);
     QByteArray data;
     QBuffer buffer(&data);
     emb.save(&buffer, "PNG", 100);
