@@ -527,6 +527,8 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
 
     /*! signature : dessinée directement (taille en mm x dpi, maîtrisée), sous le texte et à droite,
      *  sur la dernière page. Même repère que le contenu -> elle suit la fin du texte */
+    qDebug() << "SIGN page" << pagenum << "/" << nbpages << "null?" << m_signature.isNull()
+             << "size" << m_signature.size() << "mm" << m_signatureWidthMM;
     if (pagenum == nbpages && !m_signature.isNull() && m_signatureWidthMM > 0 && m_signature.width() > 0)
     {
         double dpi  = painter->device()->logicalDpiY();
@@ -534,6 +536,8 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         double h    = w * m_signature.height() / m_signature.width();
         double docH = tempdoc_->documentLayout()->documentSize().height();
         double gap  = 3 * toinchfactor_ * dpi;                          /*!< 3 mm sous la dernière ligne */
+        qDebug() << "SIGN draw  dpi" << dpi << "w,h" << w << h << "docH" << docH
+                 << "rectW" << rect.width() << "x" << rect.width()-w << "y" << docH+gap;
         painter->drawImage(QRectF(rect.width() - w, docH + gap, w, h), m_signature);
     }
     painter->restore();
