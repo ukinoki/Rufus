@@ -122,11 +122,14 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     ui->DupliOrdocheckBox->setChecked(proc->settings()->value(Imprimante_OrdoAvecDupli).toString() == "YES");
     ui->DocsPublicscheckBox->setChecked(currentuser()->affichedocspublics());
 
-    /*! « Signer » n'apparaît que si l'utilisateur a une signature enregistrée ;
-     *  précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
+    /*! « Signer » désactivée si l'utilisateur n'a pas de signature enregistrée ;
+     *  sinon précochée selon le défaut du poste (rufus.ini), décochable ponctuellement */
     bool asignature = !currentuser()->signatureimg().isNull();
-    ui->SignerupCheckBox->setVisible(asignature);
+    ui->SignerupCheckBox->setEnabled(asignature);
     ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+    if (!asignature)
+        ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
+                                                  + tr("Pour en enregistrer une : menu Édition / Paramètres."));
 
 
     ui->textFrame->installEventFilter(this);

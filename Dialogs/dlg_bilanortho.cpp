@@ -211,8 +211,11 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui->ImprimeupPushButton->setUpButtonStyle(UpPushButton::IMPRIMEBUTTON,UpPushButton::Small);
 
     bool asignature = !Datas::I()->users->userconnected()->signatureimg().isNull();
-    ui->SignerupCheckBox->setVisible(asignature);
+    ui->SignerupCheckBox->setEnabled(asignature);
     ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
+    if (!asignature)
+        ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
+                                                  + tr("Pour en enregistrer une : menu Édition / Paramètres."));
 
     ui->OrientationgroupBox->setFont(qApp->font());
     ui->OeilDirecteurgroupBox->setFont(qApp->font());
