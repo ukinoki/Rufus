@@ -538,6 +538,7 @@ void TextPrinter::paintPage(QPainter *painter, int pagenum, int nbpages)
         double gap  = 3 * toinchfactor_ * dpi;                          /*!< 3 mm sous la dernière ligne */
         qDebug() << "SIGN draw  dpi" << dpi << "w,h" << w << h << "docH" << docH
                  << "rectW" << rect.width() << "x" << rect.width()-w << "y" << docH+gap;
+        painter->fillRect(QRectF(rect.width() - w, docH + gap, w, h), QColor(255,0,0,120));   /*!< DEBUG : repère rouge */
         painter->drawImage(QRectF(rect.width() - w, docH + gap, w, h), m_signature);
     }
     painter->restore();
