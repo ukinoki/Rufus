@@ -361,9 +361,9 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     UpLabel *legende = new UpLabel();
     legende->setTextFormat(Qt::RichText);
     legende->setText(tr(
-        "correspondance forte&nbsp;<span style=\"color:#28B446;font-size:16px\">&#9679;</span><br>"
-        "correspondance moyenne&nbsp;<span style=\"color:#F0AA28;font-size:16px\">&#9679;</span><br>"
-        "correspondance faible&nbsp;<span style=\"color:#AAAAAA;font-size:16px\">&#9679;</span>"));
+        "<span style=\"color:#28B446;font-size:16px\">&#9679;</span>&nbsp;correspondance forte<br>"
+        "<span style=\"color:#F0AA28;font-size:16px\">&#9679;</span>&nbsp;correspondance moyenne<br>"
+        "<span style=\"color:#AAAAAA;font-size:16px\">&#9679;</span>&nbsp;correspondance faible"));
     colDroite->addWidget(legende);
     colDroite->addStretch();
 
