@@ -28,7 +28,7 @@ BEGIN
                 ALTER TABLE `rufus`.`ParametresSysteme`
                 ADD COLUMN `VersionCCAM` DOUBLE NULL DEFAULT NULL AFTER `VersionBaseIOL`;
         END IF;
-    -- Ophtalmologie.IOLs.modelname : 45 -> 60 (noms d'implants IOLexport > 45 car.)
+    -- Ophtalmologie.IOLs.modelname : 45 -> 100 (noms d'implants IOL plus longs)
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
@@ -36,7 +36,7 @@ BEGIN
         IF tot=1
             THEN
                 ALTER TABLE `Ophtalmologie`.`IOLs`
-                CHANGE COLUMN `modelname` `modelname` VARCHAR(60) NULL DEFAULT NULL;
+                CHANGE COLUMN `modelname` `modelname` VARCHAR(100) NULL DEFAULT NULL;
         END IF;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|

@@ -80,7 +80,7 @@ CREATE TABLE `IOLs` (
   `idIOL` int NOT NULL AUTO_INCREMENT,
   `idmanufacturer` int DEFAULT NULL,
   `idiolcon` int DEFAULT NULL,
-  `modelname` varchar(60) DEFAULT NULL,
+  `modelname` varchar(100) DEFAULT NULL,
   `DiametreOptique` double DEFAULT NULL,
   `DiametreAll` double DEFAULT NULL,
   `ACD` double DEFAULT NULL,
