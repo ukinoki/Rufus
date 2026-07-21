@@ -348,11 +348,11 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                     iol.setstringid(Lensnode.text());
                 else if (Lensnode.tagName() == "Name")
                 {
-                    //! La colonne modelname est un varchar(45) et MySQL tourne en STRICT_TRANS_TABLES :
+                    //! La colonne modelname est un varchar(100) et MySQL tourne en STRICT_TRANS_TABLES :
                     //! un nom trop long ferait échouer l'INSERT (au lieu d'être tronqué en silence).
-                    //! On tronque donc à 45 caractères dès la lecture (ex. IOLexport 2.3 : le Clareon
+                    //! On tronque donc à 100 caractères dès la lecture (ex. IOLexport 2.3 : le Clareon
                     //! Vivity Toric AutonoMe d'Alcon fait 49 caractères).
-                    iol.setmodele(Lensnode.text().left(45));
+                    iol.setmodele(Lensnode.text().left(100));
                 }
                 else if (Lensnode.tagName() == "Specifications")
                 {

@@ -1248,7 +1248,6 @@ public:
 #define Param_Poste_Tono                                Param_Poste "/Tonometre"
 #define Param_Poste_Refracteur                          Param_Poste "/Refracteur"
 #define Param_Poste_Version                             Param_Poste "/Version"
-#define Param_Poste_SignatureAuto                       Param_Poste "/SignatureAuto"   /*!< signer automatiquement les courriers/ordonnances par défaut (YES/NO) */
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
 //! Dossier où le SERVEUR conserve sa copie des clés CLIENT SSL (ca-cert.pem, client-cert.pem,

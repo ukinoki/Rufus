@@ -32,7 +32,7 @@ BEGIN
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'modelname' AND CHARACTER_MAXIMUM_LENGTH < 60) as chp;
+        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'modelname' AND CHARACTER_MAXIMUM_LENGTH < 100) as chp;
         IF tot=1
             THEN
                 ALTER TABLE `Ophtalmologie`.`IOLs`

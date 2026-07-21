@@ -23,17 +23,17 @@ une nouvelle version de base.
   `setData`, `loadUserData`/`loadUsers`, `ItemsList::update`, lu/écrit dans
   `dlg_gestionusers` (checkbox `SignatureAutoCheckBox`) et lu dans
   `dlg_impressions`, `dlg_refraction`, `dlg_bilanortho`. La clé rufus.ini
-  `Param_Poste_SignatureAuto` n'est plus utilisée (macro conservée, inoffensive).
+  `Param_Poste_SignatureAuto` n'est plus utilisée (macro supprimée de `macros.h`).
 
 - **Table `Ophtalmologie.IOLs`, colonne `modelname` : passer de `varchar(45)`
-  à `varchar(60)`.**
+  à `varchar(100)`.**
   Raison : certains noms d'implants du fichier IOLexport (IOLCon) dépassent
   45 caractères — ex. « Clareon Vivity Toric AutonoMe CNAET2-T6/CCAET2-T6 »
   (49 car.) dans IOLexport 2.3. MySQL tourne en `STRICT_TRANS_TABLES` : un nom
   trop long fait **échouer** l'INSERT au lieu d'être tronqué.
-  En attendant, l'import tronque à 45 (`dlg_listeiols.cpp`, `ImportListeIOLS`,
-  `iol.setmodele(...left(45))`). Une fois la colonne élargie à 60, relever la
-  troncature de `.left(45)` à `.left(60)`.
+  **Fait** : colonne élargie à 100 (`majbase83.sql`, `Ophtalmologie.sql`) et
+  troncature de l'import relevée à `.left(100)` (`cls_iols.cpp`,
+  `ImportListeIOLS`).
 
 - **Table `ParametresSysteme`, nouveau champ `VersionCCAM`.**
   Raison : mémoriser en base la version de la nomenclature CCAM chargée, sur le
