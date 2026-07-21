@@ -546,7 +546,7 @@ QByteArray Utils::CompressImageToJPG(const QByteArray &imgdata, int maxsizeimg)
  * \param img       l'image source
  * \param maxwidth  largeur maxi conservée (on ne stocke pas plus de pixels que nécessaire)
  */
-QByteArray Utils::ImageVersPngTransparent(QImage img, int maxwidth)
+QByteArray Utils::ImageVersPngTransparent(QImage img, int maxwidth, int maxbytes)
 {
     if (img.isNull())
         return QByteArray();
@@ -571,9 +571,17 @@ QByteArray Utils::ImageVersPngTransparent(QImage img, int maxwidth)
             img.setPixelColor(x, y, c);
         }
 
+    /*! encodage PNG ; si trop gros, on réduit la largeur par paliers jusqu'à rentrer sous maxbytes.
+     *  Sans conséquence sur la taille imprimée : TextPrinter met l'image à l'échelle voulue au dessin */
     QByteArray data;
-    QBuffer buffer(&data);
-    img.save(&buffer, PNG);
+    do {
+        data.clear();
+        QBuffer buffer(&data);
+        img.save(&buffer, PNG);
+        if (maxbytes <= 0 || data.size() <= maxbytes || img.width() <= 150)
+            break;
+        img = img.scaledToWidth(img.width() * 85 / 100, Qt::SmoothTransformation);   /*!< -15 % et on réessaie */
+    } while (true);
     return data;
 }
 

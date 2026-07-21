@@ -483,10 +483,10 @@ void dlg_gestionusers::changeSignature()
     /*! on stocke à la résolution du rendu (QPdfWriter, cf. Procedures::ResolutionRendu) pour que
      *  l'image imprimée soit à sa taille native, sans agrandissement/flou */
     int wpx = qRound(SIGNATURE_LARGEUR_IMPRESSION_MM * Procedures::I()->ResolutionRendu() / 25.4);
-    QByteArray ba = Utils::ImageVersPngTransparent(img, wpx);
-    if (ba.isEmpty() || ba.size() > SIZEMAXISIGNATURE)
+    QByteArray ba = Utils::ImageVersPngTransparent(img, wpx, SIZEMAXISIGNATURE);
+    if (ba.isEmpty())
     {
-        UpMessageBox::Watch(this, tr("Fichier trop volumineux"), tr("Impossible de réduire le fichier a une taille utilisbale"));
+        UpMessageBox::Watch(this, tr("Signature illisible"), tr("Impossible de préparer cette image"));
         return;
     }
     ItemsList::updateBlob(m_userencours, CP_SIGNATURE_USR, ba);
