@@ -621,6 +621,11 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
                 usr->setaffichecommentslunettespublics(newvalue.toBool());
                 newvalue = (newvalue.toBool()? "1" : "null");
             }
+            else if (field == CP_SIGNATUREAUTO_USR )
+            {
+                usr->setautosign(newvalue.toBool());
+                newvalue = (newvalue.toBool()? "1" : "null");
+            }
             else if (field == CP_USERLOGO_USR)
             {
                 usr->setLogo(newvalue.toByteArray());

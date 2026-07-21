@@ -431,6 +431,7 @@ public:
 #define CP_ISOPTAM_USR                                  "OPTAM"
 #define CP_COTATION_USR                                 "UserCCAM"
 #define CP_SIGNATURE_USR                                "Signature"   //!> image de la signature de l'utilisateur (blob), pour signer courriers et ordonnances
+#define CP_SIGNATUREAUTO_USR                            "SignatureAuto" //!> intègre automatiquement la signature dans les documents
 #define CP_ISORDOSIGNE_USR                              "OrdoSigne"   //!> pas utilisé
 #define CP_DATEDERNIERECONNEXION_USR                    "DateDerniereConnexion"
 #define CP_DATECREATIONMDP_USR                          "DateCreationMDP"

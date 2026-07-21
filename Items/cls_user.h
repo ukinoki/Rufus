@@ -135,6 +135,7 @@ private:
     QImage m_logoimg = QImage();
     QByteArray m_signature = QByteArray();           //! l'image de la signature de l'utilisateur
     QImage m_signatureimg = QImage();
+    bool m_autosign = false;                         //!> intègre automatiquement la signature dans les documents
     QMap<QString,QString> m_mapbarcodes = QMap<QString,QString>();              //! identifiants pour les codes barre
     QMap<int,qlonglong> m_mapidSiteAM   = QMap<int,qlonglong>();                //! identifiants ADELI pour chaque site d'exercice key() = id du site value() = numero AM
 
@@ -318,6 +319,8 @@ public:
     }
     QByteArray signature() const;
     void setSignature(const QByteArray &newSignature);
+    bool    autosign() const                  { return m_autosign; }
+    void    setautosign(bool aff)             { m_autosign = aff; }
     qlonglong AMnumberforSite(int id) {
         qlonglong amnumber = 0;
         auto it = m_mapidSiteAM.find(id);

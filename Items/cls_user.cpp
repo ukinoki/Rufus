@@ -91,6 +91,7 @@ void User::setData(QJsonObject data)
         m_logoimg.loadFromData(m_logo);
 
     setDataByteArray(data, CP_SIGNATURE_USR, m_signature);
+    setDataBool(data, CP_SIGNATUREAUTO_USR, m_autosign);
     if (m_signature.size())
         m_signatureimg.loadFromData(m_signature);
 
