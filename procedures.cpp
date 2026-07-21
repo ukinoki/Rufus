@@ -1984,7 +1984,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
     if (aa)
     {
         Utils::nettoieHTML(textcorps, 9);
-        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : Q_NULLPTR), ALD);
+        QByteArray ba = Cree_pdfByteArray(textcorps, textentete, textpied, (Prescription? user : Q_NULLPTR), ALD, signature);
 
         int idpat = 0;
         idpat = pat->id();
