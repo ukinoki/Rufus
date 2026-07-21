@@ -345,14 +345,30 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     m_tblCorresp->setModel(modCorresp);
     styleTableListe(m_tblCorresp, 6, true);              // ~6 lignes visibles, ascenseur si besoin
 
-    // Table + bouton de recherche manuelle (icône « archives ») à sa droite.
+    // Table + colonne de droite (bouton de recherche manuelle « archives » puis légende des pastilles).
     QHBoxLayout *ligneCorresp = new QHBoxLayout;
     ligneCorresp->addWidget(m_tblCorresp, 0, Qt::AlignTop);
+
+    QVBoxLayout *colDroite = new QVBoxLayout;
     UpPushButton *btnRecherche = new UpPushButton(tr("Rechercher dans la base"));
     btnRecherche->setIcon(Icons::icArchive());
     btnRecherche->setToolTip(tr("Rechercher manuellement un dossier"));
     connect(btnRecherche, &QPushButton::clicked, this, &FicheVitale::rechercheManuelle);
-    ligneCorresp->addWidget(btnRecherche, 0, Qt::AlignTop);
+    colDroite->addWidget(btnRecherche);
+
+    // Légende des pastilles : mêmes couleurs que pastille() (vert / orange / gris).
+    colDroite->addSpacing(10);
+    UpLabel *legende = new UpLabel();
+    legende->setTextFormat(Qt::RichText);
+    legende->setText(tr(
+        "<b>Correspondance</b><br>"
+        "<span style=\"color:#28B446;font-size:16px\">&#9679;</span>&nbsp;forte<br>"
+        "<span style=\"color:#F0AA28;font-size:16px\">&#9679;</span>&nbsp;moyenne<br>"
+        "<span style=\"color:#AAAAAA;font-size:16px\">&#9679;</span>&nbsp;faible"));
+    colDroite->addWidget(legende);
+    colDroite->addStretch();
+
+    ligneCorresp->addLayout(colDroite);
     ligneCorresp->addStretch();
     corps->addLayout(ligneCorresp);
 
