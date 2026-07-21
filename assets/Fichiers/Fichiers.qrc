@@ -33,5 +33,6 @@
         <file>majbase80.sql</file>
         <file>majbase81.sql</file>
         <file>majbase82.sql</file>
+        <file>majbase83.sql</file>
     </qresource>
 </RCC>

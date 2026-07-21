@@ -8,6 +8,11 @@ une nouvelle version de base.
 
 ## En attente
 
+> **État** : le *schéma* de ces 3 modifs est prêt dans `majbase83.sql` (déjà
+> ajouté au `Fichiers.qrc`). Il ne s'activera qu'au **bump de `VERSION_BASE`
+> de 82 à 83** dans `macros.h`. Les **suites côté code** ci-dessous (utiliser
+> réellement les nouveaux champs) restent, elles, à faire.
+
 - **Table `utilisateurs`, nouveau champ `SignatureAuto` (bool / tinyint).**
   Raison : le drapeau « signer automatiquement les courriers et ordonnances »
   est pour l'instant stocké dans `rufus.ini` (`Param_Poste_SignatureAuto`),
