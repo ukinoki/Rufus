@@ -37,7 +37,7 @@ UpCheckBox::UpCheckBox(const QString &text, QWidget *parent)
 // ─────────────────────────────────────────────────────────────────────────────
 void UpCheckBox::afficheToolTip()
 {
-    if (!m_tooltipmsg.isEmpty() && isEnabled())
+    if (!m_tooltipmsg.isEmpty() && (isEnabled() || m_afficheToolTipMemeSiDisabled))
         QToolTip::showText(cursor().pos(), m_tooltipmsg);
 }
 
@@ -60,9 +60,10 @@ bool UpCheckBox::eventFilter(QObject *obj, QEvent *event)
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-void UpCheckBox::setImmediateToolTip(const QString &msg)
+void UpCheckBox::setImmediateToolTip(const QString &msg, bool afficheMemeSiDisabled)
 {
     m_tooltipmsg = msg;
+    m_afficheToolTipMemeSiDisabled = afficheMemeSiDisabled;
 }
 
 int  UpCheckBox::columntable() const              { return m_columntable; }

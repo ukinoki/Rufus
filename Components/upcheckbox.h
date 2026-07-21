@@ -40,7 +40,7 @@ public:
             // La propriété checkable n'est pas utilisable car elle ne permet pas
             // de bloquer le checkbox en position checked.
     bool    Toggleable() const;
-    void    setImmediateToolTip(const QString &msg);
+    void    setImmediateToolTip(const QString &msg, bool afficheMemeSiDisabled = false);   /*!< afficheMemeSiDisabled : montre le tooltip même quand la case est désactivée */
 
     int     columntable() const;
     void    setColumntable(int newColumntable);
@@ -57,6 +57,7 @@ private:
     int     m_columntable = -1;
     bool    m_toggleable  = true;
     QString m_tooltipmsg;
+    bool    m_afficheToolTipMemeSiDisabled = false;   /*!< tooltip affiché même si la case est désactivée */
 
     bool    eventFilter(QObject *obj, QEvent *event) override;
     void    afficheToolTip();

@@ -215,7 +215,7 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui->SignerupCheckBox->setChecked(asignature && proc->settings()->value(Param_Poste_SignatureAuto).toString() == "YES");
     if (!asignature)
         ui->SignerupCheckBox->setImmediateToolTip(tr("Vous n'avez pas de signature enregistrée.") + "\n"
-                                                  + tr("Pour en enregistrer une : menu Édition / Paramètres."));
+                                                  + tr("Pour en enregistrer une : menu Édition / Paramètres."), true);
 
     ui->OrientationgroupBox->setFont(qApp->font());
     ui->OeilDirecteurgroupBox->setFont(qApp->font());
