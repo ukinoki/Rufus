@@ -206,6 +206,10 @@ public:
     void setversionbase(int version);
     void setversionbaseiol(double version);
     void setversionCCAM(double version);
+    void setversionNGAP(QDate date);
+    void setvaleurRNO(double valeur);
+    void setvaleurAMYmetropole(double valeur);
+    void setvaleurAMYDOM(double valeur);
     void setsanscompta(bool one);
     void setadresseserveurlocal(QString  adress = "");
     void setadresseserveurdistant(QString adress = "");
@@ -219,6 +223,10 @@ public:
     void setVersion (QString newversion);
     double versionbaseiol();
     double versionCCAM();
+    QDate versionNGAP();
+    double valeurRNO();
+    double valeurAMYmetropole();
+    double valeurAMYDOM();
 
     /*
      * Donnees ophta patient

@@ -767,18 +767,25 @@ void DataBase::initParametresSysteme()
         m_parametres->setData(paramData);
     }
 
-    //! from versionbase 83 récupération de la version CCAM enregistrée en base
+    //! from versionbase 83 : version CCAM, version NGAP et valeurs RNO/AMY
+    //! (ajoutées ensemble en base 83, une seule garde sur VersionCCAM suffit)
     req = "SELECT COUNT(*) FROM "
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
           "WHERE TABLE_NAME = '" + tablename + "' AND COLUMN_NAME = '" CP_VERSIONCCAM_PARAMSYSTEME "') as chp;";
     listquery = getFirstRecordFromStandardSelectSQL(req,ok);
     if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
-        req = "select " CP_VERSIONCCAM_PARAMSYSTEME " from " TBL_PARAMSYSTEME;
+        req = "select " CP_VERSIONCCAM_PARAMSYSTEME ", " CP_VERSIONNGAP_PARAMSYSTEME ", "
+              CP_VALEURRNO_PARAMSYSTEME ", " CP_VALEURAMYMETROPOLE_PARAMSYSTEME ", " CP_VALEURAMYDOM_PARAMSYSTEME
+              " from " TBL_PARAMSYSTEME;
         paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
         if(!ok || paramdata.size() == 0)
             return ;
         paramData[CP_VERSIONCCAM_PARAMSYSTEME]         = (paramdata.at(0).toDouble());
+        paramData[CP_VERSIONNGAP_PARAMSYSTEME]         = (paramdata.at(1).toDate().toString("yyyy-MM-dd"));
+        paramData[CP_VALEURRNO_PARAMSYSTEME]           = (paramdata.at(2).toDouble());
+        paramData[CP_VALEURAMYMETROPOLE_PARAMSYSTEME]  = (paramdata.at(3).toDouble());
+        paramData[CP_VALEURAMYDOM_PARAMSYSTEME]        = (paramdata.at(4).toDouble());
         m_parametres->setData(paramData);
     }
 }
@@ -863,6 +870,82 @@ double DataBase::versionCCAM()
     if (!m_db.isOpen())
         return 0.0;
     QString req = "SELECT " CP_VERSIONCCAM_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
+    bool ok = false;
+    QList<QVariantList> query = StandardSelectSQL(req, ok);
+    if (ok && query.size() > 0)
+        if (query.at(0).size() > 0)
+            return query.at(0).at(0).toDouble();
+    return 0.0;
+}
+void DataBase::setversionNGAP(QDate date)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VERSIONNGAP_PARAMSYSTEME " = '" + date.toString("yyyy-MM-dd") + "'");
+    parametres()->setversionNGAP(date);
+}
+QDate DataBase::versionNGAP()
+{
+    if (!m_db.isOpen())
+        return QDate();
+    QString req = "SELECT " CP_VERSIONNGAP_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
+    bool ok = false;
+    QList<QVariantList> query = StandardSelectSQL(req, ok);
+    if (ok && query.size() > 0)
+        if (query.at(0).size() > 0)
+            return query.at(0).at(0).toDate();
+    return QDate();
+}
+void DataBase::setvaleurRNO(double valeur)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VALEURRNO_PARAMSYSTEME " = " + QString::number(valeur));
+    parametres()->setvaleurRNO(valeur);
+}
+double DataBase::valeurRNO()
+{
+    if (!m_db.isOpen())
+        return 0.0;
+    QString req = "SELECT " CP_VALEURRNO_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
+    bool ok = false;
+    QList<QVariantList> query = StandardSelectSQL(req, ok);
+    if (ok && query.size() > 0)
+        if (query.at(0).size() > 0)
+            return query.at(0).at(0).toDouble();
+    return 0.0;
+}
+void DataBase::setvaleurAMYmetropole(double valeur)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VALEURAMYMETROPOLE_PARAMSYSTEME " = " + QString::number(valeur));
+    parametres()->setvaleurAMYmetropole(valeur);
+}
+double DataBase::valeurAMYmetropole()
+{
+    if (!m_db.isOpen())
+        return 0.0;
+    QString req = "SELECT " CP_VALEURAMYMETROPOLE_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
+    bool ok = false;
+    QList<QVariantList> query = StandardSelectSQL(req, ok);
+    if (ok && query.size() > 0)
+        if (query.at(0).size() > 0)
+            return query.at(0).at(0).toDouble();
+    return 0.0;
+}
+void DataBase::setvaleurAMYDOM(double valeur)
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VALEURAMYDOM_PARAMSYSTEME " = " + QString::number(valeur));
+    parametres()->setvaleurAMYDOM(valeur);
+}
+double DataBase::valeurAMYDOM()
+{
+    if (!m_db.isOpen())
+        return 0.0;
+    QString req = "SELECT " CP_VALEURAMYDOM_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
     bool ok = false;
     QList<QVariantList> query = StandardSelectSQL(req, ok);
     if (ok && query.size() > 0)
