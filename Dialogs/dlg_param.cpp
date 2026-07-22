@@ -1483,43 +1483,33 @@ void dlg_param::RegleAssocBoutons()
     Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
     if (cot == Q_NULLPTR)
     {
-        if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
-            modifboutonsActes = true;
-        else if (ui->cotationsUpTableView->isAncestorOf(check0))
-        {
-            if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
-            {
-                if (check0->rowTable()==ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow())
-                    modifboutonsAssoc = true;
-            }
-            if (!modifboutonsAssoc)
-            {
-                ui->cotationsUpTableView                            ->clearSelection();
-                wdg_cotationswdgbuttonframe->wdg_modifBouton        ->setEnabled(false);
-                wdg_cotationswdgbuttonframe->wdg_moinsBouton        ->setEnabled(false);
-            }
-        }
+        wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
+        return;
     }
     //! table de jointure selon le type, pour savoir si d'autres utilisateurs se servent de la cotation
     QString jointure;
     switch (cot->typcotation())
     {
-        ui->ActesCCAMupTableWidget          ->clearSelection();
-        bool checked = true;
-        if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
-        {
-            UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow(),0));
-            if (check)
-                checked = check->isChecked();
-        }
-        wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
-                                                 || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
-                                                 && checked);
-        wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
-                                                 || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
-                                                 && checked);
+        case 1: jointure = TBL_JOINTURESCCAM;            break;
+        case 2: jointure = TBL_JOINTURESCOTATIONS;       break;
+        case 3: jointure = TBL_JOINTURESCOTATIONSAUTRES; break;
+        case 4: jointure = TBL_JOINTURESASSOCIATIONS;    break;
     }
- }
+    bool autresUsers = false;
+    if (!jointure.isEmpty())
+    {
+        bool ok = false;
+        QList<QVariantList> l = db->StandardSelectSQL("select 1 from " + jointure
+                                + " where " CP_IDCOTATION_JOINTCOTATION " = " + QString::number(cot->id())
+                                + " and " CP_IDUSER_JOINTCOTATION " <> " + QString::number(currentuser()->id()) + " limit 1", ok);
+        autresUsers = (ok && !l.isEmpty());
+    }
+    //! « - » : pas une NGAP et personne d'autre ne l'utilise
+    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(!cot->isNGAP() && !autresUsers);
+    //! « modifier » : ni NGAP ni CCAM
+    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(!cot->isNGAP() && !cot->isCCAM());
+}
 
 void dlg_param::ResetImprimante()
 {
