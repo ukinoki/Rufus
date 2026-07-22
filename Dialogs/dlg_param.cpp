@@ -323,7 +323,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
        QList <QWidget*> ListTab;
-       ListTab << ui->ActesCCAMupTableWidget << ui->AssocCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->HorsNomenclatureupTableWidget
+       ListTab << ui->ActesCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->HorsNomenclatureupTableWidget
                << ui->ChoixFontupPushButton;
        for (int i = 0; i<ListTab.size()-1 ; i++ )
            ui->UserParamtab->setTabOrder(ListTab.at(i), ListTab.at(i+1));
@@ -342,7 +342,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortableuplineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
-    ui->AssocCCAMupTableWidget          ->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_assocCCAMcotationswdgbuttonframe                       ->setEnabled(false);
     wdg_HNcotationswdgbuttonframe                              ->setEnabled(false);
@@ -640,15 +640,6 @@ void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
     QRect rect = QRect(pos,QSize(10,10));
     if (table == ui->ActesCCAMupTableWidget)
         QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(item->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
-    else if (table == ui->AssocCCAMupT)
-    {
-        QString tip = item->text();
-        UpLineEdit * line = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(item->row(),2));
-        if (line != Q_NULLPTR)
-            if (line->datas().toString() != "")
-                tip += "\n" + line->datas().toString();
-        QToolTip::showText(cursor().pos(),tip, ui->AssocCCAMupTableWidget, rect, 2000);
-    }
     else if (table == ui->HorsNomenclatureupTableWidget)
     {
         QString tip = item->text();
