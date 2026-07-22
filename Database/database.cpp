@@ -974,7 +974,9 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
         return false;                                   //! url introuvable
     const QByteArray ba = f.readAll();
     f.close();
-    return docxml.setContent(ba);                       //! false si xml invalide
+    if (!docxml.setContent(ba))                         //! xml invalide (ParseResult à operator bool explicite)
+        return false;
+    return true;
 }
 
 DataBase::MajCotations DataBase::verifMajCotations()
