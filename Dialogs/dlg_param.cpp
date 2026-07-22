@@ -1005,7 +1005,7 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ModifDataUserpushButton ->setEnabled(a);
 
         EnableActesCCAM(a);
-        EnableAssocCCAM(a);
+        enableCotations(a);
         EnableHorsNomenclature(a);
     }
 
@@ -1804,7 +1804,7 @@ void dlg_param::NouvAssocCCAM()
     if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
         remplitTableCotations();
-        EnableAssocCCAM();
+        enableCotations();
         m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
@@ -1821,7 +1821,7 @@ void dlg_param::ModifAssocCCAM()
     if (Dlg_CrrCot->exec()>0)
     {
         remplitTableCotations();
-        EnableAssocCCAM();
+        enableCotations();
         m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
@@ -1851,7 +1851,7 @@ void dlg_param::SupprAssocCCAM()
     {
         db->StandardSQL("delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'");
         remplitTableCotations();
-        EnableAssocCCAM();
+        enableCotations();
         m_cotationsmodifiees = true;
     }
 }
@@ -2918,33 +2918,25 @@ void dlg_param::EnableActesCCAM(bool enable)
     }
 }
 
-void dlg_param::EnableAssocCCAM(bool enable)
+void dlg_param::enableCotations(bool enable)
 {
     bool autormodif = enable
                       && (currentuser()->isAlterneResponsableEtAssistant() || currentuser()->isResponsable() || currentuser()->isAssistant())
                       && !currentuser()->isRemplacant();  // les remplaçants ne peuvent pas modifier les actes
-    for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
+    if (m_modelCotations == Q_NULLPTR)
+        return;
+    //! modèle/vue : la case à cocher est portée par l'item de la colonne 0 ; on active ou non son
+    //! caractère cochable selon les droits de l'utilisateur
+    for (int row = 0; row < m_modelCotations->rowCount(); ++row)
     {
-        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
-        if (check) check->setEnabled(autormodif);
-        UpLineEdit *lbl1 = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
-        if (lbl1)
-            lbl1->setEnabled(autormodif);
-        if (ui->AssocCCAMupTableWidget->columnCount()==5)
-        {
-            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
-            if (lbl)
-                lbl->setEnabled(autormodif);
-        }
+        QStandardItem *itacte = m_modelCotations->item(row, 0);
+        if (itacte == Q_NULLPTR)
+            continue;
+        Qt::ItemFlags f = itacte->flags();
+        f.setFlag(Qt::ItemIsUserCheckable, autormodif);
+        f.setFlag(Qt::ItemIsEnabled, autormodif);
+        itacte->setFlags(f);
     }
-    ui->AssocCCAMupTableWidget->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
-    if (!autormodif)
-        ui->AssocCCAMupTableWidget->clearSelection();
-    ui->AssocCCAMupTableWidget  ->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->AssocCCAMupTableWidget  ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    wdg_assocCCAMcotationswdgbuttonframe               ->setEnabled(autormodif);
-    wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
-    wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
 }
 
 void dlg_param::EnableHorsNomenclature(bool enable)

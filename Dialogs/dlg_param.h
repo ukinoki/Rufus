@@ -94,7 +94,7 @@ private:
     void                ReconstruitListeLieuxExerciceUser(User *user);
     void                ReconstruitListeLieuxExerciceAllusers();
     void                EnableActesCCAM(bool enable = true);
-    void                EnableAssocCCAM(bool enable = true);
+    void                enableCotations(bool enable = true);
     void                EnableHorsNomenclature(bool enable = true);
     void                Remplir_TableActesCCAM(bool ophtaseul = true);
     void                Remplir_TableHorsNomenclature();
