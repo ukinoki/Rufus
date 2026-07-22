@@ -108,7 +108,7 @@ BEGIN
         `idUser` INT(11) NULL DEFAULT NULL,
         `MontantPratique` DOUBLE NULL DEFAULT NULL,
         PRIMARY KEY (`idJointure`));
-    CREATE TABLE IF NOT EXISTS `rufus`.`jointurescotationsautres` (
+    CREATE TABLE IF NOT EXISTS `rufus`.`jointuresNGAP` (
         `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
         `idCotation` INT(11) NULL DEFAULT NULL,
         `idUser` INT(11) NULL DEFAULT NULL,

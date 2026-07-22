@@ -860,13 +860,13 @@ LOCK TABLES `jointuresassociations` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `jointurescotationsautres`
+-- Table structure for table `jointuresNGAP`
 --
 
-DROP TABLE IF EXISTS `jointurescotationsautres`;
+DROP TABLE IF EXISTS `jointuresNGAP`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `jointurescotationsautres` (
+CREATE TABLE `jointuresNGAP` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
@@ -876,12 +876,12 @@ CREATE TABLE `jointurescotationsautres` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `jointurescotationsautres`
+-- Dumping data for table `jointuresNGAP`
 --
 
-LOCK TABLES `jointurescotationsautres` WRITE;
-/*!40000 ALTER TABLE `jointurescotationsautres` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jointurescotationsautres` ENABLE KEYS */;
+LOCK TABLES `jointuresNGAP` WRITE;
+/*!40000 ALTER TABLE `jointuresNGAP` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointuresNGAP` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
