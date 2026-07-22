@@ -793,7 +793,7 @@ DROP TABLE IF EXISTS `jointuresccam`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `jointuresccam` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
-  `idCotation` int(11) DEFAULT NULL,
+  `idCCAM` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
   `MontantPratique` DOUBLE DEFAULT NULL,
   PRIMARY KEY (`idJointure`)
