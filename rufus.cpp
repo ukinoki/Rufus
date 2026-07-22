@@ -349,6 +349,9 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 "<br/>" + QObject::tr("nous vous invitons à nous contacter pour avoir plus d'informations"),
                 z,8000);
     }
+
+    //! 20 - Vérifie si le fichier de cotations propose une mise à jour (CCAM/NGAP/RNO)
+    db->verifMajCotations();
 }
 
 Rufus::~Rufus()
