@@ -23,6 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 class Cotation : public Item
 {
     Q_OBJECT
+    friend class Cotations;                 //!< seule Cotations accède à montantoptam()/montantnonoptam()
 private:
     int m_frequence;
     QString m_typeacte, m_descriptif;

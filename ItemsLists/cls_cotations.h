@@ -32,6 +32,7 @@ public:
     explicit Cotations(QObject *parent = Q_NULLPTR);
     QMap<int, Cotation *> *cotations() const;
     void initListeByUser(User *usr);
+    void loadCotations();                   //!< charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
 };
 
 #endif // COTATIONS_H

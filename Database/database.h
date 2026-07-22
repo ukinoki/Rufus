@@ -341,6 +341,7 @@ public:
     */
     QStringList             loadTypesCotations();                       //! charge toutes les cotations possibles à partir des tables cotations et ccam
     QList<Cotation*>        loadCotationsByUser(User *usr);             //! charge toutes les cotations utilisées par un user à partir des tables cotations et ccam
+    QList<Cotation*>        loadCotations();                            //! charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
 
     /*
      * Motifs

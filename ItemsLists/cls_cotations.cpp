@@ -43,3 +43,15 @@ void Cotations::initListeByUser(User *usr)
      addList(map_cotations, &listcotations);
 }
 
+/*!
+ * \brief Cotations::loadCotations
+ * Charge l'ensemble des cotations de la table cotations (avec leur type), sans idUser ni montant
+ * pratiqué (désormais portés par les tables de jointures par utilisateur).
+ */
+void Cotations::loadCotations()
+{
+    QList<Cotation*> listcotations = DataBase::I()->loadCotations();
+    epurelist(map_cotations, &listcotations);
+    addList(map_cotations, &listcotations);
+}
+

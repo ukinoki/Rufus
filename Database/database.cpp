@@ -2824,6 +2824,38 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
     return cotations;
 }
 
+/*!
+ * \brief DataBase::loadCotations
+ * charge toutes les cotations de la table cotations avec leur type (colonne CCAM : 1/2/3/4).
+ * Ne charge ni idUser ni montant pratiqué : ces deux notions sont désormais portées par les
+ * tables de jointures par utilisateur, plus par la cotation elle-même (référence commune).
+ */
+QList<Cotation*> DataBase::loadCotations()
+{
+    QList<Cotation*> cotations = QList<Cotation*>();
+    QString req = "select " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
+                  CP_MONTANTNONOPTAM_COTATIONS ", " CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
+                  " from " TBL_COTATIONS
+                  " order by " CP_TYPEACTE_COTATIONS;
+    QList<QVariantList> cotlist = StandardSelectSQL(req, ok);
+    if (!ok || cotlist.size() == 0)
+        return cotations;
+    for (int i = 0; i < cotlist.size(); ++i)
+    {
+        QJsonObject jcotation{};
+        jcotation["id"]                 = cotlist.at(i).at(0).toInt();
+        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();
+        jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
+        jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
+        jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
+        jcotation["ccam"]               = cotlist.at(i).at(4).toInt();       //! type de cotation (1/2/3/4)
+        jcotation["frequence"]          = cotlist.at(i).at(5).toInt();
+        jcotation["descriptif"]         = cotlist.at(i).at(6).toString();
+        cotations << new Cotation(jcotation);
+    }
+    return cotations;
+}
+
 QStringList DataBase::loadTypesCotations()
 {
     QStringList listcotations = QStringList();
