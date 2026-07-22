@@ -2840,18 +2840,20 @@ QList<Cotation*> DataBase::loadCotations()
     QList<QVariantList> cotlist = StandardSelectSQL(req, ok);
     if (!ok || cotlist.size() == 0)
         return cotations;
+    int k = 0;
     for (int i = 0; i < cotlist.size(); ++i)
     {
         QJsonObject jcotation{};
-        jcotation["id"]                 = cotlist.at(i).at(0).toInt();
-        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();
+        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();       //! vrai idcotation conservé dans m_id
         jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
         jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
         jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
         jcotation["ccam"]               = cotlist.at(i).at(4).toInt();       //! type de cotation (1/2/3/4)
         jcotation["frequence"]          = cotlist.at(i).at(5).toInt();
         jcotation["descriptif"]         = cotlist.at(i).at(6).toString();
-        cotations << new Cotation(jcotation);
+        Cotation *c = new Cotation(jcotation);
+        c->setidsynth(++k);                                                  //! clé de map unique, créée dès ce chargement
+        cotations << c;
     }
     return cotations;
 }

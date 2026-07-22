@@ -56,9 +56,11 @@ void Cotations::initListeByUser(User *usr)
  */
 void Cotations::loadCotations()
 {
+    //! map clée par idsynth (créé dès ce chargement), le vrai idcotation reste dans la cotation
+    clearAll(map_cotations);
     QList<Cotation*> listcotations = DataBase::I()->loadCotations();
-    epurelist(map_cotations, &listcotations);
-    addList(map_cotations, &listcotations);
+    for (Cotation *c : listcotations)
+        map_cotations->insert(c->idsynth(), c);
 }
 
 /*!
