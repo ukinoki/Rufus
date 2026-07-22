@@ -2874,17 +2874,17 @@ QList<Cotation*> DataBase::loadUserCotations(User *usr)
     const bool optam = usr->isOPTAM();
     int k = 0;
 
-    //! construit une cotation ; montantoptam reçoit la valeur conventionnelle retenue (le getter
-    //! montantconventionnel() renvoie m_montantoptam), montantpratique celle du user (jointure)
-    auto ajoute = [&](const QString &typeacte, const QString &descriptif,
+    //! construit une cotation ; realid = vrai id (idccam ou idcotation) conservé dans m_id, idsynth =
+    //! clé de map unique. montantoptam reçoit la valeur conventionnelle retenue (montantconventionnel()
+    //! renvoie m_montantoptam), montantpratique celle du user (jointure).
+    auto ajoute = [&](int realid, const QString &typeacte, const QString &descriptif,
                       double montoptam, double montnonoptam, double pratique, int type)
     {
         //! montantnonoptam seulement si le user n'est pas OPTAM ET cotation CCAM (1) ou assoc CCAM (4) ;
-        //! sinon montantoptam (qui, pour NGAP=2/hors=3, porte le montant unique). Rangé dans
-        //! montantoptam car montantconventionnel() renvoie m_montantoptam.
+        //! sinon montantoptam (qui, pour NGAP=2/hors=3, porte le montant unique).
         const double conventionnel = (!optam && (type == 1 || type == 4)) ? montnonoptam : montoptam;
         QJsonObject j{};
-        j["idcotation"]           = ++k;                            //! id synthétique unique (évite les collisions entre tables)
+        j["idcotation"]           = realid;                         //! vrai id (idccam pour la CCAM, idcotation sinon)
         j["typeacte"]             = typeacte;
         j["descriptif"]           = descriptif;
         j["ccam"]                 = type;
@@ -2892,17 +2892,19 @@ QList<Cotation*> DataBase::loadUserCotations(User *usr)
         j["montantnonoptam"]      = montnonoptam;
         j["montantconventionnel"] = conventionnel;
         j["montantpratique"]      = pratique;
-        cotations << new Cotation(j);
+        Cotation *c = new Cotation(j);
+        c->setidsynth(++k);                                         //! clé de map unique, distincte du vrai id
+        cotations << c;
     };
 
     //! 1) CCAM pure : jointuresccam -> ccam
-    QString req = "select cc." CP_CODECCAM_CCAM ", cc." CP_NOM_CCAM ", cc." CP_MONTANTOPTAM_CCAM ", cc." CP_MONTANTNONOPTAM_CCAM ", j." CP_MONTANTPRATIQUE_JOINTCCAM
+    QString req = "select cc." CP_ID_CCAM ", cc." CP_CODECCAM_CCAM ", cc." CP_NOM_CCAM ", cc." CP_MONTANTOPTAM_CCAM ", cc." CP_MONTANTNONOPTAM_CCAM ", j." CP_MONTANTPRATIQUE_JOINTCCAM
                   " from " TBL_JOINTURESCCAM " j join " TBL_CCAM " cc on j." CP_IDCCAM_JOINTCCAM " = cc." CP_ID_CCAM
                   " where j." CP_IDUSER_JOINTCCAM " = " + QString::number(usr->id());
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
         for (const QVariantList &r : l)
-            ajoute(r.at(0).toString(), r.at(1).toString(), r.at(2).toDouble(), r.at(3).toDouble(), r.at(4).toDouble(), 1);
+            ajoute(r.at(0).toInt(), r.at(1).toString(), r.at(2).toString(), r.at(3).toDouble(), r.at(4).toDouble(), r.at(5).toDouble(), 1);
 
     //! 2/3/4) associations, NGAP et hors : jointure(idCotation, MontantPratique) -> cotations
     struct { QString tbl; int type; } srcs[] = {
@@ -2912,13 +2914,13 @@ QList<Cotation*> DataBase::loadUserCotations(User *usr)
     };
     for (const auto &s : srcs)
     {
-        req = "select cot." CP_TYPEACTE_COTATIONS ", cot." CP_TIP_COTATIONS ", cot." CP_MONTANTOPTAM_COTATIONS ", cot." CP_MONTANTNONOPTAM_COTATIONS ", j." CP_MONTANTPRATIQUE_JOINTCOTATION
+        req = "select cot." CP_ID_COTATIONS ", cot." CP_TYPEACTE_COTATIONS ", cot." CP_TIP_COTATIONS ", cot." CP_MONTANTOPTAM_COTATIONS ", cot." CP_MONTANTNONOPTAM_COTATIONS ", j." CP_MONTANTPRATIQUE_JOINTCOTATION
               " from " + s.tbl + " j join " TBL_COTATIONS " cot on j." CP_IDCOTATION_JOINTCOTATION " = cot." CP_ID_COTATIONS
               " where j." CP_IDUSER_JOINTCOTATION " = " + QString::number(usr->id());
         l = StandardSelectSQL(req, ok);
         if (ok)
             for (const QVariantList &r : l)
-                ajoute(r.at(0).toString(), r.at(1).toString(), r.at(2).toDouble(), r.at(3).toDouble(), r.at(4).toDouble(), s.type);
+                ajoute(r.at(0).toInt(), r.at(1).toString(), r.at(2).toString(), r.at(3).toDouble(), r.at(4).toDouble(), r.at(5).toDouble(), s.type);
     }
     return cotations;
 }

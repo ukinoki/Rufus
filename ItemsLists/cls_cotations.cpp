@@ -70,8 +70,12 @@ void Cotations::loadUserCotations(User *usr)
 {
     if (usr == Q_NULLPTR)
         return;
+    //! reconstruction complète : la clé est l'idsynth (unique), le vrai id reste dans la cotation.
+    //! addList clé par id() (le vrai idcotation/idccam, qui peut entrer en collision entre tables),
+    //! on insère donc à la main par idsynth.
+    clearAll(map_usercotations);
     QList<Cotation*> listcotations = DataBase::I()->loadUserCotations(usr);
-    epurelist(map_usercotations, &listcotations);
-    addList(map_usercotations, &listcotations);
+    for (Cotation *c : listcotations)
+        map_usercotations->insert(c->idsynth(), c);
 }
 
