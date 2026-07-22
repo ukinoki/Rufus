@@ -2786,7 +2786,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         jcotation["montantoptam"]           = cotlist.at(i).at(2).toDouble();
         jcotation["montantnonoptam"]        = cotlist.at(i).at(3).toDouble();
         jcotation["montantpratique"]        = (secteur < 2? cotlist.at(i).at(2).toDouble() :cotlist.at(i).at(4).toDouble());
-        jcotation["ccam"]                   = (cotlist.at(i).at(5).toInt()==1);
+        jcotation["ccam"]                   = cotlist.at(i).at(5).toInt();   //! type de cotation (1/2/3/4)
         jcotation["iduser"]                 = usr->id();
         jcotation["frequence"]              = cotlist.at(i).at(6).toInt();
         jcotation["descriptif"]             = cotlist.at(i).at(7).toString();
@@ -2813,7 +2813,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
         jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
         jcotation["montantpratique"]    = cotlist.at(i).at(4).toDouble();
-        jcotation["ccam"]               = (cotlist.at(i).at(5).toInt()==1);
+        jcotation["ccam"]               = cotlist.at(i).at(5).toInt();       //! type de cotation (1/2/3/4)
         jcotation["iduser"]             = usr->id();
         jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
         jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
