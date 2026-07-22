@@ -98,7 +98,7 @@ BEGIN
         PRIMARY KEY (`idJointure`));
     CREATE TABLE IF NOT EXISTS `rufus`.`jointuresccam` (
         `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
-        `idCCAM` INT(11) NULL DEFAULT NULL,
+        `idCotation` INT(11) NULL DEFAULT NULL,
         `idUser` INT(11) NULL DEFAULT NULL,
         `MontantPratique` DOUBLE NULL DEFAULT NULL,
         PRIMARY KEY (`idJointure`));

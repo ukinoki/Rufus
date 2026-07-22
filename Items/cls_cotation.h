@@ -26,7 +26,7 @@ class Cotation : public Item
     friend class Cotations;                 //!< seule Cotations accède à montantoptam()/montantnonoptam()
 private:
     int m_frequence;
-    int m_idsynth = 0;                      //!< id synthétique unique servant de clé de map (m_id garde le vrai idcotation/idccam)
+    bool m_userused = false;                //!< marqué quand la cotation est utilisée par l'utilisateur courant (sert à bâtir map_usercotations)
     QString m_typeacte, m_descriptif;
     int m_typcotation = 1;                  //!< type de cotation : 1=CCAM, 2=NGAP, 3=horsNGAPnorCCAM, 4=association CCAM
     bool m_isCCAM = false;                  //!< les 4 booléens ci-dessous sont déduits de m_typcotation
@@ -43,8 +43,10 @@ public:
     QString typeacte() const;
     double montantconventionnel() const;
     double montantpratique() const;
-    int  idsynth() const         { return m_idsynth; }
-    void setidsynth(int id)      { m_idsynth = id; }
+    bool isused() const          { return m_userused; }
+    void setused(bool u)         { m_userused = u; }
+    void setmontantpratique(double m)      { m_montantpratique = m; }
+    void setmontantconventionnel(double m) { m_montantoptam = m; }   //!< montantconventionnel() renvoie m_montantoptam
     int  typcotation() const     { return m_typcotation; }
     void settypcotation(int typ) { m_typcotation = typ;
                                    m_isCCAM          = (typ == 1);

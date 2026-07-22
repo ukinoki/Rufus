@@ -56,28 +56,40 @@ void Cotations::initListeByUser(User *usr)
  */
 void Cotations::loadCotations()
 {
-    //! map clée par idsynth (créé dès ce chargement), le vrai idcotation reste dans la cotation
-    clearAll(map_cotations);
+    //! map de référence clée par idcotation (unique dans la table)
     QList<Cotation*> listcotations = DataBase::I()->loadCotations();
-    for (Cotation *c : listcotations)
-        map_cotations->insert(c->idsynth(), c);
+    epurelist(map_cotations, &listcotations);
+    addList(map_cotations, &listcotations);
 }
 
 /*!
  * \brief Cotations::loadUserCotations
- * Réunit dans map_usercotations toutes les cotations du user extraites des 4 tables de jointures
- * (montant conventionnel selon son statut OPTAM, montant pratiqué propre au user).
+ * Bâtit map_usercotations SANS créer de nouveaux pointeurs : on récupère les idcotation utilisés
+ * par le user (montant pratiqué) dans les 4 jointures, on retrouve chaque cotation dans
+ * map_cotations, on la marque used() et on lui affecte son montant pratiqué et son montant
+ * conventionnel (selon OPTAM). map_usercotations n'est qu'une vue : les pointeurs restent la
+ * propriété de map_cotations (d'où clear() et non clearAll()).
  */
 void Cotations::loadUserCotations(User *usr)
 {
     if (usr == Q_NULLPTR)
         return;
-    //! reconstruction complète : la clé est l'idsynth (unique), le vrai id reste dans la cotation.
-    //! addList clé par id() (le vrai idcotation/idccam, qui peut entrer en collision entre tables),
-    //! on insère donc à la main par idsynth.
-    clearAll(map_usercotations);
-    QList<Cotation*> listcotations = DataBase::I()->loadUserCotations(usr);
-    for (Cotation *c : listcotations)
-        map_usercotations->insert(c->idsynth(), c);
+    const bool optam = usr->isOPTAM();
+    map_usercotations->clear();
+    for (Cotation *c : *map_cotations)
+        c->setused(false);
+    QMap<int, double> montants = DataBase::I()->loadMontantsPratiquesByUser(usr);
+    for (auto it = montants.constBegin(); it != montants.constEnd(); ++it)
+    {
+        Cotation *c = map_cotations->value(it.key(), Q_NULLPTR);        //! retrouvée par idcotation
+        if (c == Q_NULLPTR)
+            continue;
+        c->setused(true);
+        c->setmontantpratique(it.value());
+        //! montant conventionnel : nonoptam seulement si non OPTAM et CCAM (1)/assoc (4), sinon optam
+        const double conv = (!optam && (c->isCCAM() || c->isAssocCCAM())) ? c->montantnonoptam() : c->montantoptam();
+        c->setmontantconventionnel(conv);
+        map_usercotations->insert(it.key(), c);
+    }
 }
 
