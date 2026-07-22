@@ -1032,9 +1032,12 @@ void DataBase::majNGAP()
         return;
     QDomElement racine = docxml.documentElement();      //! <Cotations>
 
-    //! valeur de l'AMY métropole portée par l'entête du fichier
-    const double valAMY = racine.firstChildElement("NGAP").firstChildElement("AMY")
-                                .firstChildElement("ValeurMetropole").text().toDouble();
+    //! entête du fichier : date de version NGAP et valeurs de l'AMY (métropole / DOM)
+    const QDomElement elNGAP     = racine.firstChildElement("NGAP");
+    const QDomElement elAMY      = elNGAP.firstChildElement("AMY");
+    const double      valAMYmetro = elAMY.firstChildElement("ValeurMetropole").text().toDouble();
+    const double      valAMYdom   = elAMY.firstChildElement("ValeurDOM").text().toDouble();
+    const QDate       dateNGAP    = QDate::fromString(elNGAP.firstChildElement("Version").text(), "yyyy-MM-dd");
 
     for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
     {
@@ -1044,7 +1047,7 @@ void DataBase::majNGAP()
         if (indice.isEmpty())
             continue;
         const QString typeacte   = "AMY" + indice;                                   //! concaténation AMY + indice
-        const QString montantSQL = QString::number(indice.toDouble() * valAMY, 'f', 2);
+        const QString montantSQL = QString::number(indice.toDouble() * valAMYmetro, 'f', 2);
         const QString nomSQL     = Utils::correctquoteSQL(acte.firstChildElement("nom").text());
 
         bool ok = false;
@@ -1069,6 +1072,13 @@ void DataBase::majNGAP()
                   + typeacte + "', " + montantSQL + ", " + montantSQL + ", " + montantSQL + ", 2, '" + nomSQL + "')";
         StandardSQL(req);
     }
+
+    //! import terminé : on mémorise la version NGAP et les valeurs de l'AMY
+    //! (chaque setter met à jour la table ParametresSysteme ET le paramètre en mémoire)
+    if (dateNGAP.isValid())
+        setversionNGAP(dateNGAP);
+    setvaleurAMYmetropole(valAMYmetro);
+    setvaleurAMYDOM(valAMYdom);
 }
 
 void DataBase::setsanscompta(bool one)
