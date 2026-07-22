@@ -1394,7 +1394,7 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
                 montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text()));
 
             req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                    CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
+                    CP_TYPECOTATION_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
                     codeccam + "', " +
                     QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text())) + ", " +
                     QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text())) + ", " +
@@ -1491,10 +1491,10 @@ void dlg_param::RegleAssocBoutons()
     QString jointure;
     switch (cot->typcotation())
     {
-        case 1: jointure = TBL_JOINTURESCCAM;            break;
-        case 2: jointure = TBL_JOINTURESCOTATIONS;       break;
-        case 3: jointure = TBL_JOINTURESCOTATIONSAUTRES; break;
-        case 4: jointure = TBL_JOINTURESASSOCIATIONS;    break;
+        case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
+        case 2: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
+        case 3: jointure = TBL_JOINTURESNGAP;            break;   //! NGAP
+        case 4: jointure = TBL_JOINTURESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
     }
     bool autresUsers = false;
     if (!jointure.isEmpty())
@@ -1588,7 +1588,7 @@ void dlg_param::ModifCotation()
  * \brief dlg_param::supprimeCotation
  * Retire la cotation sélectionnée de la table de jointure du user correspondant à son type
  * (revient au même qu'un décochage). Puis, si plus personne ne l'utilise, supprime la cotation
- * elle-même de la table cotations (sa ligne disparaît) — SAUF les NGAP (type 2), qui ne sont
+ * elle-même de la table cotations (sa ligne disparaît) — SAUF les NGAP (type 3), qui ne sont
  * stockées que là et qu'il faut garder.
  */
 void dlg_param::supprimeCotation(Cotation *cot)
@@ -1600,9 +1600,9 @@ void dlg_param::supprimeCotation(Cotation *cot)
     switch (cot->typcotation())
     {
         case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
-        case 2: jointure = TBL_JOINTURESCOTATIONS;       break;   //! NGAP
-        case 3: jointure = TBL_JOINTURESCOTATIONSAUTRES; break;   //! hors NGAP/CCAM
-        case 4: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
+        case 2: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
+        case 3: jointure = TBL_JOINTURESNGAP;            break;   //! NGAP
+        case 4: jointure = TBL_JOINTURESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
         default: return;
     }
     const QString idcot = QString::number(cot->id());
@@ -1611,7 +1611,7 @@ void dlg_param::supprimeCotation(Cotation *cot)
                     + " and " CP_IDUSER_JOINTCOTATION " = " + QString::number(currentuser()->id()));
 
     //! plus personne ne l'utilise -> on supprime la cotation (sa ligne disparaît), sauf NGAP
-    if (cot->typcotation() != 2)
+    if (!cot->isNGAP())
     {
         bool ok;
         QList<QVariantList> reste = db->StandardSelectSQL("select 1 from " + jointure

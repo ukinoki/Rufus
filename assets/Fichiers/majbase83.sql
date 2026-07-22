@@ -89,6 +89,21 @@ BEGIN
                 ALTER TABLE `rufus`.`cotations`
                 CHANGE COLUMN `Tip` `Tip` TEXT NULL DEFAULT NULL;
         END IF;
+    -- cotations.CCAM -> cotations.Typecotation : le champ ne code plus « est-ce du CCAM »
+    -- mais le type de cotation (1 = CCAM, 2 = Association CCAM, 3 = NGAP, 4 = Autre)
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'cotations' AND COLUMN_NAME = 'CCAM') as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`cotations`
+                CHANGE COLUMN `CCAM` `Typecotation` INT(1) NULL DEFAULT NULL
+                COMMENT '1 = CCAM\n2 = Association CCAM\n3 = NGAP\n4 = Autre';
+                -- ancien codage : 1=CCAM 2=Association 3=HorsCCAM. Le 3 (hors CCAM) devient 4 (Autre),
+                -- le 3 est désormais réservé à la NGAP (remplie ensuite par l'import NGAP). 1 et 2 ne bougent pas.
+                UPDATE `rufus`.`cotations` SET `Typecotation` = 4 WHERE `Typecotation` = 3;
+        END IF;
     -- tables de personnalisation par utilisateur du montant pratiqué (cotations et ccam)
     CREATE TABLE IF NOT EXISTS `rufus`.`jointurescotations` (
         `idJointure` INT(11) NOT NULL AUTO_INCREMENT,

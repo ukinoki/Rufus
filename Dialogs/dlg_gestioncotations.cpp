@@ -134,8 +134,8 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
 
 
 
-    QString req = "select distinct " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS " where " CP_CODECCAM_COTATIONS " = ";
-    req += (m_typeacte == Association? "2" : "3");
+    QString req = "select distinct " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS " where " CP_TYPECOTATION_COTATIONS " = ";
+    req += (m_typeacte == Association? "2" : "4");
     if (m_mode == Creation)
     {
         bool ok;
@@ -222,7 +222,7 @@ bool dlg_gestioncotations::VerifFiche()
         if (m_mode == Creation)
         {            
             req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                   CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
+                   CP_TYPECOTATION_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
                     + wdg_codeline->text() + "', "
                     + (wdg_tarifoptamline?      QString::number(QLocale().toDouble(wdg_tarifoptamline->text()))     : "null") + ", "
                     + (wdg_tarifnooptamline?    QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()))   : "null") + ", "
@@ -271,9 +271,9 @@ bool dlg_gestioncotations::VerifFiche()
         if (m_mode == Creation)
         {
             req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                  CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
+                  CP_TYPECOTATION_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
                     + wdg_codeline->text() + "', null, null, "
-                    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 3, "
+                    + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 4, "
                     + QString::number(Datas::I()->users->userconnected()->id()) + ", '"
                     + Utils::correctquoteSQL(wdg_tipline->toPlainText()) + "')";
         }

@@ -1075,11 +1075,11 @@ void DataBase::majNGAP()
                   CP_TIP_COTATIONS " = '" + nomSQL + "'"
                   " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'";
         else
-            //! création : CCAM = 2 (association), les 3 montants et le Tip (sans idUser pour l'instant)
+            //! création : Typecotation = 3 (NGAP), les 3 montants et le Tip (sans idUser pour l'instant)
             req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", "
                   CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                  CP_CODECCAM_COTATIONS ", " CP_TIP_COTATIONS ") values ('"
-                  + typeacte + "', " + montantSQL + ", " + montantSQL + ", " + montantSQL + ", 2, '" + nomSQL + "')";
+                  CP_TYPECOTATION_COTATIONS ", " CP_TIP_COTATIONS ") values ('"
+                  + typeacte + "', " + montantSQL + ", " + montantSQL + ", " + montantSQL + ", 3, '" + nomSQL + "')";
         StandardSQL(req);
     }
 
@@ -1095,11 +1095,11 @@ void DataBase::majNGAP()
  * \brief DataBase::exporteJointures
  * migre les cotations personnalisées par un utilisateur (idUser renseigné) vers les tables de
  * jointures dédiées, une par type. Chaque type est reconnu à sa propriété intrinsèque (donc sans
- * dépendre du reclassement CCAM=4, fait plus tard par nettoieTableCotations) :
- * - CCAM = 1 et Typeacte présent dans ccam  -> jointuresccam (idccam de l'acte) ;
- * - CCAM = 1 et Typeacte absent de ccam      -> jointuresassociations (association de 2 actes) ;
- * - CCAM = 2 (NGAP)                          -> jointurescotations ;
- * - CCAM = 3 (hors NGAP/CCAM)                -> jointurescotationsautres.
+ * dépendre du reclassement en association, fait plus tard par nettoieTableCotations) :
+ * - Typecotation = 1 et Typeacte présent dans ccam  -> jointuresccam (idcotation de l'acte) ;
+ * - Typecotation = 1 et Typeacte absent de ccam     -> jointuresassociations (association de 2 actes) ;
+ * - Typecotation = 3 (NGAP)                         -> jointuresNGAP ;
+ * - Typecotation = 4 (Autre, hors NGAP/CCAM)        -> jointurescotations.
  * Dans les 3 dernières on stocke idcotation ; dans toutes, idUser et le montant pratiqué.
  */
 void DataBase::exporteJointures()
@@ -1113,40 +1113,40 @@ void DataBase::exporteJointures()
                 " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
                 " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
                 " from " TBL_COTATIONS
-                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 1"
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_TYPECOTATION_COTATIONS " = 1"
                 " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")");
 
-    //! associations CCAM (CCAM=1 mais Typeacte absent de ccam) -> jointuresassociations
+    //! associations CCAM (Typecotation=1 mais Typeacte absent de ccam) -> jointuresassociations
     StandardSQL("insert into " TBL_JOINTURESASSOCIATIONS
                 " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
                 " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
                 " from " TBL_COTATIONS
-                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 1"
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_TYPECOTATION_COTATIONS " = 1"
                 " and not exists (select 1 from " TBL_CCAM
                 " where " TBL_CCAM "." CP_CODECCAM_CCAM " = " TBL_COTATIONS "." CP_TYPEACTE_COTATIONS ")");
 
-    //! NGAP (CCAM=2) -> jointurescotations
+    //! NGAP (Typecotation=3) -> jointuresNGAP
+    StandardSQL("insert into " TBL_JOINTURESNGAP
+                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
+                " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
+                " from " TBL_COTATIONS
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_TYPECOTATION_COTATIONS " = 3");
+
+    //! Autre, hors NGAP/CCAM (Typecotation=4) -> jointurescotations
     StandardSQL("insert into " TBL_JOINTURESCOTATIONS
                 " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
                 " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
                 " from " TBL_COTATIONS
-                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 2");
-
-    //! hors NGAP/CCAM (CCAM=3) -> jointurescotationsautres
-    StandardSQL("insert into " TBL_JOINTURESCOTATIONSAUTRES
-                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
-                " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
-                " from " TBL_COTATIONS
-                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 3");
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_TYPECOTATION_COTATIONS " = 4");
 }
 
 /*!
  * \brief DataBase::nettoieTableCotations
  * nettoyage de la table cotations, en deux temps :
- * 1) reclassement des associations : une cotation CCAM = 1 dont le Typeacte n'existe pas dans la
- *    table ccam n'est pas un acte CCAM isolé mais une association de deux actes (ex.
- *    "BIQP992+BGQP002") -> CCAM = 4. On distingue ainsi les 4 types : 1=CCAM, 2=NGAP,
- *    3=horsNGAPouCCAM, 4=association CCAM.
+ * 1) reclassement des associations : une cotation Typecotation = 1 dont le Typeacte n'existe pas
+ *    dans la table ccam n'est pas un acte CCAM isolé mais une association de deux actes (ex.
+ *    "BIQP992+BGQP002") -> Typecotation = 2. On distingue ainsi les 4 types : 1=CCAM,
+ *    2=association CCAM, 3=NGAP, 4=Autre.
  * 2) déduplication : on ne conserve qu'une ligne par Typeacte (la plus ancienne, plus petit
  *    idcotation) et on supprime les autres.
  */
@@ -1154,9 +1154,9 @@ void DataBase::nettoieTableCotations()
 {
     if (!m_db.isOpen())
         return;
-    //! 1) associations CCAM -> CCAM = 4 (NOT EXISTS, sûr même si un codeccam de ccam était NULL)
-    StandardSQL("update " TBL_COTATIONS " set " CP_CODECCAM_COTATIONS " = 4"
-                " where " CP_CODECCAM_COTATIONS " = 1"
+    //! 1) associations CCAM -> Typecotation = 2 (NOT EXISTS, sûr même si un codeccam de ccam était NULL)
+    StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 2"
+                " where " CP_TYPECOTATION_COTATIONS " = 1"
                 " and not exists (select 1 from " TBL_CCAM
                 " where " TBL_CCAM "." CP_CODECCAM_CCAM " = " TBL_COTATIONS "." CP_TYPEACTE_COTATIONS ")");
     //! 2) une seule ligne par Typeacte
@@ -2771,7 +2771,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
      //qDebug() << optam << secteur;
 
      QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                     CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
+                     CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
                      " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
                      " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
                      " order by " CP_TYPEACTE_COTATIONS;
@@ -2799,7 +2799,7 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
             cotations << cotation;
     }
     req = " SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-          CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
+          CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
           " FROM "  TBL_COTATIONS
           " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) +
           " and " CP_TYPEACTE_COTATIONS " not in (select " CP_CODECCAM_CCAM " from  " TBL_CCAM ")"
@@ -2838,7 +2838,7 @@ QList<Cotation*> DataBase::loadCotations()
 {
     QList<Cotation*> cotations = QList<Cotation*>();
     QString req = "select " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
-                  CP_MONTANTNONOPTAM_COTATIONS ", " CP_CODECCAM_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
+                  CP_MONTANTNONOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
                   " from " TBL_COTATIONS
                   " order by " CP_TYPEACTE_COTATIONS;
     QList<QVariantList> cotlist = StandardSelectSQL(req, ok);
@@ -2872,7 +2872,7 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
         return montants;
     const QString id = QString::number(usr->id());
     QString req;
-    for (const char *tbl : { TBL_JOINTURESCCAM, TBL_JOINTURESASSOCIATIONS, TBL_JOINTURESCOTATIONS, TBL_JOINTURESCOTATIONSAUTRES })
+    for (const char *tbl : { TBL_JOINTURESCCAM, TBL_JOINTURESASSOCIATIONS, TBL_JOINTURESCOTATIONS, TBL_JOINTURESNGAP })
     {
         if (!req.isEmpty())
             req += " union all ";

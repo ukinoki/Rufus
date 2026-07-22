@@ -48,11 +48,11 @@ public:
     void setmontantpratique(double m)      { m_montantpratique = m; }
     void setmontantconventionnel(double m) { m_montantoptam = m; }   //!< montantconventionnel() renvoie m_montantoptam
     int  typcotation() const     { return m_typcotation; }
-    void settypcotation(int typ) { m_typcotation = typ;
+    void settypcotation(int typ) { m_typcotation = typ;      //!< 1=CCAM 2=association CCAM 3=NGAP 4=autre
                                    m_isCCAM          = (typ == 1);
-                                   m_isNGAP          = (typ == 2);
-                                   m_isnorGAPnorCCAM = (typ == 3);
-                                   m_isAssocCCAM     = (typ == 4); }
+                                   m_isAssocCCAM     = (typ == 2);
+                                   m_isNGAP          = (typ == 3);
+                                   m_isnorGAPnorCCAM = (typ == 4); }
     bool isCCAM() const          { return m_isCCAM; }
     bool isNGAP() const          { return m_isNGAP; }
     bool isAssocCCAM() const     { return m_isAssocCCAM; }

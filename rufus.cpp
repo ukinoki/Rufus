@@ -4540,7 +4540,7 @@ void Rufus::OuvrirParametres()
     {
 
         QString req = "insert into " TBL_COTATIONS " ( " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") values \n";
+                CP_TYPECOTATION_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") values \n";
         for (int i=0; i<Dlg_Param->ui->ActesCCAMupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,0));
