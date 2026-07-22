@@ -119,7 +119,7 @@ private:
     void                AfficheToolTip(QModelIndex idx);        //!< infobulle de cotationsUpTableView (tip de la Cotation de la ligne)
     void                EnableSupprAppareilBouton();
     void                FermepushButtonClicked();
-    void                ChercheCodeCCAM(QString);
+    void                scrollToCodeCCAM(QString);
     void                ChoixDossierEchangeAppareilImagerie(UpPushButton *butt);
     void                ChoixFontpushButtonClicked();
     void                ClearPortsComboBox(UpComboBox *box, int);

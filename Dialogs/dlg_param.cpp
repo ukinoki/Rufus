@@ -701,7 +701,7 @@ void dlg_param::EnableSupprAppareilBouton()
    wdg_appareilswdgbuttonframe->wdg_moinsBouton->setEnabled(true);
 }
 
-void dlg_param::ChercheCodeCCAM(QString txt)
+void dlg_param::scrollToCodeCCAM(QString txt)
 {
    QList<QTableWidgetItem*> listitems;
    if (m_parametres->cotationsfrance())
@@ -718,12 +718,12 @@ void dlg_param::ChercheCodeCCAM(QString txt)
             ui->ActesCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
         }
    }
-   listitems = ui->AssocCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
-   if (listitems.size()>0)
+   //! table des cotations (modèle/vue) : on cherche le typeacte (colonne 0) dans le modèle
+   if (m_modelCotations != Q_NULLPTR)
    {
-        QTableWidgetItem *pitem = listitems.at(0);
-        QModelIndex index = ui->AssocCCAMupTableWidget->model()->index(pitem->row(),1);
-        ui->AssocCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtTop);
+        QList<QStandardItem*> items = m_modelCotations->findItems(txt, Qt::MatchStartsWith, 0);
+        if (!items.isEmpty())
+            ui->cotationsUpTableView->scrollTo(m_modelCotations->indexFromItem(items.at(0)), QAbstractItemView::PositionAtTop);
    }
 }
 
@@ -2853,7 +2853,7 @@ void dlg_param::ConnectSignals()
     connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
     ui->cotationsUpTableView->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
     connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
-    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::ChercheCodeCCAM);
+    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCodeCCAM);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
     connect(ui->OphtaSeulcheckBox,                  &QCheckBox::clicked,                    this,   &dlg_param::FiltreActesOphtaSeulmt);
