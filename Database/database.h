@@ -82,6 +82,15 @@ public:
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
     enum QueryResult { Error, Empty, OK}; Q_ENUM(QueryResult)
 
+    /*! résultat de verifMajCotations() : indique lesquelles des 3 nomenclatures
+     *  du fichier de cotations sont plus récentes que celles enregistrées en base */
+    struct MajCotations {
+        bool ccam = false;                              /*!< version CCAM du xml > version en base */
+        bool ngap = false;                              /*!< version NGAP du xml > version en base */
+        bool rno  = false;                              /*!< valeur RNO du xml différente de celle en base */
+        bool aUneMaj() const { return ccam || ngap || rno; }
+    };
+
 private:
     DataBase();
     static DataBase *instance;
@@ -227,6 +236,7 @@ public:
     double valeurRNO();
     double valeurAMYmetropole();
     double valeurAMYDOM();
+    MajCotations verifMajCotations();                           //! compare les versions du fichier de cotations à celles en base
 
     /*
      * Donnees ophta patient

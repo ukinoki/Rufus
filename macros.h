@@ -33,6 +33,7 @@ public:
 #define VERSION_MYSQL_MINI                    "8.0.14"  // seuil MySQL commun (tous OS)
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
+#define LIEN_XML_COTATIONS                    "/Assets/CotationsFrance/Cotations.xml"   /*!< provisoire : url locale ; deviendra une url distante */
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport2.3.xml"
 
 // Les bases

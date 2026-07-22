@@ -21,6 +21,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QDomDocument>
+#include <QCoreApplication>
 
 
 DataBase* DataBase::instance = Q_NULLPTR;
@@ -953,6 +955,51 @@ double DataBase::valeurAMYDOM()
             return query.at(0).at(0).toDouble();
     return 0.0;
 }
+DataBase::MajCotations DataBase::verifMajCotations()
+{
+    MajCotations maj;
+    /*! On cherche d'abord un fichier de cotations lisible ; s'il est introuvable, on passe
+        (aucune maj signalée). Chemin local pour l'instant : à côté du binaire, avec repli sur
+        le dossier parent (façon bundle macOS, comme pour les .qm de langue). */
+    const QString suffixe = LIEN_XML_COTATIONS;
+    const QString dirBin  = QCoreApplication::applicationDirPath();
+    QString chemin = dirBin + suffixe;
+    if (!QFile::exists(chemin))
+    {
+        QDir parent(dirBin);
+        parent.cdUp();
+        chemin = parent.absolutePath() + suffixe;
+    }
+    QFile f(chemin);
+    if (!f.open(QIODevice::ReadOnly))
+        return maj;                                     //! url introuvable : on passe
+    const QByteArray ba = f.readAll();
+    f.close();
+
+    QDomDocument docxml;
+    if (!docxml.setContent(ba))                         //! xml invalide : on passe
+        return maj;
+
+    QDomElement racine = docxml.documentElement();      //! <Cotations>
+
+    /*! CCAM : maj si la version du xml est supérieure à celle enregistrée */
+    const QDomElement elCCAM = racine.firstChildElement("CCAM").firstChildElement("Version");
+    if (!elCCAM.isNull())
+        maj.ccam = (elCCAM.text().toDouble() > parametres()->versionCCAM());
+
+    /*! NGAP : maj si la date du xml est postérieure à celle enregistrée */
+    const QDomElement elNGAP = racine.firstChildElement("NGAP").firstChildElement("Version");
+    if (!elNGAP.isNull())
+        maj.ngap = (QDate::fromString(elNGAP.text(), "yyyy-MM-dd") > parametres()->versionNGAP());
+
+    /*! RNO : maj si la valeur du xml diffère de celle enregistrée (la valeur peut baisser) */
+    const QDomElement elRNO = racine.firstChildElement("RNO").firstChildElement("Valeur");
+    if (!elRNO.isNull())
+        maj.rno = (elRNO.text().toDouble() != parametres()->valeurRNO());
+
+    return maj;
+}
+
 void DataBase::setsanscompta(bool one)
 {
     if (!m_db.isOpen())
