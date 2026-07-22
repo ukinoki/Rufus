@@ -991,11 +991,19 @@ DataBase::MajCotations DataBase::verifMajCotations()
     if (!elCCAM.isNull())
         maj.ccam = (elCCAM.text().toDouble() > parametres()->versionCCAM());
 
-    /*! NGAP : maj si la date du xml est postérieure à celle enregistrée ; on lance alors l'import */
-    const QDomElement elNGAP = racine.firstChildElement("NGAP").firstChildElement("Version");
+    /*! NGAP : maj si la date du xml est postérieure à celle enregistrée, OU si une valeur de
+        l'AMY (métropole/DOM) du xml diffère de celle en base (une revalorisation de l'AMY change
+        tous les montants sans forcément changer la version). On lance alors l'import. */
+    const QDomElement elNGAP = racine.firstChildElement("NGAP");
     if (!elNGAP.isNull())
     {
-        maj.ngap = (QDate::fromString(elNGAP.text(), "yyyy-MM-dd") > parametres()->versionNGAP());
+        const QDate       dateXml    = QDate::fromString(elNGAP.firstChildElement("Version").text(), "yyyy-MM-dd");
+        const QDomElement elAMY      = elNGAP.firstChildElement("AMY");
+        const double      amyMetroXml = elAMY.firstChildElement("ValeurMetropole").text().toDouble();
+        const double      amyDomXml   = elAMY.firstChildElement("ValeurDOM").text().toDouble();
+        maj.ngap = (dateXml > parametres()->versionNGAP())
+                || (amyMetroXml != parametres()->valeurAMYmetropole())
+                || (amyDomXml   != parametres()->valeurAMYDOM());
         if (maj.ngap)
             majNGAP();
     }
