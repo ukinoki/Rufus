@@ -108,7 +108,7 @@ private:
     QTimer                  t_timerverifimportdocs;
 
     VilleCPWidget           *wdg_villeCP;
-    WidgetButtonFrame       *wdg_HNcotationswdgbuttonframe, *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
+    WidgetButtonFrame       *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
     QWidget                 *wdg_CCAM;
     UpDialog                *dlg_lieux;
     UpDialog                *dlg_askappareil, *dlg_askMDP;
@@ -123,14 +123,9 @@ private:
     void                ReconstruitListeLieuxExerciceAllusers();
     void                EnableActesCCAM(bool enable = true);
     void                enableCotations(bool enable = true);
-    void                EnableHorsNomenclature(bool enable = true);
     void                Remplir_TableActesCCAM(bool ophtaseul = true);
-    void                Remplir_TableHorsNomenclature();
     void                Remplir_Tables();
     bool                Valide_Modifications();
-    void                NouvHorsNomenclature();
-    void                ModifHorsNomenclature();
-    void                SupprHorsNomenclature();
     void                NouvAssocCCAM();
     void                ModifAssocCCAM();
     void                supprimeCotation(Cotation *cot);
@@ -175,7 +170,6 @@ private:
     void                GestionUsers();
     void                MAJActesCCAM(QWidget *widg, QString txt = "");
     void                MAJCotation(Cotation *cot);
-    void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
     void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);           /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
@@ -183,7 +177,7 @@ private:
     void                ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB);                    //! ajoute l'œil (afficher/masquer) et relie le bouton d'enregistrement du mdp sur clé USB
     void                ReglePortCOM_dlg(Procedures::TypeAppareil appareil);                                //! règle les aparamètres du port COM auquel est connecté l'appareil
     QString             ToolTipPortCOM(Procedures::TypeAppareil appareil);
-    void                RegleAssocBoutons(QWidget *widg);
+    void                RegleAssocBoutons();
     void                ResetImprimante();
     void                ModifBDDVilles(Villes::TownsFrom from);
 
