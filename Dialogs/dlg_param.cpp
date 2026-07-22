@@ -52,7 +52,6 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
 
-    QHBoxLayout *Margelay       = new QHBoxLayout();
     QHBoxLayout *Marge2lay      = new QHBoxLayout();
     QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
@@ -60,8 +59,6 @@ dlg_param::dlg_param(QWidget *parent) :
     Cotationslay    ->setSpacing(marge);
     marge = 0;
     Cotationslay    ->setContentsMargins(marge,marge,marge,marge);
-    Margelay        ->setContentsMargins(marge,marge,marge,marge);
-    Margelay        ->setSpacing(marge);
     Marge2lay       ->setContentsMargins(marge,marge,marge,marge);
     Marge2lay       ->setSpacing(marge);
 
@@ -90,8 +87,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
         Cotationslay    ->insertWidget(0,ui->CCAMwidget);
         Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
-        Cotationslay    ->setStretch(1,7);      // Marge2lay - les associations
-        Cotationslay    ->setStretch(2,5);      // Margelay - les actes hors nomenclature
+        Cotationslay    ->setStretch(1,7);      // Marge2lay - les cotations
     }
     else
     {
@@ -311,7 +307,8 @@ dlg_param::dlg_param(QWidget *parent) :
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
        QList <QWidget*> ListTab;
-       ListTab << ui->ActesCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->ChoixFontupPushButton;
+       ListTab << ui->ActesCCAMupTableWidget << ui->ChercheCotationupLineEdit
+               << ui->ChoixFontupPushButton;
        for (int i = 0; i<ListTab.size()-1 ; i++ )
            ui->UserParamtab->setTabOrder(ListTab.at(i), ListTab.at(i+1));
        ListTab.clear();
@@ -330,7 +327,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
     ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    wdg_cotationswdgbuttonframe         ->setEnabled(false);
+    wdg_cotationswdgbuttonframe                       ->setEnabled(false);
     ui->ActesCCAMlabel                  ->setEnabled(false);
     ui->OphtaSeulcheckBox               ->setEnabled(false);
 
@@ -617,6 +614,15 @@ dlg_param::dlg_param(QWidget *parent) :
 dlg_param::~dlg_param()
 {
     delete ui;
+}
+
+
+void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
+{
+    QPoint pos = cursor().pos();
+    QRect rect = QRect(pos,QSize(10,10));
+    if (table == ui->ActesCCAMupTableWidget)
+        QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(item->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
 }
 
 /*!
@@ -1470,15 +1476,19 @@ void dlg_param::SupprAppareil()
     }
 }
 
-void dlg_param::RegleAssocBoutons(QWidget *widg)
+/*!
+ * \brief dlg_param::RegleAssocBoutons
+ * règle l'état des boutons du buttonframe de cotationsUpTableView selon la cotation en surbrillance :
+ * - « + » toujours actif ;
+ * - « - » actif seulement si ce n'est pas une NGAP et qu'aucun autre utilisateur ne l'utilise ;
+ * - « modifier » actif seulement si ce n'est ni une NGAP ni une CCAM.
+ */
+void dlg_param::RegleAssocBoutons()
 {
-    bool modifboutonsActes  = false;
-    bool modifboutonsAssoc  = false;
-    bool modifboutonsHN     = false;
+    wdg_cotationswdgbuttonframe->wdg_plusBouton->setEnabled(true);   //! ajouter : toujours possible
 
-
-    UpCheckBox* check0      = qobject_cast<UpCheckBox*>(widg);
-    if (check0)
+    Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
+    if (cot == Q_NULLPTR)
     {
         if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
             modifboutonsActes = true;
@@ -1497,8 +1507,9 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             }
         }
     }
-
-    if (widg == ui->AssocCCAMupTableWidget || modifboutonsAssoc)
+    //! table de jointure selon le type, pour savoir si d'autres utilisateurs se servent de la cotation
+    QString jointure;
+    switch (cot->typcotation())
     {
         ui->ActesCCAMupTableWidget          ->clearSelection();
         bool checked = true;
@@ -2579,6 +2590,7 @@ void dlg_param::ConnectSignals()
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->FrontoupComboBox,a);});
     connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
+    connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
     ui->cotationsUpTableView    ->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
     connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCodeCCAM);
@@ -3344,8 +3356,6 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
     }
     ui->ActesCCAMupTableWidget->FixLargeurTotale();
     ui->ActesCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->ActesCCAMupTableWidget,     &QTableWidget::currentCellChanged,  this, [=] {RegleAssocBoutons(ui->ActesCCAMupTableWidget);});
-    connect(ui->ActesCCAMupTableWidget,     &QTableWidget::cellClicked,         this, [=] {RegleAssocBoutons(ui->ActesCCAMupTableWidget);});
 
     //Remplissage Table Actes
     QTableWidgetItem    *pItem0;
@@ -3371,8 +3381,7 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
         check       = new UpCheckBox(ui->ActesCCAMupTableWidget);
         check->setRowTable(i);
         check->setEnabled(false);
-        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJActesCCAM(check);
-                                                            RegleAssocBoutons(check); });
+        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJActesCCAM(check); });
         ui->ActesCCAMupTableWidget->setCellWidget(i,0,check);
         pItem0->setText(Acteslist.at(i).at(1).toString());                             // codeCCAM
         ui->ActesCCAMupTableWidget->setItem(i,1,pItem0);
@@ -4013,6 +4022,8 @@ void dlg_param::remplitTableCotations()
         if (upit != Q_NULLPTR)
             MAJCotation(qobject_cast<Cotation*>(upit->rufusitem()));
     });
+    //! changement de ligne en surbrillance : on règle l'état des boutons (+/-/modifier)
+    connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleAssocBoutons();});
 }
 
 /*!

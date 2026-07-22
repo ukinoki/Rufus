@@ -40,6 +40,34 @@ namespace Ui {
 class dlg_param;
 }
 
+/*!
+ Refonte de la gestion des cotations (en cours) — pour que tout arrivant s'y retrouve.
+
+ Cible : une SEULE table affichée, cotationsUpTableView (une UpTableView modèle/vue, modèle
+ m_modelCotations), qui montre toutes les cotations du groupe d'utilisateurs + la NGAP. Chaque
+ ligne porte sa Cotation (rufusitem d'un UpStandardItem) ; elle est cochée si l'utilisateur courant
+ l'utilise (Cotation::isused()).
+    * 4 types de cotation (Cotation::typcotation) : 1=CCAM, 2=NGAP, 3=horsNGAPnorCCAM, 4=association CCAM.
+    * données : Cotations::loadCotations() charge la map de référence (table cotations) ; puis
+      Cotations::loadUserCotations(user) marque used() et pose montant conventionnel/pratiqué en
+      puisant les montants pratiqués dans les 4 tables de jointures (jointuresccam,
+      jointuresassociations, jointurescotations, jointurescotationsautres), toutes clées sur idcotation.
+    * getCotationFromIndex(idx) : rend la Cotation d'une ligne. AfficheToolTip(idx) : son tip.
+
+ Boutons sous la table (wdg_cotationswdgbuttonframe) : Ajouter / Modifier / Supprimer la cotation
+ en surbrillance.
+    * Ajouter -> une fiche : soit capturer une cotation CCAM depuis la liste des actes CCAM, soit
+      créer à la main une cotation d'association CCAM ou hors CCAM/NGAP.
+    * supprimeCotation(cot) : retire la cotation de la table de jointure du user (= décocher) ; si
+      plus personne ne l'utilise, la cotation disparaît de la table cotations. MAJCotation(cot) :
+      mise à jour (à écrire). Les deux reçoivent la Cotation de l'appelant (getCotationFromIndex).
+    * NGAP (type 2) : ni supprimer ni modifier (montant pratiqué non modulable) -> boutons grisés.
+
+ En voie de disparition : ActesCCAMupTableWidget et HorsNomenclatureupTableWidget (et leurs boutons
+ wdg_HN...) fusionnent dans ce mécanisme unique ; la liste des actes CCAM migrera dans la fiche
+ d'ajout. Tant que le ménage n'est pas fini, du code référençant ces tables ne compile pas encore.
+*/
+
 class dlg_param : public QDialog
 {
     Q_OBJECT
@@ -148,7 +176,7 @@ private:
     void                ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB);                    //! ajoute l'œil (afficher/masquer) et relie le bouton d'enregistrement du mdp sur clé USB
     void                ReglePortCOM_dlg(Procedures::TypeAppareil appareil);                                //! règle les aparamètres du port COM auquel est connecté l'appareil
     QString             ToolTipPortCOM(Procedures::TypeAppareil appareil);
-    void                RegleAssocBoutons(QWidget *widg);
+    void                RegleAssocBoutons();
     void                ResetImprimante();
     void                ModifBDDVilles(Villes::TownsFrom from);
 
