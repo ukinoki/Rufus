@@ -678,7 +678,7 @@ CREATE TABLE `cotations` (
   `CCAM` int(1) DEFAULT NULL COMMENT '1=CCAM\n2=Association\n3=HorsCCAM',
   `idUser` int(11) DEFAULT NULL,
   `Frequence` int(11) DEFAULT NULL,
-  `Tip` varchar(75) DEFAULT NULL,
+  `Tip` varchar(500) DEFAULT NULL,
   PRIMARY KEY (`idcotation`)
 ) ENGINE=InnoDB AUTO_INCREMENT=62 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;

@@ -78,6 +78,16 @@ BEGIN
                 ALTER TABLE `Ophtalmologie`.`IOLs`
                 CHANGE COLUMN `modelname` `modelname` VARCHAR(100) NULL DEFAULT NULL;
         END IF;
+    -- cotations.Tip : 75 -> 500 (libelles NGAP plus longs)
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'cotations' AND COLUMN_NAME = 'Tip' AND CHARACTER_MAXIMUM_LENGTH < 500) as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`cotations`
+                CHANGE COLUMN `Tip` `Tip` VARCHAR(500) NULL DEFAULT NULL;
+        END IF;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();
