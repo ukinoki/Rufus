@@ -29,7 +29,6 @@ double Cotation::montantoptam() const           { return m_montantoptam; }
 double Cotation::montantnonoptam() const        { return m_montantnonoptam; }
 double Cotation::montantpratique() const        { return m_montantpratique; }
 bool Cotation::isCCAM() const                   { return m_ccam; }
-int Cotation::idUser() const                    { return m_iduser; }
 int Cotation::frequence() const                 { return m_frequence; }
 QString Cotation::descriptif() const            { return m_descriptif; }
 
@@ -45,7 +44,6 @@ void Cotation::setData(QJsonObject data)
     setDataDouble(data, "montantnonoptam", m_montantnonoptam);
     setDataDouble(data, "montantpratique", m_montantpratique);
     setDataBool(data, "ccam", m_ccam);
-    setDataInt(data, "iduser", m_iduser);
     setDataInt(data, "frequence", m_frequence);
     setDataString(data, "descriptif", m_descriptif);
     m_data = data;

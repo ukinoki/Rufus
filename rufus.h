@@ -379,7 +379,7 @@ private:
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
     bool                FermeDossier(Patient *pat);
-    Cotations*          getListeCotationdByUser(User *usr);                 //! retrouve la liste des cotations d'un utilisateur et l''ajoute à la map des listes de cotations Datas::I()->listecotations
+    Cotations*          getListeCotationdByUser(User *usr, User **parentOut = Q_NULLPTR);   //! retrouve la liste des cotations d'un utilisateur (parentOut = user propriétaire de la liste) et l'ajoute à Datas::I()->listecotations
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
     Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients

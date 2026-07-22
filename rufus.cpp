@@ -4640,10 +4640,10 @@ void Rufus::RetrouveMontantActe()
 {
     auto retrouvecotation = [=] (User *usr, QString cotation, QString &Montant)
     {
-        Cotations * cots = getListeCotationdByUser(usr);
+        User *parent = Q_NULLPTR;
+        Cotations * cots = getListeCotationdByUser(usr, &parent);
         if (cots)
         {
-            User *parent = Datas::I()->users->getById(cots->iduser());
             if (parent != Q_NULLPTR)
             {
                 for (auto it = cots->cotations()->constBegin(); it != cots->cotations()->constEnd(); ++it)
@@ -6632,7 +6632,7 @@ Patient* Rufus::getPatientFromCursorPositionInTable()
 }
 
 
-Cotations* Rufus::getListeCotationdByUser(User *usr)
+Cotations* Rufus::getListeCotationdByUser(User *usr, User **parentOut)
 {
     if (usr == Q_NULLPTR)
         return Q_NULLPTR;
@@ -6656,6 +6656,8 @@ Cotations* Rufus::getListeCotationdByUser(User *usr)
                 break;
             }
         }
+    if (parentOut != Q_NULLPTR)             //! user propriétaire de la liste (le parent si usr est un assistant connecté)
+        *parentOut = userparent;
     auto itcot = Datas::I()->listecotations->constFind(id);
     if (itcot != Datas::I()->listecotations->constEnd())
         return itcot.value();
@@ -9341,8 +9343,10 @@ void    Rufus::ReconstruitListesCotations(User *usr)
     }
 
     //! le fait de ne pas réinitialiser le combobox permet de garder en item par défaut le dernier item utilisé qui est celui qu'on réutilisera la plupart du temps
+    //! une seule Cotations par utilisateur dans listecotations : comparer les objets suffit
+    //! (la liste est déjà celle affichée -> rien à reconstruire)
     if (currentlistecotations() != Q_NULLPTR)
-        if (cots->iduser() == currentlistecotations()->iduser())
+        if (cots == currentlistecotations())
             return;
     setcurrentlistecotations(cots);        }
 

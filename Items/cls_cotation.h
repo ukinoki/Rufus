@@ -24,7 +24,7 @@ class Cotation : public Item
 {
     Q_OBJECT
 private:
-    int m_iduser, m_frequence;
+    int m_frequence;
     QString m_typeacte, m_descriptif;
     bool m_ccam;
     double m_montantoptam, m_montantnonoptam, m_montantpratique, m_montantconventionnel;
@@ -38,7 +38,6 @@ public:
     double montantconventionnel() const;
     double montantpratique() const;
     bool isCCAM() const;
-    int idUser() const;
     int frequence() const;
     QString descriptif() const;
 };

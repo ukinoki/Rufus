@@ -19,16 +19,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 
 
-int Cotations::iduser() const
-{
-    return m_iduser;
-}
-
-void Cotations::setiduser(int iduser)
-{
-    m_iduser = iduser;
-}
-
 Cotations::Cotations(QObject *parent) : ItemsList(parent)
 {
     map_cotations = new QMap<int, Cotation*>();
@@ -51,6 +41,5 @@ void Cotations::initListeByUser(User *usr)
      QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(usr);
      epurelist(map_cotations, &listcotations);
      addList(map_cotations, &listcotations);
-     setiduser(usr->id());
 }
 
