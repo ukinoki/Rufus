@@ -72,7 +72,7 @@ class dlg_param : public QDialog
 {
     Q_OBJECT
 public:
-    explicit dlg_param(QWidget *parent = Q_NULLPTR);
+    explicit dlg_param(QWidget *parent = nullptr);
     ~dlg_param();
     Ui::dlg_param       *ui;
     bool                CotationsModifiees() const;
@@ -90,13 +90,13 @@ private:
 
     /*! table des cotations (modèle/vue) : les cotations de la map de référence, cochées si
         l'utilisateur courant les utilise (used) */
-    Cotations               *m_cotations             = Q_NULLPTR;    //!< map de référence + used() du user courant
-    UpStandardItemModel     *m_modelCotations        = Q_NULLPTR;    //!< modèle de cotationsUpTableView
-    void                    Remplir_TableCotations();                //!< (re)remplit la table des cotations (used cochées)
-    Cotation*               getCotationFromIndex(QModelIndex idx);  //!< la cotation portée par la ligne d'index idx
+    Cotations               *m_cotations             = Datas::I()->cotations;   //!< map de référence + used() du user courant
+    UpStandardItemModel     *m_modelCotations        = nullptr;                 //!< modèle de cotationsUpTableView
+    void                    Remplir_TableCotations();                           //!< (re)remplit la table des cotations (used cochées)
+    Cotation*               getCotationFromIndex(QModelIndex idx);              //!< la cotation portée par la ligne d'index idx
 
     bool                    m_modifposte            = false;
-    bool                    m_alerteMDPencours      = false;   //! garde-fou de ré-entrance de l'alerte « mot de passe de connexion modifié »
+    bool                    m_alerteMDPencours      = false;                    //! garde-fou de ré-entrance de l'alerte « mot de passe de connexion modifié »
     bool                    m_MDPadminverifie       = false;
     bool                    m_MDPuserverifie        = false;
     QString                 m_nouveauMDP            = "nouv";

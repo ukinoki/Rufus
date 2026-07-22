@@ -36,20 +36,6 @@ QMap<int, Cotation *> *Cotations::usercotations() const
 }
 
 /*!
- * \brief Cotations::initListeByUser
- * Charge l'ensemble des cotations pour le user
- * et les ajoute à la classe Correspondants
- */
-void Cotations::initListeByUser(User *usr)
-{
-    if (usr == Q_NULLPTR)
-         return;
-     QList<Cotation*> listcotations = DataBase::I()->loadCotationsByUser(usr);
-     epurelist(map_cotations, &listcotations);
-     addList(map_cotations, &listcotations);
-}
-
-/*!
  * \brief Cotations::loadCotations
  * Charge l'ensemble des cotations de la table cotations (avec leur type), sans idUser ni montant
  * pratiqué (désormais portés par les tables de jointures par utilisateur).
@@ -72,7 +58,7 @@ void Cotations::loadCotations()
  */
 void Cotations::loadUserCotations(User *usr)
 {
-    if (usr == Q_NULLPTR)
+    if (usr == nullptr)
         return;
     const bool optam = usr->isOPTAM();
     map_usercotations->clear();
@@ -81,8 +67,8 @@ void Cotations::loadUserCotations(User *usr)
     QMap<int, double> montants = DataBase::I()->loadMontantsPratiquesByUser(usr);
     for (auto it = montants.constBegin(); it != montants.constEnd(); ++it)
     {
-        Cotation *c = map_cotations->value(it.key(), Q_NULLPTR);        //! retrouvée par idcotation
-        if (c == Q_NULLPTR)
+        Cotation *c = map_cotations->value(it.key(), nullptr);        //! retrouvée par idcotation
+        if (c == nullptr)
             continue;
         c->setused(true);
         c->setmontantpratique(it.value());
@@ -91,5 +77,6 @@ void Cotations::loadUserCotations(User *usr)
         c->setmontantconventionnel(conv);
         map_usercotations->insert(it.key(), c);
     }
+    m_userparent = usr;
 }
 

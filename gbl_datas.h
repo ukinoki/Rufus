@@ -72,6 +72,7 @@ public:
     CommentsLunets *commentslunets;         //! tous les commentaires lunettes
     Commercials *commercials;               //!< tous les commerciaux
     Correspondants *correspondants;         //!< Les correspondants
+    Cotations *cotations;                   //!< toutes les cotations
     Depenses *depenses;                     //!< les depenses pour un user et une  année donnée
     DocsExternes *docsexternes;             //!< Les documents externes
     Interventions *interventions;           //!< les interventions d'une session
@@ -99,7 +100,6 @@ public:
     RefractionDevices *refractiondevices;   //!< all refraction devices
     PosteConnecte   *ceposte;               //!< Ce poste
     Villes *villes;                         //!< toutes les villes
-    QMap<int, Cotations*> *listecotations;  //!< la liste des cotations par iduser
     MesureRefraction*   mesurefronto;
     MesureRefraction*   mesureautoref;
     MesureRefraction*   mesureacuite;

@@ -28,14 +28,15 @@ class Cotations : public ItemsList
 private:
     QMap<int, Cotation*> *map_cotations;        //!< la liste des cotations pratiquées par un utilisateur
     QMap<int, Cotation*> *map_usercotations;    //!< les cotations d'un user réunies depuis les 4 tables de jointures
+    User* m_userparent = nullptr;               //!< le user dont on a chargé les cotations
 
 public:
-    explicit Cotations(QObject *parent = Q_NULLPTR);
+    explicit Cotations(QObject *parent = nullptr);
     QMap<int, Cotation *> *cotations() const;
     QMap<int, Cotation *> *usercotations() const;
-    void initListeByUser(User *usr);
     void loadCotations();                   //!< charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
     void loadUserCotations(User *usr);      //!< réunit dans map_usercotations les cotations du user depuis les 4 tables de jointures
+    User* userparent()      { return m_userparent; }
 };
 
 #endif // COTATIONS_H

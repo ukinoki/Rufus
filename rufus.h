@@ -138,7 +138,7 @@ class Rufus : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Rufus(QWidget *parent = Q_NULLPTR);
+    explicit Rufus(QWidget *parent = nullptr);
     ~Rufus();
     Ui::Rufus                       *ui;
     enum Origin {BoutonPaiement, Accueil, Menu};    Q_ENUM(Origin)
@@ -155,9 +155,9 @@ private:
     UpLineEdit                      *wdg_autresCorresp1LineEdit, *wdg_autresCorresp2LineEdit;
     bool                            m_ok;
     upDoubleValidator               *m_val;
-    QAction         *actionFabricants               = Q_NULLPTR; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
-    QAction         *actionIOLs                     = Q_NULLPTR;
-    QAction         *actionTiers                    = Q_NULLPTR;
+    QAction         *actionFabricants               = nullptr; // si on met ces 3 QAction avec les autres en fin de fichier le programme plante dans la fonction RapatrieDocsExternes de ImportsDocsExetrnes (????)
+    QAction         *actionIOLs                     = nullptr;
+    QAction         *actionTiers                    = nullptr;
     QDate m_currentdate;
     QTime m_currenttime;
 
@@ -262,9 +262,7 @@ private:
 
 
     // la liste de cotations en cours d'utilisation
-    Cotations*  m_currencotation = Q_NULLPTR;
-    Cotations*  currentlistecotations()                     { return m_currencotation; };
-    void        setcurrentlistecotations(Cotations* cot)    { m_currencotation = cot; };
+    User        *m_combocotationparent = nullptr;  //!> le user propriétaire de la liste des cotations utilisées par ui->ActecotationComboBox
 
     // gestion des patients vus dans la journée
     QTimer      *gTimerPatientsVus;
@@ -282,7 +280,7 @@ private:
     void        SupprimerMessageEmis(int idMsg);
     void        SupprimerMessageRecu(int idJoint);
 
-    QDialog     *dlg_msgBAL = Q_NULLPTR;                                                    /*! la BAL des messages, affichée sous la barre de menus - appelée par AfficheMessages() */
+    QDialog     *dlg_msgBAL = nullptr;                                                    /*! la BAL des messages, affichée sous la barre de menus - appelée par AfficheMessages() */
     void        ChoixMenuContextuelIdentPatient();
     void        ChoixMenuContextuelMotsCles();
     void        MenuContextuelBureaux(UpTextEdit *UpText);
@@ -308,7 +306,7 @@ private:
 
 private:
 
-    MesureRefraction        *shortref_acuite       = Q_NULLPTR;
+    MesureRefraction        *shortref_acuite       = nullptr;
     bool                    m_autorModifConsult, m_closeflag;
     int                     m_flagcorrespondants, m_flagsalledattente, m_flagmessages;
     enum Mode               {NullMode, NouveauDossier, Liste, RechercheDDN};
@@ -317,17 +315,17 @@ private:
     bool                    m_isTotalMessagesAffiche;
     QDate                   m_datepardefaut;
     QDateTime               m_datederniermessageuser;
-    UpDialog                *dlg_ask                        = Q_NULLPTR;
-    QMenu                   *m_menuContextuel               = Q_NULLPTR;
+    UpDialog                *dlg_ask                        = nullptr;
+    QMenu                   *m_menuContextuel               = nullptr;
     QString                 m_montantActe;
     QString                 m_dateActe;
 
-    QStandardItemModel      *m_listepatientsmodel           = Q_NULLPTR;
-    QStandardItemModel      *m_listesuperviseursmodel       = Q_NULLPTR;
-    QStandardItemModel      *m_listesuperviseursaccueilmodel= Q_NULLPTR;
-    QSortFilterProxyModel   *m_listepatientsproxymodel      = Q_NULLPTR;
-    QSortFilterProxyModel   *m_DDNsortmodel                 = Q_NULLPTR;
-    QSortFilterProxyModel   *m_prenomfiltersortmodel        = Q_NULLPTR;
+    QStandardItemModel      *m_listepatientsmodel           = nullptr;
+    QStandardItemModel      *m_listesuperviseursmodel       = nullptr;
+    QStandardItemModel      *m_listesuperviseursaccueilmodel= nullptr;
+    QSortFilterProxyModel   *m_listepatientsproxymodel      = nullptr;
+    QSortFilterProxyModel   *m_DDNsortmodel                 = nullptr;
+    QSortFilterProxyModel   *m_prenomfiltersortmodel        = nullptr;
     QTabBar                 *wdg_salledattenteTab, *wdg_accueilTab;
     QTimer                  *t_timerSalDat, *t_timerCorrespondants, *t_timerPosteConnecte, *t_timerVerifVerrou, *t_timerSupprDocs, *t_timerVerifImportateurDocs;
     QTimer                  *t_timerExportDocs, *t_timerActualiseDocsExternes, *t_timerVerifMessages;
@@ -337,14 +335,14 @@ private:
     Acte*                   currentacte()                           { return Datas::I()->actes->currentacte(); }
     User*                   currentuser()                           { return Datas::I()->users->userconnected(); }
     PosteConnecte*          currentpost()                           { return Datas::I()->postesconnectes->currentpost(); }
-    Actes                   *m_listeactes                   = Q_NULLPTR;
-    LignesPaiements         *m_lignespaiements              = Q_NULLPTR;
+    Actes                   *m_listeactes                   = nullptr;
+    LignesPaiements         *m_lignespaiements              = nullptr;
 
     UpDialog                *dlg_rechParMotCle, *dlg_listPatients;
 
-    QDialog                 *dlg_msgRepons = Q_NULLPTR;
+    QDialog                 *dlg_msgRepons = nullptr;
 
-    ImportDocsExternes *m_importdocsexternes = Q_NULLPTR;
+    ImportDocsExternes *m_importdocsexternes = nullptr;
     bool                    isPosteImport();
     bool                    m_isposteImport = false;
     UpSmallButton           *wdg_modifIdentificationupSmallButton;
@@ -369,7 +367,7 @@ private:
     QString             CalcToolTipCorrespondant(int);
     void                FiltreTable(QString nom = "", QString prenom = "");         //!> filtrage de la liste des patients en fonction des valeurs correspondant aux zones de saisie
     void                OuvrirDossier(Patient *pat, int idacte = 0);
-    void                CreerActe(Patient *pat = Q_NULLPTR);
+    void                CreerActe(Patient *pat = nullptr);
     void                ChercherDepuisListe();
     void                CreerDossier();
     void                CreerMenu();
@@ -379,7 +377,7 @@ private:
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
     bool                FermeDossier(Patient *pat);
-    Cotations*          getListeCotationdByUser(User *usr, User **parentOut = Q_NULLPTR);   //! retrouve la liste des cotations d'un utilisateur (parentOut = user propriétaire de la liste) et l'ajoute à Datas::I()->listecotations
+    void                initListeCotations();                          //! retrouve la liste des cotations d'un utilisateur (parentOut = user propriétaire de la liste) et l'ajoute à Datas::I()->listecotations
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
     Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients
@@ -404,15 +402,15 @@ private:
     void                ImprimeDocument(Patient *pat);                                             //! ouvre la fiche dlg_impressions et prépare la liste de documents à imprimer
     void                ModeSelectDepuisListe();                                                    //!> Passe en mode sélection depuis la liste de patients
     void                ModeCreationDossier();                                                      //!> Passe en mode création de dossier
-    void                ProgrammationIntervention(Patient *pat, Acte *act = Q_NULLPTR);
-    void                RecopierDossier(Patient *patient = Q_NULLPTR);
+    void                ProgrammationIntervention(Patient *pat, Acte *act = nullptr);
+    void                RecopierDossier(Patient *patient = nullptr);
     void                RecaleTableView(Patient *pat, QAbstractItemView::ScrollHint scrollhint = QAbstractItemView::PositionAtCenter);
     int                 RecherchePatient(QString lPatNom, QString lPatPrenom, QString lPatDDN, QString MessageErreur);
     void                RefractionMesure(dlg_refraction::ModeOuverture mode);
     void                ConnectCotationComboBox();  //!> reconnecte la box des cotations à 2 signaux
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
-    void                ReconstruitListesCotations(User* = Datas::I()->users->userconnected());
+    void                ReconstruitComboCotations(User* usr = Datas::I()->users->userconnected());  //!> reconstruit la liste des cotations utilisées par l'utilisateur connecté
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                SetDatasRefractionKerato();
     void                RemiseCheques();
@@ -448,46 +446,46 @@ private:
     void                retranslateMenus();
 
     // Les menus
-    QMenu           *menuActe                       = Q_NULLPTR;
-    QMenu           *menuComptabilite               = Q_NULLPTR;
-    QMenu           *menuEdition                    = Q_NULLPTR;
-    QMenu           *menuDocuments                  = Q_NULLPTR;
-    QMenu           *menuDossier                    = Q_NULLPTR;
-    QMenu           *menuEmettre                    = Q_NULLPTR;
-    QMenu           *menuPrecedentsActes            = Q_NULLPTR;
-    QMenu           *menuLanguage                   = Q_NULLPTR;
-    QMenu           *menuAide                       = Q_NULLPTR;
-    QAction         *actionCreerDossier             = Q_NULLPTR;
-    QAction         *actionCreerActe                = Q_NULLPTR;
-    QAction         *actionOuvrirDossier            = Q_NULLPTR;
-    QAction         *actionEmettreDocument          = Q_NULLPTR;
-    QAction         *actionRecopierDossier          = Q_NULLPTR;
-    QAction         *actionParametres               = Q_NULLPTR;
-    QAction         *actionSupprimerActe            = Q_NULLPTR;
-    QAction         *actionSupprimerDossier         = Q_NULLPTR;
-    QAction         *actionRechercheParMotCle       = Q_NULLPTR;
-    QAction         *actionRechercheParID           = Q_NULLPTR;
-    QAction         *actionDossierPatient           = Q_NULLPTR;
-    QAction         *actionCorrespondants           = Q_NULLPTR;
-    QAction         *actionEnregistrerDocument    = Q_NULLPTR;
-    QAction         *actionEnregistrerVideo         = Q_NULLPTR;
-    QAction         *actionRechercheCourrier        = Q_NULLPTR;
-    QAction         *actionExportActe               = Q_NULLPTR;
-    QAction         *actionGestionComptesBancaires  = Q_NULLPTR;
-    QAction         *actionPaiementDirect           = Q_NULLPTR;
-    QAction         *actionPaiementTiers            = Q_NULLPTR;
-    QAction         *actionRecettesSpeciales        = Q_NULLPTR;
-    QAction         *actionResumeStatut             = Q_NULLPTR;
-    QAction         *actionBilanRecettes            = Q_NULLPTR;
-    QAction         *actionJournalDepenses          = Q_NULLPTR;
-    QAction         *actionRemiseCheques            = Q_NULLPTR;
-    QAction         *actionApropos                  = Q_NULLPTR;
-    QAction         *actionQuit                     = Q_NULLPTR;
-    QAction         *actionFrench                   = Q_NULLPTR;
-    QAction         *actionEnglish                  = Q_NULLPTR;
-    QAction         *actionSpanish                  = Q_NULLPTR;
-    QAction         *actionBrazil                   = Q_NULLPTR;
-    QAction         *actionPortugal                 = Q_NULLPTR;
+    QMenu           *menuActe                       = nullptr;
+    QMenu           *menuComptabilite               = nullptr;
+    QMenu           *menuEdition                    = nullptr;
+    QMenu           *menuDocuments                  = nullptr;
+    QMenu           *menuDossier                    = nullptr;
+    QMenu           *menuEmettre                    = nullptr;
+    QMenu           *menuPrecedentsActes            = nullptr;
+    QMenu           *menuLanguage                   = nullptr;
+    QMenu           *menuAide                       = nullptr;
+    QAction         *actionCreerDossier             = nullptr;
+    QAction         *actionCreerActe                = nullptr;
+    QAction         *actionOuvrirDossier            = nullptr;
+    QAction         *actionEmettreDocument          = nullptr;
+    QAction         *actionRecopierDossier          = nullptr;
+    QAction         *actionParametres               = nullptr;
+    QAction         *actionSupprimerActe            = nullptr;
+    QAction         *actionSupprimerDossier         = nullptr;
+    QAction         *actionRechercheParMotCle       = nullptr;
+    QAction         *actionRechercheParID           = nullptr;
+    QAction         *actionDossierPatient           = nullptr;
+    QAction         *actionCorrespondants           = nullptr;
+    QAction         *actionEnregistrerDocument    = nullptr;
+    QAction         *actionEnregistrerVideo         = nullptr;
+    QAction         *actionRechercheCourrier        = nullptr;
+    QAction         *actionExportActe               = nullptr;
+    QAction         *actionGestionComptesBancaires  = nullptr;
+    QAction         *actionPaiementDirect           = nullptr;
+    QAction         *actionPaiementTiers            = nullptr;
+    QAction         *actionRecettesSpeciales        = nullptr;
+    QAction         *actionResumeStatut             = nullptr;
+    QAction         *actionBilanRecettes            = nullptr;
+    QAction         *actionJournalDepenses          = nullptr;
+    QAction         *actionRemiseCheques            = nullptr;
+    QAction         *actionApropos                  = nullptr;
+    QAction         *actionQuit                     = nullptr;
+    QAction         *actionFrench                   = nullptr;
+    QAction         *actionEnglish                  = nullptr;
+    QAction         *actionSpanish                  = nullptr;
+    QAction         *actionBrazil                   = nullptr;
+    QAction         *actionPortugal                 = nullptr;
     QMenu           *m_trayIconMenu                 = new QMenu();
     QSystemTrayIcon *ict_messageIcon                = new QSystemTrayIcon(this);};
 
