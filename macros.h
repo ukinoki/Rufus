@@ -88,6 +88,8 @@ public:
 #define TBL_DOCSEXTERNES                      "rufus.Impressions"
 #define TBL_IMPRESSIONS                       "rufus.courriers"
 #define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
+#define TBL_JOINTURESCOTATIONS                "rufus.jointurescotations"
+#define TBL_JOINTURESCCAM                     "rufus.jointuresccam"
 #define TBL_JOINTURESLIEUX                    "rufus.jointuresLieux"
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
 #define TBL_LISTEAPPAREILS                    "rufus.listeappareils"
@@ -253,6 +255,14 @@ public:
 #define CP_IDUSER_JOINTSITE                             "idUser"
 #define CP_IDLIEU_JOINTSITE                             "idLieu"
 #define CP_AMNUMBER_JOINTSITE                           "AMnumber"
+#define CP_ID_JOINTCOTATION                             "idJointure"
+#define CP_IDCOTATION_JOINTCOTATION                     "idCotation"
+#define CP_IDUSER_JOINTCOTATION                         "idUser"
+#define CP_MONTANTPRATIQUE_JOINTCOTATION                "MontantPratique"
+#define CP_ID_JOINTCCAM                                 "idJointure"
+#define CP_IDCCAM_JOINTCCAM                             "idCCAM"
+#define CP_IDUSER_JOINTCCAM                             "idUser"
+#define CP_MONTANTPRATIQUE_JOINTCCAM                    "MontantPratique"
 
                             //! Table Rufus.Manufacturers
 #define CP_ID_MANUFACTURER                              "idManufacturer"

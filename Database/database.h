@@ -241,6 +241,7 @@ public:
     double valeurAMYDOM();
     MajCotations verifMajCotations();                           //! compare les versions du fichier de cotations à celles en base
     void majNGAP();                                             //! importe les actes NGAP (AMY) du fichier de cotations dans la table cotations
+    void exporteJointuresCotations();                           //! migre les cotations personnalisées (idUser) vers jointurescotations / jointuresccam
 
     /*
      * Donnees ophta patient
