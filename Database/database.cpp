@@ -1091,26 +1091,31 @@ void DataBase::majNGAP()
 
 /*!
  * \brief DataBase::exporteJointuresCotations
- * migre les cotations personnalisées par un utilisateur (idUser renseigné) vers les tables de
- * jointures dédiées, selon leur type :
- * - CCAM != 1 (association, hors nomenclature...) -> jointurescotations (lien vers la cotation) ;
- * - CCAM = 1 et Typeacte présent dans la table ccam -> jointuresccam (lien vers l'acte ccam).
- * Dans les deux cas on reporte idUser et le montant pratiqué.
+ * migre vers jointurescotations les cotations personnalisées par un utilisateur (idUser renseigné)
+ * qui ne sont pas de la CCAM pure (CCAM <> 1 : association, hors nomenclature...).
+ * On reporte idcotation, idUser et le montant pratiqué.
  */
 void DataBase::exporteJointuresCotations()
 {
     if (!m_db.isOpen())
         return;
-
-    //! cotations personnalisées qui ne sont pas de la CCAM pure -> jointurescotations
     StandardSQL("insert into " TBL_JOINTURESCOTATIONS
                 " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
                 " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
                 " from " TBL_COTATIONS
                 " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " <> 1");
+}
 
-    //! cotations personnalisées de CCAM pure dont le Typeacte existe dans la table ccam -> jointuresccam
-    //! (on stocke l'idccam de l'acte correspondant, pas l'idcotation)
+/*!
+ * \brief DataBase::exporteJointuresCCAM
+ * migre vers jointuresccam les cotations personnalisées par un utilisateur (idUser renseigné) de
+ * la CCAM pure (CCAM = 1) dont le Typeacte existe dans la table ccam.
+ * On stocke l'idccam de l'acte correspondant (pas l'idcotation), idUser et le montant pratiqué.
+ */
+void DataBase::exporteJointuresCCAM()
+{
+    if (!m_db.isOpen())
+        return;
     StandardSQL("insert into " TBL_JOINTURESCCAM
                 " (" CP_IDCCAM_JOINTCCAM ", " CP_IDUSER_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCCAM ")"
                 " select cc." CP_ID_CCAM ", cot." CP_IDUSER_COTATIONS ", cot." CP_MONTANTPRATIQUE_COTATIONS

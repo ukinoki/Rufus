@@ -3315,6 +3315,13 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                     settings.remove("Param_Poste/Utilise_BasedeDonnees_Villes");
                 }
             }
+            if (Version == 83 && a == 0)
+            {
+                //! les cotations personnalisées (montant pratiqué par utilisateur) migrent vers
+                //! les tables de jointures dédiées, créées par majbase83
+                db->exporteJointuresCotations();
+                db->exporteJointuresCCAM();
+            }
         }
         QDir dir(PATH_DIR_RESSOURCES);
         if (dir.exists())
