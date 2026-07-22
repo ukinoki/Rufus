@@ -4566,25 +4566,6 @@ void Rufus::OuvrirParametres()
                     req += "('" + typeacte +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(currentuser()->id()) + ", null),\n";
                 }
         }
-        //! les associations CCAM (table AssocCCAMupTableWidget) sont désormais gérées directement dans dlg_param
-        for (int i=0; i<Dlg_Param->ui->HorsNomenclatureupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
-            if (check != Q_NULLPTR)
-                if (check->isChecked())
-                {
-                    QString codeCCAM, mtconv(""), montantconv, tip("");
-                    codeCCAM = Dlg_Param->ui->HorsNomenclatureupTableWidget->item(i,1)->text();
-                    UpLineEdit *lineconv = qobject_cast<UpLineEdit*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
-                    if (lineconv != Q_NULLPTR)
-                    {
-                        mtconv  = lineconv->text();
-                        tip     = lineconv->datas().toString();
-                    }
-                    montantconv = QString::number(QLocale().toDouble(mtconv));
-                    req += "('" + codeCCAM +  "', " + montantconv + "," + montantconv + "," + montantconv + ", 3, " + QString::number(currentuser()->id()) + ", '" + tip + "'), \n";
-                }
-        }
         req = req.left(req.lastIndexOf(")")+1);
         //proc->Edit(req);
         QString reqDel = "delete from " TBL_COTATIONS " where " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());

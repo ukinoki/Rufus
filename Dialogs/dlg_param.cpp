@@ -53,6 +53,7 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
 
     QHBoxLayout *Marge2lay      = new QHBoxLayout();
+    QHBoxLayout *Margelay       = new QHBoxLayout();
     QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
     int marge   = 10;
@@ -616,14 +617,6 @@ dlg_param::~dlg_param()
     delete ui;
 }
 
-
-void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
-{
-    QPoint pos = cursor().pos();
-    QRect rect = QRect(pos,QSize(10,10));
-    if (table == ui->ActesCCAMupTableWidget)
-        QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(item->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
-}
 
 /*!
  * \brief dlg_param::AfficheToolTip
@@ -1492,7 +1485,7 @@ void dlg_param::RegleAssocBoutons()
     {
         if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
             modifboutonsActes = true;
-        else if (ui->AssocCCAMupTableWidget->isAncestorOf(check0))
+        else if (ui->cotationsUpTableView->isAncestorOf(check0))
         {
             if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
             {
@@ -2590,7 +2583,6 @@ void dlg_param::ConnectSignals()
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->FrontoupComboBox,a);});
     connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
-    connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
     ui->cotationsUpTableView    ->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
     connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCodeCCAM);
