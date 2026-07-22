@@ -2879,14 +2879,18 @@ QList<Cotation*> DataBase::loadUserCotations(User *usr)
     auto ajoute = [&](const QString &typeacte, const QString &descriptif,
                       double montoptam, double montnonoptam, double pratique, int type)
     {
+        //! montantnonoptam seulement si le user n'est pas OPTAM ET cotation CCAM (1) ou assoc CCAM (4) ;
+        //! sinon montantoptam (qui, pour NGAP=2/hors=3, porte le montant unique). Rangé dans
+        //! montantoptam car montantconventionnel() renvoie m_montantoptam.
+        const double conventionnel = (!optam && (type == 1 || type == 4)) ? montnonoptam : montoptam;
         QJsonObject j{};
         j["idcotation"]           = ++k;                            //! id synthétique unique (évite les collisions entre tables)
         j["typeacte"]             = typeacte;
         j["descriptif"]           = descriptif;
         j["ccam"]                 = type;
-        j["montantoptam"]         = (optam ? montoptam : montnonoptam);
+        j["montantoptam"]         = conventionnel;
         j["montantnonoptam"]      = montnonoptam;
-        j["montantconventionnel"] = (optam ? montoptam : montnonoptam);
+        j["montantconventionnel"] = conventionnel;
         j["montantpratique"]      = pratique;
         cotations << new Cotation(j);
     };
