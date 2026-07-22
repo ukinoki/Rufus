@@ -1090,37 +1090,50 @@ void DataBase::majNGAP()
 }
 
 /*!
- * \brief DataBase::exporteJointuresCotations
- * migre vers jointurescotations les cotations personnalisées par un utilisateur (idUser renseigné)
- * qui ne sont pas de la CCAM pure (CCAM <> 1 : association, hors nomenclature...).
- * On reporte idcotation, idUser et le montant pratiqué.
+ * \brief DataBase::exporteJointures
+ * migre les cotations personnalisées par un utilisateur (idUser renseigné) vers les tables de
+ * jointures dédiées, une par type. Chaque type est reconnu à sa propriété intrinsèque (donc sans
+ * dépendre du reclassement CCAM=4, fait plus tard par nettoieTableCotations) :
+ * - CCAM = 1 et Typeacte présent dans ccam  -> jointuresccam (idccam de l'acte) ;
+ * - CCAM = 1 et Typeacte absent de ccam      -> jointuresassociations (association de 2 actes) ;
+ * - CCAM = 2 (NGAP)                          -> jointurescotations ;
+ * - CCAM = 3 (hors NGAP/CCAM)                -> jointurescotationsautres.
+ * Dans les 3 dernières on stocke idcotation ; dans toutes, idUser et le montant pratiqué.
  */
-void DataBase::exporteJointuresCotations()
+void DataBase::exporteJointures()
 {
     if (!m_db.isOpen())
         return;
-    StandardSQL("insert into " TBL_JOINTURESCOTATIONS
-                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
-                " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
-                " from " TBL_COTATIONS
-                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " <> 1");
-}
 
-/*!
- * \brief DataBase::exporteJointuresCCAM
- * migre vers jointuresccam les cotations personnalisées par un utilisateur (idUser renseigné) de
- * la CCAM pure (CCAM = 1) dont le Typeacte existe dans la table ccam.
- * On stocke l'idccam de l'acte correspondant (pas l'idcotation), idUser et le montant pratiqué.
- */
-void DataBase::exporteJointuresCCAM()
-{
-    if (!m_db.isOpen())
-        return;
+    //! CCAM pure -> jointuresccam (lien vers l'acte ccam via idccam)
     StandardSQL("insert into " TBL_JOINTURESCCAM
                 " (" CP_IDCCAM_JOINTCCAM ", " CP_IDUSER_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCCAM ")"
                 " select cc." CP_ID_CCAM ", cot." CP_IDUSER_COTATIONS ", cot." CP_MONTANTPRATIQUE_COTATIONS
                 " from " TBL_COTATIONS " cot join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
                 " where cot." CP_IDUSER_COTATIONS " is not null and cot." CP_CODECCAM_COTATIONS " = 1");
+
+    //! associations CCAM (CCAM=1 mais Typeacte absent de ccam) -> jointuresassociations
+    StandardSQL("insert into " TBL_JOINTURESASSOCIATIONS
+                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
+                " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
+                " from " TBL_COTATIONS
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 1"
+                " and not exists (select 1 from " TBL_CCAM
+                " where " TBL_CCAM "." CP_CODECCAM_CCAM " = " TBL_COTATIONS "." CP_TYPEACTE_COTATIONS ")");
+
+    //! NGAP (CCAM=2) -> jointurescotations
+    StandardSQL("insert into " TBL_JOINTURESCOTATIONS
+                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
+                " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
+                " from " TBL_COTATIONS
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 2");
+
+    //! hors NGAP/CCAM (CCAM=3) -> jointurescotationsautres
+    StandardSQL("insert into " TBL_JOINTURESCOTATIONSAUTRES
+                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
+                " select " CP_ID_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS
+                " from " TBL_COTATIONS
+                " where " CP_IDUSER_COTATIONS " is not null and " CP_CODECCAM_COTATIONS " = 3");
 }
 
 /*!

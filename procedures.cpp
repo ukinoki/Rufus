@@ -3318,9 +3318,8 @@ bool Procedures::VerifVersionBase(QWidget* parent)
             if (Version == 83 && a == 0)
             {
                 //! les cotations personnalisées (montant pratiqué par utilisateur) migrent vers
-                //! les tables de jointures dédiées, créées par majbase83
-                db->exporteJointuresCotations();
-                db->exporteJointuresCCAM();
+                //! les 4 tables de jointures dédiées, créées par majbase83
+                db->exporteJointures();
                 //! puis on nettoie cotations : reclasse les associations (CCAM=4) et déduplique
                 db->nettoieTableCotations();
             }

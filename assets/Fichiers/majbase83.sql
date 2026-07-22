@@ -102,6 +102,18 @@ BEGIN
         `idUser` INT(11) NULL DEFAULT NULL,
         `MontantPratique` DOUBLE NULL DEFAULT NULL,
         PRIMARY KEY (`idJointure`));
+    CREATE TABLE IF NOT EXISTS `rufus`.`jointuresassociations` (
+        `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
+        `idCotation` INT(11) NULL DEFAULT NULL,
+        `idUser` INT(11) NULL DEFAULT NULL,
+        `MontantPratique` DOUBLE NULL DEFAULT NULL,
+        PRIMARY KEY (`idJointure`));
+    CREATE TABLE IF NOT EXISTS `rufus`.`jointurescotationsautres` (
+        `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
+        `idCotation` INT(11) NULL DEFAULT NULL,
+        `idUser` INT(11) NULL DEFAULT NULL,
+        `MontantPratique` DOUBLE NULL DEFAULT NULL,
+        PRIMARY KEY (`idJointure`));
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();

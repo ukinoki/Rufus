@@ -241,8 +241,7 @@ public:
     double valeurAMYDOM();
     MajCotations verifMajCotations();                           //! compare les versions du fichier de cotations à celles en base
     void majNGAP();                                             //! importe les actes NGAP (AMY) du fichier de cotations dans la table cotations
-    void exporteJointuresCotations();                           //! migre les cotations perso non-CCAM-pure (idUser, CCAM<>1) vers jointurescotations
-    void exporteJointuresCCAM();                                //! migre les cotations perso de CCAM pure (idUser, CCAM=1, Typeacte dans ccam) vers jointuresccam
+    void exporteJointures();                                    //! migre les cotations perso vers les 4 tables de jointures (ccam, associations, cotations/NGAP, autres)
     void nettoieTableCotations();                              //! reclasse les associations CCAM (->4) puis ne garde qu'une ligne par Typeacte
 
     /*

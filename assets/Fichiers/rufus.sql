@@ -835,6 +835,56 @@ LOCK TABLES `jointurescotations` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `jointuresassociations`
+--
+
+DROP TABLE IF EXISTS `jointuresassociations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jointuresassociations` (
+  `idJointure` int(11) NOT NULL AUTO_INCREMENT,
+  `idCotation` int(11) DEFAULT NULL,
+  `idUser` int(11) DEFAULT NULL,
+  `MontantPratique` DOUBLE DEFAULT NULL,
+  PRIMARY KEY (`idJointure`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jointuresassociations`
+--
+
+LOCK TABLES `jointuresassociations` WRITE;
+/*!40000 ALTER TABLE `jointuresassociations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointuresassociations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jointurescotationsautres`
+--
+
+DROP TABLE IF EXISTS `jointurescotationsautres`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jointurescotationsautres` (
+  `idJointure` int(11) NOT NULL AUTO_INCREMENT,
+  `idCotation` int(11) DEFAULT NULL,
+  `idUser` int(11) DEFAULT NULL,
+  `MontantPratique` DOUBLE DEFAULT NULL,
+  PRIMARY KEY (`idJointure`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jointurescotationsautres`
+--
+
+LOCK TABLES `jointurescotationsautres` WRITE;
+/*!40000 ALTER TABLE `jointurescotationsautres` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointurescotationsautres` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `jointuresLieux`
 --
 

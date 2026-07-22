@@ -89,6 +89,8 @@ public:
 #define TBL_IMPRESSIONS                       "rufus.courriers"
 #define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
 #define TBL_JOINTURESCOTATIONS                "rufus.jointurescotations"
+#define TBL_JOINTURESASSOCIATIONS             "rufus.jointuresassociations"
+#define TBL_JOINTURESCOTATIONSAUTRES          "rufus.jointurescotationsautres"
 #define TBL_JOINTURESCCAM                     "rufus.jointuresccam"
 #define TBL_JOINTURESLIEUX                    "rufus.jointuresLieux"
 #define TBL_LIEUXEXERCICE                     "rufus.LieuxExercice"
