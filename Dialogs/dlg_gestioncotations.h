@@ -40,7 +40,7 @@ private:
     UpLineEdit  *wdg_tarifoptamline = Q_NULLPTR;
     UpLineEdit  *wdg_tarifnooptamline = Q_NULLPTR;
     UpLineEdit  *wdg_tarifpratiqueline = Q_NULLPTR;
-    UpLineEdit  *wdg_tipline = Q_NULLPTR;
+    UpTextEdit  *wdg_tipline = Q_NULLPTR;
     QWidget     *wdg_codewidg = Q_NULLPTR;
     QWidget     *wdg_tarifoptamwidg = Q_NULLPTR;
     QWidget     *wdg_tarifnooptamwidg = Q_NULLPTR;

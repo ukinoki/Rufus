@@ -45,9 +45,9 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     connect(wdg_codeline,       &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
     dlglayout()                 ->replaceWidget(widgetbuttons(), wdg_codewidg);
 
-    wdg_tipline                 = new UpLineEdit();
+    wdg_tipline                 = new UpTextEdit();
     wdg_tipline                 ->setFixedWidth(300);
-    wdg_tipline                 ->setAlignment(Qt::AlignRight);
+    wdg_tipline                 ->setFixedHeight(90);       /*!< ~4-5 lignes : le Tip est désormais multiligne (libellé NGAP + personnalisation) */
     wdg_tipwidg                 = new QWidget();
     UpLabel *tiplabel           = new UpLabel();
     tiplabel                    ->setText(TIP);
@@ -55,10 +55,9 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
     tiplay                      ->insertWidget(0, tiplabel);
     tiplay                      ->insertSpacerItem(1, new QSpacerItem(10,5));
     tiplay                      ->insertWidget(2, wdg_tipline);
-    wdg_tipline                 ->setMaxLength(75);
     tiplay                      ->setContentsMargins(0,0,0,0);
     wdg_tipwidg                 ->setLayout(tiplay);
-    connect(wdg_tipline,        &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_tipline,        &QTextEdit::textChanged, this,   [=] {OKButton->setEnabled(true);});
     dlglayout()                 ->addWidget(wdg_tipwidg);
 
     if (m_typeacte == Association)
@@ -164,7 +163,7 @@ dlg_gestioncotations::dlg_gestioncotations(TypeActe type, Mode mode, QString Cod
                 wdg_tarifnooptamline    ->setText(QLocale().toString(listcot.at(1).toDouble(),'f',2));
             if (wdg_tarifpratiqueline)
                 wdg_tarifpratiqueline   ->setText(QLocale().toString(listcot.at(2).toDouble(),'f',2));
-            wdg_tipline                 ->setText(listcot.at(3).toString());
+            wdg_tipline                 ->setPlainText(listcot.at(3).toString());
         }
     }
 
@@ -229,7 +228,7 @@ bool dlg_gestioncotations::VerifFiche()
                     + (wdg_tarifnooptamline?    QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()))   : "null") + ", "
                     + (wdg_tarifpratiqueline?   QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text()))  : "null") + ", 2, "
                     + QString::number(Datas::I()->users->userconnected()->id()) + ", '"
-                    + Utils::correctquoteSQL(wdg_tipline->text()) + "')";
+                    + Utils::correctquoteSQL(wdg_tipline->toPlainText()) + "')";
         }
         else
         {
@@ -238,7 +237,7 @@ bool dlg_gestioncotations::VerifFiche()
                   CP_MONTANTOPTAM_COTATIONS " = "       + (wdg_tarifoptamline?      QString::number(QLocale().toDouble(wdg_tarifoptamline->text()))     : "null") + ", " +
                   CP_MONTANTNONOPTAM_COTATIONS " = "    + (wdg_tarifnooptamline?    QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()))   : "null") + ", " +
                   CP_MONTANTPRATIQUE_COTATIONS " = "    + (wdg_tarifpratiqueline?   QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text()))  : "null") + ", " +
-                  CP_TIP_COTATIONS " = '"               + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
+                  CP_TIP_COTATIONS " = '"               + Utils::correctquoteSQL(wdg_tipline->toPlainText()) + "' " +
                   " where "
                   CP_IDUSER_COTATIONS " = "             + QString::number(Datas::I()->users->userconnected()->id()) +
                   " and "
@@ -276,7 +275,7 @@ bool dlg_gestioncotations::VerifFiche()
                     + wdg_codeline->text() + "', null, null, "
                     + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", 3, "
                     + QString::number(Datas::I()->users->userconnected()->id()) + ", '"
-                    + Utils::correctquoteSQL(wdg_tipline->text()) + "')";
+                    + Utils::correctquoteSQL(wdg_tipline->toPlainText()) + "')";
         }
         else
         {
@@ -285,7 +284,7 @@ bool dlg_gestioncotations::VerifFiche()
                     CP_MONTANTOPTAM_COTATIONS " = null, "
                     CP_MONTANTNONOPTAM_COTATIONS " = null, "
                     CP_MONTANTPRATIQUE_COTATIONS " = " + QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text())) + ", " +
-                    CP_TIP_COTATIONS " = '"            + Utils::correctquoteSQL(wdg_tipline->text()) + "' " +
+                    CP_TIP_COTATIONS " = '"            + Utils::correctquoteSQL(wdg_tipline->toPlainText()) + "' " +
                     " where "
                     CP_IDUSER_COTATIONS " = "          + QString::number(Datas::I()->users->userconnected()->id()) +
                     " and "
