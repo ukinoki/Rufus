@@ -49,7 +49,7 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_HNcotationswdgbuttonframe,          &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_HNcotationswdgbuttonframe);});
 
-    wdg_assocCCAMcotationswdgbuttonframe            = new WidgetButtonFrame(ui->AssocCCAMupTableWidget);
+    wdg_assocCCAMcotationswdgbuttonframe            = new WidgetButtonFrame(ui->cotationsUpTableView);
     wdg_assocCCAMcotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_assocCCAMcotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_assocCCAMcotationswdgbuttonframe);});
 
@@ -323,7 +323,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
        QList <QWidget*> ListTab;
-       ListTab << ui->ActesCCAMupTableWidget << ui->AssocCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->HorsNomenclatureupTableWidget
+       ListTab << ui->ActesCCAMupTableWidget << ui->cotationsUpTableView << ui->ChercheCotationupLineEdit << ui->HorsNomenclatureupTableWidget
                << ui->ChoixFontupPushButton;
        for (int i = 0; i<ListTab.size()-1 ; i++ )
            ui->UserParamtab->setTabOrder(ListTab.at(i), ListTab.at(i+1));
@@ -342,7 +342,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->PortableuplineEdit          ->setValidator(new QRegularExpressionValidator(Utils::rgx_telephone,this));
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
-    ui->AssocCCAMupTableWidget          ->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->cotationsUpTableView          ->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_assocCCAMcotationswdgbuttonframe                       ->setEnabled(false);
     wdg_HNcotationswdgbuttonframe                              ->setEnabled(false);
@@ -640,15 +640,6 @@ void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
     QRect rect = QRect(pos,QSize(10,10));
     if (table == ui->ActesCCAMupTableWidget)
         QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(item->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
-    else if (table == ui->AssocCCAMupTableWidget)
-    {
-        QString tip = item->text();
-        UpLineEdit * line = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(item->row(),2));
-        if (line != Q_NULLPTR)
-            if (line->datas().toString() != "")
-                tip += "\n" + line->datas().toString();
-        QToolTip::showText(cursor().pos(),tip, ui->AssocCCAMupTableWidget, rect, 2000);
-    }
     else if (table == ui->HorsNomenclatureupTableWidget)
     {
         QString tip = item->text();
@@ -658,6 +649,20 @@ void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
                 tip += "\n" + line->datas().toString();
         QToolTip::showText(cursor().pos(),tip, ui->HorsNomenclatureupTableWidget, rect, 2000);
     }
+}
+
+/*!
+ * \brief dlg_param::AfficheToolTip
+ * \param idx  index d'une cellule de cotationsUpTableView
+ * infobulle de la table des cotations : le tip (descriptif) de la Cotation portée par la ligne
+ */
+void dlg_param::AfficheToolTip(QModelIndex idx)
+{
+    Cotation *cot = getCotationFromIndex(idx);
+    if (cot == Q_NULLPTR)
+        return;
+    const QRect rect = QRect(cursor().pos(), QSize(10,10));
+    QToolTip::showText(cursor().pos(), cot->descriptif(), ui->cotationsUpTableView, rect, 2000);
 }
 
 void dlg_param::FermepushButtonClicked()
@@ -713,12 +718,12 @@ void dlg_param::ChercheCodeCCAM(QString txt)
             ui->ActesCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
         }
    }
-   listitems = ui->AssocCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
+   listitems = ui->cotationsUpTableView->findItems(txt, Qt::MatchStartsWith);
    if (listitems.size()>0)
    {
         QTableWidgetItem *pitem = listitems.at(0);
-        QModelIndex index = ui->AssocCCAMupTableWidget->model()->index(pitem->row(),1);
-        ui->AssocCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtTop);
+        QModelIndex index = ui->cotationsUpTableView->model()->index(pitem->row(),1);
+        ui->cotationsUpTableView->scrollTo(index, QAbstractItemView::PositionAtTop);
    }
 }
 
@@ -1477,7 +1482,7 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
     if (check)
     {
         int row                 = check->rowTable();
-        QString codeccam        = ui->AssocCCAMupTableWidget->item(row,1)->text();
+        QString codeccam        = ui->cotationsUpTableView->item(row,1)->text();
         QString montantpratique = "";
         if (check->checkState() == Qt::Unchecked)
         {
@@ -1498,24 +1503,24 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
         {
             int secteur = currentuser()->secteurconventionnel();
             QString montantOPTAM(""), montantNonOPTAM("");
-            UpLineEdit *lineOPTAM = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
+            UpLineEdit *lineOPTAM = qobject_cast<UpLineEdit*>(ui->cotationsUpTableView->cellWidget(row,2));
             if (lineOPTAM != Q_NULLPTR)
                 montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
-            UpLineEdit *lineNonOPTAM = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,3));
+            UpLineEdit *lineNonOPTAM = qobject_cast<UpLineEdit*>(ui->cotationsUpTableView->cellWidget(row,3));
             if (lineNonOPTAM != Q_NULLPTR)
                 montantNonOPTAM    = QString::number(QLocale().toDouble(lineNonOPTAM->text()));
             if (secteur>1)
             {
-                UpLineEdit *lineprat = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,4));
+                UpLineEdit *lineprat = qobject_cast<UpLineEdit*>(ui->cotationsUpTableView->cellWidget(row,4));
                 if (lineprat)
                     montantpratique = QString::number(QLocale().toDouble(lineprat->text()));
                 else
                 {
                     UpLineEdit *lbl = new UpLineEdit();
                     if (currentuser()->isOPTAM())
-                        lbl->setText(ui->AssocCCAMupTableWidget->item(row,2)->text());
+                        lbl->setText(ui->cotationsUpTableView->item(row,2)->text());
                     else
-                        lbl->setText(ui->AssocCCAMupTableWidget->item(row,3)->text());
+                        lbl->setText(ui->cotationsUpTableView->item(row,3)->text());
                     lbl->setAlignment(Qt::AlignRight);
                     lbl->setStyleSheet("QLineEdit {border: 0px solid rgb(150,150,150);}"
                                        "QLineEdit:disabled {background-color:lightGray;}");
@@ -1524,7 +1529,7 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
                     val->setDecimals(2);
                     lbl->setValidator(val);
                     connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl, txt);});
-                    ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl);
+                    ui->cotationsUpTableView->setCellWidget(row,4,lbl);
                     montantpratique = QString::number(QLocale().toDouble(lbl->text()));
                 }
             }
@@ -1549,7 +1554,7 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
         if (line)
         {
             int row = line->Row();
-            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(row,0));
+            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->cotationsUpTableView->cellWidget(row,0));
             if (check1)
                 if (check1->isChecked())
                 {
@@ -1558,13 +1563,13 @@ void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
                     line->setText(QLocale().toString(montant.toDouble(),'f',2));
                     if (line->Column()==2)
                         req = "update " TBL_COTATIONS " set " CP_MONTANTOPTAM_COTATIONS " = " + montant +
-                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
+                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->cotationsUpTableView->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     else if (line->Column()==3)
                         req = "update " TBL_COTATIONS " set " CP_MONTANTNONOPTAM_COTATIONS " = " + montant +
-                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
+                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->cotationsUpTableView->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     else if (line->Column()==4)
                         req = "update " TBL_COTATIONS " set " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
-                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
+                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->cotationsUpTableView->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
                     if (db->StandardSQL(req))
                         m_cotationsmodifiees = true;
                 }
@@ -1665,16 +1670,16 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
     {
         if (ui->ActesCCAMupTableWidget->isAncestorOf(check0))
             modifboutonsActes = true;
-        else if (ui->AssocCCAMupTableWidget->isAncestorOf(check0))
+        else if (ui->cotationsUpTableView->isAncestorOf(check0))
         {
-            if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
+            if (ui->cotationsUpTableView->selectedRanges().size()>0)
             {
-                if (check0->rowTable()==ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow())
+                if (check0->rowTable()==ui->cotationsUpTableView->selectedRanges().at(0).topRow())
                     modifboutonsAssoc = true;
             }
             if (!modifboutonsAssoc)
             {
-                ui->AssocCCAMupTableWidget          ->clearSelection();
+                ui->cotationsUpTableView          ->clearSelection();
                 ui->HorsNomenclatureupTableWidget   ->clearSelection();
                 wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
                 wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
@@ -1691,7 +1696,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             }
             if (!modifboutonsHN)
             {
-                ui->AssocCCAMupTableWidget          ->clearSelection();
+                ui->cotationsUpTableView          ->clearSelection();
                 ui->HorsNomenclatureupTableWidget   ->clearSelection();
                 wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
                 wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
@@ -1701,21 +1706,21 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
         }
     }
 
-    if (widg == ui->AssocCCAMupTableWidget || modifboutonsAssoc)
+    if (widg == ui->cotationsUpTableView || modifboutonsAssoc)
     {
         ui->ActesCCAMupTableWidget          ->clearSelection();
         ui->HorsNomenclatureupTableWidget   ->clearSelection();
         bool checked = true;
-        if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
+        if (ui->cotationsUpTableView->selectedRanges().size()>0)
         {
-            UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow(),0));
+            UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->cotationsUpTableView->cellWidget(ui->cotationsUpTableView->selectedRanges().at(0).topRow(),0));
             if (check)
                 checked = check->isChecked();
         }
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
+        wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->cotationsUpTableView->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
+        wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled((ui->cotationsUpTableView->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
@@ -1723,7 +1728,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
     }
     else if (widg == ui->ActesCCAMupTableWidget || modifboutonsActes)
     {
-        ui->AssocCCAMupTableWidget          ->clearSelection();
+        ui->cotationsUpTableView          ->clearSelection();
         ui->HorsNomenclatureupTableWidget   ->clearSelection();
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
         wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
@@ -1733,7 +1738,7 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
     else if (widg == ui->HorsNomenclatureupTableWidget || modifboutonsHN)
     {
         ui->ActesCCAMupTableWidget          ->clearSelection();
-        ui->AssocCCAMupTableWidget          ->clearSelection();
+        ui->cotationsUpTableView          ->clearSelection();
         bool checked = true;
         if (check0)
             if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
@@ -1808,10 +1813,10 @@ void dlg_param::NouvAssocCCAM()
 void dlg_param::ModifAssocCCAM()
 {
     QString CodeActe = "";
-    if (ui->AssocCCAMupTableWidget->selectedRanges().size()==0)
+    if (ui->cotationsUpTableView->selectedRanges().size()==0)
         return;
-    int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
-    CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
+    int row = ui->cotationsUpTableView->selectedRanges().at(0).topRow();
+    CodeActe = ui->cotationsUpTableView->item(row,1)->text();
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe, this);
     if (Dlg_CrrCot->exec()>0)
     {
@@ -1824,8 +1829,8 @@ void dlg_param::ModifAssocCCAM()
 
 void dlg_param::SupprAssocCCAM()
 {
-    int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
-    QString CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
+    int row = ui->cotationsUpTableView->selectedRanges().at(0).topRow();
+    QString CodeActe = ui->cotationsUpTableView->item(row,1)->text();
     bool ok;
     QString req = "select " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS
                   " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'"
@@ -2845,7 +2850,8 @@ void dlg_param::ConnectSignals()
     connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
     connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
-    connect(ui->AssocCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->AssocCCAMupTableWidget, item);});
+    ui->cotationsUpTableView->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
+    connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
     connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::ChercheCodeCCAM);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
@@ -2917,28 +2923,28 @@ void dlg_param::EnableAssocCCAM(bool enable)
     bool autormodif = enable
                       && (currentuser()->isAlterneResponsableEtAssistant() || currentuser()->isResponsable() || currentuser()->isAssistant())
                       && !currentuser()->isRemplacant();  // les remplaçants ne peuvent pas modifier les actes
-    for (int i=0; i<ui->AssocCCAMupTableWidget->rowCount(); i++)
+    for (int i=0; i<ui->cotationsUpTableView->rowCount(); i++)
     {
-        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(i,0));
+        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->cotationsUpTableView->cellWidget(i,0));
         if (check) check->setEnabled(autormodif);
-        UpLineEdit *lbl1 = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,2));
+        UpLineEdit *lbl1 = qobject_cast<UpLineEdit*>(ui->cotationsUpTableView->cellWidget(i,2));
         if (lbl1)
             lbl1->setEnabled(autormodif);
-        if (ui->AssocCCAMupTableWidget->columnCount()==5)
+        if (ui->cotationsUpTableView->columnCount()==5)
         {
-            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(i,4));
+            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->cotationsUpTableView->cellWidget(i,4));
             if (lbl)
                 lbl->setEnabled(autormodif);
         }
     }
-    ui->AssocCCAMupTableWidget->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
+    ui->cotationsUpTableView->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
     if (!autormodif)
-        ui->AssocCCAMupTableWidget->clearSelection();
-    ui->AssocCCAMupTableWidget  ->setSelectionMode(QAbstractItemView::SingleSelection);
-    ui->AssocCCAMupTableWidget  ->setSelectionBehavior(QAbstractItemView::SelectRows);
+        ui->cotationsUpTableView->clearSelection();
+    ui->cotationsUpTableView  ->setSelectionMode(QAbstractItemView::SingleSelection);
+    ui->cotationsUpTableView  ->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_assocCCAMcotationswdgbuttonframe               ->setEnabled(autormodif);
-    wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
-    wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton  ->setEnabled(autormodif && ui->AssocCCAMupTableWidget->selectedRanges().size()>0);
+    wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton  ->setEnabled(autormodif && ui->cotationsUpTableView->selectedRanges().size()>0);
+    wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton  ->setEnabled(autormodif && ui->cotationsUpTableView->selectedRanges().size()>0);
 }
 
 void dlg_param::EnableHorsNomenclature(bool enable)
@@ -3721,84 +3727,84 @@ void dlg_param::Remplir_TableAssocCCAM()
 {
     bool ok;
     // Mise en forme de la table AssocCCAM
-    ui->AssocCCAMupTableWidget->setPalette(QPalette(Qt::white));
-    ui->AssocCCAMupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->AssocCCAMupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
-    ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->AssocCCAMupTableWidget->setMouseTracking(true);
+    ui->cotationsUpTableView->setPalette(QPalette(Qt::white));
+    ui->cotationsUpTableView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+    ui->cotationsUpTableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    ui->cotationsUpTableView->verticalHeader()->setVisible(false);
+    ui->cotationsUpTableView->setSelectionMode(QAbstractItemView::NoSelection);
+    ui->cotationsUpTableView->setMouseTracking(true);
     int ncol = 4;
     if (m_parametres->cotationsfrance())
     {
         if (currentuser()->secteurconventionnel() > 1)
             ncol = 5;
-        ui->AssocCCAMupTableWidget->setColumnCount(ncol);
-        ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-        ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
-        ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //OPTAM
-        ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //NonOPTAM
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("OPTAM"));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("non\nOPTAM"));
-        ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
+        ui->cotationsUpTableView->setColumnCount(ncol);
+        ui->cotationsUpTableView->setColumnWidth(0,20);           //checkbox
+        ui->cotationsUpTableView->setColumnWidth(1,135);          //code CCAM
+        ui->cotationsUpTableView->setColumnWidth(2,65);           //OPTAM
+        ui->cotationsUpTableView->setColumnWidth(3,65);           //NonOPTAM
+        ui->cotationsUpTableView->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
+        ui->cotationsUpTableView->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
+        ui->cotationsUpTableView->setHorizontalHeaderItem(2, new QTableWidgetItem("OPTAM"));
+        ui->cotationsUpTableView->setHorizontalHeaderItem(3, new QTableWidgetItem("non\nOPTAM"));
+        ui->cotationsUpTableView->horizontalHeader()->setVisible(true);
+        ui->cotationsUpTableView->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
+        ui->cotationsUpTableView->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
+        ui->cotationsUpTableView->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
         if (ncol==5)
         {
-            ui->AssocCCAMupTableWidget->setColumnWidth(4,75);      //Tarif pratiqué
-            ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Tarif\npratiqué"));
-                ui->AssocCCAMupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
+            ui->cotationsUpTableView->setColumnWidth(4,75);      //Tarif pratiqué
+            ui->cotationsUpTableView->setHorizontalHeaderItem(4, new QTableWidgetItem("Tarif\npratiqué"));
+                ui->cotationsUpTableView->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
         }
     }
     else
     {
-        ui->AssocCCAMupTableWidget->setColumnCount(4);
-        ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-        ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
-        ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //montant conventionnle
-        ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //Tarif pratiqué
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("Cotation")));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(tr("Montant")));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(tr("Pratiqué")));
-        ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
+        ui->cotationsUpTableView->setColumnCount(4);
+        ui->cotationsUpTableView->setColumnWidth(0,20);           //checkbox
+        ui->cotationsUpTableView->setColumnWidth(1,135);          //code CCAM
+        ui->cotationsUpTableView->setColumnWidth(2,65);           //montant conventionnle
+        ui->cotationsUpTableView->setColumnWidth(3,65);           //Tarif pratiqué
+        ui->cotationsUpTableView->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
+        ui->cotationsUpTableView->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("Cotation")));
+        ui->cotationsUpTableView->setHorizontalHeaderItem(2, new QTableWidgetItem(tr("Montant")));
+        ui->cotationsUpTableView->setHorizontalHeaderItem(3, new QTableWidgetItem(tr("Pratiqué")));
+        ui->cotationsUpTableView->horizontalHeader()->setVisible(true);
+        ui->cotationsUpTableView->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
+        ui->cotationsUpTableView->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
+        ui->cotationsUpTableView->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
     }
-    ui->AssocCCAMupTableWidget->FixLargeurTotale();
-    wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent()->setFixedWidth(ui->AssocCCAMupTableWidget->width());
-    ui->AssocCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->AssocCCAMupTableWidget,     &QTableWidget::currentCellChanged,  this, [=] {RegleAssocBoutons(ui->AssocCCAMupTableWidget);});
-    connect(ui->AssocCCAMupTableWidget,     &QTableWidget::cellClicked,         this, [=] {RegleAssocBoutons(ui->AssocCCAMupTableWidget);});
+    ui->cotationsUpTableView->FixLargeurTotale();
+    wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent()->setFixedWidth(ui->cotationsUpTableView->width());
+    ui->cotationsUpTableView->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
+    connect(ui->cotationsUpTableView,     &QTableWidget::currentCellChanged,  this, [=] {RegleAssocBoutons(ui->cotationsUpTableView);});
+    connect(ui->cotationsUpTableView,     &QTableWidget::cellClicked,         this, [=] {RegleAssocBoutons(ui->cotationsUpTableView);});
 
     //Remplissage Table AssocCCCAM
     QTableWidgetItem    *pItem0;
     UpCheckBox          *check;
     QDoubleValidator *val = new QDoubleValidator(this);
     val->setDecimals(2);
-    ui->AssocCCAMupTableWidget->clearContents();
+    ui->cotationsUpTableView->clearContents();
     QString Assocrequete = "SELECT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
             CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + " order by " CP_TYPEACTE_COTATIONS;
     //qDebug() << Assocrequete;
     QList<QVariantList> Assoclist = db->StandardSelectSQL(Assocrequete, ok);
     if (!ok)
         return;
-    ui->AssocCCAMupTableWidget->setRowCount(Assoclist.size());
+    ui->cotationsUpTableView->setRowCount(Assoclist.size());
     for (int i=0; i<Assoclist.size(); i++)
     {
         pItem0      = new QTableWidgetItem();
-        check       = new UpCheckBox(ui->AssocCCAMupTableWidget);
+        check       = new UpCheckBox(ui->cotationsUpTableView);
         check->setRowTable(i);
         check->setEnabled(false);
         check->setChecked(true);
         connect(check,  &QCheckBox::clicked,  this,   [=] { MAJAssocCCAM(check);
                                                             RegleAssocBoutons(check); });
-        ui->AssocCCAMupTableWidget->setCellWidget(i,0,check);
+        ui->cotationsUpTableView->setCellWidget(i,0,check);
         pItem0->setText(Assoclist.at(i).at(0).toString());                             // codeCCAM
-        ui->AssocCCAMupTableWidget->setItem(i,1,pItem0);
+        ui->cotationsUpTableView->setItem(i,1,pItem0);
 
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Assoclist.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
@@ -3810,7 +3816,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
         connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(i,2,lbl1);
+        ui->cotationsUpTableView->setCellWidget(i,2,lbl1);
 
         int rang = (m_parametres->cotationsfrance()?2:3);
         UpLineEdit *lbl2 = new UpLineEdit();
@@ -3822,7 +3828,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl2->setValidator(val);
         lbl2->setEnabled(false);
         connect(lbl2,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl2, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(i,3,lbl2);
+        ui->cotationsUpTableView->setCellWidget(i,3,lbl2);
 
         if (ncol == 5)
         {
@@ -3835,9 +3841,9 @@ void dlg_param::Remplir_TableAssocCCAM()
             lbl3->setValidator(val);
             lbl3->setEnabled(false);
             connect(lbl3,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl3, txt);});
-            ui->AssocCCAMupTableWidget->setCellWidget(i,4,lbl3);
+            ui->cotationsUpTableView->setCellWidget(i,4,lbl3);
         }
-        ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
+        ui->cotationsUpTableView->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
     Assocrequete = "SELECT DISTINCT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
                     CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2"
@@ -3849,8 +3855,8 @@ void dlg_param::Remplir_TableAssocCCAM()
         return;
     for (int i=0; i<Assoc2list.size(); i++)
     {
-        int row = ui->AssocCCAMupTableWidget->rowCount();
-        ui->AssocCCAMupTableWidget->insertRow(row);
+        int row = ui->cotationsUpTableView->rowCount();
+        ui->cotationsUpTableView->insertRow(row);
         pItem0      = new QTableWidgetItem();
         check       = new UpCheckBox(ui->HorsNomenclatureupTableWidget);
         check->setRowTable(row);
@@ -3858,9 +3864,9 @@ void dlg_param::Remplir_TableAssocCCAM()
         check->setChecked(false);
         connect(check,  &QCheckBox::clicked,  this,   [=] { MAJAssocCCAM(check);
                                                             RegleAssocBoutons(check); });
-        ui->AssocCCAMupTableWidget->setCellWidget(row,0,check);
+        ui->cotationsUpTableView->setCellWidget(row,0,check);
         pItem0->setText(Assoc2list.at(i).at(0).toString());                             // codeCCAM
-        ui->AssocCCAMupTableWidget->setItem(row,1,pItem0);
+        ui->cotationsUpTableView->setItem(row,1,pItem0);
 
         UpLineEdit *lbl1 = new UpLineEdit();
         lbl1->setText(QLocale().toString(Assoc2list.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
@@ -3872,7 +3878,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl1->setValidator(val);
         lbl1->setEnabled(false);
         connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(row,2,lbl1);
+        ui->cotationsUpTableView->setCellWidget(row,2,lbl1);
 
         UpLineEdit *lbl2 = new UpLineEdit();
         lbl2->setText(QLocale().toString(Assoc2list.at(i).at(2).toDouble(),'f',2));      // montant nonOPTAM
@@ -3883,7 +3889,7 @@ void dlg_param::Remplir_TableAssocCCAM()
         lbl2->setValidator(val);
         lbl2->setEnabled(false);
         connect(lbl2,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl2, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(row,3,lbl2);
+        ui->cotationsUpTableView->setCellWidget(row,3,lbl2);
 
         if (ncol == 5)
         {
@@ -3896,9 +3902,9 @@ void dlg_param::Remplir_TableAssocCCAM()
             lbl3->setValidator(val);
             lbl3->setEnabled(false);
             connect(lbl3,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl3, txt);});
-            ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl3);
+            ui->cotationsUpTableView->setCellWidget(row,4,lbl3);
         }
-        ui->AssocCCAMupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
+        ui->cotationsUpTableView->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
         row ++;
     }
 }
@@ -4536,7 +4542,7 @@ bool dlg_param::Valide_Modifications()
 
 /*!
  * \brief dlg_param::remplitTableAssocCCAM
- * Remplit AssocCCAMupTableWidget (UpTableView) à neuf avec les cotations d'association CCAM
+ * Remplit cotationsUpTableView (UpTableView) à neuf avec les cotations d'association CCAM
  * (type 4) de la map de référence. Chaque ligne porte sa Cotation (rufusitem) et est cochée si
  * l'utilisateur courant l'utilise (used). 3 colonnes : acte, montant conventionnel, montant
  * pratiqué ; le tip de l'acte est en infobulle.
@@ -4574,19 +4580,17 @@ void dlg_param::remplitTableAssocCCAM()
         itconv          ->setEditable(false);
         UpStandardItem *itprat = new UpStandardItem(QLocale().toString(cot->montantpratique(), 'f', 2), cot);
         itprat          ->setEditable(false);
-        for (UpStandardItem *itm : { itacte, itconv, itprat })      //! infobulle = tip de l'acte, sur toute la ligne
-            itm         ->setToolTip(cot->descriptif());
         m_modelAssoc    ->setItem(row, 0, itacte);
         m_modelAssoc    ->setItem(row, 1, itconv);
         m_modelAssoc    ->setItem(row, 2, itprat);
         ++row;
     }
 
-    QItemSelectionModel *sel = ui->AssocCCAMupTableWidget->selectionModel();   //! à détruire après setModel (bugs d'affichage à la réinitialisation)
-    ui->AssocCCAMupTableWidget          ->setModel(m_modelAssoc);
+    QItemSelectionModel *sel = ui->cotationsUpTableView->selectionModel();   //! à détruire après setModel (bugs d'affichage à la réinitialisation)
+    ui->cotationsUpTableView          ->setModel(m_modelAssoc);
     if (sel != Q_NULLPTR)
         delete sel;
-    ui->AssocCCAMupTableWidget          ->verticalHeader()->setVisible(false);
+    ui->cotationsUpTableView          ->verticalHeader()->setVisible(false);
 }
 
 /*!

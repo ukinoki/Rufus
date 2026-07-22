@@ -618,7 +618,7 @@
               </rect>
              </property>
             </widget>
-            <widget class="UpTableView" name="AssocCCAMupTableWidget">
+            <widget class="UpTableView" name="cotationsUpTableView">
              <property name="geometry">
               <rect>
                <x>30</x>
