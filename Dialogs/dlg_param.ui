@@ -618,7 +618,7 @@
               </rect>
              </property>
             </widget>
-            <widget class="UpTableWidget" name="AssocCCAMupTableWidget">
+            <widget class="UpTableView" name="AssocCCAMupTableWidget">
              <property name="geometry">
               <rect>
                <x>30</x>
@@ -4293,6 +4293,11 @@ des organismes bancaires</string>
    <class>UpTableWidget</class>
    <extends>QTableWidget</extends>
    <header>uptablewidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableView</class>
+   <extends>QTableView</extends>
+   <header>uptableview.h</header>
   </customwidget>
   <customwidget>
    <class>UpRadioButton</class>

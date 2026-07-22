@@ -32,6 +32,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_villecpwidget.h"
 #include "widgetbuttonframe.h"
 #include "upheaderview.h"
+#include "upstandarditemmodel.h"
+#include "upstandarditem.h"
+#include "cls_cotations.h"
 
 namespace Ui {
 class dlg_param;
@@ -56,6 +59,13 @@ private:
     User*                   currentuser() { return Datas::I()->users->userconnected(); }
     ParametresSysteme       *m_parametres           = db->parametres();
     bool m_custombasevilles = Datas::I()->villes->iscustomizedbase();
+
+    /*! table des associations CCAM (modèle/vue) : les cotations d'association (type 4) de la map de
+        référence, cochées si l'utilisateur courant les utilise (used) */
+    Cotations               *m_cotations             = Q_NULLPTR;    //!< map de référence + used() du user courant
+    UpStandardItemModel     *m_modelAssoc            = Q_NULLPTR;    //!< modèle de AssocCCAMupTableWidget
+    void                    remplitTableAssocCCAM();                //!< (re)remplit la table des associations CCAM
+    Cotation*               getCotationFromIndex(QModelIndex idx);  //!< la cotation portée par la ligne d'index idx
 
     bool                    m_modifposte            = false;
     bool                    m_alerteMDPencours      = false;   //! garde-fou de ré-entrance de l'alerte « mot de passe de connexion modifié »
