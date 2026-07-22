@@ -97,7 +97,6 @@ private:
     void                EnableAssocCCAM(bool enable = true);
     void                EnableHorsNomenclature(bool enable = true);
     void                Remplir_TableActesCCAM(bool ophtaseul = true);
-    void                Remplir_TableAssocCCAM();
     void                Remplir_TableHorsNomenclature();
     void                Remplir_Tables();
     bool                Valide_Modifications();

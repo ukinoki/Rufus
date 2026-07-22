@@ -1803,7 +1803,7 @@ void dlg_param::NouvAssocCCAM()
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
-        Remplir_TableAssocCCAM();
+        remplitTableCotations();
         EnableAssocCCAM();
         m_cotationsmodifiees = true;
     }
@@ -1820,7 +1820,7 @@ void dlg_param::ModifAssocCCAM()
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe, this);
     if (Dlg_CrrCot->exec()>0)
     {
-        Remplir_TableAssocCCAM();
+        remplitTableCotations();
         EnableAssocCCAM();
         m_cotationsmodifiees = true;
     }
@@ -1850,7 +1850,7 @@ void dlg_param::SupprAssocCCAM()
     if (UpMessageBox::Question(this, tr("Suppression de cotation"), tr("Confirmez la suppression de la cotation ") + CodeActe)==UpSmallButton::STARTBUTTON)
     {
         db->StandardSQL("delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'");
-        Remplir_TableAssocCCAM();
+        remplitTableCotations();
         EnableAssocCCAM();
         m_cotationsmodifiees = true;
     }
@@ -2760,7 +2760,7 @@ void dlg_param::AfficheParamUser()
         ui->Cotationswidget->setVisible(true);
         if (m_parametres->cotationsfrance())
             Remplir_TableActesCCAM();
-        Remplir_TableAssocCCAM();
+        remplitTableCotations();
         Remplir_TableHorsNomenclature();
 
         wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
@@ -3723,191 +3723,6 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
 // ----------------------------------------------------------------------------------
 // Remplissage de la table des associations CCAM.
 // ----------------------------------------------------------------------------------
-void dlg_param::Remplir_TableAssocCCAM()
-{
-    bool ok;
-    // Mise en forme de la table AssocCCAM
-    ui->AssocCCAMupTableWidget->setPalette(QPalette(Qt::white));
-    ui->AssocCCAMupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->AssocCCAMupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->AssocCCAMupTableWidget->verticalHeader()->setVisible(false);
-    ui->AssocCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->AssocCCAMupTableWidget->setMouseTracking(true);
-    int ncol = 4;
-    if (m_parametres->cotationsfrance())
-    {
-        if (currentuser()->secteurconventionnel() > 1)
-            ncol = 5;
-        ui->AssocCCAMupTableWidget->setColumnCount(ncol);
-        ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-        ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
-        ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //OPTAM
-        ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //NonOPTAM
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("OPTAM"));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("non\nOPTAM"));
-        ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
-        if (ncol==5)
-        {
-            ui->AssocCCAMupTableWidget->setColumnWidth(4,75);      //Tarif pratiqué
-            ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem("Tarif\npratiqué"));
-                ui->AssocCCAMupTableWidget->horizontalHeaderItem(4)->setTextAlignment(Qt::AlignCenter);
-        }
-    }
-    else
-    {
-        ui->AssocCCAMupTableWidget->setColumnCount(4);
-        ui->AssocCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-        ui->AssocCCAMupTableWidget->setColumnWidth(1,135);          //code CCAM
-        ui->AssocCCAMupTableWidget->setColumnWidth(2,65);           //montant conventionnle
-        ui->AssocCCAMupTableWidget->setColumnWidth(3,65);           //Tarif pratiqué
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem(tr("Cotation")));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem(tr("Montant")));
-        ui->AssocCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem(tr("Pratiqué")));
-        ui->AssocCCAMupTableWidget->horizontalHeader()->setVisible(true);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-        ui->AssocCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
-    }
-    ui->AssocCCAMupTableWidget->FixLargeurTotale();
-    wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent()->setFixedWidth(ui->AssocCCAMupTableWidget->width());
-    ui->AssocCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->AssocCCAMupTableWidget,     &QTableWidget::currentCellChanged,  this, [=] {RegleAssocBoutons(ui->AssocCCAMupTableWidget);});
-    connect(ui->AssocCCAMupTableWidget,     &QTableWidget::cellClicked,         this, [=] {RegleAssocBoutons(ui->AssocCCAMupTableWidget);});
-
-    //Remplissage Table AssocCCCAM
-    QTableWidgetItem    *pItem0;
-    UpCheckBox          *check;
-    QDoubleValidator *val = new QDoubleValidator(this);
-    val->setDecimals(2);
-    ui->AssocCCAMupTableWidget->clearContents();
-    QString Assocrequete = "SELECT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-            CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + " order by " CP_TYPEACTE_COTATIONS;
-    //qDebug() << Assocrequete;
-    QList<QVariantList> Assoclist = db->StandardSelectSQL(Assocrequete, ok);
-    if (!ok)
-        return;
-    ui->AssocCCAMupTableWidget->setRowCount(Assoclist.size());
-    for (int i=0; i<Assoclist.size(); i++)
-    {
-        pItem0      = new QTableWidgetItem();
-        check       = new UpCheckBox(ui->AssocCCAMupTableWidget);
-        check->setRowTable(i);
-        check->setEnabled(false);
-        check->setChecked(true);
-        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJAssocCCAM(check);
-                                                            RegleAssocBoutons(check); });
-        ui->AssocCCAMupTableWidget->setCellWidget(i,0,check);
-        pItem0->setText(Assoclist.at(i).at(0).toString());                             // codeCCAM
-        ui->AssocCCAMupTableWidget->setItem(i,1,pItem0);
-
-        UpLineEdit *lbl1 = new UpLineEdit();
-        lbl1->setText(QLocale().toString(Assoclist.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
-        lbl1->setdatas(Assoclist.at(i).at(4));                                           // Tip
-        lbl1->setAlignment(Qt::AlignRight);
-        lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRow(i);
-        lbl1->setColumn(2);
-        lbl1->setValidator(val);
-        lbl1->setEnabled(false);
-        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(i,2,lbl1);
-
-        int rang = (m_parametres->cotationsfrance()?2:3);
-        UpLineEdit *lbl2 = new UpLineEdit();
-        lbl2->setText(QLocale().toString(Assoclist.at(i).at(rang).toDouble(),'f',2));      // montant nonOPTAM
-        lbl2->setAlignment(Qt::AlignRight);
-        lbl2->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl2->setRow(i);
-        lbl2->setColumn(3);
-        lbl2->setValidator(val);
-        lbl2->setEnabled(false);
-        connect(lbl2,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl2, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(i,3,lbl2);
-
-        if (ncol == 5)
-        {
-            UpLineEdit *lbl3 = new UpLineEdit();
-            lbl3->setText(QLocale().toString(Assoclist.at(i).at(3).toDouble(),'f',2));      // Tarif pratiqué
-            lbl3->setAlignment(Qt::AlignRight);
-            lbl3->setStyleSheet("border: 0px solid rgb(150,150,150)");
-            lbl3->setRow(i);
-            lbl3->setColumn(4);
-            lbl3->setValidator(val);
-            lbl3->setEnabled(false);
-            connect(lbl3,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl3, txt);});
-            ui->AssocCCAMupTableWidget->setCellWidget(i,4,lbl3);
-        }
-        ui->AssocCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
-    }
-    Assocrequete = "SELECT DISTINCT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                    CP_TIP_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2"
-                   " and " CP_TYPEACTE_COTATIONS " not in "
-                   "(SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 2 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + ")"
-                   + " order by " CP_TYPEACTE_COTATIONS;
-    QList<QVariantList> Assoc2list = db->StandardSelectSQL(Assocrequete, ok);
-    if (!ok)
-        return;
-    for (int i=0; i<Assoc2list.size(); i++)
-    {
-        int row = ui->AssocCCAMupTableWidget->rowCount();
-        ui->AssocCCAMupTableWidget->insertRow(row);
-        pItem0      = new QTableWidgetItem();
-        check       = new UpCheckBox(ui->HorsNomenclatureupTableWidget);
-        check->setRowTable(row);
-        check->setEnabled(false);
-        check->setChecked(false);
-        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJAssocCCAM(check);
-                                                            RegleAssocBoutons(check); });
-        ui->AssocCCAMupTableWidget->setCellWidget(row,0,check);
-        pItem0->setText(Assoc2list.at(i).at(0).toString());                             // codeCCAM
-        ui->AssocCCAMupTableWidget->setItem(row,1,pItem0);
-
-        UpLineEdit *lbl1 = new UpLineEdit();
-        lbl1->setText(QLocale().toString(Assoc2list.at(i).at(1).toDouble(),'f',2));      // montant OPTAM
-        lbl1->setdatas(Assoc2list.at(i).at(4));                                           // Tip
-        lbl1->setAlignment(Qt::AlignRight);
-        lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRow(i);
-        lbl1->setColumn(2);
-        lbl1->setValidator(val);
-        lbl1->setEnabled(false);
-        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl1, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(row,2,lbl1);
-
-        UpLineEdit *lbl2 = new UpLineEdit();
-        lbl2->setText(QLocale().toString(Assoc2list.at(i).at(2).toDouble(),'f',2));      // montant nonOPTAM
-        lbl2->setAlignment(Qt::AlignRight);
-        lbl2->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl2->setRow(i);
-        lbl2->setColumn(3);
-        lbl2->setValidator(val);
-        lbl2->setEnabled(false);
-        connect(lbl2,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl2, txt);});
-        ui->AssocCCAMupTableWidget->setCellWidget(row,3,lbl2);
-
-        if (ncol == 5)
-        {
-            UpLineEdit *lbl3 = new UpLineEdit();
-            lbl3->setText(QLocale().toString(Assoc2list.at(i).at(3).toDouble(),'f',2));      // Tarif pratiqué
-            lbl3->setAlignment(Qt::AlignRight);
-            lbl3->setStyleSheet("border: 0px solid rgb(150,150,150)");
-            lbl3->setRow(i);
-            lbl3->setColumn(4);
-            lbl3->setValidator(val);
-            lbl3->setEnabled(false);
-            connect(lbl3,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl3, txt);});
-            ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl3);
-        }
-        ui->AssocCCAMupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
-        row ++;
-    }
-}
 
 // ----------------------------------------------------------------------------------
 // Remplissage de la table des actes hors nomenclature.
