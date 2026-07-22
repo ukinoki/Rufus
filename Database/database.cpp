@@ -992,10 +992,17 @@ DataBase::MajCotations DataBase::verifMajCotations()
     if (!elNGAP.isNull())
         maj.ngap = (QDate::fromString(elNGAP.text(), "yyyy-MM-dd") > parametres()->versionNGAP());
 
-    /*! RNO : maj si la valeur du xml diffère de celle enregistrée (la valeur peut baisser) */
+    /*! RNO : maj si la valeur du xml diffère de celle enregistrée (la valeur peut baisser).
+        Cas le plus simple : on applique tout de suite la nouvelle valeur (setvaleurRNO met à
+        jour la base ET le ParametresSysteme en mémoire). */
     const QDomElement elRNO = racine.firstChildElement("RNO").firstChildElement("Valeur");
     if (!elRNO.isNull())
-        maj.rno = (elRNO.text().toDouble() != parametres()->valeurRNO());
+    {
+        const double rnoXml = elRNO.text().toDouble();
+        maj.rno = (rnoXml != parametres()->valeurRNO());
+        if (maj.rno)
+            setvaleurRNO(rnoXml);
+    }
 
     return maj;
 }
