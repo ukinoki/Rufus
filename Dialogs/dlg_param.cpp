@@ -52,51 +52,40 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
 
-    QHBoxLayout *Marge2lay      = new QHBoxLayout();
     QHBoxLayout *Margelay       = new QHBoxLayout();
-    QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
+    QVBoxLayout *AllCotationslay= new QVBoxLayout();
     int marge   = 10;
-    Cotationslay    ->setSpacing(marge);
+    AllCotationslay     ->setSpacing(marge);
     marge = 0;
-    Cotationslay    ->setContentsMargins(marge,marge,marge,marge);
-    Marge2lay       ->setContentsMargins(marge,marge,marge,marge);
-    Marge2lay       ->setSpacing(marge);
+    AllCotationslay     ->setContentsMargins(marge,marge,marge,marge);
+    Margelay            ->setContentsMargins(marge,marge,marge,marge);
+    Margelay            ->setSpacing(marge);
 
-    AssocCCAMlay     ->addWidget(ui->AssocCCAMlabel);
-    AssocCCAMlay     ->addWidget(wdg_cotationswdgbuttonframe->widgButtonParent());
-    AssocCCAMlay     ->setStretch(0,0);
-    AssocCCAMlay     ->setStretch(1,15);
+    Cotationslay        ->addWidget(ui->Cotationslabel);
+    Cotationslay        ->addWidget(wdg_cotationswdgbuttonframe->widgButtonParent());
+    //Cotationslay        ->setStretch(1,15);
 
-    Marge2lay       ->addWidget(ui->Marge2Widget);
-    Marge2lay       ->addLayout(AssocCCAMlay);
-    Marge2lay       ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-    Marge2lay       ->setStretch(0,1);
-    Marge2lay       ->setStretch(1,14);
-    Marge2lay       ->setStretch(2,1);
+    Margelay            ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Maximum, QSizePolicy::Minimum));
+    Margelay            ->addLayout(Cotationslay);
+    Margelay            ->setStretch(1,14);
 
-    Cotationslay    ->addLayout(Marge2lay);
+    AllCotationslay     ->addLayout(Margelay);
 
-    Margelay        ->addWidget(ui->MargeWidget);
-    Margelay        ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
-
-    Cotationslay    ->addLayout(Margelay);
-    Cotationslay    ->setStretch(0,7);      // Marge2lay - les associations
-    Cotationslay    ->setStretch(1,5);      // Margelay - les actes hors nomenclature
+    AllCotationslay     ->setStretch(0,7);
+    AllCotationslay     ->setStretch(1,5);
 
     if (m_parametres->cotationsfrance())    {
 
-        Cotationslay    ->insertWidget(0,ui->CCAMwidget);
-        Cotationslay    ->setStretch(0,8);      // Marge0lay - les actes en CCAM
-        Cotationslay    ->setStretch(1,7);      // Marge2lay - les cotations
+        AllCotationslay ->insertWidget(0,ui->CCAMwidget);
+        AllCotationslay ->setStretch(0,8);
+        AllCotationslay ->setStretch(1,7);
     }
     else
-    {
-        ui->AssocCCAMlabel  ->setText(tr("Cotations"));
         ui->CCAMwidget->setVisible(false);
-    }
 
-    ui->Cotationswidget  ->setLayout(Cotationslay);
+    ui->Cotationslabel  ->setText(tr("Cotations"));
+    ui->Cotationswidget ->setLayout(AllCotationslay);
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);
@@ -105,7 +94,6 @@ dlg_param::dlg_param(QWidget *parent) :
     //! dans la page d'onglet. Posé sur PosteParamtab (trop courte), le layout est sur-contraint
     //! et déborde. Laissé sur son wrapper ParamWidget (841 px, défini dans le .ui), il a la
     //! place nécessaire et tout se met en page sans chevauchement.
-    //ui->PosteParamtab   ->setLayout(ui->PosteLayout);
 
     ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->UserParamtab),Icons::icContact());
     ui->ParamtabWidget              ->setTabIcon(ui->ParamtabWidget->indexOf(ui->PosteParamtab),Icons::icComputer());
@@ -1150,7 +1138,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
     int li = 0;                                                                                   // Réglage de la largeur et du nombre des colonnes
     ui->AdressupTableWidget->setColumnWidth(li,200);                                              // nom du lieu
     li++;
-    ui->AdressupTableWidget->setColumnWidth(li,180);                                              // ville
+    ui->AdressupTableWidget->setColumnWidth(li,140);                                              // ville
     li++;
     ui->AdressupTableWidget->setColumnWidth(li,110);                                              // téléphone
     li++;
@@ -1558,7 +1546,7 @@ void dlg_param::NouvCotation()
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
-        remplitTableCotations();
+        Remplir_TableCotations();
         enableCotations();
         m_cotationsmodifiees = true;
     }
@@ -1577,7 +1565,7 @@ void dlg_param::ModifCotation()
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(type, dlg_gestioncotations::Modification, cot->typeacte(), this);
     if (Dlg_CrrCot->exec()>0)
     {
-        remplitTableCotations();
+        Remplir_TableCotations();
         enableCotations();
         m_cotationsmodifiees = true;
     }
@@ -1619,7 +1607,7 @@ void dlg_param::supprimeCotation(Cotation *cot)
         if (ok && reste.isEmpty())
             db->StandardSQL("delete from " TBL_COTATIONS " where " CP_ID_COTATIONS " = " + idcot);
     }
-    remplitTableCotations();
+    Remplir_TableCotations();
     enableCotations();
     m_cotationsmodifiees = true;
 }
@@ -2489,7 +2477,7 @@ void dlg_param::AfficheParamUser()
         ui->Cotationswidget->setVisible(true);
         if (m_parametres->cotationsfrance())
             Remplir_TableActesCCAM();
-        remplitTableCotations();
+        Remplir_TableCotations();
 
         wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
         wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
@@ -3950,12 +3938,12 @@ bool dlg_param::Valide_Modifications()
 }
 
 /*!
- * \brief dlg_param::remplitTableCotations
+ * \brief dlg_param::Remplir_TableCotations
  * Remplit cotationsUpTableView (UpTableView) à neuf avec les cotations de la map de référence.
  * Chaque ligne porte sa Cotation (rufusitem) et est cochée si l'utilisateur courant l'utilise
  * (used). 3 colonnes : acte, montant conventionnel, montant pratiqué.
  */
-void dlg_param::remplitTableCotations()
+void dlg_param::Remplir_TableCotations()
 {
     //! map de référence (loadCotations) + marquage used() de l'utilisateur courant (loadUserCotations)
     if (m_cotations == Q_NULLPTR)
@@ -3986,8 +3974,10 @@ void dlg_param::remplitTableCotations()
         itacte          ->setEditable(false);
         UpStandardItem *itconv = new UpStandardItem(QLocale().toString(cot->montantconventionnel(), 'f', 2), cot);
         itconv          ->setEditable(false);
+        itconv          ->setTextAlignment(Qt::AlignRight);
         UpStandardItem *itprat = new UpStandardItem(QLocale().toString(cot->montantpratique(), 'f', 2), cot);
         itprat          ->setEditable(false);
+        itprat          ->setTextAlignment(Qt::AlignRight);
         m_modelCotations->setItem(row, 0, itacte);
         m_modelCotations->setItem(row, 1, itconv);
         m_modelCotations->setItem(row, 2, itprat);
@@ -3999,6 +3989,10 @@ void dlg_param::remplitTableCotations()
     if (sel != Q_NULLPTR)
         delete sel;
     ui->cotationsUpTableView            ->verticalHeader()->setVisible(false);
+    ui->cotationsUpTableView            ->setColumnWidth(0,200);
+    ui->cotationsUpTableView            ->setColumnWidth(1,100);
+    ui->cotationsUpTableView            ->setColumnWidth(2,100);
+    ui->cotationsUpTableView            ->FixLargeurTotale();
 
     //! coche/décoche ou édition d'un item : on retrouve la Cotation portée et on l'envoie à MAJCotation
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {

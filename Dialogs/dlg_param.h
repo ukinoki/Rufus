@@ -92,7 +92,7 @@ private:
         l'utilisateur courant les utilise (used) */
     Cotations               *m_cotations             = Q_NULLPTR;    //!< map de référence + used() du user courant
     UpStandardItemModel     *m_modelCotations        = Q_NULLPTR;    //!< modèle de cotationsUpTableView
-    void                    remplitTableCotations();                //!< (re)remplit la table des cotations (used cochées)
+    void                    Remplir_TableCotations();                //!< (re)remplit la table des cotations (used cochées)
     Cotation*               getCotationFromIndex(QModelIndex idx);  //!< la cotation portée par la ligne d'index idx
 
     bool                    m_modifposte            = false;

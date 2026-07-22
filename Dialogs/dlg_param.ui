@@ -123,13 +123,13 @@
            <widget class="QFrame" name="Principalframe">
             <property name="minimumSize">
              <size>
-              <width>580</width>
+              <width>520</width>
               <height>755</height>
              </size>
             </property>
             <property name="maximumSize">
              <size>
-              <width>580</width>
+              <width>520</width>
               <height>755</height>
              </size>
             </property>
@@ -148,7 +148,7 @@
             <widget class="Line" name="line_3">
              <property name="geometry">
               <rect>
-               <x>60</x>
+               <x>20</x>
                <y>320</y>
                <width>480</width>
                <height>3</height>
@@ -175,7 +175,7 @@
               <rect>
                <x>230</x>
                <y>63</y>
-               <width>281</width>
+               <width>261</width>
                <height>21</height>
               </rect>
              </property>
@@ -192,9 +192,9 @@
             <widget class="UpLineEdit" name="MailuplineEdit">
              <property name="geometry">
               <rect>
-               <x>270</x>
+               <x>250</x>
                <y>120</y>
-               <width>301</width>
+               <width>241</width>
                <height>21</height>
               </rect>
              </property>
@@ -227,7 +227,7 @@
             <widget class="QLabel" name="Maillabel">
              <property name="geometry">
               <rect>
-               <x>240</x>
+               <x>220</x>
                <y>124</y>
                <width>35</width>
                <height>16</height>
@@ -245,7 +245,7 @@
               <rect>
                <x>230</x>
                <y>90</y>
-               <width>281</width>
+               <width>261</width>
                <height>21</height>
               </rect>
              </property>
@@ -296,7 +296,7 @@
               <rect>
                <x>70</x>
                <y>120</y>
-               <width>150</width>
+               <width>131</width>
                <height>21</height>
               </rect>
              </property>
@@ -332,7 +332,7 @@
              </property>
              <property name="geometry">
               <rect>
-               <x>480</x>
+               <x>410</x>
                <y>14</y>
                <width>51</width>
                <height>16</height>
@@ -364,7 +364,7 @@
             <widget class="UpLineEdit" name="LoginuplineEdit">
              <property name="geometry">
               <rect>
-               <x>100</x>
+               <x>50</x>
                <y>12</y>
                <width>121</width>
                <height>21</height>
@@ -383,7 +383,7 @@
             <widget class="QLabel" name="MDPlabel">
              <property name="geometry">
               <rect>
-               <x>260</x>
+               <x>190</x>
                <y>14</y>
                <width>89</width>
                <height>16</height>
@@ -399,7 +399,7 @@
             <widget class="UpLineEdit" name="MDPuplineEdit">
              <property name="geometry">
               <rect>
-               <x>350</x>
+               <x>280</x>
                <y>10</y>
                <width>121</width>
                <height>21</height>
@@ -424,7 +424,7 @@
              </property>
              <property name="geometry">
               <rect>
-               <x>530</x>
+               <x>460</x>
                <y>10</y>
                <width>41</width>
                <height>21</height>
@@ -443,7 +443,7 @@
             <widget class="Line" name="line_4">
              <property name="geometry">
               <rect>
-               <x>40</x>
+               <x>20</x>
                <y>47</y>
                <width>475</width>
                <height>3</height>
@@ -487,9 +487,9 @@
             <widget class="QTextEdit" name="StatutComptaupTextEdit">
              <property name="geometry">
               <rect>
-               <x>50</x>
+               <x>20</x>
                <y>340</y>
-               <width>507</width>
+               <width>481</width>
                <height>391</height>
               </rect>
              </property>
@@ -500,30 +500,14 @@
             <widget class="UpTableWidget" name="AdressupTableWidget">
              <property name="geometry">
               <rect>
-               <x>28</x>
+               <x>10</x>
                <y>160</y>
-               <width>530</width>
+               <width>501</width>
                <height>145</height>
               </rect>
              </property>
             </widget>
            </widget>
-          </item>
-          <item>
-           <spacer name="horizontalSpacer_3">
-            <property name="orientation">
-             <enum>Qt::Orientation::Horizontal</enum>
-            </property>
-            <property name="sizeType">
-             <enum>QSizePolicy::Policy::Expanding</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>0</width>
-              <height>10</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item>
            <widget class="QWidget" name="Cotationswidget" native="true">
@@ -539,7 +523,7 @@
               <height>755</height>
              </size>
             </property>
-            <widget class="QLabel" name="AssocCCAMlabel">
+            <widget class="QLabel" name="Cotationslabel">
              <property name="geometry">
               <rect>
                <x>30</x>
@@ -552,7 +536,7 @@
               <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
              </property>
              <property name="text">
-              <string>Associations CCAM et actes hors CCAM</string>
+              <string>Cotations</string>
              </property>
             </widget>
             <widget class="UpLineEdit" name="ChercheCotationupLineEdit">
@@ -570,7 +554,7 @@
               <rect>
                <x>30</x>
                <y>420</y>
-               <width>308</width>
+               <width>400</width>
                <height>120</height>
               </rect>
              </property>
@@ -626,28 +610,6 @@
               <rect>
                <x>10</x>
                <y>340</y>
-               <width>10</width>
-               <height>170</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>10</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>10</width>
-               <height>16777215</height>
-              </size>
-             </property>
-            </widget>
-            <widget class="QWidget" name="Marge2Widget" native="true">
-             <property name="geometry">
-              <rect>
-               <x>10</x>
-               <y>550</y>
                <width>10</width>
                <height>170</height>
               </rect>
