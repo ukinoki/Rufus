@@ -80,7 +80,7 @@ private:
     QTimer                  t_timerverifimportdocs;
 
     VilleCPWidget           *wdg_villeCP;
-    WidgetButtonFrame       *wdg_HNcotationswdgbuttonframe, *wdg_assocCCAMcotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
+    WidgetButtonFrame       *wdg_HNcotationswdgbuttonframe, *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
     QWidget                 *wdg_CCAM;
     UpDialog                *dlg_lieux;
     UpDialog                *dlg_askappareil, *dlg_askMDP;
@@ -105,7 +105,7 @@ private:
     void                SupprHorsNomenclature();
     void                NouvAssocCCAM();
     void                ModifAssocCCAM();
-    void                SupprAssocCCAM();
+    void                supprimeCotation();
     void                NouvAppareil();
     void                RecalcAvailablesPorts(bool fromSettings = false);
     void                RestaureBase();

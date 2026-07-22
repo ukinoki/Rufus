@@ -49,12 +49,12 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_HNcotationswdgbuttonframe,          &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_HNcotationswdgbuttonframe);});
 
-    wdg_assocCCAMcotationswdgbuttonframe            = new WidgetButtonFrame(ui->);
-    wdg_assocCCAMcotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
-    connect(wdg_assocCCAMcotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_assocCCAMcotationswdgbuttonframe);});
+    wdg_cotationswdgbuttonframe            = new WidgetButtonFrame(ui->);
+    wdg_cotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
+    connect(wdg_cotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_cotationswdgbuttonframe);});
 
-    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
-    wdg_assocCCAMcotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
+    wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
+    wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
 
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QHBoxLayout *Marge2lay      = new QHBoxLayout();
@@ -71,7 +71,7 @@ dlg_param::dlg_param(QWidget *parent) :
     Marge2lay       ->setSpacing(marge);
 
     AssocCCAMlay     ->addWidget(ui->AssocCCAMlabel);
-    AssocCCAMlay     ->addWidget(wdg_assocCCAMcotationswdgbuttonframe->widgButtonParent());
+    AssocCCAMlay     ->addWidget(wdg_cotationswdgbuttonframe->widgButtonParent());
     AssocCCAMlay     ->setStretch(0,0);
     AssocCCAMlay     ->setStretch(1,15);
 
@@ -344,7 +344,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    wdg_assocCCAMcotationswdgbuttonframe                       ->setEnabled(false);
+    wdg_cotationswdgbuttonframe                       ->setEnabled(false);
     wdg_HNcotationswdgbuttonframe                              ->setEnabled(false);
     ui->ActesCCAMlabel                  ->setEnabled(false);
     ui->OphtaSeulcheckBox               ->setEnabled(false);
@@ -841,9 +841,9 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
             break;
         }
     }
-    else if (widgbutt== wdg_assocCCAMcotationswdgbuttonframe)
+    else if (widgbutt== wdg_cotationswdgbuttonframe)
     {
-        switch (wdg_assocCCAMcotationswdgbuttonframe->Choix()) {
+        switch (wdg_cotationswdgbuttonframe->Choix()) {
         case WidgetButtonFrame::Plus:
             NouvAssocCCAM();
             break;
@@ -851,7 +851,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
             ModifAssocCCAM();
             break;
         case WidgetButtonFrame::Moins:
-            SupprAssocCCAM();
+            supprimeCotation();
             break;
         }
     }
@@ -1681,8 +1681,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             {
                 ui->AssocCCAMupTableWidget          ->clearSelection();
                 ui->HorsNomenclatureupTableWidget   ->clearSelection();
-                wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-                wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
+                wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
+                wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
                 wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
                 wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
             }
@@ -1698,8 +1698,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             {
                 ui->AssocCCAMupTableWidget          ->clearSelection();
                 ui->HorsNomenclatureupTableWidget   ->clearSelection();
-                wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-                wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
+                wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
+                wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
                 wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
                 wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
             }
@@ -1717,10 +1717,10 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             if (check)
                 checked = check->isChecked();
         }
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
+        wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
+        wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
@@ -1730,8 +1730,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
     {
         ui->AssocCCAMupTableWidget          ->clearSelection();
         ui->HorsNomenclatureupTableWidget   ->clearSelection();
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
     }
@@ -1747,8 +1747,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
                 if (check)
                     checked = check->isChecked();
             }
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
                                                                                     && checked);
         wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
@@ -1827,33 +1827,45 @@ void dlg_param::ModifAssocCCAM()
     delete Dlg_CrrCot;
 }
 
-void dlg_param::SupprAssocCCAM()
+/*!
+ * \brief dlg_param::supprimeCotation
+ * Retire la cotation sélectionnée de la table de jointure du user correspondant à son type
+ * (revient au même qu'un décochage). Puis, si plus personne ne l'utilise, supprime la cotation
+ * elle-même de la table cotations (sa ligne disparaît) — SAUF les NGAP (type 2), qui ne sont
+ * stockées que là et qu'il faut garder.
+ */
+void dlg_param::supprimeCotation()
 {
-    int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
-    QString CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
-    bool ok;
-    QString req = "select " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS
-                  " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'"
-                  " and " CP_IDUSER_COTATIONS " <> NULL"
-                  " and " CP_IDUSER_COTATIONS " <> " + QString::number(currentuser()->id());
-    QList<QVariantList> typactlist = db->StandardSelectSQL(req,ok);
-    if (!ok)
+    Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
+    if (cot == Q_NULLPTR)
         return;
-    if (typactlist.size()>0)
+    //! table de jointure correspondant au type de la cotation
+    QString jointure;
+    switch (cot->typcotation())
     {
-        UpMessageBox::Watch(this, tr("Suppression refusée"),
-                            tr("La cotation") + " " + CodeActe + " " +
-                            tr("est utilisée par d'autres utilisateurs"));
-        return;
+        case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
+        case 2: jointure = TBL_JOINTURESCOTATIONS;       break;   //! NGAP
+        case 3: jointure = TBL_JOINTURESCOTATIONSAUTRES; break;   //! hors NGAP/CCAM
+        case 4: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
+        default: return;
     }
+    const QString idcot = QString::number(cot->id());
+    //! retrait de la cotation de la jointure du user
+    db->StandardSQL("delete from " + jointure + " where " CP_IDCOTATION_JOINTCOTATION " = " + idcot
+                    + " and " CP_IDUSER_JOINTCOTATION " = " + QString::number(currentuser()->id()));
 
-    if (UpMessageBox::Question(this, tr("Suppression de cotation"), tr("Confirmez la suppression de la cotation ") + CodeActe)==UpSmallButton::STARTBUTTON)
+    //! plus personne ne l'utilise -> on supprime la cotation (sa ligne disparaît), sauf NGAP
+    if (cot->typcotation() != 2)
     {
-        db->StandardSQL("delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'");
-        remplitTableCotations();
-        enableCotations();
-        m_cotationsmodifiees = true;
+        bool ok;
+        QList<QVariantList> reste = db->StandardSelectSQL("select 1 from " + jointure
+                                    + " where " CP_IDCOTATION_JOINTCOTATION " = " + idcot + " limit 1", ok);
+        if (ok && reste.isEmpty())
+            db->StandardSQL("delete from " TBL_COTATIONS " where " CP_ID_COTATIONS " = " + idcot);
     }
+    remplitTableCotations();
+    enableCotations();
+    m_cotationsmodifiees = true;
 }
 
 void dlg_param::NouvHorsNomenclature()
@@ -2763,8 +2775,8 @@ void dlg_param::AfficheParamUser()
         remplitTableCotations();
         Remplir_TableHorsNomenclature();
 
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_assocCCAMcotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
+        wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
         wdg_HNcotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
     }
