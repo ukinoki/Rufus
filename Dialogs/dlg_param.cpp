@@ -660,6 +660,20 @@ void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
     }
 }
 
+/*!
+ * \brief dlg_param::AfficheToolTip
+ * \param idx  index d'une cellule de cotationsUpTableView
+ * infobulle de la table des cotations : le tip (descriptif) de la Cotation portée par la ligne
+ */
+void dlg_param::AfficheToolTip(QModelIndex idx)
+{
+    Cotation *cot = getCotationFromIndex(idx);
+    if (cot == Q_NULLPTR)
+        return;
+    const QRect rect = QRect(cursor().pos(), QSize(10,10));
+    QToolTip::showText(cursor().pos(), cot->descriptif(), ui->cotationsUpTableView, rect, 2000);
+}
+
 void dlg_param::FermepushButtonClicked()
 {
     if (m_modifposte)
@@ -2846,6 +2860,8 @@ void dlg_param::ConnectSignals()
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
     connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
     connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
+    ui->cotationsUpTableView->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
+    connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::ChercheCodeCCAM);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
