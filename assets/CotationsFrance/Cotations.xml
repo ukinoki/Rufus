@@ -57820,155 +57820,133 @@ rétablissement de la continuité, par cœlioscopie</nom>
 	<Acte>
 		<code>AMY30</code>
 		<nom>Bilan orthoptique des déficiences visuelles d'origine périphérique ou neuro-ophtalmologique (basse vision)</nom>
-		<optam>30</optam>
-		<nonoptam></nonoptam>
+		<indice>30</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY30.5</code>
 		<nom>Bilan des conséquences neuro-ophtalmologiques des pathologies générales et des déficiences neuro-visuelles d'origine fonctionnelle</nom>
-		<optam>30.5</optam>
-		<nonoptam></nonoptam>
+		<indice>30.5</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY10</code>
 		<nom>Bilan des déséquilibres de la vision binoculaire lié à un trouble des capacités fusionnelles</nom>
-		<optam>10</optam>
-		<nonoptam></nonoptam>
+		<indice>10</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY14.5</code>
 		<nom>Bilan des déséquilibres de la vision binoculaire lié à un trouble des capacités fusionnelles et un trouble neurosensoriel, accommodatif ou à un trouble de l'orientation du regard (hors enregistrement)</nom>
-		<optam>14.5</optam>
-		<nonoptam></nonoptam>
+		<indice>14.5</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY15</code>
 		<nom>Bilan des troubles oculomoteurs : hétérophories, strabismes, paralysies oculomotrices</nom>
-		<optam>15</optam>
-		<nonoptam></nonoptam>
+		<indice>15</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY15.5</code>
 		<nom>Bilan d'une amblyopie</nom>
-		<optam>15.5</optam>
-		<nonoptam></nonoptam>
+		<indice>15.5</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY19.2</code>
 		<nom>Rééducation d'une déficience visuelle d'origine organique ou fonctionnelle - Patients de plus de 16 ans</nom>
-		<optam>19.2</optam>
-		<nonoptam></nonoptam>
+		<indice>19.2</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY13.2</code>
 		<nom>Rééducation d'une déficience visuelle d'origine organique ou fonctionnelle - Patients de 16 ans et moins de 16 ans</nom>
-		<optam>13.2</optam>
-		<nonoptam></nonoptam>
+		<indice>13.2</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY7</code>
 		<nom>Traitement de l'amblyopie par série de vingt séances de l'ordre de 20 minutes, par séance</nom>
-		<optam>7</optam>
-		<nonoptam></nonoptam>
+		<indice>7</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY7.7</code>
 		<nom>Traitement du strabisme par série de vingt séances de l'ordre de 20 minutes par séance</nom>
-		<optam>7.7</optam>
-		<nonoptam></nonoptam>
+		<indice>7.7</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY4</code>
 		<nom>Traitement des hétérophories et des déséquilibres binoculaires par série de vingt séances de l'ordre de 20 minutes, par séance</nom>
-		<optam>4</optam>
-		<nonoptam></nonoptam>
+		<indice>4</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY11.5</code>
 		<nom>Périmétrie (champ visuel) ou campimétrie réalisée sans mesure de seuil</nom>
-		<optam>11.5</optam>
-		<nonoptam></nonoptam>
+		<indice>11.5</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY12.3</code>
 		<nom>Périmétrie (champ visuel) ou campimétrie réalisée avec mesure de seuil</nom>
-		<optam>12.3</optam>
-		<nonoptam></nonoptam>
+		<indice>12.3</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY9</code>
 		<nom>Courbe d'adaptation à l'obscurité</nom>
-		<optam>9</optam>
-		<nonoptam></nonoptam>
+		<indice>9</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY6</code>
 		<nom>Exploration du sens chromatique</nom>
-		<optam>6</optam>
-		<nonoptam></nonoptam>
+		<indice>6</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY9</code>
 		<nom>Exploration du sens chromatique au test de Farnsworth 100 HUE, assisté par ordinateur, avec graphique et score</nom>
-		<optam>9</optam>
-		<nonoptam></nonoptam>
+		<indice>9</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY6.7</code>
 		<nom>Acte de dépistage de la rétinopathie diabétique par rétinographie en couleur avec télétransmission au médecin lecteur</nom>
-		<optam>6.7</optam>
-		<nonoptam></nonoptam>
+		<indice>6.7</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY6.1</code>
 		<nom>Acte de dépistage de la rétinopathie diabétique par rétinographie en couleur avec transmission par autre moyen que la télétransmission au médecin lecteur</nom>
-		<optam>6.1</optam>
-		<nonoptam></nonoptam>
+		<indice>6.1</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY8.7</code>
 		<nom>Mesure de l'acuité visuelle et de la réfraction avec ou sans dilatation - primo-prescription de verres correcteurs en accès direct chez un patient non appareillé</nom>
-		<optam>8.7</optam>
-		<nonoptam></nonoptam>
+		<indice>8.7</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY8</code>
 		<nom>Mesure de l'acuité visuelle et de la réfraction avec ou sans dilatation - autres situations, dont renouvellement de verres correcteurs</nom>
-		<optam>8</optam>
-		<nonoptam></nonoptam>
+		<indice>8</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY7.7</code>
 		<nom>Dépistage de l'amblyopie chez les nourrissons âgés de 9 à 15 mois</nom>
-		<optam>7.7</optam>
-		<nonoptam></nonoptam>
+		<indice>7.7</indice>
 		<origin>ngap</origin>
 	</Acte>
 	<Acte>
 		<code>AMY8.4</code>
 		<nom>Dépistage des troubles de la réfraction chez les enfants âgés de 30 mois à 5 ans</nom>
-		<optam>8.4</optam>
-		<nonoptam></nonoptam>
+		<indice>8.4</indice>
 		<origin>ngap</origin>
 	</Acte>
 </Cotations>
