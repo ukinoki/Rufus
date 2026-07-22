@@ -1,5 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Cotations CCAMversion="83" CCAMapplicable="2026-07-01" NGAPversion="2026-01-01" AMYmetropole="2.60" AMYDOM="2.72" AMYdate="2026-03-17" RNOvaleur="28">
+<CCAM>
+	<Version>83</Version>
+</CCAM>
+<NGAP>
+	<Version>2026-07-01</Version>
+	<AMY>
+		<Date>2026-03-17</Date>
+		<ValeurMetropole>2.60</ValeurMetropole>
+		<ValeurDOM>2.72</ValeurDOM>
+	</AMY>
+</NGAP>
+<RNO>
+	<Valeur>28</Valeur>
+</RNO>
+<Cotations>
 	<Acte>
 		<code>AHQP001</code>
 		<nom>Électromyographie par électrode de surface, sans enregistrement vidéo</nom>
