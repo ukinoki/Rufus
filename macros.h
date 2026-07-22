@@ -25,7 +25,7 @@ class Macros: public QObject
 
 public:
 // Les versions de la base et des ressources
-#define VERSION_BASE                          82  // version de la base de données
+#define VERSION_BASE                          83  // version de la base de données
 // Seuil minimal de version du serveur MySQL exigé, COMMUN à tous les OS : 8.0.14, première version
 // qui gère le double mot de passe (RETAIN CURRENT PASSWORD), socle des fonctions de sécurité de
 // Rufus. L'OS du serveur n'entre PAS en jeu : seule compte la version MySQL. (Les installeurs posent
