@@ -2856,6 +2856,69 @@ QList<Cotation*> DataBase::loadCotations()
     return cotations;
 }
 
+/*!
+ * \brief DataBase::loadUserCotations
+ * réunit toutes les cotations d'un utilisateur à partir des 4 tables de jointures :
+ * - jointuresccam (join ccam)            -> type 1, montants optam/nonoptam de la table ccam ;
+ * - jointuresassociations (join cotations) -> type 4 ;
+ * - jointurescotations (join cotations)    -> type 2 (NGAP) ;
+ * - jointurescotationsautres (join cotations) -> type 3 (hors).
+ * Pour chaque cotation, le montant conventionnel retenu dépend du statut OPTAM du user (optam si
+ * OPTAM, sinon nonoptam) et le montant pratiqué est celui inscrit dans la jointure du user.
+ */
+QList<Cotation*> DataBase::loadUserCotations(User *usr)
+{
+    QList<Cotation*> cotations = QList<Cotation*>();
+    if (usr == Q_NULLPTR)
+        return cotations;
+    const bool optam = usr->isOPTAM();
+    int k = 0;
+
+    //! construit une cotation ; montantoptam reçoit la valeur conventionnelle retenue (le getter
+    //! montantconventionnel() renvoie m_montantoptam), montantpratique celle du user (jointure)
+    auto ajoute = [&](const QString &typeacte, const QString &descriptif,
+                      double montoptam, double montnonoptam, double pratique, int type)
+    {
+        QJsonObject j{};
+        j["idcotation"]           = ++k;                            //! id synthétique unique (évite les collisions entre tables)
+        j["typeacte"]             = typeacte;
+        j["descriptif"]           = descriptif;
+        j["ccam"]                 = type;
+        j["montantoptam"]         = (optam ? montoptam : montnonoptam);
+        j["montantnonoptam"]      = montnonoptam;
+        j["montantconventionnel"] = (optam ? montoptam : montnonoptam);
+        j["montantpratique"]      = pratique;
+        cotations << new Cotation(j);
+    };
+
+    //! 1) CCAM pure : jointuresccam -> ccam
+    QString req = "select cc." CP_CODECCAM_CCAM ", cc." CP_NOM_CCAM ", cc." CP_MONTANTOPTAM_CCAM ", cc." CP_MONTANTNONOPTAM_CCAM ", j." CP_MONTANTPRATIQUE_JOINTCCAM
+                  " from " TBL_JOINTURESCCAM " j join " TBL_CCAM " cc on j." CP_IDCCAM_JOINTCCAM " = cc." CP_ID_CCAM
+                  " where j." CP_IDUSER_JOINTCCAM " = " + QString::number(usr->id());
+    QList<QVariantList> l = StandardSelectSQL(req, ok);
+    if (ok)
+        for (const QVariantList &r : l)
+            ajoute(r.at(0).toString(), r.at(1).toString(), r.at(2).toDouble(), r.at(3).toDouble(), r.at(4).toDouble(), 1);
+
+    //! 2/3/4) associations, NGAP et hors : jointure(idCotation, MontantPratique) -> cotations
+    struct { QString tbl; int type; } srcs[] = {
+        { TBL_JOINTURESASSOCIATIONS,    4 },
+        { TBL_JOINTURESCOTATIONS,       2 },
+        { TBL_JOINTURESCOTATIONSAUTRES, 3 }
+    };
+    for (const auto &s : srcs)
+    {
+        req = "select cot." CP_TYPEACTE_COTATIONS ", cot." CP_TIP_COTATIONS ", cot." CP_MONTANTOPTAM_COTATIONS ", cot." CP_MONTANTNONOPTAM_COTATIONS ", j." CP_MONTANTPRATIQUE_JOINTCOTATION
+              " from " + s.tbl + " j join " TBL_COTATIONS " cot on j." CP_IDCOTATION_JOINTCOTATION " = cot." CP_ID_COTATIONS
+              " where j." CP_IDUSER_JOINTCOTATION " = " + QString::number(usr->id());
+        l = StandardSelectSQL(req, ok);
+        if (ok)
+            for (const QVariantList &r : l)
+                ajoute(r.at(0).toString(), r.at(1).toString(), r.at(2).toDouble(), r.at(3).toDouble(), r.at(4).toDouble(), s.type);
+    }
+    return cotations;
+}
+
 QStringList DataBase::loadTypesCotations()
 {
     QStringList listcotations = QStringList();

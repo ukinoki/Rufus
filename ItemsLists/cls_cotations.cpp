@@ -21,12 +21,18 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 Cotations::Cotations(QObject *parent) : ItemsList(parent)
 {
-    map_cotations = new QMap<int, Cotation*>();
+    map_cotations     = new QMap<int, Cotation*>();
+    map_usercotations = new QMap<int, Cotation*>();
 }
 
 QMap<int, Cotation *> *Cotations::cotations() const
 {
     return map_cotations;
+}
+
+QMap<int, Cotation *> *Cotations::usercotations() const
+{
+    return map_usercotations;
 }
 
 /*!
@@ -53,5 +59,19 @@ void Cotations::loadCotations()
     QList<Cotation*> listcotations = DataBase::I()->loadCotations();
     epurelist(map_cotations, &listcotations);
     addList(map_cotations, &listcotations);
+}
+
+/*!
+ * \brief Cotations::loadUserCotations
+ * Réunit dans map_usercotations toutes les cotations du user extraites des 4 tables de jointures
+ * (montant conventionnel selon son statut OPTAM, montant pratiqué propre au user).
+ */
+void Cotations::loadUserCotations(User *usr)
+{
+    if (usr == Q_NULLPTR)
+        return;
+    QList<Cotation*> listcotations = DataBase::I()->loadUserCotations(usr);
+    epurelist(map_usercotations, &listcotations);
+    addList(map_usercotations, &listcotations);
 }
 
