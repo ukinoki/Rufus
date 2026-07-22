@@ -89,6 +89,19 @@ BEGIN
                 ALTER TABLE `rufus`.`cotations`
                 CHANGE COLUMN `Tip` `Tip` TEXT NULL DEFAULT NULL;
         END IF;
+    -- tables de personnalisation par utilisateur du montant pratiqué (cotations et ccam)
+    CREATE TABLE IF NOT EXISTS `rufus`.`jointurescotations` (
+        `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
+        `idCotation` INT(11) NULL DEFAULT NULL,
+        `idUser` INT(11) NULL DEFAULT NULL,
+        `MontantPratique` DOUBLE NULL DEFAULT NULL,
+        PRIMARY KEY (`idJointure`));
+    CREATE TABLE IF NOT EXISTS `rufus`.`jointuresccam` (
+        `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
+        `idCotation` INT(11) NULL DEFAULT NULL,
+        `idUser` INT(11) NULL DEFAULT NULL,
+        `MontantPratique` DOUBLE NULL DEFAULT NULL,
+        PRIMARY KEY (`idJointure`));
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();

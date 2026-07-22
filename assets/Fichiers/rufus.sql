@@ -785,6 +785,56 @@ INSERT INTO `flags` VALUES (3,NULL,NULL,NULL,NULL);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `jointuresccam`
+--
+
+DROP TABLE IF EXISTS `jointuresccam`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jointuresccam` (
+  `idJointure` int(11) NOT NULL AUTO_INCREMENT,
+  `idCotation` int(11) DEFAULT NULL,
+  `idUser` int(11) DEFAULT NULL,
+  `MontantPratique` DOUBLE DEFAULT NULL,
+  PRIMARY KEY (`idJointure`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jointuresccam`
+--
+
+LOCK TABLES `jointuresccam` WRITE;
+/*!40000 ALTER TABLE `jointuresccam` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointuresccam` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `jointurescotations`
+--
+
+DROP TABLE IF EXISTS `jointurescotations`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `jointurescotations` (
+  `idJointure` int(11) NOT NULL AUTO_INCREMENT,
+  `idCotation` int(11) DEFAULT NULL,
+  `idUser` int(11) DEFAULT NULL,
+  `MontantPratique` DOUBLE DEFAULT NULL,
+  PRIMARY KEY (`idJointure`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `jointurescotations`
+--
+
+LOCK TABLES `jointurescotations` WRITE;
+/*!40000 ALTER TABLE `jointurescotations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointurescotations` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `jointuresLieux`
 --
 
