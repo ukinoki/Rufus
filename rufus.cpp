@@ -4566,37 +4566,7 @@ void Rufus::OuvrirParametres()
                     req += "('" + typeacte +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(currentuser()->id()) + ", null),\n";
                 }
         }
-        for (int i=0; i<Dlg_Param->ui->AssocCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,0));
-            if (check != Q_NULLPTR)
-                if (check->isChecked())
-                {
-                    QString codeCCAM, montantOPTAM(""), montantNonOPTAM(""), montantprat(""), tip ("");
-                    codeCCAM        = Dlg_Param->ui->AssocCCAMupTableWidget->item(i,1)->text();
-                    UpLineEdit *lineOPTAM = qobject_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,2));
-                    if (lineOPTAM != Q_NULLPTR)
-                    {
-                        montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
-                        tip             = lineOPTAM->datas().toString();
-                    }
-                    UpLineEdit *lineNonOPTAM = qobject_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,3));
-                    if (lineNonOPTAM != Q_NULLPTR)
-                        montantNonOPTAM    = QString::number(QLocale().toDouble(lineNonOPTAM->text()));
-                    QString mtconv  = (currentuser()->isOPTAM() ? montantOPTAM : montantNonOPTAM);
-                    if (Dlg_Param->ui->AssocCCAMupTableWidget->columnCount()==5)
-                    {
-                        UpLineEdit *line = qobject_cast<UpLineEdit*>(Dlg_Param->ui->AssocCCAMupTableWidget->cellWidget(i,4));
-                        if (line != Q_NULLPTR)
-                            montantprat = (line->text()!=""? line->text() : mtconv);
-                        else
-                            montantprat = mtconv;
-                    }
-                    QString mtprat = (currentuser()->secteurconventionnel() >1? montantprat : mtconv);
-                    QString montantpratique = QString::number(QLocale().toDouble(mtprat));
-                    req += "('" + codeCCAM +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 2, " + QString::number(currentuser()->id()) + ", '" + tip + "'),\n";
-                }
-        }
+        //! les associations CCAM (table AssocCCAMupTableWidget) sont désormais gérées directement dans dlg_param
         for (int i=0; i<Dlg_Param->ui->HorsNomenclatureupTableWidget->rowCount(); i++)
         {
             UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
