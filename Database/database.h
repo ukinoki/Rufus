@@ -243,7 +243,7 @@ public:
     void majNGAP();                                             //! importe les actes NGAP (AMY) du fichier de cotations dans la table cotations
     void exporteJointuresCotations();                           //! migre les cotations perso non-CCAM-pure (idUser, CCAM<>1) vers jointurescotations
     void exporteJointuresCCAM();                                //! migre les cotations perso de CCAM pure (idUser, CCAM=1, Typeacte dans ccam) vers jointuresccam
-    void supprimeDoublonsCotations();                          //! ne garde qu'une ligne par Typeacte dans cotations
+    void nettoieTableCotations();                              //! reclasse les associations CCAM (->4) puis ne garde qu'une ligne par Typeacte
 
     /*
      * Donnees ophta patient

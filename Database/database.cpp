@@ -1124,14 +1124,25 @@ void DataBase::exporteJointuresCCAM()
 }
 
 /*!
- * \brief DataBase::supprimeDoublonsCotations
- * après export des personnalisations vers les jointures, ne conserve qu'une seule ligne par
- * Typeacte dans cotations (la plus ancienne, plus petit idcotation) et supprime les autres.
+ * \brief DataBase::nettoieTableCotations
+ * nettoyage de la table cotations, en deux temps :
+ * 1) reclassement des associations : une cotation CCAM = 1 dont le Typeacte n'existe pas dans la
+ *    table ccam n'est pas un acte CCAM isolé mais une association de deux actes (ex.
+ *    "BIQP992+BGQP002") -> CCAM = 4. On distingue ainsi les 4 types : 1=CCAM, 2=NGAP,
+ *    3=horsNGAPouCCAM, 4=association CCAM.
+ * 2) déduplication : on ne conserve qu'une ligne par Typeacte (la plus ancienne, plus petit
+ *    idcotation) et on supprime les autres.
  */
-void DataBase::supprimeDoublonsCotations()
+void DataBase::nettoieTableCotations()
 {
     if (!m_db.isOpen())
         return;
+    //! 1) associations CCAM -> CCAM = 4 (NOT EXISTS, sûr même si un codeccam de ccam était NULL)
+    StandardSQL("update " TBL_COTATIONS " set " CP_CODECCAM_COTATIONS " = 4"
+                " where " CP_CODECCAM_COTATIONS " = 1"
+                " and not exists (select 1 from " TBL_CCAM
+                " where " TBL_CCAM "." CP_CODECCAM_CCAM " = " TBL_COTATIONS "." CP_TYPEACTE_COTATIONS ")");
+    //! 2) une seule ligne par Typeacte
     StandardSQL("delete c1 from " TBL_COTATIONS " c1"
                 " join " TBL_COTATIONS " c2"
                 " on c1." CP_TYPEACTE_COTATIONS " = c2." CP_TYPEACTE_COTATIONS

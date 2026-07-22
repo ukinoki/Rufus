@@ -3321,8 +3321,8 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                 //! les tables de jointures dédiées, créées par majbase83
                 db->exporteJointuresCotations();
                 db->exporteJointuresCCAM();
-                //! puis on nettoie cotations : une seule ligne par Typeacte
-                db->supprimeDoublonsCotations();
+                //! puis on nettoie cotations : reclasse les associations (CCAM=4) et déduplique
+                db->nettoieTableCotations();
             }
         }
         QDir dir(PATH_DIR_RESSOURCES);
