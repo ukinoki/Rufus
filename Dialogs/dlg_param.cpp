@@ -2829,12 +2829,12 @@ void dlg_param::ConnectSignals()
     connect(ui->DistantVideoDirupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::DistantVideoDir);
 
     connect(ui->DossierCLesSSLupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::DossierClesSSL);
-    connect(ui->ExportClesSSLPosteupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
-    connect(ui->ExportClesSSLDistantupPushButton,        &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
-    connect(ui->CreerClesSSLPosteupPushButton,           &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
+    connect(ui->ExportClesSSLPosteupPushButton,     &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLversUSB);
+    connect(ui->ExportClesSSLDistantupPushButton,   &QPushButton::clicked,                  this,   &dlg_param::ExporterClesSSLDistantversUSB);
+    connect(ui->CreerClesSSLPosteupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
     //! Recréer le mot de passe de la base (si l'ancien aléatoire est perdu). Protégé par le mot de passe
     //! Administrateur ; réservé au local + socle conforme (contrôlé dans recreerMotDePasseApresVerifAdmin).
-    connect(ui->RecreerMDPMonoupPushButton,              &QPushButton::clicked,                  this,   [=] {MySQLInstaller().recreerMotDePasseApresVerifAdmin(this);});
+    connect(ui->RecreerMDPMonoupPushButton,         &QPushButton::clicked,                  this,   [=] {MySQLInstaller().recreerMotDePasseApresVerifAdmin(this);});
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
@@ -2853,36 +2853,36 @@ void dlg_param::ConnectSignals()
     connect(ui->OphtaSeulcheckBox,                  &QCheckBox::clicked,                    this,   &dlg_param::FiltreActesOphtaSeulmt);
 
     foreach (QLineEdit *line, ui->PosteParamtab->findChildren<QLineEdit*>())
-        connect(line,   &QLineEdit::textEdited,                                 this,   &dlg_param::EnableOKModifPosteButton);
+        connect(line,   &QLineEdit::textEdited,                                             this,   &dlg_param::EnableOKModifPosteButton);
     foreach (QComboBox *box, ui->PosteParamtab->findChildren<QComboBox*>())
-        connect(box,    QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   &dlg_param::EnableOKModifPosteButton);
+        connect(box,    QOverload<int>::of(&QComboBox::currentIndexChanged),                this,   &dlg_param::EnableOKModifPosteButton);
     foreach (QRadioButton *butt, ui->PosteParamtab->findChildren<QRadioButton*>())
-        connect(butt,   &QRadioButton::clicked,                                 this,   &dlg_param::EnableOKModifPosteButton);
+        connect(butt,   &QRadioButton::clicked,                                             this,   &dlg_param::EnableOKModifPosteButton);
     foreach (QCheckBox *box, ui->PosteParamtab->findChildren<QCheckBox*>())
-        connect(box,    &QCheckBox::clicked,                                    this,   &dlg_param::EnableOKModifPosteButton);
+        connect(box,    &QCheckBox::clicked,                                                this,   &dlg_param::EnableOKModifPosteButton);
     foreach (QSpinBox *spin, ui->PosteParamtab->findChildren<QSpinBox*>())
-        connect(spin,   QOverload<int>::of(&QSpinBox::valueChanged),            this,   &dlg_param::EnableOKModifPosteButton);
+        connect(spin,   QOverload<int>::of(&QSpinBox::valueChanged),                        this,   &dlg_param::EnableOKModifPosteButton);
     foreach(QRadioButton *butt, ui->JourSauvegardeframe->findChildren<QRadioButton*>())
-        connect(butt,                               &QPushButton::clicked,              this,   &dlg_param::ModifDateBackup);
-    connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,            this,   &dlg_param::ModifHeureBackup);
-    connect(ui->DirBackuppushButton,                &QPushButton::clicked,              this,   &dlg_param::ModifDirBackup);
-    connect(ui->ImmediatBackupupPushButton,         &QPushButton::clicked,              this,   &dlg_param::startImmediateBackup);
-    connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,              this,   &dlg_param::RestaureBase);
-    connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,              proc,   &Procedures::ReinitBase);
-    connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,              this,   &dlg_param::EffaceProgrammationDataBackup);
+        connect(butt,                               &QPushButton::clicked,                  this,   &dlg_param::ModifDateBackup);
+    connect(ui->HeureBackuptimeEdit,                &QTimeEdit::timeChanged,                this,   &dlg_param::ModifHeureBackup);
+    connect(ui->DirBackuppushButton,                &QPushButton::clicked,                  this,   &dlg_param::ModifDirBackup);
+    connect(ui->ImmediatBackupupPushButton,         &QPushButton::clicked,                  this,   &dlg_param::startImmediateBackup);
+    connect(ui->RestaurBaseupPushButton,            &QPushButton::clicked,                  this,   &dlg_param::RestaureBase);
+    connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,                  proc,   &Procedures::ReinitBase);
+    connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::EffaceProgrammationDataBackup);
 
-    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Fronto);});
-    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Autoref);});
-    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Refracteur);});
-    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,              this,   [=] {ModifPathDirEchangeMesure(Procedures::Tonometre);});
+    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Fronto);});
+    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Autoref);});
+    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Refracteur);});
+    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Tonometre);});
 
-    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Fronto);});
-    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,              this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Autoref);});
+    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,          this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Fronto);});
+    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,          this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Autoref);});
 
-    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,              this,   [=] {ReglePortCOM_dlg(Procedures::Fronto);});
-    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,              this,   [=] {ReglePortCOM_dlg(Procedures::Autoref);});
-    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,              this,   [=] {ReglePortCOM_dlg(Procedures::Refracteur);});
-    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,              this,   [=] {ReglePortCOM_dlg(Procedures::Tonometre);});
+    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Fronto);});
+    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Autoref);});
+    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Refracteur);});
+    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Tonometre);});
 }
 
 bool dlg_param::CotationsModifiees() const
