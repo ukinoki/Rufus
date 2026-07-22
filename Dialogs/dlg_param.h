@@ -60,11 +60,11 @@ private:
     ParametresSysteme       *m_parametres           = db->parametres();
     bool m_custombasevilles = Datas::I()->villes->iscustomizedbase();
 
-    /*! table des associations CCAM (modèle/vue) : les cotations d'association (type 4) de la map de
-        référence, cochées si l'utilisateur courant les utilise (used) */
+    /*! table des cotations (modèle/vue) : les cotations de la map de référence, cochées si
+        l'utilisateur courant les utilise (used) */
     Cotations               *m_cotations             = Q_NULLPTR;    //!< map de référence + used() du user courant
-    UpStandardItemModel     *m_modelAssoc            = Q_NULLPTR;    //!< modèle de AssocCCAMupTableWidget
-    void                    remplitTableAssocCCAM();                //!< (re)remplit la table des associations CCAM
+    UpStandardItemModel     *m_modelCotations        = Q_NULLPTR;    //!< modèle de cotationsUpTableView
+    void                    remplitTableCotations();                //!< (re)remplit la table des cotations (used cochées)
     Cotation*               getCotationFromIndex(QModelIndex idx);  //!< la cotation portée par la ligne d'index idx
 
     bool                    m_modifposte            = false;

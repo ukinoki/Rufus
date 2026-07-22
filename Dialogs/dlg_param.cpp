@@ -4534,13 +4534,12 @@ bool dlg_param::Valide_Modifications()
 }
 
 /*!
- * \brief dlg_param::remplitTableAssocCCAM
- * Remplit AssocCCAMupTableWidget (UpTableView) à neuf avec les cotations d'association CCAM
- * (type 4) de la map de référence. Chaque ligne porte sa Cotation (rufusitem) et est cochée si
- * l'utilisateur courant l'utilise (used). 3 colonnes : acte, montant conventionnel, montant
- * pratiqué ; le tip de l'acte est en infobulle.
+ * \brief dlg_param::remplitTableCotations
+ * Remplit cotationsUpTableView (UpTableView) à neuf avec les cotations de la map de référence.
+ * Chaque ligne porte sa Cotation (rufusitem) et est cochée si l'utilisateur courant l'utilise
+ * (used). 3 colonnes : acte, montant conventionnel, montant pratiqué.
  */
-void dlg_param::remplitTableAssocCCAM()
+void dlg_param::remplitTableCotations()
 {
     //! map de référence (loadCotations) + marquage used() de l'utilisateur courant (loadUserCotations)
     if (m_cotations == Q_NULLPTR)
@@ -4548,54 +4547,52 @@ void dlg_param::remplitTableAssocCCAM()
     m_cotations         ->loadCotations();
     m_cotations         ->loadUserCotations(currentuser());
 
-    if (m_modelAssoc != Q_NULLPTR)
-        delete m_modelAssoc;
-    m_modelAssoc = new UpStandardItemModel(this);
+    if (m_modelCotations != Q_NULLPTR)
+        delete m_modelCotations;
+    m_modelCotations = new UpStandardItemModel(this);
     const QStringList entetes = QStringList() << tr("Acte") << tr("Conventionnel") << tr("Pratiqué");
     for (int c = 0; c < entetes.size(); ++c)
     {
         QStandardItem *h = new QStandardItem(entetes.at(c));
         h               ->setEditable(false);
-        m_modelAssoc    ->setHorizontalHeaderItem(c, h);
+        m_modelCotations->setHorizontalHeaderItem(c, h);
     }
 
     int row = 0;
     for (auto it = m_cotations->cotations()->constBegin(); it != m_cotations->cotations()->constEnd(); ++it)
     {
         Cotation *cot = const_cast<Cotation*>(it.value());
-        if (cot == Q_NULLPTR || !cot->isAssocCCAM())
+        if (cot == Q_NULLPTR)
             continue;
         UpStandardItem *itacte = new UpStandardItem(cot->typeacte(), cot);
         itacte          ->setCheckable(true);
-        itacte          ->setCheckState(cot->isused() ? Qt::Checked : Qt::Unchecked);
+        itacte          ->setCheckState(cot->isused() ? Qt::Checked : Qt::Unchecked);   //! cochée si utilisée par le user
         itacte          ->setEditable(false);
         UpStandardItem *itconv = new UpStandardItem(QLocale().toString(cot->montantconventionnel(), 'f', 2), cot);
         itconv          ->setEditable(false);
         UpStandardItem *itprat = new UpStandardItem(QLocale().toString(cot->montantpratique(), 'f', 2), cot);
         itprat          ->setEditable(false);
-        for (UpStandardItem *itm : { itacte, itconv, itprat })      //! infobulle = tip de l'acte, sur toute la ligne
-            itm         ->setToolTip(cot->descriptif());
-        m_modelAssoc    ->setItem(row, 0, itacte);
-        m_modelAssoc    ->setItem(row, 1, itconv);
-        m_modelAssoc    ->setItem(row, 2, itprat);
+        m_modelCotations->setItem(row, 0, itacte);
+        m_modelCotations->setItem(row, 1, itconv);
+        m_modelCotations->setItem(row, 2, itprat);
         ++row;
     }
 
-    QItemSelectionModel *sel = ui->AssocCCAMupTableWidget->selectionModel();   //! à détruire après setModel (bugs d'affichage à la réinitialisation)
-    ui->AssocCCAMupTableWidget          ->setModel(m_modelAssoc);
+    QItemSelectionModel *sel = ui->cotationsUpTableView->selectionModel();   //! à détruire après setModel (bugs d'affichage à la réinitialisation)
+    ui->cotationsUpTableView            ->setModel(m_modelCotations);
     if (sel != Q_NULLPTR)
         delete sel;
-    ui->AssocCCAMupTableWidget          ->verticalHeader()->setVisible(false);
+    ui->cotationsUpTableView            ->verticalHeader()->setVisible(false);
 }
 
 /*!
  * \brief dlg_param::getCotationFromIndex
- * \param idx  index d'une cellule de la table des associations
+ * \param idx  index d'une cellule de cotationsUpTableView
  * rend la Cotation portée par la ligne (via le rufusitem de la colonne 0)
  */
 Cotation* dlg_param::getCotationFromIndex(QModelIndex idx)
 {
-    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_modelAssoc->item(idx.row()));
+    UpStandardItem *itm = dynamic_cast<UpStandardItem*>(m_modelCotations->item(idx.row()));
     if (itm != Q_NULLPTR)
         return qobject_cast<Cotation*>(itm->rufusitem());
     return Q_NULLPTR;
