@@ -86,7 +86,7 @@ void Cotations::loadUserCotations(User *usr)
             continue;
         c->setused(true);
         c->setmontantpratique(it.value());
-        //! montant conventionnel : nonoptam seulement si non OPTAM et CCAM (1)/assoc (4), sinon optam
+        //! montant conventionnel : nonoptam seulement si non OPTAM et CCAM (1)/assoc (2), sinon optam
         const double conv = (!optam && (c->isCCAM() || c->isAssocCCAM())) ? c->montantnonoptam() : c->montantoptam();
         c->setmontantconventionnel(conv);
         map_usercotations->insert(it.key(), c);

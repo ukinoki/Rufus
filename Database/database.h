@@ -241,8 +241,8 @@ public:
     double valeurAMYDOM();
     MajCotations verifMajCotations();                           //! compare les versions du fichier de cotations à celles en base
     void majNGAP();                                             //! importe les actes NGAP (AMY) du fichier de cotations dans la table cotations
-    void exporteJointures();                                    //! migre les cotations perso vers les 4 tables de jointures (ccam, associations, cotations/NGAP, autres)
-    void nettoieTableCotations();                              //! reclasse les associations CCAM (->4) puis ne garde qu'une ligne par Typeacte
+    void exporteJointures();                                    //! migre les cotations perso vers les 4 jointures et classe Typecotation (1 CCAM, 2 assoc, 3 NGAP, 4 autre) d'après le Typeacte
+    void nettoieTableCotations();                              //! ne garde qu'une ligne par Typeacte (supprime les doublons de partage entre utilisateurs)
 
     /*
      * Donnees ophta patient
