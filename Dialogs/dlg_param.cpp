@@ -45,10 +45,6 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_appareilswdgbuttonframe                     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Moins);
     connect(wdg_appareilswdgbuttonframe,            &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_appareilswdgbuttonframe);});
 
-    wdg_HNcotationswdgbuttonframe                   = new WidgetButtonFrame(ui->HorsNomenclatureupTableWidget);
-    wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
-    connect(wdg_HNcotationswdgbuttonframe,          &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_HNcotationswdgbuttonframe);});
-
     wdg_cotationswdgbuttonframe            = new WidgetButtonFrame(ui->cotationsUpTableView);
     wdg_cotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_cotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_cotationswdgbuttonframe);});
@@ -59,7 +55,6 @@ dlg_param::dlg_param(QWidget *parent) :
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QHBoxLayout *Marge2lay      = new QHBoxLayout();
     QVBoxLayout *AssocCCAMlay   = new QVBoxLayout();
-    QVBoxLayout *HorsCCAMlay    = new QVBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
     int marge   = 10;
     Cotationslay    ->setSpacing(marge);
@@ -84,13 +79,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     Cotationslay    ->addLayout(Marge2lay);
 
-    HorsCCAMlay     ->addWidget(ui->HorsNomenclaturelabel);
-    HorsCCAMlay     ->addWidget(wdg_HNcotationswdgbuttonframe->widgButtonParent());
-    HorsCCAMlay     ->setStretch(0,0);
-    HorsCCAMlay     ->setStretch(1,15);
-
     Margelay        ->addWidget(ui->MargeWidget);
-    Margelay        ->addLayout(HorsCCAMlay);
     Margelay        ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Expanding, QSizePolicy::Expanding));
 
     Cotationslay    ->addLayout(Margelay);
@@ -106,8 +95,7 @@ dlg_param::dlg_param(QWidget *parent) :
     }
     else
     {
-        ui->AssocCCAMlabel  ->setText(tr("Actes codifiés"));
-        ui->HorsNomenclaturelabel   ->setText(tr("Actes non codifés"));
+        ui->AssocCCAMlabel  ->setText(tr("Cotations"));
         ui->CCAMwidget->setVisible(false);
     }
 
@@ -323,8 +311,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
    /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
        QList <QWidget*> ListTab;
-       ListTab << ui->ActesCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->HorsNomenclatureupTableWidget
-               << ui->ChoixFontupPushButton;
+       ListTab << ui->ActesCCAMupTableWidget << ui->ChercheCotationupLineEdit << ui->ChoixFontupPushButton;
        for (int i = 0; i<ListTab.size()-1 ; i++ )
            ui->UserParamtab->setTabOrder(ListTab.at(i), ListTab.at(i+1));
        ListTab.clear();
@@ -343,9 +330,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
     ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    ui->HorsNomenclatureupTableWidget   ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    wdg_cotationswdgbuttonframe                       ->setEnabled(false);
-    wdg_HNcotationswdgbuttonframe                              ->setEnabled(false);
+    wdg_cotationswdgbuttonframe         ->setEnabled(false);
     ui->ActesCCAMlabel                  ->setEnabled(false);
     ui->OphtaSeulcheckBox               ->setEnabled(false);
 
@@ -634,23 +619,6 @@ dlg_param::~dlg_param()
     delete ui;
 }
 
-void dlg_param::AfficheToolTip(QTableWidget *table, QTableWidgetItem *item)
-{
-    QPoint pos = cursor().pos();
-    QRect rect = QRect(pos,QSize(10,10));
-    if (table == ui->ActesCCAMupTableWidget)
-        QToolTip::showText(cursor().pos(),ui->ActesCCAMupTableWidget->item(item->row(),4)->text(), ui->ActesCCAMupTableWidget, rect, 2000);
-    else if (table == ui->HorsNomenclatureupTableWidget)
-    {
-        QString tip = item->text();
-        UpLineEdit * line = qobject_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(item->row(),2));
-        if (line != Q_NULLPTR)
-            if (line->datas().toString() != "")
-                tip += "\n" + line->datas().toString();
-        QToolTip::showText(cursor().pos(),tip, ui->HorsNomenclatureupTableWidget, rect, 2000);
-    }
-}
-
 /*!
  * \brief dlg_param::AfficheToolTip
  * \param idx  index d'une cellule de cotationsUpTableView
@@ -827,21 +795,7 @@ void dlg_param::EnregDossierStockageApp(UpLineEdit *line, QString dir)
 
 void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
 {
-    if (widgbutt== wdg_HNcotationswdgbuttonframe)
-    {
-        switch (wdg_HNcotationswdgbuttonframe->Choix()) {
-        case WidgetButtonFrame::Plus:
-            NouvHorsNomenclature();
-            break;
-        case WidgetButtonFrame::Modifier:
-            ModifHorsNomenclature();
-            break;
-        case WidgetButtonFrame::Moins:
-            SupprHorsNomenclature();
-            break;
-        }
-    }
-    else if (widgbutt== wdg_cotationswdgbuttonframe)
+    if (widgbutt== wdg_cotationswdgbuttonframe)
     {
         switch (wdg_cotationswdgbuttonframe->Choix()) {
         case WidgetButtonFrame::Plus:
@@ -1006,7 +960,6 @@ void dlg_param::EnableModif(QWidget *obj)
 
         EnableActesCCAM(a);
         enableCotations(a);
-        EnableHorsNomenclature(a);
     }
 
     else if (obj == ui->LockParamGeneralupLabel)
@@ -1485,55 +1438,6 @@ void dlg_param::MAJCotation(Cotation *cot)
     Q_UNUSED(cot)
 }
 
-void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
-{
-    QString req;
-    UpCheckBox* check = qobject_cast<UpCheckBox*>(widg);
-    if (check)
-    {
-        int row                 = check->rowTable();
-        QString codeccam        = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-        QString montantpratique = "";
-        if (check->checkState() == Qt::Unchecked)
-            req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-        else
-        {
-            UpLineEdit *lineprat = qobject_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,2));
-            if (lineprat)
-                montantpratique = QString::number(QLocale().toDouble(lineprat->text()));
-            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                    CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
-                    codeccam + "', " +
-                    montantpratique + ", " +
-                    montantpratique + ", " +
-                    montantpratique + ", " +
-                    " 2, " + QString::number(currentuser()->id()) +")";
-        }
-        if (db->StandardSQL(req))
-            m_cotationsmodifiees = true;
-    }
-    else
-    {
-        UpLineEdit *line = qobject_cast<UpLineEdit*>(widg);
-        if (line)
-        {
-            int row = line->Row();
-            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(row,0));
-            if (check1)
-                if (check1->isChecked())
-                {
-                    QString req;
-                    QString montant = QString::number(QLocale().toDouble(txt));
-                    line->setText(QLocale().toString(montant.toDouble(),'f',2));
-                    req = "update " TBL_COTATIONS " set " CP_MONTANTOPTAM_COTATIONS " = " + montant + ", " CP_MONTANTNONOPTAM_COTATIONS " = " + montant + ", " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
-                          " where " CP_TYPEACTE_COTATIONS " = '" + ui->HorsNomenclatureupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-                    if (db->StandardSQL(req))
-                        m_cotationsmodifiees = true;
-                }
-        }
-    }
-}
-
 void dlg_param::SupprAppareil()
 {
     if (ui->AppareilsConnectesupTableWidget->selectedItems().size()==0)
@@ -1587,29 +1491,9 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
             }
             if (!modifboutonsAssoc)
             {
-                ui->AssocCCAMupTableWidget          ->clearSelection();
-                ui->HorsNomenclatureupTableWidget   ->clearSelection();
-                wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-                wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
-                wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
-                wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
-            }
-        }
-        else if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
-        {
-            if (ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0)
-            {
-                if (check0->rowTable()==ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow())
-                    modifboutonsHN = true;
-            }
-            if (!modifboutonsHN)
-            {
-                ui->AssocCCAMupTableWidget          ->clearSelection();
-                ui->HorsNomenclatureupTableWidget   ->clearSelection();
-                wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-                wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
-                wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
-                wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
+                ui->cotationsUpTableView                            ->clearSelection();
+                wdg_cotationswdgbuttonframe->wdg_modifBouton        ->setEnabled(false);
+                wdg_cotationswdgbuttonframe->wdg_moinsBouton        ->setEnabled(false);
             }
         }
     }
@@ -1617,7 +1501,6 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
     if (widg == ui->AssocCCAMupTableWidget || modifboutonsAssoc)
     {
         ui->ActesCCAMupTableWidget          ->clearSelection();
-        ui->HorsNomenclatureupTableWidget   ->clearSelection();
         bool checked = true;
         if (ui->AssocCCAMupTableWidget->selectedRanges().size()>0)
         {
@@ -1631,38 +1514,8 @@ void dlg_param::RegleAssocBoutons(QWidget *widg)
         wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled((ui->AssocCCAMupTableWidget->selectedRanges().size()>0
                                                  || ui->ActesCCAMupTableWidget->selectedRanges().size()>0)
                                                  && checked);
-        wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
-        wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
     }
-    else if (widg == ui->ActesCCAMupTableWidget || modifboutonsActes)
-    {
-        ui->AssocCCAMupTableWidget          ->clearSelection();
-        ui->HorsNomenclatureupTableWidget   ->clearSelection();
-        wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-        wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
-        wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(false);
-        wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(false);
-    }
-    else if (widg == ui->HorsNomenclatureupTableWidget || modifboutonsHN)
-    {
-        ui->ActesCCAMupTableWidget          ->clearSelection();
-        ui->AssocCCAMupTableWidget          ->clearSelection();
-        bool checked = true;
-        if (check0)
-            if (ui->HorsNomenclatureupTableWidget->isAncestorOf(check0))
-            {
-                UpCheckBox* check                   = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow(),0));
-                if (check)
-                    checked = check->isChecked();
-            }
-        wdg_cotationswdgbuttonframe->wdg_modifBouton          ->setEnabled(false);
-        wdg_cotationswdgbuttonframe->wdg_moinsBouton          ->setEnabled(false);
-        wdg_HNcotationswdgbuttonframe->wdg_modifBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
-                                                                                    && checked);
-        wdg_HNcotationswdgbuttonframe->wdg_moinsBouton                 ->setEnabled(ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0
-                                                                                    && checked);
-    }
-}
+ }
 
 void dlg_param::ResetImprimante()
 {
@@ -1773,45 +1626,6 @@ void dlg_param::supprimeCotation(Cotation *cot)
     remplitTableCotations();
     enableCotations();
     m_cotationsmodifiees = true;
-}
-
-void dlg_param::NouvHorsNomenclature()
-{
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Creation, "", this);
-    if (Dlg_CrrCot->exec() == QDialog::Accepted)
-    {
-        Remplir_TableHorsNomenclature();
-        EnableHorsNomenclature();
-        m_cotationsmodifiees = true;
-    }
-    delete Dlg_CrrCot;
-}
-
-void dlg_param::ModifHorsNomenclature()
-{
-    int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
-    QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::HorsNomenclature, dlg_gestioncotations::Modification, CodeActe, this);
-    if (Dlg_CrrCot->exec() == QDialog::Accepted)
-    {
-        Remplir_TableHorsNomenclature();
-        EnableHorsNomenclature();
-        m_cotationsmodifiees = true;
-    }
-    delete Dlg_CrrCot;
-}
-
-void dlg_param::SupprHorsNomenclature()
-{
-    int row = ui->HorsNomenclatureupTableWidget->selectedRanges().at(0).topRow();
-    QString CodeActe = ui->HorsNomenclatureupTableWidget->item(row,1)->text();
-    if (UpMessageBox::Question(this, tr("Suppression de cotation"), tr("Confirmez la suppression de la cotation ") + CodeActe)==UpSmallButton::STARTBUTTON)
-    {
-        db->StandardSQL("delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + CodeActe + "'");
-        Remplir_TableHorsNomenclature();
-        EnableHorsNomenclature();
-        m_cotationsmodifiees = true;
-    }
 }
 
 void dlg_param::ModifMDPAdmin()
@@ -2680,12 +2494,9 @@ void dlg_param::AfficheParamUser()
         if (m_parametres->cotationsfrance())
             Remplir_TableActesCCAM();
         remplitTableCotations();
-        Remplir_TableHorsNomenclature();
 
         wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
         wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
-        wdg_HNcotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_HNcotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
     }
     else
         ui->Cotationswidget->setVisible(false);
@@ -2768,9 +2579,7 @@ void dlg_param::ConnectSignals()
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->FrontoupComboBox,a);});
     connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
-    connect(ui->ActesCCAMupTableWidget,             &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->ActesCCAMupTableWidget, item);});
-    connect(ui->HorsNomenclatureupTableWidget,      &QTableWidget::itemEntered,             this,   [=] (QTableWidgetItem* item) {AfficheToolTip(ui->HorsNomenclatureupTableWidget, item);});
-    ui->cotationsUpTableView->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
+    ui->cotationsUpTableView    ->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
     connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCodeCCAM);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
@@ -2856,25 +2665,6 @@ void dlg_param::enableCotations(bool enable)
         f.setFlag(Qt::ItemIsEnabled, autormodif);
         itacte->setFlags(f);
     }
-}
-
-void dlg_param::EnableHorsNomenclature(bool enable)
-{
-    bool autormodif = enable && currentuser()->idparent() == currentuser()->id();  // les remplaçants ne peuvent pas modifier les actes
-    for (int i=0; i<ui->HorsNomenclatureupTableWidget->rowCount(); i++)
-    {
-        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,0));
-        if (check) check->setEnabled(autormodif);
-        UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->HorsNomenclatureupTableWidget->cellWidget(i,2));
-        if (lbl)
-            lbl->setEnabled(autormodif);
-    }
-    ui->HorsNomenclatureupTableWidget->setSelectionMode(autormodif? QAbstractItemView::SingleSelection : QAbstractItemView::NoSelection);
-    if (!autormodif)
-        ui->HorsNomenclatureupTableWidget->clearSelection();
-    wdg_HNcotationswdgbuttonframe              ->setEnabled(autormodif);
-    wdg_HNcotationswdgbuttonframe->wdg_modifBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
-    wdg_HNcotationswdgbuttonframe->wdg_moinsBouton ->setEnabled(autormodif && ui->HorsNomenclatureupTableWidget->selectedRanges().size()>0);
 }
 
 void dlg_param::EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, QString txtport)
@@ -3628,106 +3418,6 @@ void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
                 }
             }
         }
-    }
-}
-
-// ----------------------------------------------------------------------------------
-// Remplissage de la table des associations CCAM.
-// ----------------------------------------------------------------------------------
-
-// ----------------------------------------------------------------------------------
-// Remplissage de la table des actes hors nomenclature.
-// ----------------------------------------------------------------------------------
-void dlg_param::Remplir_TableHorsNomenclature()
-{
-    bool ok;
-    // Mise en forme de la table HorsNomenclature
-    ui->HorsNomenclatureupTableWidget->setPalette(QPalette(Qt::white));
-    ui->HorsNomenclatureupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->HorsNomenclatureupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->HorsNomenclatureupTableWidget->verticalHeader()->setVisible(false);
-    ui->HorsNomenclatureupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->HorsNomenclatureupTableWidget->setMouseTracking(true);
-
-    ui->HorsNomenclatureupTableWidget->setColumnCount(3);
-    ui->HorsNomenclatureupTableWidget->setColumnWidth(0,20);           //checkbox
-    ui->HorsNomenclatureupTableWidget->setColumnWidth(1,160);          //code CCAM
-    ui->HorsNomenclatureupTableWidget->setColumnWidth(2,90);           //Secteur I
-    ui->HorsNomenclatureupTableWidget->FixLargeurTotale();
-    ui->HorsNomenclatureupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-    ui->HorsNomenclatureupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
-    ui->HorsNomenclatureupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("Tarif\npratiqué"));
-    ui->HorsNomenclatureupTableWidget->horizontalHeader()->setVisible(true);
-    ui->HorsNomenclatureupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-    ui->HorsNomenclatureupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-    ui->HorsNomenclatureupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-    connect(ui->HorsNomenclatureupTableWidget,     &QTableWidget::currentCellChanged,   this, [=] {RegleAssocBoutons(ui->HorsNomenclatureupTableWidget);});
-    connect(ui->HorsNomenclatureupTableWidget,     &QTableWidget::cellClicked,          this, [=] {RegleAssocBoutons(ui->HorsNomenclatureupTableWidget);});
-
-    //Remplissage Table Horsnomenclature
-    QTableWidgetItem    *pItem0;
-    UpCheckBox          *check;
-    QDoubleValidator *val = new QDoubleValidator(this);
-    val->setDecimals(2);
-    ui->HorsNomenclatureupTableWidget->clearContents();
-    QString Horsrequete = "SELECT " CP_TYPEACTE_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TIP_COTATIONS
-                          " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 3 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-    QList<QVariantList> Horslist = db->StandardSelectSQL(Horsrequete, ok);
-    if (!ok)
-        return;
-    ui->HorsNomenclatureupTableWidget->setRowCount(Horslist.size());
-    for (int i=0; i<Horslist.size(); i++)
-    {
-        pItem0      = new QTableWidgetItem();
-        check       = new UpCheckBox();
-        check->setRowTable(i);
-        check->setEnabled(false);
-        check->setChecked(true);
-        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJHorsNomenclature(check);
-                                                            RegleAssocBoutons(check); });
-        ui->HorsNomenclatureupTableWidget->setCellWidget(i,0,check);
-        pItem0->setText(Horslist.at(i).at(0).toString());                             // codeCCAM
-        ui->HorsNomenclatureupTableWidget->setItem(i,1,pItem0);
-        UpLineEdit *lbl1 = new UpLineEdit();
-        lbl1->setText(QLocale().toString(Horslist.at(i).at(1).toDouble(),'f',2));      // montant
-        lbl1->setdatas(Horslist.at(i).at(2));                                           // Tip
-        lbl1->setAlignment(Qt::AlignRight);
-        lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRow(i);
-        lbl1->setValidator(val);
-        lbl1->setEnabled(false);
-        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJHorsNomenclature(lbl1, txt);});
-        ui->HorsNomenclatureupTableWidget->setCellWidget(i,2,lbl1);
-        ui->HorsNomenclatureupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
-    }
-    Horsrequete = "SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 3 AND " CP_IDUSER_COTATIONS " <> " + QString::number(currentuser()->id())+
-            " and " CP_TYPEACTE_COTATIONS " not in (SELECT " CP_TYPEACTE_COTATIONS " from "  TBL_COTATIONS " WHERE " CP_CODECCAM_COTATIONS " = 3 AND " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id()) + ")";
-    QList<QVariantList> Hors2list = db->StandardSelectSQL(Horsrequete, ok);
-    if (!ok)
-        return;
-    for (int i=0; i<Hors2list.size(); i++)
-    {
-        int row = ui->HorsNomenclatureupTableWidget->rowCount();
-        ui->HorsNomenclatureupTableWidget->insertRow(row);
-        pItem0      = new QTableWidgetItem();
-        check       = new UpCheckBox();
-        check->setRowTable(row);
-        check->setEnabled(false);
-        check->setChecked(false);
-        connect(check,  &QCheckBox::clicked,  this,   [=] {MAJHorsNomenclature(check);});
-        ui->HorsNomenclatureupTableWidget->setCellWidget(row,0,check);
-        pItem0->setText(Hors2list.at(i).at(0).toString());                             // codeCCAM
-        ui->HorsNomenclatureupTableWidget->setItem(row,1,pItem0);
-        UpLineEdit *lbl1 = new UpLineEdit();
-        lbl1->setText("");      // montant pratiqué = 0
-        lbl1->setAlignment(Qt::AlignRight);
-        lbl1->setStyleSheet("border: 0px solid rgb(150,150,150)");
-        lbl1->setRow(row);
-        lbl1->setValidator(val);
-        lbl1->setEnabled(false);
-        connect(lbl1,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJHorsNomenclature(lbl1, txt);});
-        ui->HorsNomenclatureupTableWidget->setCellWidget(row,2,lbl1);
-        ui->HorsNomenclatureupTableWidget->setRowHeight(row, int(QFontMetrics(qApp->font()).height()*1.1));
     }
 }
 

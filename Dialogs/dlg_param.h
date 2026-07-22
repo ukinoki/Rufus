@@ -80,7 +80,7 @@ private:
     QTimer                  t_timerverifimportdocs;
 
     VilleCPWidget           *wdg_villeCP;
-    WidgetButtonFrame       *wdg_HNcotationswdgbuttonframe, *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
+    WidgetButtonFrame       *wdg_cotationswdgbuttonframe, *wdg_appareilswdgbuttonframe;
     QWidget                 *wdg_CCAM;
     UpDialog                *dlg_lieux;
     UpDialog                *dlg_askappareil, *dlg_askMDP;
@@ -95,14 +95,9 @@ private:
     void                ReconstruitListeLieuxExerciceAllusers();
     void                EnableActesCCAM(bool enable = true);
     void                enableCotations(bool enable = true);
-    void                EnableHorsNomenclature(bool enable = true);
     void                Remplir_TableActesCCAM(bool ophtaseul = true);
-    void                Remplir_TableHorsNomenclature();
     void                Remplir_Tables();
     bool                Valide_Modifications();
-    void                NouvHorsNomenclature();
-    void                ModifHorsNomenclature();
-    void                SupprHorsNomenclature();
     void                NouvAssocCCAM();
     void                ModifAssocCCAM();
     void                supprimeCotation(Cotation *cot);
@@ -115,7 +110,6 @@ private:
 
     void                ConnectTimers(bool = true);
 
-    void                AfficheToolTip(QTableWidget* table, QTableWidgetItem* item);
     void                AfficheToolTip(QModelIndex idx);        //!< infobulle de cotationsUpTableView (tip de la Cotation de la ligne)
     void                EnableSupprAppareilBouton();
     void                FermepushButtonClicked();
@@ -147,7 +141,6 @@ private:
     void                GestionUsers();
     void                MAJActesCCAM(QWidget *widg, QString txt = "");
     void                MAJCotation(Cotation *cot);
-    void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
     void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);           /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();

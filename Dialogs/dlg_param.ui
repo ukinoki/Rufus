@@ -539,59 +539,6 @@
               <height>755</height>
              </size>
             </property>
-            <widget class="UpTableWidget" name="HorsNomenclatureupTableWidget">
-             <property name="geometry">
-              <rect>
-               <x>34</x>
-               <y>660</y>
-               <width>272</width>
-               <height>89</height>
-              </rect>
-             </property>
-             <property name="minimumSize">
-              <size>
-               <width>0</width>
-               <height>0</height>
-              </size>
-             </property>
-             <property name="maximumSize">
-              <size>
-               <width>272</width>
-               <height>16777215</height>
-              </size>
-             </property>
-             <property name="mouseTracking">
-              <bool>true</bool>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-             </property>
-             <property name="selectionMode">
-              <enum>QAbstractItemView::SelectionMode::SingleSelection</enum>
-             </property>
-             <property name="selectionBehavior">
-              <enum>QAbstractItemView::SelectionBehavior::SelectRows</enum>
-             </property>
-             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
-              <bool>false</bool>
-             </attribute>
-            </widget>
-            <widget class="QLabel" name="HorsNomenclaturelabel">
-             <property name="geometry">
-              <rect>
-               <x>27</x>
-               <y>628</y>
-               <width>161</width>
-               <height>16</height>
-              </rect>
-             </property>
-             <property name="contextMenuPolicy">
-              <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
-             </property>
-             <property name="text">
-              <string>Actes hors nomenclature</string>
-             </property>
-            </widget>
             <widget class="QLabel" name="AssocCCAMlabel">
              <property name="geometry">
               <rect>
@@ -4295,14 +4242,14 @@ des organismes bancaires</string>
    <header>uptablewidget.h</header>
   </customwidget>
   <customwidget>
-   <class>UpTableView</class>
-   <extends>QTableView</extends>
-   <header>uptableview.h</header>
-  </customwidget>
-  <customwidget>
    <class>UpRadioButton</class>
    <extends>QRadioButton</extends>
    <header>upradiobutton.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UpTableView</class>
+   <extends>QTableView</extends>
+   <header>uptableview.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>
