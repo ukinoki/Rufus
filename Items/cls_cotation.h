@@ -27,7 +27,7 @@ class Cotation : public Item
 private:
     int m_frequence;
     bool m_userused = false;                //!< marqué quand la cotation est utilisée par l'utilisateur courant (sert à bâtir map_usercotations)
-    QString m_typeacte, m_descriptif;
+    QString m_typeacte, m_descriptif;       //!< m_typeacte = la cotation, m_descriptif = le descriptif de l'acte
     int m_typcotation = 1;                  //!< type de cotation : 1=CCAM, 2=NGAP, 3=horsNGAPnorCCAM, 4=association CCAM
     bool m_isCCAM = false;                  //!< les 4 booléens ci-dessous sont déduits de m_typcotation
     bool m_isNGAP = false;
@@ -46,9 +46,9 @@ public:
     bool isused() const          { return m_userused; }
     void setused(bool u)         { m_userused = u; }
     void setmontantpratique(double m)      { m_montantpratique = m; }
-    void setmontantconventionnel(double m) { m_montantoptam = m; }   //!< montantconventionnel() renvoie m_montantoptam
+    void setmontantconventionnel(double m) { m_montantoptam = m; }      //!< montantconventionnel() renvoie m_montantoptam
     int  typcotation() const     { return m_typcotation; }
-    void settypcotation(int typ) { m_typcotation = typ;      //!< 1=CCAM 2=association CCAM 3=NGAP 4=autre
+    void settypcotation(int typ) { m_typcotation = typ;                 //!< 1=CCAM 2=association CCAM 3=NGAP 4=autre
                                    m_isCCAM          = (typ == 1);
                                    m_isAssocCCAM     = (typ == 2);
                                    m_isNGAP          = (typ == 3);
