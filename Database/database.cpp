@@ -1123,6 +1123,21 @@ void DataBase::exporteJointuresCCAM()
                 " where cot." CP_IDUSER_COTATIONS " is not null and cot." CP_CODECCAM_COTATIONS " = 1");
 }
 
+/*!
+ * \brief DataBase::supprimeDoublonsCotations
+ * après export des personnalisations vers les jointures, ne conserve qu'une seule ligne par
+ * Typeacte dans cotations (la plus ancienne, plus petit idcotation) et supprime les autres.
+ */
+void DataBase::supprimeDoublonsCotations()
+{
+    if (!m_db.isOpen())
+        return;
+    StandardSQL("delete c1 from " TBL_COTATIONS " c1"
+                " join " TBL_COTATIONS " c2"
+                " on c1." CP_TYPEACTE_COTATIONS " = c2." CP_TYPEACTE_COTATIONS
+                " and c1." CP_ID_COTATIONS " > c2." CP_ID_COTATIONS);
+}
+
 void DataBase::setsanscompta(bool one)
 {
     if (!m_db.isOpen())
