@@ -105,7 +105,7 @@ private:
     void                SupprHorsNomenclature();
     void                NouvAssocCCAM();
     void                ModifAssocCCAM();
-    void                supprimeCotation();
+    void                supprimeCotation(Cotation *cot);
     void                NouvAppareil();
     void                RecalcAvailablesPorts(bool fromSettings = false);
     void                RestaureBase();
@@ -146,7 +146,7 @@ private:
     void                GestionLieux();
     void                GestionUsers();
     void                MAJActesCCAM(QWidget *widg, QString txt = "");
-    void                MAJAssocCCAM(QWidget *widg, QString txt = "");
+    void                MAJCotation(Cotation *cot);
     void                MAJHorsNomenclature(QWidget *widg, QString txt = "");
     void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);           /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/

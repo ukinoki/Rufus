@@ -49,7 +49,7 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_HNcotationswdgbuttonframe                   ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_HNcotationswdgbuttonframe,          &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_HNcotationswdgbuttonframe);});
 
-    wdg_cotationswdgbuttonframe            = new WidgetButtonFrame(ui->);
+    wdg_cotationswdgbuttonframe            = new WidgetButtonFrame(ui->cotationsUpTableView);
     wdg_cotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
     connect(wdg_cotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_cotationswdgbuttonframe);});
 
@@ -851,7 +851,7 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
             ModifAssocCCAM();
             break;
         case WidgetButtonFrame::Moins:
-            supprimeCotation();
+            supprimeCotation(getCotationFromIndex(ui->cotationsUpTableView->currentIndex()));
             break;
         }
     }
@@ -1474,107 +1474,15 @@ void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
     }
 }
 
-void dlg_param::MAJAssocCCAM(QWidget *widg, QString txt)
+
+/*!
+ * \brief dlg_param::MAJCotation
+ * \param cot  la cotation concernée (déduite par l'appelant via getCotationFromIndex)
+ * mise à jour d'une cotation (coche/décoche, montant pratiqué...) : à écrire ultérieurement
+ */
+void dlg_param::MAJCotation(Cotation *cot)
 {
-    bool ok;
-    QString req;
-    UpCheckBox* check = qobject_cast<UpCheckBox*>(widg);
-    if (check)
-    {
-        int row                 = check->rowTable();
-        QString codeccam        = ui->AssocCCAMupTableWidget->item(row,1)->text();
-        QString montantpratique = "";
-        if (check->checkState() == Qt::Unchecked)
-        {
-            QList<QVariantList> calclist = db->StandardSelectSQL("select " CP_TYPEACTE_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "'", ok);
-            req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-            if (calclist.size()==1)
-            {
-                if (UpMessageBox::Question(this,tr("Suppression de cotation"),
-                                            tr("Vous étiez le seul à utiliser cette cotation") + "\n" +
-                                            tr("Voulez-vous la supprimer définitvement?"),
-                                            UpDialog::ButtonCancel | UpDialog::ButtonSuppr,
-                                            QStringList() << tr("Annuler") << tr("Supprimer la cotation") + " " + codeccam)
-                    != UpSmallButton::SUPPRBUTTON)
-                    req = "update " TBL_COTATIONS " set " CP_IDUSER_COTATIONS " = NULL where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-            }
-        }
-        else
-        {
-            int secteur = currentuser()->secteurconventionnel();
-            QString montantOPTAM(""), montantNonOPTAM("");
-            UpLineEdit *lineOPTAM = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,2));
-            if (lineOPTAM != Q_NULLPTR)
-                montantOPTAM    = QString::number(QLocale().toDouble(lineOPTAM->text()));
-            UpLineEdit *lineNonOPTAM = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,3));
-            if (lineNonOPTAM != Q_NULLPTR)
-                montantNonOPTAM    = QString::number(QLocale().toDouble(lineNonOPTAM->text()));
-            if (secteur>1)
-            {
-                UpLineEdit *lineprat = qobject_cast<UpLineEdit*>(ui->AssocCCAMupTableWidget->cellWidget(row,4));
-                if (lineprat)
-                    montantpratique = QString::number(QLocale().toDouble(lineprat->text()));
-                else
-                {
-                    UpLineEdit *lbl = new UpLineEdit();
-                    if (currentuser()->isOPTAM())
-                        lbl->setText(ui->AssocCCAMupTableWidget->item(row,2)->text());
-                    else
-                        lbl->setText(ui->AssocCCAMupTableWidget->item(row,3)->text());
-                    lbl->setAlignment(Qt::AlignRight);
-                    lbl->setStyleSheet("QLineEdit {border: 0px solid rgb(150,150,150);}"
-                                       "QLineEdit:disabled {background-color:lightGray;}");
-                    lbl->setRow(row);
-                    QDoubleValidator *val = new QDoubleValidator(this);
-                    val->setDecimals(2);
-                    lbl->setValidator(val);
-                    connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJAssocCCAM(lbl, txt);});
-                    ui->AssocCCAMupTableWidget->setCellWidget(row,4,lbl);
-                    montantpratique = QString::number(QLocale().toDouble(lbl->text()));
-                }
-            }
-            else if (currentuser()->isOPTAM())
-                montantpratique = montantOPTAM;
-            else
-                montantpratique = montantNonOPTAM;
-            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                    CP_CODECCAM_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
-                    codeccam + "', " +
-                    montantOPTAM + ", " +
-                    montantNonOPTAM + ", " +
-                    montantpratique + ", 2," +
-                    QString::number(currentuser()->id()) +")";
-        }
-        if (db->StandardSQL(req))
-            m_cotationsmodifiees = true;
-    }
-    else
-    {
-        UpLineEdit *line = qobject_cast<UpLineEdit*>(widg);
-        if (line)
-        {
-            int row = line->Row();
-            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->AssocCCAMupTableWidget->cellWidget(row,0));
-            if (check1)
-                if (check1->isChecked())
-                {
-                    QString req;
-                    QString montant = QString::number(QLocale().toDouble(txt));
-                    line->setText(QLocale().toString(montant.toDouble(),'f',2));
-                    if (line->Column()==2)
-                        req = "update " TBL_COTATIONS " set " CP_MONTANTOPTAM_COTATIONS " = " + montant +
-                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-                    else if (line->Column()==3)
-                        req = "update " TBL_COTATIONS " set " CP_MONTANTNONOPTAM_COTATIONS " = " + montant +
-                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-                    else if (line->Column()==4)
-                        req = "update " TBL_COTATIONS " set " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
-                            " where " CP_TYPEACTE_COTATIONS " = '" + ui->AssocCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-                    if (db->StandardSQL(req))
-                        m_cotationsmodifiees = true;
-                }
-        }
-    }
+    Q_UNUSED(cot)
 }
 
 void dlg_param::MAJHorsNomenclature(QWidget *widg, QString txt)
@@ -1834,9 +1742,8 @@ void dlg_param::ModifAssocCCAM()
  * elle-même de la table cotations (sa ligne disparaît) — SAUF les NGAP (type 2), qui ne sont
  * stockées que là et qu'il faut garder.
  */
-void dlg_param::supprimeCotation()
+void dlg_param::supprimeCotation(Cotation *cot)
 {
-    Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
     if (cot == Q_NULLPTR)
         return;
     //! table de jointure correspondant au type de la cotation
@@ -4409,6 +4316,13 @@ void dlg_param::remplitTableCotations()
     if (sel != Q_NULLPTR)
         delete sel;
     ui->cotationsUpTableView            ->verticalHeader()->setVisible(false);
+
+    //! coche/décoche ou édition d'un item : on retrouve la Cotation portée et on l'envoie à MAJCotation
+    connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {
+        UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
+        if (upit != Q_NULLPTR)
+            MAJCotation(qobject_cast<Cotation*>(upit->rufusitem()));
+    });
 }
 
 /*!
