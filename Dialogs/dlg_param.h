@@ -126,8 +126,8 @@ private:
     void                Remplir_TableActesCCAM(bool ophtaseul = true);
     void                Remplir_Tables();
     bool                Valide_Modifications();
-    void                NouvAssocCCAM();
-    void                ModifAssocCCAM();
+    void                NouvCotation();
+    void                ModifCotation();
     void                supprimeCotation(Cotation *cot);
     void                NouvAppareil();
     void                RecalcAvailablesPorts(bool fromSettings = false);

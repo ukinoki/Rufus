@@ -798,10 +798,10 @@ void dlg_param::ChoixButtonFrame(WidgetButtonFrame *widgbutt)
     {
         switch (wdg_cotationswdgbuttonframe->Choix()) {
         case WidgetButtonFrame::Plus:
-            NouvAssocCCAM();
+            NouvCotation();
             break;
         case WidgetButtonFrame::Modifier:
-            ModifAssocCCAM();
+            ModifCotation();
             break;
         case WidgetButtonFrame::Moins:
             supprimeCotation(getCotationFromIndex(ui->cotationsUpTableView->currentIndex()));
@@ -1553,7 +1553,7 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
     }
 }
 
-void dlg_param::NouvAssocCCAM()
+void dlg_param::NouvCotation()
 {
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec() == QDialog::Accepted)
@@ -1565,14 +1565,16 @@ void dlg_param::NouvAssocCCAM()
     delete Dlg_CrrCot;
 }
 
-void dlg_param::ModifAssocCCAM()
+void dlg_param::ModifCotation()
 {
-    QString CodeActe = "";
-    if (ui->AssocCCAMupTableWidget->selectedRanges().size()==0)
+    Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
+    if (cot == Q_NULLPTR)
         return;
-    int row = ui->AssocCCAMupTableWidget->selectedRanges().at(0).topRow();
-    CodeActe = ui->AssocCCAMupTableWidget->item(row,1)->text();
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Modification, CodeActe, this);
+    //! type de fiche selon le type de cotation (la modification n'est proposée que pour les
+    //! associations CCAM et les actes hors CCAM/NGAP)
+    dlg_gestioncotations::TypeActe type = cot->isAssocCCAM() ? dlg_gestioncotations::Association
+                                                             : dlg_gestioncotations::HorsNomenclature;
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(type, dlg_gestioncotations::Modification, cot->typeacte(), this);
     if (Dlg_CrrCot->exec()>0)
     {
         remplitTableCotations();
