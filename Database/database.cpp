@@ -955,12 +955,11 @@ double DataBase::valeurAMYDOM()
             return query.at(0).at(0).toDouble();
     return 0.0;
 }
-DataBase::MajCotations DataBase::verifMajCotations()
+bool DataBase::chargeCotationsXml(QDomDocument &docxml)
 {
-    MajCotations maj;
-    /*! On cherche d'abord un fichier de cotations lisible ; s'il est introuvable, on passe
-        (aucune maj signalée). Chemin local pour l'instant : à côté du binaire, avec repli sur
-        le dossier parent (façon bundle macOS, comme pour les .qm de langue). */
+    /*! On cherche d'abord un fichier de cotations lisible ; s'il est introuvable, on renvoie false
+        (l'appelant passe). Chemin local pour l'instant : à côté du binaire, avec repli sur le
+        dossier parent (façon bundle macOS, comme pour les .qm de langue). */
     const QString suffixe = LIEN_XML_COTATIONS;
     const QString dirBin  = QCoreApplication::applicationDirPath();
     QString chemin = dirBin + suffixe;
@@ -972,12 +971,17 @@ DataBase::MajCotations DataBase::verifMajCotations()
     }
     QFile f(chemin);
     if (!f.open(QIODevice::ReadOnly))
-        return maj;                                     //! url introuvable : on passe
+        return false;                                   //! url introuvable
     const QByteArray ba = f.readAll();
     f.close();
+    return docxml.setContent(ba);                       //! false si xml invalide
+}
 
+DataBase::MajCotations DataBase::verifMajCotations()
+{
+    MajCotations maj;
     QDomDocument docxml;
-    if (!docxml.setContent(ba))                         //! xml invalide : on passe
+    if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
         return maj;
 
     QDomElement racine = docxml.documentElement();      //! <Cotations>
@@ -987,10 +991,14 @@ DataBase::MajCotations DataBase::verifMajCotations()
     if (!elCCAM.isNull())
         maj.ccam = (elCCAM.text().toDouble() > parametres()->versionCCAM());
 
-    /*! NGAP : maj si la date du xml est postérieure à celle enregistrée */
+    /*! NGAP : maj si la date du xml est postérieure à celle enregistrée ; on lance alors l'import */
     const QDomElement elNGAP = racine.firstChildElement("NGAP").firstChildElement("Version");
     if (!elNGAP.isNull())
+    {
         maj.ngap = (QDate::fromString(elNGAP.text(), "yyyy-MM-dd") > parametres()->versionNGAP());
+        if (maj.ngap)
+            majNGAP();
+    }
 
     /*! RNO : maj si la valeur du xml diffère de celle enregistrée (la valeur peut baisser).
         Cas le plus simple : on applique tout de suite la nouvelle valeur (setvaleurRNO met à
@@ -1005,6 +1013,62 @@ DataBase::MajCotations DataBase::verifMajCotations()
     }
 
     return maj;
+}
+
+/*!
+ * \brief DataBase::majNGAP
+ * importe les actes orthoptie (AMY) du fichier de cotations dans la table cotations.
+ * Pour chaque acte NGAP : Typeacte = "AMY" + indice, montant = indice x valeur de l'AMY
+ * métropole (entête du fichier). Si le Typeacte existe déjà (n'importe quelle ligne), on met
+ * à jour les 3 montants et le Tip de TOUTES ses occurrences ; sinon on crée la ligne (CCAM = 2,
+ * les 3 montants, le Tip ; sans idUser pour l'instant).
+ */
+void DataBase::majNGAP()
+{
+    if (!m_db.isOpen())
+        return;
+    QDomDocument docxml;
+    if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
+        return;
+    QDomElement racine = docxml.documentElement();      //! <Cotations>
+
+    //! valeur de l'AMY métropole portée par l'entête du fichier
+    const double valAMY = racine.firstChildElement("NGAP").firstChildElement("AMY")
+                                .firstChildElement("ValeurMetropole").text().toDouble();
+
+    for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
+    {
+        if (acte.firstChildElement("origin").text() != "ngap")
+            continue;
+        const QString indice = acte.firstChildElement("indice").text().trimmed();
+        if (indice.isEmpty())
+            continue;
+        const QString typeacte   = "AMY" + indice;                                   //! concaténation AMY + indice
+        const QString montantSQL = QString::number(indice.toDouble() * valAMY, 'f', 2);
+        const QString nomSQL     = Utils::correctquoteSQL(acte.firstChildElement("nom").text());
+
+        bool ok = false;
+        QVariantList cnt = getFirstRecordFromStandardSelectSQL(
+                    "select count(*) from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'", ok);
+        const bool existe = (ok && cnt.size() > 0 && cnt.at(0).toInt() > 0);
+
+        QString req;
+        if (existe)
+            //! met à jour les 3 montants et le Tip de toutes les occurrences de ce Typeacte
+            req = "update " TBL_COTATIONS " set "
+                  CP_MONTANTOPTAM_COTATIONS " = "    + montantSQL + ", "
+                  CP_MONTANTNONOPTAM_COTATIONS " = " + montantSQL + ", "
+                  CP_MONTANTPRATIQUE_COTATIONS " = " + montantSQL + ", "
+                  CP_TIP_COTATIONS " = '" + nomSQL + "'"
+                  " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'";
+        else
+            //! création : CCAM = 2 (association), les 3 montants et le Tip (sans idUser pour l'instant)
+            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", "
+                  CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+                  CP_CODECCAM_COTATIONS ", " CP_TIP_COTATIONS ") values ('"
+                  + typeacte + "', " + montantSQL + ", " + montantSQL + ", " + montantSQL + ", 2, '" + nomSQL + "')";
+        StandardSQL(req);
+    }
 }
 
 void DataBase::setsanscompta(bool one)

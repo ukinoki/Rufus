@@ -74,6 +74,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upsystemtrayicon.h"
 
 class UpSystemTrayIcon;
+class QDomDocument;
 
 class DataBase : public QObject
 {
@@ -94,6 +95,8 @@ public:
 private:
     DataBase();
     static DataBase *instance;
+
+    bool chargeCotationsXml(QDomDocument &docxml);              //! localise et charge le fichier de cotations ; false si introuvable/invalide
 
     int m_iduserConnected = 0;
     ParametresSysteme *m_parametres = Q_NULLPTR;
@@ -237,6 +240,7 @@ public:
     double valeurAMYmetropole();
     double valeurAMYDOM();
     MajCotations verifMajCotations();                           //! compare les versions du fichier de cotations à celles en base
+    void majNGAP();                                             //! importe les actes NGAP (AMY) du fichier de cotations dans la table cotations
 
     /*
      * Donnees ophta patient
