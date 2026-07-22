@@ -28,7 +28,7 @@ private:
     int m_frequence;
     bool m_userused = false;                //!< marqué quand la cotation est utilisée par l'utilisateur courant (sert à bâtir map_usercotations)
     QString m_typeacte, m_descriptif;       //!< m_typeacte = la cotation, m_descriptif = le descriptif de l'acte
-    int m_typcotation = 1;                  //!< type de cotation : 1=CCAM, 2=NGAP, 3=horsNGAPnorCCAM, 4=association CCAM
+    int m_typcotation = 1;                  //!< type de cotation : 1=CCAM, 2=association CCAM, 3=NGAP, 4=horsNGAPnorCCAM
     bool m_isCCAM = false;                  //!< les 4 booléens ci-dessous sont déduits de m_typcotation
     bool m_isNGAP = false;
     bool m_isAssocCCAM = false;
