@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<Cotations CCAMversion="83" CCAMapplicable="2026-07-01" NGAPversion="2026-01-01" AMYmetropole="2.60" AMYDOM="2.72" AMYdate="2026-03-17" RNOversion="28">
+<Cotations CCAMversion="83" CCAMapplicable="2026-07-01" NGAPversion="2026-01-01" AMYmetropole="2.60" AMYDOM="2.72" AMYdate="2026-03-17" RNOvaleur="28">
 	<Acte>
 		<code>AHQP001</code>
 		<nom>Électromyographie par électrode de surface, sans enregistrement vidéo</nom>
