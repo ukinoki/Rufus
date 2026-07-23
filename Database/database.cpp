@@ -987,22 +987,24 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
     return true;
 }
 
-DataBase::MajCotations DataBase::verifMajCotations()
+bool DataBase::verifMajCotations()
 {
-    MajCotations maj;
     if (!m_db.isOpen())
-        return maj;
+        return false;
 
-    //! court-circuit rapide : la date en tête du fichier est-elle celle déjà traitée par ce poste
-    //! (mémorisée dans rufus.ini) ? Si oui, rien n'a changé -> on ne parse même pas le fichier.
+    //! court-circuit : la date en tête du fichier a-t-elle déjà été traitée par ce poste (rufus.ini) ?
+    //! On shunte si le poste a déjà traité une version ÉGALE ou PLUS RÉCENTE ; sinon (date en base
+    //! inférieure, ou rien d'enregistré) on fait la mise à jour. Lecture légère : on ne parse pas le DOM ici.
     const QString dateFichier = dateCotationsXml();
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
-    if (!dateFichier.isEmpty() && ini.value(Param_Poste_DateCotations).toString() == dateFichier)
-        return maj;
+    const QString dateIni = ini.value(Param_Poste_DateCotations).toString();
+    if (!dateFichier.isEmpty() && !dateIni.isEmpty()
+        && QDate::fromString(dateIni, "yyyy-MM-dd") >= QDate::fromString(dateFichier, "yyyy-MM-dd"))
+        return false;                                   //! déjà à jour sur ce poste -> on shunte
 
     QDomDocument docxml;
     if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
-        return maj;
+        return false;
 
     QDomElement racine = docxml.documentElement();      //! <Cotations>
 
@@ -1012,9 +1014,7 @@ DataBase::MajCotations DataBase::verifMajCotations()
         référencé (les jointures portent sur idcotation). Puis on répercute optam/nonoptam sur les
         cotations CCAM (peu nombreuses) via une jointure sur la table fraîche. */
     const QDomElement elCCAM = racine.firstChildElement("CCAM").firstChildElement("Version");
-    if (!elCCAM.isNull())
-        maj.ccam = (elCCAM.text().toDouble() > parametres()->versionCCAM());
-    if (maj.ccam)
+    if (!elCCAM.isNull() && elCCAM.text().toDouble() > parametres()->versionCCAM())
     {
         QStringList lignes;                             //! un tuple de valeurs par acte CCAM du fichier
         for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
@@ -1055,10 +1055,10 @@ DataBase::MajCotations DataBase::verifMajCotations()
         const QDomElement elAMY      = elNGAP.firstChildElement("AMY");
         const double      amyMetroXml = elAMY.firstChildElement("ValeurMetropole").text().toDouble();
         const double      amyDomXml   = elAMY.firstChildElement("ValeurDOM").text().toDouble();
-        maj.ngap = (dateXml > parametres()->versionNGAP())
+        const bool majNGAP = (dateXml > parametres()->versionNGAP())
                 || (amyMetroXml != parametres()->valeurAMYmetropole())
                 || (amyDomXml   != parametres()->valeurAMYDOM());
-        if (maj.ngap)
+        if (majNGAP)
         {
             for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
             {
@@ -1097,7 +1097,7 @@ DataBase::MajCotations DataBase::verifMajCotations()
     if (!dateFichier.isEmpty())
         ini.setValue(Param_Poste_DateCotations, dateFichier);
 
-    return maj;
+    return true;                                        //! fichier traité (déclenche completeTipsManquants côté appelant)
 }
 
 /*!

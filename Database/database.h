@@ -83,14 +83,6 @@ public:
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
     enum QueryResult { Error, Empty, OK}; Q_ENUM(QueryResult)
 
-    /*! résultat de verifMajCotations() : indique lesquelles des nomenclatures
-     *  du fichier de cotations sont plus récentes que celles enregistrées en base */
-    struct MajCotations {
-        bool ccam = false;                              /*!< version CCAM du xml > version en base */
-        bool ngap = false;                              /*!< version NGAP du xml > version en base */
-        bool aUneMaj() const { return ccam || ngap; }
-    };
-
 private:
     DataBase();
     static DataBase *instance;
@@ -236,7 +228,7 @@ public:
     QDate versionNGAP();
     double valeurAMYmetropole();
     double valeurAMYDOM();
-    MajCotations verifMajCotations();                           //! vérifie le fichier de cotations et applique les mises à jour (CCAM : table ccam + montants cotations ; NGAP : import AMY) — à lancer une fois au démarrage ; court-circuit par la date du fichier (rufus.ini)
+    bool verifMajCotations();                                   //! vérifie/applique les MAJ du fichier de cotations (CCAM : table ccam + montants ; NGAP : import AMY) au démarrage ; court-circuit par la date du fichier (rufus.ini). Renvoie true si le fichier a été traité (l'appelant enchaîne alors completeTipsManquants)
     QString cheminCotationsXml();                               //! chemin local du fichier de cotations (vide si introuvable)
     QString dateCotationsXml();                                 //! lit juste la balise <DateFichier> en tête (sans parser tout le DOM), pour comparer à rufus.ini
     QMap<QString,QString> nomsNGAPFromXml();                     //! Typeacte (AMY+indice) -> libellé, lu dans le fichier de cotations (pour renseigner le Tip des NGAP)
