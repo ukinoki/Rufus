@@ -1156,6 +1156,11 @@ void DataBase::exporteJointures()
     //! 4) autre : tout le reste (ni CCAM isolé, ni association, ni NGAP)
     StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS + cols + source + " c." CP_TYPEACTE_COTATIONS + autre);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 4 where " CP_TYPEACTE_COTATIONS + autre);
+    //! montant conventionnel des type 4 : on reprend MontantOPTAM (le conventionnel des actes reconnus,
+    //! ex. Cs) ; s'il est vide (null ou 0), on recopie le montant pratiqué
+    StandardSQL("update " TBL_COTATIONS " set " CP_MONTANTCONVENTIONNEL_COTATIONS
+                " = coalesce(nullif(" CP_MONTANTOPTAM_COTATIONS ", 0), " CP_MONTANTPRATIQUE_COTATIONS ")"
+                " where " CP_TYPEACTE_COTATIONS + autre);
 }
 
 /*!

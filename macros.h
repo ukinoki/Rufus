@@ -235,6 +235,7 @@ public:
 #define CP_MONTANTOPTAM_COTATIONS                       "MontantOPTAM"
 #define CP_MONTANTNONOPTAM_COTATIONS                    "MontantNonOPTAM"
 #define CP_MONTANTPRATIQUE_COTATIONS                    "MontantPratique"
+#define CP_MONTANTCONVENTIONNEL_COTATIONS               "MontantConventionnel"
 #define CP_TYPECOTATION_COTATIONS                       "Typecotation"
 #define CP_IDUSER_COTATIONS                             "idUser"
 #define CP_FREQUENCE_COTATIONS                          "Frequence"
