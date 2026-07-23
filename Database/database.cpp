@@ -952,25 +952,6 @@ QString DataBase::cheminCotationsXml()
     return QFile::exists(chemin) ? chemin : QString();
 }
 
-QString DataBase::dateCotationsXml()
-{
-    //! lecture LÉGÈRE : on ne lit que le haut du fichier et on en extrait <DateFichier> sans parser
-    //! tout le DOM — sert de court-circuit rapide (comparaison à rufus.ini) avant le vrai chargement.
-    const QString chemin = cheminCotationsXml();
-    if (chemin.isEmpty())
-        return QString();
-    QFile f(chemin);
-    if (!f.open(QIODevice::ReadOnly))
-        return QString();
-    const QString tete = QString::fromUtf8(f.read(2048));   //! la balise est tout en haut
-    f.close();
-    const int deb = tete.indexOf("<DateFichier>");
-    const int fin = tete.indexOf("</DateFichier>");
-    if (deb < 0 || fin < 0)
-        return QString();
-    return tete.mid(deb + 13, fin - deb - 13).trimmed();    //! 13 = longueur de "<DateFichier>"
-}
-
 bool DataBase::chargeCotationsXml(QDomDocument &docxml)
 {
     //! charge et parse le fichier de cotations ; false si introuvable/invalide (l'appelant passe)
@@ -992,18 +973,15 @@ bool DataBase::verifMajCotations()
     if (!m_db.isOpen())
         return false;
 
-    //! court-circuit : la date en tête du fichier a-t-elle déjà été traitée par ce poste (rufus.ini) ?
-    //! On shunte si le poste a déjà traité une version ÉGALE ou PLUS RÉCENTE ; sinon (date en base
-    //! inférieure, ou rien d'enregistré) on fait la mise à jour. Lecture légère : on ne parse pas le DOM ici.
-    const QString dateFichier = dateCotationsXml();
+    //! garde quotidienne (par poste) : on ne relit le fichier de cotations qu'une fois par jour. Si
+    //! la dernière vérification enregistrée dans rufus.ini date d'aujourd'hui, la vérif a déjà eu lieu
+    //! -> on shunte sans rien lire ni réécrire (évite les relectures à chaque démarrage).
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
-    const QString dateIni = ini.value(Param_Poste_DateCotations).toString();
-    if (!dateFichier.isEmpty() && !dateIni.isEmpty()
-        && QDate::fromString(dateIni, "yyyy-MM-dd") >= QDate::fromString(dateFichier, "yyyy-MM-dd"))
-        return false;                                   //! déjà à jour sur ce poste -> on shunte
+    if (QDate::fromString(ini.value(Param_Poste_DateCotations).toString(), "yyyy-MM-dd") == QDate::currentDate())
+        return false;
 
     QDomDocument docxml;
-    if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
+    if (!chargeCotationsXml(docxml))                    //! lecture échouée -> on passe (rien inscrit dans rufus.ini)
         return false;
 
     QDomElement racine = docxml.documentElement();      //! <Cotations>
@@ -1093,11 +1071,11 @@ bool DataBase::verifMajCotations()
         }
     }
 
-    //! fichier traité : on mémorise sa date dans rufus.ini pour court-circuiter les prochains lancements
-    if (!dateFichier.isEmpty())
-        ini.setValue(Param_Poste_DateCotations, dateFichier);
+    //! fichier lu avec succès (qu'il y ait eu MAJ ou non) : on note la date du jour pour ne pas
+    //! re-vérifier aujourd'hui
+    ini.setValue(Param_Poste_DateCotations, QDate::currentDate().toString("yyyy-MM-dd"));
 
-    return true;                                        //! fichier traité (déclenche completeTipsManquants côté appelant)
+    return true;                                        //! fichier lu (déclenche completeTipsManquants côté appelant)
 }
 
 /*!

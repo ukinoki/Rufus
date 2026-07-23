@@ -3950,11 +3950,13 @@ void dlg_param::Remplir_TableCotations()
     }
 
     int row = 0;
+    QStringList listeActes;                             //! pour le QCompleter de la zone de recherche
     for (auto it = m_cotations->cotations()->constBegin(); it != m_cotations->cotations()->constEnd(); ++it)
     {
         Cotation *cot = const_cast<Cotation*>(it.value());
         if (cot == Q_NULLPTR)
             continue;
+        listeActes << cot->typeacte();
         UpStandardItem *itacte = new UpStandardItem(cot->typeacte(), cot);
         itacte          ->setCheckable(true);
         itacte          ->setCheckState(cot->isused() ? Qt::Checked : Qt::Unchecked);   //! cochée si utilisée par le user
@@ -3980,6 +3982,15 @@ void dlg_param::Remplir_TableCotations()
     ui->cotationsUpTableView            ->setColumnWidth(1,100);
     ui->cotationsUpTableView            ->setColumnWidth(2,100);
     ui->cotationsUpTableView            ->FixLargeurTotale();
+
+    //! complétion de la zone de recherche sur les Typeactes affichés (motif « commence par »)
+    QCompleter *ancienCompleter = ui->ChercheCotationupLineEdit->completer();
+    QCompleter *completer       = new QCompleter(listeActes, this);
+    completer                   ->setCaseSensitivity(Qt::CaseInsensitive);
+    completer                   ->setFilterMode(Qt::MatchStartsWith);
+    ui->ChercheCotationupLineEdit       ->setCompleter(completer);
+    if (ancienCompleter != Q_NULLPTR)
+        ancienCompleter         ->deleteLater();        //! évite l'accumulation à chaque remplissage
 
     //! coche/décoche ou édition d'un item : on retrouve la Cotation portée et on l'envoie à MAJCotation
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {

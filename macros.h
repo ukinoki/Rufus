@@ -1264,7 +1264,7 @@ public:
 #define Param_Poste_Tono                                Param_Poste "/Tonometre"
 #define Param_Poste_Refracteur                          Param_Poste "/Refracteur"
 #define Param_Poste_Version                             Param_Poste "/Version"
-#define Param_Poste_DateCotations                       Param_Poste "/DateCotations"   //!< date du fichier de cotations déjà traité par ce poste (court-circuit de verifMajCotations)
+#define Param_Poste_DateCotations                       Param_Poste "/DateCotations"   //!< date de la dernière vérification du fichier de cotations par ce poste (garde quotidienne de verifMajCotations)
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
 //! Dossier où le SERVEUR conserve sa copie des clés CLIENT SSL (ca-cert.pem, client-cert.pem,
