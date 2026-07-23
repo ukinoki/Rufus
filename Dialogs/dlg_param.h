@@ -66,6 +66,10 @@ class dlg_param;
  En voie de disparition : ActesCCAMupTableWidget et HorsNomenclatureupTableWidget (et leurs boutons
  wdg_HN...) fusionnent dans ce mécanisme unique ; la liste des actes CCAM migrera dans la fiche
  d'ajout. Tant que le ménage n'est pas fini, du code référençant ces tables ne compile pas encore.
+
+ TODO (à faire une fois toute la gestion des cotations terminée) : traiter le cas cotationsfrance =
+ false (version internationale) — pas de CCAM/OPTAM ni de nomenclature française ; la fiche
+ dlg_gestioncotations et cette table doivent s'adapter en conséquence.
 */
 
 class dlg_param : public QDialog
