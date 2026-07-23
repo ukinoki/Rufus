@@ -239,8 +239,7 @@ public:
     double valeurRNO();
     double valeurAMYmetropole();
     double valeurAMYDOM();
-    MajCotations verifMajCotations();                           //! compare les versions du fichier de cotations à celles en base
-    void majNGAP();                                             //! importe les actes NGAP (AMY) du fichier de cotations dans la table cotations
+    MajCotations verifMajCotations();                           //! vérifie le fichier de cotations et applique les mises à jour (CCAM : table ccam + montants cotations ; NGAP : import AMY ; RNO) — à lancer une fois au démarrage
     QMap<QString,QString> nomsNGAPFromXml();                     //! Typeacte (AMY+indice) -> libellé, lu dans le fichier de cotations (pour renseigner le Tip des NGAP)
     void exporteJointures();                                    //! migre les cotations perso vers les 4 jointures et classe Typecotation (1 CCAM, 2 assoc, 3 NGAP, 4 autre) d'après le Typeacte
     void nettoieTableCotations();                              //! ne garde qu'une ligne par Typeacte (supprime les doublons de partage entre utilisateurs)

@@ -4226,8 +4226,11 @@ bool Procedures::IdentificationUser()
         Datas::I()->motscles            ->initListe();
         Datas::I()->typesinterventions  ->initListe();
         Datas::I()->refractiondevices   ->initListe();
+        //! cotations, une fois au lancement, dans l'ordre : (1) MAJ de la base depuis le fichier xml,
+        //! (2) chargement de la map à jour, (3) remplissage des Tip vides
+        DataBase::I()                   ->verifMajCotations();       //! Action 1 : MAJ base cotations (CCAM/NGAP/RNO) depuis le xml
         Datas::I()->cotations           ->loadCotations();
-        Datas::I()->cotations           ->completeTipsManquants();   //! une seule fois au lancement : renseigne les Tip vides (CCAM/NGAP)
+        Datas::I()->cotations           ->completeTipsManquants();   //! Action 2 : renseigne les Tip vides (CCAM/NGAP)
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);

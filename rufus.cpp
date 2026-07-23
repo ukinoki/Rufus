@@ -350,8 +350,6 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
                 z,8000);
     }
 
-    //! 20 - Vérifie si le fichier de cotations propose une mise à jour (CCAM/NGAP/RNO)
-    db->verifMajCotations();
 }
 
 Rufus::~Rufus()

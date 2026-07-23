@@ -982,20 +982,56 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
 DataBase::MajCotations DataBase::verifMajCotations()
 {
     MajCotations maj;
+    if (!m_db.isOpen())
+        return maj;
     QDomDocument docxml;
     if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
         return maj;
 
     QDomElement racine = docxml.documentElement();      //! <Cotations>
 
-    /*! CCAM : maj si la version du xml est supérieure à celle enregistrée */
+    /*! CCAM : maj si la version du xml est supérieure à celle enregistrée. On resynchronise alors
+        la table ccam sur le fichier (source de référence) : reconstruction complète — bien plus
+        rapide que des milliers d'UPDATE sur un codeccam non indexé, et sûr car idccam n'est plus
+        référencé (les jointures portent sur idcotation). Puis on répercute optam/nonoptam sur les
+        cotations CCAM (peu nombreuses) via une jointure sur la table fraîche. */
     const QDomElement elCCAM = racine.firstChildElement("CCAM").firstChildElement("Version");
     if (!elCCAM.isNull())
         maj.ccam = (elCCAM.text().toDouble() > parametres()->versionCCAM());
+    if (maj.ccam)
+    {
+        QStringList lignes;                             //! un tuple de valeurs par acte CCAM du fichier
+        for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
+        {
+            if (acte.firstChildElement("origin").text() != "ccam")
+                continue;
+            const QString code = acte.firstChildElement("code").text();
+            const QString nom  = Utils::correctquoteSQL(acte.firstChildElement("nom").text());
+            const QString opt  = QString::number(acte.firstChildElement("optam").text().toDouble(), 'f', 2);
+            const QString nopt = QString::number(acte.firstChildElement("nonoptam").text().toDouble(), 'f', 2);
+            lignes << "('" + code + "', '" + nom + "', " + opt + ", " + nopt + ")";
+        }
+        if (!lignes.isEmpty())                          //! garde-fou : on ne vide pas la table si le fichier n'a aucun acte CCAM
+        {
+            StandardSQL("delete from " TBL_CCAM " where " CP_ID_CCAM " > 0");
+            const int paquet = 200;                     //! insertion par paquets (une requête pour ~200 actes)
+            for (int i = 0; i < lignes.size(); i += paquet)
+                StandardSQL("insert into " TBL_CCAM " (" CP_CODECCAM_CCAM ", " CP_NOM_CCAM ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ") values "
+                            + QStringList(lignes.mid(i, paquet)).join(", "));
+            //! répercussion des 2 montants sur les cotations CCAM déjà présentes
+            StandardSQL("update " TBL_COTATIONS " c join " TBL_CCAM " cc on c." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
+                        " set c." CP_MONTANTOPTAM_COTATIONS " = cc." CP_MONTANTOPTAM_CCAM ", "
+                        "    c." CP_MONTANTNONOPTAM_COTATIONS " = cc." CP_MONTANTNONOPTAM_CCAM
+                        " where c." CP_TYPECOTATION_COTATIONS " = 1");
+            setversionCCAM(elCCAM.text().toDouble());   //! met à jour la version CCAM (base + mémoire)
+        }
+    }
 
     /*! NGAP : maj si la date du xml est postérieure à celle enregistrée, OU si une valeur de
         l'AMY (métropole/DOM) du xml diffère de celle en base (une revalorisation de l'AMY change
-        tous les montants sans forcément changer la version). On lance alors l'import. */
+        tous les montants sans forcément changer la version). Import des AMY (peu nombreux, tous
+        stockés dans cotations) : montant = indice x valeur AMY métropole -> montantoptam ; type 3 ;
+        Tip = libellé. */
     const QDomElement elNGAP = racine.firstChildElement("NGAP");
     if (!elNGAP.isNull())
     {
@@ -1007,7 +1043,38 @@ DataBase::MajCotations DataBase::verifMajCotations()
                 || (amyMetroXml != parametres()->valeurAMYmetropole())
                 || (amyDomXml   != parametres()->valeurAMYDOM());
         if (maj.ngap)
-            majNGAP();
+        {
+            for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
+            {
+                if (acte.firstChildElement("origin").text() != "ngap")
+                    continue;
+                const QString indice = acte.firstChildElement("indice").text().trimmed();
+                if (indice.isEmpty())
+                    continue;
+                const QString typeacte   = "AMY" + indice;                                  //! AMY + indice = Typeacte
+                const QString montantSQL = QString::number(indice.toDouble() * amyMetroXml, 'f', 2);
+                const QString nomSQL     = Utils::correctquoteSQL(acte.firstChildElement("nom").text());
+                bool ok = false;
+                QVariantList cnt = getFirstRecordFromStandardSelectSQL(
+                            "select count(*) from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'", ok);
+                const bool existe = (ok && cnt.size() > 0 && cnt.at(0).toInt() > 0);
+                if (existe)
+                    //! mise à jour du montant (montantoptam) et du Tip de toutes les occurrences
+                    StandardSQL("update " TBL_COTATIONS " set " CP_MONTANTOPTAM_COTATIONS " = " + montantSQL + ", "
+                                CP_TIP_COTATIONS " = '" + nomSQL + "'"
+                                " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'");
+                else
+                    //! création : montant dans montantoptam, type 3 (NGAP), Tip (sans idUser)
+                    StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", "
+                                CP_MONTANTOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", " CP_TIP_COTATIONS ")"
+                                " values ('" + typeacte + "', " + montantSQL + ", 3, '" + nomSQL + "')");
+            }
+            //! import terminé : on mémorise la version NGAP et les valeurs de l'AMY (base + mémoire)
+            if (dateXml.isValid())
+                setversionNGAP(dateXml);
+            setvaleurAMYmetropole(amyMetroXml);
+            setvaleurAMYDOM(amyDomXml);
+        }
     }
 
     /*! RNO : maj si la valeur du xml diffère de celle enregistrée (la valeur peut baisser).
@@ -1026,74 +1093,8 @@ DataBase::MajCotations DataBase::verifMajCotations()
 }
 
 /*!
- * \brief DataBase::majNGAP
- * importe les actes orthoptie (AMY) du fichier de cotations dans la table cotations.
- * Pour chaque acte NGAP : Typeacte = "AMY" + indice, montant = indice x valeur de l'AMY
- * métropole (entête du fichier). Si le Typeacte existe déjà (n'importe quelle ligne), on met
- * à jour les 3 montants et le Tip de TOUTES ses occurrences ; sinon on crée la ligne (CCAM = 2,
- * les 3 montants, le Tip ; sans idUser pour l'instant).
- */
-void DataBase::majNGAP()
-{
-    if (!m_db.isOpen())
-        return;
-    QDomDocument docxml;
-    if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
-        return;
-    QDomElement racine = docxml.documentElement();      //! <Cotations>
-
-    //! entête du fichier : date de version NGAP et valeurs de l'AMY (métropole / DOM)
-    const QDomElement elNGAP     = racine.firstChildElement("NGAP");
-    const QDomElement elAMY      = elNGAP.firstChildElement("AMY");
-    const double      valAMYmetro = elAMY.firstChildElement("ValeurMetropole").text().toDouble();
-    const double      valAMYdom   = elAMY.firstChildElement("ValeurDOM").text().toDouble();
-    const QDate       dateNGAP    = QDate::fromString(elNGAP.firstChildElement("Version").text(), "yyyy-MM-dd");
-
-    for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
-    {
-        if (acte.firstChildElement("origin").text() != "ngap")
-            continue;
-        const QString indice = acte.firstChildElement("indice").text().trimmed();
-        if (indice.isEmpty())
-            continue;
-        const QString typeacte   = "AMY" + indice;                                   //! concaténation AMY + indice
-        const QString montantSQL = QString::number(indice.toDouble() * valAMYmetro, 'f', 2);
-        const QString nomSQL     = Utils::correctquoteSQL(acte.firstChildElement("nom").text());
-
-        bool ok = false;
-        QVariantList cnt = getFirstRecordFromStandardSelectSQL(
-                    "select count(*) from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'", ok);
-        const bool existe = (ok && cnt.size() > 0 && cnt.at(0).toInt() > 0);
-
-        QString req;
-        if (existe)
-            //! met à jour les 3 montants et le Tip de toutes les occurrences de ce Typeacte
-            req = "update " TBL_COTATIONS " set "
-                  CP_MONTANTOPTAM_COTATIONS " = "    + montantSQL + ", "
-                  CP_MONTANTNONOPTAM_COTATIONS " = " + montantSQL + ", "
-                  CP_MONTANTPRATIQUE_COTATIONS " = " + montantSQL + ", "
-                  CP_TIP_COTATIONS " = '" + nomSQL + "'"
-                  " where " CP_TYPEACTE_COTATIONS " = '" + typeacte + "'";
-        else
-            //! création : Typecotation = 3 (NGAP), les 3 montants et le Tip (sans idUser pour l'instant)
-            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", "
-                  CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                  CP_TYPECOTATION_COTATIONS ", " CP_TIP_COTATIONS ") values ('"
-                  + typeacte + "', " + montantSQL + ", " + montantSQL + ", " + montantSQL + ", 3, '" + nomSQL + "')";
-        StandardSQL(req);
-    }
-
-    //! import terminé : on mémorise la version NGAP et les valeurs de l'AMY
-    //! (chaque setter met à jour la table ParametresSysteme ET le paramètre en mémoire)
-    if (dateNGAP.isValid())
-        setversionNGAP(dateNGAP);
-    setvaleurAMYmetropole(valAMYmetro);
-    setvaleurAMYDOM(valAMYdom);
-}
-
-/*!
  * \brief DataBase::nomsNGAPFromXml
- * lit le fichier de cotations (même source que majNGAP) et en extrait, pour chaque acte NGAP, le
+ * lit le fichier de cotations (même source que verifMajCotations) et en extrait, pour chaque acte NGAP, le
  * couple Typeacte ("AMY" + indice) -> libellé (nom). Sert à renseigner le Tip (descriptif) des
  * cotations NGAP dont il est vide. Map vide si le fichier est introuvable/invalide (on passe).
  */
