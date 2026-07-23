@@ -325,6 +325,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->idUseruplineEdit                ->setEnabled(false);
     ui->ChoixFontupPushButton           ->setEnabled(false);
     ui->ModifDataUserpushButton         ->setEnabled(false);
+    wdg_cotationswdgbuttonframe->widgButtonParent()->setEnabled(false);   //! table + boutons cotations : verrouillés tant que l'onglet user l'est
     ui->ImportDocsgroupBox              ->setEnabled(false);
     EnableWidgContent(ui->BackupRestoreframe,false);
     EnableWidgContent(ui->Appareilsconnectesframe,false);
@@ -931,6 +932,7 @@ void dlg_param::EnableModif(QWidget *obj)
 
         ui->ChoixFontupPushButton   ->setEnabled(a);
         ui->ModifDataUserpushButton ->setEnabled(a);
+        wdg_cotationswdgbuttonframe->widgButtonParent()->setEnabled(a);   //! table + boutons cotations suivent le verrou de l'onglet user
 
         EnableActesCCAM(a);
         enableCotations(a);
