@@ -821,6 +821,7 @@ CREATE TABLE `jointuresautrescotations` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
+  `MontantConventionnel` DOUBLE NULL DEFAULT NULL,
   `MontantPratique` DOUBLE DEFAULT NULL,
   PRIMARY KEY (`idJointure`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;

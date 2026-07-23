@@ -3322,6 +3322,8 @@ bool Procedures::VerifVersionBase(QWidget* parent)
                 db->exporteJointures();
                 //! puis on nettoie cotations : reclasse les associations (CCAM=4) et déduplique
                 db->nettoieTableCotations();
+                //! on complète les tip manquants pour les cotations NGAP et CCAM
+                Datas::I()->cotations->completeTipsManquants();
             }
         }
         QDir dir(PATH_DIR_RESSOURCES);

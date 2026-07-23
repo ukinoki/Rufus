@@ -101,23 +101,13 @@ BEGIN
                 MODIFY COLUMN `idUser` INT(11) NULL DEFAULT NULL
                     COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026';
         END IF;
-    -- cotations.MontantConventionnel : montant conventionnel (distinct du pratiqué) des cotations de
-    -- type 4 correspondant à des actes reconnus par l'administration (ex. Cs) ; NULL pour les actes
-    -- non reconnus (seul le montant pratiqué existe)
-    SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_NAME
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'cotations' AND COLUMN_NAME = 'MontantConventionnel') as chp;
-        IF tot=0
-            THEN
-                ALTER TABLE `rufus`.`cotations`
-                ADD COLUMN `MontantConventionnel` DECIMAL(9,2) NULL DEFAULT NULL AFTER `MontantPratique`;
-        END IF;
-    -- tables de personnalisation par utilisateur du montant pratiqué (cotations et ccam)
+
+-- tables de personnalisation par utilisateur du montant pratiqué (cotations et ccam)
     CREATE TABLE IF NOT EXISTS `rufus`.`jointuresautrescotations` (
         `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
         `idCotation` INT(11) NULL DEFAULT NULL,
         `idUser` INT(11) NULL DEFAULT NULL,
+        `MontantConventionnel` DOUBLE NULL DEFAULT NULL,
         `MontantPratique` DOUBLE NULL DEFAULT NULL,
         PRIMARY KEY (`idJointure`));
     CREATE TABLE IF NOT EXISTS `rufus`.`jointuresccam` (

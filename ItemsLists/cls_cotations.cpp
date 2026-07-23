@@ -60,6 +60,8 @@ void Cotations::loadCotations()
  */
 void Cotations::completeTipsManquants()
 {
+    if (map_cotations->isEmpty())
+        loadCotations();
     //! CCAM : libellé depuis la table ccam
     for (Cotation *c : *map_cotations)
     {
