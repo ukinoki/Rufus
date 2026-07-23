@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Cotations>
+	<DateFichier>2026-07-17</DateFichier>
 	<CCAM>
 		<Version>83</Version>
 	</CCAM>
@@ -10,9 +11,6 @@
 			<ValeurDOM>2.72</ValeurDOM>
 		</AMY>
 	</NGAP>
-	<RNO>
-		<Valeur>28</Valeur>
-	</RNO>
 	<Acte>
 		<code>AHQP001</code>
 		<nom>Électromyographie par électrode de surface, sans enregistrement vidéo</nom>

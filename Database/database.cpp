@@ -769,7 +769,7 @@ void DataBase::initParametresSysteme()
         m_parametres->setData(paramData);
     }
 
-    //! from versionbase 83 : version CCAM, version NGAP et valeurs RNO/AMY
+    //! from versionbase 83 : version CCAM, version NGAP et valeurs AMY
     //! (ajoutées ensemble en base 83, une seule garde sur VersionCCAM suffit)
     req = "SELECT COUNT(*) FROM "
           "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
@@ -778,16 +778,15 @@ void DataBase::initParametresSysteme()
     if (listquery.size() > 0 && listquery.at(0).toInt() > 0)
     {
         req = "select " CP_VERSIONCCAM_PARAMSYSTEME ", " CP_VERSIONNGAP_PARAMSYSTEME ", "
-              CP_VALEURRNO_PARAMSYSTEME ", " CP_VALEURAMYMETROPOLE_PARAMSYSTEME ", " CP_VALEURAMYDOM_PARAMSYSTEME
+              CP_VALEURAMYMETROPOLE_PARAMSYSTEME ", " CP_VALEURAMYDOM_PARAMSYSTEME
               " from " TBL_PARAMSYSTEME;
         paramdata = getFirstRecordFromStandardSelectSQL(req, ok, tr("Impossible de retrouver les paramètres du système"));
         if(!ok || paramdata.size() == 0)
             return ;
         paramData[CP_VERSIONCCAM_PARAMSYSTEME]         = (paramdata.at(0).toDouble());
         paramData[CP_VERSIONNGAP_PARAMSYSTEME]         = (paramdata.at(1).toDate().toString("yyyy-MM-dd"));
-        paramData[CP_VALEURRNO_PARAMSYSTEME]           = (paramdata.at(2).toDouble());
-        paramData[CP_VALEURAMYMETROPOLE_PARAMSYSTEME]  = (paramdata.at(3).toDouble());
-        paramData[CP_VALEURAMYDOM_PARAMSYSTEME]        = (paramdata.at(4).toDouble());
+        paramData[CP_VALEURAMYMETROPOLE_PARAMSYSTEME]  = (paramdata.at(2).toDouble());
+        paramData[CP_VALEURAMYDOM_PARAMSYSTEME]        = (paramdata.at(3).toDouble());
         m_parametres->setData(paramData);
     }
 }
@@ -898,25 +897,6 @@ QDate DataBase::versionNGAP()
             return query.at(0).at(0).toDate();
     return QDate();
 }
-void DataBase::setvaleurRNO(double valeur)
-{
-    if (!m_db.isOpen())
-        return;
-    StandardSQL("update " TBL_PARAMSYSTEME " set " CP_VALEURRNO_PARAMSYSTEME " = " + QString::number(valeur));
-    parametres()->setvaleurRNO(valeur);
-}
-double DataBase::valeurRNO()
-{
-    if (!m_db.isOpen())
-        return 0.0;
-    QString req = "SELECT " CP_VALEURRNO_PARAMSYSTEME " FROM " TBL_PARAMSYSTEME;
-    bool ok = false;
-    QList<QVariantList> query = StandardSelectSQL(req, ok);
-    if (ok && query.size() > 0)
-        if (query.at(0).size() > 0)
-            return query.at(0).at(0).toDouble();
-    return 0.0;
-}
 void DataBase::setvaleurAMYmetropole(double valeur)
 {
     if (!m_db.isOpen())
@@ -955,11 +935,11 @@ double DataBase::valeurAMYDOM()
             return query.at(0).at(0).toDouble();
     return 0.0;
 }
-bool DataBase::chargeCotationsXml(QDomDocument &docxml)
+QString DataBase::cheminCotationsXml()
 {
-    /*! On cherche d'abord un fichier de cotations lisible ; s'il est introuvable, on renvoie false
-        (l'appelant passe). Chemin local pour l'instant : à côté du binaire, avec repli sur le
-        dossier parent (façon bundle macOS, comme pour les .qm de langue). */
+    /*! On cherche un fichier de cotations lisible. Chemin local pour l'instant : à côté du binaire,
+        avec repli sur le dossier parent (façon bundle macOS, comme pour les .qm de langue). Renvoie
+        une chaîne vide si introuvable. */
     const QString suffixe = LIEN_XML_COTATIONS;
     const QString dirBin  = QCoreApplication::applicationDirPath();
     QString chemin = dirBin + suffixe;
@@ -969,6 +949,34 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
         parent.cdUp();
         chemin = parent.absolutePath() + suffixe;
     }
+    return QFile::exists(chemin) ? chemin : QString();
+}
+
+QString DataBase::dateCotationsXml()
+{
+    //! lecture LÉGÈRE : on ne lit que le haut du fichier et on en extrait <DateFichier> sans parser
+    //! tout le DOM — sert de court-circuit rapide (comparaison à rufus.ini) avant le vrai chargement.
+    const QString chemin = cheminCotationsXml();
+    if (chemin.isEmpty())
+        return QString();
+    QFile f(chemin);
+    if (!f.open(QIODevice::ReadOnly))
+        return QString();
+    const QString tete = QString::fromUtf8(f.read(2048));   //! la balise est tout en haut
+    f.close();
+    const int deb = tete.indexOf("<DateFichier>");
+    const int fin = tete.indexOf("</DateFichier>");
+    if (deb < 0 || fin < 0)
+        return QString();
+    return tete.mid(deb + 13, fin - deb - 13).trimmed();    //! 13 = longueur de "<DateFichier>"
+}
+
+bool DataBase::chargeCotationsXml(QDomDocument &docxml)
+{
+    //! charge et parse le fichier de cotations ; false si introuvable/invalide (l'appelant passe)
+    const QString chemin = cheminCotationsXml();
+    if (chemin.isEmpty())
+        return false;
     QFile f(chemin);
     if (!f.open(QIODevice::ReadOnly))
         return false;                                   //! url introuvable
@@ -984,6 +992,14 @@ DataBase::MajCotations DataBase::verifMajCotations()
     MajCotations maj;
     if (!m_db.isOpen())
         return maj;
+
+    //! court-circuit rapide : la date en tête du fichier est-elle celle déjà traitée par ce poste
+    //! (mémorisée dans rufus.ini) ? Si oui, rien n'a changé -> on ne parse même pas le fichier.
+    const QString dateFichier = dateCotationsXml();
+    QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
+    if (!dateFichier.isEmpty() && ini.value(Param_Poste_DateCotations).toString() == dateFichier)
+        return maj;
+
     QDomDocument docxml;
     if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
         return maj;
@@ -1077,17 +1093,9 @@ DataBase::MajCotations DataBase::verifMajCotations()
         }
     }
 
-    /*! RNO : maj si la valeur du xml diffère de celle enregistrée (la valeur peut baisser).
-        Cas le plus simple : on applique tout de suite la nouvelle valeur (setvaleurRNO met à
-        jour la base ET le ParametresSysteme en mémoire). */
-    const QDomElement elRNO = racine.firstChildElement("RNO").firstChildElement("Valeur");
-    if (!elRNO.isNull())
-    {
-        const double rnoXml = elRNO.text().toDouble();
-        maj.rno = (rnoXml != parametres()->valeurRNO());
-        if (maj.rno)
-            setvaleurRNO(rnoXml);
-    }
+    //! fichier traité : on mémorise sa date dans rufus.ini pour court-circuiter les prochains lancements
+    if (!dateFichier.isEmpty())
+        ini.setValue(Param_Poste_DateCotations, dateFichier);
 
     return maj;
 }

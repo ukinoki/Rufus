@@ -83,13 +83,12 @@ public:
     enum comparateur { Egal = 0x0, Inf = 0x1, Sup = 0x2 };  Q_ENUM(comparateur)
     enum QueryResult { Error, Empty, OK}; Q_ENUM(QueryResult)
 
-    /*! résultat de verifMajCotations() : indique lesquelles des 3 nomenclatures
+    /*! résultat de verifMajCotations() : indique lesquelles des nomenclatures
      *  du fichier de cotations sont plus récentes que celles enregistrées en base */
     struct MajCotations {
         bool ccam = false;                              /*!< version CCAM du xml > version en base */
         bool ngap = false;                              /*!< version NGAP du xml > version en base */
-        bool rno  = false;                              /*!< valeur RNO du xml différente de celle en base */
-        bool aUneMaj() const { return ccam || ngap || rno; }
+        bool aUneMaj() const { return ccam || ngap; }
     };
 
 private:
@@ -219,7 +218,6 @@ public:
     void setversionbaseiol(double version);
     void setversionCCAM(double version);
     void setversionNGAP(QDate date);
-    void setvaleurRNO(double valeur);
     void setvaleurAMYmetropole(double valeur);
     void setvaleurAMYDOM(double valeur);
     void setsanscompta(bool one);
@@ -236,10 +234,11 @@ public:
     double versionbaseiol();
     double versionCCAM();
     QDate versionNGAP();
-    double valeurRNO();
     double valeurAMYmetropole();
     double valeurAMYDOM();
-    MajCotations verifMajCotations();                           //! vérifie le fichier de cotations et applique les mises à jour (CCAM : table ccam + montants cotations ; NGAP : import AMY ; RNO) — à lancer une fois au démarrage
+    MajCotations verifMajCotations();                           //! vérifie le fichier de cotations et applique les mises à jour (CCAM : table ccam + montants cotations ; NGAP : import AMY) — à lancer une fois au démarrage ; court-circuit par la date du fichier (rufus.ini)
+    QString cheminCotationsXml();                               //! chemin local du fichier de cotations (vide si introuvable)
+    QString dateCotationsXml();                                 //! lit juste la balise <DateFichier> en tête (sans parser tout le DOM), pour comparer à rufus.ini
     QMap<QString,QString> nomsNGAPFromXml();                     //! Typeacte (AMY+indice) -> libellé, lu dans le fichier de cotations (pour renseigner le Tip des NGAP)
     void exporteJointures();                                    //! migre les cotations perso vers les 4 jointures et classe Typecotation (1 CCAM, 2 assoc, 3 NGAP, 4 autre) d'après le Typeacte
     void nettoieTableCotations();                              //! ne garde qu'une ligne par Typeacte (supprime les doublons de partage entre utilisateurs)

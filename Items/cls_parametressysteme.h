@@ -39,7 +39,6 @@ private:
     double m_versionbaseiol = 1;            //!> la version de la base de données des IOL
     double m_versionCCAM = 77;              //!> la version de la nomenclature CCAM chargée
     QDate m_versionNGAP = QDate(2026,7,1);  //!> la date de la version de la NGAP chargée
-    double m_valeurRNO = 28;                //!> la valeur de la lettre-clé RNO
     double m_valeurAMYmetropole = 2.60;     //!> la valeur de la lettre-clé AMY en métropole
     double m_valeurAMYDOM = 2.72;           //!> la valeur de la lettre-clé AMY dans les DOM
     bool m_sanscompta = true;               //!> utilise ou non la compta
@@ -65,7 +64,6 @@ public:
     double versionbaseiol() const;
     double versionCCAM() const;
     QDate versionNGAP() const;
-    double valeurRNO() const;
     double valeurAMYmetropole() const;
     double valeurAMYDOM() const;
     bool sanscompta() const;
@@ -88,7 +86,6 @@ public:
     void setversionbaseiol(double version);
     void setversionCCAM(double version);
     void setversionNGAP(QDate date);
-    void setvaleurRNO(double valeur);
     void setvaleurAMYmetropole(double valeur);
     void setvaleurAMYDOM(double valeur);
     void setsanscompta(bool one);

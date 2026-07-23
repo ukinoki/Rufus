@@ -404,7 +404,6 @@ CREATE TABLE `ParametresSysteme` (
   `VersionBaseIOL` DOUBLE DEFAULT NULL,
   `VersionCCAM` DOUBLE DEFAULT 77,
   `VersionNGAP` date DEFAULT '2026-07-01',
-  `ValeurRNO` DOUBLE DEFAULT 28,
   `ValeurAMYMetropole` DOUBLE DEFAULT 2.60,
   `ValeurAMYDOM` DOUBLE DEFAULT 2.72,
   `SansCompta` int(1) DEFAULT NULL COMMENT '0 = AvecCompta\n1 = SansCompta et sans cotation\n2 = Sans compta mais avec cotation\n3 = Avec compta mais sans cotation',
@@ -432,7 +431,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,1,77,'2026-07-01',28,2.60,2.72,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1,'FR');
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,1,77,'2026-07-01',2.60,2.72,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1,'FR');
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 

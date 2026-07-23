@@ -38,16 +38,6 @@ BEGIN
                 ALTER TABLE `rufus`.`ParametresSysteme`
                 ADD COLUMN `VersionNGAP` DATE NULL DEFAULT '2026-07-01' AFTER `VersionCCAM`;
         END IF;
-    -- ParametresSysteme.ValeurRNO : valeur de la lettre-cle RNO
-    SELECT COUNT(*) INTO tot FROM
-        (SELECT COLUMN_KEY
-        FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'ValeurRNO') as chp;
-        IF tot=0
-            THEN
-                ALTER TABLE `rufus`.`ParametresSysteme`
-                ADD COLUMN `ValeurRNO` DOUBLE NULL DEFAULT 28 AFTER `VersionNGAP`;
-        END IF;
     -- ParametresSysteme.ValeurAMYMetropole : valeur de la lettre-cle AMY en metropole
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_KEY
@@ -56,7 +46,7 @@ BEGIN
         IF tot=0
             THEN
                 ALTER TABLE `rufus`.`ParametresSysteme`
-                ADD COLUMN `ValeurAMYMetropole` DOUBLE NULL DEFAULT 2.60 AFTER `ValeurRNO`;
+                ADD COLUMN `ValeurAMYMetropole` DOUBLE NULL DEFAULT 2.60 AFTER `VersionNGAP`;
         END IF;
     -- ParametresSysteme.ValeurAMYDOM : valeur de la lettre-cle AMY dans les DOM
     SELECT COUNT(*) INTO tot FROM

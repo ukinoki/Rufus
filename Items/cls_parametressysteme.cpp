@@ -34,7 +34,6 @@ void ParametresSysteme::setData(QJsonObject data)
     setDataDouble(data, CP_VERSIONBASEIOL_PARAMSYSTEME, m_versionbaseiol);
     setDataDouble(data, CP_VERSIONCCAM_PARAMSYSTEME, m_versionCCAM);
     setDataDate(data, CP_VERSIONNGAP_PARAMSYSTEME, m_versionNGAP);
-    setDataDouble(data, CP_VALEURRNO_PARAMSYSTEME, m_valeurRNO);
     setDataDouble(data, CP_VALEURAMYMETROPOLE_PARAMSYSTEME, m_valeurAMYmetropole);
     setDataDouble(data, CP_VALEURAMYDOM_PARAMSYSTEME, m_valeurAMYDOM);
     setDataBool(data, CP_SANSCOMPTA_PARAMSYSTEME, m_sanscompta);
@@ -64,7 +63,6 @@ int ParametresSysteme::versionbase() const                      { return m_versi
 double ParametresSysteme::versionbaseiol() const                { return m_versionbaseiol; }
 double ParametresSysteme::versionCCAM() const                   { return m_versionCCAM; }
 QDate ParametresSysteme::versionNGAP() const                    { return m_versionNGAP; }
-double ParametresSysteme::valeurRNO() const                     { return m_valeurRNO; }
 double ParametresSysteme::valeurAMYmetropole() const            { return m_valeurAMYmetropole; }
 double ParametresSysteme::valeurAMYDOM() const                  { return m_valeurAMYDOM; }
 bool ParametresSysteme::sanscompta() const                      { return m_sanscompta; }
@@ -93,8 +91,6 @@ void ParametresSysteme::setversionCCAM(double version)          { m_versionCCAM 
                                                                   m_data[CP_VERSIONCCAM_PARAMSYSTEME] = version; }
 void ParametresSysteme::setversionNGAP(QDate date)              { m_versionNGAP = date;
                                                                   m_data[CP_VERSIONNGAP_PARAMSYSTEME] = date.toString("yyyy-MM-dd"); }
-void ParametresSysteme::setvaleurRNO(double valeur)            { m_valeurRNO = valeur;
-                                                                  m_data[CP_VALEURRNO_PARAMSYSTEME] = valeur; }
 void ParametresSysteme::setvaleurAMYmetropole(double valeur)   { m_valeurAMYmetropole = valeur;
                                                                   m_data[CP_VALEURAMYMETROPOLE_PARAMSYSTEME] = valeur; }
 void ParametresSysteme::setvaleurAMYDOM(double valeur)         { m_valeurAMYDOM = valeur;

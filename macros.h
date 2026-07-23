@@ -357,7 +357,6 @@ public:
 #define CP_VERSIONBASEIOL_PARAMSYSTEME                  "VersionBaseIOL"
 #define CP_VERSIONCCAM_PARAMSYSTEME                     "VersionCCAM"
 #define CP_VERSIONNGAP_PARAMSYSTEME                     "VersionNGAP"
-#define CP_VALEURRNO_PARAMSYSTEME                       "ValeurRNO"
 #define CP_VALEURAMYMETROPOLE_PARAMSYSTEME              "ValeurAMYMetropole"
 #define CP_VALEURAMYDOM_PARAMSYSTEME                    "ValeurAMYDOM"
 #define CP_SANSCOMPTA_PARAMSYSTEME                      "SansCompta"
@@ -1265,6 +1264,7 @@ public:
 #define Param_Poste_Tono                                Param_Poste "/Tonometre"
 #define Param_Poste_Refracteur                          Param_Poste "/Refracteur"
 #define Param_Poste_Version                             Param_Poste "/Version"
+#define Param_Poste_DateCotations                       Param_Poste "/DateCotations"   //!< date du fichier de cotations déjà traité par ce poste (court-circuit de verifMajCotations)
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
 //! Dossier où le SERVEUR conserve sa copie des clés CLIENT SSL (ca-cert.pem, client-cert.pem,
