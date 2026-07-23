@@ -66,9 +66,13 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     dlglayout()     ->setContentsMargins(marge, marge, marge, marge);
 
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    //! loupe + champ de recherche dans la rangée de boutons : vu le nombre d'actes CCAM, on tape le
+    //! code et la table saute sur la 1re ligne qui commence par la saisie (complétion sur les codes).
+    addSearchLine();
     dlglayout()     ->addWidget(widgetbuttons());
     OKButton        ->setEnabled(false);         //! actif seulement quand une ligne est sélectionnée
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
+    connect(searchline(),   &QLineEdit::textChanged, this, [=] (QString t) {chercheEtSelectionne(t.trimmed());});
     connect(OKButton,       &QPushButton::clicked, this, [=] {accept();});
     connect(CancelButton,   &QPushButton::clicked, this, [=] {reject();});
 
@@ -112,9 +116,12 @@ void dlg_choixccam::remplitTable(bool ophtaseul)
         return;
     wdg_table   ->clearContents();
     wdg_table   ->setRowCount(acteslist.size());
+    QStringList codes;
     for (int i=0; i<acteslist.size(); i++)
     {
-        QTableWidgetItem *pcode     = new QTableWidgetItem(acteslist.at(i).at(1).toString());
+        const QString code = acteslist.at(i).at(1).toString();
+        codes       << code;
+        QTableWidgetItem *pcode     = new QTableWidgetItem(code);
         QTableWidgetItem *poptam    = new QTableWidgetItem(QLocale().toString(acteslist.at(i).at(2).toDouble(),'f',2));
         QTableWidgetItem *pnooptam  = new QTableWidgetItem(QLocale().toString(acteslist.at(i).at(3).toDouble(),'f',2));
         QTableWidgetItem *plibelle  = new QTableWidgetItem(acteslist.at(i).at(0).toString());
@@ -125,6 +132,17 @@ void dlg_choixccam::remplitTable(bool ophtaseul)
         wdg_table   ->setItem(i,2,pnooptam);
         wdg_table   ->setItem(i,3,plibelle);
         wdg_table   ->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
+    }
+    //! complétion de la recherche sur les codes de la liste courante (rebâtie à chaque filtrage)
+    if (searchline())
+    {
+        QCompleter *ancien   = searchline()->completer();
+        QCompleter *completer = new QCompleter(codes, this);
+        completer   ->setCaseSensitivity(Qt::CaseInsensitive);
+        completer   ->setFilterMode(Qt::MatchStartsWith);
+        searchline()->setCompleter(completer);
+        if (ancien)
+            ancien  ->deleteLater();             //! évite l'accumulation à chaque remplissage
     }
     //! la table repart sans sélection : rien de choisi, OK désactivé, libellé vide
     wdg_table   ->clearSelection();
@@ -150,4 +168,26 @@ void dlg_choixccam::selectionChangee()
     m_codechoisi = wdg_table->item(row,0)->text();
     wdg_libelle ->setPlainText(wdg_table->item(row,3) ? wdg_table->item(row,3)->text() : "");
     OKButton    ->setEnabled(true);
+}
+
+/*!
+ * \brief dlg_choixccam::chercheEtSelectionne
+ * sélectionne et fait défiler la table jusqu'à la 1re ligne dont le code commence par le texte saisi
+ * (la sélection déclenche selectionChangee -> libellé + code retenu + OK actif).
+ * \param code  début de code CCAM tapé dans la ligne de recherche
+ */
+void dlg_choixccam::chercheEtSelectionne(const QString &code)
+{
+    if (code.isEmpty())
+        return;
+    for (int row=0; row<wdg_table->rowCount(); row++)
+    {
+        QTableWidgetItem *it = wdg_table->item(row,0);
+        if (it && it->text().startsWith(code, Qt::CaseInsensitive))
+        {
+            wdg_table->selectRow(row);
+            wdg_table->scrollToItem(it, QAbstractItemView::PositionAtCenter);
+            return;
+        }
+    }
 }

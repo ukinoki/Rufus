@@ -51,6 +51,7 @@ private:
 
     void        remplitTable(bool ophtaseul);   //!< (re)remplit la table (ophtaseul -> codes en B.. seulement)
     void        selectionChangee();             //!< met à jour libellé + code retenu + état du bouton OK
+    void        chercheEtSelectionne(const QString &code); //!< sélectionne/défile vers la 1re ligne dont le code commence par...
 };
 
 #endif // DLG_CHOIXCCAM_H
