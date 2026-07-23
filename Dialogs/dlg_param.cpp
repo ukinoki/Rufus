@@ -1535,7 +1535,7 @@ void dlg_param::EnregistreEmplacementServeur(int idx)
 
 void dlg_param::NouvCotation()
 {
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Association, dlg_gestioncotations::Creation, "", this);
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
         Remplir_TableCotations();
@@ -1550,11 +1550,8 @@ void dlg_param::ModifCotation()
     Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
     if (cot == Q_NULLPTR)
         return;
-    //! type de fiche selon le type de cotation (la modification n'est proposée que pour les
-    //! associations CCAM et les actes hors CCAM/NGAP)
-    dlg_gestioncotations::TypeActe type = cot->isAssocCCAM() ? dlg_gestioncotations::Association
-                                                             : dlg_gestioncotations::HorsNomenclature;
-    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(type, dlg_gestioncotations::Modification, cot->typeacte(), this);
+    //! le type (association 2 / autre 4) est déterminé par la fiche à partir de la cotation
+    dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Modification, cot->typeacte(), this);
     if (Dlg_CrrCot->exec()>0)
     {
         Remplir_TableCotations();
