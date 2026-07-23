@@ -674,6 +674,7 @@ CREATE TABLE `cotations` (
   `MontantOPTAM` decimal(9,2) DEFAULT NULL,
   `MontantNonOPTAM` decimal(9,2) DEFAULT NULL,
   `MontantPratique` decimal(9,2) DEFAULT NULL,
+  `MontantConventionnel` decimal(9,2) DEFAULT NULL,
   `CCAM` int(1) DEFAULT NULL COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
   `Typecotation` int(1) DEFAULT NULL COMMENT '1 = CCAM\n2 = Association CCAM\n3 = NGAP\n4 = Autre',
   `idUser` int(11) DEFAULT NULL COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
@@ -810,13 +811,13 @@ LOCK TABLES `jointuresccam` WRITE;
 UNLOCK TABLES;
 
 --
--- Table structure for table `jointurescotations`
+-- Table structure for table `jointuresautrescotations`
 --
 
-DROP TABLE IF EXISTS `jointurescotations`;
+DROP TABLE IF EXISTS `jointuresautrescotations`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `jointurescotations` (
+CREATE TABLE `jointuresautrescotations` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
@@ -826,12 +827,12 @@ CREATE TABLE `jointurescotations` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `jointurescotations`
+-- Dumping data for table `jointuresautrescotations`
 --
 
-LOCK TABLES `jointurescotations` WRITE;
-/*!40000 ALTER TABLE `jointurescotations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jointurescotations` ENABLE KEYS */;
+LOCK TABLES `jointuresautrescotations` WRITE;
+/*!40000 ALTER TABLE `jointuresautrescotations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jointuresautrescotations` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --

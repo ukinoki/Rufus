@@ -51,7 +51,7 @@ class dlg_param;
     * données : Cotations::loadCotations() charge la map de référence (table cotations) ; puis
       Cotations::loadUserCotations(user) marque used() et pose montant conventionnel/pratiqué en
       puisant les montants pratiqués dans les 4 tables de jointures (jointuresccam,
-      jointuresassociations, jointuresNGAP, jointurescotations), toutes clées sur idcotation.
+      jointuresassociations, jointuresNGAP, jointuresautrescotations), toutes clées sur idcotation.
     * getCotationFromIndex(idx) : rend la Cotation d'une ligne. AfficheToolTip(idx) : son tip.
 
  Boutons sous la table (wdg_cotationswdgbuttonframe) : Ajouter / Modifier / Supprimer la cotation

@@ -88,7 +88,7 @@ public:
 #define TBL_DOCSEXTERNES                      "rufus.Impressions"
 #define TBL_IMPRESSIONS                       "rufus.courriers"
 #define TBL_JOINTURESIMPRESSIONS              "rufus.jointuresdocuments"
-#define TBL_JOINTURESCOTATIONS                "rufus.jointurescotations"
+#define TBL_JOINTURESAUTRESCOTATIONS                "rufus.jointuresautrescotations"
 #define TBL_JOINTURESASSOCIATIONS             "rufus.jointuresassociations"
 #define TBL_JOINTURESNGAP                     "rufus.jointuresNGAP"
 #define TBL_JOINTURESCCAM                     "rufus.jointuresccam"

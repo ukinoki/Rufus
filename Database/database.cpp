@@ -1112,7 +1112,7 @@ QMap<QString,QString> DataBase::nomsNGAPFromXml()
  * - motif d'un code CCAM (4 lettres + 3 chiffres) SUIVI d'autre
  *   chose (association de 2 actes, ex. "BFGA004+BEFA008")        -> association (2) -> jointuresassociations ;
  * - commence par "AMY"                                           -> NGAP (3)        -> jointuresNGAP ;
- * - tout le reste                                                -> autre (4)       -> jointurescotations.
+ * - tout le reste                                                -> autre (4)       -> jointuresautrescotations.
  * Une cotation partagée par n utilisateurs a n lignes dans cotations (une par idUser), donc n
  * lignes de jointure. Toutes pointent vers la MÊME cotation de référence — le plus petit idcotation
  * du Typeacte, celui que garde la déduplication de nettoieTableCotations — sinon le montant pratiqué
@@ -1154,7 +1154,7 @@ void DataBase::exporteJointures()
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 3 where " CP_TYPEACTE_COTATIONS " like 'AMY%'");
 
     //! 4) autre : tout le reste (ni CCAM isolé, ni association, ni NGAP)
-    StandardSQL("insert into " TBL_JOINTURESCOTATIONS + cols + source + " c." CP_TYPEACTE_COTATIONS + autre);
+    StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS + cols + source + " c." CP_TYPEACTE_COTATIONS + autre);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 4 where " CP_TYPEACTE_COTATIONS + autre);
 }
 
@@ -2883,7 +2883,7 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
         return montants;
     const QString id = QString::number(usr->id());
     QString req;
-    for (const char *tbl : { TBL_JOINTURESCCAM, TBL_JOINTURESASSOCIATIONS, TBL_JOINTURESCOTATIONS, TBL_JOINTURESNGAP })
+    for (const char *tbl : { TBL_JOINTURESCCAM, TBL_JOINTURESASSOCIATIONS, TBL_JOINTURESAUTRESCOTATIONS, TBL_JOINTURESNGAP })
     {
         if (!req.isEmpty())
             req += " union all ";

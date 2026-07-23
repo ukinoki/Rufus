@@ -1473,7 +1473,7 @@ void dlg_param::RegleCotationsBoutons()
         case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
         case 2: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
         case 3: jointure = TBL_JOINTURESNGAP;            break;   //! NGAP
-        case 4: jointure = TBL_JOINTURESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
+        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
     }
     bool autresUsers = false;
     if (!jointure.isEmpty())
@@ -1579,7 +1579,7 @@ void dlg_param::supprimeCotation(Cotation *cot)
         case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
         case 2: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
         case 3: jointure = TBL_JOINTURESNGAP;            break;   //! NGAP
-        case 4: jointure = TBL_JOINTURESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
+        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
         default: return;
     }
     const QString idcot = QString::number(cot->id());
