@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "dlg_gestioncotations.h"
+#include "dlg_choixccam.h"
 
 dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget *parent) :
     UpDialog(parent)
@@ -285,13 +286,16 @@ void dlg_gestioncotations::remplitDepuisCCAM()
 
 /*!
  * \brief dlg_gestioncotations::appelleTableCCAM
- * TODO : ouvre la 2e fiche = table des actes CCAM (déplacée depuis dlg_param) avec sa recherche ;
- * la sélection remplira le code puis remplitDepuisCCAM().
+ * ouvre la fiche de choix d'un acte CCAM ; le code retenu remplit le champ code puis remplitDepuisCCAM().
  */
 void dlg_gestioncotations::appelleTableCCAM()
 {
-    UpMessageBox::Watch(this, tr("Table CCAM"),
-                        tr("La sélection dans la table des actes CCAM sera disponible prochainement."));
+    dlg_choixccam dlg(this);
+    if (dlg.exec() == QDialog::Accepted && !dlg.codechoisi().isEmpty())
+    {
+        wdg_codeline->setText(dlg.codechoisi());
+        remplitDepuisCCAM();
+    }
 }
 
 /*!
