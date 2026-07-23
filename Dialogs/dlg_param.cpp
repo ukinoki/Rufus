@@ -1451,8 +1451,9 @@ void dlg_param::SupprAppareil()
  * \brief dlg_param::RegleAssocBoutons
  * règle l'état des boutons du buttonframe de cotationsUpTableView selon la cotation en surbrillance :
  * - « + » toujours actif ;
- * - « - » actif seulement si ce n'est pas une NGAP et qu'aucun autre utilisateur ne l'utilise ;
- * - « modifier » actif seulement si ce n'est ni une NGAP ni une CCAM.
+ * - « - » actif seulement pour une association CCAM (2) ou un autre (4), et si aucun autre
+ *   utilisateur ne l'utilise ;
+ * - « modifier » actif seulement pour une association CCAM (2) ou un autre (4).
  */
 void dlg_param::RegleAssocBoutons()
 {
@@ -1483,10 +1484,11 @@ void dlg_param::RegleAssocBoutons()
                                 + " and " CP_IDUSER_JOINTCOTATION " <> " + QString::number(currentuser()->id()) + " limit 1", ok);
         autresUsers = (ok && !l.isEmpty());
     }
-    //! « - » : pas une NGAP et personne d'autre ne l'utilise
-    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(!cot->isNGAP() && !autresUsers);
-    //! « modifier » : ni NGAP ni CCAM
-    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(!cot->isNGAP() && !cot->isCCAM());
+    const bool type2ou4 = cot->isAssocCCAM() || cot->isnorGAPnorCCAM();   //! association CCAM (2) ou autre (4)
+    //! « - » : type 2 ou 4, et personne d'autre ne l'utilise
+    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(type2ou4 && !autresUsers);
+    //! « modifier » : type 2 ou 4
+    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(type2ou4);
 }
 
 void dlg_param::ResetImprimante()
