@@ -1124,10 +1124,9 @@ void DataBase::exporteJointures()
     if (!m_db.isOpen())
         return;
 
-    //! colonnes cibles des 4 tables de jointures (mêmes partout)
-    const QString cols   = " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ") ";
-    //! source commune : chaque ligne perso (idUser renseigné) rattachée à l'idcotation de référence
-    //! (le plus petit du Typeacte) ; le filtre du type est ajouté ensuite
+    //! source commune (colonnes de la table cotations, identiques pour les 4 inserts) : chaque ligne
+    //! perso (idUser renseigné) rattachée à l'idcotation de référence (le plus petit du Typeacte). La
+    //! LISTE DES COLONNES CIBLES, elle, est propre à chaque table de jointure (macros par table).
     const QString source = " select ref.minid, c." CP_IDUSER_COTATIONS ", c." CP_MONTANTPRATIQUE_COTATIONS
                            " from " TBL_COTATIONS " c"
                            " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
@@ -1142,22 +1141,28 @@ void DataBase::exporteJointures()
                          + " and " CP_TYPEACTE_COTATIONS " not" + motifassoc;
 
     //! 1) CCAM : Typeacte présent dans la table officielle ccam
-    StandardSQL("insert into " TBL_JOINTURESCCAM + cols + source + " c." CP_TYPEACTE_COTATIONS + inCCAM);
+    StandardSQL("insert into " TBL_JOINTURESCCAM
+                " (" CP_IDCOTATION_JOINTCCAM ", " CP_IDUSER_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCCAM ") "
+                + source + " c." CP_TYPEACTE_COTATIONS + inCCAM);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 1 where " CP_TYPEACTE_COTATIONS + inCCAM);
 
     //! 2) association CCAM : motif d'un code CCAM suivi d'autre chose (donc > 7 caractères)
-    StandardSQL("insert into " TBL_JOINTURESASSOCIATIONS + cols + source + " c." CP_TYPEACTE_COTATIONS + motifassoc);
+    StandardSQL("insert into " TBL_JOINTURESASSOCIATIONS
+                " (" CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_IDUSER_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS ") "
+                + source + " c." CP_TYPEACTE_COTATIONS + motifassoc);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 2 where " CP_TYPEACTE_COTATIONS + motifassoc);
 
     //! 3) NGAP : commence par AMY
-    StandardSQL("insert into " TBL_JOINTURESNGAP + cols + source + " c." CP_TYPEACTE_COTATIONS " like 'AMY%'");
+    StandardSQL("insert into " TBL_JOINTURESNGAP
+                " (" CP_IDCOTATION_JOINTNGAP ", " CP_IDUSER_JOINTNGAP ", " CP_MONTANTPRATIQUE_JOINTNGAP ") "
+                + source + " c." CP_TYPEACTE_COTATIONS " like 'AMY%'");
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 3 where " CP_TYPEACTE_COTATIONS " like 'AMY%'");
 
     //! 4) autre : tout le reste (ni CCAM isolé, ni association, ni NGAP). jointuresautrescotations porte
     //! EN PLUS le montant conventionnel : MontantOPTAM de la cotation, ou son pratiqué si OPTAM est vide.
     StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS
-                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", "
-                CP_MONTANTCONVENTIONNEL_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
+                " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_IDUSER_JOINTAUTRESCOTATIONS ", "
+                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ")"
                 " select ref.minid, c." CP_IDUSER_COTATIONS ", "
                 " coalesce(nullif(c." CP_MONTANTOPTAM_COTATIONS ", 0), c." CP_MONTANTPRATIQUE_COTATIONS "),"
                 " c." CP_MONTANTPRATIQUE_COTATIONS
@@ -2893,14 +2898,16 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
     if (usr == Q_NULLPTR)
         return montants;
     const QString id = QString::number(usr->id());
-    QString req;
-    for (const char *tbl : { TBL_JOINTURESCCAM, TBL_JOINTURESASSOCIATIONS, TBL_JOINTURESAUTRESCOTATIONS, TBL_JOINTURESNGAP })
-    {
-        if (!req.isEmpty())
-            req += " union all ";
-        req += "select " CP_IDCOTATION_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION " from " + QString(tbl)
-             + " where " CP_IDUSER_JOINTCOTATION " = " + id;
-    }
+    //! réunion des 4 tables de jointure, chacune avec ses propres macros de colonnes
+    const QString req =
+          "select " CP_IDCOTATION_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCCAM
+          " from " TBL_JOINTURESCCAM " where " CP_IDUSER_JOINTCCAM " = " + id
+        + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS
+          " from " TBL_JOINTURESASSOCIATIONS " where " CP_IDUSER_JOINTASSOCIATIONS " = " + id
+        + " union all select " CP_IDCOTATION_JOINTNGAP ", " CP_MONTANTPRATIQUE_JOINTNGAP
+          " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
+        + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+          " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
         for (const QVariantList &r : l)

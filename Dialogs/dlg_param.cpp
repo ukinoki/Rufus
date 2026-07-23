@@ -1466,22 +1466,23 @@ void dlg_param::RegleCotationsBoutons()
         wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
         return;
     }
-    //! table de jointure selon le type, pour savoir si d'autres utilisateurs se servent de la cotation
-    QString jointure;
+    //! table de jointure (et ses colonnes idCotation/idUser) selon le type, pour savoir si d'autres
+    //! utilisateurs se servent de la cotation
+    QString jointure, chpIdcotation, chpIduser;
     switch (cot->typcotation())
     {
-        case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
-        case 2: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
-        case 3: jointure = TBL_JOINTURESNGAP;            break;   //! NGAP
-        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
+        case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             break;   //! CCAM
+        case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     break;   //! association CCAM
+        case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             break;   //! NGAP
+        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
     }
     bool autresUsers = false;
     if (!jointure.isEmpty())
     {
         bool ok = false;
         QList<QVariantList> l = db->StandardSelectSQL("select 1 from " + jointure
-                                + " where " CP_IDCOTATION_JOINTCOTATION " = " + QString::number(cot->id())
-                                + " and " CP_IDUSER_JOINTCOTATION " <> " + QString::number(currentuser()->id()) + " limit 1", ok);
+                                + " where " + chpIdcotation + " = " + QString::number(cot->id())
+                                + " and " + chpIduser + " <> " + QString::number(currentuser()->id()) + " limit 1", ok);
         autresUsers = (ok && !l.isEmpty());
     }
     const bool type2ou4 = cot->isAssocCCAM() || cot->isnorGAPnorCCAM();   //! association CCAM (2) ou autre (4)
@@ -1572,27 +1573,27 @@ void dlg_param::supprimeCotation(Cotation *cot)
 {
     if (cot == Q_NULLPTR)
         return;
-    //! table de jointure correspondant au type de la cotation
-    QString jointure;
+    //! table de jointure (et ses colonnes idCotation/idUser) correspondant au type de la cotation
+    QString jointure, chpIdcotation, chpIduser;
     switch (cot->typcotation())
     {
-        case 1: jointure = TBL_JOINTURESCCAM;            break;   //! CCAM
-        case 2: jointure = TBL_JOINTURESASSOCIATIONS;    break;   //! association CCAM
-        case 3: jointure = TBL_JOINTURESNGAP;            break;   //! NGAP
-        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;       break;   //! autre (hors NGAP/CCAM)
+        case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             break;   //! CCAM
+        case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     break;   //! association CCAM
+        case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             break;   //! NGAP
+        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
         default: return;
     }
     const QString idcot = QString::number(cot->id());
     //! retrait de la cotation de la jointure du user
-    db->StandardSQL("delete from " + jointure + " where " CP_IDCOTATION_JOINTCOTATION " = " + idcot
-                    + " and " CP_IDUSER_JOINTCOTATION " = " + QString::number(currentuser()->id()));
+    db->StandardSQL("delete from " + jointure + " where " + chpIdcotation + " = " + idcot
+                    + " and " + chpIduser + " = " + QString::number(currentuser()->id()));
 
     //! plus personne ne l'utilise -> on supprime la cotation (sa ligne disparaît), sauf NGAP
     if (!cot->isNGAP())
     {
         bool ok;
         QList<QVariantList> reste = db->StandardSelectSQL("select 1 from " + jointure
-                                    + " where " CP_IDCOTATION_JOINTCOTATION " = " + idcot + " limit 1", ok);
+                                    + " where " + chpIdcotation + " = " + idcot + " limit 1", ok);
         if (ok && reste.isEmpty())
             db->StandardSQL("delete from " TBL_COTATIONS " where " CP_ID_COTATIONS " = " + idcot);
     }

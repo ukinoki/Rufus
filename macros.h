@@ -257,15 +257,31 @@ public:
 #define CP_IDUSER_JOINTSITE                             "idUser"
 #define CP_IDLIEU_JOINTSITE                             "idLieu"
 #define CP_AMNUMBER_JOINTSITE                           "AMnumber"
-#define CP_ID_JOINTCOTATION                             "idJointure"
-#define CP_IDCOTATION_JOINTCOTATION                     "idCotation"
-#define CP_IDUSER_JOINTCOTATION                         "idUser"
-#define CP_MONTANTCONVENTIONNEL_JOINTCOTATION           "MontantConventionnel"
-#define CP_MONTANTPRATIQUE_JOINTCOTATION                "MontantPratique"
+
+                            //! Table Rufus.jointuresccam
 #define CP_ID_JOINTCCAM                                 "idJointure"
-#define CP_IDCCAM_JOINTCCAM                             "idCCAM"
+#define CP_IDCOTATION_JOINTCCAM                         "idCotation"
 #define CP_IDUSER_JOINTCCAM                             "idUser"
 #define CP_MONTANTPRATIQUE_JOINTCCAM                    "MontantPratique"
+
+                            //! Table Rufus.jointuresassociations
+#define CP_ID_JOINTASSOCIATIONS                         "idJointure"
+#define CP_IDCOTATION_JOINTASSOCIATIONS                 "idCotation"
+#define CP_IDUSER_JOINTASSOCIATIONS                     "idUser"
+#define CP_MONTANTPRATIQUE_JOINTASSOCIATIONS            "MontantPratique"
+
+                            //! Table Rufus.jointuresNGAP
+#define CP_ID_JOINTNGAP                                 "idJointure"
+#define CP_IDCOTATION_JOINTNGAP                         "idCotation"
+#define CP_IDUSER_JOINTNGAP                             "idUser"
+#define CP_MONTANTPRATIQUE_JOINTNGAP                    "MontantPratique"
+
+                            //! Table Rufus.jointuresautrescotations
+#define CP_ID_JOINTAUTRESCOTATIONS                      "idJointure"
+#define CP_IDCOTATION_JOINTAUTRESCOTATIONS              "idCotation"
+#define CP_IDUSER_JOINTAUTRESCOTATIONS                  "idUser"
+#define CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS    "MontantConventionnel"
+#define CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS         "MontantPratique"
 
                             //! Table Rufus.Manufacturers
 #define CP_ID_MANUFACTURER                              "idManufacturer"
