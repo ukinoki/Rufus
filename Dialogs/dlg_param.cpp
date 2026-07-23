@@ -936,7 +936,7 @@ void dlg_param::EnableModif(QWidget *obj)
 
         EnableActesCCAM(a);
         enableCotations(a);
-        RegleAssocBoutons();        //! pas de changement de ligne ici -> on règle les boutons +/-/modifier à la main
+        RegleCotationsBoutons();        //! pas de changement de ligne ici -> on règle les boutons +/-/modifier à la main
     }
 
     else if (obj == ui->LockParamGeneralupLabel)
@@ -1448,14 +1448,14 @@ void dlg_param::SupprAppareil()
 }
 
 /*!
- * \brief dlg_param::RegleAssocBoutons
+ * \brief dlg_param::RegleCotationsBoutons
  * règle l'état des boutons du buttonframe de cotationsUpTableView selon la cotation en surbrillance :
  * - « + » toujours actif ;
  * - « - » actif seulement pour une association CCAM (2) ou un autre (4), et si aucun autre
  *   utilisateur ne l'utilise ;
  * - « modifier » actif seulement pour une association CCAM (2) ou un autre (4).
  */
-void dlg_param::RegleAssocBoutons()
+void dlg_param::RegleCotationsBoutons()
 {
     wdg_cotationswdgbuttonframe->wdg_plusBouton->setEnabled(true);   //! ajouter : toujours possible
 
@@ -4004,7 +4004,7 @@ void dlg_param::Remplir_TableCotations()
             MAJCotation(qobject_cast<Cotation*>(upit->rufusitem()));
     });
     //! changement de ligne en surbrillance : on règle l'état des boutons (+/-/modifier)
-    connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleAssocBoutons();});
+    connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleCotationsBoutons();});
 }
 
 /*!
