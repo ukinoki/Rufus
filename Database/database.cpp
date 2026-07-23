@@ -1153,14 +1153,20 @@ void DataBase::exporteJointures()
     StandardSQL("insert into " TBL_JOINTURESNGAP + cols + source + " c." CP_TYPEACTE_COTATIONS " like 'AMY%'");
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 3 where " CP_TYPEACTE_COTATIONS " like 'AMY%'");
 
-    //! 4) autre : tout le reste (ni CCAM isolé, ni association, ni NGAP)
-    StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS + cols + source + " c." CP_TYPEACTE_COTATIONS + autre);
+    //! 4) autre : tout le reste (ni CCAM isolé, ni association, ni NGAP). jointuresautrescotations porte
+    //! EN PLUS le montant conventionnel : MontantOPTAM de la cotation, ou son pratiqué si OPTAM est vide.
+    StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS
+                " (" CP_IDCOTATION_JOINTCOTATION ", " CP_IDUSER_JOINTCOTATION ", "
+                CP_MONTANTCONVENTIONNEL_JOINTCOTATION ", " CP_MONTANTPRATIQUE_JOINTCOTATION ")"
+                " select ref.minid, c." CP_IDUSER_COTATIONS ", "
+                " coalesce(nullif(c." CP_MONTANTOPTAM_COTATIONS ", 0), c." CP_MONTANTPRATIQUE_COTATIONS "),"
+                " c." CP_MONTANTPRATIQUE_COTATIONS
+                " from " TBL_COTATIONS " c"
+                " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
+                      " from " TBL_COTATIONS " group by " CP_TYPEACTE_COTATIONS ") ref"
+                      " on c." CP_TYPEACTE_COTATIONS " = ref.ta"
+                " where c." CP_IDUSER_COTATIONS " is not null and c." CP_TYPEACTE_COTATIONS + autre);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 4 where " CP_TYPEACTE_COTATIONS + autre);
-    //! montant conventionnel des type 4 : on reprend MontantOPTAM (le conventionnel des actes reconnus,
-    //! ex. Cs) ; s'il est vide (null ou 0), on recopie le montant pratiqué
-    StandardSQL("update " TBL_COTATIONS " set " CP_MONTANTCONVENTIONNEL_COTATIONS
-                " = coalesce(nullif(" CP_MONTANTOPTAM_COTATIONS ", 0), " CP_MONTANTPRATIQUE_COTATIONS ")"
-                " where " CP_TYPEACTE_COTATIONS + autre);
 }
 
 /*!

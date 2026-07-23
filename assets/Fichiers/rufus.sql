@@ -674,7 +674,6 @@ CREATE TABLE `cotations` (
   `MontantOPTAM` decimal(9,2) DEFAULT NULL,
   `MontantNonOPTAM` decimal(9,2) DEFAULT NULL,
   `MontantPratique` decimal(9,2) DEFAULT NULL,
-  `MontantConventionnel` decimal(9,2) DEFAULT NULL,
   `CCAM` int(1) DEFAULT NULL COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
   `Typecotation` int(1) DEFAULT NULL COMMENT '1 = CCAM\n2 = Association CCAM\n3 = NGAP\n4 = Autre',
   `idUser` int(11) DEFAULT NULL COMMENT 'plus utilisé, gardé pour compatibilité avec les versions antérieures au 15-07-2026',
