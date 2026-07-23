@@ -61,6 +61,24 @@ void Cotations::loadCotations()
         if (ok && !rec.isEmpty() && !rec.at(0).toString().isEmpty())
             ItemsList::update(c, CP_TIP_COTATIONS, rec.at(0).toString());
     }
+
+    //! même chose pour les NGAP (AMY...) : le libellé vient du fichier de cotations (xml). On ne le
+    //! charge (et ne le parse) qu'une fois, et seulement s'il y a au moins un NGAP à compléter.
+    QMap<QString,QString> nomsNGAP;
+    bool ngapcharge = false;
+    for (Cotation *c : *map_cotations)
+    {
+        if (!c->isNGAP() || !c->descriptif().isEmpty())
+            continue;
+        if (!ngapcharge)
+        {
+            nomsNGAP   = DataBase::I()->nomsNGAPFromXml();
+            ngapcharge = true;
+        }
+        const QString nom = nomsNGAP.value(c->typeacte());
+        if (!nom.isEmpty())
+            ItemsList::update(c, CP_TIP_COTATIONS, nom);
+    }
 }
 
 /*!

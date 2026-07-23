@@ -1092,6 +1092,31 @@ void DataBase::majNGAP()
 }
 
 /*!
+ * \brief DataBase::nomsNGAPFromXml
+ * lit le fichier de cotations (même source que majNGAP) et en extrait, pour chaque acte NGAP, le
+ * couple Typeacte ("AMY" + indice) -> libellé (nom). Sert à renseigner le Tip (descriptif) des
+ * cotations NGAP dont il est vide. Map vide si le fichier est introuvable/invalide (on passe).
+ */
+QMap<QString,QString> DataBase::nomsNGAPFromXml()
+{
+    QMap<QString,QString> noms;
+    QDomDocument docxml;
+    if (!chargeCotationsXml(docxml))                    //! fichier introuvable/invalide : on passe
+        return noms;
+    QDomElement racine = docxml.documentElement();      //! <Cotations>
+    for (QDomElement acte = racine.firstChildElement("Acte"); !acte.isNull(); acte = acte.nextSiblingElement("Acte"))
+    {
+        if (acte.firstChildElement("origin").text() != "ngap")
+            continue;
+        const QString indice = acte.firstChildElement("indice").text().trimmed();
+        if (indice.isEmpty())
+            continue;
+        noms.insert("AMY" + indice, acte.firstChildElement("nom").text());   //! AMY+indice = Typeacte de la cotation
+    }
+    return noms;
+}
+
+/*!
  * \brief DataBase::exporteJointures
  * migre les cotations personnalisées (idUser renseigné) vers les 4 tables de jointures — une par
  * type — et renseigne au passage Typecotation, déduit du SEUL Typeacte (les valeurs héritées de
