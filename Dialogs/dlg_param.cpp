@@ -656,30 +656,17 @@ void dlg_param::EnableSupprAppareilBouton()
    wdg_appareilswdgbuttonframe->wdg_moinsBouton->setEnabled(true);
 }
 
-void dlg_param::scrollToCodeCCAM(QString txt)
+void dlg_param::scrollToCotation(QString txt)
 {
-   QList<QTableWidgetItem*> listitems;
-   if (m_parametres->cotationsfrance())
-   {
-        listitems = ui->ActesCCAMupTableWidget->findItems(txt, Qt::MatchStartsWith);
-        if (listitems.size()<ui->ActesCCAMupTableWidget->rowCount())
-            ui->ShowCCAMlabel               ->setPixmap(Icons::pxApres().scaled(10,10)); //WARNING : icon scaled : pApres 10,10
-        else
-            ui->ShowCCAMlabel               ->setPixmap(QPixmap());
-        if (listitems.size()>0)
-        {
-            QTableWidgetItem *pitem = listitems.at(0);
-            QModelIndex index = ui->ActesCCAMupTableWidget->model()->index(pitem->row(),1);
-            ui->ActesCCAMupTableWidget->scrollTo(index, QAbstractItemView::PositionAtCenter);
-        }
-   }
-   //! table des cotations (modèle/vue) : on cherche le typeacte (colonne 0) dans le modèle
-   if (m_modelCotations != Q_NULLPTR)
-   {
-        QList<QStandardItem*> items = m_modelCotations->findItems(txt, Qt::MatchStartsWith, 0);
-        if (!items.isEmpty())
-            ui->cotationsUpTableView->scrollTo(m_modelCotations->indexFromItem(items.at(0)), QAbstractItemView::PositionAtTop);
-   }
+    //! recherche la cotation dont le Typeacte (colonne 0) commence par txt et amène la table dessus
+    if (m_modelCotations == Q_NULLPTR)
+        return;
+    const QList<QStandardItem*> items = m_modelCotations->findItems(txt, Qt::MatchStartsWith, 0);
+    if (items.isEmpty())
+        return;
+    const QModelIndex index = m_modelCotations->indexFromItem(items.at(0));
+    ui->cotationsUpTableView    ->scrollTo(index, QAbstractItemView::PositionAtTop);
+    ui->cotationsUpTableView    ->setCurrentIndex(index);   //! sélectionne la ligne (met à jour les boutons +/-/modifier)
 }
 
 void dlg_param::ChoixDossierEchangeAppareilImagerie(UpPushButton *butt)
@@ -2565,7 +2552,7 @@ void dlg_param::ConnectSignals()
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
     ui->cotationsUpTableView    ->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
     connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
-    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCodeCCAM);
+    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCotation);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
     connect(ui->OphtaSeulcheckBox,                  &QCheckBox::clicked,                    this,   &dlg_param::FiltreActesOphtaSeulmt);

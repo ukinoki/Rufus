@@ -141,7 +141,7 @@ private:
     void                AfficheToolTip(QModelIndex idx);        //!< infobulle de cotationsUpTableView (tip de la Cotation de la ligne)
     void                EnableSupprAppareilBouton();
     void                FermepushButtonClicked();
-    void                scrollToCodeCCAM(QString);
+    void                scrollToCotation(QString);      //!< amène cotationsUpTableView sur la cotation dont le Typeacte commence par le texte saisi
     void                ChoixDossierEchangeAppareilImagerie(UpPushButton *butt);
     void                ChoixFontpushButtonClicked();
     void                ClearPortsComboBox(UpComboBox *box, int);
