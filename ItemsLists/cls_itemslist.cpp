@@ -15,6 +15,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Banque *bq                  = Q_NULLPTR;
     CommentLunet *comment       = Q_NULLPTR;
     Commercial *com             = Q_NULLPTR;
+    Cotation *cot               = Q_NULLPTR;
     Depense *dep                = Q_NULLPTR;
     DocExterne *doc             = Q_NULLPTR;
     DossierImpression *dossier  = Q_NULLPTR;
@@ -1539,6 +1540,21 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
             else if (field == CP_NOM_AUTRESVILLES )
             {
                 ville->setnom(newvalue.toString());
+                Utils::CalcStringValueSQL(newvalue);
+            }
+            else
+                ok = false;
+            break;
+        }
+        cot = qobject_cast<Cotation*>(item);
+        if (cot)
+        {
+            table = TBL_COTATIONS;
+            ok = true;
+            clause = CP_ID_COTATIONS " = " + QString::number(item->id());
+            if (field == CP_TIP_COTATIONS)
+            {
+                cot->setdescriptif(newvalue.toString());
                 Utils::CalcStringValueSQL(newvalue);
             }
             else

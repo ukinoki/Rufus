@@ -46,6 +46,21 @@ void Cotations::loadCotations()
     QList<Cotation*> listcotations = DataBase::I()->loadCotations();
     epurelist(map_cotations, &listcotations);
     addList(map_cotations, &listcotations);
+
+    //! actes CCAM sans descriptif (Tip vide) : on rapatrie le libellé depuis la table ccam et on le
+    //! persiste (ItemsList::update -> base + objet en mémoire). Ne coûte qu'au premier chargement,
+    //! ensuite le Tip est renseigné et la condition ci-dessous n'est plus vraie.
+    for (Cotation *c : *map_cotations)
+    {
+        if (!c->isCCAM() || !c->descriptif().isEmpty())
+            continue;
+        bool ok = false;
+        QVariantList rec = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+                    "select " CP_NOM_CCAM " from " TBL_CCAM
+                    " where " CP_CODECCAM_CCAM " = '" + c->typeacte() + "'", ok);
+        if (ok && !rec.isEmpty() && !rec.at(0).toString().isEmpty())
+            ItemsList::update(c, CP_TIP_COTATIONS, rec.at(0).toString());
+    }
 }
 
 /*!

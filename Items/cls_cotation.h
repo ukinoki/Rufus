@@ -59,6 +59,7 @@ public:
     bool isnorGAPnorCCAM() const { return m_isnorGAPnorCCAM; }
     int frequence() const;
     QString descriptif() const;
+    void setdescriptif(QString d) { m_descriptif = d; }                 //!< Tip de la cotation (pour un acte CCAM, son libellé rapatrié de la table ccam)
 };
 
 #endif // CLS_COTATION_H
