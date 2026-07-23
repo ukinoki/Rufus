@@ -936,6 +936,7 @@ void dlg_param::EnableModif(QWidget *obj)
 
         EnableActesCCAM(a);
         enableCotations(a);
+        RegleAssocBoutons();        //! pas de changement de ligne ici -> on règle les boutons +/-/modifier à la main
     }
 
     else if (obj == ui->LockParamGeneralupLabel)
