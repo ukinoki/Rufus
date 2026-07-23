@@ -4227,6 +4227,7 @@ bool Procedures::IdentificationUser()
         Datas::I()->typesinterventions  ->initListe();
         Datas::I()->refractiondevices   ->initListe();
         Datas::I()->cotations           ->loadCotations();
+        Datas::I()->cotations           ->completeTipsManquants();   //! une seule fois au lancement : renseigne les Tip vides (CCAM/NGAP)
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);

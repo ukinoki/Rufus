@@ -46,10 +46,21 @@ void Cotations::loadCotations()
     QList<Cotation*> listcotations = DataBase::I()->loadCotations();
     epurelist(map_cotations, &listcotations);
     addList(map_cotations, &listcotations);
+}
 
-    //! actes CCAM sans descriptif (Tip vide) : on rapatrie le libellé depuis la table ccam et on le
-    //! persiste (ItemsList::update -> base + objet en mémoire). Ne coûte qu'au premier chargement,
-    //! ensuite le Tip est renseigné et la condition ci-dessous n'est plus vraie.
+/*!
+ * \brief Cotations::completeTipsManquants
+ * Renseigne le Tip (descriptif) des cotations dont il est vide, à partir des libellés officiels :
+ * - CCAM : depuis la table ccam ;
+ * - NGAP (AMY) : depuis le fichier de cotations (xml).
+ * À n'appeler qu'UNE fois au lancement (après loadCotations), PAS à chaque loadCotations : la
+ * lecture du fichier et les écritures ne doivent pas se répéter à chaque ouverture des paramètres.
+ * Persiste chaque libellé par ItemsList::update (base + objet en mémoire) ; ne coûte qu'au premier
+ * lancement, ensuite les Tip sont renseignés et les conditions ci-dessous ne sont plus vraies.
+ */
+void Cotations::completeTipsManquants()
+{
+    //! CCAM : libellé depuis la table ccam
     for (Cotation *c : *map_cotations)
     {
         if (!c->isCCAM() || !c->descriptif().isEmpty())
@@ -62,8 +73,7 @@ void Cotations::loadCotations()
             ItemsList::update(c, CP_TIP_COTATIONS, rec.at(0).toString());
     }
 
-    //! même chose pour les NGAP (AMY...) : le libellé vient du fichier de cotations (xml, chargé
-    //! depuis /Assets/CotationsFrance/Cotations.xml). Map initialisée une fois, puis on complète.
+    //! NGAP (AMY...) : libellé depuis le fichier de cotations (xml). Map chargée une seule fois.
     QMap<QString,QString> nomsNGAP = DataBase::I()->nomsNGAPFromXml();
     for (Cotation *c : *map_cotations)
     {
