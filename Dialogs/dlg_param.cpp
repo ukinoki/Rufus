@@ -2441,7 +2441,9 @@ void dlg_param::ConnectSignals()
                                                                                             this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
     ui->cotationsUpTableView    ->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
     connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
-    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCotation);
+    //! textChanged (et non textEdited) : la table doit suivre aussi bien la frappe que le choix dans le
+    //! QCompleter (qui insère le texte sans émettre textEdited)
+    connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textChanged,                this,   &dlg_param::scrollToCotation);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
 
