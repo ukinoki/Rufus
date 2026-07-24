@@ -214,7 +214,9 @@ void dlg_choixccam::chercheEtSelectionne(const QString &code)
         QTableWidgetItem *it = wdg_table->item(row,0);
         if (it && it->text().startsWith(code, Qt::CaseInsensitive))
         {
-            wdg_table->selectRow(row);
+            //! setCurrentCell (et non selectRow) : règle AUSSI la cellule courante, dont dépend
+            //! selectionChangee (currentRow()) -> le code est bien retenu même sans clic souris
+            wdg_table->setCurrentCell(row, 0);
             wdg_table->scrollToItem(it, QAbstractItemView::PositionAtCenter);
             return;
         }
