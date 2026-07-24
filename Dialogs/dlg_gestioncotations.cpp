@@ -62,9 +62,11 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     grouplay        ->addWidget(wdg_chkAutre);
     wdg_groupmode   ->setLayout(grouplay);
     dlglayout()     ->replaceWidget(widgetbuttons(), wdg_groupmode);
-    connect(wdg_chkCCAM,    &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 1; appliqueMode();}});
-    connect(wdg_chkAssoc,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 2; appliqueMode();}});
-    connect(wdg_chkAutre,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 4; appliqueMode();}});
+    //! changer de mode réapplique la présentation ET recalcule les montants (remplitDepuisCCAM fait
+    //! return en mode « autre », donc inoffensif là)
+    connect(wdg_chkCCAM,    &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 1; appliqueMode(); remplitDepuisCCAM();}});
+    connect(wdg_chkAssoc,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 2; appliqueMode(); remplitDepuisCCAM();}});
+    connect(wdg_chkAutre,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 4; appliqueMode(); remplitDepuisCCAM();}});
 
     //! --- code (1er) ---
     wdg_codeline    = new UpLineEdit();
@@ -281,38 +283,41 @@ void dlg_gestioncotations::remplitDepuisCCAM()
     if (m_typecotation != 1 && m_typecotation != 2)
         return;
 
-    //! petit lecteur d'un acte CCAM : rend optam/nonoptam/libellé ; false si code vide ou inconnu
-    auto litCCAM = [this] (const QString &code, double &optam, double &nonoptam, QString &nom) -> bool {
+    //! lecteur d'un acte CCAM : rend ses montants (0 si code vide ou inconnu) et son libellé.
+    //! On ne s'interrompt jamais : un code absent/invalide contribue simplement 0 -> on recalcule
+    //! toujours à partir de ce qui est présent (pas de cas particuliers à traiter un par un).
+    auto litCCAM = [this] (const QString &code, double &optam, double &nonoptam, QString &nom) {
+        optam = 0; nonoptam = 0; nom.clear();
         if (code.isEmpty())
-            return false;
+            return;
         bool ok = false;
         QVariantList r = db->getFirstRecordFromStandardSelectSQL(
             "select " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_NOM_CCAM
             " from " TBL_CCAM " where " CP_CODECCAM_CCAM " = '" + code + "'", ok);
-        if (!ok || r.size() < 3)
-            return false;
-        optam    = r.at(0).toDouble();
-        nonoptam = r.at(1).toDouble();
-        nom      = r.at(2).toString();
-        return true;
+        if (ok && r.size() >= 3)
+        {
+            optam    = r.at(0).toDouble();
+            nonoptam = r.at(1).toDouble();
+            nom      = r.at(2).toString();
+        }
     };
 
+    //! 1er acte : toujours pris en compte (modes 1 et 2)
     double optam = 0, nonoptam = 0;
     QString nom1;
-    if (!litCCAM(wdg_codeline->text().trimmed(), optam, nonoptam, nom1))
-        return;                             //! 1er code absent/inconnu : on ne remplit rien
-    QStringList noms;   noms << nom1;
+    litCCAM(wdg_codeline->text().trimmed(), optam, nonoptam, nom1);
+    QStringList noms;
+    if (!nom1.isEmpty())    noms << nom1;
 
     //! association : le 2e acte compte pour MOITIÉ (optam1 + optam2/2, idem non-OPTAM)
     if (m_typecotation == 2)
     {
         double optam2 = 0, nonoptam2 = 0;
         QString nom2;
-        if (!litCCAM(wdg_codeline2->text().trimmed(), optam2, nonoptam2, nom2))
-            return;                         //! tant que le 2e code n'est pas saisi/valide, on n'écrit rien
+        litCCAM(wdg_codeline2->text().trimmed(), optam2, nonoptam2, nom2);
         optam    += optam2 / 2.0;
         nonoptam += nonoptam2 / 2.0;
-        noms     << nom2;
+        if (!nom2.isEmpty())    noms << nom2;
     }
 
     wdg_tarifoptamline  ->setText(QLocale().toString(optam, 'f', 2));
