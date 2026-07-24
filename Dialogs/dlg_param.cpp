@@ -1336,7 +1336,7 @@ void dlg_param::SupprAppareil()
  * - « + » toujours actif ;
  * - « - » actif seulement pour une association CCAM (2) ou un autre (4), et si aucun autre
  *   utilisateur ne l'utilise ;
- * - « modifier » actif seulement pour une association CCAM (2) ou un autre (4).
+ * - « modifier » actif seulement pour un « autre » (4) : un acte CCAM a ses montants figés.
  */
 void dlg_param::RegleCotationsBoutons()
 {
@@ -1371,8 +1371,8 @@ void dlg_param::RegleCotationsBoutons()
     const bool type2ou4 = cot->isAssocCCAM() || cot->isnorGAPnorCCAM();   //! association CCAM (2) ou autre (4)
     //! « - » : type 2 ou 4, et personne d'autre ne l'utilise
     wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(type2ou4 && !autresUsers);
-    //! « modifier » : type 2 ou 4
-    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(type2ou4);
+    //! « modifier » : uniquement les « autres » (type 4) — un acte CCAM (montants figés) ne se modifie pas
+    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(cot->isnorGAPnorCCAM());
 }
 
 void dlg_param::ResetImprimante()

@@ -61,6 +61,7 @@ private:
     bool            m_cotationsfrance = db->parametres()->cotationsfrance();
     QString         m_codeacte;
     QString         m_codeenregistre;                           //!< code écrit à la validation (création/modif), lu par l'appelant
+    int             m_idcotation = 0;                           //!< id de la cotation en modification (clé de l'update)
     int             m_typecotation = 1;                         //!< mode courant : 1=CCAM, 2=association, 4=autre
     QStringList     m_listeCCAM;                                //!< codes de la table ccam (pour valider « c'est bien un code CCAM »)
     QStandardItemModel *m_modelCCAM = Q_NULLPTR;                //!< code CCAM (DisplayRole) + libellé (ToolTipRole) : source des QCompleter avec infobulle

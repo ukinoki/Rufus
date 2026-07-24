@@ -191,32 +191,33 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
 
     if (m_mode == Modification)
     {
-        //! pas de choix de mode en modification : le type est celui de la cotation (2 ou 4)
-        wdg_groupmode->setVisible(false);
-        QVariantList t = db->getFirstRecordFromStandardSelectSQL(
-            "select " CP_TYPECOTATION_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", "
-            CP_MONTANTPRATIQUE_COTATIONS ", " CP_TIP_COTATIONS " from " TBL_COTATIONS
-            " where " CP_IDUSER_COTATIONS " = " + QString::number(Datas::I()->users->userconnected()->id())
-            + " and " CP_TYPEACTE_COTATIONS " = '" + m_codeacte + "'", ok);
-        if (ok && t.size() >= 5)
+        //! modification réservée aux « autres » (type 4) : la case « autre » est cochée, les 2 cases
+        //! CCAM sont désactivées — on ne modifie pas un acte CCAM, ses montants CCAM étant figés.
+        wdg_groupmode->setTitle(tr("Modifier la cotation"));
+        wdg_chkCCAM ->setEnabled(false);
+        wdg_chkAssoc->setEnabled(false);
+        wdg_chkAutre->setChecked(true);             //! -> m_typecotation = 4 (via le toggled)
+
+        const int iduser = Datas::I()->users->userconnected()->id();
+        //! id de la cotation (clé de l'update) + libellé, depuis la table partagée
+        QVariantList c = db->getFirstRecordFromStandardSelectSQL(
+            "select " CP_ID_COTATIONS ", " CP_TIP_COTATIONS " from " TBL_COTATIONS
+            " where " CP_TYPEACTE_COTATIONS " = '" + m_codeacte + "'", ok);
+        if (ok && c.size() >= 2)
         {
-            m_typecotation = t.at(0).toInt();
-            wdg_tarifoptamline   ->setText(QLocale().toString(t.at(1).toDouble(), 'f', 2));
-            wdg_tarifnooptamline ->setText(QLocale().toString(t.at(2).toDouble(), 'f', 2));
-            wdg_tarifpratiqueline->setText(QLocale().toString(t.at(3).toDouble(), 'f', 2));
-            wdg_tipline          ->setPlainText(t.at(4).toString());
+            m_idcotation = c.at(0).toInt();
+            wdg_tipline->setPlainText(c.at(1).toString());
         }
-        //! association : le code stocké réunit 2 codes CCAM séparés diversement selon le créateur
-        //! (« + », «  + », «  »…). On les ré-extrait par le motif d'un code CCAM plutôt que de deviner
-        //! le séparateur ; le 1er code, déjà mis à la construction, est écrasé par le vrai 1er code.
-        if (m_typecotation == 2)
+        //! montants propres à l'utilisateur (conventionnel + pratiqué) depuis SA jointure
+        QVariantList m = db->getFirstRecordFromStandardSelectSQL(
+            "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+            " from " TBL_JOINTURESAUTRESCOTATIONS
+            " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(m_idcotation)
+            + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + QString::number(iduser), ok);
+        if (ok && m.size() >= 2)
         {
-            QStringList codes;
-            QRegularExpressionMatchIterator it = Utils::rgx_cotationCCAM.globalMatch(m_codeacte);
-            while (it.hasNext())
-                codes << it.next().captured(0);
-            if (codes.size() >= 1) wdg_codeline ->setText(codes.at(0));
-            if (codes.size() >= 2) wdg_codeline2->setText(codes.at(1));
+            wdg_tarifoptamline   ->setText(QLocale().toString(m.at(0).toDouble(), 'f', 2));
+            wdg_tarifpratiqueline->setText(QLocale().toString(m.at(1).toDouble(), 'f', 2));
         }
     }
     else
@@ -414,17 +415,21 @@ bool dlg_gestioncotations::VerifFiche()
     const QString iduserSQL   = QString::number(iduser);
     bool ok;
 
-    //! --- MODIFICATION : mise à jour de la cotation par son ancien code ---
+    //! --- MODIFICATION (réservée au type 4) : update par idcotation ---
     if (m_mode == Modification)
     {
+        //! cotation partagée : code, conventionnel (dans MontantOptam) et libellé, clé = idcotation
         db->StandardSQL("update " TBL_COTATIONS " set "
-              CP_TYPEACTE_COTATIONS " = '"       + codeSQL + "', "
-              CP_MONTANTOPTAM_COTATIONS " = "    + optamSQL + ", "
-              CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL + ", "
-              CP_MONTANTPRATIQUE_COTATIONS " = " + pratiqueSQL + ", "
-              CP_TIP_COTATIONS " = '"            + tipSQL + "'"
-              " where " CP_IDUSER_COTATIONS " = " + iduserSQL
-              + " and " CP_TYPEACTE_COTATIONS " = '" + Utils::correctquoteSQL(m_codeacte) + "'");
+              CP_TYPEACTE_COTATIONS " = '"    + codeSQL + "', "
+              CP_MONTANTOPTAM_COTATIONS " = " + optamSQL + ", "
+              CP_TIP_COTATIONS " = '"         + tipSQL + "'"
+              " where " CP_ID_COTATIONS " = " + QString::number(m_idcotation));
+        //! montants propres à l'utilisateur (conventionnel + pratiqué) dans SA jointure
+        db->StandardSQL("update " TBL_JOINTURESAUTRESCOTATIONS " set "
+              CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS " = " + optamSQL + ", "
+              CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS " = "      + pratiqueSQL
+              + " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(m_idcotation)
+              + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + iduserSQL);
         m_codeenregistre = code;
         return true;
     }
