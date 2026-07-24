@@ -24,6 +24,7 @@ class Macros: public QObject
     Q_OBJECT
 
 public:
+
 // Les versions de la base et des ressources
 #define VERSION_BASE                          83  // version de la base de données
 // Seuil minimal de version du serveur MySQL exigé, COMMUN à tous les OS : 8.0.14, première version

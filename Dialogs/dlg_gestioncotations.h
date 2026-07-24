@@ -55,32 +55,32 @@ public:
     ~dlg_gestioncotations();
 
 private:
-    DataBase    *db = DataBase::I();
-    Mode        m_mode;
-    bool        m_cotationsfrance = db->parametres()->cotationsfrance();
-    QString     m_codeacte;
-    int         m_typecotation = 1;             //!< mode courant : 1=CCAM, 2=association, 4=autre
-    QStringList m_listeCCAM;                     //!< codes de la table ccam (pour valider « c'est bien un code CCAM »)
-    QStandardItemModel *m_modelCCAM = Q_NULLPTR; //!< code CCAM (DisplayRole) + libellé (ToolTipRole) : source des QCompleter avec infobulle
+    DataBase        *db = DataBase::I();
+    Mode            m_mode;
+    bool            m_cotationsfrance = db->parametres()->cotationsfrance();
+    QString         m_codeacte;
+    int             m_typecotation = 1;                         //!< mode courant : 1=CCAM, 2=association, 4=autre
+    QStringList     m_listeCCAM;                                //!< codes de la table ccam (pour valider « c'est bien un code CCAM »)
+    QStandardItemModel *m_modelCCAM = Q_NULLPTR;                //!< code CCAM (DisplayRole) + libellé (ToolTipRole) : source des QCompleter avec infobulle
 
     /*! sélecteur de mode (création seulement) */
-    QGroupBox   *wdg_groupmode = Q_NULLPTR;
-    QCheckBox   *wdg_chkCCAM = Q_NULLPTR, *wdg_chkAssoc = Q_NULLPTR, *wdg_chkAutre = Q_NULLPTR;
+    QGroupBox       *wdg_groupmode = Q_NULLPTR;
+    QCheckBox       *wdg_chkCCAM = Q_NULLPTR, *wdg_chkAssoc = Q_NULLPTR, *wdg_chkAutre = Q_NULLPTR;
 
     /*! les champs (uniques, montrés/masqués selon le mode) */
-    UpLineEdit  *wdg_codeline = Q_NULLPTR, *wdg_codeline2 = Q_NULLPTR;
-    UpLineEdit  *wdg_tarifoptamline = Q_NULLPTR, *wdg_tarifnooptamline = Q_NULLPTR, *wdg_tarifpratiqueline = Q_NULLPTR;
-    UpLabel     *wdg_optamlabel = Q_NULLPTR;     //!< retitré « Conventionnel » en mode 4
-    UpTextEdit  *wdg_tipline = Q_NULLPTR;
-    UpSmallButton *wdg_boutonCCAM1 = Q_NULLPTR,  //!< « ... » à droite du 1er code : ouvre la table CCAM
-                  *wdg_boutonCCAM2 = Q_NULLPTR;   //!< « ... » à droite du 2e code (association)
-    QWidget     *wdg_codewidg = Q_NULLPTR, *wdg_code2widg = Q_NULLPTR, *wdg_tarifoptamwidg = Q_NULLPTR,
-                *wdg_tarifnooptamwidg = Q_NULLPTR, *wdg_tarifpratiquewidg = Q_NULLPTR, *wdg_tipwidg = Q_NULLPTR;
+    UpLineEdit      *wdg_codeline = Q_NULLPTR, *wdg_codeline2 = Q_NULLPTR;
+    UpLineEdit      *wdg_tarifoptamline = Q_NULLPTR, *wdg_tarifnooptamline = Q_NULLPTR, *wdg_tarifpratiqueline = Q_NULLPTR;
+    UpLabel         *wdg_optamlabel = Q_NULLPTR;                //!< retitré « Conventionnel » en mode 4
+    UpTextEdit      *wdg_tipline = Q_NULLPTR;
+    QPushButton     *wdg_boutonCCAM1 = Q_NULLPTR,               //!< « ... » à droite du 1er code : ouvre la table CCAM
+                    *wdg_boutonCCAM2 = Q_NULLPTR;               //!< « ... » à droite du 2e code (association)
+    QWidget         *wdg_codewidg = Q_NULLPTR, *wdg_code2widg = Q_NULLPTR, *wdg_tarifoptamwidg = Q_NULLPTR,
+                    *wdg_tarifnooptamwidg = Q_NULLPTR, *wdg_tarifpratiquewidg = Q_NULLPTR, *wdg_tipwidg = Q_NULLPTR;
 
-    void        appliqueMode();                 //!< montre/masque/retitre les champs et pose les completers selon m_typecotation
-    void        remplitDepuisCCAM();            //!< modes 1/2 : remplit montants + libellé à partir du/des code(s) CCAM
-    void        appelleTableCCAM(UpLineEdit *cible); //!< ouvre la table CCAM ; le code choisi remplit cible puis remplitDepuisCCAM()
-    bool        VerifFiche();
+    void            appliqueMode();                             //!< montre/masque/retitre les champs et pose les completers selon m_typecotation
+    void            remplitDepuisCCAM();                        //!< modes 1/2 : remplit montants + libellé à partir du/des code(s) CCAM
+    void            appelleTableCCAM(UpLineEdit *cible);        //!< ouvre la table CCAM ; le code choisi remplit cible puis remplitDepuisCCAM()
+    bool            VerifFiche();
 };
 
 #endif // DLG_GESTIONCOTATIONS_H

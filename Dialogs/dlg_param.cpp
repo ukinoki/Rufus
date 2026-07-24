@@ -310,7 +310,7 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->idUseruplineEdit                ->setEnabled(false);
     ui->ChoixFontupPushButton           ->setEnabled(false);
     ui->ModifDataUserpushButton         ->setEnabled(false);
-    wdg_cotationswdgbuttonframe->widgButtonParent()->setEnabled(false);   //! table + boutons cotations : verrouillés tant que l'onglet user l'est
+    enableCotations(false);
     ui->ImportDocsgroupBox              ->setEnabled(false);
     EnableWidgContent(ui->BackupRestoreframe,false);
     EnableWidgContent(ui->Appareilsconnectesframe,false);
@@ -910,15 +910,10 @@ void dlg_param::EnableModif(QWidget *obj)
                 ui->LockParamUserupLabel->setPixmap(Icons::pxDeverouiller());
         }
         else
-        {
             ui->LockParamUserupLabel->setPixmap(Icons::pxVerrouiller());
-        }
         bool a = (ui->LockParamUserupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
-
         ui->ChoixFontupPushButton   ->setEnabled(a);
         ui->ModifDataUserpushButton ->setEnabled(a);
-        wdg_cotationswdgbuttonframe->widgButtonParent()->setEnabled(a);   //! table + boutons cotations suivent le verrou de l'onglet user
-
         enableCotations(a);
         RegleCotationsBoutons();        //! pas de changement de ligne ici -> on règle les boutons +/-/modifier à la main
     }
@@ -2505,9 +2500,9 @@ void dlg_param::enableCotations(bool enable)
             continue;
         Qt::ItemFlags f = itacte->flags();
         f.setFlag(Qt::ItemIsUserCheckable, autormodif);
-        f.setFlag(Qt::ItemIsEnabled, autormodif);
         itacte->setFlags(f);
     }
+    wdg_cotationswdgbuttonframe->setEnabled(enable);   //! table + boutons cotations suivent le verrou de l'onglet user
 }
 
 void dlg_param::EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, QString txtport)
