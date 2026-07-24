@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QButtonGroup>
+#include <QPushButton>
 #include <QStandardItemModel>
 #include "procedures.h"
 
@@ -72,13 +73,14 @@ private:
     UpLineEdit  *wdg_tarifoptamline = Q_NULLPTR, *wdg_tarifnooptamline = Q_NULLPTR, *wdg_tarifpratiqueline = Q_NULLPTR;
     UpLabel     *wdg_optamlabel = Q_NULLPTR;     //!< retitré « Conventionnel » en mode 4
     UpTextEdit  *wdg_tipline = Q_NULLPTR;
-    UpSmallButton *wdg_boutonCCAM = Q_NULLPTR;   //!< mode 1 : ouvre la table des actes CCAM
+    QPushButton *wdg_boutonCCAM1 = Q_NULLPTR,    //!< « ... » à droite du 1er code : ouvre la table CCAM
+                *wdg_boutonCCAM2 = Q_NULLPTR;     //!< « ... » à droite du 2e code (association)
     QWidget     *wdg_codewidg = Q_NULLPTR, *wdg_code2widg = Q_NULLPTR, *wdg_tarifoptamwidg = Q_NULLPTR,
                 *wdg_tarifnooptamwidg = Q_NULLPTR, *wdg_tarifpratiquewidg = Q_NULLPTR, *wdg_tipwidg = Q_NULLPTR;
 
     void        appliqueMode();                 //!< montre/masque/retitre les champs et pose les completers selon m_typecotation
     void        remplitDepuisCCAM();            //!< modes 1/2 : remplit montants + libellé à partir du/des code(s) CCAM
-    void        appelleTableCCAM();             //!< mode 1 : ouvre la 2e fiche (table CCAM) — TODO
+    void        appelleTableCCAM(UpLineEdit *cible); //!< ouvre la table CCAM ; le code choisi remplit cible puis remplitDepuisCCAM()
     bool        VerifFiche();
 };
 

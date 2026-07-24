@@ -69,15 +69,19 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     wdg_codeline    ->setMaxLength(15);
     wdg_codeline    ->setText(CodeActe);
     UpLabel *codelabel = new UpLabel();     codelabel->setText("Code");
+    wdg_boutonCCAM1 = new QPushButton("...");    //! bouton « parcourir » (façon PosteVideoDirupPushButton)
+    wdg_boutonCCAM1 ->setFixedWidth(40);
     wdg_codewidg    = new QWidget();
     QHBoxLayout *codelay = new QHBoxLayout;
     codelay         ->insertWidget(0, codelabel);
     codelay         ->insertSpacerItem(1, new QSpacerItem(10,5));
     codelay         ->insertWidget(2, wdg_codeline);
+    codelay         ->insertWidget(3, wdg_boutonCCAM1);
     codelay         ->setContentsMargins(0,0,0,0);
     wdg_codewidg    ->setLayout(codelay);
     connect(wdg_codeline,   &QLineEdit::textEdited,      this,   [=] {OKButton->setEnabled(true);});
     connect(wdg_codeline,   &QLineEdit::editingFinished, this,   [=] {remplitDepuisCCAM();});
+    connect(wdg_boutonCCAM1, &QPushButton::clicked,      this,   [=] {appelleTableCCAM(wdg_codeline);});
     dlglayout()     ->addWidget(wdg_codewidg);
 
     //! --- code (2e, association) ---
@@ -86,21 +90,20 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     wdg_codeline2   ->setAlignment(Qt::AlignRight);
     wdg_codeline2   ->setMaxLength(15);
     UpLabel *code2label = new UpLabel();    code2label->setText(tr("2e code"));
+    wdg_boutonCCAM2 = new QPushButton("...");    //! copie du bouton « parcourir » pour le 2e code
+    wdg_boutonCCAM2 ->setFixedWidth(40);
     wdg_code2widg   = new QWidget();
     QHBoxLayout *code2lay = new QHBoxLayout;
     code2lay        ->insertWidget(0, code2label);
     code2lay        ->insertSpacerItem(1, new QSpacerItem(10,5));
     code2lay        ->insertWidget(2, wdg_codeline2);
+    code2lay        ->insertWidget(3, wdg_boutonCCAM2);
     code2lay        ->setContentsMargins(0,0,0,0);
     wdg_code2widg   ->setLayout(code2lay);
     connect(wdg_codeline2,  &QLineEdit::textEdited,      this,   [=] {OKButton->setEnabled(true);});
     connect(wdg_codeline2,  &QLineEdit::editingFinished, this,   [=] {remplitDepuisCCAM();});
+    connect(wdg_boutonCCAM2, &QPushButton::clicked,      this,   [=] {appelleTableCCAM(wdg_codeline2);});
     dlglayout()     ->addWidget(wdg_code2widg);
-
-    //! --- bouton d'appel de la table CCAM (mode 1) ---
-    wdg_boutonCCAM  = new UpSmallButton(tr("Choisir dans la CCAM"));
-    connect(wdg_boutonCCAM, &QPushButton::clicked, this, [=] {appelleTableCCAM();});
-    dlglayout()     ->addWidget(wdg_boutonCCAM);
 
     //! --- montant OPTAM / conventionnel ---
     wdg_tarifoptamline  = new UpLineEdit();
@@ -215,10 +218,10 @@ void dlg_gestioncotations::appliqueMode()
     const bool assoc = (m_typecotation == 2);
     const bool autre = (m_typecotation == 4);
 
-    //! 2e code : association seulement
+    //! 2e code : association seulement (son bouton « ... » suit avec lui)
     wdg_code2widg   ->setVisible(assoc);
-    //! bouton table CCAM : mode 1 seulement
-    wdg_boutonCCAM  ->setVisible(ccam);
+    //! bouton « ... » du 1er code : présent dès qu'on saisit un code CCAM (modes CCAM et association)
+    wdg_boutonCCAM1 ->setVisible(ccam || assoc);
     //! non-OPTAM : masqué en mode autre
     wdg_tarifnooptamwidg->setVisible(!autre);
 
@@ -286,14 +289,16 @@ void dlg_gestioncotations::remplitDepuisCCAM()
 
 /*!
  * \brief dlg_gestioncotations::appelleTableCCAM
- * ouvre la fiche de choix d'un acte CCAM ; le code retenu remplit le champ code puis remplitDepuisCCAM().
+ * ouvre la fiche de choix d'un acte CCAM ; le code retenu remplit le champ cible (1er ou 2e code) puis
+ * remplitDepuisCCAM() renseigne les montants OPTAM / non OPTAM et le libellé.
+ * \param cible  ligne de code à remplir (wdg_codeline ou wdg_codeline2)
  */
-void dlg_gestioncotations::appelleTableCCAM()
+void dlg_gestioncotations::appelleTableCCAM(UpLineEdit *cible)
 {
     dlg_choixccam dlg(this);
     if (dlg.exec() == QDialog::Accepted && !dlg.codechoisi().isEmpty())
     {
-        wdg_codeline->setText(dlg.codechoisi());
+        cible->setText(dlg.codechoisi());
         remplitDepuisCCAM();
     }
 }
