@@ -400,42 +400,89 @@ bool dlg_gestioncotations::VerifFiche()
         wdg_tarifpratiqueline->setFocus();
         return false;
     }
-    //! doublon (création, ou modification avec changement de code)
-    if (m_mode == Creation || code != m_codeacte)
+    //! montants (non-OPTAM null en mode autre, où le champ est masqué)
+    const QString optamSQL    = QString::number(QLocale().toDouble(wdg_tarifoptamline->text()));
+    const QString nonoptamSQL = (m_typecotation == 4) ? "null" : QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()));
+    const QString pratiqueSQL = QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text()));
+    const QString tipSQL      = Utils::correctquoteSQL(wdg_tipline->toPlainText());
+    const QString codeSQL     = Utils::correctquoteSQL(code);
+    const QString iduserSQL   = QString::number(iduser);
+    bool ok;
+
+    //! --- MODIFICATION : mise à jour de la cotation par son ancien code ---
+    if (m_mode == Modification)
     {
-        bool ok;
+        db->StandardSQL("update " TBL_COTATIONS " set "
+              CP_TYPEACTE_COTATIONS " = '"       + codeSQL + "', "
+              CP_MONTANTOPTAM_COTATIONS " = "    + optamSQL + ", "
+              CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL + ", "
+              CP_MONTANTPRATIQUE_COTATIONS " = " + pratiqueSQL + ", "
+              CP_TIP_COTATIONS " = '"            + tipSQL + "'"
+              " where " CP_IDUSER_COTATIONS " = " + iduserSQL
+              + " and " CP_TYPEACTE_COTATIONS " = '" + Utils::correctquoteSQL(m_codeacte) + "'");
+        m_codeenregistre = code;
+        return true;
+    }
+
+    //! --- CRÉATION, mode « autre » (type 4) : non partagé -> refus des doublons puis insertion ---
+    if (m_typecotation != 1 && m_typecotation != 2)
+    {
         QVariantList d = db->getFirstRecordFromStandardSelectSQL(
-            "select " CP_ID_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + code + "' and "
-            CP_IDUSER_COTATIONS " = " + QString::number(iduser), ok);
+            "select " CP_ID_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeSQL + "' and "
+            CP_IDUSER_COTATIONS " = " + iduserSQL, ok);
         if (ok && d.size() > 0)
         {
             UpMessageBox::Watch(this, msg, tr("Cet acte est déjà enregistré"));
             return false;
         }
-    }
-
-    //! montants à écrire (non-OPTAM null en mode autre, où le champ est masqué)
-    const QString optamSQL    = QString::number(QLocale().toDouble(wdg_tarifoptamline->text()));
-    const QString nonoptamSQL = (m_typecotation == 4) ? "null" : QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()));
-    const QString pratiqueSQL = QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text()));
-    const QString tipSQL      = Utils::correctquoteSQL(wdg_tipline->toPlainText());
-
-    QString req;
-    if (m_mode == Creation)
-        req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
+        db->StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
               CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
               CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
-              + Utils::correctquoteSQL(code) + "', " + optamSQL + ", " + nonoptamSQL + ", " + pratiqueSQL + ", "
-              + QString::number(m_typecotation) + ", " + QString::number(iduser) + ", '" + tipSQL + "')";
+              + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", " + pratiqueSQL + ", "
+              + QString::number(m_typecotation) + ", " + iduserSQL + ", '" + tipSQL + "')");
+        m_codeenregistre = code;
+        return true;
+    }
+
+    //! --- CRÉATION, modes CCAM (1) / association (2) : la table cotations est PARTAGÉE ---
+    //! l'acte existe déjà -> on ne le duplique pas, on rafraîchit seulement ses montants conventionnels ;
+    //! sinon on l'insère. Puis on crée (ou met à jour) la jointure du user = son montant pratiqué.
+    QVariantList ex = db->getFirstRecordFromStandardSelectSQL(
+        "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeSQL + "'", ok);
+    int idcot = (ok && ex.size() > 0 && !ex.at(0).isNull()) ? ex.at(0).toInt() : 0;
+    if (idcot > 0)
+        db->StandardSQL("update " TBL_COTATIONS " set "
+                        CP_MONTANTOPTAM_COTATIONS " = "    + optamSQL + ", "
+                        CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL
+                        + " where " CP_ID_COTATIONS " = " + QString::number(idcot));
     else
-        req = "update " TBL_COTATIONS " set "
-              CP_TYPEACTE_COTATIONS " = '"       + Utils::correctquoteSQL(code) + "', "
-              CP_MONTANTOPTAM_COTATIONS " = "    + optamSQL + ", "
-              CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL + ", "
-              CP_MONTANTPRATIQUE_COTATIONS " = " + pratiqueSQL + ", "
-              CP_TIP_COTATIONS " = '"            + tipSQL + "'"
-              " where " CP_IDUSER_COTATIONS " = " + QString::number(iduser)
-              + " and " CP_TYPEACTE_COTATIONS " = '" + m_codeacte + "'";
-    db->StandardSQL(req);
+    {
+        db->StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
+              CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
+              CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
+              + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", " + pratiqueSQL + ", "
+              + QString::number(m_typecotation) + ", " + iduserSQL + ", '" + tipSQL + "')");
+        QVariantList n = db->getFirstRecordFromStandardSelectSQL(
+            "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeSQL + "'", ok);
+        idcot = (ok && n.size() > 0 && !n.at(0).isNull()) ? n.at(0).toInt() : 0;
+    }
+
+    //! jointure du user pour cette cotation : créée si absente, sinon son montant pratiqué mis à jour
+    if (idcot > 0)
+    {
+        const QString jointure    = (m_typecotation == 1) ? TBL_JOINTURESCCAM            : TBL_JOINTURESASSOCIATIONS;
+        const QString chpIdcot    = (m_typecotation == 1) ? CP_IDCOTATION_JOINTCCAM      : CP_IDCOTATION_JOINTASSOCIATIONS;
+        const QString chpIduser   = (m_typecotation == 1) ? CP_IDUSER_JOINTCCAM          : CP_IDUSER_JOINTASSOCIATIONS;
+        const QString chpPratique = (m_typecotation == 1) ? CP_MONTANTPRATIQUE_JOINTCCAM : CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;
+        const QString wId = " where " + chpIdcot + " = " + QString::number(idcot) + " and " + chpIduser + " = " + iduserSQL;
+        QVariantList j = db->getFirstRecordFromStandardSelectSQL("select " + chpPratique + " from " + jointure + wId, ok);
+        if (ok && j.size() > 0)
+            db->StandardSQL("update " + jointure + " set " + chpPratique + " = " + pratiqueSQL + wId);
+        else
+            db->StandardSQL("insert into " + jointure + " (" + chpIdcot + ", " + chpIduser + ", " + chpPratique + ") values ("
+                            + QString::number(idcot) + ", " + iduserSQL + ", " + pratiqueSQL + ")");
+    }
+
+    m_codeenregistre = code;
     return true;
 }

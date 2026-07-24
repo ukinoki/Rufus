@@ -1422,8 +1422,9 @@ void dlg_param::NouvCotation()
     dlg_gestioncotations *Dlg_CrrCot = new dlg_gestioncotations(dlg_gestioncotations::Creation, "", this);
     if (Dlg_CrrCot->exec() == QDialog::Accepted)
     {
-        Remplir_TableCotations();
+        Remplir_TableCotations();                       //! la case de la cotation est cochée (jointure du user créée) via isused()
         enableCotations();
+        scrollToCotation(Dlg_CrrCot->codeenregistre());  //! amène la table sur la cotation créée/mise à jour
         m_cotationsmodifiees = true;
     }
     delete Dlg_CrrCot;
