@@ -973,6 +973,11 @@ bool DataBase::verifMajCotations()
     if (!m_db.isOpen())
         return false;
 
+    //! la MAJ des cotations (CCAM / NGAP) est franco-française : hors France (version internationale)
+    //! le fichier de cotations ne concerne pas le poste -> on ne vérifie rien.
+    if (!parametres()->cotationsfrance())
+        return false;
+
     //! garde quotidienne (par poste) : on ne relit le fichier de cotations qu'une fois par jour. Si
     //! la dernière vérification enregistrée dans rufus.ini date d'aujourd'hui, la vérif a déjà eu lieu
     //! -> on shunte sans rien lire ni réécrire (évite les relectures à chaque démarrage).
