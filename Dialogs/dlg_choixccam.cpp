@@ -35,7 +35,7 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     titrelay        ->addWidget(wdg_ophtaseul);
     titrelay        ->setContentsMargins(0,0,0,0);
     titrewidg       ->setLayout(titrelay);
-    connect(wdg_ophtaseul,  &QCheckBox::clicked, this, [=] (bool b) {remplitTable(b);});
+    connect(wdg_ophtaseul,  &QCheckBox::clicked, this, [=] (bool b) {filtreOphta(b);});
     dlglayout()     ->addWidget(titrewidg);
 
     //! --- table des actes CCAM, précédée du petit repère de gauche (horizontalLayout_13) ---
@@ -84,16 +84,17 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     connect(OKButton,       &QPushButton::clicked, this, [=] {accept();});
     connect(CancelButton,   &QPushButton::clicked, this, [=] {reject();});
 
-    remplitTable(wdg_ophtaseul->isChecked());
+    remplitTable();
 }
 
 /*!
  * \brief dlg_choixccam::remplitTable
- * (re)remplit la table des actes CCAM depuis la table ccam (repris de dlg_param::Remplir_TableActesCCAM,
- * allégé : ni case à cocher ni colonne tarif). Le libellé va dans une colonne masquée, lu à la sélection.
- * \param ophtaseul  vrai -> ne charge que les codes d'ophtalmologie (en B..)
+ * remplit la table avec TOUS les actes de la table ccam (une seule fois, repris de
+ * dlg_param::Remplir_TableActesCCAM, allégé : ni case à cocher ni colonne tarif). Le libellé va dans
+ * une colonne masquée, lu à la sélection. Le filtrage ophtalmologie ne rejoue pas la requête : il ne
+ * masque/affiche que des rangées (filtreOphta).
  */
-void dlg_choixccam::remplitTable(bool ophtaseul)
+void dlg_choixccam::remplitTable()
 {
     wdg_table   ->setPalette(QPalette(Qt::white));
     wdg_table   ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -115,21 +116,16 @@ void dlg_choixccam::remplitTable(bool ophtaseul)
     wdg_table   ->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
 
     bool ok;
-    QString req = "SELECT " CP_NOM_CCAM ", " CP_CODECCAM_CCAM ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " from " TBL_CCAM;
-    if (ophtaseul)
-        req += " where " CP_CODECCAM_CCAM " like 'B%'";
-    req += " order by " CP_CODECCAM_CCAM;
+    QString req = "SELECT " CP_NOM_CCAM ", " CP_CODECCAM_CCAM ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM
+                  " from " TBL_CCAM " order by " CP_CODECCAM_CCAM;
     QList<QVariantList> acteslist = db->StandardSelectSQL(req, ok);
     if (!ok)
         return;
     wdg_table   ->clearContents();
     wdg_table   ->setRowCount(acteslist.size());
-    QStringList codes;
     for (int i=0; i<acteslist.size(); i++)
     {
-        const QString code = acteslist.at(i).at(1).toString();
-        codes       << code;
-        QTableWidgetItem *pcode     = new QTableWidgetItem(code);
+        QTableWidgetItem *pcode     = new QTableWidgetItem(acteslist.at(i).at(1).toString());
         QTableWidgetItem *poptam    = new QTableWidgetItem(QLocale().toString(acteslist.at(i).at(2).toDouble(),'f',2));
         QTableWidgetItem *pnooptam  = new QTableWidgetItem(QLocale().toString(acteslist.at(i).at(3).toDouble(),'f',2));
         QTableWidgetItem *plibelle  = new QTableWidgetItem(acteslist.at(i).at(0).toString());
@@ -141,16 +137,39 @@ void dlg_choixccam::remplitTable(bool ophtaseul)
         wdg_table   ->setItem(i,3,plibelle);
         wdg_table   ->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
     }
-    //! complétion de la recherche sur les codes de la liste courante (rebâtie à chaque filtrage)
+    //! application du filtre ophtalmologie initial (visibilité des rangées + complétion + reset)
+    filtreOphta(wdg_ophtaseul->isChecked());
+}
+
+/*!
+ * \brief dlg_choixccam::filtreOphta
+ * masque/affiche les rangées selon la case « ophtalmologie » (visible = code en B..), sans réinterroger
+ * la base (tous les actes sont déjà chargés). Reconstruit la complétion sur les seuls codes visibles et
+ * remet la table sans sélection.
+ * \param ophtaseul  vrai -> ne montre que les actes d'ophtalmologie (codes en B..)
+ */
+void dlg_choixccam::filtreOphta(bool ophtaseul)
+{
+    QStringList codesVisibles;
+    for (int row=0; row<wdg_table->rowCount(); row++)
+    {
+        QTableWidgetItem *it = wdg_table->item(row,0);
+        const bool ophta = it && it->text().startsWith("B", Qt::CaseInsensitive);
+        const bool cache = ophtaseul && !ophta;
+        wdg_table   ->setRowHidden(row, cache);
+        if (!cache && it)
+            codesVisibles << it->text();
+    }
+    //! complétion de la recherche sur les seuls codes visibles
     if (searchline())
     {
-        QCompleter *ancien   = searchline()->completer();
-        QCompleter *completer = new QCompleter(codes, this);
+        QCompleter *ancien    = searchline()->completer();
+        QCompleter *completer = new QCompleter(codesVisibles, this);
         completer   ->setCaseSensitivity(Qt::CaseInsensitive);
         completer   ->setFilterMode(Qt::MatchStartsWith);
         searchline()->setCompleter(completer);
         if (ancien)
-            ancien  ->deleteLater();             //! évite l'accumulation à chaque remplissage
+            ancien  ->deleteLater();             //! évite l'accumulation à chaque filtrage
     }
     //! la table repart sans sélection : rien de choisi, OK désactivé, libellé vide
     wdg_table   ->clearSelection();
@@ -190,6 +209,8 @@ void dlg_choixccam::chercheEtSelectionne(const QString &code)
         return;
     for (int row=0; row<wdg_table->rowCount(); row++)
     {
+        if (wdg_table->isRowHidden(row))
+            continue;                            //! on ne saute que sur les rangées visibles (filtre ophta)
         QTableWidgetItem *it = wdg_table->item(row,0);
         if (it && it->text().startsWith(code, Qt::CaseInsensitive))
         {

@@ -49,7 +49,8 @@ private:
     UpTableWidget *wdg_table = Q_NULLPTR;        //!< actes CCAM : col 0 code, 1 OPTAM, 2 non OPTAM, 3 libellé (masquée)
     UpTextEdit  *wdg_libelle = Q_NULLPTR;        //!< libellé de l'acte sélectionné
 
-    void        remplitTable(bool ophtaseul);   //!< (re)remplit la table (ophtaseul -> codes en B.. seulement)
+    void        remplitTable();                 //!< charge TOUS les actes CCAM (une fois), puis applique filtreOphta
+    void        filtreOphta(bool ophtaseul);    //!< masque/affiche les rangées (ophtaseul -> codes en B..), sans réinterroger
     void        selectionChangee();             //!< met à jour libellé + code retenu + état du bouton OK
     void        chercheEtSelectionne(const QString &code); //!< sélectionne/défile vers la 1re ligne dont le code commence par...
 };
