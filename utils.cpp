@@ -67,6 +67,7 @@ QRegularExpression const Utils::rgx_telephone           = QRegularExpression("[0
 
 QRegularExpression const Utils::rgx_tabac               = QRegularExpression("[0-9]{2}");
 QRegularExpression const Utils::rgx_cotation            = QRegularExpression("[a-zA-Z0-9.+/ ]*");
+QRegularExpression const Utils::rgx_cotationCCAM        = QRegularExpression("[A-Z]{4}[0-9]{4}");
 
 QRegularExpression const Utils::rgx_recherche           = QRegularExpression("[\\w' %\\-]*");
 

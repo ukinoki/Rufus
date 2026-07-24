@@ -163,6 +163,7 @@ public:
 
     static QRegularExpression const rgx_tabac;
     static QRegularExpression const rgx_cotation;
+    static QRegularExpression const rgx_cotationCCAM;   //!< un code CCAM : 4 lettres majuscules suivies de 4 chiffres
 
     static QRegularExpression const rgx_recherche;
 

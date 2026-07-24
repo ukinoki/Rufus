@@ -204,6 +204,18 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
             wdg_tarifpratiqueline->setText(QLocale().toString(t.at(3).toDouble(), 'f', 2));
             wdg_tipline          ->setPlainText(t.at(4).toString());
         }
+        //! association : le code stocké réunit 2 codes CCAM séparés diversement selon le créateur
+        //! (« + », «  + », «  »…). On les ré-extrait par le motif d'un code CCAM plutôt que de deviner
+        //! le séparateur ; le 1er code, déjà mis à la construction, est écrasé par le vrai 1er code.
+        if (m_typecotation == 2)
+        {
+            QStringList codes;
+            QRegularExpressionMatchIterator it = Utils::rgx_cotationCCAM.globalMatch(m_codeacte);
+            while (it.hasNext())
+                codes << it.next().captured(0);
+            if (codes.size() >= 1) wdg_codeline ->setText(codes.at(0));
+            if (codes.size() >= 2) wdg_codeline2->setText(codes.at(1));
+        }
     }
     else
         wdg_chkCCAM->setChecked(true);          //! création : mode CCAM par défaut
