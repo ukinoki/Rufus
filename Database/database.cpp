@@ -23,6 +23,9 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSqlQuery>
 #include <QDomDocument>
 #include <QCoreApplication>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
+#include <QEventLoop>
 
 
 DataBase* DataBase::instance = Q_NULLPTR;
@@ -935,35 +938,24 @@ double DataBase::valeurAMYDOM()
             return query.at(0).at(0).toDouble();
     return 0.0;
 }
-QString DataBase::cheminCotationsXml()
-{
-    /*! On cherche un fichier de cotations lisible. Chemin local pour l'instant : à côté du binaire,
-        avec repli sur le dossier parent (façon bundle macOS, comme pour les .qm de langue). Renvoie
-        une chaîne vide si introuvable. */
-    const QString suffixe = LIEN_XML_COTATIONS;
-    const QString dirBin  = QCoreApplication::applicationDirPath();
-    QString chemin = dirBin + suffixe;
-    if (!QFile::exists(chemin))
-    {
-        QDir parent(dirBin);
-        parent.cdUp();
-        chemin = parent.absolutePath() + suffixe;
-    }
-    return QFile::exists(chemin) ? chemin : QString();
-}
-
 bool DataBase::chargeCotationsXml(QDomDocument &docxml)
 {
-    //! charge et parse le fichier de cotations ; false si introuvable/invalide (l'appelant passe)
-    const QString chemin = cheminCotationsXml();
-    if (chemin.isEmpty())
-        return false;
-    QFile f(chemin);
-    if (!f.open(QIODevice::ReadOnly))
-        return false;                                   //! url introuvable
-    const QByteArray ba = f.readAll();
-    f.close();
-    if (!docxml.setContent(ba))                         //! xml invalide (ParseResult à operator bool explicite)
+    //! télécharge et parse le fichier de cotations depuis son URL (dépôt GitHub) ; false si le
+    //! téléchargement échoue (poste hors ligne…) ou si le xml est invalide -> l'appelant passe (la
+    //! MAJ se fera un autre jour). Requête SYNCHRONE (l'appelant exploite le bool tout de suite) :
+    //! QEventLoop bloquant + délai de garde pour ne pas rester coincé si le serveur ne répond pas.
+    QNetworkAccessManager manager;
+    QNetworkRequest request((QUrl(LIEN_XML_COTATIONS)));
+    request.setTransferTimeout(15000);
+    QNetworkReply *reply = manager.get(request);
+    QEventLoop loop;
+    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+    loop.exec();
+
+    const bool ok = (reply->error() == QNetworkReply::NoError);
+    const QByteArray ba = ok ? reply->readAll() : QByteArray();
+    reply->deleteLater();
+    if (!ok || !docxml.setContent(ba))                  //! échec réseau ou xml invalide (ParseResult à operator bool explicite)
         return false;
     return true;
 }

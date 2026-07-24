@@ -229,7 +229,6 @@ public:
     double valeurAMYmetropole();
     double valeurAMYDOM();
     bool verifMajCotations();                                   //! vérifie/applique les MAJ du fichier de cotations (CCAM : table ccam + montants ; NGAP : import AMY) au démarrage ; court-circuit par la date du fichier (rufus.ini). Renvoie true si le fichier a été traité (l'appelant enchaîne alors completeTipsManquants)
-    QString cheminCotationsXml();                               //! chemin local du fichier de cotations (vide si introuvable)
     QMap<QString,QString> nomsNGAPFromXml();                     //! Typeacte (AMY+indice) -> libellé, lu dans le fichier de cotations (pour renseigner le Tip des NGAP)
     void exporteJointures();                                    //! migre les cotations perso vers les 4 jointures et classe Typecotation (1 CCAM, 2 assoc, 3 NGAP, 4 autre) d'après le Typeacte
     void nettoieTableCotations();                              //! ne garde qu'une ligne par Typeacte (supprime les doublons de partage entre utilisateurs)
