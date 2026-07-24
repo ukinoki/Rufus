@@ -1124,15 +1124,17 @@ void DataBase::exporteJointures()
     if (!m_db.isOpen())
         return;
 
-    //! source commune (colonnes de la table cotations, identiques pour les 4 inserts) : chaque ligne
-    //! perso (idUser renseigné) rattachée à l'idcotation de référence (le plus petit du Typeacte). La
-    //! LISTE DES COLONNES CIBLES, elle, est propre à chaque table de jointure (macros par table).
-    const QString source = " select ref.minid, c." CP_IDUSER_COTATIONS ", c." CP_MONTANTPRATIQUE_COTATIONS
-                           " from " TBL_COTATIONS " c"
-                           " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
-                                 " from " TBL_COTATIONS " group by " CP_TYPEACTE_COTATIONS ") ref"
-                                 " on c." CP_TYPEACTE_COTATIONS " = ref.ta"
-                           " where c." CP_IDUSER_COTATIONS " is not null and ";
+    //! queue commune (jointure sur l'idcotation de référence = le plus petit id du Typeacte + filtre
+    //! « ligne perso » idUser renseigné). La tête (colonnes sélectionnées) et la liste des colonnes
+    //! cibles sont propres à chaque table de jointure. jointuresNGAP n'a PAS de montant pratiqué
+    //! (pratiqué NGAP = conventionnel) -> source à 2 colonnes.
+    const QString sourceTail = " from " TBL_COTATIONS " c"
+                               " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
+                                     " from " TBL_COTATIONS " group by " CP_TYPEACTE_COTATIONS ") ref"
+                                     " on c." CP_TYPEACTE_COTATIONS " = ref.ta"
+                               " where c." CP_IDUSER_COTATIONS " is not null and ";
+    const QString source     = " select ref.minid, c." CP_IDUSER_COTATIONS ", c." CP_MONTANTPRATIQUE_COTATIONS + sourceTail;
+    const QString sourceNGAP = " select ref.minid, c." CP_IDUSER_COTATIONS + sourceTail;
     //! appartenance à la table officielle ccam (= code CCAM isolé) et motif « code CCAM + suffixe » (= association)
     const QString inCCAM = " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")";
     const QString motifassoc = " regexp '^[A-Za-z]{4}[0-9]{3}.+'";
@@ -1152,10 +1154,10 @@ void DataBase::exporteJointures()
                 + source + " c." CP_TYPEACTE_COTATIONS + motifassoc);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 2 where " CP_TYPEACTE_COTATIONS + motifassoc);
 
-    //! 3) NGAP : commence par AMY
+    //! 3) NGAP : commence par AMY (pas de montant pratiqué : il vaut toujours le conventionnel)
     StandardSQL("insert into " TBL_JOINTURESNGAP
-                " (" CP_IDCOTATION_JOINTNGAP ", " CP_IDUSER_JOINTNGAP ", " CP_MONTANTPRATIQUE_JOINTNGAP ") "
-                + source + " c." CP_TYPEACTE_COTATIONS " like 'AMY%'");
+                " (" CP_IDCOTATION_JOINTNGAP ", " CP_IDUSER_JOINTNGAP ") "
+                + sourceNGAP + " c." CP_TYPEACTE_COTATIONS " like 'AMY%'");
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 3 where " CP_TYPEACTE_COTATIONS " like 'AMY%'");
 
     //! 4) autre : tout le reste (ni CCAM isolé, ni association, ni NGAP). jointuresautrescotations porte
@@ -2904,7 +2906,7 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
           " from " TBL_JOINTURESCCAM " where " CP_IDUSER_JOINTCCAM " = " + id
         + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS
           " from " TBL_JOINTURESASSOCIATIONS " where " CP_IDUSER_JOINTASSOCIATIONS " = " + id
-        + " union all select " CP_IDCOTATION_JOINTNGAP ", " CP_MONTANTPRATIQUE_JOINTNGAP
+        + " union all select " CP_IDCOTATION_JOINTNGAP ", 0"        //! NGAP : pas de pratiqué stocké (0 = marqueur « utilisé » ; loadUserCotations le recalcule = conventionnel)
           " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
         + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
           " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;

@@ -271,11 +271,11 @@ public:
 #define CP_IDUSER_JOINTASSOCIATIONS                     "idUser"
 #define CP_MONTANTPRATIQUE_JOINTASSOCIATIONS            "MontantPratique"
 
-                            //! Table Rufus.jointuresNGAP
+                            //! Table Rufus.jointuresNGAP (pas de MontantPratique : pour un NGAP le
+                            //! pratiqué est toujours égal au conventionnel)
 #define CP_ID_JOINTNGAP                                 "idJointure"
 #define CP_IDCOTATION_JOINTNGAP                         "idCotation"
 #define CP_IDUSER_JOINTNGAP                             "idUser"
-#define CP_MONTANTPRATIQUE_JOINTNGAP                    "MontantPratique"
 
                             //! Table Rufus.jointuresautrescotations
 #define CP_ID_JOINTAUTRESCOTATIONS                      "idJointure"

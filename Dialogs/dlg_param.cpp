@@ -1392,9 +1392,8 @@ void dlg_param::MAJMontantPratique(Cotation *cot, double montant)
     {
         case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;             break;   //! CCAM
         case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;     break;   //! association CCAM
-        case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             chpPratique = CP_MONTANTPRATIQUE_JOINTNGAP;             break;   //! NGAP
         case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
-        default: return;
+        default: return;    //! NGAP (3) : pratiqué = conventionnel, non éditable -> rien à faire
     }
     db->StandardSQL("update " + jointure + " set " + chpPratique + " = " + QString::number(montant)
                     + " where " + chpIdcotation + " = " + QString::number(cot->id())
