@@ -106,7 +106,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->ReinitBaseupPushButton      ->setIcon(Icons::icReinit());
     ui->ChoixFontupPushButton       ->setIconSize(QSize(35,35));
     ui->ChercheCotationlabel        ->setPixmap(Icons::pxLoupe().scaled(20,20)); //WARNING : icon scaled : pxLoupe 20,20
-    ui->ShowCCAMlabel               ->setPixmap(QPixmap());
     ui->StatutComptaupTextEdit      ->setAttribute( Qt::WA_NoSystemBackground, true );
     ui->StatutComptaupTextEdit      ->setReadOnly(true);
     ui->StatutComptaupTextEdit      ->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -294,17 +293,6 @@ dlg_param::dlg_param(QWidget *parent) :
        wdg_CPDefautlineEdit          ->setText(proc->settings()->value(CodePostal_Defaut).toString());
    /*-------------------- GESTION DES VILLES ET DES CODES POSTAUX-------------------------------------------------------*/
 
-   /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
-       QList <QWidget*> ListTab;
-       ListTab << ui->ActesCCAMupTableWidget << ui->ChercheCotationupLineEdit
-               << ui->ChoixFontupPushButton;
-       for (int i = 0; i<ListTab.size()-1 ; i++ )
-           ui->UserParamtab->setTabOrder(ListTab.at(i), ListTab.at(i+1));
-       ListTab.clear();
-   /*-------------------- GESTION DES TabOrder-------------------------------------------------------*/
-
-    ui->OphtaSeulcheckBox           ->setChecked(true);
-
     AfficheParamUser();
 
     ui->LoginuplineEdit             ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric,this));
@@ -317,8 +305,6 @@ dlg_param::dlg_param(QWidget *parent) :
 
     ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
     wdg_cotationswdgbuttonframe                       ->setEnabled(false);
-    ui->ActesCCAMlabel                  ->setEnabled(false);
-    ui->OphtaSeulcheckBox               ->setEnabled(false);
 
     ui->LoginuplineEdit                 ->setEnabled(false);
     ui->MDPuplineEdit                   ->setEnabled(false);
@@ -934,7 +920,6 @@ void dlg_param::EnableModif(QWidget *obj)
         ui->ModifDataUserpushButton ->setEnabled(a);
         wdg_cotationswdgbuttonframe->widgButtonParent()->setEnabled(a);   //! table + boutons cotations suivent le verrou de l'onglet user
 
-        EnableActesCCAM(a);
         enableCotations(a);
         RegleCotationsBoutons();        //! pas de changement de ligne ici -> on règle les boutons +/-/modifier à la main
     }
@@ -1043,23 +1028,6 @@ void dlg_param::EnableFrameServeur(QCheckBox *box, bool a)
 void dlg_param::EnableOKModifPosteButton()
 {
     m_modifposte = true;
-}
-
-void dlg_param::FiltreActesOphtaSeulmt(bool b)
-{
-    Remplir_TableActesCCAM(b);
-    bool a = (ui->LockParamUserupLabel->pixmap().toImage() == Icons::pxDeverouiller().toImage());
-    for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
-    {
-        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
-        if (check) check->setEnabled(a);
-        if (ui->ActesCCAMupTableWidget->columnCount()==6)
-        {
-            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
-            if (lbl)
-                lbl->setEnabled(a);
-        }
-    }
 }
 
 void dlg_param::GestionBanques()
@@ -1325,85 +1293,6 @@ void dlg_param::startImmediateBackup()
     if (QDir(url.path()).exists())
         proc->ImmediateBackup(url.path(), false, false, this);
 }
-
-void dlg_param::MAJActesCCAM(QWidget * widg, QString txt)
-{
-    QString req;
-    UpCheckBox* check = qobject_cast<UpCheckBox*>(widg);
-    if (check)
-    {
-        int row = check->rowTable();
-        QString codeccam = ui->ActesCCAMupTableWidget->item(row,1)->text();
-        QString montantpratique="";
-        if (check->checkState() == Qt::Unchecked)
-        {
-            req = "delete from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeccam + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-        }
-        else
-        {
-            int secteur = currentuser()->secteurconventionnel();
-            if (secteur>1)
-            {
-                UpLineEdit *line = qobject_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(row,5));
-                if (line)
-                    montantpratique = QString::number(QLocale().toDouble(line->text()));
-                else
-                {
-                    UpLineEdit *lbl = new UpLineEdit();
-                    if (currentuser()->isOPTAM())
-                        lbl->setText(ui->ActesCCAMupTableWidget->item(row,2)->text());
-                    else
-                        lbl->setText(ui->ActesCCAMupTableWidget->item(row,3)->text());
-                    lbl->setAlignment(Qt::AlignRight);
-                    lbl->setStyleSheet("QLineEdit {border: 0px solid rgb(150,150,150);}"
-                                       "QLineEdit:disabled {background-color:lightGray;}");
-                    lbl->setRow(row);
-                    QDoubleValidator *val = new QDoubleValidator(this);
-                    val->setDecimals(2);
-                    lbl->setValidator(val);
-                    connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJActesCCAM(lbl, txt);});
-                    ui->ActesCCAMupTableWidget->setCellWidget(row,5,lbl);
-                    montantpratique = QString::number(QLocale().toDouble(lbl->text()));
-                }
-             }
-            else if (currentuser()->isOPTAM())
-                montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text()));
-            else
-                montantpratique = QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text()));
-
-            req = "insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                    CP_TYPECOTATION_COTATIONS ", " CP_IDUSER_COTATIONS ") values ('" +
-                    codeccam + "', " +
-                    QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,2)->text())) + ", " +
-                    QString::number(QLocale().toDouble(ui->ActesCCAMupTableWidget->item(row,3)->text())) + ", " +
-                    montantpratique + ", 1," +
-                    QString::number(currentuser()->id()) +")";
-        }
-        if (db->StandardSQL(req))
-            m_cotationsmodifiees = true;
-    }
-    else
-    {
-        UpLineEdit *line = qobject_cast<UpLineEdit*>(widg);
-        if (line)
-        {
-            QString montant = QString::number(QLocale().toDouble(txt));
-            line->setText(QLocale().toString(montant.toDouble(),'f',2));
-            int row = line->Row();
-            UpCheckBox* check1 = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(row,0));
-            if (check1)
-                if (check1->isChecked())
-                {
-                    line->setText(QLocale().toString(montant.toDouble(),'f',2));
-                    QString req = "update " TBL_COTATIONS " set " CP_MONTANTPRATIQUE_COTATIONS " = " + montant +
-                                  " where " CP_TYPEACTE_COTATIONS " = '" + ui->ActesCCAMupTableWidget->item(row,1)->text() + "' and " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-                    if (db->StandardSQL(req))
-                        m_cotationsmodifiees = true;
-                }
-        }
-    }
-}
-
 
 /*!
  * \brief dlg_param::MAJCotation
@@ -2465,10 +2354,7 @@ void dlg_param::AfficheParamUser()
     if (!currentuser()->isSecretaire() && !currentuser()->isAutreFonction())
     {
         ui->Cotationswidget->setVisible(true);
-        if (m_parametres->cotationsfrance())
-            Remplir_TableActesCCAM();
         Remplir_TableCotations();
-
         wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
         wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
     }
@@ -2558,7 +2444,6 @@ void dlg_param::ConnectSignals()
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textEdited,                 this,   &dlg_param::scrollToCotation);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
-    connect(ui->OphtaSeulcheckBox,                  &QCheckBox::clicked,                    this,   &dlg_param::FiltreActesOphtaSeulmt);
 
     foreach (QLineEdit *line, ui->PosteParamtab->findChildren<QLineEdit*>())
         connect(line,   &QLineEdit::textEdited,                                             this,   &dlg_param::EnableOKModifPosteButton);
@@ -2601,23 +2486,6 @@ bool dlg_param::CotationsModifiees() const
 bool dlg_param::DataUserModifiees() const
 {
     return m_donneesusermodifiees;
-}
-
-void dlg_param::EnableActesCCAM(bool enable)
-{
-    ui->OphtaSeulcheckBox   ->setEnabled(enable);
-    bool autormodif         = enable && (currentuser()->idparent() == currentuser()->id());            // les remplaçants ne peuvent pas modifier les actes
-    for (int i=0; i<ui->ActesCCAMupTableWidget->rowCount(); i++)
-    {
-        UpCheckBox *check = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(i,0));
-        if (check) check->setEnabled(autormodif);
-        if (ui->ActesCCAMupTableWidget->columnCount()==6)
-        {
-            UpLineEdit *lbl = qobject_cast<UpLineEdit*>(ui->ActesCCAMupTableWidget->cellWidget(i,5));
-            if (lbl)
-                lbl->setEnabled(autormodif);
-        }
-    }
 }
 
 void dlg_param::enableCotations(bool enable)
@@ -3279,117 +3147,6 @@ QString dlg_param::ToolTipPortCOM(Procedures::TypeAppareil appareil)
         tooltip = tr("Réglé sur") + "\n" + nomphysiqueduport + baudrate + "\n" + databits + "\n" + parity + "\n" + stopbits + "\n" + flowcontrol;
     }
     return tooltip;
-}
-
-// ----------------------------------------------------------------------------------
-// Remplissage de la table des actes en CCAM.
-// ----------------------------------------------------------------------------------
-void dlg_param::Remplir_TableActesCCAM(bool ophtaseul)
-{
-    bool ok;
-    // Mise en forme de la table ActesCCAM
-    ui->ActesCCAMupTableWidget->setPalette(QPalette(Qt::white));
-    ui->ActesCCAMupTableWidget->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    ui->ActesCCAMupTableWidget->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    ui->ActesCCAMupTableWidget->verticalHeader()->setVisible(false);
-    ui->ActesCCAMupTableWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    ui->ActesCCAMupTableWidget->setMouseTracking(true);
-    int ncol = (currentuser()->secteurconventionnel()>1? 6 : 5);
-    ui->ActesCCAMupTableWidget->setColumnCount(ncol);
-    ui->ActesCCAMupTableWidget->setColumnWidth(0,20);           //checkbox
-    ui->ActesCCAMupTableWidget->setColumnWidth(1,90);           //code CCAM
-    ui->ActesCCAMupTableWidget->setColumnWidth(2,80);           //OPTAM
-    ui->ActesCCAMupTableWidget->setColumnWidth(3,90);           //NonOPTAM
-    ui->ActesCCAMupTableWidget->setColumnWidth(4,0);            //descriptif
-    ui->ActesCCAMupTableWidget->setHorizontalHeaderItem(0, new QTableWidgetItem(""));
-    ui->ActesCCAMupTableWidget->setHorizontalHeaderItem(1, new QTableWidgetItem("Cotation"));
-    ui->ActesCCAMupTableWidget->setHorizontalHeaderItem(2, new QTableWidgetItem("OPTAM"));
-    ui->ActesCCAMupTableWidget->setHorizontalHeaderItem(3, new QTableWidgetItem("non OPTAM"));
-    ui->ActesCCAMupTableWidget->setHorizontalHeaderItem(4, new QTableWidgetItem(""));
-    ui->ActesCCAMupTableWidget->horizontalHeader()->setVisible(true);
-    ui->ActesCCAMupTableWidget->horizontalHeaderItem(1)->setTextAlignment(Qt::AlignCenter);
-    ui->ActesCCAMupTableWidget->horizontalHeaderItem(2)->setTextAlignment(Qt::AlignCenter);
-    ui->ActesCCAMupTableWidget->horizontalHeaderItem(3)->setTextAlignment(Qt::AlignCenter);
-    if (ncol==6)
-    {
-        ui->ActesCCAMupTableWidget->setColumnWidth(5,80);      //Tarif pratiqué
-        ui->ActesCCAMupTableWidget->setHorizontalHeaderItem(5, new QTableWidgetItem("Tarif\npratiqué"));
-        ui->ActesCCAMupTableWidget->horizontalHeaderItem(5)->setTextAlignment(Qt::AlignCenter);
-    }
-    ui->ActesCCAMupTableWidget->FixLargeurTotale();
-    ui->ActesCCAMupTableWidget->horizontalHeader()->setFixedHeight(int(QFontMetrics(qApp->font()).height()*2.3));
-
-    //Remplissage Table Actes
-    QTableWidgetItem    *pItem0;
-    QTableWidgetItem    *pItem1;
-    QTableWidgetItem    *pItem2;
-    QTableWidgetItem    *pItem3;
-    UpCheckBox          *check;
-    ui->ActesCCAMupTableWidget->clearContents();
-    QString Remplirtablerequete = "SELECT " CP_NOM_CCAM ", " CP_CODECCAM_CCAM ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " from "  TBL_CCAM;
-    if (ophtaseul)
-        Remplirtablerequete += " where " CP_CODECCAM_CCAM " like 'B%'";
-    Remplirtablerequete +=  " order by " CP_CODECCAM_CCAM;
-    QList<QVariantList> Acteslist = db->StandardSelectSQL(Remplirtablerequete, ok);
-    if (!ok)
-        return;
-    ui->ActesCCAMupTableWidget->setRowCount(Acteslist.size());
-    for (int i=0; i<Acteslist.size(); i++)
-    {
-        pItem0      = new QTableWidgetItem();
-        pItem1      = new QTableWidgetItem();
-        pItem2      = new QTableWidgetItem();
-        pItem3      = new QTableWidgetItem();
-        check       = new UpCheckBox(ui->ActesCCAMupTableWidget);
-        check->setRowTable(i);
-        check->setEnabled(false);
-        connect(check,  &QCheckBox::clicked,  this,   [=] { MAJActesCCAM(check); });
-        ui->ActesCCAMupTableWidget->setCellWidget(i,0,check);
-        pItem0->setText(Acteslist.at(i).at(1).toString());                             // codeCCAM
-        ui->ActesCCAMupTableWidget->setItem(i,1,pItem0);
-        pItem1->setTextAlignment(Qt::AlignRight);
-        pItem1->setText(QLocale().toString(Acteslist.at(i).at(2).toDouble(),'f',2));   // Montant OPTAM
-        ui->ActesCCAMupTableWidget->setItem(i,2,pItem1);
-        pItem2->setTextAlignment(Qt::AlignRight);
-        pItem2->setText(QLocale().toString(Acteslist.at(i).at(3).toDouble(),'f',2));   // Montant no OPTAM
-        ui->ActesCCAMupTableWidget->setItem(i,3,pItem2);
-        pItem3->setText(Acteslist.at(i).at(0).toString());                             // descriptif
-        ui->ActesCCAMupTableWidget->setItem(i,4,pItem3);
-        ui->ActesCCAMupTableWidget->setRowHeight(i, int(QFontMetrics(qApp->font()).height()*1.1));
-    }
-    QString reqactes = "select " CP_TYPEACTE_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS " from " TBL_COTATIONS " where " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-    QList<QVariantList> Actesusrlist = db->StandardSelectSQL(reqactes, ok);
-    if (Actesusrlist.size()>0)
-    {
-        for (int i=0; i<Actesusrlist.size(); i++)
-        {
-            QString codeCCAM = Actesusrlist.at(i).at(0).toString();
-            QList<QTableWidgetItem*> listitems = ui->ActesCCAMupTableWidget->findItems(codeCCAM, Qt::MatchExactly);
-            if (listitems.size()>0)
-            {
-                UpCheckBox *chk = qobject_cast<UpCheckBox*>(ui->ActesCCAMupTableWidget->cellWidget(listitems.at(0)->row(),0));
-                if (chk)
-                    chk->setCheckState(Qt::Checked);
-            }
-            if (ncol==6)
-            {
-                QDoubleValidator *val = new QDoubleValidator(this);
-                val->setDecimals(2);
-                if (listitems.size()>0)
-                {
-                    UpLineEdit *lbl = new UpLineEdit();
-                    lbl->setText(QLocale().toString(Actesusrlist.at(i).at(1).toDouble(),'f',2));      // Tarif pratiqué
-                    lbl->setAlignment(Qt::AlignRight);
-                    lbl->setStyleSheet("border: 0px solid rgb(150,150,150)");
-                    lbl->setRow(listitems.at(0)->row());
-                    lbl->setValidator(val);
-                    lbl->setEnabled(false);
-                    connect(lbl,    &UpLineEdit::TextModified,  this,   [=] (QString txt) {MAJActesCCAM(lbl, txt);});
-                    ui->ActesCCAMupTableWidget->setCellWidget(listitems.at(0)->row(),5,lbl);
-                }
-            }
-        }
-    }
 }
 
 // ----------------------------------------------------------------------------------

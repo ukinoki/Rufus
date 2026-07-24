@@ -4536,40 +4536,15 @@ void Rufus::OuvrirParametres()
         setWindowTitle("Rufus - " + currentuser()->login() + " - " + currentuser()->fonction());
     if (Dlg_Param->CotationsModifiees())
     {
-
-        QString req = "insert into " TBL_COTATIONS " ( " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-                CP_TYPECOTATION_COTATIONS ", " CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") values \n";
-        for (int i=0; i<Dlg_Param->ui->ActesCCAMupTableWidget->rowCount(); i++)
-        {
-            UpCheckBox *check = qobject_cast<UpCheckBox*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,0));
-            if (check != nullptr)
-                if (check->isChecked())
-                {
-
-                    QString typeacte, montantOPTAM, montantNonOPTAM, montantprat("");
-                    typeacte        = Dlg_Param->ui->ActesCCAMupTableWidget->item(i,1)->text();
-                    montantOPTAM    = QString::number(QLocale().toDouble(Dlg_Param->ui->ActesCCAMupTableWidget->item(i,2)->text()));
-                    montantNonOPTAM = QString::number(QLocale().toDouble(Dlg_Param->ui->ActesCCAMupTableWidget->item(i,3)->text()));
-                    QString mtconv  = (currentuser()->isOPTAM() ? montantOPTAM : montantNonOPTAM);
-                    if (Dlg_Param->ui->ActesCCAMupTableWidget->columnCount()==6)
-                    {
-                        UpLineEdit *line = qobject_cast<UpLineEdit*>(Dlg_Param->ui->ActesCCAMupTableWidget->cellWidget(i,5));
-                        if (line != nullptr)
-                            montantprat = (line->text()!=""? line->text() : mtconv);
-                        else
-                            montantprat = mtconv;
-                    }
-                    QString mtprat = (currentuser()->secteurconventionnel() >1 ? montantprat : mtconv);
-                    QString montantpratique = QString::number(QLocale().toDouble(mtprat));
-                    req += "('" + typeacte +  "', " + montantOPTAM + "," + montantNonOPTAM + "," + montantpratique + ", 1, " + QString::number(currentuser()->id()) + ", null),\n";
-                }
-        }
-        req = req.left(req.lastIndexOf(")")+1);
-        //proc->Edit(req);
-        QString reqDel = "delete from " TBL_COTATIONS " where " CP_IDUSER_COTATIONS " = " + QString::number(currentuser()->id());
-        db->StandardSQL(reqDel);
-        db->StandardSQL(req);
-        initListeCotations();
+        Datas::I()->cotations->loadCotations();
+        User *userparent = Datas::I()->users->getById(currentuser()->idparent());
+        if (Datas::I()->cotations->cotations()->size() == 0)
+            if (userparent)
+            {
+                Datas::I()->cotations->loadUserCotations(userparent);
+                m_combocotationparent = nullptr;
+                ReconstruitComboCotations(userparent);
+            }
     }
     delete Dlg_Param;
 }
@@ -6545,18 +6520,7 @@ void Rufus::initListeCotations()
      * il ne peut pas y avoir d'appel d'un user non soignant puisque la fonction est appelée pour un user qui est
             * soit le currentuser() qui est forcément soignant puisqu'on recrée la liste de cotations seulement dans cette condition
             * soit un user qui est le superviseur d'un acte donc forcément soignant aussi */
-    User *userparent = nullptr;
-    int id;
-    for (auto it = Datas::I()->postesconnectes->postesconnectes()->constBegin(); it !=  Datas::I()->postesconnectes->postesconnectes()->constEnd(); ++it)
-    {
-        PosteConnecte *post = const_cast<PosteConnecte*>(it.value());
-        if (post->iduser() == currentuser()->id())
-        {
-            id = post->idparent();
-            userparent = Datas::I()->users->getById(id);
-            break;
-        }
-    }
+    User *userparent = Datas::I()->users->getById(currentuser()->idparent());
     if (Datas::I()->cotations->cotations()->size() == 0)
         if (userparent)
             Datas::I()->cotations->loadUserCotations(userparent);

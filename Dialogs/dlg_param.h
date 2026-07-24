@@ -125,9 +125,7 @@ private:
     void                ModifScriptBackup();
     void                ReconstruitListeLieuxExerciceUser(User *user);
     void                ReconstruitListeLieuxExerciceAllusers();
-    void                EnableActesCCAM(bool enable = true);
     void                enableCotations(bool enable = true);
-    void                Remplir_TableActesCCAM(bool ophtaseul = true);
     void                Remplir_Tables();
     bool                Valide_Modifications();
     void                NouvCotation();
@@ -166,12 +164,10 @@ private:
     void                EnregDossierStockageApp(UpLineEdit *line, QString dir);
     void                EnregistreEmplacementServeur(int);
     void                EnregistreNouvMDPAdmin();
-    void                FiltreActesOphtaSeulmt(bool);
     void                GestionBanques();
     void                GestionDatasCurrentUser();
     void                GestionLieux();
     void                GestionUsers();
-    void                MAJActesCCAM(QWidget *widg, QString txt = "");
     void                MAJCotation(Cotation *cot);
     void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);           /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
