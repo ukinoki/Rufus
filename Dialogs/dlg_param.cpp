@@ -16,6 +16,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QFile>
+#include <QMenu>
 #include "dlg_param.h"
 #include "icons.h"
 #include "ui_dlg_param.h"
@@ -84,7 +85,7 @@ dlg_param::dlg_param(QWidget *parent) :
     else
         ui->CCAMwidget->setVisible(false);
 
-    ui->Cotationslabel  ->setText(tr("Cotations"));
+    ui->Cotationslabel  ->setText(tr("Cotations") + "\n" + tr("Clic droit sur un item pour modifier le montant pratiqué"));
     ui->Cotationswidget ->setLayout(AllCotationslay);
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
@@ -1331,26 +1332,15 @@ void dlg_param::SupprAppareil()
 }
 
 /*!
- * \brief dlg_param::RegleCotationsBoutons
- * règle l'état des boutons du buttonframe de cotationsUpTableView selon la cotation en surbrillance :
- * - « + » toujours actif ;
- * - « - » actif seulement pour une association CCAM (2) ou un autre (4), et si aucun autre
- *   utilisateur ne l'utilise ;
- * - « modifier » actif seulement pour un « autre » (4) : un acte CCAM a ses montants figés.
+ * \brief dlg_param::cotationUtiliseeParAutre
+ * \param cot  la cotation testée
+ * vrai si un utilisateur AUTRE que le courant possède cette cotation dans sa table de jointure
+ * (jointure choisie selon le type de la cotation).
  */
-void dlg_param::RegleCotationsBoutons()
+bool dlg_param::cotationUtiliseeParAutre(Cotation *cot)
 {
-    wdg_cotationswdgbuttonframe->wdg_plusBouton->setEnabled(true);   //! ajouter : toujours possible
-
-    Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
     if (cot == Q_NULLPTR)
-    {
-        wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(false);
-        wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(false);
-        return;
-    }
-    //! table de jointure (et ses colonnes idCotation/idUser) selon le type, pour savoir si d'autres
-    //! utilisateurs se servent de la cotation
+        return false;
     QString jointure, chpIdcotation, chpIduser;
     switch (cot->typcotation())
     {
@@ -1358,21 +1348,101 @@ void dlg_param::RegleCotationsBoutons()
         case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     break;   //! association CCAM
         case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             break;   //! NGAP
         case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
+        default: return false;
     }
-    bool autresUsers = false;
-    if (!jointure.isEmpty())
+    bool ok = false;
+    QList<QVariantList> l = db->StandardSelectSQL("select 1 from " + jointure
+                            + " where " + chpIdcotation + " = " + QString::number(cot->id())
+                            + " and " + chpIduser + " <> " + QString::number(currentuser()->id()) + " limit 1", ok);
+    return (ok && !l.isEmpty());
+}
+
+/*!
+ * \brief dlg_param::RegleCotationsBoutons
+ * règle l'état des 3 boutons du buttonframe de cotationsUpTableView. Ils ne sont TOUS actifs que si
+ * l'utilisateur est son propre parent (un remplaçant ne modifie pas les cotations du parent) :
+ * - « + » : toujours (dans ce cas) ;
+ * - « modifier » : seulement un « autre » (4) — un acte CCAM a ses montants figés ;
+ * - « - » : type 1, 2 ou 4 (pas NGAP) et si aucun autre utilisateur ne l'utilise.
+ */
+void dlg_param::RegleCotationsBoutons()
+{
+    const bool sonParent = (currentuser()->idparent() == currentuser()->id());
+    Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
+
+    wdg_cotationswdgbuttonframe->wdg_plusBouton ->setEnabled(sonParent);
+    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(sonParent && cot != Q_NULLPTR && cot->isnorGAPnorCCAM());
+    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(sonParent && cot != Q_NULLPTR
+                                                             && !cot->isNGAP() && !cotationUtiliseeParAutre(cot));
+}
+
+/*!
+ * \brief dlg_param::MAJMontantPratique
+ * \param cot      la cotation dont le pratiqué change
+ * \param montant  le nouveau montant pratiqué
+ * met à jour le montant pratiqué de l'utilisateur courant dans la table de jointure correspondant au
+ * type de la cotation.
+ */
+void dlg_param::MAJMontantPratique(Cotation *cot, double montant)
+{
+    if (cot == Q_NULLPTR)
+        return;
+    QString jointure, chpIdcotation, chpIduser, chpPratique;
+    switch (cot->typcotation())
     {
-        bool ok = false;
-        QList<QVariantList> l = db->StandardSelectSQL("select 1 from " + jointure
-                                + " where " + chpIdcotation + " = " + QString::number(cot->id())
-                                + " and " + chpIduser + " <> " + QString::number(currentuser()->id()) + " limit 1", ok);
-        autresUsers = (ok && !l.isEmpty());
+        case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;             break;   //! CCAM
+        case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;     break;   //! association CCAM
+        case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             chpPratique = CP_MONTANTPRATIQUE_JOINTNGAP;             break;   //! NGAP
+        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
+        default: return;
     }
-    const bool type2ou4 = cot->isAssocCCAM() || cot->isnorGAPnorCCAM();   //! association CCAM (2) ou autre (4)
-    //! « - » : type 2 ou 4, et personne d'autre ne l'utilise
-    wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(type2ou4 && !autresUsers);
-    //! « modifier » : uniquement les « autres » (type 4) — un acte CCAM (montants figés) ne se modifie pas
-    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(cot->isnorGAPnorCCAM());
+    db->StandardSQL("update " + jointure + " set " + chpPratique + " = " + QString::number(montant)
+                    + " where " + chpIdcotation + " = " + QString::number(cot->id())
+                    + " and " + chpIduser + " = " + QString::number(currentuser()->id()));
+    cot->setmontantpratique(montant);
+    m_cotationsmodifiees = true;
+}
+
+/*!
+ * \brief dlg_param::MenuContextuelCotations
+ * clic droit sur la table : sélectionne la rangée sous le curseur et, si l'utilisateur est son propre
+ * parent, ouvre un menu (modifier le montant pratiqué / modifier la cotation / supprimer la cotation).
+ */
+void dlg_param::MenuContextuelCotations()
+{
+    QModelIndex idx = ui->cotationsUpTableView->indexAt(
+        ui->cotationsUpTableView->viewport()->mapFromGlobal(QCursor::pos()));
+    if (!idx.isValid())
+        return;
+    ui->cotationsUpTableView->setCurrentIndex(idx);         //! le clic droit sélectionne la rangée
+    Cotation *cot = getCotationFromIndex(idx);
+    if (cot == Q_NULLPTR)
+        return;
+    //! un utilisateur ne modifie que ses propres cotations : pas de menu s'il n'est pas son propre parent
+    if (currentuser()->idparent() != currentuser()->id())
+        return;
+
+    QMenu menu(this);
+    //! modifier le montant pratiqué : édition en place de la case pratiqué (cotation utilisée)
+    if (cot->isused())
+    {
+        QAction *aPrat = menu.addAction(Icons::icEditer(), tr("Modifier le montant pratiqué"));
+        connect(aPrat, &QAction::triggered, this, [=] {ui->cotationsUpTableView->edit(m_modelCotations->index(idx.row(), 2));});
+    }
+    //! modifier la cotation : uniquement un « autre » (4)
+    if (cot->isnorGAPnorCCAM())
+    {
+        QAction *aModif = menu.addAction(Icons::icEditer(), tr("Modifier la cotation"));
+        connect(aModif, &QAction::triggered, this, [=] {ModifCotation();});
+    }
+    //! supprimer la cotation : type 1/2/4 (pas NGAP) et si aucun autre utilisateur ne l'utilise
+    if (!cot->isNGAP() && !cotationUtiliseeParAutre(cot))
+    {
+        QAction *aSuppr = menu.addAction(Icons::icPoubelle(), tr("Supprimer la cotation"));
+        connect(aSuppr, &QAction::triggered, this, [=] {supprimeCotation(cot);});
+    }
+    if (!menu.isEmpty())
+        menu.exec(QCursor::pos());
 }
 
 void dlg_param::ResetImprimante()
@@ -2439,6 +2509,11 @@ void dlg_param::ConnectSignals()
     //! textChanged (et non textEdited) : la table doit suivre aussi bien la frappe que le choix dans le
     //! QCompleter (qui insère le texte sans émettre textEdited)
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textChanged,                this,   &dlg_param::scrollToCotation);
+    //! clic droit sur la table des cotations : menu contextuel (modifier / supprimer)
+    ui->cotationsUpTableView                        ->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->cotationsUpTableView,               &QWidget::customContextMenuRequested,   this,   &dlg_param::MenuContextuelCotations);
+    //! double-clic sur la case « pratiqué » (seule éditable) -> édition en place du montant pratiqué
+    ui->cotationsUpTableView                        ->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
     connect(ui->ParamMotifspushButton,              &QPushButton::clicked,                  this,   &dlg_param::ParamMotifs);
     connect(this,                                   &dlg_param::click,                      this,   &dlg_param::EnableModif);
 
@@ -3706,6 +3781,10 @@ void dlg_param::Remplir_TableCotations()
         m_modelCotations->setHorizontalHeaderItem(c, h);
     }
 
+    //! le montant pratiqué n'est éditable que si le user est son propre parent (il ne modifie pas les
+    //! cotations d'un parent qu'il remplace) et pour une cotation qu'il utilise (sa jointure existe)
+    const bool sonParent = (currentuser()->idparent() == currentuser()->id());
+
     int row = 0;
     QStringList listeActes;                             //! pour le QCompleter de la zone de recherche
     for (auto it = m_cotations->cotations()->constBegin(); it != m_cotations->cotations()->constEnd(); ++it)
@@ -3722,7 +3801,7 @@ void dlg_param::Remplir_TableCotations()
         itconv          ->setEditable(false);
         itconv          ->setTextAlignment(Qt::AlignRight);
         UpStandardItem *itprat = new UpStandardItem(QLocale().toString(cot->montantpratique(), 'f', 2), cot);
-        itprat          ->setEditable(false);
+        itprat          ->setEditable(sonParent && cot->isused());   //! case pratiqué éditable en place
         itprat          ->setTextAlignment(Qt::AlignRight);
         m_modelCotations->setItem(row, 0, itacte);
         m_modelCotations->setItem(row, 1, itconv);
@@ -3749,11 +3828,23 @@ void dlg_param::Remplir_TableCotations()
     if (ancienCompleter != Q_NULLPTR)
         ancienCompleter         ->deleteLater();        //! évite l'accumulation à chaque remplissage
 
-    //! coche/décoche ou édition d'un item : on retrouve la Cotation portée et on l'envoie à MAJCotation
+    //! item modifié : colonne 2 (pratiqué) -> update du montant pratiqué dans la jointure ; colonne 0
+    //! (coche/décoche) -> MAJCotation (à écrire)
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {
         UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
-        if (upit != Q_NULLPTR)
-            MAJCotation(qobject_cast<Cotation*>(upit->rufusitem()));
+        if (upit == Q_NULLPTR)
+            return;
+        Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
+        if (it->column() == 2)                          //! case pratiqué éditée
+        {
+            const double montant = QLocale().toDouble(it->text());
+            MAJMontantPratique(cot, montant);
+            m_modelCotations->blockSignals(true);       //! reformatage sans redéclencher itemChanged
+            it->setText(QLocale().toString(montant, 'f', 2));
+            m_modelCotations->blockSignals(false);
+        }
+        else
+            MAJCotation(cot);
     });
     //! changement de ligne en surbrillance : on règle l'état des boutons (+/-/modifier)
     connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleCotationsBoutons();});

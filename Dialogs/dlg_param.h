@@ -98,6 +98,8 @@ private:
     UpStandardItemModel     *m_modelCotations        = nullptr;                 //!< modèle de cotationsUpTableView
     void                    Remplir_TableCotations();                           //!< (re)remplit la table des cotations (used cochées)
     Cotation*               getCotationFromIndex(QModelIndex idx);              //!< la cotation portée par la ligne d'index idx
+    bool                    cotationUtiliseeParAutre(Cotation *cot);           //!< vrai si un autre utilisateur que le courant utilise cette cotation
+    void                    MenuContextuelCotations();                         //!< clic droit : sélectionne la rangée + menu modifier/supprimer (si le user est son propre parent)
 
     bool                    m_modifposte            = false;
     bool                    m_alerteMDPencours      = false;                    //! garde-fou de ré-entrance de l'alerte « mot de passe de connexion modifié »
@@ -169,6 +171,7 @@ private:
     void                GestionLieux();
     void                GestionUsers();
     void                MAJCotation(Cotation *cot);
+    void                MAJMontantPratique(Cotation *cot, double montant);        //!< met à jour le montant pratiqué du user dans la jointure du type de la cotation
     void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);           /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
     void                ModifMDPAdmin();
