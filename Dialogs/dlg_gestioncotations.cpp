@@ -424,37 +424,29 @@ bool dlg_gestioncotations::VerifFiche()
         return true;
     }
 
-    //! --- CRÉATION, mode « autre » (type 4) : non partagé -> refus des doublons puis insertion ---
-    if (m_typecotation != 1 && m_typecotation != 2)
-    {
-        QVariantList d = db->getFirstRecordFromStandardSelectSQL(
-            "select " CP_ID_COTATIONS " from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeSQL + "' and "
-            CP_IDUSER_COTATIONS " = " + iduserSQL, ok);
-        if (ok && d.size() > 0)
-        {
-            UpMessageBox::Watch(this, msg, tr("Cet acte est déjà enregistré"));
-            return false;
-        }
-        db->StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
-              CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
-              CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
-              + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", " + pratiqueSQL + ", "
-              + QString::number(m_typecotation) + ", " + iduserSQL + ", '" + tipSQL + "')");
-        m_codeenregistre = code;
-        return true;
-    }
+    //! --- CRÉATION : la table cotations est PARTAGÉE -> on évite les doublons ---
+    //! Dédup restreinte au même type : CCAM (1) / association (2) par code exact (codes toujours en
+    //! majuscules) ; « autre » (4) en comparant les codes MIS EN MAJUSCULES (codes libres, à ne pas
+    //! dupliquer sur une simple différence de casse). L'acte déjà présent n'est pas dupliqué : on
+    //! rafraîchit ses montants ; sinon on l'insère. Puis on crée (ou met à jour) la jointure du user.
+    const bool autre = (m_typecotation == 4);
+    const QString whereActe =
+        (autre ? "UPPER(" CP_TYPEACTE_COTATIONS ") = UPPER('" + codeSQL + "')"
+               : QString(CP_TYPEACTE_COTATIONS " = '") + codeSQL + "'")
+        + " and " CP_TYPECOTATION_COTATIONS " = " + QString::number(m_typecotation);
 
-    //! --- CRÉATION, modes CCAM (1) / association (2) : la table cotations est PARTAGÉE ---
-    //! l'acte existe déjà -> on ne le duplique pas, on rafraîchit seulement ses montants conventionnels ;
-    //! sinon on l'insère. Puis on crée (ou met à jour) la jointure du user = son montant pratiqué.
     QVariantList ex = db->getFirstRecordFromStandardSelectSQL(
-        "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeSQL + "'", ok);
+        "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " + whereActe, ok);
     int idcot = (ok && ex.size() > 0 && !ex.at(0).isNull()) ? ex.at(0).toInt() : 0;
     if (idcot > 0)
-        db->StandardSQL("update " TBL_COTATIONS " set "
-                        CP_MONTANTOPTAM_COTATIONS " = "    + optamSQL + ", "
-                        CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL
-                        + " where " CP_ID_COTATIONS " = " + QString::number(idcot));
+    {
+        //! montants rafraîchis : « autre » -> conventionnel (dans MontantOptam) + pratiqué ;
+        //! CCAM/assoc -> OPTAM + non-OPTAM (le pratiqué reste dans la jointure)
+        const QString set = autre
+            ? QString(CP_MONTANTOPTAM_COTATIONS " = ") + optamSQL + ", " CP_MONTANTPRATIQUE_COTATIONS " = " + pratiqueSQL
+            : QString(CP_MONTANTOPTAM_COTATIONS " = ") + optamSQL + ", " CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL;
+        db->StandardSQL("update " TBL_COTATIONS " set " + set + " where " CP_ID_COTATIONS " = " + QString::number(idcot));
+    }
     else
     {
         db->StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
@@ -463,12 +455,30 @@ bool dlg_gestioncotations::VerifFiche()
               + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", " + pratiqueSQL + ", "
               + QString::number(m_typecotation) + ", " + iduserSQL + ", '" + tipSQL + "')");
         QVariantList n = db->getFirstRecordFromStandardSelectSQL(
-            "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " CP_TYPEACTE_COTATIONS " = '" + codeSQL + "'", ok);
+            "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " + whereActe, ok);
         idcot = (ok && n.size() > 0 && !n.at(0).isNull()) ? n.at(0).toInt() : 0;
     }
 
-    //! jointure du user pour cette cotation : créée si absente, sinon son montant pratiqué mis à jour
-    if (idcot > 0)
+    //! --- jointure du user (créée si absente, sinon montant(s) mis à jour) ---
+    //! « autre » : jointuresautrescotations porte 2 montants (conventionnel + pratiqué) ;
+    //! CCAM/assoc : la jointure ne porte que le pratiqué.
+    if (idcot > 0 && autre)
+    {
+        const QString wId = " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(idcot)
+                          + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + iduserSQL;
+        QVariantList j = db->getFirstRecordFromStandardSelectSQL(
+            "select " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS " from " TBL_JOINTURESAUTRESCOTATIONS + wId, ok);
+        if (ok && j.size() > 0)
+            db->StandardSQL("update " TBL_JOINTURESAUTRESCOTATIONS " set "
+                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS " = " + optamSQL + ", "
+                CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS " = " + pratiqueSQL + wId);
+        else
+            db->StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", "
+                CP_IDUSER_JOINTAUTRESCOTATIONS ", " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", "
+                CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ") values ("
+                + QString::number(idcot) + ", " + iduserSQL + ", " + optamSQL + ", " + pratiqueSQL + ")");
+    }
+    else if (idcot > 0)
     {
         const QString jointure    = (m_typecotation == 1) ? TBL_JOINTURESCCAM            : TBL_JOINTURESASSOCIATIONS;
         const QString chpIdcot    = (m_typecotation == 1) ? CP_IDCOTATION_JOINTCCAM      : CP_IDCOTATION_JOINTASSOCIATIONS;
