@@ -126,8 +126,18 @@ BEGIN
         `idJointure` INT(11) NOT NULL AUTO_INCREMENT,
         `idCotation` INT(11) NULL DEFAULT NULL,
         `idUser` INT(11) NULL DEFAULT NULL,
-        `MontantPratique` DOUBLE NULL DEFAULT NULL,
         PRIMARY KEY (`idJointure`));
+    -- jointuresNGAP n'a PAS de MontantPratique : pour un acte NGAP le pratiqué est toujours égal au
+    -- conventionnel, le champ ne servirait à rien. On le supprime s'il a été créé par un passage
+    -- antérieur de MAJ83 (le CREATE IF NOT EXISTS ci-dessus n'aurait pas retouché la colonne).
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'jointuresNGAP' AND COLUMN_NAME = 'MontantPratique') as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`jointuresNGAP` DROP COLUMN `MontantPratique`;
+        END IF;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();

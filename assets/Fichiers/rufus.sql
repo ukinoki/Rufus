@@ -874,7 +874,6 @@ CREATE TABLE `jointuresNGAP` (
   `idJointure` int(11) NOT NULL AUTO_INCREMENT,
   `idCotation` int(11) DEFAULT NULL,
   `idUser` int(11) DEFAULT NULL,
-  `MontantPratique` DOUBLE DEFAULT NULL,
   PRIMARY KEY (`idJointure`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -885,7 +884,7 @@ CREATE TABLE `jointuresNGAP` (
 
 LOCK TABLES `jointuresNGAP` WRITE;
 /*!40000 ALTER TABLE `jointuresNGAP` DISABLE KEYS */;
-INSERT INTO `jointuresNGAP` VALUES (1,50,2,26),(2,51,2,10.4),(3,52,2,14.04),(4,53,2,26.78),(5,54,2,36.66);
+INSERT INTO `jointuresNGAP` VALUES (1,50,2),(2,51,2),(3,52,2),(4,53,2),(5,54,2);
 /*!40000 ALTER TABLE `jointuresNGAP` ENABLE KEYS */;
 UNLOCK TABLES;
 
