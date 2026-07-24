@@ -54,6 +54,12 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     tablelay        ->setContentsMargins(0,0,0,0);
     tablewidg       ->setLayout(tablelay);
     connect(wdg_table, &QTableWidget::itemSelectionChanged, this, [=] {selectionChangee();});
+    //! double-clic sur une ligne : sélectionne (via la cellule courante) et valide comme OK
+    connect(wdg_table, &QAbstractItemView::doubleClicked, this, [=] (QModelIndex idx) {
+        wdg_table->setCurrentCell(idx.row(), 0);
+        if (!m_codechoisi.isEmpty())
+            accept();
+    });
     //! survol souris : infobulle immédiate avec le libellé de l'acte (colonne masquée), comme la table
     //! des cotations de dlg_param (mouseTracking + signal entered)
     connect(wdg_table, &QAbstractItemView::entered, this, [=] (QModelIndex idx) {
