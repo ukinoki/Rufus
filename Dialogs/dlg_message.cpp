@@ -28,7 +28,7 @@ ShowMessage::ShowMessage()
 {
 }
 
-void ShowMessage::SplashMessage(QString msg, int duree)
+void ShowMessage::SplashMessage(QString msg, int duree, bool centre)
 {
     QDialog *dlg = new QDialog();
     dlg                 ->setAttribute(Qt::WA_DeleteOnClose);
@@ -101,13 +101,23 @@ void ShowMessage::SplashMessage(QString msg, int duree)
         ty= sz.height();
     }
 
-    dlg                 ->move(xx - tx, yy - ty -ysplashmessage);
-    dlg                 ->show();
-    ysplashmessage += ty;
-    QTimer::singleShot(duree, dlg, [=] {
-        ysplashmessage -= ty;
-        dlg->close();
-    });
+    if (centre)             //! au centre de l'écran (message important, ex. MAJ de la base cotations)
+    {
+        const QRect z = QGuiApplication::primaryScreen()->availableGeometry();
+        dlg             ->move(z.center().x() - tx/2, z.center().y() - ty/2);
+        dlg             ->show();
+        QTimer::singleShot(duree, dlg, [=] {dlg->close();});
+    }
+    else                    //! en bas à droite, empilés (notifications discrètes)
+    {
+        dlg             ->move(xx - tx, yy - ty -ysplashmessage);
+        dlg             ->show();
+        ysplashmessage += ty;
+        QTimer::singleShot(duree, dlg, [=] {
+            ysplashmessage -= ty;
+            dlg->close();
+        });
+    }
 }
 
 void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QWidget *parent)

@@ -57,7 +57,7 @@ private:
 
 public:
     static ShowMessage* I();
-    void SplashMessage(QString msg, int duree = 3000);
+    void SplashMessage(QString msg, int duree = 3000, bool centre = false);   //!< centre = true : au centre de l'écran (sinon en bas à droite, empilé)
     void SplashMessage(QStringList listmsg, int duree = 3000)
     {
         for (int i=0; i<listmsg.size(); i++)

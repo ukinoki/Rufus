@@ -4234,7 +4234,11 @@ bool Procedures::IdentificationUser()
         const bool cotationsTraitees = DataBase::I()->verifMajCotations();   //! Action 1 : MAJ base cotations (CCAM/NGAP)
         Datas::I()->cotations           ->loadCotations();
         if (cotationsTraitees)
+        {
             Datas::I()->cotations       ->completeTipsManquants();   //! Action 2 : Tip vides, dans la foulée de la MAJ et nulle part ailleurs
+            //! on n'a pas demandé la permission : on prévient simplement, au centre de l'écran
+            ShowMessage::I()            ->SplashMessage(tr("La base de cotations Rufus a été mise à jour."), 4000, true);
+        }
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);

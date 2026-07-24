@@ -50,6 +50,9 @@ public:
     void                                setInformativeText(QString);
     void                                setDefaultButton(QPushButton*);
 
+protected:
+    void                                showEvent(QShowEvent *event) override;   //!< sans parent, centre la boîte sur l'écran (sinon elle peut apparaître hors du regard)
+
 private:
     static UpSmallButton::StyleBouton   ExecMsgBox(UpMessageBox*msgbox);
     UpLabel         *wdg_iconlbl, *wdg_texteditlbl, *wdg_infolbl;
