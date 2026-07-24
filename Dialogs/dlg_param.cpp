@@ -304,7 +304,6 @@ dlg_param::dlg_param(QWidget *parent) :
     ui->EmplacementLocaluplineEdit  ->setValidator(new QRegularExpressionValidator(Utils::rgx_IPV4_mask,this));
 
     ui->cotationsUpTableView            ->setSelectionBehavior(QAbstractItemView::SelectRows);
-    wdg_cotationswdgbuttonframe                       ->setEnabled(false);
 
     ui->LoginuplineEdit                 ->setEnabled(false);
     ui->MDPuplineEdit                   ->setEnabled(false);
