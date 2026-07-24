@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QToolTip>
 #include "dlg_choixccam.h"
 
 dlg_choixccam::dlg_choixccam(QWidget *parent) :
@@ -53,6 +54,13 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     tablelay        ->setContentsMargins(0,0,0,0);
     tablewidg       ->setLayout(tablelay);
     connect(wdg_table, &QTableWidget::itemSelectionChanged, this, [=] {selectionChangee();});
+    //! survol souris : infobulle immédiate avec le libellé de l'acte (colonne masquée), comme la table
+    //! des cotations de dlg_param (mouseTracking + signal entered)
+    connect(wdg_table, &QAbstractItemView::entered, this, [=] (QModelIndex idx) {
+        QTableWidgetItem *lib = wdg_table->item(idx.row(), 3);
+        if (lib)
+            QToolTip::showText(QCursor::pos(), lib->text(), wdg_table, QRect(QCursor::pos(), QSize(10,10)), 2000);
+    });
     dlglayout()     ->addWidget(tablewidg);
 
     //! --- libellé de l'acte sélectionné ---
