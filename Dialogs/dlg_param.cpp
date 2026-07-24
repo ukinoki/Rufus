@@ -1291,12 +1291,90 @@ void dlg_param::startImmediateBackup()
 
 /*!
  * \brief dlg_param::MAJCotation
- * \param cot  la cotation concernée (déduite par l'appelant via getCotationFromIndex)
- * mise à jour d'une cotation (coche/décoche, montant pratiqué...) : à écrire ultérieurement
+ * \param itcheck  l'item de la case à cocher (colonne 0) qui vient de changer d'état
+ * Coche/décoche d'une cotation dans la table : ajoute ou retire la ligne de jointure du user.
+ *  - décochage : suppression de la jointure ; la case pratiqué se vide et se fige.
+ *  - cochage : (re)création de la jointure, avec le pratiqué par défaut selon le type, puis la case
+ *    pratiqué passe en édition (sauf NGAP) :
+ *      * CCAM (1) / association (2) : pratiqué = conventionnel selon le secteur (OPTAM -> optam, sinon nonoptam) ;
+ *      * autre (4) : pratiqué = conventionnel enregistré (montantoptam), 0 si aucun ;
+ *      * NGAP (3) : rien, le pratiqué reste vide et non éditable.
  */
-void dlg_param::MAJCotation(Cotation *cot)
+void dlg_param::MAJCotation(QStandardItem *itcheck)
 {
-    Q_UNUSED(cot)
+    UpStandardItem *upit = dynamic_cast<UpStandardItem*>(itcheck);
+    if (upit == Q_NULLPTR)
+        return;
+    Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
+    if (cot == Q_NULLPTR)
+        return;
+
+    //! jointure (et ses colonnes) selon le type ; chpPratique vide pour un NGAP (pas de montant pratiqué)
+    QString jointure, chpIdcot, chpIduser, chpPratique;
+    switch (cot->typcotation())
+    {
+        case 1: jointure = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;            break;
+        case 2: jointure = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;    break;
+        case 3: jointure = TBL_JOINTURESNGAP;            chpIdcot = CP_IDCOTATION_JOINTNGAP;            chpIduser = CP_IDUSER_JOINTNGAP;                                                                  break;
+        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS; break;
+        default: return;
+    }
+    const QString idcot  = QString::number(cot->id());
+    const QString iduser = QString::number(currentuser()->id());
+    const QString wId    = " where " + chpIdcot + " = " + idcot + " and " + chpIduser + " = " + iduser;
+    const bool checked   = (itcheck->checkState() == Qt::Checked);
+    QStandardItem *itprat = m_modelCotations->item(itcheck->row(), 2);
+    cot->setused(checked);
+    m_cotationsmodifiees = true;
+
+    //! petite fonction : affiche la valeur dans la case pratiqué, la rend éditable et l'ouvre en édition
+    auto ouvreEditionPratique = [&] (double v) {
+        if (itprat == Q_NULLPTR)
+            return;
+        m_modelCotations->blockSignals(true);       //! on pose la valeur sans redéclencher itemChanged
+        itprat->setText(QLocale().toString(v, 'f', 2));
+        itprat->setEditable(true);
+        m_modelCotations->blockSignals(false);
+        cot->setmontantpratique(v);
+        ui->cotationsUpTableView->edit(m_modelCotations->index(itcheck->row(), 2));
+    };
+
+    if (!checked)                                   //! --- décochage : on retire la jointure du user ---
+    {
+        db->StandardSQL("delete from " + jointure + wId);
+        if (itprat != Q_NULLPTR)
+        {
+            m_modelCotations->blockSignals(true);
+            itprat->setText("");
+            itprat->setEditable(false);
+            m_modelCotations->blockSignals(false);
+        }
+        return;
+    }
+
+    //! --- cochage : (re)crée la jointure du user (garde-fou anti-doublon) ---
+    db->StandardSQL("delete from " + jointure + wId);
+
+    if (cot->isNGAP())                              //! NGAP : jointure sans montant, pas d'édition du pratiqué
+    {
+        db->StandardSQL("insert into " + jointure + " (" + chpIdcot + ", " + chpIduser + ") values (" + idcot + ", " + iduser + ")");
+        return;
+    }
+    if (cot->isnorGAPnorCCAM())                     //! autre (4) : conventionnel enregistré (ou 0) dans les 2 montants
+    {
+        const double conv = cot->montantoptam();
+        const QString convSQL = QString::number(conv);
+        db->StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", "
+                        CP_IDUSER_JOINTAUTRESCOTATIONS ", " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", "
+                        CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ") values (" + idcot + ", " + iduser + ", " + convSQL + ", " + convSQL + ")");
+        ouvreEditionPratique(conv);
+        return;
+    }
+    //! CCAM (1) / association (2) : pratiqué = conventionnel selon le secteur OPTAM de l'utilisateur
+    const double conv = currentuser()->isOPTAM() ? cot->montantoptam() : cot->montantnonoptam();
+    db->StandardSQL("insert into " + jointure + " (" + chpIdcot + ", " + chpIduser + ", " + chpPratique + ") values ("
+                    + idcot + ", " + iduser + ", " + QString::number(conv) + ")");
+    ouvreEditionPratique(conv);
 }
 
 void dlg_param::SupprAppareil()
@@ -3831,22 +3909,22 @@ void dlg_param::Remplir_TableCotations()
         ancienCompleter         ->deleteLater();        //! évite l'accumulation à chaque remplissage
 
     //! item modifié : colonne 2 (pratiqué) -> update du montant pratiqué dans la jointure ; colonne 0
-    //! (coche/décoche) -> MAJCotation (à écrire)
+    //! (coche/décoche) -> MAJCotation (ajoute/retire la jointure du user)
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {
         UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
         if (upit == Q_NULLPTR)
             return;
-        Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
         if (it->column() == 2)                          //! case pratiqué éditée
         {
+            Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
             const double montant = QLocale().toDouble(it->text());
             MAJMontantPratique(cot, montant);
             m_modelCotations->blockSignals(true);       //! reformatage sans redéclencher itemChanged
             it->setText(QLocale().toString(montant, 'f', 2));
             m_modelCotations->blockSignals(false);
         }
-        else
-            MAJCotation(cot);
+        else                                            //! colonne 0 : coche/décoche
+            MAJCotation(it);
     });
     //! changement de ligne en surbrillance : on règle l'état des boutons (+/-/modifier)
     connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleCotationsBoutons();});

@@ -100,6 +100,7 @@ private:
     QString m_server;
     int m_port = 3306;
     bool ok;
+    QByteArray m_cotationsXml;      //!< cache du fichier de cotations téléchargé (une seule fois par session)
     QSqlDatabase m_db = QSqlDatabase();
 
 public:

@@ -942,22 +942,27 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
 {
     //! télécharge et parse le fichier de cotations depuis son URL (dépôt GitHub) ; false si le
     //! téléchargement échoue (poste hors ligne…) ou si le xml est invalide -> l'appelant passe (la
-    //! MAJ se fera un autre jour). Requête SYNCHRONE (l'appelant exploite le bool tout de suite) :
-    //! QEventLoop bloquant + délai de garde pour ne pas rester coincé si le serveur ne répond pas.
-    QNetworkAccessManager manager;
-    QNetworkRequest request((QUrl(LIEN_XML_COTATIONS)));
-    request.setTransferTimeout(15000);
-    QNetworkReply *reply = manager.get(request);
-    QEventLoop loop;
-    QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
-    loop.exec();
-
-    const bool ok = (reply->error() == QNetworkReply::NoError);
-    const QByteArray ba = ok ? reply->readAll() : QByteArray();
-    reply->deleteLater();
-    if (!ok || !docxml.setContent(ba))                  //! échec réseau ou xml invalide (ParseResult à operator bool explicite)
-        return false;
-    return true;
+    //! MAJ se fera un autre jour). Le fichier ne change pas dans la session : on le TÉLÉCHARGE UNE
+    //! FOIS (m_cotationsXml) et on le sert ensuite depuis le cache (verifMajCotations puis
+    //! nomsNGAPFromXml n'appellent ainsi le réseau qu'une fois). Requête SYNCHRONE (l'appelant exploite
+    //! le bool tout de suite) : QEventLoop bloquant + délai de garde si le serveur ne répond pas.
+    if (m_cotationsXml.isEmpty())
+    {
+        QNetworkAccessManager manager;
+        QNetworkRequest request((QUrl(LIEN_XML_COTATIONS)));
+        request.setTransferTimeout(15000);
+        QNetworkReply *reply = manager.get(request);
+        QEventLoop loop;
+        QObject::connect(reply, &QNetworkReply::finished, &loop, &QEventLoop::quit);
+        loop.exec();
+        const bool okreseau = (reply->error() == QNetworkReply::NoError);
+        const QByteArray ba = okreseau ? reply->readAll() : QByteArray();
+        reply->deleteLater();
+        if (!okreseau || ba.isEmpty())                  //! échec réseau -> on ne met rien en cache (réessai possible)
+            return false;
+        m_cotationsXml = ba;
+    }
+    return docxml.setContent(m_cotationsXml);            //! false si xml invalide (ParseResult à operator bool explicite)
 }
 
 bool DataBase::verifMajCotations()

@@ -58,9 +58,10 @@ class dlg_param;
  en surbrillance.
     * Ajouter -> une fiche : soit capturer une cotation CCAM depuis la liste des actes CCAM, soit
       créer à la main une cotation d'association CCAM ou hors CCAM/NGAP.
-    * supprimeCotation(cot) : retire la cotation de la table de jointure du user (= décocher) ; si
-      plus personne ne l'utilise, la cotation disparaît de la table cotations. MAJCotation(cot) :
-      mise à jour (à écrire). Les deux reçoivent la Cotation de l'appelant (getCotationFromIndex).
+    * supprimeCotation(cot) : retire la cotation de la table de jointure du user ; si plus personne ne
+      l'utilise, la cotation disparaît de la table cotations (bouton « - »).
+    * MAJCotation(itcheck) : coche/décoche -> ajoute/retire la cotation de la jointure du user (au
+      cochage, la case pratiqué passe en édition avec le conventionnel par défaut, sauf NGAP).
     * NGAP (type 3) : ni supprimer ni modifier (montant pratiqué non modulable) -> boutons grisés.
 
  En voie de disparition : ActesCCAMupTableWidget et HorsNomenclatureupTableWidget (et leurs boutons
@@ -170,7 +171,7 @@ private:
     void                GestionDatasCurrentUser();
     void                GestionLieux();
     void                GestionUsers();
-    void                MAJCotation(Cotation *cot);
+    void                MAJCotation(QStandardItem *itcheck);                      //!< coche/décoche : ajoute/retire la cotation de la jointure du user (+ pratiqué en édition au cochage, sauf NGAP)
     void                MAJMontantPratique(Cotation *cot, double montant);        //!< met à jour le montant pratiqué du user dans la jointure du type de la cotation
     void                ModifPathEchangeReglageRefracteur(Procedures::TypeAppareil appareil);           /*! indique l'emplacement réseau du fichier xml émis par Rufus destiné au préréglage du refracteur*/
     void                ModifPathDirEchangeMesure(Procedures::TypeAppareil appareil);                   /*! indique l'emplacement réseau du fichier d'échange d'un appareil de refraction*/
