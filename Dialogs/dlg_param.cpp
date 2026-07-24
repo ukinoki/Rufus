@@ -3800,8 +3800,11 @@ void dlg_param::Remplir_TableCotations()
         UpStandardItem *itconv = new UpStandardItem(QLocale().toString(cot->montantconventionnel(), 'f', 2), cot);
         itconv          ->setEditable(false);
         itconv          ->setTextAlignment(Qt::AlignRight);
-        UpStandardItem *itprat = new UpStandardItem(QLocale().toString(cot->montantpratique(), 'f', 2), cot);
-        itprat          ->setEditable(sonParent && cot->isused());   //! case pratiqué éditable en place
+        //! NGAP : le pratiqué vaut toujours le conventionnel -> on ne l'affiche pas (case vide) et on ne
+        //! l'édite pas ; sinon montant pratiqué, éditable si le user est son propre parent et l'utilise
+        const bool ngap = cot->isNGAP();
+        UpStandardItem *itprat = new UpStandardItem(ngap ? "" : QLocale().toString(cot->montantpratique(), 'f', 2), cot);
+        itprat          ->setEditable(!ngap && sonParent && cot->isused());
         itprat          ->setTextAlignment(Qt::AlignRight);
         m_modelCotations->setItem(row, 0, itacte);
         m_modelCotations->setItem(row, 1, itconv);
