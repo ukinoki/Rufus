@@ -962,7 +962,9 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
             return false;
         m_cotationsXml = ba;
     }
-    return docxml.setContent(m_cotationsXml);            //! false si xml invalide (ParseResult à operator bool explicite)
+    if (!docxml.setContent(m_cotationsXml))              //! xml invalide (ParseResult à operator bool explicite)
+        return false;
+    return true;
 }
 
 bool DataBase::verifMajCotations()
