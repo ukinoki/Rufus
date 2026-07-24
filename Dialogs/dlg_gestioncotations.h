@@ -80,6 +80,7 @@ private:
     void            appliqueMode();                             //!< montre/masque/retitre les champs et pose les completers selon m_typecotation
     void            remplitDepuisCCAM();                        //!< modes 1/2 : remplit montants + libellé à partir du/des code(s) CCAM
     void            appelleTableCCAM(UpLineEdit *cible);        //!< ouvre la table CCAM ; le code choisi remplit cible puis remplitDepuisCCAM()
+    void            regleOK();                                  //!< active OK selon le mode (tous champs visibles remplis ; « autre » : code + pratiqué)
     bool            VerifFiche();
 };
 

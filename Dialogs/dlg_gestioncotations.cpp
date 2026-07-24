@@ -15,6 +15,7 @@ You should have received a copy of the GNU General Public License
 along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <QRegularExpressionValidator>
 #include "dlg_gestioncotations.h"
 #include "dlg_choixccam.h"
 
@@ -24,6 +25,9 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     m_mode     = mode;
     m_codeacte = CodeActe;
     setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint);
+
+    //! saisie numérique imposée dans les champs montant : chiffres + séparateur décimal (. ou ,) optionnel
+    const QRegularExpression rgxMontant("[0-9]{0,6}([.,][0-9]{0,2})?");
 
     //! table ccam : codes (pour valider) + modèle code/libellé (source des QCompleter avec infobulle).
     //! Chaque item porte le code en DisplayRole et le libellé de l'acte en ToolTipRole -> le popup du
@@ -81,7 +85,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     codelay         ->insertWidget(3, wdg_boutonCCAM1);
     codelay         ->setContentsMargins(0,0,0,0);
     wdg_codewidg    ->setLayout(codelay);
-    connect(wdg_codeline,   &QLineEdit::textEdited,      this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_codeline,   &QLineEdit::textEdited,      this,   [=] {regleOK();});
     connect(wdg_codeline,   &QLineEdit::editingFinished, this,   [=] {remplitDepuisCCAM();});
     connect(wdg_boutonCCAM1, &QPushButton::clicked,      this,   [=] {appelleTableCCAM(wdg_codeline);});
     dlglayout()     ->addWidget(wdg_codewidg);
@@ -104,7 +108,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     code2lay        ->insertWidget(3, wdg_boutonCCAM2);
     code2lay        ->setContentsMargins(0,0,0,0);
     wdg_code2widg   ->setLayout(code2lay);
-    connect(wdg_codeline2,  &QLineEdit::textEdited,      this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_codeline2,  &QLineEdit::textEdited,      this,   [=] {regleOK();});
     connect(wdg_codeline2,  &QLineEdit::editingFinished, this,   [=] {remplitDepuisCCAM();});
     connect(wdg_boutonCCAM2, &QPushButton::clicked,      this,   [=] {appelleTableCCAM(wdg_codeline2);});
     dlglayout()     ->addWidget(wdg_code2widg);
@@ -113,7 +117,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     wdg_tarifoptamline  = new UpLineEdit();
     wdg_tarifoptamline  ->setFixedWidth(100);
     wdg_tarifoptamline  ->setAlignment(Qt::AlignRight);
-    wdg_tarifoptamline  ->setValidator(new QDoubleValidator(this));
+    wdg_tarifoptamline  ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
     wdg_optamlabel      = new UpLabel();
     wdg_tarifoptamwidg  = new QWidget();
     QHBoxLayout *optamlay = new QHBoxLayout;
@@ -122,14 +126,14 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     optamlay            ->insertWidget(2, wdg_tarifoptamline);
     optamlay            ->setContentsMargins(0,0,0,0);
     wdg_tarifoptamwidg  ->setLayout(optamlay);
-    connect(wdg_tarifoptamline, &QLineEdit::textEdited, this,   [=] {OKButton->setEnabled(true);});
+    connect(wdg_tarifoptamline, &QLineEdit::textEdited, this,   [=] {regleOK();});
     dlglayout()     ->addWidget(wdg_tarifoptamwidg);
 
     //! --- montant non OPTAM (masqué en mode 4) ---
     wdg_tarifnooptamline = new UpLineEdit();
     wdg_tarifnooptamline ->setFixedWidth(100);
     wdg_tarifnooptamline ->setAlignment(Qt::AlignRight);
-    wdg_tarifnooptamline ->setValidator(new QDoubleValidator(this));
+    wdg_tarifnooptamline ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
     UpLabel *nooptamlabel = new UpLabel();  nooptamlabel->setText(tr("Tarif conventionnel non OPTAM"));
     wdg_tarifnooptamwidg = new QWidget();
     QHBoxLayout *nooptamlay = new QHBoxLayout;
@@ -138,14 +142,14 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     nooptamlay          ->insertWidget(2, wdg_tarifnooptamline);
     nooptamlay          ->setContentsMargins(0,0,0,0);
     wdg_tarifnooptamwidg ->setLayout(nooptamlay);
-    connect(wdg_tarifnooptamline, &QLineEdit::textEdited, this, [=] {OKButton->setEnabled(true);});
+    connect(wdg_tarifnooptamline, &QLineEdit::textEdited, this, [=] {regleOK();});
     dlglayout()     ->addWidget(wdg_tarifnooptamwidg);
 
     //! --- montant pratiqué ---
     wdg_tarifpratiqueline = new UpLineEdit();
     wdg_tarifpratiqueline ->setFixedWidth(100);
     wdg_tarifpratiqueline ->setAlignment(Qt::AlignRight);
-    wdg_tarifpratiqueline ->setValidator(new QDoubleValidator(this));
+    wdg_tarifpratiqueline ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
     UpLabel *pratiquelabel = new UpLabel(); pratiquelabel->setText(tr("Tarif pratiqué"));
     wdg_tarifpratiquewidg = new QWidget();
     QHBoxLayout *pratiquelay = new QHBoxLayout;
@@ -154,7 +158,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     pratiquelay         ->insertWidget(2, wdg_tarifpratiqueline);
     pratiquelay         ->setContentsMargins(0,0,0,0);
     wdg_tarifpratiquewidg ->setLayout(pratiquelay);
-    connect(wdg_tarifpratiqueline, &QLineEdit::textEdited, this, [=] {OKButton->setEnabled(true);});
+    connect(wdg_tarifpratiqueline, &QLineEdit::textEdited, this, [=] {regleOK();});
     dlglayout()     ->addWidget(wdg_tarifpratiquewidg);
 
     //! --- tip (libellé / description) ---
@@ -169,7 +173,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     tiplay          ->insertWidget(2, wdg_tipline);
     tiplay          ->setContentsMargins(0,0,0,0);
     wdg_tipwidg     ->setLayout(tiplay);
-    connect(wdg_tipline, &QTextEdit::textChanged, this, [=] {OKButton->setEnabled(true);});
+    connect(wdg_tipline, &QTextEdit::textChanged, this, [=] {regleOK();});
     dlglayout()     ->addWidget(wdg_tipwidg);
 
     int marge = 5;
@@ -250,45 +254,85 @@ void dlg_gestioncotations::appliqueMode()
     wdg_tipline          ->setReadOnly(ccam);
 
     setWindowTitle(ccam ? tr("Cotation CCAM") : assoc ? tr("Association CCAM") : tr("Cotation"));
+
+    regleOK();      //! le changement de mode change les champs requis -> réévalue l'état du bouton OK
 }
 
 /*!
  * \brief dlg_gestioncotations::remplitDepuisCCAM
- * modes 1 et 2 : à partir du (des) code(s) CCAM saisi(s), remplit les montants (somme pour une
- * association), le libellé (repris de ccam) et le pratiqué par défaut (conventionnel selon OPTAM).
+ * modes 1 et 2 : à partir du (des) code(s) CCAM saisi(s), remplit les montants (association : 1er acte
+ * plein + 2e acte pour moitié), le libellé (repris de ccam) et le pratiqué (conventionnel selon le
+ * secteur OPTAM du parent).
  */
 void dlg_gestioncotations::remplitDepuisCCAM()
 {
     if (m_typecotation != 1 && m_typecotation != 2)
         return;
-    QStringList codes;
-    codes << wdg_codeline->text().trimmed();
-    if (m_typecotation == 2)
-        codes << wdg_codeline2->text().trimmed();
 
-    double optam = 0, nonoptam = 0;
-    QStringList noms;
-    for (const QString &code : codes)
-    {
+    //! petit lecteur d'un acte CCAM : rend optam/nonoptam/libellé ; false si code vide ou inconnu
+    auto litCCAM = [this] (const QString &code, double &optam, double &nonoptam, QString &nom) -> bool {
         if (code.isEmpty())
-            return;                         //! tant que tous les codes ne sont pas saisis, on ne remplit rien
+            return false;
         bool ok = false;
         QVariantList r = db->getFirstRecordFromStandardSelectSQL(
             "select " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_NOM_CCAM
             " from " TBL_CCAM " where " CP_CODECCAM_CCAM " = '" + code + "'", ok);
         if (!ok || r.size() < 3)
-            return;                         //! code inconnu de la CCAM : on laisse la vérification finale le signaler
-        optam    += r.at(0).toDouble();
-        nonoptam += r.at(1).toDouble();
-        noms     << r.at(2).toString();
+            return false;
+        optam    = r.at(0).toDouble();
+        nonoptam = r.at(1).toDouble();
+        nom      = r.at(2).toString();
+        return true;
+    };
+
+    double optam = 0, nonoptam = 0;
+    QString nom1;
+    if (!litCCAM(wdg_codeline->text().trimmed(), optam, nonoptam, nom1))
+        return;                             //! 1er code absent/inconnu : on ne remplit rien
+    QStringList noms;   noms << nom1;
+
+    //! association : le 2e acte compte pour MOITIÉ (optam1 + optam2/2, idem non-OPTAM)
+    if (m_typecotation == 2)
+    {
+        double optam2 = 0, nonoptam2 = 0;
+        QString nom2;
+        if (!litCCAM(wdg_codeline2->text().trimmed(), optam2, nonoptam2, nom2))
+            return;                         //! tant que le 2e code n'est pas saisi/valide, on n'écrit rien
+        optam    += optam2 / 2.0;
+        nonoptam += nonoptam2 / 2.0;
+        noms     << nom2;
     }
+
     wdg_tarifoptamline  ->setText(QLocale().toString(optam, 'f', 2));
     wdg_tarifnooptamline->setText(QLocale().toString(nonoptam, 'f', 2));
     wdg_tipline         ->setPlainText(noms.join(" + "));
-    //! pratiqué par défaut = conventionnel selon le secteur de l'utilisateur (OPTAM -> optam, sinon nonoptam)
-    const double conv = Datas::I()->users->userconnected()->isOPTAM() ? optam : nonoptam;
-    wdg_tarifpratiqueline->setText(QLocale().toString(conv, 'f', 2));
-    OKButton->setEnabled(true);
+
+    //! pratiqué par défaut = conventionnel selon le secteur du PARENT (titulaire) : OPTAM -> optam, sinon nonoptam
+    User *u      = Datas::I()->users->userconnected();
+    User *parent = Datas::I()->users->getById(u->idparent());
+    const bool optamRef = parent ? parent->isOPTAM() : u->isOPTAM();
+    wdg_tarifpratiqueline->setText(QLocale().toString(optamRef ? optam : nonoptam, 'f', 2));
+    regleOK();
+}
+
+/*!
+ * \brief dlg_gestioncotations::regleOK
+ * active OK selon le mode : CCAM (1) et association (2) exigent TOUS les lineedit visibles remplis ;
+ * « autre » (4) n'exige que le code et le tarif pratiqué (le conventionnel est facultatif).
+ */
+void dlg_gestioncotations::regleOK()
+{
+    auto rempli = [] (UpLineEdit *l) { return !l->text().trimmed().isEmpty(); };
+    bool complet;
+    if (m_typecotation == 1)                //! CCAM
+        complet = rempli(wdg_codeline) && rempli(wdg_tarifoptamline)
+                  && rempli(wdg_tarifnooptamline) && rempli(wdg_tarifpratiqueline);
+    else if (m_typecotation == 2)           //! association CCAM
+        complet = rempli(wdg_codeline) && rempli(wdg_codeline2) && rempli(wdg_tarifoptamline)
+                  && rempli(wdg_tarifnooptamline) && rempli(wdg_tarifpratiqueline);
+    else                                    //! autre : code + pratiqué (conventionnel facultatif)
+        complet = rempli(wdg_codeline) && rempli(wdg_tarifpratiqueline);
+    OKButton->setEnabled(complet);
 }
 
 /*!
