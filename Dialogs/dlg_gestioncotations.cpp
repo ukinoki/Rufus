@@ -69,8 +69,8 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     wdg_codeline    ->setMaxLength(15);
     wdg_codeline    ->setText(CodeActe);
     UpLabel *codelabel = new UpLabel();     codelabel->setText("Code");
-    wdg_boutonCCAM1 = new QPushButton("...");    //! bouton « parcourir » (façon PosteVideoDirupPushButton)
-    wdg_boutonCCAM1 ->setFixedWidth(40);
+    wdg_boutonCCAM1 = new UpSmallButton("...");  //! bouton « parcourir » (façon PosteVideoDirupPushButton)
+    wdg_boutonCCAM1 ->setFixedWidth(44);
     wdg_codewidg    = new QWidget();
     QHBoxLayout *codelay = new QHBoxLayout;
     codelay         ->insertWidget(0, codelabel);
@@ -90,8 +90,8 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     wdg_codeline2   ->setAlignment(Qt::AlignRight);
     wdg_codeline2   ->setMaxLength(15);
     UpLabel *code2label = new UpLabel();    code2label->setText(tr("2e code"));
-    wdg_boutonCCAM2 = new QPushButton("...");    //! copie du bouton « parcourir » pour le 2e code
-    wdg_boutonCCAM2 ->setFixedWidth(40);
+    wdg_boutonCCAM2 = new UpSmallButton("...");  //! copie du bouton « parcourir » pour le 2e code
+    wdg_boutonCCAM2 ->setFixedWidth(44);
     wdg_code2widg   = new QWidget();
     QHBoxLayout *code2lay = new QHBoxLayout;
     code2lay        ->insertWidget(0, code2label);

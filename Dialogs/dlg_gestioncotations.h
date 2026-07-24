@@ -21,7 +21,6 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QGroupBox>
 #include <QCheckBox>
 #include <QButtonGroup>
-#include <QPushButton>
 #include <QStandardItemModel>
 #include "procedures.h"
 
@@ -73,8 +72,8 @@ private:
     UpLineEdit  *wdg_tarifoptamline = Q_NULLPTR, *wdg_tarifnooptamline = Q_NULLPTR, *wdg_tarifpratiqueline = Q_NULLPTR;
     UpLabel     *wdg_optamlabel = Q_NULLPTR;     //!< retitré « Conventionnel » en mode 4
     UpTextEdit  *wdg_tipline = Q_NULLPTR;
-    QPushButton *wdg_boutonCCAM1 = Q_NULLPTR,    //!< « ... » à droite du 1er code : ouvre la table CCAM
-                *wdg_boutonCCAM2 = Q_NULLPTR;     //!< « ... » à droite du 2e code (association)
+    UpSmallButton *wdg_boutonCCAM1 = Q_NULLPTR,  //!< « ... » à droite du 1er code : ouvre la table CCAM
+                  *wdg_boutonCCAM2 = Q_NULLPTR;   //!< « ... » à droite du 2e code (association)
     QWidget     *wdg_codewidg = Q_NULLPTR, *wdg_code2widg = Q_NULLPTR, *wdg_tarifoptamwidg = Q_NULLPTR,
                 *wdg_tarifnooptamwidg = Q_NULLPTR, *wdg_tarifpratiquewidg = Q_NULLPTR, *wdg_tipwidg = Q_NULLPTR;
 
