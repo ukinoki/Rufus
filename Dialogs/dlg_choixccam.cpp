@@ -84,6 +84,15 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     connect(OKButton,       &QPushButton::clicked, this, [=] {accept();});
     connect(CancelButton,   &QPushButton::clicked, this, [=] {reject();});
 
+    //! seule la ligne de recherche prend le focus (clavier) ; les autres widgets restent cliquables à la
+    //! souris mais ne le captent pas. Elle a le focus dès l'ouverture -> on peut taper tout de suite.
+    wdg_table   ->setFocusPolicy(Qt::NoFocus);
+    wdg_libelle ->setFocusPolicy(Qt::NoFocus);
+    wdg_ophtaseul->setFocusPolicy(Qt::NoFocus);
+    OKButton    ->setFocusPolicy(Qt::NoFocus);
+    CancelButton->setFocusPolicy(Qt::NoFocus);
+    searchline()->setFocus();
+
     remplitTable();
 }
 
