@@ -97,6 +97,7 @@ private:
         l'utilisateur courant les utilise (used) */
     Cotations               *m_cotations             = Datas::I()->cotations;   //!< map de référence + used() du user courant
     UpStandardItemModel     *m_modelCotations        = nullptr;                 //!< modèle de cotationsUpTableView
+    QString                 m_msgVerrouCotations;                               //!< message (avec image du cadenas) affiché au clic sur la table verrouillée
     void                    Remplir_TableCotations();                           //!< (re)remplit la table des cotations (used cochées)
     Cotation*               getCotationFromIndex(QModelIndex idx);              //!< la cotation portée par la ligne d'index idx
     bool                    cotationUtiliseeParAutre(Cotation *cot);           //!< vrai si un autre utilisateur que le courant utilise cette cotation

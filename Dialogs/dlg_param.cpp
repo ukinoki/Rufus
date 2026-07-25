@@ -94,6 +94,10 @@ dlg_param::dlg_param(QWidget *parent) :
       + imgPlus  + " " + tr("créer une nouvelle cotation.<br>")
       + imgModif + " " + tr("modifier une cotation de type « autre ».<br>")
       + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise."));
+    //! message affiché au clic sur la table/les boutons quand la page est verrouillée (cf.
+    //! enableCotations + eventFilter) : invite à déverrouiller, avec l'image du cadenas.
+    m_msgVerrouCotations = baliseImg(Icons::pxVerrouiller().scaledToHeight(22, Qt::SmoothTransformation))
+                         + "  " + tr("Page verrouillée : cliquez sur le cadenas pour la déverrouiller et pouvoir la modifier.");
     UpSmallButton *aideCotationsBouton = new UpSmallButton();
     aideCotationsBouton         ->setIcon(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton));   //! « ? » cerclé = icône standard des whatsThis
     aideCotationsBouton         ->setIconSize(QSize(18, 18));
@@ -2478,6 +2482,16 @@ void dlg_param::VerifPosteImportDocs()
 
 bool dlg_param::eventFilter(QObject *obj, QEvent *event)
 {
+    //! ce filtre n'est posé sur le viewport de la table et sur la zone des cotations QUE lorsque la page
+    //! est verrouillée (cf. enableCotations) : on invite à déverrouiller (message avec l'image du cadenas)
+    //! et on avale le clic — aucune sélection ni action tant que c'est verrouillé.
+    if (event->type() == QEvent::MouseButtonPress
+        && (obj == ui->cotationsUpTableView->viewport()
+            || obj == wdg_cotationswdgbuttonframe->widgButtonParent()))
+    {
+        QToolTip::showText(QCursor::pos(), m_msgVerrouCotations, ui->cotationsUpTableView);
+        return true;
+    }
     if (event->type() == QEvent::MouseButtonRelease)
     {
         UpLabel *lbl = qobject_cast<UpLabel *>(obj);
@@ -2716,6 +2730,20 @@ void dlg_param::enableCotations(bool enable)
         itacte->setFlags(f);
     }
     wdg_cotationswdgbuttonframe->setEnabled(enable);   //! table + boutons cotations suivent le verrou de l'onglet user
+
+    //! page verrouillée : on filtre les clics sur la table (son viewport) et sur la zone des cotations
+    //! (widgButtonParent, qui reste actif — seul le WidgetButtonFrame est désactivé) pour inviter à
+    //! déverrouiller ; déverrouillée (enable), on RETIRE le filtre -> plus aucun message. removeEventFilter
+    //! d'abord (no-op si absent) évite tout doublon si enableCotations(false) est appelé plusieurs fois.
+    QWidget *zonecotations = wdg_cotationswdgbuttonframe->widgButtonParent();
+    QWidget *viewport      = ui->cotationsUpTableView->viewport();
+    viewport      ->removeEventFilter(this);
+    zonecotations ->removeEventFilter(this);
+    if (!enable)
+    {
+        viewport      ->installEventFilter(this);
+        zonecotations ->installEventFilter(this);
+    }
 }
 
 void dlg_param::EnableComOrNetworkWidgetsAppareilRefraction(UpComboBox *combo, QString txtport)
