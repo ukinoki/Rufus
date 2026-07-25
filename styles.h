@@ -64,6 +64,9 @@ public:
                 "QTabWidget::pane {border-top: 1px solid #C2C7CB;}"
                 "QTabWidget::tab-bar {left: 20px;}"
                 "QAbstractItemView {selection-color: rgb(255, 255, 255); selection-background-color: rgb(164, 205, 255); }"
+                //! items de menu désactivés en gris clair : par défaut (surtout sous Windows avec une
+                //! stylesheet d'appli active) ils restent quasi noirs, peu distincts des items actifs.
+                "QMenu::item:disabled {color: rgb(160,160,160);}"
                 "QTextEdit {background-color:white; border: 1px solid rgb(150,150,150); border-radius: 10px;}"
                 "QTextEdit:focus {border: 2px solid rgb(164, 205, 255);border-radius: 10px;}"
                 "QTreeWidget{background-color: white;}"
