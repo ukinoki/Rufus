@@ -62,12 +62,18 @@ dlg_param::dlg_param(QWidget *parent) :
     //! de la table ; comme il n'y a pas de « ? » de barre de titre ici (ni sous macOS), un petit bouton
     //! « ? » le fait apparaître. Images intégrées en inline (data URI) -> rendu garanti dans le rich
     //! text hors-écran de QWhatsThis, sans dépendre de la résolution des ressources qrc.
-    auto baliseImg = [](const QPixmap &px) -> QString {
+    //! chaque pixmap devient une balise <img> inline (data URI) DONT LA TAILLE EST FIXÉE explicitement
+    //! (largeur/hauteur), à la hauteur h passée : sans ça, le rich text affiche l'image à sa taille
+    //! physique — gonflée par le facteur d'échelle de l'écran / la taille native de l'icône — d'où les
+    //! icônes du buttonframe bien trop grandes. Largeur proportionnelle pour ne pas déformer.
+    auto baliseImg = [](const QPixmap &px, int h) -> QString {
         QByteArray ba;
         QBuffer buf(&ba);
         buf.open(QIODevice::WriteOnly);
         px.save(&buf, "PNG");
-        return "<img src=\"data:image/png;base64," + QString::fromLatin1(ba.toBase64()) + "\">";
+        const int w = (px.height() > 0) ? qRound(double(px.width()) * h / double(px.height())) : h;
+        return "<img width=\"" + QString::number(w) + "\" height=\"" + QString::number(h)
+             + "\" src=\"data:image/png;base64," + QString::fromLatin1(ba.toBase64()) + "\">";
     };
     //! pictogramme de la case à cocher (cochée) : dessiné par le style courant, comme dans la table.
     //! Sa hauteur (hcb) sert de gabarit commun -> on ramène TOUTES les autres icônes à cette taille.
@@ -81,11 +87,11 @@ dlg_param::dlg_param(QWidget *parent) :
     QPainter pcheck(&pxcheck);
     style()             ->drawPrimitive(QStyle::PE_IndicatorCheckBox, &optcheck, &pcheck, this);
     pcheck.end();
-    const QString imgCheck = baliseImg(pxcheck);
-    const QString imgPlus  = baliseImg(Icons::icAjouter().pixmap(hcb, hcb));
-    const QString imgModif = baliseImg(Icons::icEditer().pixmap(hcb, hcb));
-    const QString imgMoins = baliseImg(Icons::icRetirer().pixmap(hcb, hcb));
-    const QString imgAide  = baliseImg(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton).pixmap(hcb, hcb));
+    const QString imgCheck = baliseImg(pxcheck, hcb);
+    const QString imgPlus  = baliseImg(Icons::pxLittleAjouter(),  hcb);
+    const QString imgModif = baliseImg(Icons::pxLittleModifier(), hcb);
+    const QString imgMoins = baliseImg(Icons::pxLittleRetirer(),  hcb);
+    const QString imgAide  = baliseImg(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton).pixmap(hcb, hcb), hcb);
     ui->cotationsUpTableView->setWhatsThis(
         tr("<b>Table des cotations</b><br>")
       + imgCheck + " " + tr("<b>Cocher / décocher</b> un acte l'ajoute à vos cotations ou l'en retire ; "
@@ -98,7 +104,7 @@ dlg_param::dlg_param(QWidget *parent) :
       + imgAide  + " " + tr("rappeler cette aide."));
     //! message affiché au clic sur la table/les boutons quand la page est verrouillée (cf.
     //! enableCotations + eventFilter) : invite à déverrouiller, avec l'image du cadenas.
-    m_msgVerrouCotations = baliseImg(Icons::pxVerrouiller().scaledToHeight(22, Qt::SmoothTransformation))
+    m_msgVerrouCotations = baliseImg(Icons::pxVerrouiller(), 22)
                          + "  " + tr("Page verrouillée : cliquez sur le cadenas pour la déverrouiller et pouvoir la modifier.");
     UpSmallButton *aideCotationsBouton = new UpSmallButton();
     aideCotationsBouton         ->setIcon(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton));   //! « ? » cerclé = icône standard des whatsThis

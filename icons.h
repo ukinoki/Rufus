@@ -99,6 +99,11 @@ public:
     static QPixmap pxDown() { return foundPX("pxDown", "://down.png"); }
 
     static QPixmap pxEditer() { return foundPX("pxEditer", "://edit.png"); }
+    //! versions réduites des icônes des boutons, homogènes, pour les pictogrammes d'aide (whatsThis) :
+    //! découpées dans les images originales et ramenées à une petite taille commune. Réutilisables.
+    static QPixmap pxLittleAjouter()  { return foundPX("ComPlus",  "://ComPlus.png") .scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation); }
+    static QPixmap pxLittleModifier() { return foundPX("editLittle","://edit.png")   .scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation); }
+    static QPixmap pxLittleRetirer()  { return foundPX("ComMoins", "://ComMoins.png").scaled(16, 16, Qt::KeepAspectRatio, Qt::SmoothTransformation); }
     static QPixmap pxEnregistrer() { return foundPX("pxEnregistrer", "://Record.png"); }
     static QPixmap pxError() { return foundPX("pxError", "://error.png"); }
 
