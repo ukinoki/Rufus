@@ -2658,7 +2658,9 @@ void dlg_param::enableCotations(bool enable)
     if (m_modelCotations == Q_NULLPTR)
         return;
     //! modèle/vue : la case à cocher est portée par l'item de la colonne 0 ; on active ou non son
-    //! caractère cochable selon les droits de l'utilisateur
+    //! caractère cochable selon les droits de l'utilisateur. setFlags émet itemChanged : on le neutralise
+    //! (changement programmatique, pas un coche/décoche de l'utilisateur).
+    m_majCotationsProgrammatique = true;
     for (int row = 0; row < m_modelCotations->rowCount(); ++row)
     {
         QStandardItem *itacte = m_modelCotations->item(row, 0);
@@ -2668,6 +2670,7 @@ void dlg_param::enableCotations(bool enable)
         f.setFlag(Qt::ItemIsUserCheckable, autormodif);
         itacte->setFlags(f);
     }
+    m_majCotationsProgrammatique = false;
     wdg_cotationswdgbuttonframe->setEnabled(enable);   //! table + boutons cotations suivent le verrou de l'onglet user
 }
 
@@ -3924,6 +3927,8 @@ void dlg_param::Remplir_TableCotations()
     //! item modifié : colonne 2 (pratiqué) -> update du montant pratiqué dans la jointure ; colonne 0
     //! (coche/décoche) -> MAJCotation (ajoute/retire la jointure du user)
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {
+        if (m_majCotationsProgrammatique)               //! changement programmatique (enableCotations…) -> pas une action user
+            return;
         UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
         if (upit == Q_NULLPTR)
             return;
