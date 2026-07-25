@@ -3045,7 +3045,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (result > 0 && cheminRestauration.isEmpty() && !erreurRestauration)
         {
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000);
+            ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000, true);
             Utils::Pause(2500);
             QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
             exit(0);
