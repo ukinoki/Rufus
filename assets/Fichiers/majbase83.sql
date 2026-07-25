@@ -58,11 +58,13 @@ BEGIN
                 ALTER TABLE `rufus`.`ParametresSysteme`
                 ADD COLUMN `ValeurAMYDOM` DOUBLE NULL DEFAULT 2.72 AFTER `ValeurAMYMetropole`;
         END IF;
-    -- Ophtalmologie.IOLs.modelname : 45 -> 100 (noms d'implants IOL plus longs)
+    -- Ophtalmologie.IOLs.modelname : 45 -> 100 (noms d'implants IOL plus longs).
+    -- IOLs vit dans le schéma Ophtalmologie (pas rufus) : on QUALIFIE le TABLE_SCHEMA dans la sonde
+    -- INFORMATION_SCHEMA, sinon le COUNT porte sur tous les schémas et « IF tot=1 » peut échouer.
     SELECT COUNT(*) INTO tot FROM
         (SELECT COLUMN_NAME
         FROM INFORMATION_SCHEMA.COLUMNS
-        WHERE TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'modelname' AND CHARACTER_MAXIMUM_LENGTH < 100) as chp;
+        WHERE TABLE_SCHEMA = 'Ophtalmologie' AND TABLE_NAME = 'IOLs' AND COLUMN_NAME = 'modelname' AND CHARACTER_MAXIMUM_LENGTH < 100) as chp;
         IF tot=1
             THEN
                 ALTER TABLE `Ophtalmologie`.`IOLs`
