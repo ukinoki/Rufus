@@ -1021,6 +1021,28 @@ bool DataBase::verifMajCotations()
                         " set c." CP_MONTANTOPTAM_COTATIONS " = cc." CP_MONTANTOPTAM_CCAM ", "
                         "    c." CP_MONTANTNONOPTAM_COTATIONS " = cc." CP_MONTANTNONOPTAM_CCAM
                         " where c." CP_TYPECOTATION_COTATIONS " = 1");
+            /*! associations (type 2) : Typeacte = « code1+code2 ». On recalcule les 2 montants sur la
+                table ccam fraîche, selon la MÊME règle que la saisie (cf. remplitDepuisCCAM) : 1er acte
+                entier + 2e acte pour moitié. */
+            StandardSQL("update " TBL_COTATIONS " c"
+                        " join " TBL_CCAM " cc1 on cc1." CP_CODECCAM_CCAM " = substring_index(c." CP_TYPEACTE_COTATIONS ", '+', 1)"
+                        " join " TBL_CCAM " cc2 on cc2." CP_CODECCAM_CCAM " = substring_index(c." CP_TYPEACTE_COTATIONS ", '+', -1)"
+                        " set c." CP_MONTANTOPTAM_COTATIONS "    = round(cc1." CP_MONTANTOPTAM_CCAM "    + cc2." CP_MONTANTOPTAM_CCAM "    / 2, 2),"
+                        "     c." CP_MONTANTNONOPTAM_COTATIONS " = round(cc1." CP_MONTANTNONOPTAM_CCAM " + cc2." CP_MONTANTNONOPTAM_CCAM " / 2, 2)"
+                        " where c." CP_TYPECOTATION_COTATIONS " = 2");
+            /*! montants pratiqués (jointuresccam + jointuresassociations, TOUS les utilisateurs) : le
+                pratiqué doit rester au moins égal au conventionnel du user (montant optam ou non selon
+                isOPTAM() — OPTAM par défaut si non renseigné, comme côté C++). Après revalorisation :
+                si l'ancien pratiqué est passé SOUS le nouveau conventionnel, on le remonte ; s'il est
+                au-dessus (dépassement voulu par le user), on n'y touche pas. Les 2 tables ont les mêmes
+                noms de colonnes -> mêmes macros. */
+            const QString conv = "if(coalesce(u." CP_ISOPTAM_USR ", 1), c." CP_MONTANTOPTAM_COTATIONS ", c." CP_MONTANTNONOPTAM_COTATIONS ")";
+            for (const QString &tbljoint : {QString(TBL_JOINTURESCCAM), QString(TBL_JOINTURESASSOCIATIONS)})
+                StandardSQL("update " + tbljoint + " j"
+                            " join " TBL_COTATIONS " c on c." CP_ID_COTATIONS " = j." CP_IDCOTATION_JOINTCCAM
+                            " join " TBL_UTILISATEURS " u on u." CP_ID_USR " = j." CP_IDUSER_JOINTCCAM
+                            " set j." CP_MONTANTPRATIQUE_JOINTCCAM " = " + conv
+                          + " where j." CP_MONTANTPRATIQUE_JOINTCCAM " < " + conv);
             setversionCCAM(elCCAM.text().toDouble());   //! met à jour la version CCAM (base + mémoire)
         }
     }
