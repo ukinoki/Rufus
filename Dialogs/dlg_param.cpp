@@ -3861,7 +3861,7 @@ void dlg_param::Remplir_TableCotations()
     //! map de référence (loadCotations) + marquage used() de l'utilisateur courant (loadUserCotations)
     if (m_cotations == Q_NULLPTR)
         m_cotations = new Cotations(this);
-    m_cotations         ->loadCotations();
+    m_cotations         ->initListe();
     m_cotations         ->loadUserCotations(currentuser());
 
     if (m_modelCotations != Q_NULLPTR)

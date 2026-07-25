@@ -34,7 +34,7 @@ public:
     explicit Cotations(QObject *parent = nullptr);
     QMap<int, Cotation *> *cotations() const;
     QMap<int, Cotation *> *usercotations() const;
-    void loadCotations();                   //!< charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
+    void initListe();                   //!< charge toutes les cotations de la table (avec leur type), sans idUser ni montant pratiqué
     void completeTipsManquants();           //!< renseigne le Tip vide (CCAM depuis ccam, NGAP depuis le xml) — À N'APPELER QU'UNE FOIS au lancement, pas à chaque loadCotations
     void loadUserCotations(User *usr);      //!< réunit dans map_usercotations les cotations du user depuis les 4 tables de jointures
     User* userparent()      { return m_userparent; }

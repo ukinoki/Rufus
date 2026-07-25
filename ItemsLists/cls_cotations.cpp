@@ -36,11 +36,11 @@ QMap<int, Cotation *> *Cotations::usercotations() const
 }
 
 /*!
- * \brief Cotations::loadCotations
+ * \brief Cotations::initListe
  * Charge l'ensemble des cotations de la table cotations (avec leur type), sans idUser ni montant
  * pratiqué (désormais portés par les tables de jointures par utilisateur).
  */
-void Cotations::loadCotations()
+void Cotations::initListe()
 {
     //! map de référence clée par idcotation (unique dans la table)
     QList<Cotation*> listcotations = DataBase::I()->loadCotations();
@@ -53,7 +53,7 @@ void Cotations::loadCotations()
  * Renseigne le Tip (descriptif) des cotations dont il est vide, à partir des libellés officiels :
  * - CCAM : depuis la table ccam ;
  * - NGAP (AMY) : depuis le fichier de cotations (xml).
- * À n'appeler qu'UNE fois au lancement (après loadCotations), PAS à chaque loadCotations : la
+ * À n'appeler qu'UNE fois au lancement (après initListe), PAS à chaque initListe : la
  * lecture du fichier et les écritures ne doivent pas se répéter à chaque ouverture des paramètres.
  * Persiste chaque libellé par ItemsList::update (base + objet en mémoire) ; ne coûte qu'au premier
  * lancement, ensuite les Tip sont renseignés et les conditions ci-dessous ne sont plus vraies.
@@ -61,7 +61,7 @@ void Cotations::loadCotations()
 void Cotations::completeTipsManquants()
 {
     if (map_cotations->isEmpty())
-        loadCotations();
+        initListe();
     //! CCAM : libellé depuis la table ccam
     for (Cotation *c : *map_cotations)
     {

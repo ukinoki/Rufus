@@ -4536,7 +4536,7 @@ void Rufus::OuvrirParametres()
         setWindowTitle("Rufus - " + currentuser()->login() + " - " + currentuser()->fonction());
     if (Dlg_Param->CotationsModifiees())
     {
-        Datas::I()->cotations->loadCotations();
+        Datas::I()->cotations->initListe();
         User *userparent = Datas::I()->users->getById(currentuser()->idparent());
         if (Datas::I()->cotations->cotations()->size() == 0)
             if (userparent)
