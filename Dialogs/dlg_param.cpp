@@ -17,6 +17,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFile>
 #include <QMenu>
+#include <QWhatsThis>
 #include "dlg_param.h"
 #include "icons.h"
 #include "ui_dlg_param.h"
@@ -52,6 +53,25 @@ dlg_param::dlg_param(QWidget *parent) :
 
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
+
+    //! aide de la table des cotations : le résumé vit dans le whatsThis de la table ; comme il n'y a
+    //! pas de « ? » de barre de titre ici (ni sous macOS), un petit bouton « ? » le fait apparaître.
+    ui->cotationsUpTableView->setWhatsThis(
+        tr("<b>Table des cotations</b><br>"
+           "• <b>Cocher / décocher</b> un acte l'ajoute à vos cotations ou l'en retire ; à la coche, "
+             "le montant pratiqué s'ouvre en édition (sauf NGAP).<br>"
+           "• <b>Clic droit</b> sur une ligne : menu pour modifier le montant pratiqué, modifier la "
+             "cotation (type « autre ») ou la supprimer.<br>"
+           "• <b>+</b> : créer une nouvelle cotation.<br>"
+           "• <b>Modifier</b> : modifier une cotation de type « autre ».<br>"
+           "• <b>-</b> : supprimer la cotation sélectionnée, si personne d'autre ne l'utilise."));
+    UpSmallButton *aideCotationsBouton = new UpSmallButton("?");
+    aideCotationsBouton         ->setToolTip(tr("Que puis-je faire dans cette table ?"));
+    connect(aideCotationsBouton, &UpSmallButton::clicked, this, [=] {
+        QWhatsThis::showText(aideCotationsBouton->mapToGlobal(QPoint(0, aideCotationsBouton->height())),
+                             ui->cotationsUpTableView->whatsThis(), aideCotationsBouton);
+    });
+    wdg_cotationswdgbuttonframe->layButtons()->addWidget(aideCotationsBouton);
 
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
