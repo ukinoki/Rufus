@@ -438,11 +438,9 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     m_tblCorresp->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_tblCorresp, &QTableView::doubleClicked,              this, &FicheVitale::activerDepuisCorresp);
     connect(m_tblCorresp, &QTableView::customContextMenuRequested, this, &FicheVitale::menuCorresp);
-    // Ouvrir / Salle d'attente actifs seulement quand une correspondance est sélectionnée.
-    connect(m_tblCorresp->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
-        const bool sel = !m_tblCorresp->selectionModel()->selectedRows().isEmpty();
-        if (m_btnOuvrir) m_btnOuvrir->setEnabled(sel);
-        if (m_btnSalle)  m_btnSalle->setEnabled(sel); });
+    // Ouvrir / Salle d'attente actifs seulement quand une correspondance est sélectionnée : géré par
+    // une fonction unique, déclenchée par tout changement de surbrillance dans la table des approchants.
+    connect(m_tblCorresp->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FicheVitale::majEtatBoutons);
     m_tblPorteur->installEventFilter(this);
     m_tblAyants->installEventFilter(this);
 
@@ -594,6 +592,16 @@ int FicheVitale::idCorrespChoisi() const
     const int row = sel.isEmpty() ? 0 : sel.first().row();
     UpStandardItem *it = static_cast<UpStandardItem*>(model->item(row, 0));
     return it ? it->listids().value(0) : 0;
+}
+
+// Fonction UNIQUE d'état des boutons Ouvrir / Salle d'attente : actifs ssi une correspondance est
+// sélectionnée (sélection automatique du dossier vert, ou choix manuel dans la liste des approchants).
+// Déclenchée par tout changement de surbrillance dans la table des dossiers approchants.
+void FicheVitale::majEtatBoutons()
+{
+    const bool sel = !m_tblCorresp->selectionModel()->selectedRows().isEmpty();
+    if (m_btnOuvrir) m_btnOuvrir->setEnabled(sel);
+    if (m_btnSalle)  m_btnSalle->setEnabled(sel);
 }
 
 //-----------------------------------------------------------------------------------------------------

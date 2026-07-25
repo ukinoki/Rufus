@@ -68,6 +68,7 @@ private slots:
     void activerDepuisCorresp(const QModelIndex &index);  //!< double-clic sur une correspondance → on renvoie le dossier
     void menuCorresp(const QPoint &pos);                  //!< clic droit : ouvrir le dossier / inscrire en salle d'attente
     void rechercheManuelle();                             //!< recherche manuelle d'un dossier (bouton archive)
+    void majEtatBoutons();                                //!< active Ouvrir / Salle d'attente ssi une correspondance est sélectionnée
 
 private:
     QList<LecteurVitale::Porteur> m_porteurs;   //!< [0] = assuré ; [1..] = ayants droit
