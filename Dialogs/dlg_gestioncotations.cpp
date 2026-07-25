@@ -68,100 +68,61 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     connect(wdg_chkAssoc,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 2; appliqueMode(); remplitDepuisCCAM();}});
     connect(wdg_chkAutre,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 4; appliqueMode(); remplitDepuisCCAM();}});
 
-    //! --- code (1er) ---
-    wdg_codeline    = new UpLineEdit();
-    wdg_codeline    ->setFixedWidth(150);
-    wdg_codeline    ->setAlignment(Qt::AlignRight);
-    wdg_codeline    ->setMaxLength(15);
-    wdg_codeline    ->setText(CodeActe);
-    UpLabel *codelabel = new UpLabel();     codelabel->setText("Code");
-    wdg_boutonCCAM1 = new QPushButton("...");  //! bouton « parcourir » (façon PosteVideoDirupPushButton)
-    wdg_boutonCCAM1 ->setFixedSize(54,32);
-    wdg_boutonCCAM1 ->setToolTip(tr("Choisir un code CCAM)"));
-    wdg_boutonCCAM1 ->setFocusPolicy(Qt::NoFocus);
-    wdg_codewidg    = new QWidget();
-    QHBoxLayout *codelay = new QHBoxLayout;
-    codelay         ->insertWidget(0, codelabel);
-    codelay         ->insertSpacerItem(1, new QSpacerItem(10,5));
-    codelay         ->insertWidget(2, wdg_codeline);
-    codelay         ->insertWidget(3, wdg_boutonCCAM1);
-    codelay         ->setContentsMargins(0,0,0,0);
-    wdg_codewidg    ->setLayout(codelay);
-    connect(wdg_codeline,   &QLineEdit::textEdited,      this,   [=] {regleOK();});
-    connect(wdg_codeline,   &QLineEdit::editingFinished, this,   [=] {remplitDepuisCCAM();});
-    connect(wdg_boutonCCAM1, &QPushButton::clicked,      this,   [=] {appelleTableCCAM(wdg_codeline);});
-    dlglayout()     ->addWidget(wdg_codewidg);
+    //! fabriques de lignes de saisie : même présentation d'une ligne à l'autre, sans la répéter.
+    //! ligneCode  : label + champ code + bouton « ... » (appel de la table CCAM) ;
+    //! ligneMontant : label + champ montant (validateur numérique). Elles renseignent les pointeurs
+    //! membres passés par référence et ajoutent la ligne au layout.
+    auto ligneCode = [&] (UpLineEdit *&edit, QPushButton *&bouton, QWidget *&widg, const QString &texteLabel) {
+        edit    = new UpLineEdit();
+        edit    ->setFixedWidth(150);
+        edit    ->setAlignment(Qt::AlignRight);
+        edit    ->setMaxLength(15);
+        UpLabel *label = new UpLabel();     label->setText(texteLabel);
+        bouton  = new QPushButton("...");   //! bouton « parcourir » (façon PosteVideoDirupPushButton)
+        bouton  ->setFixedSize(54,32);
+        bouton  ->setToolTip(tr("Choisir un code CCAM"));
+        bouton  ->setFocusPolicy(Qt::NoFocus);
+        widg    = new QWidget();
+        QHBoxLayout *lay = new QHBoxLayout;
+        lay     ->insertWidget(0, label);
+        lay     ->insertSpacerItem(1, new QSpacerItem(10,5));
+        lay     ->insertWidget(2, edit);
+        lay     ->insertWidget(3, bouton);
+        lay     ->setContentsMargins(0,0,0,0);
+        widg    ->setLayout(lay);
+        connect(edit,   &QLineEdit::textEdited,      this, [=] {regleOK();});
+        connect(edit,   &QLineEdit::editingFinished, this, [=] {remplitDepuisCCAM();});
+        connect(bouton, &QPushButton::clicked,       this, [=] {appelleTableCCAM(edit);});
+        dlglayout()->addWidget(widg);
+    };
+    auto ligneMontant = [&] (UpLineEdit *&edit, QWidget *&widg, UpLabel *label) {
+        edit    = new UpLineEdit();
+        edit    ->setFixedWidth(100);
+        edit    ->setAlignment(Qt::AlignRight);
+        edit    ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
+        widg    = new QWidget();
+        QHBoxLayout *lay = new QHBoxLayout;
+        lay     ->insertWidget(0, label);
+        lay     ->insertSpacerItem(1, new QSpacerItem(10,5));
+        lay     ->insertWidget(2, edit);
+        lay     ->setContentsMargins(0,0,0,0);
+        widg    ->setLayout(lay);
+        connect(edit, &QLineEdit::textEdited, this, [=] {regleOK();});
+        dlglayout()->addWidget(widg);
+    };
 
-    //! --- code (2e, association) ---
-    wdg_codeline2   = new UpLineEdit();
-    wdg_codeline2   ->setFixedWidth(150);
-    wdg_codeline2   ->setAlignment(Qt::AlignRight);
-    wdg_codeline2   ->setMaxLength(15);
-    UpLabel *code2label = new UpLabel();    code2label->setText(tr("2e code"));
-    wdg_boutonCCAM2 = new QPushButton("...");  //! bouton « parcourir » (façon PosteVideoDirupPushButton)
-    wdg_boutonCCAM2 ->setFixedSize(54,32);
-    wdg_boutonCCAM2 ->setToolTip(tr("Choisir un code CCAM)"));
-    wdg_boutonCCAM2 ->setFocusPolicy(Qt::NoFocus);
-    wdg_code2widg   = new QWidget();
-    QHBoxLayout *code2lay = new QHBoxLayout;
-    code2lay        ->insertWidget(0, code2label);
-    code2lay        ->insertSpacerItem(1, new QSpacerItem(10,5));
-    code2lay        ->insertWidget(2, wdg_codeline2);
-    code2lay        ->insertWidget(3, wdg_boutonCCAM2);
-    code2lay        ->setContentsMargins(0,0,0,0);
-    wdg_code2widg   ->setLayout(code2lay);
-    connect(wdg_codeline2,  &QLineEdit::textEdited,      this,   [=] {regleOK();});
-    connect(wdg_codeline2,  &QLineEdit::editingFinished, this,   [=] {remplitDepuisCCAM();});
-    connect(wdg_boutonCCAM2, &QPushButton::clicked,      this,   [=] {appelleTableCCAM(wdg_codeline2);});
-    dlglayout()     ->addWidget(wdg_code2widg);
+    //! --- code (1er), puis 2e code (association) ---
+    ligneCode(wdg_codeline,  wdg_boutonCCAM1, wdg_codewidg,  "Code");
+    wdg_codeline ->setText(CodeActe);
+    ligneCode(wdg_codeline2, wdg_boutonCCAM2, wdg_code2widg, tr("2e code"));
 
-    //! --- montant OPTAM / conventionnel ---
-    wdg_tarifoptamline  = new UpLineEdit();
-    wdg_tarifoptamline  ->setFixedWidth(100);
-    wdg_tarifoptamline  ->setAlignment(Qt::AlignRight);
-    wdg_tarifoptamline  ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
-    wdg_optamlabel      = new UpLabel();
-    wdg_tarifoptamwidg  = new QWidget();
-    QHBoxLayout *optamlay = new QHBoxLayout;
-    optamlay            ->insertWidget(0, wdg_optamlabel);
-    optamlay            ->insertSpacerItem(1, new QSpacerItem(10,5));
-    optamlay            ->insertWidget(2, wdg_tarifoptamline);
-    optamlay            ->setContentsMargins(0,0,0,0);
-    wdg_tarifoptamwidg  ->setLayout(optamlay);
-    connect(wdg_tarifoptamline, &QLineEdit::textEdited, this,   [=] {regleOK();});
-    dlglayout()     ->addWidget(wdg_tarifoptamwidg);
-
-    //! --- montant non OPTAM (masqué en mode 4) ---
-    wdg_tarifnooptamline = new UpLineEdit();
-    wdg_tarifnooptamline ->setFixedWidth(100);
-    wdg_tarifnooptamline ->setAlignment(Qt::AlignRight);
-    wdg_tarifnooptamline ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
-    UpLabel *nooptamlabel = new UpLabel();  nooptamlabel->setText(tr("Tarif conventionnel non OPTAM"));
-    wdg_tarifnooptamwidg = new QWidget();
-    QHBoxLayout *nooptamlay = new QHBoxLayout;
-    nooptamlay          ->insertWidget(0, nooptamlabel);
-    nooptamlay          ->insertSpacerItem(1, new QSpacerItem(10,5));
-    nooptamlay          ->insertWidget(2, wdg_tarifnooptamline);
-    nooptamlay          ->setContentsMargins(0,0,0,0);
-    wdg_tarifnooptamwidg ->setLayout(nooptamlay);
-    connect(wdg_tarifnooptamline, &QLineEdit::textEdited, this, [=] {regleOK();});
-    dlglayout()     ->addWidget(wdg_tarifnooptamwidg);
-
-    //! --- montant pratiqué ---
-    wdg_tarifpratiqueline = new UpLineEdit();
-    wdg_tarifpratiqueline ->setFixedWidth(100);
-    wdg_tarifpratiqueline ->setAlignment(Qt::AlignRight);
-    wdg_tarifpratiqueline ->setValidator(new QRegularExpressionValidator(rgxMontant, this));
-    UpLabel *pratiquelabel = new UpLabel(); pratiquelabel->setText(tr("Tarif pratiqué"));
-    wdg_tarifpratiquewidg = new QWidget();
-    QHBoxLayout *pratiquelay = new QHBoxLayout;
-    pratiquelay         ->insertWidget(0, pratiquelabel);
-    pratiquelay         ->insertSpacerItem(1, new QSpacerItem(10,5));
-    pratiquelay         ->insertWidget(2, wdg_tarifpratiqueline);
-    pratiquelay         ->setContentsMargins(0,0,0,0);
-    wdg_tarifpratiquewidg ->setLayout(pratiquelay);
-    connect(wdg_tarifpratiqueline, &QLineEdit::textEdited, this, [=] {regleOK();});
-    dlglayout()     ->addWidget(wdg_tarifpratiquewidg);
+    //! --- montants : OPTAM/conventionnel (label retitré par appliqueMode), non OPTAM (masqué en mode 4), pratiqué ---
+    wdg_optamlabel = new UpLabel();     //! son texte est posé par appliqueMode selon le mode
+    ligneMontant(wdg_tarifoptamline,    wdg_tarifoptamwidg,   wdg_optamlabel);
+    UpLabel *nooptamlabel  = new UpLabel();  nooptamlabel ->setText(tr("Tarif conventionnel non OPTAM"));
+    ligneMontant(wdg_tarifnooptamline,  wdg_tarifnooptamwidg, nooptamlabel);
+    UpLabel *pratiquelabel = new UpLabel();  pratiquelabel->setText(tr("Tarif pratiqué"));
+    ligneMontant(wdg_tarifpratiqueline, wdg_tarifpratiquewidg, pratiquelabel);
 
     //! --- tip (libellé / description) ---
     wdg_tipline     = new UpTextEdit();

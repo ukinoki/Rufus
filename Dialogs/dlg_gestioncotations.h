@@ -44,8 +44,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
     * codeLine (+ codeLine2 en association), 3 montants (optam/conventionnel, nonoptam, pratiqué),
       le tip, et le bouton d'appel de la table CCAM (mode 1 seulement).
 
- TODO : la 2e fiche (table des actes CCAM, appelée par le bouton) et le stockage propre d'une
- association à 2 codes restent à faire (aujourd'hui l'association est stockée « code1+code2 »).
+ TODO : stockage propre d'une association à 2 codes (aujourd'hui « code1+code2 » dans un seul champ).
 */
 
 class dlg_gestioncotations : public UpDialog
