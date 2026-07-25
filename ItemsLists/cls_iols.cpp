@@ -18,6 +18,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "cls_iols.h"
 #include "gbl_datas.h"
 #include "utils.h"
+#include "upprogressdialog.h"
 #include <QtXml>
 #include <QtNetwork>
 #include <QPointer>
@@ -334,8 +335,19 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                 }
         }
     }
+    //! barre de progression : sur certaines machines l'intégration est lente et on peut croire à un
+    //! plantage. Affichée seulement en appel interactif (parent non nul). setValue rafraîchit tout seul
+    //! (QProgressDialog modal appelle processEvents en interne).
+    UpProgressDialog *prog = (parent != nullptr) ? new UpProgressDialog(0, xml.childNodes().size(), parent) : nullptr;
+    if (prog != nullptr)
+    {
+        prog->setLabelText(tr("Intégration de la nouvelle liste d'implants…"));
+        prog->show();
+    }
     for (int i=0; i<xml.childNodes().size(); i++)
     {
+        if (prog != nullptr)
+            prog->setValue(i);
         QDomElement childnode = xml.childNodes().at(i).toElement();
         if (childnode.tagName() == "Lens")
         {
@@ -849,8 +861,16 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
     //! setimage comprime l'image (data d'un seul IOL) ; ItemsList::update la persiste. On ne touche
     //! qu'aux bitmaps encore au-dessus du seuil (les PDF ne sont pas comprimés).
     const int total = int(Datas::I()->iols->iols()->size());
+    if (prog != nullptr)
+    {
+        prog->setLabelText(tr("Optimisation des images des implants…"));
+        prog->setRange(0, total);
+    }
+    int nprog = 0;
     for (auto it = Datas::I()->iols->iols()->constBegin(); it != Datas::I()->iols->iols()->constEnd(); ++it)
     {
+        if (prog != nullptr)
+            prog->setValue(nprog++);
         IOL *iol = const_cast<IOL*>(it.value());
         if (iol->imageformat() != PDF && iol->arrayimgiol().size() >= SIZEMAXIMGIOL)
         {
@@ -864,6 +884,9 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                                               tr("Impossible de mettre à jour l'image de l'implant"));
         }
     }
+
+    if (prog != nullptr)
+        delete prog;                                    //! intégration terminée : on ferme la barre avant le récapitulatif
 
     //! Récapitulatif affiché seulement si un parent graphique est fourni (appel interactif) ; un
     //! appelant sans IHM (parent nul) fait la mise à jour en silence.
