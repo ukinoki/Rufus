@@ -222,8 +222,7 @@ private:
     QString                 m_nomImprimante;
     QString                 m_dirnamepdf = "";
     QString                 m_filenamepdf = "";
-    QPrinter                *m_printer;
-    QRectF                  m_rect;
+    QPrinter                *m_printer = Q_NULLPTR;
 
 public:
     QString dirnamepdf() const;

@@ -259,14 +259,11 @@ Procedures::Procedures(QObject *parent) :
     ReconstruitListeModesAcces();
     m_typemesureRefraction               = GenericProtocol::MesureNone;
     m_dlgrefractionouverte    = false;
-    int margemm         = TailleTopMarge(); // exprimé en mm
-    m_printer             = new QPrinter(QPrinter::HighResolution);
-    m_printer             ->setFullPage(true);
-    m_rect                = m_printer->paperRect(QPrinter::Inch);
-    m_rect.adjust(Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
-                  Utils::mmToInches(margemm) * m_printer->logicalDpiY(),
-                - Utils::mmToInches(margemm) * m_printer->logicalDpiX(),
-                - Utils::mmToInches(margemm) * m_printer->logicalDpiY());
+    /*! on ne crée AUCUN QPrinter ici : sous Windows, construire un QPrinter résout l'imprimante par
+        défaut et, si c'est une imprimante réseau éteinte, gèle le démarrage plusieurs dizaines de
+        secondes (« tentative de connexion à l'imprimante »). Le QPrinter n'est utile qu'à
+        l'impression d'images (Print()) : on l'y crée à la demande. */
+    m_printer             = Q_NULLPTR;
 }
 
 void Procedures::CleanIniFile()
@@ -2064,6 +2061,11 @@ void Procedures::PdfOrPrint(QWidget *parent, QList<QImage> listimage, QMap<QStri
 
 bool Procedures::Print(QList<QImage> listimage)
 {
+    if (m_printer == Q_NULLPTR)                      /*! création différée (voir constructeur) */
+    {
+        m_printer             = new QPrinter(QPrinter::HighResolution);
+        m_printer             ->setFullPage(true);
+    }
     auto print = [=]
     {
         QPainter PrintingPreView(m_printer);
