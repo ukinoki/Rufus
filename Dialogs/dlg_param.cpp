@@ -55,38 +55,22 @@ dlg_param::dlg_param(QWidget *parent) :
 
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
-    QVBoxLayout *AllCotationslay= new QVBoxLayout();
     int marge   = 10;
-    AllCotationslay     ->setSpacing(marge);
     marge = 0;
-    AllCotationslay     ->setContentsMargins(marge,marge,marge,marge);
     Margelay            ->setContentsMargins(marge,marge,marge,marge);
     Margelay            ->setSpacing(marge);
 
     Cotationslay        ->addWidget(ui->Cotationslabel);
     Cotationslay        ->addWidget(wdg_cotationswdgbuttonframe->widgButtonParent());
-    //Cotationslay        ->setStretch(1,15);
 
     Margelay            ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Maximum, QSizePolicy::Minimum));
     Margelay            ->addLayout(Cotationslay);
     Margelay            ->setStretch(1,14);
 
-    AllCotationslay     ->addLayout(Margelay);
 
-    AllCotationslay     ->setStretch(0,7);
-    AllCotationslay     ->setStretch(1,5);
 
-    if (m_parametres->cotationsfrance())    {
-
-        AllCotationslay ->insertWidget(0,ui->CCAMwidget);
-        AllCotationslay ->setStretch(0,8);
-        AllCotationslay ->setStretch(1,7);
-    }
-    else
-        ui->CCAMwidget->setVisible(false);
-
-    ui->Cotationslabel  ->setText(tr("Cotations") + "\n" + tr("Clic droit sur un item pour modifier le montant pratiqué"));
-    ui->Cotationswidget ->setLayout(AllCotationslay);
+    ui->Cotationslabel  ->setText("\n" + tr("Cotations") + "\n" + tr("Clic droit sur un item pour modifier le montant pratiqué") + "\n");
+    ui->Cotationswidget ->setLayout(Margelay);
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
     ui->GeneralParamtab ->setLayout(ui->GeneralLayout);

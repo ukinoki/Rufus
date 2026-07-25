@@ -65,7 +65,7 @@
       <enum>Qt::ContextMenuPolicy::NoContextMenu</enum>
      </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="UserParamtab">
       <property name="minimumSize">
@@ -527,7 +527,7 @@
              <property name="geometry">
               <rect>
                <x>30</x>
-               <y>397</y>
+               <y>50</y>
                <width>261</width>
                <height>16</height>
               </rect>
@@ -542,8 +542,8 @@
             <widget class="UpLineEdit" name="ChercheCotationupLineEdit">
              <property name="geometry">
               <rect>
-               <x>27</x>
-               <y>550</y>
+               <x>40</x>
+               <y>670</y>
                <width>91</width>
                <height>25</height>
               </rect>
@@ -552,16 +552,16 @@
             <widget class="UpTableView" name="cotationsUpTableView">
              <property name="geometry">
               <rect>
-               <x>30</x>
-               <y>420</y>
+               <x>20</x>
+               <y>90</y>
                <width>400</width>
-               <height>120</height>
+               <height>550</height>
               </rect>
              </property>
              <property name="minimumSize">
               <size>
                <width>278</width>
-               <height>0</height>
+               <height>550</height>
               </size>
              </property>
              <property name="maximumSize">
@@ -626,30 +626,6 @@
                <height>16777215</height>
               </size>
              </property>
-            </widget>
-            <widget class="QWidget" name="CCAMwidget" native="true">
-             <property name="geometry">
-              <rect>
-               <x>0</x>
-               <y>30</y>
-               <width>330</width>
-               <height>255</height>
-              </rect>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_5">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-             </layout>
             </widget>
            </widget>
           </item>
