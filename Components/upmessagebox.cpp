@@ -95,19 +95,6 @@ UpMessageBox::~UpMessageBox()
 {
 }
 
-void UpMessageBox::showEvent(QShowEvent *event)
-{
-    UpDialog::showEvent(event);
-    //! sans widget parent, la boîte pourrait apparaître hors du regard (ex. en bas à droite selon le
-    //! gestionnaire de fenêtres) : on la recentre sur l'écran maintenant que sa taille est connue.
-    if (parentWidget() == Q_NULLPTR)
-        if (const QScreen *ecran = QApplication::primaryScreen())
-        {
-            const QRect z = ecran->availableGeometry();
-            move(z.center().x() - width()/2, z.center().y() - height()/2);
-        }
-}
-
 void UpMessageBox::addButton(UpSmallButton *button, enum UpSmallButton::StyleBouton Style)
 {
     button->setUpButtonStyle(Style);
