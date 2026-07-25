@@ -1033,19 +1033,9 @@ bool DataBase::verifMajCotations()
                         " set c." CP_MONTANTOPTAM_COTATIONS "    = round(cc1." CP_MONTANTOPTAM_CCAM "    + cc2." CP_MONTANTOPTAM_CCAM "    / 2, 2),"
                         "     c." CP_MONTANTNONOPTAM_COTATIONS " = round(cc1." CP_MONTANTNONOPTAM_CCAM " + cc2." CP_MONTANTNONOPTAM_CCAM " / 2, 2)"
                         " where c." CP_TYPECOTATION_COTATIONS " = 2");
-            /*! montants pratiqués (jointuresccam + jointuresassociations, TOUS les utilisateurs) : le
-                pratiqué doit rester au moins égal au conventionnel du user (montant optam ou non selon
-                isOPTAM() — OPTAM par défaut si non renseigné, comme côté C++). Après revalorisation :
-                si l'ancien pratiqué est passé SOUS le nouveau conventionnel, on le remonte ; s'il est
-                au-dessus (dépassement voulu par le user), on n'y touche pas. Les 2 tables ont les mêmes
-                noms de colonnes -> mêmes macros. */
-            const QString conv = "if(coalesce(u." CP_ISOPTAM_USR ", 1), c." CP_MONTANTOPTAM_COTATIONS ", c." CP_MONTANTNONOPTAM_COTATIONS ")";
-            for (const QString &tbljoint : {QString(TBL_JOINTURESCCAM), QString(TBL_JOINTURESASSOCIATIONS)})
-                StandardSQL("update " + tbljoint + " j"
-                            " join " TBL_COTATIONS " c on c." CP_ID_COTATIONS " = j." CP_IDCOTATION_JOINTCCAM
-                            " join " TBL_UTILISATEURS " u on u." CP_ID_USR " = j." CP_IDUSER_JOINTCCAM
-                            " set j." CP_MONTANTPRATIQUE_JOINTCCAM " = " + conv
-                          + " where j." CP_MONTANTPRATIQUE_JOINTCCAM " < " + conv);
+            //! la remontée des montants pratiqués sous le conventionnel n'est PAS faite ici : c'est un
+            //! invariant permanent (pas seulement lors d'une revalorisation) -> corrigeMontantsPratiques(),
+            //! appelé à chaque démarrage, hors de ces gardes.
             setversionCCAM(elCCAM.text().toDouble());   //! met à jour la version CCAM (base + mémoire)
         }
     }
@@ -1105,6 +1095,28 @@ bool DataBase::verifMajCotations()
     ini.setValue(cleDateCotations, QDate::currentDate().toString("yyyy-MM-dd"));
 
     return true;                                        //! fichier lu (déclenche completeTipsManquants côté appelant)
+}
+
+/*!
+ * \brief DataBase::corrigeMontantsPratiques
+ * fait respecter l'invariant « montant pratiqué >= conventionnel du user » sur jointuresccam et
+ * jointuresassociations, pour TOUS les utilisateurs : un pratiqué passé sous le conventionnel (montant
+ * optam ou non selon isOPTAM() du user, OPTAM par défaut si non renseigné) est remonté au conventionnel ;
+ * un pratiqué au-dessus (dépassement voulu) n'est pas touché. À appeler à CHAQUE démarrage : la règle
+ * doit tenir en permanence, pas seulement lors d'une revalorisation CCAM. Les 2 tables ont les mêmes
+ * noms de colonnes -> mêmes macros.
+ */
+void DataBase::corrigeMontantsPratiques()
+{
+    if (!m_db.isOpen())
+        return;
+    const QString conv = "if(coalesce(u." CP_ISOPTAM_USR ", 1), c." CP_MONTANTOPTAM_COTATIONS ", c." CP_MONTANTNONOPTAM_COTATIONS ")";
+    for (const QString &tbljoint : {QString(TBL_JOINTURESCCAM), QString(TBL_JOINTURESASSOCIATIONS)})
+        StandardSQL("update " + tbljoint + " j"
+                    " join " TBL_COTATIONS " c on c." CP_ID_COTATIONS " = j." CP_IDCOTATION_JOINTCCAM
+                    " join " TBL_UTILISATEURS " u on u." CP_ID_USR " = j." CP_IDUSER_JOINTCCAM
+                    " set j." CP_MONTANTPRATIQUE_JOINTCCAM " = " + conv
+                  + " where j." CP_MONTANTPRATIQUE_JOINTCCAM " < " + conv);
 }
 
 /*!

@@ -4234,6 +4234,7 @@ bool Procedures::IdentificationUser()
         //! de la map à jour ; (3) remplissage des Tip vides UNIQUEMENT si le fichier a été traité
         //! (sinon il l'était déjà à un lancement précédent -> inutile de re-parser le xml)
         const bool cotationsTraitees = DataBase::I()->verifMajCotations();   //! Action 1 : MAJ base cotations (CCAM/NGAP)
+        DataBase::I()                   ->corrigeMontantsPratiques();        //! invariant : pratiqué >= conventionnel (indépendant de la MAJ, à chaque démarrage)
         Datas::I()->cotations           ->initListe();
         if (cotationsTraitees)
         {
