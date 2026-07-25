@@ -22,9 +22,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QModelIndex>
 #include <QPoint>
 #include <QHash>
+#include <QStringList>
 #include "lecteurvitale.h"
 
 class UpTableView;
+class UpPushButton;
 class DataBase;
 class QEvent;
 class Patient;
@@ -77,6 +79,10 @@ private:
     bool         m_majSelection = false;        //!< garde anti-récursion pendant qu'on désélectionne l'autre table
     int          m_idDossierActive = 0;         //!< dossier choisi (Ouvrir / SalleAttente)
     Action       m_action = Annuler;            //!< action demandée en sortie
+
+    UpPushButton *m_btnOuvrir = nullptr;        //!< n'existe que pour un soignant ; activé si une correspondance est sélectionnée
+    UpPushButton *m_btnSalle  = nullptr;        //!< activé si une correspondance est sélectionnée
+    QStringList   m_correspVertes;              //!< noms des correspondances « fortes » (vert) du porteur courant
 
     //! Candidats déjà chargés, indexés par DDN (+NNI) : on reste en mémoire plutôt que de réinterroger
     //! le serveur quand on rebascule d'un porteur à l'autre (accès internet lents). La fiche les possède.

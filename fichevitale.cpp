@@ -21,6 +21,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <uplabel.h>
 #include <upstandarditem.h>
 #include <upsmallbutton.h>
+#include <upmessagebox.h>
 #include <uppushbutton.h>
 #include "icons.h"
 #include "recherchedossier.h"
@@ -208,12 +209,16 @@ double scoreCandidat(const LecteurVitale::Porteur &cv, const QDate &ddnCV, Patie
     return simIdentite;
 }
 
+// Seuils de confiance, partagés par la pastille ET la sélection automatique de la correspondance.
+const double SEUIL_VERT   = 0.85;   // correspondance forte (vert)
+const double SEUIL_ORANGE = 0.65;   // correspondance moyenne (orange)
+
 // Pastille de confiance : vert (≥ 0,85), orange (≥ 0,65), gris en dessous.
 QIcon pastille(double score)
 {
-    const QColor c = score >= 0.85 ? QColor( 40, 180,  70)
-                   : score >= 0.65 ? QColor(240, 170,  40)
-                                   : QColor(170, 170, 170);
+    const QColor c = score >= SEUIL_VERT   ? QColor( 40, 180,  70)
+                   : score >= SEUIL_ORANGE ? QColor(240, 170,  40)
+                                           : QColor(170, 170, 170);
     QPixmap px(14, 14);
     px.fill(Qt::transparent);
     QPainter p(&px);
@@ -374,27 +379,50 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     dlglayout()->insertLayout(0, corps);                 // AU-DESSUS de la barre de boutons
 
     // ---- 4 boutons en bas : Ouvrir (soignant seulement) / Salle d'attente / Créer / Annuler ----
+    // Ouvrir et Salle d'attente n'agissent que sur un dossier sélectionné -> désactivés tant qu'aucune
+    // correspondance n'est sélectionnée (cf. le connect selectionChanged plus bas).
     User *u = Datas::I()->users->userconnected();
     if (u != nullptr && u->isSoignant())
         {
-        UpPushButton *btnOuvrir = new UpPushButton(tr("Ouvrir le dossier"));
-        btnOuvrir->setIcon(Icons::icSortirDossier());
-        AjouteWidgetLayButtons(btnOuvrir);
-        connect(btnOuvrir, &QPushButton::clicked, this, [this] {
+        m_btnOuvrir = new UpPushButton(tr("Ouvrir le dossier"));
+        m_btnOuvrir->setIcon(Icons::icSortirDossier());
+        m_btnOuvrir->setEnabled(false);
+        AjouteWidgetLayButtons(m_btnOuvrir);
+        connect(m_btnOuvrir, &QPushButton::clicked, this, [this] {
             const int id = idCorrespChoisi();
             if (id > 0) { m_action = Ouvrir; m_idDossierActive = id; accept(); } });
         }
-    UpPushButton *btnSalle = new UpPushButton(tr("Inscrire en salle d'attente"));
-    btnSalle->setIcon(Icons::icAttente());
-    AjouteWidgetLayButtons(btnSalle);
-    connect(btnSalle, &QPushButton::clicked, this, [this] {
+    m_btnSalle = new UpPushButton(tr("Inscrire en salle d'attente"));
+    m_btnSalle->setIcon(Icons::icAttente());
+    m_btnSalle->setEnabled(false);
+    AjouteWidgetLayButtons(m_btnSalle);
+    connect(m_btnSalle, &QPushButton::clicked, this, [this] {
         const int id = idCorrespChoisi();
         if (id > 0) { m_action = SalleAttente; m_idDossierActive = id; accept(); } });
 
     UpPushButton *btnCreer = new UpPushButton(tr("Créer le dossier"));
     btnCreer->setIcon(Icons::icCreer());
     AjouteWidgetLayButtons(btnCreer);
-    connect(btnCreer, &QPushButton::clicked, this, [this] { m_action = Creer; accept(); });
+    // Si un ou des dossiers « forts » (vert) ressemblent déjà à la personne, on confirme avant de créer
+    // un doublon, en listant ce(s) dossier(s).
+    connect(btnCreer, &QPushButton::clicked, this, [this] {
+        if (!m_correspVertes.isEmpty())
+            {
+            const QString liste = m_correspVertes.join("\n");
+            const UpSmallButton::StyleBouton rep = UpMessageBox::Question(this,
+                tr("Un dossier approchant existe déjà"),
+                (m_correspVertes.size() > 1
+                     ? tr("Ces dossiers ressemblent fortement à la personne de la carte :")
+                     : tr("Ce dossier ressemble fortement à la personne de la carte :"))
+                    + "\n\n" + liste + "\n\n" + tr("Créer quand même un nouveau dossier ?"),
+                UpDialog::ButtonCancel | UpDialog::ButtonOK,
+                QStringList() << tr("Annuler") << tr("Créer quand même"));
+            if (rep != UpSmallButton::STARTBUTTON)
+                return;
+            }
+        m_action = Creer;
+        accept();
+        });
 
     UpPushButton *btnAnnuler = new UpPushButton(tr("Annuler"));
     btnAnnuler->setIcon(Icons::icAnnuler());
@@ -410,6 +438,11 @@ FicheVitale::FicheVitale(const QList<LecteurVitale::Porteur> &porteurs, QWidget 
     m_tblCorresp->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_tblCorresp, &QTableView::doubleClicked,              this, &FicheVitale::activerDepuisCorresp);
     connect(m_tblCorresp, &QTableView::customContextMenuRequested, this, &FicheVitale::menuCorresp);
+    // Ouvrir / Salle d'attente actifs seulement quand une correspondance est sélectionnée.
+    connect(m_tblCorresp->selectionModel(), &QItemSelectionModel::selectionChanged, this, [this] {
+        const bool sel = !m_tblCorresp->selectionModel()->selectedRows().isEmpty();
+        if (m_btnOuvrir) m_btnOuvrir->setEnabled(sel);
+        if (m_btnSalle)  m_btnSalle->setEnabled(sel); });
     m_tblPorteur->installEventFilter(this);
     m_tblAyants->installEventFilter(this);
 
@@ -592,6 +625,7 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
         return;
     m_porteurCourant = porteur;                       // mémorisé pour la recherche manuelle
     model->removeRows(0, model->rowCount());          // vide les lignes
+    m_correspVertes.clear();                          // noms des correspondances fortes, recalculés ici
 
     const QDate ddnCV = QDate::fromString(porteur.dateNaissance, "dd/MM/yyyy");
     if (!ddnCV.isValid())
@@ -623,13 +657,24 @@ void FicheVitale::surbrillanceChangee(const LecteurVitale::Porteur &porteur)
     std::sort(classes.begin(), classes.end(),
               [](const QPair<double, Patient*> &a, const QPair<double, Patient*> &b) { return a.first > b.first; });
 
-    // 3) Remplissage : le plus probable en haut, avec sa pastille de confiance.
+    // 3) Remplissage : le plus probable en haut, avec sa pastille de confiance. On retient au passage
+    //    les noms des correspondances « fortes » (vert), pour la confirmation avant création.
     for (const QPair<double, Patient*> &c : classes)
         {
         Patient *pat = c.second;
+        const QString np = nomPrenom(pat->nom(), pat->prenom());
         const QString ddnAff = pat->datedenaissance().isValid()
                                    ? pat->datedenaissance().toString("dd-MM-yyyy")
                                    : QString();
-        ajouteLigne(model, nomPrenom(pat->nom(), pat->prenom()), ddnAff, pat->id(), pastille(c.first));
+        ajouteLigne(model, np, ddnAff, pat->id(), pastille(c.first));
+        if (c.first >= SEUIL_VERT)
+            m_correspVertes << np;
         }
+
+    // Sélection automatique du dossier le plus « vert » (le mieux classé, en tête) s'il est vert ;
+    // sinon on ne sélectionne rien (les boutons Ouvrir / Salle restent alors désactivés).
+    if (!classes.isEmpty() && classes.first().first >= SEUIL_VERT)
+        m_tblCorresp->selectRow(0);
+    else
+        m_tblCorresp->clearSelection();
 }
