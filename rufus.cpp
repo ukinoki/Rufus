@@ -439,8 +439,8 @@ void Rufus::ConnectSignals()
     connect (ui->TonometriepushButton,                              &QPushButton::clicked,                              this,   &Rufus::Tonometrie);
     connect (ui->PachymetriepushButton,                             &QPushButton::clicked,                              this,   &Rufus::Pachymetrie);
     /*!    // DEV : fausse lecture (sans lecteur) ; remettre LireLaCV pour la vraie lecture PC/SC */
-    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);
-    //connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
+    //connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);
+    connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
