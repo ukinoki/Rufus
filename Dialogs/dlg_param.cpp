@@ -69,8 +69,8 @@ dlg_param::dlg_param(QWidget *parent) :
         px.save(&buf, "PNG");
         return "<img src=\"data:image/png;base64," + QString::fromLatin1(ba.toBase64()) + "\">";
     };
-    const int hpict = 18;
-    //! pictogramme de la case à cocher (cochée) : dessiné par le style courant, comme dans la table
+    //! pictogramme de la case à cocher (cochée) : dessiné par le style courant, comme dans la table.
+    //! Sa hauteur (hcb) sert de gabarit commun -> on ramène TOUTES les autres icônes à cette taille.
     QStyleOptionButton optcheck;
     optcheck.state = QStyle::State_Enabled | QStyle::State_On;
     const int wcb  = style()->pixelMetric(QStyle::PM_IndicatorWidth);
@@ -82,9 +82,10 @@ dlg_param::dlg_param(QWidget *parent) :
     style()             ->drawPrimitive(QStyle::PE_IndicatorCheckBox, &optcheck, &pcheck, this);
     pcheck.end();
     const QString imgCheck = baliseImg(pxcheck);
-    const QString imgPlus  = baliseImg(Icons::icAjouter().pixmap(hpict, hpict));
-    const QString imgModif = baliseImg(Icons::icEditer().pixmap(hpict, hpict));
-    const QString imgMoins = baliseImg(Icons::icRetirer().pixmap(hpict, hpict));
+    const QString imgPlus  = baliseImg(Icons::icAjouter().pixmap(hcb, hcb));
+    const QString imgModif = baliseImg(Icons::icEditer().pixmap(hcb, hcb));
+    const QString imgMoins = baliseImg(Icons::icRetirer().pixmap(hcb, hcb));
+    const QString imgAide  = baliseImg(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton).pixmap(hcb, hcb));
     ui->cotationsUpTableView->setWhatsThis(
         tr("<b>Table des cotations</b><br>")
       + imgCheck + " " + tr("<b>Cocher / décocher</b> un acte l'ajoute à vos cotations ou l'en retire ; "
@@ -93,7 +94,8 @@ dlg_param::dlg_param(QWidget *parent) :
            "cotation (type « autre ») ou la supprimer.<br>")
       + imgPlus  + " " + tr("créer une nouvelle cotation.<br>")
       + imgModif + " " + tr("modifier une cotation de type « autre ».<br>")
-      + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise."));
+      + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise.<br>")
+      + imgAide  + " " + tr("rappeler cette aide."));
     //! message affiché au clic sur la table/les boutons quand la page est verrouillée (cf.
     //! enableCotations + eventFilter) : invite à déverrouiller, avec l'image du cadenas.
     m_msgVerrouCotations = baliseImg(Icons::pxVerrouiller().scaledToHeight(22, Qt::SmoothTransformation))
