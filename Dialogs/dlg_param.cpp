@@ -106,7 +106,6 @@ dlg_param::dlg_param(QWidget *parent) :
         QWhatsThis::showText(aideCotationsBouton->mapToGlobal(QPoint(0, aideCotationsBouton->height())),
                              ui->cotationsUpTableView->whatsThis(), aideCotationsBouton);
     });
-    wdg_cotationswdgbuttonframe->layButtons()->addWidget(aideCotationsBouton);
 
     QHBoxLayout *Margelay       = new QHBoxLayout();
     QVBoxLayout *Cotationslay   = new QVBoxLayout();
@@ -115,7 +114,13 @@ dlg_param::dlg_param(QWidget *parent) :
     Margelay            ->setContentsMargins(marge,marge,marge,marge);
     Margelay            ->setSpacing(marge);
 
-    Cotationslay        ->addWidget(ui->Cotationslabel);
+    //! titre « Cotations » et bouton d'aide « ? » sur la même ligne, le ? collé au bord droit (= bord
+    //! de la table) ; placé ici, hors du WidgetButtonFrame, il reste actif même page verrouillée.
+    QHBoxLayout *Titrelay   = new QHBoxLayout();
+    Titrelay            ->setContentsMargins(0,0,0,0);
+    Titrelay            ->addWidget(ui->Cotationslabel, 1);
+    Titrelay            ->addWidget(aideCotationsBouton, 0, Qt::AlignTop | Qt::AlignRight);
+    Cotationslay        ->addLayout(Titrelay);
     Cotationslay        ->addWidget(wdg_cotationswdgbuttonframe->widgButtonParent());
 
     Margelay            ->addSpacerItem(new QSpacerItem(0,0,QSizePolicy::Maximum, QSizePolicy::Minimum));
