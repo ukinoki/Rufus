@@ -2661,9 +2661,8 @@ void dlg_param::enableCotations(bool enable)
     if (m_modelCotations == Q_NULLPTR)
         return;
     //! modèle/vue : la case à cocher est portée par l'item de la colonne 0 ; on active ou non son
-    //! caractère cochable selon les droits de l'utilisateur. setFlags émet itemChanged : on le neutralise
-    //! (changement programmatique, pas un coche/décoche de l'utilisateur).
-    m_majCotationsProgrammatique = true;
+    //! caractère cochable selon les droits de l'utilisateur. (setFlags émet itemChanged, mais la
+    //! coche/décoche est désormais gérée sur le signal clicked, insensible à ce changement programmatique.)
     for (int row = 0; row < m_modelCotations->rowCount(); ++row)
     {
         QStandardItem *itacte = m_modelCotations->item(row, 0);
@@ -2673,7 +2672,6 @@ void dlg_param::enableCotations(bool enable)
         f.setFlag(Qt::ItemIsUserCheckable, autormodif);
         itacte->setFlags(f);
     }
-    m_majCotationsProgrammatique = false;
     wdg_cotationswdgbuttonframe->setEnabled(enable);   //! table + boutons cotations suivent le verrou de l'onglet user
 }
 
@@ -3929,25 +3927,31 @@ void dlg_param::Remplir_TableCotations()
     if (ancienCompleter != Q_NULLPTR)
         ancienCompleter         ->deleteLater();        //! évite l'accumulation à chaque remplissage
 
-    //! item modifié : colonne 2 (pratiqué) -> update du montant pratiqué dans la jointure ; colonne 0
-    //! (coche/décoche) -> MAJCotation (ajoute/retire la jointure du user)
+    //! item modifié : colonne 2 (pratiqué) -> update du montant ; colonne 0 (coche/décoche) -> MAJCotation.
+    //! Clé anti-fausse-alerte : itemChanged se déclenche AUSSI pour les changements programmatiques du
+    //! modèle (setFlags d'enableCotations, etc.) qui NE touchent PAS la case ; pour la colonne 0 on
+    //! n'agit donc QUE si la case a réellement basculé, c.-à-d. si son état diffère de l'état enregistré
+    //! (Cotation::isused). Un changement programmatique qui ne coche/décoche pas est ainsi ignoré, quel
+    //! que soit l'endroit d'où il vient. itemChanged (contrairement à clicked) est émis APRÈS que la case
+    //! a changé : l'état lu est donc toujours le bon, sans dépendre de l'ordre des signaux.
     connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {
-        if (m_majCotationsProgrammatique)               //! changement programmatique (enableCotations…) -> pas une action user
-            return;
         UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
         if (upit == Q_NULLPTR)
             return;
+        Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
         if (it->column() == 2)                          //! case pratiqué éditée
         {
-            Cotation *cot = qobject_cast<Cotation*>(upit->rufusitem());
             const double montant = QLocale().toDouble(it->text());
             MAJMontantPratique(cot, montant);
             m_modelCotations->blockSignals(true);       //! reformatage sans redéclencher itemChanged
             it->setText(QLocale().toString(montant, 'f', 2));
             m_modelCotations->blockSignals(false);
         }
-        else                                            //! colonne 0 : coche/décoche
-            MAJCotation(it);
+        else if (it->column() == 0)                     //! coche/décoche RÉELLE (état != isused)
+        {
+            if (cot != Q_NULLPTR && (it->checkState() == Qt::Checked) != cot->isused())
+                MAJCotation(it);
+        }
     });
     //! changement de ligne en surbrillance : on règle l'état des boutons (+/-/modifier)
     connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleCotationsBoutons();});

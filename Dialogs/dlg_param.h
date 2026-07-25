@@ -97,7 +97,6 @@ private:
         l'utilisateur courant les utilise (used) */
     Cotations               *m_cotations             = Datas::I()->cotations;   //!< map de référence + used() du user courant
     UpStandardItemModel     *m_modelCotations        = nullptr;                 //!< modèle de cotationsUpTableView
-    bool                    m_majCotationsProgrammatique = false;               //!< true pendant un changement programmatique (enableCotations…) : le handler itemChanged s'abstient alors
     void                    Remplir_TableCotations();                           //!< (re)remplit la table des cotations (used cochées)
     Cotation*               getCotationFromIndex(QModelIndex idx);              //!< la cotation portée par la ligne d'index idx
     bool                    cotationUtiliseeParAutre(Cotation *cot);           //!< vrai si un autre utilisateur que le courant utilise cette cotation
