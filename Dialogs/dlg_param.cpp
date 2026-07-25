@@ -94,7 +94,9 @@ dlg_param::dlg_param(QWidget *parent) :
       + imgPlus  + " " + tr("créer une nouvelle cotation.<br>")
       + imgModif + " " + tr("modifier une cotation de type « autre ».<br>")
       + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise."));
-    UpSmallButton *aideCotationsBouton = new UpSmallButton("?");
+    UpSmallButton *aideCotationsBouton = new UpSmallButton();
+    aideCotationsBouton         ->setIcon(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton));   //! « ? » cerclé = icône standard des whatsThis
+    aideCotationsBouton         ->setIconSize(QSize(18, 18));
     aideCotationsBouton         ->setToolTip(tr("Que puis-je faire dans cette table ?"));
     connect(aideCotationsBouton, &UpSmallButton::clicked, this, [=] {
         QWhatsThis::showText(aideCotationsBouton->mapToGlobal(QPoint(0, aideCotationsBouton->height())),
