@@ -34,13 +34,13 @@ private:
     bool m_isAssocCCAM = false;
     bool m_isnorGAPnorCCAM = false;
     double m_montantoptam, m_montantnonoptam, m_montantpratique, m_montantconventionnel;
-    double montantoptam() const;
-    double montantnonoptam() const;
 public:
     explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
 
     QString typeacte() const;
+    double montantoptam() const;
+    double montantnonoptam() const;
     double montantconventionnel() const;
     double montantpratique() const;
     bool isused() const          { return m_userused; }
@@ -56,7 +56,7 @@ public:
     bool isCCAM() const          { return m_isCCAM; }
     bool isNGAP() const          { return m_isNGAP; }
     bool isAssocCCAM() const     { return m_isAssocCCAM; }
-    bool isnorGAPnorCCAM() const { return m_isnorGAPnorCCAM; }
+    bool isnorNGAPnorCCAM() const{ return m_isnorGAPnorCCAM; }
     int frequence() const;
     QString descriptif() const;
     void setdescriptif(QString d) { m_descriptif = d; }                 //!< Tip de la cotation (pour un acte CCAM, son libellé rapatrié de la table ccam)
