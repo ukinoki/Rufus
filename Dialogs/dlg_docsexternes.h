@@ -23,7 +23,7 @@ class dlg_docsexternes : public dlg_singleimageviewer
 {
     Q_OBJECT
 public:
-    explicit dlg_docsexternes(DocsExternes* Docs, bool UtiliseTCP, QWidget *parent = Q_NULLPTR);
+    explicit dlg_docsexternes(DocsExternes* Docs, bool UtiliseTCP, QWidget *parent = nullptr);
     ~dlg_docsexternes();
     Patient*                currentpatient() const { return m_docsexternes->patient(); } //!> renseigne le patient en cours d'affichage
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
@@ -40,10 +40,11 @@ private:
 
     DocsExternes            *m_docsexternes;    //! tous les docsexternes
     QList<int>              m_listiddocsimagery = QList<int>();    //! les id des docsexternes qui correspondent à des documenst d'imagerie
-    DocExterne              *m_currentdocument  = Q_NULLPTR;
+    DocExterne              *m_currentdocument  = nullptr;
 
     UpSmallButton           *m_ZoomInButton     = new UpSmallButton();
     UpSmallButton           *m_ZoomOutButton    = new UpSmallButton();
+    UpSmallButton           *wdg_viewerButton   = new UpSmallButton();
 
 /*! la classe dlg_docsexternes affiche les documents (pdf, jpg ou vidéo) dans une fiche UpDialog.
  *  Les intitulés des documents sont listés à gauche dans le QTreeView *wdg_listdocstreewiew ;
@@ -52,13 +53,12 @@ private:
 
     QTreeView               *wdg_listdocstreewiew   = new QTreeView();
 
-    UpCheckBox              *wdg_alldocsupcheckbox  = Q_NULLPTR;
-    UpCheckBox              *wdg_onlyimportantsdocsupcheckbox    = Q_NULLPTR;
-    UpComboBox              *wdg_updatetypebox      = Q_NULLPTR;
-
-    QStandardItemModel      *m_model                = Q_NULLPTR;
-    QStandardItemModel      *m_tripardatemodel      = Q_NULLPTR;
-    QStandardItemModel      *m_tripartypemodel      = Q_NULLPTR;
+    UpCheckBox              *wdg_alldocsupcheckbox  = nullptr;
+    UpCheckBox              *wdg_onlyimportantsdocsupcheckbox    = nullptr;
+    UpComboBox              *wdg_updatetypebox      = nullptr;
+    QStandardItemModel      *m_model                = nullptr;
+    QStandardItemModel      *m_tripardatemodel      = nullptr;
+    QStandardItemModel      *m_tripartypemodel      = nullptr;
     QPoint                  m_positionorigin;
     QSize                   m_sizeorigin;
     int                     m_treeviewwidth = 180;
@@ -93,7 +93,7 @@ private:
     void                    construitListeImagery();               //!< (re)construit m_listiddocsimagery depuis m_docsexternes (à jour même après l'arrivée d'une image)
 
     void                    RemplirTreeView();
-    void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
+    void                    SupprimeDoc(DocExterne *docmt = nullptr);
     void                    ZoomDoc(bool changemode = true);
 
 signals:

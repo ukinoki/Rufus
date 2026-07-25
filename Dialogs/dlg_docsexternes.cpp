@@ -62,11 +62,10 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     buttonslayout()         ->insertWidget(buttonslayout()->count() - nbbuttons(), m_ZoomOutButton);
     m_ZoomOutButton         ->setVisible(false);
 
-    UpSmallButton *ViewerButton = new UpSmallButton();
-    ViewerButton                ->setIcon(Icons::icViewer());
-    ViewerButton                ->setIconSize(szicon);
-    ViewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
-    buttonslayout()             ->insertWidget(buttonslayout()->count() - nbbuttons(), ViewerButton);
+    wdg_viewerButton                ->setIcon(Icons::icViewer());
+    wdg_viewerButton                ->setIconSize(szicon);
+    wdg_viewerButton                ->setImmediateToolTip(tr("Afficher l'imagerie"));
+    buttonslayout()             ->insertWidget(buttonslayout()->count() - nbbuttons(), wdg_viewerButton);
 
     wdg_alldocsupcheckbox               = new UpCheckBox(tr("Tous"));
     wdg_onlyimportantsdocsupcheckbox    = new UpCheckBox(tr("Importants"));
@@ -91,7 +90,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     connect (wdg_onlyimportantsdocsupcheckbox,  &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
     connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
-    connect (ViewerButton,                      &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
+    connect (wdg_viewerButton,                      &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
     connect (m_ZoomInButton,                    &QPushButton::clicked,          this,   [=] {ZoomDoc();});
     connect (m_ZoomOutButton,                   &QPushButton::clicked,          this,   [=] {ZoomDoc();});
 
@@ -117,17 +116,17 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
     //! ce calcul ne s'applique plus.
     if (originalgeometry() == QRect())
     {
-        QWidget *principale = Q_NULLPTR;
+        QWidget *principale = nullptr;
         const auto tops = qApp->topLevelWidgets();
         for (QWidget *w : tops)
             if (qobject_cast<QMainWindow*>(w)) { principale = w; break; }
         QScreen *ecr = (principale && principale->screen()) ? principale->screen()
                                                             : QGuiApplication::primaryScreen();
-        if (ecr != Q_NULLPTR)
+        if (ecr != nullptr)
         {
             const QRect dispo = ecr->availableGeometry();
             int x, y;
-            if (principale != Q_NULLPTR)
+            if (principale != nullptr)
             {
                 const QRect r = principale->frameGeometry();
                 x = r.right() + 1;            //! accolée au flanc droit de la fenêtre principale
@@ -201,7 +200,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
     connect (paction_Zoom,          &QAction::triggered,    this,  [=] {ZoomDoc();});
 
 #ifndef QT_NO_PRINTER
-    if (docmt != Q_NULLPTR && docmt->format()!=VIDEO)
+    if (docmt != nullptr && docmt->format()!=VIDEO)
     {
         QMenu *menuImprime  = menu->addMenu(tr("Imprimer"));
         menuImprime         ->setIcon(Icons::icImprimer());
@@ -291,15 +290,15 @@ void dlg_docsexternes::CorrigeImportance(DocExterne *docmt, enum Importance impt
     case Max:   imp = 2; break;
     }
     QStandardItem *item = getItemFromDocument(m_model, docmt);
-    if (item == Q_NULLPTR)
+    if (item == nullptr)
         return;
     int id = docmt->id();
     modifieitem(item, docmt, imp, m_font);
     item = m_tripardatemodel->itemFromIndex(getIndexFromId(m_tripardatemodel,id));
-    if (item != Q_NULLPTR)
+    if (item != nullptr)
         modifieitem(item, docmt, imp, m_font);
     item = m_tripartypemodel->itemFromIndex(getIndexFromId(m_tripartypemodel,id));
-    if (item != Q_NULLPTR)
+    if (item != nullptr)
         modifieitem(item, docmt, imp, m_font);
     ItemsList::update(docmt, CP_IMPORTANCE_DOCSEXTERNES, imp);
 
@@ -320,7 +319,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
 
     DocExterne *docmt = getDocumentFromIndex(idx);              //! load all details from document
     m_currentdocument = docmt;
-    if (docmt == Q_NULLPTR)
+    if (docmt == nullptr)
     {
         PrintButton->setEnabled(false);
         SupprButton->setEnabled(false);
@@ -401,13 +400,13 @@ int dlg_docsexternes::idDocSelectionne()
     //! c'est un en-tête date/type, qui n'a pas d'id). Sert à re-sélectionner le même document après
     //! une reconstruction (RemplirTreeView) ou un changement de tri (BasculeTriListe).
     QStandardItemModel *modele = qobject_cast<QStandardItemModel*>(wdg_listdocstreewiew->model());
-    if (modele == Q_NULLPTR || modele->rowCount() == 0 || wdg_listdocstreewiew->selectionModel() == Q_NULLPTR)
+    if (modele == nullptr || modele->rowCount() == 0 || wdg_listdocstreewiew->selectionModel() == nullptr)
         return -1;
     const QModelIndexList sel = wdg_listdocstreewiew->selectionModel()->selectedIndexes();
     if (sel.isEmpty())
         return -1;
     QStandardItem *it = modele->itemFromIndex(sel.first());
-    if (it == Q_NULLPTR || it->hasChildren())
+    if (it == nullptr || it->hasChildren())
         return -1;
     return it->data().toInt();
 }
@@ -426,11 +425,11 @@ void dlg_docsexternes::afficheModele(int idaretrouver, bool afficherDoc)
     wdg_listdocstreewiew->setModel(m_model);
     delete ancien;
 
-    if (m_model != Q_NULLPTR && m_model->rowCount() > 0)
+    if (m_model != nullptr && m_model->rowCount() > 0)
     {
         //! Cible par défaut : le tout dernier document ; sinon celui qu'on devait retrouver.
         int n = m_model->rowCount() - 1;
-        int nrows = (m_model->item(n) != Q_NULLPTR) ? m_model->item(n)->rowCount() - 1 : 0;
+        int nrows = (m_model->item(n) != nullptr) ? m_model->item(n)->rowCount() - 1 : 0;
         QModelIndex idx = m_model->item(n)->child(nrows, 0)->index();
         if (idaretrouver != -1)
         {
@@ -451,7 +450,7 @@ void dlg_docsexternes::afficheModele(int idaretrouver, bool afficherDoc)
             [=] {
                 QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
                 DocExterne *docmt = getDocumentFromIndex(idx);
-                if (docmt != Q_NULLPTR)
+                if (docmt != nullptr)
                     AfficheCustomMenu(docmt);
             });
 }
@@ -495,8 +494,8 @@ void dlg_docsexternes::FiltrerListe(UpCheckBox *chk)
 DocExterne* dlg_docsexternes::getDocumentFromIndex(QModelIndex idx)
 {
     QStandardItem *it = m_model->itemFromIndex(idx);
-    if (it == Q_NULLPTR || it->hasChildren())
-        return Q_NULLPTR;
+    if (it == nullptr || it->hasChildren())
+        return nullptr;
     int idimpr = it->data().toInt();
     return m_docsexternes->getById(idimpr);
 }
@@ -524,7 +523,7 @@ void dlg_docsexternes::ImprimeDoc()
     disconnect(PrintButton, &QPushButton::clicked, this, nullptr);  // évite une 2e impression si re-clic pendant la boîte de dialogue (reconnecté à la fin)
     DocExterne * docmt  = getDocumentFromIndex(wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0));
     docmt               = m_docsexternes->getById(docmt->id());
-    if (docmt != Q_NULLPTR)
+    if (docmt != nullptr)
     {
         bool detruirealafin = false;
 
@@ -598,7 +597,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     bool        ALD             = (docmt->isALD());
     bool        Prescription    = docmt->isprescription();
 
-    if (currentuser() == Q_NULLPTR)
+    if (currentuser() == nullptr)
     {
         UpMessageBox::Watch(this,tr("Impossible de retrouver les données de l'en-tête"), tr("Annulation de l'impression"));
         delete Etat_textEdit;
@@ -646,10 +645,10 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
                                && docmt->typedoc() == PRESCRIPTION);
 
     QMap<QString,QString> mapbarcodes = QMap<QString,QString>();
-    User *usr = Q_NULLPTR;
+    User *usr = nullptr;
     if (Prescription)
         usr = Datas::I()->users->getById(docmt->iduser());
-    if (usr != Q_NULLPTR)
+    if (usr != nullptr)
         mapbarcodes = usr->mapBarCodes();
 
     bool pdf = false;
@@ -661,7 +660,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         QString dirname     = map.value("dir");
         QString filename    = map.value("file");
         QString msgOK       = map.value("msg");
-        proc->Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? currentuser() : Q_NULLPTR), ALD, dirname);
+        proc->Cree_pdffile(textcorps, textentete, textpied,filename, (Prescription? currentuser() : nullptr), ALD, dirname);
         QFile file          = QFile(dirname + "/" + filename);
         aa                  = file.exists();
         UpMessageBox::Watch(this,
@@ -678,7 +677,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
     {
         Utils::nettoieHTML(textcorps, 9);
         QByteArray ba = QByteArray();
-        if (usr != Q_NULLPTR)
+        if (usr != nullptr)
             ba = proc->Cree_pdfByteArray(textcorps, textentete, textpied, usr);
 
         QHash<QString, QVariant> listbinds;
@@ -699,7 +698,7 @@ bool dlg_docsexternes::ModifieEtReImprimeDoc(DocExterne *docmt, bool modifiable,
         listbinds[CP_IMPORTANCE_DOCSEXTERNES]    = docmt->importance();
         listbinds[CP_PDFORIGIN_DOCSEXTERNES]     = ba;
         DocExterne * doc = m_docsexternes->CreationDocumentExterne(listbinds);
-        if (doc != Q_NULLPTR)
+        if (doc != nullptr)
         {
             int idimpr = doc->id();
             delete doc;
@@ -813,11 +812,11 @@ void dlg_docsexternes::construitListeImagery()
     for (auto it = m_docsexternes->docsexternes()->begin(); it != m_docsexternes->docsexternes()->end(); ++it)
     {
         DocExterne *doc = qobject_cast<DocExterne*>(it.value());
-        if (doc != Q_NULLPTR)
+        if (doc != nullptr)
             if (doc->isMedicalImagery() || (doc->isVideo() && DataBase::I()->ModeAccesDataBase() != Utils::Distant))
                 m_listiddocsimagery << it.key();
     }
-    ViewerButton->setVisible(m_listiddocsimagery.size()>0);
+    wdg_viewerButton->setVisible(m_listiddocsimagery.size()>0);
 }
 
 void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
@@ -831,12 +830,12 @@ void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
 
 void dlg_docsexternes::SupprimeDoc(DocExterne *docmt)
 {
-    if (docmt == Q_NULLPTR)
+    if (docmt == nullptr)
     {
         QModelIndex idx = wdg_listdocstreewiew->selectionModel()->selectedIndexes().at(0);
         docmt = getDocumentFromIndex(idx);
     }
-    if (docmt == Q_NULLPTR)
+    if (docmt == nullptr)
         return;
     if (!currentuser()->isSoignant())         //le user n'est pas un soignant
     {
@@ -950,10 +949,10 @@ void dlg_docsexternes::RemplirTreeView()
         disconnect(wdg_listdocstreewiew->selectionModel(), &QItemSelectionModel::currentChanged, this, nullptr);
     int idaretrouver = idDocSelectionne();   //! pour re-sélectionner le même document après reconstruction
 
-    if (m_tripardatemodel != Q_NULLPTR)
+    if (m_tripardatemodel != nullptr)
         delete m_tripardatemodel;
     m_tripardatemodel = new QStandardItemModel(this);
-    if (m_tripartypemodel != Q_NULLPTR)
+    if (m_tripartypemodel != nullptr)
         delete m_tripartypemodel;
     m_tripartypemodel = new QStandardItemModel(this);
 
