@@ -69,7 +69,15 @@ dlg_param::dlg_param(QWidget *parent) :
 
 
 
-    ui->Cotationslabel  ->setText("\n" + tr("Cotations") + "\n" + tr("Clic droit sur un item pour modifier le montant pratiqué") + "\n");
+    ui->Cotationslabel  ->setText("\n" + tr("Cotations")
+                                  + "\n"
+                                  + "\n" + tr("Cocher la case en face d'un acte pour qu'il figure dans la liste")
+                                  + "\n" + tr("des cotations proposées au moment de la facturation")
+                                  + "\n"
+                                  + "\n" + tr("Cliquer sur + pour intégrer un nouvel acte dans la base Rufus")
+                                  + "\n"
+                                  + "\n" + tr("Clic droit sur un item pour modifier le montant pratiqué")
+                                  + "\n");
     ui->Cotationswidget ->setLayout(Margelay);
 
     ui->UserParamtab    ->setLayout(ui->UserLayout);
