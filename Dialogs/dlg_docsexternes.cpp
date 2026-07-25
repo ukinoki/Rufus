@@ -83,14 +83,7 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
     AjouteLayButtons(UpDialog::ButtonRecord | UpDialog::ButtonSuppr | UpDialog::ButtonPrint);
 
-    for (auto it = m_docsexternes->docsexternes()->begin(); it  != m_docsexternes->docsexternes()->end(); ++it)
-    {
-        DocExterne *doc = qobject_cast<DocExterne*>(it.value());
-        if (doc != Q_NULLPTR)
-            if (doc->isMedicalImagery() || (doc->isVideo() && DataBase::I()->ModeAccesDataBase() != Utils::Distant))
-                m_listiddocsimagery << it.key();
-    }
-    ViewerButton->setVisible(m_listiddocsimagery.size()>0);
+    construitListeImagery();
     setStageCount(1);
     connect (wdg_updatetypebox,                 &UpComboBox::currentTextChanged,             this,   [=] (QString text) {BasculeTriListe(text == tr("Date")?parDate:parType);});
     connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
@@ -808,8 +801,28 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     delete dlg;
 }
 
+/*!
+ * \brief dlg_docsexternes::construitListeImagery
+ * (re)construit m_listiddocsimagery (id des docs d'imagerie/vidéo) depuis m_docsexternes, et règle la
+ * visibilité du bouton viewer. Appelée à l'ouverture ET avant chaque viewer, pour rester à jour quand
+ * une image vient d'être enregistrée.
+ */
+void dlg_docsexternes::construitListeImagery()
+{
+    m_listiddocsimagery.clear();
+    for (auto it = m_docsexternes->docsexternes()->begin(); it != m_docsexternes->docsexternes()->end(); ++it)
+    {
+        DocExterne *doc = qobject_cast<DocExterne*>(it.value());
+        if (doc != Q_NULLPTR)
+            if (doc->isMedicalImagery() || (doc->isVideo() && DataBase::I()->ModeAccesDataBase() != Utils::Distant))
+                m_listiddocsimagery << it.key();
+    }
+    ViewerButton->setVisible(m_listiddocsimagery.size()>0);
+}
+
 void dlg_docsexternes::OpenMultiImageViewer(int iddoc)
 {
+    construitListeImagery();        //! rebâtie ici : une image tout juste enregistrée doit y figurer sans rouvrir la fiche
     dlg_multiimageviewer *viewer = new dlg_multiimageviewer(m_listiddocsimagery, iddoc);
     connect(this, &dlg_docsexternes::Actualize, viewer, &dlg_multiimageviewer::Actualize);
     viewer->exec();

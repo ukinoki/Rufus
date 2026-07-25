@@ -90,6 +90,7 @@ private:
     void                    ModifierItem(QModelIndex idx);
 
     void                    OpenMultiImageViewer(int iddoc = 0);
+    void                    construitListeImagery();               //!< (re)construit m_listiddocsimagery depuis m_docsexternes (à jour même après l'arrivée d'une image)
 
     void                    RemplirTreeView();
     void                    SupprimeDoc(DocExterne *docmt = Q_NULLPTR);
