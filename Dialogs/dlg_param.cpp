@@ -18,6 +18,10 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QMenu>
 #include <QWhatsThis>
+#include <QBuffer>
+#include <QPainter>
+#include <QStyle>
+#include <QStyleOptionButton>
 #include "dlg_param.h"
 #include "icons.h"
 #include "ui_dlg_param.h"
@@ -54,17 +58,42 @@ dlg_param::dlg_param(QWidget *parent) :
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
 
-    //! aide de la table des cotations : le résumé vit dans le whatsThis de la table ; comme il n'y a
-    //! pas de « ? » de barre de titre ici (ni sous macOS), un petit bouton « ? » le fait apparaître.
+    //! aide de la table des cotations : le résumé (avec les vrais pictogrammes) vit dans le whatsThis
+    //! de la table ; comme il n'y a pas de « ? » de barre de titre ici (ni sous macOS), un petit bouton
+    //! « ? » le fait apparaître. Images intégrées en inline (data URI) -> rendu garanti dans le rich
+    //! text hors-écran de QWhatsThis, sans dépendre de la résolution des ressources qrc.
+    auto baliseImg = [](const QPixmap &px) -> QString {
+        QByteArray ba;
+        QBuffer buf(&ba);
+        buf.open(QIODevice::WriteOnly);
+        px.save(&buf, "PNG");
+        return "<img src=\"data:image/png;base64," + QString::fromLatin1(ba.toBase64()) + "\">";
+    };
+    const int hpict = 18;
+    //! pictogramme de la case à cocher (cochée) : dessiné par le style courant, comme dans la table
+    QStyleOptionButton optcheck;
+    optcheck.state = QStyle::State_Enabled | QStyle::State_On;
+    const int wcb  = style()->pixelMetric(QStyle::PM_IndicatorWidth);
+    const int hcb  = style()->pixelMetric(QStyle::PM_IndicatorHeight);
+    optcheck.rect  = QRect(0, 0, wcb, hcb);
+    QPixmap pxcheck(wcb, hcb);
+    pxcheck.fill(Qt::transparent);
+    QPainter pcheck(&pxcheck);
+    style()             ->drawPrimitive(QStyle::PE_IndicatorCheckBox, &optcheck, &pcheck, this);
+    pcheck.end();
+    const QString imgCheck = baliseImg(pxcheck);
+    const QString imgPlus  = baliseImg(Icons::icAjouter().pixmap(hpict, hpict));
+    const QString imgModif = baliseImg(Icons::icEditer().pixmap(hpict, hpict));
+    const QString imgMoins = baliseImg(Icons::icRetirer().pixmap(hpict, hpict));
     ui->cotationsUpTableView->setWhatsThis(
-        tr("<b>Table des cotations</b><br>"
-           "• <b>Cocher / décocher</b> un acte l'ajoute à vos cotations ou l'en retire ; à la coche, "
-             "le montant pratiqué s'ouvre en édition (sauf NGAP).<br>"
-           "• <b>Clic droit</b> sur une ligne : menu pour modifier le montant pratiqué, modifier la "
-             "cotation (type « autre ») ou la supprimer.<br>"
-           "• <b>+</b> : créer une nouvelle cotation.<br>"
-           "• <b>Modifier</b> : modifier une cotation de type « autre ».<br>"
-           "• <b>-</b> : supprimer la cotation sélectionnée, si personne d'autre ne l'utilise."));
+        tr("<b>Table des cotations</b><br>")
+      + imgCheck + " " + tr("<b>Cocher / décocher</b> un acte l'ajoute à vos cotations ou l'en retire ; "
+                            "à la coche, le montant pratiqué s'ouvre en édition (sauf NGAP).<br>")
+      + tr("<b>Clic droit</b> sur une ligne : menu pour modifier le montant pratiqué, modifier la "
+           "cotation (type « autre ») ou la supprimer.<br>")
+      + imgPlus  + " " + tr("créer une nouvelle cotation.<br>")
+      + imgModif + " " + tr("modifier une cotation de type « autre ».<br>")
+      + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise."));
     UpSmallButton *aideCotationsBouton = new UpSmallButton("?");
     aideCotationsBouton         ->setToolTip(tr("Que puis-je faire dans cette table ?"));
     connect(aideCotationsBouton, &UpSmallButton::clicked, this, [=] {
