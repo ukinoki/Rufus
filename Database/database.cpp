@@ -981,7 +981,10 @@ bool DataBase::verifMajCotations()
     //! la dernière vérification enregistrée dans rufus.ini date d'aujourd'hui, la vérif a déjà eu lieu
     //! -> on shunte sans rien lire ni réécrire (évite les relectures à chaque démarrage).
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
-    if (QDate::fromString(ini.value(Param_Poste_DateCotations).toString(), "yyyy-MM-dd") == QDate::currentDate())
+    //! la garde quotidienne dépend de la BASE (les cotations sont partagées) : on la range dans la
+    //! section du mode d'accès à cette base, pas dans Param_Poste (un même poste peut viser 2 bases).
+    const QString cleDateCotations = Utils::getBaseFromMode(ModeAccesDataBase()) + Param_DateCotations;
+    if (QDate::fromString(ini.value(cleDateCotations).toString(), "yyyy-MM-dd") == QDate::currentDate())
         return false;
 
     QDomDocument docxml;
@@ -1099,7 +1102,7 @@ bool DataBase::verifMajCotations()
 
     //! fichier lu avec succès (qu'il y ait eu MAJ ou non) : on note la date du jour pour ne pas
     //! re-vérifier aujourd'hui
-    ini.setValue(Param_Poste_DateCotations, QDate::currentDate().toString("yyyy-MM-dd"));
+    ini.setValue(cleDateCotations, QDate::currentDate().toString("yyyy-MM-dd"));
 
     return true;                                        //! fichier lu (déclenche completeTipsManquants côté appelant)
 }

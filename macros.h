@@ -1282,7 +1282,6 @@ public:
 #define Param_Poste_Tono                                Param_Poste "/Tonometre"
 #define Param_Poste_Refracteur                          Param_Poste "/Refracteur"
 #define Param_Poste_Version                             Param_Poste "/Version"
-#define Param_Poste_DateCotations                       Param_Poste "/DateCotations"   //!< date de la dernière vérification du fichier de cotations par ce poste (garde quotidienne de verifMajCotations)
 
 #define Dossier_ClesSSL                                 "/DossierClesSSL"
 //! Dossier où le SERVEUR conserve sa copie des clés CLIENT SSL (ca-cert.pem, client-cert.pem,
@@ -1297,6 +1296,10 @@ public:
 #define Param_SSL                                       "/SSL"
 #define Param_Serveur                                   "/Serveur"
 #define Param_Port                                      "/Port"
+//! date de la dernière vérification du fichier de cotations (garde quotidienne de verifMajCotations).
+//! Dépend de la BASE, pas du poste -> rangée dans la section du mode d'accès (BDD_POSTE/LOCAL/DISTANT),
+//! comme Param_Serveur : clé = getBaseFromMode(ModeAccesDataBase()) + Param_DateCotations.
+#define Param_DateCotations                             "/DateCotations"
 #define Param_SQLExecutable                             Param_Poste "/DirSQLExecutable"
 #define Param_Active                                    "/Active"
 
