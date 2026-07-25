@@ -1349,6 +1349,19 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
             itprat->setEditable(false);
             m_modelCotations->blockSignals(false);
         }
+        //! plus personne ne l'utilise (et pas un NGAP, qu'on garde) -> on propose de la supprimer de la
+        //! table des cotations. Le rechargement de la table est DIFFÉRÉ (singleShot) : on ne détruit
+        //! pas le modèle pendant qu'on traite son propre signal itemChanged.
+        if (!cot->isNGAP() && !cotationUtiliseeParAutre(cot)
+            && UpMessageBox::Question(this, tr("Cotation inutilisée"),
+                   tr("Cette cotation n'est plus utilisée par personne.") + "\n"
+                   + tr("Voulez-vous la supprimer de la liste des cotations ?"),
+                   UpDialog::ButtonCancel | UpDialog::ButtonOK, QStringList() << tr("Non") << tr("Oui"))
+               == UpSmallButton::STARTBUTTON)
+        {
+            db->StandardSQL("delete from " TBL_COTATIONS " where " CP_ID_COTATIONS " = " + idcot);
+            QTimer::singleShot(0, this, [=] {Remplir_TableCotations(); enableCotations();});
+        }
         return;
     }
 
