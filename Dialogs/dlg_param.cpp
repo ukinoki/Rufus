@@ -1327,7 +1327,9 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
     cot->setused(checked);
     m_cotationsmodifiees = true;
 
-    //! petite fonction : affiche la valeur dans la case pratiqué, la rend éditable et l'ouvre en édition
+    //! petite fonction : affiche la valeur dans la case pratiqué, la rend éditable et l'ouvre en édition.
+    //! L'ouverture de l'éditeur est DIFFÉRÉE (singleShot) : appelée synchroniquement depuis le clic sur
+    //! la case, l'événement clic en cours refermerait aussitôt l'éditeur.
     auto ouvreEditionPratique = [&] (double v) {
         if (itprat == Q_NULLPTR)
             return;
@@ -1336,7 +1338,8 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
         itprat->setEditable(true);
         m_modelCotations->blockSignals(false);
         cot->setmontantpratique(v);
-        ui->cotationsUpTableView->edit(m_modelCotations->index(itcheck->row(), 2));
+        const int row = itcheck->row();
+        QTimer::singleShot(0, this, [this, row] {ui->cotationsUpTableView->edit(m_modelCotations->index(row, 2));});
     };
 
     if (!checked)                                   //! --- décochage : on retire la jointure du user ---
@@ -3893,10 +3896,12 @@ void dlg_param::Remplir_TableCotations()
         UpStandardItem *itconv = new UpStandardItem(QLocale().toString(cot->montantconventionnel(), 'f', 2), cot);
         itconv          ->setEditable(false);
         itconv          ->setTextAlignment(Qt::AlignRight);
-        //! NGAP : le pratiqué vaut toujours le conventionnel -> on ne l'affiche pas (case vide) et on ne
-        //! l'édite pas ; sinon montant pratiqué, éditable si le user est son propre parent et l'utilise
+        //! NGAP : le pratiqué vaut toujours le conventionnel -> case vide, non éditable. Sinon : le
+        //! montant pratiqué du user si la cotation est utilisée ; 0 si rien n'est renseigné (une cotation
+        //! non utilisée n'a pas de pratiqué -> on affiche 0, pas la valeur non initialisée de l'objet).
         const bool ngap = cot->isNGAP();
-        UpStandardItem *itprat = new UpStandardItem(ngap ? "" : QLocale().toString(cot->montantpratique(), 'f', 2), cot);
+        QString pratTxt = ngap ? QString() : QLocale().toString(cot->isused() ? cot->montantpratique() : 0.0, 'f', 2);
+        UpStandardItem *itprat = new UpStandardItem(pratTxt, cot);
         itprat          ->setEditable(!ngap && sonParent && cot->isused());
         itprat          ->setTextAlignment(Qt::AlignRight);
         m_modelCotations->setItem(row, 0, itacte);

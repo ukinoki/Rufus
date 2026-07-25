@@ -33,7 +33,7 @@ private:
     bool m_isNGAP = false;
     bool m_isAssocCCAM = false;
     bool m_isnorGAPnorCCAM = false;
-    double m_montantoptam, m_montantnonoptam, m_montantpratique, m_montantconventionnel;
+    double m_montantoptam = 0, m_montantnonoptam = 0, m_montantpratique = 0, m_montantconventionnel = 0;
 public:
     explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void setData(QJsonObject data);
