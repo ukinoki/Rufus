@@ -262,10 +262,11 @@ void dlg_gestioncotations::appliqueMode()
                                     : (m_cotationsfrance ? tr("Tarif conventionnel OPTAM") : tr("Tarif remboursé")));
 
     //! éditabilité : conventionnel saisi seulement en mode autre ; non-OPTAM jamais (repris/calculé) ;
-    //! pratiqué figé en association (calculé), éditable en CCAM et autre ; tip non éditable en CCAM (repris)
+    //! pratiqué TOUJOURS éditable (pré-rempli au conventionnel calculé, l'utilisateur peut le dépasser,
+    //! y compris en association) ; tip non éditable en CCAM (repris)
     wdg_tarifoptamline   ->setReadOnly(!autre);
     wdg_tarifnooptamline ->setReadOnly(true);
-    wdg_tarifpratiqueline->setReadOnly(assoc);
+    wdg_tarifpratiqueline->setReadOnly(false);
     wdg_tipline          ->setReadOnly(ccam);
 
     setWindowTitle(ccam ? tr("Cotation CCAM") : assoc ? tr("Association CCAM") : tr("Cotation"));
