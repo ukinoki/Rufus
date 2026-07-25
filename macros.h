@@ -34,7 +34,7 @@ public:
 #define VERSION_MYSQL_MINI                    "8.0.14"  // seuil MySQL commun (tous OS)
 #define LIEN_XML_RUFUSLASTVERSION             "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversion.xml"
 #define LIEN_XML_RUFUSLASTVERSIONTEST         "https://www.rufusvision.org/uploads/9/8/0/3/98038824/rufuslastversiontest.xml"
-#define LIEN_XML_COTATIONS                    "https://raw.githubusercontent.com/ukinoki/cotations-for-rufus/main/Cotations.xml"   /*!< fichier de cotations (CCAM/NGAP) hébergé sur GitHub */
+#define LIEN_XML_COTATIONS                    "https://raw.githubusercontent.com/ukinoki/additional_files/main/Cotations.xml"   /*!< fichier de cotations (CCAM/NGAP) hébergé sur GitHub (dépôt additional_files) */
 #define LIEN_XML_IOLCONLASTVERSION            "https://www.rufusvision.org/uploads/9/8/0/3/98038824/iolexport2.3.xml"
 
 // Les bases
