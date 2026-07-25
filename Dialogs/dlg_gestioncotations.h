@@ -23,6 +23,8 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QButtonGroup>
 #include <QStandardItemModel>
 #include "procedures.h"
+#include "uptablewidget.h"
+#include "uptextedit.h"
 
 /*!
  Fiche de création/modification d'une cotation (table cotations, une seule).
@@ -85,6 +87,39 @@ private:
     void            appelleTableCCAM(UpLineEdit *cible);        //!< ouvre la table CCAM ; le code choisi remplit cible puis remplitDepuisCCAM()
     void            regleOK();                                  //!< active OK selon le mode (tous champs visibles remplis ; « autre » : code + pratiqué)
     bool            VerifFiche();
+};
+
+/*!
+ Fiche de choix d'un acte dans la table CCAM (appelée par dlg_gestioncotations, mode CCAM). Vit ici
+ car elle ne sert QU'à dlg_gestioncotations.
+ Reprend, en orientation portrait, la présentation de la zone CCAM de dlg_param :
+    * en tête, le titre « Actes CCAM » et la case « uniquement l'ophtalmologie » (cochée par
+      défaut -> filtre les codes en B..) ; la décocher recharge toute la CCAM.
+    * la table des actes (code / OPTAM / non OPTAM), une seule ligne sélectionnable.
+    * sous la table, un UpTextEdit qui affiche le libellé de l'acte sélectionné.
+ Le bouton OK est désactivé tant qu'aucune ligne n'est choisie. À l'acceptation, codechoisi()
+ rend le code CCAM retenu (vide si annulation).
+*/
+
+class dlg_choixccam : public UpDialog
+{
+    Q_OBJECT
+public:
+    explicit    dlg_choixccam(QWidget *parent = Q_NULLPTR);
+    QString     codechoisi() const              { return m_codechoisi; }    /*!< code CCAM retenu (vide si aucun) */
+
+private:
+    DataBase    *db = DataBase::I();
+    QString     m_codechoisi;
+
+    QCheckBox   *wdg_ophtaseul = Q_NULLPTR;      //!< « uniquement l'ophtalmologie » (coché par défaut)
+    UpTableWidget *wdg_table = Q_NULLPTR;        //!< actes CCAM : col 0 code, 1 OPTAM, 2 non OPTAM, 3 libellé (masquée)
+    UpTextEdit  *wdg_libelle = Q_NULLPTR;        //!< libellé de l'acte sélectionné
+
+    void        remplitTable();                 //!< charge TOUS les actes CCAM (une fois), puis applique filtreOphta
+    void        filtreOphta(bool ophtaseul);    //!< masque/affiche les rangées (ophtaseul -> codes en B..), sans réinterroger
+    void        selectionChangee();             //!< met à jour libellé + code retenu + état du bouton OK
+    void        chercheEtSelectionne(const QString &code); //!< sélectionne/défile vers la 1re ligne dont le code commence par...
 };
 
 #endif // DLG_GESTIONCOTATIONS_H

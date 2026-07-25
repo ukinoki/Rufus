@@ -44,7 +44,6 @@ SOURCES += $$PWD/dlg_actesprecedents.cpp \
     $$PWD/dlg_paiementtiers.cpp \
     $$PWD/dlg_bilanrecettes.cpp \
     $$PWD/dlg_gestioncotations.cpp \
-    $$PWD/dlg_choixccam.cpp \
     $$PWD/dlg_gestionbanques.cpp \
     $$PWD/dlg_refractionlistemesures.cpp
 
@@ -90,7 +89,6 @@ HEADERS += $$PWD/dlg_actesprecedents.h \
     $$PWD/dlg_paiementtiers.h \
     $$PWD/dlg_bilanrecettes.h \
     $$PWD/dlg_gestioncotations.h \
-    $$PWD/dlg_choixccam.h \
     $$PWD/dlg_gestionbanques.h \
     $$PWD/dlg_refractionlistemesures.h
 
