@@ -25,7 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
  (m_typcotation : 1=CCAM, 2=association CCAM, 3=NGAP, 4=autre) est porté par la colonne « ccam » et
  déduit en 4 booléens is* par settypcotation().
     * montantoptam / montantnonoptam : le tarif conventionnel selon le secteur ;
-    * montantconventionnel() : alias de montantoptam (cf. setmontantconventionnel) ;
+    * montantconventionnel() : le montantconventionnel qui sera utilisé - oeut varier si l'utilisateur est optam ou non
     * montantpratique : le tarif propre à l'utilisateur, renseigné par Cotations::loadUserCotations
       depuis sa table de jointure ;
     * isused() : la cotation est dans les cotations de l'utilisateur courant.
