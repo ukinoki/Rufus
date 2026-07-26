@@ -44,7 +44,7 @@ private:
     bool    m_isNGAP = false;
     bool    m_isAssocCCAM = false;
     bool    m_isnorNGAPnorCCAM = false;
-    double  m_montantoptam = 0, m_montantnonoptam = 0, m_montantpratique = 0;
+    double  m_montantoptam = 0, m_montantnonoptam = 0, m_montantpratique = 0, m_montantconventionnel = 0;
 public:
     explicit Cotation(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     void    setData(QJsonObject data);
@@ -52,14 +52,14 @@ public:
     QString typeacte() const                { return m_typeacte; }
     double  montantoptam() const            { return m_montantoptam; }
     double  montantnonoptam() const         { return m_montantnonoptam; }
-    double  montantconventionnel() const    { return m_montantoptam; }      //!< alias de montantoptam (cf. setmontantconventionnel)
+    double  montantconventionnel() const    { return m_montantconventionnel; }
     double  montantpratique() const         { return m_montantpratique; }
     int     frequence() const               { return m_frequence; }
     QString descriptif() const              { return m_descriptif; }
     bool    isused() const                  { return m_userused; }
     void    setused(bool u)                 { m_userused = u; }
     void    setmontantpratique(double m)      { m_montantpratique = m; }
-    void    setmontantconventionnel(double m) { m_montantoptam = m; }        //!< écrit m_montantoptam (montantconventionnel() le renvoie)
+    void    setmontantconventionnel(double m) { m_montantconventionnel = m; }//!< écrit m_montantoptam (montantconventionnel() le renvoie)
     void    setdescriptif(QString d)          { m_descriptif = d; }          //!< Tip de la cotation (pour un CCAM, son libellé rapatrié de ccam)
     int     typcotation() const             { return m_typcotation; }
     void    settypcotation(int typ) { m_typcotation = typ;                   //!< 1=CCAM 2=association CCAM 3=NGAP 4=autre
