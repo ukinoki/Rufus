@@ -92,7 +92,7 @@ private:
     void                ModifPaiementTiers(int idRecetteAModifier);
     void                NettoieVerrousListeActesAAfficher();
     void                NettoieVerrousCompta();
-    void                PoseVerrouCompta(int ActeAVerrouiller);
+    bool                PoseVerrouCompta(int ActeAVerrouiller);
     void                RecopieNomTiers(QString);
     void                RetireVerrouCompta(int ActeADeverrouiller);
     void                ReconstruitListeBanques();

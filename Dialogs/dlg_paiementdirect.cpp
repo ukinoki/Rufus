@@ -1321,6 +1321,15 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
         QTableWidgetItem        *pItem1, *pItem2, *pItem3, *pItem4, *pItem5, *pItem6, *pItem7;
         if (Coche)
         {
+            if (!PoseVerrouCompta(TableSource->item(Rangee,0)->text().toInt()))
+            {
+                /*! un autre poste a posé le verrou entre la vérification au clic et maintenant : on décoche et on prévient */
+                UpCheckBox* Check = qobject_cast<UpCheckBox*>(TableSource->cellWidget(Rangee,1));
+                if (Check)
+                    Check->setChecked(false);
+                isActeLocked(TableSource->item(Rangee,0)->text().toInt());
+                return;
+            }
             pItem1 = new QTableWidgetItem() ;
             pItem2 = new QTableWidgetItem() ;
             pItem3 = new QTableWidgetItem() ;
@@ -1373,8 +1382,6 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
             ui->DetailupTableWidget->setItem(i,8,pItem7);                  //Date format yyyy--MM-dd pour le tri par ordre chronologique
 
             ui->DetailupTableWidget->setRowHeight(i,int(fm.height()*1.1));
-
-            PoseVerrouCompta(TableSource->item(Rangee,0)->text().toInt());
          }
         else
         {
@@ -1991,21 +1998,19 @@ void dlg_paiementdirect::ReconstruitListeBanques()
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -- Pose un verrou sur un acte ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
-void dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
+bool dlg_paiementdirect::PoseVerrouCompta(int ActeAVerrouiller)
 {
-    QString verrourequete = "select " CP_IDACTE_VERROUCOMPTA "  from " TBL_VERROUCOMPTAACTES " where " CP_IDACTE_VERROUCOMPTA " = " + QString::number(ActeAVerrouiller);
-    //qDebug() << verrourequete;
+    /*! l'INSERT IGNORE est arbitré par la clé primaire sur idActe : si un verrou existe déjà,
+        l'insertion est ignorée sans erreur - on relit ensuite qui détient réellement le verrou,
+        ce qui évite la course entre deux postes du SELECT-puis-INSERT en deux temps */
+    QString VerrouilleEnreg= "INSERT IGNORE INTO " TBL_VERROUCOMPTAACTES
+            " (" CP_IDACTE_VERROUCOMPTA ", " CP_DATEVERROU_VERROUCOMPTA ", " CP_POSEPAR_VERROUCOMPTA ")"
+            " VALUES ("  + QString::number(ActeAVerrouiller) +
+            ", NOW() ,"  + QString::number(currentuser()->id()) + ")";
+    db->StandardSQL(VerrouilleEnreg);
+    QString verrourequete = "select " CP_POSEPAR_VERROUCOMPTA " from " TBL_VERROUCOMPTAACTES " where " CP_IDACTE_VERROUCOMPTA " = " + QString::number(ActeAVerrouiller);
     QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(verrourequete, m_ok);
-    if (!m_ok)
-        return;
-    if (actdata.size() == 0)
-    {
-        QString VerrouilleEnreg= "INSERT INTO " TBL_VERROUCOMPTAACTES
-                " (" CP_IDACTE_VERROUCOMPTA ", " CP_DATEVERROU_VERROUCOMPTA ", " CP_POSEPAR_VERROUCOMPTA ")"
-                " VALUES ("  + QString::number(ActeAVerrouiller) +
-                ", NOW() ,"  + QString::number(currentuser()->id()) + ")";
-        db->StandardSQL(VerrouilleEnreg);
-    }
+    return (m_ok && actdata.size() > 0 && actdata.at(0).toInt() == currentuser()->id());
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -2924,7 +2929,10 @@ void dlg_paiementdirect::ClearCheqData()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::RetireVerrouCompta(int ActeADeverrouiller)
 {
-    db->SupprRecordFromTable(ActeADeverrouiller, CP_IDACTE_VERROUCOMPTA, TBL_VERROUCOMPTAACTES);
+    /*! on ne retire que son propre verrou, jamais celui posé par un autre utilisateur */
+    db->StandardSQL("DELETE FROM " TBL_VERROUCOMPTAACTES
+                    " WHERE " CP_IDACTE_VERROUCOMPTA " = " + QString::number(ActeADeverrouiller) +
+                    " AND " CP_POSEPAR_VERROUCOMPTA " = " + QString::number(currentuser()->id()));
 }
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -3576,14 +3584,47 @@ bool dlg_paiementdirect::isActeLocked(int idacte)
 {
     if (t_timerafficheacteverrouilleclignotant->isActive())
         return false;
-    QString ChercheVerrou = "SELECT " CP_POSEPAR_VERROUCOMPTA " FROM " TBL_VERROUCOMPTAACTES
-                            " WHERE " CP_IDACTE_VERROUCOMPTA  " = "  + QString::number(idacte);
+    QString ChercheVerrou = "SELECT " CP_POSEPAR_VERROUCOMPTA ", " CP_DATEVERROU_VERROUCOMPTA ", " CP_LOGIN_USR
+                            " FROM " TBL_VERROUCOMPTAACTES ", " TBL_UTILISATEURS
+                            " WHERE " CP_IDACTE_VERROUCOMPTA  " = "  + QString::number(idacte) +
+                            " AND " CP_POSEPAR_VERROUCOMPTA " = " CP_ID_USR;
     QVariantList verroudata = db->getFirstRecordFromStandardSelectSQL(ChercheVerrou, m_ok);
     if (m_ok && verroudata.size() > 0)
     {
         if (verroudata.at(0).toInt() != currentuser()->id())
         {
-            ui->VerrouilleParlabel->setText(tr("Acte Verrouillé par ") + verroudata.at(0).toString());
+            QDateTime dateverrou    = verroudata.at(1).toDateTime();
+            QString login           = verroudata.at(2).toString();
+
+            /*! le verrou est-il abandonné ? - poseur déconnecté (plantage, poste éteint) ou verrou posé depuis plus de 15 minutes */
+            QString ChercheConnexion = "SELECT " CP_IDUSER_USRCONNECT " FROM " TBL_USERSCONNECTES
+                                       " WHERE " CP_IDUSER_USRCONNECT " = " + verroudata.at(0).toString();
+            QVariantList connexiondata  = db->getFirstRecordFromStandardSelectSQL(ChercheConnexion, m_ok);
+            bool poseurdeconnecte       = (m_ok && connexiondata.size() == 0);
+            bool verrouperime           = (dateverrou.secsTo(db->ServerDateTime()) > 15*60);
+            if (poseurdeconnecte || verrouperime)
+            {
+                QString depuis  = dateverrou.toString(dateverrou.date() == db->ServerDate()? "HH:mm" : "dd-MM-yyyy HH:mm");
+                QString Msg     = tr("Cet acte est verrouillé par ") + login + tr(" depuis ") + depuis + ".\n";
+                Msg            += (poseurdeconnecte? tr("Mais cet utilisateur s'est déconnecté.") : tr("Ce verrou date de plus de 15 minutes."));
+                Msg            += "\n" + tr("Retirer le verrou et libérer cet acte?");
+                UpMessageBox msgbox(this);
+                msgbox.setText(tr("Acte verrouillé"));
+                msgbox.setInformativeText(Msg);
+                msgbox.setIcon(UpMessageBox::Warning);
+                UpSmallButton OKBouton(tr("Retirer le verrou"));
+                UpSmallButton NoBouton(tr("Non"));
+                msgbox.addButton(&NoBouton, UpSmallButton::CANCELBUTTON);
+                msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+                msgbox.exec();
+                if (msgbox.clickedButton() == &OKBouton)
+                {
+                    db->StandardSQL("DELETE FROM " TBL_VERROUCOMPTAACTES " WHERE " CP_IDACTE_VERROUCOMPTA " = " + QString::number(idacte));
+                    return true;
+                }
+                return false;
+            }
+            ui->VerrouilleParlabel->setText(tr("Acte Verrouillé par ") + login);
             ui->VerrouilleParlabel->setStyleSheet("color: magenta");
             ui->VerrouilleParlabel->setVisible(true);
             t_timerafficheacteverrouilleclignotant->start(100);

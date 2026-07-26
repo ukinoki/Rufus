@@ -95,7 +95,7 @@ private:
     void                        FiltreLesTables();
     void                        ModifGratuitChoixMenu(QString Choix);
     void                        NettoieVerrousCompta();
-    void                        PoseVerrouCompta(int ActeAVerrouiller);
+    bool                        PoseVerrouCompta(int ActeAVerrouiller);
     void                        ReconstruitListeBanques();
     void                        ReconstruitListeTiers();
     void                        RegleAffichageTypePaiementframe(bool VerifierEmetteur = true, bool AppeleParClicK = false);
