@@ -200,12 +200,18 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
         }
         Titredoc    = "OCT - Canon";
         Typedoc     = "OCT";
-        cote = (nomfiledoc.contains("BothEyes")? tr("ODG") : ((nomfiledoc.split("_").at(4) == "R")? R : L));
-        QString typeexam = nomfiledoc.split("_").at(3);
-        if (typeexam == "OCTA")     typeexam = "AngioOCT";
-        if (typeexam == "Disc3D")   typeexam = "Glaucome";
+        if (nomfiledoc.split("_").size()>4)
+            cote = (nomfiledoc.contains("BothEyes")? tr("ODG") : ((nomfiledoc.split("_").at(4) == "R")? R : L));
+        QString typeexam ="";
+        if (nomfiledoc.split("_").size()>3)
+        {
+            QString typeexam = nomfiledoc.split("_").at(3);
+            if (typeexam == "OCTA")     typeexam = "AngioOCT";
+            if (typeexam == "Disc3D")   typeexam = "Glaucome";
+        }
         SousTypeDoc = "Canon " + typeexam + " " + cote;
-        datetimecreation = datestring + "-" + nomfiledoc.split("_").at(2);
+        if (nomfiledoc.split("_").size()>3)
+            datetimecreation = datestring + "-" + nomfiledoc.split("_").at(2);
         QStringList filters;
         filters << "*.exd";
         QStringList filesnames;
@@ -458,7 +464,7 @@ void ImportDocsExternes::RapatrieDocuments(AppareilImagerie *appareil, QString n
         idPatient           = nomfiledoc.split("-").at(0);
     else if (Appareil == "OPTOVUE")
     {
-        if (nomfiledoc.split("__").size()>0)
+        if (nomfiledoc.split("__").size()>1)
         {
             idPatient       = nomfiledoc.split("__").at(1);
             if (idPatient.split("_").size()>0)
