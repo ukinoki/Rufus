@@ -19,13 +19,20 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include "upmediaplayer.h"
 #include "upvideowidget.h"
 
+/*!
+ La classe dlg_docsexternes affiche les documents (pdf, jpg ou vidéo) dans une fiche UpDialog. Les
+ intitulés des documents sont listés à gauche dans le QTreeView wdg_listdocstreewiew ; le document
+ sélectionné est affiché à droite dans le DisplayWidget (QGraphicsView) hérité de dlg_singleimageviewer
+ — pdf rendu en images, jpg ou vidéo passent tous par ce même widget.
+*/
+
 class dlg_docsexternes : public dlg_singleimageviewer
 {
     Q_OBJECT
 public:
     explicit dlg_docsexternes(DocsExternes* Docs, bool UtiliseTCP, QWidget *parent = nullptr);
     ~dlg_docsexternes();
-    Patient*                currentpatient() const { return m_docsexternes->patient(); } //!> renseigne le patient en cours d'affichage
+    Patient*                currentpatient() const { return m_docsexternes->patient(); } //!< le patient en cours d'affichage
     enum Importance         {Min, Norm, Max};                                   Q_ENUM(Importance)
     enum ModeTri            {parDate, parType};                                 Q_ENUM(ModeTri)
     enum ModeFiltre         {FiltreSans, NormalFiltre, ImportantFiltre};        Q_ENUM(ModeFiltre)
@@ -39,17 +46,12 @@ private:
     QDate                   m_currentdate       = db->ServerDate();
 
     DocsExternes            *m_docsexternes;    //! tous les docsexternes
-    QList<int>              m_listiddocsimagery = QList<int>();    //! les id des docsexternes qui correspondent à des documenst d'imagerie
+    QList<int>              m_listiddocsimagery = QList<int>();    //! les id des docsexternes qui correspondent à des documents d'imagerie
     DocExterne              *m_currentdocument  = nullptr;
 
     UpSmallButton           *m_ZoomInButton     = new UpSmallButton();
     UpSmallButton           *m_ZoomOutButton    = new UpSmallButton();
     UpSmallButton           *wdg_viewerButton   = new UpSmallButton();
-
-/*! la classe dlg_docsexternes affiche les documents (pdf, jpg ou vidéo) dans une fiche UpDialog.
- *  Les intitulés des documents sont listés à gauche dans le QTreeView *wdg_listdocstreewiew ;
- *  le document sélectionné est affiché à droite dans le DisplayWidget (QGraphicsView) hérité de
- *  dlg_singleimageviewer — pdf rendu en images, jpg, ou vidéo passent tous par ce même widget. */
 
     QTreeView               *wdg_listdocstreewiew   = new QTreeView();
 
