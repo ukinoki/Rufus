@@ -7691,22 +7691,19 @@ void Rufus::OuvrirDossier(Patient *pat, int idacte)  // appelée depuis la tabli
                     return;
             }
         }
-        else
+        // On vérifie si le dossier n'est pas verrouillé par un autre utilisateur
+        QString blabla = ENCOURSEXAMEN;
+        int length = blabla.size();
+        Datas::I()->patientsencours->initListeAll(); //TODO si on utilise le TCP, on peut se passer de ça parce qu'on peut mettre en place un message tcp pour chaque modif de la salle d'attente
+        for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
         {
-            // On vérifie si le dossier n'est pas verrouillé par un autre utilisateur
-            QString blabla = ENCOURSEXAMEN;
-            int length = blabla.size();
-            Datas::I()->patientsencours->initListeAll(); //TODO si on utilise le TCP, on peut se passer de ça parce qu'on peut mettre en place un message tcp pour chaque modif de la salle d'attente
-            for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
+            PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
+            if (patcrs->id() == pat->id() && patcrs->statut().left(length) == ENCOURSEXAMEN
+                    && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != Utils::hostName().left(60))))
             {
-                PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
-                if (patcrs->id() == pat->id() && patcrs->statut().left(length) == ENCOURSEXAMEN
-                        && (patcrs->iduserencoursexam() != currentuser()->id() || (patcrs->iduserencoursexam() == currentuser()->id() && patcrs->posteexamen() != Utils::hostName().left(60))))
-                {
-                    UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
-                                        tr("Ce patient est") + "\n" + patcrs->statuttotr().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
-                    return;
-                }
+                UpMessageBox::Watch(this,tr("Impossible d'ouvrir ce dossier!"),
+                                    tr("Ce patient est") + "\n" + patcrs->statuttotr().toLower() + "\n" + tr("sur ") + patcrs->posteexamen());
+                return;
             }
         }
         AfficheDossier(pat, idacte);

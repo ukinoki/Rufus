@@ -605,7 +605,7 @@ DROP TABLE IF EXISTS `ccam`;
 CREATE TABLE `ccam` (
   `idccam` int(11) NOT NULL AUTO_INCREMENT,
   `codeccam` varchar(7) DEFAULT NULL,
-  `nom` varchar(512) DEFAULT NULL,
+  `nom` text DEFAULT NULL,
   `optam` decimal(7,2) DEFAULT NULL,
   `nonoptam` decimal(7,2) DEFAULT NULL,
   PRIMARY KEY (`idccam`)

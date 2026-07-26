@@ -2396,6 +2396,7 @@ void dlg_param::RestaureBase()
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
         exit(0);
     }
 }

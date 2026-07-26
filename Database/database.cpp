@@ -236,6 +236,8 @@ QString DataBase::connectToDataBase(QString basename, QString login, QString pas
 
     if( m_db.open() )
     {
+        QSqlQuery(m_db).exec("USE " DB_RUFUS);   /*! base par défaut : les DELETE/UPDATE multi-tables l'exigent
+                                                    (même tables qualifiées) ; no-op tant que rufus n'existe pas (1re install) */
         //qDebug() << connectSSLoptions << m_db.isValid() << m_db.isOpen() << m_db.isOpenError() << m_db.lastError().text();
         //! Vérification des comptes adminrufus INTIMEMENT liée à la connexion : dès qu'on s'est connecté
         //! AVEC un aléatoire (donc éprouvé) et en LOCAL, on impose CE même aléatoire à tous les comptes

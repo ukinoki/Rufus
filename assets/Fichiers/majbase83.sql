@@ -81,6 +81,16 @@ BEGIN
                 ALTER TABLE `rufus`.`cotations`
                 CHANGE COLUMN `Tip` `Tip` TEXT NULL DEFAULT NULL;
         END IF;
+    -- ccam.nom : varchar -> text (libelles CCAM longs)
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_NAME
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ccam' AND COLUMN_NAME = 'nom' AND DATA_TYPE = 'varchar') as chp;
+        IF tot=1
+            THEN
+                ALTER TABLE `rufus`.`ccam`
+                CHANGE COLUMN `nom` `nom` TEXT NULL DEFAULT NULL;
+        END IF;
     -- cotations.Typecotation : nouveau champ « type de cotation » (1 = CCAM, 2 = Association CCAM,
     -- 3 = NGAP, 4 = Autre). On NE RENOMME PAS CCAM : des postes en version antérieure au 15-07-2026
     -- lisent encore la colonne CCAM ; la renommer les bloquerait (colonne introuvable) sur le réseau.
