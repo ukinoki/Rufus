@@ -16,20 +16,11 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cls_cotation.h"
-#include <QDebug>
 
 Cotation::Cotation(QJsonObject data, QObject *parent) : Item(parent)
 {
     setData(data);
 }
-
-QString Cotation::typeacte() const              { return m_typeacte; }
-double Cotation::montantconventionnel() const   { return m_montantoptam; }
-double Cotation::montantoptam() const           { return m_montantoptam; }
-double Cotation::montantnonoptam() const        { return m_montantnonoptam; }
-double Cotation::montantpratique() const        { return m_montantpratique; }
-int Cotation::frequence() const                 { return m_frequence; }
-QString Cotation::descriptif() const            { return m_descriptif; }
 
 void Cotation::setData(QJsonObject data)
 {
@@ -38,7 +29,6 @@ void Cotation::setData(QJsonObject data)
 
     setDataInt(data, "idcotation", m_id);
     setDataString(data, "typeacte", m_typeacte);
-    setDataDouble(data, "montantconventionnel", m_montantconventionnel);
     setDataDouble(data, "montantoptam", m_montantoptam);
     setDataDouble(data, "montantnonoptam", m_montantnonoptam);
     setDataDouble(data, "montantpratique", m_montantpratique);
@@ -48,5 +38,3 @@ void Cotation::setData(QJsonObject data)
     setDataString(data, "descriptif", m_descriptif);
     m_data = data;
 }
-
-
