@@ -171,15 +171,11 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
             wdg_tipline->setPlainText(c.at(1).toString());
         }
         //! montants propres à l'utilisateur (conventionnel + pratiqué) depuis SA jointure
-        QVariantList m = db->getFirstRecordFromStandardSelectSQL(
-            "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
-            " from " TBL_JOINTURESAUTRESCOTATIONS
-            " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(m_idcotation)
-            + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + QString::number(iduser), ok);
-        if (ok && m.size() >= 2)
+        double conv = 0, prat = 0;
+        if (db->lisMontantsJointureAutre(m_idcotation, iduser, conv, prat))
         {
-            wdg_tarifoptamline   ->setText(QLocale().toString(m.at(0).toDouble(), 'f', 2));
-            wdg_tarifpratiqueline->setText(QLocale().toString(m.at(1).toDouble(), 'f', 2));
+            wdg_tarifoptamline   ->setText(QLocale().toString(conv, 'f', 2));
+            wdg_tarifpratiqueline->setText(QLocale().toString(prat, 'f', 2));
         }
     }
     else
@@ -381,9 +377,11 @@ bool dlg_gestioncotations::VerifFiche()
         return false;
     }
     //! montants (non-OPTAM null en mode autre, où le champ est masqué)
-    const QString optamSQL    = QString::number(QLocale().toDouble(wdg_tarifoptamline->text()));
+    const double  optamVal    = QLocale().toDouble(wdg_tarifoptamline->text());       //! en mode « autre », c'est le conventionnel
+    const double  pratiqueVal = QLocale().toDouble(wdg_tarifpratiqueline->text());
+    const QString optamSQL    = QString::number(optamVal);
     const QString nonoptamSQL = (m_typecotation == 4) ? "null" : QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()));
-    const QString pratiqueSQL = QString::number(QLocale().toDouble(wdg_tarifpratiqueline->text()));
+    const QString pratiqueSQL = QString::number(pratiqueVal);
     const QString tipSQL      = Utils::correctquoteSQL(wdg_tipline->toPlainText());
     const QString codeSQL     = Utils::correctquoteSQL(code);
     const QString iduserSQL   = QString::number(iduser);
@@ -399,11 +397,7 @@ bool dlg_gestioncotations::VerifFiche()
               CP_TIP_COTATIONS " = '"         + tipSQL + "'"
               " where " CP_ID_COTATIONS " = " + QString::number(m_idcotation));
         //! montants propres à l'utilisateur (conventionnel + pratiqué) dans SA jointure
-        db->StandardSQL("update " TBL_JOINTURESAUTRESCOTATIONS " set "
-              CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS " = " + optamSQL + ", "
-              CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS " = "      + pratiqueSQL
-              + " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(m_idcotation)
-              + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + iduserSQL);
+        db->ajouteJointureCotation(m_typecotation, m_idcotation, iduser, pratiqueVal, optamVal);
         m_codeenregistre = code;
         return true;
     }
@@ -443,39 +437,10 @@ bool dlg_gestioncotations::VerifFiche()
         idcot = (ok && n.size() > 0 && !n.at(0).isNull()) ? n.at(0).toInt() : 0;
     }
 
-    //! --- jointure du user (créée si absente, sinon montant(s) mis à jour) ---
-    //! « autre » : jointuresautrescotations porte 2 montants (conventionnel + pratiqué) ;
-    //! CCAM/assoc : la jointure ne porte que le pratiqué.
-    if (idcot > 0 && autre)
-    {
-        const QString wId = " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(idcot)
-                          + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + iduserSQL;
-        QVariantList j = db->getFirstRecordFromStandardSelectSQL(
-            "select " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS " from " TBL_JOINTURESAUTRESCOTATIONS + wId, ok);
-        if (ok && j.size() > 0)
-            db->StandardSQL("update " TBL_JOINTURESAUTRESCOTATIONS " set "
-                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS " = " + optamSQL + ", "
-                CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS " = " + pratiqueSQL + wId);
-        else
-            db->StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", "
-                CP_IDUSER_JOINTAUTRESCOTATIONS ", " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", "
-                CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ") values ("
-                + QString::number(idcot) + ", " + iduserSQL + ", " + optamSQL + ", " + pratiqueSQL + ")");
-    }
-    else if (idcot > 0)
-    {
-        const QString jointure    = (m_typecotation == 1) ? TBL_JOINTURESCCAM            : TBL_JOINTURESASSOCIATIONS;
-        const QString chpIdcot    = (m_typecotation == 1) ? CP_IDCOTATION_JOINTCCAM      : CP_IDCOTATION_JOINTASSOCIATIONS;
-        const QString chpIduser   = (m_typecotation == 1) ? CP_IDUSER_JOINTCCAM          : CP_IDUSER_JOINTASSOCIATIONS;
-        const QString chpPratique = (m_typecotation == 1) ? CP_MONTANTPRATIQUE_JOINTCCAM : CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;
-        const QString wId = " where " + chpIdcot + " = " + QString::number(idcot) + " and " + chpIduser + " = " + iduserSQL;
-        QVariantList j = db->getFirstRecordFromStandardSelectSQL("select " + chpPratique + " from " + jointure + wId, ok);
-        if (ok && j.size() > 0)
-            db->StandardSQL("update " + jointure + " set " + chpPratique + " = " + pratiqueSQL + wId);
-        else
-            db->StandardSQL("insert into " + jointure + " (" + chpIdcot + ", " + chpIduser + ", " + chpPratique + ") values ("
-                            + QString::number(idcot) + ", " + iduserSQL + ", " + pratiqueSQL + ")");
-    }
+    //! jointure du user : (re)créée avec les montants. « autre » -> conventionnel + pratiqué ;
+    //! CCAM/association -> pratiqué seul (le conventionnel passé est alors ignoré).
+    if (idcot > 0)
+        db->ajouteJointureCotation(m_typecotation, idcot, iduser, pratiqueVal, optamVal);
 
     m_codeenregistre = code;
     return true;

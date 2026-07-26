@@ -3052,6 +3052,32 @@ bool DataBase::cotationUtiliseeParAutreUser(int typcotation, int idcotation, int
     return (okloc && !l.isEmpty());
 }
 
+/*!
+ * \brief DataBase::lisMontantsJointureAutre
+ * lit le montant conventionnel et le montant pratiqué d'une cotation « autre » (type 4) dans la
+ * jointure de l'utilisateur (jointuresautrescotations). false si aucune jointure (montants laissés à 0).
+ */
+bool DataBase::lisMontantsJointureAutre(int idcotation, int iduser, double &conventionnel, double &pratique)
+{
+    conventionnel = 0;
+    pratique      = 0;
+    if (!m_db.isOpen())
+        return false;
+    bool okloc = false;
+    QVariantList m = getFirstRecordFromStandardSelectSQL(
+        "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+        " from " TBL_JOINTURESAUTRESCOTATIONS
+        " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(idcotation)
+        + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + QString::number(iduser), okloc);
+    if (okloc && m.size() >= 2)
+    {
+        conventionnel = m.at(0).toDouble();
+        pratique      = m.at(1).toDouble();
+        return true;
+    }
+    return false;
+}
+
 QStringList DataBase::loadTypesCotations()
 {
     QStringList listcotations = QStringList();
