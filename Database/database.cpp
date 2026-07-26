@@ -115,19 +115,14 @@ qint64 DataBase::countRecords(QString table, QString where)
 
 bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMessage)
 {
-    bool a = false;
-    if (erreur.type() != QSqlError::NoError)
-    {
-        Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
-        if (a)
-        {
-            qDebug() << ErrorMessage;
-            qDebug() << "Erreur" << erreur.text();
-            qDebug() << "requete = " << requete;
-        }
-        return true;
-    }
-    return false;
+    if (erreur.type() == QSqlError::NoError)
+        return false;
+    /*! le détail (requête + erreur MySQL) part dans le log, qu'on consulte après coup ;
+        à l'écran, l'utilisateur final ne voit que le libellé transmis par l'appelant
+        (le nom de la fonction) - rien de cabalistique */
+    Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
+    UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
+    return true;
 }
 
 QString DataBase::versionMySQL()
