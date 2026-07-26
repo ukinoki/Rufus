@@ -389,8 +389,6 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
                                 iol.setOpticalMaterial("silicone");
                             else
                                 iol.setOpticalMaterial(optmaterial);
-                            //if (!listitem.contains(Specsnode.text()))
-                            //    listitem << Specsnode.text();
                         }
                         else if (Specsnode.tagName() == "HapticMaterial" && !iol.issinglepiece())
                         {
@@ -853,8 +851,6 @@ IOLs::ImportResult IOLs::ImportListeIOLS(QDomDocument docxml, QWidget *parent)
             }
         }
     }
-    //for (int i = 0; i<listitem.size();++i)
-    //    qDebug()<<listitem.at(i);
     /*! fin mise à jour de la liste des IOLs */
 
     //! Redimensionnement des images surdimensionnées héritées d'anciens imports : UNE SEULE FOIS ici.
