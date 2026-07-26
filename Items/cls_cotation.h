@@ -70,7 +70,7 @@ public:
     bool    isCCAM() const                  { return m_isCCAM; }
     bool    isNGAP() const                  { return m_isNGAP; }
     bool    isAssocCCAM() const             { return m_isAssocCCAM; }
-    bool    isnorNGAPnorCCAM() const        { return m_isnorNGAPnorCCAM; }
+    bool    isAutre() const                 { return m_isnorNGAPnorCCAM; }
 };
 
 #endif // CLS_COTATION_H

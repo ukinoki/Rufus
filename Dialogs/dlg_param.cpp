@@ -1448,7 +1448,7 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
         db->StandardSQL("insert into " + jointure + " (" + chpIdcot + ", " + chpIduser + ") values (" + idcot + ", " + iduser + ")");
         return;
     }
-    if (cot->isnorNGAPnorCCAM())                     //! autre (4) : conventionnel enregistré (ou 0) dans les 2 montants
+    if (cot->isAutre())                     //! autre (4) : conventionnel enregistré (ou 0) dans les 2 montants
     {
         const double conv = cot->montantoptam();
         const QString convSQL = QString::number(conv);
@@ -1531,7 +1531,7 @@ void dlg_param::RegleCotationsBoutons()
     Cotation *cot = getCotationFromIndex(ui->cotationsUpTableView->currentIndex());
 
     wdg_cotationswdgbuttonframe->wdg_plusBouton ->setEnabled(sonParent);
-    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(sonParent && cot != Q_NULLPTR && cot->isnorNGAPnorCCAM());
+    wdg_cotationswdgbuttonframe->wdg_modifBouton->setEnabled(sonParent && cot != Q_NULLPTR && cot->isAutre());
     wdg_cotationswdgbuttonframe->wdg_moinsBouton->setEnabled(sonParent && cot != Q_NULLPTR
                                                              && !cot->isNGAP() && !cotationUtiliseeParAutre(cot));
 }
@@ -1585,7 +1585,7 @@ void dlg_param::MenuContextuelCotations()
         connect(aPrat, &QAction::triggered, this, [=] {ui->cotationsUpTableView->edit(m_modelCotations->index(idx.row(), 2));});
     }
     //! modifier la cotation : uniquement un « autre » (4)
-    if (cot->isnorNGAPnorCCAM())
+    if (cot->isAutre())
     {
         QAction *aModif = menu.addAction(Icons::icEditer(), tr("Modifier la cotation"));
         connect(aModif, &QAction::triggered, this, [=] {ModifCotation();});
