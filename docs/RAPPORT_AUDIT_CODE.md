@@ -36,7 +36,7 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 | 6 | Copie d'image non vérifiée avant suppression de l'original | 🟠 | `bool` de retour | `utils.cpp:1183` |
 | 7 | `commit()` jamais contrôlé | 🟠 | `bool` de retour | `Database/database.cpp:404` |
 | 8 | Suppression d'un dossier patient sans transaction | 🔴 | copier un patron | `ItemsLists/cls_patients.cpp:169` |
-| 9 | Espace manquant → verrou compta jamais posé (tiers payants) | 🔴 | 1 caractère | `Dialogs/dlg_paiementtiers.cpp:2093` |
+| 9 | ~~Espace manquant → verrou compta jamais posé (tiers payants)~~ **→ corrigé** (`a1a3fa2`) | 🔴 | — | `Dialogs/dlg_paiementtiers.cpp` |
 | 10 | Sauvegarde du dossier médical en clair | 🔴 | archive chiffrée | `procedures.cpp:868` |
 
 ---
@@ -59,6 +59,12 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
   le libellé transmis par l'appelant (nom de la fonction), le détail complet (requête +
   erreur MySQL) restant dans le log. Les échecs d'écriture ne sont plus silencieux. Le
   code mort `if (a)` (avec `a` figé à `false`) a été retiré au passage.
+
+- ✓ **Concurrence compta** (commits `a1a3fa2`, `78001ea`) — pose de verrou compta rendue
+  atomique (`INSERT IGNORE` arbitré par la clé primaire sur `idActe`) avec verrous
+  abandonnés récupérables, et contrôle anti-double encaissement à la validation
+  (`SELECT … FOR UPDATE`). Traite le bug `selectidActe` (§6) et une bonne part des
+  constats de la §4 (verrous relâchés, INSERT concurrent).
 
 ---
 
@@ -332,17 +338,17 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 - **Risque accepté, consigné** : une régression de compilation reste théoriquement possible entre deux
   releases ; elle est couverte par la vérification manuelle de l'auteur à chaque push.
 
-### 🔴 Duplication massive entre les deux dialogues de paiement, avec divergences déjà buguées ✓ vérifié
+### 🟠 Duplication massive entre les deux dialogues de paiement — le bug divergent est corrigé
 - **Où** : `dlg_paiementdirect.cpp` (3 615 l.) et `dlg_paiementtiers.cpp` (3 082 l.) partagent **33
-  méthodes de même nom** et **959 lignes strictement identiques**. Bug réel :
-  `dlg_paiementtiers.cpp:2093` — `"select" CP_IDACTE_VERROUCOMPTA` (espace manquant) produit
-  `selectidActe` → requête invalide → `m_ok` faux → **le verrou compta n'est jamais posé côté tiers
-  payants**, alors qu'il fonctionne côté direct (`dlg_paiementdirect.cpp:1996`).
-- **Effet** : tout correctif sur un dialogue doit être reporté à la main dans l'autre, rien ne le signale.
-  Le bug ci-dessus prouve que le report n'a pas eu lieu : deux copies du même verrou, une seule marche.
-- **Piste** : corriger l'espace manquant. Puis extraire les fonctions strictement identiques et sans état
-  d'UI (`PoseVerrouCompta`, `RetireVerrouCompta`, `NettoieVerrousCompta`, `ConvertitDoubleMontant`) dans
-  une classe commune ou dans `Database/` — mécanique, ~150 lignes en moins.
+  méthodes de même nom** et **959 lignes strictement identiques**.
+- **Le bug qui l'illustrait — ✓ corrigé (commit `a1a3fa2`)** : `dlg_paiementtiers::PoseVerrouCompta` avait
+  un `"select"` collé (`selectidActe`) qui faisait échouer la pose du verrou compta côté tiers payants,
+  alors qu'elle marchait côté direct — deux copies de la même fonction, une seule juste. La réécriture en
+  `INSERT IGNORE` (clé primaire sur `idActe`) a supprimé le bug.
+- **Ce qui reste** : la duplication elle-même. Tout correctif sur un dialogue doit toujours être reporté à
+  la main dans l'autre, sans garde-fou.
+- **Piste** : extraire les fonctions strictement identiques et sans état d'UI (`RetireVerrouCompta`,
+  `NettoieVerrousCompta`, `ConvertitDoubleMontant`) dans une classe commune ou dans `Database/`.
 
 ### 🔴 Fonctions et fichiers monolithiques — une fonction de 1 575 lignes à 245 branches
 - **Où** : `ItemsLists/cls_itemslist.cpp:8` (`ItemsList::update`, **1 575 lignes**, **245** `if (field == …)`,
@@ -357,17 +363,19 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
   **décision de l'auteur : on le laisse tel quel** — stable depuis des années, touché seulement pour ajouter
   un champ (« if it ain't broke… »). L'observation reste comme repère de lisibilité pour un repreneur.
 
-### 🟠 Aiguillage matériel par comparaison de chaînes — une branche morte depuis l'origine ✓ vérifié
+### 🟡 Aiguillage matériel par comparaison de chaînes littérales ✓ vérifié
 - **Où** : `Protocols/genericprotocol.h` (aucune méthode `virtual` — pas de polymorphisme entre `Nidek`,
   `Topcon`, `Tomey`, `ShinNippon`), d'où **105 comparaisons `name == "…"`** dans `procedures.cpp`.
-  `procedures.cpp:6390, 6435` : `"TOMEY TAP-6000"` alors que la table (`assets/Fichiers/rufus.sql:90`) et le
-  chemin de lecture (`:6041, 6999`) utilisent `"TAP-2000"` → **la branche de réglage de ce réfracteur est
-  inatteignable**. Lambda `initvariables` recopiée à l'identique dans 3 fichiers.
-- **Effet** : ajouter/renommer un appareil oblige à retrouver toutes les occurrences dans 3 fichiers, sans
-  aide du compilateur ; une faute de frappe donne une branche morte silencieuse, indétectable pour qui n'a
-  pas le matériel.
-- **Piste** : corriger les deux `TAP-6000` → `TAP-2000`. Puis remplacer les 105 littéraux par des constantes
-  `macros.h` : une faute de frappe redevient une erreur de compilation.
+- **Symptôme observé, mais sans importance en pratique** : `procedures.cpp:6390, 6435` comparent à
+  `"TOMEY TAP-6000"` alors que la table (`rufus.sql:90`) et la lecture (`:6041, 6999`) disent `"TAP-2000"`
+  → branche de réglage morte pour ce réfracteur. **Décision auteur : on s'en fiche** — ce matériel
+  (TOMEY TAP-2000 / Rodenstock Phoromat 2000) est obsolète, cher, de mauvaise qualité et plus personne ne
+  l'achète. L'exemple ne sert que d'*illustration* du vrai point ci-dessous.
+- **Le vrai point** : le compilateur n'attrape pas ces fautes de frappe sur les libellés d'appareils —
+  ajouter/renommer un appareil oblige à retrouver toutes les occurrences dans 3 fichiers à la main.
+- **Piste** : à la prochaine occasion, déclarer le libellé d'un nouvel appareil comme constante `macros.h`
+  plutôt qu'en littéral répété — une faute de frappe redevient alors une erreur de compilation. (Ne pas
+  toucher aux branches TAP existantes : matériel obsolète.)
 
 ---
 
@@ -446,6 +454,5 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 1. ~~**Les deux plantages certains**~~ — *fait* : `CleanSalleDAttente` et `dlg_actesprecedents`.
 2. ~~**Rendre les erreurs SQL visibles**~~ — *fait* : le multiplicateur qui révèle tout le reste.
 3. **Le verrou de dossier sauté** (déplacer un bloc hors du `else`).
-4. **Les corrections d'un caractère à fort effet** : espace manquant `selectidActe`, `TAP-6000` → `TAP-2000`.
-5. **La sauvegarde chiffrée** : le plus grand gain de sécurité pour le moindre effort.
-6. **Au fil de l'eau** : transactions côté dossier médical, `bool` de retour sur `copy`/`commit`.
+4. **La sauvegarde chiffrée** : le plus grand gain de sécurité pour le moindre effort.
+5. **Au fil de l'eau** : transactions côté dossier médical, `bool` de retour sur `copy`/`commit`.
