@@ -18,6 +18,6 @@ public:
     QString nom() const;
     void setcodepostal(const QString &codePostal);
     void setnom(const QString &nom);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 };
 #endif // CLS_VILLE_H

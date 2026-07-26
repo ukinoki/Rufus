@@ -32,7 +32,7 @@ public:
     enum Mesure {Fronto, Autoref, Acuite, Prescription, NoMesure};      Q_ENUM(Mesure)
     enum Distance {Loin, Pres, AllDistance, Inconnu};                   Q_ENUM(Distance)
     enum Cycloplegie {Dilatation, NoDilatation, NoLoSo};                Q_ENUM(Cycloplegie)
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
 private:
     int m_idpat;                    //!> l'id du patient

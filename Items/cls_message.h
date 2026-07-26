@@ -25,7 +25,7 @@ class Message : public Item
     Q_OBJECT
 public:
     explicit                Message(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void                    setData(QJsonObject data = QJsonObject{});
+    void                    setData(QJsonObject data = QJsonObject{}) override;
 
 private: //Données du message
     //!<m_id = Id du message en base

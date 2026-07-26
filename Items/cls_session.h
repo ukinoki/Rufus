@@ -50,7 +50,7 @@ private:
 
 public:
     Session(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QDateTime datedebut() const             { return m_datedebut; };
     QDateTime datefin() const               { return m_datefin; };

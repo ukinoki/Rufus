@@ -35,7 +35,7 @@ private:
 
 public:
     explicit Motif(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QString motif() const;
     QString raccourci() const;

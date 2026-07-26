@@ -142,7 +142,7 @@ public:
 
     explicit Patient(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
-    void setData(QJsonObject data = QJsonObject{});
+    void setData(QJsonObject data = QJsonObject{}) override;
     void setSocialData(QJsonObject data = QJsonObject{});
     void setMedicalData(QJsonObject data = QJsonObject{});
 

@@ -31,7 +31,7 @@ class Manufacturer : public Item
     Q_OBJECT
 public:
     explicit Manufacturer(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QString nom() const;
     QString adresse1() const;

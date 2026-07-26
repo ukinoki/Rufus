@@ -31,7 +31,7 @@ class IOL : public Item
     Q_OBJECT
 public:
     explicit IOL(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data = QJsonObject{});
+    void setData(QJsonObject data = QJsonObject{}) override;
 
 private: //Données de l'intervention
     //!<m_id = Id de l'iol en base

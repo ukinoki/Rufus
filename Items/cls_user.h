@@ -207,7 +207,7 @@ public:
     explicit User(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     explicit User(QString login, QString password, QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     /*!
      * les données figées, ne variant pas d'une session à l'autre =======================================================================================================================

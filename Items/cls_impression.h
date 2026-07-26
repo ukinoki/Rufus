@@ -35,7 +35,7 @@ private:
 
 public:
     explicit Impression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int iduser() const;
     QString texte() const;
@@ -72,7 +72,7 @@ private:
 
 public:
     explicit DossierImpression(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int iduser() const;
     QString resume() const;

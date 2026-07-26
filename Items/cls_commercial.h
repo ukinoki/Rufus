@@ -30,7 +30,7 @@ class Commercial : public Item
     Q_OBJECT
 public:
     explicit Commercial(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QString nom() const;
     QString prenom() const;

@@ -34,7 +34,7 @@ class Intervention : public Item
 public:
     enum                    ModeAnesthesie {Locale, LocoRegionale, Generale, NoLoSo};      Q_ENUM(ModeAnesthesie)
     explicit                Intervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void                    setData(QJsonObject data = QJsonObject{});
+    void                    setData(QJsonObject data = QJsonObject{}) override;
     static ModeAnesthesie   ConvertModeAnesthesie(QString mode);
     static QString          ConvertModeAnesthesie(ModeAnesthesie mode);
 
@@ -101,7 +101,7 @@ class SessionOperatoire : public Item
     Q_OBJECT
 public:
     explicit SessionOperatoire(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data = QJsonObject{})
+    void setData(QJsonObject data = QJsonObject{}) override
     {
         if( data.isEmpty() )
             return;
@@ -165,7 +165,7 @@ class TypeIntervention : public Item
 Q_OBJECT
 public:
     explicit TypeIntervention(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data = QJsonObject{});
+    void setData(QJsonObject data = QJsonObject{}) override;
 
 private: //Données de l'intervention
     //!<m_id = Id du type d'intervention en base

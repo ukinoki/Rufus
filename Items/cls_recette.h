@@ -60,7 +60,7 @@ private:
 
 public:
     explicit Recette(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int idacte() const;
     QDate date() const;

@@ -46,7 +46,7 @@ private:
 
 public:
     explicit PatientEnCours(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int idusersuperviseur() const       { return m_idusersuperviseur; }
     QString statut() const              { return m_statut; }

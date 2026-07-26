@@ -16,7 +16,7 @@ public:
     };  Q_ENUM(Type)
 
     explicit RefractionDevice(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QString brand() const;
     void setBrand(const QString &newModel);

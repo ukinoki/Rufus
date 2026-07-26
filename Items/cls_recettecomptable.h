@@ -32,7 +32,7 @@ class RecetteComptable : public Item
     Q_OBJECT
 public:
     explicit RecetteComptable(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
 private:
     //!> m_id = l'id de la recette (pas utilisé dans la bdd)

@@ -25,7 +25,7 @@ class CommentLunet : public Item
     Q_OBJECT
 public:
     explicit                CommentLunet(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void                    setData(QJsonObject data = QJsonObject{});
+    void                    setData(QJsonObject data = QJsonObject{}) override;
 
 private: //Données du commentaire
     //!<m_id = Id du commentaire en base

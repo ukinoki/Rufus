@@ -116,7 +116,7 @@ public:
 
     explicit Depense(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 };
 
 #endif // CLS_DEPENSE_H

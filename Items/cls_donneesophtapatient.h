@@ -25,7 +25,7 @@ class DonneesOphtaPatient : public Item
     Q_OBJECT
 public:
     DonneesOphtaPatient();
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
 private:
     int m_idpat = 0;                        //!> idpatient

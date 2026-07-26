@@ -33,7 +33,7 @@ private:
 
 public:
     explicit Archive(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int idcompte() const;
     int iddepense() const;

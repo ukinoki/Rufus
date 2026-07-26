@@ -30,7 +30,7 @@ class PaiementTiers : public Item
     Q_OBJECT
 public:
     explicit PaiementTiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
 private:
     /*! les paiements tiers correspondent à tous les paiements de la table comptamedicale.lignesrecettes effectués par des tiers payants : organisemes sociaux, assurances privées, tutelles ..etc...

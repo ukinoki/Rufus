@@ -33,7 +33,7 @@ private:
 
 public:
     MotCle(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
     void resetdatas();
 
     QString motcle() const              { return m_motcle; }

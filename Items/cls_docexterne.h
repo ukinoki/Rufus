@@ -77,7 +77,7 @@ private:
 public:
     explicit DocExterne(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
     DocExterne(QString filepath, bool &initOK, QWidget *parent);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int idpatient() const;
     int iduser() const;

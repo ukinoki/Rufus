@@ -44,7 +44,7 @@ private:
 
 public:
     explicit LigneCompte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int idcompte() const                { return m_idcompte; }              //! le compte bancaire de la ligne
     int iddepense() const               { return m_iddep; }                 //! la dépense concernée si c'est une dépense

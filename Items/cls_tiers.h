@@ -49,7 +49,7 @@ private:
     bool m_utilise;
 public:
     explicit Tiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QString nom() const;
     QString codepostal() const;
@@ -85,7 +85,7 @@ private:
     QString m_typetiers;
 public:
     explicit TypeTiers(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     QString typetiers() const;
 };

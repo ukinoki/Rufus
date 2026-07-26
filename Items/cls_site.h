@@ -39,7 +39,7 @@ private:
 public:
     explicit Site(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
 
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
     void resetdatas();
 
     QString nom() const;

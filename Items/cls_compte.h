@@ -31,7 +31,7 @@ private:
 
 public:
     explicit Compte(QJsonObject data = {}, QObject *parent = Q_NULLPTR);
-    void setData(QJsonObject data);
+    void setData(QJsonObject data) override;
 
     int idBanque() const;
     int idUser() const;                         //!< l'utilisateur qui a créé le compte
