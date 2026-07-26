@@ -213,11 +213,11 @@ void dlg_gestioncotations::appliqueMode()
     //! QCompleter CCAM sur les codes en modes 1 et 2 (on ne peut choisir qu'un code CCAM) ; aucun en mode
     //! autre. Le completer s'appuie sur m_modelCCAM -> infobulle (libellé de l'acte) dans le popup.
     QCompleter *comp1 = (ccam || assoc) ? new QCompleter(m_modelCCAM, this) : Q_NULLPTR;
-    if (comp1) comp1->setCaseSensitivity(Qt::CaseInsensitive);
-    wdg_codeline    ->setCompleter(comp1);
+    if (comp1) comp1    ->setCaseSensitivity(Qt::CaseInsensitive);
+    wdg_codeline        ->setCompleter(comp1);
     QCompleter *comp2 = assoc ? new QCompleter(m_modelCCAM, this) : Q_NULLPTR;
-    if (comp2) comp2->setCaseSensitivity(Qt::CaseInsensitive);
-    wdg_codeline2   ->setCompleter(comp2);
+    if (comp2) comp2    ->setCaseSensitivity(Qt::CaseInsensitive);
+    wdg_codeline2       ->setCompleter(comp2);
 
     //! le montant du haut est retitré « Montant conventionnel » en mode autre
     wdg_optamlabel  ->setText(autre ? tr("Montant conventionnel")
@@ -226,17 +226,9 @@ void dlg_gestioncotations::appliqueMode()
     //! éditabilité : conventionnel saisi seulement en mode autre ; non-OPTAM jamais (repris/calculé) ;
     //! pratiqué TOUJOURS éditable (pré-rempli au conventionnel calculé, l'utilisateur peut le dépasser,
     //! y compris en association) ; tip non éditable en CCAM (repris)
-    wdg_tarifoptamline   ->setReadOnly(!autre);
-    wdg_tarifnooptamline ->setReadOnly(true);
-    wdg_tarifpratiqueline->setReadOnly(false);
-    wdg_tipline          ->setReadOnly(ccam);
+    wdg_tarifnooptamline    ->setFocusPolicy(Qt::NoFocus);
+    wdg_tarifoptamline      ->setFocusPolicy(autre? Qt::StrongFocus : Qt::NoFocus);
 
-    //! focus clavier : en CCAM (1) et association (2) le code se choisit par le bouton « ... » (table
-    //! CCAM), pas au clavier -> lignes de code NoFocus ; le tip est repris (non éditable) en CCAM ->
-    //! NoFocus en mode 1. Ailleurs (mode autre, et tip en association), saisie clavier normale.
-    const Qt::FocusPolicy focusCode = (ccam || assoc) ? Qt::NoFocus : Qt::StrongFocus;
-    wdg_codeline  ->setFocusPolicy(focusCode);
-    wdg_codeline2 ->setFocusPolicy(focusCode);
     wdg_tipline   ->setFocusPolicy(ccam ? Qt::NoFocus : Qt::StrongFocus);
 
     setWindowTitle(ccam ? tr("Cotation CCAM") : assoc ? tr("Association CCAM") : tr("Cotation"));

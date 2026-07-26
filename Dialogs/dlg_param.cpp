@@ -100,8 +100,7 @@ dlg_param::dlg_param(QWidget *parent) :
            "cotation (type « autre ») ou la supprimer.<br>")
       + imgPlus  + " " + tr("créer une nouvelle cotation.<br>")
       + imgModif + " " + tr("modifier une cotation de type « autre ».<br>")
-      + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise.<br>")
-      + imgAide  + " " + tr("rappeler cette aide."));
+      + imgMoins + " " + tr("supprimer la cotation sélectionnée, si personne d'autre ne l'utilise.<br>"));
     //! message affiché au clic sur la table/les boutons quand la page est verrouillée (cf.
     //! enableCotations + eventFilter) : invite à déverrouiller, avec l'image du cadenas.
     m_msgVerrouCotations = baliseImg(Icons::pxVerrouiller(), 22)
