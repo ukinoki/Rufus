@@ -86,6 +86,7 @@ private:
     void            appelleTableCCAM(UpLineEdit *cible);        //!< ouvre la table CCAM ; le code choisi remplit cible puis remplitDepuisCCAM()
     void            regleOK();                                  //!< active OK selon le mode (tous champs visibles remplis ; « autre » : code + pratiqué)
     bool            VerifFiche();
+    bool            eventFilter(QObject *obj, QEvent *event) override;   //!< tip (UpTextEdit) : au focus, curseur placé en fin de texte
 };
 
 /*!

@@ -137,6 +137,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     tiplay          ->setContentsMargins(0,0,0,0);
     wdg_tipwidg     ->setLayout(tiplay);
     connect(wdg_tipline, &QTextEdit::textChanged, this, [=] {regleOK();});
+    wdg_tipline     ->installEventFilter(this);      //! focus -> curseur en fin de texte (cf. eventFilter)
     dlglayout()     ->addWidget(wdg_tipwidg);
 
     int marge = 5;
@@ -230,6 +231,14 @@ void dlg_gestioncotations::appliqueMode()
     wdg_tarifpratiqueline->setReadOnly(false);
     wdg_tipline          ->setReadOnly(ccam);
 
+    //! focus clavier : en CCAM (1) et association (2) le code se choisit par le bouton « ... » (table
+    //! CCAM), pas au clavier -> lignes de code NoFocus ; le tip est repris (non éditable) en CCAM ->
+    //! NoFocus en mode 1. Ailleurs (mode autre, et tip en association), saisie clavier normale.
+    const Qt::FocusPolicy focusCode = (ccam || assoc) ? Qt::NoFocus : Qt::StrongFocus;
+    wdg_codeline  ->setFocusPolicy(focusCode);
+    wdg_codeline2 ->setFocusPolicy(focusCode);
+    wdg_tipline   ->setFocusPolicy(ccam ? Qt::NoFocus : Qt::StrongFocus);
+
     setWindowTitle(ccam ? tr("Cotation CCAM") : assoc ? tr("Association CCAM") : tr("Cotation"));
 
     regleOK();      //! le changement de mode change les champs requis -> réévalue l'état du bouton OK
@@ -313,6 +322,17 @@ void dlg_gestioncotations::regleOK()
     else                                    //! autre : code + pratiqué (conventionnel facultatif)
         complet = rempli(wdg_codeline) && rempli(wdg_tarifpratiqueline);
     OKButton->setEnabled(complet);
+}
+
+/*!
+ * \brief dlg_gestioncotations::eventFilter
+ * quand le tip (UpTextEdit) prend le focus, place le curseur en fin de texte (prêt à compléter).
+ */
+bool dlg_gestioncotations::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == wdg_tipline && event->type() == QEvent::FocusIn)
+        wdg_tipline->moveCursor(QTextCursor::End);
+    return UpDialog::eventFilter(obj, event);
 }
 
 /*!
