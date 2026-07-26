@@ -25,6 +25,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 *
 */
 
+#include <source_location>
 #include <QBuffer>
 #include <QJsonObject>
 #include <QHostInfo>
@@ -184,13 +185,13 @@ public:
                                                                 * - obligatoire pour insérer un QByteArray - ça ne fonctionne pas sinon
                                                                 * le hash énumère les couples nomchamp, valeur à écrire
                                                                 * affiche le message errormsg en cas de pb */
-    bool                    StandardSQL(QString req , QString errormsg="");
+    bool                    StandardSQL(QString req , QString errormsg = std::source_location::current().function_name());
                                                                 //!> éxécute la requête req et affiche le message d'erreur errormsg en cas d'échec
-    QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg="");
+    QList<QVariantList>     StandardSelectSQL(QString req, bool &ok, QString errormsg = std::source_location::current().function_name());
                                                                 /*! éxécute le SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QList<QVariantList>
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */
-    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg="");
+    QVariantList            getFirstRecordFromStandardSelectSQL(QString req, bool &ok, QString errormsg = std::source_location::current().function_name());
                                                                 /*! renvoie la première réponse de la requête SQL SELECT req et affiche le message d'erreur errormsg en cas d'échec
                                                                 * renvoie la réponse sous forme de QVariantList
                                                                 * la variable ok sert à pointer les erreurs sur requête pour les différencier des réponses vides */

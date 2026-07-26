@@ -22,6 +22,10 @@ QT       += sql core gui network printsupport xml serialport multimedia multimed
 CONFIG += precompile_header
 PRECOMPILED_HEADER = pch.h
 
+# C++20 : requis par std::source_location, utilisé comme argument par défaut d'errormsg dans
+# database.h (chaque appel aux génériques SQL rapporte automatiquement sa fonction appelante).
+CONFIG += c++20
+
 # Nom du produit = « Rufus » sur les 3 plateformes (macOS : Rufus.app ; Windows : Rufus.exe ;
 # Linux : binaire « Rufus »). Les anciens scopes « OSX » / « LINUX » n'étaient PAS des scopes
 # qmake valides (le scope macOS est « macx », pas « OSX ») : ils ne s'appliquaient jamais et

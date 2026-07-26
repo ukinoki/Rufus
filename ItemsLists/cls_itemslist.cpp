@@ -1568,7 +1568,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     if (ok)
     {
         QString req = "update " + table + " set " + field + " = " + newvalue.toString() + " where " + clause;
-        ok = DataBase::I()->StandardSQL(req);
+        ok = DataBase::I()->StandardSQL(req, QString("update ") + item->metaObject()->className());
         if (!ok)
         {
             /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique) */
