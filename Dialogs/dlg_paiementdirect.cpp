@@ -2947,6 +2947,52 @@ dlg_paiementdirect::ResultEnregRecette dlg_paiementdirect::EnregistreRecette()
     if (!db->createtransaction(locklist))
         return Impossible;
 
+    /*! avant d'écrire quoi que ce soit, on revérifie en base que les actes du panier n'ont pas été encaissés
+        entre-temps sur un autre poste. Le SELECT FOR UPDATE verrouille les lignes des actes jusqu'au commit :
+        deux postes qui valident en même temps passent donc ici l'un après l'autre, et le second lit les
+        règlements que le premier vient d'enregistrer - le total réglé ne peut jamais dépasser le montant de
+        l'acte. Ce contrôle doit rester la PREMIÈRE lecture de la transaction (fraîcheur du cliché InnoDB). */
+    if ((ui->EspecesradioButton->isChecked() || ui->ChequeradioButton->isChecked())
+         && m_mode == EnregistrePaiement && ui->DetailupTableWidget->rowCount() > 0)
+    {
+        QString listidactes = ui->DetailupTableWidget->item(0,0)->text();
+        for (int i = 1; i != ui->DetailupTableWidget->rowCount(); i++)
+            listidactes += "," + ui->DetailupTableWidget->item(i,0)->text();
+        db->StandardSelectSQL("SELECT " CP_ID_ACTES " FROM " TBL_ACTES
+                              " WHERE " CP_ID_ACTES " IN (" + listidactes + ") FOR UPDATE", m_ok);
+        if (!m_ok)
+        {
+            db->rollback();
+            return Impossible;
+        }
+        for (int i = 0; i != ui->DetailupTableWidget->rowCount(); i++)
+        {
+            double paye = 0;
+            UpLineEdit* Line = qobject_cast<UpLineEdit*>(ui->DetailupTableWidget->cellWidget(i,7));
+            if (Line)
+                paye = QLocale().toDouble(Line->text());
+            QString VerifDejaRegle = "SELECT " CP_MONTANT_ACTES ", SUM(" CP_PAYE_LIGNEPAIEMENT ")"
+                    " FROM " TBL_ACTES " act LEFT OUTER JOIN " TBL_LIGNESPAIEMENTS " lig ON lig." CP_IDACTE_LIGNEPAIEMENT " = act." CP_ID_ACTES
+                    " WHERE act." CP_ID_ACTES " = " + ui->DetailupTableWidget->item(i,0)->text() +
+                    " GROUP BY act." CP_ID_ACTES;
+            QVariantList actdata = db->getFirstRecordFromStandardSelectSQL(VerifDejaRegle, m_ok);
+            if (!m_ok)
+            {
+                db->rollback();
+                return Impossible;
+            }
+            if (actdata.size() > 1 && actdata.at(1).toDouble() + paye > actdata.at(0).toDouble() + 0.001)
+            {
+                db->rollback();
+                UpMessageBox::Watch(this, tr("Acte déjà encaissé"),
+                                    tr("L'acte de ") + ui->DetailupTableWidget->item(i,3)->text() +
+                                    tr(" vient d'être encaissé sur un autre poste.") + "\n" +
+                                    tr("L'enregistrement est annulé."));
+                return Impossible;
+            }
+        }
+    }
+
     if ((ui->EspecesradioButton->isChecked() || ui->ChequeradioButton->isChecked()) && m_mode == EnregistrePaiement)
 
     {
