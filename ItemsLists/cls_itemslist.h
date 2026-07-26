@@ -122,8 +122,8 @@ void epurelist(QMap<QString, T*> *m_oldmap, const QList<T*> *m_newlist)
    * la fonction renvoie false
 * \param m_map le QMap dans lequel on veut ajouter l'item
 * \param item l'item que l'on veut ajouter
-* \param Item::UPDATE - si ForceUpdate, force l'update de l'item s'il est déjà présent dans le QMap
-* \return true si l'item est ajouté
+* \param Item::UPDATE - si Update, force l'update de l'item s'il est déjà présent dans le QMap
+* \return true si l'item est ajouté et que la Map s'enrichit d'un élément
 * \return false dans le cas contraire (l'item est un Q_NULLPTR ou l'item est déjà présent dans le QMap -> delete l'item passé en paramètre dans ce dernier cas)
 */
 template <typename T>

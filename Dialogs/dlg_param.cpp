@@ -1425,7 +1425,7 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
     //! pratiqué par défaut = conventionnel : en « autre » le montant enregistré (montantoptam) ; en
     //! CCAM/association, le montant du secteur OPTAM de l'utilisateur. (En « autre », il sert aussi de
     //! montant conventionnel dans la jointure.)
-    const double conv = cot->isnorNGAPnorCCAM() ? cot->montantoptam()
+    const double conv = cot->isAutre() ? cot->montantoptam()
                                                 : (currentuser()->isOPTAM() ? cot->montantoptam() : cot->montantnonoptam());
     db->ajouteJointureCotation(typ, cot->id(), iduser, conv, conv);
     ouvreEditionPratique(conv);

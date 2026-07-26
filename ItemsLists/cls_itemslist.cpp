@@ -37,6 +37,7 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     Ville *ville                = Q_NULLPTR;
     bool ok = false;
     bool loop = false;
+    QJsonObject saved = item->datas();
     while (!loop)
     {
         doc = qobject_cast<DocExterne*>(item);
@@ -1567,19 +1568,17 @@ bool ItemsList::update(Item* item, QString field, QVariant newvalue)
     if (ok)
     {
         QString req = "update " + table + " set " + field + " = " + newvalue.toString() + " where " + clause;
-        //qDebug() << req;
-        // Étape « journalisation » : on contrôle le résultat de l'écriture. StandardSQL
-        // journalise déjà l'erreur SQL ; on PRÉVIENT en plus l'utilisateur, car sinon
-        // l'échec est invisible et l'objet en mémoire diverge silencieusement de la base.
-        // (On ne change PAS encore la valeur de retour ni l'état mémoire : ce sera l'étape
-        // suivante — restauration de la valeur d'origine.)
-        if (!DataBase::I()->StandardSQL(req))
-            UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
-                tr("La modification n'a pas pu être enregistrée dans la base de données "
-                   "(le serveur est peut-être momentanément indisponible).") + "\n" +
-                tr("L'affichage peut être temporairement désynchronisé de la base : "
-                   "vérifiez votre connexion, puis ressaisissez la modification."));
+        ok = DataBase::I()->StandardSQL(req);
+        if (!ok)
+        {
+            /*! échec base -> on régénère l'ancienne valeur de l'attribut (restauration générique) */
+            item->setData(saved);
+        }
     }
+    if (!ok)
+        UpMessageBox::Watch(Q_NULLPTR, tr("Enregistrement impossible"),
+                            tr("La modification n'a pas pu être enregistrée dans la base de données "
+                               "(le serveur est peut-être momentanément indisponible)."));
     return ok;
 }
 
