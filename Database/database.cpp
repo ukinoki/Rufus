@@ -977,12 +977,11 @@ bool DataBase::verifMajCotations()
     if (!parametres()->cotationsfrance())
         return false;
 
-    //! garde quotidienne (par poste) : on ne relit le fichier de cotations qu'une fois par jour. Si
-    //! la dernière vérification enregistrée dans rufus.ini date d'aujourd'hui, la vérif a déjà eu lieu
-    //! -> on shunte sans rien lire ni réécrire (évite les relectures à chaque démarrage).
+    //! garde quotidienne : on ne relit le fichier de cotations qu'une fois par jour. La date de
+    //! dernière vérification dépend de la BASE (cotations partagées), pas du poste -> on la range dans
+    //! la section du mode d'accès à cette base (un même poste peut viser 2 bases), pas dans Param_Poste.
+    //! Si elle date d'aujourd'hui, la vérif a déjà eu lieu -> on shunte sans rien lire ni réécrire.
     QSettings ini(PATH_FILE_INI, QSettings::IniFormat);
-    //! la garde quotidienne dépend de la BASE (les cotations sont partagées) : on la range dans la
-    //! section du mode d'accès à cette base, pas dans Param_Poste (un même poste peut viser 2 bases).
     const QString cleDateCotations = Utils::getBaseFromMode(ModeAccesDataBase()) + Param_DateCotations;
     if (QDate::fromString(ini.value(cleDateCotations).toString(), "yyyy-MM-dd") == QDate::currentDate())
         return false;
