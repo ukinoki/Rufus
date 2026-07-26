@@ -56,13 +56,6 @@ ui(new Ui::dlg_actesprecedents)
         m_avantdernieracte          = false;
         map_actes                   = m_actes->actes();
         m_initOK                    = map_actes->size() > 0;
-        if (!m_initOK)
-        {
-            ItemsList::clearAll(m_listepaiements->lignespaiements());
-            delete m_listepaiements;
-            ItemsList::clearAll(map_actes);
-            delete m_actes;
-        }
     }
     if (!m_initOK) return;
 
