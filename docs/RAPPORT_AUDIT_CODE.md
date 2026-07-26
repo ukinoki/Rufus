@@ -37,8 +37,7 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 | 7 | `commit()` jamais contrôlé | 🟠 | `bool` de retour | `Database/database.cpp:404` |
 | 8 | Suppression d'un dossier patient sans transaction | 🔴 | copier un patron | `ItemsLists/cls_patients.cpp:169` |
 | 9 | Espace manquant → verrou compta jamais posé (tiers payants) | 🔴 | 1 caractère | `Dialogs/dlg_paiementtiers.cpp:2093` |
-| 10 | Activer la CI de compilation sur `push` / `pull_request` | 🔴 | qq lignes YAML | `.github/workflows/release.yml` |
-| 11 | Sauvegarde du dossier médical en clair | 🔴 | archive chiffrée | `procedures.cpp:868` |
+| 10 | Sauvegarde du dossier médical en clair | 🔴 | archive chiffrée | `procedures.cpp:868` |
 
 ---
 
@@ -182,23 +181,24 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 - **Piste** : encadrer le corps de `SupprimePatient` par `createtransaction(...)` / `commit()` avec
   `rollback()` sur échec — le modèle est déjà écrit à l'identique dans `Dialogs/dlg_comptes.cpp:112-176`.
 
-### 🟠 Noms à apostrophe : requêtes non échappées dans les dialogues d'identification ✓ vérifié
-- **Où** : `Dialogs/dlg_identificationpatient.cpp:274-281`, `dlg_identificationcorresp.cpp:194-201`,
-  `dlg_identificationtiers.cpp:137-144`, `dlg_identificationmanufacturer.cpp:182` — le nom saisi part
-  brut dans un `LIKE '…'`. Le correctif existe et est utilisé 267 fois ailleurs :
-  `utils.cpp:938` (`Utils::correctquoteSQL`), p. ex. `database.cpp:3450`.
-- **Effet** : **pas** un risque d'injection réaliste ici (réseau local, personnel identifié) — mais un
-  vrai **bug fonctionnel** : un patient « O'CONNOR » ou « D'ANGELO » casse la requête, `m_ok` passe à
-  faux, le dialogue fait `reject()` → la fiche se ferme sans être créée et sans explication. Noms
-  courants dans une patientèle française.
-- **Piste** : envelopper les 4 expressions dans `Utils::correctquoteSQL(...)`, comme le même fichier le
-  fait déjà correctement quelques lignes plus bas (`dlg_identificationpatient.cpp:328-329`).
+### ⓧ FAUX POSITIF écarté après vérification — « noms à apostrophe non échappés »
+- Un premier passage avait signalé les dialogues d'identification (`dlg_identificationpatient`,
+  `…corresp`, `…tiers`, `…manufacturer`) comme construisant leurs requêtes avec le nom brut, donc
+  cassés par un « O'CONNOR ».
+- **Relecture** : c'est faux. Le nom est **échappé à la capture**, avant toute concaténation —
+  `dlg_identificationpatient.cpp:219-220` (`PatNom = Utils::correctquoteSQL(...)`) puis utilisé tel
+  quel en `:274-275` ; idem `dlg_identificationcorresp.cpp:161-162`→`195`,
+  `dlg_identificationtiers.cpp:121`→`138`, `dlg_identificationmanufacturer.cpp:164`→`182`.
+  L'analyseur avait vu `+ PatNom +` sans voir que la variable contenait déjà la valeur échappée.
+- **Conclusion** : aucun bug ici. `correctquoteSQL` est correctement appliqué (voir *Points forts*).
+  Constat conservé, barré, pour mémoire — un rappel que tout constat doit être relu dans le code.
 
 ### 🟡 70 % du texte SQL vit hors de la couche `Database`
-- **Où** : 753 littéraux SQL au total, dont 225 dans `Database/database.cpp` et **528 ailleurs**
-  (rufus.cpp 134, conversionbase.cpp 63, dlg_paiementdirect 49, procedures 45, dlg_paiementtiers 45,
-  dlg_remisecheques 30, dlg_gestionusers 21). Schémas recopiés :
+- **Où** : ~750 littéraux SQL au total, dont 225 dans `Database/database.cpp` et **~500 ailleurs**
+  (rufus.cpp 134, dlg_paiementdirect 49, procedures 45, dlg_paiementtiers 45, dlg_remisecheques 30,
+  dlg_gestionusers 21). Schémas recopiés :
   `ItemsLists/cls_correspondants.cpp:130-133` (4 lignes quasi identiques).
+  *(Le comptage initial incluait `conversionbase.cpp` (63) — fichier désormais obsolète, exclu.)*
 - **Effet** : un changement de schéma (colonne ajoutée, table renommée) oblige à fouiller une vingtaine
   de fichiers. L'usage systématique des macros `TBL_*`/`CP_*` limite déjà les dégâts (d'où la gravité
   basse).
@@ -317,17 +317,20 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 
 ## 6. Maintenabilité, duplication & outillage
 
-### 🔴 Aucun test automatisé, et la CI ne compile jamais sauf au moment de publier
-- **Où** : `grep QTest/QtTest/gtest` → **zéro résultat** sur 125 000 lignes. Le seul « test » est une
+### ⚖ Pas de test automatisé ; la CI ne compile qu'à la publication — *décision assumée*
+- **Fait** : `grep QTest/QtTest/gtest` → **zéro résultat** sur 125 000 lignes ; le seul « test » est une
   procédure **manuelle** (`build_tools/test/recette_cas_limites_demarrage.md`).
-  `.github/workflows/release.yml:6-10` : déclenché **uniquement sur tag `v*`** — ni sur `push`, ni sur
-  `pull_request`.
-- **Effet** : c'est **le** point qui rend la reprise la plus difficile. Sans test, un repreneur ne peut
-  savoir si son changement a cassé la facturation, la réfraction ou la synchro ; il n'a que la connaissance
-  métier de l'auteur, absente du dépôt. Une régression de compilation n'est vue qu'à la publication.
-- **Piste** : ajouter `on: push` / `on: pull_request` au workflow existant (garde-fou de compilation, coût
-  nul). Puis un `tests.pro` avec QTest ciblant les fonctions pures de `utils.cpp` et `conversionbase.cpp`
-  (les seules testables sans MySQL, et celles qui portent les calculs de montants).
+  `.github/workflows/release.yml` se déclenche **uniquement sur tag `v*`** — pas sur `push`/`pull_request`.
+- **Décision de l'auteur (juillet 2026)** : on **ne met pas** de compilation à chaque push. Trois OS qui
+  recompilent de zéro (~40 min de machines) pour, l'immense majorité du temps, du Qt pur sans compilation
+  conditionnelle, ne se justifie pas — coût énergétique disproportionné pour un cabinet, et l'auteur
+  vérifie lui-même à chaque push, plus vite et sur davantage que « ça compile ». Conforme au §0 du
+  CLAUDE.md (faire simple, pas une banque).
+- **Tests** : même verdict, faible intérêt sur du code figé depuis des années (`utils.cpp` n'a pas bougé).
+  Un test ne paie que sur du code qui **change** ou qu'on **redoute de toucher** — à réserver, le cas
+  échéant, à une logique subtile *et* évolutive (un calcul de montant retravaillé), pas au socle stable.
+- **Risque accepté, consigné** : une régression de compilation reste théoriquement possible entre deux
+  releases ; elle est couverte par la vérification manuelle de l'auteur à chaque push.
 
 ### 🔴 Duplication massive entre les deux dialogues de paiement, avec divergences déjà buguées ✓ vérifié
 - **Où** : `dlg_paiementdirect.cpp` (3 615 l.) et `dlg_paiementtiers.cpp` (3 082 l.) partagent **33
@@ -349,9 +352,10 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 - **Effet** : impossible de se constituer une carte mentale progressive ; pour modifier la mise à jour d'un
   champ, il faut entrer dans une fonction qui traite 27 types à la fois. Aucun outil ne répond à « où cette
   table est-elle écrite ? » autrement que par recherche textuelle.
-- **Piste** : ne pas toucher à `rufus.cpp` (trop risqué sans tests). Découper **`ItemsList::update`** : chaque
-  bloc `if (type == …)` est déjà autonome et devient une méthode `updateXxx()` par déplacement pur, sans
-  changer une ligne de logique — risque quasi nul, faisable bloc par bloc.
+- **Piste** : ne pas toucher à `rufus.cpp` (trop risqué sans tests). Le découpage de **`ItemsList::update`**
+  serait mécanique (chaque bloc `if (type == …)` → une méthode `updateXxx()`, par déplacement pur), mais
+  **décision de l'auteur : on le laisse tel quel** — stable depuis des années, touché seulement pour ajouter
+  un champ (« if it ain't broke… »). L'observation reste comme repère de lisibilité pour un repreneur.
 
 ### 🟠 Aiguillage matériel par comparaison de chaînes — une branche morte depuis l'origine ✓ vérifié
 - **Où** : `Protocols/genericprotocol.h` (aucune méthode `virtual` — pas de polymorphisme entre `Nidek`,
@@ -442,8 +446,6 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 1. ~~**Les deux plantages certains**~~ — *fait* : `CleanSalleDAttente` et `dlg_actesprecedents`.
 2. ~~**Rendre les erreurs SQL visibles**~~ — *fait* : le multiplicateur qui révèle tout le reste.
 3. **Le verrou de dossier sauté** (déplacer un bloc hors du `else`).
-4. **La CI de compilation sur `push`/`pull_request`** : garde-fou permanent pour un coût nul.
-5. **Les corrections d'un caractère à fort effet** : espace manquant `selectidActe`, `TAP-6000` → `TAP-2000`.
-6. **La sauvegarde chiffrée** : le plus grand gain de sécurité pour le moindre effort.
-7. **Au fil de l'eau** : transactions côté dossier médical, `bool` de retour sur `copy`/`commit`,
-   découpe de `ItemsList::update` par déplacement pur.
+4. **Les corrections d'un caractère à fort effet** : espace manquant `selectidActe`, `TAP-6000` → `TAP-2000`.
+5. **La sauvegarde chiffrée** : le plus grand gain de sécurité pour le moindre effort.
+6. **Au fil de l'eau** : transactions côté dossier médical, `bool` de retour sur `copy`/`commit`.
