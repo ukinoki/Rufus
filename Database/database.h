@@ -231,6 +231,12 @@ public:
     double valeurAMYDOM();
     bool verifMajCotations();                                   //! vérifie/applique les MAJ du fichier de cotations (CCAM : table ccam + montants ; NGAP : import AMY) au démarrage ; court-circuit par la date du fichier (rufus.ini). Renvoie true si le fichier a été traité (l'appelant enchaîne alors completeTipsManquants)
     void corrigeMontantsPratiques();                            //! invariant permanent (à chaque démarrage) : remonte au conventionnel tout montant pratiqué passé en-dessous, dans jointuresccam et jointuresassociations
+    //! opérations sur la jointure d'une cotation pour un utilisateur (SQL regroupé ici, aiguillé par le type) :
+    void ajouteJointureCotation(int typcotation, int idcotation, int iduser, double montantpratique, double montantconventionnel = 0);   //!< (re)crée la jointure (anti-doublon) ; NGAP sans montant, « autre » avec conventionnel+pratiqué, sinon pratiqué seul
+    void retireJointureCotation(int typcotation, int idcotation, int iduser);                                                            //!< retire la jointure du user
+    void majMontantPratiqueCotation(int typcotation, int idcotation, int iduser, double montantpratique);                                //!< met à jour le pratiqué dans la jointure (NGAP : rien)
+    bool cotationUtiliseeParAutreUser(int typcotation, int idcotation, int iduser);                                                      //!< vrai si un AUTRE utilisateur possède cette cotation dans sa jointure
+    bool lisMontantsJointureAutre(int idcotation, int iduser, double &conventionnel, double &pratique);                                   //!< lit conventionnel+pratiqué d'une cotation « autre » dans la jointure du user ; false si absente
     QMap<QString,QString> nomsNGAPFromXml();                     //! Typeacte (AMY+indice) -> libellé, lu dans le fichier de cotations (pour renseigner le Tip des NGAP)
     void exporteJointures();                                    //! migre les cotations perso vers les 4 jointures et classe Typecotation (1 CCAM, 2 assoc, 3 NGAP, 4 autre) d'après le Typeacte
     void nettoieTableCotations();                              //! ne garde qu'une ligne par Typeacte (supprime les doublons de partage entre utilisateurs)

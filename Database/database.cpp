@@ -2957,6 +2957,127 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
     return montants;
 }
 
+/*!
+ * \brief jointureCotation
+ * table de jointure d'une cotation et ses colonnes selon son type (1=CCAM, 2=association, 3=NGAP,
+ * 4=autre) ; chpPratique VIDE pour un NGAP (jointuresNGAP ne stocke pas de pratiqué). false si type
+ * inconnu. Aiguillage commun aux opérations de jointure ci-dessous.
+ */
+static bool jointureCotation(int typcotation, QString &table, QString &chpIdcot, QString &chpIduser, QString &chpPratique)
+{
+    switch (typcotation)
+    {
+        case 1: table = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;            return true;
+        case 2: table = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;    return true;
+        case 3: table = TBL_JOINTURESNGAP;            chpIdcot = CP_IDCOTATION_JOINTNGAP;            chpIduser = CP_IDUSER_JOINTNGAP;            chpPratique.clear();                                   return true;
+        case 4: table = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS; return true;
+        default: return false;
+    }
+}
+
+/*!
+ * \brief DataBase::ajouteJointureCotation
+ * (re)crée la ligne de jointure d'une cotation pour un utilisateur (anti-doublon : on retire d'abord une
+ * éventuelle jointure existante). NGAP : jointure sans montant. « autre » (4) : conventionnel + pratiqué.
+ * CCAM / association : pratiqué seul.
+ */
+void DataBase::ajouteJointureCotation(int typcotation, int idcotation, int iduser, double montantpratique, double montantconventionnel)
+{
+    if (!m_db.isOpen())
+        return;
+    QString table, chpIdcot, chpIduser, chpPratique;
+    if (!jointureCotation(typcotation, table, chpIdcot, chpIduser, chpPratique))
+        return;
+    const QString idc = QString::number(idcotation);
+    const QString idu = QString::number(iduser);
+    StandardSQL("delete from " + table + " where " + chpIdcot + " = " + idc + " and " + chpIduser + " = " + idu);
+    if (chpPratique.isEmpty())                          //! NGAP : jointure sans montant pratiqué
+        StandardSQL("insert into " + table + " (" + chpIdcot + ", " + chpIduser + ") values (" + idc + ", " + idu + ")");
+    else if (typcotation == 4)                          //! autre : conventionnel + pratiqué
+        StandardSQL("insert into " + table + " (" + chpIdcot + ", " + chpIduser + ", "
+                    CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " + chpPratique + ") values ("
+                    + idc + ", " + idu + ", " + QString::number(montantconventionnel) + ", " + QString::number(montantpratique) + ")");
+    else                                                //! CCAM / association : pratiqué seul
+        StandardSQL("insert into " + table + " (" + chpIdcot + ", " + chpIduser + ", " + chpPratique + ") values ("
+                    + idc + ", " + idu + ", " + QString::number(montantpratique) + ")");
+}
+
+/*!
+ * \brief DataBase::retireJointureCotation
+ * retire la ligne de jointure d'une cotation pour un utilisateur (selon le type de la cotation).
+ */
+void DataBase::retireJointureCotation(int typcotation, int idcotation, int iduser)
+{
+    if (!m_db.isOpen())
+        return;
+    QString table, chpIdcot, chpIduser, chpPratique;
+    if (!jointureCotation(typcotation, table, chpIdcot, chpIduser, chpPratique))
+        return;
+    StandardSQL("delete from " + table + " where " + chpIdcot + " = " + QString::number(idcotation)
+                + " and " + chpIduser + " = " + QString::number(iduser));
+}
+
+/*!
+ * \brief DataBase::majMontantPratiqueCotation
+ * met à jour le montant pratiqué d'une cotation dans la jointure de l'utilisateur. NGAP : rien à faire
+ * (le pratiqué vaut toujours le conventionnel, non stocké).
+ */
+void DataBase::majMontantPratiqueCotation(int typcotation, int idcotation, int iduser, double montantpratique)
+{
+    if (!m_db.isOpen())
+        return;
+    QString table, chpIdcot, chpIduser, chpPratique;
+    if (!jointureCotation(typcotation, table, chpIdcot, chpIduser, chpPratique) || chpPratique.isEmpty())
+        return;
+    StandardSQL("update " + table + " set " + chpPratique + " = " + QString::number(montantpratique)
+                + " where " + chpIdcot + " = " + QString::number(idcotation)
+                + " and " + chpIduser + " = " + QString::number(iduser));
+}
+
+/*!
+ * \brief DataBase::cotationUtiliseeParAutreUser
+ * vrai si un utilisateur AUTRE que iduser possède cette cotation dans sa jointure (selon le type).
+ */
+bool DataBase::cotationUtiliseeParAutreUser(int typcotation, int idcotation, int iduser)
+{
+    if (!m_db.isOpen())
+        return false;
+    QString table, chpIdcot, chpIduser, chpPratique;
+    if (!jointureCotation(typcotation, table, chpIdcot, chpIduser, chpPratique))
+        return false;
+    bool okloc = false;
+    QList<QVariantList> l = StandardSelectSQL("select 1 from " + table
+                            + " where " + chpIdcot + " = " + QString::number(idcotation)
+                            + " and " + chpIduser + " <> " + QString::number(iduser) + " limit 1", okloc);
+    return (okloc && !l.isEmpty());
+}
+
+/*!
+ * \brief DataBase::lisMontantsJointureAutre
+ * lit le montant conventionnel et le montant pratiqué d'une cotation « autre » (type 4) dans la
+ * jointure de l'utilisateur (jointuresautrescotations). false si aucune jointure (montants laissés à 0).
+ */
+bool DataBase::lisMontantsJointureAutre(int idcotation, int iduser, double &conventionnel, double &pratique)
+{
+    conventionnel = 0;
+    pratique      = 0;
+    if (!m_db.isOpen())
+        return false;
+    bool okloc = false;
+    QVariantList m = getFirstRecordFromStandardSelectSQL(
+        "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+        " from " TBL_JOINTURESAUTRESCOTATIONS
+        " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(idcotation)
+        + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + QString::number(iduser), okloc);
+    if (okloc && m.size() >= 2)
+    {
+        conventionnel = m.at(0).toDouble();
+        pratique      = m.at(1).toDouble();
+        return true;
+    }
+    return false;
+}
+
 QStringList DataBase::loadTypesCotations()
 {
     QStringList listcotations = QStringList();
