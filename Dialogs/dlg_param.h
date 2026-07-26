@@ -102,6 +102,7 @@ private:
     Cotation*               getCotationFromIndex(QModelIndex idx);              //!< la cotation portée par la ligne d'index idx
     bool                    cotationUtiliseeParAutre(Cotation *cot);           //!< vrai si un autre utilisateur que le courant utilise cette cotation
     void                    MenuContextuelCotations();                         //!< clic droit : sélectionne la rangée + menu modifier/supprimer (si le user est son propre parent)
+    bool                    infosJointure(int typcotation, QString &table, QString &chpIdcot, QString &chpIduser, QString &chpPratique);   //!< table de jointure + colonnes selon le type (chpPratique vide pour un NGAP) ; false si type inconnu
 
     bool                    m_modifposte            = false;
     bool                    m_alerteMDPencours      = false;                    //! garde-fou de ré-entrance de l'alerte « mot de passe de connexion modifié »

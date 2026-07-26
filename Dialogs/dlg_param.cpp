@@ -1359,6 +1359,25 @@ void dlg_param::startImmediateBackup()
  *      * autre (4) : pratiqué = conventionnel enregistré (montantoptam), 0 si aucun ;
  *      * NGAP (3) : rien, le pratiqué reste vide et non éditable.
  */
+/*!
+ * \brief dlg_param::infosJointure
+ * \param typcotation  type de la cotation (1=CCAM, 2=association, 3=NGAP, 4=autre)
+ * renseigne la table de jointure et ses colonnes selon le type. chpPratique est VIDE pour un NGAP
+ * (jointuresNGAP ne stocke pas de montant pratiqué). Rend false si le type est inconnu. Factorise le
+ * même aiguillage utilisé par MAJCotation / MAJMontantPratique / cotationUtiliseeParAutre / supprimeCotation.
+ */
+bool dlg_param::infosJointure(int typcotation, QString &table, QString &chpIdcot, QString &chpIduser, QString &chpPratique)
+{
+    switch (typcotation)
+    {
+        case 1: table = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;            return true;   //! CCAM
+        case 2: table = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;    return true;   //! association CCAM
+        case 3: table = TBL_JOINTURESNGAP;            chpIdcot = CP_IDCOTATION_JOINTNGAP;            chpIduser = CP_IDUSER_JOINTNGAP;            chpPratique.clear();                                   return true;   //! NGAP (pas de pratiqué)
+        case 4: table = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS; return true;   //! autre (hors NGAP/CCAM)
+        default: return false;
+    }
+}
+
 void dlg_param::MAJCotation(QStandardItem *itcheck)
 {
     UpStandardItem *upit = dynamic_cast<UpStandardItem*>(itcheck);
@@ -1370,14 +1389,8 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
 
     //! jointure (et ses colonnes) selon le type ; chpPratique vide pour un NGAP (pas de montant pratiqué)
     QString jointure, chpIdcot, chpIduser, chpPratique;
-    switch (cot->typcotation())
-    {
-        case 1: jointure = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;            break;
-        case 2: jointure = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;    break;
-        case 3: jointure = TBL_JOINTURESNGAP;            chpIdcot = CP_IDCOTATION_JOINTNGAP;            chpIduser = CP_IDUSER_JOINTNGAP;                                                                  break;
-        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS; break;
-        default: return;
-    }
+    if (!infosJointure(cot->typcotation(), jointure, chpIdcot, chpIduser, chpPratique))
+        return;
     const QString idcot  = QString::number(cot->id());
     const QString iduser = QString::number(currentuser()->id());
     const QString wId    = " where " + chpIdcot + " = " + idcot + " and " + chpIduser + " = " + iduser;
@@ -1494,15 +1507,9 @@ bool dlg_param::cotationUtiliseeParAutre(Cotation *cot)
 {
     if (cot == Q_NULLPTR)
         return false;
-    QString jointure, chpIdcotation, chpIduser;
-    switch (cot->typcotation())
-    {
-        case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             break;   //! CCAM
-        case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     break;   //! association CCAM
-        case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             break;   //! NGAP
-        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
-        default: return false;
-    }
+    QString jointure, chpIdcotation, chpIduser, chpPratique;
+    if (!infosJointure(cot->typcotation(), jointure, chpIdcotation, chpIduser, chpPratique))
+        return false;
     bool ok = false;
     QList<QVariantList> l = db->StandardSelectSQL("select 1 from " + jointure
                             + " where " + chpIdcotation + " = " + QString::number(cot->id())
@@ -1541,13 +1548,9 @@ void dlg_param::MAJMontantPratique(Cotation *cot, double montant)
     if (cot == Q_NULLPTR)
         return;
     QString jointure, chpIdcotation, chpIduser, chpPratique;
-    switch (cot->typcotation())
-    {
-        case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;             break;   //! CCAM
-        case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;     break;   //! association CCAM
-        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
-        default: return;    //! NGAP (3) : pratiqué = conventionnel, non éditable -> rien à faire
-    }
+    //! NGAP (chpPratique vide) : pratiqué = conventionnel, non éditable -> rien à faire
+    if (!infosJointure(cot->typcotation(), jointure, chpIdcotation, chpIduser, chpPratique) || chpPratique.isEmpty())
+        return;
     db->StandardSQL("update " + jointure + " set " + chpPratique + " = " + QString::number(montant)
                     + " where " + chpIdcotation + " = " + QString::number(cot->id())
                     + " and " + chpIduser + " = " + QString::number(currentuser()->id()));
@@ -1680,15 +1683,9 @@ void dlg_param::supprimeCotation(Cotation *cot)
     if (cot == Q_NULLPTR)
         return;
     //! table de jointure (et ses colonnes idCotation/idUser) correspondant au type de la cotation
-    QString jointure, chpIdcotation, chpIduser;
-    switch (cot->typcotation())
-    {
-        case 1: jointure = TBL_JOINTURESCCAM;              chpIdcotation = CP_IDCOTATION_JOINTCCAM;             chpIduser = CP_IDUSER_JOINTCCAM;             break;   //! CCAM
-        case 2: jointure = TBL_JOINTURESASSOCIATIONS;      chpIdcotation = CP_IDCOTATION_JOINTASSOCIATIONS;     chpIduser = CP_IDUSER_JOINTASSOCIATIONS;     break;   //! association CCAM
-        case 3: jointure = TBL_JOINTURESNGAP;              chpIdcotation = CP_IDCOTATION_JOINTNGAP;             chpIduser = CP_IDUSER_JOINTNGAP;             break;   //! NGAP
-        case 4: jointure = TBL_JOINTURESAUTRESCOTATIONS;   chpIdcotation = CP_IDCOTATION_JOINTAUTRESCOTATIONS;  chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS;  break;   //! autre (hors NGAP/CCAM)
-        default: return;
-    }
+    QString jointure, chpIdcotation, chpIduser, chpPratique;
+    if (!infosJointure(cot->typcotation(), jointure, chpIdcotation, chpIduser, chpPratique))
+        return;
     const QString idcot = QString::number(cot->id());
     //! retrait de la cotation de la jointure du user
     db->StandardSQL("delete from " + jointure + " where " + chpIdcotation + " = " + idcot
