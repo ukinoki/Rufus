@@ -5907,16 +5907,22 @@ void Rufus::CleanSalleDAttente()
 
     QString blabla              = ENCOURSEXAMEN;
     int length                  = blabla.size();
-    QList<PatientEnCours*> listpatcrstoremove = QList<PatientEnCours*>();
+    QList<PatientEnCours*> listpatcrstoremove   = QList<PatientEnCours*>();
+    QList<PatientEnCours*> listpatcrsasupprimer = QList<PatientEnCours*>();   /*! patients dont la fiche n'existe plus : à retirer APRÈS la boucle */
     for (auto it = Datas::I()->patientsencours->patientsencours()->constBegin(); it != Datas::I()->patientsencours->patientsencours()->constEnd(); ++it)
     {
         PatientEnCours *patcrs = const_cast<PatientEnCours*>(it.value());
         if (patcrs != nullptr)
         {
-            /*! on retire de la salle d'attente les patients qui n'existent pas */
+            /*! on retire de la salle d'attente les patients dont la fiche n'existe plus.
+                On NE supprime pas ici : SupprimePatientEnCours retire l'entrée de la QMap
+                qu'on est en train de parcourir, ce qui invalide l'itérateur (lecture d'un
+                élément détruit au ++it suivant → plantage aléatoire). On diffère le retrait
+                après la boucle, exactement comme le fait déjà listpatcrstoremove ci-dessous. */
             if (Datas::I()->patients->getById(patcrs->id()) == nullptr)
             {
-                Datas::I()->patientsencours->SupprimePatientEnCours(patcrs);
+                if (!listpatcrsasupprimer.contains(patcrs))
+                    listpatcrsasupprimer << patcrs;
                 continue;
             }
             if (patcrs->statut().left(length) == ENCOURSEXAMEN)
@@ -5973,6 +5979,14 @@ void Rufus::CleanSalleDAttente()
                 }
             }
         }
+    }
+    /*! retrait effectif, la boucle terminée, des patients dont la fiche n'existe plus :
+        les supprimer pendant la boucle ci-dessus invaliderait l'itérateur de la QMap parcourue */
+    if (listpatcrsasupprimer.size() > 0)
+    {
+        majsaldat = true;
+        for (auto itpatcrs = listpatcrsasupprimer.cbegin(); itpatcrs != listpatcrsasupprimer.cend(); ++itpatcrs)
+            Datas::I()->patientsencours->SupprimePatientEnCours(*itpatcrs);
     }
     if (listpatcrstoremove.size() >0)
     {
