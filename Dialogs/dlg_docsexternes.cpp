@@ -1059,7 +1059,6 @@ void dlg_docsexternes::RemplirTreeView()
     foreach (DocExterne *doc, *m_docsexternes->docsexternes())
     {
         QString date = doc->datetimeimpression().toString(tr("dd-MM-yyyy"));
-        //qDebug() << date << doc->titre();
         pitemdate           = new QStandardItem(doc->titrelong());
         pitemtype           = new QStandardItem(doc->titrelong());
         pitemtridated       = new QStandardItem(doc->datetimeimpression().toString("yyyyMMddHHmmss"));
@@ -1087,9 +1086,6 @@ void dlg_docsexternes::RemplirTreeView()
         m_tripardatemodel->item(i)->sortChildren(1);
     for (int i = 0; i < m_tripartypemodel->rowCount(); ++i)
         m_tripartypemodel->item(i)->sortChildren(1);
-//    qDebug() << "rowCount() = " << gmodeleTriParDate->rowCount();
-//    qDebug() << "dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->text();
-//    qDebug() << "rowCount() du dernier child = " << gmodeleTriParDate->item(gmodeleTriParDate->rowCount()-1)->rowCount()-1;
 
     afficheModele(idaretrouver, true);   //! bascule sur le bon modèle, re-sélectionne et réaffiche le document
 }
