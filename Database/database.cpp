@@ -121,7 +121,10 @@ bool DataBase::erreurRequete(QSqlError erreur, QString requete, QString ErrorMes
         à l'écran, l'utilisateur final ne voit que le libellé transmis par l'appelant
         (le nom de la fonction) - rien de cabalistique */
     Logs::ERROR(ErrorMessage, tr("\nErreur\n") + erreur.text() +  tr("\nrequete = ") + requete);
-    UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
+    if (!ErrorMessage.isEmpty())                 /*! pas de libellé → pas de boîte vide : le log suffit */
+            UpMessageBox::Watch(Q_NULLPTR, ErrorMessage);
+    else
+            UpMessageBox::Watch(Q_NULLPTR, erreur.text() + "\n" + tr("requete = ") + requete);
     return true;
 }
 
