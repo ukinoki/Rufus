@@ -338,8 +338,8 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listvilles, VilleListModel::Fie
     gAsk->OKButton      ->setEnabled(false);
 
     QString newValue;
-    connect(gAsk->OKButton, &QPushButton::clicked,                          gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
-    connect(listvw,           &QListView::doubleClicked,                    gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
+    connect(gAsk->OKButton, &QPushButton::clicked,                          gAsk,   [=, this, &newValue] { Repons(listvw, gAsk, newValue); });
+    connect(listvw,           &QListView::doubleClicked,                    gAsk,   [=, this, &newValue] { Repons(listvw, gAsk, newValue); });
     connect(deleglabl,      &UpLabelDelegate::focusitem,                    gAsk,   [gAsk] { gAsk->OKButton->setEnabled(true); });
     connect(listvw->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,   [=, this] { gAsk->OKButton->setEnabled(listvw->selectionModel()->selectedIndexes().size()>0); });
 
