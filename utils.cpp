@@ -87,6 +87,14 @@ void Utils::Pause(int msec)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
 }
 
+void Utils::Redemarrage()
+{
+    ShowMessage::I()->SplashMessage(tr("Redémarrage du programme"), 3000, true);
+    Utils::Pause(2500);
+    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
+    exit(0);
+}
+
 bool Utils::IsCharSpecial( QChar c)
 {
   if( c == ' ' || c == '-' || c == '\'' ) return true;
@@ -946,6 +954,19 @@ QString Utils::nomTableDepuisCheminSQL(QString text)
     if (text.split(".").size()>1)
         text = text.split(".").last();
     return text;
+}
+
+QString Utils::nomBaseDepuisCheminSQL(QString text)
+{
+    if (text.split(".").size()>1)
+        text = text.split(".").first();
+    return text;
+}
+
+QString Utils::backTicNameTable(QString text)
+{
+    if (text.split(".").size()>1)
+        return "`" + nomBaseDepuisCheminSQL(text) + "`.`" + nomTableDepuisCheminSQL(text) + "`";
 }
 
 QString Utils::getBaseFromMode(ModeAcces mode )

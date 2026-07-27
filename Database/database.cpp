@@ -3833,7 +3833,7 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
     data[CP_VERRETEINTE_REFRACTIONS]        = (refdata.at(41).toInt() == 1);
     data[CP_PD_REFRACTIONS]                 = refdata.at(42).toInt();
     data[CP_QUICKOD_REFRACTIONS]            = refdata.at(43).toInt() == 1;
-    data[CP_QUICKOD_REFRACTIONS]            = refdata.at(44).toInt() == 1;
+    data[CP_QUICKOG_REFRACTIONS]            = refdata.at(44).toInt() == 1;
 
     data["isODmesure"]                      = (refdata.at(8) != QVariant());
     data["isOGmesure"]                      = (refdata.at(23) != QVariant());
@@ -3843,14 +3843,15 @@ QJsonObject DataBase::loadRefractionData(QVariantList refdata)           //! att
 QList<Refraction*> DataBase::loadRefractionsByPatId(int id)                  //! charge toutes les refractions d'un patient
 {
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
-                                                    "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-                                                    "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
+                                                  "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
+                                                  "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
     if (ok)
         if (listc.at(0).at(0).toInt() == 0)
         {
-            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOD_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOD`;");
-            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOG_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOG`;");
-            StandardSQL("UPDATE `" TBL_PARAMSYSTEME "` SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
+            QString nomtable = TBL_REFRACTIONS;
+            StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN  `" CP_QUICKOD_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOD`;");
+            StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN `" CP_QUICKOG_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOG`;");
+            StandardSQL("UPDATE " TBL_PARAMSYSTEME " SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
         }
 
     QList<Refraction*> list = QList<Refraction*> ();
@@ -3886,25 +3887,33 @@ Refraction* DataBase::loadRefractionById(int idref)                   //! charge
 {
     QList<QVariantList> listc = StandardSelectSQL("SELECT COUNT(*) FROM "
                                                   "(SELECT COLUMN_KEY FROM INFORMATION_SCHEMA.COLUMNS "
-                                                  "WHERE TABLE_NAME = '" + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + "' AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
+                                                  "WHERE TABLE_NAME = " + Utils::nomTableDepuisCheminSQL(TBL_REFRACTIONS) + " AND COLUMN_NAME = '" CP_QUICKOD_REFRACTIONS "') as chp;", ok);
     if (ok)
         if (listc.at(0).at(0).toInt() == 0)
         {
-            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOD_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOD`;");
-            StandardSQL("ALTER TABLE `" TBL_REFRACTIONS "` ADD COLUMN `" CP_QUICKOG_REFRACTIONS "` INT NULL DEFAULT 0 AFTER `AVPOG`;");
-            StandardSQL("UPDATE `" TBL_PARAMSYSTEME "` SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
+            QString nomtable = TBL_REFRACTIONS;
+            StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN " CP_QUICKOD_REFRACTIONS " INT NULL DEFAULT 0 AFTER AVPOD;");
+            StandardSQL("ALTER TABLE " + nomtable + " ADD COLUMN " CP_QUICKOG_REFRACTIONS " INT NULL DEFAULT 0 AFTER AVPOG;");
+            StandardSQL("UPDATE " TBL_PARAMSYSTEME " SET " CP_VERSIONBASE_PARAMSYSTEME " = 81;");
         }
 
     Refraction *ref = Q_NULLPTR;
     QString req = "SELECT " CP_ID_REFRACTIONS ", " CP_IDPAT_REFRACTIONS ", " CP_IDACTE_REFRACTIONS ", " CP_DATE_REFRACTIONS ", " CP_TYPEMESURE_REFRACTIONS ", "          // 0-1-2-3-4
-        CP_DISTANCEMESURE_REFRACTIONS ", " CP_CYCLOPLEGIE_REFRACTIONS ", " CP_ODMESURE_REFRACTIONS ", " CP_SPHEREOD_REFRACTIONS ", " CP_CYLINDREOD_REFRACTIONS ", "      // 5-6-7-8-9
+        CP_DISTANCEMESURE_REFRACTIONS ", " CP_CYCLOPLEGIE_REFRACTIONS ","
+
+        CP_ODMESURE_REFRACTIONS ", " CP_SPHEREOD_REFRACTIONS ", " CP_CYLINDREOD_REFRACTIONS ", "      // 5-6-7-8-9
         CP_AXECYLOD_REFRACTIONS ", " CP_AVLOD_REFRACTIONS ", " CP_ADDVPOD_REFRACTIONS ", " CP_AVPOD_REFRACTIONS ", " CP_PRISMEOD_REFRACTIONS ", "                        // 10-11-12-13-14
-        CP_BASEPRISMEOD_REFRACTIONS ", "  CP_BASEPRISMETEXTOD_REFRACTIONS ", " CP_PRESSONOD_REFRACTIONS ", " CP_DEPOLIOD_REFRACTIONS ", " CP_PLANOD_REFRACTIONS ", "     // 15-16-17-18-19
-        CP_RYSEROD_REFRACTIONS ", " CP_FORMULEOD_REFRACTIONS ", " CP_OGMESURE_REFRACTIONS ", " CP_SPHEREOG_REFRACTIONS ", " CP_CYLINDREOG_REFRACTIONS ", "               // 20-21-22-23-24
+        CP_BASEPRISMEOD_REFRACTIONS ", " CP_BASEPRISMETEXTOD_REFRACTIONS ", " CP_PRESSONOD_REFRACTIONS ", " CP_DEPOLIOD_REFRACTIONS ", " CP_PLANOD_REFRACTIONS ", "      // 15-16-17-18-19
+        CP_RYSEROD_REFRACTIONS ", " CP_FORMULEOD_REFRACTIONS ","                                                                                                         // 20-21
+
+        CP_OGMESURE_REFRACTIONS ", " CP_SPHEREOG_REFRACTIONS ", " CP_CYLINDREOG_REFRACTIONS ", "                                                                         // 22-23-24
         CP_AXECYLOG_REFRACTIONS ", " CP_AVLOG_REFRACTIONS ", " CP_ADDVPOG_REFRACTIONS ", " CP_AVPOG_REFRACTIONS ", " CP_PRISMEOG_REFRACTIONS ", "                        // 25-26-27-28-29
         CP_BASEPRISMEOG_REFRACTIONS ", " CP_BASEPRISMETEXTOG_REFRACTIONS ", " CP_PRESSONOG_REFRACTIONS ", " CP_DEPOLIOG_REFRACTIONS ", " CP_PLANOG_REFRACTIONS ", "      // 30-31-32-33-34
-        CP_BASEPRISMETEXTOD_REFRACTIONS ", " CP_FORMULEOG_REFRACTIONS ", " CP_COMMENTAIREORDO_REFRACTIONS ", " CP_TYPEVERRES_REFRACTIONS ", " CP_OEIL_REFRACTIONS ", "   // 35-36-37-38-39
+        CP_RYSEROG_REFRACTIONS ", " CP_FORMULEOG_REFRACTIONS ","                                                                                                         // 35-36
+
+        CP_COMMENTAIREORDO_REFRACTIONS ", " CP_TYPEVERRES_REFRACTIONS ", " CP_OEIL_REFRACTIONS ", "                                                                      // 37-38-39
         CP_MONTURE_REFRACTIONS "," CP_VERRETEINTE_REFRACTIONS ", " CP_PD_REFRACTIONS ", " CP_QUICKOD_REFRACTIONS ", " CP_QUICKOG_REFRACTIONS                             // 40-41-42-43-44
+
         " FROM " TBL_REFRACTIONS ;
     req += " WHERE " CP_ID_REFRACTIONS " = " + QString::number(idref) ;
     QVariantList refdata = getFirstRecordFromStandardSelectSQL(req,ok);

@@ -1261,8 +1261,7 @@ bool MySQLInstaller::run()
              *  DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le carrefour
              *  « Aucun serveur » ni le choix vierge/existante (ergonomie après un « tout effacer et
              *  réinstaller » délibéré). Drapeau posé À CE SEUL endroit. */
-            QProcess::startDetached(QApplication::applicationFilePath(), QStringList{"-installMySQL"});
-            exit(0);
+            Utils::Redemarrage();
             return true;                        /*!< jamais atteint */
         }
 
@@ -2086,8 +2085,7 @@ void MySQLInstaller::controlerClesSSLMonoposte()
             + tr("Transmettez-les aux postes en accès distant : menu Édition / Paramètres / Ce poste "
                  "→ « Exporter les clés client SSL ».") + "\n\n"
             + tr("Rufus va redémarrer."));
-        QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-        exit(0);
+        Utils::Redemarrage();
     }
     UpMessageBox::Watch(Q_NULLPTR, tr("Génération impossible"),
         tr("Les clés SSL n'ont pas pu être générées."));

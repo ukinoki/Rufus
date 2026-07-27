@@ -2369,7 +2369,7 @@ void Procedures::setPosteImportDocs(QString IPAdress)
     * si a = true, on se met en poste importateur +/_ prioritaire à la fin suivant le contenu de rufus.ini
     * si a = false, on retire le poste en cours et on met NULL à la place. */
 
-    QString req = "USE `" DB_RUFUS "`;";
+    QString req = "USE " DB_RUFUS ";";
     db->StandardSQL(req);
 
     req = "DROP PROCEDURE IF EXISTS " MYSQL_PROC_POSTEIMPORTDOCS ";";
@@ -3047,10 +3047,7 @@ bool Procedures::RestaureBase(bool BaseVierge, bool PremierDemarrage, bool Verif
         if (result > 0 && cheminRestauration.isEmpty() && !erreurRestauration)
         {
             Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
-            ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000, true);
-            Utils::Pause(2500);
-            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-            exit(0);
+            Utils::Redemarrage();
         }
         return (result > 0);
     }
@@ -3196,8 +3193,7 @@ bool Procedures::MettreAJourSocleMySQL()
     // 7. Tout est OK : relance de Rufus sur le nouveau socle.
     UpMessageBox::Watch(Q_NULLPTR, tr("Mise à jour terminée"),
         tr("MySQL a été mis à jour et votre base restaurée. Rufus va redémarrer."));
-    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-    exit(0);
+    Utils::Redemarrage();
     return true;   // jamais atteint
 }
 
@@ -3484,10 +3480,7 @@ bool Procedures::Connexion_A_La_Base()
                 if (ListeModesAcces().size() > 1)
                     return false;
                 if (VerifParamConnexion())
-                {
-                    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-                    exit(0);
-                }
+                    Utils::Redemarrage();
                 return false;
             }
         }
@@ -4297,8 +4290,7 @@ bool Procedures::IdentificationUser()
                 {
                     Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
                     UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
-                    QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-                    exit(0);
+                    Utils::Redemarrage();
                 }
             }
             else if (msgbox.clickedButton() == &BaseViergeBouton)
@@ -4308,8 +4300,7 @@ bool Procedures::IdentificationUser()
                 CreerPremierUser(m_loginSQL, m_passwordSQL);
                 Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
                 UpMessageBox::Watch(Q_NULLPTR,tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
-                QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-                exit(0);
+                Utils::Redemarrage();
             }
             break;
         default:
@@ -4963,8 +4954,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
             //! Redémarrage automatique : on relance Rufus avant de quitter, pour que
             //! l'utilisateur n'ait rien à faire (la nouvelle instance repart sur la
             //! configuration fraîchement écrite). argsRelance() : sans -installMySQL (anti-boucle).
-            QProcess::startDetached(QApplication::applicationFilePath(), argsRelance());
-            exit(0);
+            Utils::Redemarrage();
         }
     }
     else if (protoc == BaseVierge)
@@ -5047,8 +5037,7 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
         //! passe) : on relance Rufus puis on quitte, l'utilisateur n'a rien à relancer
         //! lui-même. La nouvelle instance repart sur la base tout juste créée.
         //! argsRelance() : sans -installMySQL, sinon la nouvelle instance réinstallerait en boucle.
-        QProcess::startDetached(QApplication::applicationFilePath(), argsRelance());
-        exit(0);
+        Utils::Redemarrage();
     }
     return false;
 }
@@ -5261,8 +5250,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
         if (VerifParamConnexion())
         {
             UpMessageBox::Watch(Q_NULLPTR,tr("Le fichier Rufus.ini a été reconstruit"), tr("Le programme va redémarrer pour que certaines données puissent être prises en compte"));
-            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-            exit(0);
+            Utils::Redemarrage();
         }
     }
     else if (msgbox->clickedButton()==&RestaureBaseBouton)
@@ -5274,8 +5262,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
         {
             UpMessageBox::Watch(Q_NULLPTR, tr("Base restaurée"),
                                 tr("La base de données a été restaurée. Rufus va redémarrer."));
-            QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-            exit(0);
+            Utils::Redemarrage();
         }
     }
     else if (msgbox->clickedButton()==&PremierDemarrageBouton)
@@ -5288,8 +5275,7 @@ bool Procedures::RecupererDemarrage(QString msg, QString msgInfo, bool DetruitIn
             {
                 UpMessageBox::Watch(Q_NULLPTR, tr("Paramètres de connexion enregistrés"),
                                     tr("Rufus va redémarrer."));
-                QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
-                exit(0);
+                Utils::Redemarrage();
             }
         }
         else

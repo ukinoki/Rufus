@@ -180,10 +180,7 @@ Rufus::Rufus(QWidget *parent) : QMainWindow(parent)
         }
     }
     else if (DataBase::I()->ModeAccesDataBase() != Utils::Distant)
-    {
         log = tr("RufusAdmin absent");
-        Logs::LogSktMessage(log);
-    }
     else
     {
         log = tr("Connexion distante - pas d'utilisation de TCP");

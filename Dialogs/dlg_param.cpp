@@ -93,7 +93,7 @@ dlg_param::dlg_param(QWidget *parent) :
     const QString imgMoins = baliseImg(Icons::pxLittleRetirer(),  hcb);
     const QString imgAide  = baliseImg(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton).pixmap(hcb, hcb), hcb);
     ui->cotationsUpTableView->setWhatsThis(
-        tr("<b>Table des cotations</b><br>")
+        tr("<b>Table des cotations référencées par Rufus</b><br>")
       + imgCheck + " " + tr("<b>Cocher / décocher</b> un acte l'ajoute à vos cotations ou l'en retire ; "
                             "à la coche, le montant pratiqué s'ouvre en édition (sauf NGAP).<br>")
       + tr("<b>Clic droit</b> sur une ligne : menu pour modifier le montant pratiqué, modifier la "
@@ -136,14 +136,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
 
 
-    ui->Cotationslabel  ->setText("\n" + tr("Cotations")
-                                  + "\n"
-                                  + "\n" + tr("Cocher la case en face d'un acte pour qu'il figure dans la liste")
-                                  + "\n" + tr("des cotations proposées au moment de la facturation")
-                                  + "\n"
-                                  + "\n" + tr("Cliquer sur + pour intégrer un nouvel acte dans la base Rufus")
-                                  + "\n"
-                                  + "\n" + tr("Clic droit sur un item pour modifier le montant pratiqué")
+    ui->Cotationslabel  ->setText("\n" + tr("Cotations référencées dans la base - Clic sur ? pour obtenir de l'aide")
                                   + "\n");
     ui->Cotationswidget ->setLayout(Margelay);
 
@@ -2308,6 +2301,8 @@ void dlg_param::CreerClesSSL()
             tr("De nouvelles clés SSL ont été générées.") + "\n"
             + tr("Exportez-les puis déployez-les sur les postes en accès distant.") + "\n\n"
             + tr("Rufus va redémarrer."));
+        ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000, true);
+        Utils::Pause(2500);
         QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
         exit(0);
     }
@@ -2396,6 +2391,8 @@ void dlg_param::RestaureBase()
     {
         UpMessageBox::Watch(this,tr("Le programme va se fermer pour que certaines données puissent être prises en compte"));
         Datas::I()->postesconnectes->SupprimeAllPostesConnectes();
+        ShowMessage::I()->SplashMessage(tr("Redémarrage du programme en cours…"), 3000, true);
+        Utils::Pause(2500);
         QProcess::startDetached(QApplication::applicationFilePath(), QApplication::arguments().mid(1));
         exit(0);
     }
