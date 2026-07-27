@@ -5328,8 +5328,8 @@ void Procedures::Ouverture_Appareils_Refraction()
     QString nameTO    = m_settings->value(Param_Poste_Tono).toString();
     Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
     Datas::I()->mesurefronto    ->settypemesure(Refraction::Fronto);
-    Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
     Datas::I()->mesureacuite    ->settypemesure(Refraction::Acuite);
+    Datas::I()->mesurefinal     ->settypemesure(Refraction::Prescription);
 
     bool m_isFrontoParametre    = (nameLM != "-"
                                 && nameLM != ""

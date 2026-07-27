@@ -43,6 +43,11 @@ dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
         RechercheMesureEnCours();
     AfficheKerato();
 
+    QString nameRF    = proc->settings()->value(Param_Poste_Refracteur).toString();
+    bool m_isRefracteurParametre= (nameRF != "-" && nameRF != "");
+    ui->sendARoRefractorpushButton->setEnabled(m_isRefracteurParametre);
+    ui->sendLMToRefractorpushButton->setEnabled(m_isRefracteurParametre);
+
     ui->SphereOD->setFocus();
     ui->SphereOD->selectAll();
     ui->OupsPushButton->setIcon(Icons::icOups());
@@ -78,7 +83,7 @@ void dlg_refraction::ConnectSignals()
     connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonFronto_Clicked);
     connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonAutoref_Clicked);
     connect (ui->sendLMToRefractorpushButton,       &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureFrontoAuRefracteur);
-    connect (ui->sendARoRefractorpushButton_2,      &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
+    connect (ui->sendARoRefractorpushButton,      &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
     connect (ui->ConvODPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvODPushButton_Clicked);
     connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
     connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
@@ -4026,8 +4031,15 @@ void dlg_refraction::EnvoieMesureFrontoAuRefracteur()
     if (ecartIP > 0)
         Datas::I()->mesurefronto->setecartIP(ecartIP);
 
+    GenericProtocol::TypesMesures              typesmesures;
+    typesmesures.setFlag(GenericProtocol::MesureFronto, true);
+    if (Datas::I()->mesureacuite->isdataclean())
+    {
+        typesmesures.setFlag(GenericProtocol::MesureRefracteur, true);
+        Datas::I()->mesureacuite->setdatas(Datas::I()->mesurefronto);
+    }
     /*! même appel que Procedures::ReponseCSV_Fronto() après réception d'une mesure */
-    proc                        ->RegleRefracteur(GenericProtocol::MesureFronto);
+    proc                        ->RegleRefracteur(typesmesures);
 }
 
 /*!
@@ -4053,8 +4065,15 @@ void dlg_refraction::EnvoieMesureAutorefAuRefracteur()
     if (ecartIP > 0)
         Datas::I()->mesureautoref->setecartIP(ecartIP);
 
+    GenericProtocol::TypesMesures              typesmesures;
+    typesmesures.setFlag(GenericProtocol::MesureAutoref, true);
+    if (Datas::I()->mesureacuite->isdataclean())
+    {
+        typesmesures.setFlag(GenericProtocol::MesureRefracteur, true);
+        Datas::I()->mesureacuite->setdatas(Datas::I()->mesureautoref);
+    }
     /*! même appel que Procedures::ReponseXML_Autoref() après réception d'une mesure */
-    proc                        ->RegleRefracteur(GenericProtocol::MesureAutoref);
+    proc                        ->RegleRefracteur(typesmesures);
 }
 
 

@@ -1297,7 +1297,7 @@
         <string>...</string>
        </property>
       </widget>
-      <widget class="UpPushButton" name="sendARoRefractorpushButton_2">
+      <widget class="UpPushButton" name="sendARoRefractorpushButton">
        <property name="geometry">
         <rect>
          <x>100</x>
@@ -1773,7 +1773,7 @@ prédéfini</string>
       </property>
       <property name="dateTime">
        <datetime>
-        <hour>21</hour>
+        <hour>20</hour>
         <minute>0</minute>
         <second>0</second>
         <year>2014</year>
