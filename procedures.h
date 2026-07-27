@@ -567,6 +567,7 @@ public:
     QString                 HtmlRefracteur();                                       //! accesseur pour le html de mesure refracteur à afficher;
     void                    InsertMesure(GenericProtocol::TypeMesure typemesure = GenericProtocol::MesureAll);        //! enregistre la mesure de réfraction
     void                    EnvoiDataPatientAuRefracteur();
+    void                    RegleRefracteur(GenericProtocol::TypesMesures flag);                     //! Règle le refracteur pour les types de mesure précisées
     static GenericProtocol::TypeMesure       ConvertMesure(QString Mesure);
     static QString                           ConvertMesure(GenericProtocol::TypeMesure Mesure);
 
@@ -619,7 +620,6 @@ private:
     void                    LectureDonneesCOMRefracteur(QString Mesure);            //! lit les données envoyées sur le port série du refracteur
     void                    LectureDonneesXMLRefracteur(QDomDocument docxml);       //! lit les données envoyées sur le fichier échange XML du refracteur
     void                    ReponsePortSerie_Refracteur(const QString &s);
-    void                    RegleRefracteur(GenericProtocol::TypesMesures flag);                     //! Règle le refracteur pour les types de mesure précisées
     void                    RegleRefracteurCOM(GenericProtocol::TypesMesures flag);                  //! règle le refracteur par le port Com
     void                    RegleRefracteurXML(GenericProtocol::TypesMesures flag);                  //! règle le refracteur par le réseau
     void                    ReponseXML_Refracteur(const QDomDocument &docxml);

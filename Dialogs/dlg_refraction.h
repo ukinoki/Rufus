@@ -167,6 +167,8 @@ public:
     void                    AfficheMesureFronto();
     void                    AfficheMesureAutoref();
     void                    AfficheMesureRefracteur();
+    void                    EnvoieMesureFrontoAuRefracteur();       /*!< regle le refracteur sur la mesure affichee, comme si le fronto l'avait transmise */
+    void                    EnvoieMesureAutorefAuRefracteur();      /*!< regle le refracteur sur la mesure affichee, comme si l'autoref l'avait transmise */
 };
 
 #endif // DLG_REFRACTION_H

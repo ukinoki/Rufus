@@ -77,6 +77,8 @@ void dlg_refraction::ConnectSignals()
                                                                                                 this,     &dlg_refraction::Refraction_ValueChanged);
     connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonFronto_Clicked);
     connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonAutoref_Clicked);
+    connect (ui->sendLMToRefractorpushButton,       &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureFrontoAuRefracteur);
+    connect (ui->sendARoRefractorpushButton_2,      &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
     connect (ui->ConvODPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvODPushButton_Clicked);
     connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
     connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
@@ -3997,6 +3999,62 @@ void dlg_refraction::AfficheMesureAutoref()
     ui->AxeCylindreOG       ->setValue(Datas::I()->mesureautoref->axecylindreOG());
     ui->EIPLabel->setText(tr("Ecart interpupillaire") + " " + (Datas::I()->mesureautoref->ecartIP() > 0? QString::number(Datas::I()->mesureautoref->ecartIP()) +"mm" : tr("inconnu")));
     AfficheKerato();
+}
+
+/*!
+ * \brief dlg_refraction::EnvoieMesureFrontoAuRefracteur
+ * règle le réfracteur sur la mesure affichée dans la fiche, comme si le frontofocomètre venait de la transmettre.
+ * Sert quand la transmission depuis le fronto ne fonctionne pas et que la mesure a été saisie à la main.
+ */
+void dlg_refraction::EnvoieMesureFrontoAuRefracteur()
+{
+    /*! l'écart interpupillaire n'est pas saisissable dans la fiche - on conserve celui de la mesure en cours */
+    int ecartIP = Datas::I()->mesurefronto->ecartIP();
+
+    Datas::I()->mesurefronto    ->cleandatas();
+    Datas::I()->mesurefronto    ->settypemesure(Refraction::Fronto);
+    // OEIL DROIT -----------------------------------------------------------------------------
+    Datas::I()->mesurefronto    ->setsphereOD(ui->SphereOD->value());
+    Datas::I()->mesurefronto    ->setcylindreOD(ui->CylindreOD->value());
+    Datas::I()->mesurefronto    ->setaxecylindreOD(ui->AxeCylindreOD->value());
+    Datas::I()->mesurefronto    ->setaddVPOD(ui->AddVPOD->value());
+    // OEIL GAUCHE ---------------------------------------------------------------------------
+    Datas::I()->mesurefronto    ->setsphereOG(ui->SphereOG->value());
+    Datas::I()->mesurefronto    ->setcylindreOG(ui->CylindreOG->value());
+    Datas::I()->mesurefronto    ->setaxecylindreOG(ui->AxeCylindreOG->value());
+    Datas::I()->mesurefronto    ->setaddVPOG(ui->AddVPOG->value());
+    if (ecartIP > 0)
+        Datas::I()->mesurefronto->setecartIP(ecartIP);
+
+    /*! même appel que Procedures::ReponseCSV_Fronto() après réception d'une mesure */
+    proc                        ->RegleRefracteur(GenericProtocol::MesureFronto);
+}
+
+/*!
+ * \brief dlg_refraction::EnvoieMesureAutorefAuRefracteur
+ * règle le réfracteur sur la mesure affichée dans la fiche, comme si l'autoréfractomètre venait de la transmettre.
+ * Sert quand la transmission depuis l'autoref ne fonctionne pas et que la mesure a été saisie à la main.
+ */
+void dlg_refraction::EnvoieMesureAutorefAuRefracteur()
+{
+    /*! l'écart interpupillaire n'est pas saisissable dans la fiche - on conserve celui de la mesure en cours */
+    int ecartIP = Datas::I()->mesureautoref->ecartIP();
+
+    Datas::I()->mesureautoref   ->cleandatas();
+    Datas::I()->mesureautoref   ->settypemesure(Refraction::Autoref);
+    // OEIL DROIT -----------------------------------------------------------------------------
+    Datas::I()->mesureautoref   ->setsphereOD(ui->SphereOD->value());
+    Datas::I()->mesureautoref   ->setcylindreOD(ui->CylindreOD->value());
+    Datas::I()->mesureautoref   ->setaxecylindreOD(ui->AxeCylindreOD->value());
+    // OEIL GAUCHE ---------------------------------------------------------------------------
+    Datas::I()->mesureautoref   ->setsphereOG(ui->SphereOG->value());
+    Datas::I()->mesureautoref   ->setcylindreOG(ui->CylindreOG->value());
+    Datas::I()->mesureautoref   ->setaxecylindreOG(ui->AxeCylindreOG->value());
+    if (ecartIP > 0)
+        Datas::I()->mesureautoref->setecartIP(ecartIP);
+
+    /*! même appel que Procedures::ReponseXML_Autoref() après réception d'une mesure */
+    proc                        ->RegleRefracteur(GenericProtocol::MesureAutoref);
 }
 
 
