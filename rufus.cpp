@@ -441,7 +441,7 @@ void Rufus::ConnectSignals()
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
-    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=, this] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
+    connect (ui->CCAMlinklabel,                                     &QLabel::linkActivated,                             this,   [=] {QDesktopServices::openUrl(QUrl(LIEN_CCAM));});
     connect (ui->ModifierCotationActepushButton,                    &QPushButton::clicked,                              this,   &Rufus::ModifCotationActe);
     // Les tabs --------------------------------------------------------------------------------------------------
     connect (ui->tabWidget,                                         &QTabWidget::currentChanged,                        this,   &Rufus::ChangeTabBureau);
@@ -2846,13 +2846,13 @@ void Rufus::ImprimeDossier(Patient *pat, bool quelepdf)
 
         connect(dlg_ask->OKButton,  &QPushButton::clicked,  dlg_ask,    &UpDialog::accept);
         connect(Actebutton,         &QPushButton::clicked,  dlg_ask,    [=, this] {fixdateacte(combodebut, combofin, currentacte());});
-        connect(Dossierbutton,      &QPushButton::clicked,  dlg_ask,    [=, this] {recalcallitems (combodebut, combofin, listeactes);});
+        connect(Dossierbutton,      &QPushButton::clicked,  dlg_ask,    [=] {recalcallitems (combodebut, combofin, listeactes);});
         connect(combodebut,         QOverload<int>::of(&QComboBox::activated),
-                                                            dlg_ask,    [=, this] {recalclistitems(combofin,
+                                                            dlg_ask,    [=] {recalclistitems(combofin,
                                                                                              combodebut->currentData().toInt(),
                                                                                              combofin);});
         connect(combofin,       QOverload<int>::of(&QComboBox::activated),
-                                                            dlg_ask,    [=, this] {recalclistitems(combodebut,
+                                                            dlg_ask,    [=] {recalclistitems(combodebut,
                                                                                              combofin->currentData().toInt(),
                                                                                              combofin);});
         QList<Acte*> listeactesaimprimer = QList<Acte*>();
@@ -4858,7 +4858,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
         Allusrchk->setText(tr("Tout le monde"));
         Allusrchk->setAutoExclusive(false);
         Allusrchk->setRowTable(2);
-        connect(Allusrchk,  &QCheckBox::clicked,  this, [=, this] {   /*! tous les utilistauers sont cochés quand on coche la case tr("Tout le monde") */
+        connect(Allusrchk,  &QCheckBox::clicked,  this, [=] {   /*! tous les utilistauers sont cochés quand on coche la case tr("Tout le monde") */
                                                                 for (int i=0; i< dlg_sendMessage->findChildren<UpCheckBox*>().size(); i++)
                                                                     if (dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->rowTable() == 1)
                                                                         dlg_sendMessage->findChildren<UpCheckBox*>().at(i)->setChecked(Allusrchk->isChecked());
@@ -4877,7 +4877,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
             if (idMsg>-1)
                 chk0->setChecked(map["listdestinataires"].toStringList().contains(QString::number(usr->id())));
             chk0->setRowTable(1);
-            connect(chk0,  &QCheckBox::clicked,  this,  [=, this]{ /*! coche la case tr("Tout le monde") si tous les utilisateurs sont cochés, la décoche dans le cas inverse */
+            connect(chk0,  &QCheckBox::clicked,  this,  [=]{ /*! coche la case tr("Tout le monde") si tous les utilisateurs sont cochés, la décoche dans le cas inverse */
                                                                 if (chk0->isChecked())
                                                                 {
                                                                     bool allchk = true;
@@ -4943,7 +4943,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     }
     checktask       ->setText(tr("Tâche à accomplir avant le "));
     checkurg        ->setText(tr("Urgent"));
-    connect(checktask,  &QCheckBox::clicked,  this, [=, this] {dlg_sendMessage->findChildren<QDateEdit*>().at(0)->setEnabled(checktask->isChecked());});
+    connect(checktask,  &QCheckBox::clicked,  this, [=] {dlg_sendMessage->findChildren<QDateEdit*>().at(0)->setEnabled(checktask->isChecked());});
     tasklayout      ->addWidget(checktask);
     tasklayout      ->addWidget(limitdate);
     tasklayout      ->addSpacerItem(new QSpacerItem(10,10,QSizePolicy::Expanding));
@@ -4954,7 +4954,7 @@ void Rufus::SendMessage(QMap<QString, QVariant> map, int id, int idMsg){
     msglayout       ->addLayout(tasklayout);
 
     dlg_sendMessage->OKButton   ->setiD(idMsg);
-    connect(dlg_sendMessage->OKButton,   &UpSmallButton::clickedint,  this,    [=, this] {VerifMessage(dlg_sendMessage, idMsg);});
+    connect(dlg_sendMessage->OKButton,   &UpSmallButton::clickedint,  this,    [=] {VerifMessage(dlg_sendMessage, idMsg);});
 
     totallayout->addLayout(destlayout);
     QLabel *Vline = new QLabel(dlg_sendMessage);
@@ -5698,7 +5698,7 @@ void Rufus::MsgResp(int idmsg)
 
     dlg_msgRepons->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg_msgRepons->OKButton        ->setiD(idmsg);
-    connect(dlg_msgRepons->OKButton, &QPushButton::clicked, this, [=, this] {EnregResp(dlg_msgRepons);});
+    connect(dlg_msgRepons->OKButton, &QPushButton::clicked, this, [=] {EnregResp(dlg_msgRepons);});
 
     dlg_msgRepons->setSizeGripEnabled(false);
     dlg_msgRepons->setWindowFlags(Qt::Tool | Qt::WindowTitleHint | Qt::WindowCloseButtonHint | Qt::CustomizeWindowHint);

@@ -1697,7 +1697,7 @@ void dlg_depenses::FiltreTable()
 
 void dlg_depenses::RechercheValeur()
 {
-    auto completebox = [=, this] (UpDialog *dlg, UpComboBox *box, double montant)
+    auto completebox = [=] (UpDialog *dlg, UpComboBox *box, double montant)
     {
         box->clear();
         QStandardItemModel *listdep = new QStandardItemModel();
@@ -1747,7 +1747,7 @@ void dlg_depenses::RechercheValeur()
     line                    ->setValidator(m_val);
     int linewidth           = Utils::CalcSize("000000000").width();
     line                    ->setFixedWidth(linewidth);
-    connect(line, &QLineEdit::textEdited, line, [=, this]{completebox(dlg_ask, box,QLocale().toDouble(line->text()));});
+    connect(line, &QLineEdit::textEdited, line, [=]{completebox(dlg_ask, box,QLocale().toDouble(line->text()));});
     QHBoxLayout *hlay       = new QHBoxLayout();
     hlay                    ->insertSpacerItem(0, new QSpacerItem(5,5, QSizePolicy::Expanding));
     hlay                    ->insertWidget(1,line);
@@ -1972,14 +1972,14 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                                                                             }
                                                                         });
             }
-            connect (listview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=, this] {
+            connect (listview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] {
                                                                             dlg_ask->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
                                                                             dlg_ask->EditButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
                                                                         });
-            connect(dlg_ask->OKButton,       &QPushButton::clicked,  this, [=, this] { if (listview->selectionModel()->selectedIndexes().size() > 0) dlg_ask->accept(); });
+            connect(dlg_ask->OKButton,       &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) dlg_ask->accept(); });
             connect(creerecheancier,         &QPushButton::clicked,  this, [=, this] { dlg_ask->reject(); EnregistreDocScanne(dlg_docsscanner::Echeancier); dlg_ask->reject(); });
             connect(dlg_ask->CancelButton,   &QPushButton::clicked,  dlg_ask,   &UpDialog::reject);
-            connect(dlg_ask->EditButton,     &QPushButton::clicked,  this, [=, this] { if (listview->selectionModel()->selectedIndexes().size() > 0) listview->edit(listview->selectionModel()->selectedIndexes().at(0)); });
+            connect(dlg_ask->EditButton,     &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) listview->edit(listview->selectionModel()->selectedIndexes().at(0)); });
 
             if (dlg_ask->exec() == QDialog::Accepted)
             {

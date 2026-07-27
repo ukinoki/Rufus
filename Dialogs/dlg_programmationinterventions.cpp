@@ -1648,7 +1648,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         dlg_intervention->accept();
     });
     connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(dlg_intervention, verifencours, interventioncombo); });
-    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=, this]
+    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
                                                                                                     {
                                                                                                         disconnect(interventioncombo->lineEdit(), &QLineEdit::editingFinished, nullptr, nullptr);
                                                                                                         dlg_intervention->reject();

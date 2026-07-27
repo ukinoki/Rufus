@@ -913,8 +913,8 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         ListChamps->setFixedWidth(tabChamps->width() + ListChamps->dlglayout()->contentsMargins().left()*2);
         ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-        connect(ListChamps->OKButton,   &QPushButton::clicked,          ListChamps,     [=, this] {ListChamps->accept();});
-        connect(tabChamps,              &QTableWidget::doubleClicked,   ListChamps,     [=, this] {ListChamps->accept();});
+        connect(ListChamps->OKButton,   &QPushButton::clicked,          ListChamps,     [=] {ListChamps->accept();});
+        connect(tabChamps,              &QTableWidget::doubleClicked,   ListChamps,     [=] {ListChamps->accept();});
         connect(tabChamps,              &QAbstractItemView::entered,    ListChamps,     [=, this] (QModelIndex idx) {
             UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
             if (upitem != Q_NULLPTR)

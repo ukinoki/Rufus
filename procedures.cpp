@@ -2014,7 +2014,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 
 bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map, QWidget *parent)
 {
-    auto creepdf = [=, this] (QPrinter &printer)
+    auto creepdf = [=] (QPrinter &printer)
     {
         QPainter PrintingPreView(&printer);
         for (int i=0; i<listimage.size();++i)
@@ -2086,7 +2086,7 @@ bool Procedures::Print(QList<QImage> listimage)
     {
         QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer);
         dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=, this] {print();});
+        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {print();});
         if (dialog->exec() == QDialog::Accepted)
             delete dialog;
         else {
