@@ -48,7 +48,7 @@ bool TcpSocket::TcpConnectToServer(QString ipadrserver)
     disconnect();
     if (state() == QAbstractSocket::ConnectedState || state() == QAbstractSocket::ConnectingState)
         disconnectFromHost();
-    connect(this,     &QTcpSocket::hostFound, this,   [=, this] { Logs::LogSktMessage("Connexion OK"); });
+    connect(this,     &QTcpSocket::hostFound, this,   [=] { Logs::LogSktMessage("Connexion OK"); });
     connectToHost(ipadrserver,m_portTCPserver);
     bool a = waitForConnected();
     if (a)

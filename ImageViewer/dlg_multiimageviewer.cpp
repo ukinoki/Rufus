@@ -712,7 +712,7 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
                                     * ->  DockWidget is called with only one document
     */
 
-    auto sstypdoc = [=, this] (DocExterne* doc) {
+    auto sstypdoc = [=] (DocExterne* doc) {
         return doc->soustypedoc().replace("OD","").replace("OG","");
     };
     controlChecks();
@@ -943,8 +943,8 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
         imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonPrint);
         imgzoom ->setListDocuments(listdocsToDisplay(), doc);
         connect(imgzoom->OKButton,      &UpSmallButton::clicked,    imgzoom,    &dlg_singleimageviewer::close);
-        connect(imgzoom->PrintButton,   &UpSmallButton::clicked,    this,       [=, this] {Procedures::I()->Print(doc->pagelist());});
-        connect(imgzoom->RecordButton,  &UpSmallButton::clicked,    this,       [=, this] {Procedures::I()->saveDocumentToFile(doc, imgzoom);});
+        connect(imgzoom->PrintButton,   &UpSmallButton::clicked,    this,       [=] {Procedures::I()->Print(doc->pagelist());});
+        connect(imgzoom->RecordButton,  &UpSmallButton::clicked,    this,       [=] {Procedures::I()->saveDocumentToFile(doc, imgzoom);});
         if (imgzoom->imagewidget())
         {
             imgzoom->imagewidget()->setOKwheelzoom(true);

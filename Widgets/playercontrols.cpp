@@ -83,7 +83,7 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
         QDial           *dial           = new QDial();
         m_layout        ->addWidget(dial);
         QAudioOutput    *audioOutput    = new QAudioOutput();
-        connect(dial,   &QDial::valueChanged,   this, [=, this] (int val) {
+        connect(dial,   &QDial::valueChanged,   this, [=] (int val) {
             float vol = val;
             audioOutput->setVolume(vol/100);
         });
