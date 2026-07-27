@@ -1297,7 +1297,7 @@
         <string>...</string>
        </property>
       </widget>
-      <widget class="UpPushButton" name="sendARoRefractorpushButton">
+      <widget class="UpPushButton" name="sendARToRefractorpushButton">
        <property name="geometry">
         <rect>
          <x>100</x>

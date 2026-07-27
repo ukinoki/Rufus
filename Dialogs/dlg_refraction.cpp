@@ -45,8 +45,10 @@ dlg_refraction::dlg_refraction(ModeOuverture modeouverture, QWidget *parent) :
 
     QString nameRF    = proc->settings()->value(Param_Poste_Refracteur).toString();
     bool m_isRefracteurParametre= (nameRF != "-" && nameRF != "");
-    ui->sendARoRefractorpushButton->setEnabled(m_isRefracteurParametre);
+    ui->sendARToRefractorpushButton->setEnabled(m_isRefracteurParametre);
     ui->sendLMToRefractorpushButton->setEnabled(m_isRefracteurParametre);
+    ui->sendLMToRefractorpushButton->setImmediateToolTip(tr("Transférer la mesure de fronto au réfracteur"));
+    ui->sendARToRefractorpushButton->setImmediateToolTip(tr("Transférer la mesure d'autoref au réfracteur"));
 
     ui->SphereOD->setFocus();
     ui->SphereOD->selectAll();
@@ -83,7 +85,7 @@ void dlg_refraction::ConnectSignals()
     connect (ui->PorteRadioButton,                  &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonFronto_Clicked);
     connect (ui->AutorefRadioButton,                &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonAutoref_Clicked);
     connect (ui->sendLMToRefractorpushButton,       &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureFrontoAuRefracteur);
-    connect (ui->sendARoRefractorpushButton,      &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
+    connect (ui->sendARToRefractorpushButton,      &QPushButton::clicked,                      this,     &dlg_refraction::EnvoieMesureAutorefAuRefracteur);
     connect (ui->ConvODPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvODPushButton_Clicked);
     connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
     connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
@@ -3601,7 +3603,6 @@ void dlg_refraction::RegleAffichageFiche()
         ui->VPRadioButton->setEnabled(true);
         ui->VLRadioButton->setEnabled(true);
         ui->PorteRadioButton->setChecked(true);
-        ui->QuelleDistanceGroupBox->setGeometry(735,10,120,95);
         ui->QuelleDistanceGroupBox->setVisible(true);
         Afficher_AVL_AVP(false);
         if (ui->VLRadioButton->isChecked() || ui->VPRadioButton->isChecked())
@@ -3700,7 +3701,6 @@ void dlg_refraction::RegleAffichageFiche()
         ui->VLRadioButton->setEnabled(true);
         ui->RefractionRadioButton->setChecked(true);
         ui->VPRadioButton->setVisible(false);
-        ui->QuelleDistanceGroupBox->setGeometry(735,10,120,65);
         if (ui->CycloplegieCheckBox->isChecked())
         {
             Afficher_AVP(false);
