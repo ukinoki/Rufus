@@ -25,10 +25,10 @@ UpToolBar::UpToolBar(QWidget *parent) : QToolBar(parent)
     prec        = new QAction(Icons::icAvant(),tr("Précédent"),this);
     next        = new QAction(Icons::icApres(),tr("Suivant"),this);
 
-    connect(beginning,  &QAction::triggered,  this, [=] {TBChoice(_first);});
-    connect(end,        &QAction::triggered,  this, [=] {TBChoice(_last);});
-    connect(prec,       &QAction::triggered,  this, [=] {TBChoice(_prec);});
-    connect(next,       &QAction::triggered,  this, [=] {TBChoice(_next);});
+    connect(beginning,  &QAction::triggered,  this, [=, this] {TBChoice(_first);});
+    connect(end,        &QAction::triggered,  this, [=, this] {TBChoice(_last);});
+    connect(prec,       &QAction::triggered,  this, [=, this] {TBChoice(_prec);});
+    connect(next,       &QAction::triggered,  this, [=, this] {TBChoice(_next);});
 
     addAction(beginning);
     addAction(prec);

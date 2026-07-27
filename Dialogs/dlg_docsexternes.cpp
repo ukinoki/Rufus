@@ -84,15 +84,15 @@ dlg_docsexternes::dlg_docsexternes(DocsExternes *Docs, bool UtiliseTCP, QWidget 
 
     construitListeImagery();
     setStageCount(1);
-    connect (wdg_updatetypebox,                 &UpComboBox::currentTextChanged,             this,   [=] (QString text) {BasculeTriListe(text == tr("Date")?parDate:parType);});
-    connect (SupprButton,                       &QPushButton::clicked,          this,   [=] {SupprimeDoc();});
-    connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_alldocsupcheckbox);});
-    connect (wdg_onlyimportantsdocsupcheckbox,  &QCheckBox::toggled,            this,   [=] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
+    connect (wdg_updatetypebox,                 &UpComboBox::currentTextChanged,             this,   [=, this] (QString text) {BasculeTriListe(text == tr("Date")?parDate:parType);});
+    connect (SupprButton,                       &QPushButton::clicked,          this,   [=, this] {SupprimeDoc();});
+    connect (wdg_alldocsupcheckbox,             &QCheckBox::toggled,            this,   [=, this] {FiltrerListe(wdg_alldocsupcheckbox);});
+    connect (wdg_onlyimportantsdocsupcheckbox,  &QCheckBox::toggled,            this,   [=, this] {FiltrerListe(wdg_onlyimportantsdocsupcheckbox);});
     connect (proc,                              &Procedures::UpdDocsExternes,   this,   &dlg_docsexternes::ActualiseDocsExternes);
     connect (PrintButton,                       &QPushButton::clicked,          this,   &dlg_docsexternes::ImprimeDoc);
     connect (wdg_viewerButton,                      &QPushButton::clicked,          this,   &dlg_docsexternes::OpenMultiImageViewer);
-    connect (m_ZoomInButton,                    &QPushButton::clicked,          this,   [=] {ZoomDoc();});
-    connect (m_ZoomOutButton,                   &QPushButton::clicked,          this,   [=] {ZoomDoc();});
+    connect (m_ZoomInButton,                    &QPushButton::clicked,          this,   [=, this] {ZoomDoc();});
+    connect (m_ZoomOutButton,                   &QPushButton::clicked,          this,   [=, this] {ZoomDoc();});
 
     if (!UtiliseTCP)
     {
@@ -159,13 +159,13 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         {
             QAction *paction_Viewer         = new QAction(Icons::icViewer(), tr("Ouvrir dans le visualisateur"));
             menu->addAction(paction_Viewer);
-            connect (paction_Viewer,    &QAction::triggered,    this,  [=] {OpenMultiImageViewer(docmt->id());});
+            connect (paction_Viewer,    &QAction::triggered,    this,  [=, this] {OpenMultiImageViewer(docmt->id());});
         }
         if (docmt->isVideo())
         {
             QAction *paction_Fullscreen         = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
             menu->addAction(paction_Fullscreen);
-            connect (paction_Fullscreen,    &QAction::triggered,    this,  [=] {
+            connect (paction_Fullscreen,    &QAction::triggered,    this,  [=, this] {
                 QString filepath = Procedures::I()->settings()->value(Utils::getBaseFromMode(DataBase::I()->ModeAccesDataBase()) + Dossier_Videos).toString() + "/" + m_currentdocument->lienversfichier();
                 Utils::playVideoFullScreen(filepath, this);
             });
@@ -186,18 +186,18 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         menuImportance  ->addAction(paction_ImportantMin);
         menuImportance  ->addAction(paction_ImportantNorm);
         menuImportance  ->addAction(paction_ImportantMax);
-        connect (paction_ImportantMin,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Min);});
-        connect (paction_ImportantNorm, &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Norm);});
-        connect (paction_ImportantMax,  &QAction::triggered,    this,  [=] {CorrigeImportance(docmt, Max);});
+        connect (paction_ImportantMin,  &QAction::triggered,    this,  [=, this] {CorrigeImportance(docmt, Min);});
+        connect (paction_ImportantNorm, &QAction::triggered,    this,  [=, this] {CorrigeImportance(docmt, Norm);});
+        connect (paction_ImportantMax,  &QAction::triggered,    this,  [=, this] {CorrigeImportance(docmt, Max);});
     }
     QMenu *menuModif    = menu->addMenu(tr("Modifier"));
     menuModif           ->setIcon(Icons::icEditer());
     menuModif           ->addAction(paction_Modifier);
     if (docmt->format() == VIDEO || docmt->format() == DOCUMENTRECU)
         menuModif->addAction(paction_ModifierDate);
-    connect (paction_Modifier,      &QAction::triggered,    this,  [=] {ModifierItem(idx);});
-    connect (paction_ModifierDate,  &QAction::triggered,    this,  [=] {ModifierDate(idx);});
-    connect (paction_Zoom,          &QAction::triggered,    this,  [=] {ZoomDoc();});
+    connect (paction_Modifier,      &QAction::triggered,    this,  [=, this] {ModifierItem(idx);});
+    connect (paction_ModifierDate,  &QAction::triggered,    this,  [=, this] {ModifierDate(idx);});
+    connect (paction_Zoom,          &QAction::triggered,    this,  [=, this] {ZoomDoc();});
 
 #ifndef QT_NO_PRINTER
     if (docmt != nullptr && docmt->format()!=VIDEO)
@@ -209,10 +209,10 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
         QAction *paction_ModifierReimprimer = new QAction(tr("Modifier et réimprimer"));
         QAction *paction_ModifierReimprimerCeJour = new QAction(tr("Modifier et réimprimer à la date d'aujourd'hui"));
         QAction *paction_ReimprimerCeJour = new QAction(tr("Réimprimer à la date d'aujourd'hui"));
-        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());});
-        connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  true);});
-        connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, true,  false);});
-        connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=] {ModifieEtReImprimeDoc(docmt, false, false);});
+        connect (paction_Reimprimer,                &QAction::triggered,    this,  [=, this] {proc->PdfOrPrint(this, docmt->pagelist(), CalcNomFilePdf());});
+        connect (paction_ModifierReimprimer,        &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  true);});
+        connect (paction_ModifierReimprimerCeJour,  &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, true,  false);});
+        connect (paction_ReimprimerCeJour,          &QAction::triggered,    this,  [=, this] {ModifieEtReImprimeDoc(docmt, false, false);});
 
         // si le document n'est ni une imagerie ni un document reçu, on propose de le modifer
         if (currentuser()->isSoignant()
@@ -231,7 +231,7 @@ void dlg_docsexternes::AfficheCustomMenu(DocExterne *docmt)
      }
 #endif
     QAction *paction_Poubelle   = new QAction(Icons::icPoubelle(), tr("Supprimer"));
-    connect (paction_Poubelle,  &QAction::triggered,    this,  [=] {SupprimeDoc(docmt);});
+    connect (paction_Poubelle,  &QAction::triggered,    this,  [=, this] {SupprimeDoc(docmt);});
     if (currentuser()->isSoignant())
         menu->addAction(paction_Poubelle);
     menu                ->addAction(paction_Zoom);          //! passage en mode zoom : toujours en DERNIER item
@@ -334,7 +334,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
     //! On coupe UNIQUEMENT notre connexion précédente (le lambda capturait l'ancien document), pas
     //! toutes les connexions de l'objet.
     disconnect(RecordButton, &UpSmallButton::clicked, this, nullptr);
-    connect (RecordButton,  &UpSmallButton::clicked,    this,   [=] {proc->saveDocumentToFile(m_currentdocument, this);});
+    connect (RecordButton,  &UpSmallButton::clicked,    this,   [=, this] {proc->saveDocumentToFile(m_currentdocument, this);});
     //PrintButton         ->setVisible(!docmt->isVideo());
     labinfowidget()     ->setVisible(!docmt->isVideo());
 
@@ -389,7 +389,7 @@ void dlg_docsexternes::AfficheDoc(QModelIndex idx)
         setListDocuments(QList<DocExterne*>() << docmt);
     }
     disconnect(imagewidget(), &QWidget::customContextMenuRequested, this, nullptr);  //! seulement notre menu contextuel précédent
-    connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=] {AfficheCustomMenu(docmt);});
+    connect(imagewidget(),  &QWidget::customContextMenuRequested,   this, [=, this] {AfficheCustomMenu(docmt);});
     if (mode() == dlg_singleimageviewer::Zoom)
         ZoomDoc(false);
 }
@@ -445,9 +445,9 @@ void dlg_docsexternes::afficheModele(int idaretrouver, bool afficherDoc)
             AfficheDoc(idx);
     }
     connect(wdg_listdocstreewiew->selectionModel(), &QItemSelectionModel::currentChanged, this,
-            [=] {AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());});
+            [=, this] {AfficheDoc(wdg_listdocstreewiew->selectionModel()->currentIndex());});
     connect(wdg_listdocstreewiew, &QTreeView::customContextMenuRequested, this,
-            [=] {
+            [=, this] {
                 QModelIndex idx = wdg_listdocstreewiew->indexAt(wdg_listdocstreewiew->mapFromGlobal(cursor().pos()));
                 DocExterne *docmt = getDocumentFromIndex(idx);
                 if (docmt != nullptr)
@@ -737,7 +737,7 @@ void dlg_docsexternes::ModifierDate(QModelIndex idx)
     dateedit->setSelectedSection(QDateTimeEdit::DaySection);
     dateedit->setDisplayFormat(tr("dd/MM/yyyy"));
 
-    connect(dlg->OKButton,   &QPushButton::clicked, this,   [=]
+    connect(dlg->OKButton,   &QPushButton::clicked, this,   [=, this]
     {
         if (dateedit->date().isValid())
         {
@@ -773,7 +773,7 @@ void dlg_docsexternes::ModifierItem(QModelIndex idx)
     Line->setText(docmt->soustypedoc());
     Line->selectAll();
 
-    connect(dlg->OKButton,   &QPushButton::clicked, this,  [=]
+    connect(dlg->OKButton,   &QPushButton::clicked, this,  [=, this]
     {
         if (Line->text()!="")
         {

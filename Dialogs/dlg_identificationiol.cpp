@@ -1032,7 +1032,7 @@ void dlg_identificationIOL::connectSignals()
     if (wdg_recopiebutton)
         connect (wdg_recopiebutton,  &UpPushButton::clicked,                                this,   &dlg_identificationIOL::creeCopieIOL);
     if (wdg_toolbar)
-        connect (wdg_toolbar,        &UpToolBar::TBSignal,                                  this,   [=] {NavigueVers(wdg_toolbar->choice());});
+        connect (wdg_toolbar,        &UpToolBar::TBSignal,                                  this,   [=, this] {NavigueVers(wdg_toolbar->choice());});
 }
 
 void dlg_identificationIOL::disconnectSignals()

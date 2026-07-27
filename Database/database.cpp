@@ -300,7 +300,7 @@ bool DataBase::dirsecure_file_priv()
 
 QString DataBase::dirimagerie()
 {
-    auto error = [=]{
+    auto error = [=, this]{
 
             QString msg = tr("Le dossier de sauvegarde d'imagerie ") + "<font color=\"red\"><b>" + m_dirimagerie + "</b></font>" + tr(" n'existe pas");
             QString msg2 = "", NomOnglet = "";

@@ -49,11 +49,11 @@ dlg_param::dlg_param(QWidget *parent) :
 
     wdg_appareilswdgbuttonframe                     = new WidgetButtonFrame(ui->AppareilsConnectesupTableWidget);
     wdg_appareilswdgbuttonframe                     ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Moins);
-    connect(wdg_appareilswdgbuttonframe,            &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_appareilswdgbuttonframe);});
+    connect(wdg_appareilswdgbuttonframe,            &WidgetButtonFrame::choix,  this,   [=, this] {ChoixButtonFrame(wdg_appareilswdgbuttonframe);});
 
     wdg_cotationswdgbuttonframe            = new WidgetButtonFrame(ui->cotationsUpTableView);
     wdg_cotationswdgbuttonframe            ->AddButtons(WidgetButtonFrame::Plus | WidgetButtonFrame::Modifier | WidgetButtonFrame::Moins);
-    connect(wdg_cotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=] {ChoixButtonFrame(wdg_cotationswdgbuttonframe);});
+    connect(wdg_cotationswdgbuttonframe,   &WidgetButtonFrame::choix,  this,   [=, this] {ChoixButtonFrame(wdg_cotationswdgbuttonframe);});
 
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationlabel);
     wdg_cotationswdgbuttonframe->layButtons()->insertWidget(0, ui->ChercheCotationupLineEdit);
@@ -109,7 +109,7 @@ dlg_param::dlg_param(QWidget *parent) :
     aideCotationsBouton         ->setIcon(style()->standardIcon(QStyle::SP_TitleBarContextHelpButton));   //! « ? » cerclé = icône standard des whatsThis
     aideCotationsBouton         ->setIconSize(QSize(18, 18));
     aideCotationsBouton         ->setToolTip(tr("Que puis-je faire dans cette table ?"));
-    connect(aideCotationsBouton, &UpSmallButton::clicked, this, [=] {
+    connect(aideCotationsBouton, &UpSmallButton::clicked, this, [=, this] {
         QWhatsThis::showText(aideCotationsBouton->mapToGlobal(QPoint(0, aideCotationsBouton->height())),
                              ui->cotationsUpTableView->whatsThis(), aideCotationsBouton);
     });
@@ -288,7 +288,7 @@ dlg_param::dlg_param(QWidget *parent) :
         QList<UpComboBox*> listportsbox;
         listportsbox << ui->PortFrontoupComboBox << ui->PortAutorefupComboBox << ui->PortRefracteurupComboBox << ui->PortTonometreupComboBox;
         for (int l=0; l< listportsbox.size(); ++l) {
-            connect(listportsbox.at(l),   &QComboBox::currentTextChanged,    this,   [=] (QString s) {
+            connect(listportsbox.at(l),   &QComboBox::currentTextChanged,    this,   [=, this] (QString s) {
                  if (s!= listportsbox.at(l)->valeuravant())
                 {
                     listportsbox.at(l)->setvaleuravant(listportsbox.at(l)->currentText());
@@ -308,7 +308,7 @@ dlg_param::dlg_param(QWidget *parent) :
 
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
     ui->CotationsFrancecheckBox->setChecked(m_parametres->cotationsfrance());
-    connect (ui->CotationsFrancecheckBox, &QCheckBox::checkStateChanged, this, [=](int state){db->setcotationsfrance(state == Qt::Checked);});
+    connect (ui->CotationsFrancecheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state){db->setcotationsfrance(state == Qt::Checked);});
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
 
@@ -316,7 +316,7 @@ dlg_param::dlg_param(QWidget *parent) :
         ui->UtiliseBDDVillescheckBox     ->setChecked(m_parametres->villesfrance() == true);
         ui->UtiliseCustomVillescheckBox  ->setChecked(m_parametres->villesfrance() == false);
         ui->ModifListVillesupPushButton  ->setVisible(m_parametres->villesfrance() == false);
-        connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::checkStateChanged, this, [=](int state){
+        connect(ui->UtiliseCustomVillescheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state){
                 ui->ModifListVillesupPushButton->setVisible(state == Qt::Checked);
                 enum Villes::TownsFrom from;
                 if (state == Qt::Checked)
@@ -325,7 +325,7 @@ dlg_param::dlg_param(QWidget *parent) :
                     from = Villes::DATABASE;
                 ModifBDDVilles(from);
             });
-        connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=]{
+        connect(ui->ModifListVillesupPushButton,    &QPushButton::clicked, this, [=, this]{
                                                                                        dlg_listevilles *dlg_listvilles = new dlg_listevilles(this);
                                                                                        dlg_listvilles->exec();
                                                                                        delete dlg_listvilles;
@@ -485,7 +485,7 @@ dlg_param::dlg_param(QWidget *parent) :
     }
     t_timerverifimportdocs.start(500);
     connect (&t_timerverifimportdocs,   &QTimer::timeout,           this,   &dlg_param::VerifPosteImportDocs);
-    connect (proc,                        &Procedures::ConnectTimers, this,   [=](bool a) {ConnectTimers(a);});
+    connect (proc,                        &Procedures::ConnectTimers, this,   [=, this](bool a) {ConnectTimers(a);});
 
      if (m_parametres->versionbase() == 0)
         ui->VersionBaselabel->setText("<font color=\"red\"><b>" + tr("inconnue") + "</b></font>");
@@ -631,7 +631,7 @@ dlg_param::dlg_param(QWidget *parent) :
         }
     }
     ui->LanguagecomboBox->setCurrentIndex(contents->currentRow());
-    connect (ui->LanguagecomboBox, &QComboBox::currentIndexChanged, this, [=](int idx) {db->setVersion(contents->item(idx)->data(Qt::UserRole).toString());
+    connect (ui->LanguagecomboBox, &QComboBox::currentIndexChanged, this, [=, this](int idx) {db->setVersion(contents->item(idx)->data(Qt::UserRole).toString());
                                                                                         proc->settings()->setValue(Param_Poste_Version, contents->item(idx)->data(Qt::UserRole));
                                                                                         ShowMessage::I()->SplashMessage(tr("Le changement de version ne prendra effet qu'après redémarrage du logiciel"),6000);});
 
@@ -1210,7 +1210,7 @@ void dlg_param::ReconstruitListeLieuxExerciceUser(User *user)
             }
             ui->AdressupTableWidget->setRowHeight(i,int(QFontMetrics(qApp->font()).height()*1.3));
             ui->AdressupTableWidget->FixLargeurTotale(0);
-            connect(AMnumberbutton,     &QPushButton::clicked,  this,   [=] {fixAMnumberforSite(AMnumberbutton, mapsites);});
+            connect(AMnumberbutton,     &QPushButton::clicked,  this,   [=, this] {fixAMnumberforSite(AMnumberbutton, mapsites);});
             i++;
         }
     }
@@ -1404,7 +1404,7 @@ void dlg_param::MAJCotation(QStandardItem *itcheck)
                == UpSmallButton::STARTBUTTON)
         {
             db->SupprRecordFromTable(cot->id(), CP_ID_COTATIONS, TBL_COTATIONS);
-            QTimer::singleShot(0, this, [=] {Remplir_TableCotations(); enableCotations();});
+            QTimer::singleShot(0, this, [=, this] {Remplir_TableCotations(); enableCotations();});
         }
         return;
     }
@@ -1528,19 +1528,19 @@ void dlg_param::MenuContextuelCotations()
     if (cot->isused())
     {
         QAction *aPrat = menu.addAction(Icons::icEditer(), tr("Modifier le montant pratiqué"));
-        connect(aPrat, &QAction::triggered, this, [=] {ui->cotationsUpTableView->edit(m_modelCotations->index(idx.row(), 2));});
+        connect(aPrat, &QAction::triggered, this, [=, this] {ui->cotationsUpTableView->edit(m_modelCotations->index(idx.row(), 2));});
     }
     //! modifier la cotation : uniquement un « autre » (4)
     if (cot->isAutre())
     {
         QAction *aModif = menu.addAction(Icons::icEditer(), tr("Modifier la cotation"));
-        connect(aModif, &QAction::triggered, this, [=] {ModifCotation();});
+        connect(aModif, &QAction::triggered, this, [=, this] {ModifCotation();});
     }
     //! supprimer la cotation : type 1/2/4 (pas NGAP) et si aucun autre utilisateur ne l'utilise
     if (!cot->isNGAP() && !cotationUtiliseeParAutre(cot))
     {
         QAction *aSuppr = menu.addAction(Icons::icPoubelle(), tr("Supprimer la cotation"));
-        connect(aSuppr, &QAction::triggered, this, [=] {supprimeCotation(cot);});
+        connect(aSuppr, &QAction::triggered, this, [=, this] {supprimeCotation(cot);});
     }
     if (!menu.isEmpty())
         menu.exec(QCursor::pos());
@@ -1700,7 +1700,7 @@ void dlg_param::ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB)
 {
     QAction *oeil = champ->addAction(Icons::icEye(), QLineEdit::TrailingPosition);
     oeil->setToolTip(tr("Afficher / masquer le mot de passe"));
-    connect(oeil, &QAction::triggered, this, [=]() {
+    connect(oeil, &QAction::triggered, this, [=, this]() {
         const bool masque = (champ->echoMode() == QLineEdit::Password);
         champ->setEchoMode(masque ? QLineEdit::Normal : QLineEdit::Password);
         oeil->setIcon(masque ? Icons::icEyeBarre() : Icons::icEye());   // affiché → œil barré, masqué → œil
@@ -1710,7 +1710,7 @@ void dlg_param::ConfigureChampMDPMySQL(UpLineEdit *champ, UpSmallButton *btnUSB)
     btnUSB->setFixedSize(28, 24);                  // même hauteur que le MDPuplineEdit (UpSmallButton force sinon 45)
     btnUSB->setIconSize(QSize(18, 18));
     btnUSB->setImmediateToolTip(tr("Enregistrer ce mot de passe sur une clé USB"));
-    connect(btnUSB, &QPushButton::clicked, this, [=]() {
+    connect(btnUSB, &QPushButton::clicked, this, [=, this]() {
         const QString mdp = champ->text();
         if (mdp.isEmpty())
         {
@@ -2548,7 +2548,7 @@ void dlg_param::ConnectSignals()
     if (champMDPcourant != nullptr)
     {
         const QString mdpConnexion = MySQLInstaller::motDePasseStockePourMode(db->ModeAccesDataBase());
-        connect(champMDPcourant, &QLineEdit::editingFinished, this, [=]() {
+        connect(champMDPcourant, &QLineEdit::editingFinished, this, [=, this]() {
             if (m_alerteMDPencours)                         return;   //! le message vole le focus → éviter une 2e alerte
             if (champMDPcourant->text() == mdpConnexion)    return;   //! mot de passe inchangé : rien à signaler
             m_alerteMDPencours = true;
@@ -2571,9 +2571,9 @@ void dlg_param::ConnectSignals()
     connect(ui->FermepushButton,                    &QPushButton::clicked,                  this,   &dlg_param::FermepushButtonClicked);
     connect(ui->InitMDPAdminpushButton,             &QPushButton::clicked,                  this,   &dlg_param::ModifMDPAdmin);
     connect(ui->ChoixFontupPushButton,              &QPushButton::clicked,                  this,   &dlg_param::ChoixFontpushButtonClicked);
-    connect(ui->PosteServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->PosteServcheckBox, a);});
-    connect(ui->LocalServcheckBox,                  &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->LocalServcheckBox, a);});
-    connect(ui->DistantServcheckBox,                &QCheckBox::clicked,                    this,   [=] (bool a) {EnableFrameServeur(ui->DistantServcheckBox, a);});
+    connect(ui->PosteServcheckBox,                  &QCheckBox::clicked,                    this,   [=, this] (bool a) {EnableFrameServeur(ui->PosteServcheckBox, a);});
+    connect(ui->LocalServcheckBox,                  &QCheckBox::clicked,                    this,   [=, this] (bool a) {EnableFrameServeur(ui->LocalServcheckBox, a);});
+    connect(ui->DistantServcheckBox,                &QCheckBox::clicked,                    this,   [=, this] (bool a) {EnableFrameServeur(ui->DistantServcheckBox, a);});
     connect(ui->GestUserpushButton,                 &QPushButton::clicked,                  this,   &dlg_param::GestionUsers);
     connect(ui->GestLieuxpushButton,                &QPushButton::clicked,                  this,   &dlg_param::GestionLieux);
     connect(ui->ModifDataUserpushButton,            &QPushButton::clicked,                  this,   &dlg_param::GestionDatasCurrentUser);
@@ -2592,18 +2592,18 @@ void dlg_param::ConnectSignals()
     connect(ui->CreerClesSSLPosteupPushButton,      &QPushButton::clicked,                  this,   &dlg_param::CreerClesSSL);
     //! Recréer le mot de passe de la base (si l'ancien aléatoire est perdu). Protégé par le mot de passe
     //! Administrateur ; réservé au local + socle conforme (contrôlé dans recreerMotDePasseApresVerifAdmin).
-    connect(ui->RecreerMDPMonoupPushButton,         &QPushButton::clicked,                  this,   [=] {MySQLInstaller().recreerMotDePasseApresVerifAdmin(this);});
+    connect(ui->RecreerMDPMonoupPushButton,         &QPushButton::clicked,                  this,   [=, this] {MySQLInstaller().recreerMotDePasseApresVerifAdmin(this);});
     connect(ui->AppareilsConnectesupTableWidget,    &QTableWidget::itemSelectionChanged,    this,   &dlg_param::EnableSupprAppareilBouton);
     connect(ui->AutorefupComboBox,                  QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
+                                                                                            this,   [=, this] (int a) {ClearPortsComboBox(ui->AutorefupComboBox,a);});
     connect(ui->TonometreupComboBox,                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->TonometreupComboBox,a);});
+                                                                                            this,   [=, this] (int a) {ClearPortsComboBox(ui->TonometreupComboBox,a);});
     connect(ui->FrontoupComboBox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->FrontoupComboBox,a);});
+                                                                                            this,   [=, this] (int a) {ClearPortsComboBox(ui->FrontoupComboBox,a);});
     connect(ui->RefracteurupComboBox,               QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                            this,   [=] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
+                                                                                            this,   [=, this] (int a) {ClearPortsComboBox(ui->RefracteurupComboBox,a);});
     ui->cotationsUpTableView    ->setMouseTracking(true);   //! nécessaire pour le signal entered() de la vue
-    connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=] (QModelIndex idx) {AfficheToolTip(idx);});
+    connect(ui->cotationsUpTableView,               &QAbstractItemView::entered,            this,   [=, this] (QModelIndex idx) {AfficheToolTip(idx);});
     //! textChanged (et non textEdited) : la table doit suivre aussi bien la frappe que le choix dans le
     //! QCompleter (qui insère le texte sans émettre textEdited)
     connect(ui->ChercheCotationupLineEdit,          &QLineEdit::textChanged,                this,   &dlg_param::scrollToCotation);
@@ -2634,18 +2634,18 @@ void dlg_param::ConnectSignals()
     connect(ui->ReinitBaseupPushButton,             &QPushButton::clicked,                  proc,   &Procedures::ReinitBase);
     connect(ui->EffacePrgSauvupPushButton,          &QPushButton::clicked,                  this,   &dlg_param::EffaceProgrammationDataBackup);
 
-    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Fronto);});
-    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Autoref);});
-    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Refracteur);});
-    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,                  this,   [=] {ModifPathDirEchangeMesure(Procedures::Tonometre);});
+    connect(ui->NetworkPathFrontoupPushButton,      &QPushButton::clicked,                  this,   [=, this] {ModifPathDirEchangeMesure(Procedures::Fronto);});
+    connect(ui->NetworkPathAutorefupPushButton,     &QPushButton::clicked,                  this,   [=, this] {ModifPathDirEchangeMesure(Procedures::Autoref);});
+    connect(ui->NetworkPathRefracteurupPushButton,  &QPushButton::clicked,                  this,   [=, this] {ModifPathDirEchangeMesure(Procedures::Refracteur);});
+    connect(ui->NetworkPathTonoupPushButton,        &QPushButton::clicked,                  this,   [=, this] {ModifPathDirEchangeMesure(Procedures::Tonometre);});
 
-    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,          this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Fronto);});
-    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,          this,   [=] {ModifPathEchangeReglageRefracteur(Procedures::Autoref);});
+    connect(ui->NetworkPathEchangeFrontoupPushButton,       &QPushButton::clicked,          this,   [=, this] {ModifPathEchangeReglageRefracteur(Procedures::Fronto);});
+    connect(ui->NetworkPathEchangeAutorefupPushButton,      &QPushButton::clicked,          this,   [=, this] {ModifPathEchangeReglageRefracteur(Procedures::Autoref);});
 
-    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Fronto);});
-    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Autoref);});
-    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Refracteur);});
-    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,          this,   [=] {ReglePortCOM_dlg(Procedures::Tonometre);});
+    connect(ui->ParamCOMFrontoupPushButton,                 &QPushButton::clicked,          this,   [=, this] {ReglePortCOM_dlg(Procedures::Fronto);});
+    connect(ui->ParamCOMAutorefupPushButton,                &QPushButton::clicked,          this,   [=, this] {ReglePortCOM_dlg(Procedures::Autoref);});
+    connect(ui->ParamCOMRefracteurupPushButton,             &QPushButton::clicked,          this,   [=, this] {ReglePortCOM_dlg(Procedures::Refracteur);});
+    connect(ui->ParamCOMTonoupPushButton,                   &QPushButton::clicked,          this,   [=, this] {ReglePortCOM_dlg(Procedures::Tonometre);});
 }
 
 bool dlg_param::CotationsModifiees() const
@@ -3195,7 +3195,7 @@ void dlg_param::ReglePortCOM_dlg(Procedures::TypeAppareil appareil)
     if (val != QVariant())
         comboflowcontrol->setCurrentText(val);
 
-    connect(Com_dlg->OKButton,   &QPushButton::clicked,  Com_dlg, [=]
+    connect(Com_dlg->OKButton,   &QPushButton::clicked,  Com_dlg, [=, this]
     {
         QMap<QString, QString> map;
         map[PORT]       = port;
@@ -3217,7 +3217,7 @@ void dlg_param::ReglePortCOM_dlg(Procedures::TypeAppareil appareil)
             ui->PortRefracteurupComboBox->setImmediateToolTip(ToolTipPortCOM(appareil));
         Com_dlg->accept();
     });
-    connect(Com_dlg->OupsButton,   &QPushButton::clicked,  Com_dlg, [=]
+    connect(Com_dlg->OupsButton,   &QPushButton::clicked,  Com_dlg, [=, this]
     {
         QMap<QString, QString> map = proc->DefaultSerialSettings(title);
         combobaud           ->setCurrentText(map[BAUDRATE]);
@@ -3431,9 +3431,9 @@ void dlg_param::Remplir_Tables()
         connect(line5a,                    &UpLineEdit::textChanged,         this,   &dlg_param::EnableOKModifPosteButton);
         connect(line5b,                    &UpLineEdit::textChanged,         this,   &dlg_param::EnableOKModifPosteButton);
         connect(line5c,                    &UpLineEdit::textChanged,         this,   &dlg_param::EnableOKModifPosteButton);
-        connect(line5a,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5a, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
-        connect(line5b,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5b, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
-        connect(line5c,                    &UpLineEdit::TextModified,       this,   [=] (QString txt) {EnregDossierStockageApp(line5c, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
+        connect(line5a,                    &UpLineEdit::TextModified,       this,   [=, this] (QString txt) {EnregDossierStockageApp(line5a, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
+        connect(line5b,                    &UpLineEdit::TextModified,       this,   [=, this] (QString txt) {EnregDossierStockageApp(line5b, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
+        connect(line5c,                    &UpLineEdit::TextModified,       this,   [=, this] (QString txt) {EnregDossierStockageApp(line5c, txt);}); // ne pas supprimer - permet de supprimer manuellement un dossier d'échange pour le remplacer par une valeur nulle p.e.
         line5a->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
                               "UpLineEdit:focus {border: 0px solid rgb(164, 205, 255);border-radius: 0px;}");
         line5b->setStyleSheet("UpLineEdit {background-color:white; border: 0px solid rgb(150,150,150);border-radius: 0px;}"
@@ -3480,9 +3480,9 @@ void dlg_param::Remplir_Tables()
         ui->MonoDocupTableWidget->setCellWidget(i,col,widg);
         ui->LocalDocupTableWidget->setCellWidget(i,col,widg1);
         ui->DistantDocupTableWidget->setCellWidget(i,col,widg2);
-        connect(dossbouton,     &QPushButton::clicked,  this,   [=] {ChoixDossierEchangeAppareilImagerie(dossbouton);});
-        connect(dossbouton1,    &QPushButton::clicked,  this,   [=] {ChoixDossierEchangeAppareilImagerie(dossbouton1);});
-        connect(dossbouton2,    &QPushButton::clicked,  this,   [=] {ChoixDossierEchangeAppareilImagerie(dossbouton2);});
+        connect(dossbouton,     &QPushButton::clicked,  this,   [=, this] {ChoixDossierEchangeAppareilImagerie(dossbouton);});
+        connect(dossbouton1,    &QPushButton::clicked,  this,   [=, this] {ChoixDossierEchangeAppareilImagerie(dossbouton1);});
+        connect(dossbouton2,    &QPushButton::clicked,  this,   [=, this] {ChoixDossierEchangeAppareilImagerie(dossbouton2);});
 
         pItem6->setText(Applist.at(i).at(3).toString());                             // Format
         ui->AppareilsConnectesupTableWidget->setItem(i,col,pItem6);
@@ -3953,7 +3953,7 @@ void dlg_param::Remplir_TableCotations()
     //! (Cotation::isused). Un changement programmatique qui ne coche/décoche pas est ainsi ignoré, quel
     //! que soit l'endroit d'où il vient. itemChanged (contrairement à clicked) est émis APRÈS que la case
     //! a changé : l'état lu est donc toujours le bon, sans dépendre de l'ordre des signaux.
-    connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=] (QStandardItem *it) {
+    connect(m_modelCotations, &QStandardItemModel::itemChanged, this, [=, this] (QStandardItem *it) {
         UpStandardItem *upit = dynamic_cast<UpStandardItem*>(it);
         if (upit == Q_NULLPTR)
             return;
@@ -3973,7 +3973,7 @@ void dlg_param::Remplir_TableCotations()
         }
     });
     //! changement de ligne en surbrillance : on règle l'état des boutons (+/-/modifier)
-    connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=] {RegleCotationsBoutons();});
+    connect(ui->cotationsUpTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, [=, this] {RegleCotationsBoutons();});
 }
 
 /*!

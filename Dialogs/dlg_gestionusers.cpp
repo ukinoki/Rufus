@@ -92,7 +92,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     ui->supprimSignatureupPushButton->setIcon(Icons::icPoubelle(QSize(25,25)));   /*!< poubelle : supprimer */
     connect (ui->SignatureupPushButton,      &QPushButton::clicked,                            this,   &dlg_gestionusers::changeSignature);
     connect (ui->supprimSignatureupPushButton,&QPushButton::clicked,                           this,   &dlg_gestionusers::delSignature);
-    connect (ui->SignatureAutoCheckBox,      &QCheckBox::clicked,                              this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+    connect (ui->SignatureAutoCheckBox,      &QCheckBox::clicked,                              this,   [=, this] {ui->OKupSmallButton->setEnabled(true);});
 
     QStringList ListTitres;
     ListTitres                      << tr("Docteur") << tr("Professeur");
@@ -127,7 +127,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->SocieteComptableupRadioButton,  &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->NeutreupRadioButton,            &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->GererCompteuppushButton,        &QPushButton::clicked,                  this,   &dlg_gestionusers::GestionComptes);
-    connect(ui->InactivUsercheckBox,            &QCheckBox::clicked,                    this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+    connect(ui->InactivUsercheckBox,            &QCheckBox::clicked,                    this,   [=, this] {ui->OKupSmallButton->setEnabled(true);});
     connect(ui->InactifspushButton,             &QPushButton::clicked,                  this,   &dlg_gestionusers::Inactifs);
     connect(ui->CotationupRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->AGAupRadioButton,               &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
@@ -137,7 +137,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->Secteur2upRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->Secteur3upRadioButton,          &QRadioButton::clicked,                 this,   &dlg_gestionusers::RegleAffichage);
     connect(ui->GestLieuxpushButton,            &QPushButton::clicked,                  this,   &dlg_gestionusers::GestLieux);
-    connect(ui->NoUseNumcheckBox,               &QCheckBox::clicked,                    this,   [=] (bool a)  { ui->NumCOlabel      ->setEnabled(!a);
+    connect(ui->NoUseNumcheckBox,               &QCheckBox::clicked,                    this,   [=, this] (bool a)  { ui->NumCOlabel      ->setEnabled(!a);
                                                                                                                 ui->NumCOupLineEdit ->setEnabled(!a);
                                                                                                                 ui->RPPSlabel       ->setEnabled(!a);
                                                                                                                 ui->RPPSupLineEdit  ->setEnabled(!a);});
@@ -147,11 +147,11 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
     connect(ui->LogoupPushButton,               &QPushButton::clicked,                  this,   &dlg_gestionusers::changeLogo);
     QList<UpLineEdit*> listline  = findChildren<UpLineEdit*>();
     for (int i=0; i<listline.size(); i++)
-        connect(listline.at(i),                 &QLineEdit::textEdited,                 this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+        connect(listline.at(i),                 &QLineEdit::textEdited,                 this,   [=, this] {ui->OKupSmallButton->setEnabled(true);});
     QList<UpComboBox*> listcombo     = findChildren<UpComboBox*>();
     for (int i=0; i<listcombo.size(); i++)
         connect(listcombo.at(i),                QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                        this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+                                                                                        this,   [=, this] {ui->OKupSmallButton->setEnabled(true);});
     foreach (UpRadioButton* butt, findChildren<UpRadioButton*>())
     {
 
@@ -165,7 +165,7 @@ dlg_gestionusers::dlg_gestionusers(int idlieu, UserMode mode, bool mdpverified, 
         */
         //qDebug() << listbutton.at(i)->objectName();
         //listbutton.at(i)->setToggleable(false); // pour contourner un bug d'affichage de Qt...
-        connect(butt,                           &QPushButton::clicked,                  this,   [=] {ui->OKupSmallButton->setEnabled(true);});
+        connect(butt,                           &QPushButton::clicked,                  this,   [=, this] {ui->OKupSmallButton->setEnabled(true);});
     }
 
     RemplirTableWidget(Datas::I()->users->userconnected()->id());
@@ -1647,7 +1647,7 @@ void dlg_gestionusers::Inactifs()
     dlg_listinactifs->setWindowTitle(tr("Utilisateurs inactifs"));
     dlg_listinactifs->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(dlg_listinactifs->OKButton, &QPushButton::clicked, dlg_listinactifs, [=] {  calclistusers(m_model);
+    connect(dlg_listinactifs->OKButton, &QPushButton::clicked, dlg_listinactifs, [=, this] {  calclistusers(m_model);
                                                                                         dlg_listinactifs->accept();
                                                                                         RemplirTableWidget(m_userencours->id()); });
 
@@ -1715,7 +1715,7 @@ void dlg_gestionusers::ReconstruitListeLieuxExercice()
         buttn->setImmediateToolTip(data);
         buttn->setiD(listadress.at(i).at(0).toInt());
         buttn->setAutoExclusive(false);
-        connect(buttn, &QPushButton::clicked, this, [=]
+        connect(buttn, &QPushButton::clicked, this, [=, this]
         {
             int idlieu=-1;
             //! Idem enregistrement : on conserve les numéros AM (idlieu -> AMnumber) avant de tout
@@ -1804,7 +1804,7 @@ void dlg_gestionusers::RemplirTableWidget(int iduser)
         ui->ListUserstableWidget->setRowHeight(i, int(fm.height()*1.3));
         ++i;
     }
-    connect(ui->ListUserstableWidget, &QTableWidget::currentItemChanged , this, [=](QTableWidgetItem *pitem) {AfficheParamUser(ui->ListUserstableWidget->item(pitem->row(),0)->text().toInt());});
+    connect(ui->ListUserstableWidget, &QTableWidget::currentItemChanged , this, [=, this](QTableWidgetItem *pitem) {AfficheParamUser(ui->ListUserstableWidget->item(pitem->row(),0)->text().toInt());});
     if (iduser < 0 || ui->ListUserstableWidget->findItems(QString::number(iduser), Qt::MatchExactly).size() == 0)
         ui->ListUserstableWidget->setCurrentItem(ui->ListUserstableWidget->item(0,1));
     else

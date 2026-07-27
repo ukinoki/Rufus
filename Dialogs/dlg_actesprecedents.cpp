@@ -86,10 +86,10 @@ ui(new Ui::dlg_actesprecedents)
     }
 
     connect (ui->FermepushButton,           &QPushButton::clicked,  this,   &dlg_actesprecedents::close);
-    connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Suiv);});
-    connect (ui->DernierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Fin);});
-    connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Debut);});
-    connect (ui->ActePrecedentpushButton,   &QPushButton::clicked,  this,   [=] {NavigationConsult(ItemsList::Prec);});
+    connect (ui->ActeSuivantpushButton,     &QPushButton::clicked,  this,   [=, this] {NavigationConsult(ItemsList::Suiv);});
+    connect (ui->DernierActepushButton,     &QPushButton::clicked,  this,   [=, this] {NavigationConsult(ItemsList::Fin);});
+    connect (ui->PremierActepushButton,     &QPushButton::clicked,  this,   [=, this] {NavigationConsult(ItemsList::Debut);});
+    connect (ui->ActePrecedentpushButton,   &QPushButton::clicked,  this,   [=, this] {NavigationConsult(ItemsList::Prec);});
 
 #ifdef Q_OS_MACOS
     ui->FermepushButton    ->setShortcut(QKeySequence(Qt::META | Qt::Key_Return));
@@ -139,7 +139,7 @@ void dlg_actesprecedents::Actualise()
     ActesPrecsAfficheActe();
 
     if( ui->ScrollBar->maximum() > 0 )
-        connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=](int newValue) {
+        connect(ui->ScrollBar, &QScrollBar::valueChanged, this, [=, this](int newValue) {
             QList<int> listid = map_actes->keys();
             it_currentacte = map_actes->constFind(listid.at(newValue));
             ActesPrecsAfficheActe();

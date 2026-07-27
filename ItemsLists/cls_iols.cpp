@@ -928,7 +928,7 @@ void IOLs::HasNewVersion(QWidget *parent)
     QNetworkReply *reply = manager->get(request);
     QPointer<QWidget> guard = parent;
 
-    connect(manager, &QNetworkAccessManager::finished, this, [=]
+    connect(manager, &QNetworkAccessManager::finished, this, [=, this]
     {
         if (reply->error() == QNetworkReply::NoError)
         {

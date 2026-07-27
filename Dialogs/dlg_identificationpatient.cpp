@@ -120,12 +120,12 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     connect (CancelButton,                  &QPushButton::clicked,                      this,   &dlg_identificationpatient::AnnulpushButtonClicked);
     connect (ui->ModifierDDNupPushButton,   &QPushButton::clicked,                      this,   &dlg_identificationpatient::ModifDDN);
 
-    connect (ui->NomlineEdit,               &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->NomlineEdit);});
-    connect (ui->PrenomlineEdit,            &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->PrenomlineEdit);});
-    connect (ui->Adresse1lineEdit,          &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->Adresse1lineEdit);});
-    connect (ui->Adresse2lineEdit,          &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->Adresse2lineEdit);});
-    connect (ui->Adresse3lineEdit,          &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->Adresse3lineEdit);});
-    connect (ui->ProfessionlineEdit,        &UpLineEdit::TextModified,                  this,   [=] {Majuscule(ui->ProfessionlineEdit);});
+    connect (ui->NomlineEdit,               &UpLineEdit::TextModified,                  this,   [=, this] {Majuscule(ui->NomlineEdit);});
+    connect (ui->PrenomlineEdit,            &UpLineEdit::TextModified,                  this,   [=, this] {Majuscule(ui->PrenomlineEdit);});
+    connect (ui->Adresse1lineEdit,          &UpLineEdit::TextModified,                  this,   [=, this] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,          &UpLineEdit::TextModified,                  this,   [=, this] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,          &UpLineEdit::TextModified,                  this,   [=, this] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->ProfessionlineEdit,        &UpLineEdit::TextModified,                  this,   [=, this] {Majuscule(ui->ProfessionlineEdit);});
     connect (ui->DDNdateEdit,               &QDateEdit::dateChanged,                    this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->NomlineEdit,               &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->PrenomlineEdit,            &QLineEdit::textEdited,                     this,   &dlg_identificationpatient::EnableOKpushButton);
@@ -143,7 +143,7 @@ dlg_identificationpatient::dlg_identificationpatient(Mode mode, Patient *pat, QW
     connect (ui->CMUcheckBox,               &QRadioButton::clicked,                     this,   &dlg_identificationpatient::EnableOKpushButton);
     connect (ui->MGupComboBox,              QOverload<int>::of(&QComboBox::activated),  this,   &dlg_identificationpatient::ChoixMG);
     connect (ui->MGupComboBox,              &QComboBox::currentTextChanged,             this,   &dlg_identificationpatient::EnableOKpushButton);
-    connect (ui->MGupComboBox,              &QWidget::customContextMenuRequested,       this,   [=] {MenuContextuelMedecin();});
+    connect (ui->MGupComboBox,              &QWidget::customContextMenuRequested,       this,   [=, this] {MenuContextuelMedecin();});
 
     OKButton  ->setEnabled(false);
 
@@ -393,7 +393,7 @@ void dlg_identificationpatient::MenuContextuelMedecin()
     {
         QMenu *menucontextuel = new QMenu(this);
         QAction *pAction_IdentPatient = menucontextuel->addAction(tr("Modifier les coordonnées de ce médecin"));
-        connect (pAction_IdentPatient,      &QAction::triggered, this,    [=] {ModifCorrespondant();});
+        connect (pAction_IdentPatient,      &QAction::triggered, this,    [=, this] {ModifCorrespondant();});
 
         // ouvrir le menu
         menucontextuel->exec(cursor().pos());

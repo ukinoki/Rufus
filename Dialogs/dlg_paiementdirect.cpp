@@ -999,8 +999,8 @@ void dlg_paiementdirect::RegleAffichageFiche(bool filtre)
             ui->ActesEnAttentelabel         ->setText(tr("Paiements pour cet acte"));
             ui->ActesEnAttentelabel_2       ->setText(tr("Tous les actes ayant reçu un paiement ou en attente de paiement"));
             RegleComptesComboBox(false);
-            connect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
-            connect (ui->ListeupTableWidget,         &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
+            connect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, [=, this] {RenvoieRangee();});
+            connect (ui->ListeupTableWidget,         &QTableWidget::itemSelectionChanged, this, [=, this] {RenvoieRangee();});
             break;
         }
         default:
@@ -1564,7 +1564,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                 ui->PasdePaiementlabel->setVisible(false);
                 ui->TypePaiementframe->setVisible(true);
                 ui->PaiementgroupBox->setVisible(true);
-                connect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
+                connect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, [=, this] {RenvoieRangee();});
                 QList<QRadioButton *> allRButtons = ui->PaiementgroupBox->findChildren<QRadioButton *>();
                 for (int n = 0; n <  allRButtons.size(); n++)
                 {
@@ -1593,7 +1593,7 @@ void dlg_paiementdirect::CompleteDetailsTable(UpTableWidget *TableSource, int Ra
                     TableSource = ui->SalleDAttenteupTableWidget;
                     disconnect (ui->SalleDAttenteupTableWidget, &QTableWidget::itemSelectionChanged, this, Q_NULLPTR);
                     TableSource->selectRow(0);
-                    connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
+                    connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemSelectionChanged, this, [=, this] {RenvoieRangee();});
                 }
             }
          }
@@ -2399,7 +2399,7 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
         QList<QVariantList> actlist = db->StandardSelectSQL(requete, ok);
         RemplirTableWidget(ui->ListeupTableWidget, Acts, actlist, true, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
-            connect (ui->ListeupTableWidget,    &QTableWidget::itemEntered, this,   [=] (QTableWidgetItem *item) {AfficheToolTip(item);});
+            connect (ui->ListeupTableWidget,    &QTableWidget::itemEntered, this,   [=, this] (QTableWidgetItem *item) {AfficheToolTip(item);});
 
         //2. Remplissage ui->SalleDAttenteupTableWidget
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,ActesDirects);
@@ -2490,9 +2490,9 @@ void dlg_paiementdirect::RemplitLesTables(bool &ok)
         RemplirTableWidget(ui->ListeupTableWidget,Acts, actlist, false, Qt::Unchecked);
         if (ui->ListeupTableWidget->rowCount() > 0)
         {
-            connect (ui->ListeupTableWidget,            &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
-            connect (ui->ListeupTableWidget,            &QTableWidget::itemEntered, this,   [=] (QTableWidgetItem *item) {AfficheToolTip(item);});
-            connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemEntered, this,   [=] (QTableWidgetItem *item) {AfficheToolTip(item);});
+            connect (ui->ListeupTableWidget,            &QTableWidget::itemSelectionChanged, this, [=, this] {RenvoieRangee();});
+            connect (ui->ListeupTableWidget,            &QTableWidget::itemEntered, this,   [=, this] (QTableWidgetItem *item) {AfficheToolTip(item);});
+            connect (ui->SalleDAttenteupTableWidget,    &QTableWidget::itemEntered, this,   [=, this] (QTableWidgetItem *item) {AfficheToolTip(item);});
         }
         DefinitArchitectureTable(ui->SalleDAttenteupTableWidget,Paiements);
         DefinitArchitectureTable(ui->DetailupTableWidget,ActesTiers);
@@ -3357,7 +3357,7 @@ void dlg_paiementdirect::NettoieVerrousCompta()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::RemetToutAZero()
 {
-    auto  VideTable = [=](QTableWidget* table){
+    auto  VideTable = [=, this](QTableWidget* table){
         int cols = table->columnCount();
         int rows = table->rowCount();
         for (int i= 0; i<rows; i++)

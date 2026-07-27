@@ -187,7 +187,7 @@ bool TextPrinter::preview(const QTextDocument *document, const QString &caption)
     QPrintPreviewDialog *dialog = new QPrintPreviewDialog(printer_, parent_);
     dialog->setWindowTitle(caption.isEmpty() ? "Print Preview" : caption);
     dialog->setWindowModality(Qt::WindowModal);
-    connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=](){ PrintPageList(printer_, pagelist); });
+    connect(dialog, &QPrintPreviewDialog::paintRequested, this, [=, this](){ PrintPageList(printer_, pagelist); });
 
     int b = dialog->exec();
     delete dialog;

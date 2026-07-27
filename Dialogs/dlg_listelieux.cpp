@@ -307,7 +307,7 @@ void dlg_listelieux::ModifLieuxDialog(Mode mode)
     layledit->addSpacerItem(new QSpacerItem(5,5,QSizePolicy::Expanding,QSizePolicy::Expanding));
 
     for (int i=0; i< dlg_lieu->findChildren<UpLineEdit*>().size(); i++)
-        connect(dlg_lieu->findChildren<UpLineEdit*>().at(i), &QLineEdit::textEdited, this, [=]{    dlg_lieu->OKButton->setEnabled(true);});
+        connect(dlg_lieu->findChildren<UpLineEdit*>().at(i), &QLineEdit::textEdited, this, [=, this]{    dlg_lieu->OKButton->setEnabled(true);});
     dlg_lieu->OKButton->setEnabled(false);
 
     laycom->addLayout(laylbl);
@@ -461,7 +461,7 @@ void dlg_listelieux::ReconstruitModel()
     m_idlieuserveur = -1;
     m_idlieuserveur = db->parametres()->idlieupardefaut();
     connect(wdg_tblview->selectionModel(),   &QItemSelectionModel::currentRowChanged, this,  &dlg_listelieux::AfficheDetails);
-    connect(wdg_tblview,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) {
+    connect(wdg_tblview,    &QAbstractItemView::entered,       this,   [=, this] (QModelIndex idx) {
             Site *sit = getSiteFromIndex(idx);
             if (sit)
                 QToolTip::showText(cursor().pos(), sit->coordonnees());

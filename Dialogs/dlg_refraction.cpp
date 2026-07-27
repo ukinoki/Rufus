@@ -81,21 +81,21 @@ void dlg_refraction::ConnectSignals()
     connect (ui->ConvOGPushButton,                  &QPushButton::clicked,                      this,     &dlg_refraction::ConvOGPushButton_Clicked);
     connect (ui->CycloplegieCheckBox,               &QCheckBox::clicked,                        this,     &dlg_refraction::CycloplegieCheckBox_Clicked);
 
-    connect (ui->DepoliODCheckBox,                  &QCheckBox::checkStateChanged,                   this,     [=] (int a) {DepoliCheckBox_Clicked(ui->DepoliODCheckBox, a);});
-    connect (ui->DepoliOGCheckBox,                  &QCheckBox::checkStateChanged,                   this,     [=] (int a) {DepoliCheckBox_Clicked(ui->DepoliOGCheckBox, a);});
+    connect (ui->DepoliODCheckBox,                  &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {DepoliCheckBox_Clicked(ui->DepoliODCheckBox, a);});
+    connect (ui->DepoliOGCheckBox,                  &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {DepoliCheckBox_Clicked(ui->DepoliOGCheckBox, a);});
     connect (ui->DeuxMonturesPrescritRadioButton,   &QRadioButton::clicked,                     this,     &dlg_refraction::DeuxMonturesPrescritradioButton_Clicked);
-    connect (ui->ODCheckBox,                        &QCheckBox::checkStateChanged,                   this,     [=] (int a) {ODGCheckBox_Changed(ui->ODCheckBox, a);});
-    connect (ui->OGCheckBox,                        &QCheckBox::checkStateChanged,                   this,     [=] (int a) {ODGCheckBox_Changed(ui->OGCheckBox, a);});
+    connect (ui->ODCheckBox,                        &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {ODGCheckBox_Changed(ui->ODCheckBox, a);});
+    connect (ui->OGCheckBox,                        &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {ODGCheckBox_Changed(ui->OGCheckBox, a);});
 
-    connect (ui->ODPrescritCheckBox,                &QCheckBox::checkStateChanged,                   this,     [=] (int a) {PrescritCheckBox_Changed(ui->ODPrescritCheckBox, a);});
-    connect (ui->OGPrescritCheckBox,                &QCheckBox::checkStateChanged,                   this,     [=] (int a) {PrescritCheckBox_Changed(ui->OGPrescritCheckBox, a);});
-    connect (ui->PlanODCheckBox,                    &QCheckBox::checkStateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanODCheckBox, a);});
-    connect (ui->PlanOGCheckBox,                    &QCheckBox::checkStateChanged,                   this,     [=] (int a) {PlanCheckBox_Changed(ui->PlanOGCheckBox, a);});
+    connect (ui->ODPrescritCheckBox,                &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {PrescritCheckBox_Changed(ui->ODPrescritCheckBox, a);});
+    connect (ui->OGPrescritCheckBox,                &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {PrescritCheckBox_Changed(ui->OGPrescritCheckBox, a);});
+    connect (ui->PlanODCheckBox,                    &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {PlanCheckBox_Changed(ui->PlanODCheckBox, a);});
+    connect (ui->PlanOGCheckBox,                    &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {PlanCheckBox_Changed(ui->PlanOGCheckBox, a);});
     connect (ui->PrescriptionRadioButton,           &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonPrescription_clicked);
 
     connect (ui->RefractionRadioButton,             &QRadioButton::clicked,                     this,     &dlg_refraction::RadioButtonRefraction_Clicked);
-    connect (ui->RyserODCheckBox,                   &QCheckBox::checkStateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserODCheckBox, a);});
-    connect (ui->RyserOGCheckBox,                   &QCheckBox::checkStateChanged,                   this,     [=] (int a) {RyserCheckBox_Clicked(ui->RyserOGCheckBox, a);});
+    connect (ui->RyserODCheckBox,                   &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {RyserCheckBox_Clicked(ui->RyserODCheckBox, a);});
+    connect (ui->RyserOGCheckBox,                   &QCheckBox::checkStateChanged,                   this,     [=, this] (int a) {RyserCheckBox_Clicked(ui->RyserOGCheckBox, a);});
     connect (ui->UneMonturePrescritRadioButton,     &QRadioButton::clicked,                     this,     &dlg_refraction::UneMonturePrescritRadioButton_Clicked);
     connect (ui->V2RadioButton,                     &QRadioButton::clicked,                     this,     &dlg_refraction::RegleAffichageFiche);
 
@@ -110,9 +110,9 @@ void dlg_refraction::ConnectSignals()
     connect (ui->AxeCylindreOD,                     QOverload<int>::of(&QSpinBox::valueChanged),this,     &dlg_refraction::Refraction_ValueChanged);
     connect (ui->AxeCylindreOG,                     QOverload<int>::of(&QSpinBox::valueChanged),this,     &dlg_refraction::Refraction_ValueChanged);
     connect (ui->BasePrismeOD,                      QOverload<int>::of(&QSpinBox::valueChanged),
-                                                                                                this,     [=] {BasePrisme_ValueChanged(ui->BasePrismeOD);});
+                                                                                                this,     [=, this] {BasePrisme_ValueChanged(ui->BasePrismeOD);});
     connect (ui->BasePrismeOG,                      QOverload<int>::of(&QSpinBox::valueChanged),
-                                                                                                this,     [=] {BasePrisme_ValueChanged(ui->BasePrismeOG);});
+                                                                                                this,     [=, this] {BasePrisme_ValueChanged(ui->BasePrismeOG);});
     connect (ui->BasePrismeTextODComboBox,          QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                                 this,     &dlg_refraction::BasePrismeTextODComboBox_Changed);
     connect (ui->BasePrismeTextOGComboBox,          QOverload<int>::of(&QComboBox::currentIndexChanged),

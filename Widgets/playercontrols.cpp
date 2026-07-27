@@ -69,7 +69,7 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
     wdg_slider  ->disconnect();
     connect(m_ctrlplayer,   &QMediaPlayer::positionChanged,     this, &PlayerControls::positionChanged);
     connect(wdg_slider,     &QSlider::sliderMoved,              this, &PlayerControls::playSeek);
-    connect (this,          &PlayerControls::ctrl,              this, [=] (PlayerControls::State  state)
+    connect (this,          &PlayerControls::ctrl,              this, [=, this] (PlayerControls::State  state)
             {
                 switch (state){
                 case PlayerControls::Stop:  m_ctrlplayer->stop();     break;
@@ -83,7 +83,7 @@ void PlayerControls::setPlayer(QMediaPlayer *md)
         QDial           *dial           = new QDial();
         m_layout        ->addWidget(dial);
         QAudioOutput    *audioOutput    = new QAudioOutput();
-        connect(dial,   &QDial::valueChanged,   this, [=] (int val) {
+        connect(dial,   &QDial::valueChanged,   this, [=, this] (int val) {
             float vol = val;
             audioOutput->setVolume(vol/100);
         });

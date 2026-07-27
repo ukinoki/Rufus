@@ -89,12 +89,12 @@ dlg_identificationcorresp::dlg_identificationcorresp(Mode mode, bool quelesmedec
 
     OKButton->disconnect();
     connect (OKButton,                  &QPushButton::clicked,              this,           &dlg_identificationcorresp::OKpushButtonClicked);
-    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->NomlineEdit);});
-    connect (ui->PrenomlineEdit,        &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->PrenomlineEdit);});
-    connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse1lineEdit);});
-    connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse2lineEdit);});
-    connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse3lineEdit);});
-    connect (ui->AutreupLineEdit,       &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->NomlineEdit);});
+    connect (ui->PrenomlineEdit,        &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->PrenomlineEdit);});
+    connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->AutreupLineEdit,       &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse3lineEdit);});
     connect (ui->NomlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
     connect (ui->PrenomlineEdit,        &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);
     connect (ui->Adresse1lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationcorresp::EnableOKpushButton);

@@ -43,7 +43,7 @@ void UpDialog::setSaveGeometry(QString geometryname)
     m_originalgeometry  = sets.value(DialogGeometry + geometryname).toRect();
     if (m_originalgeometry != QRect())
         setGeometry(m_originalgeometry);
-    connect(this,   &QDialog::finished, this,   [=] {
+    connect(this,   &QDialog::finished, this,   [=, this] {
             if (m_enregistreposition)
             {
                 QSettings sets(PATH_FILE_INI, QSettings::IniFormat);

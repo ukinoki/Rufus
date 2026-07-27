@@ -100,11 +100,11 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
     ui->NomlineEdit->setFocus();
     ui->Websitelabel->setText("<a href=\"Site Web\">Site Web</a>");
     OKButton->disconnect();
-    connect (OKButton,                  &QPushButton::clicked,              this,           [=] {OKpushButtonClicked();});
-    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=] {ui->NomlineEdit->setText(ui->NomlineEdit->text().toUpper()); EnableOKpushButton();});
-    connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse1lineEdit);});
-    connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse2lineEdit);});
-    connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse3lineEdit);});
+    connect (OKButton,                  &QPushButton::clicked,              this,           [=, this] {OKpushButtonClicked();});
+    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=, this] {ui->NomlineEdit->setText(ui->NomlineEdit->text().toUpper()); EnableOKpushButton();});
+    connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse3lineEdit);});
     connect (ui->ActifcheckBox,         &QCheckBox::clicked,                this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->NomlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->Adresse1lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
@@ -119,7 +119,7 @@ dlg_identificationmanufacturer::dlg_identificationmanufacturer(Mode mode, Manufa
                                                                             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
     connect (ui->DistributeurupComboBox,                QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                             this,           &dlg_identificationmanufacturer::EnableOKpushButton);
-    connect (ui->Websitelabel,          &QLabel::linkActivated,             this,           [=] {if (ui->WebsiteineEdit->text() != "") QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
+    connect (ui->Websitelabel,          &QLabel::linkActivated,             this,           [=, this] {if (ui->WebsiteineEdit->text() != "") QDesktopServices::openUrl(QUrl("http://" + ui->WebsiteineEdit->text()));});
     connect(wdg_buttonframe,            &WidgetButtonFrame::choix,          this,           &dlg_identificationmanufacturer::ChoixButtonFrame);
     OKButton->setEnabled(false);
     OKButton->setText(tr("Enregistrer"));
@@ -496,6 +496,6 @@ void dlg_identificationmanufacturer::reconstruitCommercialsModel()
         ui->commercialsupTableView->setRowHeight(j,int(fm.height()*1.3));
     ui->commercialsupTableView->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     connect(ui->commercialsupTableView->selectionModel(),   &QItemSelectionModel::currentChanged,   this,   &dlg_identificationmanufacturer::Enablebuttons);
-    connect(ui->commercialsupTableView,                     &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) { if (!m_commodel->itemFromIndex(idx))
+    connect(ui->commercialsupTableView,                     &QAbstractItemView::doubleClicked,      this,   [=, this] (QModelIndex idx) { if (!m_commodel->itemFromIndex(idx))
                                                                                                                                         ModifieCommercial(getCommercialFromIndex(idx)); });
 }

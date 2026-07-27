@@ -66,11 +66,11 @@ dlg_comptes::dlg_comptes(QWidget *parent) :
 
             DefinitArchitetureTable();
             RemplitLaTable(m_idcompte);
-            connect(ui->AnnulArchivepushButton,             &QPushButton::clicked,                              this,   [=] {AnnulArchive();});
-            connect(ui->ArchiverpushButton,                 &QPushButton::clicked,                              this,   [=] {Archiver();});
-            connect(ui->AnnulerConsolidationspushButton,    &QPushButton::clicked,                              this,   [=] {AnnulConsolidations();});
-            connect(ui->OKpushButton,                       &QPushButton::clicked,                              this,   [=] {close();});
-            connect(ui->BanquecomboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),this,   [=](int){ChangeCompte(ui->BanquecomboBox->currentIndex());});
+            connect(ui->AnnulArchivepushButton,             &QPushButton::clicked,                              this,   [=, this] {AnnulArchive();});
+            connect(ui->ArchiverpushButton,                 &QPushButton::clicked,                              this,   [=, this] {Archiver();});
+            connect(ui->AnnulerConsolidationspushButton,    &QPushButton::clicked,                              this,   [=, this] {AnnulConsolidations();});
+            connect(ui->OKpushButton,                       &QPushButton::clicked,                              this,   [=, this] {close();});
+            connect(ui->BanquecomboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),this,   [=, this](int){ChangeCompte(ui->BanquecomboBox->currentIndex());});
             connect(ui->VoirArchivespushButton,             &QPushButton::clicked,                              this,   &dlg_comptes::VoirArchives);
 
             setWindowTitle(tr("Gestion des comptes bancaires"));
@@ -293,10 +293,10 @@ void dlg_comptes::ContextMenuTableWidget(UpLabel *lbl)
         QMenu *menuContextuel       = new QMenu(this);
         QString msg = tr("Supprimer l'écriture") + " - " + lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "?";
         QAction *pAction_SupprEcriture = menuContextuel->addAction(msg) ;
-        connect (pAction_SupprEcriture, &QAction::triggered, this,    [=] { SupprimerEcriture(lign); });
+        connect (pAction_SupprEcriture, &QAction::triggered, this,    [=, this] { SupprimerEcriture(lign); });
         msg = tr("Modifer le montant de l'écriture") + " - " + lign->libelle() + " du " + QLocale::system().toString(lign->date(),"d MMM yyyy") + "?";
         QAction *pAction_ModifEcriture = menuContextuel->addAction(msg) ;
-        connect (pAction_ModifEcriture, &QAction::triggered, this,    [=] { ModifMontant(lign); });
+        connect (pAction_ModifEcriture, &QAction::triggered, this,    [=, this] { ModifMontant(lign); });
 
         menuContextuel->exec(cursor().pos());
         delete menuContextuel;
@@ -548,14 +548,14 @@ void dlg_comptes::VoirArchives()
     for(int i=0; i<model->rowCount(); i++)
         wdg_listarchivescombo->addItem(model->item(i,0)->text(), model->item(i,1)->text().toInt());
 
-    connect(wdg_loupbouton,         &QPushButton::clicked,       this,  [=]
+    connect(wdg_loupbouton,         &QPushButton::clicked,       this,  [=, this]
                 {
                     m_modearchives = (m_modearchives == PARARCHIVE? TOUT : PARARCHIVE);
                     RedessineFicheArchives();
                     RemplirTableArchives();
                 });
     connect(wdg_listarchivescombo,  QOverload<int>::of(&QComboBox::currentIndexChanged) ,this,  &dlg_comptes::RemplirTableArchives);
-    connect(wdg_flechehtbouton,     &QPushButton::clicked ,this,   [=]
+    connect(wdg_flechehtbouton,     &QPushButton::clicked ,this,   [=, this]
                 {
                     QList<Archive*> listarchives = db->loadArchiveByDate(m_dateencours, m_compteencours, m_intervalledate);
                     m_dateencours = m_dateencours.addDays(-m_intervalledate);
@@ -618,7 +618,7 @@ void dlg_comptes::ModifMontant(LigneCompte *lign)
 
     line->setFocus();
 
-    connect(dlg_montant->OKButton, &QPushButton::clicked, this, [=]
+    connect(dlg_montant->OKButton, &QPushButton::clicked, this, [=, this]
     {
         int row = getRowFromLigneCompte(lign);
         lign->setmontant(QLocale().toDouble(line->text()));
@@ -914,14 +914,14 @@ void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
     lbl7->setRow(row);
     lbl8->setRow(row);
 
-    connect (lbl0,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl0);});
-    connect (lbl1,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl1);});
-    connect (lbl2,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl2);});
-    connect (lbl3,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl3);});
-    connect (lbl4,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl4);});
-    connect (lbl5,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl5);});
-    connect (lbl7,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl7);});
-    connect (lbl8,        &QWidget::customContextMenuRequested,  this, [=] {ContextMenuTableWidget(lbl8);});
+    connect (lbl0,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl0);});
+    connect (lbl1,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl1);});
+    connect (lbl2,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl2);});
+    connect (lbl3,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl3);});
+    connect (lbl4,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl4);});
+    connect (lbl5,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl5);});
+    connect (lbl7,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl7);});
+    connect (lbl8,        &QWidget::customContextMenuRequested,  this, [=, this] {ContextMenuTableWidget(lbl8);});
 
     int col = 0;
 
@@ -986,7 +986,7 @@ void dlg_comptes::SetLigneCompteToRow(LigneCompte *lign, int row)
     Checkbx->setRowTable(row);
     Checkbx->setFocusPolicy(Qt::NoFocus);
 
-    connect(Checkbx,      &QCheckBox::clicked,  this,  [=] {RenvoieRangee(Checkbx);});
+    connect(Checkbx,      &QCheckBox::clicked,  this,  [=, this] {RenvoieRangee(Checkbx);});
     l = new QHBoxLayout(wdg);
     l->setContentsMargins(0,0,0,0);
     l->setAlignment( Qt::AlignCenter );

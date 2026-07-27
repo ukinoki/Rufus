@@ -58,7 +58,7 @@ dlg_docsvideo::dlg_docsvideo(Patient *pat, QWidget *parent) : QObject(parent)
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(wdg_toolbar,    &UpToolBar::TBSignal,   this, [=] {NavigueVers(wdg_toolbar->choice());});
+    connect(wdg_toolbar,    &UpToolBar::TBSignal,   this, [=, this] {NavigueVers(wdg_toolbar->choice());});
 
     wdg_toolbar         ->setMinimumHeight(30);
     wdg_dirsearchbutton ->setFixedHeight(30);
@@ -173,7 +173,7 @@ void dlg_docsvideo::addFullScreenMenu()
     m_Menu                          = new QMenu(dlg_imgviewer->imagewidget());
     QAction *paction_Fullscreen     = new QAction(Icons::pxFullscreen(), tr("Afficher en plein écran"));
     m_Menu->addAction(paction_Fullscreen);
-    connect (paction_Fullscreen,    &QAction::triggered,    dlg_imgviewer->imagewidget(),  [=] {
+    connect (paction_Fullscreen,    &QAction::triggered,    dlg_imgviewer->imagewidget(),  [=, this] {
         QString filepath            = m_docpath + "/" + m_currentvideofile;
         Utils::playVideoFullScreen(filepath, dlg_imgviewer);
     });

@@ -2444,7 +2444,7 @@ void Nidek::RegleRefracteurXML(TypesMesures flag, QString nameRF)
             xmlfiletimer.setSingleShot(true);
             xmlfiletimer.setInterval(3000);
             xmlfiletimer.start();
-            connect(&xmlfiletimer, &QTimer::timeout, Q_NULLPTR, [=] { EnregistreFileDatasXML(ARxml, MesureAutoref); });
+            connect(&xmlfiletimer, &QTimer::timeout, Q_NULLPTR, [=, this] { EnregistreFileDatasXML(ARxml, MesureAutoref); });
         }
         else
             EnregistreFileDatasXML(ARxml, MesureAutoref);

@@ -56,11 +56,11 @@ void UpTextEdit::MenuContextuel()
         QAction *pAction_Fontunderline  = gmenuContextuel->addAction(Icons::icFontunderline(),  tr("Souligné"));
         QAction *pAction_Fontnormal     = gmenuContextuel->addAction(Icons::icFontnormal(),     tr("Normal"));
         gmenuContextuel->addSeparator();
-        connect (pAction_ModifPolice,   &QAction::triggered,    this, [=] {ChoixMenuContextuel("Police");});
-        connect (pAction_Fontbold,      &QAction::triggered,    this, [=] {ChoixMenuContextuel("Gras");});
-        connect (pAction_Fontitalic,    &QAction::triggered,    this, [=] {ChoixMenuContextuel("Italique");});
-        connect (pAction_Fontunderline, &QAction::triggered,    this, [=] {ChoixMenuContextuel("Souligne");});
-        connect (pAction_Fontnormal,    &QAction::triggered,    this, [=] {ChoixMenuContextuel("Normal");});
+        connect (pAction_ModifPolice,   &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Police");});
+        connect (pAction_Fontbold,      &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Gras");});
+        connect (pAction_Fontitalic,    &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Italique");});
+        connect (pAction_Fontunderline, &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Souligne");});
+        connect (pAction_Fontnormal,    &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Normal");});
     }
     QAction *pAction_Blockleft          = gmenuContextuel->addAction(Icons::icBlockLeft(),      tr("Aligné à gauche"));
     QAction *pAction_Blockright         = gmenuContextuel->addAction(Icons::icBlockRight(),     tr("Aligné à droite"));
@@ -70,21 +70,21 @@ void UpTextEdit::MenuContextuel()
     if (textCursor().selectedText().size() > 0)   {
         QAction *pAction_Copier         = gmenuContextuel->addAction(Icons::icCopy(),            tr("Copier"));
         QAction *pAction_Cut            = gmenuContextuel->addAction(Icons::icCut(),             tr("Couper"));
-        connect (pAction_Copier,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Copier");});
-        connect (pAction_Cut,           &QAction::triggered,    this, [=] {ChoixMenuContextuel("Couper");});
+        connect (pAction_Copier,        &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Copier");});
+        connect (pAction_Cut,           &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Couper");});
     }
     const QClipboard *clipboard = qApp->clipboard();
     const QMimeData *mimeData = clipboard->mimeData();
     if (mimeData->hasText() || mimeData->hasUrls() || mimeData->hasImage() || mimeData->hasHtml())
     {
         QAction *pAction_Coller         = gmenuContextuel->addAction(Icons::icPaste(),  tr("Coller"));
-        connect (pAction_Coller,        &QAction::triggered,    this, [=] {ChoixMenuContextuel("Coller");});
+        connect (pAction_Coller,        &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Coller");});
     }
 
-    connect (pAction_Blockcentr,    &QAction::triggered,    this, [=] {ChoixMenuContextuel("Centre");});
-    connect (pAction_Blockright,    &QAction::triggered,    this, [=] {ChoixMenuContextuel("Droite");});
-    connect (pAction_Blockleft,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Gauche");});
-    connect (pAction_Blockjust,     &QAction::triggered,    this, [=] {ChoixMenuContextuel("Justifie");});
+    connect (pAction_Blockcentr,    &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Centre");});
+    connect (pAction_Blockright,    &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Droite");});
+    connect (pAction_Blockleft,     &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Gauche");});
+    connect (pAction_Blockjust,     &QAction::triggered,    this, [=, this] {ChoixMenuContextuel("Justifie");});
 
     // ouvrir le menu
     gmenuContextuel->exec(QCursor::pos());

@@ -1171,7 +1171,7 @@ bool dlg_remisecheques::ImprimerRemise(int idRemise)
 -----------------------------------------------------------------------------------*/
 void dlg_remisecheques::ReconstruitListeUsers()
 {
-    auto fail = [=]
+    auto fail = [=, this]
     {
         UpMessageBox::Watch(this, tr("Pas de remise de chèque en attente"));
             m_initok = false;

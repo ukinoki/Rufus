@@ -159,14 +159,14 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     RedessineBigTable();
 
     connect (ui->GestionComptesupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::GestionComptes);
-    connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          this,   [=] {GererDepense(ui->NouvelleDepenseupPushButton);});
-    connect (wdg_modifieruppushbutton,          &QPushButton::clicked,          this,   [=] {GererDepense(wdg_modifieruppushbutton);});
+    connect (ui->NouvelleDepenseupPushButton,   &QPushButton::clicked,          this,   [=, this] {GererDepense(ui->NouvelleDepenseupPushButton);});
+    connect (wdg_modifieruppushbutton,          &QPushButton::clicked,          this,   [=, this] {GererDepense(wdg_modifieruppushbutton);});
     connect (ui->OKupPushButton,                &QPushButton::clicked,          this,   &dlg_depenses::close);
     connect (ui->Rubriques2035comboBox,         QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                 this,   &dlg_depenses::FiltreTable);
     connect (ui->DetailsDepensesupPushButton,   &QPushButton::clicked,          this,   &dlg_depenses::AfficheDetailsDepenses);
-    connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=] {EnregistreFacture(FACTURE);});
-    connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=] {EnregistreFacture(ECHEANCIER);});
+    connect (ui->FactureupPushButton,           &QPushButton::clicked,          this,   [=, this] {EnregistreFacture(FACTURE);});
+    connect (ui->EcheancierupPushButton,        &QPushButton::clicked,          this,   [=, this] {EnregistreFacture(ECHEANCIER);});
     connect (ui->ExportupPushButton,            &QPushButton::clicked,          this,   &dlg_depenses::ExportTable);
     connect (ui->ChercheMontantupPushButton,    &QPushButton::clicked,          this,   &dlg_depenses::RechercheValeur);
     connect (ui->PrintupSmallButton,            &QPushButton::clicked,          this,   [&] {
@@ -184,9 +184,9 @@ dlg_depenses::dlg_depenses(QWidget *parent) :
     connect (ui->RefFiscalecomboBox,            &QComboBox::currentTextChanged, this,   &dlg_depenses::EnableModifiepushButton);
     connect (wdg_supprimeruppushbutton,         &QPushButton::clicked,          this,   &dlg_depenses::SupprimerDepense);
     connect (ui->UserscomboBox,                 QOverload<int>::of(&QComboBox::currentIndexChanged),
-                                                                                this,   [=](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
+                                                                                this,   [=, this](int) {ChangeUser(ui->UserscomboBox->currentIndex());});
     connect (ui->VisuDocupTableWidget,          &UpTableWidget::zoom,           this,   &dlg_depenses::ZoomDoc);
-    connect (ui->VisuFacturecheckBox,           &QCheckBox::clicked,            this,   [=] {AfficheFacture(m_depenseencours);});
+    connect (ui->VisuFacturecheckBox,           &QCheckBox::clicked,            this,   [=, this] {AfficheFacture(m_depenseencours);});
     connect (wdg_enreguppushbutton,             &QPushButton::clicked,          this,   &dlg_depenses::ModifierDepense);
     connect (wdg_annuluppushbutton,             &QPushButton::clicked,          this,   &dlg_depenses::AnnulEnreg);
 
@@ -517,7 +517,7 @@ void dlg_depenses::AnnulEnreg()
     disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     RegleAffichageFiche(Lire);
     MetAJourFiche();
-    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=, this] {MetAJourFiche();});
 }
 
 void dlg_depenses::CalcImageFacture(Depense *dep)
@@ -776,7 +776,7 @@ void dlg_depenses::EnregistreDepense()
         ReconstruitListeRubriques();
     CalculTotalDepenses();
     m_mode = Lire;
-    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=, this] {MetAJourFiche();});
     for (int i=0; i< wdg_bigtable->rowCount(); i++)
         if (getDepenseFromRow(i)->id() == dep->id()){
             wdg_bigtable->setCurrentCell(i,1);
@@ -816,7 +816,7 @@ void dlg_depenses::MenuContextuel()
             if (dep->idfacture()>0)
             {
                 QAction *pAction_SupprFacture = menu->addAction(tr("Supprimer la facture de") + " " + dep->objet());
-                connect (pAction_SupprFacture, &QAction::triggered,    this,   [=] {SupprimeFacture(dep);});
+                connect (pAction_SupprFacture, &QAction::triggered,    this,   [=, this] {SupprimeFacture(dep);});
             }
     }
     QAction *pAction_ChercheVal = menu->addAction(tr("Rechercher une valeur"));
@@ -912,7 +912,7 @@ void dlg_depenses::SupprimerDepense()
         disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
         RedessineBigTable();
-        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
+        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=, this](int) {RedessineBigTable();});
     }
     else for (int i = 0; i< wdg_bigtable->rowCount(); i++)
         if (getDepenseFromRow(i) == Q_NULLPTR)
@@ -1019,7 +1019,7 @@ void dlg_depenses::AfficheFacture(Depense *dep)
             lab->setFocusPolicy(Qt::ClickFocus);
             ui->VisuDocupTableWidget->setCellWidget(0,0,widg);
             connect(lab, &UpLabel::clicked, this,
-            [=]
+            [=, this]
             {
               if (dep->lienfacture()!="")
                   emit ui->VisuDocupTableWidget->zoom();
@@ -1103,7 +1103,7 @@ void dlg_depenses::ZoomDoc()
     dlg_imgviewer                   ->setMode(dlg_singleimageviewer::Zoom);
     dlg_imgviewer                   ->setDepense(m_depenseencours);
     dlg_imgviewer                   ->setStageCount(1);
-    connect(dlg_imgviewer->PrintButton, &UpSmallButton::clicked, this, [=]  {
+    connect(dlg_imgviewer->PrintButton, &UpSmallButton::clicked, this, [=, this]  {
                                                                                 QByteArray ba = m_depenseencours->factureblob();
                                                                                 QList<QImage> listimg = QList<QImage>();
                                                                                 if (m_depenseencours->factureformat() == PDF)     // le document est un pdf
@@ -1117,7 +1117,7 @@ void dlg_depenses::ZoomDoc()
                                                                                 }
                                                                                 proc->Print(listimg);
                                                                             });
-    connect(dlg_imgviewer->SupprButton, &UpSmallButton::clicked, this, [=]  {
+    connect(dlg_imgviewer->SupprButton, &UpSmallButton::clicked, this, [=, this]  {
                                                                                 EffaceFacture();
                                                                                 dlg_imgviewer->close();
                                                                             });
@@ -1258,9 +1258,9 @@ void dlg_depenses::MetAJourFiche()
         }
         else
             wdg_supprimeruppushbutton->setEnabled(true);
-        connect (ui->DateDepdateEdit,       &QDateEdit::dateChanged,        this,   [=] {EnableModifiepushButton();});
-        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton(); ChoixPaiement();});
-        connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged, this,   [=] {EnableModifiepushButton();});
+        connect (ui->DateDepdateEdit,       &QDateEdit::dateChanged,        this,   [=, this] {EnableModifiepushButton();});
+        connect (ui->PaiementcomboBox,      &QComboBox::currentTextChanged, this,   [=, this] {EnableModifiepushButton(); ChoixPaiement();});
+        connect (ui->RefFiscalecomboBox,    &QComboBox::currentTextChanged, this,   [=, this] {EnableModifiepushButton();});
     }
 }
 
@@ -1532,7 +1532,7 @@ void dlg_depenses::ModifierDepense()
     disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
     RegleAffichageFiche(Lire);
     MetAJourFiche();
-    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=, this] {MetAJourFiche();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1552,7 +1552,7 @@ void dlg_depenses::RedessineBigTable()
     }
     else
         RegleAffichageFiche(TableVide);
-    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=, this] {MetAJourFiche();});
     //wdg_supprimeruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
     //wdg_modifieruppushbutton->setEnabled(wdg_bigtable->rowCount()>0);
 }
@@ -1688,7 +1688,7 @@ void dlg_depenses::FiltreTable()
         {
             disconnect(wdg_bigtable, &QTableWidget::itemSelectionChanged, nullptr, nullptr);
             MetAJourFiche();
-            connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+            connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=, this] {MetAJourFiche();});
         }
     }
     CalculTotalDepenses();
@@ -1697,7 +1697,7 @@ void dlg_depenses::FiltreTable()
 
 void dlg_depenses::RechercheValeur()
 {
-    auto completebox = [=] (UpDialog *dlg, UpComboBox *box, double montant)
+    auto completebox = [=, this] (UpDialog *dlg, UpComboBox *box, double montant)
     {
         box->clear();
         QStandardItemModel *listdep = new QStandardItemModel();
@@ -1747,7 +1747,7 @@ void dlg_depenses::RechercheValeur()
     line                    ->setValidator(m_val);
     int linewidth           = Utils::CalcSize("000000000").width();
     line                    ->setFixedWidth(linewidth);
-    connect(line, &QLineEdit::textEdited, line, [=]{completebox(dlg_ask, box,QLocale().toDouble(line->text()));});
+    connect(line, &QLineEdit::textEdited, line, [=, this]{completebox(dlg_ask, box,QLocale().toDouble(line->text()));});
     QHBoxLayout *hlay       = new QHBoxLayout();
     hlay                    ->insertSpacerItem(0, new QSpacerItem(5,5, QSizePolicy::Expanding));
     hlay                    ->insertWidget(1,line);
@@ -1789,7 +1789,7 @@ void dlg_depenses::RechercheValeur()
                         disconnect(ui->AnneecomboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), nullptr, nullptr);
                         ui->AnneecomboBox->setCurrentIndex(idx==-1? 0 : idx);
                         RemplitBigTable();
-                        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
+                        connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=, this](int) {RedessineBigTable();});
                     }
                     for (int i=0; i< wdg_bigtable->rowCount(); i++)
                         if (getDepenseFromRow(i) == dep){
@@ -1824,7 +1824,7 @@ void dlg_depenses::ReconstruitListeAnnees()
     if (ListeAnnees.size()==0)
         ListeAnnees << m_currentdate.toString("yyyy");
     ui->AnneecomboBox->insertItems(0,ListeAnnees);
-    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=](int) {RedessineBigTable();});
+    connect (ui->AnneecomboBox,     QOverload<int>::of(&QComboBox::currentIndexChanged),    this,   [=, this](int) {RedessineBigTable();});
 }
 
 /*-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1877,7 +1877,7 @@ void dlg_depenses::RemplitBigTable()
 
     wdg_bigtable->sortItems(7);
     wdg_supprimeruppushbutton->setEnabled(false);
-    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=] {MetAJourFiche();});
+    connect (wdg_bigtable,     &QTableWidget::itemSelectionChanged, this,   [=, this] {MetAJourFiche();});
 }
 
 Depense* dlg_depenses::getDepenseFromRow(int row)
@@ -1936,7 +1936,7 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
             listview                        ->setItemDelegate(linedeleg);
             if (db->ModeAccesDataBase() != Utils::Distant)
             {
-                connect(linedeleg, &UpLineDelegate::editingFinished, this, [=] {
+                connect(linedeleg, &UpLineDelegate::editingFinished, this, [=, this] {
                                                                             QStandardItem *item = model->itemFromIndex(listview->selectionModel()->selectedIndexes().at(0));
                                                                             QString oldintitule = ListeEch.at(item->row()).at(1).toString();
                                                                             int rowit           = item->row();
@@ -1972,14 +1972,14 @@ void dlg_depenses::EnregistreFacture(QString typedoc)
                                                                             }
                                                                         });
             }
-            connect (listview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=] {
+            connect (listview->selectionModel(), &QItemSelectionModel::selectionChanged, this,   [=, this] {
                                                                             dlg_ask->OKButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
                                                                             dlg_ask->EditButton->setEnabled(listview->selectionModel()->selectedIndexes().size()>0);
                                                                         });
-            connect(dlg_ask->OKButton,       &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) dlg_ask->accept(); });
-            connect(creerecheancier,         &QPushButton::clicked,  this, [=] { dlg_ask->reject(); EnregistreDocScanne(dlg_docsscanner::Echeancier); dlg_ask->reject(); });
+            connect(dlg_ask->OKButton,       &QPushButton::clicked,  this, [=, this] { if (listview->selectionModel()->selectedIndexes().size() > 0) dlg_ask->accept(); });
+            connect(creerecheancier,         &QPushButton::clicked,  this, [=, this] { dlg_ask->reject(); EnregistreDocScanne(dlg_docsscanner::Echeancier); dlg_ask->reject(); });
             connect(dlg_ask->CancelButton,   &QPushButton::clicked,  dlg_ask,   &UpDialog::reject);
-            connect(dlg_ask->EditButton,     &QPushButton::clicked,  this, [=] { if (listview->selectionModel()->selectedIndexes().size() > 0) listview->edit(listview->selectionModel()->selectedIndexes().at(0)); });
+            connect(dlg_ask->EditButton,     &QPushButton::clicked,  this, [=, this] { if (listview->selectionModel()->selectedIndexes().size() > 0) listview->edit(listview->selectionModel()->selectedIndexes().at(0)); });
 
             if (dlg_ask->exec() == QDialog::Accepted)
             {
@@ -2076,13 +2076,13 @@ void dlg_depenses::SetDepenseToRow(Depense *dep, int row)
     label6->setContextMenuPolicy(Qt::CustomContextMenu);
     label7->setContextMenuPolicy(Qt::CustomContextMenu);
 
-    connect(label1,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
-    connect(label2,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
-    connect(label3,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
-    connect(label4,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
-    connect(label5,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
-    connect(label6,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
-    connect(label7,  &QWidget::customContextMenuRequested,   this,   [=] {MenuContextuel();});
+    connect(label1,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
+    connect(label2,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
+    connect(label3,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
+    connect(label4,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
+    connect(label5,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
+    connect(label6,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
+    connect(label7,  &QWidget::customContextMenuRequested,   this,   [=, this] {MenuContextuel();});
 
     A = QString::number(id);                                                                    // idDepense - col = 0
     pitem0->setText(A);

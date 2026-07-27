@@ -198,13 +198,13 @@ dlg_bilanortho::dlg_bilanortho(Acte *acte, bool nouveaubilan, QWidget *parent) :
     ui->HMaddoxVPSCDcomboBox->setVisible(false);
     ui->HMaddoxVPASCDcomboBox->setVisible(false);
 
-    connect(ui->OKupPushButton,         &QPushButton::clicked,  this,                               [=] {accept();});
-    connect(ui->AnnulupPushButton,      &QPushButton::clicked,  this,                               [=] {reject();});
-    connect(ui->ImprimeupPushButton,    &QPushButton::clicked,  this,                               [=] {ImprimeBOClicked();});
+    connect(ui->OKupPushButton,         &QPushButton::clicked,  this,                               [=, this] {accept();});
+    connect(ui->AnnulupPushButton,      &QPushButton::clicked,  this,                               [=, this] {reject();});
+    connect(ui->ImprimeupPushButton,    &QPushButton::clicked,  this,                               [=, this] {ImprimeBOClicked();});
     QList<UpComboBox*> listcombo = findChildren<UpComboBox*>();
     foreach(UpComboBox *cbox, listcombo)
-        connect(cbox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),  this, [=](int) {AfficheCombobox(cbox->currentIndex(), cbox);});
-    connect(ui->WirtcomboBox,           &QComboBox::currentTextChanged,  this,                      [=] {EnableAnimauxWirtcomboBox(ui->WirtcomboBox->currentText());});
+        connect(cbox,                   QOverload<int>::of(&QComboBox::currentIndexChanged),  this, [=, this](int) {AfficheCombobox(cbox->currentIndex(), cbox);});
+    connect(ui->WirtcomboBox,           &QComboBox::currentTextChanged,  this,                      [=, this] {EnableAnimauxWirtcomboBox(ui->WirtcomboBox->currentText());});
 
     ui->AnnulupPushButton->setUpButtonStyle(UpPushButton::ANNULBUTTON, UpPushButton::Small);
     ui->OKupPushButton->setUpButtonStyle(UpPushButton::OKBUTTON, UpPushButton::Small);

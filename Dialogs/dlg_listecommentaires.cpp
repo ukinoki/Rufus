@@ -483,7 +483,7 @@ void dlg_listecommentaires::MenuContextuel()
     QAction *pAction_Recopier;
 
     pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer un commentaire"));
-    connect (pAction_Creer,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Creer");});
+    connect (pAction_Creer,      &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Creer");});
 
     QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
     m_currentcomment = getCommentFromIndex(idx);
@@ -503,15 +503,15 @@ void dlg_listecommentaires::MenuContextuel()
             else
                 pAction_Public                  = menuContextuel->addAction("Public") ;
             pAction_ParDefaut->setToolTip(tr("si cette option est cochée\nle commentaire sera systématiquement imprimé"));
-            connect (pAction_ParDefaut,  &QAction::triggered, this,   [=] {ChoixMenuContextuel("ParDefaut");});
-            connect (pAction_Public,     &QAction::triggered, this,   [=] {ChoixMenuContextuel("Public");});
-            connect (pAction_Modif,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Modifier");});
-            connect (pAction_Suppr,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Supprimer");});
+            connect (pAction_ParDefaut,  &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("ParDefaut");});
+            connect (pAction_Public,     &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Public");});
+            connect (pAction_Modif,      &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Modifier");});
+            connect (pAction_Suppr,      &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Supprimer");});
         }
         else
         {
             pAction_Recopier             = menuContextuel->addAction(Icons::icCopy(), tr("Recopier ce commentaire"));
-            connect (pAction_Recopier,   &QAction::triggered, this,   [=] {ChoixMenuContextuel("Recopier");});
+            connect (pAction_Recopier,   &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Recopier");});
         }
     }
     // ouvrir le menu
@@ -530,8 +530,8 @@ void dlg_listecommentaires::RemplirTableView()
         delete m_model;
     m_model = new UpStandardItemModel();
     UpLineDelegate *line = new UpLineDelegate();
-    connect(line,   &UpLineDelegate::textEdited, this, [=] { OKButton->setEnabled(true);});
-    connect(line,   &UpLineDelegate::commitData, this, [=]  (QWidget *editor)
+    connect(line,   &UpLineDelegate::textEdited, this, [=, this] { OKButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, this, [=, this]  (QWidget *editor)
     {
         UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
         if (line)
@@ -578,7 +578,7 @@ void dlg_listecommentaires::RemplirTableView()
         wdg_buttonframe->widgButtonParent()->setFixedWidth(wdg_tblview->width());
         ConfigMode(Selection);
         AfficheCommentsPublics(currentuser()->affichecommentslunettespublics());
-        connect(wdg_tblview,     &QAbstractItemView::entered,               this,   [=] (QModelIndex idx) {
+        connect(wdg_tblview,     &QAbstractItemView::entered,               this,   [=, this] (QModelIndex idx) {
                                                                                                             CommentLunet *com = getCommentFromIndex(idx);
                                                                                                             if (com)
                                                                                                                 QToolTip::showText(cursor().pos(),com->tooltip());

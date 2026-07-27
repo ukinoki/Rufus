@@ -43,7 +43,7 @@ void dlg_singleimageviewer::setListDocuments(QList<DocExterne *> listdocs, DocEx
     {
         wdg_toolbar = new UpToolBar;
         AjouteWidgetLayButtons(wdg_toolbar, false);
-        connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=] {goTo(wdg_toolbar->choice());});
+        connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=, this] {goTo(wdg_toolbar->choice());});
         int idx = m_ListDocs.indexOf(m_currentDoc);
         wdg_toolbar->First()    ->setEnabled(idx>0);
         wdg_toolbar->Prec()     ->setEnabled(idx>0);

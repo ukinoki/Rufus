@@ -112,17 +112,17 @@ dlg_bilanrecettes::dlg_bilanrecettes(QWidget *parent) :
     RemplitLaTable();
     CalcSuperviseursEtComptables();
     FiltreTable(-1);
-    connect(CloseButton,                &QPushButton::clicked,                                  this, [=] {close();});
+    connect(CloseButton,                &QPushButton::clicked,                                  this, [=, this] {close();});
     connect(PrintButton,                &QPushButton::clicked,                                  this, [&] {
                                                                                                             bool ok;
                                                                                                             if (proc->QuestionPdfOrPrint(this, ok))
                                                                                                                 PrintReport(ok);
                                                                                                           });
-    connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=] {NouvPeriode();});
-    connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=] {ExportTable();});
-    connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
-    connect(wdg_comptableradiobouton,   &UpRadioButton::clicked,                                this, [=] {ChangeMode(COMPTABLE);});
-    connect(wdg_superviseurradiobouton, &UpRadioButton::clicked,                                this, [=] {ChangeMode(SUPERVISEUR);});
+    connect(wdg_choixperiodebouton,     &QPushButton::clicked,                                  this, [=, this] {NouvPeriode();});
+    connect(wdg_exportbouton,           &QPushButton::clicked,                                  this, [=, this] {ExportTable();});
+    connect(wdg_supervcombobox,         QOverload<int>::of(&QComboBox::currentIndexChanged),    this, [=, this] {FiltreTable(wdg_supervcombobox->currentData().toInt());});
+    connect(wdg_comptableradiobouton,   &UpRadioButton::clicked,                                this, [=, this] {ChangeMode(COMPTABLE);});
+    connect(wdg_superviseurradiobouton, &UpRadioButton::clicked,                                this, [=, this] {ChangeMode(SUPERVISEUR);});
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_Recettes);
 }

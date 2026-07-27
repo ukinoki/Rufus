@@ -66,8 +66,8 @@ dlg_fontdialog::dlg_fontdialog(QWidget *parent) :
     }
     AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
 
-    connect (wdg_treewidget,    &QTreeWidget::itemClicked,         this,   [=] (QTreeWidgetItem *item) {Redessinelabel(item);});
-    connect (wdg_treewidget,    &QTreeWidget::currentItemChanged,  this,   [=] (QTreeWidgetItem *item) {Redessinelabel(item);});
+    connect (wdg_treewidget,    &QTreeWidget::itemClicked,         this,   [=, this] (QTreeWidgetItem *item) {Redessinelabel(item);});
+    connect (wdg_treewidget,    &QTreeWidget::currentItemChanged,  this,   [=, this] (QTreeWidgetItem *item) {Redessinelabel(item);});
     connect (OKButton,          &QPushButton::clicked,             this,   &dlg_fontdialog::FermeFiche);
 
     QList<QTreeWidgetItem*> listitems = wdg_treewidget->findItems(m_font.family(),Qt::MatchExactly,0);

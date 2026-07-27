@@ -41,19 +41,19 @@ dlg_choixdate::dlg_choixdate(QDate date, QWidget *parent) :
     ui->JusquAdateEdit              ->setDisplayFormat(tr("dd/MM/yyyy"));
     ui->DepuisdateEdit              ->setDisplayFormat(tr("dd/MM/yyyy"));
 
-    connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=] {Fermefiche();});
-    connect(ui->AnnulupPushButton,              &QPushButton::clicked,  this,    [=] {reject();});
-    connect(ui->JourradioButton,                &QPushButton::clicked,  this,    [=] {AfficheDates(ui->JourradioButton);});
-    connect(ui->SemaineradioButton,             &QPushButton::clicked,  this,    [=] {AfficheDates(ui->SemaineradioButton);});
-    connect(ui->MoisradioButton,                &QPushButton::clicked,  this,    [=] {AfficheDates(ui->MoisradioButton);});
-    connect(ui->AnneeradioButton,               &QPushButton::clicked,  this,    [=] {AfficheDates(ui->AnneeradioButton);});
+    connect(ui->OKupPushButton,                 &QPushButton::clicked,  this,    [=, this] {Fermefiche();});
+    connect(ui->AnnulupPushButton,              &QPushButton::clicked,  this,    [=, this] {reject();});
+    connect(ui->JourradioButton,                &QPushButton::clicked,  this,    [=, this] {AfficheDates(ui->JourradioButton);});
+    connect(ui->SemaineradioButton,             &QPushButton::clicked,  this,    [=, this] {AfficheDates(ui->SemaineradioButton);});
+    connect(ui->MoisradioButton,                &QPushButton::clicked,  this,    [=, this] {AfficheDates(ui->MoisradioButton);});
+    connect(ui->AnneeradioButton,               &QPushButton::clicked,  this,    [=, this] {AfficheDates(ui->AnneeradioButton);});
 
-    connect(ui->PlusDateDebutpushButton,        &QPushButton::clicked,  this,    [=] {ModifDate(ui->PlusDateDebutpushButton);});
-    connect(ui->MoinsDateDebutpushButton,       &QPushButton::clicked,  this,    [=] {ModifDate(ui->MoinsDateDebutpushButton);});
-    connect(ui->PlusDateFinpushButton,          &QPushButton::clicked,  this,    [=] {ModifDate(ui->PlusDateFinpushButton);});
-    connect(ui->MoinsDateFinpushButton,         &QPushButton::clicked,  this,    [=] {ModifDate(ui->MoinsDateFinpushButton);});
-    connect(ui->PlusDebutPeriodepushButton,     &QPushButton::clicked,  this,    [=] {ModifDate(ui->PlusDebutPeriodepushButton);});
-    connect(ui->MoinsFinPeriodepushButton,      &QPushButton::clicked,  this,    [=] {ModifDate(ui->MoinsFinPeriodepushButton);});
+    connect(ui->PlusDateDebutpushButton,        &QPushButton::clicked,  this,    [=, this] {ModifDate(ui->PlusDateDebutpushButton);});
+    connect(ui->MoinsDateDebutpushButton,       &QPushButton::clicked,  this,    [=, this] {ModifDate(ui->MoinsDateDebutpushButton);});
+    connect(ui->PlusDateFinpushButton,          &QPushButton::clicked,  this,    [=, this] {ModifDate(ui->PlusDateFinpushButton);});
+    connect(ui->MoinsDateFinpushButton,         &QPushButton::clicked,  this,    [=, this] {ModifDate(ui->MoinsDateFinpushButton);});
+    connect(ui->PlusDebutPeriodepushButton,     &QPushButton::clicked,  this,    [=, this] {ModifDate(ui->PlusDebutPeriodepushButton);});
+    connect(ui->MoinsFinPeriodepushButton,      &QPushButton::clicked,  this,    [=, this] {ModifDate(ui->MoinsFinPeriodepushButton);});
 
     ui->AnnulupPushButton           ->setFixedSize(100,46);
     ui->OKupPushButton              ->setFixedSize(105,46);

@@ -48,7 +48,7 @@ dlg_listecorrespondants::dlg_listecorrespondants(QWidget *parent) :
     setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::reject);
-    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_buttonframe->searchline()->setText(txt);
                                                                                                     ReconstruitTreeViewCorrespondants(false, txt);});
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listecorrespondants::ChoixButtonFrame);
@@ -277,7 +277,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
     {
         m_correspondantsmodel->sort(0);
         m_correspondantsmodel->sort(1);
-        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=, this] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             {
                                                                                                                 Correspondant * cor = getCorrespondantFromIndex(idx);
                                                                                                                 if (cor)
@@ -285,7 +285,7 @@ void dlg_listecorrespondants::ReconstruitTreeViewCorrespondants(bool reconstruir
                                                                                                             }
                                                                                                       } );
         connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listecorrespondants::Enablebuttons);
-        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=, this] (QModelIndex idx) { if (!m_correspondantsmodel->itemFromIndex(idx)->hasChildren())
                                                                                                             ModifCorresp(getCorrespondantFromIndex(idx)); });
     }
 }

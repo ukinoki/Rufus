@@ -49,9 +49,9 @@ dlg_paramconnexion::dlg_paramconnexion(QWidget *parent) :
     connect(ui->AnnuluppushButton,          &QPushButton::clicked,          this,   &QDialog::reject);
     connect(ui->OKuppushButton,             &QPushButton::clicked,          this,   &dlg_paramconnexion::Verif);
     connect(ui->TestuppushButton,           &QPushButton::clicked,          this,   &dlg_paramconnexion::Test);
-    connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->LocalradioButton);});
-    connect(ui->PosteradioButton,           &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->PosteradioButton);});
-    connect(ui->DistantradioButton,         &QRadioButton::clicked,         this,   [=] {RegleAffichage(ui->DistantradioButton);});
+    connect(ui->LocalradioButton,           &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->LocalradioButton);});
+    connect(ui->PosteradioButton,           &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->PosteradioButton);});
+    connect(ui->DistantradioButton,         &QRadioButton::clicked,         this,   [=, this] {RegleAffichage(ui->DistantradioButton);});
     connect(ui->ClesSSLuppushButton,        &QPushButton::clicked,          this,   &dlg_paramconnexion::DossierClesSSL);
 
     ui->ClesSSLLineEdit ->useselftextastooltip();

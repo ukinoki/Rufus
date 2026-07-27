@@ -55,7 +55,7 @@ dlg_listemotscles::dlg_listemotscles(QWidget *parent) :
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_listemotscles::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_listemotscles::Annulation);
     connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_listemotscles::ChoixButtonFrame);
-    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_buttonframe->searchline()->setText(txt);
                                                                                                     for (auto it = Datas::I()->motscles->motscles()->constBegin(); it != Datas::I()->motscles->motscles()->constEnd(); ++it)
                                                                                                     {
@@ -462,7 +462,7 @@ void dlg_listemotscles::RemplirTableView()
                                                                                                                             wdg_buttonframe->searchline()->setText(m_currentmotcle->motcle());
                                                                                                                         }
                                                                                                                         });
-        connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
+        connect (wdg_tblview,                   &QAbstractItemView::clicked,            this,   [=, this] (QModelIndex idx) {// le bouton OK est enabled quand une case est cochée
             QStandardItem *itm = m_model->itemFromIndex(idx);
             if (itm)
             {
@@ -488,7 +488,7 @@ void dlg_listemotscles::RemplirTableView()
                 }
             }
         });
-        connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) {
+        connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=, this] (QModelIndex idx) {
             MotCle *mc = getMotCleFromIndex(idx);
             if (mc)
             {

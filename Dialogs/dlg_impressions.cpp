@@ -56,7 +56,7 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
     connect (wdg_docsbuttonframe->searchline(), &QLineEdit::textEdited,                 this,   &dlg_impressions::FiltreListe);
     connect (ui->OKupPushButton,                &QPushButton::clicked,                  this,   &dlg_impressions::OKpushButtonClicked);
     connect (ui->AnnulupPushButton,             &QPushButton::clicked,                  this,   &dlg_impressions::Annulation);
-    connect (ui->dateImpressiondateEdit,        &QDateEdit::dateChanged,                this,   [=] {
+    connect (ui->dateImpressiondateEdit,        &QDateEdit::dateChanged,                this,   [=, this] {
         if (m_currentdocument)
         {
             MetAJour(m_currentdocument->texte(),false);
@@ -64,21 +64,21 @@ dlg_impressions::dlg_impressions(Patient *pat, Intervention *intervention, QWidg
                 ui->upTextEdit              ->setText(m_listtexts.at(0));
         }
     });
-    connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
-    connect (ui->DocsPublicscheckBox,           &QCheckBox::clicked,                    this,   [=](bool a)
+    connect (ui->DocPubliccheckBox,             &QCheckBox::clicked,                    this,   [=, this] {CheckPublicEditablAdmin(ui->DocPubliccheckBox);});
+    connect (ui->DocsPublicscheckBox,           &QCheckBox::clicked,                    this,   [=, this](bool a)
                                                                                                 {
                                                                                                     ItemsList::update(currentuser(), CP_AFFICHEDOCSPUBLICS_USR,a);
                                                                                                     FiltreListe();
                                                                                                 });
-    connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
-    connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
-    connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
+    connect (ui->DocEditcheckBox,               &QCheckBox::clicked,                    this,   [=, this] {CheckPublicEditablAdmin(ui->DocEditcheckBox);});
+    connect (ui->DocAdministratifcheckBox,      &QCheckBox::clicked,                    this,   [=, this] {CheckPublicEditablAdmin(ui->DocAdministratifcheckBox);});
+    connect (ui->PrescriptioncheckBox,          &QCheckBox::clicked,                    this,   [=, this] {CheckPublicEditablAdmin(ui->PrescriptioncheckBox);});
     connect (ui->upTextEdit,                    &QWidget::customContextMenuRequested,   this,   &dlg_impressions::MenuContextuelTexteDocument);
-    connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=] {EnableOKPushButton();});
+    connect (ui->upTextEdit,                    &QTextEdit::textChanged,                this,   [=, this] {EnableOKPushButton();});
     connect (ui->upTextEdit,                    &UpTextEdit::dblclick,                  this,   &dlg_impressions::dblClicktextEdit);
-    connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
-    connect (wdg_docsbuttonframe,               &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_docsbuttonframe);});
-    connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=] {ChoixButtonFrame(wdg_dossiersbuttonframe);});
+    connect (ui->DupliOrdocheckBox,             &QCheckBox::clicked,                    this,   [=, this] {OrdoAvecDupli(ui->DupliOrdocheckBox->isChecked());});
+    connect (wdg_docsbuttonframe,               &WidgetButtonFrame::choix,              this,   [=, this] {ChoixButtonFrame(wdg_docsbuttonframe);});
+    connect (wdg_dossiersbuttonframe,           &WidgetButtonFrame::choix,              this,   [=, this] {ChoixButtonFrame(wdg_dossiersbuttonframe);});
 
     // Mise en forme de la table Documents et de la table Dossiers
     QList<UpTableView*> listtables;
@@ -648,11 +648,11 @@ void dlg_impressions::MenuContextuelTexteDocument()
         pAction_Fontunderline   = m_menucontextuel_textdoc->addAction(Icons::icFontunderline(),  tr("Souligné"));
         pAction_Fontnormal      = m_menucontextuel_textdoc->addAction(Icons::icFontnormal(),     tr("Normal"));
 
-        connect (pAction_ModifPolice,       &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Police");});
-        connect (pAction_Fontbold,          &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Gras");});
-        connect (pAction_Fontitalic,        &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Italique");});
-        connect (pAction_Fontunderline,     &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Souligne");});
-        connect (pAction_Fontnormal,        &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Normal");});
+        connect (pAction_ModifPolice,       &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Police");});
+        connect (pAction_Fontbold,          &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Gras");});
+        connect (pAction_Fontitalic,        &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Italique");});
+        connect (pAction_Fontunderline,     &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Souligne");});
+        connect (pAction_Fontnormal,        &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Normal");});
         m_menucontextuel_textdoc->addSeparator();
     }
     pAction_Blockleft       = m_menucontextuel_textdoc->addAction(Icons::icBlockLeft(),          tr("Aligné à gauche"));
@@ -663,8 +663,8 @@ void dlg_impressions::MenuContextuelTexteDocument()
     if (ui->upTextEdit->textCursor().selectedText().size() > 0)   {
         pAction_Copier          = m_menucontextuel_textdoc->addAction(Icons::icCopy(),   tr("Copier"));
         pAction_Cut             = m_menucontextuel_textdoc->addAction(Icons::icCut(),    tr("Couper"));
-        connect (pAction_Copier,            &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Copier");});
-        connect (pAction_Cut,               &QAction::triggered,    this, [=] {ChoixMenuContextuelTexteDocument("Couper");});
+        connect (pAction_Copier,            &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Copier");});
+        connect (pAction_Cut,               &QAction::triggered,    this, [=, this] {ChoixMenuContextuelTexteDocument("Couper");});
     }
     if (qApp->clipboard()->mimeData()->hasText()
             || qApp->clipboard()->mimeData()->hasUrls()
@@ -672,33 +672,33 @@ void dlg_impressions::MenuContextuelTexteDocument()
             || qApp->clipboard()->mimeData()->hasHtml())
     {
         QAction *pAction_Coller = m_menucontextuel_textdoc->addAction(Icons::icPaste(),  tr("Coller"));
-        connect (pAction_Coller,        &QAction::triggered,    this,    [=] {ChoixMenuContextuelTexteDocument("Coller");});
+        connect (pAction_Coller,        &QAction::triggered,    this,    [=, this] {ChoixMenuContextuelTexteDocument("Coller");});
     }
 
-    connect (pAction_InsertChamp,                   &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Inserer");});
-    connect (pAction_InsInterroDate,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Date");});
-    connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTEOEIL);});
-    connect (pAction_InsInterroEye,                 &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTEBRUT);});
-    connect (pAction_InsInterroYesNo,               &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(YESNO);});
-    connect (pAction_InsInterroHeure,               &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Heure");});
-    connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Montant");});
-    connect (pAction_InsInterroMedecin,             &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Soignant");});
-    connect (pAction_InsInterroProvenance,          &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(PROVENANCE);});
-    connect (pAction_InsInterroSejour,              &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(TYPESEJOUR);});
-    connect (pAction_InsInterroSite,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(SITE);});
-    connect (pAction_InsInterroText,                &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Texte");});
-    connect (pAction_Blockcentr,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Centre");});
-    connect (pAction_Blockright,                    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Droite");});
-    connect (pAction_Blockleft,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Gauche");});
-    connect (pAction_Blockjust,                     &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument("Justifie");});
-    connect (pAction_InsInterroChirIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(SURGEONINTERVENTION);});
-    connect (pAction_InsInterroDateIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(DATEINTERVENTION);});
-    connect (pAction_InsInterroHeureIntervention,   &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(HEUREINTERVENTION);});
-    connect (pAction_InsInterroCoteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(COTEINTERVENTION);});
-    connect (pAction_InsInterroTypeIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(TYPEINTERVENTION);});
-    connect (pAction_InsInterroSiteIntervention,    &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(SITEINTERVENTION);});
-    connect (pAction_InsInterroIOLIntervention,     &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(IMPLANTINTERVENTION);});
-    connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=] {ChoixMenuContextuelTexteDocument(ANESTHINTERVENTION);});
+    connect (pAction_InsertChamp,                   &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Inserer");});
+    connect (pAction_InsInterroDate,                &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Date");});
+    connect (pAction_InsInterroCote,                &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(COTEOEIL);});
+    connect (pAction_InsInterroEye,                 &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(COTEBRUT);});
+    connect (pAction_InsInterroYesNo,               &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(YESNO);});
+    connect (pAction_InsInterroHeure,               &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Heure");});
+    connect (pAction_InsInterroMontant,             &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Montant");});
+    connect (pAction_InsInterroMedecin,             &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Soignant");});
+    connect (pAction_InsInterroProvenance,          &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(PROVENANCE);});
+    connect (pAction_InsInterroSejour,              &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(TYPESEJOUR);});
+    connect (pAction_InsInterroSite,                &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(SITE);});
+    connect (pAction_InsInterroText,                &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Texte");});
+    connect (pAction_Blockcentr,                    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Centre");});
+    connect (pAction_Blockright,                    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Droite");});
+    connect (pAction_Blockleft,                     &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Gauche");});
+    connect (pAction_Blockjust,                     &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument("Justifie");});
+    connect (pAction_InsInterroChirIntervention,    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(SURGEONINTERVENTION);});
+    connect (pAction_InsInterroDateIntervention,    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(DATEINTERVENTION);});
+    connect (pAction_InsInterroHeureIntervention,   &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(HEUREINTERVENTION);});
+    connect (pAction_InsInterroCoteIntervention,    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(COTEINTERVENTION);});
+    connect (pAction_InsInterroTypeIntervention,    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(TYPEINTERVENTION);});
+    connect (pAction_InsInterroSiteIntervention,    &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(SITEINTERVENTION);});
+    connect (pAction_InsInterroIOLIntervention,     &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(IMPLANTINTERVENTION);});
+    connect (pAction_InsInterroAnesthIntervention,  &QAction::triggered,    this,   [=, this] {ChoixMenuContextuelTexteDocument(ANESTHINTERVENTION);});
 
     // ouvrir le menu
     m_menucontextuel_textdoc->exec(cursor().pos());
@@ -725,8 +725,8 @@ void dlg_impressions::MenuContextuelDocuments()
     {
         pAction_ModifDoc                = m_menucontextuel_doc->addAction(Icons::icEditer(), tr("Modifier ce document"));
         pAction_SupprDoc                = m_menucontextuel_doc->addAction(Icons::icPoubelle(), tr("Supprimer ce document"));
-        connect (pAction_ModifDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Modifier");});
-        connect (pAction_SupprDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Supprimer");});
+        connect (pAction_ModifDoc,      &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDocument("Modifier");});
+        connect (pAction_SupprDoc,      &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDocument("Supprimer");});
     }
     pAction_CreerDoc                = m_menucontextuel_doc->addAction(Icons::icCreer(), tr("Créer un document"));
     if (m_currentdocument->iduser() == currentuser()->id())
@@ -738,14 +738,14 @@ void dlg_impressions::MenuContextuelDocuments()
         }
         else
             pAction_PublicDoc       = m_menucontextuel_doc->addAction(tr("Public"));
-        connect (pAction_PublicDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Public");});
+        connect (pAction_PublicDoc,     &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDocument("Public");});
         pAction_PublicDoc       ->setToolTip(tr("si cette option est cochée\ntous les utilisateurs\nauront accès à ce document"));
         if (!m_currentdocument->iseditable())
             pAction_EditableDoc         = m_menucontextuel_doc->addAction(tr("Editable"));
         else
             pAction_EditableDoc         = m_menucontextuel_doc->addAction(tr("Non modifiable"));
         pAction_EditableDoc ->setToolTip(tr("si cette option est cochée\nle document sera édité dans une fenêtre\navant son impression"));
-        connect (pAction_EditableDoc,   &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Editable");});
+        connect (pAction_EditableDoc,   &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDocument("Editable");});
         if (Datas::I()->users->userconnected()->isMedecin() || Datas::I()->users->userconnected()->isOrthoptist())
         {
             /*!
@@ -754,23 +754,23 @@ void dlg_impressions::MenuContextuelDocuments()
             pAction_PrescripDoc         = m_menucontextuel_doc->addAction(tr("Prescription"));
         else
             pAction_PrescripDoc         = m_menucontextuel_doc->addAction(Icons::icBlackCheck(), tr("Prescription"));
-        connect (pAction_PrescripDoc,   &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Prescription");});
+        connect (pAction_PrescripDoc,   &QAction::triggered,this, [=, this] {ChoixMenuContextuelDocument("Prescription");});
         pAction_PrescripDoc ->setToolTip(tr("si cette option est cochée\nce document sera considéré comme une prescription"));
         */
             if (!m_currentdocument->ismedical())
                 pAction_AdminDoc            = m_menucontextuel_doc->addAction(tr("Document médical"));
             else
                 pAction_AdminDoc            = m_menucontextuel_doc->addAction(tr("Document administratif"));
-            connect (pAction_AdminDoc,  &QAction::triggered,this, [=] {ChoixMenuContextuelDocument("Administratif");});
+            connect (pAction_AdminDoc,  &QAction::triggered,this, [=, this] {ChoixMenuContextuelDocument("Administratif");});
         }
     }
     if (m_currentdocument->iduser() != currentuser()->id())
     {
         pAction_RecopierDoc           = m_menucontextuel_doc->addAction(Icons::icCopy(), tr("Recopier ce document"));
         pAction_RecopierDoc ->setToolTip(tr("Recopier ce document dans sa propre collection de documents"));
-        connect (pAction_RecopierDoc,     &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Recopier");});
+        connect (pAction_RecopierDoc,     &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDocument("Recopier");});
     }
-    connect (pAction_CreerDoc,      &QAction::triggered,    this, [=] {ChoixMenuContextuelDocument("Creer");});
+    connect (pAction_CreerDoc,      &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDocument("Creer");});
 
     // ouvrir le menu
     m_menucontextuel_doc->exec(cursor().pos());
@@ -800,10 +800,10 @@ void dlg_impressions::MenuContextuelDossiers()
     else
         pAction_PublicDossier       = m_menucontextuel_dossier->addAction(tr("Privé")) ;
 
-    connect (pAction_ModifDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Modifier");});
-    connect (pAction_SupprDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Supprimer");});
-    connect (pAction_CreerDossier,  &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Creer");});
-    connect (pAction_PublicDossier, &QAction::triggered,    this, [=] {ChoixMenuContextuelDossier("Public");});
+    connect (pAction_ModifDossier,  &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDossier("Modifier");});
+    connect (pAction_SupprDossier,  &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDossier("Supprimer");});
+    connect (pAction_CreerDossier,  &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDossier("Creer");});
+    connect (pAction_PublicDossier, &QAction::triggered,    this, [=, this] {ChoixMenuContextuelDossier("Public");});
 
     // ouvrir le menu
     m_menucontextuel_dossier->exec(cursor().pos());
@@ -913,9 +913,9 @@ void dlg_impressions::ChoixMenuContextuelTexteDocument(QString choix)
         ListChamps->setFixedWidth(tabChamps->width() + ListChamps->dlglayout()->contentsMargins().left()*2);
         ListChamps->dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
 
-        connect(ListChamps->OKButton,   &QPushButton::clicked,          ListChamps,     [=] {ListChamps->accept();});
-        connect(tabChamps,              &QTableWidget::doubleClicked,   ListChamps,     [=] {ListChamps->accept();});
-        connect(tabChamps,              &QAbstractItemView::entered,    ListChamps,     [=] (QModelIndex idx) {
+        connect(ListChamps->OKButton,   &QPushButton::clicked,          ListChamps,     [=, this] {ListChamps->accept();});
+        connect(tabChamps,              &QTableWidget::doubleClicked,   ListChamps,     [=, this] {ListChamps->accept();});
+        connect(tabChamps,              &QAbstractItemView::entered,    ListChamps,     [=, this] (QModelIndex idx) {
             UpStandardItem *upitem = dynamic_cast<UpStandardItem *>(m_model->itemFromIndex(idx));
             if (upitem != Q_NULLPTR)
             {
@@ -1863,7 +1863,7 @@ QString dlg_impressions::AskDialog(QString titre)
      dlg_askdialog->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
      dlg_askdialog->TuneSize();
 
-     connect(dlg_askdialog->OKButton,   &QPushButton::clicked, dlg_askdialog,  [=] {dlg_askdialog->accept();});
+     connect(dlg_askdialog->OKButton,   &QPushButton::clicked, dlg_askdialog,  [=, this] {dlg_askdialog->accept();});
 
      Line->setValidator(new QRegularExpressionValidator(Utils::rgx_Question,this));
      Line->setMaxLength(60);
@@ -2392,7 +2392,7 @@ void dlg_impressions::EffaceWidget(QWidget* widg, bool AvecOuSansPause)
     widg->setAutoFillBackground(true);
     disconnect(t_timerefface, &QTimer::timeout, this, nullptr);
     t_timerefface->start(70);
-    connect(t_timerefface, &QTimer::timeout, this, [=]
+    connect(t_timerefface, &QTimer::timeout, this, [=, this]
     {
         QRect rect = QRect(widg->pos(),widg->size());
         QPoint pos = mapFromParent(cursor().pos());
@@ -3177,7 +3177,7 @@ void dlg_impressions::ChoixCorrespondant(QList<Correspondant *> listcor)
 
     dlg_askcorrespondant->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
 
-    connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [=] {ListidCor();});
+    connect(dlg_askcorrespondant->OKButton,   &QPushButton::clicked, dlg_askcorrespondant, [=, this] {ListidCor();});
 
     dlg_askcorrespondant ->exec();
     delete dlg_askcorrespondant;
@@ -3219,8 +3219,8 @@ void dlg_impressions::Remplir_TableView()
     disconnect(ui->DocsupTableView->selectionModel(),   &QItemSelectionModel::currentRowChanged, this, nullptr);
     disconnect(ui->DocsupTableView->horizontalHeader(), &QHeaderView::sectionClicked,            this, nullptr);
     UpLineDelegate *linedoc = new UpLineDelegate();
-    connect(linedoc,   &UpLineDelegate::textEdited, this, [=] {ui->OKupPushButton->setEnabled(true);});
-    connect(linedoc,   &UpLineDelegate::commitData, this, [=](QWidget *editor) {
+    connect(linedoc,   &UpLineDelegate::textEdited, this, [=, this] {ui->OKupPushButton->setEnabled(true);});
+    connect(linedoc,   &UpLineDelegate::commitData, this, [=, this](QWidget *editor) {
                                                                             UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
                                                                             m_textdocdelegate = line->text();
                                                                          });
@@ -3327,8 +3327,8 @@ void dlg_impressions::Remplir_TableView()
     disconnect(ui->DossiersupTableView, &QAbstractItemView::clicked,          this, nullptr);
     disconnect(ui->DossiersupTableView->selectionModel(), &QItemSelectionModel::currentRowChanged, this, nullptr);
     UpLineDelegate *line = new UpLineDelegate();
-    connect(line,   &UpLineDelegate::textEdited, this, [=] {ui->OKupPushButton->setEnabled(true);});
-    connect(line,   &UpLineDelegate::commitData, this, [=](QWidget *editor) {
+    connect(line,   &UpLineDelegate::textEdited, this, [=, this] {ui->OKupPushButton->setEnabled(true);});
+    connect(line,   &UpLineDelegate::commitData, this, [=, this](QWidget *editor) {
                                                                          UpLineEdit *line = qobject_cast<UpLineEdit*>(editor);
                                                                          m_textdossierdelegate = line->text();
                                                                       });

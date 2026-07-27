@@ -97,13 +97,13 @@ VilleCPWidget::VilleCPWidget(Villes *villes, QWidget *parent) :
         connectrecherche();
     else
     {
-        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=] {
+        connect(ui->VillelineEdit, &QLineEdit::editingFinished, this,[=, this] {
                                                                             ui->VillelineEdit->setText(Utils::trimcapitilize(ui->VillelineEdit->text()));
                                                                             if  (ui->VillelineEdit->text() != "")
                                                                                 ChercheVilleBaseIndividual(ui->VillelineEdit->text());
                                                                             emit villecpmodified();
                                                                          });
-        connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=] {
+        connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), this, [=, this] {
                                                                                                         ChercheCPBaseIndividual(ui->VillelineEdit->text());
                                                                                                         emit villecpmodified();
                                                                                                       });
@@ -204,9 +204,9 @@ void VilleCPWidget::connectrecherche()
     m_villeobject = new QObject(this);
     m_CPobject = new QObject(this);
     m_completerobject = new QObject(this);
-    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), m_completerobject, [=] { ChercheCodePostal(false);
+    connect(complListVilles,    QOverload<const QString &>::of(&QCompleter::activated), m_completerobject, [=, this] { ChercheCodePostal(false);
                                                                                                     emit villecpmodified(); });
-    connect(ui->CPlineEdit, &QLineEdit::textEdited, m_CPobject, [=]{
+    connect(ui->CPlineEdit, &QLineEdit::textEdited, m_CPobject, [=, this]{
             connect(ui->CPlineEdit, &QLineEdit::editingFinished, this, &VilleCPWidget::StartChercheVille);
             });
     connect(ui->VillelineEdit, &QLineEdit::textEdited, m_villeobject, [&]{
@@ -341,7 +341,7 @@ QString VilleCPWidget::dialogList(QList<Ville*> &listvilles, VilleListModel::Fie
     connect(gAsk->OKButton, &QPushButton::clicked,                          gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
     connect(listvw,           &QListView::doubleClicked,                    gAsk,   [=, &newValue] { Repons(listvw, gAsk, newValue); });
     connect(deleglabl,      &UpLabelDelegate::focusitem,                    gAsk,   [gAsk] { gAsk->OKButton->setEnabled(true); });
-    connect(listvw->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,   [=] { gAsk->OKButton->setEnabled(listvw->selectionModel()->selectedIndexes().size()>0); });
+    connect(listvw->selectionModel(), &QItemSelectionModel::currentChanged, gAsk,   [=, this] { gAsk->OKButton->setEnabled(listvw->selectionModel()->selectedIndexes().size()>0); });
 
     gAsk->exec();
     delete gAsk;
@@ -396,7 +396,7 @@ void VilleCPWidget::ChercheVilleBaseIndividual(QString nomville)
 
             dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
             dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
-            connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=]  {
+            connect(dlg_ask->OKButton,    &QPushButton::clicked, this, [=, this]  {
                                                                                 if (Datas::I()->villes->enregistreNouvelleVille(Utils::trim(CP->text()), nomville) != Q_NULLPTR)
                                                                                 {
                                                                                     delete complListVilles->model();

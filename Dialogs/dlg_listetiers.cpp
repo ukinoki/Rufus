@@ -44,7 +44,7 @@ dlg_listetiers::dlg_listetiers(QWidget *parent) :
     setFixedWidth(wdg_itemstree->width() + dlglayout()->contentsMargins().right() + dlglayout()->contentsMargins().left());
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::reject);
-    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_buttonframe->searchline()->setText(txt);
                                                                                                     ReconstruitTreeViewtiers(false, txt);});
     connect(wdg_buttonframe,        &WidgetButtonFrame::choix,  this,   &dlg_listetiers::ChoixButtonFrame);
@@ -228,12 +228,12 @@ void dlg_listetiers::ReconstruitTreeViewtiers(bool reconstruirelaliste, QString 
     if (m_model->rowCount()>0)
     {
         m_model->sort(0);
-        connect(wdg_itemstree,    &QAbstractItemView::entered,          this,   [=] (QModelIndex idx)   {
+        connect(wdg_itemstree,    &QAbstractItemView::entered,          this,   [=, this] (QModelIndex idx)   {
                                                                                                             Tiers * trs = getTiersFromIndex(idx);
                                                                                                             if (trs)
                                                                                                                 QToolTip::showText(cursor().pos(), trs->tooltip());
                                                                                                         } );
         connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,          this,   &dlg_listetiers::Enablebuttons);
-        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked,    this,   [=] (QModelIndex idx) { ModifTiers(getTiersFromIndex(idx)); });
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked,    this,   [=, this] (QModelIndex idx) { ModifTiers(getTiersFromIndex(idx)); });
     }
 }

@@ -86,7 +86,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->AnnulupPushButton,                     &QPushButton::clicked,                          this,           &dlg_paiementtiers::Annuler);
     connect (ui->BanqueChequecomboBox,                  &QComboBox::editTextChanged,                    this,           &dlg_paiementtiers::EnableOKButton);
     connect (ui->ChequeradioButton,                     &QRadioButton::clicked,                         this,           &dlg_paiementtiers::RegleAffichageTypePaiementframeDepuisBouton);
-    connect (ui->CommissionlineEdit,                    &QLineEdit::editingFinished,                    this,           [=] {ConvertitDoubleMontant(ui->CommissionlineEdit);});
+    connect (ui->CommissionlineEdit,                    &QLineEdit::editingFinished,                    this,           [=, this] {ConvertitDoubleMontant(ui->CommissionlineEdit);});
     connect (ui->CommissionlineEdit,                    &QLineEdit::textEdited,                         this,           &dlg_paiementtiers::EnableOKButton);
     connect (ui->ComptesupComboBox,                     QOverload<int>::of(&QComboBox::currentIndexChanged),
                                                                                                         this,           &dlg_paiementtiers::EnableOKButton);
@@ -94,7 +94,7 @@ dlg_paiementtiers::dlg_paiementtiers(QWidget *parent) :
     connect (ui->EspecesradioButton,                    &QRadioButton::clicked,                         this,           &dlg_paiementtiers::RegleAffichageTypePaiementframeDepuisBouton);
     connect (ui->ListPaiementsTiersupPushButton,        &QPushButton::clicked,                          this,           &dlg_paiementtiers::VoirListePaiements);
     connect (ui->ListeupTableWidget,                    &QTableWidget::itemEntered,                     this,           &dlg_paiementtiers::AfficheDDN);
-    connect (ui->MontantlineEdit,                       &QLineEdit::editingFinished,                    this,           [=] {ConvertitDoubleMontant(ui->MontantlineEdit);});
+    connect (ui->MontantlineEdit,                       &QLineEdit::editingFinished,                    this,           [=, this] {ConvertitDoubleMontant(ui->MontantlineEdit);});
     connect (ui->MontantlineEdit,                       &QLineEdit::textEdited,                         this,           &dlg_paiementtiers::EnableOKButton);
     connect (ui->NouvTiersupPushButton,                 &QPushButton::clicked,                          this,           &dlg_paiementtiers::EnregistreNouveauPaiement);
     connect (ui->SupprimupPushButton,                   &QPushButton::clicked,                          this,           &dlg_paiementtiers::SupprimerPaiement);
@@ -2812,7 +2812,7 @@ void dlg_paiementtiers::RemplitLesTables(bool &ok)
         ui->DetailupTableWidget->setRowCount(0);
         ui->DetailupTableWidget->setColumnCount(0);
         ui->DetailupTableWidget->horizontalHeader()->hide();
-        connect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, [=] {RenvoieRangee();});
+        connect (ui->ListeupTableWidget, &QTableWidget::itemSelectionChanged, this, [=, this] {RenvoieRangee();});
         DefinitArchitectureTableView(ui->DetailupTableWidget,Actes);
         break;
      }

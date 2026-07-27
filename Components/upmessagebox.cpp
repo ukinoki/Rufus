@@ -99,13 +99,13 @@ void UpMessageBox::addButton(UpSmallButton *button, enum UpSmallButton::StyleBou
 {
     button->setUpButtonStyle(Style);
     AjouteWidgetLayButtons(button);
-    connect(button, &QPushButton::clicked, this, [=] {Repons(button);});
+    connect(button, &QPushButton::clicked, this, [=, this] {Repons(button);});
 }
 
 void UpMessageBox::addButton(UpPushButton *button)
 {
     AjouteWidgetLayButtons(button);
-    connect(button, &QPushButton::clicked, this, [=] {Repons(button);});
+    connect(button, &QPushButton::clicked, this, [=, this] {Repons(button);});
 }
 
 void UpMessageBox::removeButton(UpSmallButton *button)

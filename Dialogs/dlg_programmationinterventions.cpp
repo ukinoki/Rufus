@@ -482,7 +482,7 @@ void dlg_programmationinterventions::FicheSession(SessionOperatoire *session)
         sitecombo       ->setCurrentIndex(sitecombo->findData(session->idlieu()));
         incidenttxtedit ->setText(session->incident());
     }
-    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=]
+    connect(dlg_session->OKButton, &QPushButton::clicked, dlg_session, [=, this]
     {
         QDate date = dateedit->date();
         int idsite = sitecombo->currentData().toInt();
@@ -1148,7 +1148,7 @@ void dlg_programmationinterventions::EnregistreIncident(Item *itm)
     dlg_incident->dlglayout()   ->insertWidget(0, incidenttxtedit);
     dlg_incident->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_incident->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_incident->OKButton, &QPushButton::clicked, dlg_incident, [=]
+    connect(dlg_incident->OKButton, &QPushButton::clicked, dlg_incident, [=, this]
     {
         QString incident = incidenttxtedit->text();
         if (mode == "intervention")
@@ -1260,7 +1260,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     gestionTypIntervButton  ->setFocusPolicy(Qt::NoFocus);
     gestionTypIntervButton  ->setContextMenuPolicy(Qt::NoContextMenu);
     gestionTypIntervButton  ->setStyleSheet(QStringLiteral("border: 0px"));
-    connect(gestionTypIntervButton, &QPushButton::clicked, dlg_intervention,   [=]
+    connect(gestionTypIntervButton, &QPushButton::clicked, dlg_intervention,   [=, this]
     {
         TypeIntervention *typ = Q_NULLPTR;
         UpStandardItem *itmitv = dynamic_cast<UpStandardItem*>(m_typeinterventionsmodel->item(interventioncombo->currentIndex()));
@@ -1352,7 +1352,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
     choixManufacturerIOLLay     ->setSpacing(5);
     choixManufacturerIOLLay     ->setContentsMargins(0,0,0,0);
 
-    connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [=]{
+    connect(wdg_choixIOLbutt,   &QPushButton::clicked,  this,               [=, this]{
                 int idiol = 0;
                 dlg_listeiols *Dlg_ListIOLs = new dlg_listeiols(true, dlg_intervention);
                 if (Dlg_ListIOLs->exec() == QDialog::Accepted)
@@ -1648,7 +1648,7 @@ void dlg_programmationinterventions::FicheIntervention(Intervention *interv)
         dlg_intervention->accept();
     });
     connect(interventioncombo->lineEdit(),      &QLineEdit::editingFinished,    dlg_intervention,   [&] { VerifExistIntervention(dlg_intervention, verifencours, interventioncombo); });
-    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=]
+    connect(dlg_intervention->CancelButton,     &QPushButton::clicked,          dlg_intervention,   [=, this]
                                                                                                     {
                                                                                                         disconnect(interventioncombo->lineEdit(), &QLineEdit::editingFinished, nullptr, nullptr);
                                                                                                         dlg_intervention->reject();
@@ -1801,7 +1801,7 @@ void dlg_programmationinterventions::MenuContextuelInterventionsions()
         QAction *pAction_SupprIntervention = m_ctxtmenuinterventions->addAction(tr("Supprimer cette intervention"));
         connect (pAction_SupprIntervention,         &QAction::triggered,    this,    &dlg_programmationinterventions::SupprimeIntervention);
         QAction *pAction_ImprIntervention = m_ctxtmenuinterventions->addAction(tr("Imprimer un document"));
-        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [=] {FicheImpressions(Datas::I()->patients->getById(interv->idpatient()), interv);});
+        connect (pAction_ImprIntervention,          &QAction::triggered,    this,    [=, this] {FicheImpressions(Datas::I()->patients->getById(interv->idpatient()), interv);});
         if (Datas::I()->users->userconnected()->isMedecin())
         {
             QString txt = (interv->incident() != ""? tr("Modifier le rapport d'incident") : tr ("Enregistrer un incident sur cette intervention"));
@@ -1851,7 +1851,7 @@ void dlg_programmationinterventions::FicheTypeIntervention(QString txt, UpDialog
     dlg_typintervention->dlglayout()   ->insertLayout(0, nomLay);
     dlg_typintervention->dlglayout()   ->setSizeConstraint(QLayout::SetFixedSize);
     dlg_typintervention->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
-    connect(dlg_typintervention->OKButton, &QPushButton::clicked, dlg_typintervention, [=]
+    connect(dlg_typintervention->OKButton, &QPushButton::clicked, dlg_typintervention, [=, this]
     {
         if (linenom->text() == "")
             return;

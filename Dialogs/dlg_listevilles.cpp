@@ -62,7 +62,7 @@ dlg_listevilles::dlg_listevilles(QWidget *parent) :
     connect (OKButton,                      &QPushButton::clicked,      this,   &dlg_listevilles::accept);
 
     connect (wdg_buttonframe,               &WidgetButtonFrame::choix,  this,   &dlg_listevilles::ChoixButtonFrame);
-    connect (wdg_buttonframe->searchline(), &QLineEdit::textEdited,     this,   [=] (QString txt) {
+    connect (wdg_buttonframe->searchline(), &QLineEdit::textEdited,     this,   [=, this] (QString txt) {
         QString txtTrim = Utils::trimcapitilize(txt, false, true);
         if (txtTrim != txt) {
             // mettre à jour en conservant la position du curseur
@@ -76,7 +76,7 @@ dlg_listevilles::dlg_listevilles(QWidget *parent) :
         Ville *ville = getVilleFromNom(txtTrim);
         selectcurrentVille(ville);
     });
-    connect(m_complListVilles, QOverload<const QString &>::of(&QCompleter::activated), this, [=](QString s) {
+    connect(m_complListVilles, QOverload<const QString &>::of(&QCompleter::activated), this, [=, this](QString s) {
         // cliquer sur une ville => la sélectionner
         Ville *ville = getVilleFromNom(s);
         selectcurrentVille(ville, QAbstractItemView::PositionAtCenter);
@@ -187,7 +187,7 @@ void dlg_listevilles::MenuContextuel()
     QAction *pAction_Creer;
 
     pAction_Creer                = menuContextuel->addAction(Icons::icCreer(), tr("Créer une ville"));
-    connect (pAction_Creer,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Creer");});
+    connect (pAction_Creer,      &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Creer");});
 
     QModelIndex idx   = wdg_tblview->indexAt(wdg_tblview->viewport()->mapFromGlobal(cursor().pos()));
     m_currentville = getVilleFromIndex(idx);
@@ -195,8 +195,8 @@ void dlg_listevilles::MenuContextuel()
     {
         pAction_Modif                = menuContextuel->addAction(Icons::icEditer(), tr("Modifier cette ville"));
         pAction_Suppr                = menuContextuel->addAction(Icons::icPoubelle(), tr("Supprimer cette ville"));
-        connect (pAction_Modif,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Modifier");});
-        connect (pAction_Suppr,      &QAction::triggered, this,   [=] {ChoixMenuContextuel("Supprimer");});
+        connect (pAction_Modif,      &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Modifier");});
+        connect (pAction_Suppr,      &QAction::triggered, this,   [=, this] {ChoixMenuContextuel("Supprimer");});
     }
     // ouvrir le menu
     menuContextuel->exec(cursor().pos());
@@ -388,7 +388,7 @@ void dlg_listevilles::SupprimmVille(Ville* ville)
 void dlg_listevilles::ModifieVille(Ville *ville)
 {
     dialogville(ville->codepostal(), ville->nom());
-    connect(dlg_ask->OKButton, &QPushButton::clicked, this, [=] {
+    connect(dlg_ask->OKButton, &QPushButton::clicked, this, [=, this] {
         QString cp = Utils::trimcapitilize(cpline->text().toUpper());
         QString nom = Utils::trimcapitilize(nomline->text());
         if (!ChercheDoublon(Utils::trimcapitilize(cpline->text()), Utils::trimcapitilize(nomline->text())))
@@ -406,7 +406,7 @@ void dlg_listevilles::ModifieVille(Ville *ville)
 void dlg_listevilles::EnregistreNouvelleVille()
 {
     dialogville("","");
-    connect(dlg_ask->OKButton, &QPushButton::clicked, this, [=] {
+    connect(dlg_ask->OKButton, &QPushButton::clicked, this, [=, this] {
         QString cp = Utils::trimcapitilize(cpline->text());
         QString nom = Utils::trimcapitilize(nomline->text());
         Ville *ville = Datas::I()->villes->enregistreNouvelleVille(cp, nom);
@@ -478,7 +478,7 @@ void dlg_listevilles::dialogville(QString cp, QString nom)
     dlg_ask                 ->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     dlg_ask                 ->setWindowTitle(tr("Enregistrement d'une localité"));
     dlg_ask->dlglayout()    ->setSizeConstraint(QLayout::SetFixedSize);
-    connect (nomline,       &QLineEdit::textEdited,                  this,   [=] {
+    connect (nomline,       &QLineEdit::textEdited,                  this,   [=, this] {
         QString txtTrim = Utils::trimcapitilize(nomline->text(),false);
 
         if (txtTrim != nomline->text()) {

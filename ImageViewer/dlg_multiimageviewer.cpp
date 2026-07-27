@@ -92,7 +92,7 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
     installEventFilter(this);
 
     connect (wdg_table,                     &QTableView::entered,               this,   &dlg_multiimageviewer::gettoolTipFromCursorPositionInTable);
-    connect (wdg_table,                     &QTableView::clicked,               this,   [=] (QModelIndex idx) {
+    connect (wdg_table,                     &QTableView::clicked,               this,   [=, this] (QModelIndex idx) {
         UpStandardItem *upitem      = dynamic_cast<UpStandardItem *>(m_Xmodel->itemFromIndex(idx));
         if (upitem == Q_NULLPTR)
             return;
@@ -113,8 +113,8 @@ dlg_multiimageviewer::dlg_multiimageviewer(QList<int> listiddocs, int idcurrentd
             removeItemsFromtTreeWidget(QList<UpStandardItem *>() << upitem);
         }
     });
-    connect (wdg_table->horizontalHeader(), &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkHorizontalHeader(idx);} );
-    connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=] (int idx) {checkVerticalHeader(idx);} );
+    connect (wdg_table->horizontalHeader(), &QHeaderView::sectionClicked,       this,   [=, this] (int idx) {checkHorizontalHeader(idx);} );
+    connect (wdg_table->verticalHeader(),   &QHeaderView::sectionClicked,       this,   [=, this] (int idx) {checkVerticalHeader(idx);} );
     setEnregPosition(true);
     setSaveGeometry(Nom_fiche_Viewer);
     //! Défaut au tout 1er affichage (aucune géométrie sauvegardée dans Rufus.ini -> originalgeometry()
@@ -635,7 +635,7 @@ QWidget* dlg_multiimageviewer::DockWidget(QList<DocExterne *> listdocs)
             wdg_display     ->installEventFilter(this);
             //! (barres masquées par le constructeur de DisplayWidget -> pas de barre permanente ici)
             wdg_display     ->setCursor(QCursor(Icons::pxZoomIn().scaled(30,30)));   //! loupe au survol (comme dlg_depenses)
-            connect(wdg_display, &DisplayWidget::clicked, this, [=] {ZoomDoc(wdg_display);});   //! clic -> mode zoom
+            connect(wdg_display, &DisplayWidget::clicked, this, [=, this] {ZoomDoc(wdg_display);});   //! clic -> mode zoom
             glaywidg        = wdg_display;
             glay            ->addWidget(glaywidg);
         }
@@ -712,7 +712,7 @@ void dlg_multiimageviewer::addItemsToTreeWidget(QList<UpStandardItem *> listupit
                                     * ->  DockWidget is called with only one document
     */
 
-    auto sstypdoc = [=] (DocExterne* doc) {
+    auto sstypdoc = [=, this] (DocExterne* doc) {
         return doc->soustypedoc().replace("OD","").replace("OG","");
     };
     controlChecks();
@@ -943,8 +943,8 @@ void dlg_multiimageviewer::ZoomDoc(QWidget *widg)
         imgzoom ->AjouteLayButtons(UpDialog::ButtonOK | UpDialog::ButtonRecord | UpDialog::ButtonPrint);
         imgzoom ->setListDocuments(listdocsToDisplay(), doc);
         connect(imgzoom->OKButton,      &UpSmallButton::clicked,    imgzoom,    &dlg_singleimageviewer::close);
-        connect(imgzoom->PrintButton,   &UpSmallButton::clicked,    this,       [=] {Procedures::I()->Print(doc->pagelist());});
-        connect(imgzoom->RecordButton,  &UpSmallButton::clicked,    this,       [=] {Procedures::I()->saveDocumentToFile(doc, imgzoom);});
+        connect(imgzoom->PrintButton,   &UpSmallButton::clicked,    this,       [=, this] {Procedures::I()->Print(doc->pagelist());});
+        connect(imgzoom->RecordButton,  &UpSmallButton::clicked,    this,       [=, this] {Procedures::I()->saveDocumentToFile(doc, imgzoom);});
         if (imgzoom->imagewidget())
         {
             imgzoom->imagewidget()->setOKwheelzoom(true);

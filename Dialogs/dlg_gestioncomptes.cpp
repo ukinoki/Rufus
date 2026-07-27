@@ -506,7 +506,7 @@ void dlg_gestioncomptes::RemplirTableView(int idcompte)
                 i++;
             }
         }
-        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, this, [=] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
+        connect(ui->ComptesuptableWidget, &QTableWidget::currentItemChanged, this, [=, this] {AfficheCompte(ui->ComptesuptableWidget->currentItem(),Q_NULLPTR);});
         if (idcompte > 0)
             ui->ComptesuptableWidget->setCurrentItem(ui->ComptesuptableWidget->findItems(QString::number(idcompte), Qt::MatchExactly).at(0));
         else if (m_userencours->idcomptepardefaut() > 0)

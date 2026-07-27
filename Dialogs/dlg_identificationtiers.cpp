@@ -69,10 +69,10 @@ dlg_identificationtiers::dlg_identificationtiers(Mode mode, Tiers *trs, QWidget 
 
     OKButton->disconnect();
     connect (OKButton,                  &QPushButton::clicked,              this,           &dlg_identificationtiers::OKpushButtonClicked);
-    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->NomlineEdit);});
-    connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse1lineEdit);});
-    connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse2lineEdit);});
-    connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=] {Majuscule(ui->Adresse3lineEdit);});
+    connect (ui->NomlineEdit,           &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->NomlineEdit);});
+    connect (ui->Adresse1lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse1lineEdit);});
+    connect (ui->Adresse2lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse2lineEdit);});
+    connect (ui->Adresse3lineEdit,      &UpLineEdit::TextModified,          this,           [=, this] {Majuscule(ui->Adresse3lineEdit);});
     connect (ui->NomlineEdit,           &QLineEdit::textEdited,             this,           &dlg_identificationtiers::EnableOKpushButton);
     connect (ui->Adresse1lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationtiers::EnableOKpushButton);
     connect (ui->Adresse2lineEdit,      &QLineEdit::textEdited,             this,           &dlg_identificationtiers::EnableOKpushButton);

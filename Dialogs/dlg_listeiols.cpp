@@ -181,7 +181,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
     PdfButton->setVisible(false); //! this button is here for testing import Iols from iolcon database. For testin, turn Visible property to true
 
     connect(OKButton,                       &QPushButton::clicked,      this,   &QDialog::accept);
-    connect(PdfButton,                      &QPushButton::clicked,      this,   [=] {
+    connect(PdfButton,                      &QPushButton::clicked,      this,   [=, this] {
                                                                                         QString desktop = QStandardPaths::standardLocations(QStandardPaths::DesktopLocation).at((0));
                                                                                         QString path_file_origin = QFileDialog::getOpenFileName(this, tr("Choisir un fichier"), desktop,  tr("Fichiers xml (*.xml)"));
                                                                                         if (path_file_origin != "")
@@ -203,7 +203,7 @@ dlg_listeiols::dlg_listeiols(bool onlyactifs, QWidget *parent) :
                                                                                             Datas::I()->iols->ImportListeIOLS(docxml, this);
                                                                                         }
                                                                                     });
-    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) {
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) {
                                                                                             wdg_buttonframe->searchline()->setText(txt);
                                                                                             ReconstruitTreeViewIOLs(txt);
                                                                                            });
@@ -335,11 +335,11 @@ void dlg_listeiols::Annulerlesfiltres()
 
 void dlg_listeiols::connectFiltersSignals()
 {
-    connect(wdg_manufacturerscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_typebox,            QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_prechargechk,       &UpCheckBox::checkStateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_toricchk,           &UpCheckBox::checkStateChanged,  this,   [=] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
-    connect(wdg_edofchk,            &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_manufacturerscombo, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=, this] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_typebox,            QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=, this] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_prechargechk,       &UpCheckBox::checkStateChanged,  this,   [=, this] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_toricchk,           &UpCheckBox::checkStateChanged,  this,   [=, this] { ReconstruitTreeViewIOLs(); wdg_annulfiltresbut->setEnabled(true);} );
+    connect(wdg_edofchk,            &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                       {
                                                                                         wdg_multifocalchk->setChecked(false);
                                                                                         wdg_monofocalchk->setChecked(false);
@@ -347,27 +347,27 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
-    connect(wdg_clairchk,           &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_clairchk,           &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                         wdg_jaunechk->setChecked(false);
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
-    connect(wdg_jaunechk,           &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_jaunechk,           &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                         wdg_clairchk->setChecked(false);
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
-    connect(wdg_singlepiecechk,     &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_singlepiecechk,     &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                         wdg_twopiecechk->setChecked(false);
                                                                                        ReconstruitTreeViewIOLs();
                                                                                        wdg_annulfiltresbut->setEnabled(true);
                                                                                      } );
-    connect(wdg_twopiecechk,        &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_twopiecechk,        &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                         wdg_singlepiecechk->setChecked(false);
                                                                                        ReconstruitTreeViewIOLs();
                                                                                        wdg_annulfiltresbut->setEnabled(true);
                                                                                       } );
-    connect(wdg_multifocalchk,      &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_multifocalchk,      &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                       {
                                                                                         wdg_edofchk->setChecked(false);
                                                                                         wdg_monofocalchk->setChecked(false);
@@ -375,7 +375,7 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
-    connect(wdg_monofocalchk,       &UpCheckBox::uptoggled,  this,      [=](bool a) { if(a)
+    connect(wdg_monofocalchk,       &UpCheckBox::uptoggled,  this,      [=, this](bool a) { if(a)
                                                                                       {
                                                                                         wdg_multifocalchk->setChecked(false);
                                                                                         wdg_edofchk->setChecked(false);
@@ -383,7 +383,7 @@ void dlg_listeiols::connectFiltersSignals()
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       wdg_annulfiltresbut->setEnabled(true);
                                                                                     } );
-    connect(wdg_pwrchk,           &UpCheckBox::uptoggled,  this,      [=](bool a) {   wdg_pwrslider->setEnabled(a);
+    connect(wdg_pwrchk,           &UpCheckBox::uptoggled,  this,      [=, this](bool a) {   wdg_pwrslider->setEnabled(a);
                                                                                       m_filterbypwr = a;
                                                                                       ReconstruitTreeViewIOLs();
                                                                                       if (a)
@@ -505,7 +505,7 @@ void dlg_listeiols::ModifIOL(IOL *iol)
             m_listemodifiee = true;
             wdg_manufacturerscombo->disconnect(this);
             wdg_manufacturerscombo->setCurrentIndex(0);
-            connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
+            connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=, this] { ReconstruitTreeViewIOLs(); } );
     }
     iol = Datas::I()->iols->getById(Dlg_IdentIOL->idcurrentIOL(), true);
     if (iol)
@@ -579,7 +579,7 @@ void dlg_listeiols::SupprIOL(IOL *iol)
         m_listemodifiee = true;
         wdg_manufacturerscombo->disconnect(this);
         wdg_manufacturerscombo->setCurrentIndex(0);
-        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=] { ReconstruitTreeViewIOLs(); } );
+        connect(wdg_manufacturerscombo,  QOverload<int>::of(&QComboBox::currentIndexChanged), this, [=, this] { ReconstruitTreeViewIOLs(); } );
         ReconstruitTreeViewIOLs();
     }
 }
@@ -762,7 +762,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
     {
         m_IOLsmodel->sort(0);
         m_IOLsmodel->sort(1);
-        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=] (QModelIndex idx) { QStandardItem *item = m_IOLsmodel->itemFromIndex(idx);   //! peut être nul (index invalide) → on garde avant d'appeler hasChildren()
+        connect(wdg_itemstree,    &QAbstractItemView::entered,       this,   [=, this] (QModelIndex idx) { QStandardItem *item = m_IOLsmodel->itemFromIndex(idx);   //! peut être nul (index invalide) → on garde avant d'appeler hasChildren()
                                                                                                      if (item && !item->hasChildren())
                                                                                                         {
                                                                                                             IOL*iol = getIOLFromIndex(idx);
@@ -777,7 +777,7 @@ void dlg_listeiols::ReconstruitTreeViewIOLs(QString filtre)
                                                                                                         }
                                                                                                     } );
         connect(wdg_itemstree->selectionModel(),    &QItemSelectionModel::currentChanged,       this,   &dlg_listeiols::Enablebuttons);
-        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=] (QModelIndex idx) { QStandardItem *item = m_IOLsmodel->itemFromIndex(idx);   //! peut être nul → on garde
+        connect(wdg_itemstree,    &QAbstractItemView::doubleClicked, this,   [=, this] (QModelIndex idx) { QStandardItem *item = m_IOLsmodel->itemFromIndex(idx);   //! peut être nul → on garde
                                                                                                      if (item && !item->hasChildren())
                                                                                                             ModifIOL(getIOLFromIndex(idx)); });
     }

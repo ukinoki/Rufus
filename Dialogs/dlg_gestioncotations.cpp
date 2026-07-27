@@ -64,9 +64,9 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     dlglayout()     ->replaceWidget(widgetbuttons(), wdg_groupmode);
     //! changer de mode réapplique la présentation ET recalcule les montants (remplitDepuisCCAM fait
     //! return en mode « autre », donc inoffensif là)
-    connect(wdg_chkCCAM,    &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 1; appliqueMode(); remplitDepuisCCAM();}});
-    connect(wdg_chkAssoc,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 2; appliqueMode(); remplitDepuisCCAM();}});
-    connect(wdg_chkAutre,   &QCheckBox::toggled, this, [=] (bool c) {if (c) {m_typecotation = 4; appliqueMode(); remplitDepuisCCAM();}});
+    connect(wdg_chkCCAM,    &QCheckBox::toggled, this, [=, this] (bool c) {if (c) {m_typecotation = 1; appliqueMode(); remplitDepuisCCAM();}});
+    connect(wdg_chkAssoc,   &QCheckBox::toggled, this, [=, this] (bool c) {if (c) {m_typecotation = 2; appliqueMode(); remplitDepuisCCAM();}});
+    connect(wdg_chkAutre,   &QCheckBox::toggled, this, [=, this] (bool c) {if (c) {m_typecotation = 4; appliqueMode(); remplitDepuisCCAM();}});
 
     //! fabriques de lignes de saisie : même présentation d'une ligne à l'autre, sans la répéter.
     //! ligneCode  : label + champ code + bouton « ... » (appel de la table CCAM) ;
@@ -90,9 +90,9 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
         lay     ->insertWidget(3, bouton);
         lay     ->setContentsMargins(0,0,0,0);
         widg    ->setLayout(lay);
-        connect(edit,   &QLineEdit::textEdited,      this, [=] {regleOK();});
-        connect(edit,   &QLineEdit::editingFinished, this, [=] {remplitDepuisCCAM();});
-        connect(bouton, &QPushButton::clicked,       this, [=] {appelleTableCCAM(edit);});
+        connect(edit,   &QLineEdit::textEdited,      this, [=, this] {regleOK();});
+        connect(edit,   &QLineEdit::editingFinished, this, [=, this] {remplitDepuisCCAM();});
+        connect(bouton, &QPushButton::clicked,       this, [=, this] {appelleTableCCAM(edit);});
         dlglayout()->addWidget(widg);
     };
     auto ligneMontant = [&] (UpLineEdit *&edit, QWidget *&widg, UpLabel *label) {
@@ -107,7 +107,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
         lay     ->insertWidget(2, edit);
         lay     ->setContentsMargins(0,0,0,0);
         widg    ->setLayout(lay);
-        connect(edit, &QLineEdit::textEdited, this, [=] {regleOK();});
+        connect(edit, &QLineEdit::textEdited, this, [=, this] {regleOK();});
         dlglayout()->addWidget(widg);
     };
 
@@ -136,7 +136,7 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     tiplay          ->insertWidget(2, wdg_tipline);
     tiplay          ->setContentsMargins(0,0,0,0);
     wdg_tipwidg     ->setLayout(tiplay);
-    connect(wdg_tipline, &QTextEdit::textChanged, this, [=] {regleOK();});
+    connect(wdg_tipline, &QTextEdit::textChanged, this, [=, this] {regleOK();});
     wdg_tipline     ->installEventFilter(this);      //! focus -> curseur en fin de texte (cf. eventFilter)
     dlglayout()     ->addWidget(wdg_tipwidg);
 
@@ -148,8 +148,8 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     dlglayout()     ->addWidget(widgetbuttons());
     OKButton        ->setEnabled(false);
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
-    connect(OKButton,       &QPushButton::clicked,  this,   [=] {if (VerifFiche()) accept();});
-    connect(CancelButton,   &QPushButton::clicked,  this,   [=] {reject();});
+    connect(OKButton,       &QPushButton::clicked,  this,   [=, this] {if (VerifFiche()) accept();});
+    connect(CancelButton,   &QPushButton::clicked,  this,   [=, this] {reject();});
 
     if (m_mode == Modification)
     {
@@ -469,7 +469,7 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     titrelay        ->addWidget(wdg_ophtaseul);
     titrelay        ->setContentsMargins(0,0,0,0);
     titrewidg       ->setLayout(titrelay);
-    connect(wdg_ophtaseul,  &QCheckBox::clicked, this, [=] (bool b) {filtreOphta(b);});
+    connect(wdg_ophtaseul,  &QCheckBox::clicked, this, [=, this] (bool b) {filtreOphta(b);});
     dlglayout()     ->addWidget(titrewidg);
 
     //! --- table des actes CCAM, précédée du petit repère de gauche (horizontalLayout_13) ---
@@ -487,16 +487,16 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     tablelay        ->insertWidget(1, wdg_table);
     tablelay        ->setContentsMargins(0,0,0,0);
     tablewidg       ->setLayout(tablelay);
-    connect(wdg_table, &QTableWidget::itemSelectionChanged, this, [=] {selectionChangee();});
+    connect(wdg_table, &QTableWidget::itemSelectionChanged, this, [=, this] {selectionChangee();});
     //! double-clic sur une ligne : sélectionne (via la cellule courante) et valide comme OK
-    connect(wdg_table, &QAbstractItemView::doubleClicked, this, [=] (QModelIndex idx) {
+    connect(wdg_table, &QAbstractItemView::doubleClicked, this, [=, this] (QModelIndex idx) {
         wdg_table->setCurrentCell(idx.row(), 0);
         if (!m_codechoisi.isEmpty())
             accept();
     });
     //! survol souris : infobulle immédiate avec le libellé de l'acte (colonne masquée), comme la table
     //! des cotations de dlg_param (mouseTracking + signal entered)
-    connect(wdg_table, &QAbstractItemView::entered, this, [=] (QModelIndex idx) {
+    connect(wdg_table, &QAbstractItemView::entered, this, [=, this] (QModelIndex idx) {
         QTableWidgetItem *lib = wdg_table->item(idx.row(), 3);
         if (lib)
             QToolTip::showText(QCursor::pos(), lib->text(), wdg_table, QRect(QCursor::pos(), QSize(10,10)), 2000);
@@ -520,9 +520,9 @@ dlg_choixccam::dlg_choixccam(QWidget *parent) :
     dlglayout()     ->addWidget(widgetbuttons());
     OKButton        ->setEnabled(false);         //! actif seulement quand une ligne est sélectionnée
     dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
-    connect(searchline(),   &QLineEdit::textChanged, this, [=] (QString t) {chercheEtSelectionne(t.trimmed());});
-    connect(OKButton,       &QPushButton::clicked, this, [=] {accept();});
-    connect(CancelButton,   &QPushButton::clicked, this, [=] {reject();});
+    connect(searchline(),   &QLineEdit::textChanged, this, [=, this] (QString t) {chercheEtSelectionne(t.trimmed());});
+    connect(OKButton,       &QPushButton::clicked, this, [=, this] {accept();});
+    connect(CancelButton,   &QPushButton::clicked, this, [=, this] {reject();});
 
     //! seule la ligne de recherche prend le focus (clavier) ; les autres widgets restent cliquables à la
     //! souris mais ne le captent pas. Elle a le focus dès l'ouverture -> on peut taper tout de suite.

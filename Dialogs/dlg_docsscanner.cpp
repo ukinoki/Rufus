@@ -98,7 +98,7 @@ dlg_docsscanner::dlg_docsscanner(Item *item, Mode mode, QString titre, QWidget *
     QHBoxLayout     *titreLay       = new QHBoxLayout();
     QHBoxLayout     *typeLay        = new QHBoxLayout();
 
-    connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=] {NavigueVers(wdg_toolbar->choice());});
+    connect(wdg_toolbar, &UpToolBar::TBSignal, this, [=, this] {NavigueVers(wdg_toolbar->choice());});
 
     wdg_toolbar         ->setMinimumHeight(30);
     wdg_dirsearchbutton ->setFixedHeight(30);

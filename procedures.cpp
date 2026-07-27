@@ -161,14 +161,14 @@ Procedures::Procedures(QObject *parent) :
             versiondlg->dlglayout()     ->insertWidget(0,gbox);
             versiondlg->dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
             frbutt                      ->setChecked(true);   //! français par défaut (OK actif d'emblée)
-            connect(frbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-            connect(enbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-            connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-            connect(brbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-            connect(ptbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-            connect(itbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
-            connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
-            connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=] {
+            connect(frbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
+            connect(enbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
+            connect(esbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
+            connect(brbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
+            connect(ptbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
+            connect(itbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
+            connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=, this] {exit(0);});
+            connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=, this] {
                 if (frbutt->isChecked())
                         m_version = "FR";
                 else if (enbutt->isChecked())
@@ -492,7 +492,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             lblvolvid->setText(Utils::getExpressionSize(m_videossize));
             layVideos->addWidget(lblvolvid);
             dlg_buprestore->dlglayout()->insertLayout(0, layVideos);
-            connect(Videoschk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
+            connect(Videoschk, &UpCheckBox::clicked, this, [=, this] {CalcTimeBupRestore();});
         }
     }
     if (OKimages)
@@ -518,7 +518,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             lblvolimg->setText(Utils::getExpressionSize(m_imagessize));
             layImges->addWidget(lblvolimg);
             dlg_buprestore->dlglayout()->insertLayout(0, layImges);
-            connect(Imgeschk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
+            connect(Imgeschk, &UpCheckBox::clicked, this, [=, this] {CalcTimeBupRestore();});
         }
     }
     if (OKfactures)
@@ -544,7 +544,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
             lblvolfct->setText(Utils::getExpressionSize(m_facturessize));
             layFctures->addWidget(lblvolfct);
             dlg_buprestore->dlglayout()->insertLayout(0, layFctures);
-            connect(Fctureschk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
+            connect(Fctureschk, &UpCheckBox::clicked, this, [=, this] {CalcTimeBupRestore();});
         }
     }
 
@@ -575,7 +575,7 @@ void Procedures::AskBupRestore(BkupRestore op, QString pathorigin, QString pathd
     layVolumeLibre->addWidget(wdg_volumelibrelbl);
     dlg_buprestore->dlglayout()->insertLayout(dlg_buprestore->dlglayout()->count()-1, layVolumeLibre);
 
-    connect(BDDchk, &UpCheckBox::clicked, this, [=] {CalcTimeBupRestore();});
+    connect(BDDchk, &UpCheckBox::clicked, this, [=, this] {CalcTimeBupRestore();});
 
     dlg_buprestore->setFixedWidth(400);
     dlg_buprestore->AjouteLayButtons(UpDialog::ButtonOK);
@@ -668,7 +668,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! sur gros dump), compte les marqueurs mysqldump « Table structure for table `X` » et affiche
         //! « xxx/N — table X ».
         QTimer *pollbkp = new QTimer(this);
-        connect(pollbkp, &QTimer::timeout, this, [=]() {
+        connect(pollbkp, &QTimer::timeout, this, [=, this]() {
             const QByteArray marqueur = "Table structure for table `";
             for (const QString& f : QDir(pathbackupbase).entryList(QStringList() << "*.sql", QDir::Files))
             {
@@ -704,7 +704,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! manuel — d'où l'échec des versions synchrones). Le slot `result`, à la fin du dump, ferme la
         //! fiche, notifie, et libère timer/fiche/état.
         m_ostask.disconnect(SIGNAL(result(const int &)));
-        connect(&m_ostask, &OsTask::result, this, [=](int a) {
+        connect(&m_ostask, &OsTask::result, this, [=, this](int a) {
             pollbkp->stop();
             pollbkp->deleteLater();
             bkpdial->setValue(totalTables);
@@ -1279,7 +1279,7 @@ void Procedures::ParamAutoBackup()
                                   * si on le lance toutes les 60", il est possible que le timer ne soit pas lancé dans la minute définie pour la sauvegarde.
                                   * En le lançant toutes les 30", ça marche.
                                   * C'est de la bidouille, je sais */
-    connect(&t_timerbackup, &TimerController::timeout, this, [=] {BackupWakeUp();});
+    connect(&t_timerbackup, &TimerController::timeout, this, [=, this] {BackupWakeUp();});
 
     /*! la suite n'est plus utilisée depuis OsX Catalina parce que OsX Catalina n'accepte plus les launchagents
 #ifdef Q_OS_MACOS
@@ -1878,7 +1878,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(gAsk->OKButton, &QPushButton::clicked,  gAsk,       &QDialog::accept);
     if (ConnectAuSignal)
-        connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
+        connect(this,       &Procedures::ModifEdit, TxtEdit,    [=, this](QString txt) {TxtEdit->setText(txt);});
     gAsk->restoreGeometry(m_settings->value(geometry).toByteArray());
 
     if (gAsk->exec() == QDialog::Accepted)
@@ -2014,7 +2014,7 @@ bool Procedures::Imprimer_Document(QWidget *parent, Patient *pat, User * user, Q
 
 bool Procedures::createPdfFromListImage(QList<QImage> listimage, QMap<QString, QString> map, QWidget *parent)
 {
-    auto creepdf = [=] (QPrinter &printer)
+    auto creepdf = [=, this] (QPrinter &printer)
     {
         QPainter PrintingPreView(&printer);
         for (int i=0; i<listimage.size();++i)
@@ -2066,7 +2066,7 @@ bool Procedures::Print(QList<QImage> listimage)
         m_printer             = new QPrinter(QPrinter::HighResolution);
         m_printer             ->setFullPage(true);
     }
-    auto print = [=]
+    auto print = [=, this]
     {
         QPainter PrintingPreView(m_printer);
         for (int i=0; i<listimage.size();++i)
@@ -2086,7 +2086,7 @@ bool Procedures::Print(QList<QImage> listimage)
     {
         QPrintPreviewDialog *dialog = new QPrintPreviewDialog(m_printer);
         dialog->setWindowFlags(Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint);
-        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=] {print();});
+        connect(dialog, &QPrintPreviewDialog::paintRequested, this,   [=, this] {print();});
         if (dialog->exec() == QDialog::Accepted)
             delete dialog;
         else {
@@ -5386,7 +5386,7 @@ void Procedures::Ouverture_Appareils_Refraction()
     Ouverture_Fichiers_Echange();
     m_hasappareilrefractionconnecte = m_devicesCOM >0 || m_devicesLAN >0;
     if (m_hasappareilrefractionconnecte)
-        connect(Nidek::I(), &GenericProtocol::newmesure, this, [=](GenericProtocol::TypeMesure typ) {InsertMesure(typ);});
+        connect(Nidek::I(), &GenericProtocol::newmesure, this, [=, this](GenericProtocol::TypeMesure typ) {InsertMesure(typ);});
 }
 
 
@@ -5590,7 +5590,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
         {
             t_filewatchtimer.start(1000);
             connect(&t_filewatchtimer,  &QTimer::timeout,     this,
-                    [=]
+                    [=, this]
             {
                 if (m_devicesLAN.testFlag(Autoref) && pathdirautoref != "")
                 {
@@ -5629,7 +5629,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
         disconnect(&m_filewatcherrefracteur,    &QFileSystemWatcher::directoryChanged, nullptr, nullptr);
         disconnect(&m_filewatchertono,          &QFileSystemWatcher::directoryChanged, nullptr, nullptr);
         if (m_devicesLAN.testFlag(Autoref) && pathdirautoref != "")
-            connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=]
+            connect(&m_filewatcherautoref,      &QFileSystemWatcher::directoryChanged,  this,   [=, this]
             {
                 QStringList listfichxml = QDir(pathdirautoref).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
@@ -5647,7 +5647,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
             });
 
         if (m_devicesLAN.testFlag(Fronto) && pathdirfronto != "")
-            connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
+            connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=, this]
             {
                 QStringList formats;
                 formats <<"*.xml";
@@ -5667,7 +5667,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
             });
 
         if (m_devicesLAN.testFlag(Refracteur) && pathdirrefracteur != "")
-            connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=]
+            connect(&m_filewatcherrefracteur,   &QFileSystemWatcher::directoryChanged,  this,   [=, this]
             {
                 QStringList listfichxml = QDir(pathdirrefracteur).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
@@ -5684,7 +5684,7 @@ bool Procedures::Ouverture_Fichiers_Echange(QWidget *parent)
             });
 
         if (m_devicesLAN.testFlag(Tonometre) && pathdirtono != "")
-            connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=]
+            connect(&m_filewatcherfronto,       &QFileSystemWatcher::directoryChanged,  this,   [=, this]
             {
                 QStringList listfichxml = QDir(pathdirtono).entryList(QStringList() <<"*.xml", QDir::Files | QDir::NoDotAndDotDot);
                 if (listfichxml.size())
@@ -6196,7 +6196,7 @@ void Procedures::setSerialPortValueFromQSettings(Utils::SerialSettings &comset, 
 bool Procedures::setSerialPortSettingsValueFromIndex(QString prop, QString &idxstring, TypeAppareil typ)                   /*! set SerialPort value in QSettings from index in QserialPort metaobject metaenum */
 {
     QString value = Utils::stringKeyFromEnumIndexSP(prop, idxstring.toInt());
-    auto setValue = [=](QString setkey, QString val){
+    auto setValue = [=, this](QString setkey, QString val){
         if (val == QString())
             m_settings->remove(setkey);
         else

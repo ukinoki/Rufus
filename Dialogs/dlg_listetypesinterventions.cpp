@@ -50,7 +50,7 @@ dlg_listetypesinterventions::dlg_listetypesinterventions(TypeIntervention *typ, 
     connect (OKButton,          &QPushButton::clicked,      this,   &dlg_listetypesinterventions::Validation);
     connect (CancelButton,      &QPushButton::clicked,      this,   &dlg_listetypesinterventions::Annulation);
     connect (wdg_buttonframe,   &WidgetButtonFrame::choix,  this,   &dlg_listetypesinterventions::ChoixButtonFrame);
-    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
+    connect(wdg_buttonframe->searchline(),  &QLineEdit::textEdited,     this,   [=, this] (QString txt) { txt = Utils::trimcapitilize(txt, false, true);
                                                                                                     wdg_buttonframe->searchline()->setText(txt);
                                                                                                     for (auto it = Datas::I()->typesinterventions->typeinterventions()->constBegin(); it != Datas::I()->typesinterventions->typeinterventions()->constEnd(); ++it)
                                                                                                     {
@@ -469,7 +469,7 @@ void dlg_listetypesinterventions::RemplirTableView()
                                                                                                                             wdg_buttonframe->searchline()->setText(m_currenttype->typeintervention());
                                                                                                                         }
                                                                                                                         });
-       connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=] (QModelIndex idx) {
+       connect(wdg_tblview,                    &QAbstractItemView::doubleClicked,      this,   [=, this] (QModelIndex idx) {
             TypeIntervention *typ = getTypeFromIndex(idx);
             if (typ)
             {
