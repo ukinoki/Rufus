@@ -3357,7 +3357,7 @@ void dlg_paiementdirect::NettoieVerrousCompta()
     -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
 void dlg_paiementdirect::RemetToutAZero()
 {
-    auto  VideTable = [=, this](QTableWidget* table){
+    auto  VideTable = [=](QTableWidget* table){
         int cols = table->columnCount();
         int rows = table->rowCount();
         for (int i= 0; i<rows; i++)

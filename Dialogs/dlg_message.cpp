@@ -106,7 +106,7 @@ void ShowMessage::SplashMessage(QString msg, int duree, bool centre)
         const QRect z = QGuiApplication::primaryScreen()->availableGeometry();
         dlg             ->move(z.center().x() - tx/2, z.center().y() - ty/2);
         dlg             ->show();
-        QTimer::singleShot(duree, dlg, [=, this] {dlg->close();});
+        QTimer::singleShot(duree, dlg, [=] {dlg->close();});
     }
     else                    //! en bas à droite, empilés (notifications discrètes)
     {
@@ -194,7 +194,7 @@ void ShowMessage::PriorityMessage(QString msg, qintptr &idmessage, int duree, QW
     QTime dieTime = QTime::currentTime().addMSecs(msec);
     while (QTime::currentTime() < dieTime)
         QCoreApplication::processEvents(QEventLoop::AllEvents, 10);
-    connect(this,   &ShowMessage::closeprioiritydlg, prioritydlg, [=, this](qintptr a) { if (idmessage == a) {
+    connect(this,   &ShowMessage::closeprioiritydlg, prioritydlg, [=](qintptr a) { if (idmessage == a) {
             if (prioritydlg->parent() != Q_NULLPTR)
                 qobject_cast<QWidget*>(prioritydlg->parent())->setEnabled(true);
             prioritydlg->reject();

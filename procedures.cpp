@@ -161,13 +161,13 @@ Procedures::Procedures(QObject *parent) :
             versiondlg->dlglayout()     ->insertWidget(0,gbox);
             versiondlg->dlglayout()     ->setSizeConstraint(QLayout::SetFixedSize);
             frbutt                      ->setChecked(true);   //! français par défaut (OK actif d'emblée)
-            connect(frbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
-            connect(enbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
-            connect(esbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
-            connect(brbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
-            connect(ptbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
-            connect(itbutt, &QRadioButton::clicked, versiondlg, [=, this] {versiondlg->OKButton->setEnabled(true);});
-            connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=, this] {exit(0);});
+            connect(frbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(enbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(esbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(brbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(ptbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect(itbutt, &QRadioButton::clicked, versiondlg, [=] {versiondlg->OKButton->setEnabled(true);});
+            connect (versiondlg->CancelButton,   &QPushButton::clicked,   versiondlg, [=] {exit(0);});
             connect (versiondlg->OKButton,   &QPushButton::clicked,   versiondlg, [=, this] {
                 if (frbutt->isChecked())
                         m_version = "FR";
@@ -668,7 +668,7 @@ bool Procedures::Backup(QString pathdirdestination, bool OKBase, bool OKImages, 
         //! sur gros dump), compte les marqueurs mysqldump « Table structure for table `X` » et affiche
         //! « xxx/N — table X ».
         QTimer *pollbkp = new QTimer(this);
-        connect(pollbkp, &QTimer::timeout, this, [=, this]() {
+        connect(pollbkp, &QTimer::timeout, this, [=]() {
             const QByteArray marqueur = "Table structure for table `";
             for (const QString& f : QDir(pathbackupbase).entryList(QStringList() << "*.sql", QDir::Files))
             {
@@ -1878,7 +1878,7 @@ QString Procedures::Edit(QString txt, QString titre, bool editable, bool Connect
     gAsk->AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
     connect(gAsk->OKButton, &QPushButton::clicked,  gAsk,       &QDialog::accept);
     if (ConnectAuSignal)
-        connect(this,       &Procedures::ModifEdit, TxtEdit,    [=, this](QString txt) {TxtEdit->setText(txt);});
+        connect(this,       &Procedures::ModifEdit, TxtEdit,    [=](QString txt) {TxtEdit->setText(txt);});
     gAsk->restoreGeometry(m_settings->value(geometry).toByteArray());
 
     if (gAsk->exec() == QDialog::Accepted)
@@ -4888,15 +4888,6 @@ int Procedures::idCentre()
 /*-----------------------------------------------------------------------------------------------------------------
 -- Premier démarrage de Rufus - reconstruction du fichier Rufus.ini et de la base ---------------------------------
 -----------------------------------------------------------------------------------------------------------------*/
-//! Arguments de relancement, DÉBARRASSÉS du drapeau one-shot « -installMySQL » : sans ce
-//! filtrage, une relance qui reporte arguments() rebouclerait indéfiniment sur l'installation.
-static QStringList argsRelance()
-{
-    QStringList a = QApplication::arguments().mid(1);
-    a.removeAll(QStringLiteral("-installMySQL"));
-    return a;
-}
-
 bool Procedures::PremierDemarrage(bool forceBaseVierge)
 {
     if (forceBaseVierge)
