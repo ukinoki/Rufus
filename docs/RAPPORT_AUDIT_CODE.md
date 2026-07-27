@@ -31,8 +31,8 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 | 1 | ~~Suppression en cours d'itération dans `CleanSalleDAttente`~~ **→ corrigé** | 🔴 | — | `rufus.cpp` |
 | 2 | ~~Double `delete` dans `dlg_actesprecedents`~~ **→ corrigé** | 🔴 | — | `Dialogs/dlg_actesprecedents.cpp` |
 | 3 | ~~**Faire remonter les erreurs SQL à l'écran**~~ **→ corrigé** (rend visibles ~750 requêtes muettes) | 🔴 | — | `Database/database.cpp:116` |
-| 4 | `split().at()` non gardés sur les noms de fichiers d'imagerie | 🔴 | 1 helper | `importdocsexternes.cpp` |
-| 5 | Verrou de dossier sauté dans le cas le plus fréquent | 🔴 | déplacer un bloc | `rufus.cpp:7667` |
+| 4 | ~~`split().at()` non gardés sur les noms de fichiers d'imagerie~~ **→ corrigé** | 🔴 | — | `importdocsexternes.cpp` |
+| 5 | ~~Verrou de dossier sauté dans le cas le plus fréquent~~ **→ corrigé** | 🔴 | — | `rufus.cpp` |
 | 6 | Copie d'image non vérifiée avant suppression de l'original | 🟠 | `bool` de retour | `utils.cpp:1183` |
 | 7 | `commit()` jamais contrôlé | 🟠 | `bool` de retour | `Database/database.cpp:404` |
 | 8 | Suppression d'un dossier patient sans transaction | 🔴 | copier un patron | `ItemsLists/cls_patients.cpp:169` |
@@ -65,6 +65,19 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
   abandonnés récupérables, et contrôle anti-double encaissement à la validation
   (`SELECT … FOR UPDATE`). Traite le bug `selectidActe` (§6) et une bonne part des
   constats de la §4 (verrous relâchés, INSERT concurrent).
+
+- ✓ **`split().at()` non gardés** (`importdocsexternes.cpp`) — des `size() > N` protègent
+  désormais chaque `.at(N)` : un nom de fichier d'imagerie non conforme ne plante plus le
+  scan (qui tourne toutes les 2,5 s dans le thread graphique).
+
+- ✓ **Verrou de dossier sauté** (`rufus.cpp`, `OuvrirDossier`) — la boucle de vérification
+  a été sortie du `else` : elle s'exécute maintenant dans tous les cas avant `AfficheDossier`,
+  y compris sur le chemin « je ferme A, j'ouvre B ». Deux soignants ne peuvent plus ouvrir le
+  même dossier sans message.
+
+- ✓ **errormsg auto** (`source_location`, C++20) — les génériques SQL rapportent tout seuls
+  leur fonction appelante ; `ItemsList::update` étiquette par le type d'item (`"update Acte"`…).
+  Rend traçable la quasi-totalité des requêtes sans balayage manuel.
 
 ---
 
@@ -452,7 +465,8 @@ Le meilleur rapport bénéfice/effort, dans l'ordre :
 ## Plan d'action recommandé (ordre de priorité)
 
 1. ~~**Les deux plantages certains**~~ — *fait* : `CleanSalleDAttente` et `dlg_actesprecedents`.
-2. ~~**Rendre les erreurs SQL visibles**~~ — *fait* : le multiplicateur qui révèle tout le reste.
-3. **Le verrou de dossier sauté** (déplacer un bloc hors du `else`).
+2. ~~**Rendre les erreurs SQL visibles**~~ — *fait* (+ étiquetage auto `source_location`).
+3. ~~**Le verrou de dossier sauté**~~ — *fait*. ~~**`split().at()` non gardés**~~ — *fait*.
 4. **La sauvegarde chiffrée** : le plus grand gain de sécurité pour le moindre effort.
-5. **Au fil de l'eau** : transactions côté dossier médical, `bool` de retour sur `copy`/`commit`.
+5. **Au fil de l'eau** : `observation perdue après échec` (§1), transactions côté dossier
+   médical, `bool` de retour sur `copy`/`commit`.
