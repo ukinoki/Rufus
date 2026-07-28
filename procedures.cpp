@@ -4223,18 +4223,23 @@ bool Procedures::IdentificationUser()
         Datas::I()->motscles            ->initListe();
         Datas::I()->typesinterventions  ->initListe();
         Datas::I()->refractiondevices   ->initListe();
-        //! cotations, une fois au lancement : (1) MAJ de la base depuis le fichier xml ; (2) chargement
-        //! de la map à jour ; (3) remplissage des Tip vides UNIQUEMENT si le fichier a été traité
-        //! (sinon il l'était déjà à un lancement précédent -> inutile de re-parser le xml)
-        const bool cotationsTraitees = DataBase::I()->verifMajCotations();   //! Action 1 : MAJ base cotations (CCAM/NGAP)
-        DataBase::I()                   ->corrigeMontantsPratiques();        //! invariant : pratiqué >= conventionnel (indépendant de la MAJ, à chaque démarrage)
-        Datas::I()->cotations           ->initListe();
-        if (cotationsTraitees)
+        //! la MAJ des cotations (CCAM / NGAP) est franco-française : hors France (version internationale)
+        //! le fichier de cotations ne concerne pas le poste -> on ne vérifie rien.
+        if (m_parametres->cotationsfrance())
         {
-            Datas::I()->cotations       ->completeTipsManquants();   //! Action 2 : Tip vides, dans la foulée de la MAJ et nulle part ailleurs
-            //! on n'a pas demandé la permission : on prévient simplement, au centre de l'écran
-            ShowMessage::I()            ->SplashMessage(tr("La base de cotations Rufus a été mise à jour."), 4000, true);
+            //! cotations, une fois au lancement : (1) MAJ de la base depuis le fichier xml ; (2) chargement
+            //! de la map à jour ; (3) remplissage des Tip vides UNIQUEMENT si le fichier a été traité
+            //! (sinon il l'était déjà à un lancement précédent -> inutile de re-parser le xml)
+            const bool cotationsTraitees = DataBase::I()->verifMajCotations();   //! Action 1 : MAJ base cotations (CCAM/NGAP)
+            DataBase::I()                   ->corrigeMontantsPratiques();        //! invariant : pratiqué >= conventionnel (indépendant de la MAJ, à chaque démarrage)
+            if (cotationsTraitees)
+            {
+                Datas::I()->cotations       ->completeTipsManquants();   //! Action 2 : Tip vides, dans la foulée de la MAJ et nulle part ailleurs
+                //! on n'a pas demandé la permission : on prévient simplement, au centre de l'écran
+                ShowMessage::I()            ->SplashMessage(tr("La base de cotations Rufus a été mise à jour."), 4000, true);
+            }
         }
+        Datas::I()->cotations           ->initListe();
         MAJComptesBancaires(currentuser());
         m_applicationfont = currentuser()->police();
         qApp->setFont(m_applicationfont);

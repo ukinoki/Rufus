@@ -972,11 +972,6 @@ bool DataBase::verifMajCotations()
     if (!m_db.isOpen())
         return false;
 
-    //! la MAJ des cotations (CCAM / NGAP) est franco-française : hors France (version internationale)
-    //! le fichier de cotations ne concerne pas le poste -> on ne vérifie rien.
-    if (!parametres()->cotationsfrance())
-        return false;
-
     //! garde quotidienne : on ne relit le fichier de cotations qu'une fois par jour. La date de
     //! dernière vérification dépend de la BASE (cotations partagées), pas du poste -> on la range dans
     //! la section du mode d'accès à cette base (un même poste peut viser 2 bases), pas dans Param_Poste.
@@ -2831,18 +2826,14 @@ QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
 */
 QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
  {
-     int k = 0;
      QList<Cotation*> cotations = QList<Cotation*>();
      if (usr == Q_NULLPTR)
          return cotations;
-     bool optam = usr->isOPTAM();
-     int secteur = usr->secteurconventionnel();
-     //qDebug() << optam << secteur;
 
-     QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_COTATIONS ", "
+     QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS ", "
                      CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
                      " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
-                     " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
+                     " where " CP_IDUSER_JOINTCCAM " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
                      " order by " CP_TYPEACTE_COTATIONS;
     //qDebug() << req;
     QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
@@ -2850,19 +2841,16 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         return cotations;
     for (int i=0; i<cotlist.size(); ++i)
     {
-        ++k;
         QJsonObject jcotation{};
-        jcotation["id"]                     = k;
-        jcotation["idcotation"]             = cotlist.at(i).at(0).toInt();
-        jcotation["typeacte"]               = cotlist.at(i).at(1).toString();
-        jcotation["montantconventionnel"]   = ((secteur > 1) && optam? cotlist.at(i).at(2).toDouble() : cotlist.at(i).at(3).toDouble());
-        jcotation["montantoptam"]           = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"]        = cotlist.at(i).at(3).toDouble();
-        jcotation["montantpratique"]        = (secteur < 2? cotlist.at(i).at(2).toDouble() :cotlist.at(i).at(4).toDouble());
-        jcotation["ccam"]                   = cotlist.at(i).at(5).toInt();   //! type de cotation (1/2/3/4)
-        jcotation["iduser"]                 = usr->id();
-        jcotation["frequence"]              = cotlist.at(i).at(6).toInt();
-        jcotation["descriptif"]             = cotlist.at(i).at(7).toString();
+        jcotation[CP_ID_COTATIONS]                      = cotlist.at(i).at(0).toInt();
+        jcotation[CP_TYPEACTE_COTATIONS]                = cotlist.at(i).at(1).toString();
+        jcotation[CP_MONTANTOPTAM_CCAM]                 = cotlist.at(i).at(2).toDouble();
+        jcotation[CP_MONTANTNONOPTAM_CCAM]              = cotlist.at(i).at(3).toDouble();
+        jcotation[CP_MONTANTPRATIQUE_JOINTCOTATIONS]    = cotlist.at(i).at(4).toDouble();
+        jcotation[CP_TYPECOTATION_COTATIONS]            = cotlist.at(i).at(5).toInt();   //! type de cotation (1/2/3/4)
+        jcotation[CP_IDUSER_COTATIONS]                  = usr->id();
+        jcotation[CP_FREQUENCE_COTATIONS]               = cotlist.at(i).at(6).toInt();
+        jcotation[CP_TIP_COTATIONS]                     = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
          if (cotation != Q_NULLPTR)
             cotations << cotation;
@@ -2878,18 +2866,16 @@ QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
         return cotations;
     for (int i=0; i<cotlist.size(); ++i)
     {
-        k++;
         QJsonObject jcotation{};
-        jcotation["id"]                 = k;
-        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();
-        jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
-        jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
-        jcotation["montantpratique"]    = cotlist.at(i).at(4).toDouble();
-        jcotation["ccam"]               = cotlist.at(i).at(5).toInt();       //! type de cotation (1/2/3/4)
-        jcotation["iduser"]             = usr->id();
-        jcotation["frequence"]          = cotlist.at(i).at(6).toInt();
-        jcotation["descriptif"]         = cotlist.at(i).at(7).toString();
+        jcotation[CP_ID_COTATIONS]                  = cotlist.at(i).at(0).toInt();
+        jcotation[CP_TYPEACTE_COTATIONS]            = cotlist.at(i).at(1).toString();
+        jcotation[CP_MONTANTOPTAM_COTATIONS]        = cotlist.at(i).at(2).toDouble();
+        jcotation[CP_MONTANTNONOPTAM_COTATIONS]     = cotlist.at(i).at(3).toDouble();
+        jcotation[CP_MONTANTPRATIQUE_COTATIONS]     = cotlist.at(i).at(4).toDouble();
+        jcotation[CP_TYPECOTATION_COTATIONS]        = cotlist.at(i).at(5).toInt();       //! type de cotation (1/2/3/4)
+        jcotation[CP_IDUSER_COTATIONS]              = usr->id();
+        jcotation[CP_FREQUENCE_COTATIONS]           = cotlist.at(i).at(6).toInt();
+        jcotation[CP_TIP_COTATIONS]                 = cotlist.at(i).at(7).toString();
         Cotation *cotation = new Cotation(jcotation);
         if (cotation != Q_NULLPTR)
             cotations << cotation;
@@ -2908,21 +2894,23 @@ QList<Cotation*> DataBase::loadCotations()
     QList<Cotation*> cotations = QList<Cotation*>();
     QString req = "select " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
                   CP_MONTANTNONOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
-                  " from " TBL_COTATIONS
-                  " order by " CP_TYPEACTE_COTATIONS;
+                  " from " TBL_COTATIONS;
+    if (!parametres()->cotationsfrance())
+        req += " where " CP_TYPEACTE_COTATIONS " = 4";
+    req += " order by " CP_TYPEACTE_COTATIONS;
     QList<QVariantList> cotlist = StandardSelectSQL(req, ok);
     if (!ok || cotlist.size() == 0)
         return cotations;
     for (int i = 0; i < cotlist.size(); ++i)
     {
         QJsonObject jcotation{};
-        jcotation["idcotation"]         = cotlist.at(i).at(0).toInt();       //! idcotation = clé de map (unique dans la table)
-        jcotation["typeacte"]           = cotlist.at(i).at(1).toString();
-        jcotation["montantoptam"]       = cotlist.at(i).at(2).toDouble();
-        jcotation["montantnonoptam"]    = cotlist.at(i).at(3).toDouble();
-        jcotation["ccam"]               = cotlist.at(i).at(4).toInt();       //! type de cotation (1/2/3/4)
-        jcotation["frequence"]          = cotlist.at(i).at(5).toInt();
-        jcotation["descriptif"]         = cotlist.at(i).at(6).toString();
+        jcotation[CP_ID_COTATIONS]              = cotlist.at(i).at(0).toInt();       //! idcotation = clé de map (unique dans la table)
+        jcotation[CP_TYPEACTE_COTATIONS]        = cotlist.at(i).at(1).toString();
+        jcotation[CP_MONTANTOPTAM_COTATIONS]    = cotlist.at(i).at(2).toDouble();
+        jcotation[CP_MONTANTNONOPTAM_COTATIONS] = cotlist.at(i).at(3).toDouble();
+        jcotation[CP_TYPECOTATION_COTATIONS]    = cotlist.at(i).at(4).toInt();       //! type de cotation (1/2/3/4)
+        jcotation[CP_FREQUENCE_COTATIONS]       = cotlist.at(i).at(5).toInt();
+        jcotation[CP_TIP_COTATIONS]             = cotlist.at(i).at(6).toString();
         cotations << new Cotation(jcotation);
     }
     return cotations;

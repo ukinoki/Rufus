@@ -263,13 +263,13 @@ public:
 #define CP_ID_JOINTCCAM                                 "idJointure"
 #define CP_IDCOTATION_JOINTCCAM                         "idCotation"
 #define CP_IDUSER_JOINTCCAM                             "idUser"
+
 #define CP_MONTANTPRATIQUE_JOINTCCAM                    "MontantPratique"
 
                             //! Table Rufus.jointuresassociations
 #define CP_ID_JOINTASSOCIATIONS                         "idJointure"
 #define CP_IDCOTATION_JOINTASSOCIATIONS                 "idCotation"
 #define CP_IDUSER_JOINTASSOCIATIONS                     "idUser"
-#define CP_MONTANTPRATIQUE_JOINTASSOCIATIONS            "MontantPratique"
 
                             //! Table Rufus.jointuresNGAP (pas de MontantPratique : pour un NGAP le
                             //! pratiqué est toujours égal au conventionnel)
@@ -282,7 +282,14 @@ public:
 #define CP_IDCOTATION_JOINTAUTRESCOTATIONS              "idCotation"
 #define CP_IDUSER_JOINTAUTRESCOTATIONS                  "idUser"
 #define CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS    "MontantConventionnel"
-#define CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS         "MontantPratique"
+
+                            //! Commun aux 3 tables
+                            //! Table Rufus.jointuresautrescotations
+                            //! Table Rufus.jointuresccam
+                            //! Table Rufus.jointuresassociations
+#define CP_ID_JOINTCOTATIONS                            "id"
+#define CP_MONTANTPRATIQUE_JOINTCOTATIONS               "MontantPratique"
+
 
                             //! Table Rufus.Manufacturers
 #define CP_ID_MANUFACTURER                              "idManufacturer"

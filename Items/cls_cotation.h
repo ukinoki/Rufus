@@ -61,16 +61,12 @@ public:
     void    setmontantpratique(double m)      { m_montantpratique = m; }
     void    setmontantconventionnel(double m) { m_montantconventionnel = m; }//!< écrit m_montantoptam (montantconventionnel() le renvoie)
     void    setdescriptif(QString d)          { m_descriptif = d; }          //!< Tip de la cotation (pour un CCAM, son libellé rapatrié de ccam)
+
     int     typcotation() const             { return m_typcotation; }
-    void    settypcotation(int typ) { m_typcotation = typ;                   //!< 1=CCAM 2=association CCAM 3=NGAP 4=autre
-                                      m_isCCAM           = (typ == 1);
-                                      m_isAssocCCAM      = (typ == 2);
-                                      m_isNGAP           = (typ == 3);
-                                      m_isnorNGAPnorCCAM = (typ == 4); }
-    bool    isCCAM() const                  { return m_isCCAM; }
-    bool    isNGAP() const                  { return m_isNGAP; }
-    bool    isAssocCCAM() const             { return m_isAssocCCAM; }
-    bool    isAutre() const                 { return m_isnorNGAPnorCCAM; }
+    bool    isCCAM() const                  { return m_typcotation == 1; }
+    bool    isAssocCCAM() const             { return m_typcotation == 2; }
+    bool    isNGAP() const                  { return m_typcotation == 3; }
+    bool    isAutre() const                 { return m_typcotation == 4; }
 };
 
 #endif // CLS_COTATION_H

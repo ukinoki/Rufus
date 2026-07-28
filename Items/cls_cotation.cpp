@@ -26,15 +26,14 @@ void Cotation::setData(QJsonObject data)
 {
     if( data.isEmpty() )
         return;
-
-    setDataInt(data, "idcotation", m_id);
-    setDataString(data, "typeacte", m_typeacte);
-    setDataDouble(data, "montantoptam", m_montantoptam);
-    setDataDouble(data, "montantnonoptam", m_montantnonoptam);
+    setDataInt(data,    CP_ID_COTATIONS,                m_id);
+    setDataString(data, CP_TYPEACTE_COTATIONS,          m_typeacte);
+    setDataDouble(data, CP_MONTANTOPTAM_COTATIONS,      m_montantoptam);
+    setDataDouble(data, CP_MONTANTNONOPTAM_COTATIONS,   m_montantnonoptam);
     setDataDouble(data, "montantpratique", m_montantpratique);
-    setDataInt(data, "ccam", m_typcotation);   //! le type (1/2/3/4) est porté par la colonne CCAM
-    settypcotation(m_typcotation);             //! déduit les 4 booléens is*
-    setDataInt(data, "frequence", m_frequence);
-    setDataString(data, "descriptif", m_descriptif);
+    setDataInt(data,    CP_TYPECOTATION_COTATIONS,      m_typcotation);   //! le type (1/2/3/4) est porté par la colonne CCAM
+    setDataInt(data,    CP_FREQUENCE_COTATIONS,         m_frequence);
+    setDataString(data, CP_TIP_COTATIONS,               m_descriptif);
+
     m_data = data;
 }
