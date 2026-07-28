@@ -235,8 +235,6 @@ public:
 #define CP_TYPEACTE_COTATIONS                           "Typeacte"
 #define CP_MONTANTOPTAM_COTATIONS                       "MontantOPTAM"
 #define CP_MONTANTNONOPTAM_COTATIONS                    "MontantNonOPTAM"
-                            //! plus de macro pour MontantPratique : le montant pratiqué vit dans les
-                            //! tables de jointure. La colonne ne survit que pour les bases antérieures.
 #define CP_TYPECOTATION_COTATIONS                       "Typecotation"
 #define CP_IDUSER_COTATIONS                             "idUser"
 #define CP_FREQUENCE_COTATIONS                          "Frequence"
@@ -272,8 +270,7 @@ public:
 #define CP_IDCOTATION_JOINTASSOCIATIONS                 "idCotation"
 #define CP_IDUSER_JOINTASSOCIATIONS                     "idUser"
 
-                            //! Table Rufus.jointuresNGAP (pas de MontantPratique : pour un NGAP le
-                            //! pratiqué est toujours égal au conventionnel)
+                            //! Table Rufus.jointuresNGAP
 #define CP_ID_JOINTNGAP                                 "idJointure"
 #define CP_IDCOTATION_JOINTNGAP                         "idCotation"
 #define CP_IDUSER_JOINTNGAP                             "idUser"

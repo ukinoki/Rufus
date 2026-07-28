@@ -2948,13 +2948,13 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
     const QString id = QString::number(usr->id());
     //! réunion des 4 tables de jointure, chacune avec ses propres macros de colonnes
     const QString req =
-          "select " CP_IDCOTATION_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCCAM
+          "select " CP_IDCOTATION_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESCCAM " where " CP_IDUSER_JOINTCCAM " = " + id
-        + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS
+        + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESASSOCIATIONS " where " CP_IDUSER_JOINTASSOCIATIONS " = " + id
         + " union all select " CP_IDCOTATION_JOINTNGAP ", 0"        //! NGAP : pas de pratiqué stocké (0 = marqueur « utilisé » ; loadUserCotations le recalcule = conventionnel)
           " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
-        + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+        + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
@@ -2973,10 +2973,10 @@ static bool jointureCotation(int typcotation, QString &table, QString &chpIdcot,
 {
     switch (typcotation)
     {
-        case 1: table = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;            return true;
-        case 2: table = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;    return true;
+        case 1: table = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCOTATIONS;            return true;
+        case 2: table = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTCOTATIONS;    return true;
         case 3: table = TBL_JOINTURESNGAP;            chpIdcot = CP_IDCOTATION_JOINTNGAP;            chpIduser = CP_IDUSER_JOINTNGAP;            chpPratique.clear();                                   return true;
-        case 4: table = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS; return true;
+        case 4: table = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTCOTATIONS; return true;
         default: return false;
     }
 }
