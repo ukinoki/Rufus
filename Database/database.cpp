@@ -2956,7 +2956,7 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
           " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
         + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
-    qDebug() << req;
+    //qDebug() << req;
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
         for (const QVariantList &r : l)

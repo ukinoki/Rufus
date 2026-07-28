@@ -89,22 +89,24 @@ void Cotations::loadUserCotations(User *usr)
         return;
     const bool optam = usr->isOPTAM();
     map_usercotations->clear();
-    for (Cotation *c : *map_cotations)
-        c->setused(false);
     QMap<int, double> montants = DataBase::I()->loadMontantsPratiquesByUser(usr);
-    for (auto it = montants.constBegin(); it != montants.constEnd(); ++it)
+    for (auto it = map_cotations->constBegin(); it != map_cotations->constEnd(); ++it)
     {
         Cotation *c = map_cotations->value(it.key(), nullptr);        //! retrouvée par idcotation
         if (c == nullptr)
             continue;
-        c->setused(true);
-        //! NGAP (3) : le pratiqué vaut toujours le conventionnel = le montant OPTAM (jointuresNGAP ne
-        //! stocke pas de pratiqué) ; sinon le montant pratiqué propre au user (issu de sa jointure)
-        c->setmontantpratique(c->isNGAP() ? c->montantoptam() : it.value());
+        if (montants.find(it.key()) != montants.constEnd())
+        {
+            Cotation *usrcot= it.value();
+            usrcot->setused(true);
+            //! NGAP (3) : le pratiqué vaut toujours le conventionnel = le montant OPTAM (jointuresNGAP ne
+            //! stocke pas de pratiqué) ; sinon le montant pratiqué propre au user (issu de sa jointure)
+            usrcot->setmontantpratique(usrcot->isNGAP() ? usrcot->montantoptam() : montants.value(it.key(), 0.0));
+            map_usercotations->insert(it.key(), usrcot);
+        }
         //! montant conventionnel : nonoptam seulement si non OPTAM et CCAM (1)/assoc (2), sinon optam
         const double conv = (!optam && (c->isCCAM() || c->isAssocCCAM())) ? c->montantnonoptam() : c->montantoptam();
         c->setmontantconventionnel(conv);
-        map_usercotations->insert(it.key(), c);
     }
     m_userparent = usr;
 }
