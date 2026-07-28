@@ -98,6 +98,9 @@ void Cotations::loadUserCotations(User *usr)
         if (c == nullptr)
             continue;
         c->setused(true);
+        //! NGAP (3) : le pratiqué vaut toujours le conventionnel = le montant OPTAM (jointuresNGAP ne
+        //! stocke pas de pratiqué) ; sinon le montant pratiqué propre au user (issu de sa jointure)
+        c->setmontantpratique(c->isNGAP() ? c->montantoptam() : it.value());
         //! montant conventionnel : nonoptam seulement si non OPTAM et CCAM (1)/assoc (2), sinon optam
         const double conv = (!optam && (c->isCCAM() || c->isAssocCCAM())) ? c->montantnonoptam() : c->montantoptam();
         c->setmontantconventionnel(conv);

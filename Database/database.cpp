@@ -1188,7 +1188,7 @@ void DataBase::exporteJointures()
 
     //! 2) association CCAM : motif d'un code CCAM suivi d'autre chose (donc > 7 caractères)
     StandardSQL("insert into " TBL_JOINTURESASSOCIATIONS
-                " (" CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_IDUSER_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS ") "
+                " (" CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_IDUSER_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS ") "
                 + source + " c." CP_TYPEACTE_COTATIONS + motifassoc);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 2 where " CP_TYPEACTE_COTATIONS + motifassoc);
 
@@ -1202,7 +1202,7 @@ void DataBase::exporteJointures()
     //! EN PLUS le montant conventionnel : MontantOPTAM de la cotation, ou son pratiqué si OPTAM est vide.
     StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS
                 " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_IDUSER_JOINTAUTRESCOTATIONS ", "
-                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ")"
+                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS ")"
                 " select ref.minid, c." CP_IDUSER_COTATIONS ", "
                 " coalesce(nullif(c." CP_MONTANTOPTAM_COTATIONS ", 0), c." + pratiqueLegacy + "),"
                 " c." + pratiqueLegacy
@@ -2956,6 +2956,7 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
           " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
         + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
+    qDebug() << req;
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
         for (const QVariantList &r : l)
@@ -3071,7 +3072,7 @@ bool DataBase::lisMontantsJointureAutre(int idcotation, int iduser, double &conv
         return false;
     bool okloc = false;
     QVariantList m = getFirstRecordFromStandardSelectSQL(
-        "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+        "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
         " from " TBL_JOINTURESAUTRESCOTATIONS
         " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(idcotation)
         + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + QString::number(iduser), okloc);

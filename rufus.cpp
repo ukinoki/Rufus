@@ -4565,31 +4565,13 @@ void Rufus::RetrouveMontantActe()
     ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText() != "");
     Cotation *cot = cotationcombo();
     const double montant = (cot == Q_NULLPTR? 0.0
-                            : currentpatient()->iscmu()? cot->montantconventionnel() : cot->montantpratique());
+                            : currentpatient()->iscmu()?
+                            cot->montantconventionnel() : cot->montantpratique());
     ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
     AfficheBasculerMontant(montant);
 
     if (Datas::I()->users->getById(currentacte()->idComptable()) == nullptr)
         ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
-
-    /*  else
-   {
-        UpMessageBox msgbox(this);
-        UpSmallButton *OKBouton = new UpSmallButton;
-        UpSmallButton *AnnulBouton = new UpSmallButton;
-        msgbox.setText("Acte non répertorié.");
-        msgbox.setInformativeText("Cette cotation ne fait pas partie de vos habitudes."
-                                  "Voulez vous l'intégrer à la liste de vos cotations habituelles?\n");
-        msgbox.setIcon(UpMessageBox::Information);
-        OKBouton->setText("Oui, intégrer");
-        AnnulBouton->setText("Non");
-        msgbox.addButton(AnnulBouton, QMessageBox::AcceptRole);
-        msgbox.addButton(OKBouton, QMessageBox::AcceptRole);
-        msgbox.exec();
-        if (msgbox.clickedButton()==OKBouton)
-        {
-        }
-    }*/
 }
 
 void Rufus::SalleDAttente()
@@ -9052,15 +9034,13 @@ void    Rufus::ReconstruitComboCotations(User *usr)
     ui->ActeCotationcomboBox->setModel(m_modelcotations);
 }
 
-Cotation* Rufus::cotationcombo(QString cotation)
+Cotation* Rufus::cotationcombo()
 {
-    if (cotation.isEmpty())
-        cotation = ui->ActeCotationcomboBox->currentText();
-    QList<QStandardItem*> items = m_modelcotations->findItems(cotation);
-    if (items.size() == 0)
-        return Q_NULLPTR;
-    UpStandardItem *item = dynamic_cast<UpStandardItem*>(items.at(0));
-    return (item == Q_NULLPTR? Q_NULLPTR : dynamic_cast<Cotation*>(item->rufusitem()));
+    UpStandardItem *itmcot = dynamic_cast<UpStandardItem*>(m_modelcotations->item(ui->ActeCotationcomboBox->currentIndex()));
+    if (itmcot)
+        if (itmcot->rufusitem())
+            return qobject_cast<Cotation*>(itmcot->rufusitem());
+    return nullptr;
 }
 
 /*!
