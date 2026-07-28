@@ -30,8 +30,8 @@ void Cotation::setData(QJsonObject data)
     setDataString(data, CP_TYPEACTE_COTATIONS,          m_typeacte);
     setDataDouble(data, CP_MONTANTOPTAM_COTATIONS,      m_montantoptam);
     setDataDouble(data, CP_MONTANTNONOPTAM_COTATIONS,   m_montantnonoptam);
-    setDataDouble(data, "montantpratique", m_montantpratique);
-    setDataInt(data,    CP_TYPECOTATION_COTATIONS,      m_typcotation);   //! le type (1/2/3/4) est porté par la colonne CCAM
+    setDataDouble(data, CP_MONTANTPRATIQUE_JOINTCOTATIONS, m_montantpratique);  //! le pratiqué vient des jointures, plus de cotations.MontantPratique
+    setDataInt(data,    CP_TYPECOTATION_COTATIONS,      m_typcotation);   //! le type (1/2/3/4) est porté par la colonne Typecotation
     setDataInt(data,    CP_FREQUENCE_COTATIONS,         m_frequence);
     setDataString(data, CP_TIP_COTATIONS,               m_descriptif);
 

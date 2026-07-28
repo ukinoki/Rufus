@@ -1185,7 +1185,7 @@ void DataBase::exporteJointures()
 
     //! 2) association CCAM : motif d'un code CCAM suivi d'autre chose (donc > 7 caractères)
     StandardSQL("insert into " TBL_JOINTURESASSOCIATIONS
-                " (" CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_IDUSER_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS ") "
+                " (" CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_IDUSER_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS ") "
                 + source + " c." CP_TYPEACTE_COTATIONS + motifassoc);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 2 where " CP_TYPEACTE_COTATIONS + motifassoc);
 
@@ -1199,7 +1199,7 @@ void DataBase::exporteJointures()
     //! EN PLUS le montant conventionnel : MontantOPTAM de la cotation, ou son pratiqué si OPTAM est vide.
     StandardSQL("insert into " TBL_JOINTURESAUTRESCOTATIONS
                 " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_IDUSER_JOINTAUTRESCOTATIONS ", "
-                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ")"
+                CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS ")"
                 " select ref.minid, c." CP_IDUSER_COTATIONS ", "
                 " coalesce(nullif(c." CP_MONTANTOPTAM_COTATIONS ", 0), c." CP_MONTANTPRATIQUE_COTATIONS "),"
                 " c." CP_MONTANTPRATIQUE_COTATIONS
@@ -2824,61 +2824,80 @@ QList<LignePaiement *> DataBase::loadlignespaiementsByPatient(Patient *pat)
 /*
  * Cotations
 */
+/*!
+ * \brief DataBase::loadCotationsByUser
+ * charge les cotations utilisées par un utilisateur, en 4 requêtes - une par type de cotation
+ * (1=CCAM, 2=association CCAM, 3=NGAP, 4=autre), chacune sur SA table de jointure : c'est la
+ * jointure qui dit qu'un user utilise une cotation, et c'est elle qui porte son montant pratiqué.
+ * On ne lit plus jamais cotations.MontantPratique (colonne abandonnée). Seul le NGAP fait exception :
+ * sa jointure ne stocke pas de pratiqué (il vaut toujours le conventionnel) -> pratiqué = MontantOPTAM.
+ * \param usr  l'utilisateur dont on veut les cotations
+ */
 QList<Cotation*> DataBase::loadCotationsByUser(User *usr)
- {
-     QList<Cotation*> cotations = QList<Cotation*>();
-     if (usr == Q_NULLPTR)
-         return cotations;
+{
+    QList<Cotation*> cotations = QList<Cotation*>();
+    if (usr == Q_NULLPTR)
+        return cotations;
+    const QString id = QString::number(usr->id());
 
-     QString  req = "SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS ", "
-                     CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_NOM_CCAM
-                     " FROM " TBL_COTATIONS " cot left join " TBL_CCAM " cc on cot." CP_TYPEACTE_COTATIONS " = cc." CP_CODECCAM_CCAM
-                     " where " CP_IDUSER_JOINTCCAM " = " + QString::number(usr->id()) + " and " CP_TYPEACTE_COTATIONS " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")"
-                     " order by " CP_TYPEACTE_COTATIONS;
-    //qDebug() << req;
-    QList<QVariantList> cotlist = StandardSelectSQL(req,ok);
-    if(!ok)
-        return cotations;
-    for (int i=0; i<cotlist.size(); ++i)
+    //! les 4 requêtes ramènent les MÊMES colonnes dans le MÊME ordre - une seule lecture ensuite :
+    //! idcotation | typeacte | optam | nonoptam | pratiqué | typecotation | fréquence | tip
+    QStringList requetes;
+
+    //! 1 - CCAM : tarifs et libellé rapatriés de ccam (la référence officielle), pratiqué de la jointure
+    requetes << "select cot." CP_ID_COTATIONS ", cot." CP_TYPEACTE_COTATIONS ", cc." CP_MONTANTOPTAM_CCAM ", cc." CP_MONTANTNONOPTAM_CCAM ", "
+                       "jt." CP_MONTANTPRATIQUE_JOINTCOTATIONS ", cot." CP_TYPECOTATION_COTATIONS ", cot." CP_FREQUENCE_COTATIONS ", cc." CP_NOM_CCAM
+                " from " TBL_COTATIONS " cot"
+                " inner join " TBL_JOINTURESCCAM " jt on jt." CP_IDCOTATION_JOINTCCAM " = cot." CP_ID_COTATIONS
+                " inner join " TBL_CCAM " cc on cc." CP_CODECCAM_CCAM " = cot." CP_TYPEACTE_COTATIONS
+                " where jt." CP_IDUSER_JOINTCCAM " = " + id +
+                " order by cot." CP_TYPEACTE_COTATIONS;
+
+    //! 2 - associations CCAM : pas de ligne dans ccam (le typeacte est un cumul de codes) -> tarifs et
+    //! libellé pris dans cotations, pratiqué de la jointure
+    requetes << "select cot." CP_ID_COTATIONS ", cot." CP_TYPEACTE_COTATIONS ", cot." CP_MONTANTOPTAM_COTATIONS ", cot." CP_MONTANTNONOPTAM_COTATIONS ", "
+                       "jt." CP_MONTANTPRATIQUE_JOINTCOTATIONS ", cot." CP_TYPECOTATION_COTATIONS ", cot." CP_FREQUENCE_COTATIONS ", cot." CP_TIP_COTATIONS
+                " from " TBL_COTATIONS " cot"
+                " inner join " TBL_JOINTURESASSOCIATIONS " jt on jt." CP_IDCOTATION_JOINTASSOCIATIONS " = cot." CP_ID_COTATIONS
+                " where jt." CP_IDUSER_JOINTASSOCIATIONS " = " + id +
+                " order by cot." CP_TYPEACTE_COTATIONS;
+
+    //! 3 - NGAP : jointuresNGAP ne stocke aucun montant (le pratiqué est toujours le conventionnel)
+    //! -> on relit MontantOPTAM en 5e colonne pour alimenter le pratiqué
+    requetes << "select cot." CP_ID_COTATIONS ", cot." CP_TYPEACTE_COTATIONS ", cot." CP_MONTANTOPTAM_COTATIONS ", cot." CP_MONTANTNONOPTAM_COTATIONS ", "
+                       "cot." CP_MONTANTOPTAM_COTATIONS ", cot." CP_TYPECOTATION_COTATIONS ", cot." CP_FREQUENCE_COTATIONS ", cot." CP_TIP_COTATIONS
+                " from " TBL_COTATIONS " cot"
+                " inner join " TBL_JOINTURESNGAP " jt on jt." CP_IDCOTATION_JOINTNGAP " = cot." CP_ID_COTATIONS
+                " where jt." CP_IDUSER_JOINTNGAP " = " + id +
+                " order by cot." CP_TYPEACTE_COTATIONS;
+
+    //! 4 - autres cotations : aucun tarif officiel, le conventionnel LUI AUSSI est propre au user
+    //! -> conventionnel et pratiqué viennent tous deux de la jointure (optam = nonoptam = conventionnel)
+    requetes << "select cot." CP_ID_COTATIONS ", cot." CP_TYPEACTE_COTATIONS ", jt." CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", jt." CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", "
+                       "jt." CP_MONTANTPRATIQUE_JOINTCOTATIONS ", cot." CP_TYPECOTATION_COTATIONS ", cot." CP_FREQUENCE_COTATIONS ", cot." CP_TIP_COTATIONS
+                " from " TBL_COTATIONS " cot"
+                " inner join " TBL_JOINTURESAUTRESCOTATIONS " jt on jt." CP_IDCOTATION_JOINTAUTRESCOTATIONS " = cot." CP_ID_COTATIONS
+                " where jt." CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id +
+                " order by cot." CP_TYPEACTE_COTATIONS;
+
+    for (int r = 0; r < requetes.size(); ++r)
     {
-        QJsonObject jcotation{};
-        jcotation[CP_ID_COTATIONS]                      = cotlist.at(i).at(0).toInt();
-        jcotation[CP_TYPEACTE_COTATIONS]                = cotlist.at(i).at(1).toString();
-        jcotation[CP_MONTANTOPTAM_CCAM]                 = cotlist.at(i).at(2).toDouble();
-        jcotation[CP_MONTANTNONOPTAM_CCAM]              = cotlist.at(i).at(3).toDouble();
-        jcotation[CP_MONTANTPRATIQUE_JOINTCOTATIONS]    = cotlist.at(i).at(4).toDouble();
-        jcotation[CP_TYPECOTATION_COTATIONS]            = cotlist.at(i).at(5).toInt();   //! type de cotation (1/2/3/4)
-        jcotation[CP_IDUSER_COTATIONS]                  = usr->id();
-        jcotation[CP_FREQUENCE_COTATIONS]               = cotlist.at(i).at(6).toInt();
-        jcotation[CP_TIP_COTATIONS]                     = cotlist.at(i).at(7).toString();
-        Cotation *cotation = new Cotation(jcotation);
-         if (cotation != Q_NULLPTR)
-            cotations << cotation;
-    }
-    req = " SELECT " CP_ID_COTATIONS ", " CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", "
-          CP_TYPECOTATION_COTATIONS ", " CP_FREQUENCE_COTATIONS ", " CP_TIP_COTATIONS
-          " FROM "  TBL_COTATIONS
-          " where " CP_IDUSER_COTATIONS " = " + QString::number(usr->id()) +
-          " and " CP_TYPEACTE_COTATIONS " not in (select " CP_CODECCAM_CCAM " from  " TBL_CCAM ")"
-          " order by " CP_TYPEACTE_COTATIONS;
-    cotlist = StandardSelectSQL(req,ok);
-    if(!ok || cotlist.size()==0)
-        return cotations;
-    for (int i=0; i<cotlist.size(); ++i)
-    {
-        QJsonObject jcotation{};
-        jcotation[CP_ID_COTATIONS]                  = cotlist.at(i).at(0).toInt();
-        jcotation[CP_TYPEACTE_COTATIONS]            = cotlist.at(i).at(1).toString();
-        jcotation[CP_MONTANTOPTAM_COTATIONS]        = cotlist.at(i).at(2).toDouble();
-        jcotation[CP_MONTANTNONOPTAM_COTATIONS]     = cotlist.at(i).at(3).toDouble();
-        jcotation[CP_MONTANTPRATIQUE_COTATIONS]     = cotlist.at(i).at(4).toDouble();
-        jcotation[CP_TYPECOTATION_COTATIONS]        = cotlist.at(i).at(5).toInt();       //! type de cotation (1/2/3/4)
-        jcotation[CP_IDUSER_COTATIONS]              = usr->id();
-        jcotation[CP_FREQUENCE_COTATIONS]           = cotlist.at(i).at(6).toInt();
-        jcotation[CP_TIP_COTATIONS]                 = cotlist.at(i).at(7).toString();
-        Cotation *cotation = new Cotation(jcotation);
-        if (cotation != Q_NULLPTR)
-            cotations << cotation;
+        QList<QVariantList> cotlist = StandardSelectSQL(requetes.at(r), ok);
+        if (!ok)
+            continue;
+        for (int i = 0; i < cotlist.size(); ++i)
+        {
+            QJsonObject jcotation{};
+            jcotation[CP_ID_COTATIONS]                      = cotlist.at(i).at(0).toInt();
+            jcotation[CP_TYPEACTE_COTATIONS]                = cotlist.at(i).at(1).toString();
+            jcotation[CP_MONTANTOPTAM_COTATIONS]            = cotlist.at(i).at(2).toDouble();
+            jcotation[CP_MONTANTNONOPTAM_COTATIONS]         = cotlist.at(i).at(3).toDouble();
+            jcotation[CP_MONTANTPRATIQUE_JOINTCOTATIONS]    = cotlist.at(i).at(4).toDouble();
+            jcotation[CP_TYPECOTATION_COTATIONS]            = cotlist.at(i).at(5).toInt();   //! type de cotation (1/2/3/4)
+            jcotation[CP_FREQUENCE_COTATIONS]               = cotlist.at(i).at(6).toInt();
+            jcotation[CP_TIP_COTATIONS]                     = cotlist.at(i).at(7).toString();
+            cotations << new Cotation(jcotation);
+        }
     }
     return cotations;
 }
@@ -2932,11 +2951,11 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
     const QString req =
           "select " CP_IDCOTATION_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCCAM
           " from " TBL_JOINTURESCCAM " where " CP_IDUSER_JOINTCCAM " = " + id
-        + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTASSOCIATIONS
+        + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESASSOCIATIONS " where " CP_IDUSER_JOINTASSOCIATIONS " = " + id
         + " union all select " CP_IDCOTATION_JOINTNGAP ", 0"        //! NGAP : pas de pratiqué stocké (0 = marqueur « utilisé » ; loadUserCotations le recalcule = conventionnel)
           " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
-        + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+        + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
@@ -2956,9 +2975,9 @@ static bool jointureCotation(int typcotation, QString &table, QString &chpIdcot,
     switch (typcotation)
     {
         case 1: table = TBL_JOINTURESCCAM;            chpIdcot = CP_IDCOTATION_JOINTCCAM;            chpIduser = CP_IDUSER_JOINTCCAM;            chpPratique = CP_MONTANTPRATIQUE_JOINTCCAM;            return true;
-        case 2: table = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTASSOCIATIONS;    return true;
+        case 2: table = TBL_JOINTURESASSOCIATIONS;    chpIdcot = CP_IDCOTATION_JOINTASSOCIATIONS;    chpIduser = CP_IDUSER_JOINTASSOCIATIONS;    chpPratique = CP_MONTANTPRATIQUE_JOINTCOTATIONS;    return true;
         case 3: table = TBL_JOINTURESNGAP;            chpIdcot = CP_IDCOTATION_JOINTNGAP;            chpIduser = CP_IDUSER_JOINTNGAP;            chpPratique.clear();                                   return true;
-        case 4: table = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS; return true;
+        case 4: table = TBL_JOINTURESAUTRESCOTATIONS; chpIdcot = CP_IDCOTATION_JOINTAUTRESCOTATIONS; chpIduser = CP_IDUSER_JOINTAUTRESCOTATIONS; chpPratique = CP_MONTANTPRATIQUE_JOINTCOTATIONS; return true;
         default: return false;
     }
 }
@@ -3053,7 +3072,7 @@ bool DataBase::lisMontantsJointureAutre(int idcotation, int iduser, double &conv
         return false;
     bool okloc = false;
     QVariantList m = getFirstRecordFromStandardSelectSQL(
-        "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS
+        "select " CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
         " from " TBL_JOINTURESAUTRESCOTATIONS
         " where " CP_IDCOTATION_JOINTAUTRESCOTATIONS " = " + QString::number(idcotation)
         + " and " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + QString::number(iduser), okloc);
