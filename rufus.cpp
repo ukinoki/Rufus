@@ -4554,37 +4554,18 @@ void Rufus::RecettesSpeciales()
 
 /*!
  * \brief Rufus::RetrouveMontantActe
- * affiche le montant de la cotation choisie : le tarif habituellement pratiqué par défaut, le tarif
- * conventionnel pour un patient CMU. La cotation est celle portée par l'item du combo ; si le code a
- * été saisi à la main (le complèteur propose toute la CCAM, pas seulement les cotations du user), on
- * se rabat sur le tarif officiel de la table ccam.
+ * affiche le montant de la cotation choisie, lu sur la cotation que porte l'item du combo : le tarif
+ * habituellement pratiqué, ou le conventionnel pour un patient CMU. Item sans cotation (le gratuit,
+ * ou un code saisi à la main hors des cotations du user) -> montant nul.
  */
 void Rufus::RetrouveMontantActe()
 {
     if (currentpatient() == nullptr)
         return;
-    const QString cotation = ui->ActeCotationcomboBox->currentText();
-    ui->EnregistrePaiementpushButton->setEnabled(cotation != "");
-    double montant = 0.0;
-
-    initListeCotations();
-    Cotation *cot = cotationcombo(cotation);
-    if (cot != Q_NULLPTR)
-        montant = (currentpatient()->iscmu() ? cot->montantconventionnel() : cot->montantpratique());
-    else if (cotation != "" && cotation != Utils::ConvertitModePaiementtotr(GRATUIT))
-    {
-        User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
-        QString req = "select " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " from " TBL_CCAM
-                      " where " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
-        QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-        if (m_ok && cotdata.size() > 0)
-        {
-            //! le non-OPTAM ne concerne qu'un soignant de secteur 2 non OPTAM, hors patient CMU
-            const bool nonoptam = superviseur != Q_NULLPTR && !superviseur->isOPTAM()
-                                  && superviseur->secteurconventionnel() > 1 && !currentpatient()->iscmu();
-            montant = cotdata.at(nonoptam? 1 : 0).toDouble();
-        }
-    }
+    ui->EnregistrePaiementpushButton->setEnabled(ui->ActeCotationcomboBox->currentText() != "");
+    Cotation *cot = cotationcombo();
+    const double montant = (cot == Q_NULLPTR? 0.0
+                            : currentpatient()->iscmu()? cot->montantconventionnel() : cot->montantpratique());
     ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
     AfficheBasculerMontant(montant);
 
@@ -6439,18 +6420,6 @@ Patient* Rufus::getPatientFromCursorPositionInTable()
     return pat;
 }
 
-
-void Rufus::initListeCotations()
-{
-    /*! on sélectionne la liste de cotations du parent du currentuser()
-     * il ne peut pas y avoir d'appel d'un user non soignant puisque la fonction est appelée pour un user qui est
-            * soit le currentuser() qui est forcément soignant puisqu'on recrée la liste de cotations seulement dans cette condition
-            * soit un user qui est le superviseur d'un acte donc forcément soignant aussi */
-    User *userparent = Datas::I()->users->getById(currentuser()->idparent());
-    if (Datas::I()->cotations->cotations()->size() == 0)
-        if (userparent)
-            Datas::I()->cotations->loadUserCotations(userparent);
-}
 
 Patient* Rufus::getPatientFromIndex(QModelIndex idx)
 {
@@ -9068,27 +9037,30 @@ void    Rufus::ReconstruitComboCotations(User *usr)
         return;
     m_combocotationparent = usr;
 
-    ui->ActeCotationcomboBox->clear();
-    //! item 0 = « gratuit » : aucune cotation derrière, le montant vaut 0
-    ui->ActeCotationcomboBox->addItem(Utils::ConvertitModePaiementtotr(GRATUIT));
+    //! chaque item porte SA cotation en rufusitem : le code affiché, les montants et le descriptif s'y
+    //! lisent directement, plus rien n'est recopié à côté.
+    m_modelcotations->clear();
+    m_modelcotations->appendRow(new UpStandardItem(Utils::ConvertitModePaiementtotr(GRATUIT)));   //! le gratuit : pas de cotation derrière, montant nul
     QMap<int, Cotation*> *listcots = Datas::I()->cotations->usercotations();
-    if (listcots == nullptr)
-        return;
-    //! chaque item du modèle porte SA cotation : tous les montants s'en déduisent (plus de recopie en
-    //! QStringList) et le descriptif devient le tooltip natif de l'item.
-    for (auto it = listcots->constBegin(); it != listcots->constEnd(); ++it)
-    {
-        Cotation *cot = it.value();
-        ui->ActeCotationcomboBox->addItem(cot->typeacte(), QVariant::fromValue(cot));
-        ui->ActeCotationcomboBox->setItemData(ui->ActeCotationcomboBox->count() - 1, cot->descriptif(), Qt::ToolTipRole);
-    }
+    if (listcots != nullptr)
+        for (auto it = listcots->constBegin(); it != listcots->constEnd(); ++it)
+        {
+            UpStandardItem *item = new UpStandardItem(it.value()->typeacte(), it.value());
+            item        ->setToolTip(it.value()->descriptif());
+            m_modelcotations->appendRow(item);
+        }
+    ui->ActeCotationcomboBox->setModel(m_modelcotations);
 }
 
 Cotation* Rufus::cotationcombo(QString cotation)
 {
     if (cotation.isEmpty())
         cotation = ui->ActeCotationcomboBox->currentText();
-    return ui->ActeCotationcomboBox->itemData(ui->ActeCotationcomboBox->findText(cotation)).value<Cotation*>();
+    QList<QStandardItem*> items = m_modelcotations->findItems(cotation);
+    if (items.size() == 0)
+        return Q_NULLPTR;
+    UpStandardItem *item = dynamic_cast<UpStandardItem*>(items.at(0));
+    return (item == Q_NULLPTR? Q_NULLPTR : dynamic_cast<Cotation*>(item->rufusitem()));
 }
 
 /*!

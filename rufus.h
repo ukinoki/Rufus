@@ -71,6 +71,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <upcombobox.h>
 #include <updoublevalidator.h>
 #include <upstandarditem.h>
+#include <upstandarditemmodel.h>
 #include <conversionbase.h>
 #include <importdocsexternes.h>
 #include <log.h>
@@ -262,7 +263,8 @@ private:
 
 
     // la liste de cotations en cours d'utilisation
-    User        *m_combocotationparent = nullptr;  //!> le user propriétaire de la liste des cotations utilisées par ui->ActecotationComboBox
+    User                *m_combocotationparent = nullptr;               //!> le user propriétaire de la liste des cotations utilisées par ui->ActecotationComboBox
+    UpStandardItemModel *m_modelcotations = new UpStandardItemModel;    //!> le modèle de ui->ActeCotationcomboBox : un item par cotation du user, porteur de sa cotation
 
     // gestion des patients vus dans la journée
     QTimer      *gTimerPatientsVus;
@@ -377,7 +379,6 @@ private:
     void                ExporteActe(Acte *act);
     void                FermeDlgActesPrecedentsEtDocsExternes();
     bool                FermeDossier(Patient *pat);
-    void                initListeCotations();                          //! retrouve la liste des cotations d'un utilisateur (parentOut = user propriétaire de la liste) et l'ajoute à Datas::I()->listecotations
     Patient*            getPatientFromRow(int row);                         //!> retrouve le patient correspondant à la rangée row
     Patient*            getPatientFromSelectionInTable();                   //!> retrouve le patient sélectionné dans la liste des patients
     Patient*            getPatientFromCursorPositionInTable();              //!> retrouve le patient sous le curseur de la souris dans la liste des patients
