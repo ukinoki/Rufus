@@ -381,7 +381,6 @@ bool dlg_gestioncotations::VerifFiche()
     const double  pratiqueVal = QLocale().toDouble(wdg_tarifpratiqueline->text());
     const QString optamSQL    = QString::number(optamVal);
     const QString nonoptamSQL = (m_typecotation == 4) ? "null" : QString::number(QLocale().toDouble(wdg_tarifnooptamline->text()));
-    const QString pratiqueSQL = QString::number(pratiqueVal);
     const QString tipSQL      = Utils::correctquoteSQL(wdg_tipline->toPlainText());
     const QString codeSQL     = Utils::correctquoteSQL(code);
     const QString iduserSQL   = QString::number(iduser);
@@ -418,19 +417,19 @@ bool dlg_gestioncotations::VerifFiche()
     int idcot = (ok && ex.size() > 0 && !ex.at(0).isNull()) ? ex.at(0).toInt() : 0;
     if (idcot > 0)
     {
-        //! montants rafraîchis : « autre » -> conventionnel (dans MontantOptam) + pratiqué ;
-        //! CCAM/assoc -> OPTAM + non-OPTAM (le pratiqué reste dans la jointure)
+        //! montants rafraîchis : « autre » -> conventionnel (dans MontantOptam) ;
+        //! CCAM/assoc -> OPTAM + non-OPTAM. Le pratiqué n'est QUE dans la jointure.
         const QString set = autre
-            ? QString(CP_MONTANTOPTAM_COTATIONS " = ") + optamSQL + ", " CP_MONTANTPRATIQUE_COTATIONS " = " + pratiqueSQL
+            ? QString(CP_MONTANTOPTAM_COTATIONS " = ") + optamSQL
             : QString(CP_MONTANTOPTAM_COTATIONS " = ") + optamSQL + ", " CP_MONTANTNONOPTAM_COTATIONS " = " + nonoptamSQL;
         db->StandardSQL("update " TBL_COTATIONS " set " + set + " where " CP_ID_COTATIONS " = " + QString::number(idcot));
     }
     else
     {
         db->StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", " CP_MONTANTOPTAM_COTATIONS ", "
-              CP_MONTANTNONOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
+              CP_MONTANTNONOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", "
               CP_IDUSER_COTATIONS ", " CP_TIP_COTATIONS ") VALUES ('"
-              + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", " + pratiqueSQL + ", "
+              + codeSQL + "', " + optamSQL + ", " + nonoptamSQL + ", "
               + QString::number(m_typecotation) + ", " + iduserSQL + ", '" + tipSQL + "')");
         QVariantList n = db->getFirstRecordFromStandardSelectSQL(
             "select min(" CP_ID_COTATIONS ") from " TBL_COTATIONS " where " + whereActe, ok);

@@ -1163,12 +1163,15 @@ void DataBase::exporteJointures()
     //! « ligne perso » idUser renseigné). La tête (colonnes sélectionnées) et la liste des colonnes
     //! cibles sont propres à chaque table de jointure. jointuresNGAP n'a PAS de montant pratiqué
     //! (pratiqué NGAP = conventionnel) -> source à 2 colonnes.
+    //! cotations.MontantPratique est abandonnée (le pratiqué vit dans les jointures) : elle n'a plus
+    //! de macro et n'est lue qu'ici, en clair, le temps de bâtir les jointures des bases antérieures.
+    const QString pratiqueLegacy = "MontantPratique";
     const QString sourceTail = " from " TBL_COTATIONS " c"
                                " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
                                      " from " TBL_COTATIONS " group by " CP_TYPEACTE_COTATIONS ") ref"
                                      " on c." CP_TYPEACTE_COTATIONS " = ref.ta"
                                " where c." CP_IDUSER_COTATIONS " is not null and ";
-    const QString source     = " select ref.minid, c." CP_IDUSER_COTATIONS ", c." CP_MONTANTPRATIQUE_COTATIONS + sourceTail;
+    const QString source     = " select ref.minid, c." CP_IDUSER_COTATIONS ", c." + pratiqueLegacy + sourceTail;
     const QString sourceNGAP = " select ref.minid, c." CP_IDUSER_COTATIONS + sourceTail;
     //! appartenance à la table officielle ccam (= code CCAM isolé) et motif « code CCAM + suffixe » (= association)
     const QString inCCAM = " in (select " CP_CODECCAM_CCAM " from " TBL_CCAM ")";
@@ -1201,13 +1204,14 @@ void DataBase::exporteJointures()
                 " (" CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_IDUSER_JOINTAUTRESCOTATIONS ", "
                 CP_MONTANTCONVENTIONNEL_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTAUTRESCOTATIONS ")"
                 " select ref.minid, c." CP_IDUSER_COTATIONS ", "
-                " coalesce(nullif(c." CP_MONTANTOPTAM_COTATIONS ", 0), c." CP_MONTANTPRATIQUE_COTATIONS "),"
-                " c." CP_MONTANTPRATIQUE_COTATIONS
-                " from " TBL_COTATIONS " c"
-                " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
-                      " from " TBL_COTATIONS " group by " CP_TYPEACTE_COTATIONS ") ref"
-                      " on c." CP_TYPEACTE_COTATIONS " = ref.ta"
-                " where c." CP_IDUSER_COTATIONS " is not null and c." CP_TYPEACTE_COTATIONS + autre);
+                " coalesce(nullif(c." CP_MONTANTOPTAM_COTATIONS ", 0), c." + pratiqueLegacy + "),"
+                " c." + pratiqueLegacy
+                + " from " TBL_COTATIONS " c"
+                  " join (select " CP_TYPEACTE_COTATIONS " ta, min(" CP_ID_COTATIONS ") minid"
+                        " from " TBL_COTATIONS " group by " CP_TYPEACTE_COTATIONS ") ref"
+                        " on c." CP_TYPEACTE_COTATIONS " = ref.ta"
+                  " where c." CP_IDUSER_COTATIONS " is not null and c." CP_TYPEACTE_COTATIONS
+                + autre);
     StandardSQL("update " TBL_COTATIONS " set " CP_TYPECOTATION_COTATIONS " = 4 where " CP_TYPEACTE_COTATIONS + autre);
 }
 
