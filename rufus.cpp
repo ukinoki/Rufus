@@ -1492,23 +1492,18 @@ void Rufus::AutreDossier(Patient *pat)
 void Rufus::BasculerMontantActe()
 {
     m_montantActe = QLocale().toString(QLocale().toDouble(ui->ActeMontantlineEdit->text()),'f',2);
-    int idx = ui->ActeCotationcomboBox->findText(ui->ActeCotationcomboBox->currentText());
-    if (idx>-1)
+    Cotation *cot = cotationcombo();
+    if (cot != Q_NULLPTR)
     {
-        QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
-        double MontantConv, MontantPrat, MontantActe;
-        MontantActe = QLocale().toDouble(ui->ActeMontantlineEdit->text());
-        MontantConv = listMontantActe.at(0).toDouble();
-        MontantPrat = listMontantActe.at(1).toDouble();
-
-        if (fabs(MontantActe)!=fabs(MontantPrat))
+        const double MontantActe = QLocale().toDouble(ui->ActeMontantlineEdit->text());
+        if (fabs(MontantActe) != fabs(cot->montantpratique()))
         {
-            ui->ActeMontantlineEdit->setText(QLocale().toString(MontantPrat,'f',2));
+            ui->ActeMontantlineEdit->setText(QLocale().toString(cot->montantpratique(),'f',2));
             ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
         }
         else
         {
-            ui->ActeMontantlineEdit->setText(QLocale().toString(MontantConv,'f',2));
+            ui->ActeMontantlineEdit->setText(QLocale().toString(cot->montantconventionnel(),'f',2));
             ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif habituellement pratiqué"));
         }
         ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), m_montantActe);       //BasculerMontantActe()
@@ -4557,122 +4552,42 @@ void Rufus::RecettesSpeciales()
     delete Dlg_RecSpec;
 }
 
+/*!
+ * \brief Rufus::RetrouveMontantActe
+ * affiche le montant de la cotation choisie : le tarif habituellement pratiqué par défaut, le tarif
+ * conventionnel pour un patient CMU. La cotation est celle portée par l'item du combo ; si le code a
+ * été saisi à la main (le complèteur propose toute la CCAM, pas seulement les cotations du user), on
+ * se rabat sur le tarif officiel de la table ccam.
+ */
 void Rufus::RetrouveMontantActe()
 {
-    auto retrouvecotation = [=, this] (User *usr, QString cotation, QString &Montant)
-    {
-        User *parent = nullptr;
-        initListeCotations();
-        Cotations *cots = Datas::I()->cotations;
-        if (cots)
-        {
-            parent = cots->userparent();
-            if (parent != nullptr)
-            {
-                for (auto it = cots->cotations()->constBegin(); it != cots->cotations()->constEnd(); ++it)
-                {
-                    Cotation* cot = const_cast<Cotation*>(it.value());
-                    if (ui->ActeCotationcomboBox->currentText() == cot->typeacte())
-                    {
-                        if (parent->secteurconventionnel()>1)
-                        {
-                            if (!currentpatient()->iscmu())
-                                Montant = QLocale().toString(cot->montantpratique(),'f',2);
-                            else
-                                Montant = QLocale().toString(cot->montantconventionnel(),'f',2);
-                        }
-                        else
-                            Montant = QLocale().toString(cot->montantconventionnel(),'f',2);
-                        ui->ActeMontantlineEdit->setText(Montant);
-                        break;
-                    }
-                }
-            }
-            if (Montant == "0.00")
-            {
-                QVariantList cotdata = QVariantList();
-                if (parent != nullptr)
-                {
-                    QString tarifconventionne = (usr->isOPTAM() ? CP_MONTANTOPTAM_CCAM : CP_MONTANTNONOPTAM_CCAM );
-                    // qDebug() << parent;
-                    QString req =
-                            "SELECT " + tarifconventionne + ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS " cot, " TBL_CCAM " cc"
-                                                                                                                                       " where " CP_TYPEACTE_COTATIONS " = " CP_CODECCAM_CCAM
-                            " and " CP_IDUSER_COTATIONS " = " + QString::number(parent->id()) +
-                            " and " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
-                    // qDebug() << req;
-                    cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-                    if (m_ok && cotdata.size()>0)
-                    {
-                        if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
-                            Montant = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
-                        else
-                            Montant = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
-                        ui->ActeMontantlineEdit->setText(Montant);
-                    }
-                }
-                if (cotdata == QVariantList())
-                {
-                    QString req = "SELECT " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " FROM " TBL_CCAM " where " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
-                    cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-                    if (m_ok && cotdata.size()>0)
-                    {
-                        QString MontantActe;
-                        if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu() && !parent->isOPTAM())
-                            MontantActe = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
-                        else
-                            MontantActe = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
-                        ui->ActeMontantlineEdit->setText(MontantActe);
-                    }
-                    else
-                    {
-                        QString req =
-                                "SELECT " CP_MONTANTOPTAM_COTATIONS ", " CP_MONTANTPRATIQUE_COTATIONS " FROM " TBL_COTATIONS
-                                " where " CP_TYPEACTE_COTATIONS " like '" + Utils::correctquoteSQL(cotation) + "%'";
-                        // qDebug() << req;
-                        cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
-                        if (m_ok && cotdata.size()>0)
-                        {
-                            if (parent->secteurconventionnel()>1 && !currentpatient()->iscmu())
-                                Montant = QLocale().toString(cotdata.at(1).toDouble(),'f',2);
-                            else
-                                Montant = QLocale().toString(cotdata.at(0).toDouble(),'f',2);
-                            ui->ActeMontantlineEdit->setText(Montant);
-                        }
-                    }
-                }
-            }
-            if (Montant != "0.00")
-            {
-                if (parent != nullptr)
-                {
-                    if (parent->secteurconventionnel()>1)
-                    {
-                        ui->BasculerMontantpushButton->setVisible(true);
-                        ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
-                    }
-                }
-                else
-                    ui->BasculerMontantpushButton->setVisible(false);
-            }
-        }
-    };
-
     if (currentpatient() == nullptr)
         return;
-    QString MontantActe = "0.00";
-    QString cotation = ui->ActeCotationcomboBox->currentText();
-    ui->EnregistrePaiementpushButton->setEnabled(cotation!="");
-    if (cotation == Utils::ConvertitModePaiementtotr(GRATUIT))
-        ui->ActeMontantlineEdit->setText(MontantActe);
-    else
+    const QString cotation = ui->ActeCotationcomboBox->currentText();
+    ui->EnregistrePaiementpushButton->setEnabled(cotation != "");
+    double montant = 0.0;
+
+    initListeCotations();
+    Cotation *cot = cotationcombo(cotation);
+    if (cot != Q_NULLPTR)
+        montant = (currentpatient()->iscmu() ? cot->montantconventionnel() : cot->montantpratique());
+    else if (cotation != "" && cotation != Utils::ConvertitModePaiementtotr(GRATUIT))
     {
         User *superviseur = Datas::I()->users->getById(currentacte()->idUserSuperviseur());
-        if (superviseur)
-            retrouvecotation(superviseur, cotation, MontantActe);
-        else
-            ui->ActeMontantlineEdit->setText(MontantActe);
+        QString req = "select " CP_MONTANTOPTAM_CCAM ", " CP_MONTANTNONOPTAM_CCAM " from " TBL_CCAM
+                      " where " CP_CODECCAM_CCAM " like '" + Utils::correctquoteSQL(cotation) + "%'";
+        QVariantList cotdata = db->getFirstRecordFromStandardSelectSQL(req, m_ok);
+        if (m_ok && cotdata.size() > 0)
+        {
+            //! le non-OPTAM ne concerne qu'un soignant de secteur 2 non OPTAM, hors patient CMU
+            const bool nonoptam = superviseur != Q_NULLPTR && !superviseur->isOPTAM()
+                                  && superviseur->secteurconventionnel() > 1 && !currentpatient()->iscmu();
+            montant = cotdata.at(nonoptam? 1 : 0).toDouble();
+        }
     }
+    ui->ActeMontantlineEdit->setText(QLocale().toString(montant, 'f', 2));
+    AfficheBasculerMontant(montant);
+
     if (Datas::I()->users->getById(currentacte()->idComptable()) == nullptr)
         ItemsList::update(currentacte(),CP_IDUSERCOMPTABLE_ACTES, currentuser()->idcomptableactes());
 
@@ -6858,7 +6773,6 @@ void Rufus::AfficheActe(Acte* acte)
     QString nomsuperviseur(""), superviseurlogin ("");
     User * usr = Datas::I()->users->getById(acte->idUserSuperviseur());
     disconnect(ui->ActeCotationcomboBox,    &QComboBox::currentTextChanged,                 nullptr, nullptr);
-    disconnect(ui->ActeCotationcomboBox,    QOverload<int>::of(&QComboBox::highlighted), nullptr, nullptr);
     if (usr != nullptr)
     {
         nomsuperviseur =  usr->prenom() + " " + usr->nom();
@@ -6902,24 +6816,7 @@ void Rufus::AfficheActe(Acte* acte)
         ui->ActeMontantLabel    ->setText(tr("Montant") + "(" + QLocale().currencySymbol() + ")");
     double MontantActe = acte->montant()/H;
     ui->ActeMontantlineEdit     ->setText(QLocale().toString(MontantActe,'f',2));
-    int idx = ui->ActeCotationcomboBox->findText(acte->cotation());
-    if (idx>0)
-    {
-        QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
-        double MontantConv, MontantPrat;
-        MontantConv = listMontantActe.at(0).toDouble();
-        MontantPrat = listMontantActe.at(1).toDouble();
-        ui->BasculerMontantpushButton->setVisible((fabs(MontantActe)!=fabs(MontantConv))
-                                                  || (fabs(MontantActe)!=fabs(MontantPrat))
-                                                  || (fabs(MontantConv)!=fabs(MontantPrat)));
-        if (ui->BasculerMontantpushButton->isVisible())
-        {
-            if (fabs(MontantActe)!=fabs(MontantPrat))
-                ui->BasculerMontantpushButton->setImmediateToolTip("Revenir au tarif habituellement pratiqué");
-            else
-                ui->BasculerMontantpushButton->setImmediateToolTip("Revenir au tarif conventionnel");
-        }
-    }
+    AfficheBasculerMontant(MontantActe);
 
     ui->CreerActepushButton     ->setToolTip(tr("Créer un nouvel acte pour ") + currentpatient()->prenom() + " " + currentpatient()->nom());
     ui->CreerBOpushButton       ->setToolTip(tr("Créer un bilan orthoptique pour ") + currentpatient()->prenom() + " " + currentpatient()->nom());
@@ -9172,17 +9069,51 @@ void    Rufus::ReconstruitComboCotations(User *usr)
     m_combocotationparent = usr;
 
     ui->ActeCotationcomboBox->clear();
-    ui->ActeCotationcomboBox->addItem(Utils::ConvertitModePaiementtotr(GRATUIT),QStringList() << "0.00" << "0.00" << Utils::ConvertitModePaiementtotr(GRATUIT));
+    //! item 0 = « gratuit » : aucune cotation derrière, le montant vaut 0
+    ui->ActeCotationcomboBox->addItem(Utils::ConvertitModePaiementtotr(GRATUIT));
     QMap<int, Cotation*> *listcots = Datas::I()->cotations->usercotations();
-    if (listcots != nullptr)
-        for (auto it = listcots->constBegin(); it != listcots->constEnd(); ++it)
-        {
-            Cotation* cot = const_cast<Cotation*>(it.value());
-            QStringList list;
-            QString champ = QString::number(cot->montantconventionnel(), 'f', 2);
-            list << champ << QString::number(cot->montantpratique(), 'f', 2) << cot->descriptif();
-            ui->ActeCotationcomboBox->addItem(cot->typeacte(),list);
-        }
+    if (listcots == nullptr)
+        return;
+    //! chaque item du modèle porte SA cotation : tous les montants s'en déduisent (plus de recopie en
+    //! QStringList) et le descriptif devient le tooltip natif de l'item.
+    for (auto it = listcots->constBegin(); it != listcots->constEnd(); ++it)
+    {
+        Cotation *cot = it.value();
+        ui->ActeCotationcomboBox->addItem(cot->typeacte(), QVariant::fromValue(cot));
+        ui->ActeCotationcomboBox->setItemData(ui->ActeCotationcomboBox->count() - 1, cot->descriptif(), Qt::ToolTipRole);
+    }
+}
+
+Cotation* Rufus::cotationcombo(QString cotation)
+{
+    if (cotation.isEmpty())
+        cotation = ui->ActeCotationcomboBox->currentText();
+    return ui->ActeCotationcomboBox->itemData(ui->ActeCotationcomboBox->findText(cotation)).value<Cotation*>();
+}
+
+/*!
+ * \brief Rufus::AfficheBasculerMontant
+ * montre le bouton de bascule si le montant de l'acte, le conventionnel et le pratiqué ne sont pas
+ * tous les trois égaux, et règle son tooltip sur le tarif vers lequel il ramènera.
+ * \param montantacte  le montant affiché pour l'acte
+ */
+void Rufus::AfficheBasculerMontant(double montantacte)
+{
+    Cotation *cot = cotationcombo();
+    if (cot == Q_NULLPTR)
+    {
+        ui->BasculerMontantpushButton->setVisible(false);
+        return;
+    }
+    const double conv = cot->montantconventionnel();
+    const double prat = cot->montantpratique();
+    ui->BasculerMontantpushButton->setVisible(fabs(montantacte) != fabs(conv)
+                                              || fabs(montantacte) != fabs(prat)
+                                              || fabs(conv) != fabs(prat));
+    if (ui->BasculerMontantpushButton->isVisible())
+        ui->BasculerMontantpushButton->setImmediateToolTip(fabs(montantacte) != fabs(prat)
+                                                           ? tr("Revenir au tarif habituellement pratiqué")
+                                                           : tr("Revenir au tarif conventionnel"));
 }
 
 void Rufus::ConnectCotationComboBox()
@@ -9192,11 +9123,6 @@ void Rufus::ConnectCotationComboBox()
         RetrouveMontantActe();
         ValideActeMontantLineEdit(ui->ActeMontantlineEdit->text(), m_montantActe);
         ui->GratuitpushButton->setVisible(ui->ActeCotationcomboBox->currentIndex() != 0);
-    });
-    connect (ui->ActeCotationcomboBox,  QOverload<int>::of(&QComboBox::highlighted),    this,
-    [=, this] (int a) {
-        QString tip = ui->ActeCotationcomboBox->itemData(a).toStringList().at(2);
-        QToolTip::showText(cursor().pos(),tip);
     });
 }
 
@@ -10572,25 +10498,7 @@ bool Rufus::ValideActeMontantLineEdit(QString NouveauMontant, QString AncienMont
 
     MAJActesPrecs();
 
-    int idx = ui->ActeCotationcomboBox->currentIndex();
-    if (idx>0)
-    {
-        QStringList listMontantActe = ui->ActeCotationcomboBox->itemData(idx).toStringList();
-        double MontantConv, MontantPrat, MontantActe;
-        MontantActe = QLocale().toDouble(NouveauMontant);
-        MontantConv = listMontantActe.at(0).toDouble();
-        MontantPrat = listMontantActe.at(1).toDouble();
-        ui->BasculerMontantpushButton->setVisible((fabs(MontantActe)!=fabs(MontantConv))
-                                                  || (fabs(MontantActe)!=fabs(MontantPrat))
-                                                  || (fabs(MontantConv)!=fabs(MontantPrat)));
-        if (ui->BasculerMontantpushButton->isVisible())
-        {
-            if (fabs(MontantActe)!=fabs(MontantPrat))
-                ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif habituellement pratiqué"));
-            else
-                ui->BasculerMontantpushButton->setImmediateToolTip(tr("Revenir au tarif conventionnel"));
-        }
-    }
+    AfficheBasculerMontant(QLocale().toDouble(NouveauMontant));
     return true;
 }
 

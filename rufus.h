@@ -411,6 +411,8 @@ private:
                                                     //!> si une cotation est choisie, le montant de l'acte est recherché est affiché dans la ligne MontantLineEdit
                                                     //!> un tooltip est affiché décrivant le descriptif de la cotation mise en surbrillance dans la liste déroulante
     void                ReconstruitComboCotations(User* usr = Datas::I()->users->userconnected());  //!> reconstruit la liste des cotations utilisées par l'utilisateur connecté
+    Cotation*           cotationcombo(QString cotation = QString());   //!> la cotation portée par l'item de ActeCotationcomboBox (vide = l'item courant), nullptr si l'item n'en porte pas
+    void                AfficheBasculerMontant(double montantacte);    //!> montre le bouton de bascule si montant de l'acte, conventionnel et pratiqué ne sont pas tous égaux
     void                ReconstruitCombosCorresp(bool reconstruireliste = true);
     void                SetDatasRefractionKerato();
     void                RemiseCheques();
