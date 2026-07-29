@@ -151,15 +151,19 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
     connect(OKButton,       &QPushButton::clicked,  this,   [=, this] {if (VerifFiche()) accept();});
     connect(CancelButton,   &QPushButton::clicked,  this,   [=, this] {reject();});
 
+    //! pas de mode à choisir dans deux cas : en modification, réservée aux « autres » (on ne modifie
+    //! pas un acte CCAM, ses montants étant figés), et en version internationale, où ni CCAM ni
+    //! association n'existent. Dans les deux, mode « autre » imposé et sélecteur masqué.
+    if (m_mode == Modification || !m_cotationsfrance)
+    {
+        wdg_chkAutre    ->setChecked(true);         //! -> m_typecotation = 4 (via le toggled)
+        wdg_groupmode   ->setVisible(false);
+    }
+    else
+        wdg_chkCCAM->setChecked(true);              //! création : mode CCAM par défaut
+
     if (m_mode == Modification)
     {
-        //! modification réservée aux « autres » (type 4) : la case « autre » est cochée, les 2 cases
-        //! CCAM sont désactivées — on ne modifie pas un acte CCAM, ses montants CCAM étant figés.
-        wdg_groupmode->setTitle(tr("Modifier la cotation"));
-        wdg_chkCCAM ->setEnabled(false);
-        wdg_chkAssoc->setEnabled(false);
-        wdg_chkAutre->setChecked(true);             //! -> m_typecotation = 4 (via le toggled)
-
         const int iduser = Datas::I()->users->userconnected()->id();
         //! id de la cotation (clé de l'update) + libellé, depuis la table partagée
         QVariantList c = db->getFirstRecordFromStandardSelectSQL(
@@ -178,15 +182,6 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
             wdg_tarifpratiqueline->setText(QLocale().toString(prat, 'f', 2));
         }
     }
-    else if (!m_cotationsfrance)
-    {
-        //! version internationale : ni CCAM ni association n'ont de sens -> mode « autre » imposé,
-        //! et pas de sélecteur puisqu'il n'y a plus rien à choisir
-        wdg_chkAutre    ->setChecked(true);     //! -> m_typecotation = 4 (via le toggled)
-        wdg_groupmode   ->setVisible(false);
-    }
-    else
-        wdg_chkCCAM->setChecked(true);          //! création : mode CCAM par défaut
 
     appliqueMode();
 }

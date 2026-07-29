@@ -2937,8 +2937,9 @@ QList<Cotation*> DataBase::loadCotations()
 /*!
  * \brief DataBase::loadMontantsPratiquesByUser
  * retourne, pour un utilisateur, la table idcotation -> montant pratiqué, réunie depuis les 4
- * tables de jointures (toutes clées sur idCotation). Sert à marquer, dans la map des cotations de
- * référence, celles utilisées par le user (used) et à leur affecter son montant pratiqué.
+ * tables de jointures (toutes clées sur idCotation) - la seule des « autres » (type 4) en version
+ * internationale, où CCAM, association et NGAP n'existent pas. Sert à marquer, dans la map des
+ * cotations de référence, celles utilisées par le user (used) et à leur affecter son montant pratiqué.
  */
 QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
 {
@@ -2946,16 +2947,19 @@ QMap<int, double> DataBase::loadMontantsPratiquesByUser(User *usr)
     if (usr == Q_NULLPTR)
         return montants;
     const QString id = QString::number(usr->id());
-    //! réunion des 4 tables de jointure, chacune avec ses propres macros de colonnes
-    const QString req =
-          "select " CP_IDCOTATION_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
+    //! les « autres » (type 4) : la seule jointure qui subsiste en version internationale
+    QString req =
+          "select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
+          " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
+    //! France : on y réunit les 3 autres tables de jointure, chacune avec ses propres macros de colonnes
+    if (parametres()->cotationsfrance())
+        req +=
+          " union all select " CP_IDCOTATION_JOINTCCAM ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESCCAM " where " CP_IDUSER_JOINTCCAM " = " + id
         + " union all select " CP_IDCOTATION_JOINTASSOCIATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
           " from " TBL_JOINTURESASSOCIATIONS " where " CP_IDUSER_JOINTASSOCIATIONS " = " + id
         + " union all select " CP_IDCOTATION_JOINTNGAP ", 0"        //! NGAP : pas de pratiqué stocké (0 = marqueur « utilisé » ; loadUserCotations le recalcule = conventionnel)
-          " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id
-        + " union all select " CP_IDCOTATION_JOINTAUTRESCOTATIONS ", " CP_MONTANTPRATIQUE_JOINTCOTATIONS
-          " from " TBL_JOINTURESAUTRESCOTATIONS " where " CP_IDUSER_JOINTAUTRESCOTATIONS " = " + id;
+          " from " TBL_JOINTURESNGAP " where " CP_IDUSER_JOINTNGAP " = " + id;
     //qDebug() << req;
     QList<QVariantList> l = StandardSelectSQL(req, ok);
     if (ok)
