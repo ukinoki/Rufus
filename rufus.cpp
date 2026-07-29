@@ -8367,6 +8367,9 @@ void Rufus::InitWidgets()
 
     ui->VitaleupPushButton->setIconSize(QSize(120,100));
 
+    //! la carte Vitale est franco-française : pas de lecteur en version internationale
+    ui->VitaleupPushButton->setVisible(db->parametres()->cotationsfrance());
+
     // Bouton FSE (ex-Pyxvital) masqué : le parcours de facturation sera redéfini plus tard.
     ui->FSEpushButton->setVisible(false);
 

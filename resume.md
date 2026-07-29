@@ -37,8 +37,9 @@ Branche de travail : `RufusQt6`.
 - [ ] **Codes barres** — point de coupe unique : `User::mapBarCodes()`, `Items/cls_user.cpp:201`.
       Elle seule construit la map (`AM`, `RPPS`) ; tout l'aval (`TextPrinter/code128`,
       `Procedures::ImpressionDocument`, `dlg_docsexternes`) devient inerte si la map est vide.
-- [ ] **Carte Vitale** — bloc entier non conditionné : `lecteurvitale.cpp`, `fichevitale.cpp`, et les
-      appels `rufus.cpp:10510` (lecture réelle), `:10524` (simulation), `:10532` (`ExploiteCarteVitale`).
+- [x] **Carte Vitale** — bouton `VitaleupPushButton` masqué hors France (`rufus.cpp`, `InitWidgets()`).
+      C'était la seule entrée : `SimulerLireCV` n'est câblé que par une ligne en commentaire
+      (`rufus.cpp:439`). Le module (`lecteurvitale`, `fichevitale`) reste compilé mais inatteignable.
 - [ ] **NNI** — déborde les deux sites déjà gardés : `Utils::rgx_NNI` (`utils.cpp:59`, format INSEE en
       dur), affichage, impression, colonne DSP.
 - [ ] **CMU** — dispositif français, sert encore au calcul du montant : `rufus.cpp:4568`
