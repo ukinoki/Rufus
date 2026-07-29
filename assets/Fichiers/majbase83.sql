@@ -150,6 +150,20 @@ BEGIN
             THEN
                 ALTER TABLE `rufus`.`jointuresNGAP` DROP COLUMN `MontantPratique`;
         END IF;
+    -- ParametresSysteme.Pays : code pays ISO 3166-1 alpha-2 (FR, ES, MX, CL...), DISTINCT de
+    -- Version qui porte la langue - un cabinet mexicain travaille en ES, un cabinet espagnol
+    -- aussi. Servira d'abord aux codes postaux et a la liste des villes.
+    -- null = pas encore choisi : le programme demandera.
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'Pays') as chp;
+        IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                ADD COLUMN `Pays` VARCHAR(2) NULL DEFAULT NULL
+                COMMENT 'code pays ISO 3166-1 alpha-2 - null = pas encore choisi' AFTER `Version`;
+        END IF;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();

@@ -421,7 +421,8 @@ CREATE TABLE `ParametresSysteme` (
   `VillesFrance` int(1) DEFAULT NULL,
   `CotationsFrance` int(1) DEFAULT NULL,
   `ComptaFrance` int(1) DEFAULT NULL,
-  `Version` varchar(2) DEFAULT NULL
+  `Version` varchar(2) DEFAULT NULL,
+  `Pays` varchar(2) DEFAULT NULL COMMENT 'code pays ISO 3166-1 alpha-2 - null = pas encore choisi'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -431,7 +432,7 @@ CREATE TABLE `ParametresSysteme` (
 
 LOCK TABLES `ParametresSysteme` WRITE;
 /*!40000 ALTER TABLE `ParametresSysteme` DISABLE KEYS */;
-INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,1,77,'2026-07-01',2.60,2.72,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1,'FR');
+INSERT INTO `ParametresSysteme` VALUES ('bob',1,1,1,83,1,77,'2026-07-01',2.60,2.72,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,1,1,1,'FR',NULL);
 /*!40000 ALTER TABLE `ParametresSysteme` ENABLE KEYS */;
 UNLOCK TABLES;
 
