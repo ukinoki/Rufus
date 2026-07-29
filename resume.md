@@ -34,9 +34,10 @@ Branche de travail : `RufusQt6`.
 
 ### Points à traiter
 
-- [ ] **Codes barres** — point de coupe unique : `User::mapBarCodes()`, `Items/cls_user.cpp:201`.
-      Elle seule construit la map (`AM`, `RPPS`) ; tout l'aval (`TextPrinter/code128`,
-      `Procedures::ImpressionDocument`, `dlg_docsexternes`) devient inerte si la map est vide.
+- [x] **Codes barres** — la map (`AM`, `RPPS`) n'est plus posée hors France. Garde aux 3 seuls
+      `setmapBarcodes()` du programme (`procedures.cpp:1639`, `:1679`, `:1724`) ; `TextPrinter`
+      n'imprime rien si la map est vide. Garde mise là et non dans `User::mapBarCodes()` :
+      **aucune classe de `Items/` ne dépend de `DataBase`**, il ne faut pas ouvrir cette porte.
 - [x] **Carte Vitale** — bouton `VitaleupPushButton` masqué hors France (`rufus.cpp`, `InitWidgets()`).
       C'était la seule entrée : `SimulerLireCV` n'est câblé que par une ligne en commentaire
       (`rufus.cpp:439`). Le module (`lecteurvitale`, `fichevitale`) reste compilé mais inatteignable.

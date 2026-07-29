@@ -1636,7 +1636,7 @@ bool Procedures::Cree_pdffile(QString textcorps, QString textentete, QString tex
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
-    if (usr != Q_NULLPTR)
+    if (usr != Q_NULLPTR && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
 
@@ -1676,7 +1676,7 @@ QByteArray Procedures::Cree_pdfByteArray(QString textcorps, QString textentete, 
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge());
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
-    if (usr != Q_NULLPTR)
+    if (usr != Q_NULLPTR && db->parametres()->cotationsfrance())    //! codes barres (n° AM, RPPS) : franco-français
         TexteAImprimer->setmapBarcodes(usr->mapBarCodes());
 
     QByteArray ba = TexteAImprimer->getPDFByteArray(Etat->document());
@@ -1721,7 +1721,8 @@ bool Procedures::Imprime_Etat(QWidget *parent, QString textcorps, QString texten
         textpied.replace("&page;","");
     TexteAImprimer->setFooterText(textpied);
     TexteAImprimer->setTopMargin(TailleTopMarge);
-    TexteAImprimer->setmapBarcodes(mapbarcodes);
+    if (db->parametres()->cotationsfrance())            //! codes barres (n° AM, RPPS) : franco-français
+        TexteAImprimer->setmapBarcodes(mapbarcodes);
     TexteAImprimer->setSignature(signature, SIGNATURE_LARGEUR_IMPRESSION_MM);
     if (!AvecDupli)
         TexteAImprimer->setDuplex(QPrinter::DuplexLongSide);
