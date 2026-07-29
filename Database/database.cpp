@@ -967,8 +967,18 @@ bool DataBase::chargeCotationsXml(QDomDocument &docxml)
     return true;
 }
 
-bool DataBase::verifMajCotations()
+/*!
+ * \brief DataBase::verifMajCotations
+ * vérifie et applique les mises à jour du fichier de cotations. La valeur de retour dit seulement que
+ * le FICHIER a été traité (l'appelant enchaîne alors completeTipsManquants, qui relit ce xml déjà en
+ * cache). Ce que le fichier a réellement changé est porté par misajour : sans lui, le message de mise
+ * à jour tomberait au premier lancement de CHAQUE jour, le fichier étant relu quotidiennement même
+ * quand il n'apporte rien.
+ * \param misajour  mis à true si, et seulement si, la table ccam ou une cotation NGAP a été écrite
+ */
+bool DataBase::verifMajCotations(bool &misajour)
 {
+    misajour = false;
     if (!m_db.isOpen())
         return false;
 
@@ -1031,6 +1041,7 @@ bool DataBase::verifMajCotations()
             //! invariant permanent (pas seulement lors d'une revalorisation) -> corrigeMontantsPratiques(),
             //! appelé à chaque démarrage, hors de ces gardes.
             setversionCCAM(elCCAM.text().toDouble());   //! met à jour la version CCAM (base + mémoire)
+            misajour = true;                            //! la table ccam a été reconstruite
         }
     }
 
@@ -1075,6 +1086,7 @@ bool DataBase::verifMajCotations()
                     StandardSQL("insert into " TBL_COTATIONS " (" CP_TYPEACTE_COTATIONS ", "
                                 CP_MONTANTOPTAM_COTATIONS ", " CP_TYPECOTATION_COTATIONS ", " CP_TIP_COTATIONS ")"
                                 " values ('" + typeacte + "', " + montantSQL + ", 3, '" + nomSQL + "')");
+                misajour = true;                        //! au moins un acte NGAP écrit
             }
             //! import terminé : on mémorise la version NGAP et les valeurs de l'AMY (base + mémoire)
             if (dateXml.isValid())

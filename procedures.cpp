@@ -4230,13 +4230,16 @@ bool Procedures::IdentificationUser()
             //! cotations, une fois au lancement : (1) MAJ de la base depuis le fichier xml ; (2) chargement
             //! de la map à jour ; (3) remplissage des Tip vides UNIQUEMENT si le fichier a été traité
             //! (sinon il l'était déjà à un lancement précédent -> inutile de re-parser le xml)
-            const bool cotationsTraitees = DataBase::I()->verifMajCotations();   //! Action 1 : MAJ base cotations (CCAM/NGAP)
+            bool cotationsMisesAJour = false;                                    //! le fichier a réellement changé quelque chose
+            const bool cotationsTraitees = DataBase::I()->verifMajCotations(cotationsMisesAJour);   //! Action 1 : MAJ base cotations (CCAM/NGAP)
             DataBase::I()                   ->corrigeMontantsPratiques();        //! invariant : pratiqué >= conventionnel (indépendant de la MAJ, à chaque démarrage)
             if (cotationsTraitees)
             {
                 Datas::I()->cotations       ->completeTipsManquants();   //! Action 2 : Tip vides, dans la foulée de la MAJ et nulle part ailleurs
-                //! on n'a pas demandé la permission : on prévient simplement, au centre de l'écran
-                ShowMessage::I()            ->SplashMessage(tr("La base de cotations Rufus a été mise à jour."), 4000, true);
+                //! le fichier est relu tous les jours : on ne prévient que s'il a apporté quelque chose,
+                //! sinon le message tomberait au premier lancement de chaque jour
+                if (cotationsMisesAJour)
+                    ShowMessage::I()        ->SplashMessage(tr("La base de cotations Rufus a été mise à jour."), 4000, true);
             }
         }
         Datas::I()->cotations           ->initListe();
