@@ -1,6 +1,6 @@
 // sonde_vitale.cpp — sonde de diagnostic PC/SC pour la carte Vitale
 // -----------------------------------------------------------------------------
-// But : cartographier ce que la carte accepte de renvoyer SANS Pyxvital, pour
+// But : cartographier ce que la carte accepte de renvoyer SANS logiciel tiers, pour
 // décider ce qui est décodable (identité, NIR, ayants droit).
 //
 // Ce n'est PAS du code destiné à Rufus : c'est un outil jetable qui sert à

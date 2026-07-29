@@ -438,6 +438,7 @@ void Rufus::ConnectSignals()
     /*!    // DEV : fausse lecture (sans lecteur) ; remettre LireLaCV pour la vraie lecture PC/SC */
     //connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::SimulerLireCV);
     connect (ui->VitaleupPushButton,                                &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
+    connect (ui->Vitale3pushButton,                                 &QPushButton::clicked,                              this,   &Rufus::LireLaCV);
 
     connect (ui->ActeMontantlineEdit,                               &UpLineEdit::TextModified,                          this,   &Rufus::ActeMontantModifie);
     connect (ui->BasculerMontantpushButton,                         &QPushButton::clicked,                              this,   &Rufus::BasculerMontantActe);
@@ -8367,11 +8368,10 @@ void Rufus::InitWidgets()
 
     ui->VitaleupPushButton->setIconSize(QSize(120,100));
 
-    //! la carte Vitale est franco-française : pas de lecteur en version internationale
-    ui->VitaleupPushButton->setVisible(db->parametres()->cotationsfrance());
-
-    // Bouton FSE (ex-Pyxvital) masqué : le parcours de facturation sera redéfini plus tard.
-    ui->FSEpushButton->setVisible(false);
+    //! la carte Vitale est franco-française : pas de lecteur en version internationale.
+    //! les 2 boutons font la même chose, à 2 endroits différents de l'interface
+    ui->VitaleupPushButton  ->setVisible(db->parametres()->cotationsfrance());
+    ui->Vitale3pushButton   ->setVisible(db->parametres()->cotationsfrance());
 
     ui->SalDatlabel     ->setPixmap(Icons::pxSalleAttente().scaled(QSize(60,60), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxSalleAttente 60,60
     ui->Bureauxlabel    ->setPixmap(Icons::pxAVTest().scaled(QSize(100,100), Qt::KeepAspectRatio, Qt::SmoothTransformation)); //WARNING : icon scaled : pxAVTest 100,100
@@ -10499,7 +10499,7 @@ void Rufus::NouvelleMesure(GenericProtocol::TypeMesure TypeMesure) //utilisé po
 
 
 /*-----------------------------------------------------------------------------------------------------------------
-    Lecture DIRECTE de la carte Vitale (PC/SC, sans Pyxvital ni CPS) : ouvre la fiche FicheVitale.
+    Lecture DIRECTE de la carte Vitale (PC/SC, sans intermédiaire ni CPS) : ouvre la fiche FicheVitale.
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::LireLaCV()
 {
@@ -10515,8 +10515,8 @@ void Rufus::LireLaCV()
 
 /*-----------------------------------------------------------------------------------------------------------------
     DÉVELOPPEMENT — Fausse lecture de carte, pour travailler le côté Rufus SANS lecteur.
-    Une assurée + deux ayants droit, en dur. À retirer (avec le câblage temporaire du bouton FSE)
-    une fois l'intégration aboutie.
+    Une assurée + deux ayants droit, en dur. À retirer une fois l'intégration aboutie, avec le
+    câblage en commentaire qui la substitue à LireLaCV.
 -----------------------------------------------------------------------------------------------------------------*/
 void Rufus::SimulerLireCV()
 {

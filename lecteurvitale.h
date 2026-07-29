@@ -23,7 +23,7 @@ along with RufusAdmin and Rufus.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 
 //-----------------------------------------------------------------------------------------------------
-// Lecture DIRECTE de la carte Vitale, via PC/SC, SANS intermédiaire (ni Pyxvital, ni CPS).
+// Lecture DIRECTE de la carte Vitale, via PC/SC, SANS intermédiaire (ni logiciel tiers, ni CPS).
 //
 // La carte Vitale 2 est une carte ISO 7816 : on ouvre la racine (MF_VITALE) pour l'identité
 // (nom / prénom / date de naissance), puis l'application « VITALE » pour le NIR. Ces zones sont

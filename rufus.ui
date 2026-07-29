@@ -2654,7 +2654,10 @@ correspondants</string>
                    </spacer>
                   </item>
                   <item>
-                   <widget class="UpSmallButton" name="FSEpushButton">
+                   <widget class="UpSmallButton" name="Vitale3pushButton">
+                    <property name="toolTip">
+                     <string>ouvrir ou créer un dossier à partir de la carte vitale</string>
+                    </property>
                     <property name="sizePolicy">
                      <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
                       <horstretch>0</horstretch>
@@ -2684,7 +2687,7 @@ correspondants</string>
                     </property>
                     <property name="icon">
                      <iconset resource="assets/Images/images.qrc">
-                      <normaloff>:/FSE.png</normaloff>:/FSE.png</iconset>
+                      <normaloff>:/Vitale.jpg</normaloff>:/Vitale.jpg</iconset>
                     </property>
                     <property name="iconSize">
                      <size>
@@ -4746,7 +4749,7 @@ background-color:rgb(255, 255, 255)</string>
   <tabstop>OKModifTerrainupSmallButton</tabstop>
   <tabstop>PayelineEdit</tabstop>
   <tabstop>MotsClesupSmallButton</tabstop>
-  <tabstop>FSEpushButton</tabstop>
+  <tabstop>Vitale3pushButton</tabstop>
  </tabstops>
  <resources>
   <include location="assets/Images/images.qrc"/>
