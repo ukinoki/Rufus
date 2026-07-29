@@ -178,6 +178,13 @@ dlg_gestioncotations::dlg_gestioncotations(Mode mode, QString CodeActe, QWidget 
             wdg_tarifpratiqueline->setText(QLocale().toString(prat, 'f', 2));
         }
     }
+    else if (!m_cotationsfrance)
+    {
+        //! version internationale : ni CCAM ni association n'ont de sens -> mode « autre » imposé,
+        //! et pas de sélecteur puisqu'il n'y a plus rien à choisir
+        wdg_chkAutre    ->setChecked(true);     //! -> m_typecotation = 4 (via le toggled)
+        wdg_groupmode   ->setVisible(false);
+    }
     else
         wdg_chkCCAM->setChecked(true);          //! création : mode CCAM par défaut
 
