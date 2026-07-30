@@ -3753,7 +3753,7 @@ void Procedures::CalcLieuExercice()
             }
         delete gAskLieux;
     }
-    if (currentuser()->isSoignant())
+    if (currentuser()->isSoignant() && m_parametres->cotationsfrance())
     {
         if (currentuser()->isRemplacant())
         {
