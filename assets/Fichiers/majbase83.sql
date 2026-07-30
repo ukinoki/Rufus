@@ -164,6 +164,19 @@ BEGIN
                 ADD COLUMN `Pays` VARCHAR(2) NULL DEFAULT NULL
                 COMMENT 'code pays ISO 3166-1 alpha-2 - null = pas encore choisi' AFTER `Version`;
         END IF;
+    -- ParametresSysteme.CotationDesActes : on souhaite ou non utiliser le systeme de cotation des
+    -- actes. Propriete GENERALE de la base, et non plus de l'utilisateur : la decision est celle du
+    -- cabinet, pas de chacun. 1 par defaut = on cote.
+    SELECT COUNT(*) INTO tot FROM
+        (SELECT COLUMN_KEY
+        FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_NAME = 'ParametresSysteme' AND COLUMN_NAME = 'CotationDesActes') as chp;
+        IF tot=0
+            THEN
+                ALTER TABLE `rufus`.`ParametresSysteme`
+                ADD COLUMN `CotationDesActes` INT(1) NULL DEFAULT 1
+                COMMENT 'utiliser ou non le systeme de cotation des actes - 1 = oui' AFTER `Pays`;
+        END IF;
     UPDATE `rufus`.`ParametresSysteme` SET VersionBase = 83;
 END|
 CALL MAJ83();
