@@ -44,7 +44,21 @@ Branche de travail : `RufusQt6`.
 - [ ] **NNI** — déborde les deux sites déjà gardés : `Utils::rgx_NNI` (`utils.cpp:59`, format INSEE en
       dur), affichage, impression, colonne DSP.
 - [ ] **CMU** — dispositif français, sert encore au calcul du montant : `rufus.cpp:4568`
-      (`RetrouveMontantActe`), `rufus.cpp:7429-7434`.
+      (`RetrouveMontantActe`). L'affichage ALD/CMU de `rufus.cpp:7430` est déjà gardé.
+- [ ] **ALD** — spécificité française. Le décompte brut trompe : les points de **décision** sont déjà
+      gardés, un seul trou reste.
+    - déjà couvert : `rufus.cpp:8850` et `dlg_programmationinterventions.cpp:1689`
+      (`ALD = … && cotationsfrance()`) · la case de `dlg_impressions.cpp:1999` et celle de
+      `dlg_identificationpatient.cpp:152` ne sont visibles qu'en France · l'affichage ALD/CMU de
+      `rufus.cpp:7429`
+    - **à faire** : `dlg_docsexternes.cpp:597`, `bool ALD = docmt->isALD()` n'est pas gardé — un
+      document externe marqué ALD, réimprimé hors France, repasse par l'en-tête bizone.
+    - résidus inertes, à nettoyer seulement si on veut : l'ordonnance bizone entière reste dans le
+      code mais devient inatteignable (`Ressources::BodyOrdoALD()`/`HeaderOrdoALD()`, `ALDHeader`,
+      `TailleEnTeteALD` et son réglage `Param_Imprimante/TailleEnTeteALD`, `HTML_LARGEUR_ENTETE_*_ALD`,
+      le paramètre `bool ALD` qui traverse toute la chaîne d'impression) ; le drapeau patient
+      (`CP_ALD_DSP`, `Patient::isald()`) continue d'être écrit à false, case masquée.
+    - à laisser : `conversionbase.cpp` (12 occurrences), migration des anciennes bases.
 - [ ] **`loadCotationsByUser`** n'a toujours aucun appelant — à brancher ou à retirer.
 
 ### Déjà conditionné (pour mémoire, 31 sites)
