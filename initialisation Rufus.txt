@@ -61,20 +61,32 @@ II LANCEMENT DE RUFUS
 	La séquence se déroule à chaque lancement de Rufus
 
 1. pas de rufus.ini ou rufus.ini invalide sans mode de connexion paramétré
-	→ voir s'il y a un rufus.ini de sauvegarde dans le dossier .rufus
-	→ si oui, vérifier s'il est valide,
-		→ si oui
-			→ message "absence de fichier de configuration Rufus.ini ou fichier Rufus.ini corrompu, voulez vous restaurer la copie de sauvegarde?""
-				→ bouton annuler → fermeture du programme
-				→ bouton restaurer la copie
-				→ bouton revoir les parametres de connexion → RecupererDemarrage()
-	→ si non
+	MessageBox avec
+	→ Titre
 		→ message " absence de fichier de configuration Rufus.ini ou fichier Rufus.ini corrompu"
-				→ bouton annuler → fermeture du programme
-				→ bouton revoir les parametres de connexion → RecupererDemarrage()
-				
+		s'il existe une copie de sauvegarde valide
+			→ message += "voulez vous restaurer la copie de sauvegarde?""			
+	→ bouton annuler → fermeture du programme
+	→ s'il existe une copie de sauvegarde valide
+		→ bouton restaurer la copie
+			→ restaure le fichier Rufus.ini
+			→ lit les infos de Rufus.ini
+			→ message "Rufus.ini reconstruit - poursuite du lancement"
+	→ bouton revoir les parametres de connexion → revoir_les _aramètres_de_ connexion()
+		→ dlg_paramconnexion() ne teste pas la connexion à MySQL
+			→ pas de bouton tester sur dlg_paramconnexion()
+			→ le bouton OK 
+				→ contrôle que les renseignements sont complets et suffisants pour créer un Rufus.ini valide
+					→ login et mdp remplis
+					→ + en réseau loacl, adresse du serveur
+					→ + en accès distant l'adresse du dossier des cléSSL
+				→ ferme la fiche en créant un nouveau fichier Rufus.ini
+				→ lit les infos de Rufus.ini
+				→ message "Rufus.ini reconstruit - poursuite du lancement"
+			→ Annuler revient à la fiche précédente
+	
 2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion
-	1b . Monoposte
+	1a . Monoposte
 		On vérifie la présence d'un serveur
 			→ pas de serveur 
 				→ RecupererDemarrage() avec les boutons concernant rufus.ini effacés 
@@ -168,7 +180,7 @@ II LANCEMENT DE RUFUS
 													-> paramétrage de MySQL
 													-> restauration de la base en demandant le dossier de sauvegarde
 													-> relance de Rufus
-	1c. Réseau local
+	1b. Réseau local
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
 			→ pas de connexion
 				→ Procedures::RecupererDemarrage() avec le bouton PremierDemarrageBouton
@@ -222,7 +234,7 @@ II LANCEMENT DE RUFUS
 							→ Après l'affichage de rufus.cpp à l'écran
 							→ message 	"serveur MySQL à mettre à jour"
 										" cette mise à jour doit se faire depuis le poste serveur"
-	1d. Accès distant 
+	1c. Accès distant 
 		RÈGLE → on ne sécurise pas le mdp depuis un poste WAN
 		RÈGLE → on ne supprime pas le mdp générique depuis un poste WAN
 		→ pas de clés SSL
@@ -289,3 +301,4 @@ III. COMPTES adminrufus (SÉCURITÉ DES ACCÈS MySQL)
 
 	2. À CHAQUE LANCEMENT
 	   — on revérifie, pour les cas où une install Rufus antérieure aurait créé des mdp aléatoires sans sécuriser les adminrufus
+
