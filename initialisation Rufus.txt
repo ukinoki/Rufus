@@ -73,7 +73,7 @@ II LANCEMENT DE RUFUS
 			→ restaure le fichier Rufus.ini
 			→ lit les infos de Rufus.ini
 			→ message "Rufus.ini reconstruit - poursuite du lancement"
-	→ bouton revoir les parametres de connexion → revoir_les _paramètres_de_ connexion()
+	→ bouton revoir les parametres de connexion
 		→ dlg_paramconnexion() ne teste pas la connexion à MySQL
 			→ pas de bouton tester sur dlg_paramconnexion()
 			→ le bouton OK 
@@ -87,15 +87,12 @@ II LANCEMENT DE RUFUS
 					→ lit les infos de Rufus.ini
 					→ message "Rufus.ini reconstruit - poursuite du lancement"
 			→ Annuler revient à la fiche précédente
-	→ bouton Créer ou se connecter à une base patients → PremierDemarrage() 
 	
 2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion
 	1a . Monoposte
 		On vérifie la présence d'un serveur
 			→ pas de serveur 
-				→ RecupererDemarrage() avec les boutons concernant rufus.ini effacés 
-					→ Nouvelle base patients vierge → réinstaller MySQL et relancer le programme
-					→ Connexion à une base existante → régler les paramètres VerifParamConnexion() et relancer le programme
+				→ message "Pas de serveur MySQL installé...etc... " mysqlinstaller -> nouvelle base patients vierge
 			→ présence d'un serveur
 				→ recueil de la version de MySQL
 				→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
