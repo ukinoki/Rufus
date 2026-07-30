@@ -1605,7 +1605,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
     userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
     userData[CP_ISMEDECIN_USR]                      = (usrdata.at(26).toInt() ==1);
-    userData[CP_ISOPTAM_USR]                        = (usrdata.at(27).toInt() == 1);
+    userData[CP_ISOPTAM_USR]                        = (m_parametres->cotationsfrance() || usrdata.at(27).toInt() == 1);
     userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
     userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
     userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
@@ -1692,7 +1692,7 @@ QList<User*> DataBase::loadUsers()
         userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
         userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
         userData[CP_ISMEDECIN_USR]                      = (usrdata.at(26).toInt() == 1);
-        userData[CP_ISOPTAM_USR]                        = (usrdata.at(27).toInt() == 1);
+        userData[CP_ISOPTAM_USR]                        = (m_parametres->cotationsfrance() || usrdata.at(27).toInt() == 1);
         userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
         userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
         userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
@@ -3367,8 +3367,8 @@ void DataBase::loadSocialDataPatient(QJsonObject &jData, bool &ok)
     jData[CP_PORTABLE_DSP]       = patlist.at(6).toString();
     jData[CP_MAIL_DSP]           = patlist.at(7).toString();
     jData[CP_NNI_DSP]            = patlist.at(8).toLongLong();
-    jData[CP_ALD_DSP]            = (patlist.at(9).toInt() == 1);
-    jData[CP_CMU_DSP]            = (patlist.at(10).toInt() == 1);
+    jData[CP_ALD_DSP]            = (m_parametres->cotationsfrance() && patlist.at(9).toInt() == 1);
+    jData[CP_CMU_DSP]            = (m_parametres->cotationsfrance() && patlist.at(10).toInt() == 1);
     jData[CP_PROFESSION_DSP]     = patlist.at(11).toString();
     jData[CP_ISSOCIALlOADED]     = true;
 }

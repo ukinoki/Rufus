@@ -818,7 +818,7 @@ void dlg_gestionusers::EnregistreUser()
                CP_NUMPS_USR " = null,\n "
                CP_DROITS_USR " = '" NEUTRE "',\n";
     QString secteur = "null";
-    QString Optam   = "null";
+    QString Optam   = "1";
     if ((ui->OPHupRadioButton->isChecked() ||(ui->AutreSoignantupRadioButton->isChecked() && ui->MedecincheckBox->isChecked()))
         && !ui->AssistantupRadioButton->isChecked() && !ui->ComptaRemplaupRadioButton->isChecked() && ui->CotationupRadioButton->isChecked())
     {

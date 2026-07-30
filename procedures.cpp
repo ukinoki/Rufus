@@ -2251,7 +2251,7 @@ QString Procedures::SessionStatus()
             break;
         }
         txtstatut += "\n" + tr("Secteur conventionnel :") + "\t\t" + secteur;
-        txtstatut += "\n" + tr("OPTAM :") + "\t\t\t" + (currentuser()->isOPTAM() ? "Oui": "Non");
+        if (!m_parametres->cotationsfrance()) txtstatut += "\n" + tr("OPTAM :") + "\t\t\t" + (currentuser()->isOPTAM() ? "Oui": "Non");
     }
     if (respliberal || soccomptable)
     {
