@@ -152,7 +152,8 @@ II LANCEMENT DE RUFUS
 															→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
 															→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
 														→ on a récupéré un mdp
-															→ on l'enregistre dans .dbkey et on lance rufus
+															→ on vérifie qu'il fonctionne et si oui, on l'enregistre dans .dbkey
+															→ puis on lance rufus
 														→ on n'a pas récupéré de mdp
 															→ on en crée un
 															→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
@@ -231,7 +232,8 @@ II LANCEMENT DE RUFUS
 															→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
 															→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
 														→ on a récupéré un mdp
-															→ on l'enregistre dans .dbkey et on lance rufus
+															→ on vérifie qu'il fonctionne et si oui, on l'enregistre dans .dbkey
+															→ puis on lance rufus
 														→ on n'a pas récupéré de mdp
 															→ on en crée un
 															→ entretien des comptes adminrufus → MySQLInstaller::restreindreAdminrufusAuLAN()
@@ -256,12 +258,21 @@ II LANCEMENT DE RUFUS
 					→ plusieurs modes de connexion paramétrés dans Rufus.ini → retour qu choix du mode de connexion (Procedures::FichecChoiXConnexion()
 		→ tentative de connexion avec le .dbkey s’il y en a un sinon avec le mdp générique
 			→ pas de connexion
-				→ Procedures::RecupererDemarrage() avec le bouton PremierDemarrageBouton
-					→ dont le texte est Connexion à une base patients
-					→ dont le click oriente vers la vérification des paramètres de connexion (Procedures::VerifParamconnexion())
+				→ message l'adresse du serveur est-elle correcte - xxx.xxx.xxx.xxx?
+					→ annuler
+					→ oui → poursuite
+					→ non → dlg_paramconnexion() et redémarrage
+				→ demande d'un mdp autre que le mdp générique et nouvelle tentative de connexion
+		 			→ 3 boutons
+						a. → mot de passe saisi au clavier
+ 									→ SAISR LE MOT DE PASSE
+					 	b. → mot de passe sur clé USB
+ 									→ IMPORTER DEPUIS UNE CLÉ USB
+					 	c. → annuler et sortir
+									→ ANNULER
 			→ connexion OK
 				→ (config SERVEUR non vérifiée ici : un poste distant ne peut rien corriger ; ses propres clés SSL ont déjà été pré-contrôlées avant la connexion)
-				→ pas d'implantation de mdp sécurisé depuis un post distant
+				→ pas d'implantation de mdp sécurisé depuis un poste distant
 				→ on vérifie la cohérence de la base Rufus
 					→ si pas OK → messageBox "base de données endommagée"
 								"vous devez restaurer une base patients"
@@ -282,7 +293,8 @@ II LANCEMENT DE RUFUS
 											→ bouton annuler
 											→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
 										→ on a récupéré un mdp
-											→ on l'enregistre dans .dbkey et on lance rufus
+											→ on vérifie qu'il fonctionne et si oui, on l'enregistre dans .dbkey
+											→ puis on lance rufus
 										→ on n'a pas récupéré de mdp
 											→ on affiche une boîte de message invitant à se connecter sur un poste local ou sur le serveur pour récupérer ou créer un mdp aléatoire,
 								  			avec un seul bouton OK
