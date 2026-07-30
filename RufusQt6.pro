@@ -102,9 +102,6 @@ SOURCES += main.cpp\
     ressources.cpp \
     rufus.cpp \
     procedures.cpp \
-    lecteurvitale.cpp \
-    fichevitale.cpp \
-    recherchedossier.cpp \
     conversionbase.cpp \
     importdocsexternes.cpp \
     utils.cpp \
@@ -114,9 +111,6 @@ SOURCES += main.cpp\
 HEADERS += rufus.h \
     ostask.h \
     procedures.h \
-    lecteurvitale.h \
-    fichevitale.h \
-    recherchedossier.h \
     ressources.h \
     conversionbase.h \
     importdocsexternes.h \
@@ -154,6 +148,7 @@ include(Protocols/protocols.pri)
 include(TextPrinter/textprinter.pri)
 include(ImageViewer/imageviewer.pri)
 include(MySQLInstaller/mysqlinstaller.pri)
+include(CarteVitale/cartevitale.pri)
 
 
 unix|win32{
@@ -165,15 +160,6 @@ DEFINES += QAPPLICATION_CLASS=QApplication # cette instruction doit être inclus
 win32 {
 LIBS += -lUser32
 }
-
-# Lecture directe de la carte Vitale via PC/SC (lecteurvitale.cpp). L'API est identique sur les
-# trois plateformes ; seule la bibliothèque à lier change.
-win32:      LIBS += -lwinscard
-macx:       LIBS += -framework PCSC
-# Linux (pcsc-lite) : les en-têtes sont dans /usr/include/PCSC, et winscard.h y inclut <pcsclite.h>
-# SANS préfixe -> il faut ce dossier dans le chemin d'inclusion (fourni par libpcsclite-dev).
-unix:!macx: INCLUDEPATH += /usr/include/PCSC
-unix:!macx: LIBS        += -lpcsclite
 
 RESOURCES += \
     assets/Fichiers/Fichiers.qrc \
