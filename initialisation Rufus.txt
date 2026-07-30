@@ -148,22 +148,25 @@ II LANCEMENT DE RUFUS
 												→ oui → message	"ce poste utilise un mdp non sécurisé qui expirera le dd MMM yyyy, dans x jours"
 																" vous pouvez récupérer le mot de passe sur le poste qui a fait la mise à jour
 																" menu Edition/Paramètres...etc...
-															→ bouton annuler
+															→ bouton continuer avec le mdp temporaire 
 															→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+																→ on a récupéré un mdp
+																	→ on vérifie qu'il fonctionne
+																		→ oui
+																			→ on l'enregistre dans .dbkey
+																			→ entretien des comptes adminrufus
+																			→ puis on lance rufus
+																		→ non , message mdp non valide et retour à la fiche
 															→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
-														→ on a récupéré un mdp
-															→ on vérifie qu'il fonctionne et si oui, on l'enregistre dans .dbkey
-															→ puis on lance rufus
-														→ on n'a pas récupéré de mdp
-															→ on en crée un
-															→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
-															→ on l’enregistre dans .dbkey
-															→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
+																		→ on le crée et on l’enregistre dans .dbkey
+																		→ entretien des comptes adminrufus
+																		→ on affiche le message pour pouvoir l'enregistrer
+																		→ puis on lance rufus
 												→ non
-													→ on en crée un
-													→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
-													→ on l’enregistre dans .dbkey
+													→ on le crée et on l’enregistre dans .dbkey
+													→ entretien des comptes adminrufus
 													→ on affiche le message pour pouvoir l'enregistrer
+													→ puis on lance rufus
 									→ MYSQL < 8.0.14 
 										→ Après l'affichage de rufus.cpp à l'écran
 										→ message "serveur MySQL à mettre à jour"
@@ -230,20 +233,23 @@ II LANCEMENT DE RUFUS
 																" menu Edition/Paramètres...etc...
 															→ bouton annuler
 															→ bouton "renseigner le nouveau mdp" → boite de dialogue avec recueil du nouveau mdp (Utils::VerifMDP()) puis on l'enregistre dans .dbkey
+																→ on a récupéré un mdp
+																	→ on vérifie qu'il fonctionne
+																		→ oui
+																			→ on l'enregistre dans .dbkey
+																			→ entretien des comptes adminrufus
+																			→ puis on lance rufus
+																		→ non , message mdp non valide et retour à la fiche
 															→ bouton "le mdp est égaré, créer un nouveau mdp" → recréation du mdp après vérification avec le mdp admin rufus 'bob' et enregistrement dans .dbkey
-														→ on a récupéré un mdp
-															→ on vérifie qu'il fonctionne et si oui, on l'enregistre dans .dbkey
-															→ puis on lance rufus
-														→ on n'a pas récupéré de mdp
-															→ on en crée un
-															→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
-															→ on l’enregistre dans .dbkey
-															→ on affiche le message pour pouvoir l'enregistrer et on lance rufus
+																		→ on le crée et on l’enregistre dans .dbkey
+																		→ entretien des comptes adminrufus
+																		→ on affiche le message pour pouvoir l'enregistrer
+																		→ puis on lance rufus
 												→ non
-													→ on en crée un
-													→ entretien des comptes adminrufus → MySQLInstaller::securiserAdminrufusEtMdp(mdp, LANonly) - crée les adminrufus restreints au LAN et retire adminrufus@'%'
-													→ on l’enregistre dans .dbkey
+													→ on le crée et on l’enregistre dans .dbkey
+													→ entretien des comptes adminrufus
 													→ on affiche le message pour pouvoir l'enregistrer
+													→ puis on lance rufus
 									→ MYSQL < 8.0.14 
 										→ Après l'affichage de rufus.cpp à l'écran
 										→ message 	"serveur MySQL à mettre à jour"
