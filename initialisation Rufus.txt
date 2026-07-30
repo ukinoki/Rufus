@@ -72,7 +72,7 @@ II LANCEMENT DE RUFUS
 			→ restaure le fichier Rufus.ini
 			→ lit les infos de Rufus.ini
 			→ message "Rufus.ini reconstruit - poursuite du lancement"
-	→ bouton revoir les parametres de connexion → revoir_les _aramètres_de_ connexion()
+	→ bouton revoir les parametres de connexion → revoir_les _paramètres_de_ connexion()
 		→ dlg_paramconnexion() ne teste pas la connexion à MySQL
 			→ pas de bouton tester sur dlg_paramconnexion()
 			→ le bouton OK 
@@ -81,8 +81,10 @@ II LANCEMENT DE RUFUS
 					→ + en réseau loacl, adresse du serveur
 					→ + en accès distant l'adresse du dossier des cléSSL
 				→ ferme la fiche en créant un nouveau fichier Rufus.ini
-				→ lit les infos de Rufus.ini
-				→ message "Rufus.ini reconstruit - poursuite du lancement"
+				→ si OK
+					→ fermeture de dlg_paramconnexion()
+					→ lit les infos de Rufus.ini
+					→ message "Rufus.ini reconstruit - poursuite du lancement"
 			→ Annuler revient à la fiche précédente
 	
 2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion
