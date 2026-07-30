@@ -308,7 +308,31 @@ dlg_param::dlg_param(QWidget *parent) :
 
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
     ui->CotationsFrancecheckBox->setChecked(m_parametres->cotationsfrance());
-    connect (ui->CotationsFrancecheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state){db->setcotationsfrance(state == Qt::Checked);});
+    //! le réglage vaut pour TOUTE la base et n'est lu qu'au chargement des données (cotations, OPTAM,
+    //! ALD/CMU, codes barres, carte Vitale...) : il ne sera entièrement appliqué qu'au prochain
+    //! démarrage. On prévient avant d'enregistrer ; si l'utilisateur annule, la case revient comme avant.
+    connect (ui->CotationsFrancecheckBox, &QCheckBox::checkStateChanged, this, [=, this](int state) {
+        const bool france = (state == Qt::Checked);
+        UpMessageBox msgbox(this);
+        msgbox.setText(france? tr("Vous avez choisi d'utiliser les cotations d'actes françaises.")
+                             : tr("Vous avez choisi de ne plus utiliser les cotations d'actes françaises."));
+        msgbox.setInformativeText(tr("Ce réglage concerne toute la base et ne sera entièrement pris en compte "
+                                     "qu'au prochain démarrage de Rufus.\nVoulez-vous l'enregistrer?"));
+        msgbox.setIcon(UpMessageBox::Warning);
+        UpSmallButton AnnulBouton(tr("Annuler"));
+        UpSmallButton OKBouton(tr("Enregistrer"));
+        msgbox.addButton(&AnnulBouton, UpSmallButton::CANCELBUTTON);
+        msgbox.addButton(&OKBouton, UpSmallButton::STARTBUTTON);
+        msgbox.exec();
+        if (msgbox.clickedButton() != &OKBouton)
+        {
+            ui->CotationsFrancecheckBox->blockSignals(true);        //! remettre la case ne doit pas rappeler ce slot
+            ui->CotationsFrancecheckBox->setChecked(!france);
+            ui->CotationsFrancecheckBox->blockSignals(false);
+            return;
+        }
+        db->setcotationsfrance(france);
+    });
     /*-------------------- GESTION DES COTATIONS FRANCE-------------------------------------------------------*/
 
 
