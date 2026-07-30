@@ -3437,6 +3437,15 @@ bool Procedures::Connexion_A_La_Base()
             else if (monoposte && !reinitialiser)
                 return false;   //! bouton « Annuler » (monoposte) → on sort ; sinon (réinitialiser
                                 //! demandée, OU mode client) → on tombe sur le carrefour ci-dessous.
+
+            //! « Passer cette étape » = « je n'ai aucun mot de passe ». AVANT de laisser l'utilisateur
+            //! vers la réinitialisation du serveur (qui DÉTRUIT la base patients), on lui donne sa
+            //! vraie chance : le mot de passe de SECOURS choisi à l'installation rouvre la base et
+            //! réécrit un aléatoire neuf, sans toucher aux données. Réservé au poste qui héberge la
+            //! base (le compte de secours n'existe qu'en loopback).
+            if (monoposte && reinitialiser && !errConnexion.isEmpty()
+                && MySQLInstaller().restaurerAvecMotDePasseDeSecours())
+                errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         }
 
         //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth : serveur injoignable,
@@ -3524,6 +3533,11 @@ bool Procedures::Connexion_A_La_Base()
 
     if (!IdentificationUser())
         return false;
+
+    //! Bases installées AVANT le compte de secours : root (sans mot de passe) y est encore. On le
+    //! remplace dès que l'utilisateur n°1 — celui qui a installé la base — se connecte : lui seul
+    //! choisit ce mot de passe. No-op ensuite, et no-op sur un poste client.
+    MySQLInstaller::controlerCompteDeSecours(currentuser()->id());
 
     if (dirSQLExecutable() == "")
     {
@@ -4928,6 +4942,13 @@ bool Procedures::PremierDemarrage(bool forceBaseVierge)
 
         //! Inscription de l'utilisateur applicatif dans rufus.utilisateurs (mdp SHA1).
         m_connexionbaseOK = CreerPremierUser(login, MDP);
+
+        //! Compte de SECOURS + suppression de root : le praticien qui installe la base choisit ici un
+        //! mot de passe qu'il est seul à connaître (écrit nulle part). Il n'existe qu'en loopback et ne
+        //! sert qu'à reprendre la main si tous les autres mots de passe sont perdus. Dans la foulée,
+        //! Rufus supprime le compte root SANS mot de passe hérité de l'initialisation de MySQL — sans
+        //! quoi n'importe quelle session ouverte sur cet ordinateur lirait toute la base patients.
+        MySQLInstaller::creerCompteDeSecours();
         PremierParametrageMateriel();                      //! élaboration de rufus.ini et des dossiers Rufus
         Datas::I()->sites->initListe();
         CalcLieuExercice();

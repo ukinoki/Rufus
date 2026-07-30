@@ -4062,6 +4062,7 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
         out = executer(sqlAvecAuth("IDENTIFIED BY"));
         up  = out.toUpper();
     }
+    m_createUserErr = out;   /*!< conservé pour le diagnostic, comme dans createUser() */
 
     if (!out.contains("ERROR", Qt::CaseInsensitive))
         return CreateUserResult::Ok;
@@ -4077,6 +4078,284 @@ MySQLInstaller::createUserAvecAdmin(const QString& adminLogin, const QString& ad
         return CreateUserResult::NoCreateUserRight;
 
     return CreateUserResult::Error;
+}
+
+/*! ═══ COMPTE DE SECOURS — et suppression de root ═══════════════════════════════════════════════════
+ *  Le datadir MySQL est initialisé avec --initialize-insecure : 'root'@'localhost' existe SANS mot de
+ *  passe. N'importe quelle session ouverte sur l'ordinateur lit alors TOUTE la base patients — pas
+ *  acceptable sur un portable ou un poste de cabinet qu'on peut voler ou cambrioler. On le remplace
+ *  donc par un compte de SECOURS dont le mot de passe n'est connu QUE du praticien qui a installé la
+ *  base (jamais écrit sur le disque), et on supprime root.
+ *  Ça ne casse rien : root ne sert qu'à CRÉER adminrufus à l'installation (createUser /
+ *  prepareCreateMode*, sous m_freshInstall) ; ensuite, plus aucun chemin de Rufus ne l'utilise.
+ *  À SAVOIR malgré tout : le datadir se lit sans aucun compte (mysqld --skip-grant-tables, ou disque
+ *  monté ailleurs). Ceci ferme la porte de l'ORDINATEUR ALLUMÉ ; seule la mise sous chiffrement du
+ *  disque (BitLocker / FileVault / LUKS) ferme celle du disque emporté.
+ *  Toutes les opérations passent par le CLIENT mysql en adminrufus (comme createUserAvecAdmin) et non
+ *  par la connexion Qt : le repli de plugin (MySQL 8.4) s'y fait SILENCIEUSEMENT, sans faire surgir la
+ *  boîte d'erreur SQL sur un échec qui est prévu et rattrapé.
+ */
+
+/*!
+ * \brief MySQLInstaller::hostsDuCompteMySQL
+ * Hosts sur lesquels un compte MySQL existe (liste vide = compte absent). Lu avec adminrufus.
+ * \param login  compte cherché (ex. « root »)
+ */
+QStringList MySQLInstaller::hostsDuCompteMySQL(const QString& login)
+{
+    MySQLInstaller m;
+    const QString out = m.runCmdFull(
+        QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
+                "\"SELECT host FROM mysql.user WHERE user = '%4';\" 2>&1")
+            .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), login));
+    QStringList hosts;
+    for (const QString& l : m.lignesResultat(out))
+        if (!l.startsWith("ERROR", Qt::CaseInsensitive))
+            hosts << l;
+    return hosts;
+}
+
+/*!
+ * \brief MySQLInstaller::supprimerCompteMySQL
+ * Supprime un compte MySQL sur TOUS les hosts où il existe.
+ * \param login  compte à supprimer
+ */
+void MySQLInstaller::supprimerCompteMySQL(const QString& login)
+{
+    const QStringList hosts = hostsDuCompteMySQL(login);
+    if (hosts.isEmpty())
+        return;
+    QString sql;
+    for (const QString& h : hosts)
+        sql += QString("DROP USER IF EXISTS '%1'@'%2';").arg(login, h);
+    sql += "FLUSH PRIVILEGES;";
+    MySQLInstaller m;
+    m.runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+                 .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), sql));
+}
+
+bool MySQLInstaller::rootExiste()          { return !hostsDuCompteMySQL("root").isEmpty(); }
+bool MySQLInstaller::compteDeSecoursExiste(){ return !hostsDuCompteMySQL(LOGIN_SQL_SECOURS).isEmpty(); }
+
+/*!
+ * \brief demanderMotDePasseDeSecours
+ * Fiche de saisie du mot de passe de secours (deux champs à la création, un seul à la restauration).
+ * Volontairement alphanumérique 5-12 caractères, comme les autres mots de passe de Rufus : ce qui
+ * compte est qu'il soit RETENU des années plus tard et retapé à l'identique — ni accent, ni casse
+ * exotique à redevenir. Design repris de demanderNouvelUtilisateurRufus.
+ * \param parent            fiche parente
+ * \param avecConfirmation  true = création (mot de passe + confirmation)
+ * \param outMdp            mot de passe saisi
+ */
+static bool demanderMotDePasseDeSecours(QWidget* parent, bool avecConfirmation, QString& outMdp)
+{
+    UpDialog dlg(parent);
+    dlg.setWindowModality(Qt::WindowModal);
+    dlg.setWindowTitle("");
+
+    UpLabel*    label  = new UpLabel();
+    UpLabel*    label2 = new UpLabel();
+    UpLineEdit* Line   = new UpLineEdit();
+    UpLineEdit* Line2  = new UpLineEdit();
+
+    Line  ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line2 ->setValidator(new QRegularExpressionValidator(Utils::rgx_AlphaNumeric_5_12, &dlg));
+    Line  ->setAlignment(Qt::AlignCenter);
+    Line2 ->setAlignment(Qt::AlignCenter);
+    Line  ->setMaxLength(12);
+    Line2 ->setMaxLength(12);
+    Line  ->setFixedHeight(20);
+    Line2 ->setFixedHeight(20);
+    Line  ->setEchoMode(QLineEdit::Password);
+    Line2 ->setEchoMode(QLineEdit::Password);
+    label ->setAlignment(Qt::AlignCenter);
+    label2->setAlignment(Qt::AlignCenter);
+    label2->setFixedHeight(16);
+
+    label->setText(avecConfirmation
+        ? QObject::tr("Choisissez un mot de passe de SECOURS pour votre base de données.\n\n"
+                      "Il ne servira qu'à reprendre la main sur votre base si tous les autres\n"
+                      "mots de passe sont perdus. Il n'est enregistré NULLE PART :\n"
+                      "vous seul le connaissez.\n\n"
+                      "Choisissez quelque chose que vous retrouverez dans dix ans\n"
+                      "(le nom de votre premier chien, de votre rue d'enfance…)\n"
+                      "- mini 5 maxi 12 caractères -\n"
+                      "- pas de caractères spéciaux ou accentués -")
+        : QObject::tr("Saisissez le mot de passe de SECOURS choisi lors de l'installation\n"
+                      "de votre base de données."));
+    label2->setText(QObject::tr("Confirmez le mot de passe"));
+    label2->setVisible(avecConfirmation);
+    Line2 ->setVisible(avecConfirmation);
+
+    QVBoxLayout* lay = new QVBoxLayout();
+    lay ->setContentsMargins(5, 5, 5, 5);
+    lay ->setSpacing(5);
+    lay ->addWidget(label);
+    lay ->addWidget(Line);
+    lay ->addWidget(label2);
+    lay ->addWidget(Line2);
+
+    dlg.AjouteLayButtons(UpDialog::ButtonCancel | UpDialog::ButtonOK);
+    QObject::connect(dlg.OKButton,     &UpSmallButton::clicked, &dlg, &UpDialog::accept);
+    QObject::connect(dlg.CancelButton, &UpSmallButton::clicked, &dlg, &UpDialog::reject);
+    dlg.dlglayout()->insertLayout(0, lay);
+    dlg.dlglayout()->setSizeConstraint(QLayout::SetFixedSize);
+    Line->setFocus();
+
+    forever {
+        if (dlg.exec() != QDialog::Accepted)
+            return false;
+        const QString mdp = Line->text();
+        if (mdp.isEmpty()) {
+            UpMessageBox::Watch(&dlg, QObject::tr("Saisie incomplète"),
+                QObject::tr("Veuillez renseigner un mot de passe."));
+            continue;
+        }
+        if (avecConfirmation && mdp != Line2->text()) {
+            UpMessageBox::Watch(&dlg, QObject::tr("Mots de passe différents"),
+                QObject::tr("Le mot de passe et sa confirmation ne correspondent pas."));
+            continue;
+        }
+        outMdp = mdp;
+        return true;
+    }
+}
+
+/*!
+ * \brief MySQLInstaller::creerCompteDeSecours
+ * Crée secoursrufus sur le LOOPBACK uniquement (jamais le LAN), avec tous les privilèges et le mot de
+ * passe confidentiel du praticien, l'ÉPROUVE, puis — et seulement alors — supprime root.
+ * \param parent  fiche parente des boîtes affichées
+ */
+bool MySQLInstaller::creerCompteDeSecours(QWidget* parent)
+{
+    QString mdp;
+    if (!demanderMotDePasseDeSecours(parent, /*avecConfirmation=*/true, mdp))
+        return false;
+
+    MySQLInstaller m;
+    /*! Loopback SEUL : ce compte ne doit être atteignable que depuis la machine qui héberge la base.
+     *  Les deux formes, comme adminrufus, selon ce que le serveur résout pour 127.0.0.1. */
+    auto sqlAvecAuth = [&](const QString& auth) {
+        QString sql;
+        for (const QString& h : { QString("localhost"), QString("127.0.0.1") })
+        {
+            sql += QString("CREATE USER IF NOT EXISTS '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
+            sql += QString("ALTER USER '%1'@'%2' %3 '%4';").arg(QString(LOGIN_SQL_SECOURS), h, auth, mdp);
+            sql += QString("GRANT ALL PRIVILEGES ON *.* TO '%1'@'%2' WITH GRANT OPTION;").arg(QString(LOGIN_SQL_SECOURS), h);
+        }
+        sql += "FLUSH PRIVILEGES;";
+        return sql;
+    };
+    auto executer = [&](const QString& sql) {
+        return m.runCmdFull(QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -e \"%4\" 2>&1")
+                            .arg(m.mysqlBin("mysql"), QString(LOGIN_SQL), motDePasseSQL(), sql));
+    };
+    /*! mysql_native_password d'abord (cf. createUser) ; désactivé par défaut sur MySQL 8.4 → repli
+     *  silencieux sur le plugin par défaut du serveur. */
+    QString out = executer(sqlAvecAuth("IDENTIFIED WITH mysql_native_password BY"));
+    const QString up = out.toUpper();
+    if (up.contains("ERROR 1524")
+        || (up.contains("NOT LOADED") && up.contains("MYSQL_NATIVE_PASSWORD")))
+        out = executer(sqlAvecAuth("IDENTIFIED BY"));
+
+    /*! ON ÉPROUVE AVANT DE SUPPRIMER root : le compte de secours doit RÉELLEMENT ouvrir une session.
+     *  Sans cette épreuve, un échec silencieux laisserait le poste sans root ET sans secours — c'est
+     *  exactement la situation qu'on cherche à rendre impossible. */
+    if (!m.tryConnectAs(LOGIN_SQL_SECOURS, mdp))
+    {
+        UpMessageBox::Watch(parent, tr("Compte de secours non créé"),
+            tr("Rufus n'a pas pu créer le compte de secours sur le serveur MySQL.") + "\n" +
+            tr("Rien n'a été modifié ; Rufus réessaiera au prochain démarrage.") + "\n\n" + out);
+        return false;
+    }
+
+    /*! Suppression de root, puis CONSTAT (relecture de mysql.user) : supprimer un compte système exige
+     *  le privilège SYSTEM_USER, qu'adminrufus tient de son « GRANT ALL … WITH GRANT OPTION » posé par
+     *  root — mais une base héritée d'une version qui l'avait révoqué ne l'a pas. On ne PRÉTEND donc
+     *  pas que root a disparu : on regarde. */
+    supprimerCompteMySQL("root");
+    if (rootExiste())
+    {
+        UpMessageBox::Watch(parent, tr("Mot de passe de secours enregistré"),
+            tr("Votre mot de passe de secours est en place.") + "\n\n" +
+            tr("En revanche, Rufus n'a pas pu supprimer le compte « root » de MySQL, qui n'a pas de "
+               "mot de passe sur ce serveur : toute personne utilisant cet ordinateur peut donc "
+               "accéder à votre base de données.") + "\n\n" +
+            tr("Signalez-le, et pensez d'ici là à chiffrer le disque de cet ordinateur."));
+        return true;
+    }
+    UpMessageBox::Watch(parent, tr("Mot de passe de secours enregistré"),
+        tr("Votre mot de passe de secours est en place et le compte « root » de MySQL, "
+           "qui n'avait pas de mot de passe, a été supprimé de ce serveur.") + "\n\n" +
+        tr("Ne l'oubliez pas : il n'est écrit nulle part, et c'est lui qui vous permettra de "
+           "récupérer l'accès à votre base si tous les autres mots de passe sont perdus.") + "\n\n" +
+        tr("Il ne remplace pas vos sauvegardes, ni le chiffrement du disque de cet ordinateur "
+           "(BitLocker, FileVault) — seul celui-ci protège vos données si on vous vole la machine."));
+    return true;
+}
+
+/*!
+ * \brief MySQLInstaller::controlerCompteDeSecours
+ * À CHAQUE démarrage, sur le poste qui héberge la base : met en place le compte de secours puis
+ * supprime root. Sur une base installée avant cette version, on attend que l'utilisateur n°1 (celui
+ * qui a installé la base) se connecte — lui seul choisit ce mot de passe.
+ * \param iduser  id de l'utilisateur Rufus qui vient de s'identifier
+ */
+void MySQLInstaller::controlerCompteDeSecours(int iduser)
+{
+    /*! Poste SERVEUR uniquement : un client ne touche pas aux comptes du serveur des autres. */
+    if (DataBase::I()->ModeAccesDataBase() != Utils::Poste)
+        return;
+    if (!rootExiste())
+        return;                          /*!< cas normal dès le 2e démarrage : plus rien à faire */
+    if (compteDeSecoursExiste())
+    {
+        supprimerCompteMySQL("root");    /*!< secours déjà en place, root réapparu (mise à jour du serveur) */
+        return;
+    }
+    if (iduser != 1)
+        return;                          /*!< on attend le premier utilisateur, celui qui a installé la base */
+    creerCompteDeSecours();
+}
+
+/*!
+ * \brief MySQLInstaller::restaurerAvecMotDePasseDeSecours
+ * DERNIER RECOURS quand plus aucun mot de passe connu n'ouvre la base : le mot de passe de secours
+ * rouvre une session privilégiée, avec laquelle on réécrit un aléatoire NEUF sur adminrufus/SSL
+ * (gaxt78iy conservé en 2e, comme partout) et on le range dans le .dbkey. Les données ne sont pas
+ * touchées. true si l'accès est rétabli.
+ * \param parent  fiche parente des boîtes affichées
+ */
+bool MySQLInstaller::restaurerAvecMotDePasseDeSecours(QWidget* parent)
+{
+    QString mdp;
+    if (!demanderMotDePasseDeSecours(parent, /*avecConfirmation=*/false, mdp))
+        return false;
+
+    if (!tryConnectAs(LOGIN_SQL_SECOURS, mdp))
+    {
+        UpMessageBox::Watch(parent, tr("Mot de passe de secours refusé"),
+            tr("Ce mot de passe n'ouvre pas de session sur le serveur MySQL de ce poste.") + "\n" +
+            tr("Vérifiez qu'il s'agit bien du mot de passe de secours choisi à l'installation "
+               "de la base, sur CET ordinateur."));
+        return false;
+    }
+
+    /*! Réutilise la voie normale de (re)création des comptes : mêmes hosts, mêmes privilèges, même
+     *  double mot de passe. Rien de spécifique au secours au-delà du compte qui exécute. */
+    m_login    = LOGIN_SQL;
+    m_password = genererMotDePasse();
+    if (createUserAvecAdmin(LOGIN_SQL_SECOURS, mdp) != CreateUserResult::Ok)
+    {
+        UpMessageBox::Watch(parent, tr("Rétablissement impossible"),
+            tr("La connexion de secours fonctionne, mais Rufus n'a pas pu réécrire les comptes "
+               "d'accès à la base.") + "\n" + m_createUserErr);
+        return false;
+    }
+    stockerMotDePasse(m_password);
+    inviterANoterMotDePasse(m_password);
+    return true;
 }
 
 #if defined(Q_OS_LINUX)

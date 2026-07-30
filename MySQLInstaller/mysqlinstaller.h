@@ -211,6 +211,13 @@ public:
     void             suggererSecurisationDepuisLocal();                               /*!< poste distant sur base non sécurisée : invite à sécuriser depuis le LAN */
     bool             recreerMotDePasseApresVerifAdmin(QWidget *parent = Q_NULLPTR);   /*!< recrée l'aléatoire quand plus aucun poste ne l'a (protégé par mdp Admin) */
 
+    /*! ── Compte de secours (et suppression de root) ──────────────────────────────────────────────────── */
+    static bool rootExiste();                                            /*!< un compte 'root' subsiste-t-il sur ce serveur ? */
+    static bool compteDeSecoursExiste();                                 /*!< secoursrufus est-il déjà en place ? */
+    static bool creerCompteDeSecours(QWidget* parent = Q_NULLPTR);       /*!< demande le mdp confidentiel, crée secoursrufus (loopback, tous droits), l'ÉPROUVE puis supprime root */
+    static void controlerCompteDeSecours(int iduser);                    /*!< à chaque démarrage (poste serveur) : met en place le secours quand l'utilisateur n°1 se connecte, et supprime root */
+    bool        restaurerAvecMotDePasseDeSecours(QWidget* parent = Q_NULLPTR);   /*!< dernier recours : le mdp de secours réécrit un aléatoire neuf sur adminrufus (+ .dbkey) */
+
     enum class CreateUserResult { Ok, NoCreateUserRight, Error };   /*!< résultat de createUserAvecAdmin() */
 
 private:
@@ -318,6 +325,10 @@ private:
     QString     runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
     QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
     QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
+
+    /*! ── Comptes MySQL : inspection / suppression (via le client, en adminrufus) ──────────────────────── */
+    static QStringList hostsDuCompteMySQL(const QString& login);   /*!< hosts sur lesquels ce compte existe (vide = compte absent) */
+    static void        supprimerCompteMySQL(const QString& login); /*!< supprime le compte sur TOUS ses hosts */
 
     /*! Exécute avec droits admin. stdinData (Linux) :
      *  passé sur l'entrée standard du processus élevé (ex. mot de passe smbpasswd)

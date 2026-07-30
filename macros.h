@@ -926,6 +926,15 @@ public:
 #define NOM_APPLI                                   "Rufus"
 
 #define LOGIN_SQL                                   "adminrufus"
+//! LOGIN_SQL_SECOURS : compte MySQL de SECOURS, créé à l'installation de la base sur
+//! le seul loopback ('localhost' et '127.0.0.1'), avec TOUS les privilèges. Son mot de
+//! passe est choisi par le praticien qui installe la base, n'est écrit NULLE PART (ni
+//! .dbkey, ni Rufus.ini) et ne sert qu'à une chose : reprendre la main sur adminrufus
+//! quand plus aucun mot de passe connu n'ouvre la base. Il remplace le compte 'root'
+//! sans mot de passe hérité de l'initialisation MySQL, que Rufus supprime dès que ce
+//! compte de secours est en place. Login DISTINCT d'adminrufus : un même compte
+//! MySQL ne peut pas porter deux mots de passe différents sur le même host.
+#define LOGIN_SQL_SECOURS                           "secoursrufus"
 //! MDP_SQL : mot de passe historique, CODÉ EN DUR et identique pour toutes les
 //! installations (donc public via le code source). Il sert désormais de REPLI
 //! « legacy » : MySQLInstaller::motDePasseSQL() renvoie le mot de passe aléatoire
