@@ -3322,11 +3322,7 @@ bool Procedures::FicheChoixConnexion()
 bool Procedures::Connexion_A_La_Base()
 {
     //! Raccourci « -installMySQL » : posé par le case Reinstaller (mysqlinstaller.cpp) au
-    //! redémarrage, après désinstallation d'un MySQL trop ancien / MariaDB / sans mot de passe. On
-    //! va DIRECTEMENT à l'installation d'un serveur neuf + base vierge, sans repasser par le
-    //! carrefour « Aucun serveur » ni le choix vierge/existante. En cas de SUCCÈS, PremierDemarrage
-    //! relance Rufus puis quitte ; en cas d'échec, il renvoie et on poursuit le flux normal
-    //! (carrefour de récupération), où l'utilisateur pourra réessayer ou quitter.
+    //! redémarrage, après désinstallation d'un MySQL trop ancien
     if (QApplication::arguments().contains(QStringLiteral("-installMySQL")))
     {
         UpMessageBox::Watch(Q_NULLPTR, tr("Installation de MySQL"),
@@ -3345,30 +3341,18 @@ bool Procedures::Connexion_A_La_Base()
 
     db->initParametresConnexionSQL(server, port);
 
-    //! ACCÈS DISTANT (#2) : pré-contrôle des CLÉS SSL avant toute connexion (le compte adminrufusSSL
-    //! exige REQUIRE SSL). Absentes → on demande DIRECTEMENT leur dossier (à copier du serveur sur
-    //! une clé USB), on recontrôle ; toujours rien → message + carrefour (inutile de tenter une
-    //! connexion qui échouerait). Clés attendues : client-key.pem, client-cert.pem, ca-cert.pem.
+    //! ACCÈS DISTANT (#2) : pré-contrôle des CLÉS SSL . Clés attendues : client-key.pem, client-cert.pem, ca-cert.pem.
     if (db->ModeAccesDataBase() == Utils::Distant)
     {
         auto clesSSLpresentes = [this]() -> bool {
             const QString dir = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
             if (dir.isEmpty() || !QDir(dir).exists()) return false;
             QDir d(dir);
-            //! On exige les clés CLIENT (client-key.pem + client-cert.pem) — nécessaires pour
-            //! présenter le certificat client et activer SSL (compte adminrufusSSL en REQUIRE SSL).
-            //! ca.pem / ca-cert.pem est OPTIONNEL : on N'authentifie PLUS le serveur
-            //! (MYSQL_OPT_SSL_VERIFY_SERVER_CERT=0 dans connectToDataBase), donc la CA n'est pas
-            //! requise pour établir la connexion.
             return d.exists("client-key.pem") && d.exists("client-cert.pem");
         };
         if (!clesSSLpresentes())
         {
-            //! On PRÉVIENT avant d'ouvrir le sélecteur de dossier système (sinon il surgit sans
-            //! contexte). On affiche le CHEMIN réellement configuré (la VALEUR du réglage, p.ex.
-            //! …/MACMINILECROS-SSLKeys), pas le nom de la macro. S'il n'y a pas encore de chemin,
-            //! on décrit les fichiers attendus.
-            const QString dirActuel = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
+             const QString dirActuel = m_settings->value(Utils::getBaseFromMode(Utils::Distant) + Dossier_ClesSSL).toString();
             QString corps = tr("Les clés de cryptage SSL permettant la connexion à distance ne sont pas retrouvées.") + "\n\n";
             if (!dirActuel.isEmpty())
                 corps += tr("Rufus les a cherchées dans le dossier :") + "\n\n" +
@@ -3385,11 +3369,6 @@ bool Procedures::Connexion_A_La_Base()
                 UpMessageBox::Watch(Q_NULLPTR, tr("Clés SSL introuvables"),
                     tr("L'accès distant nécessite les clés SSL du cabinet (client-key.pem, "
                        "client-cert.pem), à copier depuis le poste serveur sur une clé USB."));
-                //! Pas de connexion possible sans les clés. On RENVOIE vers les paramètres de
-                //! connexion : plusieurs modes paramétrés → on revient au CHOIX du mode (le
-                //! constructeur reboucle sur FicheChoixConnexion() ; l'utilisateur peut basculer
-                //! sur un accès local) ; un seul mode → on ressaisit les paramètres
-                //! (VerifParamConnexion, qui inclut le dossier des clés SSL) puis on relance.
                 if (ListeModesAcces().size() > 1)
                     return false;
                 if (VerifParamConnexion())
@@ -3399,11 +3378,7 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
-    //! MONOPOSTE : pré-contrôle de la PRÉSENCE d'un serveur MySQL local AVANT toute tentative de
-    //! connexion (inutile de tenter une connexion s'il n'y a pas de serveur — cf. spec d'init). Pas
-    //! de serveur → carrefour de récupération, mais avec les boutons « Rufus.ini » MASQUÉS : le
-    //! rufus.ini est correct, c'est le SERVEUR qui manque. Seuls « Nouvelle base patients vierge »
-    //! (qui installe le socle) et « Quitter » ont du sens ici.
+    //! MONOPOSTE : pré-contrôle de la PRÉSENCE d'un serveur MySQL local
     if (db->ModeAccesDataBase() == Utils::Poste && !MySQLInstaller::serveurLocalPresent())
     {
         RecupererDemarrage(tr("Aucun serveur de base de données"),
@@ -3414,19 +3389,12 @@ bool Procedures::Connexion_A_La_Base()
         return false;
     }
 
-    //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification (qui n'est QUE le
-    //! login). On essaie les mots de passe candidats (.dbkey PUIS gaxt78iy) : un .dbkey absent ou
-    //! périmé ne doit pas bloquer une base qui accepte encore gaxt78iy.
+    //! CONNEXION + CONTRÔLE DE VERSION + SÉCURISATION — AVANT l'identification
     QString errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
     if (!errConnexion.isEmpty())
     {
-        //! Échec d'AUTHENTIFICATION (base sécurisée sur un autre poste / .dbkey périmé) : on propose
-        //! DIRECTEMENT de récupérer le bon mot de passe (saisie ou clé USB), invite SIMPLE — on ne
-        //! balade pas un utilisateur peu à l'aise à travers le carrefour pour, au final, juste lui
-        //! demander un mot de passe — puis on réessaie. (RecupererMotDePasseMySQL est statique : pas
-        //! besoin d'ouvrir le dialogue dlg_paramconnexion.)
+        //! Échec d'AUTHENTIFICATION : on propose DIRECTEMENT de récupérer le bon mot de passe
         //! MONOPOSTE : on ajoute un 4e bouton « mot de passe inconnu → réinitialiser le serveur »
-        //! (remplacer un serveur local sans s'y connecter : mdp égaré / données sans importance).
         if (MySQLInstaller::estErreurAuthentification(errConnexion))
         {
             const bool monoposte = (db->ModeAccesDataBase() == Utils::Poste);
@@ -3435,25 +3403,13 @@ bool Procedures::Connexion_A_La_Base()
                                                              monoposte ? &reinitialiser : nullptr))
                 errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);   // mdp obtenu → on réessaie
             else if (monoposte && !reinitialiser)
-                return false;   //! bouton « Annuler » (monoposte) → on sort ; sinon (réinitialiser
-                                //! demandée, OU mode client) → on tombe sur le carrefour ci-dessous.
-
-            //! « Passer cette étape » = « je n'ai aucun mot de passe ». AVANT de laisser l'utilisateur
-            //! vers la réinitialisation du serveur (qui DÉTRUIT la base patients), on lui donne sa
-            //! vraie chance : le mot de passe de SECOURS choisi à l'installation rouvre la base et
-            //! réécrit un aléatoire neuf, sans toucher aux données. Réservé au poste qui héberge la
-            //! base (le compte de secours n'existe qu'en loopback).
+                return false;   //! bouton « Annuler » (monoposte) → on sort
             if (monoposte && reinitialiser && !errConnexion.isEmpty()
                 && MySQLInstaller().restaurerAvecMotDePasseDeSecours())
                 errConnexion = MySQLInstaller::connecterAvecCandidats(DB_RUFUS);
         }
 
-        //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth : serveur injoignable,
-        //! mauvais serveur/port…) : on présente le CARREFOUR de récupération AVEC le bouton de
-        //! connexion/création d'une base (mode-aware : PremierDemarrage en monoposte,
-        //! VerifParamConnexion en client). Sans ce bouton, un rufus.ini correct pointant vers un
-        //! serveur/base disparu menait à une IMPASSE (on ne pouvait que reconstruire/restaurer
-        //! Rufus.ini). RestaurerBase=false : sans connexion, pas de restauration de base.
+        //! Toujours en échec (mot de passe non récupéré, ou échec NON-auth
         if (!errConnexion.isEmpty())
         {
             RecupererDemarrage(tr("Connexion à la base impossible"),
@@ -3466,32 +3422,19 @@ bool Procedures::Connexion_A_La_Base()
         }
     }
 
-    //! COHÉRENCE DE LA CONFIGURATION MySQL (MONOPOSTE uniquement). Vérification SILENCIEUSE et bon
-    //! marché de la config serveur (secure_file_priv, dossier partagé, client mysql) ; si une
-    //! anomalie est détectée, propose de la corriger (réutilise executerEtapesConfig, sans
-    //! réinstaller). RÉSERVÉ au monoposte : un client ne peut pas corriger le serveur — il défère
-    //! (comme pour la base endommagée et la version). No-op si tout est conforme.
+    //! COHÉRENCE DE LA CONFIGURATION MySQL (MONOPOSTE uniquement).
     MySQLInstaller().verifierEtReparerConfigMonoposte();
 
-    //! CLÉS SSL (MONOPOSTE) : le serveur rattrape des clés effacées, jamais récoltées ou expirées
-    //! (cas typique : ancien Rufus + MySQL 8 déjà présent → certificats auto-générés dans le datadir
-    //! mais jamais récoltés). Réextraction silencieuse si possible ; sinon, avertissement +
-    //! régénération destructive sur consentement (puis relance). No-op en réseau/distant.
+    //! CLÉS SSL (MONOPOSTE)
     MySQLInstaller().controlerClesSSLMonoposte();
 
-    //! ACCÈS DISTANT : avertir PROACTIVEMENT si les clés SSL approchent de l'expiration. Le serveur
-    //! (souvent dans une armoire, jamais utilisé pour Rufus) ne le verrait pas — c'est le poste
-    //! distant, utilisé chaque jour, qui doit prévenir avant que la connexion ne soit refusée.
+    //! ACCÈS DISTANT : avertir PROACTIVEMENT si les clés SSL approchent de l'expiration.
     MySQLInstaller().avertirExpirationClesSSLDistant();
 
-    //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi, mais la base est-elle
-    //! exploitable ? On sonde une table cœur (rufus.utilisateurs) via la connexion DÉJÀ ouverte —
-    //! vaut pour monoposte ET client (pas de client CLI localhost, contrairement à
-    //! baseRufusComplete). Une base ABSENTE aurait déjà fait échouer la connexion ci-dessus ; ici
-    //! on attrape le cas « base présente mais incomplète/endommagée » (tables manquantes).
+    //! COHÉRENCE DE LA BASE Rufus : la connexion au serveur a réussi
     {
         bool baseOk = false;
-        db->StandardSelectSQL("SELECT 1 FROM " TBL_UTILISATEURS " LIMIT 1", baseOk);
+        db->StandardSelectSQL("SELECT 1 FROM " TBL_UTILISATEURS " LIMIT 1", baseOk, "");
         if (!baseOk)
         {
             if (db->ModeAccesDataBase() == Utils::Poste)
@@ -3518,12 +3461,7 @@ bool Procedures::Connexion_A_La_Base()
     }
 
     //! Contrôle du socle MySQL : si version < 8.0.14 (cf. VERSION_MYSQL_MINI), on NE fait RIEN ici.
-    //! On MÉMORISE simplement le besoin de mise à jour : message et migration sont DIFFÉRÉS à APRÈS
-    //! l'affichage de la fenêtre Rufus (cf. ControleSocleMySQLApresAffichage(), appelée depuis
-    //! main.cpp après w.show()). Raison : la migration (sauvegarde → réinstall → restauration →
-    //! relance) est longue ; Rufus sait fonctionner en mode dégradé sur l'ancien MySQL, autant que
-    //! l'utilisateur le voie DÉJÀ ouvert avant de décider. La sécurisation ci-dessous, elle, reste
-    //! immédiate (elle n'attend pas le nouveau socle : elle pose l'aléatoire sur l'existant).
+    //! On MÉMORISE simplement le besoin de mise à jour
     m_socleMySQLAMettreAJour = !MySQLInstaller::socleMySQLConforme();
 
     //! Sécurisation : si la base est encore sur gaxt78iy, pose un aléatoire (en CONSERVANT gaxt78iy
@@ -5119,7 +5057,7 @@ void Procedures::ReparerIni()
                         + QObject::tr("est absent, ou ne contient pas de renseignement valide "
                                       "permettant la connexion à la base de données.") + "\n\n"
                         + QObject::tr("Ce fichier est indispensable au bon fonctionnement de l'application.") + "\n\n"
-                        + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois.") + "\n"
+                        + QObject::tr("Cette absence est normale si vous démarrez l'application pour la première fois sur ce poste.") + "\n"
                         + QObject::tr("Si c'est le cas, choisissez l'option \"%1\"") + "\n";
         msgInfo.replace("%1", bRevoir->text().replace('\n', ' '));
         if (sauvegardeOK)
