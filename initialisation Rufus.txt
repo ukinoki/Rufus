@@ -64,6 +64,7 @@ II LANCEMENT DE RUFUS
 	MessageBox avec
 	→ Titre
 		→ message " absence de fichier de configuration Rufus.ini ou fichier Rufus.ini corrompu"
+		cette absence est normale s...etc... (cf Procedures dans la martie intialisation)
 		s'il existe une copie de sauvegarde valide
 			→ message += "voulez vous restaurer la copie de sauvegarde?""			
 	→ bouton annuler → fermeture du programme
@@ -86,6 +87,7 @@ II LANCEMENT DE RUFUS
 					→ lit les infos de Rufus.ini
 					→ message "Rufus.ini reconstruit - poursuite du lancement"
 			→ Annuler revient à la fiche précédente
+	→ bouton Créer ou se connecter à une base patients → PremierDemarrage() 
 	
 2. rufus.ini paramétré correctement avec un ou plusieurs modes de connexion
 	1a . Monoposte
