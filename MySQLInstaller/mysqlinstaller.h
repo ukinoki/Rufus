@@ -314,9 +314,10 @@ private:
     MySQLRemoteConfig        fetchRemoteConfig();    /*!< config JSON distante -> repli sur défaut */
 
     /*! ── Helpers d'exécution ─────────────────────────────────────────────────────────────────────────── */
-    bool    askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
-    QString runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
-    QString runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
+    bool        askYesNo(const QString& title, const QString& text);     /*!< question Oui/Non (UpMessageBox::Question) */
+    QString     runCmd(const QString& cmd, int timeoutMs = 30000);       /*!< exécute une commande, renvoie sa sortie */
+    QString     runCmdFull(const QString& cmd, int timeoutMs = 30000);   /*!< comme runCmd, sortie complète (stdout + stderr) */
+    QStringList lignesResultat(const QString& sortie);                   /*!< lignes de DONNÉES d'une sortie mysql (sans « [Warning] … password … ») */
 
     /*! Exécute avec droits admin. stdinData (Linux) :
      *  passé sur l'entrée standard du processus élevé (ex. mot de passe smbpasswd)

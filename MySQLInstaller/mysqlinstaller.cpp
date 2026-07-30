@@ -1385,9 +1385,8 @@ void MySQLInstaller::effacerToutesBasesUtilisateur(const QString& adminLogin,
                 "\"SHOW DATABASES;\" 2>&1")
             .arg(mysqlBin("mysql"), adminLogin, adminMdp));
     QString sql;
-    for (const QString& line : out.split('\n', Qt::SkipEmptyParts)) {
-        const QString db = line.trimmed();
-        if (db.isEmpty() || db.startsWith("ERROR", Qt::CaseInsensitive))
+    for (const QString& db : lignesResultat(out)) {
+        if (db.startsWith("ERROR", Qt::CaseInsensitive))
             continue;
         if (db == "mysql" || db == "information_schema"
             || db == "performance_schema" || db == "sys")
@@ -3867,21 +3866,22 @@ bool MySQLInstaller::baseRufusComplete()
                 "\"SHOW DATABASES LIKE '%4';\" 2>&1")
             .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
     bool dbFound = false;
-    for (const QString& line : dbs.split('\n', Qt::SkipEmptyParts))
-        if (line.trimmed() == QString(DB_RUFUS)) { dbFound = true; break; }
+    for (const QString& l : lignesResultat(dbs))
+        if (l == QString(DB_RUFUS)) { dbFound = true; break; }
     if (!dbFound)
         return false;
 
-    /*! …et contient-elle au moins une table ? */
+    /*! …et contient-elle au moins une table ? On ne compte QUE de vraies lignes de résultat
+     *  (lignesResultat) : sans ce filtre, le « [Warning] Using a password… » du client faisait à lui seul
+     *  conclure « base complète » sur une base rufus VIDE — d'où un « Une base Rufus existe déjà » sur un
+     *  poste qui n'avait qu'un serveur MySQL et une install inachevée. */
     const QString tables = runCmdFull(
         QString("\"%1\" " LOCAL_TCP_ARGS " -u \"%2\" -p\"%3\" -N -B -e "
                 "\"SHOW TABLES FROM %4;\" 2>&1")
             .arg(mysqlBin("mysql"), QString(LOGIN_SQL), mdp, QString(DB_RUFUS)));
-    for (const QString& line : tables.split('\n', Qt::SkipEmptyParts)) {
-        const QString t = line.trimmed();
-        if (!t.isEmpty() && !t.startsWith("ERROR", Qt::CaseInsensitive))
+    for (const QString& t : lignesResultat(tables))
+        if (!t.startsWith("ERROR", Qt::CaseInsensitive))
             return true;
-    }
     return false;
 }
 
@@ -4455,6 +4455,31 @@ QString MySQLInstaller::runCmdFull(const QString& cmd, int timeoutMs)
     startShellProcess(p, cmd);
     waitProcessResponsive(p, timeoutMs);
     return p.readAllStandardOutput().trimmed();
+}
+
+/*!
+ * \brief MySQLInstaller::lignesResultat
+ * Lignes de DONNÉES d'une sortie du client mysql/mysqladmin (vides et bruit du client retirés).
+ * INDISPENSABLE dès qu'on traite les lignes comme des données (noms de bases, de tables…) : lancé avec
+ * -p<motdepasse>, le client imprime TOUJOURS « mysql: [Warning] Using a password on the command line
+ * interface can be insecure. », et runCmdFull fusionne stderr dans la sortie — cette ligne parasite se
+ * fait sinon passer pour un résultat.
+ * \param sortie  sortie brute de runCmdFull
+ */
+QStringList MySQLInstaller::lignesResultat(const QString& sortie)
+{
+    QStringList lignes;
+    for (const QString& ligne : sortie.split('\n', Qt::SkipEmptyParts)) {
+        const QString l = ligne.trimmed();
+        if (l.isEmpty())
+            continue;
+        /*! Diagnostics du client : toujours de la forme « <programme>: [Warning|ERROR|Note] … » — jamais
+         *  un nom de base ni de table. */
+        if (l.contains("[Warning]") || l.contains("[ERROR]") || l.contains("[Note]"))
+            continue;
+        lignes << l;
+    }
+    return lignes;
 }
 
 bool MySQLInstaller::runCmdElevated(const QString& cmd, const QString& stdinData)
