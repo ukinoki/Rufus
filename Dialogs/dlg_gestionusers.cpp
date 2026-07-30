@@ -818,12 +818,13 @@ void dlg_gestionusers::EnregistreUser()
                CP_NUMPS_USR " = null,\n "
                CP_DROITS_USR " = '" NEUTRE "',\n";
     QString secteur = "null";
-    QString Optam   = "1";
+    QString Optam   = "1";                          //! seul un médecin peut ne pas être OPTAM ; pour tout autre soignant, le conventionnel est le montant optam
     if ((ui->OPHupRadioButton->isChecked() ||(ui->AutreSoignantupRadioButton->isChecked() && ui->MedecincheckBox->isChecked()))
         && !ui->AssistantupRadioButton->isChecked() && !ui->ComptaRemplaupRadioButton->isChecked() && ui->CotationupRadioButton->isChecked())
     {
         if (db->parametres()->cotationsfrance())
         {
+            Optam = "null";                         //! un médecin n'est OPTAM que s'il l'a déclaré (hors France, il le reste par défaut)
             if (ui->Secteur1upRadioButton       ->isChecked())      secteur = "1";
             else if (ui->Secteur2upRadioButton  ->isChecked())      secteur = "2";
             else if (ui->Secteur3upRadioButton  ->isChecked())      secteur = "3";

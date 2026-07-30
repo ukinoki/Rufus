@@ -1617,7 +1617,7 @@ QJsonObject DataBase::loadUserData(int idUser)
     userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
     userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
     userData[CP_ISMEDECIN_USR]                      = (usrdata.at(26).toInt() ==1);
-    userData[CP_ISOPTAM_USR]                        = (m_parametres->cotationsfrance() || usrdata.at(27).toInt() == 1);
+    userData[CP_ISOPTAM_USR]                        = (!m_parametres->cotationsfrance() || usrdata.at(27).toInt() == 1);   //! hors France : OPTAM forcé, le conventionnel est le montant optam
     userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
     userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
     userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);
@@ -1704,7 +1704,7 @@ QList<User*> DataBase::loadUsers()
         userData[CP_IDEMPLOYEUR_USR]                    = usrdata.at(24).toInt();
         userData[CP_DATEDERNIERECONNEXION_USR]          = QDateTime(usrdata.at(25).toDate(), usrdata.at(25).toTime()).toMSecsSinceEpoch();
         userData[CP_ISMEDECIN_USR]                      = (usrdata.at(26).toInt() == 1);
-        userData[CP_ISOPTAM_USR]                        = (m_parametres->cotationsfrance() || usrdata.at(27).toInt() == 1);
+        userData[CP_ISOPTAM_USR]                        = (!m_parametres->cotationsfrance() || usrdata.at(27).toInt() == 1);   //! hors France : OPTAM forcé, le conventionnel est le montant optam
         userData[CP_DATECREATIONMDP_USR]                = usrdata.at(29).toDate().toString("yyyy-MM-dd");
         userData[CP_AFFICHEDOCSPUBLICS_USR]             = (usrdata.at(30).toInt() == 1);
         userData[CP_AFFICHECOMMENTSPUBLICS_USR]         = (usrdata.at(31).toInt() == 1);

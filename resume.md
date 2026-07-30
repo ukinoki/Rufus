@@ -25,12 +25,18 @@ Branche de travail : `RufusQt6`.
       porté par `Typecotation`. `Typeacte` est le code de l'acte : MySQL convertit `'BZLB001'` en 0, donc
       la map de référence ressort **vide** et tout le reste est invisible.
 
-### Décision d'architecture à trancher avant d'attaquer le reste
+### Décision d'architecture — TRANCHÉE : neutraliser à la source
 
-- [ ] Masquer l'interface **ne suffit pas** : `secteurconventionnel()`, `isOPTAM()`, `numPS()`,
-      `AMnumberforSite()` restent lus dans `procedures.cpp`, `cls_user.cpp`, `database.cpp`.
-      Deux voies : **neutraliser à la source** (les getters rendent une valeur neutre hors France) ou
-      **garder chaque point d'usage** (beaucoup plus de code). C'est le seul vrai choix du chantier.
+Masquer la case dans l'interface **et** fixer la valeur au chargement, dans `database.cpp`. Tout le
+reste en découle, sans garde à semer aux points d'usage. Appliqué à :
+
+- [x] **CMU** et **ALD** du patient — `loadSocialDataPatient` : `cotationsfrance() && valeurBase`,
+      donc false hors France. Neutralise du même coup le calcul du montant de `RetrouveMontantActe`
+      et l'affichage du dossier.
+- [x] **OPTAM** — `loadUserData` et `loadUsers` : `!cotationsfrance() || valeurBase`, donc forcé
+      hors France (le conventionnel est alors le montant optam). À l'enregistrement
+      (`dlg_gestionusers`), OPTAM vaut 1 pour tout soignant non médecin ; seul un médecin peut ne pas
+      l'être, et seulement en France.
 
 ### Points à traiter
 
@@ -43,8 +49,6 @@ Branche de travail : `RufusQt6`.
       (`rufus.cpp:439`). Le module (`lecteurvitale`, `fichevitale`) reste compilé mais inatteignable.
 - [ ] **NNI** — déborde les deux sites déjà gardés : `Utils::rgx_NNI` (`utils.cpp:59`, format INSEE en
       dur), affichage, impression, colonne DSP.
-- [ ] **CMU** — dispositif français, sert encore au calcul du montant : `rufus.cpp:4568`
-      (`RetrouveMontantActe`). L'affichage ALD/CMU de `rufus.cpp:7430` est déjà gardé.
 - [ ] **ALD** — spécificité française. Le décompte brut trompe : les points de **décision** sont déjà
       gardés, un seul trou reste.
     - déjà couvert : `rufus.cpp:8850` et `dlg_programmationinterventions.cpp:1689`
