@@ -2746,11 +2746,29 @@ bool MySQLInstaller::entretienComptesAdminrufusLAN(const QString& mdpCourant)
      *  '127.0.0.1' peuvent traîner d'une installation ancienne et feraient croire au bloc complet. */
     if (!Utils::hostsDuCompteSQL(ur).contains("10.%"))
     {
-        /*! Créés avec le mot de passe aléatoire qu'on a en main, et RIEN d'autre : aucun générique posé
-         *  ici — ce n'est pas le rôle de l'entretien. Un poste resté sur le générique se verra refuser
-         *  la connexion et suivra la fiche de récupération du mot de passe, qui est faite pour ça. */
+        /*! Le compte qu'on s'apprête à supprimer porte-t-il encore un 2e mot de passe — le générique ?
+         *  Si oui on le reconduit sur les comptes LAN, sinon un poste du cabinet qui n'a pas encore
+         *  l'aléatoire perdrait l'accès du jour au lendemain. Sinon (générique déjà purgé), l'aléatoire
+         *  seul : on ne le ressuscite pas. */
+        bool ok = false;
+        const QVariantList r = DataBase::I()->getFirstRecordFromStandardSelectSQL(
+            "SELECT User_attributes->>'$.additional_password' IS NOT NULL"
+            " FROM mysql.user WHERE User='" LOGIN_SQL "' AND Host='%'", ok);
+        const bool generiqueEncoreLa = ok && !r.isEmpty() && r.at(0).toInt() == 1;
+
         for (const QString& h : hostsLANprives())
-            exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, mdpCourant));
+        {
+            if (generiqueEncoreLa)
+            {
+                /*! Comptes NEUFS : le générique posé puis retenu en 2e ne réécrit rien d'existant, et ne
+                 *  déplace pas l'échéance de son effacement (elle se lit sur adminrufusSSL@'%', qu'on ne
+                 *  touche pas ici). */
+                exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, QString(MDP_SQL)));
+                exec(QString("ALTER USER '%1'@'%2' IDENTIFIED BY '%3' RETAIN CURRENT PASSWORD").arg(ur, h, mdpCourant));
+            }
+            else
+                exec(QString("CREATE USER IF NOT EXISTS '%1'@'%2' IDENTIFIED BY '%3'").arg(ur, h, mdpCourant));
+        }
     }
 
     /*! Privilèges redonnés à chaque passage : c'est par eux que revient SYSTEM_USER, qu'une version
